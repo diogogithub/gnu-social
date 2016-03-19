@@ -111,7 +111,14 @@ function is_twitter_bound($notice, $flink) {
         return false;
     }
 
-    $allowedVerbs = array(ActivityVerb::POST, ActivityVerb::SHARE);
+    $allowedVerbs = array(ActivityVerb::POST);
+
+    // Default behavior: always send repeats
+    if (empty($flink))
+        array_push($allowedVerbs, ActivityVerb::SHARE);
+    // Otherwise, check to see if repeats are allowed
+    else if (($flink->noticesync & FOREIGN_NOTICE_SEND_REPEAT) == FOREIGN_NOTICE_SEND_REPEAT)
+        array_push($allowedVerbs, ActivityVerb::SHARE);
 
     // Don't send things that aren't posts or repeats (at least for now)
     if (!in_array($notice->verb, $allowedVerbs)) {

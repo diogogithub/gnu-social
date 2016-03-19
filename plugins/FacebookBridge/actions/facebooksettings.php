@@ -213,7 +213,8 @@ class FacebooksettingsAction extends SettingsAction {
         $replysync  = $this->boolean('replysync');
 
         $original = clone($this->flink);
-        $this->flink->set_flags($noticesync, false, $replysync, false);
+	// TODO: Allow disabling of repeats
+        $this->flink->set_flags($noticesync, false, $replysync, true, false);
         $result = $this->flink->update($original);
 
         if ($result === false) {
