@@ -29,9 +29,9 @@ class RecoverpasswordAction extends Action
     var $msg = null;
     var $success = null;
 
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
         if (common_logged_in()) {
             // TRANS: Client error displayed trying to recover password while already logged in.
             $this->clientError(_('You are already logged in!'));

@@ -79,9 +79,9 @@ class FacebookfinishloginAction extends Action
         return true;
     }
 
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
 
         if (common_is_real_login()) {
 

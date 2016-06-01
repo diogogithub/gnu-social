@@ -121,7 +121,7 @@ class PluginEnableAction extends Action
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
         $key = 'disable-' . $this->plugin;
         Config::save('plugins', $key, $this->overrideValue());

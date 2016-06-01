@@ -57,9 +57,9 @@ class OpenidserverAction extends Action
         return true;
     }
 
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
         $request = $this->oserver->decodeRequest();
         if (in_array($request->mode, array('checkid_immediate',
             'checkid_setup'))) {

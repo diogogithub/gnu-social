@@ -359,9 +359,9 @@ class AutosubmitAction extends Action
     var $form_html = null;
     var $form_id = null;
 
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
         $this->showPage();
     }
 

@@ -110,9 +110,9 @@ class OtpAction extends Action
         return true;
     }
 
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
 
         // success!
         if (!common_set_user($this->user)) {

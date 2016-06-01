@@ -73,7 +73,7 @@ class FlagprofileAction extends ProfileFormAction
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->handlePost();

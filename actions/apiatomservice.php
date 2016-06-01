@@ -71,9 +71,9 @@ class ApiAtomServiceAction extends ApiBareAuthAction
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
 
         header('Content-Type: application/atomsvc+xml');
 

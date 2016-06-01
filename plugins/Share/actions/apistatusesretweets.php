@@ -89,9 +89,9 @@ class ApiStatusesRetweetsAction extends ApiAuthAction
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
 
         $strm = $this->original->repeatStream($this->cnt);
 

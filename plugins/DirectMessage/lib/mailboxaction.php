@@ -70,9 +70,9 @@ class MailboxAction extends Action
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
 
         if (!$this->user) {
             // TRANS: Client error displayed when trying to access a mailbox without providing a user.

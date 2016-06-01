@@ -83,7 +83,7 @@ class ProfiletagbyidAction extends Action
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
         common_redirect($this->peopletag->homeUrl(), 303);
     }

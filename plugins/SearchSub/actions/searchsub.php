@@ -118,7 +118,7 @@ class SearchsubAction extends Action
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
         // Throws exception on error
 

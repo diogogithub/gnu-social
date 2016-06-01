@@ -82,9 +82,9 @@ class RSSCloudRequestNotifyAction extends Action
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
 
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             // TRANS: Form validation error displayed when POST is not used.

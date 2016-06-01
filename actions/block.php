@@ -78,7 +78,7 @@ class BlockAction extends ProfileFormAction
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($this->arg('no')) {

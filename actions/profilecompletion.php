@@ -120,7 +120,7 @@ class ProfilecompletionAction extends Action
      * @return void
      */
 
-    function handle($args)
+    function handle()
     {
         $this->msg = null;
 

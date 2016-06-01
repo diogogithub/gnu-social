@@ -139,9 +139,9 @@ class ApprovegroupAction extends Action
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
 
         try {
             if ($this->approve) {

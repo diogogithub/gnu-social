@@ -135,9 +135,9 @@ class PeopletagsbyuserAction extends Action
         return true;
     }
 
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
 
 		# Post from the tag dropdown; redirect to a GET
 

@@ -73,9 +73,9 @@ class ApiAccountUpdateDeliveryDeviceAction extends ApiAuthAction
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
 
         if (!in_array($this->format, array('xml', 'json'))) {
             $this->clientError(

@@ -83,9 +83,9 @@ class ApiTimelineRetweetsOfMeAction extends ApiAuthAction
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
 
         $offset = ($this->page-1) * $this->cnt;
         $limit  = $this->cnt;

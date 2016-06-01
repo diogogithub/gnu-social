@@ -126,7 +126,7 @@ class RsdAction extends Action
      *
      * @return nothing
      */
-    function handle($args)
+    function handle()
     {
         header('Content-Type: application/rsd+xml');
 

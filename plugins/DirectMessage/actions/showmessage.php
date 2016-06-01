@@ -89,7 +89,7 @@ class ShowmessageAction extends Action
         return true;
     }
 
-    function handle($args)
+    function handle()
     {
         $this->showPage();
     }

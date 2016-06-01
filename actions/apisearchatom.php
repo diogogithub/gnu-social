@@ -128,9 +128,9 @@ class ApiSearchAtomAction extends ApiPrivateAuthAction
      *
      * @return void
      */
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
         common_debug("In apisearchatom handle()");
         $this->showAtom();
     }
