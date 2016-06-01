@@ -34,7 +34,7 @@ class PostvideoAction extends Action {
     var $user = null;
     var $url = null;
 
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
         $this->user = common_current_user();

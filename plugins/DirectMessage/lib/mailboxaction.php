@@ -46,7 +46,7 @@ class MailboxAction extends Action
 {
     var $page = null;
 
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
 

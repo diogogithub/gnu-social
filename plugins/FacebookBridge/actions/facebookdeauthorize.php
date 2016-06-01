@@ -48,7 +48,7 @@ class FacebookdeauthorizeAction extends Action
      *
      * @return boolean true
      */
-    function prepare($args)
+    function prepare(array $args = array())
     {
         $this->facebook = Facebookclient::getFacebook();
 

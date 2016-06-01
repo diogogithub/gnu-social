@@ -50,7 +50,7 @@ class RSSCloudRequestNotifyAction extends Action
      *
      * @return boolean false if user doesn't exist
      */
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
 

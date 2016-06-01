@@ -24,7 +24,7 @@ class SubeditAction extends Action
 {
     var $profile = null;
 
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
 

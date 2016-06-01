@@ -45,7 +45,7 @@ class ShortenAction extends Action
 {
     private $text;
 
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
         $this->groups=array();

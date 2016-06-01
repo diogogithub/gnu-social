@@ -51,7 +51,7 @@ class ProfileFormAction extends RedirectingAction
      *
      * @return boolean success flag
      */
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
 

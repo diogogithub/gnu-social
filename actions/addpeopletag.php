@@ -65,7 +65,7 @@ class AddpeopletagAction extends Action
      *
      * @return boolean success flag
      */
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
 

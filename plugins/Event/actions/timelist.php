@@ -42,7 +42,7 @@ class TimelistAction extends Action {
      *
      * @return boolean true
      */
-    function prepare($args) {
+    function prepare(array $args = array()) {
         parent::prepare($args);
         $this->start = $this->arg('start');
         $this->duration = $this->boolean('duration', false);

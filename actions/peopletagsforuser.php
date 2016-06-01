@@ -54,7 +54,7 @@ class PeopletagsforuserAction extends Action
         }
     }
 
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
 

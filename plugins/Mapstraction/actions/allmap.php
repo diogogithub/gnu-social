@@ -42,7 +42,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class AllmapAction extends MapAction
 {
-    function prepare($args)
+    function prepare(array $args = array())
     {
         if (parent::prepare($args)) {
             $stream = new InboxNoticeStream($this->user->getProfile(), $this->scoped);

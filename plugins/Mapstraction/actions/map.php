@@ -48,7 +48,7 @@ class MapAction extends Action
     var $page    = null;
     var $notices = null;
 
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
 

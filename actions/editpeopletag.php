@@ -60,7 +60,7 @@ class EditpeopletagAction extends Action
      * Prepare to run
      */
 
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
 

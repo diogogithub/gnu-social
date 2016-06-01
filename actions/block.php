@@ -53,7 +53,7 @@ class BlockAction extends ProfileFormAction
      *
      * @return boolean success flag
      */
-    function prepare($args)
+    function prepare(array $args = array())
     {
         if (!parent::prepare($args)) {
             return false;

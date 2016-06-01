@@ -50,7 +50,7 @@ class OpenidserverAction extends Action
 {
     var $oserver;
 
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
         $this->oserver = oid_server();

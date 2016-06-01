@@ -37,7 +37,7 @@ class FacebookfinishloginAction extends Action
     private $fbuser      = null; // Facebook user object (JSON)
     private $accessToken = null; // Access token provided by Facebook JS API
 
-    function prepare($args) {
+    function prepare(array $args = array()) {
         parent::prepare($args);
 
         // Check cookie for a valid access_token

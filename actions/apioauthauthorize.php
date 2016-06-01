@@ -60,7 +60,7 @@ class ApiOAuthAuthorizeAction extends ApiOAuthAction
         return false;
     }
 
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
 

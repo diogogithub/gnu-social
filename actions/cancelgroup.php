@@ -50,7 +50,7 @@ class CancelgroupAction extends Action
     /**
      * Prepare to run
      */
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
 

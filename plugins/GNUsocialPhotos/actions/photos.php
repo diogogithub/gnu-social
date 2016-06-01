@@ -38,7 +38,7 @@ class PhotosAction extends Action
 {
     var $user = null;
 
-    function prepare($args)
+    function prepare(array $args = array())
     {
         parent::prepare($args);
 
