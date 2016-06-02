@@ -393,7 +393,6 @@ class NoticeListItem extends Widget
      */
     function showNoticeLocation()
     {
-        return;
         try {
             $location = Notice_location::locFromStored($this->notice);
         } catch (NoResultException $e) {
