@@ -49,6 +49,20 @@ class AvatarsettingsAction extends SettingsAction
     var $imagefile = null;
     var $filename = null;
 
+    function prepare(array $args=array())
+    {
+        $avatarpath = Avatar::path('');
+
+        if (!is_writable($avatarpath)) {
+            throw new Exception(_("The administrator of your site needs to
+                add write permissions on the avatar upload folder before
+                you're able to set one."));
+        }
+
+        parent::prepare($args);
+        return true;
+    }
+
     /**
      * Title of the page
      *
