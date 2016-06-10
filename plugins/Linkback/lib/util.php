@@ -7,7 +7,7 @@ function linkback_lenient_target_match($body, $target) {
 function linkback_get_source($source, $target) {
     // Check if we are pinging ourselves and ignore
     $localprefix = common_config('site', 'server') . '/' . common_config('site', 'path');
-    if(linkback_lenient_target_match($source, $localprefix)) {
+    if(linkback_lenient_target_match($source, $localprefix) === 0) {
         common_debug('Ignoring self ping from ' . $source . ' to ' . $target);
         return NULL;
     }
@@ -22,7 +22,7 @@ function linkback_get_source($source, $target) {
 
     $body = htmlspecialchars_decode($response->getBody());
     // We're slightly more lenient in our link detection than the spec requires
-    if(!linkback_lenient_target_match($body, $target)) {
+    if(linkback_lenient_target_match($body, $target) === FALSE) {
         return NULL;
     }
 
@@ -56,7 +56,7 @@ function linkback_get_target($target) {
         }
         if(!$user) {
             preg_match('/\/([^\/\?#]+)(?:#.*)?$/', $response->getEffectiveUrl(), $match);
-            if(linkback_lenient_target_match(common_profile_url($match[1]), $response->getEffectiveUrl())) {
+            if(linkback_lenient_target_match(common_profile_url($match[1]), $response->getEffectiveUrl()) !== FALSE) {
                 $user = User::getKV('nickname', $match[1]);
             }
         }
@@ -70,7 +70,7 @@ function linkback_get_target($target) {
 
 function linkback_is_contained_in($entry, $target) {
     foreach ((array)$entry['properties'] as $key => $values) {
-        if(count(array_filter($values, function($x) use ($target) { return linkback_lenient_target_match($x, $target); })) > 0) {
+        if(count(array_filter($values, function($x) use ($target) { return linkback_lenient_target_match($x, $target) !== FALSE; })) > 0) {
             return $entry['properties'];
         }
 
@@ -79,7 +79,7 @@ function linkback_is_contained_in($entry, $target) {
             if(isset($obj['type']) && array_intersect(array('h-cite', 'h-entry'), $obj['type']) &&
                isset($obj['properties']) && isset($obj['properties']['url']) &&
                count(array_filter($obj['properties']['url'],
-                     function($x) use ($target) { return linkback_lenient_target_match($x, $target); })) > 0
+                     function($x) use ($target) { return linkback_lenient_target_match($x, $target) !== FALSE; })) > 0
             ) {
                 return $entry['properties'];
             }
@@ -130,7 +130,7 @@ function linkback_entry_type($entry, $mf2, $target) {
 
     if($mf2['rels'] && $mf2['rels']['in-reply-to']) {
         foreach($mf2['rels']['in-reply-to'] as $url) {
-            if(linkback_lenient_target_match($url, $target)) {
+            if(linkback_lenient_target_match($url, $target) !== FALSE) {
                 return 'reply';
             }
         }
@@ -144,7 +144,7 @@ function linkback_entry_type($entry, $mf2, $target) {
     );
 
     foreach((array)$entry as $key => $values) {
-        if(count(array_filter($values, function($x) use ($target) { return linkback_lenient_target_match($x, $target); })) > 0) {
+        if(count(array_filter($values, function($x) use ($target) { return linkback_lenient_target_match($x, $target) != FALSE; })) > 0) {
             if($classes[$key]) { return $classes[$key]; }
         }
 
@@ -152,7 +152,7 @@ function linkback_entry_type($entry, $mf2, $target) {
             if(isset($obj['type']) && array_intersect(array('h-cite', 'h-entry'), $obj['type']) &&
                isset($obj['properties']) && isset($obj['properties']['url']) &&
                count(array_filter($obj['properties']['url'],
-                     function($x) use ($target) { return linkback_lenient_target_match($x, $target); })) > 0
+                     function($x) use ($target) { return linkback_lenient_target_match($x, $target) != FALSE; })) > 0
             ) {
                 if($classes[$key]) { return $classes[$key]; }
             }
