@@ -281,8 +281,8 @@ function linkback_notice($source, $notice_or_user, $entry, $author, $mf2) {
 }
 
 function linkback_profile($entry, $mf2, $response, $target) {
-    if(isset($entry['properties']['author']) && isset($entry['properties']['author'][0]['properties'])) {
-        $author = $entry['properties']['author'][0]['properties'];
+    if(isset($entry['author']) && isset($entry['author'][0]['properties'])) {
+        $author = $entry['author'][0]['properties'];
     } else {
         $author = linkback_hcard($mf2, $response->getEffectiveUrl());
     }
