@@ -280,6 +280,39 @@ function linkback_notice($source, $notice_or_user, $entry, $author, $mf2) {
     return array($content, $options);
 }
 
+function linkback_avatar($profile, $url) {
+    // Ripped from OStatus plugin for now
+    $temp_filename = tempnam(sys_get_temp_dir(), 'linback_avatar');
+    try {
+        $imgData = HTTPClient::quickGet($url);
+        // Make sure it's at least an image file. ImageFile can do the rest.
+        if (false === getimagesizefromstring($imgData)) {
+            return false;
+        }
+        file_put_contents($temp_filename, $imgData);
+        unset($imgData);    // No need to carry this in memory.
+
+        $imagefile = new ImageFile(null, $temp_filename);
+        $filename = Avatar::filename($profile->id,
+                                     image_type_to_extension($imagefile->type),
+                                     null,
+                                     common_timestamp());
+        rename($temp_filename, Avatar::path($filename));
+    } catch (Exception $e) {
+        unlink($temp_filename);
+        throw $e;
+    }
+    // @todo FIXME: Hardcoded chmod is lame, but seems to be necessary to
+    // keep from accidentally saving images from command-line (queues)
+    // that can't be read from web server, which causes hard-to-notice
+    // problems later on:
+    //
+    // http://status.net/open-source/issues/2663
+    chmod(Avatar::path($filename), 0644);
+
+    $profile->setOriginal($filename);
+}
+
 function linkback_profile($entry, $mf2, $response, $target) {
     if(isset($entry['author']) && isset($entry['author'][0]['properties'])) {
         $author = $entry['author'][0]['properties'];
@@ -315,6 +348,10 @@ function linkback_profile($entry, $mf2, $response, $target) {
         $profile->nickname = isset($author['nickname']) ? $author['nickname'][0] : str_replace(' ', '', $author['name'][0]);
         $profile->created = common_sql_now();
         $profile->insert();
+
+        if($author['photo'] && $author['photo'][0]) {
+            linkback_avatar($profile, $author['photo'][0]);
+        }
     }
 
     return array($profile, $author);
