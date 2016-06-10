@@ -243,8 +243,8 @@ function linkback_notice($source, $notice_or_user, $entry, $author, $mf2) {
 
     if (isset($entry['published']) || isset($entry['updated'])) {
         $options['created'] = isset($entry['published'])
-                                ? common_sql_date($entry['published'][0])
-                                : common_sql_date($entry['updated'][0]);
+                                ? common_sql_date(strtotime($entry['published'][0]))
+                                : common_sql_date(strtotime($entry['updated'][0]));
     }
 
     if (isset($entry['photo']) && common_valid_http_url($entry['photo'])) {
