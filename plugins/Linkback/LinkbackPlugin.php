@@ -209,7 +209,7 @@ class LinkbackPlugin extends Plugin
                 $payload
             );
 
-            if(!in_array($response->getStatus(), array(200,202))) {
+            if(!in_array($response->getStatus(), array(200,201,202))) {
                 common_log(LOG_WARNING,
                            "Webmention request failed for '$url' ($endpoint)");
             }
