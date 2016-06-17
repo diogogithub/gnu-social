@@ -117,7 +117,7 @@ class DiasporaPlugin extends Plugin
          * aes-256-cbc cipher. I shall refer to this as the “inner key”
          * and the “inner initialization vector (iv)”.
          */
-        $inner_key = new Crypt_AES(CRYPT_AES_MODE_CBC);
+        $inner_key = new \phpseclib\Crypt\AES(\phpseclib\Crypt\AES::MODE_CBC);
         $inner_key->setKeyLength(256);  // set length to 256 bits (could be calculated, but let's be sure)
         $inner_key->setKey(common_random_rawstr(32));   // 32 bytes from a (pseudo) random source
         $inner_key->setIV(common_random_rawstr(16));    // 16 bytes is the block length
@@ -143,7 +143,7 @@ class DiasporaPlugin extends Plugin
          * for the aes-256-cbc cipher. I shall refer to this as the
          * “outer key” and the “outer initialization vector (iv)”.
          */
-        $outer_key = new Crypt_AES(CRYPT_AES_MODE_CBC);
+        $outer_key = new \phpseclib\Crypt\AES(\phpseclib\Crypt\AES::MODE_CBC);
         $outer_key->setKeyLength(256);  // set length to 256 bits (could be calculated, but let's be sure)
         $outer_key->setKey(common_random_rawstr(32));   // 32 bytes from a (pseudo) random source
         $outer_key->setIV(common_random_rawstr(16));    // 16 bytes is the block length
