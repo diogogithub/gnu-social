@@ -203,10 +203,10 @@ class Magicsig extends Managed_DataObject
         return strtolower(hash('sha256', $this->toString(false, false)));
     }
 
-    public function exportPublicKey($format=CRYPT_RSA_PUBLIC_FORMAT_PKCS1)
+    public function exportPublicKey($type='PKCS1')
     {
         $this->publicKey->setPublicKey();
-        return $this->publicKey->getPublicKey($format);
+        return $this->publicKey->getPublicKey($type);
     }
 
     /**
@@ -250,7 +250,6 @@ class Magicsig extends Managed_DataObject
     public function loadKey($mod, $exp, $type = 'public')
     {
         $rsa = new \phpseclib\Crypt\RSA();
-        $rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
         $rsa->setHash($this->getHash());
         $rsa->modulus = new Math_BigInteger(Magicsig::base64_url_decode($mod), 256);
         $rsa->k = strlen($rsa->modulus->toBytes());
@@ -266,7 +265,7 @@ class Magicsig extends Managed_DataObject
     public function loadPublicKeyPKCS1($key)
     {
         $rsa = new \phpseclib\Crypt\RSA();
-        if (!$rsa->setPublicKey($key, CRYPT_RSA_PUBLIC_FORMAT_PKCS1)) {
+        if (!$rsa->setPublicKey($key, 'PKCS1')) {
             throw new ServerException('Could not load PKCS1 public key. We probably got this from a remote Diaspora node as the profile public key.');
         }
         $this->publicKey = $rsa;
@@ -305,7 +304,7 @@ class Magicsig extends Managed_DataObject
      */
     public function sign($bytes)
     {
-        $sig = $this->privateKey->sign($bytes);
+        $sig = $this->privateKey->sign($bytes, \phpseclib\Crypt\RSA::PADDING_PKCS1);
         if ($sig === false) {
             throw new ServerException('Could not sign data');
         }
