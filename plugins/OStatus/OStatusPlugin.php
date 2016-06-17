@@ -28,8 +28,6 @@
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
-set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/extlib/phpseclib');
-
 class OStatusPlugin extends Plugin
 {
     /**
@@ -81,18 +79,6 @@ class OStatusPlugin extends Plugin
                     array('action' => 'peopletagsalmon'),
                     array('id' => '[0-9]+'));
         return true;
-    }
-
-    public function onAutoload($cls)
-    {
-        if (mb_substr($cls, 0, 10) === 'phpseclib\\') {
-            // These are saved under extlib/phpseclib with \ as /,
-            // phpseclib has already been added to our include_path
-            require_once str_replace('\\', '/', str_replace('phpseclib\\', '', $cls) . '.php');
-            return false;
-        }
-
-        return parent::onAutoload($cls);
     }
 
     /**
