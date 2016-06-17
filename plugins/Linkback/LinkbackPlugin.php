@@ -33,7 +33,7 @@ if (!defined('STATUSNET')) {
 
 require_once(__DIR__ . '/lib/util.php');
 
-define('LINKBACKPLUGIN_VERSION', '0.1');
+define('LINKBACKPLUGIN_VERSION', '0.2');
 
 /**
  * Plugin to do linkbacks for notices containing URLs
