@@ -106,7 +106,7 @@ class SpamAction extends Action
 
     function handle($argarray=null)
     {
-        parent::handle($args);
+        parent::handle();
 
         $this->showPage();
     }
