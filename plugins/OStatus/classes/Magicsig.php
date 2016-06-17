@@ -27,11 +27,7 @@
  * @link      http://status.net/
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
-
-require_once 'Crypt/RSA.php';
+if (!defined('GNUSOCIAL')) { exit(1); }
 
 class Magicsig extends Managed_DataObject
 {
@@ -251,9 +247,9 @@ class Magicsig extends Managed_DataObject
     {
         $rsa = new \phpseclib\Crypt\RSA();
         $rsa->setHash($this->getHash());
-        $rsa->modulus = new Math_BigInteger(Magicsig::base64_url_decode($mod), 256);
+        $rsa->modulus = new \phpseclib\Math\BigInteger(Magicsig::base64_url_decode($mod), 256);
         $rsa->k = strlen($rsa->modulus->toBytes());
-        $rsa->exponent = new Math_BigInteger(Magicsig::base64_url_decode($exp), 256);
+        $rsa->exponent = new \phpseclib\Math\BigInteger(Magicsig::base64_url_decode($exp), 256);
 
         if ($type == 'private') {
             $this->privateKey = $rsa;
