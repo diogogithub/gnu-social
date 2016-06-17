@@ -85,12 +85,10 @@ class OStatusPlugin extends Plugin
 
     public function onAutoload($cls)
     {
-        switch ($cls) {
-        case 'Crypt_AES':
-        case 'Crypt_RSA':
-            // Crypt_AES becomes Crypt/AES.php which is found in extlib/phpseclib/
-            // which has been added to our include_path before
-            require_once str_replace('_', '/', $cls) . '.php';
+        if (mb_substr($cls, 0, 10) === 'phpseclib\\') {
+            // These are saved under extlib/phpseclib with \ as /,
+            // phpseclib has already been added to our include_path
+            require_once str_replace('\\', '/', str_replace('phpseclib\\', '', $cls) . '.php');
             return false;
         }
 
