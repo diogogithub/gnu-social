@@ -395,10 +395,14 @@ function linkback_save($source, $target, $response, $notice_or_user) {
             try { $dupe->saveKnownTags($options['tags']); } catch (ServerException $ex) {}
             try { $dupe->saveKnownUrls($options['urls']); } catch (ServerException $ex) {}
 
-            if($options['reply_to']) { $dupe->reply_to = $options['reply_to']; }
-            if($options['repeat_of']) { $dupe->repeat_of = $options['repeat_of']; }
-            if($dupe->reply_to != $orig->reply_to || $dupe->repeat_of != $orig->repeat_of) {
-                $parent = Notice::getKV('id', $dupe->repost_of ? $dupe->repost_of : $dupe->reply_to);
+            if (isset($options['reply_to'])) {
+                $dupe->reply_to = $options['reply_to'];
+            }
+            if (isset($options['repeat_of'])) {
+                $dupe->repeat_of = $options['repeat_of'];
+            }
+            if ($dupe->reply_to != $orig->reply_to || $dupe->repeat_of != $orig->repeat_of) {
+                $parent = Notice::getKV('id', $dupe->repeat_of ?: $dupe->reply_to);
                 if($parent instanceof Notice) {
                     // If we changed the reply_to or repeat_of we might live in a new conversation now
                     $dupe->conversation = $parent->conversation;
