@@ -34,7 +34,6 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 addPlugin('OStatus');
 
 //Since Magicsig hasn't loaded yet
-require_once('Crypt/AES.php');
 
 class DiasporaPlugin extends Plugin
 {
@@ -46,7 +45,7 @@ class DiasporaPlugin extends Plugin
     {
         // So far we've only handled RSA keys, but it can change in the future,
         // so be prepared. And remember to change the statically assigned type attribute below!
-        assert($magicsig->publicKey instanceof Crypt_RSA);
+        assert($magicsig->publicKey instanceof \phpseclib\Crypt\RSA);
         $xrd->links[] = new XML_XRD_Element_Link(self::REL_PUBLIC_KEY,
                                     base64_encode($magicsig->exportPublicKey()), 'RSA');
 
