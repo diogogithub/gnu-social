@@ -43,7 +43,7 @@ class SalmonAction extends Action
 
         if (!isset($_SERVER['CONTENT_TYPE'])) {
             // TRANS: Client error. Do not translate "Content-type"
-            $this->clientError(_m('Salmon requires a Content-type header.'));
+            throw new ClientException(_m('Salmon requires a Content-type header.'));
         }
         $envxml = null;
         switch ($_SERVER['CONTENT_TYPE']) {
