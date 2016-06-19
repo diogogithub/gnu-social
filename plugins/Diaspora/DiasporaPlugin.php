@@ -33,8 +33,6 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 // Depends on OStatus of course.
 addPlugin('OStatus');
 
-//Since Magicsig hasn't loaded yet
-
 class DiasporaPlugin extends Plugin
 {
     const REL_SEED_LOCATION = 'http://joindiaspora.com/seed_location';
