@@ -79,7 +79,7 @@ class DiasporaPlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Diaspora',
-                            'version' => '0.1',
+                            'version' => '0.2',
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/social',
                             // TRANS: Plugin description.
