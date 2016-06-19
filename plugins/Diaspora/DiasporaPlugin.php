@@ -150,7 +150,7 @@ class DiasporaPlugin extends Plugin
          * and “outer iv” (using the aes-256-cbc cipher). This encrypted
          * blob shall be referred to as “the ciphertext”. 
          */
-        $ciphertext = $outer_key->encrypt($decrypted_header);
+        $ciphertext = $outer_key->encrypt($decrypted_header, \phpseclib\Crypt\RSA::PADDING_PKCS1);
 
         /**
          * Construct the following JSON object, which shall be referred to
@@ -171,7 +171,7 @@ class DiasporaPlugin extends Plugin
         common_debug('Diaspora creating "outer aes key bundle", will require magic-public-key');
         $key_fetcher = new MagicEnvelope();
         $remote_keys = $key_fetcher->getKeyPair($target, true); // actually just gets the public key
-        $enc_outer = $remote_keys->publicKey->encrypt($outer_bundle);
+        $enc_outer = $remote_keys->publicKey->encrypt($outer_bundle, \phpseclib\Crypt\RSA::PADDING_PKCS1);
 
         /**
          * Construct the following JSON object, which I shall refer to as
@@ -201,7 +201,7 @@ class DiasporaPlugin extends Plugin
          *      chose earlier.
          * 2. Base64-encode the encrypted payload message.
          */
-        $payload = $inner_key->encrypt($magic_env->getData());
+        $payload = $inner_key->encrypt($magic_env->getData(), \phpseclib\Crypt\RSA::PADDING_PKCS1);
         //FIXME: This means we don't actually put an <atom:entry> in the payload,
         // since Diaspora has its own update method! Silly me. Read up on:
         // https://wiki.diasporafoundation.org/Federation_Message_Semantics
