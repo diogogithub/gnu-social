@@ -33,7 +33,7 @@ if (!defined('STATUSNET')) {
 
 require_once(__DIR__ . '/lib/util.php');
 
-define('LINKBACKPLUGIN_VERSION', '0.1');
+define('LINKBACKPLUGIN_VERSION', '0.2');
 
 /**
  * Plugin to do linkbacks for notices containing URLs
@@ -101,14 +101,28 @@ class LinkbackPlugin extends Plugin
         return true;
     }
 
+    function unparse_url($parsed_url)
+    {
+       $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+       $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+       $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+       $user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+       $pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+       $pass     = ($user || $pass) ? "$pass@" : '';
+       $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+       $query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+       $fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+       return "$scheme$user$pass$host$port$path$query$fragment";
+    }
+
     function linkbackUrl($url)
     {
         common_log(LOG_DEBUG,"Attempting linkback for " . $url);
 
         $orig = $url;
         $url = htmlspecialchars_decode($orig);
-        $scheme = parse_url($url, PHP_URL_SCHEME);
-        if (!in_array($scheme, array('http', 'https'))) {
+        $base = parse_url($url);
+        if (!in_array($base['scheme'], array('http', 'https'))) {
             return $orig;
         }
 
@@ -126,13 +140,17 @@ class LinkbackPlugin extends Plugin
             return $orig;
         }
 
-        // XXX: Should handle relative-URI resolution in these detections
-
         $wm = $this->getWebmention($response);
-        if(!empty($wm)) {
+        if(!is_null($wm)) {
+            $wm = parse_url($wm);
+            if(!$wm) $wm = array();
+            if(!$wm['host']) $wm['host'] = $base['host'];
+            if(!$wm['scheme']) $wm['scheme'] = $base['scheme'];
+            if(!$wm['path']) $wm['path'] = $base['path'];
+
             // It is the webmention receiver's job to resolve source
             // Ref: https://github.com/converspace/webmention/issues/43
-            $this->webmention($url, $wm);
+            $this->webmention($url, $this->unparse_url($wm));
         } else {
             $pb = $this->getPingback($response);
             if (!empty($pb)) {
@@ -156,25 +174,25 @@ class LinkbackPlugin extends Plugin
         $link = $response->getHeader('Link');
         if (!is_null($link)) {
             // XXX: the fetcher gives back a comma-separated string of all Link headers, I hope the parsing works reliably
-            if (preg_match('~<((?:https?://)?[^>]+)>; rel="webmention"~', $link, $match)) {
-                return $match[1];
-            } elseif (preg_match('~<((?:https?://)?[^>]+)>; rel="http://webmention.org/?"~', $link, $match)) {
+            if (preg_match('~<([^>]+)>; rel="?(?:[^" ]* )*(?:http://webmention.org/|webmention)(?: [^" ]*)*"?~', $link, $match)) {
                 return $match[1];
             }
         }
 
         // FIXME: Do proper DOM traversal
-        if(preg_match('/<(?:link|a)[ ]+href="([^"]+)"[ ]+rel="[^" ]* ?webmention ?[^" ]*"[ ]*\/?>/i', $response->getBody(), $match)
-                || preg_match('/<(?:link|a)[ ]+rel="[^" ]* ?webmention ?[^" ]*"[ ]+href="([^"]+)"[ ]*\/?>/i', $response->getBody(), $match)) {
-            return $match[1];
-        } elseif (preg_match('/<(?:link|a)[ ]+href="([^"]+)"[ ]+rel="http:\/\/webmention\.org\/?"[ ]*\/?>/i', $response->getBody(), $match)
-                || preg_match('/<(?:link|a)[ ]+rel="http:\/\/webmention\.org\/?"[ ]+href="([^"]+)"[ ]*\/?>/i', $response->getBody(), $match)) {
+        // Currently fails https://webmention.rocks/test/13, https://webmention.rocks/test/17
+        if(preg_match('~<(?:link|a)[ ]+href="([^"]*)"[ ]+rel="(?:[^" ]* )*(?:http://webmention.org/|webmention)(?: [^" ]*)*"[ ]*/?>~i', $response->getBody(), $match)
+                || preg_match('~<(?:link|a)[ ]+rel="(?:[^" ]* )*(?:http://webmention.org/|webmention)(?: [^" ]*)*"[ ]+href="([^"]*)"[ ]*/?>~i', $response->getBody(), $match)) {
             return $match[1];
         }
+
+        return NULL;
     }
 
     function webmention($url, $endpoint) {
         $source = $this->notice->getUrl();
+
+        common_log(LOG_DEBUG,"Attempting webmention to $endpoint for $url from $source");
 
         $payload = array(
             'source' => $source,
@@ -191,7 +209,7 @@ class LinkbackPlugin extends Plugin
                 $payload
             );
 
-            if(!in_array($response->getStatus(), array(200,202))) {
+            if(!in_array($response->getStatus(), array(200,201,202))) {
                 common_log(LOG_WARNING,
                            "Webmention request failed for '$url' ($endpoint)");
             }

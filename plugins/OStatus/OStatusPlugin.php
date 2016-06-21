@@ -28,8 +28,6 @@
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
-set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/extlib/phpseclib');
-
 class OStatusPlugin extends Plugin
 {
     /**
@@ -81,20 +79,6 @@ class OStatusPlugin extends Plugin
                     array('action' => 'peopletagsalmon'),
                     array('id' => '[0-9]+'));
         return true;
-    }
-
-    public function onAutoload($cls)
-    {
-        switch ($cls) {
-        case 'Crypt_AES':
-        case 'Crypt_RSA':
-            // Crypt_AES becomes Crypt/AES.php which is found in extlib/phpseclib/
-            // which has been added to our include_path before
-            require_once str_replace('_', '/', $cls) . '.php';
-            return false;
-        }
-
-        return parent::onAutoload($cls);
     }
 
     /**

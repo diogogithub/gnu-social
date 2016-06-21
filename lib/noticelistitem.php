@@ -179,8 +179,9 @@ class NoticeListItem extends Widget
     function showNoticeTitle()
     {
         if (Event::handle('StartShowNoticeTitle', array($this))) {
+            $nameClass = $this->notice->getTitle(false) ? 'p-name ' : '';
             $this->element('a', array('href' => $this->notice->getUri(),
-                                      'class' => 'p-name u-uid'),
+                                      'class' => $nameClass . 'u-uid'),
                            $this->notice->getTitle());
             Event::handle('EndShowNoticeTitle', array($this));
         }
@@ -348,7 +349,8 @@ class NoticeListItem extends Widget
     function showContent()
     {
         // FIXME: URL, image, video, audio
-        $this->out->elementStart('article', array('class' => 'e-content'));
+        $nameClass = $this->notice->getTitle(false) ? '' : 'p-name ';
+        $this->out->elementStart('article', array('class' => $nameClass . 'e-content'));
         if (Event::handle('StartShowNoticeContent', array($this->notice, $this->out, $this->out->getScoped()))) {
             if ($this->maxchars > 0 && mb_strlen($this->notice->content) > $this->maxchars) {
                 $this->out->text(mb_substr($this->notice->content, 0, $this->maxchars) . '[…]');
@@ -393,7 +395,6 @@ class NoticeListItem extends Widget
      */
     function showNoticeLocation()
     {
-        return;
         try {
             $location = Notice_location::locFromStored($this->notice);
         } catch (NoResultException $e) {
