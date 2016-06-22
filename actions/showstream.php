@@ -215,7 +215,7 @@ class ShowstreamAction extends NoticestreamAction
 
     function showNotices()
     {
-        $pnl = new NoticeList($this->notice, $this);
+        $pnl = new PrimaryNoticeList($this->notice, $this);
         $cnt = $pnl->show();
         if (0 == $cnt) {
             $this->showEmptyListMessage();
