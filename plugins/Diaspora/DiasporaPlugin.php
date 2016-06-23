@@ -225,7 +225,12 @@ class DiasporaPlugin extends Plugin
 
     public function onSalmonSlap($endpoint_uri, MagicEnvelope $magic_env, Profile $target=null)
     {
-        $envxml = $magic_env->toXML($target, 'diaspora');
+        try {
+            $envxml = $magic_env->toXML($target, 'diaspora');
+        } catch (Exception $e) {
+            common_log(LOG_ERR, sprintf('Could not generate Magic Envelope XML (diaspora flavour) for profile id=='.$target->getID().': '.$e->getMessage()));
+            return false;
+        }
 
         // Diaspora wants another POST format (base64url-encoded POST variable 'xml')
         $headers = array('Content-Type: application/x-www-form-urlencoded');

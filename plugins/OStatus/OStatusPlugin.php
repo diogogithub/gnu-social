@@ -1407,7 +1407,12 @@ class OStatusPlugin extends Plugin
 
     public function onSalmonSlap($endpoint_uri, MagicEnvelope $magic_env, Profile $target=null)
     {
-        $envxml = $magic_env->toXML($target);
+        try {
+            $envxml = $magic_env->toXML($target);
+        } catch (Exception $e) {
+            common_log(LOG_ERR, sprintf('Could not generate Magic Envelope XML for profile id=='.$target->getID().': '.$e->getMessage()));
+            return false;
+        }
 
         $headers = array('Content-Type: application/magic-envelope+xml');
 
