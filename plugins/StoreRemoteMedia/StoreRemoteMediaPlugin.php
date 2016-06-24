@@ -18,6 +18,8 @@ class StoreRemoteMediaPlugin extends Plugin
     public $domain_blacklist = array();
     public $check_blacklist = false;
 
+    public $max_image_bytes = 5242880;  // 5MiB max image size by default
+
     protected $imgData = array();
 
     // these should be declared protected everywhere
@@ -103,16 +105,20 @@ class StoreRemoteMediaPlugin extends Plugin
                 // file size not specified on remote server
                 common_debug(sprintf('%s: Ignoring remote media because we did not get a content length for file id==%u', __CLASS__, $file->getID()));
                 return true;
+            } elseif ($filesize > $this->max_image_bytes) {
+                //FIXME: When we perhaps start fetching videos etc. we'll need to differentiate max_image_bytes from that...
+                // file too big according to plugin configuration
+                common_debug(sprintf('%s: Skipping remote media because content length (%u) is larger than plugin configured max_image_bytes (%u) for file id==%u', __CLASS__, intval($filesize), $this->max_image_bytes, $file->getID()));
+                return true;
             } elseif ($filesize > common_config('attachments', 'file_quota')) {
-                // file too big
+                // file too big according to site configuration
                 common_debug(sprintf('%s: Skipping remote media because content length (%u) is larger than file_quota (%u) for file id==%u', __CLASS__, intval($filesize), common_config('attachments', 'file_quota'), $file->getID()));
                 return true;
             }
 
-            $http = new HTTPClient();
             // Then we download the file to memory and test whether it's actually an image file
             common_debug(sprintf('Downloading remote file id==%u (should be size %u) with effective URL: %s', $file->getID(), $filesize, _ve($remoteUrl)));
-            $imgData = $http->get($remoteUrl);
+            $imgData = HTTPClient::quickGet($remoteUrl);
         } catch (HTTP_Request2_ConnectionException $e) {
             common_log(LOG_ERR, __CLASS__.': quickGet on URL: '._ve($file->getUrl()).' threw exception: '.$e->getMessage());
             return true;
