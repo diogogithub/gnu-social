@@ -207,6 +207,29 @@ class HTTPClient extends HTTP_Request2
     }
 
     /**
+     * If you want an Accept header, put it in $headers
+     */
+    public static function quickHead($url, array $params=array(), array $headers=array())
+    {
+        if (!empty($params)) {
+            $params = http_build_query($params, null, '&');
+            if (strpos($url, '?') === false) {
+                $url .= '?' . $params;
+            } else {
+                $url .= '&' . $params;
+            }
+        }
+
+        $client = new HTTPClient();
+        $response = $client->head($url, $headers);
+        if (!$response->isOk()) {
+            // TRANS: Exception. %s is the URL we tried to GET.
+            throw new Exception(sprintf(_m('Could not GET URL %s.'), $url), $response->getStatus());
+        }
+        return $response->getHeader();
+    }
+
+    /**
      * Convenience function to run a GET request.
      *
      * @return GNUsocial_HTTPResponse
