@@ -263,6 +263,11 @@ class File extends Managed_DataObject
         return self::tryFilename($this->filename);
     }
 
+    public function getSize()
+    {
+        return intval($this->size);
+    }
+
     // where should the file go?
 
     static function filename(Profile $profile, $origname, $mimetype)
