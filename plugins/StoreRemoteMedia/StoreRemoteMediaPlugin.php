@@ -18,6 +18,8 @@ class StoreRemoteMediaPlugin extends Plugin
     public $domain_blacklist = array();
     public $check_blacklist = false;
 
+    public $max_image_bytes = 5242880;  // 5MiB max image size by default
+
     protected $imgData = array();
 
     // these should be declared protected everywhere
@@ -77,22 +79,53 @@ class StoreRemoteMediaPlugin extends Plugin
             return true;
         }
 
-        if (!$this->checkWhiteList($file->getUrl()) ||
-            !$this->checkBlackList($file->getUrl())) {
+        $remoteUrl = $file->getUrl();
+
+        if (!$this->checkWhiteList($remoteUrl) ||
+            !$this->checkBlackList($remoteUrl)) {
 		    return true;
         }
 
-        // First we download the file to memory and test whether it's actually an image file
-        common_debug(sprintf('Downloading remote file id==%u with URL: %s', $file->getID(), _ve($file->getUrl())));
         try {
-            $imgData = HTTPClient::quickGet($file->getUrl());
+            /*
+            $http = new HTTPClient();
+            common_debug(sprintf('Performing HEAD request for remote file id==%u to avoid unnecessarily downloading too large files. URL: %s', $file->getID(), $remoteUrl));
+            $head = $http->head($remoteUrl);
+            $remoteUrl = $head->effectiveUrl;   // to avoid going through redirects again
+            if (!$this->checkBlackList($remoteUrl)) {
+                common_log(LOG_WARN, sprintf('%s: Non-blacklisted URL %s redirected to blacklisted URL %s', __CLASS__, $file->getUrl(), $remoteUrl));
+                return true;
+            }
+
+            $headers = $head->getHeader();
+            $filesize = isset($headers['content-length']) ? $headers['content-length'] : null;
+            */
+            $filesize = $file->getSize();
+            if (empty($filesize)) {
+                // file size not specified on remote server
+                common_debug(sprintf('%s: Ignoring remote media because we did not get a content length for file id==%u', __CLASS__, $file->getID()));
+                return true;
+            } elseif ($filesize > $this->max_image_bytes) {
+                //FIXME: When we perhaps start fetching videos etc. we'll need to differentiate max_image_bytes from that...
+                // file too big according to plugin configuration
+                common_debug(sprintf('%s: Skipping remote media because content length (%u) is larger than plugin configured max_image_bytes (%u) for file id==%u', __CLASS__, intval($filesize), $this->max_image_bytes, $file->getID()));
+                return true;
+            } elseif ($filesize > common_config('attachments', 'file_quota')) {
+                // file too big according to site configuration
+                common_debug(sprintf('%s: Skipping remote media because content length (%u) is larger than file_quota (%u) for file id==%u', __CLASS__, intval($filesize), common_config('attachments', 'file_quota'), $file->getID()));
+                return true;
+            }
+
+            // Then we download the file to memory and test whether it's actually an image file
+            common_debug(sprintf('Downloading remote file id==%u (should be size %u) with effective URL: %s', $file->getID(), $filesize, _ve($remoteUrl)));
+            $imgData = HTTPClient::quickGet($remoteUrl);
         } catch (HTTP_Request2_ConnectionException $e) {
             common_log(LOG_ERR, __CLASS__.': quickGet on URL: '._ve($file->getUrl()).' threw exception: '.$e->getMessage());
             return true;
         }
         $info = @getimagesizefromstring($imgData);
         if ($info === false) {
-            throw new UnsupportedMediaException(_('Remote file format was not identified as an image.'), $file->getUrl());
+            throw new UnsupportedMediaException(_('Remote file format was not identified as an image.'), $remoteUrl);
         } elseif (!$info[0] || !$info[1]) {
             throw new UnsupportedMediaException(_('Image file had impossible geometry (0 width or height)'));
         }

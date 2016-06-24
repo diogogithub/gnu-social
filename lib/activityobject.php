@@ -28,9 +28,7 @@
  * @link      http://status.net/
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+if (!defined('GNUSOCIAL')) { exit(1); }
 
 require_once(INSTALLDIR.'/lib/activitystreamjsondocument.php');
 
@@ -268,6 +266,22 @@ class ActivityObject
 
         if (empty($this->id) && !empty($this->link)) { // fallback if there's no ID
             $this->id = $this->link;
+        }
+
+        $els = $element->childNodes;
+        $out = array();
+
+        for ($i = 0; $i < $els->length; $i++) {
+            $link = $els->item($i);
+            if ($link->localName == ActivityUtils::LINK && $link->namespaceURI == ActivityUtils::ATOM) {
+                $attrs = array();
+                foreach ($link->attributes as $attrName=>$attrNode) {
+                    $attrs[$attrName] = $attrNode->nodeValue;
+                }
+                $this->extra[] = [$link->localName,
+                                    $attrs,
+                                    $link->nodeValue];
+            }
         }
     }
 

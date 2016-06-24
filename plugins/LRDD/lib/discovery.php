@@ -99,7 +99,7 @@ class Discovery
 
                 common_debug("LRDD discovery method for '$uri': {$class}");
                 $lrdd = new $class;
-                $links = call_user_func(array($lrdd, 'discover'), $uri);
+                $links = $lrdd->discover($uri);
                 $link = Discovery::getService($links, Discovery::LRDD_REL);
 
                 // Load the LRDD XRD
