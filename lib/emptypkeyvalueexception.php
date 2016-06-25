@@ -29,10 +29,13 @@
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
-class EmptyIdException extends ServerException
+class EmptyPkeyValueException extends ServerException
 {
-    public function __construct($called_class)
+    public function __construct($called_class, $key=null)
     {
-        parent::__construct(sprintf(_('Empty ID value was given to query for a "%s" object'), $called_class));
+        // FIXME: translate the 'not specified' case?
+        parent::__construct(sprintf(_('Empty primary key (%1$s) value was given to query for a "%2$s" object'),
+                                        is_null($key) ? 'not specified' : _ve($key),
+                                        $called_class));
     }
 }

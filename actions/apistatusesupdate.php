@@ -174,7 +174,7 @@ class ApiStatusesUpdateAction extends ApiAuthAction
             foreach (array_unique($matches[0]) as $match) {
                 try {
                     $this->media_ids[$match] = File::getByID($match);
-                } catch (EmptyIdException $e) {
+                } catch (EmptyPkeyValueException $e) {
                     // got a zero from the client, at least Twidere does this on occasion
                 } catch (NoResultException $e) {
                     // File ID was not found. Do we abort and report to the client?

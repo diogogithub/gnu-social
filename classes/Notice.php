@@ -2683,7 +2683,7 @@ class Notice extends Managed_DataObject
     public static function getAsTimestamp($id)
     {
         if (empty($id)) {
-            throw new EmptyIdException('Notice');
+            throw new EmptyPkeyValueException('Notice', 'id');
         }
 
         $timestamp = null;
