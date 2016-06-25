@@ -157,10 +157,10 @@ class Magicsig extends Managed_DataObject
         $keypair = $rsa->createKey($bits);
 
         $magicsig->privateKey = new \phpseclib\Crypt\RSA();
-        $magicsig->privateKey->loadKey($keypair['privatekey']);
+        $magicsig->privateKey->load($keypair['privatekey']);
 
         $magicsig->publicKey = new \phpseclib\Crypt\RSA();
-        $magicsig->publicKey->loadKey($keypair['publickey']);
+        $magicsig->publicKey->load($keypair['publickey']);
 
         $magicsig->insert();        // will do $this->keypair = $this->toString(true);
         $magicsig->importKeys();    // seems it's necessary to re-read keys from text keypair
@@ -316,7 +316,7 @@ class Magicsig extends Managed_DataObject
     public function verify($signed_bytes, $signature)
     {
         $signature = self::base64_url_decode($signature);
-        return $this->publicKey->verify($signed_bytes, $signature);
+        return $this->publicKey->verify($signed_bytes, $signature, \phpseclib\Crypt\RSA::PADDING_PKCS1);
     }
 
     /**
