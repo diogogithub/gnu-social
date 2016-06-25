@@ -31,6 +31,8 @@ class SalmonAction extends Action
     protected $oprofile = null; // Ostatus_profile of the actor
     protected $actor    = null; // Profile object of the actor
 
+    var $format   = 'text'; // error messages will be printed in plaintext
+
     var $xml      = null;
     var $activity = null;
     var $target   = null;
