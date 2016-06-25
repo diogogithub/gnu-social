@@ -336,16 +336,6 @@ class Notice extends Managed_DataObject
         }
     }
 
-    public static function getByUri($uri)
-    {
-        $notice = new Notice();
-        $notice->uri = $uri;
-        if (!$notice->find(true)) {
-            throw new NoResultException($notice);
-        }
-        return $notice;
-    }
-
     /**
      * Extract #hashtags from this notice's content and save them to the database.
      */
