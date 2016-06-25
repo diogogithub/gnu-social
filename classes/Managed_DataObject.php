@@ -383,12 +383,33 @@ abstract class Managed_DataObject extends Memcached_DataObject
 
     static function getByID($id)
     {
+        if (!property_exists(get_called_class(), 'id')) {
+            throw new ServerException('Trying to get undefined property of dataobject class.');
+        }
         if (empty($id)) {
             throw new EmptyPkeyValueException(get_called_class(), 'id');
         }
         // getByPK throws exception if id is null
         // or if the class does not have a single 'id' column as primary key
         return static::getByPK(array('id' => $id));
+    }
+
+    static function getByUri($uri)
+    {
+        if (!property_exists(get_called_class(), 'uri')) {
+            throw new ServerException('Trying to get undefined property of dataobject class.');
+        }
+        if (empty($uri)) {
+            throw new EmptyPkeyValueException(get_called_class(), 'uri');
+        }
+
+        $class = get_called_class();
+        $obj = new $class();
+        $obj->uri = $uri;
+        if (!$obj->find(true)) {
+            throw new NoResultException($obj);
+        }
+        return $obj;
     }
 
     /**
