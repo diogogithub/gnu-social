@@ -1315,6 +1315,12 @@ class OStatusPlugin extends Plugin
     {
         if ($target->getObjectType() === ActivityObject::PERSON) {
             $this->addWebFingerPersonLinks($xrd, $target);
+        } elseif ($target->getObjectType() === ActivityObject::GROUP) {
+            $xrd->links[] = new XML_XRD_Element_Link(Discovery::UPDATESFROM,
+                            common_local_url('ApiTimelineGroup',
+                                array('id' => $target->getGroup()->getID(), 'format' => 'atom')),
+                            'application/atom+xml');
+
         }
 
         // Salmon
