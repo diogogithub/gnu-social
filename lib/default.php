@@ -64,6 +64,9 @@ $default =
               'notice' => null, // site wide notice text
               'build' => 1, // build number, for code-dependent cache
               ),
+        'security' =>
+        array('hash_algos' => ['sha1', 'sha256', 'sha512'],   // set to null for anything that hash_hmac() can handle (and is in hash_algos())
+        ),
         'db' =>
           array('database' => null, // must be set
               'schema_location' => INSTALLDIR . '/classes',
