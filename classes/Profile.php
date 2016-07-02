@@ -94,7 +94,7 @@ class Profile extends Managed_DataObject
                 throw new NoSuchUserException(array('id'=>$this->id));
             }
             $cur_user = common_current_user();
-            if ($user->id === $cur_user->id) {
+            if (($cur_user instanceof User) && $cur_user->sameAS($this)) {
                 $user = $cur_user;
             }
             $this->_user[$this->id] = $user;
