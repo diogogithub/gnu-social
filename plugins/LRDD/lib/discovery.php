@@ -125,6 +125,7 @@ class Discovery
                 $xrd->loadString($response->getBody());
                 return $xrd;
             } catch (Exception $e) {
+                common_log(LOG_INFO, sprintf('%s: Failed for %s: %s', _ve($class), _ve($uri), _ve($e->getMessage())));
                 continue;
             }
         }
