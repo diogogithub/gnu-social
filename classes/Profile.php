@@ -90,7 +90,7 @@ class Profile extends Managed_DataObject
     {
         if (!isset($this->_user[$this->id])) {
             $cur_user = common_current_user();
-            if (($cur_user instanceof User) && $cur_user->sameAS($this)) {
+            if (($cur_user instanceof User) && $cur_user->sameAs($this)) {
                 $user = $cur_user;
             } else {
                 $user = User::getKV('id', $this->id);
