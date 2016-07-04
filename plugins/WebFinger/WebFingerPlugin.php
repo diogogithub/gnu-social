@@ -140,6 +140,20 @@ class WebFingerPlugin extends Plugin
                 throw $e;
             }
 
+            try {
+                common_debug(__METHOD__.': Finding User_group URI for WebFinger lookup on resource=='._ve($resource));
+                $group = new User_group();
+                $group->whereAddIn('uri', array_keys($alt_urls), $group->columnType('uri'));
+                $group->limit(1);
+                if ($group->find(true)) {
+                    $profile = $group->getProfile();
+                }
+                unset($group);
+            } catch (Exception $e) {
+                common_log(LOG_ERR, get_class($e).': '._ve($e->getMessage()));
+                throw $e;
+            }
+
             // User URI did not match, so let's try our alt_urls as Profile URL values
             if (!$profile instanceof Profile) {
                 common_debug(__METHOD__.': Finding Profile URLs for WebFinger lookup on resource=='._ve($resource));

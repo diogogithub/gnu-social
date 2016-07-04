@@ -122,9 +122,24 @@ class Discovery
                     throw new Exception('Unexpected HTTP status code.');
                 }
 
-                $xrd->loadString($response->getBody());
+                switch ($response->getHeader('content-type')) {
+                case self::JRD_MIMETYPE_OLD:
+                case self::JRD_MIMETYPE:
+                    $type = 'json';
+                    break;
+                case self::XRD_MIMETYPE:
+                    $type = 'xml';
+                    break;
+                default:
+                    // fall back to letting XML_XRD auto-detect
+                    common_debug('No recognized content-type header for resource descriptor body.');
+                    $type = null;
+                }
+                $xrd->loadString($response->getBody(), $type);
                 return $xrd;
+
             } catch (Exception $e) {
+                common_log(LOG_INFO, sprintf('%s: Failed for %s: %s', _ve($class), _ve($uri), _ve($e->getMessage())));
                 continue;
             }
         }

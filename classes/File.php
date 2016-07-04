@@ -120,7 +120,7 @@ class File extends Managed_DataObject
                         // $args['attachment'] should always be set if action===attachment, given our routing rules
                         $file = File::getByID($args['attachment']);
                         return $file;
-                    } catch (EmptyIdException $e) {
+                    } catch (EmptyPkeyValueException $e) {
                         // ...but $args['attachment'] can also be 0...
                     } catch (NoResultException $e) {
                         // apparently this link goes to us, but is _not_ an existing attachment (File) ID?

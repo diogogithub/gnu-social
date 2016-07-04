@@ -336,16 +336,6 @@ class Notice extends Managed_DataObject
         }
     }
 
-    public static function getByUri($uri)
-    {
-        $notice = new Notice();
-        $notice->uri = $uri;
-        if (!$notice->find(true)) {
-            throw new NoResultException($notice);
-        }
-        return $notice;
-    }
-
     /**
      * Extract #hashtags from this notice's content and save them to the database.
      */
@@ -2683,7 +2673,7 @@ class Notice extends Managed_DataObject
     public static function getAsTimestamp($id)
     {
         if (empty($id)) {
-            throw new EmptyIdException('Notice');
+            throw new EmptyPkeyValueException('Notice', 'id');
         }
 
         $timestamp = null;
@@ -3091,6 +3081,44 @@ class Notice extends Managed_DataObject
         $schema = Schema::get();
         $schemadef = $schema->getTableDef($table);
 
+        // 2015-09-04 We move Notice location data to Notice_location
+        // First we see if we have to do this at all
+        if (isset($schemadef['fields']['lat'])
+                && isset($schemadef['fields']['lon'])
+                && isset($schemadef['fields']['location_id'])
+                && isset($schemadef['fields']['location_ns'])) {
+            // Then we make sure the Notice_location table is created!
+            $schema->ensureTable('notice_location', Notice_location::schemaDef());
+
+            // Then we continue on our road to migration!
+            echo "\nFound old $table table, moving location data to 'notice_location' table... (this will probably take a LONG time, but can be aborted and continued)";
+
+            $notice = new Notice();
+            $notice->query(sprintf('SELECT id, lat, lon, location_id, location_ns FROM %1$s ' .
+                                 'WHERE lat IS NOT NULL ' .
+                                    'OR lon IS NOT NULL ' .
+                                    'OR location_id IS NOT NULL ' .
+                                    'OR location_ns IS NOT NULL',
+                                 $schema->quoteIdentifier($table)));
+            print "\nFound {$notice->N} notices with location data, inserting";
+            while ($notice->fetch()) {
+                $notloc = Notice_location::getKV('notice_id', $notice->id);
+                if ($notloc instanceof Notice_location) {
+                    print "-";
+                    continue;
+                }
+                $notloc = new Notice_location();
+                $notloc->notice_id = $notice->id;
+                $notloc->lat= $notice->lat;
+                $notloc->lon= $notice->lon;
+                $notloc->location_id= $notice->location_id;
+                $notloc->location_ns= $notice->location_ns;
+                $notloc->insert();
+                print ".";
+            }
+            print "\n";
+        }
+
         /**
          *  Make sure constraints are met before upgrading, if foreign keys
          *  are not already in use.
@@ -3163,45 +3191,5 @@ class Notice extends Managed_DataObject
                 unset($notice);
             }
         }
-
-        // 2015-09-04 We move Notice location data to Notice_location
-        // First we see if we have to do this at all
-        if (!isset($schemadef['fields']['lat'])
-                && !isset($schemadef['fields']['lon'])
-                && !isset($schemadef['fields']['location_id'])
-                && !isset($schemadef['fields']['location_ns'])) {
-            // We have already removed the location fields, so no need to migrate.
-            return;
-        }
-        // Then we make sure the Notice_location table is created!
-        $schema->ensureTable('notice_location', Notice_location::schemaDef());
-
-        // Then we continue on our road to migration!
-        echo "\nFound old $table table, moving location data to 'notice_location' table... (this will probably take a LONG time, but can be aborted and continued)";
-
-        $notice = new Notice();
-        $notice->query(sprintf('SELECT id, lat, lon, location_id, location_ns FROM %1$s ' .
-                             'WHERE lat IS NOT NULL ' .
-                                'OR lon IS NOT NULL ' .
-                                'OR location_id IS NOT NULL ' .
-                                'OR location_ns IS NOT NULL',
-                             $schema->quoteIdentifier($table)));
-        print "\nFound {$notice->N} notices with location data, inserting";
-        while ($notice->fetch()) {
-            $notloc = Notice_location::getKV('notice_id', $notice->id);
-            if ($notloc instanceof Notice_location) {
-                print "-";
-                continue;
-            }
-            $notloc = new Notice_location();
-            $notloc->notice_id = $notice->id;
-            $notloc->lat= $notice->lat;
-            $notloc->lon= $notice->lon;
-            $notloc->location_id= $notice->location_id;
-            $notloc->location_ns= $notice->location_ns;
-            $notloc->insert();
-            print ".";
-        }
-        print "\n";
     }
 }

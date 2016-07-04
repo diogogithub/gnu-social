@@ -18,7 +18,7 @@ class StoreRemoteMediaPlugin extends Plugin
     public $domain_blacklist = array();
     public $check_blacklist = false;
 
-    public $max_image_bytes = 5242880;  // 5MiB max image size by default
+    public $max_image_bytes = 10485760;  // 10MiB max image size by default
 
     protected $imgData = array();
 

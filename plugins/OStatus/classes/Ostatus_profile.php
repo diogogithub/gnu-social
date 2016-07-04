@@ -1842,22 +1842,28 @@ class Ostatus_profile extends Managed_DataObject
     {
         $orig = clone($this);
 
-        common_debug('URIFIX These identities both say they are each other: "'.$orig->uri.'" and "'.$profile_uri.'"');
+        common_debug('URIFIX These identities both say they are each other: '._ve($orig->uri).' and '._ve($profile_uri));
         $this->uri = $profile_uri;
 
-        if (array_key_exists('feedurl', $hints)) {
-            if (!empty($this->feeduri)) {
-                common_debug('URIFIX Changing FeedSub ['.$feedsub->id.'] feeduri "'.$feedsub->uri.'" to "'.$hints['feedurl']);
-                $feedsub = FeedSub::getKV('uri', $this->feeduri);
+        if (array_key_exists('feedurl', $hints) && common_valid_http_url($hints['feedurl'])) {
+            try {
+                $feedsub = FeedSub::getByUri($this->feeduri);
+                common_debug('URIFIX Changing FeedSub id==['._ve($feedsub->id).'] feeduri '._ve($feedsub->uri).' to '._ve($hints['feedurl']));
                 $feedorig = clone($feedsub);
                 $feedsub->uri = $hints['feedurl'];
                 $feedsub->updateWithKeys($feedorig);
-            } else {
-                common_debug('URIFIX Old Ostatus_profile did not have feedurl set, ensuring feed: '.$hints['feedurl']);
+            } catch (EmptyPkeyValueException $e) {
+                common_debug('URIFIX Old Ostatus_profile did not have feedurl set, ensuring new feedurl: '._ve($hints['feedurl']));
+                FeedSub::ensureFeed($hints['feedurl']);
+            } catch (NoResultException $e) {
+                common_debug('URIFIX Missing FeedSub entry for the Ostatus_profile, ensuring new feedurl: '._ve($hints['feedurl']));
                 FeedSub::ensureFeed($hints['feedurl']);
             }
             $this->feeduri = $hints['feedurl'];
+        } elseif (array_key_exists('feedurl')) {
+            common_log(LOG_WARN, 'The feedurl hint we got was not a valid HTTP URL: '._ve($hints['feedurl']));
         }
+
         if (array_key_exists('salmon', $hints)) {
             common_debug('URIFIX Changing Ostatus_profile salmonuri from "'.$this->salmonuri.'" to "'.$hints['salmon'].'"');
             $this->salmonuri = $hints['salmon'];
