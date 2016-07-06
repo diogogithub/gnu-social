@@ -355,6 +355,7 @@ class MediaFile
         $unclearTypes = array('application/octet-stream',
                               'application/vnd.ms-office',
                               'application/zip',
+                              'text/plain',
                               'text/html',  // Ironically, Wikimedia Commons' SVG_logo.svg is identified as text/html
                               // TODO: for XML we could do better content-based sniffing too
                               'text/xml');
@@ -364,10 +365,12 @@ class MediaFile
         // If we didn't match, or it is an unclear match
         if ($originalFilename && (!$mimetype || in_array($mimetype, $unclearTypes))) {
             try {
-                $type = common_supported_ext_to_mime($originalFilename);
+                $type = common_supported_filename_to_mime($originalFilename);
                 return $type;
+            } catch (UnknownExtensionMimeException $e) {
+                // FIXME: I think we should keep the file extension here (supported should be === true here)
             } catch (Exception $e) {
-                // Extension not found, so $mimetype is our best guess
+                // Extension parsed but no connected mimetype, so $mimetype is our best guess
             }
         }
 
