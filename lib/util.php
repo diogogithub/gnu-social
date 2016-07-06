@@ -2016,7 +2016,7 @@ function common_supported_mime_to_ext($mimetype)
 {
     $supported = common_config('attachments', 'supported');
     if ($supported === true) {
-        throw new ServerException('Supported mimetype but unknown extension relation.');
+        throw new UnknownMimeExtensionException();
     }
     foreach($supported as $type => $ext) {
         if ($mimetype === $type) {

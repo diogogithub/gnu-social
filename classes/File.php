@@ -304,13 +304,12 @@ class File extends Managed_DataObject
             $ext = common_supported_mime_to_ext($mimetype);
             // we do, so use it!
             return $ext;
-        } catch (Exception $e) {    // FIXME: Make this exception more specific to "unknown mime=>ext relation"
+        } catch (UnknownMimeExtensionException $e) {
             // We don't know the extension for this mimetype, but let's guess.
 
-            // If we are very liberal with uploads ($config['attachments']['supported'] === true)
-            // then we try to do some guessing based on the filename, if it was supplied.
-            if (!is_null($filename) && common_config('attachments', 'supported')===true
-                    && preg_match('/^.+\.([A-Za-z0-9]+)$/', $filename, $matches)) {
+            // If we can't recognize the extension from the MIME, we try
+            // to guess based on filename, if one was supplied.
+            if (!is_null($filename) && preg_match('/^.+\.([A-Za-z0-9]+)$/', $filename, $matches)) {
                 // we matched on a file extension, so let's see if it means something.
                 $ext = mb_strtolower($matches[1]);
 
@@ -330,6 +329,8 @@ class File extends Managed_DataObject
                 // the attachment extension based on its filename was not blacklisted so it's ok to use it
                 return $ext;
             }
+        } catch (Exception $e) {
+            common_log(LOG_INFO, 'Problem when figuring out extension for mimetype: '._ve($e));
         }
 
         // If nothing else has given us a result, try to extract it from
