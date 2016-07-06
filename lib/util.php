@@ -2000,7 +2000,7 @@ function common_supported_ext_to_mime($fileext)
 
     $supported = common_config('attachments', 'supported');
     if ($supported === true) {
-        throw new ServerException('Supported extension but unknown mimetype relation.');
+        throw new UnknownExtensionMimeException($fileext);
     }
     foreach($supported as $type => $ext) {
         if ($ext === $fileext) {
@@ -2016,7 +2016,7 @@ function common_supported_mime_to_ext($mimetype)
 {
     $supported = common_config('attachments', 'supported');
     if ($supported === true) {
-        throw new UnknownMimeExtensionException();
+        throw new UnknownMimeExtensionException($mimetype);
     }
     foreach($supported as $type => $ext) {
         if ($mimetype === $type) {

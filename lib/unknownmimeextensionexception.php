@@ -17,14 +17,11 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class UnknownMimeExtensionException extends ServerException
 {
-    public function __construct($msg=null)
+    public function __construct($mimetype)
     {
-        if ($msg === null) {
-            // TRANS: We accept the file type (we probably just accept all files)
-            // TRANS: but don't know the file extension for it.
-            $msg = _('Supported mimetype but unknown extension relation.');
-        }
-
+        // TRANS: We accept the file type (we probably just accept all files)
+        // TRANS: but don't know the file extension for it.
+        $msg = sprintf(_('Supported mimetype but unknown extension relation: %1$s'), _ve($mimetype));
         parent::__construct($msg);
     }
 }
