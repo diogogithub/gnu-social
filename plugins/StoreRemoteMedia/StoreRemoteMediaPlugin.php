@@ -55,7 +55,7 @@ class StoreRemoteMediaPlugin extends Plugin
         switch (common_get_mime_media($file->mimetype)) {
         case 'image':
             // Just to set something for now at least...
-            $file->title = $file->mimetype;
+            //$file->title = $file->mimetype;
             break;
         }
         
