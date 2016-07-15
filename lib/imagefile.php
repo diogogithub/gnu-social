@@ -151,10 +151,14 @@ class ImageFile
 
         try {
             $image = new ImageFile($file->getID(), $imgPath);
-        } catch (UnsupportedMediaException $e) {
+        } catch (Exception $e) {
+            common_debug(sprintf('Exception caught when creating ImageFile for File id==%s and imgPath==', _ve($file->id), _ve($imgPath)));
+            throw $e;
+        } finally {
             // Avoid deleting the original
             try {
-                if ($imgPath !== $file->getPath()) {
+                if (strlen($imgPath) > 0 && $imgPath !== $file->getPath()) {
+                    common_debug(__METHOD__.': Deleting temporary file that was created as image file thumbnail source: '._ve($imgPath));
                     @unlink($imgPath);
                 }
             } catch (FileNotFoundException $e) {
@@ -162,7 +166,6 @@ class ImageFile
                 // doesn't exist anyway, so it's safe to delete $imgPath
                 @unlink($imgPath);
             }
-            throw $e;
         }
         return $image;
     }
