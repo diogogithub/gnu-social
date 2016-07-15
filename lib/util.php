@@ -1991,16 +1991,23 @@ function common_accept_to_prefs($accept, $def = '*/*')
 }
 
 // Match by our supported file extensions
-function common_supported_ext_to_mime($fileext)
+function common_supported_filename_to_mime($filename)
 {
     // Accept a filename and take out the extension
-    if (strpos($fileext, '.') !== false) {
-        $fileext = substr(strrchr($fileext, '.'), 1);
+    if (strpos($filename, '.') === false) {
+        throw new ServerException(sprintf('No extension on filename: %1$s', _ve($filename)));
     }
 
+    $fileext = substr(strrchr($filename, '.'), 1);
+    return common_supported_ext_to_mime($fileext);
+}
+
+function common_supported_ext_to_mime($fileext)
+{
     $supported = common_config('attachments', 'supported');
     if ($supported === true) {
-        throw new ServerException('Supported extension but unknown mimetype relation.');
+        // FIXME: Should we just accept the extension straight off when supported === true?
+        throw new UnknownExtensionMimeException($fileext);
     }
     foreach($supported as $type => $ext) {
         if ($ext === $fileext) {
@@ -2015,16 +2022,15 @@ function common_supported_ext_to_mime($fileext)
 function common_supported_mime_to_ext($mimetype)
 {
     $supported = common_config('attachments', 'supported');
-    if ($supported === true) {
-        throw new ServerException('Supported mimetype but unknown extension relation.');
-    }
-    foreach($supported as $type => $ext) {
-        if ($mimetype === $type) {
-            return $ext;
+    if (is_array($supported)) {
+        foreach($supported as $type => $ext) {
+            if ($mimetype === $type) {
+                return $ext;
+            }
         }
     }
 
-    throw new ServerException('Unsupported MIME type');
+    throw new UnknownMimeExtensionException($mimetype);
 }
 
 // The MIME "media" is the part before the slash (video in video/webm)

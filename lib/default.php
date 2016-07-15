@@ -249,6 +249,7 @@ $default =
                                 'application/zip'   => 'zip',
                                 'application/x-go-sgf' => 'sgf',
                                 'application/xml'   => 'xml',
+                                'application/gpx+xml' => 'gpx',
                                 'image/png'         => 'png',
                                 'image/jpeg'        => 'jpg',
                                 'image/gif'         => 'gif',
@@ -273,7 +274,7 @@ $default =
               'show_thumbs' => true, // show thumbnails in notice lists for uploaded images, and photos and videos linked remotely that provide oEmbed info
               'process_links' => true, // check linked resources for embeddable photos and videos; this will hit referenced external web sites when processing new messages.
               'extblacklist' => [
-                    'php' => 'phps',
+                    'php' => 'phps',    // this turns .php into .phps
                     'exe' => false,  // this would deny any uploads to keep the "exe" file extension
                 ],
               ),
