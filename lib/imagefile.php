@@ -146,7 +146,7 @@ class ImageFile
         }
 
         if (!file_exists($imgPath)) {
-            throw new ServerException(sprintf('Image not available locally: %s', $imgPath));
+            throw new FileNotFoundException($imgPath);
         }
 
         try {
