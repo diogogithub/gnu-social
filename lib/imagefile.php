@@ -120,14 +120,6 @@ class ImageFile
         Event::handle('FillImageFileMetadata', array($this));
     }
 
-    public function __destruct()
-    {
-        if (strlen($this->filepath) > 0 && (!$this->fileRecord instanceof File || $this->filepath !== $this->fileRecord->getPath())) {
-            common_debug(__METHOD__.': Deleting temporary file that was created as image file thumbnail source: '._ve($this->filepath));
-            @unlink($this->filepath);
-        }
-    }
-
     public static function fromFileObject(File $file)
     {
         $imgPath = null;
