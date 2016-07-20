@@ -98,6 +98,7 @@ class File_thumbnail extends Managed_DataObject
         if ($notNullUrl) {
             $thumb->whereAdd('url IS NOT NULL');
         }
+        $thumb->orderBy('modified ASC');    // the first created, a somewhat ugly hack
         $thumb->limit(1);
         if (!$thumb->find(true)) {
             throw new NoResultException($thumb);
