@@ -58,8 +58,9 @@ class VideoThumbnailsPlugin extends Plugin
         try {
             // Exception thrown if no thumbnail found
             $thumb = File_thumbnail::byFile($file, false);
-            // If getPath doesn't throw an exception, we have a working locally stored thumbnail
-            return $thumb->getPath();
+            $imgPath = $thumb->getPath();
+            // If getPath didn't throw an exception, we have a working locally stored thumbnail
+            return false;
         } catch (NoResultException $e) {
             // Alright, no thumbnail found, so let's create one.
         } catch (InvalidFilenameException $e) {
