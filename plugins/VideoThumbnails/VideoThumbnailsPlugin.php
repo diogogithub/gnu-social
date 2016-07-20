@@ -67,7 +67,9 @@ class VideoThumbnailsPlugin extends Plugin
             common_log(LOG_ERR, 'Neither ffmpeg nor avconv was found in your PATH. Cannot create video thumbnail.');
             return true;
         }
-        $result = exec($cmd.' -y -i '.escapeshellarg($file->getPath()).' -vcodec mjpeg -vframes 1 -f image2 -an '.escapeshellarg($tmp_imgPath));
+        $fullcmd = $cmd.' -y -i '.escapeshellarg($file->getPath()).' -vcodec mjpeg -vframes 1 -f image2 -an '.escapeshellarg($tmp_imgPath);
+        common_debug(__METHOD__ . ' executing: '._ve($fullcmd));
+        $result = exec($fullcmd);
 
         if (!getimagesize($tmp_imgPath)) {
             common_debug('exec of "avconv" produced a bad/nonexisting image it seems');
