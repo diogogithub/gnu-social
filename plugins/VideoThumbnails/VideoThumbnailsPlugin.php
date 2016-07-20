@@ -55,6 +55,21 @@ class VideoThumbnailsPlugin extends Plugin
             return true;
         }
 
+        try {
+            // Exception thrown if no thumbnail found
+            $thumb = File_thumbnail::byFile($file, false);
+            // If getPath doesn't throw an exception, we have a working locally stored thumbnail
+            return $thumb->getPath();
+        } catch (NoResultException $e) {
+            // Alright, no thumbnail found, so let's create one.
+        } catch (InvalidFilenameException $e) {
+            // I guess this means $thumb->filename is null? Shouldn't happen because $file->filename is not null, so delete it
+            $thumb->delete();
+        } catch (FileNotFoundException $e) {
+            // Thumb file was not found, let's delete it.
+            $thumb->delete();
+        }
+
         // Let's save our frame to a temporary file. If we fail, remove it.
         $tmp_imgPath = tempnam(sys_get_temp_dir(), 'socialthumb-');
 
