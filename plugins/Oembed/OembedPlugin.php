@@ -102,7 +102,7 @@ class OembedPlugin extends Plugin
                     array(),
                     array('format'=>'json', 'url'=>
                         common_local_url('attachment',
-                            array('attachment' => $action->attachment->id)))),
+                            array('attachment' => $action->attachment->getID())))),
                 'title'=>'oEmbed'),null);
             $action->element('link',array('rel'=>'alternate',
                 'type'=>'text/xml+oembed',
@@ -111,7 +111,7 @@ class OembedPlugin extends Plugin
                     array(),
                     array('format'=>'xml','url'=>
                         common_local_url('attachment',
-                            array('attachment' => $action->attachment->id)))),
+                            array('attachment' => $action->attachment->getID())))),
                 'title'=>'oEmbed'),null);
             break;
         case 'shownotice':
@@ -159,9 +159,9 @@ class OembedPlugin extends Plugin
      */
     public function onEndFileSaveNew(File $file)
     {
-        $fo = File_oembed::getKV('file_id', $file->id);
+        $fo = File_oembed::getKV('file_id', $file->getID());
         if ($fo instanceof File_oembed) {
-            common_log(LOG_WARNING, "Strangely, a File_oembed object exists for new file {$file->id}", __FILE__);
+            common_log(LOG_WARNING, "Strangely, a File_oembed object exists for new file {$file->getID()}", __FILE__);
             return true;
         }
 
@@ -178,14 +178,14 @@ class OembedPlugin extends Plugin
                 return true;
             }
 
-            File_oembed::saveNew($oembed_data, $file->id);
+            File_oembed::saveNew($oembed_data, $file->getID());
         }
         return true;
     }
 
     public function onEndShowAttachmentLink(HTMLOutputter $out, File $file)
     {
-        $oembed = File_oembed::getKV('file_id', $file->id);
+        $oembed = File_oembed::getKV('file_id', $file->getID());
         if (empty($oembed->author_name) && empty($oembed->provider)) {
             return true;
         }
@@ -217,7 +217,7 @@ class OembedPlugin extends Plugin
     {
         // Never treat generic HTML links as an enclosure type!
         // But if we have oEmbed info, we'll consider it golden.
-        $oembed = File_oembed::getKV('file_id', $file->id);
+        $oembed = File_oembed::getKV('file_id', $file->getID());
         if (!$oembed instanceof File_oembed || !in_array($oembed->type, array('photo', 'video'))) {
             return true;
         }
