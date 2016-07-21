@@ -273,6 +273,10 @@ class File_thumbnail extends Managed_DataObject
         return File::getByID($this->file_id);
     }
 
+    public function getFileId()
+    {
+        return $this->file_id;
+    }
 
     static public function hashurl($url)
     {
