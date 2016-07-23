@@ -174,7 +174,9 @@ class OembedPlugin extends Plugin
                 if ($oembed_data === false) {
                     throw new Exception('Did not get oEmbed data from URL');
                 }
+                $file->setTitle($oembed_data->title);
             } catch (Exception $e) {
+                common_log(LOG_WARN, sprintf(__METHOD__.': %s thrown when getting oEmbed data: %s', get_class($e), _ve($e->getMessage())));
                 return true;
             }
 
