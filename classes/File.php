@@ -693,6 +693,13 @@ class File extends Managed_DataObject
         return $title ?: null;
     }
 
+    public function setTitle($title)
+    {
+        $orig = clone($this);
+        $this->title = mb_strlen($title) > 0 ? $title : null;
+        return $this->update($orig);
+    }
+
     static public function hashurl($url)
     {
         if (empty($url)) {
