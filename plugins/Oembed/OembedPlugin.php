@@ -102,7 +102,7 @@ class OembedPlugin extends Plugin
                     array(),
                     array('format'=>'json', 'url'=>
                         common_local_url('attachment',
-                            array('attachment' => $action->attachment->id)))),
+                            array('attachment' => $action->attachment->getID())))),
                 'title'=>'oEmbed'),null);
             $action->element('link',array('rel'=>'alternate',
                 'type'=>'text/xml+oembed',
@@ -111,7 +111,7 @@ class OembedPlugin extends Plugin
                     array(),
                     array('format'=>'xml','url'=>
                         common_local_url('attachment',
-                            array('attachment' => $action->attachment->id)))),
+                            array('attachment' => $action->attachment->getID())))),
                 'title'=>'oEmbed'),null);
             break;
         case 'shownotice':
@@ -159,9 +159,9 @@ class OembedPlugin extends Plugin
      */
     public function onEndFileSaveNew(File $file)
     {
-        $fo = File_oembed::getKV('file_id', $file->id);
+        $fo = File_oembed::getKV('file_id', $file->getID());
         if ($fo instanceof File_oembed) {
-            common_log(LOG_WARNING, "Strangely, a File_oembed object exists for new file {$file->id}", __FILE__);
+            common_log(LOG_WARNING, "Strangely, a File_oembed object exists for new file {$file->getID()}", __FILE__);
             return true;
         }
 
@@ -178,14 +178,14 @@ class OembedPlugin extends Plugin
                 return true;
             }
 
-            File_oembed::saveNew($oembed_data, $file->id);
+            File_oembed::saveNew($oembed_data, $file->getID());
         }
         return true;
     }
 
     public function onEndShowAttachmentLink(HTMLOutputter $out, File $file)
     {
-        $oembed = File_oembed::getKV('file_id', $file->id);
+        $oembed = File_oembed::getKV('file_id', $file->getID());
         if (empty($oembed->author_name) && empty($oembed->provider)) {
             return true;
         }
@@ -217,7 +217,7 @@ class OembedPlugin extends Plugin
     {
         // Never treat generic HTML links as an enclosure type!
         // But if we have oEmbed info, we'll consider it golden.
-        $oembed = File_oembed::getKV('file_id', $file->id);
+        $oembed = File_oembed::getKV('file_id', $file->getID());
         if (!$oembed instanceof File_oembed || !in_array($oembed->type, array('photo', 'video'))) {
             return true;
         }
@@ -377,16 +377,36 @@ class OembedPlugin extends Plugin
     protected function storeRemoteFileThumbnail(File_thumbnail $thumbnail)
     {
         if (!empty($thumbnail->filename) && file_exists($thumbnail->getPath())) {
-            throw new AlreadyFulfilledException(sprintf('A thumbnail seems to already exist for remote file with id==%u', $thumbnail->file_id));
+            throw new AlreadyFulfilledException(sprintf('A thumbnail seems to already exist for remote file with id==%u', $thumbnail->getFileId()));
         }
 
-        $url = $thumbnail->getUrl();
-        $this->checkWhitelist($url);
+        $remoteUrl = $thumbnail->getUrl();
+        $this->checkWhitelist($remoteUrl);
 
-        // First we download the file to memory and test whether it's actually an image file
+        $http = new HTTPClient();
+        // First see if it's too large for us
+        common_debug(__METHOD__ . ': '.sprintf('Performing HEAD request for remote file id==%u to avoid unnecessarily downloading too large files. URL: %s', $thumbnail->getFileId(), $remoteUrl));
+        $head = $http->head($remoteUrl);
+        $remoteUrl = $head->getEffectiveUrl();   // to avoid going through redirects again
+
+        $headers = $head->getHeader();
+        $filesize = isset($headers['content-length']) ? $headers['content-length'] : null;
+
+        // FIXME: I just copied some checks from StoreRemoteMedia, maybe we should have other checks for thumbnails? Or at least embed into some class somewhere.
+        if (empty($filesize)) {
+            // file size not specified on remote server
+            common_debug(sprintf('%s: Ignoring remote thumbnail because we did not get a content length for thumbnail for file id==%u', __CLASS__, $thumbnail->getFileId()));
+            return true;
+        } elseif ($filesize > common_config('attachments', 'file_quota')) {
+            // file too big according to site configuration
+            common_debug(sprintf('%s: Skip downloading remote thumbnail because content length (%u) is larger than file_quota (%u) for file id==%u', __CLASS__, intval($filesize), common_config('attachments', 'file_quota'), $thumbnail->getFileId()));
+            return true;
+        }
+
+        // Then we download the file to memory and test whether it's actually an image file
         // FIXME: To support remote video/whatever files, this needs reworking.
-        common_debug(sprintf('Downloading remote thumbnail for file id==%u with thumbnail URL: %s', $thumbnail->file_id, $url));
-        $imgData = HTTPClient::quickGet($url);
+        common_debug(sprintf('Downloading remote thumbnail for file id==%u (should be size %u) with effective URL: %s', $thumbnail->getFileId(), $filesize, _ve($remoteUrl)));
+        $imgData = HTTPClient::quickGet($remoteUrl);
         $info = @getimagesizefromstring($imgData);
         if ($info === false) {
             throw new UnsupportedMediaException(_('Remote file format was not identified as an image.'), $url);

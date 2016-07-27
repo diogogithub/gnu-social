@@ -98,6 +98,7 @@ class File_thumbnail extends Managed_DataObject
         if ($notNullUrl) {
             $thumb->whereAdd('url IS NOT NULL');
         }
+        $thumb->orderBy('modified ASC');    // the first created, a somewhat ugly hack
         $thumb->limit(1);
         if (!$thumb->find(true)) {
             throw new NoResultException($thumb);
@@ -272,6 +273,10 @@ class File_thumbnail extends Managed_DataObject
         return File::getByID($this->file_id);
     }
 
+    public function getFileId()
+    {
+        return $this->file_id;
+    }
 
     static public function hashurl($url)
     {

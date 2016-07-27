@@ -91,7 +91,7 @@ class StoreRemoteMediaPlugin extends Plugin
             $http = new HTTPClient();
             common_debug(sprintf('Performing HEAD request for remote file id==%u to avoid unnecessarily downloading too large files. URL: %s', $file->getID(), $remoteUrl));
             $head = $http->head($remoteUrl);
-            $remoteUrl = $head->effectiveUrl;   // to avoid going through redirects again
+            $remoteUrl = $head->getEffectiveUrl();   // to avoid going through redirects again
             if (!$this->checkBlackList($remoteUrl)) {
                 common_log(LOG_WARN, sprintf('%s: Non-blacklisted URL %s redirected to blacklisted URL %s', __CLASS__, $file->getUrl(), $remoteUrl));
                 return true;
@@ -120,7 +120,7 @@ class StoreRemoteMediaPlugin extends Plugin
             common_debug(sprintf('Downloading remote file id==%u (should be size %u) with effective URL: %s', $file->getID(), $filesize, _ve($remoteUrl)));
             $imgData = HTTPClient::quickGet($remoteUrl);
         } catch (HTTP_Request2_ConnectionException $e) {
-            common_log(LOG_ERR, __CLASS__.': quickGet on URL: '._ve($file->getUrl()).' threw exception: '.$e->getMessage());
+            common_log(LOG_ERR, __CLASS__.': '._ve(get_class($e)).' on URL: '._ve($file->getUrl()).' threw exception: '.$e->getMessage());
             return true;
         }
         $info = @getimagesizefromstring($imgData);

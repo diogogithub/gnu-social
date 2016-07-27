@@ -146,15 +146,16 @@ class ImageFile
         }
 
         if (!file_exists($imgPath)) {
-            throw new ServerException(sprintf('Image not available locally: %s', $imgPath));
+            throw new FileNotFoundException($imgPath);
         }
 
         try {
             $image = new ImageFile($file->getID(), $imgPath);
-        } catch (UnsupportedMediaException $e) {
+        } catch (Exception $e) {
             // Avoid deleting the original
             try {
-                if ($imgPath !== $file->getPath()) {
+                if (strlen($imgPath) > 0 && $imgPath !== $file->getPath()) {
+                    common_debug(__METHOD__.': Deleting temporary file that was created as image file thumbnail source: '._ve($imgPath));
                     @unlink($imgPath);
                 }
             } catch (FileNotFoundException $e) {
@@ -162,6 +163,7 @@ class ImageFile
                 // doesn't exist anyway, so it's safe to delete $imgPath
                 @unlink($imgPath);
             }
+            common_debug(sprintf('Exception caught when creating ImageFile for File id==%s and imgPath==', _ve($file->id), _ve($imgPath)));
             throw $e;
         }
         return $image;
@@ -584,7 +586,7 @@ class ImageFile
         list($width, $height, $x, $y, $w, $h) = $this->scaleToFit($width, $height, $crop);
 
         $thumb = File_thumbnail::pkeyGet(array(
-                                            'file_id'=> $this->fileRecord->id,
+                                            'file_id'=> $this->fileRecord->getID(),
                                             'width'  => $width,
                                             'height' => $height,
                                         ));
@@ -594,7 +596,7 @@ class ImageFile
 
         $filename = $this->fileRecord->filehash ?: $this->filename;    // Remote files don't have $this->filehash
         $extension = File::guessMimeExtension($this->mimetype);
-        $outname = "thumb-{$this->fileRecord->id}-{$width}x{$height}-{$filename}." . $extension;
+        $outname = "thumb-{$this->fileRecord->getID()}-{$width}x{$height}-{$filename}." . $extension;
         $outpath = File_thumbnail::path($outname);
 
         // The boundary box for our resizing
@@ -612,7 +614,7 @@ class ImageFile
             throw new ServerException('Bad thumbnail size parameters.');
         }
 
-        common_debug(sprintf('Generating a thumbnail of File id==%u of size %ux%u', $this->fileRecord->id, $width, $height));
+        common_debug(sprintf('Generating a thumbnail of File id==%u of size %ux%u', $this->fileRecord->getID(), $width, $height));
 
         // Perform resize and store into file
         $this->resizeTo($outpath, $box);

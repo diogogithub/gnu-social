@@ -174,7 +174,7 @@ class AttachmentListItem extends Widget
 
                 default:
                     unset($thumb);  // there's no need carrying this along
-                    switch ($this->attachment->mimetype) {
+                    switch (common_bare_mime($this->attachment->mimetype)) {
                     case 'text/plain':
                         $this->element('div', ['class'=>'e-content plaintext'], file_get_contents($this->attachment->getPath()));
                         break;
