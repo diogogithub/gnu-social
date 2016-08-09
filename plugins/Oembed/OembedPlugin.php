@@ -176,7 +176,7 @@ class OembedPlugin extends Plugin
                 }
                 $file->setTitle($oembed_data->title);
             } catch (Exception $e) {
-                common_log(LOG_WARN, sprintf(__METHOD__.': %s thrown when getting oEmbed data: %s', get_class($e), _ve($e->getMessage())));
+                common_log(LOG_WARNING, sprintf(__METHOD__.': %s thrown when getting oEmbed data: %s', get_class($e), _ve($e->getMessage())));
                 return true;
             }
 
