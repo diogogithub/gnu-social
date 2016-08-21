@@ -832,6 +832,7 @@ position:static;
 
 .notice.h-entry .attachments .inline-attachment > * {
     height: auto;
+    margin-bottom: 1ex;
     max-width: 100%;
 }
 .notice.h-entry .attachments .inline-attachment > label {
