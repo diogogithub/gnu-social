@@ -826,6 +826,10 @@ position:static;
     position: relative;
 }
 
+.notice.h-entry .attachments .inline-attachment > article {
+    text-align: left;
+}
+
 .notice.h-entry .attachments .inline-attachment > * {
     height: auto;
     max-width: 100%;
