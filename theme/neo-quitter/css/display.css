@@ -1193,35 +1193,6 @@ body#outbox #core ul.messages .notice:before {
 
 /* notices etc */
 
-.notice .h-entry {
-    overflow:visible;
-}
-
-.notice.h-entry .attachments {
-    clear: both;
-    margin-top: -16px;
-    position: relative;
-    top: 0;
-    z-index: 1;
-}
-
-.notice .attachments .inline-attachment {
-    color: transparent;
-    font-size: 0;
-    line-height: 0;
-    list-style: none outside none;
-    margin-bottom: 0;
-}
-
-.notice .attachments .inline-attachment img {
-    color: transparent;
-    font-size: 0;
-    line-height: 0;
-    list-style: none outside none;
-    margin-bottom: 0;
-    padding-top:20px;
-}
-
 #page_notice {
     clear: both;
     margin-bottom: 18px;
