@@ -251,15 +251,6 @@ class ShowstreamAction extends NoticestreamAction
         $this->elementEnd('div');
     }
 
-    function showSections()
-    {
-        parent::showSections();
-        if (!common_config('performance', 'high')) {
-            $cloud = new PersonalTagCloudSection($this->target, $this);
-            $cloud->show();
-        }
-    }
-
     function noticeFormOptions()
     {
         $options = parent::noticeFormOptions();

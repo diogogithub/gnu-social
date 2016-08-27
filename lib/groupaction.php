@@ -112,11 +112,6 @@ class GroupAction extends Action
         }
 
         $this->showAdmins();
-
-        if (!common_config('performance', 'high')) {
-            $cloud = new GroupTagCloudSection($this, $this->group);
-            $cloud->show();
-        }
     }
 
     /**
