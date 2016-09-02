@@ -581,9 +581,6 @@ function common_canonical_email($email)
     return $email;
 }
 
-<<<<<<< HEAD
-function common_purify($html, array $args=array())
-=======
 function common_to_alphanumeric($str)
 {
     $filtered = preg_replace('/[^A-Za-z0-9]\s*/', '', $str);
@@ -593,8 +590,7 @@ function common_to_alphanumeric($str)
     return $filtered;
 }
 
-function common_purify($html)
->>>>>>> upstream/master
+function common_purify($html, array $args=array())
 {
     require_once INSTALLDIR.'/extlib/HTMLPurifier/HTMLPurifier.auto.php';
 

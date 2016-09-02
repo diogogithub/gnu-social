@@ -812,23 +812,33 @@ position:static;
 .notice.h-entry .attachments {
     position: relative;
     margin-bottom: 1em;
+    list-style-type: none;
 }
 
-.notice.h-entry .attachments > * {
+.notice.h-entry .attachments > li {
     clear: both;
+    background-color: #f9f9f9;
+    border: 1px lightgrey solid;
+    margin-bottom: 1ex;
+    padding: 1ex 1ex 0 1ex;
+    overflow: auto;
+    text-align: center;
+    position: relative;
+}
+
+.notice.h-entry .attachments .inline-attachment > article {
+    text-align: left;
 }
 
 .notice.h-entry .attachments .inline-attachment > * {
     height: auto;
+    margin-bottom: 1ex;
     max-width: 100%;
 }
-.notice.h-entry .attachments .inline-attachment > a {
+.notice.h-entry .attachments .inline-attachment > label {
     font-size: 0.8em;
     line-height: 16px;
     height: 16px;
-}
-.notice.h-entry .attachments .inline-attachment > img {
-    display: block;
 }
 
 #attachments {

@@ -132,9 +132,5 @@ class AttachmentAction extends ManagedAction
     function showSections() {
         $ns = new AttachmentNoticeSection($this);
         $ns->show();
-        if (!common_config('performance', 'high')) {
-            $atcs = new AttachmentTagCloudSection($this);
-            $atcs->show();
-        }
     }
 }

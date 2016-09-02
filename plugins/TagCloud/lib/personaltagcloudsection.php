@@ -42,7 +42,7 @@ class PersonalTagCloudSection extends TagCloudSection
 {
     protected $profile = null;
 
-    function __construct(Profile $profile, HTMLOutputter $out=null)
+    function __construct(HTMLOutputter $out, Profile $profile)
     {
         parent::__construct($out);
         $this->profile = $profile;

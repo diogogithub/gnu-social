@@ -2623,6 +2623,13 @@ class Notice extends Managed_DataObject
         return !empty($this->repeat_of);
     }
 
+    public function isRepeated()
+    {
+        $n = new Notice();
+        $n->repeat_of = $this->getID();
+        return $n->find() && $n->N > 0;
+    }
+
     /**
      * Get the list of hash tags saved with this notice.
      *

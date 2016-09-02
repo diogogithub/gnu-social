@@ -86,28 +86,26 @@ class AttachmentListItem extends Widget
     }
 
     function linkAttr() {
-        return array('class' => 'attachment',
+        return array(
+                     'class' => 'u-url',
                      'href' => $this->attachment->getAttachmentUrl(),
-                     'id' => 'attachment-' . $this->attachment->getID(),
                      'title' => $this->linkTitle());
-    }
-
-    function showLink() {
-        $this->out->elementStart('a', $this->linkAttr());
-        $this->out->element('span', null, $this->linkTitle());
-        $this->showRepresentation();
-        $this->out->elementEnd('a');
     }
 
     function showNoticeAttachment()
     {
-        $this->showLink();
+        $this->showRepresentation();
     }
 
     function showRepresentation() {
         $enclosure = $this->attachment->getEnclosure();
 
         if (Event::handle('StartShowAttachmentRepresentation', array($this->out, $this->attachment))) {
+
+            $this->out->elementStart('label');
+            $this->out->element('a', $this->linkAttr(), $this->title());
+            $this->out->elementEnd('label');
+
             if (!empty($enclosure->mimetype)) {
                 // First, prepare a thumbnail if it exists.
                 $thumb = null;

@@ -95,11 +95,14 @@ class DBQueueManager extends QueueManager
         } catch (NoQueueHandlerException $e) {
             $this->noHandlerFound($qi, $rep);
             return true;
+        } catch (NoResultException $e) {
+            $this->_log(LOG_ERR, "[{$qi->transport}:$rep] ".get_class($e).' thrown ('._ve($e->getMessage()).'), ignoring queue_item '._ve($qi->getID()));
+            $result = true;
         } catch (AlreadyFulfilledException $e) {
-            $this->_log(LOG_ERR, "[{$qi->transport}:$rep] AlreadyFulfilledException thrown: {$e->getMessage()}");
+            $this->_log(LOG_ERR, "[{$qi->transport}:$rep] ".get_class($e).' thrown ('._ve($e->getMessage()).'), ignoring queue_item '._ve($qi->getID()));
             $result = true;
         } catch (Exception $e) {
-            $this->_log(LOG_ERR, "[{$qi->transport}:$rep] Exception thrown: {$e->getMessage()}");
+            $this->_log(LOG_ERR, "[{$qi->transport}:$rep] Exception (".get_class($e).') thrown: '._ve($e->getMessage()));
             $result = false;
         }
 

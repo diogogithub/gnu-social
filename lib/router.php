@@ -260,12 +260,6 @@ class Router
                         array('action' => 'userbyid'),
                         array('id' => '[0-9]+'));
 
-            if (!common_config('performance', 'high')) {
-                $m->connect('tags/', array('action' => 'publictagcloud'));
-                $m->connect('tag/', array('action' => 'publictagcloud'));
-                $m->connect('tags', array('action' => 'publictagcloud'));
-                $m->connect('tag', array('action' => 'publictagcloud'));
-            }
             $m->connect('tag/:tag/rss',
                         array('action' => 'tagrss'),
                         array('tag' => self::REGEX_TAG));

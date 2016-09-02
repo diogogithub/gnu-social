@@ -76,79 +76,15 @@ class ShowgroupAction extends GroupAction
         }
     }
 
-    /**
-     * Prepare the action
-     *
-     * Reads and validates arguments and instantiates the attributes.
-     *
-     * @param array $args $_REQUEST args
-     *
-     * @return boolean success flag
-     */
-    protected function prepare(array $args=array())
+    public function getStream()
     {
-        parent::prepare($args);
-
-        $this->page = ($this->arg('page')) ? ($this->arg('page')+0) : 1;
-
         if ($this->scoped instanceof Profile && $this->scoped->isLocal() && $this->scoped->getUser()->streamModeOnly()) {
             $stream = new GroupNoticeStream($this->group, $this->scoped);
         } else {
             $stream = new ThreadingGroupNoticeStream($this->group, $this->scoped);
         }
 
-        $this->notice = $stream->getNotices(($this->page-1)*NOTICES_PER_PAGE,
-                                            NOTICES_PER_PAGE + 1);
-
-        common_set_returnto($this->selfUrl());
-
-        return true;
-    }
-
-    /**
-     * Handle the request
-     *
-     * Shows a profile for the group, some controls, and a list of
-     * group notices.
-     *
-     * @return void
-     */
-    protected function handle()
-    {
-        parent::handle();
-        $this->showPage();
-    }
-
-    /**
-     * Show the page content
-     *
-     * Shows a group profile and a list of group notices
-     */
-    function showContent()
-    {
-        $this->showGroupNotices();
-    }
-
-    /**
-     * Show the group notices
-     *
-     * @return void
-     */
-    function showGroupNotices()
-    {
-        if ($this->scoped instanceof Profile && $this->scoped->isLocal() && $this->scoped->getUser()->streamModeOnly()) {
-            $nl = new PrimaryNoticeList($this->notice, $this, array('show_n'=>NOTICES_PER_PAGE));
-        } else {
-            $nl = new ThreadedNoticeList($this->notice, $this, $this->scoped);
-        } 
-
-        $cnt = $nl->show();
-
-        $this->pagination($this->page > 1,
-                          $cnt > NOTICES_PER_PAGE,
-                          $this->page,
-                          'showgroup',
-                          array('nickname' => $this->group->nickname));
+        return $stream;
     }
 
     /**

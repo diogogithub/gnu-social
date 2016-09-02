@@ -35,7 +35,7 @@ class WebFingerPlugin extends Plugin
     const OAUTH_REQUEST_TOKEN_REL   = 'http://apinamespace.org/oauth/request_token';
     const OAUTH_AUTHORIZE_REL       = 'http://apinamespace.org/oauth/authorize';
 
-    public function onRouterInitialized($m)
+    public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('.well-known/host-meta', array('action' => 'hostmeta'));
         $m->connect('.well-known/host-meta.:format',
