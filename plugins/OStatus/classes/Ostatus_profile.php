@@ -1116,6 +1116,8 @@ class Ostatus_profile extends Managed_DataObject
      */
     protected static function createActivityObjectProfile(ActivityObject $object, array $hints=array())
     {
+        common_debug('Attempting to create an Ostatus_profile from an ActivityObject with ID: '._ve($object->id));
+
         $homeuri = $object->id;
         $discover = false;
 
@@ -1145,12 +1147,12 @@ class Ostatus_profile extends Managed_DataObject
             }
         }
 
-        if (array_key_exists('feedurl', $hints)) {
-            $feeduri = $hints['feedurl'];
-        } else {
+        if (!array_key_exists('feedurl', $hints)) {
             $discover = new FeedDiscovery();
-            $feeduri = $discover->discoverFromURL($homeuri);
+            $hints['feedurl'] = $discover->discoverFromURL($homeuri);
+            common_debug(__METHOD__.' did not have a "feedurl" hint, FeedDiscovery found '._ve($hints['feedurl']));
         }
+        $feeduri = $hints['feedurl'];
 
         if (array_key_exists('salmon', $hints)) {
             $salmonuri = $hints['salmon'];
@@ -1286,6 +1288,8 @@ class Ostatus_profile extends Managed_DataObject
             // FIXME: Maybe not AuthorizationException?
             throw new AuthorizationException('Trying to update profile from ActivityObject with different URI.');
         }
+
+        common_debug('Updating Ostatus_profile with URI '._ve($this->getUri()).' from ActivityObject');
 
         if ($this->isGroup()) {
             $group = $this->localGroup();
