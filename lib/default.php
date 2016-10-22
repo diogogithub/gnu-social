@@ -355,7 +355,6 @@ $default =
                             'OpportunisticQM' => array(),
                             'OStatus' => array(),
                             'Poll' => array(),
-                            'SearchSub' => array(),
                             'SimpleCaptcha' => array(),
                             'TagSub' => array(),
                             'WebFinger' => array(),
