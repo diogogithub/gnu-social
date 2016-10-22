@@ -1372,7 +1372,8 @@ class Ostatus_profile extends Managed_DataObject
         // @todo tags from categories
 
         if ($profile->id) {
-            common_log(LOG_DEBUG, "Updating OStatus profile $profile->id from remote info $object->id: " . var_export($object, true) . var_export($hints, true));
+            //common_debug('Updating OStatus profile '._ve($profile->getID().' from remote info '._ve($object->id).': ' . _ve($object) . _ve($hints));
+            common_debug('Updating OStatus profile '._ve($profile->getID()).' from remote info '._ve($object->id).' gathered from hints: '._ve($hints));
             $profile->update($orig);
         }
     }
@@ -1396,7 +1397,8 @@ class Ostatus_profile extends Managed_DataObject
         $group->homepage = self::getActivityObjectHomepage($object, $hints);
 
         if ($group->id) {   // If no id, we haven't called insert() yet, so don't run update()
-            common_log(LOG_DEBUG, "Updating OStatus group $group->id from remote info $object->id: " . var_export($object, true) . var_export($hints, true));
+            //common_debug('Updating OStatus group '._ve($group->getID().' from remote info '._ve($object->id).': ' . _ve($object) . _ve($hints));
+            common_debug('Updating OStatus group '._ve($group->getID()).' from remote info '._ve($object->id).' gathered from hints: '._ve($hints));
             $group->update($orig);
         }
     }
@@ -1417,7 +1419,8 @@ class Ostatus_profile extends Managed_DataObject
         $tag->tagger = $tagger->profile_id;
 
         if ($tag->id) {
-            common_log(LOG_DEBUG, "Updating OStatus peopletag $tag->id from remote info $object->id: " . var_export($object, true) . var_export($hints, true));
+            //common_debug('Updating OStatus peopletag '._ve($tag->getID().' from remote info '._ve($object->id).': ' . _ve($object) . _ve($hints));
+            common_debug('Updating OStatus peopletag '._ve($tag->getID()).' from remote info '._ve($object->id).' gathered from hints: '._ve($hints));
             $tag->update($orig);
         }
     }
