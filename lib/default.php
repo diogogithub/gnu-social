@@ -247,6 +247,7 @@ $default =
                                 'application/vnd.oasis.opendocument.text-web'               => 'oth',
                                 'application/pdf'   => 'pdf',
                                 'application/zip'   => 'zip',
+                                'application/x-bzip2' => 'bz2',
                                 'application/x-go-sgf' => 'sgf',
                                 'application/xml'   => 'xml',
                                 'application/gpx+xml' => 'gpx',
