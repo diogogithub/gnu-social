@@ -2171,7 +2171,7 @@ class Notice extends Managed_DataObject
             $object->content = $this->getRendered();
             $object->link    = $this->getUrl();
 
-            $object->extra[] = array('status_net', array('notice_id' => $this->id));
+            $object->extra[] = array('statusnet:notice_id', null, $this->id);
 
             Event::handle('EndActivityObjectFromNotice', array($this, &$object));
         }
