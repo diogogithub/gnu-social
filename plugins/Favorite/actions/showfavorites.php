@@ -147,7 +147,7 @@ class ShowfavoritesAction extends ShowstreamAction
 
 class FavoritesNoticeList extends NoticeList
 {
-    function newListItem($notice)
+    function newListItem(Notice $notice)
     {
         return new FavoritesNoticeListItem($notice, $this->out);
     }

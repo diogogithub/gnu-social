@@ -167,7 +167,7 @@ class PeopletagSubscriberList extends ProfileList
         $this->peopletag = $peopletag;
     }
 
-    function newListItem($profile)
+    function newListItem(Profile $profile)
     {
         return new PeopletagSubscriberListItem($profile, $this->peopletag, $this->action);
     }

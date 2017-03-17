@@ -200,7 +200,7 @@ class FlaggedProfileList extends ProfileList
      *
      * @return ProfileListItem newly-created item
      */
-    function newListItem($profile)
+    function newListItem(Profile $profile)
     {
         return new FlaggedProfileListItem($this->profile, $this->action);
     }
