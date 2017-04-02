@@ -36,6 +36,7 @@ $default =
               'theme' => 'neo-gnu',
               'path' => $_path,
               'logfile' => null,
+              'logdebug' => false,
               'logo' => null,
               'ssllogo' => null,
               'logperf' => false, // Enable to dump performance counters to syslog
