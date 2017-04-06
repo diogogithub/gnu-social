@@ -570,4 +570,28 @@ class TwitterBridgePlugin extends Plugin
 
         return true;
     }
+    
+    /**
+     * Set the object_type field of previously imported Twitter notices to
+     * ActivityObject::NOTE if they are unset. Null object_type caused a notice
+     * not to show on the timeline.
+     */
+    public function onEndUpgrade()
+    {
+    	printfnq("Ensuring all Twitter notices have an object_type...");
+    	
+    	$notice = new Notice();
+    	$notice->whereAdd("source='twitter'");
+    	$notice->whereAdd('object_type IS NULL');
+    	
+    	if ($notice->find()) {
+    		while ($notice->fetch()) {
+    			$orig = Notice::getKV('id', $notice->id);
+    			$notice->object_type = ActivityObject::NOTE;
+    			$notice->update($orig);
+    		}
+    	}
+    	
+    	printfnq("DONE.\n");
+    }
 }
