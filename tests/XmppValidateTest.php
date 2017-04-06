@@ -12,19 +12,26 @@ define('STATUSNET', true);  // compatibility
 mb_internal_encoding('UTF-8'); // @fixme this probably belongs in common.php?
 
 require_once INSTALLDIR . '/lib/common.php';
-require_once INSTALLDIR . '/lib/jabber.php';
+require_once INSTALLDIR . '/plugins/Xmpp/XmppPlugin.php';
 
-class JidValidateTest extends PHPUnit_Framework_TestCase
+class XmppValidateTest extends PHPUnit_Framework_TestCase
 {
+	public function setUp()
+	{
+		if(!array_key_exists('Xmpp', GNUsocial::getActivePlugins())){
+			$this->markTestSkipped('XmppPlugin is not enabled.');
+		}
+	}
     /**
      * @dataProvider validationCases
      *
      */
     public function testValidate($jid, $validFull, $validBase)
     {
-        $this->assertEquals($validFull, jabber_valid_full_jid($jid), "validating as full or base JID");
-
-        $this->assertEquals($validBase, jabber_valid_base_jid($jid), "validating as base JID only");
+    	$xmpp = new TestXmppPlugin();
+    	$this->assertEquals($validFull || $validBase, $xmpp->validate($jid));
+        $this->assertEquals($validFull, $xmpp->validateFullJid($jid), "validating as full or base JID");
+        $this->assertEquals($validBase, $xmpp->validateBaseJid($jid), "validating as base JID only");
     }
 
     /**
@@ -33,7 +40,8 @@ class JidValidateTest extends PHPUnit_Framework_TestCase
      */
     public function testNormalize($jid, $expected)
     {
-        $this->assertEquals($expected, jabber_normalize_jid($jid));
+    	$xmpp = new XmppPlugin();
+        $this->assertEquals($expected, $xmpp->normalize($jid));
     }
 
     /**
@@ -41,7 +49,8 @@ class JidValidateTest extends PHPUnit_Framework_TestCase
      */
     public function testDomainCheck($domain, $expected, $note)
     {
-        $this->assertEquals($expected, jabber_check_domain($domain), $note);
+    	$xmpp = new TestXmppPlugin();
+        $this->assertEquals($expected, $xmpp->checkDomain($domain), $note);
     }
 
     static public function validationCases()
@@ -144,3 +153,19 @@ class JidValidateTest extends PHPUnit_Framework_TestCase
 
 }
 
+class TestXmppPlugin extends XmppPlugin {
+	public function checkDomain($domain)
+	{
+		return parent::checkDomain($domain);
+	}
+	
+	public function validateBaseJid($jid, $check_domain=false)
+	{
+		return parent::validateBaseJid($jid, $check_domain);
+	}
+	
+	public function validateFullJid($jid, $check_domain=false)
+	{
+		return parent::validateFullJid($jid, $check_domain);
+	}
+}

@@ -941,11 +941,6 @@ class Profile extends Managed_DataObject
 
     function delete($useWhere=false)
     {
-        // just in case it hadn't been done before... (usually set before adding deluser to queue handling!)
-        if (!$this->hasRole(Profile_role::DELETED)) {
-            $this->grantRole(Profile_role::DELETED);
-        }
-
         $this->_deleteNotices();
         $this->_deleteSubscriptions();
         $this->_deleteTags();
@@ -957,6 +952,7 @@ class Profile extends Managed_DataObject
         // not on individual objects.
         $related = array('Reply',
                          'Group_member',
+        				 'Profile_role'
                          );
         Event::handle('ProfileDeleteRelated', array($this, &$related));
 
@@ -965,6 +961,8 @@ class Profile extends Managed_DataObject
             $inst->profile_id = $this->id;
             $inst->delete();
         }
+        
+        $this->grantRole(Profile_role::DELETED);
 
         $localuser = User::getKV('id', $this->id);
         if ($localuser instanceof User) {

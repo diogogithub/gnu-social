@@ -289,6 +289,11 @@ class User extends Managed_DataObject
                 // TRANS: Profile data could not be inserted for some reason.
                 throw new ServerException(_m('Could not insert profile data for new user.'));
             }
+            
+            // Necessary because id has been known to be reissued.
+            if ($profile->hasRole(Profile_role::DELETED)) {
+            	$profile->revokeRole(Profile_role::DELETED);
+            }
 
             $user->id = $id;
 
