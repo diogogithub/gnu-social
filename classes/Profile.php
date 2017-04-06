@@ -1532,6 +1532,14 @@ class Profile extends Managed_DataObject
         }
         return $url;
     }
+    public function getHtmlTitle()
+    {
+        try {
+            return $this->getAcctUri(false);
+        } catch (ProfileNoAcctUriException $e) {
+            return $this->getNickname();
+        }
+    }
 
     public function getNickname()
     {
