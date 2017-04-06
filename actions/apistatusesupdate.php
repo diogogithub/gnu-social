@@ -46,7 +46,7 @@
     /api/statuses/update.:format
 
     @par Formats (:format)
-    xml, json
+    xml, json, atom
 
     @par HTTP Method(s)
     POST
@@ -339,6 +339,8 @@ class ApiStatusesUpdateAction extends ApiAuthAction
                 $this->showSingleXmlStatus($this->notice);
             } elseif ($this->format == 'json') {
                 $this->show_single_json_status($this->notice);
+            } elseif ($this->format == 'atom') {
+                $this->showSingleAtomStatus($this->notice);
             }
         }
     }

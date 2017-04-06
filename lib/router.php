@@ -420,7 +420,7 @@ class Router
 
             $m->connect('api/statuses/update.:format',
                         array('action' => 'ApiStatusesUpdate',
-                              'format' => '(xml|json)'));
+                              'format' => '(xml|json|atom)'));
 
             $m->connect('api/statuses/destroy/:id.:format',
                         array('action' => 'ApiStatusesDestroy',
