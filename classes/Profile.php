@@ -1618,14 +1618,13 @@ class Profile extends Managed_DataObject
         return !empty($block);
     }
 
-    function getAtomFeed()
+    public function getAtomFeed()
     {
         $feed = null;
 
         if (Event::handle('StartProfileGetAtomFeed', array($this, &$feed))) {
-            $user = User::getKV('id', $this->id);
-            if (!empty($user)) {
-                $feed = common_local_url('ApiTimelineUser', array('id' => $user->id,
+            if ($this->isLocal()) {
+                $feed = common_local_url('ApiTimelineUser', array('id' => $this->getID(),
                                                                   'format' => 'atom'));
             }
             Event::handle('EndProfileGetAtomFeed', array($this, $feed));
