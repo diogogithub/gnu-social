@@ -40,6 +40,7 @@ class CasAuthenticationPlugin extends AuthenticationPlugin
     public $port = 443;
     public $path = '';
     public $takeOverLogin = false;
+    public $user_whitelist = null;
 
     function checkPassword($username, $password)
     {
@@ -145,6 +146,7 @@ class CasAuthenticationPlugin extends AuthenticationPlugin
         $casSettings['port']=$this->port;
         $casSettings['path']=$this->path;
         $casSettings['takeOverLogin']=$this->takeOverLogin;
+        $casSettings['user_whitelist']=$this->user_whitelist;
     }
 
     function onPluginVersion(array &$versions)
