@@ -460,8 +460,15 @@ class FeedSub extends Managed_DataObject
             return;
         }
 
+        $this->receiveFeed($post);
+    }
+
+    protected function receiveFeed($feed_xml)
+    {
+        // We're passed the XML for the Atom feed as $feed_xml,
+        // so read it into a DOMDocument and process.
         $feed = new DOMDocument();
-        if (!$feed->loadXML($post)) {
+        if (!$feed->loadXML($feed_xml)) {
             // @fixme might help to include the err message
             common_log(LOG_ERR, __METHOD__ . ": ignoring invalid XML");
             return;
