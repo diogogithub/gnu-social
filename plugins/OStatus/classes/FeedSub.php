@@ -405,6 +405,7 @@ class FeedSub extends Managed_DataObject
         }
         $this->modified = common_sql_now();
 
+        common_debug(__METHOD__ . ': Updating sub state and metadata for '.$this->getUri());
         return $this->update($original);
     }
 
@@ -461,6 +462,24 @@ class FeedSub extends Managed_DataObject
         }
 
         $this->receiveFeed($post);
+    }
+
+    /**
+     * All our feed URIs should be URLs.
+     */
+    public function importFeed()
+    {
+        $feed_url = $this->getUri();
+
+        // Fetch the URL
+        try {
+            common_log(LOG_INFO, sprintf('Importing feed backlog from %s', $feed_url));
+            $feed_xml = HTTPClient::quickGet($feed_url, 'application/atom+xml');
+        } catch (Exception $e) {
+            throw new FeedSubException("Could not fetch feed from URL '%s': %s (%d).\n", $feed_url, $e->getMessage(), $e->getCode());
+        }
+
+        return $this->receiveFeed($feed_xml);
     }
 
     protected function receiveFeed($feed_xml)
