@@ -264,7 +264,8 @@ class OStatusPlugin extends Plugin
     static function extractWebfingerIds($text)
     {
         $wmatches = array();
-        $result = preg_match_all('/(?:^|\s+)@((?:\w+[\w\-\_\.]?)*(?:[\w\-\_\.]*\w+)@'.URL_REGEX_DOMAIN_NAME.')/',
+        // Maybe this should harmonize with lib/nickname.php and Nickname::WEBFINGER_FMT
+        $result = preg_match_all('/(?<!\S)@((?:\w+[\w\-\_\.]*)?\w+@'.URL_REGEX_DOMAIN_NAME.')/',
                        $text,
                        $wmatches,
                        PREG_OFFSET_CAPTURE);
