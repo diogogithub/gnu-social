@@ -66,6 +66,7 @@ define('URL_REGEX_VALID_PATH_CHARS',        '\pN\pL\,\!\.\:\-\_\+\/\@\=\;\%\~\*'
 define('URL_REGEX_VALID_QSTRING_CHARS',     URL_REGEX_VALID_PATH_CHARS    . '\&');
 define('URL_REGEX_VALID_FRAGMENT_CHARS',    URL_REGEX_VALID_QSTRING_CHARS . '\?\#');
 define('URL_REGEX_EXCLUDED_END_CHARS',      '\?\.\,\!\#\:\'');  // don't include these if they are directly after a URL
+define('URL_REGEX_DOMAIN_NAME', '(?:(?!-)[A-Za-z0-9\-]{1,63}(?<!-)\.)+[A-Za-z]{2,10}');
 
 // append our extlib dir as the last-resort place to find libs
 
