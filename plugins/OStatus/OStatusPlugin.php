@@ -349,7 +349,7 @@ class OStatusPlugin extends Plugin
 
         foreach (self::extractUrlMentions($text) as $wmatch) {
             list($target, $pos) = $wmatch;
-            $schemes = array('http', 'https');
+            $schemes = array('https', 'http');
             foreach ($schemes as $scheme) {
                 $url = "$scheme://$target";
                 $this->log(LOG_INFO, "Checking profile address '$url'");
