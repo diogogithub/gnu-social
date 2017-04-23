@@ -74,6 +74,9 @@ class BackupaccountAction extends FormAction
         // @fixme atom feed logic is in getString...
         // but we just want it to output to the outputter.
         $this->raw($stream->getString());
+
+        // Don't print the page HTML
+        exit(0);
     }
 
     public function isReadOnly($args) {
