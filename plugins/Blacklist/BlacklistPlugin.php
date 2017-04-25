@@ -27,9 +27,7 @@
  * @link      http://status.net/
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+if (!defined('GNUSOCIAL')) { exit(1); }
 
 /**
  * Plugin to prevent use of nicknames or URLs on a blacklist
@@ -483,7 +481,7 @@ class BlacklistPlugin extends Plugin
      */
     function onStartSubscribe(Profile $subscriber, Profile $other)
     {
-        foreach (array($other->profileurl, $other->homepage) as $url) {
+        foreach ([$other->getUrl(), $other->getHomepage()] as $url) {
 
             if (empty($url)) {
                 continue;
@@ -499,7 +497,7 @@ class BlacklistPlugin extends Plugin
             }
         }
 
-        $nickname = $other->nickname;
+        $nickname = $other->getNickname();
 
         if (!empty($nickname)) {
             if (!$this->_checkNickname($nickname)) {
