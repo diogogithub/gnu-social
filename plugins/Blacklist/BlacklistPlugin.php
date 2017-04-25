@@ -112,51 +112,15 @@ class BlacklistPlugin extends Plugin
     }
 
     /**
-     * Hook registration to prevent blacklisted homepages or nicknames
-     *
-     * Throws an exception if there's a blacklisted homepage or nickname.
-     *
-     * @param Action $action Action being called (usually register)
-     *
-     * @return boolean hook value
-     */
-    function onStartRegisterUser(&$user, &$profile)
-    {
-        $homepage = strtolower($profile->homepage);
-
-        if (!empty($homepage)) {
-            if (!$this->_checkUrl($homepage)) {
-                // TRANS: Validation failure for URL. %s is the URL.
-                $msg = sprintf(_m("You may not register with homepage \"%s\"."),
-                               $homepage);
-                throw new ClientException($msg);
-            }
-        }
-
-        $nickname = strtolower($profile->nickname);
-
-        if (!empty($nickname)) {
-            if (!$this->_checkNickname($nickname)) {
-                // TRANS: Validation failure for nickname. %s is the nickname.
-                $msg = sprintf(_m("You may not register with nickname \"%s\"."),
-                               $nickname);
-                throw new ClientException($msg);
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * Hook profile update to prevent blacklisted homepages or nicknames
      *
      * Throws an exception if there's a blacklisted homepage or nickname.
      *
-     * @param Action $action Action being called (usually register)
+     * @param ManagedAction $action Action being called (usually register)
      *
      * @return boolean hook value
      */
-    function onStartProfileSaveForm($action)
+    function onStartProfileSaveForm(ManagedAction $action)
     {
         $homepage = strtolower($action->trimmed('homepage'));
 
@@ -192,7 +156,7 @@ class BlacklistPlugin extends Plugin
      *
      * @return boolean hook value
      */
-    function onStartNoticeSave(&$notice)
+    public function onStartNoticeSave(&$notice)
     {
         common_replace_urls_callback($notice->content,
                                      array($this, 'checkNoticeUrl'));
@@ -328,7 +292,7 @@ class BlacklistPlugin extends Plugin
      *
      * @return boolean hook value
      */
-    function onEndAdminPanelNav($nav)
+    function onEndAdminPanelNav(Menu $nav)
     {
         if (AdminPanelAction::canAdmin('blacklist')) {
 
@@ -346,75 +310,76 @@ class BlacklistPlugin extends Plugin
         return true;
     }
 
-    function onEndDeleteUserForm($action, $user)
+    function onEndDeleteUserForm(HTMLOutputter $out, User $user)
     {
-        $cur = common_current_user();
+        $scoped = $out->getScoped();
 
-        if (empty($cur) || !$cur->hasRight(Right::CONFIGURESITE)) {
-            return;
+        if ($scoped === null || !$scoped->hasRight(Right::CONFIGURESITE)) {
+            return true;
         }
 
-        $profile = $user->getProfile();
 
-        if (empty($profile)) {
-            return;
+        try {
+            $profile = $user->getProfile();
+        } catch (UserNoProfileException $e) {
+            return true;
         }
 
-        $action->elementStart('ul', 'form_data');
-        $action->elementStart('li');
-        $this->checkboxAndText($action,
+        $out->elementStart('ul', 'form_data');
+        $out->elementStart('li');
+        $this->checkboxAndText($out,
                                'blacklistnickname',
                                // TRANS: Checkbox label in the blacklist user form.
                                _m('Add this nickname pattern to blacklist'),
                                'blacklistnicknamepattern',
-                               $this->patternizeNickname($user->nickname));
-        $action->elementEnd('li');
+                               $this->patternizeNickname($profile->getNickname()));
+        $out->elementEnd('li');
 
-        if (!empty($profile->homepage)) {
-            $action->elementStart('li');
-            $this->checkboxAndText($action,
+        if (!empty($profile->getHomepage())) {
+            $out->elementStart('li');
+            $this->checkboxAndText($out,
                                    'blacklisthomepage',
                                    // TRANS: Checkbox label in the blacklist user form.
                                    _m('Add this homepage pattern to blacklist'),
                                    'blacklisthomepagepattern',
-                                   $this->patternizeHomepage($profile->homepage));
-            $action->elementEnd('li');
+                                   $this->patternizeHomepage($profile->getHomepage()));
+            $out->elementEnd('li');
         }
 
-        $action->elementEnd('ul');
+        $out->elementEnd('ul');
     }
 
-    function onEndDeleteUser($action, $user)
+    function onEndDeleteUser(HTMLOutputter $out, User $user)
     {
-        if ($action->boolean('blacklisthomepage')) {
-            $pattern = $action->trimmed('blacklisthomepagepattern');
+        if ($out->boolean('blacklisthomepage')) {
+            $pattern = $out->trimmed('blacklisthomepagepattern');
             Homepage_blacklist::ensurePattern($pattern);
         }
 
-        if ($action->boolean('blacklistnickname')) {
-            $pattern = $action->trimmed('blacklistnicknamepattern');
+        if ($out->boolean('blacklistnickname')) {
+            $pattern = $out->trimmed('blacklistnicknamepattern');
             Nickname_blacklist::ensurePattern($pattern);
         }
 
         return true;
     }
 
-    function checkboxAndText($action, $checkID, $label, $textID, $value)
+    function checkboxAndText(HTMLOutputter $out, $checkID, $label, $textID, $value)
     {
-        $action->element('input', array('name' => $checkID,
+        $out->element('input', array('name' => $checkID,
                                         'type' => 'checkbox',
                                         'class' => 'checkbox',
                                         'id' => $checkID));
 
-        $action->text(' ');
+        $out->text(' ');
 
-        $action->element('label', array('class' => 'checkbox',
+        $out->element('label', array('class' => 'checkbox',
                                         'for' => $checkID),
                          $label);
 
-        $action->text(' ');
+        $out->text(' ');
 
-        $action->element('input', array('name' => $textID,
+        $out->element('input', array('name' => $textID,
                                         'type' => 'text',
                                         'id' => $textID,
                                         'value' => $value));
