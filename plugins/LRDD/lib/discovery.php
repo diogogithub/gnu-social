@@ -140,6 +140,11 @@ class Discovery
                 $xrd->loadString($response->getBody(), $type);
                 return $xrd;
 
+            } catch (ClientException $e) {
+                if ($e->getCode() === 403) {
+                    common_log(LOG_INFO, sprintf('%s: Aborting discovery on URL %s: %s', _ve($class), _ve($uri), _ve($e->getMessage())));
+                    break;
+                }
             } catch (Exception $e) {
                 common_log(LOG_INFO, sprintf('%s: Failed for %s: %s', _ve($class), _ve($uri), _ve($e->getMessage())));
                 continue;
