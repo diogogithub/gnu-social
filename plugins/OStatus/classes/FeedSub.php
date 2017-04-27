@@ -167,33 +167,79 @@ class FeedSub extends Managed_DataObject
      */
     public static function ensureFeed($feeduri)
     {
-        $current = self::getKV('uri', $feeduri);
-        if ($current instanceof FeedSub) {
-            return $current;
+        $feedsub = self::getKV('uri', $feeduri);
+        if ($feedsub instanceof FeedSub) {
+            if (!empty($feedsub->huburi)) {
+                // If there is already a huburi we don't
+                // rediscover it on ensureFeed, call
+                // ensureHub to do that (compare ->modified
+                // to see if it might be time to do it).
+                return $feedsub;
+            }
+            if ($feedsub->sub_state !== 'inactive') {
+                throw new ServerException('Can only ensure WebSub hub for inactive (unsubscribed) feeds.');
+            }
+            // If huburi is empty we continue with ensureHub
+        } else {
+            // If we don't have that local feed URI
+            // stored then we create a new DB object.
+            $feedsub = new FeedSub();
+            $feedsub->uri = $feeduri;
+            $feedsub->sub_state = 'inactive';
         }
 
-        $discover = new FeedDiscovery();
-        $discover->discoverFromFeedURL($feeduri);
+        try {
+            // discover the hub uri
+            $feedsub->ensureHub();
 
-        $huburi = $discover->getHubLink();
-        if (!$huburi && !common_config('feedsub', 'fallback_hub') && !common_config('feedsub', 'nohub')) {
-            throw new FeedSubNoHubException();
+        } catch (FeedSubNoHubException $e) {
+            // Only throw this exception if we can't handle huburi-less feeds
+            // (i.e. we have a fallback hub or we can do feed polling (nohub)
+            if (!common_config('feedsub', 'fallback_hub') && !common_config('feedsub', 'nohub')) {
+                throw $e;
+            }
         }
 
-        $feedsub = new FeedSub();
-        $feedsub->uri = $feeduri;
-        $feedsub->huburi = $huburi;
-        $feedsub->sub_state = 'inactive';
-
-        $feedsub->created = common_sql_now();
-        $feedsub->modified = common_sql_now();
-
-        $result = $feedsub->insert();
-        if ($result === false) {
-            throw new FeedDBException($feedsub);
+        if (empty($feedsub->id)) {
+            // if $feedsub doesn't have an id we'll insert it into the db here
+            $feedsub->created = common_sql_now();
+            $feedsub->modified = common_sql_now();
+            $result = $feedsub->insert();
+            if ($result === false) {
+                throw new FeedDBException($feedsub);
+            }
         }
 
         return $feedsub;
+    }
+
+    /**
+     * ensureHub will only do $this->update if !empty($this->id)
+     * because otherwise the object has not been created yet.
+     */
+    public function ensureHub()
+    {
+        if ($this->sub_state !== 'inactive') {
+            throw new ServerException('Can only ensure WebSub hub for inactive (unsubscribed) feeds.');
+        }
+
+        $discover = new FeedDiscovery();
+        $discover->discoverFromFeedURL($this->uri);
+
+        $huburi = $discover->getHubLink();
+        if (empty($huburi)) {
+            // Will be caught and treated with if statements in regards to
+            // fallback hub and feed polling (nohub) configuration.
+            throw new FeedSubNoHubException();
+        }
+
+        $orig = !empty($this->id) ? clone($this) : null;
+
+        $this->huburi = $huburi;
+
+        if (!empty($this->id)) {
+            $this->update($orig);
+        }
     }
 
     /**
@@ -250,18 +296,27 @@ class FeedSub extends Managed_DataObject
             return;
         }
 
-        if (empty($this->huburi)) {
-            if (common_config('feedsub', 'fallback_hub')) {
-                // No native hub on this feed?
-                // Use our fallback hub, which handles polling on our behalf.
-            } else if (common_config('feedsub', 'nohub')) {
-                // We need a feedpolling plugin (like FeedPoller) active so it will
-                // set the 'nohub' state to 'inactive' for us.
-                return;
-            } else {
+        if (empty($this->huburi) && !common_config('feedsub', 'fallback_hub')) {
+            /**
+             * If the huburi is empty and we don't have a fallback hub,
+             * there is nowhere we can send an unsubscribe to.
+             *
+             * A plugin should handle the FeedSub above and set the proper state
+             * if there is no hub. (instead of 'nohub' it should be 'inactive' if
+             * the instance has enabled feed polling for feeds that don't publish
+             * PuSH/WebSub hubs. FeedPoller is a plugin which enables polling.
+             *
+             * Secondly, if we don't have the setting "nohub" enabled (i.e.)
+             * we're ready to poll ourselves, there is something odd with the
+             * database, such as a polling plugin that has been disabled.
+             */
+
+            if (!common_config('feedsub', 'nohub')) {
                 // TRANS: Server exception.
                 throw new ServerException(_m('Attempting to end PuSH subscription for feed with no hub.'));
             }
+
+            return;
         }
 
         $this->doSubscribe('unsubscribe');
