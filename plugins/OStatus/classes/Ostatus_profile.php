@@ -367,7 +367,7 @@ class Ostatus_profile extends Managed_DataObject
         if ($this->salmonuri) {
             return Salmon::post($this->salmonuri, $this->notifyPrepXml($entry), $actor, $this->localProfile());
         }
-        common_debug(__CLASS__.' error: No salmonuri for Ostatus_profile uri: '.$this->uri);
+        common_debug(__CLASS__.' error: No salmonuri for Ostatus_profile uri: '._ve($this->getUri()));
 
         return false;
     }
