@@ -47,6 +47,8 @@ class NewnoticeAction extends FormAction
 {
     protected $form = 'Notice';
 
+    protected $inreplyto = null;
+
     /**
      * Title of the page
      *
@@ -73,6 +75,11 @@ class NewnoticeAction extends FormAction
             if ($this->trimmed($opt)) {
                 $this->formOpts[$opt] = $this->trimmed($opt);
             }
+        }
+
+        if ($this->int('inreplyto')) {
+            // Throws exception if the inreplyto Notice is given but not found.
+            $this->inreplyto = Notice::getByID($this->int('inreplyto'));
         }
 
         // Backwards compatibility for "share this" widget things.
@@ -132,13 +139,6 @@ class NewnoticeAction extends FormAction
             return;
         }
 
-        if ($this->int('inreplyto')) {
-            // Throws exception if the inreplyto Notice is given but not found.
-            $parent = Notice::getByID($this->int('inreplyto'));
-        } else {
-            $parent = null;
-        }
-
         $act = new Activity();
         $act->verb = ActivityVerb::POST;
         $act->time = time();
@@ -157,9 +157,9 @@ class NewnoticeAction extends FormAction
 
         $act->context = new ActivityContext();
 
-        if ($parent instanceof Notice) {
-            $act->context->replyToID = $parent->getUri();
-            $act->context->replyToUrl = $parent->getUrl(true);  // maybe we don't have to send true here to force a URL?
+        if ($this->inreplyto instanceof Notice) {
+            $act->context->replyToID = $this->inreplyto->getUri();
+            $act->context->replyToUrl = $this->inreplyto->getUrl(true);  // maybe we don't have to send true here to force a URL?
         }
 
         if ($this->scoped->shareLocation()) {
@@ -188,14 +188,14 @@ class NewnoticeAction extends FormAction
 
             // FIXME: We should be able to get the attentions from common_render_content!
             // and maybe even directly save whether they're local or not!
-            $act->context->attention = common_get_attentions($content, $this->scoped, $parent);
+            $act->context->attention = common_get_attentions($content, $this->scoped, $this->inreplyto);
 
             // $options gets filled with possible scoping settings
             ToSelector::fillActivity($this, $act, $options);
 
             $actobj = new ActivityObject();
             $actobj->type = ActivityObject::NOTE;
-            $actobj->content = common_render_content($content, $this->scoped, $parent);
+            $actobj->content = common_render_content($content, $this->scoped, $this->inreplyto);
 
             // Finally add the activity object to our activity
             $act->objects[] = $actobj;
@@ -224,6 +224,9 @@ class NewnoticeAction extends FormAction
         if ($this->getInfo() && $this->stored instanceof Notice) {
             $this->showNotice($this->stored);
         } elseif (!$this->getError()) {
+            if (!GNUsocial::isAjax() && $this->inreplyto instanceof Notice) {
+                $this->showNotice($this->inreplyto);
+            }
             parent::showContent();
         }
     }
