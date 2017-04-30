@@ -612,7 +612,7 @@ class FeedSub extends Managed_DataObject
                 $our_hmac = hash_hmac($hash_algo, $post, $this->secret);
                 if ($their_hmac !== $our_hmac) {
                     common_log(LOG_ERR, sprintf(__METHOD__.': ignoring PuSH with bad HMAC hash: got %s, expected %s for feed %s from hub %s', _ve($their_hmac), _ve($our_hmac), _ve($this->getUri()), _ve($this->huburi)));
-                    throw FeedSubBadPushSignatureException('Incoming PuSH signature did not match expected HMAC hash.');
+                    throw new FeedSubBadPushSignatureException('Incoming PuSH signature did not match expected HMAC hash.');
                 }
                 return true;
 
