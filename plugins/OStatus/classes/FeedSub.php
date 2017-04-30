@@ -204,8 +204,16 @@ class FeedSub extends Managed_DataObject
     /**
      * ensureHub will only do $this->update if !empty($this->id)
      * because otherwise the object has not been created yet.
+     *
+     * @param   bool    $autorenew  Whether to autorenew the feed after ensuring the hub URL
+     *
+     * @return  null    if actively avoiding the database
+     *          int     number of rows updated in the database (0 means untouched)
+     *
+     * @throws  ServerException if something went wrong when updating the database
+     *          FeedSubNoHubException   if no hub URL was discovered
      */
-    public function ensureHub()
+    public function ensureHub($autorenew=false)
     {
         if ($this->sub_state !== 'inactive') {
             common_log(LOG_INFO, sprintf(__METHOD__ . ': Running hub discovery a possibly active feed in %s state for URI %s', _ve($this->sub_state), _ve($this->uri)));
@@ -221,25 +229,22 @@ class FeedSub extends Managed_DataObject
             throw new FeedSubNoHubException();
         }
 
+        // if we've already got a DB object stored, we want to UPDATE, not INSERT
         $orig = !empty($this->id) ? clone($this) : null;
 
-        if (!empty($this->huburi) && $this->huburi !== $huburi) {
-            // There was a huburi already and now we're replacing it,
-            // so we have to set a new secret because otherwise we're
-            // possibly vulnerable to attack from the previous hub.
-
-            // ...but as I understand it this is done in $this->doSubscribe()
-            // which is called from $this->subscribe() (which in turn is
-            // called from $this->renew())
-        }
+        $old_huburi = $this->huburi;    // most likely null if we're INSERTing
         $this->huburi = $huburi;
 
         if (!empty($this->id)) {
+            common_debug(sprintf(__METHOD__ . ': Feed uri==%s huburi before=%s after=%s (identical==%s)', _ve($this->uri), _ve($old_huburi), _ve($this->huburi), _ve($old_huburi===$this->huburi)));
             $result = $this->update($orig);
             if ($result === false) {
                 // TODO: Get a DB exception class going...
                 common_debug('Database update failed for FeedSub id=='._ve($this->id).' with new huburi: '._ve($this->huburi));
                 throw new ServerException('Database update failed for FeedSub.');
+            }
+            if ($autorenew) {
+                $this->renew();
             }
             return $result;
         }
@@ -430,6 +435,12 @@ class FeedSub extends Managed_DataObject
                 return;
             } else if ($status >= 200 && $status < 300) {
                 common_log(LOG_ERR, __METHOD__ . ": sub req returned unexpected HTTP $status: " . $response->getBody());
+            } else if ($status == 422) {
+                // Error code regarding something wrong in the data (it seems
+                // that we're talking to a PuSH hub at least, so let's check
+                // our own data to be sure we're not mistaken somehow.
+
+                $this->ensureHub(true);
             } else {
                 common_log(LOG_ERR, __METHOD__ . ": sub req failed with HTTP $status: " . $response->getBody());
             }
@@ -528,17 +539,9 @@ class FeedSub extends Managed_DataObject
         } catch (FeedSubBadPushSignatureException $e) {
             // We got a signature, so something could be wrong. Let's check to see if
             // maybe upstream has switched to another hub. Let's fetch feed and then
-            // compare rel="hub" with $this->huburi
+            // compare rel="hub" with $this->huburi, which is done in $this->ensureHub()
 
-            $old_huburi = $this->huburi;
-            $this->ensureHub();
-            common_debug(sprintf(__METHOD__ . ': Feed uri==%s huburi before=%s after=%s (identical==%s)', _ve($this->uri), _ve($old_huburi), _ve($this->huburi), _ve($old_huburi===$this->huburi)));
-
-            // If the huburi is the same as before a renewal will happen some time in the future anyway.
-            if ($old_huburi !== $this->huburi) {
-                // let's make sure that this new hub knows that we want to subscribe
-                $this->renew();
-            }
+            $this->ensureHub(true);
         }
     }
 
