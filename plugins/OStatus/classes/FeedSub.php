@@ -522,6 +522,9 @@ class FeedSub extends Managed_DataObject
                 // while reporting receipt to the server.
                 return;
             }
+
+            $this->receiveFeed($post);
+
         } catch (FeedSubBadPushSignatureException $e) {
             // We got a signature, so something could be wrong. Let's check to see if
             // maybe upstream has switched to another hub. Let's fetch feed and then
@@ -536,8 +539,6 @@ class FeedSub extends Managed_DataObject
                 $this->renew();
             }
         }
-
-        $this->receiveFeed($post);
     }
 
     /**
