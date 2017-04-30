@@ -208,7 +208,7 @@ class FeedSub extends Managed_DataObject
     public function ensureHub()
     {
         if ($this->sub_state !== 'inactive') {
-            common_log(LOG_INFO, sprintf('Running hub discovery a possibly active feed in %s state for URI %s', _ve($this->sub_state), _ve($this->uri)));
+            common_log(LOG_INFO, sprintf(__METHOD__ . ': Running hub discovery a possibly active feed in %s state for URI %s', _ve($this->sub_state), _ve($this->uri)));
         }
 
         $discover = new FeedDiscovery();
@@ -532,8 +532,9 @@ class FeedSub extends Managed_DataObject
 
             $old_huburi = $this->huburi;
             $this->ensureHub();
-            common_debug(sprintf('Feed uri==%s huburi before=%s after=%s', _ve($this->uri), _ve($old_huburi), _ve($this->huburi)));
+            common_debug(sprintf(__METHOD__ . ': Feed uri==%s huburi before=%s after=%s (identical==%s)', _ve($this->uri), _ve($old_huburi), _ve($this->huburi), _ve($old_huburi===$this->huburi)));
 
+            // If the huburi is the same as before a renewal will happen some time in the future anyway.
             if ($old_huburi !== $this->huburi) {
                 // let's make sure that this new hub knows that we want to subscribe
                 $this->renew();
