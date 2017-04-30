@@ -304,6 +304,7 @@ address .poweredby {
 
 .form_notice { 
     margin-bottom: 10px;
+    position: relative;
 }
 
 .form_notice fieldset {
