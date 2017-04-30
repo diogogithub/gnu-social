@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+if (!defined('GNUSOCIAL')) { exit(1); }
 
 /**
  * @package OStatusPlugin
@@ -41,16 +39,6 @@ PuSH subscription flow:
         hub sends us updates via POST
 
 */
-class FeedDBException extends FeedSubException
-{
-    public $obj;
-
-    function __construct($obj)
-    {
-        parent::__construct('Database insert failure');
-        $this->obj = $obj;
-    }
-}
 
 /**
  * FeedSub handles low-level PubHubSubbub (PuSH) subscriptions.
@@ -220,7 +208,7 @@ class FeedSub extends Managed_DataObject
     public function ensureHub()
     {
         if ($this->sub_state !== 'inactive') {
-            throw new ServerException('Can only ensure WebSub hub for inactive (unsubscribed) feeds.');
+            common_log(LOG_INFO, sprintf('Running hub discovery a possibly active feed in %s state for URI %s', _ve($this->sub_state), _ve($this->uri)));
         }
 
         $discover = new FeedDiscovery();
@@ -235,11 +223,28 @@ class FeedSub extends Managed_DataObject
 
         $orig = !empty($this->id) ? clone($this) : null;
 
+        if (!empty($this->huburi) && $this->huburi !== $huburi) {
+            // There was a huburi already and now we're replacing it,
+            // so we have to set a new secret because otherwise we're
+            // possibly vulnerable to attack from the previous hub.
+
+            // ...but as I understand it this is done in $this->doSubscribe()
+            // which is called from $this->subscribe() (which in turn is
+            // called from $this->renew())
+        }
         $this->huburi = $huburi;
 
         if (!empty($this->id)) {
-            $this->update($orig);
+            $result = $this->update($orig);
+            if ($result === false) {
+                // TODO: Get a DB exception class going...
+                common_debug('Database update failed for FeedSub id=='._ve($this->id).' with new huburi: '._ve($this->huburi));
+                throw new ServerException('Database update failed for FeedSub.');
+            }
+            return $result;
         }
+
+        return null;    // we haven't done anything with the database
     }
 
     /**
@@ -367,6 +372,7 @@ class FeedSub extends Managed_DataObject
 
     public function renew()
     {
+        common_debug('FeedSub is being renewed for uri=='._ve($this->uri).' on huburi=='._ve($this->huburi));
         $this->subscribe();
     }
 
@@ -510,10 +516,25 @@ class FeedSub extends Managed_DataObject
             return;
         }
 
-        if (!$this->validatePushSig($post, $hmac)) {
-            // Per spec we silently drop input with a bad sig,
-            // while reporting receipt to the server.
-            return;
+        try {
+            if (!$this->validatePushSig($post, $hmac)) {
+                // Per spec we silently drop input with a bad sig,
+                // while reporting receipt to the server.
+                return;
+            }
+        } catch (FeedSubBadPushSignatureException $e) {
+            // We got a signature, so something could be wrong. Let's check to see if
+            // maybe upstream has switched to another hub. Let's fetch feed and then
+            // compare rel="hub" with $this->huburi
+
+            $old_huburi = $this->huburi;
+            $this->ensureHub();
+            common_debug(sprintf('Feed uri==%s huburi before=%s after=%s', _ve($this->uri), _ve($old_huburi), _ve($this->huburi)));
+
+            if ($old_huburi !== $this->huburi) {
+                // let's make sure that this new hub knows that we want to subscribe
+                $this->renew();
+            }
         }
 
         $this->receiveFeed($post);
@@ -588,10 +609,12 @@ class FeedSub extends Managed_DataObject
                 }
 
                 $our_hmac = hash_hmac($hash_algo, $post, $this->secret);
-                if ($their_hmac === $our_hmac) {
-                    return true;
+                if ($their_hmac !== $our_hmac) {
+                    common_log(LOG_ERR, sprintf(__METHOD__.': ignoring PuSH with bad HMAC hash: got %s, expected %s for feed %s from hub %s', _ve($their_hmac), _ve($our_hmac), _ve($this->getUri()), _ve($this->huburi)));
+                    throw FeedSubBadPushSignatureException('Incoming PuSH signature did not match expected HMAC hash.');
                 }
-                common_log(LOG_ERR, sprintf(__METHOD__.': ignoring PuSH with bad HMAC hash: got %s, expected %s for feed %s from hub %s', _ve($their_hmac), _ve($our_hmac), _ve($this->getUri()), _ve($this->huburi)));
+                return true;
+
             } else {
                 common_log(LOG_ERR, sprintf(__METHOD__.': ignoring PuSH with bogus HMAC==', _ve($hmac)));
             }
