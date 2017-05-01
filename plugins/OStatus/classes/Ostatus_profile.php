@@ -80,6 +80,11 @@ class Ostatus_profile extends Managed_DataObject
         return $this->uri;
     }
 
+    public function getFeedSub()
+    {
+        return FeedSub::getByUri($this->feeduri);
+    }
+
     static function fromProfile(Profile $profile)
     {
         $oprofile = Ostatus_profile::getKV('profile_id', $profile->getID());
@@ -1858,7 +1863,7 @@ class Ostatus_profile extends Managed_DataObject
 
         if (array_key_exists('feedurl', $hints) && common_valid_http_url($hints['feedurl'])) {
             try {
-                $feedsub = FeedSub::getByUri($this->feeduri);
+                $feedsub = $this->getFeedSub();
                 common_debug('URIFIX Changing FeedSub id==['._ve($feedsub->id).'] feeduri '._ve($feedsub->uri).' to '._ve($hints['feedurl']));
                 $feedorig = clone($feedsub);
                 $feedsub->uri = $hints['feedurl'];
