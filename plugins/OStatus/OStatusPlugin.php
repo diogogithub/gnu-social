@@ -1195,6 +1195,25 @@ class OStatusPlugin extends Plugin
         return true;
     }
 
+    function onEndShowAccountProfileBlock(HTMLOutputter $out, Profile $profile)
+    {
+        if ($profile->isLocal()) {
+            return true;
+        }
+        $websub_states = [
+                'subscribe' => _m('Pending'),
+                'active'    => _m('Active'),
+                'nohub'     => _m('Polling'),
+                'inactive'  => _m('Inactive'),
+            ];
+        $out->elementStart('dl', 'entity_tags ostatus_profile');
+        $oprofile = Ostatus_profile::fromProfile($profile);
+        $feedsub = $oprofile->getFeedSub();
+        $out->element('dt', null, _m('WebSub'));
+        $out->element('dd', null, $websub_states[$feedsub->sub_state]);
+        $out->elementEnd('dl');
+    }
+
     // FIXME: This one can accept both an Action and a Widget. Confusing! Refactor to (HTMLOutputter $out, Profile $target)!
     function onStartProfileListItemActionElements($item)
     {
