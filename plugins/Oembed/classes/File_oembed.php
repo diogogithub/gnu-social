@@ -124,7 +124,8 @@ class File_oembed extends Managed_DataObject
                     $file = File::getByUrl($given_url);
                     $file_oembed->mimetype = $file->mimetype;
                 } catch (NoResultException $e) {
-                    $redir = File_redirection::where($given_url);
+                    // File_redirection::where argument 'discover' is false to avoid loops
+                    $redir = File_redirection::where($given_url, false);
                     if (empty($redir->file_id)) {
                         $f = $redir->getFile();
                         $file_oembed->mimetype = $f->mimetype;
