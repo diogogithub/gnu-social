@@ -25,7 +25,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 
 /*
-PuSH subscription flow:
+WebSub (previously PubSubHubbub/PuSH) subscription flow:
 
     $profile->subscribe()
         sends a sub request to the hub...
@@ -41,7 +41,7 @@ PuSH subscription flow:
 */
 
 /**
- * FeedSub handles low-level PubHubSubbub (PuSH) subscriptions.
+ * FeedSub handles low-level WebSub (PubSubHubbub/PuSH) subscriptions.
  * Higher-level behavior building OStatus stuff on top is handled
  * under Ostatus_profile.
  */
@@ -52,7 +52,7 @@ class FeedSub extends Managed_DataObject
     public $id;
     public $uri;    // varchar(191)   not 255 because utf8mb4 takes more space
 
-    // PuSH subscription data
+    // WebSub subscription data
     public $huburi;
     public $secret;
     public $sub_state; // subscribe, active, unsubscribe, inactive, nohub
@@ -105,14 +105,15 @@ class FeedSub extends Managed_DataObject
     }
 
     /**
-     * Do we have a hub? Then we are a PuSH feed.
-     * https://en.wikipedia.org/wiki/PubSubHubbub
+     * Do we have a hub? Then we are a WebSub feed.
+     * WebSub standard: https://www.w3.org/TR/websub/
+     * old: https://en.wikipedia.org/wiki/PubSubHubbub
      *
      * If huburi is empty, then doublecheck that we are not using
      * a fallback hub. If there is a fallback hub, it is only if the
-     * sub_state is "nohub" that we assume it's not a PuSH feed.
+     * sub_state is "nohub" that we assume it's not a WebSub feed.
      */
-    public function isPuSH()
+    public function isWebSub()
     {
         if (empty($this->huburi)
                 && (!common_config('feedsub', 'fallback_hub')
@@ -151,7 +152,7 @@ class FeedSub extends Managed_DataObject
     /**
      * @param string $feeduri
      * @return FeedSub
-     * @throws FeedSubException if feed is invalid or lacks PuSH setup
+     * @throws FeedSubException if feed is invalid or lacks WebSub setup
      */
     public static function ensureFeed($feeduri)
     {
@@ -262,7 +263,7 @@ class FeedSub extends Managed_DataObject
     public function subscribe()
     {
         if ($this->sub_state && $this->sub_state != 'inactive') {
-            common_log(LOG_WARNING, sprintf('Attempting to (re)start PuSH subscription to %s in unexpected state %s', $this->getUri(), $this->sub_state));
+            common_log(LOG_WARNING, sprintf('Attempting to (re)start WebSub subscription to %s in unexpected state %s', $this->getUri(), $this->sub_state));
         }
 
         if (!Event::handle('FeedSubscribe', array($this))) {
@@ -280,7 +281,7 @@ class FeedSub extends Managed_DataObject
                 return;
             } else {
                 // TRANS: Server exception.
-                throw new ServerException(_m('Attempting to start PuSH subscription for feed with no hub.'));
+                throw new ServerException(_m('Attempting to start WebSub subscription for feed with no hub.'));
             }
         }
 
@@ -288,7 +289,7 @@ class FeedSub extends Managed_DataObject
     }
 
     /**
-     * Send a PuSH unsubscription request to the hub for this feed.
+     * Send a WebSub unsubscription request to the hub for this feed.
      * The hub will later send us a confirmation POST to /main/push/callback.
      * Warning: this will cancel the subscription even if someone else in
      * the system is using it. Most callers will want garbageCollect() instead,
@@ -298,7 +299,7 @@ class FeedSub extends Managed_DataObject
      */
     public function unsubscribe() {
         if ($this->sub_state != 'active') {
-            common_log(LOG_WARNING, sprintf('Attempting to (re)end PuSH subscription to %s in unexpected state %s', $this->getUri(), $this->sub_state));
+            common_log(LOG_WARNING, sprintf('Attempting to (re)end WebSub subscription to %s in unexpected state %s', $this->getUri(), $this->sub_state));
         }
 
         if (!Event::handle('FeedUnsubscribe', array($this))) {
@@ -314,7 +315,7 @@ class FeedSub extends Managed_DataObject
              * A plugin should handle the FeedSub above and set the proper state
              * if there is no hub. (instead of 'nohub' it should be 'inactive' if
              * the instance has enabled feed polling for feeds that don't publish
-             * PuSH/WebSub hubs. FeedPoller is a plugin which enables polling.
+             * WebSub/PuSH hubs. FeedPoller is a plugin which enables polling.
              *
              * Secondly, if we don't have the setting "nohub" enabled (i.e.)
              * we're ready to poll ourselves, there is something odd with the
@@ -323,7 +324,7 @@ class FeedSub extends Managed_DataObject
 
             if (!common_config('feedsub', 'nohub')) {
                 // TRANS: Server exception.
-                throw new ServerException(_m('Attempting to end PuSH subscription for feed with no hub.'));
+                throw new ServerException(_m('Attempting to end WebSub subscription for feed with no hub.'));
             }
 
             return;
@@ -343,11 +344,11 @@ class FeedSub extends Managed_DataObject
     public function garbageCollect()
     {
         if ($this->sub_state == '' || $this->sub_state == 'inactive') {
-            // No active PuSH subscription, we can just leave it be.
+            // No active WebSub subscription, we can just leave it be.
             return true;
         }
 
-        // PuSH subscription is either active or in an indeterminate state.
+        // WebSub subscription is either active or in an indeterminate state.
         // Check if we're out of subscribers, and if so send an unsubscribe.
         $count = 0;
         Event::handle('FeedSubSubscriberCount', array($this, &$count));
@@ -426,12 +427,12 @@ class FeedSub extends Managed_DataObject
                         $client->setAuth($u, $p);
                     }
                 } else {
-                    throw new FeedSubException('Server could not find a usable PuSH hub.');
+                    throw new FeedSubException('Server could not find a usable WebSub hub.');
                 }
             }
             $response = $client->post($hub, $headers, $post);
             $status = $response->getStatus();
-            // PuSH specificed response status code
+            // WebSub specificed response status code
             if ($status == 202  || $status == 204) {
                 common_log(LOG_INFO, __METHOD__ . ': sub req ok, awaiting verification callback');
                 return;
@@ -440,7 +441,7 @@ class FeedSub extends Managed_DataObject
                 $msg = sprintf(_m("Unexpected HTTP status: %d"), $status);
             } else if ($status == 422) {
                 // Error code regarding something wrong in the data (it seems
-                // that we're talking to a PuSH hub at least, so let's check
+                // that we're talking to a WebSub hub at least, so let's check
                 // our own data to be sure we're not mistaken somehow.
 
                 $this->ensureHub(true);
@@ -462,7 +463,7 @@ class FeedSub extends Managed_DataObject
     }
 
     /**
-     * Save PuSH subscription confirmation.
+     * Save WebSub subscription confirmation.
      * Sets approximate lease start and end times and finalizes state.
      *
      * @param int $lease_seconds provided hub.lease_seconds parameter, if given
@@ -485,8 +486,8 @@ class FeedSub extends Managed_DataObject
     }
 
     /**
-     * Save PuSH unsubscription confirmation.
-     * Wipes active PuSH sub info and resets state.
+     * Save WebSub unsubscription confirmation.
+     * Wipes active WebSub sub info and resets state.
      */
     public function confirmUnsubscribe()
     {
@@ -503,7 +504,7 @@ class FeedSub extends Managed_DataObject
     }
 
     /**
-     * Accept updates from a PuSH feed. If validated, this object and the
+     * Accept updates from a WebSub feed. If validated, this object and the
      * feed (as a DOMDocument) will be passed to the StartFeedSubHandleFeed
      * and EndFeedSubHandleFeed events for processing.
      *
@@ -521,7 +522,7 @@ class FeedSub extends Managed_DataObject
         common_log(LOG_INFO, sprintf(__METHOD__.': packet for %s with HMAC %s', _ve($this->getUri()), _ve($hmac)));
 
         if (!in_array($this->sub_state, array('active', 'nohub'))) {
-            common_log(LOG_ERR, sprintf(__METHOD__.': ignoring PuSH for inactive feed %s (in state %s)', _ve($this->getUri()), _ve($this->sub_state)));
+            common_log(LOG_ERR, sprintf(__METHOD__.': ignoring WebSub for inactive feed %s (in state %s)', _ve($this->getUri()), _ve($this->sub_state)));
             return;
         }
 
@@ -604,7 +605,7 @@ class FeedSub extends Managed_DataObject
             if (preg_match('/^([0-9a-zA-Z\-\,]{3,16})=([0-9a-fA-F]+)$/', $hmac, $matches)) {
                 $hash_algo  = strtolower($matches[1]);
                 $their_hmac = strtolower($matches[2]);
-                common_debug(sprintf(__METHOD__ . ': PuSH from feed %s uses HMAC algorithm %s with value: %s', _ve($this->getUri()), _ve($hash_algo), _ve($their_hmac)));
+                common_debug(sprintf(__METHOD__ . ': WebSub push from feed %s uses HMAC algorithm %s with value: %s', _ve($this->getUri()), _ve($hash_algo), _ve($their_hmac)));
 
                 if (!in_array($hash_algo, hash_algos())) {
                     // We can't handle this at all, PHP doesn't recognize the algorithm name ('md5', 'sha1', 'sha256' etc: https://secure.php.net/manual/en/function.hash-algos.php)
@@ -618,19 +619,19 @@ class FeedSub extends Managed_DataObject
 
                 $our_hmac = hash_hmac($hash_algo, $post, $this->secret);
                 if ($their_hmac !== $our_hmac) {
-                    common_log(LOG_ERR, sprintf(__METHOD__.': ignoring PuSH with bad HMAC hash: got %s, expected %s for feed %s from hub %s', _ve($their_hmac), _ve($our_hmac), _ve($this->getUri()), _ve($this->huburi)));
-                    throw new FeedSubBadPushSignatureException('Incoming PuSH signature did not match expected HMAC hash.');
+                    common_log(LOG_ERR, sprintf(__METHOD__.': ignoring WebSub push with bad HMAC hash: got %s, expected %s for feed %s from hub %s', _ve($their_hmac), _ve($our_hmac), _ve($this->getUri()), _ve($this->huburi)));
+                    throw new FeedSubBadPushSignatureException('Incoming WebSub push signature did not match expected HMAC hash.');
                 }
                 return true;
 
             } else {
-                common_log(LOG_ERR, sprintf(__METHOD__.': ignoring PuSH with bogus HMAC==', _ve($hmac)));
+                common_log(LOG_ERR, sprintf(__METHOD__.': ignoring WebSub push with bogus HMAC==', _ve($hmac)));
             }
         } else {
             if (empty($hmac)) {
                 return true;
             } else {
-                common_log(LOG_ERR, sprintf(__METHOD__.': ignoring PuSH with unexpected HMAC==%s', _ve($hmac)));
+                common_log(LOG_ERR, sprintf(__METHOD__.': ignoring WebSub push with unexpected HMAC==%s', _ve($hmac)));
             }
         }
         return false;

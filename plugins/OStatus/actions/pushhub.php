@@ -18,7 +18,7 @@
  */
 
 /**
- * Integrated PuSH hub; lets us only ping them what need it.
+ * Integrated WebSub hub; lets us only ping them what need it.
  * @package Hub
  * @maintainer Brion Vibber <brion@status.net>
  */
@@ -71,7 +71,7 @@ class PushHubAction extends Action
     }
 
     /**
-     * Process a request for a new or modified PuSH feed subscription.
+     * Process a request for a new or modified WebSub feed subscription.
      * If asynchronous verification is requested, updates won't be saved immediately.
      *
      * HTTP return codes:
@@ -83,24 +83,24 @@ class PushHubAction extends Action
     {
         $callback = $this->argUrl('hub.callback');
 
-        common_debug('New PuSH hub request ('._ve($mode).') for callback '._ve($callback));
+        common_debug('New WebSub hub request ('._ve($mode).') for callback '._ve($callback));
         $topic = $this->argUrl('hub.topic');
         if (!$this->recognizedFeed($topic)) {
-            common_debug('PuSH hub request had unrecognized feed topic=='._ve($topic));
+            common_debug('WebSub hub request had unrecognized feed topic=='._ve($topic));
             // TRANS: Client exception. %s is a topic.
             throw new ClientException(sprintf(_m('Unsupported hub.topic %s this hub only serves local user and group Atom feeds.'),$topic));
         }
 
         $lease = $this->arg('hub.lease_seconds', null);
         if ($mode == 'subscribe' && $lease != '' && !preg_match('/^\d+$/', $lease)) {
-            common_debug('PuSH hub request had invalid lease_seconds=='._ve($lease));
+            common_debug('WebSub hub request had invalid lease_seconds=='._ve($lease));
             // TRANS: Client exception. %s is the invalid lease value.
             throw new ClientException(sprintf(_m('Invalid hub.lease "%s". It must be empty or positive integer.'),$lease));
         }
 
         $secret = $this->arg('hub.secret', null);
         if ($secret != '' && strlen($secret) >= 200) {
-            common_debug('PuSH hub request had invalid secret=='._ve($secret));
+            common_debug('WebSub hub request had invalid secret=='._ve($secret));
             // TRANS: Client exception. %s is the invalid hub secret.
             throw new ClientException(sprintf(_m('Invalid hub.secret "%s". It must be under 200 bytes.'),$secret));
         }
@@ -108,7 +108,7 @@ class PushHubAction extends Action
         $sub = HubSub::getByHashkey($topic, $callback);
         if (!$sub instanceof HubSub) {
             // Creating a new one!
-            common_debug('PuSH creating new HubSub entry for topic=='._ve($topic).' to remote callback '._ve($callback));
+            common_debug('WebSub creating new HubSub entry for topic=='._ve($topic).' to remote callback '._ve($callback));
             $sub = new HubSub();
             $sub->topic = $topic;
             $sub->callback = $callback;
@@ -121,15 +121,15 @@ class PushHubAction extends Action
                 $sub->setLease(intval($lease));
             }
         }
-        common_debug('PuSH hub request is now:'._ve($sub));
+        common_debug('WebSub hub request is now:'._ve($sub));
 
         $verify = $this->arg('hub.verify'); // TODO: deprecated
         $token = $this->arg('hub.verify_token', null);  // TODO: deprecated
         if ($verify == 'sync') {    // pre-0.4 PuSH
             $sub->verify($mode, $token);
             header('HTTP/1.1 204 No Content');
-        } else {    // If $verify is not "sync", we might be using PuSH 0.4
-            $sub->scheduleVerify($mode, $token);    // If we were certain it's PuSH 0.4, token could be removed
+        } else {    // If $verify is not "sync", we might be using WebSub or PuSH 0.4
+            $sub->scheduleVerify($mode, $token);    // If we were certain it's WebSub or PuSH 0.4, token could be removed
             header('HTTP/1.1 202 Accepted');
         }
     }

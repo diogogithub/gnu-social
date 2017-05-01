@@ -61,7 +61,7 @@ class OStatusPlugin extends Plugin
         $m->connect('main/ostatuspeopletag',
                     array('action' => 'ostatuspeopletag'));
 
-        // PuSH actions
+        // WebSub actions
         $m->connect('main/push/hub', array('action' => 'pushhub'));
 
         $m->connect('main/push/callback/:feed',
@@ -91,7 +91,7 @@ class OStatusPlugin extends Plugin
         // Prepare outgoing distributions after notice save.
         $qm->connect('ostatus', 'OStatusQueueHandler');
 
-        // Outgoing from our internal PuSH hub
+        // Outgoing from our internal WebSub hub
         $qm->connect('hubconf', 'HubConfQueueHandler');
         $qm->connect('hubprep', 'HubPrepQueueHandler');
 
@@ -100,7 +100,7 @@ class OStatusPlugin extends Plugin
         // Outgoing Salmon replies (when we don't need a return value)
         $qm->connect('salmon', 'SalmonQueueHandler');
 
-        // Incoming from a foreign PuSH hub
+        // Incoming from a foreign WebSub hub
         $qm->connect('pushin', 'PushInQueueHandler');
 
         // Re-subscribe feeds that need renewal
@@ -126,7 +126,7 @@ class OStatusPlugin extends Plugin
     }
 
     /**
-     * Set up a PuSH hub link to our internal link for canonical timeline
+     * Set up a WebSub hub link to our internal link for canonical timeline
      * Atom feeds for users and groups.
      */
     function onStartApiAtom($feed)
@@ -153,7 +153,7 @@ class OStatusPlugin extends Plugin
         if (!empty($id)) {
             $hub = common_config('ostatus', 'hub');
             if (empty($hub)) {
-                // Updates will be handled through our internal PuSH hub.
+                // Updates will be handled through our internal WebSub hub.
                 $hub = common_local_url('pushhub');
             }
             $feed->addLink($hub, array('rel' => 'hub'));
@@ -547,7 +547,7 @@ class OStatusPlugin extends Plugin
     }
 
     /**
-     * Send incoming PuSH feeds for OStatus endpoints in for processing.
+     * Send incoming WebSub feeds for OStatus endpoints in for processing.
      *
      * @param FeedSub $feedsub
      * @param DOMDocument $feed
@@ -583,10 +583,10 @@ class OStatusPlugin extends Plugin
 
     /**
      * When about to subscribe to a remote user, start a server-to-server
-     * PuSH subscription if needed. If we can't establish that, abort.
+     * WebSub subscription if needed. If we can't establish that, abort.
      *
      * @fixme If something else aborts later, we could end up with a stray
-     *        PuSH subscription. This is relatively harmless, though.
+     *        WebSub subscription. This is relatively harmless, though.
      *
      * @param Profile $profile  subscriber
      * @param Profile $other    subscribee
@@ -660,7 +660,7 @@ class OStatusPlugin extends Plugin
             return true;
         }
 
-        // Drop the PuSH subscription if there are no other subscribers.
+        // Drop the WebSub subscription if there are no other subscribers.
         $oprofile->garbageCollect();
 
         $act = new Activity();
@@ -761,7 +761,7 @@ class OStatusPlugin extends Plugin
             return true;
         }
 
-        // Drop the PuSH subscription if there are no other subscribers.
+        // Drop the WebSub subscription if there are no other subscribers.
         $oprofile->garbageCollect();
 
         $member = $profile;
@@ -858,7 +858,7 @@ class OStatusPlugin extends Plugin
             return true;
         }
 
-        // Drop the PuSH subscription if there are no other subscribers.
+        // Drop the WebSub subscription if there are no other subscribers.
         $oprofile->garbageCollect();
 
         $sub = Profile::getKV($user->id);
@@ -969,7 +969,7 @@ class OStatusPlugin extends Plugin
 
         $oprofile->notifyDeferred($act, $tagger);
 
-        // initiate a PuSH subscription for the person being tagged
+        // initiate a WebSub subscription for the person being tagged
         $oprofile->subscribe();
         return true;
     }
@@ -1020,7 +1020,7 @@ class OStatusPlugin extends Plugin
 
         $oprofile->notifyDeferred($act, $tagger);
 
-        // unsubscribe to PuSH feed if no more required
+        // unsubscribe to WebSub feed if no more required
         $oprofile->garbageCollect();
 
         return true;
@@ -1155,7 +1155,7 @@ class OStatusPlugin extends Plugin
 
         // Find foreign accounts I'm subscribed to that support Salmon pings.
         //
-        // @fixme we could run updates through the PuSH feed too,
+        // @fixme we could run updates through the WebSub feed too,
         // in which case we can skip Salmon pings to folks who
         // are also subscribed to me.
         $sql = "SELECT * FROM ostatus_profile " .

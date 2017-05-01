@@ -1,6 +1,6 @@
 <?php
 /**
- * GNU social feed polling plugin, to avoid using external PuSH hubs
+ * GNU social feed polling plugin, to avoid using external WebSub hubs
  *
  * @category  Feed
  * @package   GNUsocial
@@ -30,7 +30,7 @@ class FeedPollerPlugin extends Plugin {
 
     public function onFeedSubscribe(FeedSub $feedsub)
     {
-        if (!$feedsub->isPuSH()) {
+        if (!$feedsub->isWebSub()) {
             FeedPoll::setupFeedSub($feedsub, $this->interval*60);
             return false;   // We're polling this feed, so stop processing FeedSubscribe
         }
@@ -39,7 +39,7 @@ class FeedPollerPlugin extends Plugin {
 
     public function onFeedUnsubscribe(FeedSub $feedsub)
     {
-        if (!$feedsub->isPuSH()) {
+        if (!$feedsub->isWebSub()) {
             // removes sub_state setting and such
             $feedsub->confirmUnsubscribe();
             return false;

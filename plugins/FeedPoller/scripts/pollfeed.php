@@ -47,7 +47,7 @@ if (!$feedsub instanceof FeedSub) {
 }
 
 if ($feedsub->sub_state != 'nohub') {
-    echo "Feed is a PuSH feed, so we will not poll it.\n";
+    echo "Feed is a WebSub feed, so we will not poll it.\n";
     exit(1);
 }
 

@@ -239,7 +239,7 @@ class Ostatus_profile extends Managed_DataObject
 
     /**
      * Check if this remote profile has any active local subscriptions, and
-     * if not drop the PuSH subscription feed.
+     * if not drop the WebSub subscription feed.
      *
      * @return boolean true if subscription is removed, false if there are still subscribers to the feed
      * @throws Exception of various kinds on failure.
@@ -250,7 +250,7 @@ class Ostatus_profile extends Managed_DataObject
 
     /**
      * Check if this remote profile has any active local subscriptions, and
-     * if not drop the PuSH subscription feed.
+     * if not drop the WebSub subscription feed.
      *
      * @return boolean true if subscription is removed, false if there are still subscribers to the feed
      * @throws Exception of various kinds on failure.
@@ -267,7 +267,7 @@ class Ostatus_profile extends Managed_DataObject
 
     /**
      * Check if this remote profile has any active local subscriptions, so the
-     * PuSH subscription layer can decide if it can drop the feed.
+     * WebSub subscription layer can decide if it can drop the feed.
      *
      * This gets called via the FeedSubSubscriberCount event when running
      * FeedSub::garbageCollect().
@@ -429,7 +429,7 @@ class Ostatus_profile extends Managed_DataObject
     /**
      * Read and post notices for updates from the feed.
      * Currently assumes that all items in the feed are new,
-     * coming from a PuSH hub.
+     * coming from a WebSub hub.
      *
      * @param DOMDocument $doc
      * @param string $source identifier ("push")
@@ -779,7 +779,7 @@ class Ostatus_profile extends Managed_DataObject
         $hints['salmon'] = $salmonuri;
 
         if (!$huburi && !common_config('feedsub', 'fallback_hub') && !common_config('feedsub', 'nohub')) {
-            // We can only deal with folks with a PuSH hub
+            // We can only deal with folks with a WebSub hub
             // unless we have something similar available locally.
             throw new FeedSubNoHubException();
         }
@@ -1177,7 +1177,7 @@ class Ostatus_profile extends Managed_DataObject
         }
 
         if (!$huburi && !common_config('feedsub', 'fallback_hub') && !common_config('feedsub', 'nohub')) {
-            // We can only deal with folks with a PuSH hub
+            // We can only deal with folks with a WebSub hub
             throw new FeedSubNoHubException();
         }
 

@@ -20,7 +20,7 @@
 if (!defined('GNUSOCIAL')) { exit(1); }
 
 /**
- * PuSH feed subscription record
+ * WebSub (previously PuSH) feed subscription record
  * @package Hub
  * @author Brion Vibber <brion@status.net>
  */
@@ -78,7 +78,7 @@ class HubSub extends Managed_DataObject
      */
     function setLease($length)
     {
-        common_debug('PuSH hub got requested lease_seconds=='._ve($length));
+        common_debug('WebSub hub got requested lease_seconds=='._ve($length));
         assert(is_int($length));
 
         $min = 86400;   // 3600*24 (one day)
@@ -93,7 +93,7 @@ class HubSub extends Managed_DataObject
             $length = $max;
         }
 
-        common_debug('PuSH hub after sanitation: lease_seconds=='._ve($length));
+        common_debug('WebSub hub after sanitation: lease_seconds=='._ve($length));
         $this->sub_start = common_sql_now();
         $this->sub_end = common_sql_date(time() + $length);
     }
@@ -242,7 +242,7 @@ class HubSub extends Managed_DataObject
         $data = array('sub' => $sub,
                       'atom' => $atom,
                       'retries' => $retries);
-        common_log(LOG_INFO, "Queuing PuSH: {$this->getTopic()} to {$this->callback}");
+        common_log(LOG_INFO, "Queuing WebSub: {$this->getTopic()} to {$this->callback}");
         $qm = QueueManager::get();
         $qm->enqueue($data, 'hubout');
     }
@@ -265,7 +265,7 @@ class HubSub extends Managed_DataObject
         $data = array('atom' => $atom,
                       'topic' => $this->getTopic(),
                       'pushCallbacks' => $pushCallbacks);
-        common_log(LOG_INFO, "Queuing PuSH batch: {$this->getTopic()} to ".count($pushCallbacks)." sites");
+        common_log(LOG_INFO, "Queuing WebSub batch: {$this->getTopic()} to ".count($pushCallbacks)." sites");
         $qm = QueueManager::get();
         $qm->enqueue($data, 'hubprep');
         return true;
@@ -304,7 +304,7 @@ class HubSub extends Managed_DataObject
         } catch (Exception $e) {
             $response = null;
 
-            common_debug('PuSH callback to '._ve($this->callback).' for '._ve($this->getTopic()).' failed with exception: '._ve($e->getMessage()));
+            common_debug('WebSub callback to '._ve($this->callback).' for '._ve($this->getTopic()).' failed with exception: '._ve($e->getMessage()));
         }
 
         // XXX: DO NOT trust a Location header here, _especially_ from 'http' protocols,
@@ -312,9 +312,9 @@ class HubSub extends Managed_DataObject
         // the most common change here is simply switching 'http' to 'https' and we will
         // solve 99% of all of these issues for now. There should be a proper mechanism
         // if we want to change the callback URLs, preferrably just manual resubscriptions
-        // from the remote side, combined with implemented PuSH subscription timeouts.
+        // from the remote side, combined with implemented WebSub subscription timeouts.
 
-        // We failed the PuSH, but it might be that the remote site has changed their configuration to HTTPS
+        // We failed the WebSub, but it might be that the remote site has changed their configuration to HTTPS
         if ('http' === parse_url($this->callback, PHP_URL_SCHEME)) {
             // Test if the feed callback for this node has migrated to HTTPS
             $httpscallback = preg_replace('/^http/', 'https', $this->callback, 1);
@@ -324,7 +324,7 @@ class HubSub extends Managed_DataObject
                 throw new AlreadyFulfilledException('The remote side has already established an HTTPS callback, deleting the legacy HTTP entry.');
             }
 
-            common_debug('PuSH callback to '._ve($this->callback).' for '._ve($this->getTopic()).' trying HTTPS callback: '._ve($httpscallback));
+            common_debug('WebSub callback to '._ve($this->callback).' for '._ve($this->getTopic()).' trying HTTPS callback: '._ve($httpscallback));
             $response = $request->post($httpscallback, $headers);
             if ($response->isOk()) {
                 $orig = clone($this);

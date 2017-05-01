@@ -24,7 +24,7 @@ $longoptions = array('skip=', 'count=');
 
 $helptext = <<<END_OF_HELP
 testfeed.php [options] http://example.com/atom-feed-url
-Pull an Atom feed and run items in it as though they were live PuSH updates.
+Pull an Atom feed and run items in it as though they were live WebSub updates.
 Mainly intended for testing funky feed formats.
 
      --skip=N   Ignore the first N items in the feed.

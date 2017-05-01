@@ -22,7 +22,7 @@ class FeedPollQueueHandler extends QueueHandler
             return true;
         }
         if (!$feedsub->sub_state == 'nohub') {
-            // We're not supposed to poll this (either it's PuSH or it's unsubscribed)
+            // We're not supposed to poll this (either it's WebSub or it's unsubscribed)
             return true;
         }
 

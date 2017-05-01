@@ -20,7 +20,7 @@
 if (!defined('GNUSOCIAL')) { exit(1); }
 
 /**
- * Process a feed distribution POST from a PuSH hub.
+ * Process a feed distribution POST from a WebSub (previously PuSH) hub.
  * @package FeedSub
  * @author Brion Vibber <brion@status.net>
  */
@@ -45,7 +45,7 @@ class PushInQueueHandler extends QueueHandler
         } catch(NoResultException $e) {
             common_log(LOG_INFO, "Discarding POST to unknown feed subscription id {$feedsub_id}");
         } catch(Exception $e) {
-            common_log(LOG_ERR, "Exception "._ve(get_class($e))." during PuSH input processing for {$feedsub->getUri()}: " . $e->getMessage());
+            common_log(LOG_ERR, "Exception "._ve(get_class($e))." during WebSub push input processing for {$feedsub->getUri()}: " . $e->getMessage());
         }
         return true;
     }

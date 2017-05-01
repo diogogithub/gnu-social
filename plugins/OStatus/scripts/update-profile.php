@@ -24,7 +24,7 @@ $helptext = <<<END_OF_HELP
 update-profile.php [options] http://example.com/profile/url
 
 Rerun profile and feed info discovery for the given OStatus remote profile,
-and reinitialize its PuSH subscription for the given feed. This may help get
+and reinitialize its WebSub subscription for the given feed. This may help get
 things restarted if the hub or feed URLs have changed for the profile.
 
 

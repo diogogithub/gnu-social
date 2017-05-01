@@ -54,7 +54,7 @@ class PushCallbackAction extends Action
         $feedsub = FeedSub::getKV('id', $feedid);
         if (!$feedsub instanceof FeedSub) {
             // TRANS: Server exception. %s is a feed ID.
-            throw new ServerException(sprintf(_m('Unknown PuSH feed id %s'),$feedid), 400);
+            throw new ServerException(sprintf(_m('Unknown WebSub subscription feed id %s'),$feedid), 400);
         }
 
         $hmac = '';
