@@ -271,8 +271,8 @@ class OStatusPlugin extends Plugin
                        PREG_OFFSET_CAPTURE);
         if ($result === false) {
             common_log(LOG_ERR, __METHOD__ . ': Error parsing webfinger IDs from text (preg_last_error=='.preg_last_error().').');
-        } else {
-            common_debug(sprintf('Found %i matches for WebFinger IDs: %s', count($wmatches), _ve($wmatches)));
+        } elseif (count($wmatches)) {
+            common_debug(sprintf('Found %d matches for WebFinger IDs: %s', count($wmatches), _ve($wmatches)));
         }
         return $wmatches[1];
     }
@@ -293,8 +293,8 @@ class OStatusPlugin extends Plugin
                        PREG_OFFSET_CAPTURE);
         if ($result === false) {
             common_log(LOG_ERR, __METHOD__ . ': Error parsing profile URL mentions from text (preg_last_error=='.preg_last_error().').');
-        } else {
-            common_debug(sprintf('Found %i matches for profile URL mentions: %s', count($wmatches), _ve($wmatches)));
+        } elseif (count($wmatches)) {
+            common_debug(sprintf('Found %d matches for profile URL mentions: %s', count($wmatches), _ve($wmatches)));
         }
         return $wmatches[1];
     }
