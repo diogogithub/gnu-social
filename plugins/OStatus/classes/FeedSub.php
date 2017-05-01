@@ -393,6 +393,8 @@ class FeedSub extends Managed_DataObject
      */
     protected function doSubscribe($mode)
     {
+        $msg = null;    // carries descriptive error message to enduser (no remote data strings!)
+
         $orig = clone($this);
         if ($mode == 'subscribe') {
             $this->secret = common_random_hexstr(32);
@@ -435,6 +437,7 @@ class FeedSub extends Managed_DataObject
                 return;
             } else if ($status >= 200 && $status < 300) {
                 common_log(LOG_ERR, __METHOD__ . ": sub req returned unexpected HTTP $status: " . $response->getBody());
+                $msg = sprintf(_m("Unexpected HTTP status: %d"), $status);
             } else if ($status == 422) {
                 // Error code regarding something wrong in the data (it seems
                 // that we're talking to a PuSH hub at least, so let's check
@@ -455,7 +458,7 @@ class FeedSub extends Managed_DataObject
             // Throw the Exception again.
             throw $e;
         }
-        throw new ServerException("{$mode} request failed.");
+        throw new ServerException("{$mode} request failed" . (!is_null($msg) ? " ($msg)" : '.'));
     }
 
     /**
