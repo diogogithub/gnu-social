@@ -194,10 +194,14 @@ class File extends Managed_DataObject
         }
 
         $redir = File_redirection::where($given_url);
-        $file = $redir->getFile();
-
-        if (!$file instanceof File || empty($file->id)) {
+        try {
+            $file = $redir->getFile();
+        } catch (EmptyPkeyValueException $e) {
+            common_log(LOG_ERR, 'File_redirection::where gave object with empty file_id for given_url '._ve($given_url));
+            throw new ServerException('URL processing failed without new File object');
+        } catch (NoResultException $e) {
             // This should not happen
+            common_log(LOG_ERR, 'File_redirection after discovery could still not return a File object.');
             throw new ServerException('URL processing failed without new File object');
         }
 
