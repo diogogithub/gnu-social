@@ -1583,12 +1583,12 @@ class Notice extends Managed_DataObject
 
                 if (common_config('group', 'addtag')) {
                     // we automatically add a tag for every group name, too
-
-                    $tag = Notice_tag::pkeyGet(array('tag' => common_canonical_tag($group->nickname),
-                                                     'notice_id' => $this->id));
+                    common_debug('Adding hashtag matching group nickname: '._ve($group->getNickname()));
+                    $tag = Notice_tag::pkeyGet(array('tag' => common_canonical_tag($group->getNickname()),
+                                                     'notice_id' => $this->getID()));
 
                     if (is_null($tag)) {
-                        $this->saveTag($group->nickname);
+                        $this->saveTag($group->getNickname());
                     }
                 }
 
