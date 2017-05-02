@@ -121,7 +121,6 @@ class PushHubAction extends Action
                 $sub->setLease(intval($lease));
             }
         }
-        common_debug('WebSub hub request is now:'._ve($sub));
 
         $verify = $this->arg('hub.verify'); // TODO: deprecated
         $token = $this->arg('hub.verify_token', null);  // TODO: deprecated
