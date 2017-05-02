@@ -624,8 +624,13 @@ class Notice extends Managed_DataObject
                 } else {
                     // Conversation entry with specified URI was not found, so we must create it.
                     common_debug('Conversation URI not found, so we will create it with the URI given in the options to Notice::saveNew: '.$options['conversation']);
+                    $convctx = new ActivityContext();
+                    $convctx->conversation = $options['conversation'];
+                    if (array_key_exists('conversation_url', $options)) {
+                        $convctx->conversation_url = $options['conversation_url'];
+                    }
                     // The insert in Conversation::create throws exception on failure
-                    $conv = Conversation::create($options['conversation'], $notice->created);
+                    $conv = Conversation::create($convctx, $notice->created);
                 }
                 $notice->conversation = $conv->getID();
                 unset($conv);
@@ -921,7 +926,7 @@ class Notice extends Managed_DataObject
                     // Conversation entry with specified URI was not found, so we must create it.
                     common_debug('Conversation URI not found, so we will create it with the URI given in the context of the activity: '.$act->context->conversation);
                     // The insert in Conversation::create throws exception on failure
-                    $conv = Conversation::create($act->context->conversation, $stored->created);
+                    $conv = Conversation::create($act->context, $stored->created);
                 }
                 $stored->conversation = $conv->getID();
                 unset($conv);
@@ -2008,6 +2013,7 @@ class Notice extends Managed_DataObject
                 $conv = Conversation::getKV('id', $this->conversation);
                 if ($conv instanceof Conversation) {
                     $ctx->conversation = $conv->uri;
+                    $ctx->conversation_url = $conv->url;
                 }
             }
 
