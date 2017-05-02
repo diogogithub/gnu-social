@@ -126,10 +126,7 @@ class File_oembed extends Managed_DataObject
                 } catch (NoResultException $e) {
                     // File_redirection::where argument 'discover' is false to avoid loops
                     $redir = File_redirection::where($given_url, false);
-                    if (empty($redir->file_id)) {
-                        $f = $redir->getFile();
-                        $file_oembed->mimetype = $f->mimetype;
-                    } else {
+                    if (!empty($redir->file_id)) {
                         $file_id = $redir->file_id;
                     }
                 }
