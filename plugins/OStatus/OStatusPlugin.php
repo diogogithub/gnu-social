@@ -1200,6 +1200,22 @@ class OStatusPlugin extends Plugin
         if ($profile->isLocal()) {
             return true;
         }
+        try {
+            $oprofile = Ostatus_profile::fromProfile($profile);
+        } catch (NoResultException $e) {
+            // Not a remote Ostatus_profile! Maybe some other network
+            // that has imported a non-local user?
+            return true;
+        }
+        try {
+            $feedsub = $oprofile->getFeedSub();
+        } catch (NoResultException $e) {
+            // No WebSub subscription has been attempted or exists for this profile
+            // which is the case, say for remote profiles that are only included
+            // via mentions or repeat/share.
+            return true;
+        }
+
         $websub_states = [
                 'subscribe' => _m('Pending'),
                 'active'    => _m('Active'),
@@ -1207,8 +1223,6 @@ class OStatusPlugin extends Plugin
                 'inactive'  => _m('Inactive'),
             ];
         $out->elementStart('dl', 'entity_tags ostatus_profile');
-        $oprofile = Ostatus_profile::fromProfile($profile);
-        $feedsub = $oprofile->getFeedSub();
         $out->element('dt', null, _m('WebSub'));
         $out->element('dd', null, $websub_states[$feedsub->sub_state]);
         $out->elementEnd('dl');
