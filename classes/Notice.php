@@ -3267,27 +3267,4 @@ class Notice extends Managed_DataObject
     public function setPref($namespace, $topic, $data) {
         return Notice_prefs::setData($this, $namespace, $topic, $data);
     }
-
-    public function delPref($namespace, $topic) {
-        return Notice_prefs::setData($this, $namespace, $topic, null);
-    }
-
-    public function getPref($namespace, $topic, $default=null) {
-        // If you want an exception to be thrown, call Notice_prefs::getData directly
-        try {
-            return Notice_prefs::getData($this, $namespace, $topic, $default);
-        } catch (NoResultException $e) {
-            return null;
-        }
-    }
-
-    // The same as getPref but will fall back to common_config value for the same namespace/topic
-    public function getConfigPref($namespace, $topic)
-    {
-        return Notice_prefs::getConfigData($this, $namespace, $topic);
-    }
-
-    public function setPref($namespace, $topic, $data) {
-        return Notice_prefs::setData($this, $namespace, $topic, $data);
-    }
 }
