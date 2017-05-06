@@ -344,6 +344,7 @@ abstract class ActivityHandlerPlugin extends Plugin
 
         $options = array('uri' => $object->id,
                          'url' => $object->link,
+                         'self' => $object->selfLink,
                          'is_local' => Notice::REMOTE,
                          'source' => 'ostatus');
 
@@ -420,6 +421,7 @@ abstract class ActivityHandlerPlugin extends Plugin
 
         $options = array('uri' => $object->id,
                          'url' => $object->link,
+                         'self' => $object->selfLink,
                          'is_local' => Notice::REMOTE,
                          'source' => 'ostatus');
 
@@ -471,6 +473,7 @@ abstract class ActivityHandlerPlugin extends Plugin
 
         $options = array('uri' => $object->id,
                          'url' => $object->link,
+                         'self' => $object->selfLink,
                          'source' => 'restore');
 
         // $user->getProfile() is a Profile
