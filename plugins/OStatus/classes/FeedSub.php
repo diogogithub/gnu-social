@@ -206,7 +206,7 @@ class FeedSub extends Managed_DataObject
      * ensureHub will only do $this->update if !empty($this->id)
      * because otherwise the object has not been created yet.
      *
-     * @param   bool    $autorenew  Whether to autorenew the feed after ensuring the hub URL
+     * @param   bool    $rediscovered   Whether the hub info is rediscovered (to avoid endless loop nesting)
      *
      * @return  null    if actively avoiding the database
      *          int     number of rows updated in the database (0 means untouched)
@@ -214,7 +214,7 @@ class FeedSub extends Managed_DataObject
      * @throws  ServerException if something went wrong when updating the database
      *          FeedSubNoHubException   if no hub URL was discovered
      */
-    public function ensureHub($autorenew=false)
+    public function ensureHub($rediscovered=false)
     {
         if ($this->sub_state !== 'inactive') {
             common_log(LOG_INFO, sprintf(__METHOD__ . ': Running hub discovery a possibly active feed in %s state for URI %s', _ve($this->sub_state), _ve($this->uri)));
@@ -244,7 +244,7 @@ class FeedSub extends Managed_DataObject
                 common_debug('Database update failed for FeedSub id=='._ve($this->id).' with new huburi: '._ve($this->huburi));
                 throw new ServerException('Database update failed for FeedSub.');
             }
-            if ($autorenew) {
+            if ($rediscovered) {
                 $this->renew();
             }
             return $result;
@@ -260,7 +260,7 @@ class FeedSub extends Managed_DataObject
      * @return void
      * @throws ServerException if feed state is not valid
      */
-    public function subscribe()
+    public function subscribe($rediscovered=false)
     {
         if ($this->sub_state && $this->sub_state != 'inactive') {
             common_log(LOG_WARNING, sprintf('Attempting to (re)start WebSub subscription to %s in unexpected state %s', $this->getUri(), $this->sub_state));
@@ -285,7 +285,7 @@ class FeedSub extends Managed_DataObject
             }
         }
 
-        $this->doSubscribe('subscribe');
+        $this->doSubscribe('subscribe', $rediscovered);
     }
 
     /**
@@ -376,10 +376,10 @@ class FeedSub extends Managed_DataObject
         return $fs;
     }
 
-    public function renew()
+    public function renew($rediscovered=false)
     {
         common_debug('FeedSub is being renewed for uri=='._ve($this->uri).' on huburi=='._ve($this->huburi));
-        $this->subscribe();
+        $this->subscribe($rediscovered);
     }
 
     /**
@@ -392,7 +392,7 @@ class FeedSub extends Managed_DataObject
      * @return boolean true when everything is ok (throws Exception on fail)
      * @throws Exception on failure, can be HTTPClient's or our own.
      */
-    protected function doSubscribe($mode)
+    protected function doSubscribe($mode, $rediscovered=false)
     {
         $msg = null;    // carries descriptive error message to enduser (no remote data strings!)
 
@@ -439,11 +439,14 @@ class FeedSub extends Managed_DataObject
             } else if ($status >= 200 && $status < 300) {
                 common_log(LOG_ERR, __METHOD__ . ": sub req returned unexpected HTTP $status: " . $response->getBody());
                 $msg = sprintf(_m("Unexpected HTTP status: %d"), $status);
-            } else if ($status == 422) {
+            } else if ($status == 422 && !$rediscovered) {
                 // Error code regarding something wrong in the data (it seems
                 // that we're talking to a WebSub hub at least, so let's check
-                // our own data to be sure we're not mistaken somehow.
+                // our own data to be sure we're not mistaken somehow, which
+                // means rediscovering hub data (the boolean parameter means
+                // we avoid running this part over and over and over and over):
 
+                common_debug('Running ensureHub again due to 422 status, $rediscovered=='._ve($rediscovered));
                 $this->ensureHub(true);
             } else {
                 common_log(LOG_ERR, __METHOD__ . ": sub req failed with HTTP $status: " . $response->getBody());
