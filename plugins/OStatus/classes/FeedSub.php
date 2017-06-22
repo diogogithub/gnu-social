@@ -216,6 +216,7 @@ class FeedSub extends Managed_DataObject
      */
     public function ensureHub($rediscovered=false)
     {
+        common_debug('Now inside ensureHub again, $rediscovered=='._ve($rediscovered));
         if ($this->sub_state !== 'inactive') {
             common_log(LOG_INFO, sprintf(__METHOD__ . ': Running hub discovery a possibly active feed in %s state for URI %s', _ve($this->sub_state), _ve($this->uri)));
         }
@@ -244,7 +245,7 @@ class FeedSub extends Managed_DataObject
                 common_debug('Database update failed for FeedSub id=='._ve($this->id).' with new huburi: '._ve($this->huburi));
                 throw new ServerException('Database update failed for FeedSub.');
             }
-            if ($rediscovered) {
+            if (!$rediscovered) {
                 $this->renew();
             }
             return $result;
@@ -447,7 +448,8 @@ class FeedSub extends Managed_DataObject
                 // we avoid running this part over and over and over and over):
 
                 common_debug('Running ensureHub again due to 422 status, $rediscovered=='._ve($rediscovered));
-                $this->ensureHub(true);
+                $discoveryResult = $this->ensureHub(true);
+                common_debug('ensureHub is now done and its result was: '._ve($discoveryResult));
             } else {
                 common_log(LOG_ERR, __METHOD__ . ": sub req failed with HTTP $status: " . $response->getBody());
             }

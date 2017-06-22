@@ -45,7 +45,11 @@ class PushInQueueHandler extends QueueHandler
         } catch(NoResultException $e) {
             common_log(LOG_INFO, "Discarding POST to unknown feed subscription id {$feedsub_id}");
         } catch(Exception $e) {
-            common_log(LOG_ERR, "Exception "._ve(get_class($e))." during WebSub push input processing for {$feedsub->getUri()}: " . $e->getMessage());
+            if (is_null($feedsub)) {
+                common_log(LOG_ERR, "Exception "._ve(get_class($e))." during WebSub push input processing where FeedSub->receive returned null!" . _ve($e->getMessage()));
+            } else {
+                common_log(LOG_ERR, "Exception "._ve(get_class($e))." during WebSub push input processing for {$feedsub->getUri()}: " . _ve($e->getMessage()));
+            }
         }
         return true;
     }
