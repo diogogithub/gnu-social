@@ -393,7 +393,7 @@ $default =
               'ssl_verify_host' => true,    // HTTPRequest2 makes sure this is set to CURLOPT_SSL_VERIFYHOST==2 if using curl
               'curl' => false, // Use CURL backend for HTTP fetches if available. (If not, PHP's socket streams will be used.)
               'connect_timeout' => 5,
-              'timeout' => 60,
+              'timeout' => ini_get('default_socket_timeout'),   // effectively should be this by default already, but this makes it more explicitly configurable for you users .)
               'proxy_host' => null,
               'proxy_port' => null,
               'proxy_user' => null,
