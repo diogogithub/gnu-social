@@ -122,11 +122,12 @@ class HTTPClient extends HTTP_Request2
             // responses... But the default in HTTP_Request2 is 0 for 
             // some reason and should probably be considered a valid value.
             $this->config['timeout'] = common_config('http', 'timeout');
-            common_debug('Using HTTPClient timeout value of '._ve($this->config['timeout']));
         } else {
             common_log(LOG_ERR, 'config option http/timeout is not an integer value: '._ve(common_config('http', 'timeout')));
         }
-        $this->config['connect_timeout'] = common_config('http', 'connect_timeout') ?: $this->config['connect_timeout'];
+        if (!empty(common_config('http', 'connect_timeout'))) {
+            $this->config['connect_timeout'] = common_config('http', 'connect_timeout');
+        }
         $this->config['max_redirs'] = 10;
         $this->config['follow_redirects'] = true;
 
