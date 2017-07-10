@@ -418,7 +418,7 @@ class OembedPlugin extends Plugin
         $imgData = HTTPClient::quickGet($remoteUrl);
         $info = @getimagesizefromstring($imgData);
         if ($info === false) {
-            throw new UnsupportedMediaException(_('Remote file format was not identified as an image.'), $url);
+            throw new UnsupportedMediaException(_('Remote file format was not identified as an image.'), $remoteUrl);
         } elseif (!$info[0] || !$info[1]) {
             throw new UnsupportedMediaException(_('Image file had impossible geometry (0 width or height)'));
         }
