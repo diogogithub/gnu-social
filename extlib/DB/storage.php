@@ -38,7 +38,7 @@ require_once 'DB.php';
  * @author     Stig Bakken <stig@php.net>
  * @copyright  1997-2007 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: 1.8.2
+ * @version    Release: 1.9.2
  * @link       http://pear.php.net/package/DB
  */
 class DB_storage extends PEAR
@@ -94,7 +94,7 @@ class DB_storage extends PEAR
      * a reference to this object
      *
      */
-    function DB_storage($table, $keycolumn, &$dbh, $validator = null)
+    function __construct($table, $keycolumn, &$dbh, $validator = null)
     {
         $this->PEAR('DB_Error');
         $this->_table = $table;

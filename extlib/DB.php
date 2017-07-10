@@ -426,7 +426,7 @@ define('DB_PORTABILITY_ALL', 63);
  * @author     Daniel Convissor <danielc@php.net>
  * @copyright  1997-2007 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: 1.8.2
+ * @version    Release: 1.9.2
  * @link       http://pear.php.net/package/DB
  */
 class DB
@@ -577,7 +577,7 @@ class DB
      */
     function apiVersion()
     {
-        return '1.8.2';
+        return '1.9.2';
     }
 
     // }}}
@@ -941,7 +941,7 @@ class DB
  * @author     Stig Bakken <ssb@php.net>
  * @copyright  1997-2007 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: 1.8.2
+ * @version    Release: 1.9.2
  * @link       http://pear.php.net/package/DB
  */
 class DB_Error extends PEAR_Error
@@ -959,18 +959,32 @@ class DB_Error extends PEAR_Error
      *
      * @see PEAR_Error
      */
-    function DB_Error($code = DB_ERROR, $mode = PEAR_ERROR_RETURN,
+    function __construct($code = DB_ERROR, $mode = PEAR_ERROR_RETURN,
                       $level = E_USER_NOTICE, $debuginfo = null)
     {
         if (is_int($code)) {
-            $this->PEAR_Error('DB Error: ' . DB::errorMessage($code), $code,
+            parent::__construct('DB Error: ' . DB::errorMessage($code), $code,
                               $mode, $level, $debuginfo);
         } else {
-            $this->PEAR_Error("DB Error: $code", DB_ERROR,
+            parent::__construct("DB Error: $code", DB_ERROR,
                               $mode, $level, $debuginfo);
         }
     }
 
+    /**
+     * Workaround to both avoid the "Redefining already defined constructor"
+     * PHP error and provide backward compatibility in case someone is calling
+     * DB_Error() dynamically
+     */
+    public function __call($method, $arguments)
+    {
+        if ($method == 'DB_Error') {
+            return call_user_func_array(array($this, '__construct'), $arguments);
+        }
+        trigger_error(
+            'Call to undefined method DB_Error::' . $method . '()', E_USER_ERROR
+        );
+    }
     // }}}
 }
 
@@ -988,7 +1002,7 @@ class DB_Error extends PEAR_Error
  * @author     Stig Bakken <ssb@php.net>
  * @copyright  1997-2007 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: 1.8.2
+ * @version    Release: 1.9.2
  * @link       http://pear.php.net/package/DB
  */
 class DB_result
@@ -1095,7 +1109,7 @@ class DB_result
      *
      * @return void
      */
-    function DB_result(&$dbh, $result, $options = array())
+    function __construct(&$dbh, $result, $options = array())
     {
         $this->autofree    = $dbh->options['autofree'];
         $this->dbh         = &$dbh;
@@ -1453,7 +1467,7 @@ class DB_result
  * @author     Stig Bakken <ssb@php.net>
  * @copyright  1997-2007 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: 1.8.2
+ * @version    Release: 1.9.2
  * @link       http://pear.php.net/package/DB
  * @see        DB_common::setFetchMode()
  */
@@ -1468,7 +1482,7 @@ class DB_row
      *
      * @return void
      */
-    function DB_row(&$arr)
+    function __construct(&$arr)
     {
         foreach ($arr as $key => $value) {
             $this->$key = &$arr[$key];
