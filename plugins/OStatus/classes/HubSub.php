@@ -57,6 +57,10 @@ class HubSub extends Managed_DataObject
                 'secret' => array('type' => 'text', 'description' => 'HubSub stored secret'),
                 'sub_start' => array('type' => 'datetime', 'description' => 'subscription start'),
                 'sub_end' => array('type' => 'datetime', 'description' => 'subscription end'),
+                'errors' => array('type' => 'integer', 'not null' => true, 'default' => 0, 'description' => 'Queue handling error count, is reset on success.'),
+                'error_start' => array('type' => 'datetime', 'default' => null, 'description' => 'time of first error since latest success, should be null if no errors have been counted'),
+                'last_error' => array('type' => 'datetime', 'default' => null, 'description' => 'time of last failure, if ever'),
+                'last_error_msg' => array('type' => 'text', 'default' => null, 'description' => 'Last error _message_'),
                 'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
                 'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
@@ -66,6 +70,51 @@ class HubSub extends Managed_DataObject
                 'hubsub_topic_idx' => array('topic'),
             ),
         );
+    }
+
+    function getErrors()
+    {
+        return intval($this->errors);
+    }
+
+    // $msg is only set if $error_count is 0
+    function setErrors($error_count, $msg=null)
+    {
+        assert(is_int($error_count));
+        if (!is_int($error_count) || $error_count < 0) {
+            common_log(LOG_ERR, 'HubSub->setErrors was given a bad value: '._ve($error_count));
+            throw new ServerException('HubSub error count must be an integer higher or equal to 0.');
+        }
+
+        $orig = clone($this);
+        $now = common_sql_now();
+
+        if ($error_count === 1) {
+            // Record when the errors started
+            $this->error_start = $now;
+        }
+        if ($error_count > 0) {
+            // Record this error's occurrence in time
+            $this->last_error = $now;
+            $this->last_error_msg = $msg;
+        } else {
+            $this->error_start = null;
+            $this->last_error = null;
+            $this->last_error_msg = null;
+        }
+
+        $this->errors = $error_count;
+        $this->update($orig);
+    }
+
+    function resetErrors()
+    {
+        return $this->setErrors(0);
+    }
+
+    function incrementErrors($msg=null)
+    {
+        return $this->setErrors($this->getErrors()+1, $msg);
     }
 
     /**

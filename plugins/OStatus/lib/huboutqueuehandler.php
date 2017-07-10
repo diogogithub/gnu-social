@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+if (!defined('GNUSOCIAL')) { exit(1); }
 
 /**
  * Send a raw WebSub push atom update from our internal hub.
@@ -57,8 +55,19 @@ class HubOutQueueHandler extends QueueHandler
         assert($sub instanceof HubSub);
 
         try {
-            $sub->push($atom);
+            $success = $sub->push($atom);
+            // The reason I split these up is because I want to see how the algorithm acts in practice.
+            if ($success) {
+                common_debug('HubSub push completed successfully!');
+            } else {
+                common_debug('HubSub push failed with an HTTP error.');
+            }
+            if ($sub->getErrors()>0) {
+                common_debug('Resetting HubSub push error count following successful reset.');
+                $sub->resetErrors();
+            }
         } catch (AlreadyFulfilledException $e) {
+            // Probably doesn't happen anymore since commit 74a60ab963b5ce1ed95bd81f935a44c573cd0264
             common_log(LOG_INFO, "Failed WebSub push to $sub->callback for $sub->topic (".get_class($e)."): " . $e->getMessage());
         } catch (Exception $e) {
             $retries--;
@@ -70,6 +79,7 @@ class HubOutQueueHandler extends QueueHandler
                 // after a delay, use it.
                 $sub->distribute($atom, $retries);
             } else {
+                $sub->incrementErrors($e->getMessage());
                 common_log(LOG_ERR, "$msg; discarding");
             }
         }
