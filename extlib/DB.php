@@ -772,7 +772,7 @@ class DB
             $parsed['dbsyntax'] = $str;
         }
 
-        if (!count($dsn)) {
+        if (!strlen($dsn)) {
             return $parsed;
         }
 
