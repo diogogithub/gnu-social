@@ -35,12 +35,26 @@ class HubOutQueueHandler extends QueueHandler
 
     function handle($data)
     {
-        $sub = $data['sub'];
+        assert(array_key_exists('atom', $data));
+        assert(is_string($data['atom']));
         $atom = $data['atom'];
-        $retries = $data['retries'];
 
+        assert(array_key_exists('retries', $data));
+        $retries = intval($data['retries']);
+
+        if (array_key_exists('topic', $data) && array_key_exists('callback', $data)) {
+            assert(is_string($data['topic']));
+            assert(is_string($data['callback']));
+
+            $sub = HubSub::getByHashkey($data['topic'], $data['callback']);
+        } elseif (array_key_exists('sub', $data)) {
+            // queue behaviour changed 2017-07-09 to store topic/callback instead of sub object
+            common_debug('Legacy behaviour of storing HubSub objects found, this should go away when all objects are handled...');
+            $sub = $data['sub'];
+        } else {
+            throw new ServerException('No HubSub object available with queue item data.');
+        }
         assert($sub instanceof HubSub);
-        assert(is_string($atom));
 
         try {
             $sub->push($atom);
