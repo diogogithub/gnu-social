@@ -389,6 +389,13 @@ class OembedPlugin extends Plugin
         // First see if it's too large for us
         common_debug(__METHOD__ . ': '.sprintf('Performing HEAD request for remote file id==%u to avoid unnecessarily downloading too large files. URL: %s', $thumbnail->getFileId(), $remoteUrl));
         $head = $http->head($remoteUrl);
+        if (!$head->isOk()) {
+            common_log(LOG_WARN, 'HEAD request returned HTTP failure, so we will abort now and delete the thumbnail object.');
+            $thumbnail->delete();
+            return false;
+        } else {
+            common_debug('HEAD request returned HTTP success, so we will continue.');
+        }
         $remoteUrl = $head->getEffectiveUrl();   // to avoid going through redirects again
 
         $headers = $head->getHeader();
