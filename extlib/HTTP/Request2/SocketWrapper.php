@@ -181,12 +181,27 @@ class HTTP_Request2_SocketWrapper
         $line = '';
         while (!feof($this->socket)) {
             if (null !== $localTimeout) {
-                stream_set_timeout($this->socket, $localTimeout);
+                $timeout = $localTimeout;
             } elseif ($this->deadline) {
-                stream_set_timeout($this->socket, max($this->deadline - time(), 1));
+                $timeout = max($this->deadline - time(), 1);
+            } else {
+                // "If tv_sec is NULL stream_select() can block
+                // indefinitely, returning only when an event on one of
+                // the watched streams occurs (or if a signal interrupts
+                // the system call)." - http://php.net/stream_select
+                $timeout = null;
             }
 
-            $line .= @fgets($this->socket, $bufferSize);
+            $info = stream_get_meta_data($this->socket);
+            $old_blocking = (bool)$info['blocked'];
+            stream_set_blocking($this->socket, false);
+            $r = array($this->socket);
+            $w = array();
+            $e = array();
+            if (stream_select($r, $w, $e, $timeout)) {
+                $line .= @fgets($this->socket, $bufferSize);
+            }
+            stream_set_blocking($this->socket, $old_blocking);
 
             if (null === $localTimeout) {
                 $this->checkTimeout();
