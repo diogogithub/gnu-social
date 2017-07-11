@@ -77,7 +77,7 @@ class ActivityVerbPostPlugin extends ActivityVerbHandlerPlugin
         $object->content = $notice->getRendered();
         $object->link    = $notice->getUrl();
 
-        $object->extra[] = array('status_net', array('notice_id' => $notice->getID()));
+        $object->extra[] = array('statusnet:notice_id', null, $notice->getID());
 
         return $object;
     }
