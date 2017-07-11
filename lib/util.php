@@ -2611,6 +2611,9 @@ function common_log_delta($comment=null)
 
 function common_strip_html($html, $trim=true, $save_whitespace=false)
 {
+    // first replace <br /> with \n
+    $html = preg_replace('/\<(\s*)?br(\s*)?\/?(\s*)?\>/i', "\n", $html); 
+    // then, unless explicitly avoided, remove excessive whitespace
     if (!$save_whitespace) {
         $html = preg_replace('/\s+/', ' ', $html);
     }
