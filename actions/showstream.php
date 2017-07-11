@@ -230,13 +230,14 @@ class ShowstreamAction extends NoticestreamAction
             $this->showEmptyListMessage();
         }
 
-        $args = array('nickname' => $this->target->getNickname());
+        // either nickname or id will be used, depending on which action (showstream, userbyid...)
+        $args = array('nickname' => $this->target->getNickname(), 'id' => $this->target->getID());
         if (!empty($this->tag))
         {
             $args['tag'] = $this->tag;
         }
         $this->pagination($this->page>1, $cnt>NOTICES_PER_PAGE, $this->page,
-                          'showstream', $args);
+                          $this->getActionName(), $args);
     }
 
     function showAnonymousMessage()
