@@ -89,9 +89,14 @@ class Profile extends Managed_DataObject
     public function getUser()
     {
         if (!isset($this->_user[$this->id])) {
-            $user = User::getKV('id', $this->id);
-            if (!$user instanceof User) {
-                throw new NoSuchUserException(array('id'=>$this->id));
+            $cur_user = common_current_user();
+            if (($cur_user instanceof User) && $cur_user->sameAs($this)) {
+                $user = $cur_user;
+            } else {
+                $user = User::getKV('id', $this->id);
+                if (!$user instanceof User) {
+                    throw new NoSuchUserException(array('id'=>$this->id));
+                }
             }
             $this->_user[$this->id] = $user;
         }
