@@ -735,16 +735,18 @@ class File extends Managed_DataObject
             $dupfile = new File();
             // First we find file entries that would be duplicates of this when shortened
             // ... and we'll just throw the dupes out the window for now! It's already so borken.
-            $dupfile->query(sprintf('SELECT * FROM file WHERE LEFT(url, 191) = "%1$s"', $file->shortenedurl));
+            $dupfile->query(sprintf('SELECT * FROM file WHERE LEFT(url, 191) = %1$s', $dupfile->_quote($file->shortenedurl)));
             // Leave one of the URLs in the database by using ->find(true) (fetches first entry)
             if ($dupfile->find(true)) {
                 print "\nShortening url entry for $table id: {$file->id} [";
                 $orig = clone($dupfile);
+                $origurl = $dupfile->url;   // save for logging purposes
                 $dupfile->url = $file->shortenedurl;    // make sure it's only 191 chars from now on
                 $dupfile->update($orig);
                 print "\nDeleting duplicate entries of too long URL on $table id: {$file->id} [";
                 // only start deleting with this fetch.
                 while($dupfile->fetch()) {
+                    common_log(LOG_INFO, sprintf('Deleting duplicate File entry of %1$d: %2$d (original URL: %3$s collides with these first 191 characters: %4$s', $dupfile->id, $file->id, $origurl, $file->shortenedurl));
                     print ".";
                     $dupfile->delete();
                 }
