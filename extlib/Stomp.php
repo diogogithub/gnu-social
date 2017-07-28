@@ -324,7 +324,9 @@ class Stomp
     {
         $headers = array('ack' => 'client');
 		$headers['activemq.prefetchSize'] = $this->prefetchSize;
-		if ($this->clientId != null) {
+        $headers['prefetch-count'] = '1';
+
+        if ($this->clientId != null) {
 			$headers["activemq.subcriptionName"] = $this->clientId;
 		}
         if (isset($properties)) {
