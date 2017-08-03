@@ -26,16 +26,12 @@ PHP modules
 The following software packages are *required* for this software to
 run correctly.
 
-- PHP 5.5+      For newer versions, some functions that are used may be
-                disabled by default, such as the pcntl_* family. See the
-                section on 'Queues and daemons' for more information.
-- MariaDB 5+    GNU Social uses, by default, a MariaDB server for data
-                storage. Versions 5.x and 10.x have both reportedly
-                worked well. It is also possible to run MySQL 5.5+.
-- Web server    Apache, lighttpd and nginx will all work. CGI mode is
-                recommended and also some variant of 'suexec' (or a
-                proper setup php-fpm pool)
-                NOTE: mod_rewrite or its equivalent is extremely useful.
+- PHP 5.6+      PHP7.x is also supported.
+- MariaDB 5+    MariaDB 10.x is also supported.
+- Web server    Apache, lighttpd and nginx will all work, see sample
+                configuration files in the web root. Please use PHP-FPM
+                and configure mod_rewrite (or equivalent) for an optimal
+                experience.
 
 Your PHP installation must include the following PHP extensions for a
 functional setup of GNU Social:
@@ -49,22 +45,22 @@ functional setup of GNU Social:
 - php5-mysqlnd  The native driver for PHP5 MariaDB connections. If you
                   use MySQL, 'php5-mysql' or 'php5-mysqli' may be enough.
 
-Or, for PHP7, some or all of these will be necessary. PHP7 support is still
-experimental and not necessarily working:
+Or, for PHP7, some or all of these will be necessary. PHP7 works and on
+the development servers we are successful running PHP7.2. This is a good
+list of PHP modules you will want installed with PHP7:
     php7.0-bcmath
     php7.0-curl
     php7.0-exif
     php7.0-gd
     php7.0-intl
     php7.0-mbstring
-    php7.0-mysqlnd
+    php7.0-mysql
     php7.0-opcache
     php7.0-readline
     php7.0-xmlwriter
 
-The above package names are for Debian based systems. In the case of
-Arch Linux, PHP is compiled with support for most extensions but they
-require manual enabling in the relevant php.ini file (mostly php5-gmp).
+NOTE: In Arch Linux, at least PHP5 requires manual enabling in the
+relevant php.ini for some modules, most notably 'gmp'.
 
 Better performance
 ------------------
@@ -74,18 +70,9 @@ For some functionality, you will also need the following extensions:
 - opcache       Improves performance a _lot_. Included in PHP, must be
                 enabled manually in php.ini for most distributions. Find
                 and set at least:  opcache.enable=1
-- mailparse     Efficient parsing of email requires this extension.
-                Submission by email or SMS-over-email uses this.
-- sphinx        A client for the sphinx server, an alternative to MySQL
-                or Postgresql fulltext search. You will also need a
-                Sphinx server to serve the search queries.
 - gettext       For multiple languages. Default on many PHP installs;
                 will be emulated if not present.
 - exif          For thumbnails to be properly oriented.
-
-You may also experience better performance from your site if you configure
-a PHP cache/accelerator. Most distributions come with "opcache" support.
-Enable it in your php.ini where it is documented together with its settings.
 
 Installation
 ============
