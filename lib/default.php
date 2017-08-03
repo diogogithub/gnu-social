@@ -98,6 +98,7 @@ $default =
         'queue' =>
         array('enabled' => true,
               'daemon' => false, # Use queuedaemon. Default to false
+              'threads' => null,    # an empty value here uses processor count to determine
               'subsystem' => 'db', # default to database, or 'stomp'
               'stomp_server' => null,
               'queue_basename' => '/queue/statusnet/',

@@ -176,6 +176,8 @@ if (!$threads) {
     $threads = getProcessorCount();
 }
 
+common_log(LOG_INFO, sprintf('Launching QueueDaemon background process with %1$d threads.', $threads));
+
 $daemonize = !(have_option('f') || have_option('--foreground'));
 $all = have_option('a') || have_option('--all');
 
