@@ -124,7 +124,7 @@ class Discovery
                     throw new Exception('Unexpected HTTP status code.');
                 }
 
-                switch ($response->getHeader('content-type')) {
+                switch (common_bare_mime($response->getHeader('content-type'))) {
                 case self::JRD_MIMETYPE_OLD:
                 case self::JRD_MIMETYPE:
                     $type = 'json';
@@ -134,7 +134,7 @@ class Discovery
                     break;
                 default:
                     // fall back to letting XML_XRD auto-detect
-                    common_debug('No recognized content-type header for resource descriptor body.');
+                    common_debug('No recognized content-type header for resource descriptor body on '._ve($xrd_uri));
                     $type = null;
                 }
                 $xrd->loadString($response->getBody(), $type);

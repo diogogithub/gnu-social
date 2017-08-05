@@ -2060,7 +2060,7 @@ function common_bare_mime($mimetype)
     if ($semicolon = mb_strpos($mimetype, ';')) {
         $mimetype = mb_substr($mimetype, 0, $semicolon);
     }
-    return $mimetype;
+    return trim($mimetype);
 }
 
 function common_mime_type_match($type, $avail)
