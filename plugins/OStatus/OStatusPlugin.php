@@ -1498,9 +1498,11 @@ class OStatusPlugin extends Plugin
             return true;
         }
 
-        // 200 OK is the best response
-        // 202 Accepted is what we get from Diaspora for example
-        if (!in_array($response->getStatus(), array(200, 202))) {
+        // The different kinds of accepted responses...
+        // 200 OK means it's all ok
+        // 201 Created is what Mastodon returns when it's ok
+        // 202 Accepted is what we get from Diaspora, also good
+        if (!in_array($response->getStatus(), array(200, 201, 202))) {
             common_log(LOG_ERR, sprintf('Salmon (from profile %d) endpoint %s returned status %s: %s',
                                 $magic_env->getActor()->getID(), $endpoint_uri, $response->getStatus(), $response->getBody()));
             return true;
