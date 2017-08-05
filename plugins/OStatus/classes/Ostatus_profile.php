@@ -407,7 +407,7 @@ class Ostatus_profile extends Managed_DataObject
 
     protected function notifyPrepXml($entry)
     {
-        $preamble = '<?xml version="1.0" encoding="UTF-8" ?' . '>';
+        $preamble = '<?xml version="1.0" encoding="UTF-8" ?' . ">\n";
         if (is_string($entry)) {
             return $entry;
         } else if ($entry instanceof Activity) {
