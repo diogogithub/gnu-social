@@ -58,12 +58,12 @@ class HubOutQueueHandler extends QueueHandler
             $success = $sub->push($atom);
             // The reason I split these up is because I want to see how the algorithm acts in practice.
             if ($success) {
-                common_debug('HubSub push completed successfully!');
+                common_debug('WebSub push completed successfully!');
             } else {
-                common_debug('HubSub push failed with an HTTP error.');
+                common_debug('WebSub push failed with an HTTP error.');
             }
             if ($sub->getErrors()>0) {
-                common_debug('Resetting HubSub push error count following successful reset.');
+                common_debug('Resetting WebSub push error count following successful reset.');
                 $sub->resetErrors();
             }
         } catch (AlreadyFulfilledException $e) {
