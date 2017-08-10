@@ -66,7 +66,9 @@ class AutocompleteAction extends Action
         foreach($this->groups as $group){
             $max = max($max,strtotime($group->modified));
         }
-        return $max;
+        // but maybe this file has been modified after that and could
+        // respond differently
+        return max($max, filemtime(__FILE__));
     }
 
     /**
@@ -161,7 +163,7 @@ class AutocompleteAction extends Action
             $acct = $profile->getAcctUri();
             $identifier = explode(':', $profile->getAcctUri(), 2)[1];
             $results[] = array(
-                'value' => '!'.$group->getNickname(),
+                'value' => '!'.$identifier,
                 'nickname' => $group->getNickname(),
                 'acct_uri' => $acct,
                 'label'=> "${identifier} (".$group->getFullname().")",
