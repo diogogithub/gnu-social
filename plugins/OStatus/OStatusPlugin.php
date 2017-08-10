@@ -258,14 +258,16 @@ class OStatusPlugin extends Plugin
 
     /**
      * Webfinger matches: @user@example.com or even @user--one.george_orwell@1984.biz
+     * @param   string  $text       The text from which to extract webfinger IDs
+     * @param   string  $preMention Character(s) that signals a mention ('@', '!'...)
      *
      * @return  array   The matching IDs (without @ or acct:) and each respective position in the given string.
      */
-    static function extractWebfingerIds($text)
+    static function extractWebfingerIds($text, $preMention='@')
     {
         $wmatches = array();
         // Maybe this should harmonize with lib/nickname.php and Nickname::WEBFINGER_FMT
-        $result = preg_match_all('/(?<!\S)@((?:\w+[\w\-\_\.]*)?\w+@'.URL_REGEX_DOMAIN_NAME.')/',
+        $result = preg_match_all('/(?<!\S)'.preg_quote($preMention, '/').'('.Nickname::WEBFINGER_FMT.')/',
                        $text,
                        $wmatches,
                        PREG_OFFSET_CAPTURE);
@@ -279,15 +281,17 @@ class OStatusPlugin extends Plugin
 
     /**
      * Profile URL matches: @example.com/mublog/user
+     * @param   string  $text       The text from which to extract URL mentions
+     * @param   string  $preMention Character(s) that signals a mention ('@', '!'...)
      *
      * @return  array   The matching URLs (without @ or acct:) and each respective position in the given string.
      */
-    static function extractUrlMentions($text)
+    static function extractUrlMentions($text, $preMention='@')
     {
         $wmatches = array();
         // In the regexp below we need to match / _before_ URL_REGEX_VALID_PATH_CHARS because it otherwise gets merged
         // with the TLD before (but / is in URL_REGEX_VALID_PATH_CHARS anyway, it's just its positioning that is important)
-        $result = preg_match_all('/(?:^|\s+)@('.URL_REGEX_DOMAIN_NAME.'(?:\/['.URL_REGEX_VALID_PATH_CHARS.']*)*)/',
+        $result = preg_match_all('/(?:^|\s+)'.preg_quote($preMention, '/').'('.URL_REGEX_DOMAIN_NAME.'(?:\/['.URL_REGEX_VALID_PATH_CHARS.']*)*)/',
                        $text,
                        $wmatches,
                        PREG_OFFSET_CAPTURE);
@@ -312,7 +316,7 @@ class OStatusPlugin extends Plugin
     {
         $matches = array();
 
-        foreach (self::extractWebfingerIds($text) as $wmatch) {
+        foreach (self::extractWebfingerIds($text, '@') as $wmatch) {
             list($target, $pos) = $wmatch;
             $this->log(LOG_INFO, "Checking webfinger '$target'");
             $profile = null;

@@ -54,7 +54,10 @@ class Nickname
      * We could probably use an email regex here, but mainly we are interested
      * in matching it in our URLs, like https://social.example/user@example.com
      */
-    const WEBFINGER_FMT = '[0-9a-zA-Z_]{1,64}\@[0-9a-zA-Z_-.]{3,255}';
+    const WEBFINGER_FMT = '(?:\w+[\w\-\_\.]*)?\w+\@'.URL_REGEX_DOMAIN_NAME;
+
+    // old one without support for -_. in nickname part:
+    // const WEBFINGER_FMT = '[0-9a-zA-Z_]{1,64}\@[0-9a-zA-Z_-.]{3,255}';
 
     /**
      * Regex fragment for checking a canonical nickname.
