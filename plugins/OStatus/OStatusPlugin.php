@@ -261,12 +261,11 @@ class OStatusPlugin extends Plugin
      * @param   string  $text       The text from which to extract webfinger IDs
      * @param   string  $preMention Character(s) that signals a mention ('@', '!'...)
      *
-     * @return  array   The matching IDs (without @ or acct:) and each respective position in the given string.
+     * @return  array   The matching IDs (without $preMention) and each respective position in the given string.
      */
     static function extractWebfingerIds($text, $preMention='@')
     {
         $wmatches = array();
-        // Maybe this should harmonize with lib/nickname.php and Nickname::WEBFINGER_FMT
         $result = preg_match_all('/(?<!\S)'.preg_quote($preMention, '/').'('.Nickname::WEBFINGER_FMT.')/',
                        $text,
                        $wmatches,
@@ -318,7 +317,7 @@ class OStatusPlugin extends Plugin
 
         foreach (self::extractWebfingerIds($text, '@') as $wmatch) {
             list($target, $pos) = $wmatch;
-            $this->log(LOG_INFO, "Checking webfinger '$target'");
+            $this->log(LOG_INFO, "Checking webfinger person '$target'");
             $profile = null;
             try {
                 $oprofile = Ostatus_profile::ensureWebfinger($target);
@@ -336,7 +335,7 @@ class OStatusPlugin extends Plugin
 
             assert($profile instanceof Profile);
 
-            $text = !empty($profile->nickname) && mb_strlen($profile->nickname) < mb_strlen($target)
+            $displayName = !empty($profile->nickname) && mb_strlen($profile->nickname) < mb_strlen($target)
                     ? $profile->getNickname()   // TODO: we could do getBestName() or getFullname() here
                     : $target;
             $url = $profile->getUri();
@@ -345,7 +344,69 @@ class OStatusPlugin extends Plugin
             }
             $matches[$pos] = array('mentioned' => array($profile),
                                    'type' => 'mention',
-                                   'text' => $text,
+                                   'text' => $displayName,
+                                   'position' => $pos,
+                                   'length' => mb_strlen($target),
+                                   'url' => $url);
+        }
+
+        // Doing groups in a separate routine because webfinger lookups don't work
+        // remotely until everyone updates etc. etc.
+        foreach (self::extractWebfingerIds($text, '!') as $wmatch) {
+            list($target, $pos) = $wmatch;
+            list($target_nickname, $target_hostname) = explode('@', parse_url($target, PHP_URL_PATH));
+            $this->log(LOG_INFO, sprintf('Checking webfinger group %s as user %s on server %s', $target, $target_nickname, $target_hostname));
+
+            $profile = null;
+            if ($target_hostname === mb_strtolower(common_config('site', 'server'))) {
+                try {
+                    $profile = Local_group::getKV('nickname', $target_nickname)->getProfile();
+                } catch (NoSuchGroupException $e) {
+                    // referenced a local group which does not exist, so not returning it as a mention
+                    $this->log(LOG_ERR, "Local group lookup failed: " . _ve($e->getMessage()));
+                    continue;
+                }
+            } else {
+                // XXX: Superhacky. Domain name can be incorrectly matched
+                //      here. But since users are only members of groups
+                //      they trust (of course they are!), the likelihood of
+                //      a mention-hijacking is very very low... for now.
+                $possible_groups = new User_group();
+                $possible_groups->nickname = $target_nickname;
+                if (!$possible_groups->find()) {
+                    common_debug('No groups at all found with nickname: '._ve($target_nickname));
+                    continue;
+                }
+                while ($possible_groups->fetch()) {
+                    if (!$sender->isMember($possible_groups)) {
+                        continue;
+                    }
+                    $group_hostname = mb_strtolower(parse_url($possible_groups->mainpage, PHP_URL_HOST));
+                    if ($target_hostname === $group_hostname) {
+                        common_debug(sprintf('Found group with nick@host (%s@%s) matching %s', _ve($possible_groups->nickname), _ve($group_hostname), _ve($target)));
+                        $profile = $possible_groups->getProfile();
+                        break;
+                    }
+                }
+                $possible_groups->free();
+                if (!$profile instanceof Profile) {
+                    common_debug('Found groups with correct nickname but not hostname for: '._ve($target));
+                    continue;
+                }
+            }
+
+            assert($profile instanceof Profile);
+
+            $displayName = !empty($profile->nickname) && mb_strlen($profile->nickname) < mb_strlen($target)
+                    ? $profile->getNickname()   // TODO: we could do getBestName() or getFullname() here
+                    : $target;
+            $url = $profile->getUri();
+            if (!common_valid_http_url($url)) {
+                $url = $profile->getUrl();
+            }
+            $matches[$pos] = array('mentioned' => array($profile),
+                                   'type' => 'group',
+                                   'text' => $displayName,
                                    'position' => $pos,
                                    'length' => mb_strlen($target),
                                    'url' => $url);
@@ -361,11 +422,11 @@ class OStatusPlugin extends Plugin
                     $oprofile = Ostatus_profile::ensureProfileURL($url);
                     if ($oprofile instanceof Ostatus_profile && !$oprofile->isGroup()) {
                         $profile = $oprofile->localProfile();
-                        $text = !empty($profile->nickname) && mb_strlen($profile->nickname) < mb_strlen($target) ?
+                        $displayName = !empty($profile->nickname) && mb_strlen($profile->nickname) < mb_strlen($target) ?
                                 $profile->nickname : $target;
                         $matches[$pos] = array('mentioned' => array($profile),
                                                'type' => 'mention',
-                                               'text' => $text,
+                                               'text' => $displayName,
                                                'position' => $pos,
                                                'length' => mb_strlen($target),
                                                'url' => $profile->getUrl());
