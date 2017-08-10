@@ -847,9 +847,8 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
                                 'url' => $url);
         }
 
-        preg_match_all('/'.Nickname::BEFORE_MENTIONS.'!(' . Nickname::DISPLAY_FMT . ')/',
-                       $text, $hmatches, PREG_OFFSET_CAPTURE);
-        foreach ($hmatches[1] as $hmatch) {
+        $hmatches = common_find_mentions_raw($text, '!');
+        foreach ($hmatches as $hmatch) {
             $nickname = Nickname::normalize($hmatch[0]);
             $group = User_group::getForNickname($nickname, $sender);
 
