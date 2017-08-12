@@ -107,6 +107,7 @@ So far it includes the following changes:
 
 - Backing up a user's account is more and more complete.
 - Emojis 😸 (utf8mb4 support)
+- Fully qualified group mentions (!group@example.com)
 
 The last release, 1.1.3, gave us these improvements:
 
