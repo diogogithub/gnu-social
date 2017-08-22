@@ -163,7 +163,7 @@ class ImageFile
                 // doesn't exist anyway, so it's safe to delete $imgPath
                 @unlink($imgPath);
             }
-            common_debug(sprintf('Exception caught when creating ImageFile for File id==%s and imgPath==', _ve($file->id), _ve($imgPath)));
+            common_debug(sprintf('Exception %s caught when creating ImageFile for File id==%s and imgPath==%s: %s', get_class($e), _ve($file->id), _ve($imgPath), _ve($e->getMessage())));
             throw $e;
         }
         return $image;
