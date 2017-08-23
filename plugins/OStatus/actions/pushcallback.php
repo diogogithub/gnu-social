@@ -121,9 +121,9 @@ class PushCallbackAction extends Action
 
             if (!$renewal) {
                 // Kickstart the feed by importing its most recent backlog
-                // FIXME: Send this to background queue handling
-                common_log(LOG_INFO, __METHOD__ . ': Confirmed a new subscription, importing backlog...');
-                $feedsub->importFeed();
+                // FIXME: Disabled until we can either limit the amount and/or send to background queue handling
+                //common_log(LOG_INFO, __METHOD__ . ': Confirmed a new subscription, importing backlog...');
+                //$feedsub->importFeed();
             }
         } else {
             common_log(LOG_INFO, __METHOD__ . ": unsub confirmed; deleting sub record for $topic");
