@@ -271,7 +271,7 @@ function main()
         common_redirect(common_local_url($args['action'], $args));
     }
 
-    $args = array_merge($args, $_REQUEST);
+    $args = array_merge($args, $_REQUEST ?: []);
 
     Event::handle('ArgsInitialize', array(&$args));
 
