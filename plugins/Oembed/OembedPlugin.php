@@ -332,6 +332,7 @@ class OembedPlugin extends Plugin
 
         // All our remote Oembed images lack a local filename property in the File object
         if (!is_null($file->filename)) {
+            common_debug(sprintf('Filename of file id==%d is not null (%s), so nothing oEmbed should handle.', $file->getID(), _ve($file->filename)));
             return true;
         }
 
@@ -342,6 +343,7 @@ class OembedPlugin extends Plugin
             $thumbnail   = File_thumbnail::byFile($file);
         } catch (NoResultException $e) {
             // Not Oembed data, or at least nothing we either can or want to use.
+            common_debug('No oEmbed data found for file id=='.$file->getID());
             return true;
         }
 
@@ -349,6 +351,9 @@ class OembedPlugin extends Plugin
             $this->storeRemoteFileThumbnail($thumbnail);
         } catch (AlreadyFulfilledException $e) {
             // aw yiss!
+        } catch (Exception $e) {
+            common_debug(sprintf('oEmbed encountered an exception (%s) for file id==%d: %s', get_class($e), $file->getID(), _ve($e->getMessage())));
+            throw $e;
         }
 
         $imgPath = $thumbnail->getPath();
@@ -425,8 +430,7 @@ class OembedPlugin extends Plugin
 
         $ext = File::guessMimeExtension($info['mime']);
 
-        // We'll trust sha256 (File::FILEHASH_ALG) not to have collision issues any time soon :)
-        $filename = 'oembed-'.hash(File::FILEHASH_ALG, $imgData) . ".{$ext}";
+        $filename = sprintf('oembed-%d.%s', $thumbnail->getFileId(), $ext);
         $fullpath = File_thumbnail::path($filename);
         // Write the file to disk. Throw Exception on failure
         if (!file_exists($fullpath) && file_put_contents($fullpath, $imgData) === false) {
