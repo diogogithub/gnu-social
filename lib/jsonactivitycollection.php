@@ -1,4 +1,5 @@
 <?php
+if (!defined('GNUSOCIAL')) { exit(1); }
 
 /*
  * Collection primarily as the root of an Activity Streams doc but can be used as the value
@@ -24,7 +25,7 @@ class JSONActivityCollection {
      * @param string $url         url of a doc list all the objs in the collection
      * @param int    $totalItems  total number of items in the collection
      */
-    function __construct($items = null, $url = null)
+    function __construct(array $items=[], $url = null)
     {
         $this->items      = empty($items) ? array() : $items;
         $this->totalItems = count($items);

@@ -81,7 +81,7 @@ function save_twitter_user($twitter_id, $screen_name)
         }
     } catch (NoResultException $e) {
         // No old users exist for this id
-    
+
         // Kill any old, invalid records for this screen name
         // XXX: Is this really only supposed to be run if the above getForeignUser fails?
         try {
@@ -111,7 +111,14 @@ function is_twitter_bound($notice, $flink) {
         return false;
     }
 
-    $allowedVerbs = array(ActivityVerb::POST, ActivityVerb::SHARE);
+    $allowedVerbs = array(ActivityVerb::POST);
+
+    // Default behavior: always send repeats
+    if (empty($flink))
+        array_push($allowedVerbs, ActivityVerb::SHARE);
+    // Otherwise, check to see if repeats are allowed
+    else if (($flink->noticesync & FOREIGN_NOTICE_SEND_REPEAT) == FOREIGN_NOTICE_SEND_REPEAT)
+        array_push($allowedVerbs, ActivityVerb::SHARE);
 
     // Don't send things that aren't posts or repeats (at least for now)
     if (!in_array($notice->verb, $allowedVerbs)) {
@@ -389,11 +396,16 @@ function format_status($notice)
     // XXX: Make this an optional setting?
     $statustxt = preg_replace('/(^|\s)!([A-Za-z0-9]{1,64})/', "\\1#\\2", $statustxt);
 
+    // detect links, each link uses 23 characters on twitter
+    $numberOfLinks = preg_match_all('`((http|https|ftp)://[^\s<]+[^\s<\.)])`i', $statustxt);
+    $statusWithoutLinks = preg_replace('`((http|https|ftp)://[^\s<]+[^\s<\.)])`i', '', $statustxt);
+    $statusLength = mb_strlen($statusWithoutLinks)  + $numberOfLinks * 23;
+
     // Twitter still has a 140-char hardcoded max.
-    if (mb_strlen($statustxt) > 140) {
+    if ($statusLength > 140) {
         $noticeUrl = common_shorten_url($notice->getUrl());
-        $urlLen = mb_strlen($noticeUrl);
-        $statustxt = mb_substr($statustxt, 0, 140 - ($urlLen + 3)) . ' … ' . $noticeUrl;
+        // each link uses 23 chars on twitter + 3 for the ' … ' => 26
+        $statustxt = mb_substr($statustxt, 0, 140 - 26) . ' … ' . $noticeUrl;
     }
 
     return $statustxt;

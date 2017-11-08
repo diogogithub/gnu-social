@@ -3,15 +3,33 @@
 // +----------------------------------------------------------------------+
 // | PHP Version 5 and 7                                                  |
 // +----------------------------------------------------------------------+
-// | Copyright (c) 1997-2015 Jon Parise and Chuck Hagenbuch               |
-// +----------------------------------------------------------------------+
-// | This source file is subject to version 3.01 of the PHP license,      |
-// | that is bundled with this package in the file LICENSE, and is        |
-// | available at through the world-wide-web at                           |
-// | http://www.php.net/license/3_01.txt.                                 |
-// | If you did not receive a copy of the PHP license and are unable to   |
-// | obtain it through the world-wide-web, please send a note to          |
-// | license@php.net so we can mail you a copy immediately.               |
+// | Copyright (c) 1997-2017 Jon Parise and Chuck Hagenbuch               |
+// | All rights reserved.                                                 |
+// |                                                                      |
+// | Redistribution and use in source and binary forms, with or without   |
+// | modification, are permitted provided that the following conditions   |
+// | are met:                                                             |
+// |                                                                      |
+// | 1. Redistributions of source code must retain the above copyright    |
+// |    notice, this list of conditions and the following disclaimer.     |
+// |                                                                      |
+// | 2. Redistributions in binary form must reproduce the above copyright |
+// |    notice, this list of conditions and the following disclaimer in   |
+// |    the documentation and/or other materials provided with the        |
+// |    distribution.                                                     |
+// |                                                                      |
+// | THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS  |
+// | "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT    |
+// | LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS    |
+// | FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE       |
+// | COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, |
+// | INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, |
+// | BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;     |
+// | LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER     |
+// | CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT   |
+// | LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN    |
+// | ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE      |
+// | POSSIBILITY OF SUCH DAMAGE.                                          |
 // +----------------------------------------------------------------------+
 // | Authors: Chuck Hagenbuch <chuck@horde.org>                           |
 // |          Jon Parise <jon@php.net>                                    |
@@ -29,6 +47,7 @@ require_once 'Net/Socket.php';
  * @author  Chuck Hagenbuch <chuck@horde.org>
  * @author  Jon Parise <jon@php.net>
  * @author  Damian Alejandro Fernandez Sosa <damlists@cnba.uba.ar>
+ * @license http://opensource.org/licenses/bsd-license.php BSD-2-Clause
  *
  * @example basic.php A basic implementation of the Net_SMTP package.
  */
@@ -169,7 +188,7 @@ class Net_SMTP
         $this->socket_options = $socket_options;
         $this->timeout        = $timeout;
 
-        /* Include the Auth_SASL package.  If the package is available, we 
+        /* Include the Auth_SASL package.  If the package is available, we
          * enable the authentication methods that depend upon it. */
         if (@include_once 'Auth/SASL.php') {
             $this->setAuthMethod('CRAM-MD5', array($this, 'authCramMD5'));
@@ -701,7 +720,8 @@ class Net_SMTP
             return $error;
         }
 
-        $digest    = Auth_SASL::factory('digest-md5');
+        $auth_sasl = new Auth_SASL;
+        $digest    = $auth_sasl->factory('digest-md5');
         $challenge = base64_decode($this->arguments[0]);
         $auth_str  = base64_encode(
             $digest->getResponse($uid, $pwd, $challenge, $this->host, "smtp", $authz)
@@ -752,8 +772,9 @@ class Net_SMTP
             return $error;
         }
 
+        $auth_sasl = new Auth_SASL;
         $challenge = base64_decode($this->arguments[0]);
-        $cram      = Auth_SASL::factory('cram-md5');
+        $cram      = $auth_sasl->factory('cram-md5');
         $auth_str  = base64_encode($cram->getResponse($uid, $pwd, $challenge));
 
         if (PEAR::isError($error = $this->put($auth_str))) {
@@ -998,7 +1019,7 @@ class Net_SMTP
         /* Start by considering the size of the optional headers string.  We
          * also account for the addition 4 character "\r\n\r\n" separator
          * sequence. */
-        $size = (is_null($headers)) ? 0 : strlen($headers) + 4;
+        $size = $headers_size = (is_null($headers)) ? 0 : strlen($headers) + 4;
 
         if (is_resource($data)) {
             $stat = fstat($data);
@@ -1034,12 +1055,15 @@ class Net_SMTP
             if (PEAR::isError($result = $this->send($headers . "\r\n\r\n"))) {
                 return $result;
             }
+
+            /* Subtract the headers size now that they've been sent. */
+            $size -= $headers_size;
         }
 
         /* Now we can send the message body data. */
         if (is_resource($data)) {
-            /* Stream the contents of the file resource out over our socket 
-             * connection, line by line.  Each line must be run through the 
+            /* Stream the contents of the file resource out over our socket
+             * connection, line by line.  Each line must be run through the
              * quoting routine. */
             while (strlen($line = fread($data, 8192)) > 0) {
                 /* If the last character is an newline, we need to grab the
@@ -1060,15 +1084,15 @@ class Net_SMTP
              $last = $line;
         } else {
             /*
-             * Break up the data by sending one chunk (up to 512k) at a time.  
+             * Break up the data by sending one chunk (up to 512k) at a time.
              * This approach reduces our peak memory usage.
              */
             for ($offset = 0; $offset < $size;) {
                 $end = $offset + 512000;
 
                 /*
-                 * Ensure we don't read beyond our data size or span multiple 
-                 * lines.  quotedata() can't properly handle character data 
+                 * Ensure we don't read beyond our data size or span multiple
+                 * lines.  quotedata() can't properly handle character data
                  * that's split across two line break boundaries.
                  */
                 if ($end >= $size) {

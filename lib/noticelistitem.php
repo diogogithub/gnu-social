@@ -251,9 +251,9 @@ class NoticeListItem extends Widget
 
     function showAuthor()
     {
-        $attrs = array('href' => $this->profile->profileurl,
+        $attrs = array('href' => $this->profile->getUrl(),
                        'class' => 'h-card',
-                       'title' => $this->profile->getNickname());
+                       'title' => $this->profile->getHtmlTitle());
         if(empty($this->repeat)) { $attrs['class'] .= ' p-author'; }
 
         if (Event::handle('StartShowNoticeItemAuthor', array($this->profile, $this->out, &$attrs))) {
@@ -312,7 +312,7 @@ class NoticeListItem extends Widget
                 $profileurl = common_local_url('userbyid', array('id' => $attn->getID()));
             }
             $this->pa[] = array('href' => $profileurl,
-                                'title' => $attn->getNickname(),
+                                'title' => $attn->getHtmlTitle(),
                                 'class' => "addressee {$class} p-name u-url",
                                 'text' => $attn->getStreamName());
         }

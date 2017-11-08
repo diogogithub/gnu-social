@@ -1,4 +1,4 @@
-The FeedPoller plugin allows users to subscribe to non-PuSH-enabled feeds
+The FeedPoller plugin allows users to subscribe to non-WebSub-enabled feeds
 by regularly polling the source for new content.
 
 Installation

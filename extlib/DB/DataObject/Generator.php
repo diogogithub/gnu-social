@@ -15,7 +15,7 @@
  * @author     Alan Knowles <alan@akbkhome.com>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_01.txt  PHP License 3.01
- * @version    CVS: $Id: Generator.php 315531 2011-08-26 02:21:29Z alan_k $
+ * @version    CVS: $Id: Generator.php 336719 2015-05-05 10:37:33Z alan_k $
  * @link       http://pear.php.net/package/DB_DataObject
  */
  
@@ -406,7 +406,7 @@ class DB_DataObject_Generator extends DB_DataObject
      * Currenly only works with mysql / mysqli / posgtreas
      * to use, you must set option: generate_links=true
      * 
-     * @author Pascal Schöni 
+     * @author Pascal Schï¿½ni 
      */
     
     function _createForiegnKeys()
@@ -507,7 +507,7 @@ class DB_DataObject_Generator extends DB_DataObject
      * Currenly only works with mysql / mysqli
      * to use, you must set option: generate_links=true
      * 
-     * @author Pascal Schöni 
+     * @author Pascal Schï¿½ni 
      */
     function generateForeignKeys() 
     {
@@ -895,7 +895,7 @@ class DB_DataObject_Generator extends DB_DataObject
         $options = &PEAR::getStaticProperty('DB_DataObject','options');
        
         $this->_extends = empty($options['extends']) ? $this->_extends : $options['extends'];
-        $this->_extendsFile = empty($options['extends_location']) ? $this->_extendsFile : $options['extends_location'];
+        $this->_extendsFile = !isset($options['extends_location']) ? $this->_extendsFile : $options['extends_location'];
      
 
         foreach($this->tables as $this->table) {
@@ -976,8 +976,12 @@ class DB_DataObject_Generator extends DB_DataObject
         $head .= $this->derivedHookExtendsDocBlock();
 
         
-        // requires
-        $head .= "require_once '{$this->_extendsFile}';\n\n";
+        // requires - if you set extends_location = (blank) then no require line will be set
+        // this can be used if you have an autoloader
+        
+        if (!empty($this->_extendsFile)) {
+            $head .= "require_once '{$this->_extendsFile}';\n\n";
+        }
         // add dummy class header in...
         // class 
         $head .= $this->derivedHookClassDocBlock();
@@ -1039,10 +1043,11 @@ class DB_DataObject_Generator extends DB_DataObject
                 continue;
             }
             
-            $p = str_repeat(' ',max(2,  (30 - strlen($t->name))));
+            $pad = str_repeat(' ',max(2,  (30 - strlen($t->name))));
 
             $length = empty($t->len) ? '' : '('.$t->len.')';
-            $body .="    {$var} \${$t->name};  {$p}// {$t->type}$length  {$t->flags}\n";
+            $flags = strlen($t->flags) ? (' '. trim($t->flags)) : '';
+            $body .="    {$var} \${$t->name}; {$pad}// {$t->type}{$length}{$flags}\n";
             
             // can not do set as PEAR::DB table info doesnt support it.
             //if (substr($t->Type,0,3) == "set")
@@ -1283,7 +1288,7 @@ class DB_DataObject_Generator extends DB_DataObject
         $class_prefix  = empty($options['class_prefix']) ? '' : $options['class_prefix'];
         
         $this->_extends = empty($options['extends']) ? $this->_extends : $options['extends'];
-        $this->_extendsFile = empty($options['extends_location']) ? $this->_extendsFile : $options['extends_location'];
+        $this->_extendsFile = !isset($options['extends_location']) ? $this->_extendsFile : $options['extends_location'];
  
         $classname = $this->classname = $this->getClassNameFromTableName($this->table);
         

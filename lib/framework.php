@@ -46,6 +46,7 @@ define('PROFILES_PER_MINILIST', 8);
 define('FOREIGN_NOTICE_SEND', 1);
 define('FOREIGN_NOTICE_RECV', 2);
 define('FOREIGN_NOTICE_SEND_REPLY', 4);
+define('FOREIGN_NOTICE_SEND_REPEAT', 8);
 
 define('FOREIGN_FRIEND_SEND', 1);
 define('FOREIGN_FRIEND_RECV', 2);
@@ -66,6 +67,7 @@ define('URL_REGEX_VALID_PATH_CHARS',        '\pN\pL\,\!\.\:\-\_\+\/\@\=\;\%\~\*'
 define('URL_REGEX_VALID_QSTRING_CHARS',     URL_REGEX_VALID_PATH_CHARS    . '\&');
 define('URL_REGEX_VALID_FRAGMENT_CHARS',    URL_REGEX_VALID_QSTRING_CHARS . '\?\#');
 define('URL_REGEX_EXCLUDED_END_CHARS',      '\?\.\,\!\#\:\'');  // don't include these if they are directly after a URL
+define('URL_REGEX_DOMAIN_NAME', '(?:(?!-)[A-Za-z0-9\-]{1,63}(?<!-)\.)+[A-Za-z]{2,10}');
 
 // append our extlib dir as the last-resort place to find libs
 

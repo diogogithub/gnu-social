@@ -22,7 +22,7 @@ if (!defined('STATUSNET')) {
 }
 
 /**
- * When we have a large batch of PuSH consumers, we break the data set
+ * When we have a large batch of WebSub consumers, we break the data set
  * into smaller chunks. Enqueue final destinations...
  *
  * @package Hub
@@ -67,14 +67,14 @@ class HubPrepQueueHandler extends QueueHandler
                 $callback = array_shift($pushCallbacks);
                 $sub = HubSub::getByHashkey($topic, $callback);
                 if (!$sub) {
-                    common_log(LOG_ERR, "Skipping PuSH delivery for deleted(?) consumer $callback on $topic");
+                    common_log(LOG_ERR, "Skipping WebSub delivery for deleted(?) consumer $callback on $topic");
                     continue;
                 }
 
                 $sub->distribute($atom);
             }
         } catch (Exception $e) {
-            common_log(LOG_ERR, "Exception during PuSH batch out: " .
+            common_log(LOG_ERR, "Exception during WebSub batch out: " .
                                 $e->getMessage() .
                                 " prepping $topic to $callback");
         }

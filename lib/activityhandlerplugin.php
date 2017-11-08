@@ -147,7 +147,7 @@ abstract class ActivityHandlerPlugin extends Plugin
     *
     * This will handle just about all events where an activity
     * object gets saved, whether it is via AtomPub, OStatus
-    * (PuSH and Salmon transports), or ActivityStreams-based
+    * (WebSub and Salmon transports), or ActivityStreams-based
     * backup/restore of account data.
     *
     * You should be able to accept as input the output from an
@@ -193,7 +193,7 @@ abstract class ActivityHandlerPlugin extends Plugin
      *
      * This will be how your specialized notice gets output in
      * Atom feeds and JSON-based ActivityStreams output, including
-     * account backup/restore and OStatus (PuSH and Salmon transports).
+     * account backup/restore and OStatus (WebSub and Salmon transports).
      *
      * You should be able to round-trip data from this format back
      * through $this->saveNoticeFromActivity(). Where applicable, try
@@ -324,7 +324,7 @@ abstract class ActivityHandlerPlugin extends Plugin
     }
 
     /**
-     * Handle a posted object from PuSH
+     * Handle a posted object from WebSub
      *
      * @param Activity        $activity activity to handle
      * @param Profile         $actor Profile for the feed
@@ -344,6 +344,7 @@ abstract class ActivityHandlerPlugin extends Plugin
 
         $options = array('uri' => $object->id,
                          'url' => $object->link,
+                         'self' => $object->selfLink,
                          'is_local' => Notice::REMOTE,
                          'source' => 'ostatus');
 
@@ -420,6 +421,7 @@ abstract class ActivityHandlerPlugin extends Plugin
 
         $options = array('uri' => $object->id,
                          'url' => $object->link,
+                         'self' => $object->selfLink,
                          'is_local' => Notice::REMOTE,
                          'source' => 'ostatus');
 
@@ -471,6 +473,7 @@ abstract class ActivityHandlerPlugin extends Plugin
 
         $options = array('uri' => $object->id,
                          'url' => $object->link,
+                         'self' => $object->selfLink,
                          'source' => 'restore');
 
         // $user->getProfile() is a Profile
@@ -557,7 +560,7 @@ abstract class ActivityHandlerPlugin extends Plugin
             $class .= ' limited-scope';
         }
         try {
-            $class .= ' notice-source-'.common_to_alphanumeric($this->notice->source);
+            $class .= ' notice-source-'.common_to_alphanumeric($nli->notice->source);
         } catch (Exception $e) {
             // either source or what we filtered out was a zero-length string
         }

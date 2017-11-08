@@ -304,6 +304,7 @@ address .poweredby {
 
 .form_notice { 
     margin-bottom: 10px;
+    position: relative;
 }
 
 .form_notice fieldset {
@@ -970,8 +971,8 @@ content: ":";
 }
 
 .threaded-replies .form_notice label.notice_data-attach {
-    top: 10px;
-    right: 10px;
+    top: 0;
+    right: 1ex;
 }
 
 .threaded-replies .form_notice .notice_data-geo_wrap label,
@@ -981,12 +982,12 @@ content: ":";
 }
 
 .threaded-replies .form_notice .count {
-    bottom: 60px;
-    right: 50px;
+    bottom: 1ex;
+    right: 0;
 }
 
 .threaded-replies .form_notice input.submit {
-    bottom: 1ex;
+    bottom: -5ex;
     right: 1ex;
 }
 

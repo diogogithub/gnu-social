@@ -81,13 +81,13 @@ class DBQueueManager extends QueueManager
         try {
             $item = $this->decode($qi->frame);
         } catch (Exception $e) {
-            $this->_log(LOG_INFO, "[{$qi->transport}] Discarding: ".$e->getMessage());
+            $this->_log(LOG_INFO, "[{$qi->transport}] Discarding: "._ve($e->getMessage()));
             $this->_done($qi);
             return true;
         }
 
         $rep = $this->logrep($item);
-        $this->_log(LOG_DEBUG, "Got {$rep} for transport {$qi->transport}");
+        $this->_log(LOG_DEBUG, 'Got '._ve($rep).' for transport '._ve($qi->transport));
         
         try {
             $handler = $this->getHandler($qi->transport);

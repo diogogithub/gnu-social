@@ -199,8 +199,7 @@ function mail_subscribe_notify_profile($listenee, $other)
 
         $name = $profile->getBestName();
 
-        $long_name = ($other->fullname) ?
-          ($other->fullname . ' (' . $other->nickname . ')') : $other->nickname;
+        $long_name = $other->getFancyName();
 
         $recipients = $listenee->email;
 

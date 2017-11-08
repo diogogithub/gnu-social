@@ -94,7 +94,7 @@ class FeedDiscovery
     }
 
     /**
-     * Get the referenced PuSH hub link from an Atom feed.
+     * Get the referenced WebSub hub link from an Atom feed.
      *
      * @return mixed string or false
      */

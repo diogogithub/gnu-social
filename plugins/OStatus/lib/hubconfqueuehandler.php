@@ -22,7 +22,7 @@ if (!defined('STATUSNET')) {
 }
 
 /**
- * Send a PuSH subscription verification from our internal hub.
+ * Send a WebSub subscription verification from our internal hub.
  * @package Hub
  * @author Brion Vibber <brion@status.net>
  */
@@ -46,7 +46,7 @@ class HubConfQueueHandler extends QueueHandler
         try {
             $sub->verify($mode, $token);
         } catch (Exception $e) {
-            common_log(LOG_ERR, "Failed PuSH $mode verify to $sub->callback for $sub->topic: " .
+            common_log(LOG_ERR, "Failed WebSub $mode verify to $sub->callback for $sub->topic: " .
                                 $e->getMessage());
             // @fixme schedule retry?
             // @fixme just kill it?

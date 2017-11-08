@@ -27,10 +27,7 @@
  * @link      http://status.net/
  */
 
-if (!defined('STATUSNET'))
-{
-    exit(1);
-}
+if (!defined('GNUSOCIAL')) { exit(1); }
 
 /**
  * A class for generating JSON documents that represent an Activity Streams
@@ -72,7 +69,7 @@ class ActivityStreamJSONDocument extends JSONActivityCollection
      * @param User $cur the current authenticated user
      */
 
-    function __construct($cur = null, $title = null, $items = null, $links = null, $url = null)
+    function __construct($cur = null, $title = null, array $items=[], $links = null, $url = null)
     {
         parent::__construct($items, $url);
 

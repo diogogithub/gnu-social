@@ -39,7 +39,7 @@ class PushRenewQueueHandler extends QueueHandler
                 common_log(LOG_INFO, "Renewing feed subscription\n\tExp.: {$feedsub->sub_end}\n\tFeed: {$feedsub->uri}\n\tHub:  {$feedsub->huburi}");
                 $feedsub->renew();
             } catch(Exception $e) {
-                common_log(LOG_ERR, "Exception during PuSH renew processing for $feedsub->uri: " . $e->getMessage());
+                common_log(LOG_ERR, "Exception during WebSub renew processing for $feedsub->uri: " . $e->getMessage());
             }
         } else {
             common_log(LOG_ERR, "Discarding renew for unknown feed subscription id $feedsub_id");

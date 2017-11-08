@@ -116,7 +116,18 @@ class HTTPClient extends HTTP_Request2
 
     function __construct($url=null, $method=self::METHOD_GET, $config=array())
     {
-        $this->config['connect_timeout'] = common_config('http', 'connect_timeout') ?: $this->config['connect_timeout'];
+        if (is_int(common_config('http', 'timeout'))) {
+            // Reasonably you shouldn't set http/timeout to 0 because of 
+            // malicious remote servers that can cause infinitely long 
+            // responses... But the default in HTTP_Request2 is 0 for 
+            // some reason and should probably be considered a valid value.
+            $this->config['timeout'] = common_config('http', 'timeout');
+        } else {
+            common_log(LOG_ERR, 'config option http/timeout is not an integer value: '._ve(common_config('http', 'timeout')));
+        }
+        if (!empty(common_config('http', 'connect_timeout'))) {
+            $this->config['connect_timeout'] = common_config('http', 'connect_timeout');
+        }
         $this->config['max_redirs'] = 10;
         $this->config['follow_redirects'] = true;
 

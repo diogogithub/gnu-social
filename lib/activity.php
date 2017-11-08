@@ -180,7 +180,7 @@ class Activity
             foreach ($objectEls as $objectEl) {
                 // Special case for embedded activities
                 $objectType = ActivityUtils::childContent($objectEl, self::OBJECTTYPE, self::SPEC);
-                if (!empty($objectType) && $objectType == ActivityObject::ACTIVITY) {
+                if ((!empty($objectType) && $objectType == ActivityObject::ACTIVITY) || $this->verb == ActivityVerb::SHARE) {
                     $this->objects[] = new Activity($objectEl);
                 } else {
                     $this->objects[] = new ActivityObject($objectEl);
@@ -267,7 +267,7 @@ class Activity
 
         // From APP. Might be useful.
 
-        $this->selfLink = ActivityUtils::getLink($entry, 'self', 'application/atom+xml');
+        $this->selfLink = ActivityUtils::getSelfLink($entry);
         $this->editLink = ActivityUtils::getLink($entry, 'edit', 'application/atom+xml');
     }
 
@@ -631,18 +631,18 @@ class Activity
                     $convattr['href'] = $conv->getUrl();
                     $convattr['local_id'] = $conv->getID();
                     $convattr['ref'] = $conv->getUri();
-                    $xs->element('link', array('rel' => ActivityContext::CONVERSATION,
+                    $xs->element('link', array('rel' => 'ostatus:'.ActivityContext::CONVERSATION,
                                                 'href' => $convattr['href']));
                 } else {
                     $convattr['ref'] = $this->context->conversation;
                 }
-                $xs->element(ActivityContext::CONVERSATION,
+                $xs->element('ostatus:'.ActivityContext::CONVERSATION,
                                 $convattr,
                                 $this->context->conversation);
                 /* Since we use XMLWriter we just use the previously hardcoded prefix for ostatus,
                     otherwise we should use something like this:
                 $xs->elementNS(array(ActivityContext::OSTATUS => 'ostatus'),    // namespace
-                                'conversation',  // tag (or the element name from ActivityContext::CONVERSATION)
+                                ActivityContext::CONVERSATION,
                                 null,   // attributes
                                 $this->context->conversation);  // content
                 */

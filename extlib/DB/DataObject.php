@@ -15,7 +15,7 @@
  * @author     Alan Knowles <alan@akbkhome.com>
  * @copyright  1997-2006 The PHP Group
  * @license    http://www.php.net/license/3_01.txt  PHP License 3.01
- * @version    CVS: $Id: DataObject.php 320069 2011-11-28 04:34:08Z alan_k $
+ * @version    CVS: $Id: DataObject.php 336751 2015-05-12 04:39:50Z alan_k $
  * @link       http://pear.php.net/package/DB_DataObject
  */
   
@@ -410,7 +410,7 @@ class DB_DataObject extends DB_DataObject_Overload
         if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {
             $this->debug($n, "find",1);
         }
-        if (!$this->__table) {
+        if (!strlen($this->tableName())) {
             // xdebug can backtrace this!
             trigger_error("NO \$__table SPECIFIED in class definition",E_USER_ERROR);
         }
@@ -2073,6 +2073,9 @@ class DB_DataObject extends DB_DataObject_Overload
         if (count($args)) {
             $this->__table = $args[0];
         }
+        if (empty($this->__table)) {
+            return '';
+        }
         if (!empty($_DB_DATAOBJECT['CONFIG']['portability']) && $_DB_DATAOBJECT['CONFIG']['portability'] & 1) {
             return strtolower($this->__table);
         }
@@ -2421,7 +2424,7 @@ class DB_DataObject extends DB_DataObject_Overload
         $dsn = isset($this->_database_dsn) ? $this->_database_dsn : null;
         
         if (!$dsn) {
-            if (!$this->_database && !empty($this->__table)) {
+            if (!$this->_database && !strlen($this->tableName())) {
                 $this->_database = isset($options["table_{$this->tableName()}"]) ? $options["table_{$this->tableName()}"] : null;
             }
             if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {
@@ -3522,7 +3525,7 @@ class DB_DataObject extends DB_DataObject_Overload
                     if ($joinCol !== false) {
                         $this->raiseError( 
                             "joinAdd: You cannot target a join column in the " .
-                            "'link from' table ({$obj->__table}). " . 
+                            "'link from' table ({$obj->tableName()}). " . 
                             "Either remove the fourth argument to joinAdd() ".
                             "({$joinCol}), or alter your links.ini file.",
                             DB_DATAOBJECT_ERROR_NODATA);
@@ -3605,7 +3608,7 @@ class DB_DataObject extends DB_DataObject_Overload
              
             if (!$items) {
                 $this->raiseError(
-                    "joinAdd: No table definition for {$obj->__table}", 
+                    "joinAdd: No table definition for {$obj->tableName()}", 
                     DB_DATAOBJECT_ERROR_INVALIDCONFIG);
                 return false;
             }
@@ -3800,6 +3803,7 @@ class DB_DataObject extends DB_DataObject_Overload
      */
     function autoJoin($cfg = array())
     {
+        global $_DB_DATAOBJECT;
         //var_Dump($cfg);exit;
         $pre_links = $this->links();
         if (!empty($cfg['links'])) {
@@ -3807,7 +3811,8 @@ class DB_DataObject extends DB_DataObject_Overload
         }
         $map = $this->links( );
         
-        
+        $this->databaseStructure();
+        $dbstructure = $_DB_DATAOBJECT['INI'][$this->_database];
         //print_r($map);
         $tabdef = $this->table();
          
@@ -3874,6 +3879,12 @@ class DB_DataObject extends DB_DataObject_Overload
             
             list($tab,$col) = explode(':', $info);
             // what about multiple joins on the same table!!!
+            
+            // if links point to a table that does not exist - ignore.
+            if (!isset($dbstructure[$tab])) {
+                continue;
+            }
+            
             $xx = DB_DataObject::factory($tab);
             if (!is_object($xx) || !is_a($xx, 'DB_DataObject')) {
                 continue;

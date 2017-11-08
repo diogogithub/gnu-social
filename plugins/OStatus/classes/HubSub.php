@@ -20,7 +20,7 @@
 if (!defined('GNUSOCIAL')) { exit(1); }
 
 /**
- * PuSH feed subscription record
+ * WebSub (previously PuSH) feed subscription record
  * @package Hub
  * @author Brion Vibber <brion@status.net>
  */
@@ -57,6 +57,10 @@ class HubSub extends Managed_DataObject
                 'secret' => array('type' => 'text', 'description' => 'HubSub stored secret'),
                 'sub_start' => array('type' => 'datetime', 'description' => 'subscription start'),
                 'sub_end' => array('type' => 'datetime', 'description' => 'subscription end'),
+                'errors' => array('type' => 'integer', 'not null' => true, 'default' => 0, 'description' => 'Queue handling error count, is reset on success.'),
+                'error_start' => array('type' => 'datetime', 'default' => null, 'description' => 'time of first error since latest success, should be null if no errors have been counted'),
+                'last_error' => array('type' => 'datetime', 'default' => null, 'description' => 'time of last failure, if ever'),
+                'last_error_msg' => array('type' => 'text', 'default' => null, 'description' => 'Last error _message_'),
                 'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
                 'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
@@ -66,6 +70,51 @@ class HubSub extends Managed_DataObject
                 'hubsub_topic_idx' => array('topic'),
             ),
         );
+    }
+
+    function getErrors()
+    {
+        return intval($this->errors);
+    }
+
+    // $msg is only set if $error_count is 0
+    function setErrors($error_count, $msg=null)
+    {
+        assert(is_int($error_count));
+        if (!is_int($error_count) || $error_count < 0) {
+            common_log(LOG_ERR, 'HubSub->setErrors was given a bad value: '._ve($error_count));
+            throw new ServerException('HubSub error count must be an integer higher or equal to 0.');
+        }
+
+        $orig = clone($this);
+        $now = common_sql_now();
+
+        if ($error_count === 1) {
+            // Record when the errors started
+            $this->error_start = $now;
+        }
+        if ($error_count > 0) {
+            // Record this error's occurrence in time
+            $this->last_error = $now;
+            $this->last_error_msg = $msg;
+        } else {
+            $this->error_start = null;
+            $this->last_error = null;
+            $this->last_error_msg = null;
+        }
+
+        $this->errors = $error_count;
+        $this->update($orig);
+    }
+
+    function resetErrors()
+    {
+        return $this->setErrors(0);
+    }
+
+    function incrementErrors($msg=null)
+    {
+        return $this->setErrors($this->getErrors()+1, $msg);
     }
 
     /**
@@ -78,7 +127,7 @@ class HubSub extends Managed_DataObject
      */
     function setLease($length)
     {
-        common_debug('PuSH hub got requested lease_seconds=='._ve($length));
+        common_debug('WebSub hub got requested lease_seconds=='._ve($length));
         assert(is_int($length));
 
         $min = 86400;   // 3600*24 (one day)
@@ -93,7 +142,7 @@ class HubSub extends Managed_DataObject
             $length = $max;
         }
 
-        common_debug('PuSH hub after sanitation: lease_seconds=='._ve($length));
+        common_debug('WebSub hub after sanitation: lease_seconds=='._ve($length));
         $this->sub_start = common_sql_now();
         $this->sub_end = common_sql_date(time() + $length);
     }
@@ -234,15 +283,11 @@ class HubSub extends Managed_DataObject
             $retries = intval(common_config('ostatus', 'hub_retries'));
         }
 
-        // We dare not clone() as when the clone is discarded it'll
-        // destroy the result data for the parent query.
-        // @fixme use clone() again when it's safe to copy an
-        // individual item from a multi-item query again.
-        $sub = HubSub::getByHashkey($this->getTopic(), $this->callback);
-        $data = array('sub' => $sub,
+        $data = array('topic' => $this->getTopic(),
+                      'callback' => $this->callback,
                       'atom' => $atom,
                       'retries' => $retries);
-        common_log(LOG_INFO, "Queuing PuSH: {$this->getTopic()} to {$this->callback}");
+        common_log(LOG_INFO, sprintf('Queuing WebSub: %s to %s', _ve($data['topic']), _ve($data['callback'])));
         $qm = QueueManager::get();
         $qm->enqueue($data, 'hubout');
     }
@@ -265,86 +310,118 @@ class HubSub extends Managed_DataObject
         $data = array('atom' => $atom,
                       'topic' => $this->getTopic(),
                       'pushCallbacks' => $pushCallbacks);
-        common_log(LOG_INFO, "Queuing PuSH batch: {$this->getTopic()} to ".count($pushCallbacks)." sites");
+        common_log(LOG_INFO, "Queuing WebSub batch: {$this->getTopic()} to ".count($pushCallbacks)." sites");
         $qm = QueueManager::get();
         $qm->enqueue($data, 'hubprep');
         return true;
     }
 
     /**
-     * Send a 'fat ping' to the subscriber's callback endpoint
-     * containing the given Atom feed chunk.
-     *
-     * Determination of which items to send should be done at
-     * a higher level; don't just shove in a complete feed!
-     *
-     * @param string $atom well-formed Atom feed
-     * @throws Exception (HTTP or general)
+     * @return  boolean     true/false for HTTP response
+     * @throws  Exception   for lower-than-HTTP errors (such as NS lookup failure, connection refused...)
      */
-    function push($atom)
+    public static function pushAtom($topic, $callback, $atom, $secret=null, $hashalg='sha1')
     {
         $headers = array('Content-Type: application/atom+xml');
-        if ($this->secret) {
-            $hmac = hash_hmac('sha1', $atom, $this->secret);
-            $headers[] = "X-Hub-Signature: sha1=$hmac";
+        if ($secret) {
+            $hmac = hash_hmac($hashalg, $atom, $secret);
+            $headers[] = "X-Hub-Signature: {$hashalg}={$hmac}";
         } else {
             $hmac = '(none)';
         }
-        common_log(LOG_INFO, "About to push feed to $this->callback for {$this->getTopic()}, HMAC $hmac");
+        common_log(LOG_INFO, sprintf('About to WebSub-push feed to %s for %s, HMAC %s', _ve($callback), _ve($topic), _ve($hmac)));
 
         $request = new HTTPClient();
         $request->setConfig(array('follow_redirects' => false));
         $request->setBody($atom);
+
+        // This will throw exception on non-HTTP failures
         try {
-            $response = $request->post($this->callback, $headers);
-
-            if ($response->isOk()) {
-                return true;
-            }
+            $response = $request->post($callback, $headers);
         } catch (Exception $e) {
-            $response = null;
-
-            common_debug('PuSH callback to '._ve($this->callback).' for '._ve($this->getTopic()).' failed with exception: '._ve($e->getMessage()));
+            common_debug(sprintf('WebSub callback to %s for %s failed with exception %s: %s', _ve($callback), _ve($topic), _ve(get_class($e)), _ve($e->getMessage())));
+            throw $e;
         }
+
+        return $response->isOk();
+    }
+
+    /**
+     * Send a 'fat ping' to the subscriber's callback endpoint
+     * containing the given Atom feed chunk.
+     *
+     * Determination of which feed items to send should be done at
+     * a higher level; don't just shove in a complete feed!
+     *
+     * FIXME: Add 'failed' incremental count.
+     *
+     * @param string $atom well-formed Atom feed
+     * @return  boolean     Whether the PuSH was accepted or not.
+     * @throws Exception (HTTP or general)
+     */
+    function push($atom)
+    {
+        try {
+            $success = self::pushAtom($this->getTopic(), $this->callback, $atom, $this->secret);
+            if ($success) {
+                return true;
+            } elseif ('https' === parse_url($this->callback, PHP_URL_SCHEME)) {
+                // Already HTTPS, no need to check remote http/https migration issues
+                return false;
+            }
+            // if pushAtom returned false and we didn't try an HTTPS endpoint,
+            // let's try HTTPS too (assuming only http:// and https:// are used ;))
+
+        } catch (Exception $e) {
+            if ('https' === parse_url($this->callback, PHP_URL_SCHEME)) {
+                // Already HTTPS, no need to check remote http/https migration issues
+                throw $e;
+            }
+        }
+
+
+        // We failed the WebSub push, but it might be that the remote site has changed their configuration to HTTPS
+        common_debug('WebSub HTTPSFIX: push failed, so we need to see if it can be the remote http->https migration issue.');
 
         // XXX: DO NOT trust a Location header here, _especially_ from 'http' protocols,
         // but not 'https' either at least if we don't do proper CA verification. Trust that
         // the most common change here is simply switching 'http' to 'https' and we will
         // solve 99% of all of these issues for now. There should be a proper mechanism
         // if we want to change the callback URLs, preferrably just manual resubscriptions
-        // from the remote side, combined with implemented PuSH subscription timeouts.
+        // from the remote side, combined with implemented WebSub subscription timeouts.
 
-        // We failed the PuSH, but it might be that the remote site has changed their configuration to HTTPS
-        if ('http' === parse_url($this->callback, PHP_URL_SCHEME)) {
-            // Test if the feed callback for this node has migrated to HTTPS
-            $httpscallback = preg_replace('/^http/', 'https', $this->callback, 1);
-            $alreadyreplaced = self::getByHashKey($this->getTopic(), $httpscallback);
-            if ($alreadyreplaced instanceof HubSub) {
-                $this->delete();
-                throw new AlreadyFulfilledException('The remote side has already established an HTTPS callback, deleting the legacy HTTP entry.');
-            }
+        // Test if the feed callback for this node has already been migrated to HTTPS in our database
+        // (otherwise we'd get collisions when inserting it further down)
+        $httpscallback = preg_replace('/^http/', 'https', $this->callback, 1);
+        $alreadyreplaced = self::getByHashKey($this->getTopic(), $httpscallback);
+        if ($alreadyreplaced instanceof HubSub) {
+            // Let's remove the old HTTP callback object.
+            $this->delete();
 
-            common_debug('PuSH callback to '._ve($this->callback).' for '._ve($this->getTopic()).' trying HTTPS callback: '._ve($httpscallback));
-            $response = $request->post($httpscallback, $headers);
-            if ($response->isOk()) {
-                $orig = clone($this);
-                $this->callback = $httpscallback;
-                // NOTE: hashkey will be set in $this->onUpdateKeys($orig) through updateWithKeys
-                $this->updateWithKeys($orig);
-                return true;
-            }
+            // XXX: I think this means we might lose a message or two when 
+            //      remote side migrates to HTTPS because we only try _once_ 
+            //      for _one_ WebSub push. The rest of the posts already 
+            //      stored in our queue (if any) will not find a HubSub
+            //      object. This could maybe be fixed by handling migration 
+            //      in HubOutQueueHandler while handling the item there.
+            common_debug('WebSub HTTPSFIX: Pushing Atom to HTTPS callback instead of HTTP, because of switch to HTTPS since enrolled in queue.');
+            return self::pushAtom($this->getTopic(), $httpscallback, $atom, $this->secret);
         }
 
-        // FIXME: Add 'failed' incremental count for this callback.
-
-        if (is_null($response)) {
-            // This means we got a lower-than-HTTP level error, like domain not found or maybe connection refused
-            // This should be using a more distinguishable exception class, but for now this will do.
-            throw new Exception(sprintf(_m('HTTP request failed without response to URL: %s'), _ve(isset($httpscallback) ? $httpscallback : $this->callback)));
+        common_debug('WebSub HTTPSFIX: callback to '._ve($this->callback).' for '._ve($this->getTopic()).' trying HTTPS callback: '._ve($httpscallback));
+        $success = self::pushAtom($this->getTopic(), $httpscallback, $atom, $this->secret);
+        if ($success) {
+            // Yay, we made a successful push to https://, let's remember this in the future!
+            $orig = clone($this);
+            $this->callback = $httpscallback;
+            // NOTE: hashkey will be set in $this->onUpdateKeys($orig) through updateWithKeys
+            $this->updateWithKeys($orig);
+            return true;
         }
 
-        // TRANS: Exception. %1$s is a response status code, %2$s is the body of the response.
-        throw new Exception(sprintf(_m('Callback returned status: %1$s. Body: %2$s'),
-                            $response->getStatus(),trim($response->getBody())));
+        // If there have been any exceptions thrown before, they're handled 
+        // higher up. This function's return value is just whether the WebSub 
+        // push was accepted or not.
+        return $success;
     }
 }

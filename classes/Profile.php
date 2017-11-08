@@ -89,9 +89,14 @@ class Profile extends Managed_DataObject
     public function getUser()
     {
         if (!isset($this->_user[$this->id])) {
-            $user = User::getKV('id', $this->id);
-            if (!$user instanceof User) {
-                throw new NoSuchUserException(array('id'=>$this->id));
+            $cur_user = common_current_user();
+            if (($cur_user instanceof User) && $cur_user->sameAs($this)) {
+                $user = $cur_user;
+            } else {
+                $user = User::getKV('id', $this->id);
+                if (!$user instanceof User) {
+                    throw new NoSuchUserException(array('id'=>$this->id));
+                }
             }
             $this->_user[$this->id] = $user;
         }
@@ -941,11 +946,6 @@ class Profile extends Managed_DataObject
 
     function delete($useWhere=false)
     {
-        // just in case it hadn't been done before... (usually set before adding deluser to queue handling!)
-        if (!$this->hasRole(Profile_role::DELETED)) {
-            $this->grantRole(Profile_role::DELETED);
-        }
-
         $this->_deleteNotices();
         $this->_deleteSubscriptions();
         $this->_deleteTags();
@@ -957,6 +957,7 @@ class Profile extends Managed_DataObject
         // not on individual objects.
         $related = array('Reply',
                          'Group_member',
+        				 'Profile_role'
                          );
         Event::handle('ProfileDeleteRelated', array($this, &$related));
 
@@ -965,6 +966,8 @@ class Profile extends Managed_DataObject
             $inst->profile_id = $this->id;
             $inst->delete();
         }
+        
+        $this->grantRole(Profile_role::DELETED);
 
         $localuser = User::getKV('id', $this->id);
         if ($localuser instanceof User) {
@@ -1532,6 +1535,14 @@ class Profile extends Managed_DataObject
         }
         return $url;
     }
+    public function getHtmlTitle()
+    {
+        try {
+            return $this->getAcctUri(false);
+        } catch (ProfileNoAcctUriException $e) {
+            return $this->getNickname();
+        }
+    }
 
     public function getNickname()
     {
@@ -1612,14 +1623,13 @@ class Profile extends Managed_DataObject
         return !empty($block);
     }
 
-    function getAtomFeed()
+    public function getAtomFeed()
     {
         $feed = null;
 
         if (Event::handle('StartProfileGetAtomFeed', array($this, &$feed))) {
-            $user = User::getKV('id', $this->id);
-            if (!empty($user)) {
-                $feed = common_local_url('ApiTimelineUser', array('id' => $user->id,
+            if ($this->isLocal()) {
+                $feed = common_local_url('ApiTimelineUser', array('id' => $this->getID(),
                                                                   'format' => 'atom'));
             }
             Event::handle('EndProfileGetAtomFeed', array($this, $feed));

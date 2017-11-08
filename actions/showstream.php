@@ -113,6 +113,18 @@ class ShowstreamAction extends NoticestreamAction
                                           $this->target->getNickname(), $this->tag)));
         }
 
+        if (!$this->target->isLocal()) {
+            // remote profiles at least have Atom, but we can't guarantee anything else
+            return array(
+                     new Feed(Feed::ATOM,
+                              $this->target->getAtomFeed(),
+                              // TRANS: Title for link to notice feed.
+                              // TRANS: %s is a user nickname.
+                              sprintf(_('Notice feed for %s (Atom)'),
+                                      $this->target->getNickname()))
+                     );
+        }
+
         return array(new Feed(Feed::JSON,
                               common_local_url('ApiTimelineUser',
                                                array(
@@ -139,10 +151,7 @@ class ShowstreamAction extends NoticestreamAction
                               sprintf(_('Notice feed for %s (RSS 2.0)'),
                                       $this->target->getNickname())),
                      new Feed(Feed::ATOM,
-                              common_local_url('ApiTimelineUser',
-                                               array(
-                                                    'id' => $this->target->getID(),
-                                                    'format' => 'atom')),
+                              $this->target->getAtomFeed(),
                               // TRANS: Title for link to notice feed.
                               // TRANS: %s is a user nickname.
                               sprintf(_('Notice feed for %s (Atom)'),
@@ -221,13 +230,14 @@ class ShowstreamAction extends NoticestreamAction
             $this->showEmptyListMessage();
         }
 
-        $args = array('nickname' => $this->target->getNickname());
+        // either nickname or id will be used, depending on which action (showstream, userbyid...)
+        $args = array('nickname' => $this->target->getNickname(), 'id' => $this->target->getID());
         if (!empty($this->tag))
         {
             $args['tag'] = $this->tag;
         }
         $this->pagination($this->page>1, $cnt>NOTICES_PER_PAGE, $this->page,
-                          'showstream', $args);
+                          $this->getActionName(), $args);
     }
 
     function showAnonymousMessage()

@@ -20,8 +20,8 @@
 
 define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
 
-$shortoptions = 'x::';
-$longoptions = array('extensions=');
+$shortoptions = 'dfx::';
+$longoptions = array('debug', 'files', 'extensions=');
 
 $helptext = <<<END_OF_UPGRADE_HELP
 php upgrade.php [options]
@@ -31,8 +31,17 @@ END_OF_UPGRADE_HELP;
 
 require_once INSTALLDIR.'/scripts/commandline.inc';
 
+
+if (!defined('DEBUG')) {
+    define('DEBUG', (bool)have_option('d', 'debug'));
+}
+
 function main()
 {
+    // "files" option enables possibly disk/resource intensive operations
+    // that aren't really _required_ for the upgrade
+    $iterate_files = (bool)have_option('f', 'files');
+
     if (Event::handle('StartUpgrade')) {
         fixupConversationURIs();
 
@@ -44,11 +53,17 @@ function main()
         fixupNoticeConversation();
         initConversation();
         fixupGroupURI();
-        fixupFileGeometry();
-        deleteLocalFileThumbnailsWithoutFilename();
-        deleteMissingLocalFileThumbnails();
-        fixupFileThumbnailUrlhash();
-        setFilehashOnLocalFiles();
+        if ($iterate_files) {
+            printfnq("Running file iterations:\n");
+            printfnq("* "); fixupFileGeometry();
+            printfnq("* "); deleteLocalFileThumbnailsWithoutFilename();
+            printfnq("* "); deleteMissingLocalFileThumbnails();
+            printfnq("* "); fixupFileThumbnailUrlhash();
+            printfnq("* "); setFilehashOnLocalFiles();
+            printfnq("DONE.\n");
+        } else {
+            printfnq("Skipping intensive/long-running file iteration functions (enable with -f, should be done at least once!)\n");
+        }
 
         initGroupProfileId();
         initLocalGroup();
@@ -168,6 +183,11 @@ function fixupGroupURI()
 
 function initConversation()
 {
+    if (common_config('fix', 'upgrade_initConversation') <= 1) {
+        printfnq(sprintf("Skipping %s, fixed by previous upgrade.\n", __METHOD__));
+        return;
+    }
+
     printfnq("Ensuring all conversations have a row in conversation table...");
 
     $notice = new Notice();
@@ -196,6 +216,10 @@ function initConversation()
                        $conv->escape(common_sql_now()));
         $conv->query($sql);
     }
+
+    // This is something we should only have to do once unless introducing new, bad code.
+    if (DEBUG) printfnq(sprintf('Storing in config that we have done %s', __METHOD__));
+    common_config_set('fix', 'upgrade_initConversation', 1);
 
     printfnq("DONE.\n");
 }
@@ -293,6 +317,11 @@ function initLocalGroup()
 
 function initNoticeReshare()
 {
+    if (common_config('fix', 'upgrade_initNoticeReshare') <= 1) {
+        printfnq(sprintf("Skipping %s, fixed by previous upgrade.\n", __METHOD__));
+        return;
+    }
+
     printfnq("Ensuring all reshares have the correct verb and object-type...");
     
     $notice = new Notice();
@@ -311,6 +340,10 @@ function initNoticeReshare()
             }
         }
     }
+
+    // This is something we should only have to do once unless introducing new, bad code.
+    if (DEBUG) printfnq(sprintf('Storing in config that we have done %s', __METHOD__));
+    common_config_set('fix', 'upgrade_initNoticeReshare', 1);
 
     printfnq("DONE.\n");
 }
@@ -424,20 +457,25 @@ function fixupFileGeometry()
 
     if ($file->find()) {
         while ($file->fetch()) {
+            if (DEBUG) printfnq(sprintf('Found file without width: %s\n', _ve($file->getFilename())));
+
             // Set file geometrical properties if available
             try {
                 $image = ImageFile::fromFileObject($file);
             } catch (ServerException $e) {
                 // We couldn't make out an image from the file.
+                if (DEBUG) printfnq(sprintf('Could not make an image out of the file.\n'));
                 continue;
             }
             $orig = clone($file);
             $file->width = $image->width;
             $file->height = $image->height;
+            if (DEBUG) printfnq(sprintf('Setting image file and with to %sx%s.\n', $file->width, $file->height));
             $file->update($orig);
 
             // FIXME: Do this more automagically inside ImageFile or so.
             if ($image->getPath() != $file->getPath()) {
+                if (DEBUG) printfnq(sprintf('Deleting the temporarily stored ImageFile.\n'));
                 $image->unlink();
             }
             unset($image);

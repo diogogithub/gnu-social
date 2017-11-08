@@ -33,9 +33,10 @@ $ca = null;
 
 if (have_option('e', 'email')) {
     $email = get_option_value('e', 'email');
-    $ca = Confirm_address::getAddress($email, 'email');
-    if (!$ca instanceof Confirm_address) {
-        print "Can't find email $email in confirm_address table.\n";
+    try {
+        $ca = Confirm_address::getByAddress($email, 'email');
+    } catch (NoResultException $e) {
+        print sprintf("Can't find %s address %s in %s table.\n", $e->obj->address_type, $e->obj->address, $e->obj->tableName());
         exit(1);
     }
 } elseif (have_option('a', 'all')) {

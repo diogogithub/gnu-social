@@ -80,6 +80,11 @@ class Ostatus_profile extends Managed_DataObject
         return $this->uri;
     }
 
+    public function getFeedSub()
+    {
+        return FeedSub::getByUri($this->feeduri);
+    }
+
     static function fromProfile(Profile $profile)
     {
         $oprofile = Ostatus_profile::getKV('profile_id', $profile->getID());
@@ -239,7 +244,7 @@ class Ostatus_profile extends Managed_DataObject
 
     /**
      * Check if this remote profile has any active local subscriptions, and
-     * if not drop the PuSH subscription feed.
+     * if not drop the WebSub subscription feed.
      *
      * @return boolean true if subscription is removed, false if there are still subscribers to the feed
      * @throws Exception of various kinds on failure.
@@ -250,7 +255,7 @@ class Ostatus_profile extends Managed_DataObject
 
     /**
      * Check if this remote profile has any active local subscriptions, and
-     * if not drop the PuSH subscription feed.
+     * if not drop the WebSub subscription feed.
      *
      * @return boolean true if subscription is removed, false if there are still subscribers to the feed
      * @throws Exception of various kinds on failure.
@@ -267,7 +272,7 @@ class Ostatus_profile extends Managed_DataObject
 
     /**
      * Check if this remote profile has any active local subscriptions, so the
-     * PuSH subscription layer can decide if it can drop the feed.
+     * WebSub subscription layer can decide if it can drop the feed.
      *
      * This gets called via the FeedSubSubscriberCount event when running
      * FeedSub::garbageCollect().
@@ -367,7 +372,7 @@ class Ostatus_profile extends Managed_DataObject
         if ($this->salmonuri) {
             return Salmon::post($this->salmonuri, $this->notifyPrepXml($entry), $actor, $this->localProfile());
         }
-        common_debug(__CLASS__.' error: No salmonuri for Ostatus_profile uri: '.$this->uri);
+        common_debug(__CLASS__.' error: No salmonuri for Ostatus_profile uri: '._ve($this->getUri()));
 
         return false;
     }
@@ -402,7 +407,7 @@ class Ostatus_profile extends Managed_DataObject
 
     protected function notifyPrepXml($entry)
     {
-        $preamble = '<?xml version="1.0" encoding="UTF-8" ?' . '>';
+        $preamble = '<?xml version="1.0" encoding="UTF-8" ?' . ">\n";
         if (is_string($entry)) {
             return $entry;
         } else if ($entry instanceof Activity) {
@@ -429,7 +434,7 @@ class Ostatus_profile extends Managed_DataObject
     /**
      * Read and post notices for updates from the feed.
      * Currently assumes that all items in the feed are new,
-     * coming from a PuSH hub.
+     * coming from a WebSub hub.
      *
      * @param DOMDocument $doc
      * @param string $source identifier ("push")
@@ -779,7 +784,7 @@ class Ostatus_profile extends Managed_DataObject
         $hints['salmon'] = $salmonuri;
 
         if (!$huburi && !common_config('feedsub', 'fallback_hub') && !common_config('feedsub', 'nohub')) {
-            // We can only deal with folks with a PuSH hub
+            // We can only deal with folks with a WebSub hub
             // unless we have something similar available locally.
             throw new FeedSubNoHubException();
         }
@@ -1116,6 +1121,8 @@ class Ostatus_profile extends Managed_DataObject
      */
     protected static function createActivityObjectProfile(ActivityObject $object, array $hints=array())
     {
+        common_debug('Attempting to create an Ostatus_profile from an ActivityObject with ID: '._ve($object->id));
+
         $homeuri = $object->id;
         $discover = false;
 
@@ -1145,12 +1152,12 @@ class Ostatus_profile extends Managed_DataObject
             }
         }
 
-        if (array_key_exists('feedurl', $hints)) {
-            $feeduri = $hints['feedurl'];
-        } else {
+        if (!array_key_exists('feedurl', $hints)) {
             $discover = new FeedDiscovery();
-            $feeduri = $discover->discoverFromURL($homeuri);
+            $hints['feedurl'] = $discover->discoverFromURL($homeuri);
+            common_debug(__METHOD__.' did not have a "feedurl" hint, FeedDiscovery found '._ve($hints['feedurl']));
         }
+        $feeduri = $hints['feedurl'];
 
         if (array_key_exists('salmon', $hints)) {
             $salmonuri = $hints['salmon'];
@@ -1175,7 +1182,7 @@ class Ostatus_profile extends Managed_DataObject
         }
 
         if (!$huburi && !common_config('feedsub', 'fallback_hub') && !common_config('feedsub', 'nohub')) {
-            // We can only deal with folks with a PuSH hub
+            // We can only deal with folks with a WebSub hub
             throw new FeedSubNoHubException();
         }
 
@@ -1287,6 +1294,8 @@ class Ostatus_profile extends Managed_DataObject
             throw new AuthorizationException('Trying to update profile from ActivityObject with different URI.');
         }
 
+        common_debug('Updating Ostatus_profile with URI '._ve($this->getUri()).' from ActivityObject');
+
         if ($this->isGroup()) {
             $group = $this->localGroup();
             self::updateGroup($group, $object, $hints);
@@ -1368,7 +1377,8 @@ class Ostatus_profile extends Managed_DataObject
         // @todo tags from categories
 
         if ($profile->id) {
-            common_log(LOG_DEBUG, "Updating OStatus profile $profile->id from remote info $object->id: " . var_export($object, true) . var_export($hints, true));
+            //common_debug('Updating OStatus profile '._ve($profile->getID().' from remote info '._ve($object->id).': ' . _ve($object) . _ve($hints));
+            common_debug('Updating OStatus profile '._ve($profile->getID()).' from remote info '._ve($object->id).' gathered from hints: '._ve($hints));
             $profile->update($orig);
         }
     }
@@ -1392,7 +1402,8 @@ class Ostatus_profile extends Managed_DataObject
         $group->homepage = self::getActivityObjectHomepage($object, $hints);
 
         if ($group->id) {   // If no id, we haven't called insert() yet, so don't run update()
-            common_log(LOG_DEBUG, "Updating OStatus group $group->id from remote info $object->id: " . var_export($object, true) . var_export($hints, true));
+            //common_debug('Updating OStatus group '._ve($group->getID().' from remote info '._ve($object->id).': ' . _ve($object) . _ve($hints));
+            common_debug('Updating OStatus group '._ve($group->getID()).' from remote info '._ve($object->id).' gathered from hints: '._ve($hints));
             $group->update($orig);
         }
     }
@@ -1413,7 +1424,8 @@ class Ostatus_profile extends Managed_DataObject
         $tag->tagger = $tagger->profile_id;
 
         if ($tag->id) {
-            common_log(LOG_DEBUG, "Updating OStatus peopletag $tag->id from remote info $object->id: " . var_export($object, true) . var_export($hints, true));
+            //common_debug('Updating OStatus peopletag '._ve($tag->getID().' from remote info '._ve($object->id).': ' . _ve($object) . _ve($hints));
+            common_debug('Updating OStatus peopletag '._ve($tag->getID()).' from remote info '._ve($object->id).' gathered from hints: '._ve($hints));
             $tag->update($orig);
         }
     }
@@ -1567,24 +1579,28 @@ class Ostatus_profile extends Managed_DataObject
      */
     public static function ensureWebfinger($addr)
     {
-        // First, try the cache
+        // Normalize $addr, i.e. add 'acct:' if missing
+        $addr = Discovery::normalize($addr);
 
+        // Try the cache
         $uri = self::cacheGet(sprintf('ostatus_profile:webfinger:%s', $addr));
 
         if ($uri !== false) {
             if (is_null($uri)) {
                 // Negative cache entry
                 // TRANS: Exception.
-                throw new Exception(_m('Not a valid webfinger address.'));
+                throw new Exception(_m('Not a valid webfinger address (via cache).'));
             }
             $oprofile = Ostatus_profile::getKV('uri', $uri);
             if ($oprofile instanceof Ostatus_profile) {
                 return $oprofile;
             }
+            common_log(LOG_ERR, sprintf(__METHOD__ . ': Webfinger address cache inconsistent with database, did not find Ostatus_profile uri==%s', $uri));
+            self::cacheSet(sprintf('ostatus_profile:webfinger:%s', $addr), false);
         }
 
         // Try looking it up
-        $oprofile = Ostatus_profile::getKV('uri', Discovery::normalize($addr));
+        $oprofile = Ostatus_profile::getKV('uri', $addr);
 
         if ($oprofile instanceof Ostatus_profile) {
             self::cacheSet(sprintf('ostatus_profile:webfinger:%s', $addr), $oprofile->getUri());
@@ -1847,7 +1863,7 @@ class Ostatus_profile extends Managed_DataObject
 
         if (array_key_exists('feedurl', $hints) && common_valid_http_url($hints['feedurl'])) {
             try {
-                $feedsub = FeedSub::getByUri($this->feeduri);
+                $feedsub = $this->getFeedSub();
                 common_debug('URIFIX Changing FeedSub id==['._ve($feedsub->id).'] feeduri '._ve($feedsub->uri).' to '._ve($hints['feedurl']));
                 $feedorig = clone($feedsub);
                 $feedsub->uri = $hints['feedurl'];

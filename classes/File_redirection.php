@@ -445,8 +445,8 @@ class File_redirection extends Managed_DataObject
     }
 
     public function getFile() {
-        if(empty($this->file) && $this->file_id) {
-            $this->file = File::getKV('id', $this->file_id);
+        if (!$this->file instanceof File) {
+            $this->file = File::getByID($this->file_id);
         }
 
         return $this->file;

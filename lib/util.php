@@ -768,7 +768,7 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
             }
         }
 
-        $matches = common_find_mentions_raw($text);
+        $matches = common_find_mentions_raw($text, '@');
 
         foreach ($matches as $match) {
             try {
@@ -847,9 +847,8 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
                                 'url' => $url);
         }
 
-        preg_match_all('/'.Nickname::BEFORE_MENTIONS.'!(' . Nickname::DISPLAY_FMT . ')/',
-                       $text, $hmatches, PREG_OFFSET_CAPTURE);
-        foreach ($hmatches[1] as $hmatch) {
+        $hmatches = common_find_mentions_raw($text, '!');
+        foreach ($hmatches as $hmatch) {
             $nickname = Nickname::normalize($hmatch[0]);
             $group = User_group::getForNickname($nickname, $sender);
 
@@ -879,9 +878,10 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
  * Should generally not be called directly; for use in common_find_mentions.
  *
  * @param string $text
+ * @param string $preMention Character(s) that signals a mention ('@', '!'...)
  * @return array of PCRE match arrays
  */
-function common_find_mentions_raw($text)
+function common_find_mentions_raw($text, $preMention='@')
 {
     $tmatches = array();
     preg_match_all('/^T (' . Nickname::DISPLAY_FMT . ') /',
@@ -891,7 +891,7 @@ function common_find_mentions_raw($text)
 
     $atmatches = array();
     // the regexp's "(?!\@)" makes sure it doesn't matches the single "@remote" in "@remote@server.com"
-    preg_match_all('/'.Nickname::BEFORE_MENTIONS.'@(' . Nickname::DISPLAY_FMT . ')\b(?!\@)/',
+    preg_match_all('/'.Nickname::BEFORE_MENTIONS.preg_quote($preMention, '/').'(' . Nickname::DISPLAY_FMT . ')\b(?!\@)/',
                    $text,
                    $atmatches,
                    PREG_OFFSET_CAPTURE);
@@ -1906,6 +1906,10 @@ function common_log_objstring(&$object)
 
 function common_valid_http_url($url, $secure=false)
 {
+    if (empty($url)) {
+        return false;
+    }
+
     // If $secure is true, only allow https URLs to pass
     // (if false, we use '?' in 'https?' to say the 's' is optional)
     $regex = $secure ? '/^https$/' : '/^https?$/';
@@ -2056,7 +2060,7 @@ function common_bare_mime($mimetype)
     if ($semicolon = mb_strpos($mimetype, ';')) {
         $mimetype = mb_substr($mimetype, 0, $semicolon);
     }
-    return $mimetype;
+    return trim($mimetype);
 }
 
 function common_mime_type_match($type, $avail)
@@ -2607,6 +2611,9 @@ function common_log_delta($comment=null)
 
 function common_strip_html($html, $trim=true, $save_whitespace=false)
 {
+    // first replace <br /> with \n
+    $html = preg_replace('/\<(\s*)?br(\s*)?\/?(\s*)?\>/i', "\n", $html); 
+    // then, unless explicitly avoided, remove excessive whitespace
     if (!$save_whitespace) {
         $html = preg_replace('/\s+/', ' ', $html);
     }

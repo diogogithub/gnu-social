@@ -332,6 +332,7 @@ class OembedPlugin extends Plugin
 
         // All our remote Oembed images lack a local filename property in the File object
         if (!is_null($file->filename)) {
+            common_debug(sprintf('Filename of file id==%d is not null (%s), so nothing oEmbed should handle.', $file->getID(), _ve($file->filename)));
             return true;
         }
 
@@ -342,6 +343,7 @@ class OembedPlugin extends Plugin
             $thumbnail   = File_thumbnail::byFile($file);
         } catch (NoResultException $e) {
             // Not Oembed data, or at least nothing we either can or want to use.
+            common_debug('No oEmbed data found for file id=='.$file->getID());
             return true;
         }
 
@@ -349,6 +351,9 @@ class OembedPlugin extends Plugin
             $this->storeRemoteFileThumbnail($thumbnail);
         } catch (AlreadyFulfilledException $e) {
             // aw yiss!
+        } catch (Exception $e) {
+            common_debug(sprintf('oEmbed encountered an exception (%s) for file id==%d: %s', get_class($e), $file->getID(), _ve($e->getMessage())));
+            throw $e;
         }
 
         $imgPath = $thumbnail->getPath();
@@ -389,6 +394,13 @@ class OembedPlugin extends Plugin
         // First see if it's too large for us
         common_debug(__METHOD__ . ': '.sprintf('Performing HEAD request for remote file id==%u to avoid unnecessarily downloading too large files. URL: %s', $thumbnail->getFileId(), $remoteUrl));
         $head = $http->head($remoteUrl);
+        if (!$head->isOk()) {
+            common_log(LOG_WARNING, 'HEAD request returned HTTP failure, so we will abort now and delete the thumbnail object.');
+            $thumbnail->delete();
+            return false;
+        } else {
+            common_debug('HEAD request returned HTTP success, so we will continue.');
+        }
         $remoteUrl = $head->getEffectiveUrl();   // to avoid going through redirects again
 
         $headers = $head->getHeader();
@@ -411,15 +423,14 @@ class OembedPlugin extends Plugin
         $imgData = HTTPClient::quickGet($remoteUrl);
         $info = @getimagesizefromstring($imgData);
         if ($info === false) {
-            throw new UnsupportedMediaException(_('Remote file format was not identified as an image.'), $url);
+            throw new UnsupportedMediaException(_('Remote file format was not identified as an image.'), $remoteUrl);
         } elseif (!$info[0] || !$info[1]) {
             throw new UnsupportedMediaException(_('Image file had impossible geometry (0 width or height)'));
         }
 
         $ext = File::guessMimeExtension($info['mime']);
 
-        // We'll trust sha256 (File::FILEHASH_ALG) not to have collision issues any time soon :)
-        $filename = 'oembed-'.hash(File::FILEHASH_ALG, $imgData) . ".{$ext}";
+        $filename = sprintf('oembed-%d.%s', $thumbnail->getFileId(), $ext);
         $fullpath = File_thumbnail::path($filename);
         // Write the file to disk. Throw Exception on failure
         if (!file_exists($fullpath) && file_put_contents($fullpath, $imgData) === false) {
