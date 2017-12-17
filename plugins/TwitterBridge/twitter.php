@@ -401,11 +401,11 @@ function format_status($notice)
     $statusWithoutLinks = preg_replace('`((http|https|ftp)://[^\s<]+[^\s<\.)])`i', '', $statustxt);
     $statusLength = mb_strlen($statusWithoutLinks)  + $numberOfLinks * 23;
 
-    // Twitter still has a 140-char hardcoded max.
-    if ($statusLength > 140) {
+    // Twitter raised it but still has a 280-char hardcoded max.
+    if ($statusLength > 280) {
         $noticeUrl = common_shorten_url($notice->getUrl());
         // each link uses 23 chars on twitter + 3 for the ' … ' => 26
-        $statustxt = mb_substr($statustxt, 0, 140 - 26) . ' … ' . $noticeUrl;
+        $statustxt = mb_substr($statustxt, 0, 280 - 26) . ' … ' . $noticeUrl;
     }
 
     return $statustxt;
