@@ -610,6 +610,10 @@ function common_purify($html, array $args=array())
         $cfg->set('URI.Base', $args['URI.Base']);   // if null this is like unsetting it I presume
         $cfg->set('URI.MakeAbsolute', !is_null($args['URI.Base']));   // if we have a URI base, convert relative URLs to absolute ones.
     }
+    if (common_config('cache', 'dir')) {
+        $cfg->set('Cache.SerializerPath', common_config('cache', 'dir'));
+    }
+    // if you don't want to use the default cache dir for htmlpurifier, set it specifically as $config['htmlpurifier']['Cache.SerializerPath'] = '/tmp'; or something.
     foreach (common_config('htmlpurifier') as $key=>$val) {
         $cfg->set($key, $val);
     }
