@@ -41,6 +41,11 @@ class CasloginAction extends Action
                 $this->serverError(_m('Incorrect username or password.'));
             }
 
+            if (is_array($casSettings['user_whitelist']) && !in_array($user->nickname, $casSettings['user_whitelist'])) {
+                // TRANS: Server error displayed when trying to log in with non-whitelisted user name (when whitelists are enabled.)
+                $this->serverError(_m('Incorrect username or password.'));
+            }
+
             // success!
             if (!common_set_user($user)) {
                 // TRANS: Server error displayed when login fails in CAS authentication plugin.
