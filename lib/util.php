@@ -592,9 +592,8 @@ function common_to_alphanumeric($str)
 
 function common_purify($html, array $args=[])
 {
-    require_once INSTALLDIR.'/extlib/HTMLPurifier/HTMLPurifier.auto.php';
 
-    $cfg = HTMLPurifier_Config::createDefault();
+    $cfg = \HTMLPurifier_Config::createDefault();
     /**
      * rel values that should be avoided since they can be used to infer
      * information about the _current_ page, not the h-entry:

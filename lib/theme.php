@@ -68,8 +68,9 @@ class Theme
      * Determines the proper directory and path for this theme.
      *
      * @param string $name Name of the theme; defaults to config value
+     * @throws ServerException
      */
-    function __construct($name=null)
+    function __construct($name = null)
     {
         if (empty($name)) {
             $name = common_config('site', 'theme');
@@ -121,7 +122,7 @@ class Theme
      * using an offsite theme server path.
      *
      * @param string $group configuration section name to pull paths from
-     * @param string $fallbackSubdir default subdirectory under INSTALLDIR
+     * @param string $fallbackSubdir default subdirectory under PUBLICDIR
      * @param string $name theme name
      *
      * @return string URL
@@ -250,7 +251,7 @@ class Theme
      * Pull data from the theme's theme.ini file.
      * @fixme calling getFile will fall back to default theme, this may be unsafe.
      *
-     * @return associative array of strings
+     * @return array associative of strings
      */
     function getMetadata()
     {
@@ -264,7 +265,7 @@ class Theme
      * Pull data from the theme's theme.ini file.
      * @fixme calling getFile will fall back to default theme, this may be unsafe.
      *
-     * @return associative array of strings
+     * @return array associative of strings
      */
     private function doGetMetadata()
     {
@@ -272,7 +273,7 @@ class Theme
         if (file_exists($iniFile)) {
             return parse_ini_file($iniFile);
         } else {
-            return array();
+            return [];
         }
     }
 
@@ -281,6 +282,7 @@ class Theme
      * dependencies. These are lazy-loaded from theme.ini.
      *
      * @return array of URL strings
+     * @throws ServerException
      */
     function getExternals()
     {
@@ -306,9 +308,10 @@ class Theme
      * Gets the full path of a file in a theme dir based on its relative name
      *
      * @param string $relative relative path within the theme directory
-     * @param string $name     name of the theme; defaults to current theme
+     * @param string $name name of the theme; defaults to current theme
      *
      * @return string File path to the theme file
+     * @throws ServerException
      */
     static function file($relative, $name=null)
     {
@@ -320,9 +323,10 @@ class Theme
      * Gets the full URL of a file in a theme dir based on its relative name
      *
      * @param string $relative relative path within the theme directory
-     * @param string $name     name of the theme; defaults to current theme
+     * @param string $name name of the theme; defaults to current theme
      *
      * @return string URL of the file
+     * @throws ServerException
      */
     static function path($relative, $name=null)
     {
@@ -376,30 +380,30 @@ class Theme
     /**
      * Local root dir for themes
      *
-     * @return string local root dir for themes
+     * @return string
      */
     protected static function localRoot()
     {
         $basedir = common_config('local', 'dir');
 
         if (empty($basedir)) {
-            $basedir = INSTALLDIR . '/local';
+            $basedir = PUBLICDIR . '/local';
         }
 
         return $basedir . '/theme';
     }
 
     /**
-     * Root dir for themes that are shipped with StatusNet
+     * Root dir for themes that are shipped with GNU social
      *
-     * @return string root dir for StatusNet themes
+     * @return string
      */
     protected static function installRoot()
     {
         $instroot = common_config('theme', 'dir');
 
         if (empty($instroot)) {
-            $instroot = INSTALLDIR.'/theme';
+            $instroot = PUBLICDIR.'/theme';
         }
 
         return $instroot;

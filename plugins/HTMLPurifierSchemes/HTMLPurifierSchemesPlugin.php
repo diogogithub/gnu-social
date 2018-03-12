@@ -19,9 +19,6 @@
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
-// because autoloading classes won't work otherwise
-require_once INSTALLDIR.'/extlib/HTMLPurifier/HTMLPurifier.auto.php';
-
 /**
  * @package     Activity
  * @maintainer  Mikael Nordfeldth <mmn@hethane.se>

@@ -222,7 +222,7 @@ class Plugin
 
         if (empty($path)) {
             // XXX: extra stat().
-            if (@file_exists(INSTALLDIR.'/local/plugins/'.$plugin.'/'.$relative)) {
+            if (@file_exists(PUBLICDIR.'/local/plugins/'.$plugin.'/'.$relative)) {
                 $path = common_config('site', 'path') . '/local/plugins/';
             } else {
                 $path = common_config('site', 'path') . '/plugins/';

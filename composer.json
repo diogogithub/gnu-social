@@ -1,0 +1,69 @@
+{
+    "name": "gnusocial/gnusocial",
+    "description": "Free software social networking platform.",
+    "type": "project",
+    "license": "AGPL-3.0-only",
+    "require": {
+        "php": "^7.0.0",
+        "ext-bcmath": "*",
+        "ext-curl": "*",
+        "ext-dom": "*",
+        "ext-gd": "*",
+        "ext-intl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-simplexml": "*",
+        "ext-xml": "*",
+        "ext-xmlwriter": "*",
+        "ezyang/htmlpurifier": "^4.10",
+        "masterminds/html5": "^2.6",
+        "mf2/mf2": "^0.4.6",
+        "openid/php-openid": "^2.3"
+    },
+    "require-dev": {
+        "phpdocumentor/phpdocumentor": "^2.9",
+        "phpunit/phpunit": "^8.2"
+    },
+    "suggest": {
+        "ext-apache": "*",
+        "ext-gmp": "*",
+        "ext-http": "*",
+        "ext-xmlrpc": "*",
+        "ext-pgsql": "*",
+        "ext-mysql": "*",
+        "ext-mysqli": "*",
+        "ext-sqlite": "*",
+        "ext-posix": "*",
+        "ext-readline": "*",
+        "ext-pcntl": "*",
+        "ext-ldap": "*",
+        "ext-fileinfo": "*",
+        "ext-interbase": "*",
+        "ext-imagick": "*",
+        "ext-imap": "*",
+        "ext-exif": "*",
+        "ext-mailparse": "*",
+        "ext-oci8": "*",
+        "ext-memcached": "*",
+        "ext-memcache": "*",
+        "ext-mssql": "*",
+        "ext-odbc": "*",
+        "ext-zlib": "*",
+        "ext-sybase": "*",
+        "ext-zip": "*",
+        "ext-libxml": "*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "scripts": {
+        "post-update-cmd": [
+            "@php scripts/upgrade.php"
+        ]
+    }
+}

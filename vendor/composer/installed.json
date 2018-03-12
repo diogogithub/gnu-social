@@ -1,0 +1,229 @@
+[
+    {
+        "name": "ezyang/htmlpurifier",
+        "version": "v4.10.0",
+        "version_normalized": "4.10.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ezyang/htmlpurifier.git",
+            "reference": "d85d39da4576a6934b72480be6978fb10c860021"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/d85d39da4576a6934b72480be6978fb10c860021",
+            "reference": "d85d39da4576a6934b72480be6978fb10c860021",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.2"
+        },
+        "require-dev": {
+            "simpletest/simpletest": "^1.1"
+        },
+        "time": "2018-02-23T01:58:20+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "HTMLPurifier": "library/"
+            },
+            "files": [
+                "library/HTMLPurifier.composer.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL"
+        ],
+        "authors": [
+            {
+                "name": "Edward Z. Yang",
+                "email": "admin@htmlpurifier.org",
+                "homepage": "http://ezyang.com"
+            }
+        ],
+        "description": "Standards compliant HTML filter written in PHP",
+        "homepage": "http://htmlpurifier.org/",
+        "keywords": [
+            "html"
+        ]
+    },
+    {
+        "name": "masterminds/html5",
+        "version": "2.6.0",
+        "version_normalized": "2.6.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Masterminds/html5-php.git",
+            "reference": "c961ca6a0a81dc6b55b6859b3f9ea7f402edf9ad"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Masterminds/html5-php/zipball/c961ca6a0a81dc6b55b6859b3f9ea7f402edf9ad",
+            "reference": "c961ca6a0a81dc6b55b6859b3f9ea7f402edf9ad",
+            "shasum": ""
+        },
+        "require": {
+            "ext-ctype": "*",
+            "ext-dom": "*",
+            "ext-libxml": "*",
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^4.8.35",
+            "sami/sami": "~2.0",
+            "satooshi/php-coveralls": "1.0.*"
+        },
+        "time": "2019-03-10T11:41:28+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.6-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Masterminds\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Matt Butcher",
+                "email": "technosophos@gmail.com"
+            },
+            {
+                "name": "Asmir Mustafic",
+                "email": "goetas@gmail.com"
+            },
+            {
+                "name": "Matt Farina",
+                "email": "matt@mattfarina.com"
+            }
+        ],
+        "description": "An HTML5 parser and serializer.",
+        "homepage": "http://masterminds.github.io/html5-php",
+        "keywords": [
+            "HTML5",
+            "dom",
+            "html",
+            "parser",
+            "querypath",
+            "serializer",
+            "xml"
+        ]
+    },
+    {
+        "name": "mf2/mf2",
+        "version": "0.4.6",
+        "version_normalized": "0.4.6.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/microformats/php-mf2.git",
+            "reference": "00b70ee7eb7f5b0585b1bd467f6c9cbd75055d23"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/microformats/php-mf2/zipball/00b70ee7eb7f5b0585b1bd467f6c9cbd75055d23",
+            "reference": "00b70ee7eb7f5b0585b1bd467f6c9cbd75055d23",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "mf2/tests": "@dev",
+            "phpdocumentor/phpdocumentor": "v2.8.4",
+            "phpunit/phpunit": "4.8.*"
+        },
+        "suggest": {
+            "barnabywalters/mf-cleaner": "To more easily handle the canonical data php-mf2 gives you",
+            "masterminds/html5": "Alternative HTML parser for PHP, for better HTML5 support."
+        },
+        "time": "2018-08-24T14:47:04+00:00",
+        "bin": [
+            "bin/fetch-mf2",
+            "bin/parse-mf2"
+        ],
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "Mf2/Parser.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "CC0-1.0"
+        ],
+        "authors": [
+            {
+                "name": "Barnaby Walters",
+                "homepage": "http://waterpigs.co.uk"
+            }
+        ],
+        "description": "A pure, generic microformats2 parser — makes HTML as easy to consume as a JSON API",
+        "keywords": [
+            "html",
+            "microformats",
+            "microformats 2",
+            "parser",
+            "semantic"
+        ]
+    },
+    {
+        "name": "openid/php-openid",
+        "version": "2.3.0",
+        "version_normalized": "2.3.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/openid/php-openid.git",
+            "reference": "924f9aa42453cd0f9dba72587b4e2cdf7f4de874"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/openid/php-openid/zipball/924f9aa42453cd0f9dba72587b4e2cdf7f4de874",
+            "reference": "924f9aa42453cd0f9dba72587b4e2cdf7f4de874",
+            "shasum": ""
+        },
+        "require": {
+            "ext-curl": "*",
+            "ext-dom": "*",
+            "ext-gmp": "*",
+            "php": ">=4.3"
+        },
+        "time": "2015-07-30T18:07:43+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "Auth"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "include-path": [
+            "."
+        ],
+        "license": [
+            "Apache-2.0"
+        ],
+        "authors": [
+            {
+                "name": "JanRain Inc.",
+                "homepage": "http://www.openidenabled.com"
+            }
+        ],
+        "description": "OpenID library for PHP5",
+        "homepage": "http://github.com/openid/php-openid",
+        "keywords": [
+            "Authentication",
+            "OpenId",
+            "auth",
+            "yadis"
+        ]
+    }
+]

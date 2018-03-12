@@ -32,12 +32,12 @@ defined('GNUSOCIAL') || die();
 define('GNUSOCIAL_ENGINE', 'GNU social');
 define('GNUSOCIAL_ENGINE_URL', 'https://www.gnu.org/software/social/');
 
-define('GNUSOCIAL_BASE_VERSION', '1.26.1');
+define('GNUSOCIAL_BASE_VERSION', '2.0.0');
 define('GNUSOCIAL_LIFECYCLE', 'dev'); // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'
 
 define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
 
-define('GNUSOCIAL_CODENAME', 'Undecided');
+define('GNUSOCIAL_CODENAME', 'THIS. IS. GNU social!!!!');
 
 define('AVATAR_PROFILE_SIZE', 96);
 define('AVATAR_STREAM_SIZE', 48);
@@ -79,26 +79,11 @@ define('URL_REGEX_VALID_FRAGMENT_CHARS',    URL_REGEX_VALID_QSTRING_CHARS . '\?\
 define('URL_REGEX_EXCLUDED_END_CHARS',      '\?\.\,\!\#\:\'');  // don't include these if they are directly after a URL
 define('URL_REGEX_DOMAIN_NAME', '(?:(?!-)[A-Za-z0-9\-]{1,63}(?<!-)\.)+[A-Za-z]{2,10}');
 
+// Autoload composer dependencies
+require_once INSTALLDIR . '/vendor/autoload.php';
+
 // append our extlib dir as the last-resort place to find libs
-
 set_include_path(get_include_path() . PATH_SEPARATOR . INSTALLDIR . '/extlib/');
-
-// To protect against upstream libraries which haven't updated
-// for PHP 5.3 where dl() function may not be present...
-if (!function_exists('dl')) {
-    // function_exists() returns false for things in disable_functions,
-    // but they still exist and we'll die if we try to redefine them.
-    //
-    // Fortunately trying to call the disabled one will only trigger
-    // a warning, not a fatal, so it's safe to leave it for our case.
-    // Callers will be suppressing warnings anyway.
-    $disabled = array_filter(array_map('trim', explode(',', ini_get('disable_functions'))));
-    if (!in_array('dl', $disabled)) {
-        function dl($library) {
-            return false;
-        }
-    }
-}
 
 // global configuration object
 
@@ -174,7 +159,6 @@ spl_autoload_register(function($class){
         return;
     }
 });
-
 require_once INSTALLDIR.'/lib/util.php';
 require_once INSTALLDIR.'/lib/action.php';
 require_once INSTALLDIR.'/lib/mail.php';

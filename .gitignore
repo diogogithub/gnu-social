@@ -16,3 +16,4 @@ TODO.rym
 config-*.php
 good-config.php
 *.mo
+/vendor/

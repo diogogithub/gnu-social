@@ -389,8 +389,7 @@ class OembedPlugin extends Plugin
         case 'link':
             if (!empty($oembed->html)
                     && (GNUsocial::isAjax() || common_config('attachments', 'show_html'))) {
-                require_once INSTALLDIR.'/extlib/HTMLPurifier/HTMLPurifier.auto.php';
-                $purifier = new HTMLPurifier();
+                $purifier = new \HTMLPurifier();
                 // FIXME: do we allow <object> and <embed> here? we did that when we used htmLawed, but I'm not sure anymore...
                 $out->raw($purifier->purify($oembed->html));
             }

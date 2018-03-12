@@ -38,7 +38,7 @@
  * @link     http://status.net
  */
 
-define('INSTALLDIR', dirname(__FILE__));
+define('INSTALLDIR', __DIR__);
 
 require INSTALLDIR . '/lib/installer.php';
 
