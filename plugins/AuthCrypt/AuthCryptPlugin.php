@@ -36,6 +36,7 @@ class AuthCryptPlugin extends AuthenticationPlugin
     protected $hash         = '$6$';    // defaults to SHA512, i.e. '$6$', in onInitializePlugin()
     protected $statusnet    = true;     // if true, also check StatusNet style password hash
     protected $overwrite    = true;     // if true, password change means overwrite with crypt()
+    protected $argon        = false;    // Use Argon if supported. 
 
     public $provider_name   = 'password_hash';  // not actually used
 
@@ -115,10 +116,16 @@ class AuthCryptPlugin extends AuthenticationPlugin
     public function hashPassword($password, Profile $profile=null)
     {
         if(function_exists('password_hash')) {
+
+            $algorithm = PASSWORD_DEFAULT;
+
+            if($this->argon && version_compare(PHP_VERSION, '7.2.0') == 1) {
+                $algorithm = PASSWORD_ARGON2I;
+            }
             // Use the modern password hashing algorithm
             // http://php.net/manual/en/function.password-hash.php
             // Uses PASSWORD_BCRYPT by default, with PASSWORD_ARGON2I being the next possible default in future versions
-            return password_hash($password, PASSWORD_DEFAULT);
+            return password_hash($password, $algorithm);
         } else {
             // Fallback to previous hashing function if phpversion() < 5.5
             // A new, unique salt per new record stored...
