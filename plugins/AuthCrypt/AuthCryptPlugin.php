@@ -37,7 +37,7 @@ class AuthCryptPlugin extends AuthenticationPlugin
     protected $statusnet    = true;     // if true, also check StatusNet style password hash
     protected $overwrite    = true;     // if true, password change means overwrite with crypt()
 
-    public $provider_name   = 'crypt';  // not actually used
+    public $provider_name   = 'password_hash';  // not actually used
 
     /*
      * FUNCTIONALITY
@@ -61,13 +61,17 @@ class AuthCryptPlugin extends AuthenticationPlugin
 
         // crypt understands what the salt part of $user->password is
         if ($user->password === crypt($password, $user->password)) {
+            // and update password hash entry to password_hash() compatible
+            if ($this->overwrite && function_exists('password_hash')) {
+                $this->changePassword($user->nickname, null, $password);
+            }
             return $user;
         }
 
         // If we check StatusNet hash, for backwards compatibility and migration
         if ($this->statusnet && $user->password === md5($password . $user->id)) {
             // and update password hash entry to crypt() compatible
-            if ($this->overwrite) {
+            if ($this->overwrite && function_exists('password_hash')) {
                 $this->changePassword($user->nickname, null, $password);
             }
             return $user;
@@ -110,8 +114,16 @@ class AuthCryptPlugin extends AuthenticationPlugin
 
     public function hashPassword($password, Profile $profile=null)
     {
-        // A new, unique salt per new record stored...
-        return crypt($password, $this->hash . self::cryptSalt());
+        if(function_exists('password_hash')) {
+            // Use the modern password hashing algorithm
+            // http://php.net/manual/en/function.password-hash.php
+            // Uses PASSWORD_BCRYPT by default, with PASSWORD_ARGON2I being the next possible default in future versions
+            return password_hash($password, PASSWORD_DEFAULT);
+        } else {
+            // Fallback to previous hashing function if phpversion() < 5.5
+            // A new, unique salt per new record stored...
+            return crypt($password, $this->hash . self::cryptSalt());
+        }
     }
 
     /*
