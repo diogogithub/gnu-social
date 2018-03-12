@@ -52,6 +52,13 @@ class AuthCryptPlugin extends AuthenticationPlugin
             return false;
         }
 
+        // Timing safe password verification on supported PHP versions
+        if (function_exists('password_verify')) {
+            if (password_verify($password, $user->password)) {
+                return $user;
+            }
+        }
+
         // crypt understands what the salt part of $user->password is
         if ($user->password === crypt($password, $user->password)) {
             return $user;
