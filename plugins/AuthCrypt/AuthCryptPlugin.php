@@ -53,17 +53,10 @@ class AuthCryptPlugin extends AuthenticationPlugin
             return false;
         }
 
-        // Timing safe password verification on supported PHP versions
-        if (function_exists('password_verify')) {
-            if (password_verify($password, $user->password)) {
-                return $user;
-            }
-        }
-
         // crypt understands what the salt part of $user->password is
         if ($user->password === crypt($password, $user->password)) {
             // and update password hash entry to password_hash() compatible
-            if ($this->overwrite && function_exists('password_hash')) {
+            if ($this->overwrite) {
                 $this->changePassword($user->nickname, null, $password);
             }
             return $user;
@@ -72,9 +65,14 @@ class AuthCryptPlugin extends AuthenticationPlugin
         // If we check StatusNet hash, for backwards compatibility and migration
         if ($this->statusnet && $user->password === md5($password . $user->id)) {
             // and update password hash entry to crypt() compatible
-            if ($this->overwrite && function_exists('password_hash')) {
+            if ($this->overwrite) {
                 $this->changePassword($user->nickname, null, $password);
             }
+            return $user;
+        }
+
+        // Timing safe password verification on supported PHP versions
+        if (password_verify($password, $user->password)) {
             return $user;
         }
 
@@ -98,7 +96,7 @@ class AuthCryptPlugin extends AuthenticationPlugin
     {
         $username = Nickname::normalize($username);
 
-        if (!$this->password_changeable) {
+        if($this->overwrite == false) {
             return false;
         }
 
@@ -115,22 +113,21 @@ class AuthCryptPlugin extends AuthenticationPlugin
 
     public function hashPassword($password, Profile $profile=null)
     {
-        if(function_exists('password_hash')) {
+        $algorithm = PASSWORD_DEFAULT;
+        $options = ['cost' => 12];
 
-            $algorithm = PASSWORD_DEFAULT;
-
-            if($this->argon && version_compare(PHP_VERSION, '7.2.0') == 1) {
-                $algorithm = PASSWORD_ARGON2I;
-            }
-            // Use the modern password hashing algorithm
-            // http://php.net/manual/en/function.password-hash.php
-            // Uses PASSWORD_BCRYPT by default, with PASSWORD_ARGON2I being the next possible default in future versions
-            return password_hash($password, $algorithm);
-        } else {
-            // Fallback to previous hashing function if phpversion() < 5.5
-            // A new, unique salt per new record stored...
-            return crypt($password, $this->hash . self::cryptSalt());
+        if($this->argon == true && version_compare(PHP_VERSION, '7.2.0') == 1) {
+            $algorithm = PASSWORD_ARGON2I;
+            $options = [
+                'memory_cost' => PASSWORD_ARGON2_DEFAULT_MEMORY_COST,
+                'time_cost' => PASSWORD_ARGON2_DEFAULT_TIME_COST,
+                'threads' => PASSWORD_ARGON2_DEFAULT_THREADS
+            ];
         }
+        // Use the modern password hashing algorithm
+        // http://php.net/manual/en/function.password-hash.php
+        // Uses PASSWORD_BCRYPT by default, with PASSWORD_ARGON2I being the next possible default in future versions
+        return password_hash($password, $algorithm, $options);
     }
 
     /*
