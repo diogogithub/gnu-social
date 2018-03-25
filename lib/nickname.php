@@ -141,7 +141,7 @@ class Nickname
 
         if (mb_strlen($str) < 1) {
             throw new NicknameEmptyException();
-        } elseif (!self::isCanonical($str)) {
+        } elseif (!self::isCanonical($str) && !filter_var($str, FILTER_VALIDATE_EMAIL)) {
             throw new NicknameInvalidException();
         } elseif (self::isBlacklisted($str)) {
             throw new NicknameBlacklistedException();
