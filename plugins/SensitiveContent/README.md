@@ -19,6 +19,10 @@ if you want to customize the blocker image, add a line to your config.php:
 
   $config['site']['sensitivecontent']['blockerimage'] = "/path/to/image.jpg";
 
+if you want to activate the nsfw overlay for non-logged-in visitors add:
+
+  $config['site']['sensitivecontent']['hideforvisitors'] = true;
+
 ## Usage
 
 Individual users must go to their Settings page. A new sidebar menu item "Sensitive Content"

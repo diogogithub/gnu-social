@@ -22,6 +22,7 @@ class SensitiveContentPlugin extends Plugin
 	static function settings($setting)
 	{
 		$settings['blockerimage'] = Plugin::staticPath('SensitiveContent', '').'img/blocker.png';
+		$settings['hideforvisitors'] = false;
 
 		$configphpsettings = common_config('site','sensitivecontent') ?: array();
  		foreach($configphpsettings as $configphpsetting=>$value) {
@@ -146,20 +147,7 @@ EOB;
 
 	function onStartShowAttachmentRepresentation($out, $file)
 	{
-		$profile = Profile::current();
-
-                if (!is_null($profile) && $profile instanceof Profile)
-                {
-                        $hidesensitive = $this->getHideSensitive($profile);
-                }
-                else
-                {
-                        $hidesensitive = false;
-                }
-
-
 		$classes = "sensitive-blocker"; //'sensitive-blocker';
-
 		$thumbnail = null;
 		try {
 			$thumbnail = $file->getThumbnail();
@@ -190,18 +178,12 @@ EOB;
 	function onEndShowScripts(Action $action)
 	{
 		$profile = $action->getScoped();
-		if (!is_null($profile) && $profile instanceof Profile)
-		{
-			$hidesensitive = $this->getHideSensitive($profile) ? "true" : "false";
-		}
-		else
-		{
-			$hidesensitive = "false";
-		}
+		$hidesensitive = $this->getHideSetting($profile);
+		$hidesensitive_string = $hidesensitive ? "true" : "false";
 
 		$inline = <<<EOB
 
-window.hidesensitive = $hidesensitive ;
+window.hidesensitive = $hidesensitive_string;
 
 function toggleSpoiler(evt) {
 	if (window.hidesensitive) evt.target.classList.toggle('reveal');
@@ -232,22 +214,20 @@ EOB;
 
 	function onStartHtmlElement($action, &$attrs) {
 		$profile = Profile::current();
+		$hidesensitive = $this->getHideSetting($profile);
 
-                if (!is_null($profile) && $profile instanceof Profile)
-                {
-                        $hidesensitive = $this->getHideSensitive($profile);
-                }
-                else
-                {
-                        $hidesensitive = false;
-                }
-
-
-		$attrs = array_merge($attrs, 
+		$attrs = array_merge($attrs,
 			array('data-hidesensitive' => ($hidesensitive ? "true" : "false"))
 		);
 	}
 
+	function getHideSetting($profile) {
+		if (isset($profile) && $profile instanceof Profile) {
+			return $this->getHideSensitive($profile);
+		} else {
+			return static::settings('hideforvisitors');
+		}
+	}
 
 	function getHideSensitive($profile) {
 		$c = Cache::instance();
