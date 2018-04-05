@@ -160,14 +160,23 @@ EOB;
 
 		$classes = "sensitive-blocker"; //'sensitive-blocker';
 
+		$thumbnail = null;
+		try {
+			$thumbnail = $file->getThumbnail();
+		} catch (Exception $e) {
+			$thumbnail = null;
+		}
+		$thumb_width_css = $thumbnail ? $thumbnail->width . 'px' : '100%';
+		$thumb_height_css = $thumbnail ? $thumbnail->height . 'px' : '100%';
+
 		$out->elementStart('div', array(
-			'class'=>'attachment-wrapper',
-			'style'=>'height: ' . $file->getThumbnail()->height . 'px; width: ' . $file->getThumbnail()->width . 'px;'
+			'class'   => 'attachment-wrapper',
+			'style'   => "height: {$thumb_height_css}; width: {$thumb_width_css};",
 		)); /*needs height of thumb*/
 		$out->elementStart('div', array(
-			'class'=>$classes,
-			'onclick'=>'toggleSpoiler(event)',
-			'style'=>'height: ' . $file->getThumbnail()->height . 'px; width: ' . $file->getThumbnail()->width . 'px;'
+			'class'   => $classes,
+			'onclick' => 'toggleSpoiler(event)',
+			'style'   => "height: {$thumb_height_css}; width: {$thumb_width_css};",
 		));
 		$out->raw('&nbsp;');
 		$out->elementEnd('div');
