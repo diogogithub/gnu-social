@@ -1,11 +1,35 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * OembedPlugin implementation for GNU social
+ *
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth
+ * @author    Diogo Cordeiro <diogo@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 
 if (isset($_SERVER) && array_key_exists('REQUEST_METHOD', $_SERVER)) {
     print "This script must be run from the command line\n";
     exit();
 }
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('INSTALLDIR', realpath(__DIR__ . '/../../..'));
 define('GNUSOCIAL', true);
 define('STATUSNET', true);  // compatibility
 
@@ -13,7 +37,6 @@ require_once INSTALLDIR . '/lib/common.php';
 
 class oEmbedTest extends PHPUnit_Framework_TestCase
 {
-
     public function setup()
     {
         $this->old_ohembed = common_config('ohembed', 'endpoint');
@@ -51,10 +74,11 @@ class oEmbedTest extends PHPUnit_Framework_TestCase
      *
      * @return string
      */
-    function _endpoint()
+    public function _endpoint()
     {
         $default = array();
-        $_server = 'localhost'; $_path = '';
+        $_server = 'localhost';
+        $_path = '';
         require INSTALLDIR . '/lib/default.php';
         return $default['oembed']['endpoint'];
     }
@@ -65,7 +89,7 @@ class oEmbedTest extends PHPUnit_Framework_TestCase
      * @param string $url
      * @param string $expectedType
      */
-    function _doTest($url, $expectedType)
+    public function _doTest($url, $expectedType)
     {
         try {
             $data = oEmbedHelper::getObject($url);
@@ -74,7 +98,7 @@ class oEmbedTest extends PHPUnit_Framework_TestCase
                 $this->assertTrue(!empty($data->url), 'Photo must have a URL.');
                 $this->assertTrue(!empty($data->width), 'Photo must have a width.');
                 $this->assertTrue(!empty($data->height), 'Photo must have a height.');
-            } else if ($data->type == 'video') {
+            } elseif ($data->type == 'video') {
                 $this->assertTrue(!empty($data->html), 'Video must have embedding HTML.');
                 $this->assertTrue(!empty($data->thumbnail_url), 'Video should have a thumbnail.');
             }
@@ -95,7 +119,7 @@ class oEmbedTest extends PHPUnit_Framework_TestCase
      * Sample oEmbed targets for sites we know ourselves...
      * @return array
      */
-    static public function knownSources()
+    public static function knownSources()
     {
         $sources = array(
             array('https://www.flickr.com/photos/brionv/5172500179/', 'photo'),
@@ -109,7 +133,7 @@ class oEmbedTest extends PHPUnit_Framework_TestCase
      *
      * @return array
      */
-    static public function discoverableSources()
+    public static function discoverableSources()
     {
         $sources = array(
 
@@ -128,9 +152,8 @@ class oEmbedTest extends PHPUnit_Framework_TestCase
      *
      * @return array
      */
-    static public function fallbackSources()
+    public static function fallbackSources()
     {
-
         $sources = array(
             array('https://github.com/git/git/commit/85e9c7e1d42849c5c3084a9da748608468310c0e', 'Github Commit'), // @fixme in future there may be a native provider -- will change to 'photo'
         );

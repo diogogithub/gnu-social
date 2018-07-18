@@ -1,28 +1,38 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * OembedPlugin implementation for GNU social
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
+ * @package   GNUsocial
+ * @author    Stephen Paul Weber
+ * @author    Mikael Nordfeldth
+ * @author    Diogo Cordeiro <diogo@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Table Definition for file_oembed
+ *
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 class File_oembed extends Managed_DataObject
 {
     public $__table = 'file_oembed';                     // table name
@@ -67,7 +77,8 @@ class File_oembed extends Managed_DataObject
         );
     }
 
-    static function _getOembed($url) {
+    public static function _getOembed($url)
+    {
         try {
             return oEmbedHelper::getObject($url);
         } catch (Exception $e) {
@@ -79,7 +90,8 @@ class File_oembed extends Managed_DataObject
     /**
      * Fetch an entry by using a File's id
      */
-    static function getByFile(File $file) {
+    public static function getByFile(File $file)
+    {
         $fo = new File_oembed();
         $fo->file_id = $file->id;
         if (!$fo->find(true)) {
@@ -99,7 +111,8 @@ class File_oembed extends Managed_DataObject
      * @param object $data Services_oEmbed_Object_*
      * @param int $file_id
      */
-    public static function saveNew($data, $file_id) {
+    public static function saveNew($data, $file_id)
+    {
         $file_oembed = new File_oembed;
         $file_oembed->file_id = $file_id;
         if (!isset($data->version)) {
@@ -107,19 +120,37 @@ class File_oembed extends Managed_DataObject
         }
         $file_oembed->version = $data->version;
         $file_oembed->type = $data->type;
-        if (!empty($data->provider_name)) $file_oembed->provider = $data->provider_name;
-        if (!empty($data->provider)) $file_oembed->provider = $data->provider;
-        if (!empty($data->provider_url)) $file_oembed->provider_url = $data->provider_url;
-        if (!empty($data->width)) $file_oembed->width = intval($data->width);
-        if (!empty($data->height)) $file_oembed->height = intval($data->height);
-        if (!empty($data->html)) $file_oembed->html = $data->html;
-        if (!empty($data->title)) $file_oembed->title = $data->title;
-        if (!empty($data->author_name)) $file_oembed->author_name = $data->author_name;
-        if (!empty($data->author_url)) $file_oembed->author_url = $data->author_url;
-        if (!empty($data->url)){
+        if (!empty($data->provider_name)) {
+            $file_oembed->provider = $data->provider_name;
+        }
+        if (!empty($data->provider)) {
+            $file_oembed->provider = $data->provider;
+        }
+        if (!empty($data->provider_url)) {
+            $file_oembed->provider_url = $data->provider_url;
+        }
+        if (!empty($data->width)) {
+            $file_oembed->width = intval($data->width);
+        }
+        if (!empty($data->height)) {
+            $file_oembed->height = intval($data->height);
+        }
+        if (!empty($data->html)) {
+            $file_oembed->html = $data->html;
+        }
+        if (!empty($data->title)) {
+            $file_oembed->title = $data->title;
+        }
+        if (!empty($data->author_name)) {
+            $file_oembed->author_name = $data->author_name;
+        }
+        if (!empty($data->author_url)) {
+            $file_oembed->author_url = $data->author_url;
+        }
+        if (!empty($data->url)) {
             $file_oembed->url = $data->url;
             $given_url = File_redirection::_canonUrl($file_oembed->url);
-            if (! empty($given_url)){
+            if (! empty($given_url)) {
                 try {
                     $file = File::getByUrl($given_url);
                     $file_oembed->mimetype = $file->mimetype;
@@ -139,8 +170,11 @@ class File_oembed extends Managed_DataObject
         if (!empty($data->thumbnail_url) || ($data->type == 'photo')) {
             $ft = File_thumbnail::getKV('file_id', $file_id);
             if ($ft instanceof File_thumbnail) {
-                common_log(LOG_WARNING, "Strangely, a File_thumbnail object exists for new file $file_id",
-                           __FILE__);
+                common_log(
+                    LOG_WARNING,
+                    "Strangely, a File_thumbnail object exists for new file $file_id",
+                    __FILE__
+                );
             } else {
                 File_thumbnail::saveNew($data, $file_id);
             }

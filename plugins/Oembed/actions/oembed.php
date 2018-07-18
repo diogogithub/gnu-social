@@ -1,42 +1,41 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * OembedPlugin implementation for GNU social
  *
- * oEmbed data action for /main/oembed(.xml|.json) requests
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @package   GNUsocial
+ * @author    Craig Andrews <candrews@integralblue.com>
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    hannes
+ * @author    Diogo Cordeiro <diogo@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Oembed provider implementation
  *
  * This class handles all /main/oembed(.xml|.json)/ requests.
  *
- * @category  oEmbed
- * @package   GNUsocial
- * @author    Craig Andrews <candrews@integralblue.com>
- * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @copyright 2008 StatusNet, Inc.
- * @copyright 2014 Free Software Foundation, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 class OembedAction extends Action
 {
     protected function handle()
@@ -47,12 +46,12 @@ class OembedAction extends Action
         $tls = parse_url($url, PHP_URL_SCHEME) == 'https';
         $root_url = common_root_url($tls);
 
-        if (substr(strtolower($url),0,mb_strlen($root_url)) !== strtolower($root_url)) {
+        if (substr(strtolower($url), 0, mb_strlen($root_url)) !== strtolower($root_url)) {
             // TRANS: Error message displaying attachments. %s is the site's base URL.
             throw new ClientException(sprintf(_('oEmbed data will only be provided for %s URLs.'), $root_url));
         }
 
-        $path = substr($url,strlen($root_url));
+        $path = substr($url, strlen($root_url));
 
         $r = Router::get();
 
@@ -75,15 +74,17 @@ class OembedAction extends Action
             $profile = $notice->getProfile();
             $authorname = $profile->getFancyName();
             // TRANS: oEmbed title. %1$s is the author name, %2$s is the creation date.
-            $oembed['title'] = sprintf(_('%1$s\'s status on %2$s'),
+            $oembed['title'] = sprintf(
+                _('%1$s\'s status on %2$s'),
                 $authorname,
-                common_exact_date($notice->created));
+                common_exact_date($notice->created)
+            );
             $oembed['author_name']=$authorname;
             $oembed['author_url']=$profile->profileurl;
             $oembed['url']=$notice->getUrl();
             $oembed['html']=$notice->getRendered();
 
-			// maybe add thumbnail
+            // maybe add thumbnail
             foreach ($notice->attachments() as $attachment) {
                 if (!$attachment instanceof File) {
                     common_debug('ATTACHMENTS array entry from notice id=='._ve($notice->getID()).' is something else than a File dataobject: '._ve($attachment));
@@ -108,10 +109,10 @@ class OembedAction extends Action
         case 'attachment':
             $id = $proxy_args['attachment'];
             $attachment = File::getKV($id);
-            if(empty($attachment)){
+            if (empty($attachment)) {
                 // TRANS: Client error displayed in oEmbed action when attachment not found.
                 // TRANS: %d is an attachment ID.
-                $this->clientError(sprintf(_('Attachment %s not found.'),$id), 404);
+                $this->clientError(sprintf(_('Attachment %s not found.'), $id), 404);
             }
             if (empty($attachment->filename) && $file_oembed = File_oembed::getKV('file_id', $attachment->id)) {
                 // Proxy the existing oembed information
@@ -125,7 +126,7 @@ class OembedAction extends Action
                 $oembed['author_name']=$file_oembed->author_name;
                 $oembed['author_url']=$file_oembed->author_url;
                 $oembed['url']=$file_oembed->getUrl();
-            } elseif (substr($attachment->mimetype,0,strlen('image/'))==='image/') {
+            } elseif (substr($attachment->mimetype, 0, strlen('image/'))==='image/') {
                 $oembed['type']='photo';
                 if ($attachment->filename) {
                     $filepath = File::path($attachment->filename);
@@ -149,8 +150,10 @@ class OembedAction extends Action
                 }
             } else {
                 $oembed['type']='link';
-                $oembed['url']=common_local_url('attachment',
-                    array('attachment' => $attachment->id));
+                $oembed['url']=common_local_url(
+                    'attachment',
+                    array('attachment' => $attachment->id)
+                );
             }
             if ($attachment->title) {
                 $oembed['title']=$attachment->title;
@@ -159,14 +162,14 @@ class OembedAction extends Action
         default:
             // TRANS: Server error displayed in oEmbed request when a path is not supported.
             // TRANS: %s is a path.
-            $this->serverError(sprintf(_('"%s" not supported for oembed requests.'),$path), 501);
+            $this->serverError(sprintf(_('"%s" not supported for oembed requests.'), $path), 501);
         }
 
         switch ($this->trimmed('format')) {
         case 'xml':
             $this->init_document('xml');
             $this->elementStart('oembed');
-            foreach(array(
+            foreach (array(
                         'version', 'type', 'provider_name',
                         'provider_url', 'title', 'author_name',
                         'author_url', 'url', 'html', 'width',
@@ -244,7 +247,7 @@ class OembedAction extends Action
      *
      * @return boolean is read only action?
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }

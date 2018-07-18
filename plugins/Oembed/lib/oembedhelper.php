@@ -1,24 +1,31 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008-2010, StatusNet, Inc.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * OembedPlugin implementation for GNU social
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth
+ * @author    hannes
+ * @author    Diogo Cordeiro <diogo@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
-
+defined('GNUSOCIAL') || die();
 
 /**
  * Utility class to wrap basic oEmbed lookups.
@@ -35,6 +42,9 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * Others will fall back to oohembed (unless disabled).
  * The API endpoint can be configured or disabled through config
  * as 'oohembed'/'endpoint'.
+ *
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class oEmbedHelper
 {
@@ -87,36 +97,38 @@ class oEmbedHelper
             // DOMDocument::loadHTML may throw warnings on unrecognized elements,
             // and notices on unrecognized namespaces.
             $old = error_reporting(error_reporting() & ~(E_WARNING | E_NOTICE));
-            
+
             // DOMDocument assumes ISO-8859-1 per HTML spec
             // use UTF-8 if we find any evidence of that encoding
             $utf8_evidence = false;
             $unicode_check_dom = new DOMDocument();
             $ok = $unicode_check_dom->loadHTML($body);
-            if (!$ok) throw new oEmbedHelper_BadHtmlException();
+            if (!$ok) {
+                throw new oEmbedHelper_BadHtmlException();
+            }
             $metaNodes = $unicode_check_dom->getElementsByTagName('meta');
-            foreach($metaNodes as $metaNode) {
+            foreach ($metaNodes as $metaNode) {
                 // case in-sensitive since Content-type and utf-8 can be written in many ways
-                if(stristr($metaNode->getAttribute('http-equiv'),'content-type')
-                && stristr($metaNode->getAttribute('content'),'utf-8')) {
-                    $utf8_evidence = true;        
-                    break;                  
-                } elseif(stristr($metaNode->getAttribute('charset'),'utf-8')) {
-                    $utf8_evidence = true;        
+                if (stristr($metaNode->getAttribute('http-equiv'), 'content-type')
+                && stristr($metaNode->getAttribute('content'), 'utf-8')) {
+                    $utf8_evidence = true;
+                    break;
+                } elseif (stristr($metaNode->getAttribute('charset'), 'utf-8')) {
+                    $utf8_evidence = true;
                     break;
                 }
             }
             unset($unicode_check_dom);
-            
+
             // The Content-Type HTTP response header overrides encoding metatags in DOM
-            if(stristr($response->getHeader('Content-Type'),'utf-8')) {
-                $utf8_evidence = true;              
+            if (stristr($response->getHeader('Content-Type'), 'utf-8')) {
+                $utf8_evidence = true;
             }
-           
-            // add utf-8 encoding prolog if we have reason to believe this is utf-8 content   
-            // DOMDocument('1.0', 'UTF-8') does not work!            
-            $utf8_tag = $utf8_evidence ? '<?xml encoding="utf-8" ?>' : '';          
-            
+
+            // add utf-8 encoding prolog if we have reason to believe this is utf-8 content
+            // DOMDocument('1.0', 'UTF-8') does not work!
+            $utf8_tag = $utf8_evidence ? '<?xml encoding="utf-8" ?>' : '';
+
             $dom = new DOMDocument();
             $ok = $dom->loadHTML($utf8_tag.$body);
             unset($body);   // storing the DOM in memory is enough...
@@ -125,7 +137,7 @@ class oEmbedHelper
             if (!$ok) {
                 throw new oEmbedHelper_BadHtmlException();
             }
-            
+
             Event::handle('GetRemoteUrlMetadataFromDom', array($url, $dom, &$metadata));
         }
 
@@ -139,7 +151,7 @@ class oEmbedHelper
      * @param string $body HTML body text
      * @return mixed string with URL or false if no target found
      */
-    static function oEmbedEndpointFromHTML(DOMDocument $dom)
+    public static function oEmbedEndpointFromHTML(DOMDocument $dom)
     {
         // Ok... now on to the links!
         $feeds = array(
@@ -184,7 +196,7 @@ class oEmbedHelper
      * @param array $params
      * @return object
      */
-    static function getOembedFrom($api, $url, $params=array())
+    public static function getOembedFrom($api, $url, $params=array())
     {
         if (empty($api)) {
             // TRANS: Server exception thrown in oEmbed action if no API endpoint is available.
@@ -192,16 +204,16 @@ class oEmbedHelper
         }
         $params['url'] = $url;
         $params['format'] = 'json';
-        $key=common_config('oembed','apikey');
-        if(isset($key)) {
-            $params['key'] = common_config('oembed','apikey');
+        $key=common_config('oembed', 'apikey');
+        if (isset($key)) {
+            $params['key'] = common_config('oembed', 'apikey');
         }
-        
+
         $oembed_data = HTTPClient::quickGetJson($api, $params);
         if (isset($oembed_data->html)) {
             $oembed_data->html = common_purify($oembed_data->html);
         }
-        
+
         return $oembed_data;
     }
 
@@ -211,7 +223,7 @@ class oEmbedHelper
      * @param object $orig
      * @return object
      */
-    static function normalize(stdClass $data)
+    public static function normalize(stdClass $data)
     {
         if (empty($data->type)) {
             throw new Exception('Invalid oEmbed data: no type field.');
@@ -243,7 +255,7 @@ class oEmbedHelper_Exception extends Exception
 
 class oEmbedHelper_BadHtmlException extends oEmbedHelper_Exception
 {
-    function __construct($previous=null)
+    public function __construct($previous=null)
     {
         return parent::__construct('Bad HTML in discovery data.', 0, $previous);
     }
@@ -251,7 +263,7 @@ class oEmbedHelper_BadHtmlException extends oEmbedHelper_Exception
 
 class oEmbedHelper_DiscoveryException extends oEmbedHelper_Exception
 {
-    function __construct($previous=null)
+    public function __construct($previous=null)
     {
         return parent::__construct('No oEmbed discovery data.', 0, $previous);
     }
