@@ -734,6 +734,7 @@ address .poweredby {
     margin-left: 56px;
     max-height: 400px;
     overflow-y: auto;
+    word-wrap: break-word;
 }
 
 .notice .e-content img {
