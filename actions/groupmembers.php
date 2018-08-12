@@ -27,7 +27,7 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL)')) { exit(1); }
+if (!defined('GNUSOCIAL')) { exit(1); }
 
 /**
  * List of group members
