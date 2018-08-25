@@ -46,6 +46,8 @@ abstract class Installer
     public $sitename, $server, $path, $fancy, $siteProfile, $ssl;
     /** DB info */
     public $host, $database, $dbtype, $username, $password, $db;
+    /** Storage info */
+    public $avatarDir, $fileDir;
     /** Administrator info */
     public $adminNick, $adminPass, $adminEmail;
     /** Should we skip writing the configuration file? */
@@ -135,21 +137,27 @@ abstract class Installer
         // Check the subdirs used for file uploads
         // TODO get another flag for this --skipFileSubdirCreation
         if (!$this->skipConfig) {
-            $fileSubdirs = array($this->avatarDir, $this->fileDir);
-        foreach ($fileSubdirs as $fileSubdir) {
-            $fileFullPath = INSTALLDIR."/$fileSubdir";
-            if (!file_exists($fileFullPath)) {
-                $pass = $pass && mkdir($fileFullPath);
-            } elseif (!is_dir($fileFullPath)) {
-                $this->warning(sprintf('GNU social expected a directory but found something else on this path: %s', $fileFullPath),
-                               'Either make sure it goes to a directory or remove it and a directory will be created.');
-                $pass = false;
-            } elseif (!is_writable($fileFullPath)) {
-                $this->warning(sprintf('Cannot write to %s directory: <code>%s</code>', $fileSubdir, $fileFullPath),
-                               sprintf('On your server, try this command: <code>chmod a+w %s</code>', $fileFullPath));
-                $pass = false;
+            define('GNUSOCIAL', true);
+            define('STATUSNET', true);
+            require_once INSTALLDIR . '/lib/language.php';
+            $_server=$this->server; $_path=$this->path; // We won't be using those so it's safe to do this small hack
+            require_once INSTALLDIR.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'default.php';
+            $fileSubdirs = [empty($this->avatarDir) ? $default['avatar']['dir'] : $this->avatarDir,
+                            empty($this->fileDir)   ? $default['attachments']['dir'] : $this->fileDir];
+            unset($default);
+            foreach ($fileSubdirs as $fileFullPath) {
+                if (!file_exists($fileFullPath)) {
+                    $pass = $pass && mkdir($fileFullPath);
+                } elseif (!is_dir($fileFullPath)) {
+                    $this->warning(sprintf('GNU social expected a directory but found something else on this path: %s', $fileFullPath),
+                                   'Either make sure it goes to a directory or remove it and a directory will be created.');
+                    $pass = false;
+                } elseif (!is_writable($fileFullPath)) {
+                    $this->warning(sprintf('Cannot write to %s directory: <code>%s</code>', $fileSubdir, $fileFullPath),
+                                   sprintf('On your server, try this command: <code>chmod a+w %s</code>', $fileFullPath));
+                    $pass = false;
+                }
             }
-        }
         }
         return $pass;
     }
