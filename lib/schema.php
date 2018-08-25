@@ -790,7 +790,7 @@ class Schema
 
     function quoteDefaultValue($cd)
     {
-        if ($cd['type'] == 'datetime' && $cd['default'] == 'CURRENT_TIMESTAMP') {
+        if (($cd['type'] == 'datetime' || $cd['type'] == 'timestamp') && $cd['default'] == 'CURRENT_TIMESTAMP') {
             return $cd['default'];
         } else {
             return $this->quoteValue($cd['default']);
