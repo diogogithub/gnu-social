@@ -1,8 +1,7 @@
-# GNU social 1.2.x
+# GNU social 1.3.x
 2015
 
 (c) Free Software Foundation, Inc
-(c) StatusNet, Inc
 
 This is the README file for GNU social, the free
 software social networking platform. It includes
@@ -98,33 +97,6 @@ liberal terms, but those terms may differ in detail from the AGPL's
 particulars. See each package's license file in the extlib directory
 for additional terms.
 
-## New this version
-
-This is the development branch for the 1.2.x version of GNU social.
-All daring 1.1.x admins should upgrade to this version.
-
-So far it includes the following changes:
-
-- Backing up a user's account is more and more complete.
-- Emojis 😸 (utf8mb4 support)
-- Fully qualified group mentions (!group@example.com)
-
-The last release, 1.1.3, gave us these improvements:
-
-- XSS security fix (thanks Simon Waters, <https://www.surevine.com/>)
-- Many improvements to ease adoption of the Qvitter front-end <https://github.com/hannesmannerheim/qvitter>
-- Protocol adaptions for improved performance and stability
-
-Upgrades from _StatusNet_ 1.1.1 will also experience these improvements:
-
-- Fixes for SQL injection errors in profile lists.
-- Improved ActivityStreams JSON representation of activities and objects.
-- Upgrade to the Twitter 1.1 API.
-- More robust handling of errors in distribution.
-- Fix error in OStatus subscription for remote groups.
-- Fix error in XMPP distribution.
-- Tracking of conversation URI metadata (more coherent convos)
-
 ### Troubleshooting
 
 The primary output for GNU social is syslog,
@@ -151,8 +123,7 @@ In the current phase of development it is probably
 recommended to use git as a means to stay up to date
 with the source code. You can choose between these
 branches:
-- 1.2.x     "stable", few updates, well tested code
-- master    "testing", more updates, usually working well
+- master    "stable", more updates, usually working well
 - nightly   "unstable", most updates, not always working
 
 To keep it up-to-date, use 'git pull'. Watch for conflicts!
