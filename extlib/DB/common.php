@@ -42,7 +42,7 @@ require_once 'PEAR.php';
  * @author     Daniel Convissor <danielc@php.net>
  * @copyright  1997-2007 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: 1.8.2
+ * @version    Release: 1.9.2
  * @link       http://pear.php.net/package/DB
  */
 class DB_common extends PEAR
@@ -145,7 +145,7 @@ class DB_common extends PEAR
      *
      * @return void
      */
-    function DB_common()
+    function __construct()
     {
         $this->PEAR('DB_Error');
     }

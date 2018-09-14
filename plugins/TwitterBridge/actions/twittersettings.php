@@ -161,6 +161,12 @@ class TwittersettingsAction extends ProfileSettingsAction
                             $this->flink->noticesync & FOREIGN_NOTICE_SEND_REPLY);
             $this->elementEnd('li');
             $this->elementStart('li');
+            $this->checkbox('repeatsync',
+                            // TRANS: Checkbox label.
+                            _m('Send local repeats to Twitter.'),
+                            $this->flink->noticesync & FOREIGN_NOTICE_SEND_REPEAT);
+            $this->elementEnd('li');
+            $this->elementStart('li');
             $this->checkbox('friendsync',
                             // TRANS: Checkbox label.
                             _m('Subscribe to my Twitter friends here.'),
@@ -265,6 +271,7 @@ class TwittersettingsAction extends ProfileSettingsAction
         $noticerecv = $this->boolean('noticerecv');
         $friendsync = $this->boolean('friendsync');
         $replysync  = $this->boolean('replysync');
+        $repeatsync  = $this->boolean('repeatsync');
 
         if (!$this->flink instanceof Foreign_link) {
             common_log_db_error($this->flink, 'SELECT', __FILE__);
@@ -274,7 +281,7 @@ class TwittersettingsAction extends ProfileSettingsAction
 
         $original = clone($this->flink);
         $wasReceiving = (bool)($original->noticesync & FOREIGN_NOTICE_RECV);
-        $this->flink->set_flags($noticesend, $noticerecv, $replysync, $friendsync);
+        $this->flink->set_flags($noticesend, $noticerecv, $replysync, $repeatsync, $friendsync);
         $result = $this->flink->update($original);
 
         if ($result === false) {

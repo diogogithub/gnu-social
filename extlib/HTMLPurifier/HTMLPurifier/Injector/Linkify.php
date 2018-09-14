@@ -27,13 +27,18 @@ class HTMLPurifier_Injector_Linkify extends HTMLPurifier_Injector
         if (strpos($token->data, '://') === false) {
             // our really quick heuristic failed, abort
             // this may not work so well if we want to match things like
-            // "domainname.com", but then again, most people don't
+            // "google.com", but then again, most people don't
             return;
         }
 
-        // there is/are URL(s). Let's split the string:
-        // Note: this regex is extremely permissive
-        $bits = preg_split('#((?:https?|ftp)://[^\s\'",<>()]+)#Su', $token->data, -1, PREG_SPLIT_DELIM_CAPTURE);
+        // there is/are URL(s). Let's split the string.
+        // We use this regex:
+        // https://gist.github.com/gruber/249502
+        // but with @cscott's backtracking fix and also
+        // the Unicode characters un-Unicodified.
+        $bits = preg_split(
+            '/\\b((?:[a-z][\\w\\-]+:(?:\\/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}\\/)(?:[^\\s()<>]|\\((?:[^\\s()<>]|(?:\\([^\\s()<>]+\\)))*\\))+(?:\\((?:[^\\s()<>]|(?:\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:\'".,<>?\x{00ab}\x{00bb}\x{201c}\x{201d}\x{2018}\x{2019}]))/iu',
+            $token->data, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 
         $token = array();

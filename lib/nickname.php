@@ -54,7 +54,10 @@ class Nickname
      * We could probably use an email regex here, but mainly we are interested
      * in matching it in our URLs, like https://social.example/user@example.com
      */
-    const WEBFINGER_FMT = '[0-9a-zA-Z_]{1,64}\@[0-9a-zA-Z_-.]{3,255}';
+    const WEBFINGER_FMT = '(?:\w+[\w\-\_\.]*)?\w+\@'.URL_REGEX_DOMAIN_NAME;
+
+    // old one without support for -_. in nickname part:
+    // const WEBFINGER_FMT = '[0-9a-zA-Z_]{1,64}\@[0-9a-zA-Z_-.]{3,255}';
 
     /**
      * Regex fragment for checking a canonical nickname.
@@ -75,6 +78,16 @@ class Nickname
      * Maximum number of characters in a canonical-form nickname.
      */
     const MAX_LEN = 64;
+
+    /**
+     * Regex with non-capturing group that matches whitespace and some
+     * characters which are allowed right before an @ or ! when mentioning
+     * other users. Like: 'This goes out to:@mmn (@chimo too) (!awwyiss).'
+     *
+     * FIXME: Make this so you can have multiple whitespace but not multiple
+     * parenthesis or something. '(((@n_n@)))' might as well be a smiley.
+     */
+    const BEFORE_MENTIONS = '(?:^|[\s\.\,\:\;\[\(]+)';
 
     /**
      * Nice simple check of whether the given string is a valid input nickname,
@@ -116,15 +129,17 @@ class Nickname
      */
     public static function normalize($str, $checkuse=false)
     {
+        if (mb_strlen($str) > self::MAX_LEN) {
+            // Display forms must also fit!
+            throw new NicknameTooLongException();
+        }
+
         // We should also have UTF-8 normalization (å to a etc.)
         $str = trim($str);
         $str = str_replace('_', '', $str);
         $str = mb_strtolower($str);
 
-        if (mb_strlen($str) > self::MAX_LEN) {
-            // Display forms must also fit!
-            throw new NicknameTooLongException();
-        } elseif (mb_strlen($str) < 1) {
+        if (mb_strlen($str) < 1) {
             throw new NicknameEmptyException();
         } elseif (!self::isCanonical($str)) {
             throw new NicknameInvalidException();
@@ -162,6 +177,8 @@ class Nickname
      public static function isBlacklisted($str)
      {
          $blacklist = common_config('nickname', 'blacklist');
+         if(!$blacklist)
+         	return false;
          return in_array($str, $blacklist);
      }
 

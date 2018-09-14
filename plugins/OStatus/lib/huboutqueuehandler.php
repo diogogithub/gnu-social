@@ -17,12 +17,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+if (!defined('GNUSOCIAL')) { exit(1); }
 
 /**
- * Send a raw PuSH atom update from our internal hub.
+ * Send a raw WebSub push atom update from our internal hub.
  * @package Hub
  * @author Brion Vibber <brion@status.net>
  */
@@ -35,20 +33,45 @@ class HubOutQueueHandler extends QueueHandler
 
     function handle($data)
     {
-        $sub = $data['sub'];
+        assert(array_key_exists('atom', $data));
+        assert(is_string($data['atom']));
         $atom = $data['atom'];
-        $retries = $data['retries'];
 
+        assert(array_key_exists('retries', $data));
+        $retries = intval($data['retries']);
+
+        if (array_key_exists('topic', $data) && array_key_exists('callback', $data)) {
+            assert(is_string($data['topic']));
+            assert(is_string($data['callback']));
+
+            $sub = HubSub::getByHashkey($data['topic'], $data['callback']);
+        } elseif (array_key_exists('sub', $data)) {
+            // queue behaviour changed 2017-07-09 to store topic/callback instead of sub object
+            common_debug('Legacy behaviour of storing HubSub objects found, this should go away when all objects are handled...');
+            $sub = $data['sub'];
+        } else {
+            throw new ServerException('No HubSub object available with queue item data.');
+        }
         assert($sub instanceof HubSub);
-        assert(is_string($atom));
 
         try {
-            $sub->push($atom);
+            $success = $sub->push($atom);
+            // The reason I split these up is because I want to see how the algorithm acts in practice.
+            if ($success) {
+                common_debug('WebSub push completed successfully!');
+            } else {
+                common_debug('WebSub push failed with an HTTP error.');
+            }
+            if ($sub->getErrors()>0) {
+                common_debug('Resetting WebSub push error count following successful reset.');
+                $sub->resetErrors();
+            }
         } catch (AlreadyFulfilledException $e) {
-            common_log(LOG_INFO, "Failed PuSH to $sub->callback for $sub->topic (".get_class($e)."): " . $e->getMessage());
+            // Probably doesn't happen anymore since commit 74a60ab963b5ce1ed95bd81f935a44c573cd0264
+            common_log(LOG_INFO, "Failed WebSub push to $sub->callback for $sub->topic (".get_class($e)."): " . $e->getMessage());
         } catch (Exception $e) {
             $retries--;
-            $msg = "Failed PuSH to $sub->callback for $sub->topic (".get_class($e)."): " . $e->getMessage();
+            $msg = "Failed WebSub push to $sub->callback for $sub->topic (".get_class($e)."): " . $e->getMessage();
             if ($retries > 0) {
                 common_log(LOG_INFO, "$msg; scheduling for $retries more tries");
 
@@ -56,6 +79,7 @@ class HubOutQueueHandler extends QueueHandler
                 // after a delay, use it.
                 $sub->distribute($atom, $retries);
             } else {
+                $sub->incrementErrors($e->getMessage());
                 common_log(LOG_ERR, "$msg; discarding");
             }
         }

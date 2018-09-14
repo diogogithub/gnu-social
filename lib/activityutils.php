@@ -307,7 +307,7 @@ class ActivityUtils
         return false;
     }
 
-    static function getFeedAuthor($feedEl)
+    static function getFeedAuthor(DOMElement $feedEl)
     {
         // Try old and deprecated activity:subject
 

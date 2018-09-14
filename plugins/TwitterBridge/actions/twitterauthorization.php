@@ -237,7 +237,7 @@ class TwitterauthorizationAction extends FormAction
 
         // Defaults: noticesync on, everything else off
 
-        $flink->set_flags(true, false, false, false);
+        $flink->set_flags(true, false, false, false, false);
 
         $flink_id = $flink->insert();
 

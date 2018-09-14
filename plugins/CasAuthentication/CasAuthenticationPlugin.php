@@ -40,6 +40,7 @@ class CasAuthenticationPlugin extends AuthenticationPlugin
     public $port = 443;
     public $path = '';
     public $takeOverLogin = false;
+    public $user_whitelist = null;
 
     function checkPassword($username, $password)
     {
@@ -145,6 +146,7 @@ class CasAuthenticationPlugin extends AuthenticationPlugin
         $casSettings['port']=$this->port;
         $casSettings['path']=$this->path;
         $casSettings['takeOverLogin']=$this->takeOverLogin;
+        $casSettings['user_whitelist']=$this->user_whitelist;
     }
 
     function onPluginVersion(array &$versions)
@@ -152,7 +154,7 @@ class CasAuthenticationPlugin extends AuthenticationPlugin
         $versions[] = array('name' => 'CAS Authentication',
                             'version' => GNUSOCIAL_VERSION,
                             'author' => 'Craig Andrews',
-                            'homepage' => 'http://status.net/wiki/Plugin:CasAuthentication',
+                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/CasAuthentication',
                             // TRANS: Plugin description. CAS is Central Authentication Service.
                             'rawdescription' => _m('The CAS Authentication plugin allows for StatusNet to handle authentication through CAS (Central Authentication Service).'));
         return true;

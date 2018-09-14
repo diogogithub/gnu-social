@@ -266,7 +266,8 @@ function common_logged_in()
 
 function common_local_referer()
 {
-    return parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST) === common_config('site', 'server');
+    return isset($_SERVER['HTTP_REFERER'])
+            && parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST) === common_config('site', 'server');
 }
 
 function common_have_session()
@@ -589,16 +590,32 @@ function common_to_alphanumeric($str)
     return $filtered;
 }
 
-function common_purify($html)
+function common_purify($html, array $args=array())
 {
     require_once INSTALLDIR.'/extlib/HTMLPurifier/HTMLPurifier.auto.php';
 
     $cfg = HTMLPurifier_Config::createDefault();
-    $cfg->set('Attr.AllowedRel', ['bookmark', 'directory', 'enclosure', 'home', 'license', 'nofollow', 'payment', 'tag']);  // http://microformats.org/wiki/rel
+    /**
+     * rel values that should be avoided since they can be used to infer
+     * information about the _current_ page, not the h-entry:
+     *
+     *      directory, home, license, payment
+     *
+     * Source: http://microformats.org/wiki/rel
+     */
+    $cfg->set('Attr.AllowedRel', ['bookmark', 'enclosure', 'nofollow', 'tag', 'noreferrer']);
     $cfg->set('HTML.ForbiddenAttributes', array('style'));  // id, on* etc. are already filtered by default
     $cfg->set('URI.AllowedSchemes', array_fill_keys(common_url_schemes(), true));
+    if (isset($args['URI.Base'])) {
+        $cfg->set('URI.Base', $args['URI.Base']);   // if null this is like unsetting it I presume
+        $cfg->set('URI.MakeAbsolute', !is_null($args['URI.Base']));   // if we have a URI base, convert relative URLs to absolute ones.
+    }
     if (common_config('cache', 'dir')) {
         $cfg->set('Cache.SerializerPath', common_config('cache', 'dir'));
+    }
+    // if you don't want to use the default cache dir for htmlpurifier, set it specifically as $config['htmlpurifier']['Cache.SerializerPath'] = '/tmp'; or something.
+    foreach (common_config('htmlpurifier') as $key=>$val) {
+        $cfg->set($key, $val);
     }
 
     // Remove more elements than what the default filter removes, default in GNU social are remotely
@@ -689,7 +706,7 @@ function common_linkify_mention(array $mention)
         $xs = new XMLStringer(false);
 
         $attrs = array('href' => $mention['url'],
-                       'class' => 'h-card '.$mention['type']);
+                       'class' => 'h-card u-url p-nickname '.$mention['type']);
 
         if (!empty($mention['title'])) {
             $attrs['title'] = $mention['title'];
@@ -755,7 +772,7 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
             }
         }
 
-        $matches = common_find_mentions_raw($text);
+        $matches = common_find_mentions_raw($text, '@');
 
         foreach ($matches as $match) {
             try {
@@ -812,7 +829,7 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
 
         // @#tag => mention of all subscriptions tagged 'tag'
 
-        preg_match_all('/(?:^|[\s\.\,\:\;]+)@#([\pL\pN_\-\.]{1,64})/',
+        preg_match_all('/'.Nickname::BEFORE_MENTIONS.'@#([\pL\pN_\-\.]{1,64})/',
                        $text, $hmatches, PREG_OFFSET_CAPTURE);
         foreach ($hmatches[1] as $hmatch) {
             $tag = common_canonical_tag($hmatch[0]);
@@ -834,9 +851,8 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
                                 'url' => $url);
         }
 
-        preg_match_all('/(?:^|[\s\.\,\:\;]+)!(' . Nickname::DISPLAY_FMT . ')/',
-                       $text, $hmatches, PREG_OFFSET_CAPTURE);
-        foreach ($hmatches[1] as $hmatch) {
+        $hmatches = common_find_mentions_raw($text, '!');
+        foreach ($hmatches as $hmatch) {
             $nickname = Nickname::normalize($hmatch[0]);
             $group = User_group::getForNickname($nickname, $sender);
 
@@ -866,9 +882,10 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
  * Should generally not be called directly; for use in common_find_mentions.
  *
  * @param string $text
+ * @param string $preMention Character(s) that signals a mention ('@', '!'...)
  * @return array of PCRE match arrays
  */
-function common_find_mentions_raw($text)
+function common_find_mentions_raw($text, $preMention='@')
 {
     $tmatches = array();
     preg_match_all('/^T (' . Nickname::DISPLAY_FMT . ') /',
@@ -878,7 +895,7 @@ function common_find_mentions_raw($text)
 
     $atmatches = array();
     // the regexp's "(?!\@)" makes sure it doesn't matches the single "@remote" in "@remote@server.com"
-    preg_match_all('/(?:^|\s+)@(' . Nickname::DISPLAY_FMT . ')\b(?!\@)/',
+    preg_match_all('/'.Nickname::BEFORE_MENTIONS.preg_quote($preMention, '/').'(' . Nickname::DISPLAY_FMT . ')\b(?!\@)/',
                    $text,
                    $atmatches,
                    PREG_OFFSET_CAPTURE);
@@ -1010,10 +1027,10 @@ function common_replace_urls_callback($text, $callback, $arg = null) {
         ')'.
         '(?:'.
             '(?:\:\d+)?'. //:port
-            '(?:/[\pN\pL$\,\!\(\)\.\:\-\_\+\/\=\&\;\%\~\*\$\+\'@]*)?'. // /path
-            '(?:\?[\pN\pL\$\,\!\(\)\.\:\-\_\+\/\=\&\;\%\~\*\$\+\'@\/]*)?'. // ?query string
-            '(?:\#[\pN\pL$\,\!\(\)\.\:\-\_\+\/\=\&\;\%\~\*\$\+\'\@/\?\#]*)?'. // #fragment
-        ')(?<![\?\.\,\#\,])'.
+            '(?:/['  . URL_REGEX_VALID_PATH_CHARS    . ']*)?'.  // path
+            '(?:\?[' . URL_REGEX_VALID_QSTRING_CHARS . ']*)?'.  // ?query string
+            '(?:\#[' . URL_REGEX_VALID_FRAGMENT_CHARS . ']*)?'. // #fragment
+        ')(?<!['. URL_REGEX_EXCLUDED_END_CHARS .'])'.
     ')'.
     '#ixu';
     //preg_match_all($regex,$text,$matches);
@@ -1136,6 +1153,15 @@ function common_linkify($url) {
         }
     }
 
+    // Whether to nofollow
+    $nf = common_config('nofollow', 'external');
+
+    if ($nf == 'never') {
+        $attrs['rel'] = 'external';
+    } else {
+        $attrs['rel'] = 'nofollow external';
+    }
+
     // Add clippy
     if ($is_attachment) {
         $attrs['class'] = 'attachment';
@@ -1143,16 +1169,7 @@ function common_linkify($url) {
             $attrs['class'] = 'attachment thumbnail';
         }
         $attrs['id'] = "attachment-{$attachment_id}";
-    }
-
-    // Whether to nofollow
-
-    $nf = common_config('nofollow', 'external');
-
-    if ($nf == 'never') {
-        $attrs['rel'] = 'external';
-    } else {
-        $attrs['rel'] = 'nofollow external';
+        $attrs['rel'] .= ' noreferrer';
     }
 
     return XMLStringer::estring('a', $attrs, $url);
@@ -1686,10 +1703,15 @@ function common_profile_url($nickname)
 
 /**
  * Should make up a reasonable root URL
+ *
+ * @param   bool    $tls    true or false to force TLS scheme, null to use server configuration
  */
-function common_root_url($ssl=false)
+function common_root_url($tls=null)
 {
-    $url = common_path('', $ssl, false);
+    if (is_null($tls)) {
+        $tls = GNUsocial::useHTTPS();
+    }
+    $url = common_path('', $tls, false);
     $i = strpos($url, '?');
     if ($i !== false) {
         $url = substr($url, 0, $i);
@@ -1986,16 +2008,23 @@ function common_accept_to_prefs($accept, $def = '*/*')
 }
 
 // Match by our supported file extensions
-function common_supported_ext_to_mime($fileext)
+function common_supported_filename_to_mime($filename)
 {
     // Accept a filename and take out the extension
-    if (strpos($fileext, '.') !== false) {
-        $fileext = substr(strrchr($fileext, '.'), 1);
+    if (strpos($filename, '.') === false) {
+        throw new ServerException(sprintf('No extension on filename: %1$s', _ve($filename)));
     }
 
+    $fileext = substr(strrchr($filename, '.'), 1);
+    return common_supported_ext_to_mime($fileext);
+}
+
+function common_supported_ext_to_mime($fileext)
+{
     $supported = common_config('attachments', 'supported');
     if ($supported === true) {
-        throw new ServerException('Supported extension but unknown mimetype relation.');
+        // FIXME: Should we just accept the extension straight off when supported === true?
+        throw new UnknownExtensionMimeException($fileext);
     }
     foreach($supported as $type => $ext) {
         if ($ext === $fileext) {
@@ -2010,16 +2039,15 @@ function common_supported_ext_to_mime($fileext)
 function common_supported_mime_to_ext($mimetype)
 {
     $supported = common_config('attachments', 'supported');
-    if ($supported === true) {
-        throw new ServerException('Supported mimetype but unknown extension relation.');
-    }
-    foreach($supported as $type => $ext) {
-        if ($mimetype === $type) {
-            return $ext;
+    if (is_array($supported)) {
+        foreach($supported as $type => $ext) {
+            if ($mimetype === $type) {
+                return $ext;
+            }
         }
     }
 
-    throw new ServerException('Unsupported MIME type');
+    throw new UnknownMimeExtensionException($mimetype);
 }
 
 // The MIME "media" is the part before the slash (video in video/webm)
@@ -2036,7 +2064,7 @@ function common_bare_mime($mimetype)
     if ($semicolon = mb_strpos($mimetype, ';')) {
         $mimetype = mb_substr($mimetype, 0, $semicolon);
     }
-    return $mimetype;
+    return trim($mimetype);
 }
 
 function common_mime_type_match($type, $avail)
@@ -2587,6 +2615,9 @@ function common_log_delta($comment=null)
 
 function common_strip_html($html, $trim=true, $save_whitespace=false)
 {
+    // first replace <br /> with \n
+    $html = preg_replace('/\<(\s*)?br(\s*)?\/?(\s*)?\>/i', "\n", $html); 
+    // then, unless explicitly avoided, remove excessive whitespace
     if (!$save_whitespace) {
         $html = preg_replace('/\s+/', ' ', $html);
     }

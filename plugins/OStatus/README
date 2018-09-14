@@ -3,26 +3,27 @@ The OStatus plugin concentrates on user-to-user cases for federating StatusNet
 and similar social networking / microblogging / blogging sites, but includes
 low-level feed subscription systems which are used by some other plugins.
 
-Uses PubSubHubbub for push feed updates; currently non-PuSH feeds cannot be
-subscribed unless an external PuSH hub proxy is used.
+Uses WebSub (previously named PubSubHubbub or PuSH) for push feed updates;
+currently non-WebSub feeds cannot be subscribed unless an external
+WebSub hub proxy is used.
 
 
 Configuration options available:
 
 $config['ostatus']['hub']
     (default internal hub)
-    Set to URL of an external PuSH hub to use it instead of our internal hub
+    Set to URL of an external WebSub hub to use it instead of our internal hub
     for sending outgoing updates in user and group feeds.
 
 $config['ostatus']['hub_retries']
     (default 0)
-    Number of times to retry a PuSH send to consumers if using internal hub
+    Number of times to retry a WebSub send to consumers if using internal hub
 
 
 Settings controlling incoming feed subscription:
 
 $config['feedsub']['fallback_hub']
-    To subscribe to feeds that don't have a hub, an external PuSH proxy hub
+    To subscribe to feeds that don't have a hub, an external WebSub proxy hub
     such as Superfeedr may be used. Any feed without a hub of its own will
     be subscribed through the specified hub URL instead. If the external hub
     has usage charges, be aware that there is no restriction placed to how

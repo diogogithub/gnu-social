@@ -21,9 +21,9 @@ if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
 
 class CasloginAction extends Action
 {
-    function handle($args)
+    function handle()
     {
-        parent::handle($args);
+        parent::handle();
         if (common_is_real_login()) {
             // TRANS: Client error displayed when trying to log in while already logged on.
             $this->clientError(_m('Already logged in.'));
@@ -38,6 +38,11 @@ class CasloginAction extends Action
             $user = common_check_user(phpCAS::getUser(), $casTempPassword);
             if (!$user) {
                 // TRANS: Server error displayed when trying to log in with incorrect username or password.
+                $this->serverError(_m('Incorrect username or password.'));
+            }
+
+            if (is_array($casSettings['user_whitelist']) && !in_array($user->nickname, $casSettings['user_whitelist'])) {
+                // TRANS: Server error displayed when trying to log in with non-whitelisted user name (when whitelists are enabled.)
                 $this->serverError(_m('Incorrect username or password.'));
             }
 

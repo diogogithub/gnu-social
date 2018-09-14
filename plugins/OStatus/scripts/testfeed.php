@@ -24,7 +24,7 @@ $longoptions = array('skip=', 'count=');
 
 $helptext = <<<END_OF_HELP
 testfeed.php [options] http://example.com/atom-feed-url
-Pull an Atom feed and run items in it as though they were live PuSH updates.
+Pull an Atom feed and run items in it as though they were live WebSub updates.
 Mainly intended for testing funky feed formats.
 
      --skip=N   Ignore the first N items in the feed.
@@ -53,9 +53,11 @@ if (!$sub) {
     exit(1);
 }
 
+// XXX: This could maybe be replaced with $sub->importFeed()
+
 // Fetch the URL
 try {
-    $xml = HTTPClient::quickGet($feedurl, 'text/html,application/xhtml+xml');
+    $xml = HTTPClient::quickGet($feedurl, 'application/atom+xml');
 } catch (Exception $e) {
     echo sprintf("Could not fetch feedurl %s (%d).\n", $e->getMessage(), $e->getCode());
     exit(1);

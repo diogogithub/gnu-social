@@ -111,7 +111,14 @@ function is_twitter_bound($notice, $flink) {
         return false;
     }
 
-    $allowedVerbs = array(ActivityVerb::POST, ActivityVerb::SHARE);
+    $allowedVerbs = array(ActivityVerb::POST);
+
+    // Default behavior: always send repeats
+    if (empty($flink))
+        array_push($allowedVerbs, ActivityVerb::SHARE);
+    // Otherwise, check to see if repeats are allowed
+    else if (($flink->noticesync & FOREIGN_NOTICE_SEND_REPEAT) == FOREIGN_NOTICE_SEND_REPEAT)
+        array_push($allowedVerbs, ActivityVerb::SHARE);
 
     // Don't send things that aren't posts or repeats (at least for now)
     if (!in_array($notice->verb, $allowedVerbs)) {
@@ -394,11 +401,11 @@ function format_status($notice)
     $statusWithoutLinks = preg_replace('`((http|https|ftp)://[^\s<]+[^\s<\.)])`i', '', $statustxt);
     $statusLength = mb_strlen($statusWithoutLinks)  + $numberOfLinks * 23;
 
-    // Twitter still has a 140-char hardcoded max.
-    if ($statusLength > 140) {
+    // Twitter raised it but still has a 280-char hardcoded max.
+    if ($statusLength > 280) {
         $noticeUrl = common_shorten_url($notice->getUrl());
         // each link uses 23 chars on twitter + 3 for the ' … ' => 26
-        $statustxt = mb_substr($statustxt, 0, 140 - 26) . ' … ' . $noticeUrl;
+        $statustxt = mb_substr($statustxt, 0, 280 - 26) . ' … ' . $noticeUrl;
     }
 
     return $statustxt;

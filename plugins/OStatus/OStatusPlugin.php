@@ -28,8 +28,6 @@
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
-set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/extlib/phpseclib');
-
 class OStatusPlugin extends Plugin
 {
     /**
@@ -63,7 +61,7 @@ class OStatusPlugin extends Plugin
         $m->connect('main/ostatuspeopletag',
                     array('action' => 'ostatuspeopletag'));
 
-        // PuSH actions
+        // WebSub actions
         $m->connect('main/push/hub', array('action' => 'pushhub'));
 
         $m->connect('main/push/callback/:feed',
@@ -83,20 +81,6 @@ class OStatusPlugin extends Plugin
         return true;
     }
 
-    public function onAutoload($cls)
-    {
-        switch ($cls) {
-        case 'Crypt_AES':
-        case 'Crypt_RSA':
-            // Crypt_AES becomes Crypt/AES.php which is found in extlib/phpseclib/
-            // which has been added to our include_path before
-            require_once str_replace('_', '/', $cls) . '.php';
-            return false;
-        }
-
-        return parent::onAutoload($cls);
-    }
-
     /**
      * Set up queue handlers for outgoing hub pushes
      * @param QueueManager $qm
@@ -107,7 +91,7 @@ class OStatusPlugin extends Plugin
         // Prepare outgoing distributions after notice save.
         $qm->connect('ostatus', 'OStatusQueueHandler');
 
-        // Outgoing from our internal PuSH hub
+        // Outgoing from our internal WebSub hub
         $qm->connect('hubconf', 'HubConfQueueHandler');
         $qm->connect('hubprep', 'HubPrepQueueHandler');
 
@@ -116,7 +100,7 @@ class OStatusPlugin extends Plugin
         // Outgoing Salmon replies (when we don't need a return value)
         $qm->connect('salmon', 'SalmonQueueHandler');
 
-        // Incoming from a foreign PuSH hub
+        // Incoming from a foreign WebSub hub
         $qm->connect('pushin', 'PushInQueueHandler');
 
         // Re-subscribe feeds that need renewal
@@ -129,20 +113,20 @@ class OStatusPlugin extends Plugin
      */
     function onStartEnqueueNotice($notice, &$transports)
     {
-        if ($notice->inScope(null)) {
+        if ($notice->inScope(null) && $notice->getProfile()->hasRight(Right::PUBLICNOTICE)) {
             // put our transport first, in case there's any conflict (like OMB)
             array_unshift($transports, 'ostatus');
-            $this->log(LOG_INFO, "Notice {$notice->id} queued for OStatus processing");
+            $this->log(LOG_INFO, "OSTATUS [{$notice->getID()}]: queued for OStatus processing");
         } else {
             // FIXME: we don't do privacy-controlled OStatus updates yet.
             // once that happens, finer grain of control here.
-            $this->log(LOG_NOTICE, "Not queueing notice {$notice->id} for OStatus because of privacy; scope = {$notice->scope}");
+            $this->log(LOG_NOTICE, "OSTATUS [{$notice->getID()}]: Not queueing because of privacy; scope = {$notice->scope}");
         }
         return true;
     }
 
     /**
-     * Set up a PuSH hub link to our internal link for canonical timeline
+     * Set up a WebSub hub link to our internal link for canonical timeline
      * Atom feeds for users and groups.
      */
     function onStartApiAtom($feed)
@@ -169,7 +153,7 @@ class OStatusPlugin extends Plugin
         if (!empty($id)) {
             $hub = common_config('ostatus', 'hub');
             if (empty($hub)) {
-                // Updates will be handled through our internal PuSH hub.
+                // Updates will be handled through our internal WebSub hub.
                 $hub = common_local_url('pushhub');
             }
             $feed->addLink($hub, array('rel' => 'hub'));
@@ -274,42 +258,46 @@ class OStatusPlugin extends Plugin
 
     /**
      * Webfinger matches: @user@example.com or even @user--one.george_orwell@1984.biz
+     * @param   string  $text       The text from which to extract webfinger IDs
+     * @param   string  $preMention Character(s) that signals a mention ('@', '!'...)
      *
-     * @return  array   The matching IDs (without @ or acct:) and each respective position in the given string.
+     * @return  array   The matching IDs (without $preMention) and each respective position in the given string.
      */
-    static function extractWebfingerIds($text)
+    static function extractWebfingerIds($text, $preMention='@')
     {
         $wmatches = array();
-        $result = preg_match_all('/(?:^|\s+)@((?:\w+[\w\-\_\.]?)*(?:[\w\-\_\.]*\w+)@'.URL_REGEX_DOMAIN_NAME.')/',
+        $result = preg_match_all('/(?<!\S)'.preg_quote($preMention, '/').'('.Nickname::WEBFINGER_FMT.')/',
                        $text,
                        $wmatches,
                        PREG_OFFSET_CAPTURE);
         if ($result === false) {
             common_log(LOG_ERR, __METHOD__ . ': Error parsing webfinger IDs from text (preg_last_error=='.preg_last_error().').');
-        } else {
-            common_debug(sprintf('Found %i matches for WebFinger IDs: %s', count($wmatches), _ve($wmatches)));
+        } elseif (count($wmatches)) {
+            common_debug(sprintf('Found %d matches for WebFinger IDs: %s', count($wmatches), _ve($wmatches)));
         }
         return $wmatches[1];
     }
 
     /**
      * Profile URL matches: @example.com/mublog/user
+     * @param   string  $text       The text from which to extract URL mentions
+     * @param   string  $preMention Character(s) that signals a mention ('@', '!'...)
      *
      * @return  array   The matching URLs (without @ or acct:) and each respective position in the given string.
      */
-    static function extractUrlMentions($text)
+    static function extractUrlMentions($text, $preMention='@')
     {
         $wmatches = array();
         // In the regexp below we need to match / _before_ URL_REGEX_VALID_PATH_CHARS because it otherwise gets merged
         // with the TLD before (but / is in URL_REGEX_VALID_PATH_CHARS anyway, it's just its positioning that is important)
-        $result = preg_match_all('/(?:^|\s+)@('.URL_REGEX_DOMAIN_NAME.'(?:\/['.URL_REGEX_VALID_PATH_CHARS.']*)*)/',
+        $result = preg_match_all('/(?:^|\s+)'.preg_quote($preMention, '/').'('.URL_REGEX_DOMAIN_NAME.'(?:\/['.URL_REGEX_VALID_PATH_CHARS.']*)*)/',
                        $text,
                        $wmatches,
                        PREG_OFFSET_CAPTURE);
         if ($result === false) {
             common_log(LOG_ERR, __METHOD__ . ': Error parsing profile URL mentions from text (preg_last_error=='.preg_last_error().').');
-        } else {
-            common_debug(sprintf('Found %i matches for profile URL mentions: %s', count($wmatches), _ve($wmatches)));
+        } elseif (count($wmatches)) {
+            common_debug(sprintf('Found %d matches for profile URL mentions: %s', count($wmatches), _ve($wmatches)));
         }
         return $wmatches[1];
     }
@@ -327,9 +315,9 @@ class OStatusPlugin extends Plugin
     {
         $matches = array();
 
-        foreach (self::extractWebfingerIds($text) as $wmatch) {
+        foreach (self::extractWebfingerIds($text, '@') as $wmatch) {
             list($target, $pos) = $wmatch;
-            $this->log(LOG_INFO, "Checking webfinger '$target'");
+            $this->log(LOG_INFO, "Checking webfinger person '$target'");
             $profile = null;
             try {
                 $oprofile = Ostatus_profile::ensureWebfinger($target);
@@ -347,7 +335,7 @@ class OStatusPlugin extends Plugin
 
             assert($profile instanceof Profile);
 
-            $text = !empty($profile->nickname) && mb_strlen($profile->nickname) < mb_strlen($target)
+            $displayName = !empty($profile->nickname) && mb_strlen($profile->nickname) < mb_strlen($target)
                     ? $profile->getNickname()   // TODO: we could do getBestName() or getFullname() here
                     : $target;
             $url = $profile->getUri();
@@ -356,7 +344,69 @@ class OStatusPlugin extends Plugin
             }
             $matches[$pos] = array('mentioned' => array($profile),
                                    'type' => 'mention',
-                                   'text' => $text,
+                                   'text' => $displayName,
+                                   'position' => $pos,
+                                   'length' => mb_strlen($target),
+                                   'url' => $url);
+        }
+
+        // Doing groups in a separate routine because webfinger lookups don't work
+        // remotely until everyone updates etc. etc.
+        foreach (self::extractWebfingerIds($text, '!') as $wmatch) {
+            list($target, $pos) = $wmatch;
+            list($target_nickname, $target_hostname) = explode('@', parse_url($target, PHP_URL_PATH));
+            $this->log(LOG_INFO, sprintf('Checking webfinger group %s as user %s on server %s', $target, $target_nickname, $target_hostname));
+
+            $profile = null;
+            if ($target_hostname === mb_strtolower(common_config('site', 'server'))) {
+                try {
+                    $profile = Local_group::getKV('nickname', $target_nickname)->getProfile();
+                } catch (NoSuchGroupException $e) {
+                    // referenced a local group which does not exist, so not returning it as a mention
+                    $this->log(LOG_ERR, "Local group lookup failed: " . _ve($e->getMessage()));
+                    continue;
+                }
+            } else {
+                // XXX: Superhacky. Domain name can be incorrectly matched
+                //      here. But since users are only members of groups
+                //      they trust (of course they are!), the likelihood of
+                //      a mention-hijacking is very very low... for now.
+                $possible_groups = new User_group();
+                $possible_groups->nickname = $target_nickname;
+                if (!$possible_groups->find()) {
+                    common_debug('No groups at all found with nickname: '._ve($target_nickname));
+                    continue;
+                }
+                while ($possible_groups->fetch()) {
+                    if (!$sender->isMember($possible_groups)) {
+                        continue;
+                    }
+                    $group_hostname = mb_strtolower(parse_url($possible_groups->mainpage, PHP_URL_HOST));
+                    if ($target_hostname === $group_hostname) {
+                        common_debug(sprintf('Found group with nick@host (%s@%s) matching %s', _ve($possible_groups->nickname), _ve($group_hostname), _ve($target)));
+                        $profile = $possible_groups->getProfile();
+                        break;
+                    }
+                }
+                $possible_groups->free();
+                if (!$profile instanceof Profile) {
+                    common_debug('Found groups with correct nickname but not hostname for: '._ve($target));
+                    continue;
+                }
+            }
+
+            assert($profile instanceof Profile);
+
+            $displayName = !empty($profile->nickname) && mb_strlen($profile->nickname) < mb_strlen($target)
+                    ? $profile->getNickname()   // TODO: we could do getBestName() or getFullname() here
+                    : $target;
+            $url = $profile->getUri();
+            if (!common_valid_http_url($url)) {
+                $url = $profile->getUrl();
+            }
+            $matches[$pos] = array('mentioned' => array($profile),
+                                   'type' => 'group',
+                                   'text' => $displayName,
                                    'position' => $pos,
                                    'length' => mb_strlen($target),
                                    'url' => $url);
@@ -364,7 +414,7 @@ class OStatusPlugin extends Plugin
 
         foreach (self::extractUrlMentions($text) as $wmatch) {
             list($target, $pos) = $wmatch;
-            $schemes = array('http', 'https');
+            $schemes = array('https', 'http');
             foreach ($schemes as $scheme) {
                 $url = "$scheme://$target";
                 $this->log(LOG_INFO, "Checking profile address '$url'");
@@ -372,11 +422,11 @@ class OStatusPlugin extends Plugin
                     $oprofile = Ostatus_profile::ensureProfileURL($url);
                     if ($oprofile instanceof Ostatus_profile && !$oprofile->isGroup()) {
                         $profile = $oprofile->localProfile();
-                        $text = !empty($profile->nickname) && mb_strlen($profile->nickname) < mb_strlen($target) ?
+                        $displayName = !empty($profile->nickname) && mb_strlen($profile->nickname) < mb_strlen($target) ?
                                 $profile->nickname : $target;
                         $matches[$pos] = array('mentioned' => array($profile),
                                                'type' => 'mention',
-                                               'text' => $text,
+                                               'text' => $displayName,
                                                'position' => $pos,
                                                'length' => mb_strlen($target),
                                                'url' => $profile->getUrl());
@@ -505,7 +555,6 @@ class OStatusPlugin extends Plugin
     function onCheckSchema() {
         $schema = Schema::get();
         $schema->ensureTable('ostatus_profile', Ostatus_profile::schemaDef());
-        $schema->ensureTable('ostatus_source', Ostatus_source::schemaDef());
         $schema->ensureTable('feedsub', FeedSub::schemaDef());
         $schema->ensureTable('hubsub', HubSub::schemaDef());
         $schema->ensureTable('magicsig', Magicsig::schemaDef());
@@ -563,7 +612,7 @@ class OStatusPlugin extends Plugin
     }
 
     /**
-     * Send incoming PuSH feeds for OStatus endpoints in for processing.
+     * Send incoming WebSub feeds for OStatus endpoints in for processing.
      *
      * @param FeedSub $feedsub
      * @param DOMDocument $feed
@@ -599,10 +648,10 @@ class OStatusPlugin extends Plugin
 
     /**
      * When about to subscribe to a remote user, start a server-to-server
-     * PuSH subscription if needed. If we can't establish that, abort.
+     * WebSub subscription if needed. If we can't establish that, abort.
      *
      * @fixme If something else aborts later, we could end up with a stray
-     *        PuSH subscription. This is relatively harmless, though.
+     *        WebSub subscription. This is relatively harmless, though.
      *
      * @param Profile $profile  subscriber
      * @param Profile $other    subscribee
@@ -676,7 +725,7 @@ class OStatusPlugin extends Plugin
             return true;
         }
 
-        // Drop the PuSH subscription if there are no other subscribers.
+        // Drop the WebSub subscription if there are no other subscribers.
         $oprofile->garbageCollect();
 
         $act = new Activity();
@@ -777,7 +826,7 @@ class OStatusPlugin extends Plugin
             return true;
         }
 
-        // Drop the PuSH subscription if there are no other subscribers.
+        // Drop the WebSub subscription if there are no other subscribers.
         $oprofile->garbageCollect();
 
         $member = $profile;
@@ -874,7 +923,7 @@ class OStatusPlugin extends Plugin
             return true;
         }
 
-        // Drop the PuSH subscription if there are no other subscribers.
+        // Drop the WebSub subscription if there are no other subscribers.
         $oprofile->garbageCollect();
 
         $sub = Profile::getKV($user->id);
@@ -985,7 +1034,7 @@ class OStatusPlugin extends Plugin
 
         $oprofile->notifyDeferred($act, $tagger);
 
-        // initiate a PuSH subscription for the person being tagged
+        // initiate a WebSub subscription for the person being tagged
         $oprofile->subscribe();
         return true;
     }
@@ -1036,7 +1085,7 @@ class OStatusPlugin extends Plugin
 
         $oprofile->notifyDeferred($act, $tagger);
 
-        // unsubscribe to PuSH feed if no more required
+        // unsubscribe to WebSub feed if no more required
         $oprofile->garbageCollect();
 
         return true;
@@ -1171,7 +1220,7 @@ class OStatusPlugin extends Plugin
 
         // Find foreign accounts I'm subscribed to that support Salmon pings.
         //
-        // @fixme we could run updates through the PuSH feed too,
+        // @fixme we could run updates through the WebSub feed too,
         // in which case we can skip Salmon pings to folks who
         // are also subscribed to me.
         $sql = "SELECT * FROM ostatus_profile " .
@@ -1209,6 +1258,39 @@ class OStatusPlugin extends Plugin
         }
 
         return true;
+    }
+
+    function onEndShowAccountProfileBlock(HTMLOutputter $out, Profile $profile)
+    {
+        if ($profile->isLocal()) {
+            return true;
+        }
+        try {
+            $oprofile = Ostatus_profile::fromProfile($profile);
+        } catch (NoResultException $e) {
+            // Not a remote Ostatus_profile! Maybe some other network
+            // that has imported a non-local user?
+            return true;
+        }
+        try {
+            $feedsub = $oprofile->getFeedSub();
+        } catch (NoResultException $e) {
+            // No WebSub subscription has been attempted or exists for this profile
+            // which is the case, say for remote profiles that are only included
+            // via mentions or repeat/share.
+            return true;
+        }
+
+        $websub_states = [
+                'subscribe' => _m('Pending'),
+                'active'    => _m('Active'),
+                'nohub'     => _m('Polling'),
+                'inactive'  => _m('Inactive'),
+            ];
+        $out->elementStart('dl', 'entity_tags ostatus_profile');
+        $out->element('dt', null, _m('WebSub'));
+        $out->element('dd', null, $websub_states[$feedsub->sub_state]);
+        $out->elementEnd('dl');
     }
 
     // FIXME: This one can accept both an Action and a Widget. Confusing! Refactor to (HTMLOutputter $out, Profile $target)!
@@ -1258,7 +1340,7 @@ class OStatusPlugin extends Plugin
         $versions[] = array('name' => 'OStatus',
                             'version' => GNUSOCIAL_VERSION,
                             'author' => 'Evan Prodromou, James Walker, Brion Vibber, Zach Copley',
-                            'homepage' => 'http://status.net/wiki/Plugin:OStatus',
+                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/OStatus',
                             // TRANS: Plugin description.
                             'rawdescription' => _m('Follow people across social networks that implement '.
                                '<a href="http://ostatus.org/">OStatus</a>.'));
@@ -1337,10 +1419,23 @@ class OStatusPlugin extends Plugin
 
     function onEndWebFingerNoticeLinks(XML_XRD $xrd, Notice $target)
     {
-        $author = $target->getProfile();
-        $profiletype = $this->profileTypeString($author);
-        $salmon_url = common_local_url("{$profiletype}salmon", array('id' => $author->id));
-        $xrd->links[] = new XML_XRD_Element_Link(Salmon::REL_SALMON, $salmon_url);
+        $salmon_url = null;
+        $actor = $target->getProfile();
+        if ($actor->isLocal()) {
+            $profiletype = $this->profileTypeString($actor);
+            $salmon_url = common_local_url("{$profiletype}salmon", array('id' => $actor->getID()));
+        } else {
+            try {
+                $oprofile = Ostatus_profile::fromProfile($actor);
+                $salmon_url = $oprofile->salmonuri;
+            } catch (Exception $e) {
+                // Even though it's not a local user, we couldn't get an Ostatus_profile?!
+            }
+        }
+        // Ostatus_profile salmon URL may be empty
+        if (!empty($salmon_url)) {
+            $xrd->links[] = new XML_XRD_Element_Link(Salmon::REL_SALMON, $salmon_url);
+        }
         return true;
     }
 
@@ -1348,6 +1443,12 @@ class OStatusPlugin extends Plugin
     {
         if ($target->getObjectType() === ActivityObject::PERSON) {
             $this->addWebFingerPersonLinks($xrd, $target);
+        } elseif ($target->getObjectType() === ActivityObject::GROUP) {
+            $xrd->links[] = new XML_XRD_Element_Link(Discovery::UPDATESFROM,
+                            common_local_url('ApiTimelineGroup',
+                                array('id' => $target->getGroup()->getID(), 'format' => 'atom')),
+                            'application/atom+xml');
+
         }
 
         // Salmon
@@ -1440,7 +1541,12 @@ class OStatusPlugin extends Plugin
 
     public function onSalmonSlap($endpoint_uri, MagicEnvelope $magic_env, Profile $target=null)
     {
-        $envxml = $magic_env->toXML($target);
+        try {
+            $envxml = $magic_env->toXML($target);
+        } catch (Exception $e) {
+            common_log(LOG_ERR, sprintf('Could not generate Magic Envelope XML for profile id=='.$target->getID().': '.$e->getMessage()));
+            return false;
+        }
 
         $headers = array('Content-Type: application/magic-envelope+xml');
 
@@ -1457,9 +1563,11 @@ class OStatusPlugin extends Plugin
             return true;
         }
 
-        // 200 OK is the best response
-        // 202 Accepted is what we get from Diaspora for example
-        if (!in_array($response->getStatus(), array(200, 202))) {
+        // The different kinds of accepted responses...
+        // 200 OK means it's all ok
+        // 201 Created is what Mastodon returns when it's ok
+        // 202 Accepted is what we get from Diaspora, also good
+        if (!in_array($response->getStatus(), array(200, 201, 202))) {
             common_log(LOG_ERR, sprintf('Salmon (from profile %d) endpoint %s returned status %s: %s',
                                 $magic_env->getActor()->getID(), $endpoint_uri, $response->getStatus(), $response->getBody()));
             return true;

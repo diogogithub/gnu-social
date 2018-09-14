@@ -265,8 +265,6 @@ class MysqlSchema extends Schema
      * @param array $def
      * @return string;
      *
-     * @fixme ENGINE may need to be set differently in some cases,
-     * such as to support fulltext index.
      */
     function endCreateTable($name, array $def)
     {
@@ -276,9 +274,11 @@ class MysqlSchema extends Schema
     
     function preferredEngine($def)
     {
+        /* MyISAM is no longer required for fulltext indexes, fortunately
         if (!empty($def['fulltext indexes'])) {
             return 'MyISAM';
         }
+        */
         return 'InnoDB';
     }
 

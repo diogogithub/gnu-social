@@ -43,7 +43,7 @@ require_once 'DB/common.php';
  * @author     Daniel Convissor <danielc@php.net>
  * @copyright  1997-2007 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
- * @version    Release: 1.8.2
+ * @version    Release: 1.9.2
  * @link       http://pear.php.net/package/DB
  * @since      Class functional since Release 1.6.3
  */
@@ -224,13 +224,13 @@ class DB_mysqli extends DB_common
     // {{{ constructor
 
     /**
-     * This constructor calls <kbd>$this->DB_common()</kbd>
+     * This constructor calls <kbd>parent::__construct()</kbd>
      *
      * @return void
      */
-    function DB_mysqli()
+    function __construct()
     {
-        $this->DB_common();
+        parent::__construct();
     }
 
     // }}}
@@ -497,7 +497,11 @@ class DB_mysqli extends DB_common
      */
     function freeResult($result)
     {
-        return is_resource($result) ? mysqli_free_result($result) : false;
+        if (! $result instanceof mysqli_result) {
+            return false;
+        }
+        mysqli_free_result($result);
+        return true;
     }
 
     // }}}
@@ -1031,6 +1035,10 @@ class DB_mysqli extends DB_common
                                     ? $this->mysqli_types[$tmp->type]
                                     : 'unknown',
                 // http://bugs.php.net/?id=36579
+                //  Doc Bug #36579: mysqli_fetch_field length handling
+                // https://bugs.php.net/bug.php?id=62426
+                //  Bug #62426: mysqli_fetch_field_direct returns incorrect
+                //  length on UTF8 fields
                 'len'   => $tmp->length,
                 'flags' => $flags,
             );

@@ -25,7 +25,7 @@ $shortoptions = 'u';
 
 $helptext = <<<END_OF_HELP
 resub-feed.php [options] http://example.com/atom-feed-url
-Reinitialize the PuSH subscription for the given feed. This may help get
+Reinitialize the WebSub subscription for the given feed. This may help get
 things restarted if we and the hub have gotten our states out of sync.
 
 Options:

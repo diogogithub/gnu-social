@@ -578,7 +578,7 @@ class XMPPHP_XMLStream {
 				if($searchxml !== null and $searchxml->name == $handler[0] and ($searchxml->ns == $handler[1] or (!$handler[1] and $searchxml->ns == $this->default_ns))) {
 					if($handler[3] === null) $handler[3] = $this;
 					$this->log->log("Calling {$handler[2]}",  XMPPHP_Log::LEVEL_DEBUG);
-					$handler[3]->$handler[2]($this->xmlobj[2]);
+					$handler[3]->{$handler[2]}($this->xmlobj[2]);
 				}
 			}
 			foreach($this->idhandlers as $id => $handler) {

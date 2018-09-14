@@ -22,7 +22,7 @@ if (!defined('STATUSNET')) {
 }
 
 /**
- * Prepare PuSH and Salmon distributions for an outgoing message.
+ * Prepare WebSub and Salmon distributions for an outgoing message.
  *
  * @package OStatusPlugin
  * @author Brion Vibber <brion@status.net>
@@ -30,7 +30,7 @@ if (!defined('STATUSNET')) {
 class OStatusQueueHandler extends QueueHandler
 {
     // If we have more than this many subscribing sites on a single feed,
-    // break up the PuSH distribution into smaller batches which will be
+    // break up the WebSub distribution into smaller batches which will be
     // rolled into the queue progressively. This reduces disruption to
     // other, shorter activities being enqueued while we work.
     const MAX_UNBATCHED = 50;
@@ -132,7 +132,7 @@ class OStatusQueueHandler extends QueueHandler
     {
         if ($this->user) {
             common_debug("OSTATUS [{$this->notice->getID()}]: pushing feed for local user {$this->user->getID()}");
-            // For local posts, ping the PuSH hub to update their feed.
+            // For local posts, ping the WebSub hub to update their feed.
             // http://identi.ca/api/statuses/user_timeline/1.atom
             $feed = common_local_url('ApiTimelineUser',
                                      array('id' => $this->user->id,
@@ -144,7 +144,7 @@ class OStatusQueueHandler extends QueueHandler
     function pushGroup(User_group $group)
     {
         common_debug("OSTATUS [{$this->notice->getID()}]: pushing group '{$group->getNickname()}' profile_id={$group->profile_id}");
-        // For a local group, ping the PuSH hub to update its feed.
+        // For a local group, ping the WebSub hub to update its feed.
         // Updates may come from either a local or a remote user.
         $feed = common_local_url('ApiTimelineGroup',
                                  array('id' => $group->getID(),
@@ -155,7 +155,7 @@ class OStatusQueueHandler extends QueueHandler
     function pushPeopletag($ptag)
     {
         common_debug("OSTATUS [{$this->notice->getID()}]: pushing peopletag '{$ptag->id}'");
-        // For a local people tag, ping the PuSH hub to update its feed.
+        // For a local people tag, ping the WebSub hub to update its feed.
         // Updates may come from either a local or a remote user.
         $feed = common_local_url('ApiTimelineList',
                                  array('id' => $ptag->id,
@@ -183,9 +183,35 @@ class OStatusQueueHandler extends QueueHandler
      */
     function pushFeed($feed, $callback)
     {
+        // NOTE: external hub pings will not be fixed by
+        // our legacy_http thing!
         $hub = common_config('ostatus', 'hub');
         if ($hub) {
             $this->pushFeedExternal($feed, $hub);
+        }
+
+        // If we used to be http but now are https, see if we find an http entry for this feed URL
+        // and then upgrade it. This self-healing feature needs to be enabled manually in config.
+        // This code is based on a patch by @hannes2peer@quitter.se
+        if (common_config('fix', 'legacy_http') && parse_url($feed, PHP_URL_SCHEME) === 'https') {
+            common_log(LOG_DEBUG, "OSTATUS [{$this->notice->getID()}]: Searching for http scheme instead for HubSub feed topic: "._ve($feed));
+            $http_feed = str_replace('https://', 'http://', $feed);
+            $sub = new HubSub();
+            $sub->topic = $http_feed;
+            // If we find it we upgrade the rows in the hubsub table.
+            if ($sub->find()) {
+                common_log(LOG_INFO, "OSTATUS [{$this->notice->getID()}]: Found topic with http scheme for "._ve($feed).", will update the rows to use https instead!");
+                // we found an http:// URL but we use https:// now
+                // so let's update the rows to reflect on this!
+                while ($sub->fetch()) {
+                    common_debug("OSTATUS [{$this->notice->getID()}]: Changing topic URL to https for feed callback "._ve($sub->callback));
+                    $orig = clone($sub);
+                    $sub->topic = $feed;
+                    // hashkey column will be set automagically in HubSub->onUpdateKeys through updateWithKeys
+                    $sub->updateWithKeys($orig);
+                    unset($orig);
+                }
+            }
         }
 
         $sub = new HubSub();
@@ -195,9 +221,8 @@ class OStatusQueueHandler extends QueueHandler
             $atom = call_user_func_array($callback, $args);
             $this->pushFeedInternal($atom, $sub);
         } else {
-            common_log(LOG_INFO, "No PuSH subscribers for $feed");
+            common_log(LOG_INFO, "OSTATUS [{$this->notice->getID()}]: No WebSub subscribers for $feed");
         }
-        return true;
     }
 
     /**
@@ -206,7 +231,7 @@ class OStatusQueueHandler extends QueueHandler
      * Not guaranteed safe in an environment with database replication.
      *
      * @param string $feed feed topic URI
-     * @param string $hub PuSH hub URI
+     * @param string $hub WebSub hub URI
      * @fixme can consolidate pings for user & group posts
      */
     function pushFeedExternal($feed, $hub)
@@ -217,15 +242,15 @@ class OStatusQueueHandler extends QueueHandler
                           'hub.url' => $feed);
             $response = $client->post($hub, array(), $data);
             if ($response->getStatus() == 204) {
-                common_log(LOG_INFO, "PuSH ping to hub $hub for $feed ok");
+                common_log(LOG_INFO, "WebSub ping to hub $hub for $feed ok");
                 return true;
             } else {
-                common_log(LOG_ERR, "PuSH ping to hub $hub for $feed failed with HTTP " .
+                common_log(LOG_ERR, "WebSub ping to hub $hub for $feed failed with HTTP " .
                                     $response->getStatus() . ': ' .
                                     $response->getBody());
             }
         } catch (Exception $e) {
-            common_log(LOG_ERR, "PuSH ping to hub $hub for $feed failed: " . $e->getMessage());
+            common_log(LOG_ERR, "WebSub ping to hub $hub for $feed failed: " . $e->getMessage());
             return false;
         }
     }
@@ -240,7 +265,7 @@ class OStatusQueueHandler extends QueueHandler
      */
     function pushFeedInternal($atom, $sub)
     {
-        common_log(LOG_INFO, "Preparing $sub->N PuSH distribution(s) for $sub->topic");
+        common_log(LOG_INFO, "Preparing $sub->N WebSub distribution(s) for $sub->topic");
         $n = 0;
         $batch = array();
         while ($sub->fetch()) {

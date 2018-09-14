@@ -24,6 +24,11 @@ path (): Path on the server to CAS. Usually blank.
 takeOverLogin (false): Take over the main login action. If takeOverLogin is
     set, anytime the standard username/password login form would be shown,
     a CAS login will be done instead.
+user_whitelist (null): Only allow login via CAS for users listed in this
+    array. This is useful when both CAS and password authentication is enabled
+    and there is a mismatch between some GNU social account names and CAS user
+    names. This prevents CAS users from logging in as someone else on GNU
+    social. When set to null, no CAS logins are filtered by this feature.
 
 * required
 default values are in (parenthesis)

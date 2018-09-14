@@ -39,6 +39,7 @@ class ActivityContext
     public $location;
     public $attention = array();    // 'uri' => 'type'
     public $conversation;
+    public $conversation_url;
     public $scope;
 
     const THR     = 'http://purl.org/syndication/thread/1.0';
@@ -51,7 +52,7 @@ class ActivityContext
 
     // OStatus element names with prefixes
     const OBJECTTYPE = 'ostatus:object-type';   // FIXME: Undocumented!
-    const CONVERSATION = 'ostatus:conversation';
+    const CONVERSATION = 'conversation';
 
     const POINT     = 'point';
 
@@ -74,13 +75,22 @@ class ActivityContext
 
         $this->location = $this->getLocation($element);
 
-        $convs = $element->getElementsByTagNameNS(self::OSTATUS, self::CONVERSATION);
-        foreach ($convs as $conv) {
-            $this->conversation = $conv->textContent;
+        foreach ($element->getElementsByTagNameNS(self::OSTATUS, self::CONVERSATION) as $conv) {
+            if ($conv->hasAttribute('ref')) {
+                $this->conversation = $conv->getAttribute('ref');
+                if ($conv->hasAttribute('href')) {
+                    $this->conversation_url = $conv->getAttribute('href');
+                }
+            } else {
+                $this->conversation = $conv->textContent;
+            }
+            if (!empty($this->conversation)) {
+                break;
+            }
         }
         if (empty($this->conversation)) {
             // fallback to the atom:link rel="ostatus:conversation" element
-            $this->conversation = ActivityUtils::getLink($element, self::CONVERSATION);
+            $this->conversation = ActivityUtils::getLink($element, 'ostatus:'.self::CONVERSATION);
         }
 
         // Multiple attention links allowed
@@ -148,6 +158,7 @@ class ActivityContext
 
         $context['inReplyTo']    = $this->getInReplyToArray();
         $context['conversation'] = $this->conversation;
+        $context['conversation_url'] = $this->conversation_url;
 
         return array_filter($context);
     }

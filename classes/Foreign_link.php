@@ -89,7 +89,7 @@ class Foreign_link extends Managed_DataObject
         return $flink;
     }
 
-    function set_flags($noticesend, $noticerecv, $replysync, $friendsync)
+    function set_flags($noticesend, $noticerecv, $replysync, $repeatsync, $friendsync)
     {
         if ($noticesend) {
             $this->noticesync |= FOREIGN_NOTICE_SEND;
@@ -107,6 +107,12 @@ class Foreign_link extends Managed_DataObject
             $this->noticesync |= FOREIGN_NOTICE_SEND_REPLY;
         } else {
             $this->noticesync &= ~FOREIGN_NOTICE_SEND_REPLY;
+        }
+
+        if ($repeatsync) {
+            $this->noticesync |= FOREIGN_NOTICE_SEND_REPEAT;
+        } else {
+            $this->noticesync &= ~FOREIGN_NOTICE_SEND_REPEAT;
         }
 
         if ($friendsync) {

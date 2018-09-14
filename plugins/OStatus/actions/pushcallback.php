@@ -54,7 +54,7 @@ class PushCallbackAction extends Action
         $feedsub = FeedSub::getKV('id', $feedid);
         if (!$feedsub instanceof FeedSub) {
             // TRANS: Server exception. %s is a feed ID.
-            throw new ServerException(sprintf(_m('Unknown PuSH feed id %s'),$feedid), 400);
+            throw new ServerException(sprintf(_m('Unknown WebSub subscription feed id %s'),$feedid), 400);
         }
 
         $hmac = '';
@@ -77,7 +77,7 @@ class PushCallbackAction extends Action
     /**
      * Handler for GET verification requests from the hub.
      */
-    function handleGet()
+    public function handleGet()
     {
         $mode = $this->arg('hub_mode');
         $topic = $this->arg('hub_topic');
@@ -110,12 +110,21 @@ class PushCallbackAction extends Action
         }
 
         if ($mode == 'subscribe') {
-            if ($feedsub->sub_state == 'active') {
+            $renewal = ($feedsub->sub_state == 'active');
+            if ($renewal) {
                 common_log(LOG_INFO, __METHOD__ . ': sub update confirmed');
             } else {
                 common_log(LOG_INFO, __METHOD__ . ': sub confirmed');
             }
+
             $feedsub->confirmSubscribe($lease_seconds);
+
+            if (!$renewal) {
+                // Kickstart the feed by importing its most recent backlog
+                // FIXME: Disabled until we can either limit the amount and/or send to background queue handling
+                //common_log(LOG_INFO, __METHOD__ . ': Confirmed a new subscription, importing backlog...');
+                //$feedsub->importFeed();
+            }
         } else {
             common_log(LOG_INFO, __METHOD__ . ": unsub confirmed; deleting sub record for $topic");
             $feedsub->confirmUnsubscribe();

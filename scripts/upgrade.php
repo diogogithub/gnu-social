@@ -20,8 +20,8 @@
 
 define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
 
-$shortoptions = 'x::';
-$longoptions = array('extensions=');
+$shortoptions = 'dfx::';
+$longoptions = array('debug', 'files', 'extensions=');
 
 $helptext = <<<END_OF_UPGRADE_HELP
 php upgrade.php [options]
@@ -31,8 +31,17 @@ END_OF_UPGRADE_HELP;
 
 require_once INSTALLDIR.'/scripts/commandline.inc';
 
+
+if (!defined('DEBUG')) {
+    define('DEBUG', (bool)have_option('d', 'debug'));
+}
+
 function main()
 {
+    // "files" option enables possibly disk/resource intensive operations
+    // that aren't really _required_ for the upgrade
+    $iterate_files = (bool)have_option('f', 'files');
+
     if (Event::handle('StartUpgrade')) {
         fixupConversationURIs();
 
@@ -44,11 +53,17 @@ function main()
         fixupNoticeConversation();
         initConversation();
         fixupGroupURI();
-        fixupFileGeometry();
-        deleteLocalFileThumbnailsWithoutFilename();
-        deleteMissingLocalFileThumbnails();
-        fixupFileThumbnailUrlhash();
-        setFilehashOnLocalFiles();
+        if ($iterate_files) {
+            printfnq("Running file iterations:\n");
+            printfnq("* "); fixupFileGeometry();
+            printfnq("* "); deleteLocalFileThumbnailsWithoutFilename();
+            printfnq("* "); deleteMissingLocalFileThumbnails();
+            printfnq("* "); fixupFileThumbnailUrlhash();
+            printfnq("* "); setFilehashOnLocalFiles();
+            printfnq("DONE.\n");
+        } else {
+            printfnq("Skipping intensive/long-running file iteration functions (enable with -f, should be done at least once!)\n");
+        }
 
         initGroupProfileId();
         initLocalGroup();
@@ -168,12 +183,22 @@ function fixupGroupURI()
 
 function initConversation()
 {
+    if (common_config('fix', 'upgrade_initConversation') <= 1) {
+        printfnq(sprintf("Skipping %s, fixed by previous upgrade.\n", __METHOD__));
+        return;
+    }
+
     printfnq("Ensuring all conversations have a row in conversation table...");
 
     $notice = new Notice();
-    $notice->query('select distinct notice.conversation from notice '.
-                   'where notice.conversation is not null '.
-                   'and not exists (select conversation.id from conversation where id = notice.conversation)');
+    $notice->selectAdd();
+    $notice->selectAdd('DISTINCT conversation');
+    $notice->joinAdd(['conversation', 'conversation:id'], 'LEFT');  // LEFT to get the null values for conversation.id
+    $notice->whereAdd('conversation.id IS NULL');
+
+    if ($notice->find()) {
+        printfnq(" fixing {$notice->N} missing conversation entries...");
+    }
 
     while ($notice->fetch()) {
 
@@ -191,6 +216,10 @@ function initConversation()
                        $conv->escape(common_sql_now()));
         $conv->query($sql);
     }
+
+    // This is something we should only have to do once unless introducing new, bad code.
+    if (DEBUG) printfnq(sprintf('Storing in config that we have done %s', __METHOD__));
+    common_config_set('fix', 'upgrade_initConversation', 1);
 
     printfnq("DONE.\n");
 }
@@ -288,6 +317,11 @@ function initLocalGroup()
 
 function initNoticeReshare()
 {
+    if (common_config('fix', 'upgrade_initNoticeReshare') <= 1) {
+        printfnq(sprintf("Skipping %s, fixed by previous upgrade.\n", __METHOD__));
+        return;
+    }
+
     printfnq("Ensuring all reshares have the correct verb and object-type...");
     
     $notice = new Notice();
@@ -306,6 +340,10 @@ function initNoticeReshare()
             }
         }
     }
+
+    // This is something we should only have to do once unless introducing new, bad code.
+    if (DEBUG) printfnq(sprintf('Storing in config that we have done %s', __METHOD__));
+    common_config_set('fix', 'upgrade_initNoticeReshare', 1);
 
     printfnq("DONE.\n");
 }
@@ -419,20 +457,25 @@ function fixupFileGeometry()
 
     if ($file->find()) {
         while ($file->fetch()) {
+            if (DEBUG) printfnq(sprintf('Found file without width: %s\n', _ve($file->getFilename())));
+
             // Set file geometrical properties if available
             try {
                 $image = ImageFile::fromFileObject($file);
             } catch (ServerException $e) {
                 // We couldn't make out an image from the file.
+                if (DEBUG) printfnq(sprintf('Could not make an image out of the file.\n'));
                 continue;
             }
             $orig = clone($file);
             $file->width = $image->width;
             $file->height = $image->height;
+            if (DEBUG) printfnq(sprintf('Setting image file and with to %sx%s.\n', $file->width, $file->height));
             $file->update($orig);
 
             // FIXME: Do this more automagically inside ImageFile or so.
             if ($image->getPath() != $file->getPath()) {
+                if (DEBUG) printfnq(sprintf('Deleting the temporarily stored ImageFile.\n'));
                 $image->unlink();
             }
             unset($image);
@@ -457,7 +500,7 @@ function deleteLocalFileThumbnailsWithoutFilename()
         while ($file->fetch()) {
             $thumbs = new File_thumbnail();
             $thumbs->file_id = $file->id;
-            $thumbs->whereAdd('filename IS NULL');
+            $thumbs->whereAdd('filename IS NULL OR filename = ""');
             // Checking if there were any File_thumbnail entries without filename
             if (!$thumbs->find()) {
                 continue;
@@ -480,7 +523,7 @@ function deleteMissingLocalFileThumbnails()
     printfnq("Removing all local File_thumbnail entries without existing files...");
 
     $thumbs = new File_thumbnail();
-    $thumbs->whereAdd('filename IS NOT NULL');  // only fill in names where they're missing
+    $thumbs->whereAdd('filename IS NOT NULL AND filename != ""');
     // Checking if there were any File_thumbnail entries without filename
     if ($thumbs->find()) {
         while ($thumbs->fetch()) {
@@ -503,7 +546,7 @@ function setFilehashOnLocalFiles()
     printfnq('Ensuring all local files have the filehash field set...');
 
     $file = new File();
-    $file->whereAdd('filename IS NOT NULL');        // local files
+    $file->whereAdd('filename IS NOT NULL AND filename != ""');        // local files
     $file->whereAdd('filehash IS NULL', 'AND');     // without filehash value
 
     if ($file->find()) {

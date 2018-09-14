@@ -1,9 +1,8 @@
-AuthCrypt allows for StatusNet to use crypt() hashing to store password credentials.
+AuthCrypt allows for StatusNet and GNU social to use crypt() hashing to store password credentials.
 
 Requirements
 ============
-* PHP >= 5.3.2 with php5-mcrypt extension for certain SHA512 support
-* lib/authenticationplugin.php in your StatusNet install
+Nothing out of the ordinary (SHA512 is supported natively since PHP 5.3.2)
 
 Installation
 ============

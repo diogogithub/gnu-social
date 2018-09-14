@@ -142,7 +142,7 @@ class OStatusTester extends TestBase
         $this->assertTrue($this->pub->hasSubscriber($this->sub->getProfileUri()));
 
         $name = $this->sub->username;
-        $post = $this->pub->post("Regular post, which $name should get via PuSH");
+        $post = $this->pub->post("Regular post, which $name should get via WebSub");
         $this->sub->assertReceived($post);
     }
 

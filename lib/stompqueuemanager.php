@@ -151,7 +151,7 @@ class StompQueueManager extends QueueManager
         $envelope = array('site' => $siteNickname ? $siteNickname : common_config('site', 'nickname'),
                           'handler' => $queue,
                           'payload' => $this->encode($object));
-        $msg = serialize($envelope);
+        $msg = base64_encode(serialize($envelope));
 
         $props = array('created' => common_sql_now());
         if ($this->isPersistent($queue)) {
@@ -479,7 +479,7 @@ class StompQueueManager extends QueueManager
     protected function handleItem($frame)
     {
         $host = $this->cons[$this->defaultIdx]->getServer();
-        $message = unserialize($frame->body);
+        $message = unserialize(base64_decode($frame->body));
 
         if ($message === false) {
             $this->_log(LOG_ERR, "Can't unserialize frame: {$frame->body}");
@@ -490,7 +490,7 @@ class StompQueueManager extends QueueManager
         $site = $message['site'];
         $queue = $message['handler'];
 
-        if ($this->isDeadletter($frame, $message)) {
+        if ($this->isDeadLetter($frame, $message)) {
             $this->stats('deadletter', $queue);
 	        return false;
         }
