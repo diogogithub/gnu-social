@@ -97,7 +97,12 @@ class PublicAction extends SitestreamAction
      */
     function getFeeds()
     {
-        return array(new Feed(Feed::JSON,
+        return array(new Feed(Feed::ATOM,
+                              common_local_url('ApiTimelinePublic',
+                                               array('format' => 'atom')),
+                              // TRANS: Link description for public timeline feed.
+                              _('Public Timeline Feed (Atom)')),
+                    new Feed(Feed::JSON,
                               common_local_url('ApiTimelinePublic',
                                                array('format' => 'as')),
                               // TRANS: Link description for public timeline feed.
@@ -105,15 +110,10 @@ class PublicAction extends SitestreamAction
                     new Feed(Feed::RSS1, common_local_url('publicrss'),
                               // TRANS: Link description for public timeline feed.
                               _('Public Timeline Feed (RSS 1.0)')),
-                     new Feed(Feed::RSS2,
+                    new Feed(Feed::RSS2,
                               common_local_url('ApiTimelinePublic',
                                                array('format' => 'rss')),
                               // TRANS: Link description for public timeline feed.
-                              _('Public Timeline Feed (RSS 2.0)')),
-                     new Feed(Feed::ATOM,
-                              common_local_url('ApiTimelinePublic',
-                                               array('format' => 'atom')),
-                              // TRANS: Link description for public timeline feed.
-                              _('Public Timeline Feed (Atom)')));
+                              _('Public Timeline Feed (RSS 2.0)')));
     }
 }
