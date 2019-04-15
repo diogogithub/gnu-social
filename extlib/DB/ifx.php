@@ -59,13 +59,13 @@ class DB_ifx extends DB_common
      * The DB driver type (mysql, oci8, odbc, etc.)
      * @var string
      */
-    var $phptype = 'ifx';
+    public $phptype = 'ifx';
 
     /**
      * The database syntax variant to be used (db2, access, etc.), if any
      * @var string
      */
-    var $dbsyntax = 'ifx';
+    public $dbsyntax = 'ifx';
 
     /**
      * The capabilities of this DB implementation
@@ -80,7 +80,7 @@ class DB_ifx extends DB_common
      *
      * @var array
      */
-    var $features = array(
+    public $features = array(
         'limit'         => 'emulate',
         'new_link'      => false,
         'numrows'       => 'emulate',
@@ -94,7 +94,7 @@ class DB_ifx extends DB_common
      * A mapping of native error codes to DB error codes
      * @var array
      */
-    var $errorcode_map = array(
+    public $errorcode_map = array(
         '-201'    => DB_ERROR_SYNTAX,
         '-206'    => DB_ERROR_NOSUCHTABLE,
         '-217'    => DB_ERROR_NOSUCHFIELD,
@@ -128,13 +128,13 @@ class DB_ifx extends DB_common
      * The raw database connection created by PHP
      * @var resource
      */
-    var $connection;
+    public $connection;
 
     /**
      * The DSN information for connecting to a database
      * @var array
      */
-    var $dsn = array();
+    public $dsn = array();
 
 
     /**
@@ -142,7 +142,7 @@ class DB_ifx extends DB_common
      * @var bool
      * @access private
      */
-    var $autocommit = true;
+    public $autocommit = true;
 
     /**
      * The quantity of transactions begun
@@ -153,14 +153,14 @@ class DB_ifx extends DB_common
      * @var integer
      * @access private
      */
-    var $transaction_opcount = 0;
+    public $transaction_opcount = 0;
 
     /**
      * The number of rows affected by a data manipulation query
      * @var integer
      * @access private
      */
-    var $affected = 0;
+    public $affected = 0;
 
 
     // }}}
@@ -171,7 +171,7 @@ class DB_ifx extends DB_common
      *
      * @return void
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
@@ -189,11 +189,10 @@ class DB_ifx extends DB_common
      *
      * @return int  DB_OK on success. A DB_Error object on failure.
      */
-    function connect($dsn, $persistent = false)
+    public function connect($dsn, $persistent = false)
     {
         if (!PEAR::loadExtension('informix') &&
-            !PEAR::loadExtension('Informix'))
-        {
+            !PEAR::loadExtension('Informix')) {
             return $this->raiseError(DB_ERROR_EXTENSION_NOT_FOUND);
         }
 
@@ -224,7 +223,7 @@ class DB_ifx extends DB_common
      *
      * @return bool  TRUE on success, FALSE on failure
      */
-    function disconnect()
+    public function disconnect()
     {
         $ret = @ifx_close($this->connection);
         $this->connection = null;
@@ -243,7 +242,7 @@ class DB_ifx extends DB_common
      *                + the DB_OK constant for other successful queries
      *                + a DB_Error object on failure
      */
-    function simpleQuery($query)
+    public function simpleQuery($query)
     {
         $ismanip = $this->_checkManip($query);
         $this->last_query = $query;
@@ -294,7 +293,7 @@ class DB_ifx extends DB_common
      *
      * @return true if a result is available otherwise return false
      */
-    function nextResult($result)
+    public function nextResult($result)
     {
         return false;
     }
@@ -309,7 +308,7 @@ class DB_ifx extends DB_common
      *
      * @return int  the number of rows.  A DB_Error object on failure.
      */
-    function affectedRows()
+    public function affectedRows()
     {
         if ($this->_last_query_manip) {
             return $this->affected;
@@ -341,7 +340,7 @@ class DB_ifx extends DB_common
      *
      * @see DB_result::fetchInto()
      */
-    function fetchInto($result, &$arr, $fetchmode, $rownum = null)
+    public function fetchInto($result, &$arr, $fetchmode, $rownum = null)
     {
         if (($rownum !== null) && ($rownum < 0)) {
             return null;
@@ -367,8 +366,7 @@ class DB_ifx extends DB_common
             }
             $arr = $order;
         } elseif ($fetchmode == DB_FETCHMODE_ASSOC &&
-                  $this->options['portability'] & DB_PORTABILITY_LOWERCASE)
-        {
+                  $this->options['portability'] & DB_PORTABILITY_LOWERCASE) {
             $arr = array_change_key_case($arr, CASE_LOWER);
         }
         if ($this->options['portability'] & DB_PORTABILITY_RTRIM) {
@@ -396,7 +394,7 @@ class DB_ifx extends DB_common
      *
      * @see DB_result::numCols()
      */
-    function numCols($result)
+    public function numCols($result)
     {
         if (!$cols = @ifx_num_fields($result)) {
             return $this->ifxRaiseError();
@@ -420,7 +418,7 @@ class DB_ifx extends DB_common
      *
      * @see DB_result::free()
      */
-    function freeResult($result)
+    public function freeResult($result)
     {
         return is_resource($result) ? ifx_free_result($result) : false;
     }
@@ -436,7 +434,7 @@ class DB_ifx extends DB_common
      * @return int  DB_OK on success.  A DB_Error object if the driver
      *               doesn't support auto-committing transactions.
      */
-    function autoCommit($onoff = true)
+    public function autoCommit($onoff = true)
     {
         // XXX if $this->transaction_opcount > 0, we should probably
         // issue a warning here.
@@ -452,7 +450,7 @@ class DB_ifx extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function commit()
+    public function commit()
     {
         if ($this->transaction_opcount > 0) {
             $result = @ifx_query('COMMIT WORK', $this->connection);
@@ -472,7 +470,7 @@ class DB_ifx extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function rollback()
+    public function rollback()
     {
         if ($this->transaction_opcount > 0) {
             $result = @ifx_query('ROLLBACK WORK', $this->connection);
@@ -499,13 +497,18 @@ class DB_ifx extends DB_common
      * @see DB_common::raiseError(),
      *      DB_ifx::errorNative(), DB_ifx::errorCode()
      */
-    function ifxRaiseError($errno = null)
+    public function ifxRaiseError($errno = null)
     {
         if ($errno === null) {
             $errno = $this->errorCode(ifx_error());
         }
-        return $this->raiseError($errno, null, null, null,
-                                 $this->errorNative());
+        return $this->raiseError(
+            $errno,
+            null,
+            null,
+            null,
+            $this->errorNative()
+        );
     }
 
     // }}}
@@ -516,7 +519,7 @@ class DB_ifx extends DB_common
      *
      * @return string  the DBMS' error code and message
      */
-    function errorNative()
+    public function errorNative()
     {
         return @ifx_error() . ' ' . @ifx_errormsg();
     }
@@ -534,7 +537,7 @@ class DB_ifx extends DB_common
      * @return int a portable DB error code, or DB_ERROR if this DB
      * implementation has no mapping for the given error code.
      */
-    function errorCode($nativecode)
+    public function errorCode($nativecode)
     {
         if (preg_match('/SQLCODE=(.*)]/', $nativecode, $match)) {
             $code = $match[1];
@@ -570,15 +573,17 @@ class DB_ifx extends DB_common
      * @see DB_common::tableInfo()
      * @since Method available since Release 1.6.0
      */
-    function tableInfo($result, $mode = null)
+    public function tableInfo($result, $mode = null)
     {
         if (is_string($result)) {
             /*
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = @ifx_query("SELECT * FROM $result WHERE 1=0",
-                             $this->connection);
+            $id = @ifx_query(
+                "SELECT * FROM $result WHERE 1=0",
+                $this->connection
+            );
             $got_string = true;
         } elseif (isset($result->result)) {
             /*
@@ -659,7 +664,7 @@ class DB_ifx extends DB_common
      * @access protected
      * @see DB_common::getListOf()
      */
-    function getSpecialQuery($type)
+    public function getSpecialQuery($type)
     {
         switch ($type) {
             case 'tables':
@@ -670,7 +675,6 @@ class DB_ifx extends DB_common
     }
 
     // }}}
-
 }
 
 /*
@@ -679,5 +683,3 @@ class DB_ifx extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

@@ -53,13 +53,13 @@ class DB_fbsql extends DB_common
      * The DB driver type (mysql, oci8, odbc, etc.)
      * @var string
      */
-    var $phptype = 'fbsql';
+    public $phptype = 'fbsql';
 
     /**
      * The database syntax variant to be used (db2, access, etc.), if any
      * @var string
      */
-    var $dbsyntax = 'fbsql';
+    public $dbsyntax = 'fbsql';
 
     /**
      * The capabilities of this DB implementation
@@ -74,7 +74,7 @@ class DB_fbsql extends DB_common
      *
      * @var array
      */
-    var $features = array(
+    public $features = array(
         'limit'         => 'alter',
         'new_link'      => false,
         'numrows'       => true,
@@ -88,7 +88,7 @@ class DB_fbsql extends DB_common
      * A mapping of native error codes to DB error codes
      * @var array
      */
-    var $errorcode_map = array(
+    public $errorcode_map = array(
          22 => DB_ERROR_SYNTAX,
          85 => DB_ERROR_ALREADY_EXISTS,
         108 => DB_ERROR_SYNTAX,
@@ -111,13 +111,13 @@ class DB_fbsql extends DB_common
      * The raw database connection created by PHP
      * @var resource
      */
-    var $connection;
+    public $connection;
 
     /**
      * The DSN information for connecting to a database
      * @var array
      */
-    var $dsn = array();
+    public $dsn = array();
 
 
     // }}}
@@ -128,7 +128,7 @@ class DB_fbsql extends DB_common
      *
      * @return void
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
@@ -146,7 +146,7 @@ class DB_fbsql extends DB_common
      *
      * @return int  DB_OK on success. A DB_Error object on failure.
      */
-    function connect($dsn, $persistent = false)
+    public function connect($dsn, $persistent = false)
     {
         if (!PEAR::loadExtension('fbsql')) {
             return $this->raiseError(DB_ERROR_EXTENSION_NOT_FOUND);
@@ -168,19 +168,27 @@ class DB_fbsql extends DB_common
         $ini = ini_get('track_errors');
         $php_errormsg = '';
         if ($ini) {
-            $this->connection = @call_user_func_array($connect_function,
-                                                      $params);
+            $this->connection = @call_user_func_array(
+                $connect_function,
+                $params
+            );
         } else {
             @ini_set('track_errors', 1);
-            $this->connection = @call_user_func_array($connect_function,
-                                                      $params);
+            $this->connection = @call_user_func_array(
+                $connect_function,
+                $params
+            );
             @ini_set('track_errors', $ini);
         }
 
         if (!$this->connection) {
-            return $this->raiseError(DB_ERROR_CONNECT_FAILED,
-                                     null, null, null,
-                                     $php_errormsg);
+            return $this->raiseError(
+                DB_ERROR_CONNECT_FAILED,
+                null,
+                null,
+                null,
+                $php_errormsg
+            );
         }
 
         if ($dsn['database']) {
@@ -200,7 +208,7 @@ class DB_fbsql extends DB_common
      *
      * @return bool  TRUE on success, FALSE on failure
      */
-    function disconnect()
+    public function disconnect()
     {
         $ret = @fbsql_close($this->connection);
         $this->connection = null;
@@ -219,7 +227,7 @@ class DB_fbsql extends DB_common
      *                + the DB_OK constant for other successful queries
      *                + a DB_Error object on failure
      */
-    function simpleQuery($query)
+    public function simpleQuery($query)
     {
         $this->last_query = $query;
         $query = $this->modifyQuery($query);
@@ -247,7 +255,7 @@ class DB_fbsql extends DB_common
      *
      * @return true if a result is available otherwise return false
      */
-    function nextResult($result)
+    public function nextResult($result)
     {
         return @fbsql_next_result($result);
     }
@@ -275,7 +283,7 @@ class DB_fbsql extends DB_common
      *
      * @see DB_result::fetchInto()
      */
-    function fetchInto($result, &$arr, $fetchmode, $rownum = null)
+    public function fetchInto($result, &$arr, $fetchmode, $rownum = null)
     {
         if ($rownum !== null) {
             if (!@fbsql_data_seek($result, $rownum)) {
@@ -318,7 +326,7 @@ class DB_fbsql extends DB_common
      *
      * @see DB_result::free()
      */
-    function freeResult($result)
+    public function freeResult($result)
     {
         return is_resource($result) ? fbsql_free_result($result) : false;
     }
@@ -334,7 +342,7 @@ class DB_fbsql extends DB_common
      * @return int  DB_OK on success.  A DB_Error object if the driver
      *               doesn't support auto-committing transactions.
      */
-    function autoCommit($onoff=false)
+    public function autoCommit($onoff=false)
     {
         if ($onoff) {
             $this->query("SET COMMIT TRUE");
@@ -351,7 +359,7 @@ class DB_fbsql extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function commit()
+    public function commit()
     {
         @fbsql_commit($this->connection);
     }
@@ -364,7 +372,7 @@ class DB_fbsql extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function rollback()
+    public function rollback()
     {
         @fbsql_rollback($this->connection);
     }
@@ -385,7 +393,7 @@ class DB_fbsql extends DB_common
      *
      * @see DB_result::numCols()
      */
-    function numCols($result)
+    public function numCols($result)
     {
         $cols = @fbsql_num_fields($result);
         if (!$cols) {
@@ -410,7 +418,7 @@ class DB_fbsql extends DB_common
      *
      * @see DB_result::numRows()
      */
-    function numRows($result)
+    public function numRows($result)
     {
         $rows = @fbsql_num_rows($result);
         if ($rows === null) {
@@ -429,7 +437,7 @@ class DB_fbsql extends DB_common
      *
      * @return int  the number of rows.  A DB_Error object on failure.
      */
-    function affectedRows()
+    public function affectedRows()
     {
         if ($this->_last_query_manip) {
             $result = @fbsql_affected_rows($this->connection);
@@ -437,7 +445,7 @@ class DB_fbsql extends DB_common
             $result = 0;
         }
         return $result;
-     }
+    }
 
     // }}}
     // {{{ nextId()
@@ -455,7 +463,7 @@ class DB_fbsql extends DB_common
      * @see DB_common::nextID(), DB_common::getSequenceName(),
      *      DB_fbsql::createSequence(), DB_fbsql::dropSequence()
      */
-    function nextId($seq_name, $ondemand = true)
+    public function nextId($seq_name, $ondemand = true)
     {
         $seqname = $this->getSequenceName($seq_name);
         do {
@@ -491,7 +499,7 @@ class DB_fbsql extends DB_common
      * @see DB_common::createSequence(), DB_common::getSequenceName(),
      *      DB_fbsql::nextID(), DB_fbsql::dropSequence()
      */
-    function createSequence($seq_name)
+    public function createSequence($seq_name)
     {
         $seqname = $this->getSequenceName($seq_name);
         $res = $this->query('CREATE TABLE ' . $seqname
@@ -516,7 +524,7 @@ class DB_fbsql extends DB_common
      * @see DB_common::dropSequence(), DB_common::getSequenceName(),
      *      DB_fbsql::nextID(), DB_fbsql::createSequence()
      */
-    function dropSequence($seq_name)
+    public function dropSequence($seq_name)
     {
         return $this->query('DROP TABLE ' . $this->getSequenceName($seq_name)
                             . ' RESTRICT');
@@ -541,14 +549,20 @@ class DB_fbsql extends DB_common
      *
      * @access protected
      */
-    function modifyLimitQuery($query, $from, $count, $params = array())
+    public function modifyLimitQuery($query, $from, $count, $params = array())
     {
         if (DB::isManip($query) || $this->_next_query_manip) {
-            return preg_replace('/^([\s(])*SELECT/i',
-                                "\\1SELECT TOP($count)", $query);
+            return preg_replace(
+                '/^([\s(])*SELECT/i',
+                "\\1SELECT TOP($count)",
+                $query
+            );
         } else {
-            return preg_replace('/([\s(])*SELECT/i',
-                                "\\1SELECT TOP($from, $count)", $query);
+            return preg_replace(
+                '/([\s(])*SELECT/i',
+                "\\1SELECT TOP($from, $count)",
+                $query
+            );
         }
     }
 
@@ -564,7 +578,8 @@ class DB_fbsql extends DB_common
      * @see DB_common::quoteSmart()
      * @since Method available since release 1.7.8.
      */
-    function quoteBoolean($boolean) {
+    public function quoteBoolean($boolean)
+    {
         return $boolean ? 'TRUE' : 'FALSE';
     }
      
@@ -580,7 +595,8 @@ class DB_fbsql extends DB_common
      * @see DB_common::quoteSmart()
      * @since Method available since release 1.7.8.
      */
-    function quoteFloat($float) {
+    public function quoteFloat($float)
+    {
         return $this->escapeSimple(str_replace(',', '.', strval(floatval($float))));
     }
      
@@ -599,13 +615,18 @@ class DB_fbsql extends DB_common
      * @see DB_common::raiseError(),
      *      DB_fbsql::errorNative(), DB_common::errorCode()
      */
-    function fbsqlRaiseError($errno = null)
+    public function fbsqlRaiseError($errno = null)
     {
         if ($errno === null) {
             $errno = $this->errorCode(fbsql_errno($this->connection));
         }
-        return $this->raiseError($errno, null, null, null,
-                                 @fbsql_error($this->connection));
+        return $this->raiseError(
+            $errno,
+            null,
+            null,
+            null,
+            @fbsql_error($this->connection)
+        );
     }
 
     // }}}
@@ -616,7 +637,7 @@ class DB_fbsql extends DB_common
      *
      * @return int  the DBMS' error code
      */
-    function errorNative()
+    public function errorNative()
     {
         return @fbsql_errno($this->connection);
     }
@@ -639,15 +660,18 @@ class DB_fbsql extends DB_common
      *
      * @see DB_common::tableInfo()
      */
-    function tableInfo($result, $mode = null)
+    public function tableInfo($result, $mode = null)
     {
         if (is_string($result)) {
             /*
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = @fbsql_list_fields($this->dsn['database'],
-                                     $result, $this->connection);
+            $id = @fbsql_list_fields(
+                $this->dsn['database'],
+                $result,
+                $this->connection
+            );
             $got_string = true;
         } elseif (isset($result->result)) {
             /*
@@ -720,7 +744,7 @@ class DB_fbsql extends DB_common
      * @access protected
      * @see DB_common::getListOf()
      */
-    function getSpecialQuery($type)
+    public function getSpecialQuery($type)
     {
         switch ($type) {
             case 'tables':
@@ -736,7 +760,7 @@ class DB_fbsql extends DB_common
                        . ' "table_type" = \'VIEW\''
                        . ' AND "schema_name" = current_schema';
             case 'users':
-                return 'SELECT "user_name" from information_schema.users'; 
+                return 'SELECT "user_name" from information_schema.users';
             case 'functions':
                 return 'SELECT "routine_name" FROM'
                        . ' information_schema.psm_routines'
@@ -765,5 +789,3 @@ class DB_fbsql extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

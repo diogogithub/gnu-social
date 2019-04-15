@@ -59,13 +59,13 @@ class DB_msql extends DB_common
      * The DB driver type (mysql, oci8, odbc, etc.)
      * @var string
      */
-    var $phptype = 'msql';
+    public $phptype = 'msql';
 
     /**
      * The database syntax variant to be used (db2, access, etc.), if any
      * @var string
      */
-    var $dbsyntax = 'msql';
+    public $dbsyntax = 'msql';
 
     /**
      * The capabilities of this DB implementation
@@ -80,7 +80,7 @@ class DB_msql extends DB_common
      *
      * @var array
      */
-    var $features = array(
+    public $features = array(
         'limit'         => 'emulate',
         'new_link'      => false,
         'numrows'       => true,
@@ -94,20 +94,20 @@ class DB_msql extends DB_common
      * A mapping of native error codes to DB error codes
      * @var array
      */
-    var $errorcode_map = array(
+    public $errorcode_map = array(
     );
 
     /**
      * The raw database connection created by PHP
      * @var resource
      */
-    var $connection;
+    public $connection;
 
     /**
      * The DSN information for connecting to a database
      * @var array
      */
-    var $dsn = array();
+    public $dsn = array();
 
 
     /**
@@ -119,7 +119,7 @@ class DB_msql extends DB_common
      * @var resource
      * @access private
      */
-    var $_result;
+    public $_result;
 
 
     // }}}
@@ -130,7 +130,7 @@ class DB_msql extends DB_common
      *
      * @return void
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
@@ -146,13 +146,13 @@ class DB_msql extends DB_common
      * Example of how to connect:
      * <code>
      * require_once 'DB.php';
-     * 
+     *
      * // $dsn = 'msql://hostname/dbname';  // use a TCP connection
      * $dsn = 'msql:///dbname';             // use a socket
      * $options = array(
      *     'portability' => DB_PORTABILITY_ALL,
      * );
-     * 
+     *
      * $db = DB::connect($dsn, $options);
      * if (PEAR::isError($db)) {
      *     die($db->getMessage());
@@ -164,7 +164,7 @@ class DB_msql extends DB_common
      *
      * @return int  DB_OK on success. A DB_Error object on failure.
      */
-    function connect($dsn, $persistent = false)
+    public function connect($dsn, $persistent = false)
     {
         if (!PEAR::loadExtension('msql')) {
             return $this->raiseError(DB_ERROR_EXTENSION_NOT_FOUND);
@@ -187,24 +187,36 @@ class DB_msql extends DB_common
         $ini = ini_get('track_errors');
         $php_errormsg = '';
         if ($ini) {
-            $this->connection = @call_user_func_array($connect_function,
-                                                      $params);
+            $this->connection = @call_user_func_array(
+                $connect_function,
+                $params
+            );
         } else {
             @ini_set('track_errors', 1);
-            $this->connection = @call_user_func_array($connect_function,
-                                                      $params);
+            $this->connection = @call_user_func_array(
+                $connect_function,
+                $params
+            );
             @ini_set('track_errors', $ini);
         }
 
         if (!$this->connection) {
             if (($err = @msql_error()) != '') {
-                return $this->raiseError(DB_ERROR_CONNECT_FAILED,
-                                         null, null, null,
-                                         $err);
+                return $this->raiseError(
+                    DB_ERROR_CONNECT_FAILED,
+                    null,
+                    null,
+                    null,
+                    $err
+                );
             } else {
-                return $this->raiseError(DB_ERROR_CONNECT_FAILED,
-                                         null, null, null,
-                                         $php_errormsg);
+                return $this->raiseError(
+                    DB_ERROR_CONNECT_FAILED,
+                    null,
+                    null,
+                    null,
+                    $php_errormsg
+                );
             }
         }
 
@@ -222,7 +234,7 @@ class DB_msql extends DB_common
      *
      * @return bool  TRUE on success, FALSE on failure
      */
-    function disconnect()
+    public function disconnect()
     {
         $ret = @msql_close($this->connection);
         $this->connection = null;
@@ -241,7 +253,7 @@ class DB_msql extends DB_common
      *                + the DB_OK constant for other successful queries
      *                + a DB_Error object on failure
      */
-    function simpleQuery($query)
+    public function simpleQuery($query)
     {
         $this->last_query = $query;
         $query = $this->modifyQuery($query);
@@ -273,7 +285,7 @@ class DB_msql extends DB_common
      *
      * @return true if a result is available otherwise return false
      */
-    function nextResult($result)
+    public function nextResult($result)
     {
         return false;
     }
@@ -305,7 +317,7 @@ class DB_msql extends DB_common
      *
      * @see DB_result::fetchInto()
      */
-    function fetchInto($result, &$arr, $fetchmode, $rownum = null)
+    public function fetchInto($result, &$arr, $fetchmode, $rownum = null)
     {
         if ($rownum !== null) {
             if (!@msql_data_seek($result, $rownum)) {
@@ -348,7 +360,7 @@ class DB_msql extends DB_common
      *
      * @see DB_result::free()
      */
-    function freeResult($result)
+    public function freeResult($result)
     {
         return is_resource($result) ? msql_free_result($result) : false;
     }
@@ -369,7 +381,7 @@ class DB_msql extends DB_common
      *
      * @see DB_result::numCols()
      */
-    function numCols($result)
+    public function numCols($result)
     {
         $cols = @msql_num_fields($result);
         if (!$cols) {
@@ -394,7 +406,7 @@ class DB_msql extends DB_common
      *
      * @see DB_result::numRows()
      */
-    function numRows($result)
+    public function numRows($result)
     {
         $rows = @msql_num_rows($result);
         if ($rows === false) {
@@ -413,7 +425,7 @@ class DB_msql extends DB_common
      *
      * @return int  the number of rows.  A DB_Error object on failure.
      */
-    function affectedRows()
+    public function affectedRows()
     {
         if (!$this->_result) {
             return 0;
@@ -437,7 +449,7 @@ class DB_msql extends DB_common
      * @see DB_common::nextID(), DB_common::getSequenceName(),
      *      DB_msql::createSequence(), DB_msql::dropSequence()
      */
-    function nextId($seq_name, $ondemand = true)
+    public function nextId($seq_name, $ondemand = true)
     {
         $seqname = $this->getSequenceName($seq_name);
         $repeat = false;
@@ -482,7 +494,7 @@ class DB_msql extends DB_common
      * @see DB_common::createSequence(), DB_common::getSequenceName(),
      *      DB_msql::nextID(), DB_msql::dropSequence()
      */
-    function createSequence($seq_name)
+    public function createSequence($seq_name)
     {
         $seqname = $this->getSequenceName($seq_name);
         $res = $this->query('CREATE TABLE ' . $seqname
@@ -507,7 +519,7 @@ class DB_msql extends DB_common
      * @see DB_common::dropSequence(), DB_common::getSequenceName(),
      *      DB_msql::nextID(), DB_msql::createSequence()
      */
-    function dropSequence($seq_name)
+    public function dropSequence($seq_name)
     {
         return $this->query('DROP TABLE ' . $this->getSequenceName($seq_name));
     }
@@ -525,7 +537,7 @@ class DB_msql extends DB_common
      * @see DB_common::quoteIdentifier()
      * @since Method available since Release 1.7.0
      */
-    function quoteIdentifier($str)
+    public function quoteIdentifier($str)
     {
         return $this->raiseError(DB_ERROR_UNSUPPORTED);
     }
@@ -542,7 +554,8 @@ class DB_msql extends DB_common
      * @see DB_common::quoteSmart()
      * @since Method available since release 1.7.8.
      */
-    function quoteFloat($float) {
+    public function quoteFloat($float)
+    {
         return $this->escapeSimple(str_replace(',', '.', strval(floatval($float))));
     }
      
@@ -559,7 +572,7 @@ class DB_msql extends DB_common
      * @see DB_common::quoteSmart()
      * @since Method available since Release 1.7.0
      */
-    function escapeSimple($str)
+    public function escapeSimple($str)
     {
         return addslashes($str);
     }
@@ -579,7 +592,7 @@ class DB_msql extends DB_common
      * @see DB_common::raiseError(),
      *      DB_msql::errorNative(), DB_msql::errorCode()
      */
-    function msqlRaiseError($errno = null)
+    public function msqlRaiseError($errno = null)
     {
         $native = $this->errorNative();
         if ($errno === null) {
@@ -596,7 +609,7 @@ class DB_msql extends DB_common
      *
      * @return string  the DBMS' error message
      */
-    function errorNative()
+    public function errorNative()
     {
         return @msql_error();
     }
@@ -611,7 +624,7 @@ class DB_msql extends DB_common
      *
      * @return integer  the error number from a DB_ERROR* constant
      */
-    function errorCode($errormsg)
+    public function errorCode($errormsg)
     {
         static $error_regexps;
         
@@ -702,15 +715,17 @@ class DB_msql extends DB_common
      *
      * @see DB_common::setOption()
      */
-    function tableInfo($result, $mode = null)
+    public function tableInfo($result, $mode = null)
     {
         if (is_string($result)) {
             /*
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = @msql_query("SELECT * FROM $result",
-                              $this->connection);
+            $id = @msql_query(
+                "SELECT * FROM $result",
+                $this->connection
+            );
             $got_string = true;
         } elseif (isset($result->result)) {
             /*
@@ -794,15 +809,17 @@ class DB_msql extends DB_common
      * @access protected
      * @see DB_common::getListOf()
      */
-    function getSpecialQuery($type)
+    public function getSpecialQuery($type)
     {
         switch ($type) {
             case 'databases':
                 $id = @msql_list_dbs($this->connection);
                 break;
             case 'tables':
-                $id = @msql_list_tables($this->dsn['database'],
-                                        $this->connection);
+                $id = @msql_list_tables(
+                    $this->dsn['database'],
+                    $this->connection
+                );
                 break;
             default:
                 return null;
@@ -818,7 +835,6 @@ class DB_msql extends DB_common
     }
 
     // }}}
-
 }
 
 /*
@@ -827,5 +843,3 @@ class DB_msql extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

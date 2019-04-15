@@ -19,10 +19,10 @@
 // $Id: createTables.php 277015 2009-03-12 05:51:03Z alan_k $
 //
 
-// since this version doesnt use overload, 
+// since this version doesnt use overload,
 // and I assume anyone using custom generators should add this..
 
-define('DB_DATAOBJECT_NO_OVERLOAD',1);
+define('DB_DATAOBJECT_NO_OVERLOAD', 1);
 
 //require_once 'DB/DataObject/Generator.php';
 require_once 'DB/DataObject/Generator.php';
@@ -42,13 +42,13 @@ if (!@$_SERVER['argv'][1]) {
 }
 
 $config = parse_ini_file($_SERVER['argv'][1], true);
-foreach($config as $class=>$values) {
-    $options = &PEAR::getStaticProperty($class,'options');
+foreach ($config as $class=>$values) {
+    $options = &PEAR::getStaticProperty($class, 'options');
     $options = $values;
 }
 
 
-$options = &PEAR::getStaticProperty('DB_DataObject','options');
+$options = &PEAR::getStaticProperty('DB_DataObject', 'options');
 if (empty($options)) {
     PEAR::raiseError("\nERROR: could not read ini file\n\n", null, PEAR_ERROR_DIE);
     exit;
@@ -60,4 +60,3 @@ DB_DataObject::debugLevel(isset($options['debug']) ? $options['debug'] : 1);
 
 $generator = new DB_DataObject_Generator;
 $generator->start();
- 

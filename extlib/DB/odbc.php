@@ -55,13 +55,13 @@ class DB_odbc extends DB_common
      * The DB driver type (mysql, oci8, odbc, etc.)
      * @var string
      */
-    var $phptype = 'odbc';
+    public $phptype = 'odbc';
 
     /**
      * The database syntax variant to be used (db2, access, etc.), if any
      * @var string
      */
-    var $dbsyntax = 'sql92';
+    public $dbsyntax = 'sql92';
 
     /**
      * The capabilities of this DB implementation
@@ -81,7 +81,7 @@ class DB_odbc extends DB_common
      *
      * @var array
      */
-    var $features = array(
+    public $features = array(
         'limit'         => 'emulate',
         'new_link'      => false,
         'numrows'       => true,
@@ -95,7 +95,7 @@ class DB_odbc extends DB_common
      * A mapping of native error codes to DB error codes
      * @var array
      */
-    var $errorcode_map = array(
+    public $errorcode_map = array(
         '01004' => DB_ERROR_TRUNCATED,
         '07001' => DB_ERROR_MISMATCH,
         '21S01' => DB_ERROR_VALUE_COUNT_ON_ROW,
@@ -132,13 +132,13 @@ class DB_odbc extends DB_common
      * The raw database connection created by PHP
      * @var resource
      */
-    var $connection;
+    public $connection;
 
     /**
      * The DSN information for connecting to a database
      * @var array
      */
-    var $dsn = array();
+    public $dsn = array();
 
 
     /**
@@ -146,7 +146,7 @@ class DB_odbc extends DB_common
      * @var integer
      * @access private
      */
-    var $affected = 0;
+    public $affected = 0;
 
 
     // }}}
@@ -157,7 +157,7 @@ class DB_odbc extends DB_common
      *
      * @return void
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
@@ -178,7 +178,7 @@ class DB_odbc extends DB_common
      *
      * @return int  DB_OK on success. A DB_Error object on failure.
      */
-    function connect($dsn, $persistent = false)
+    public function connect($dsn, $persistent = false)
     {
         if (!PEAR::loadExtension('odbc')) {
             return $this->raiseError(DB_ERROR_EXTENSION_NOT_FOUND);
@@ -213,18 +213,28 @@ class DB_odbc extends DB_common
         $connect_function = $persistent ? 'odbc_pconnect' : 'odbc_connect';
 
         if (empty($dsn['cursor'])) {
-            $this->connection = @$connect_function($odbcdsn, $dsn['username'],
-                                                   $dsn['password']);
+            $this->connection = @$connect_function(
+                $odbcdsn,
+                $dsn['username'],
+                $dsn['password']
+            );
         } else {
-            $this->connection = @$connect_function($odbcdsn, $dsn['username'],
-                                                   $dsn['password'],
-                                                   $dsn['cursor']);
+            $this->connection = @$connect_function(
+                $odbcdsn,
+                $dsn['username'],
+                $dsn['password'],
+                $dsn['cursor']
+            );
         }
 
         if (!is_resource($this->connection)) {
-            return $this->raiseError(DB_ERROR_CONNECT_FAILED,
-                                     null, null, null,
-                                     $this->errorNative());
+            return $this->raiseError(
+                DB_ERROR_CONNECT_FAILED,
+                null,
+                null,
+                null,
+                $this->errorNative()
+            );
         }
         return DB_OK;
     }
@@ -237,7 +247,7 @@ class DB_odbc extends DB_common
      *
      * @return bool  TRUE on success, FALSE on failure
      */
-    function disconnect()
+    public function disconnect()
     {
         $err = @odbc_close($this->connection);
         $this->connection = null;
@@ -256,7 +266,7 @@ class DB_odbc extends DB_common
      *                + the DB_OK constant for other successful queries
      *                + a DB_Error object on failure
      */
-    function simpleQuery($query)
+    public function simpleQuery($query)
     {
         $this->last_query = $query;
         $query = $this->modifyQuery($query);
@@ -286,7 +296,7 @@ class DB_odbc extends DB_common
      *
      * @return true if a result is available otherwise return false
      */
-    function nextResult($result)
+    public function nextResult($result)
     {
         return @odbc_next_result($result);
     }
@@ -314,7 +324,7 @@ class DB_odbc extends DB_common
      *
      * @see DB_result::fetchInto()
      */
-    function fetchInto($result, &$arr, $fetchmode, $rownum = null)
+    public function fetchInto($result, &$arr, $fetchmode, $rownum = null)
     {
         $arr = array();
         if ($rownum !== null) {
@@ -365,7 +375,7 @@ class DB_odbc extends DB_common
      *
      * @see DB_result::free()
      */
-    function freeResult($result)
+    public function freeResult($result)
     {
         return is_resource($result) ? odbc_free_result($result) : false;
     }
@@ -386,7 +396,7 @@ class DB_odbc extends DB_common
      *
      * @see DB_result::numCols()
      */
-    function numCols($result)
+    public function numCols($result)
     {
         $cols = @odbc_num_fields($result);
         if (!$cols) {
@@ -405,7 +415,7 @@ class DB_odbc extends DB_common
      *
      * @return int  the number of rows.  A DB_Error object on failure.
      */
-    function affectedRows()
+    public function affectedRows()
     {
         if (empty($this->affected)) {  // In case of SELECT stms
             return 0;
@@ -436,7 +446,7 @@ class DB_odbc extends DB_common
      *
      * @see DB_result::numRows()
      */
-    function numRows($result)
+    public function numRows($result)
     {
         $nrows = @odbc_num_rows($result);
         if ($nrows == -1) {
@@ -464,7 +474,7 @@ class DB_odbc extends DB_common
      * @see DB_common::quoteIdentifier()
      * @since Method available since Release 1.6.0
      */
-    function quoteIdentifier($str)
+    public function quoteIdentifier($str)
     {
         switch ($this->dsn['dbsyntax']) {
             case 'access':
@@ -496,7 +506,7 @@ class DB_odbc extends DB_common
      * @see DB_common::nextID(), DB_common::getSequenceName(),
      *      DB_odbc::createSequence(), DB_odbc::dropSequence()
      */
-    function nextId($seq_name, $ondemand = true)
+    public function nextId($seq_name, $ondemand = true)
     {
         $seqname = $this->getSequenceName($seq_name);
         $repeat = 0;
@@ -546,7 +556,7 @@ class DB_odbc extends DB_common
      * @see DB_common::createSequence(), DB_common::getSequenceName(),
      *      DB_odbc::nextID(), DB_odbc::dropSequence()
      */
-    function createSequence($seq_name)
+    public function createSequence($seq_name)
     {
         return $this->query('CREATE TABLE '
                             . $this->getSequenceName($seq_name)
@@ -567,7 +577,7 @@ class DB_odbc extends DB_common
      * @see DB_common::dropSequence(), DB_common::getSequenceName(),
      *      DB_odbc::nextID(), DB_odbc::createSequence()
      */
-    function dropSequence($seq_name)
+    public function dropSequence($seq_name)
     {
         return $this->query('DROP TABLE ' . $this->getSequenceName($seq_name));
     }
@@ -583,7 +593,7 @@ class DB_odbc extends DB_common
      * @return int  DB_OK on success.  A DB_Error object if the driver
      *               doesn't support auto-committing transactions.
      */
-    function autoCommit($onoff = false)
+    public function autoCommit($onoff = false)
     {
         if (!@odbc_autocommit($this->connection, $onoff)) {
             return $this->odbcRaiseError();
@@ -599,7 +609,7 @@ class DB_odbc extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function commit()
+    public function commit()
     {
         if (!@odbc_commit($this->connection)) {
             return $this->odbcRaiseError();
@@ -615,7 +625,7 @@ class DB_odbc extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function rollback()
+    public function rollback()
     {
         if (!@odbc_rollback($this->connection)) {
             return $this->odbcRaiseError();
@@ -638,7 +648,7 @@ class DB_odbc extends DB_common
      * @see DB_common::raiseError(),
      *      DB_odbc::errorNative(), DB_common::errorCode()
      */
-    function odbcRaiseError($errno = null)
+    public function odbcRaiseError($errno = null)
     {
         if ($errno === null) {
             switch ($this->dbsyntax) {
@@ -664,9 +674,13 @@ class DB_odbc extends DB_common
                         }
                         foreach ($error_regexps as $regexp => $code) {
                             if (preg_match($regexp, $errormsg)) {
-                                return $this->raiseError($code,
-                                        null, null, null,
-                                        $native_code . ' ' . $errormsg);
+                                return $this->raiseError(
+                                    $code,
+                                    null,
+                                    null,
+                                    null,
+                                    $native_code . ' ' . $errormsg
+                                );
                             }
                         }
                         $errno = DB_ERROR;
@@ -678,8 +692,13 @@ class DB_odbc extends DB_common
                     $errno = $this->errorCode(odbc_error($this->connection));
             }
         }
-        return $this->raiseError($errno, null, null, null,
-                                 $this->errorNative());
+        return $this->raiseError(
+            $errno,
+            null,
+            null,
+            null,
+            $this->errorNative()
+        );
     }
 
     // }}}
@@ -690,7 +709,7 @@ class DB_odbc extends DB_common
      *
      * @return string  the DBMS' error code and message
      */
-    function errorNative()
+    public function errorNative()
     {
         if (!is_resource($this->connection)) {
             return @odbc_error() . ' ' . @odbc_errormsg();
@@ -717,7 +736,7 @@ class DB_odbc extends DB_common
      * @see DB_common::tableInfo()
      * @since Method available since Release 1.7.0
      */
-    function tableInfo($result, $mode = null)
+    public function tableInfo($result, $mode = null)
     {
         if (is_string($result)) {
             /*
@@ -803,7 +822,7 @@ class DB_odbc extends DB_common
      * @see DB_common::getListOf()
      * @since Method available since Release 1.7.0
      */
-    function getSpecialQuery($type)
+    public function getSpecialQuery($type)
     {
         switch ($type) {
             case 'databases':
@@ -813,9 +832,10 @@ class DB_odbc extends DB_common
                 $res = @odbc_data_source($this->connection, SQL_FETCH_FIRST);
                 if (is_array($res)) {
                     $out = array($res['server']);
-                    while($res = @odbc_data_source($this->connection,
-                                                   SQL_FETCH_NEXT))
-                    {
+                    while ($res = @odbc_data_source(
+                        $this->connection,
+                        SQL_FETCH_NEXT
+                    )) {
                         $out[] = $res['server'];
                     }
                     return $out;
@@ -858,7 +878,6 @@ class DB_odbc extends DB_common
     }
 
     // }}}
-
 }
 
 /*
@@ -867,5 +886,3 @@ class DB_odbc extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

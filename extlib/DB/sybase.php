@@ -57,13 +57,13 @@ class DB_sybase extends DB_common
      * The DB driver type (mysql, oci8, odbc, etc.)
      * @var string
      */
-    var $phptype = 'sybase';
+    public $phptype = 'sybase';
 
     /**
      * The database syntax variant to be used (db2, access, etc.), if any
      * @var string
      */
-    var $dbsyntax = 'sybase';
+    public $dbsyntax = 'sybase';
 
     /**
      * The capabilities of this DB implementation
@@ -78,7 +78,7 @@ class DB_sybase extends DB_common
      *
      * @var array
      */
-    var $features = array(
+    public $features = array(
         'limit'         => 'emulate',
         'new_link'      => false,
         'numrows'       => true,
@@ -92,20 +92,20 @@ class DB_sybase extends DB_common
      * A mapping of native error codes to DB error codes
      * @var array
      */
-    var $errorcode_map = array(
+    public $errorcode_map = array(
     );
 
     /**
      * The raw database connection created by PHP
      * @var resource
      */
-    var $connection;
+    public $connection;
 
     /**
      * The DSN information for connecting to a database
      * @var array
      */
-    var $dsn = array();
+    public $dsn = array();
 
 
     /**
@@ -113,7 +113,7 @@ class DB_sybase extends DB_common
      * @var bool
      * @access private
      */
-    var $autocommit = true;
+    public $autocommit = true;
 
     /**
      * The quantity of transactions begun
@@ -124,7 +124,7 @@ class DB_sybase extends DB_common
      * @var integer
      * @access private
      */
-    var $transaction_opcount = 0;
+    public $transaction_opcount = 0;
 
     /**
      * The database specified in the DSN
@@ -134,7 +134,7 @@ class DB_sybase extends DB_common
      * @var string
      * @access private
      */
-    var $_db = '';
+    public $_db = '';
 
 
     // }}}
@@ -145,7 +145,7 @@ class DB_sybase extends DB_common
      *
      * @return void
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
@@ -169,11 +169,10 @@ class DB_sybase extends DB_common
      *
      * @return int  DB_OK on success. A DB_Error object on failure.
      */
-    function connect($dsn, $persistent = false)
+    public function connect($dsn, $persistent = false)
     {
         if (!PEAR::loadExtension('sybase') &&
-            !PEAR::loadExtension('sybase_ct'))
-        {
+            !PEAR::loadExtension('sybase_ct')) {
             return $this->raiseError(DB_ERROR_EXTENSION_NOT_FOUND);
         }
 
@@ -190,28 +189,42 @@ class DB_sybase extends DB_common
         $connect_function = $persistent ? 'sybase_pconnect' : 'sybase_connect';
 
         if ($dsn['username']) {
-            $this->connection = @$connect_function($dsn['hostspec'],
-                                                   $dsn['username'],
-                                                   $dsn['password'],
-                                                   $dsn['charset'],
-                                                   $dsn['appname']);
+            $this->connection = @$connect_function(
+                $dsn['hostspec'],
+                $dsn['username'],
+                $dsn['password'],
+                $dsn['charset'],
+                $dsn['appname']
+            );
         } else {
-            return $this->raiseError(DB_ERROR_CONNECT_FAILED,
-                                     null, null, null,
-                                     'The DSN did not contain a username.');
+            return $this->raiseError(
+                DB_ERROR_CONNECT_FAILED,
+                null,
+                null,
+                null,
+                'The DSN did not contain a username.'
+            );
         }
 
         if (!$this->connection) {
-            return $this->raiseError(DB_ERROR_CONNECT_FAILED,
-                                     null, null, null,
-                                     @sybase_get_last_message());
+            return $this->raiseError(
+                DB_ERROR_CONNECT_FAILED,
+                null,
+                null,
+                null,
+                @sybase_get_last_message()
+            );
         }
 
         if ($dsn['database']) {
             if (!@sybase_select_db($dsn['database'], $this->connection)) {
-                return $this->raiseError(DB_ERROR_NODBSELECTED,
-                                         null, null, null,
-                                         @sybase_get_last_message());
+                return $this->raiseError(
+                    DB_ERROR_NODBSELECTED,
+                    null,
+                    null,
+                    null,
+                    @sybase_get_last_message()
+                );
             }
             $this->_db = $dsn['database'];
         }
@@ -227,7 +240,7 @@ class DB_sybase extends DB_common
      *
      * @return bool  TRUE on success, FALSE on failure
      */
-    function disconnect()
+    public function disconnect()
     {
         $ret = @sybase_close($this->connection);
         $this->connection = null;
@@ -246,7 +259,7 @@ class DB_sybase extends DB_common
      *                + the DB_OK constant for other successful queries
      *                + a DB_Error object on failure
      */
-    function simpleQuery($query)
+    public function simpleQuery($query)
     {
         $ismanip = $this->_checkManip($query);
         $this->last_query = $query;
@@ -287,7 +300,7 @@ class DB_sybase extends DB_common
      *
      * @return true if a result is available otherwise return false
      */
-    function nextResult($result)
+    public function nextResult($result)
     {
         return false;
     }
@@ -315,7 +328,7 @@ class DB_sybase extends DB_common
      *
      * @see DB_result::fetchInto()
      */
-    function fetchInto($result, &$arr, $fetchmode, $rownum = null)
+    public function fetchInto($result, &$arr, $fetchmode, $rownum = null)
     {
         if ($rownum !== null) {
             if (!@sybase_data_seek($result, $rownum)) {
@@ -368,7 +381,7 @@ class DB_sybase extends DB_common
      *
      * @see DB_result::free()
      */
-    function freeResult($result)
+    public function freeResult($result)
     {
         return is_resource($result) ? sybase_free_result($result) : false;
     }
@@ -389,7 +402,7 @@ class DB_sybase extends DB_common
      *
      * @see DB_result::numCols()
      */
-    function numCols($result)
+    public function numCols($result)
     {
         $cols = @sybase_num_fields($result);
         if (!$cols) {
@@ -414,7 +427,7 @@ class DB_sybase extends DB_common
      *
      * @see DB_result::numRows()
      */
-    function numRows($result)
+    public function numRows($result)
     {
         $rows = @sybase_num_rows($result);
         if ($rows === false) {
@@ -433,7 +446,7 @@ class DB_sybase extends DB_common
      *
      * @return int  the number of rows.  A DB_Error object on failure.
      */
-    function affectedRows()
+    public function affectedRows()
     {
         if ($this->_last_query_manip) {
             $result = @sybase_affected_rows($this->connection);
@@ -441,7 +454,7 @@ class DB_sybase extends DB_common
             $result = 0;
         }
         return $result;
-     }
+    }
 
     // }}}
     // {{{ nextId()
@@ -459,7 +472,7 @@ class DB_sybase extends DB_common
      * @see DB_common::nextID(), DB_common::getSequenceName(),
      *      DB_sybase::createSequence(), DB_sybase::dropSequence()
      */
-    function nextId($seq_name, $ondemand = true)
+    public function nextId($seq_name, $ondemand = true)
     {
         $seqname = $this->getSequenceName($seq_name);
         if ($this->_db && !@sybase_select_db($this->_db, $this->connection)) {
@@ -471,8 +484,7 @@ class DB_sybase extends DB_common
             $result = $this->query("INSERT INTO $seqname (vapor) VALUES (0)");
             $this->popErrorHandling();
             if ($ondemand && DB::isError($result) &&
-                ($result->getCode() == DB_ERROR || $result->getCode() == DB_ERROR_NOSUCHTABLE))
-            {
+                ($result->getCode() == DB_ERROR || $result->getCode() == DB_ERROR_NOSUCHTABLE)) {
                 $repeat = 1;
                 $result = $this->createSequence($seq_name);
                 if (DB::isError($result)) {
@@ -502,7 +514,7 @@ class DB_sybase extends DB_common
      * @see DB_common::createSequence(), DB_common::getSequenceName(),
      *      DB_sybase::nextID(), DB_sybase::dropSequence()
      */
-    function createSequence($seq_name)
+    public function createSequence($seq_name)
     {
         return $this->query('CREATE TABLE '
                             . $this->getSequenceName($seq_name)
@@ -523,7 +535,7 @@ class DB_sybase extends DB_common
      * @see DB_common::dropSequence(), DB_common::getSequenceName(),
      *      DB_sybase::nextID(), DB_sybase::createSequence()
      */
-    function dropSequence($seq_name)
+    public function dropSequence($seq_name)
     {
         return $this->query('DROP TABLE ' . $this->getSequenceName($seq_name));
     }
@@ -540,7 +552,8 @@ class DB_sybase extends DB_common
      * @see DB_common::quoteSmart()
      * @since Method available since release 1.7.8.
      */
-    function quoteFloat($float) {
+    public function quoteFloat($float)
+    {
         return $this->escapeSimple(str_replace(',', '.', strval(floatval($float))));
     }
      
@@ -555,7 +568,7 @@ class DB_sybase extends DB_common
      * @return int  DB_OK on success.  A DB_Error object if the driver
      *               doesn't support auto-committing transactions.
      */
-    function autoCommit($onoff = false)
+    public function autoCommit($onoff = false)
     {
         // XXX if $this->transaction_opcount > 0, we should probably
         // issue a warning here.
@@ -571,7 +584,7 @@ class DB_sybase extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function commit()
+    public function commit()
     {
         if ($this->transaction_opcount > 0) {
             if ($this->_db && !@sybase_select_db($this->_db, $this->connection)) {
@@ -594,7 +607,7 @@ class DB_sybase extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function rollback()
+    public function rollback()
     {
         if ($this->transaction_opcount > 0) {
             if ($this->_db && !@sybase_select_db($this->_db, $this->connection)) {
@@ -624,7 +637,7 @@ class DB_sybase extends DB_common
      * @see DB_common::raiseError(),
      *      DB_sybase::errorNative(), DB_sybase::errorCode()
      */
-    function sybaseRaiseError($errno = null)
+    public function sybaseRaiseError($errno = null)
     {
         $native = $this->errorNative();
         if ($errno === null) {
@@ -641,7 +654,7 @@ class DB_sybase extends DB_common
      *
      * @return string  the DBMS' error message
      */
-    function errorNative()
+    public function errorNative()
     {
         return @sybase_get_last_message();
     }
@@ -655,7 +668,7 @@ class DB_sybase extends DB_common
      * @param  string  $errormsg  error message returned from the database
      * @return integer  an error number from a DB error constant
      */
-    function errorCode($errormsg)
+    public function errorCode($errormsg)
     {
         static $error_regexps;
         
@@ -730,7 +743,7 @@ class DB_sybase extends DB_common
      * @see DB_common::tableInfo()
      * @since Method available since Release 1.6.0
      */
-    function tableInfo($result, $mode = null)
+    public function tableInfo($result, $mode = null)
     {
         if (is_string($result)) {
             /*
@@ -740,8 +753,10 @@ class DB_sybase extends DB_common
             if ($this->_db && !@sybase_select_db($this->_db, $this->connection)) {
                 return $this->sybaseRaiseError(DB_ERROR_NODBSELECTED);
             }
-            $id = @sybase_query("SELECT * FROM $result WHERE 1=0",
-                                $this->connection);
+            $id = @sybase_query(
+                "SELECT * FROM $result WHERE 1=0",
+                $this->connection
+            );
             $got_string = true;
         } elseif (isset($result->result)) {
             /*
@@ -791,7 +806,9 @@ class DB_sybase extends DB_common
             );
             if ($res[$i]['table']) {
                 $res[$i]['flags'] = $this->_sybase_field_flags(
-                        $res[$i]['table'], $res[$i]['name']);
+                    $res[$i]['table'],
+                    $res[$i]['name']
+                );
             }
             if ($mode & DB_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
@@ -825,7 +842,7 @@ class DB_sybase extends DB_common
      *
      * @access private
      */
-    function _sybase_field_flags($table, $column)
+    public function _sybase_field_flags($table, $column)
     {
         static $tableName = null;
         static $flags = array();
@@ -868,7 +885,6 @@ class DB_sybase extends DB_common
             }
 
             sybase_free_result($res);
-
         }
 
         if (array_key_exists($column, $flags)) {
@@ -892,7 +908,7 @@ class DB_sybase extends DB_common
      *
      * @access private
      */
-    function _add_flag(&$array, $value)
+    public function _add_flag(&$array, $value)
     {
         if (!is_array($array)) {
             $array = array($value);
@@ -915,7 +931,7 @@ class DB_sybase extends DB_common
      * @access protected
      * @see DB_common::getListOf()
      */
-    function getSpecialQuery($type)
+    public function getSpecialQuery($type)
     {
         switch ($type) {
             case 'tables':
@@ -929,7 +945,6 @@ class DB_sybase extends DB_common
     }
 
     // }}}
-
 }
 
 /*
@@ -938,5 +953,3 @@ class DB_sybase extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

@@ -61,13 +61,13 @@ class DB_ibase extends DB_common
      * The DB driver type (mysql, oci8, odbc, etc.)
      * @var string
      */
-    var $phptype = 'ibase';
+    public $phptype = 'ibase';
 
     /**
      * The database syntax variant to be used (db2, access, etc.), if any
      * @var string
      */
-    var $dbsyntax = 'ibase';
+    public $dbsyntax = 'ibase';
 
     /**
      * The capabilities of this DB implementation
@@ -84,7 +84,7 @@ class DB_ibase extends DB_common
      *
      * @var array
      */
-    var $features = array(
+    public $features = array(
         'limit'         => false,
         'new_link'      => false,
         'numrows'       => 'emulate',
@@ -98,7 +98,7 @@ class DB_ibase extends DB_common
      * A mapping of native error codes to DB error codes
      * @var array
      */
-    var $errorcode_map = array(
+    public $errorcode_map = array(
         -104 => DB_ERROR_SYNTAX,
         -150 => DB_ERROR_ACCESS_VIOLATION,
         -151 => DB_ERROR_ACCESS_VIOLATION,
@@ -134,13 +134,13 @@ class DB_ibase extends DB_common
      * The raw database connection created by PHP
      * @var resource
      */
-    var $connection;
+    public $connection;
 
     /**
      * The DSN information for connecting to a database
      * @var array
      */
-    var $dsn = array();
+    public $dsn = array();
 
 
     /**
@@ -148,14 +148,14 @@ class DB_ibase extends DB_common
      * @var integer
      * @access private
      */
-    var $affected = 0;
+    public $affected = 0;
 
     /**
      * Should data manipulation queries be committed automatically?
      * @var bool
      * @access private
      */
-    var $autocommit = true;
+    public $autocommit = true;
 
     /**
      * The prepared statement handle from the most recently executed statement
@@ -166,14 +166,14 @@ class DB_ibase extends DB_common
      *
      * @var resource
      */
-    var $last_stmt;
+    public $last_stmt;
 
     /**
      * Is the given prepared statement a data manipulation query?
      * @var array
      * @access private
      */
-    var $manip_query = array();
+    public $manip_query = array();
 
 
     // }}}
@@ -184,7 +184,7 @@ class DB_ibase extends DB_common
      *
      * @return void
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
@@ -212,7 +212,7 @@ class DB_ibase extends DB_common
      *
      * @return int  DB_OK on success. A DB_Error object on failure.
      */
-    function connect($dsn, $persistent = false)
+    public function connect($dsn, $persistent = false)
     {
         if (!PEAR::loadExtension('interbase')) {
             return $this->raiseError(DB_ERROR_EXTENSION_NOT_FOUND);
@@ -255,7 +255,7 @@ class DB_ibase extends DB_common
      *
      * @return bool  TRUE on success, FALSE on failure
      */
-    function disconnect()
+    public function disconnect()
     {
         $ret = @ibase_close($this->connection);
         $this->connection = null;
@@ -274,7 +274,7 @@ class DB_ibase extends DB_common
      *                + the DB_OK constant for other successful queries
      *                + a DB_Error object on failure
      */
-    function simpleQuery($query)
+    public function simpleQuery($query)
     {
         $ismanip = $this->_checkManip($query);
         $this->last_query = $query;
@@ -317,11 +317,14 @@ class DB_ibase extends DB_common
      *
      * @access protected
      */
-    function modifyLimitQuery($query, $from, $count, $params = array())
+    public function modifyLimitQuery($query, $from, $count, $params = array())
     {
         if ($this->dsn['dbsyntax'] == 'firebird') {
-            $query = preg_replace('/^([\s(])*SELECT/i',
-                                  "SELECT FIRST $count SKIP $from", $query);
+            $query = preg_replace(
+                '/^([\s(])*SELECT/i',
+                "SELECT FIRST $count SKIP $from",
+                $query
+            );
         }
         return $query;
     }
@@ -338,7 +341,7 @@ class DB_ibase extends DB_common
      *
      * @return true if a result is available otherwise return false
      */
-    function nextResult($result)
+    public function nextResult($result)
     {
         return false;
     }
@@ -366,7 +369,7 @@ class DB_ibase extends DB_common
      *
      * @see DB_result::fetchInto()
      */
-    function fetchInto($result, &$arr, $fetchmode, $rownum = null)
+    public function fetchInto($result, &$arr, $fetchmode, $rownum = null)
     {
         if ($rownum !== null) {
             return $this->ibaseRaiseError(DB_ERROR_NOT_CAPABLE);
@@ -411,7 +414,7 @@ class DB_ibase extends DB_common
      *
      * @see DB_result::free()
      */
-    function freeResult($result)
+    public function freeResult($result)
     {
         return is_resource($result) ? ibase_free_result($result) : false;
     }
@@ -419,7 +422,7 @@ class DB_ibase extends DB_common
     // }}}
     // {{{ freeQuery()
 
-    function freeQuery($query)
+    public function freeQuery($query)
     {
         return is_resource($query) ? ibase_free_query($query) : false;
     }
@@ -434,7 +437,7 @@ class DB_ibase extends DB_common
      *
      * @return int  the number of rows.  A DB_Error object on failure.
      */
-    function affectedRows()
+    public function affectedRows()
     {
         if (is_integer($this->affected)) {
             return $this->affected;
@@ -458,7 +461,7 @@ class DB_ibase extends DB_common
      *
      * @see DB_result::numCols()
      */
-    function numCols($result)
+    public function numCols($result)
     {
         $cols = @ibase_num_fields($result);
         if (!$cols) {
@@ -492,10 +495,14 @@ class DB_ibase extends DB_common
      * @param string $query query to be prepared
      * @return mixed DB statement resource on success. DB_Error on failure.
      */
-    function prepare($query)
+    public function prepare($query)
     {
-        $tokens   = preg_split('/((?<!\\\)[&?!])/', $query, -1,
-                               PREG_SPLIT_DELIM_CAPTURE);
+        $tokens   = preg_split(
+            '/((?<!\\\)[&?!])/',
+            $query,
+            -1,
+            PREG_SPLIT_DELIM_CAPTURE
+        );
         $token    = 0;
         $types    = array();
         $newquery = '';
@@ -548,7 +555,7 @@ class DB_ibase extends DB_common
      * @see DB_ibase::prepare()
      * @access public
      */
-    function &execute($stmt, $data = array())
+    public function &execute($stmt, $data = array())
     {
         $data = (array)$data;
         $this->last_parameters = $data;
@@ -618,7 +625,7 @@ class DB_ibase extends DB_common
      *
      * @see DB_ibase::prepare()
      */
-    function freePrepared($stmt, $free_resource = true)
+    public function freePrepared($stmt, $free_resource = true)
     {
         if (!is_resource($stmt)) {
             return false;
@@ -643,7 +650,7 @@ class DB_ibase extends DB_common
      * @return int  DB_OK on success.  A DB_Error object if the driver
      *               doesn't support auto-committing transactions.
      */
-    function autoCommit($onoff = false)
+    public function autoCommit($onoff = false)
     {
         $this->autocommit = $onoff ? 1 : 0;
         return DB_OK;
@@ -657,7 +664,7 @@ class DB_ibase extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function commit()
+    public function commit()
     {
         return @ibase_commit($this->connection);
     }
@@ -670,7 +677,7 @@ class DB_ibase extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function rollback()
+    public function rollback()
     {
         return @ibase_rollback($this->connection);
     }
@@ -678,7 +685,7 @@ class DB_ibase extends DB_common
     // }}}
     // {{{ transactionInit()
 
-    function transactionInit($trans_args = 0)
+    public function transactionInit($trans_args = 0)
     {
         return $trans_args
                 ? @ibase_trans($trans_args, $this->connection)
@@ -701,7 +708,7 @@ class DB_ibase extends DB_common
      * @see DB_common::nextID(), DB_common::getSequenceName(),
      *      DB_ibase::createSequence(), DB_ibase::dropSequence()
      */
-    function nextId($seq_name, $ondemand = true)
+    public function nextId($seq_name, $ondemand = true)
     {
         $sqn = strtoupper($this->getSequenceName($seq_name));
         $repeat = 0;
@@ -742,7 +749,7 @@ class DB_ibase extends DB_common
      * @see DB_common::createSequence(), DB_common::getSequenceName(),
      *      DB_ibase::nextID(), DB_ibase::dropSequence()
      */
-    function createSequence($seq_name)
+    public function createSequence($seq_name)
     {
         $sqn = strtoupper($this->getSequenceName($seq_name));
         $this->pushErrorHandling(PEAR_ERROR_RETURN);
@@ -765,7 +772,7 @@ class DB_ibase extends DB_common
      * @see DB_common::dropSequence(), DB_common::getSequenceName(),
      *      DB_ibase::nextID(), DB_ibase::createSequence()
      */
-    function dropSequence($seq_name)
+    public function dropSequence($seq_name)
     {
         return $this->query('DELETE FROM RDB$GENERATORS '
                             . "WHERE RDB\$GENERATOR_NAME='"
@@ -789,7 +796,7 @@ class DB_ibase extends DB_common
      *
      * @access private
      */
-    function _ibaseFieldFlags($field_name, $table_name)
+    public function _ibaseFieldFlags($field_name, $table_name)
     {
         $sql = 'SELECT R.RDB$CONSTRAINT_TYPE CTYPE'
                .' FROM RDB$INDEX_SEGMENTS I'
@@ -860,7 +867,7 @@ class DB_ibase extends DB_common
      * @see DB_common::raiseError(),
      *      DB_ibase::errorNative(), DB_ibase::errorCode()
      */
-    function &ibaseRaiseError($errno = null)
+    public function &ibaseRaiseError($errno = null)
     {
         if ($errno === null) {
             $errno = $this->errorCode($this->errorNative());
@@ -879,13 +886,16 @@ class DB_ibase extends DB_common
      *
      * @since Method available since Release 1.7.0
      */
-    function errorNative()
+    public function errorNative()
     {
         if (function_exists('ibase_errcode')) {
             return @ibase_errcode();
         }
-        if (preg_match('/^Dynamic SQL Error SQL error code = ([0-9-]+)/i',
-                       @ibase_errmsg(), $m)) {
+        if (preg_match(
+            '/^Dynamic SQL Error SQL error code = ([0-9-]+)/i',
+            @ibase_errmsg(),
+            $m
+        )) {
             return (int)$m[1];
         }
         return null;
@@ -905,7 +915,7 @@ class DB_ibase extends DB_common
      *
      * @since Method available since Release 1.7.0
      */
-    function errorCode($nativecode = null)
+    public function errorCode($nativecode = null)
     {
         if (isset($this->errorcode_map[$nativecode])) {
             return $this->errorcode_map[$nativecode];
@@ -969,15 +979,17 @@ class DB_ibase extends DB_common
      *
      * @see DB_common::tableInfo()
      */
-    function tableInfo($result, $mode = null)
+    public function tableInfo($result, $mode = null)
     {
         if (is_string($result)) {
             /*
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = @ibase_query($this->connection,
-                               "SELECT * FROM $result WHERE 1=0");
+            $id = @ibase_query(
+                $this->connection,
+                "SELECT * FROM $result WHERE 1=0"
+            );
             $got_string = true;
         } elseif (isset($result->result)) {
             /*
@@ -1053,7 +1065,7 @@ class DB_ibase extends DB_common
      * @access protected
      * @see DB_common::getListOf()
      */
-    function getSpecialQuery($type)
+    public function getSpecialQuery($type)
     {
         switch ($type) {
             case 'tables':
@@ -1069,7 +1081,6 @@ class DB_ibase extends DB_common
     }
 
     // }}}
-
 }
 
 /*
@@ -1078,5 +1089,3 @@ class DB_ibase extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

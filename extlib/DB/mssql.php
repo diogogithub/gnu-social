@@ -60,13 +60,13 @@ class DB_mssql extends DB_common
      * The DB driver type (mysql, oci8, odbc, etc.)
      * @var string
      */
-    var $phptype = 'mssql';
+    public $phptype = 'mssql';
 
     /**
      * The database syntax variant to be used (db2, access, etc.), if any
      * @var string
      */
-    var $dbsyntax = 'mssql';
+    public $dbsyntax = 'mssql';
 
     /**
      * The capabilities of this DB implementation
@@ -81,7 +81,7 @@ class DB_mssql extends DB_common
      *
      * @var array
      */
-    var $features = array(
+    public $features = array(
         'limit'         => 'emulate',
         'new_link'      => false,
         'numrows'       => true,
@@ -96,7 +96,7 @@ class DB_mssql extends DB_common
      * @var array
      */
     // XXX Add here error codes ie: 'S100E' => DB_ERROR_SYNTAX
-    var $errorcode_map = array(
+    public $errorcode_map = array(
         102   => DB_ERROR_SYNTAX,
         110   => DB_ERROR_VALUE_COUNT_ON_ROW,
         155   => DB_ERROR_NOSUCHFIELD,
@@ -137,13 +137,13 @@ class DB_mssql extends DB_common
      * The raw database connection created by PHP
      * @var resource
      */
-    var $connection;
+    public $connection;
 
     /**
      * The DSN information for connecting to a database
      * @var array
      */
-    var $dsn = array();
+    public $dsn = array();
 
 
     /**
@@ -151,7 +151,7 @@ class DB_mssql extends DB_common
      * @var bool
      * @access private
      */
-    var $autocommit = true;
+    public $autocommit = true;
 
     /**
      * The quantity of transactions begun
@@ -162,7 +162,7 @@ class DB_mssql extends DB_common
      * @var integer
      * @access private
      */
-    var $transaction_opcount = 0;
+    public $transaction_opcount = 0;
 
     /**
      * The database specified in the DSN
@@ -172,7 +172,7 @@ class DB_mssql extends DB_common
      * @var string
      * @access private
      */
-    var $_db = null;
+    public $_db = null;
 
 
     // }}}
@@ -183,7 +183,7 @@ class DB_mssql extends DB_common
      *
      * @return void
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
@@ -201,11 +201,10 @@ class DB_mssql extends DB_common
      *
      * @return int  DB_OK on success. A DB_Error object on failure.
      */
-    function connect($dsn, $persistent = false)
+    public function connect($dsn, $persistent = false)
     {
         if (!PEAR::loadExtension('mssql') && !PEAR::loadExtension('sybase')
-            && !PEAR::loadExtension('sybase_ct'))
-        {
+            && !PEAR::loadExtension('sybase_ct')) {
             return $this->raiseError(DB_ERROR_EXTENSION_NOT_FOUND);
         }
 
@@ -229,15 +228,23 @@ class DB_mssql extends DB_common
         $this->connection = @call_user_func_array($connect_function, $params);
 
         if (!$this->connection) {
-            return $this->raiseError(DB_ERROR_CONNECT_FAILED,
-                                     null, null, null,
-                                     @mssql_get_last_message());
+            return $this->raiseError(
+                DB_ERROR_CONNECT_FAILED,
+                null,
+                null,
+                null,
+                @mssql_get_last_message()
+            );
         }
         if ($dsn['database']) {
             if (!@mssql_select_db($dsn['database'], $this->connection)) {
-                return $this->raiseError(DB_ERROR_NODBSELECTED,
-                                         null, null, null,
-                                         @mssql_get_last_message());
+                return $this->raiseError(
+                    DB_ERROR_NODBSELECTED,
+                    null,
+                    null,
+                    null,
+                    @mssql_get_last_message()
+                );
             }
             $this->_db = $dsn['database'];
         }
@@ -252,7 +259,7 @@ class DB_mssql extends DB_common
      *
      * @return bool  TRUE on success, FALSE on failure
      */
-    function disconnect()
+    public function disconnect()
     {
         $ret = @mssql_close($this->connection);
         $this->connection = null;
@@ -271,7 +278,7 @@ class DB_mssql extends DB_common
      *                + the DB_OK constant for other successful queries
      *                + a DB_Error object on failure
      */
-    function simpleQuery($query)
+    public function simpleQuery($query)
     {
         $ismanip = $this->_checkManip($query);
         $this->last_query = $query;
@@ -309,7 +316,7 @@ class DB_mssql extends DB_common
      *
      * @return true if a result is available otherwise return false
      */
-    function nextResult($result)
+    public function nextResult($result)
     {
         return @mssql_next_result($result);
     }
@@ -337,7 +344,7 @@ class DB_mssql extends DB_common
      *
      * @see DB_result::fetchInto()
      */
-    function fetchInto($result, &$arr, $fetchmode, $rownum = null)
+    public function fetchInto($result, &$arr, $fetchmode, $rownum = null)
     {
         if ($rownum !== null) {
             if (!@mssql_data_seek($result, $rownum)) {
@@ -380,7 +387,7 @@ class DB_mssql extends DB_common
      *
      * @see DB_result::free()
      */
-    function freeResult($result)
+    public function freeResult($result)
     {
         return is_resource($result) ? mssql_free_result($result) : false;
     }
@@ -401,7 +408,7 @@ class DB_mssql extends DB_common
      *
      * @see DB_result::numCols()
      */
-    function numCols($result)
+    public function numCols($result)
     {
         $cols = @mssql_num_fields($result);
         if (!$cols) {
@@ -426,7 +433,7 @@ class DB_mssql extends DB_common
      *
      * @see DB_result::numRows()
      */
-    function numRows($result)
+    public function numRows($result)
     {
         $rows = @mssql_num_rows($result);
         if ($rows === false) {
@@ -446,7 +453,7 @@ class DB_mssql extends DB_common
      * @return int  DB_OK on success.  A DB_Error object if the driver
      *               doesn't support auto-committing transactions.
      */
-    function autoCommit($onoff = false)
+    public function autoCommit($onoff = false)
     {
         // XXX if $this->transaction_opcount > 0, we should probably
         // issue a warning here.
@@ -462,7 +469,7 @@ class DB_mssql extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function commit()
+    public function commit()
     {
         if ($this->transaction_opcount > 0) {
             if (!@mssql_select_db($this->_db, $this->connection)) {
@@ -485,7 +492,7 @@ class DB_mssql extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function rollback()
+    public function rollback()
     {
         if ($this->transaction_opcount > 0) {
             if (!@mssql_select_db($this->_db, $this->connection)) {
@@ -510,7 +517,7 @@ class DB_mssql extends DB_common
      *
      * @return int  the number of rows.  A DB_Error object on failure.
      */
-    function affectedRows()
+    public function affectedRows()
     {
         if ($this->_last_query_manip) {
             $res = @mssql_query('select @@rowcount', $this->connection);
@@ -546,7 +553,7 @@ class DB_mssql extends DB_common
      * @see DB_common::nextID(), DB_common::getSequenceName(),
      *      DB_mssql::createSequence(), DB_mssql::dropSequence()
      */
-    function nextId($seq_name, $ondemand = true)
+    public function nextId($seq_name, $ondemand = true)
     {
         $seqname = $this->getSequenceName($seq_name);
         if (!@mssql_select_db($this->_db, $this->connection)) {
@@ -558,8 +565,7 @@ class DB_mssql extends DB_common
             $result = $this->query("INSERT INTO $seqname (vapor) VALUES (0)");
             $this->popErrorHandling();
             if ($ondemand && DB::isError($result) &&
-                ($result->getCode() == DB_ERROR || $result->getCode() == DB_ERROR_NOSUCHTABLE))
-            {
+                ($result->getCode() == DB_ERROR || $result->getCode() == DB_ERROR_NOSUCHTABLE)) {
                 $repeat = 1;
                 $result = $this->createSequence($seq_name);
                 if (DB::isError($result)) {
@@ -597,7 +603,7 @@ class DB_mssql extends DB_common
      * @see DB_common::createSequence(), DB_common::getSequenceName(),
      *      DB_mssql::nextID(), DB_mssql::dropSequence()
      */
-    function createSequence($seq_name)
+    public function createSequence($seq_name)
     {
         return $this->query('CREATE TABLE '
                             . $this->getSequenceName($seq_name)
@@ -618,7 +624,7 @@ class DB_mssql extends DB_common
      * @see DB_common::dropSequence(), DB_common::getSequenceName(),
      *      DB_mssql::nextID(), DB_mssql::createSequence()
      */
-    function dropSequence($seq_name)
+    public function dropSequence($seq_name)
     {
         return $this->query('DROP TABLE ' . $this->getSequenceName($seq_name));
     }
@@ -635,7 +641,7 @@ class DB_mssql extends DB_common
      * @see DB_common::quoteSmart()
      * @since Method available since Release 1.6.0
      */
-    function escapeSimple($str)
+    public function escapeSimple($str)
     {
         return str_replace(
             array("'", "\\\r\n", "\\\n"),
@@ -657,7 +663,7 @@ class DB_mssql extends DB_common
      * @see DB_common::quoteIdentifier()
      * @since Method available since Release 1.6.0
      */
-    function quoteIdentifier($str)
+    public function quoteIdentifier($str)
     {
         return '[' . str_replace(']', ']]', $str) . ']';
     }
@@ -677,14 +683,19 @@ class DB_mssql extends DB_common
      * @see DB_common::raiseError(),
      *      DB_mssql::errorNative(), DB_mssql::errorCode()
      */
-    function mssqlRaiseError($code = null)
+    public function mssqlRaiseError($code = null)
     {
         $message = @mssql_get_last_message();
         if (!$code) {
             $code = $this->errorNative();
         }
-        return $this->raiseError($this->errorCode($code, $message),
-                                 null, null, null, "$code - $message");
+        return $this->raiseError(
+            $this->errorCode($code, $message),
+            null,
+            null,
+            null,
+            "$code - $message"
+        );
     }
 
     // }}}
@@ -695,7 +706,7 @@ class DB_mssql extends DB_common
      *
      * @return int  the DBMS' error code
      */
-    function errorNative()
+    public function errorNative()
     {
         $res = @mssql_query('select @@ERROR as ErrorCode', $this->connection);
         if (!$res) {
@@ -717,15 +728,14 @@ class DB_mssql extends DB_common
      * @return integer  an error number from a DB error constant
      * @see errorNative()
      */
-    function errorCode($nativecode = null, $msg = '')
+    public function errorCode($nativecode = null, $msg = '')
     {
         if (!$nativecode) {
             $nativecode = $this->errorNative();
         }
         if (isset($this->errorcode_map[$nativecode])) {
             if ($nativecode == 3701
-                && preg_match('/Cannot drop the index/i', $msg))
-            {
+                && preg_match('/Cannot drop the index/i', $msg)) {
                 return DB_ERROR_NOT_FOUND;
             }
             return $this->errorcode_map[$nativecode];
@@ -755,7 +765,7 @@ class DB_mssql extends DB_common
      *
      * @see DB_common::tableInfo()
      */
-    function tableInfo($result, $mode = null)
+    public function tableInfo($result, $mode = null)
     {
         if (is_string($result)) {
             /*
@@ -765,8 +775,10 @@ class DB_mssql extends DB_common
             if (!@mssql_select_db($this->_db, $this->connection)) {
                 return $this->mssqlRaiseError(DB_ERROR_NODBSELECTED);
             }
-            $id = @mssql_query("SELECT * FROM $result WHERE 1=0",
-                               $this->connection);
+            $id = @mssql_query(
+                "SELECT * FROM $result WHERE 1=0",
+                $this->connection
+            );
             $got_string = true;
         } elseif (isset($result->result)) {
             /*
@@ -804,8 +816,10 @@ class DB_mssql extends DB_common
 
         for ($i = 0; $i < $count; $i++) {
             if ($got_string) {
-                $flags = $this->_mssql_field_flags($result,
-                        @mssql_field_name($id, $i));
+                $flags = $this->_mssql_field_flags(
+                    $result,
+                    @mssql_field_name($id, $i)
+                );
                 if (DB::isError($flags)) {
                     return $flags;
                 }
@@ -858,13 +872,12 @@ class DB_mssql extends DB_common
      * @access private
      * @author Joern Barthel <j_barthel@web.de>
      */
-    function _mssql_field_flags($table, $column)
+    public function _mssql_field_flags($table, $column)
     {
         static $tableName = null;
         static $flags = array();
 
         if ($table != $tableName) {
-
             $flags = array();
             $tableName = $table;
 
@@ -935,7 +948,7 @@ class DB_mssql extends DB_common
      * @access private
      * @author Joern Barthel <j_barthel@web.de>
      */
-    function _add_flag(&$array, $value)
+    public function _add_flag(&$array, $value)
     {
         if (!is_array($array)) {
             $array = array($value);
@@ -958,7 +971,7 @@ class DB_mssql extends DB_common
      * @access protected
      * @see DB_common::getListOf()
      */
-    function getSpecialQuery($type)
+    public function getSpecialQuery($type)
     {
         switch ($type) {
             case 'tables':
@@ -980,5 +993,3 @@ class DB_mssql extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

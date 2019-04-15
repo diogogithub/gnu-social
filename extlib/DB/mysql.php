@@ -52,13 +52,13 @@ class DB_mysql extends DB_common
      * The DB driver type (mysql, oci8, odbc, etc.)
      * @var string
      */
-    var $phptype = 'mysql';
+    public $phptype = 'mysql';
 
     /**
      * The database syntax variant to be used (db2, access, etc.), if any
      * @var string
      */
-    var $dbsyntax = 'mysql';
+    public $dbsyntax = 'mysql';
 
     /**
      * The capabilities of this DB implementation
@@ -73,7 +73,7 @@ class DB_mysql extends DB_common
      *
      * @var array
      */
-    var $features = array(
+    public $features = array(
         'limit'         => 'alter',
         'new_link'      => '4.2.0',
         'numrows'       => true,
@@ -87,7 +87,7 @@ class DB_mysql extends DB_common
      * A mapping of native error codes to DB error codes
      * @var array
      */
-    var $errorcode_map = array(
+    public $errorcode_map = array(
         1004 => DB_ERROR_CANNOT_CREATE,
         1005 => DB_ERROR_CANNOT_CREATE,
         1006 => DB_ERROR_CANNOT_CREATE,
@@ -120,13 +120,13 @@ class DB_mysql extends DB_common
      * The raw database connection created by PHP
      * @var resource
      */
-    var $connection;
+    public $connection;
 
     /**
      * The DSN information for connecting to a database
      * @var array
      */
-    var $dsn = array();
+    public $dsn = array();
 
 
     /**
@@ -134,7 +134,7 @@ class DB_mysql extends DB_common
      * @var bool
      * @access private
      */
-    var $autocommit = true;
+    public $autocommit = true;
 
     /**
      * The quantity of transactions begun
@@ -145,7 +145,7 @@ class DB_mysql extends DB_common
      * @var integer
      * @access private
      */
-    var $transaction_opcount = 0;
+    public $transaction_opcount = 0;
 
     /**
      * The database specified in the DSN
@@ -155,7 +155,7 @@ class DB_mysql extends DB_common
      * @var string
      * @access private
      */
-    var $_db = '';
+    public $_db = '';
 
 
     // }}}
@@ -166,7 +166,7 @@ class DB_mysql extends DB_common
      *
      * @return void
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
@@ -193,7 +193,7 @@ class DB_mysql extends DB_common
      *
      * @return int  DB_OK on success. A DB_Error object on failure.
      */
-    function connect($dsn, $persistent = false)
+    public function connect($dsn, $persistent = false)
     {
         if (!PEAR::loadExtension('mysql')) {
             return $this->raiseError(DB_ERROR_EXTENSION_NOT_FOUND);
@@ -219,8 +219,7 @@ class DB_mysql extends DB_common
 
         if (!$persistent) {
             if (isset($dsn['new_link'])
-                && ($dsn['new_link'] == 'true' || $dsn['new_link'] === true))
-            {
+                && ($dsn['new_link'] == 'true' || $dsn['new_link'] === true)) {
                 $params[] = true;
             } else {
                 $params[] = false;
@@ -236,24 +235,36 @@ class DB_mysql extends DB_common
         $ini = ini_get('track_errors');
         $php_errormsg = '';
         if ($ini) {
-            $this->connection = @call_user_func_array($connect_function,
-                                                      $params);
+            $this->connection = @call_user_func_array(
+                $connect_function,
+                $params
+            );
         } else {
             @ini_set('track_errors', 1);
-            $this->connection = @call_user_func_array($connect_function,
-                                                      $params);
+            $this->connection = @call_user_func_array(
+                $connect_function,
+                $params
+            );
             @ini_set('track_errors', $ini);
         }
 
         if (!$this->connection) {
             if (($err = @mysql_error()) != '') {
-                return $this->raiseError(DB_ERROR_CONNECT_FAILED,
-                                         null, null, null, 
-                                         $err);
+                return $this->raiseError(
+                    DB_ERROR_CONNECT_FAILED,
+                    null,
+                    null,
+                    null,
+                    $err
+                );
             } else {
-                return $this->raiseError(DB_ERROR_CONNECT_FAILED,
-                                         null, null, null,
-                                         $php_errormsg);
+                return $this->raiseError(
+                    DB_ERROR_CONNECT_FAILED,
+                    null,
+                    null,
+                    null,
+                    $php_errormsg
+                );
             }
         }
 
@@ -275,7 +286,7 @@ class DB_mysql extends DB_common
      *
      * @return bool  TRUE on success, FALSE on failure
      */
-    function disconnect()
+    public function disconnect()
     {
         $ret = @mysql_close($this->connection);
         $this->connection = null;
@@ -298,7 +309,7 @@ class DB_mysql extends DB_common
      *                + the DB_OK constant for other successful queries
      *                + a DB_Error object on failure
      */
-    function simpleQuery($query)
+    public function simpleQuery($query)
     {
         $ismanip = $this->_checkManip($query);
         $this->last_query = $query;
@@ -344,7 +355,7 @@ class DB_mysql extends DB_common
      *
      * @return false
      */
-    function nextResult($result)
+    public function nextResult($result)
     {
         return false;
     }
@@ -372,7 +383,7 @@ class DB_mysql extends DB_common
      *
      * @see DB_result::fetchInto()
      */
-    function fetchInto($result, &$arr, $fetchmode, $rownum = null)
+    public function fetchInto($result, &$arr, $fetchmode, $rownum = null)
     {
         if ($rownum !== null) {
             if (!@mysql_data_seek($result, $rownum)) {
@@ -420,7 +431,7 @@ class DB_mysql extends DB_common
      *
      * @see DB_result::free()
      */
-    function freeResult($result)
+    public function freeResult($result)
     {
         return is_resource($result) ? mysql_free_result($result) : false;
     }
@@ -441,7 +452,7 @@ class DB_mysql extends DB_common
      *
      * @see DB_result::numCols()
      */
-    function numCols($result)
+    public function numCols($result)
     {
         $cols = @mysql_num_fields($result);
         if (!$cols) {
@@ -466,7 +477,7 @@ class DB_mysql extends DB_common
      *
      * @see DB_result::numRows()
      */
-    function numRows($result)
+    public function numRows($result)
     {
         $rows = @mysql_num_rows($result);
         if ($rows === null) {
@@ -486,7 +497,7 @@ class DB_mysql extends DB_common
      * @return int  DB_OK on success.  A DB_Error object if the driver
      *               doesn't support auto-committing transactions.
      */
-    function autoCommit($onoff = false)
+    public function autoCommit($onoff = false)
     {
         // XXX if $this->transaction_opcount > 0, we should probably
         // issue a warning here.
@@ -502,7 +513,7 @@ class DB_mysql extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function commit()
+    public function commit()
     {
         if ($this->transaction_opcount > 0) {
             if ($this->_db) {
@@ -528,7 +539,7 @@ class DB_mysql extends DB_common
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      */
-    function rollback()
+    public function rollback()
     {
         if ($this->transaction_opcount > 0) {
             if ($this->_db) {
@@ -556,14 +567,14 @@ class DB_mysql extends DB_common
      *
      * @return int  the number of rows.  A DB_Error object on failure.
      */
-    function affectedRows()
+    public function affectedRows()
     {
         if ($this->_last_query_manip) {
             return @mysql_affected_rows($this->connection);
         } else {
             return 0;
         }
-     }
+    }
 
     // }}}
     // {{{ nextId()
@@ -581,7 +592,7 @@ class DB_mysql extends DB_common
      * @see DB_common::nextID(), DB_common::getSequenceName(),
      *      DB_mysql::createSequence(), DB_mysql::dropSequence()
      */
-    function nextId($seq_name, $ondemand = true)
+    public function nextId($seq_name, $ondemand = true)
     {
         $seqname = $this->getSequenceName($seq_name);
         do {
@@ -622,10 +633,8 @@ class DB_mysql extends DB_common
                 }
                 // We know what the result will be, so no need to try again
                 return 1;
-
             } elseif ($ondemand && DB::isError($result) &&
-                $result->getCode() == DB_ERROR_NOSUCHTABLE)
-            {
+                $result->getCode() == DB_ERROR_NOSUCHTABLE) {
                 // ONDEMAND TABLE CREATION
                 $result = $this->createSequence($seq_name);
                 if (DB::isError($result)) {
@@ -633,10 +642,8 @@ class DB_mysql extends DB_common
                 } else {
                     $repeat = 1;
                 }
-
             } elseif (DB::isError($result) &&
-                      $result->getCode() == DB_ERROR_ALREADY_EXISTS)
-            {
+                      $result->getCode() == DB_ERROR_ALREADY_EXISTS) {
                 // BACKWARDS COMPAT
                 // see _BCsequence() comment
                 $result = $this->_BCsequence($seqname);
@@ -663,7 +670,7 @@ class DB_mysql extends DB_common
      * @see DB_common::createSequence(), DB_common::getSequenceName(),
      *      DB_mysql::nextID(), DB_mysql::dropSequence()
      */
-    function createSequence($seq_name)
+    public function createSequence($seq_name)
     {
         $seqname = $this->getSequenceName($seq_name);
         $res = $this->query('CREATE TABLE ' . $seqname
@@ -694,7 +701,7 @@ class DB_mysql extends DB_common
      * @see DB_common::dropSequence(), DB_common::getSequenceName(),
      *      DB_mysql::nextID(), DB_mysql::createSequence()
      */
-    function dropSequence($seq_name)
+    public function dropSequence($seq_name)
     {
         return $this->query('DROP TABLE ' . $this->getSequenceName($seq_name));
     }
@@ -712,7 +719,7 @@ class DB_mysql extends DB_common
      *
      * @access private
      */
-    function _BCsequence($seqname)
+    public function _BCsequence($seqname)
     {
         // Obtain a user-level lock... this will release any previous
         // application locks, but unlike LOCK TABLES, it does not abort
@@ -767,7 +774,7 @@ class DB_mysql extends DB_common
      * @see DB_common::quoteIdentifier()
      * @since Method available since Release 1.6.0
      */
-    function quoteIdentifier($str)
+    public function quoteIdentifier($str)
     {
         return '`' . str_replace('`', '``', $str) . '`';
     }
@@ -785,7 +792,7 @@ class DB_mysql extends DB_common
      * @see DB_common::quoteSmart()
      * @since Method available since Release 1.6.0
      */
-    function escapeSimple($str)
+    public function escapeSimple($str)
     {
         if (function_exists('mysql_real_escape_string')) {
             return @mysql_real_escape_string($str, $this->connection);
@@ -811,14 +818,17 @@ class DB_mysql extends DB_common
      * @access protected
      * @see DB_common::setOption()
      */
-    function modifyQuery($query)
+    public function modifyQuery($query)
     {
         if ($this->options['portability'] & DB_PORTABILITY_DELETE_COUNT) {
             // "DELETE FROM table" gives 0 affected rows in MySQL.
             // This little hack lets you know how many rows were deleted.
             if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
-                $query = preg_replace('/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
-                                      'DELETE FROM \1 WHERE 1=1', $query);
+                $query = preg_replace(
+                    '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
+                    'DELETE FROM \1 WHERE 1=1',
+                    $query
+                );
             }
         }
         return $query;
@@ -843,7 +853,7 @@ class DB_mysql extends DB_common
      *
      * @access protected
      */
-    function modifyLimitQuery($query, $from, $count, $params = array())
+    public function modifyLimitQuery($query, $from, $count, $params = array())
     {
         if (DB::isManip($query) || $this->_next_query_manip) {
             return $query . " LIMIT $count";
@@ -867,7 +877,7 @@ class DB_mysql extends DB_common
      * @see DB_common::raiseError(),
      *      DB_mysql::errorNative(), DB_common::errorCode()
      */
-    function mysqlRaiseError($errno = null)
+    public function mysqlRaiseError($errno = null)
     {
         if ($errno === null) {
             if ($this->options['portability'] & DB_PORTABILITY_ERRORS) {
@@ -882,9 +892,14 @@ class DB_mysql extends DB_common
             }
             $errno = $this->errorCode(mysql_errno($this->connection));
         }
-        return $this->raiseError($errno, null, null, null,
-                                 @mysql_errno($this->connection) . ' ** ' .
-                                 @mysql_error($this->connection));
+        return $this->raiseError(
+            $errno,
+            null,
+            null,
+            null,
+            @mysql_errno($this->connection) . ' ** ' .
+                                 @mysql_error($this->connection)
+        );
     }
 
     // }}}
@@ -895,7 +910,7 @@ class DB_mysql extends DB_common
      *
      * @return int  the DBMS' error code
      */
-    function errorNative()
+    public function errorNative()
     {
         return @mysql_errno($this->connection);
     }
@@ -918,7 +933,7 @@ class DB_mysql extends DB_common
      *
      * @see DB_common::tableInfo()
      */
-    function tableInfo($result, $mode = null)
+    public function tableInfo($result, $mode = null)
     {
         if (is_string($result)) {
             // Fix for bug #11580.
@@ -932,8 +947,10 @@ class DB_mysql extends DB_common
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = @mysql_query("SELECT * FROM $result LIMIT 0",
-                               $this->connection);
+            $id = @mysql_query(
+                "SELECT * FROM $result LIMIT 0",
+                $this->connection
+            );
             $got_string = true;
         } elseif (isset($result->result)) {
             /*
@@ -1006,7 +1023,7 @@ class DB_mysql extends DB_common
      * @access protected
      * @see DB_common::getListOf()
      */
-    function getSpecialQuery($type)
+    public function getSpecialQuery($type)
     {
         switch ($type) {
             case 'tables':
@@ -1021,7 +1038,6 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-
 }
 
 /*
@@ -1030,5 +1046,3 @@ class DB_mysql extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

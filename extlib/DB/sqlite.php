@@ -58,13 +58,13 @@ class DB_sqlite extends DB_common
      * The DB driver type (mysql, oci8, odbc, etc.)
      * @var string
      */
-    var $phptype = 'sqlite';
+    public $phptype = 'sqlite';
 
     /**
      * The database syntax variant to be used (db2, access, etc.), if any
      * @var string
      */
-    var $dbsyntax = 'sqlite';
+    public $dbsyntax = 'sqlite';
 
     /**
      * The capabilities of this DB implementation
@@ -79,7 +79,7 @@ class DB_sqlite extends DB_common
      *
      * @var array
      */
-    var $features = array(
+    public $features = array(
         'limit'         => 'alter',
         'new_link'      => false,
         'numrows'       => true,
@@ -98,20 +98,20 @@ class DB_sqlite extends DB_common
      *
      * @var array
      */
-    var $errorcode_map = array(
+    public $errorcode_map = array(
     );
 
     /**
      * The raw database connection created by PHP
      * @var resource
      */
-    var $connection;
+    public $connection;
 
     /**
      * The DSN information for connecting to a database
      * @var array
      */
-    var $dsn = array();
+    public $dsn = array();
 
 
     /**
@@ -121,7 +121,7 @@ class DB_sqlite extends DB_common
      *
      * @var array
      */
-    var $keywords = array (
+    public $keywords = array(
         'BLOB'      => '',
         'BOOLEAN'   => '',
         'CHARACTER' => '',
@@ -145,7 +145,7 @@ class DB_sqlite extends DB_common
      * @var string
      * @access private
      */
-    var $_lasterror = '';
+    public $_lasterror = '';
 
 
     // }}}
@@ -156,7 +156,7 @@ class DB_sqlite extends DB_common
      *
      * @return void
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
@@ -176,12 +176,12 @@ class DB_sqlite extends DB_common
      * Example of connecting to a database in read-only mode:
      * <code>
      * require_once 'DB.php';
-     * 
+     *
      * $dsn = 'sqlite:///path/and/name/of/db/file?mode=0400';
      * $options = array(
      *     'portability' => DB_PORTABILITY_ALL,
      * );
-     * 
+     *
      * $db = DB::connect($dsn, $options);
      * if (PEAR::isError($db)) {
      *     die($db->getMessage());
@@ -193,7 +193,7 @@ class DB_sqlite extends DB_common
      *
      * @return int  DB_OK on success. A DB_Error object on failure.
      */
-    function connect($dsn, $persistent = false)
+    public function connect($dsn, $persistent = false)
     {
         if (!PEAR::loadExtension('sqlite')) {
             return $this->raiseError(DB_ERROR_EXTENSION_NOT_FOUND);
@@ -214,8 +214,7 @@ class DB_sqlite extends DB_common
                     return $this->sqliteRaiseError(DB_ERROR_NOT_FOUND);
                 }
                 if (!isset($dsn['mode']) ||
-                    !is_numeric($dsn['mode']))
-                {
+                    !is_numeric($dsn['mode'])) {
                     $mode = 0644;
                 } else {
                     $mode = octdec($dsn['mode']);
@@ -242,9 +241,13 @@ class DB_sqlite extends DB_common
         $php_errormsg = '';
 
         if (!$this->connection = @$connect_function($dsn['database'])) {
-            return $this->raiseError(DB_ERROR_NODBSELECTED,
-                                     null, null, null,
-                                     $php_errormsg);
+            return $this->raiseError(
+                DB_ERROR_NODBSELECTED,
+                null,
+                null,
+                null,
+                $php_errormsg
+            );
         }
         return DB_OK;
     }
@@ -257,7 +260,7 @@ class DB_sqlite extends DB_common
      *
      * @return bool  TRUE on success, FALSE on failure
      */
-    function disconnect()
+    public function disconnect()
     {
         $ret = @sqlite_close($this->connection);
         $this->connection = null;
@@ -280,7 +283,7 @@ class DB_sqlite extends DB_common
      *                + the DB_OK constant for other successful queries
      *                + a DB_Error object on failure
      */
-    function simpleQuery($query)
+    public function simpleQuery($query)
     {
         $ismanip = $this->_checkManip($query);
         $this->last_query = $query;
@@ -319,7 +322,7 @@ class DB_sqlite extends DB_common
      *
      * @return bool  true if a result is available otherwise return false
      */
-    function nextResult($result)
+    public function nextResult($result)
     {
         return false;
     }
@@ -347,7 +350,7 @@ class DB_sqlite extends DB_common
      *
      * @see DB_result::fetchInto()
      */
-    function fetchInto($result, &$arr, $fetchmode, $rownum = null)
+    public function fetchInto($result, &$arr, $fetchmode, $rownum = null)
     {
         if ($rownum !== null) {
             if (!@sqlite_seek($this->result, $rownum)) {
@@ -405,7 +408,7 @@ class DB_sqlite extends DB_common
      *
      * @see DB_result::free()
      */
-    function freeResult(&$result)
+    public function freeResult(&$result)
     {
         // XXX No native free?
         if (!is_resource($result)) {
@@ -431,7 +434,7 @@ class DB_sqlite extends DB_common
      *
      * @see DB_result::numCols()
      */
-    function numCols($result)
+    public function numCols($result)
     {
         $cols = @sqlite_num_fields($result);
         if (!$cols) {
@@ -456,7 +459,7 @@ class DB_sqlite extends DB_common
      *
      * @see DB_result::numRows()
      */
-    function numRows($result)
+    public function numRows($result)
     {
         $rows = @sqlite_num_rows($result);
         if ($rows === null) {
@@ -475,7 +478,7 @@ class DB_sqlite extends DB_common
      *
      * @return int  the number of rows.  A DB_Error object on failure.
      */
-    function affectedRows()
+    public function affectedRows()
     {
         return @sqlite_changes($this->connection);
     }
@@ -493,7 +496,7 @@ class DB_sqlite extends DB_common
      * @see DB_common::dropSequence(), DB_common::getSequenceName(),
      *      DB_sqlite::nextID(), DB_sqlite::createSequence()
      */
-    function dropSequence($seq_name)
+    public function dropSequence($seq_name)
     {
         return $this->query('DROP TABLE ' . $this->getSequenceName($seq_name));
     }
@@ -508,7 +511,7 @@ class DB_sqlite extends DB_common
      * @see DB_common::createSequence(), DB_common::getSequenceName(),
      *      DB_sqlite::nextID(), DB_sqlite::dropSequence()
      */
-    function createSequence($seq_name)
+    public function createSequence($seq_name)
     {
         $seqname = $this->getSequenceName($seq_name);
         $query   = 'CREATE TABLE ' . $seqname .
@@ -543,7 +546,7 @@ class DB_sqlite extends DB_common
      * @see DB_common::nextID(), DB_common::getSequenceName(),
      *      DB_sqlite::createSequence(), DB_sqlite::dropSequence()
      */
-    function nextId($seq_name, $ondemand = true)
+    public function nextId($seq_name, $ondemand = true)
     {
         $seqname = $this->getSequenceName($seq_name);
 
@@ -558,8 +561,7 @@ class DB_sqlite extends DB_common
                     return $id;
                 }
             } elseif ($ondemand && DB::isError($result) &&
-                      $result->getCode() == DB_ERROR_NOSUCHTABLE)
-            {
+                      $result->getCode() == DB_ERROR_NOSUCHTABLE) {
                 $result = $this->createSequence($seq_name);
                 if (DB::isError($result)) {
                     return $this->raiseError($result);
@@ -587,7 +589,7 @@ class DB_sqlite extends DB_common
      * @return mixed  an array on an unspecified key, integer on a passed
      *                arg and false at a stats error
      */
-    function getDbFileStats($arg = '')
+    public function getDbFileStats($arg = '')
     {
         $stats = stat($this->dsn['database']);
         if ($stats == false) {
@@ -625,7 +627,7 @@ class DB_sqlite extends DB_common
      * @since Method available since Release 1.6.1
      * @see DB_common::escapeSimple()
      */
-    function escapeSimple($str)
+    public function escapeSimple($str)
     {
         return @sqlite_escape_string($str);
     }
@@ -649,7 +651,7 @@ class DB_sqlite extends DB_common
      *
      * @access protected
      */
-    function modifyLimitQuery($query, $from, $count, $params = array())
+    public function modifyLimitQuery($query, $from, $count, $params = array())
     {
         return "$query LIMIT $count OFFSET $from";
     }
@@ -671,12 +673,15 @@ class DB_sqlite extends DB_common
      * @access protected
      * @see DB_common::setOption()
      */
-    function modifyQuery($query)
+    public function modifyQuery($query)
     {
         if ($this->options['portability'] & DB_PORTABILITY_DELETE_COUNT) {
             if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
-                $query = preg_replace('/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
-                                      'DELETE FROM \1 WHERE 1=1', $query);
+                $query = preg_replace(
+                    '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
+                    'DELETE FROM \1 WHERE 1=1',
+                    $query
+                );
             }
         }
         return $query;
@@ -697,7 +702,7 @@ class DB_sqlite extends DB_common
      * @see DB_common::raiseError(),
      *      DB_sqlite::errorNative(), DB_sqlite::errorCode()
      */
-    function sqliteRaiseError($errno = null)
+    public function sqliteRaiseError($errno = null)
     {
         $native = $this->errorNative();
         if ($errno === null) {
@@ -721,7 +726,7 @@ class DB_sqlite extends DB_common
      *
      * @return string  the DBMS' error message
      */
-    function errorNative()
+    public function errorNative()
     {
         return $this->_lasterror;
     }
@@ -736,7 +741,7 @@ class DB_sqlite extends DB_common
      *
      * @return integer  the DB error number
      */
-    function errorCode($errormsg)
+    public function errorCode($errormsg)
     {
         static $error_regexps;
         
@@ -785,22 +790,29 @@ class DB_sqlite extends DB_common
      * @see DB_common::tableInfo()
      * @since Method available since Release 1.7.0
      */
-    function tableInfo($result, $mode = null)
+    public function tableInfo($result, $mode = null)
     {
         if (is_string($result)) {
             /*
              * Probably received a table name.
              * Create a result resource identifier.
              */
-            $id = @sqlite_array_query($this->connection,
-                                      "PRAGMA table_info('$result');",
-                                      SQLITE_ASSOC);
+            $id = @sqlite_array_query(
+                $this->connection,
+                "PRAGMA table_info('$result');",
+                SQLITE_ASSOC
+            );
             $got_string = true;
         } else {
             $this->last_query = '';
-            return $this->raiseError(DB_ERROR_NOT_CAPABLE, null, null, null,
-                                     'This DBMS can not obtain tableInfo' .
-                                     ' from result sets');
+            return $this->raiseError(
+                DB_ERROR_NOT_CAPABLE,
+                null,
+                null,
+                null,
+                'This DBMS can not obtain tableInfo' .
+                                     ' from result sets'
+            );
         }
 
         if ($this->options['portability'] & DB_PORTABILITY_LOWERCASE) {
@@ -820,7 +832,7 @@ class DB_sqlite extends DB_common
             if (strpos($id[$i]['type'], '(') !== false) {
                 $bits = explode('(', $id[$i]['type']);
                 $type = $bits[0];
-                $len  = rtrim($bits[1],')');
+                $len  = rtrim($bits[1], ')');
             } else {
                 $type = $id[$i]['type'];
                 $len  = 0;
@@ -877,11 +889,16 @@ class DB_sqlite extends DB_common
      * @access protected
      * @see DB_common::getListOf()
      */
-    function getSpecialQuery($type, $args = array())
+    public function getSpecialQuery($type, $args = array())
     {
         if (!is_array($args)) {
-            return $this->raiseError('no key specified', null, null, null,
-                                     'Argument has to be an array.');
+            return $this->raiseError(
+                'no key specified',
+                null,
+                null,
+                null,
+                'Argument has to be an array.'
+            );
         }
 
         switch ($type) {
@@ -959,5 +976,3 @@ class DB_sqlite extends DB_common
  * c-basic-offset: 4
  * End:
  */
-
-?>

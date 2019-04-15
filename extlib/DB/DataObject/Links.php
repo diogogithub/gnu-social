@@ -23,7 +23,7 @@
 /**
  *
  * Example of how this could be used..
- * 
+ *
  * The lind method are now in here.
  *
  * Currenly only supports existing methods, and new 'link()' method
@@ -36,44 +36,44 @@
  *
  * @package DB_DataObject
  */
-class DB_DataObject_Links 
+class DB_DataObject_Links
 {
-     /**
-     * @property {DB_DataObject}      do   DataObject to apply this to.
-     */
-    var $do = false;
+    /**
+    * @property {DB_DataObject}      do   DataObject to apply this to.
+    */
+    public $do = false;
     
     
     /**
      * @property {Array|String} load    What to load, 'all' or an array of properties. (default all)
      */
-    var $load = 'all';
+    public $load = 'all';
     /**
      * @property {String|Boolean}       scanf   use part of column name as resulting
      *                                          property name. (default false)
      */
-    var $scanf = false;
+    public $scanf = false;
     /**
      * @property {String|Boolean}       printf  use column name as sprintf for resulting property name..
      *                                     (default %s_link if apply is true, otherwise it is %s)
      */
-    var $printf = false;
+    public $printf = false;
     /**
      * @property {Boolean}      cached  cache the result, so future queries will use cache rather
      *                                  than running the expensive sql query.
      */
-    var $cached = false;
+    public $cached = false;
     /**
      * @property {Boolean}      apply   apply the result to this object, (default true)
      */
-    var $apply = true;
+    public $apply = true;
    
     
     //------------------------- RETURN ------------------------------------
     /**
      * @property {Array}      links    key value associative array of links.
      */
-    var $links;
+    public $links;
     
     
     /**
@@ -83,23 +83,21 @@ class DB_DataObject_Links
      *  @param {Array}           cfg  Configuration (basically properties of this object)
      */
     
-    function DB_DataObject_Links($do,$cfg= array())
+    public function DB_DataObject_Links($do, $cfg= array())
     {
         // check if do is set!!!?
         $this->do = $do;
         
-        foreach($cfg as $k=>$v) {
+        foreach ($cfg as $k=>$v) {
             $this->$k = $v;
         }
-       
-        
     }
      
     /**
      * return name from related object
      *
      * The relies on  a <dbname>.links.ini file, unless you specify the arguments.
-     * 
+     *
      * you can also use $this->getLink('thisColumnName','otherTable','otherTableColumnName')
      *
      *
@@ -110,32 +108,26 @@ class DB_DataObject_Links
      * @access public
      * @return mixed object on success false on failure or '0' when not linked
      */
-    function getLink($field, $table= false, $link='')
+    public function getLink($field, $table= false, $link='')
     {
-        
         static $cache = array();
         
         // GUESS THE LINKED TABLE.. (if found - recursevly call self)
         
         if ($table == false) {
-            
-            
             $info = $this->linkInfo($field);
             
             if ($info) {
-                return $this->getLink($field, $info[0],  $link === false ? $info[1] : $link );
+                return $this->getLink($field, $info[0], $link === false ? $info[1] : $link);
             }
             
             // no links defined.. - use borked BC method...
-                  // use the old _ method - this shouldnt happen if called via getLinks()
+            // use the old _ method - this shouldnt happen if called via getLinks()
             if (!($p = strpos($field, '_'))) {
                 return false;
             }
             $table = substr($field, 0, $p);
             return $this->getLink($field, $table);
-            
-            
-
         }
          
         $tn = is_string($table) ? $table : $table->tableName();
@@ -151,41 +143,40 @@ class DB_DataObject_Links
         
       
         if (empty($this->do->$field) || $this->do->$field < 0) {
-            return 0; // no record. 
+            return 0; // no record.
         }
         
         if ($this->cached && isset($cache[$tn.':'. $link .':'. $this->do->$field])) {
-            return $cache[$tn.':'. $link .':'. $this->do->$field];    
+            return $cache[$tn.':'. $link .':'. $this->do->$field];
         }
         
-        $obj = is_string($table) ? $this->do->factory($tn) : $table;;
+        $obj = is_string($table) ? $this->do->factory($tn) : $table;
+        ;
         
-        if (!is_a($obj,'DB_DataObject')) {
+        if (!is_a($obj, 'DB_DataObject')) {
             $this->do->raiseError(
-                "getLink:Could not find class for row $field, table $tn", 
-                DB_DATAOBJECT_ERROR_INVALIDCONFIG);
+                "getLink:Could not find class for row $field, table $tn",
+                DB_DATAOBJECT_ERROR_INVALIDCONFIG
+            );
             return false;
         }
         // -1 or 0 -- no referenced record..
        
         $ret = false;
         if ($link) {
-            
             if ($obj->get($link, $this->do->$field)) {
                 $ret = $obj;
             }
             
             
-        // this really only happens when no link config is set (old BC stuff)    
-        } else if ($obj->get($this->do->$field)) {
+            // this really only happens when no link config is set (old BC stuff)
+        } elseif ($obj->get($this->do->$field)) {
             $ret= $obj;
-             
         }
         if ($this->cached) {
             $cache[$tn.':'. $link .':'. $this->do->$field] = $ret;
         }
         return $ret;
-        
     }
     /**
      * get link information for a field or field specification
@@ -195,15 +186,14 @@ class DB_DataObject_Links
      * array(2) : 'field', 'table:remote_col' << just like the links.ini def.
      * array(3) : 'field', $dataobject, 'remote_col'  (handy for joinAdd to do nested joins.)
      *
-     * @param string|array $field or link spec to use. 
+     * @param string|array $field or link spec to use.
      * @return (false|array) array of dataobject and linked field or false.
      *
      *
      */
     
-    function linkInfo($field)
+    public function linkInfo($field)
     {
-         
         if (is_array($field)) {
             if (count($field) == 3) {
                 // array with 3 args:
@@ -213,37 +203,33 @@ class DB_DataObject_Links
                     $field[2],
                     $field[0]
                 );
-                
-            } 
-            list($table,$link) = explode(':', $field[1]);
+            }
+            list($table, $link) = explode(':', $field[1]);
             
             return array(
                 $this->do->factory($table),
                 $link,
                 $field[0]
             );
-            
         }
         // work out the link.. (classic way)
         
         $links = $this->do->links();
         
         if (empty($links) || !is_array($links)) {
-             
             return false;
         }
             
             
         if (!isset($links[$field])) {
-            
             return false;
         }
-        list($table,$link) = explode(':', $links[$field]);
+        list($table, $link) = explode(':', $links[$field]);
     
         
         //??? needed???
-        if ($p = strpos($field,".")) {
-            $field = substr($field,0,$p);
+        if ($p = strpos($field, ".")) {
+            $field = substr($field, 0, $p);
         }
         
         return array(
@@ -251,10 +237,6 @@ class DB_DataObject_Links
             $link,
             $field
         );
-        
-        
-         
-        
     }
     
     
@@ -266,25 +248,26 @@ class DB_DataObject_Links
      *  eg.
      *  $link->link('company_id') returns getLink for the object
      *  if nothing is linked (it will return an empty dataObject)
-     *  $link->link('company_id', array(1)) - just sets the 
+     *  $link->link('company_id', array(1)) - just sets the
      *
      *  also array as the field speck supports
      *      $link->link(array('company_id', 'company:id'))
-     *  
+     *
      *
      *  @param  string|array   $field   the field to fetch or link spec.
      *  @params array          $args    the arguments sent to the getter setter
      *  @return mixed true of false on set, the object on getter.
      *
      */
-    function link($field, $args = array())
+    public function link($field, $args = array())
     {
         $info = $this->linkInfo($field);
          
         if (!$info) {
             $this->do->raiseError(
-                "getLink:Could not find link for row $field", 
-                DB_DATAOBJECT_ERROR_INVALIDCONFIG);
+                "getLink:Could not find link for row $field",
+                DB_DATAOBJECT_ERROR_INVALIDCONFIG
+            );
             return false;
         }
         $field = $info[2];
@@ -299,24 +282,20 @@ class DB_DataObject_Links
             $ret = $this->getLink($field);
             // nothing linked -- return new object..
             return ($ret === 0) ? $info[0] : $ret;
-            
         }
         $assign = is_array($args) ? $args[0] : $args;
          
         // otherwise it's a set call..
-        if (!is_a($assign , 'DB_DataObject')) {
-            
+        if (!is_a($assign, 'DB_DataObject')) {
             if (is_numeric($assign) && is_integer($assign * 1)) {
                 if ($assign  > 0) {
-                    
                     if (!$info) {
                         return false;
                     }
                     // check that record exists..
-                    if (!$info[0]->get($info[1], $assign )) {
+                    if (!$info[0]->get($info[1], $assign)) {
                         return false;
                     }
-                    
                 }
                 
                 $this->do->$field = $assign ;
@@ -330,8 +309,6 @@ class DB_DataObject_Links
         
         $this->do->$field = $assign->{$info[1]};
         return true;
-        
-        
     }
     /**
      * load related objects
@@ -351,7 +328,7 @@ class DB_DataObject_Links
      * @return boolean , true on success
      */
     
-    function applyLinks($format = '_%s')
+    public function applyLinks($format = '_%s')
     {
          
         // get table will load the options.
@@ -365,19 +342,19 @@ class DB_DataObject_Links
          
         $loaded = array();
         
-        if ($links) {   
-            foreach($links as $key => $match) {
-                list($table,$link) = explode(':', $match);
+        if ($links) {
+            foreach ($links as $key => $match) {
+                list($table, $link) = explode(':', $match);
                 $k = sprintf($format, str_replace('.', '_', $key));
                 // makes sure that '.' is the end of the key;
-                if ($p = strpos($key,'.')) {
-                      $key = substr($key, 0, $p);
+                if ($p = strpos($key, '.')) {
+                    $key = substr($key, 0, $p);
                 }
                 
                 $this->do->$k = $this->getLink($key, $table, $link);
                 
                 if (is_object($this->do->$k)) {
-                    $loaded[] = $k; 
+                    $loaded[] = $k;
                 }
             }
             $this->do->_link_loaded = $loaded;
@@ -386,8 +363,8 @@ class DB_DataObject_Links
         // this is the autonaming stuff..
         // it sends the column name down to getLink and lets that sort it out..
         // if there is a links file then it is not used!
-        // IT IS DEPRECATED!!!! - DO NOT USE 
-        if (!is_null($links)) {    
+        // IT IS DEPRECATED!!!! - DO NOT USE
+        if (!is_null($links)) {
             return false;
         }
         
@@ -400,7 +377,7 @@ class DB_DataObject_Links
             $k =sprintf($format, $key);
             $this->do->$k = $this->getLink($key);
             if (is_object($this->do->$k)) {
-                $loaded[] = $k; 
+                $loaded[] = $k;
             }
         }
         $this->do->_link_loaded = $loaded;
@@ -413,7 +390,7 @@ class DB_DataObject_Links
      * <dbname>.links.ini file configuration (see the introduction on linking for details on this).
      *
      * You may also use this with all parameters to specify, the column and related table.
-     * 
+     *
      * @access public
      * @param string $field- either column or column.xxxxx
      * @param string $table (optional) name of table to look up value in
@@ -421,26 +398,23 @@ class DB_DataObject_Links
      * @param string $fval (optional)fetchall val DB_DataObject::fetchAll()
      * @param string $fval (optional) fetchall method DB_DataObject::fetchAll()
      * @return array - array of results (empty array on failure)
-     * 
+     *
      * Example - Getting the related objects
-     * 
+     *
      * $person = new DataObjects_Person;
      * $person->get(12);
      * $children = $person->getLinkArray('children');
-     * 
+     *
      * echo 'There are ', count($children), ' descendant(s):<br />';
      * foreach ($children as $child) {
      *     echo $child->name, '<br />';
      * }
-     * 
+     *
      */
-    function getLinkArray($field, $table = null, $fkey = false, $fval = false, $fmethod = false)
+    public function getLinkArray($field, $table = null, $fkey = false, $fval = false, $fmethod = false)
     {
-        
         $ret = array();
-        if (!$table)  {
-            
-            
+        if (!$table) {
             $links = $this->do->links();
             
             if (is_array($links)) {
@@ -448,22 +422,20 @@ class DB_DataObject_Links
                     // failed..
                     return $ret;
                 }
-                list($table,$link) = explode(':',$links[$field]);
-                return $this->getLinkArray($field,$table);
-            } 
-            if (!($p = strpos($field,'_'))) {
+                list($table, $link) = explode(':', $links[$field]);
+                return $this->getLinkArray($field, $table);
+            }
+            if (!($p = strpos($field, '_'))) {
                 return $ret;
             }
-            return $this->getLinkArray($field,substr($field,0,$p));
-
-
+            return $this->getLinkArray($field, substr($field, 0, $p));
         }
         
         $c  = $this->do->factory($table);
         
-        if (!is_object($c) || !is_a($c,'DB_DataObject')) {
+        if (!is_object($c) || !is_a($c, 'DB_DataObject')) {
             $this->do->raiseError(
-                "getLinkArray:Could not find class for row $field, table $table", 
+                "getLinkArray:Could not find class for row $field, table $table",
                 DB_DATAOBJECT_ERROR_INVALIDCONFIG
             );
             return $ret;
@@ -476,10 +448,7 @@ class DB_DataObject_Links
                 $ret[] = clone($c);
             }
             return $ret;
-        } 
+        }
         return $c->fetchAll($fkey, $fval, $fmethod);
-        
-        
     }
-
 }
