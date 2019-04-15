@@ -271,7 +271,7 @@ class MysqlSchema extends Schema
         $engine = $this->preferredEngine($def);
         return ") ENGINE=$engine CHARACTER SET utf8mb4 COLLATE utf8mb4_bin";
     }
-    
+
     function preferredEngine($def)
     {
         /* MyISAM is no longer required for fulltext indexes, fortunately
@@ -386,7 +386,7 @@ class MysqlSchema extends Schema
         $map = array('serial' => 'int',
                      'integer' => 'int',
                      'numeric' => 'decimal');
-        
+
         $type = $column['type'];
         if (isset($map[$type])) {
             $type = $map[$type];
@@ -436,13 +436,32 @@ class MysqlSchema extends Schema
      */
     function filterDef(array $tableDef)
     {
+        $version = $this->conn->getVersion();
         foreach ($tableDef['fields'] as $name => &$col) {
             if ($col['type'] == 'serial') {
                 $col['type'] = 'int';
                 $col['auto_increment'] = true;
             }
-            if ($col['type'] == 'datetime' && isset($col['default']) && $col['default'] == 'CURRENT_TIMESTAMP') {
-                $col['type'] = 'timestamp';
+
+            // Avoid invalid date errors in MySQL 5.7+
+            if ($col['type'] == 'timestamp' && !isset($col['default'])
+                && $version >= 50605) {
+                $col['default'] = 'CURRENT_TIMESTAMP';
+            }
+            if ($col['type'] == 'datetime') {
+                // Avoid invalid date errors in MySQL 5.7+
+                if (!isset($col['default']) && $version >= 50605) {
+                    $col['default'] = 'CURRENT_TIMESTAMP';
+                }
+
+                // If we are using MySQL 5.5, convert datetime to timestamp if
+                // default value is CURRENT_TIMESTAMP. Not needed for MySQL 5.6+
+                // and MariaDB 10.0+
+                if (isset($col['default'])
+                    && $col['default'] == 'CURRENT_TIMESTAMP'
+                    && $version < 50605) {
+                    $col['type'] = 'timestamp';
+                }
             }
             $col['type'] = $this->mapType($col);
             unset($col['size']);

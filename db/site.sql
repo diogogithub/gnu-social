@@ -18,8 +18,8 @@ create table status_network (
     
     tags text comment 'site meta-info tags (pipe-separated)',
 
-    created datetime not null comment 'date this record was created',
-    modified timestamp comment 'date this record was modified'
+    created datetime not null comment 'date this record was created' default now(),
+    modified timestamp comment 'date this record was modified' default now()
 
 ) ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 
