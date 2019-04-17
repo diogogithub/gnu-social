@@ -29,29 +29,39 @@
 
 define('INSTALLDIR', realpath(__DIR__ . '/../../..'));
 
-$longoptions = ['limit='];
+$shortoptions = 'l::a::i';
+$longoptions = ['limit=','all','image'];
 
 $helptext = <<<END_OF_HELP
 remove_remote_media.php [options]
-Keeps an URL for the original attachments and removes both the original file and the related thumbs.
+Removes remote media. In most cases, (if not all), an URL will be kept for the original attachment.
+In case the attachment is an image its thumbs will be removed as well.
 
-    --limit date <- this is a timestamp, format is: yyyy-mm-dd (optional time hh:mm:ss may be provided)
+    -l --limit [date]  This is a timestamp, format is: yyyy-mm-dd (optional time hh:mm:ss may be provided)
+    -a --all           By default only remote attachments will be deleted, by using this flag you will remove oembed previews and alike
+    -i --image         Remove image only attachments (will ignore oembed previews and alike)
 
 END_OF_HELP;
 
 require_once INSTALLDIR.'/scripts/commandline.inc';
 
 $quiet = have_option('q', 'quiet');
+$include_previews = have_option('a', 'all');
+$image_only = have_option('i', 'image');
 
-if (!have_option('limit')) {
+if (!have_option('l', 'limit')) {
+    echo "You must provide a limit!";
     show_help();
     exit(1);
 }
-
-$max_date = get_option_value('limit');
+$max_date = get_option_value('l', 'limit');
+if (empty($max_date)) {
+    echo "Invalid empty limit!";
+    exit(1);
+}
 
 $query = "
-    SELECT 
+    SELECT
         file_to_post.file_id
     FROM
         file_to_post
@@ -60,14 +70,12 @@ $query = "
             INNER JOIN
         notice ON notice.id = file_to_post.post_id
     WHERE
-        file.filehash IS NOT NULL
-            AND file.filename IS NOT NULL
-            AND file.width IS NOT NULL
-            AND file.height IS NOT NULL
-            AND notice.source <> 'web'
-            AND notice.modified <= '{$max_date}'
-    ORDER BY notice.modified ASC
-";
+        notice.is_local = 0 ";
+
+$query .= $image_only ? " AND file.width IS NOT NULL AND file.height IS NOT NULL " : "";
+
+$query .= $include_previews ? "" : " AND file.filehash IS NOT NULL ";
+$query .= " AND notice.modified <= '{$max_date}' ORDER BY notice.modified ASC";
 
 $fn = new DB_DataObject();
 $fn->query($query);
