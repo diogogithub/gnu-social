@@ -30,7 +30,7 @@
 define('INSTALLDIR', realpath(__DIR__ . '/../../..'));
 
 $shortoptions = 'l::a::i';
-$longoptions = ['limit=','all','image'];
+$longoptions = ['limit=', 'all', 'image'];
 
 $helptext = <<<END_OF_HELP
 remove_remote_media.php [options]
@@ -43,7 +43,7 @@ In case the attachment is an image its thumbs will be removed as well.
 
 END_OF_HELP;
 
-require_once INSTALLDIR.'/scripts/commandline.inc';
+require_once INSTALLDIR . '/scripts/commandline.inc';
 
 $quiet = have_option('q', 'quiet');
 $include_previews = have_option('a', 'all');
@@ -61,7 +61,7 @@ if (empty($max_date)) {
 }
 
 $query = "
-    SELECT
+    SELECT DISTINCT
         file_to_post.file_id
     FROM
         file_to_post
