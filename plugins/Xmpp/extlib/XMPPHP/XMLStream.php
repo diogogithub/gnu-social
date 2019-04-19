@@ -33,7 +33,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'Exception.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'XMLObj.php';
 
 /** XMPPHP_Log */
-require_once __DIR__ . DIRECTORY_SEPARTOR. 'Log.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'Log.php';
 
 /**
  * XMPPHP XML Stream
