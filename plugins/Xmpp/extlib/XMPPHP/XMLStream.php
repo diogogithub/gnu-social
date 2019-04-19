@@ -27,13 +27,13 @@
  */
 
 /** XMPPHP_Exception */
-require_once dirname(__FILE__) . '/Exception.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'Exception.php';
 
 /** XMPPHP_XMLObj */
-require_once dirname(__FILE__) . '/XMLObj.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'XMLObj.php';
 
 /** XMPPHP_Log */
-require_once dirname(__FILE__) . '/Log.php';
+require_once __DIR__ . DIRECTORY_SEPARTOR. 'Log.php';
 
 /**
  * XMPPHP XML Stream
@@ -124,13 +124,13 @@ class XMPPHP_XMLStream {
 	 */
 	protected $default_ns;
 	/**
-	 * @var string
+	 * @var string[]
 	 */
-	protected $until = '';
+	protected $until = [];
 	/**
-	 * @var string
+	 * @var int[]
 	 */
-	protected $until_count = '';
+	protected $until_count = [];
 	/**
 	 * @var array
 	 */
