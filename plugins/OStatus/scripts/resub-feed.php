@@ -78,7 +78,6 @@ showSub($sub2);
 function showSub($sub)
 {
     print "  Subscription state: $sub->sub_state\n";
-    print "  Verify token: $sub->verify_token\n";
     print "  Signature secret: $sub->secret\n";
     print "  Sub start date: $sub->sub_start\n";
     print "  Sub end date: $sub->sub_end\n";

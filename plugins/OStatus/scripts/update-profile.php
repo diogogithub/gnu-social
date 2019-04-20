@@ -74,10 +74,14 @@ try {
     $xrd = $disco->lookup($acct);
     $hints = DiscoveryHints::fromXRD($xrd);
 
-    if (empty($feedurl) && !array_key_exists('feedurl', $hints)) {
+    if (array_key_exists('feedurl', $hints)) {
+        // Prefer $hints['feedurl'] to current $feedurl value
+        $feedurl = $hints['feedurl'];
+    } elseif (empty($feedurl)) {
+        // if (empty($feedurl) && !array_key_exists('feedurl', $hints))
         throw new FeedSubNoFeedException($acct);
     }
-    $feedurl = $feedurl ?: $hints['feedurl'];
+
     $salmonuri = array_key_exists('salmon', $hints) ? $hints['salmon'] : $salmonuri;
 
     // get the hub data too and put it in the FeedDiscovery object
@@ -166,7 +170,6 @@ function showProfile($oprofile)
 function showSub($sub)
 {
     print "  Subscription state: $sub->sub_state\n";
-    print "  Verify token: $sub->verify_token\n";
     print "  Signature secret: $sub->secret\n";
     print "  Sub start date: $sub->sub_start\n";
     print "  Record created: $sub->created\n";
