@@ -24,13 +24,16 @@
  * @package   StatusNet
  * @author    Evan Prodromou <evan@status.net>
  * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Alexei Sorokin <sor.alexei@meowr.ru>
  * @copyright 2011 StatusNet, Inc.
  * @copyright 2014 Free Software Foundation, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 /**
  * Stream of notices for a profile's "all" feed
@@ -39,6 +42,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * @package   StatusNet
  * @author    Evan Prodromou <evan@status.net>
  * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Alexei Sorokin <sor.alexei@meowr.ru>
  * @copyright 2011 StatusNet, Inc.
  * @copyright 2014 Free Software Foundation, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
@@ -52,7 +56,7 @@ class InboxNoticeStream extends ScopingNoticeStream
      * @param Profile $target Profile to get a stream for
      * @param Profile $scoped Currently scoped profile (if null, it is fetched)
      */
-    function __construct(Profile $target, Profile $scoped=null)
+    public function __construct(Profile $target, Profile $scoped = null)
     {
         // FIXME: we don't use CachingNoticeStream - but maybe we should?
         parent::__construct(new CachingNoticeStream(new RawInboxNoticeStream($target), 'profileall'), $scoped);
@@ -65,13 +69,15 @@ class InboxNoticeStream extends ScopingNoticeStream
  * @category  General
  * @package   StatusNet
  * @author    Evan Prodromou <evan@status.net>
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Alexei Sorokin <sor.alexei@meowr.ru>
  * @copyright 2011 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
 class RawInboxNoticeStream extends FullNoticeStream
 {
-    protected $target  = null;
+    protected $target = null;
     protected $inbox = null;
 
     /**
@@ -79,37 +85,73 @@ class RawInboxNoticeStream extends FullNoticeStream
      *
      * @param Profile $target Profile to get a stream for
      */
-    function __construct(Profile $target)
+    public function __construct(Profile $target)
     {
         parent::__construct();
-        $this->target  = $target;
+        $this->target = $target;
     }
 
     /**
      * Get IDs in a range
      *
-     * @param int $offset   Offset from start
-     * @param int $limit    Limit of number to get
+     * @param int $offset Offset from start
+     * @param int $limit Limit of number to get
      * @param int $since_id Since this notice
-     * @param int $max_id   Before this notice
+     * @param int $max_id Before this notice
      *
-     * @return Array IDs found
+     * @return array IDs found
      */
-    function getNoticeIds($offset, $limit, $since_id, $max_id)
+    public function getNoticeIds($offset, $limit, $since_id = null, $max_id = null)
     {
+        $notice_ids = [];
+
+        // Grab all the profiles target is subscribed to (every user is subscribed to themselves)
+        $subscription = new Subscription();
+        $subscription->selectAdd();
+        $subscription->selectAdd('subscribed');
+        $subscription->whereAdd(sprintf('subscriber = %1$d', $this->target->id));
+        $subscription_profile_ids = $subscription->fetchAll('subscribed');
+
+        // Grab all the notices were target was mentioned
+        $reply = new Reply();
+        $reply->selectAdd();
+        $reply->selectAdd('notice_id');
+        $reply->whereAdd(sprintf('profile_id = %1$d', $this->target->id));
+        $notice_ids += $reply->fetchAll('notice_id');
+
+        // Grab all the notices that require target's attention
+        $attention = new Attention();
+        $attention->selectAdd();
+        $attention->selectAdd('notice_id');
+        $attention->whereAdd(sprintf('profile_id = %1$d', $this->target->id));
+        $notice_ids += $attention->fetchAll('notice_id');
+
+        // Grab all the notices posted on groups target is a member of
+        $group_inbox = new Group_inbox();
+        $group_inbox->selectAdd();
+        $group_inbox->selectAdd('notice_id');
+        $group_inbox->whereAdd(
+            sprintf(
+                'group_id IN (SELECT group_id FROM group_member WHERE profile_id = %1$d)',
+                $this->target->id
+            )
+        );
+        $notice_ids += $group_inbox->fetchAll('notice_id');
+
+        $query_ids = '';
+
+        if (!empty($notice_ids)) { // Replies, Attentions and Groups
+            $query_ids .= 'notice.id IN (' . implode(', ', $notice_ids) . ') OR ';
+        }
+        // every user is at least subscribed to themselves
+        $query_ids .= 'notice.profile_id IN (' . implode(', ', $subscription_profile_ids) . ')';
+
         $notice = new Notice();
         $notice->selectAdd();
         $notice->selectAdd('id');
         $notice->whereAdd(sprintf('notice.created > "%s"', $notice->escape($this->target->created)));
-        // Reply:: is a table of mentions
-        // Subscription:: is a table of subscriptions (every user is subscribed to themselves)
-        $notice->whereAdd(
-                sprintf('notice.id IN (SELECT notice_id FROM reply WHERE profile_id=%1$d) ' .
-                        'OR notice.profile_id IN (SELECT subscribed FROM subscription WHERE subscriber=%1$d) ' .
-                        'OR notice.id IN (SELECT notice_id FROM group_inbox WHERE group_id IN (SELECT group_id FROM group_member WHERE profile_id=%1$d))' .
-                        'OR notice.id IN (SELECT notice_id FROM attention WHERE profile_id=%1$d)',
-                    $this->target->id)
-            );
+        $notice->whereAdd($query_ids);
+
         if (!empty($since_id)) {
             $notice->whereAdd(sprintf('notice.id > %d', $since_id));
         }
@@ -127,11 +169,10 @@ class RawInboxNoticeStream extends FullNoticeStream
         $notice->orderBy('notice.id DESC');
 
         if (!$notice->find()) {
-            return array();
+            return [];
         }
 
-        $ids = $notice->fetchAll('id');
 
-        return $ids;
+        return $notice->fetchAll('id');
     }
 }
