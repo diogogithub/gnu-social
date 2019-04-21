@@ -525,7 +525,7 @@ abstract class ImPlugin extends Plugin
     {
         // If we don't require CLI mode, or if we do and GNUSOCIAL_CLI _is_ set, then connect the transports
         // This check is made mostly because some IM plugins can't deliver to transports unless they
-        // have continously running daemons (such as XMPP) and we can't have that over HTTP requests.
+        // have continuously running daemons (such as XMPP) and we can't have that over HTTP requests.
         if (!$this->requires_cli || defined('GNUSOCIAL_CLI')) {
             $manager->connect($this->transport . '-in', new ImReceiverQueueHandler($this), 'im');
             $manager->connect($this->transport, new ImQueueHandler($this));

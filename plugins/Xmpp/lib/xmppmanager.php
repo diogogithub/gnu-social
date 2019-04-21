@@ -17,7 +17,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
+if (!defined('STATUSNET') && !defined('LACONICA')) {
+    exit(1);
+}
+
+use XMPPHP\Log;
 
 /**
  * XMPP background connection manager for XMPP-using queue handlers,
@@ -31,26 +35,84 @@ if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
  */
 class XmppManager extends ImManager
 {
+    const PING_INTERVAL = 120;
+    public $conn = null;
     protected $lastping = null;
     protected $pingid = null;
 
-    public $conn = null;
-
-    const PING_INTERVAL = 120;
-
     /**
      * Initialize connection to server.
+     * @param $master
      * @return boolean true on success
      */
     public function start($master)
     {
-        if(parent::start($master))
-        {
+        if (parent::start($master)) {
             $this->connect();
             return true;
-        }else{
+        } else {
             return false;
         }
+    }
+
+    function connect()
+    {
+        if (!$this->conn || $this->conn->isDisconnected()) {
+            $resource = 'queue' . posix_getpid();
+            $this->conn = new SharingXMPP($this->plugin->host ?
+                $this->plugin->host :
+                $this->plugin->server,
+                $this->plugin->port,
+                $this->plugin->user,
+                $this->plugin->password,
+                $this->plugin->resource,
+                $this->plugin->server,
+                $this->plugin->debug ?
+                    true : false,
+                $this->plugin->debug ?
+                    Log::LEVEL_VERBOSE : null
+            );
+
+            if (!$this->conn) {
+                return false;
+            }
+            $this->conn->addEventHandler('message', 'handle_xmpp_message', $this);
+            $this->conn->addEventHandler('reconnect', 'handle_xmpp_reconnect', $this);
+            $this->conn->setReconnectTimeout(600);
+
+            $this->conn->autoSubscribe();
+            $this->conn->useEncryption($this->plugin->encryption);
+
+            $this->conn->connect(true);
+
+            $this->conn->processUntil('session_start');
+            // TRANS: Presence announcement for XMPP.
+            $this->send_presence(_m('Send me a message to post a notice'), 'available', null, 'available', 100);
+        }
+        return $this->conn;
+    }
+
+    /**
+     * sends a presence stanza on the XMPP network
+     *
+     * @param string $status current status, free-form string
+     * @param string $show structured status value
+     * @param string $to recipient of presence, null for general
+     * @param string $type type of status message, related to $show
+     * @param int $priority priority of the presence
+     *
+     * @return boolean success value
+     */
+
+    function send_presence($status, $show = 'available', $to = null,
+                           $type = 'available', $priority = null)
+    {
+        $this->connect();
+        if (!$this->conn || $this->conn->isDisconnected()) {
+            return false;
+        }
+        $this->conn->presence($status, $show, $to, $type, $priority);
+        return true;
     }
 
     function send_raw_message($data)
@@ -80,14 +142,9 @@ class XmppManager extends ImManager
     public function handleInput($socket)
     {
         // Process the queue for as long as needed
-        try {
-            common_log(LOG_DEBUG, "Servicing the XMPP queue.");
-            $this->stats('xmpp_process');
-            $this->conn->processTime(0);
-        } catch (XMPPHP_Exception $e) {
-            common_log(LOG_ERR, "Got an XMPPHP_Exception: " . $e->getMessage());
-            die($e->getMessage());
-        }
+        common_log(LOG_DEBUG, "Servicing the XMPP queue.");
+        $this->stats('xmpp_process');
+        $this->conn->processTime(0);
     }
 
     /**
@@ -99,9 +156,9 @@ class XmppManager extends ImManager
     public function getSockets()
     {
         $this->connect();
-        if($this->conn){
+        if ($this->conn) {
             return array($this->conn->getSocket());
-        }else{
+        } else {
             return array();
         }
     }
@@ -112,61 +169,15 @@ class XmppManager extends ImManager
      *
      * Side effect: kills process on exception from XMPP library.
      *
+     * @param int $timeout
      * @todo FIXME: non-dying error handling
      */
-    public function idle($timeout=0)
+    public function idle($timeout = 0)
     {
         $now = time();
         if (empty($this->lastping) || $now - $this->lastping > self::PING_INTERVAL) {
-            try {
-                $this->send_ping();
-            } catch (XMPPHP_Exception $e) {
-                common_log(LOG_ERR, "Got an XMPPHP_Exception: " . $e->getMessage());
-                die($e->getMessage());
-            }
+            $this->send_ping();
         }
-    }
-
-    function connect()
-    {
-        if (!$this->conn || $this->conn->isDisconnected()) {
-            $resource = 'queue' . posix_getpid();
-            $this->conn = new SharingXMPP($this->plugin->host ?
-                                    $this->plugin->host :
-                                    $this->plugin->server,
-                                    $this->plugin->port,
-                                    $this->plugin->user,
-                                    $this->plugin->password,
-                                    $this->plugin->resource,
-                                    $this->plugin->server,
-                                    $this->plugin->debug ?
-                                    true : false,
-                                    $this->plugin->debug ?
-                                    XMPPHP_Log::LEVEL_VERBOSE :  null
-                                    );
-
-            if (!$this->conn) {
-                return false;
-            }
-            $this->conn->addEventHandler('message', 'handle_xmpp_message', $this);
-            $this->conn->addEventHandler('reconnect', 'handle_xmpp_reconnect', $this);
-            $this->conn->setReconnectTimeout(600);
-
-            $this->conn->autoSubscribe();
-            $this->conn->useEncryption($this->plugin->encryption);
-
-            try {
-                $this->conn->connect(true); // true = persistent connection
-            } catch (XMPPHP_Exception $e) {
-                common_log(LOG_ERR, $e->getMessage());
-                return false;
-            }
-
-            $this->conn->processUntil('session_start');
-            // TRANS: Presence announcement for XMPP.
-            $this->send_presence(_m('Send me a message to post a notice'), 'available', null, 'available', 100);
-        }
-        return $this->conn;
     }
 
     function send_ping()
@@ -183,7 +194,7 @@ class XmppManager extends ImManager
         }
 
         common_log(LOG_DEBUG, "Sending ping #{$this->pingid}");
-		$this->conn->send("<iq from='{$this->plugin->daemonScreenname()}' to='{$this->plugin->server}' id='ping_{$this->pingid}' type='get'><ping xmlns='urn:xmpp:ping'/></iq>");
+        $this->conn->send("<iq from='{$this->plugin->daemonScreenname()}' to='{$this->plugin->server}' id='ping_{$this->pingid}' type='get'><ping xmlns='urn:xmpp:ping'/></iq>");
         $this->lastping = $now;
         return true;
     }
@@ -208,34 +219,11 @@ class XmppManager extends ImManager
     }
 
     /**
-     * sends a presence stanza on the XMPP network
-     *
-     * @param string $status   current status, free-form string
-     * @param string $show     structured status value
-     * @param string $to       recipient of presence, null for general
-     * @param string $type     type of status message, related to $show
-     * @param int    $priority priority of the presence
-     *
-     * @return boolean success value
-     */
-
-    function send_presence($status, $show='available', $to=null,
-                                  $type = 'available', $priority=null)
-    {
-        $this->connect();
-        if (!$this->conn || $this->conn->isDisconnected()) {
-            return false;
-        }
-        $this->conn->presence($status, $show, $to, $type, $priority);
-        return true;
-    }
-
-    /**
      * sends a "special" presence stanza on the XMPP network
      *
-     * @param string $type   Type of presence
-     * @param string $to     JID to send presence to
-     * @param string $show   show value for presence
+     * @param string $type Type of presence
+     * @param string $to JID to send presence to
+     * @param string $show show value for presence
      * @param string $status status value for presence
      *
      * @return boolean success flag
@@ -243,7 +231,7 @@ class XmppManager extends ImManager
      * @see send_presence()
      */
 
-    function special_presence($type, $to=null, $show=null, $status=null)
+    function special_presence($type, $to = null, $show = null, $status = null)
     {
         // @todo FIXME: why use this instead of send_presence()?
         $this->connect();
@@ -251,7 +239,7 @@ class XmppManager extends ImManager
             return false;
         }
 
-        $to     = htmlspecialchars($to);
+        $to = htmlspecialchars($to);
         $status = htmlspecialchars($status);
 
         $out = "<presence";

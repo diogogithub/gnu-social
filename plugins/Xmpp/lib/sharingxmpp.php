@@ -5,7 +5,7 @@
  *
  * Send and receive notices using the Jabber network
  *
- * PHP version 5
+ * PHP version 7
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,11 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-class SharingXMPP extends XMPPHP_XMPP
+require_once dirname(__DIR__) . '/extlib/XMPPHP/XMPP.php';
+
+use XMPPHP\XMPP;
+
+class SharingXMPP extends XMPP
 {
     function getSocket()
     {

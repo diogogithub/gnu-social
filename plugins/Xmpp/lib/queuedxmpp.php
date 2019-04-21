@@ -4,7 +4,7 @@
  *
  * Queue-mediated proxy class for outgoing XMPP messages.
  *
- * PHP version 5
+ * PHP version 7
  *
  * LICENCE: This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -31,28 +31,32 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-class QueuedXMPP extends XMPPHP_XMPP
+require_once dirname(__DIR__) . '/extlib/XMPPHP/XMPP.php';
+
+use XMPPHP\XMPP;
+
+class QueuedXMPP extends XMPP
 {
     /**
      * Reference to the XmppPlugin object we're hooked up to.
      */
     public $plugin;
 
-	/**
-	 * Constructor
-	 *
+    /**
+     * Constructor
+     *
      * @param XmppPlugin $plugin
-	 * @param string  $host
-	 * @param integer $port
-	 * @param string  $user
-	 * @param string  $password
-	 * @param string  $resource
-	 * @param string  $server
-	 * @param boolean $printlog
-	 * @param string  $loglevel
-	 */
-	public function __construct($plugin, $host, $port, $user, $password, $resource, $server = null, $printlog = false, $loglevel = null)
-	{
+     * @param string $host
+     * @param integer $port
+     * @param string $user
+     * @param string $password
+     * @param string $resource
+     * @param string $server
+     * @param boolean $printlog
+     * @param string $loglevel
+     */
+    public function __construct($plugin, $host, $port, $user, $password, $resource, $server = null, $printlog = false, $loglevel = null)
+    {
         $this->plugin = $plugin;
 
         parent::__construct($host, $port, $user, $password, $resource, $server, $printlog, $loglevel);
@@ -76,15 +80,21 @@ class QueuedXMPP extends XMPPHP_XMPP
      * to a real XMPP connection.
      *
      * @param string $msg
+     * @param null $timeout
      */
-    public function send($msg, $timeout=NULL)
+    public function send($msg, $timeout = NULL)
     {
-        $this->plugin->enqueueOutgoingRaw($msg);
+        @$this->plugin->enqueueOutgoingRaw($msg);
     }
 
     //@{
+
     /**
      * Stream i/o functions disabled; only do output
+     * @param int $timeout
+     * @param bool $persistent
+     * @param bool $sendinit
+     * @throws Exception
      */
     public function connect($timeout = 30, $persistent = false, $sendinit = true)
     {
@@ -104,7 +114,7 @@ class QueuedXMPP extends XMPPHP_XMPP
         throw new Exception('Cannot read stream from fake XMPP.');
     }
 
-    public function processUntil($event, $timeout=-1)
+    public function processUntil($event, $timeout = -1)
     {
         // No i18n needed. Test message.
         throw new Exception('Cannot read stream from fake XMPP.');

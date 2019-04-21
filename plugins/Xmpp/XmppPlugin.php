@@ -5,7 +5,7 @@
  *
  * Send and receive notices using the XMPP network
  *
- * PHP version 5
+ * PHP version 7
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -48,7 +48,7 @@ class XmppPlugin extends ImPlugin
 {
     public $server = null;
     public $port = 5222;
-    public $user =  'update';
+    public $user = 'update';
     public $resource = 'gnusocial';
     public $encryption = true;
     public $password = null;
@@ -57,22 +57,66 @@ class XmppPlugin extends ImPlugin
 
     public $transport = 'xmpp';
 
-    function getDisplayName(){
+    function getDisplayName()
+    {
         // TRANS: Plugin display name.
         return _m('XMPP/Jabber');
+    }
+
+    function daemonScreenname()
+    {
+        $ret = $this->user . '@' . $this->server;
+        if ($this->resource) {
+            return $ret . '/' . $this->resource;
+        } else {
+            return $ret;
+        }
+    }
+
+    function validate($screenname)
+    {
+        return $this->validateBaseJid($screenname, common_config('email', 'check_domain'));
+    }
+
+    /**
+     * Checks whether a string is a syntactically valid base Jabber ID (JID).
+     * A base JID won't include a resource specifier on the end; since we
+     * take it off when reading input we can't really use them reliably
+     * to direct outgoing messages yet (sorry guys!)
+     *
+     * Note that a bare domain can be a valid JID.
+     *
+     * @param string $jid string to check
+     * @param bool $check_domain whether we should validate that domain...
+     *
+     * @return     boolean whether the string is a valid JID
+     */
+    protected function validateBaseJid($jid, $check_domain = false)
+    {
+        try {
+            $parts = $this->splitJid($jid);
+            if ($check_domain) {
+                if (!$this->checkDomain($parts['domain'])) {
+                    return false;
+                }
+            }
+            return ($parts['resource'] === null); // missing; empty ain't kosher
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     /**
      * Splits a Jabber ID (JID) into node, domain, and resource portions.
      *
      * Based on validation routine submitted by:
-     * @copyright 2009 Patrick Georgi <patrick@georgi-clan.de>
-     * @license Licensed under ISC-L, which is compatible with everything else that keeps the copyright notice intact.
-     *
      * @param string $jid string to check
      *
      * @return array with "node", "domain", and "resource" indices
      * @throws Exception if input is not valid
+     * @license Licensed under ISC-L, which is compatible with everything else that keeps the copyright notice intact.
+     *
+     * @copyright 2009 Patrick Georgi <patrick@georgi-clan.de>
      */
     protected function splitJid($jid)
     {
@@ -109,10 +153,9 @@ class XmppPlugin extends ImPlugin
         $parts = explode("/", $jid, 2);
         if (count($parts) > 1) {
             $resource = $parts[1];
-            if ($resource == '') {
-                // Warning: empty resource isn't legit.
-                // But if we're normalizing, we may as well take it...
-            }
+            // if ($resource == '') then
+            // Warning: empty resource isn't legit.
+            // But if we're normalizing, we may as well take it...
         } else {
             $resource = null;
         }
@@ -128,7 +171,7 @@ class XmppPlugin extends ImPlugin
             $domain = $node[1];
             $node = $node[0];
             if ($node == '') {
-            // TRANS: Exception thrown when using @ sign not followed by a Jabber ID.
+                // TRANS: Exception thrown when using @ sign not followed by a Jabber ID.
                 throw new Exception(_m('Invalid JID: @ but no node'));
             }
         }
@@ -139,10 +182,10 @@ class XmppPlugin extends ImPlugin
                 // TRANS: Exception thrown when using too long a Jabber ID (>1023).
                 throw new Exception(_m('Invalid JID: node too long.'));
             }
-            if (preg_match("/[".$nodeprepchars."]/u", $node)) {
+            if (preg_match("/[" . $nodeprepchars . "]/u", $node)) {
                 // TRANS: Exception thrown when using an invalid Jabber ID.
                 // TRANS: %s is the invalid Jabber ID.
-                throw new Exception(sprintf(_m('Invalid JID node "%s".'),$node));
+                throw new Exception(sprintf(_m('Invalid JID node "%s".'), $node));
             }
         }
 
@@ -153,7 +196,7 @@ class XmppPlugin extends ImPlugin
         if (!common_valid_domain($domain)) {
             // TRANS: Exception thrown when using an invalid Jabber domain name.
             // TRANS: %s is the invalid domain name.
-            throw new Exception(sprintf(_m('Invalid JID domain name "%s".'),$domain));
+            throw new Exception(sprintf(_m('Invalid JID domain name "%s".'), $domain));
         }
 
         if ($resource !== null) {
@@ -161,96 +204,22 @@ class XmppPlugin extends ImPlugin
                 // TRANS: Exception thrown when using too long a resource (>1023).
                 throw new Exception("Invalid JID: resource too long.");
             }
-            if (preg_match("/[".$chars."]/u", $resource)) {
+            if (preg_match("/[" . $chars . "]/u", $resource)) {
                 // TRANS: Exception thrown when using an invalid Jabber resource.
                 // TRANS: %s is the invalid resource.
-                throw new Exception(sprintf(_m('Invalid JID resource "%s".'),$resource));
+                throw new Exception(sprintf(_m('Invalid JID resource "%s".'), $resource));
             }
         }
 
         return array('node' => is_null($node) ? null : mb_strtolower($node),
-                     'domain' => is_null($domain) ? null : mb_strtolower($domain),
-                     'resource' => $resource);
-    }
-
-    /**
-     * Checks whether a string is a syntactically valid Jabber ID (JID),
-     * either with or without a resource.
-     *
-     * Note that a bare domain can be a valid JID.
-     *
-     * @param string $jid string to check
-     * @param bool $check_domain whether we should validate that domain...
-     *
-     * @return     boolean whether the string is a valid JID
-     */
-    protected function validateFullJid($jid, $check_domain=false)
-    {
-        try {
-            $parts = $this->splitJid($jid);
-            if ($check_domain) {
-                if (!$this->checkDomain($parts['domain'])) {
-                    return false;
-                }
-            }
-            return $parts['resource'] !== ''; // missing or present; empty ain't kosher
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
-    /**
-     * Checks whether a string is a syntactically valid base Jabber ID (JID).
-     * A base JID won't include a resource specifier on the end; since we
-     * take it off when reading input we can't really use them reliably
-     * to direct outgoing messages yet (sorry guys!)
-     *
-     * Note that a bare domain can be a valid JID.
-     *
-     * @param string $jid string to check
-     * @param bool $check_domain whether we should validate that domain...
-     *
-     * @return     boolean whether the string is a valid JID
-     */
-    protected function validateBaseJid($jid, $check_domain=false)
-    {
-        try {
-            $parts = $this->splitJid($jid);
-            if ($check_domain) {
-                if (!$this->checkDomain($parts['domain'])) {
-                    return false;
-                }
-            }
-            return ($parts['resource'] === null); // missing; empty ain't kosher
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
-    /**
-     * Normalizes a Jabber ID for comparison, dropping the resource component if any.
-     *
-     * @param string $jid JID to check
-     * @param bool $check_domain if true, reject if the domain isn't findable
-     *
-     * @return string an equivalent JID in normalized (lowercase) form
-     */
-    function normalize($jid)
-    {
-        try {
-            $parts = $this->splitJid($jid);
-            if ($parts['node'] !== null) {
-                return $parts['node'] . '@' . $parts['domain'];
-            } else {
-                return $parts['domain'];
-            }
-        } catch (Exception $e) {
-            return null;
-        }
+            'domain' => is_null($domain) ? null : mb_strtolower($domain),
+            'resource' => $resource);
     }
 
     /**
      * Check if this domain's got some legit DNS record
+     * @param $domain
+     * @return bool
      */
     protected function checkDomain($domain)
     {
@@ -263,22 +232,6 @@ class XmppPlugin extends ImPlugin
         return false;
     }
 
-    function daemonScreenname()
-    {
-        $ret = $this->user . '@' . $this->server;
-        if($this->resource)
-        {
-            return $ret . '/' . $this->resource;
-        }else{
-            return $ret;
-        }
-    }
-
-    function validate($screenname)
-    {
-        return $this->validateBaseJid($screenname, common_config('email', 'check_domain'));
-    }
-
     /**
      * Load related modules when needed
      *
@@ -289,13 +242,10 @@ class XmppPlugin extends ImPlugin
 
     function onAutoload($cls)
     {
-        $dir = dirname(__FILE__);
-
-        switch ($cls)
-        {
-        case 'XMPPHP_XMPP':
-            require_once $dir . '/extlib/XMPPHP/XMPP.php';
-            return false;
+        switch ($cls) {
+            case 'XMPPHP_XMPP':
+                require_once __DIR__ . '/extlib/XMPPHP/XMPP.php';
+                return false;
         }
 
         return parent::onAutoload($cls);
@@ -313,10 +263,51 @@ class XmppPlugin extends ImPlugin
         $this->queuedConnection()->message($screenname, $body, 'chat');
     }
 
+    /**
+     * Build a queue-proxied XMPP interface object. Any outgoing messages
+     * will be run back through us for enqueing rather than sent directly.
+     *
+     * @return QueuedXMPP
+     * @throws Exception if server settings are invalid.
+     */
+    function queuedConnection()
+    {
+        if (!isset($this->server)) {
+            // TRANS: Exception thrown when the plugin configuration is incorrect.
+            throw new Exception(_m('You must specify a server in the configuration.'));
+        }
+        if (!isset($this->port)) {
+            // TRANS: Exception thrown when the plugin configuration is incorrect.
+            throw new Exception(_m('You must specify a port in the configuration.'));
+        }
+        if (!isset($this->user)) {
+            // TRANS: Exception thrown when the plugin configuration is incorrect.
+            throw new Exception(_m('You must specify a user in the configuration.'));
+        }
+        if (!isset($this->password)) {
+            // TRANS: Exception thrown when the plugin configuration is incorrect.
+            throw new Exception(_m('You must specify a password in the configuration.'));
+        }
+
+        return new QueuedXMPP($this, $this->host ?
+            $this->host :
+            $this->server,
+            $this->port,
+            $this->user,
+            $this->password,
+            $this->resource,
+            $this->server,
+            $this->debug ?
+                true : false,
+            $this->debug ?
+                \XMPPHP\Log::LEVEL_VERBOSE : null
+        );
+    }
+
     function sendNotice($screenname, Notice $notice)
     {
         try {
-            $msg   = $this->formatNotice($notice);
+            $msg = $this->formatNotice($notice);
             $entry = $this->format_entry($notice);
         } catch (Exception $e) {
             common_log(LOG_ERR, __METHOD__ . ": Discarding outgoing stanza because of exception: {$e->getMessage()}");
@@ -329,8 +320,7 @@ class XmppPlugin extends ImPlugin
     /**
      * extra information for XMPP messages, as defined by Twitter
      *
-     * @param Profile $profile Profile of the sending user
-     * @param Notice  $notice  Notice being sent
+     * @param Notice $notice Notice being sent
      *
      * @return string Extra information (Atom, HTML, addresses) in string format
      */
@@ -351,23 +341,18 @@ class XmppPlugin extends ImPlugin
             $xs->text(" => ");
             $xs->element('a', array('href' => $orig_profurl), $orig_profile->nickname);
             $xs->text(": ");
-        } catch (InvalidUrlException $e) {
-            $xs->text(sprintf(' => %s', $orig_profile->nickname));
         } catch (NoParentNoticeException $e) {
-            $xs->text(": ");
-        } catch (NoResultException $e) {
-            // Parent notice was probably deleted.
             $xs->text(": ");
         }
         // FIXME: Why do we replace \t with ''? is it just to make it pretty? shouldn't whitespace be handled well...?
         $xs->raw(str_replace("\t", "", $notice->getRendered()));
         $xs->text(" ");
         $xs->element('a', array(
-            'href'=>common_local_url('conversation',
-                array('id' => $notice->conversation)).'#notice-'.$notice->id),
-             // TRANS: Link description to notice in conversation.
-             // TRANS: %s is a notice ID.
-             sprintf(_m('[%u]'),$notice->id));
+            'href' => common_local_url('conversation',
+                    array('id' => $notice->conversation)) . '#notice-' . $notice->id),
+            // TRANS: Link description to notice in conversation.
+            // TRANS: %s is a notice ID.
+            sprintf(_m('[%u]'), $notice->id));
         $xs->elementEnd('body');
         $xs->elementEnd('html');
 
@@ -381,12 +366,12 @@ class XmppPlugin extends ImPlugin
         $from = $this->normalize($pl['from']);
 
         if ($pl['type'] != 'chat') {
-            $this->log(LOG_WARNING, "Ignoring message of type ".$pl['type']." from $from: " . $pl['xml']->toString());
+            $this->log(LOG_WARNING, "Ignoring message of type " . $pl['type'] . " from $from: " . $pl['xml']->toString());
             return true;
         }
 
         if (mb_strlen($pl['body']) == 0) {
-            $this->log(LOG_WARNING, "Ignoring message with empty body from $from: "  . $pl['xml']->toString());
+            $this->log(LOG_WARNING, "Ignoring message with empty body from $from: " . $pl['xml']->toString());
             return true;
         }
 
@@ -396,43 +381,23 @@ class XmppPlugin extends ImPlugin
     }
 
     /**
-     * Build a queue-proxied XMPP interface object. Any outgoing messages
-     * will be run back through us for enqueing rather than sent directly.
+     * Normalizes a Jabber ID for comparison, dropping the resource component if any.
      *
-     * @return QueuedXMPP
-     * @throws Exception if server settings are invalid.
+     * @param string $jid JID to check
+     * @return string an equivalent JID in normalized (lowercase) form
      */
-    function queuedConnection(){
-        if(!isset($this->server)){
-            // TRANS: Exception thrown when the plugin configuration is incorrect.
-            throw new Exception(_m('You must specify a server in the configuration.'));
+    function normalize($jid)
+    {
+        try {
+            $parts = $this->splitJid($jid);
+            if ($parts['node'] !== null) {
+                return $parts['node'] . '@' . $parts['domain'];
+            } else {
+                return $parts['domain'];
+            }
+        } catch (Exception $e) {
+            return null;
         }
-        if(!isset($this->port)){
-            // TRANS: Exception thrown when the plugin configuration is incorrect.
-            throw new Exception(_m('You must specify a port in the configuration.'));
-        }
-        if(!isset($this->user)){
-            // TRANS: Exception thrown when the plugin configuration is incorrect.
-            throw new Exception(_m('You must specify a user in the configuration.'));
-        }
-        if(!isset($this->password)){
-            // TRANS: Exception thrown when the plugin configuration is incorrect.
-            throw new Exception(_m('You must specify a password in the configuration.'));
-        }
-
-        return new QueuedXMPP($this, $this->host ?
-                                    $this->host :
-                                    $this->server,
-                                    $this->port,
-                                    $this->user,
-                                    $this->password,
-                                    $this->resource,
-                                    $this->server,
-                                    $this->debug ?
-                                    true : false,
-                                    $this->debug ?
-                                    XMPPHP_Log::LEVEL_VERBOSE :  null
-                                    );
     }
 
     /**
@@ -444,10 +409,10 @@ class XmppPlugin extends ImPlugin
      */
     function onGetValidDaemons(&$daemons)
     {
-        if( isset($this->server) &&
-            isset($this->port)   &&
-            isset($this->user)   &&
-            isset($this->password) ){
+        if (isset($this->server) &&
+            isset($this->port) &&
+            isset($this->user) &&
+            isset($this->password)) {
 
             array_push(
                 $daemons,
@@ -459,17 +424,42 @@ class XmppPlugin extends ImPlugin
         return true;
     }
 
-
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'XMPP',
-                            'version' => GNUSOCIAL_VERSION,
-                            'author' => 'Craig Andrews, Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/XMPP',
-                            'rawdescription' =>
-                            // TRANS: Plugin description.
-                            _m('The XMPP plugin allows users to send and receive notices over the XMPP/Jabber network.'));
+            'version' => GNUSOCIAL_VERSION,
+            'author' => 'Craig Andrews, Evan Prodromou',
+            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/XMPP',
+            'rawdescription' =>
+            // TRANS: Plugin description.
+                _m('The XMPP plugin allows users to send and receive notices over the XMPP/Jabber network.'));
         return true;
+    }
+
+    /**
+     * Checks whether a string is a syntactically valid Jabber ID (JID),
+     * either with or without a resource.
+     *
+     * Note that a bare domain can be a valid JID.
+     *
+     * @param string $jid string to check
+     * @param bool $check_domain whether we should validate that domain...
+     *
+     * @return     boolean whether the string is a valid JID
+     */
+    protected function validateFullJid($jid, $check_domain = false)
+    {
+        try {
+            $parts = $this->splitJid($jid);
+            if ($check_domain) {
+                if (!$this->checkDomain($parts['domain'])) {
+                    return false;
+                }
+            }
+            return $parts['resource'] !== ''; // missing or present; empty ain't kosher
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }
 
