@@ -136,7 +136,8 @@ class XmppPlugin extends ImPlugin
         /* C4 - Non-character code points */
         $chars .= "\x{fdd0}-\x{fdef}\x{fffe}\x{ffff}\x{1fffe}\x{1ffff}\x{2fffe}\x{2ffff}\x{3fffe}\x{3ffff}\x{4fffe}\x{4ffff}\x{5fffe}\x{5ffff}\x{6fffe}\x{6ffff}\x{7fffe}\x{7ffff}\x{8fffe}\x{8ffff}\x{9fffe}\x{9ffff}\x{afffe}\x{affff}\x{bfffe}\x{bffff}\x{cfffe}\x{cffff}\x{dfffe}\x{dffff}\x{efffe}\x{effff}\x{ffffe}\x{fffff}\x{10fffe}\x{10ffff}";
         /* C5 - Surrogate codes */
-        $chars .= "\x{d800}-\x{dfff}";
+        // We can't use preg_match to check this, fix below
+        // $chars .= "\x{d800}-\x{dfff}";
         /* C6 - Inappropriate for plain text */
         $chars .= "\x{fff9}-\x{fffd}";
         /* C7 - Inappropriate for canonical representation */
@@ -176,13 +177,14 @@ class XmppPlugin extends ImPlugin
             }
         }
 
-        // Length limits per http://xmpp.org/rfcs/rfc3920.html#addressing
         if ($node !== null) {
+            // Length limits per http://xmpp.org/rfcs/rfc3920.html#addressing
             if (strlen($node) > 1023) {
                 // TRANS: Exception thrown when using too long a Jabber ID (>1023).
                 throw new Exception(_m('Invalid JID: node too long.'));
             }
-            if (preg_match("/[" . $nodeprepchars . "]/u", $node)) {
+            // C5 - Surrogate codes is ensured by encoding check
+            if (preg_match("/[" . $nodeprepchars . "]/u", $node) || mb_detect_encoding($node, 'UTF-8', true) != 'UTF-8') {
                 // TRANS: Exception thrown when using an invalid Jabber ID.
                 // TRANS: %s is the invalid Jabber ID.
                 throw new Exception(sprintf(_m('Invalid JID node "%s".'), $node));
