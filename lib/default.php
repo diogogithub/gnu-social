@@ -362,6 +362,7 @@ $default =
                             'SimpleCaptcha' => array(),
                             'TagSub' => array(),
                             'WebFinger' => array(),
+                            'Nodeinfo' => array(),
                         ),
               'locale_path' => false, // Set to a path to use *instead of* each plugin's own locale subdirectories
               'server' => null,
