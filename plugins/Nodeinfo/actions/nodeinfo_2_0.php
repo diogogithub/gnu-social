@@ -97,28 +97,24 @@ class Nodeinfo_2_0Action extends ApiAction
 
     public function getUserCount()
     {
-        $users = new User();
-        $userCount = $users->count();
+        $users = new Usage_stats();
+        $userCount = $users->getUserCount();
 
         return $userCount;
     }
 
     public function getPostCount()
     {
-        $notices = new Notice();
-        $notices->is_local = Notice::LOCAL_PUBLIC;
-        $notices->whereAdd('reply_to IS NULL');
-        $noticeCount = $notices->count();
+        $posts = new Usage_stats();
+        $postCount = $posts->getPostCount();
 
-        return $noticeCount;
+        return $postCount;
     }
 
     public function getCommentCount()
     {
-        $notices = new Notice();
-        $notices->is_local = Notice::LOCAL_PUBLIC;
-        $notices->whereAdd('reply_to IS NOT NULL');
-        $commentCount = $notices->count();
+        $comments = new Usage_stats();
+        $commentCount = $comments->getCommentCount();
 
         return $commentCount;
     }
