@@ -426,6 +426,18 @@ class XmppPlugin extends ImPlugin
         return true;
     }
 
+    /**
+     * Plugin Nodeinfo information
+     *
+     * @param array $protocols
+     * @return bool hook true
+     */
+    public function onNodeInfoProtocols(array &$protocols)
+    {
+        $protocols[] = "xmpp";
+        return true;
+    }
+
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'XMPP',

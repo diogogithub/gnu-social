@@ -1335,6 +1335,18 @@ class OStatusPlugin extends Plugin
         return true;
     }
 
+    /**
+     * Plugin Nodeinfo information
+     *
+     * @param array $protocols
+     * @return bool hook true
+     */
+    public function onNodeInfoProtocols(array &$protocols)
+    {
+        $protocols[] = "ostatus";
+        return true;
+    }
+
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'OStatus',

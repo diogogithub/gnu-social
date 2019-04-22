@@ -136,23 +136,9 @@ class Nodeinfo_2_0Action extends ApiAction
 
     public function getProtocols()
     {
-        $oStatusEnabled = array_key_exists('ostatus', $this->plugins);
-        $xmppEnabled = (array_key_exists('xmpp', $this->plugins) && common_config('xmpp', 'enabled')) ? true : false;
-        $protocols = array();
+        $protocols = [];
 
-        if (Event::handle('StartNodeInfoProtocols', array(&$protocols))) {
-            // Until the OStatus and XMPP plugins handle this themselves,
-            // try to figure out if they're enabled ourselves.
-
-            if ($oStatusEnabled) {
-                $protocols[] = 'ostatus';
-            }
-
-            if ($xmppEnabled) {
-                $protocols[] = 'xmpp';
-            }
-        }
-        Event::handle('EndNodeInfoProtocols', array(&$protocols));
+        Event::handle('NodeInfoProtocols', array(&$protocols));
 
         return $protocols;
     }
