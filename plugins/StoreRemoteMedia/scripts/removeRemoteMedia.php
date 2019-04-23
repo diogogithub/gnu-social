@@ -50,7 +50,7 @@ $include_previews = have_option('a', 'all');
 $image_only = have_option('i', 'image');
 
 if (!have_option('l', 'limit')) {
-    echo "You must provide a limit!";
+    echo "You must provide a limit!\n\n";
     show_help();
     exit(1);
 }
