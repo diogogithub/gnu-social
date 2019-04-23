@@ -5,8 +5,6 @@
  *
  * Stream of notices for a profile's "all" feed
  *
- * PHP version 5
- *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -137,6 +135,14 @@ class RawInboxNoticeStream extends FullNoticeStream
             )
         );
         $notice_ids += $group_inbox->fetchAll('notice_id');
+
+        // This is just to make the query lighter when processed by the Database server
+        $notice_ids = array_filter($notice_ids, function ($id) {
+            // Keep id (a.k.a.: return true) if:
+            // - id higher than since id (just constrain if specified)
+            // - id lower than max id (just constrain if specified)
+            return (empty($since_id) || $id > $since_id) && (empty($max_id) || $id <= $max_id);
+        });
 
         $query_ids = '';
 
