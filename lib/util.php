@@ -197,7 +197,7 @@ function common_language()
     if (common_config('site', 'langdetect')) {
         $httplang = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : null;
         if (!empty($httplang)) {
-            $language = client_prefered_language($httplang);
+            $language = client_preferred_language($httplang);
             if ($language)
               return $language;
         }

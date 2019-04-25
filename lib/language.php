@@ -1,10 +1,8 @@
 <?php
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * GNU social - a federating social network
  *
  * utility functions for i18n
- *
- * PHP version 5
  *
  * LICENCE: This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category I18n
- * @package  StatusNet
+ * @package  GNU social
  * @author   Matthew Gregg <matthew.gregg@gmail.com>
  * @author   Ciaran Gultnieks <ciaran@ciarang.com>
  * @author   Evan Prodromou <evan@status.net>
@@ -34,23 +32,18 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 
 // Locale category constants are usually predefined, but may not be
 // on some systems such as Win32.
-$LC_CATEGORIES = array('LC_CTYPE',
-                       'LC_NUMERIC',
-                       'LC_TIME',
-                       'LC_COLLATE',
-                       'LC_MONETARY',
-                       'LC_MESSAGES',
-                       'LC_ALL');
+$LC_CATEGORIES = ['LC_CTYPE',
+                  'LC_NUMERIC',
+                  'LC_TIME',
+                  'LC_COLLATE',
+                  'LC_MONETARY',
+                  'LC_MESSAGES',
+                  'LC_ALL'];
 foreach ($LC_CATEGORIES as $key => $name) {
     if (!defined($name)) {
         define($name, $key);
     }
 }
-
-if (!function_exists('gettext')) {
-    require_once("php-gettext/gettext.inc");
-}
-
 
 if (!function_exists('dpgettext')) {
     /**
@@ -63,7 +56,7 @@ if (!function_exists('dpgettext')) {
      *
      * @param string $domain domain identifier
      * @param string $context context identifier, should be some key like "menu|file"
-     * @param string $msgid English source text
+     * @param string $msg English source text
      * @return string original or translated message
      */
     function dpgettext($domain, $context, $msg)
@@ -91,9 +84,9 @@ if (!function_exists('pgettext')) {
      * @param string $msgid English source text
      * @return string original or translated message
      */
-    function pgettext($context, $msg)
+    function pgettext($context, $msgid)
     {
-        return dpgettext(textdomain(NULL), $context, $msg);
+        return dpgettext(textdomain(NULL), $context, $msgid);
     }
 }
 
@@ -135,12 +128,12 @@ if (!function_exists('npgettext')) {
      * with gettext.h's macros.
      *
      * @param string $context context identifier, should be some key like "menu|file"
-     * @param string $msg singular English source text
+     * @param string $msgid singular English source text
      * @param string $plural plural English source text
      * @param int $n number of items to control plural selection
      * @return string original or translated message
      */
-    function npgettext($context, $msg, $plural, $n)
+    function npgettext($context, $msgid, $plural, $n)
     {
         return dnpgettext(textdomain(NULL), $msgid, $plural, $n, LC_MESSAGES);
     }
@@ -165,17 +158,23 @@ if (!function_exists('npgettext')) {
  *
  * @param string $msg
  * @return string
+ * @throws Exception
  */
 function _m($msg/*, ...*/)
 {
     $domain = _mdomain(debug_backtrace());
     $args = func_get_args();
-    switch(count($args)) {
-    case 1: return dgettext($domain, $msg);
-    case 2: return dpgettext($domain, $args[0], $args[1]);
-    case 3: return dngettext($domain, $args[0], $args[1], $args[2]);
-    case 4: return dnpgettext($domain, $args[0], $args[1], $args[2], $args[3]);
-    default: throw new Exception("Bad parameter count to _m()");
+    switch (count($args)) {
+        case 1:
+            return dgettext($domain, $msg);
+        case 2:
+            return dpgettext($domain, $args[0], $args[1]);
+        case 3:
+            return dngettext($domain, $args[0], $args[1], $args[2]);
+        case 4:
+            return dnpgettext($domain, $args[0], $args[1], $args[2], $args[3]);
+        default:
+            throw new Exception("Bad parameter count to _m()");
     }
 }
 
@@ -206,7 +205,6 @@ function _mdomain($backtrace)
     static $cached;
     $path = $backtrace[0]['file'];
     if (!isset($cached[$path])) {
-        $final = 'statusnet'; // assume default domain
         if (DIRECTORY_SEPARATOR !== '/') {
             $path = strtr($path, DIRECTORY_SEPARATOR, '/');
         }
@@ -234,38 +232,37 @@ function _mdomain($backtrace)
 /**
  * Content negotiation for language codes
  *
- * @param string $httplang HTTP Accept-Language header
- *
- * @return string language code for best language match
+ * @param $http_accept_lang_header string HTTP Accept-Language header
+ * @return string language code for best language match, false otherwise
  */
 
-function client_prefered_language($httplang)
+function client_preferred_language($http_accept_lang_header)
 {
-    $client_langs = array();
+    $client_langs = [];
 
     $all_languages = common_config('site', 'languages');
 
     preg_match_all('"(((\S\S)-?(\S\S)?)(;q=([0-9.]+))?)\s*(,\s*|$)"',
-                   strtolower($httplang), $httplang);
+        strtolower($http_accept_lang_header), $http_langs);
 
-    for ($i = 0; $i < count($httplang); $i++) {
-        if (!empty($httplang[2][$i])) {
+    for ($i = 0; $i < count($http_langs); ++$i) {
+        if (!empty($http_langs[2][$i])) {
             // if no q default to 1.0
-            $client_langs[$httplang[2][$i]] =
-              ($httplang[6][$i]? (float) $httplang[6][$i] : 1.0 - ($i*0.01));
+            $client_langs[$http_langs[2][$i]] =
+                ($http_langs[6][$i] ? (float)$http_langs[6][$i] : 1.0 - ($i * 0.01));
         }
-        if (!empty($httplang[3][$i]) && empty($client_langs[$httplang[3][$i]])) {
+        if (!empty($http_langs[3][$i]) && empty($client_langs[$http_langs[3][$i]])) {
             // if a catchall default 0.01 lower
-            $client_langs[$httplang[3][$i]] =
-              ($httplang[6][$i]? (float) $httplang[6][$i]-0.01 : 0.99);
+            $client_langs[$http_langs[3][$i]] =
+                ($http_langs[6][$i] ? (float)$http_langs[6][$i] - 0.01 : 0.99);
         }
     }
-    // sort in decending q
+    // sort in descending q
     arsort($client_langs);
 
     foreach ($client_langs as $lang => $q) {
         if (isset($all_languages[$lang])) {
-            return($all_languages[$lang]['lang']);
+            return ($all_languages[$lang]['lang']);
         }
     }
     return false;
@@ -279,7 +276,7 @@ function client_prefered_language($httplang)
 
 function get_nice_language_list()
 {
-    $nice_lang = array();
+    $nice_lang = [];
 
     $all_languages = common_config('site', 'languages');
 
@@ -313,71 +310,72 @@ function is_rtl($lang)
  *
  * @return array mapping of language codes to language info
  */
-function get_all_languages() {
-    return array(
-        'af'      => array('q' => 0.8, 'lang' => 'af', 'name' => 'Afrikaans', 'direction' => 'ltr'),
-        'ar'      => array('q' => 0.8, 'lang' => 'ar', 'name' => 'Arabic', 'direction' => 'rtl'),
-        'ast'      => array('q' => 1, 'lang' => 'ast', 'name' => 'Asturian', 'direction' => 'ltr'),        
-        'eu'      => array('q' => 1, 'lang' => 'eu',    'name' => 'Basque', 'direction' => 'ltr'),
-        'be-tarask' => array('q' => 0.5, 'lang' => 'be-tarask', 'name' => 'Belarusian (Taraškievica orthography)', 'direction' => 'ltr'),
-        'br'      => array('q' => 0.8, 'lang' => 'br', 'name' => 'Breton', 'direction' => 'ltr'),
-        'bg'      => array('q' => 0.8, 'lang' => 'bg', 'name' => 'Bulgarian', 'direction' => 'ltr'),
-        'my'      => array('q' => 1, 'lang' => 'my', 'name' => 'Burmese', 'direction' => 'ltr'),        
-        'ca'      => array('q' => 0.5, 'lang' => 'ca', 'name' => 'Catalan', 'direction' => 'ltr'),
-        'zh-cn'   => array('q' => 0.9, 'lang' => 'zh_CN', 'name' => 'Chinese (Simplified)', 'direction' => 'ltr'),
-        'zh-hant' => array('q' => 0.2, 'lang' => 'zh_TW', 'name' => 'Chinese (Taiwanese)', 'direction' => 'ltr'),
-        'ksh'      => array('q' => 1, 'lang' => 'ksh', 'name' => 'Colognian', 'direction' => 'ltr'),
-        'cs'      => array('q' => 0.5, 'lang' => 'cs', 'name' => 'Czech', 'direction' => 'ltr'),        
-        'da'      => array('q' => 0.8, 'lang' => 'da', 'name' => 'Danish', 'direction' => 'ltr'),
-        'nl'      => array('q' => 0.5, 'lang' => 'nl', 'name' => 'Dutch', 'direction' => 'ltr'),        
-        'arz'     => array('q' => 0.8, 'lang' => 'arz', 'name' => 'Egyptian Spoken Arabic', 'direction' => 'rtl'),
-        'en'      => array('q' => 1, 'lang' => 'en',    'name' => 'English', 'direction' => 'ltr'),
-        'en-us'   => array('q' => 1, 'lang' => 'en', 'name' => 'English (US)', 'direction' => 'ltr'),
-        'en-gb'   => array('q' => 1, 'lang' => 'en_GB', 'name' => 'English (British)', 'direction' => 'ltr'),
-        'eo'      => array('q' => 0.8, 'lang' => 'eo',    'name' => 'Esperanto', 'direction' => 'ltr'),        
-        'fi'      => array('q' => 1, 'lang' => 'fi', 'name' => 'Finnish', 'direction' => 'ltr'),
-        'fr'      => array('q' => 1, 'lang' => 'fr', 'name' => 'French', 'direction' => 'ltr'),
-        'fr-fr'   => array('q' => 1, 'lang' => 'fr', 'name' => 'French (France)', 'direction' => 'ltr'),
-        'fur'     => array('q' => 0.8, 'lang' => 'fur', 'name' => 'Friulian', 'direction' => 'ltr'),                       
-        'gl'      => array('q' => 0.8, 'lang' => 'gl', 'name' => 'Galician', 'direction' => 'ltr'),
-        'ka'      => array('q' => 0.8, 'lang' => 'ka',    'name' => 'Georgian', 'direction' => 'ltr'),
-        'de'      => array('q' => 0.8, 'lang' => 'de', 'name' => 'German', 'direction' => 'ltr'),
-        'el'      => array('q' => 0.1, 'lang' => 'el',    'name' => 'Greek', 'direction' => 'ltr'),        
-        'he'      => array('q' => 0.5, 'lang' => 'he', 'name' => 'Hebrew', 'direction' => 'rtl'),
-        'hu'      => array('q' => 0.8, 'lang' => 'hu', 'name' => 'Hungarian', 'direction' => 'ltr'),        
-        'is'      => array('q' => 0.1, 'lang' => 'is', 'name' => 'Icelandic', 'direction' => 'ltr'),
-        'id'      => array('q' => 1, 'lang' => 'id', 'name' => 'Indonesian', 'direction' => 'ltr'),
-        'ia'      => array('q' => 0.8, 'lang' => 'ia', 'name' => 'Interlingua', 'direction' => 'ltr'),
-        'ga'      => array('q' => 0.5, 'lang' => 'ga', 'name' => 'Irish', 'direction' => 'ltr'),
-        'it'      => array('q' => 1, 'lang' => 'it', 'name' => 'Italian', 'direction' => 'ltr'),        
-        'ja'      => array('q' => 0.5, 'lang' => 'ja', 'name' => 'Japanese', 'direction' => 'ltr'),        
-        'ko'      => array('q' => 0.9, 'lang' => 'ko',    'name' => 'Korean', 'direction' => 'ltr'),        
-        'lv'      => array('q' => 1, 'lang' => 'lv', 'name' => 'Latvian', 'direction' => 'ltr'),
-        'lt'      => array('q' => 1, 'lang' => 'lt', 'name' => 'Lithuanian', 'direction' => 'ltr'),
-        'lb'      => array('q' => 1, 'lang' => 'lb', 'name' => 'Luxembourgish', 'direction' => 'ltr'),
-        'mk'      => array('q' => 0.5, 'lang' => 'mk', 'name' => 'Macedonian', 'direction' => 'ltr'),
-        'mg'      => array('q' => 1, 'lang' => 'mg', 'name' => 'Malagasy', 'direction' => 'ltr'),
-        'ms'      => array('q' => 1, 'lang' => 'ms', 'name' => 'Malay', 'direction' => 'ltr'),
-        'ml'      => array('q' => 0.5, 'lang' => 'ml', 'name' => 'Malayalam', 'direction' => 'ltr'),
-        'ne'      => array('q' => 1, 'lang' => 'ne', 'name' => 'Nepali', 'direction' => 'ltr'),
-        'nb'      => array('q' => 0.1, 'lang' => 'nb', 'name' => 'Norwegian (Bokmål)', 'direction' => 'ltr'),
-        'no'      => array('q' => 0.1, 'lang' => 'nb', 'name' => 'Norwegian (Bokmål)', 'direction' => 'ltr'),
-        'nn'      => array('q' => 1, 'lang' => 'nn', 'name' => 'Norwegian (Nynorsk)', 'direction' => 'ltr'),
-        'fa'      => array('q' => 1, 'lang' => 'fa', 'name' => 'Persian', 'direction' => 'rtl'),
-        'pl'      => array('q' => 0.5, 'lang' => 'pl', 'name' => 'Polish', 'direction' => 'ltr'),
-        'pt'      => array('q' => 0.1, 'lang' => 'pt',    'name' => 'Portuguese', 'direction' => 'ltr'),
-        'pt-br'   => array('q' => 0.9, 'lang' => 'pt_BR', 'name' => 'Portuguese Brazil', 'direction' => 'ltr'),
-        'ru'      => array('q' => 0.9, 'lang' => 'ru', 'name' => 'Russian', 'direction' => 'ltr'),
-        'sr-ec'      => array('q' => 1, 'lang' => 'sr-ec', 'name' => 'Serbian', 'direction' => 'ltr'),
-        'es'      => array('q' => 1, 'lang' => 'es',    'name' => 'Spanish', 'direction' => 'ltr'),
-        'sv'      => array('q' => 0.8, 'lang' => 'sv', 'name' => 'Swedish', 'direction' => 'ltr'),
-        'tl'      => array('q' => 0.8, 'lang' => 'tl', 'name' => 'Tagalog', 'direction' => 'ltr'),
-        'ta'      => array('q' => 1, 'lang' => 'ta', 'name' => 'Tamil', 'direction' => 'ltr'),
-        'te'      => array('q' => 0.3, 'lang' => 'te', 'name' => 'Telugu', 'direction' => 'ltr'),
-        'tr'      => array('q' => 0.5, 'lang' => 'tr', 'name' => 'Turkish', 'direction' => 'ltr'),
-        'uk'      => array('q' => 1, 'lang' => 'uk', 'name' => 'Ukrainian', 'direction' => 'ltr'),
-        'hsb'     => array('q' => 0.8, 'lang' => 'hsb', 'name' => 'Upper Sorbian', 'direction' => 'ltr'),
-        'ur_PK'      => array('q' => 1, 'lang' => 'ur', 'name' => 'Urdu (Pakistan)', 'direction' => 'rtl'),
-        'vi'      => array('q' => 0.8, 'lang' => 'vi', 'name' => 'Vietnamese', 'direction' => 'ltr'),    
-    );
+function get_all_languages()
+{
+    return [
+        'af'        => ['q' => 0.8, 'lang' => 'af', 'name' => 'Afrikaans', 'direction' => 'ltr'],
+        'ar'        => ['q' => 0.8, 'lang' => 'ar', 'name' => 'Arabic', 'direction' => 'rtl'],
+        'ast'       => ['q' => 1, 'lang' => 'ast', 'name' => 'Asturian', 'direction' => 'ltr'],
+        'eu'        => ['q' => 1, 'lang' => 'eu', 'name' => 'Basque', 'direction' => 'ltr'],
+        'be-tarask' => ['q' => 0.5, 'lang' => 'be-tarask', 'name' => 'Belarusian (Taraškievica orthography)', 'direction' => 'ltr'],
+        'br'        => ['q' => 0.8, 'lang' => 'br', 'name' => 'Breton', 'direction' => 'ltr'],
+        'bg'        => ['q' => 0.8, 'lang' => 'bg', 'name' => 'Bulgarian', 'direction' => 'ltr'],
+        'my'        => ['q' => 1, 'lang' => 'my', 'name' => 'Burmese', 'direction' => 'ltr'],
+        'ca'        => ['q' => 0.5, 'lang' => 'ca', 'name' => 'Catalan', 'direction' => 'ltr'],
+        'zh-cn'     => ['q' => 0.9, 'lang' => 'zh_CN', 'name' => 'Chinese (Simplified)', 'direction' => 'ltr'],
+        'zh-hant'   => ['q' => 0.2, 'lang' => 'zh_TW', 'name' => 'Chinese (Taiwanese)', 'direction' => 'ltr'],
+        'ksh'       => ['q' => 1, 'lang' => 'ksh', 'name' => 'Colognian', 'direction' => 'ltr'],
+        'cs'        => ['q' => 0.5, 'lang' => 'cs', 'name' => 'Czech', 'direction' => 'ltr'],
+        'da'        => ['q' => 0.8, 'lang' => 'da', 'name' => 'Danish', 'direction' => 'ltr'],
+        'nl'        => ['q' => 0.5, 'lang' => 'nl', 'name' => 'Dutch', 'direction' => 'ltr'],
+        'arz'       => ['q' => 0.8, 'lang' => 'arz', 'name' => 'Egyptian Spoken Arabic', 'direction' => 'rtl'],
+        'en'        => ['q' => 1, 'lang' => 'en', 'name' => 'English', 'direction' => 'ltr'],
+        'en-us'     => ['q' => 1, 'lang' => 'en', 'name' => 'English (US)', 'direction' => 'ltr'],
+        'en-gb'     => ['q' => 1, 'lang' => 'en_GB', 'name' => 'English (UK)', 'direction' => 'ltr'],
+        'eo'        => ['q' => 0.8, 'lang' => 'eo', 'name' => 'Esperanto', 'direction' => 'ltr'],
+        'fi'        => ['q' => 1, 'lang' => 'fi', 'name' => 'Finnish', 'direction' => 'ltr'],
+        'fr'        => ['q' => 1, 'lang' => 'fr', 'name' => 'French', 'direction' => 'ltr'],
+        'fr-fr'     => ['q' => 1, 'lang' => 'fr', 'name' => 'French (France)', 'direction' => 'ltr'],
+        'fur'       => ['q' => 0.8, 'lang' => 'fur', 'name' => 'Friulian', 'direction' => 'ltr'],
+        'gl'        => ['q' => 0.8, 'lang' => 'gl', 'name' => 'Galician', 'direction' => 'ltr'],
+        'ka'        => ['q' => 0.8, 'lang' => 'ka', 'name' => 'Georgian', 'direction' => 'ltr'],
+        'de'        => ['q' => 0.8, 'lang' => 'de', 'name' => 'German', 'direction' => 'ltr'],
+        'el'        => ['q' => 0.1, 'lang' => 'el', 'name' => 'Greek', 'direction' => 'ltr'],
+        'he'        => ['q' => 0.5, 'lang' => 'he', 'name' => 'Hebrew', 'direction' => 'rtl'],
+        'hu'        => ['q' => 0.8, 'lang' => 'hu', 'name' => 'Hungarian', 'direction' => 'ltr'],
+        'is'        => ['q' => 0.1, 'lang' => 'is', 'name' => 'Icelandic', 'direction' => 'ltr'],
+        'id'        => ['q' => 1, 'lang' => 'id', 'name' => 'Indonesian', 'direction' => 'ltr'],
+        'ia'        => ['q' => 0.8, 'lang' => 'ia', 'name' => 'Interlingua', 'direction' => 'ltr'],
+        'ga'        => ['q' => 0.5, 'lang' => 'ga', 'name' => 'Irish', 'direction' => 'ltr'],
+        'it'        => ['q' => 1, 'lang' => 'it', 'name' => 'Italian', 'direction' => 'ltr'],
+        'ja'        => ['q' => 0.5, 'lang' => 'ja', 'name' => 'Japanese', 'direction' => 'ltr'],
+        'ko'        => ['q' => 0.9, 'lang' => 'ko', 'name' => 'Korean', 'direction' => 'ltr'],
+        'lv'        => ['q' => 1, 'lang' => 'lv', 'name' => 'Latvian', 'direction' => 'ltr'],
+        'lt'        => ['q' => 1, 'lang' => 'lt', 'name' => 'Lithuanian', 'direction' => 'ltr'],
+        'lb'        => ['q' => 1, 'lang' => 'lb', 'name' => 'Luxembourgish', 'direction' => 'ltr'],
+        'mk'        => ['q' => 0.5, 'lang' => 'mk', 'name' => 'Macedonian', 'direction' => 'ltr'],
+        'mg'        => ['q' => 1, 'lang' => 'mg', 'name' => 'Malagasy', 'direction' => 'ltr'],
+        'ms'        => ['q' => 1, 'lang' => 'ms', 'name' => 'Malay', 'direction' => 'ltr'],
+        'ml'        => ['q' => 0.5, 'lang' => 'ml', 'name' => 'Malayalam', 'direction' => 'ltr'],
+        'ne'        => ['q' => 1, 'lang' => 'ne', 'name' => 'Nepali', 'direction' => 'ltr'],
+        'nb'        => ['q' => 0.1, 'lang' => 'nb', 'name' => 'Norwegian (Bokmål)', 'direction' => 'ltr'],
+        'no'        => ['q' => 0.1, 'lang' => 'nb', 'name' => 'Norwegian (Bokmål)', 'direction' => 'ltr'],
+        'nn'        => ['q' => 1, 'lang' => 'nn', 'name' => 'Norwegian (Nynorsk)', 'direction' => 'ltr'],
+        'fa'        => ['q' => 1, 'lang' => 'fa', 'name' => 'Persian', 'direction' => 'rtl'],
+        'pl'        => ['q' => 0.5, 'lang' => 'pl', 'name' => 'Polish', 'direction' => 'ltr'],
+        'pt'        => ['q' => 1, 'lang' => 'pt', 'name' => 'Portuguese', 'direction' => 'ltr'],
+        'pt-br'     => ['q' => 0.9, 'lang' => 'pt_BR', 'name' => 'Brazilian Portuguese', 'direction' => 'ltr'],
+        'ru'        => ['q' => 0.9, 'lang' => 'ru', 'name' => 'Russian', 'direction' => 'ltr'],
+        'sr-ec'     => ['q' => 1, 'lang' => 'sr-ec', 'name' => 'Serbian', 'direction' => 'ltr'],
+        'es'        => ['q' => 1, 'lang' => 'es', 'name' => 'Spanish', 'direction' => 'ltr'],
+        'sv'        => ['q' => 0.8, 'lang' => 'sv', 'name' => 'Swedish', 'direction' => 'ltr'],
+        'tl'        => ['q' => 0.8, 'lang' => 'tl', 'name' => 'Tagalog', 'direction' => 'ltr'],
+        'ta'        => ['q' => 1, 'lang' => 'ta', 'name' => 'Tamil', 'direction' => 'ltr'],
+        'te'        => ['q' => 0.3, 'lang' => 'te', 'name' => 'Telugu', 'direction' => 'ltr'],
+        'tr'        => ['q' => 0.5, 'lang' => 'tr', 'name' => 'Turkish', 'direction' => 'ltr'],
+        'uk'        => ['q' => 1, 'lang' => 'uk', 'name' => 'Ukrainian', 'direction' => 'ltr'],
+        'hsb'       => ['q' => 0.8, 'lang' => 'hsb', 'name' => 'Upper Sorbian', 'direction' => 'ltr'],
+        'ur'        => ['q' => 1, 'lang' => 'ur_PK', 'name' => 'Urdu (Pakistan)', 'direction' => 'rtl'],
+        'vi'        => ['q' => 0.8, 'lang' => 'vi', 'name' => 'Vietnamese', 'direction' => 'ltr'],
+    ];
 }
