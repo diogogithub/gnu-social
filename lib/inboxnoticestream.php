@@ -101,62 +101,24 @@ class RawInboxNoticeStream extends FullNoticeStream
      */
     public function getNoticeIds($offset, $limit, $since_id = null, $max_id = null)
     {
-        $notice_ids = [];
-
-        // Grab all the profiles target is subscribed to (every user is subscribed to themselves)
-        $subscription = new Subscription();
-        $subscription->selectAdd();
-        $subscription->selectAdd('subscribed');
-        $subscription->whereAdd(sprintf('subscriber = %1$d', $this->target->id));
-        $subscription_profile_ids = $subscription->fetchAll('subscribed');
-
-        // Grab all the notices were target was mentioned
-        $reply = new Reply();
-        $reply->selectAdd();
-        $reply->selectAdd('notice_id');
-        $reply->whereAdd(sprintf('profile_id = %1$d', $this->target->id));
-        $notice_ids += $reply->fetchAll('notice_id');
-
-        // Grab all the notices that require target's attention
-        $attention = new Attention();
-        $attention->selectAdd();
-        $attention->selectAdd('notice_id');
-        $attention->whereAdd(sprintf('profile_id = %1$d', $this->target->id));
-        $notice_ids += $attention->fetchAll('notice_id');
-
-        // Grab all the notices posted on groups target is a member of
-        $group_inbox = new Group_inbox();
-        $group_inbox->selectAdd();
-        $group_inbox->selectAdd('notice_id');
-        $group_inbox->whereAdd(
-            sprintf(
-                'group_id IN (SELECT group_id FROM group_member WHERE profile_id = %1$d)',
-                $this->target->id
-            )
-        );
-        $notice_ids += $group_inbox->fetchAll('notice_id');
-
-        // This is just to make the query lighter when processed by the Database server
-        $notice_ids = array_filter($notice_ids, function ($id) {
-            // Keep id (a.k.a.: return true) if:
-            // - id higher than since id (just constrain if specified)
-            // - id lower than max id (just constrain if specified)
-            return (empty($since_id) || $id > $since_id) && (empty($max_id) || $id <= $max_id);
-        });
-
-        $query_ids = '';
-
-        if (!empty($notice_ids)) { // Replies, Attentions and Groups
-            $query_ids .= 'notice.id IN (' . implode(', ', $notice_ids) . ') OR ';
-        }
-        // every user is at least subscribed to themselves
-        $query_ids .= 'notice.profile_id IN (' . implode(', ', $subscription_profile_ids) . ')';
-
         $notice = new Notice();
         $notice->selectAdd();
         $notice->selectAdd('id');
         $notice->whereAdd(sprintf('notice.created > "%s"', $notice->escape($this->target->created)));
-        $notice->whereAdd($query_ids);
+        // Reply:: is a table of mentions
+        // Subscription:: is a table of subscriptions (every user is subscribed to themselves)
+        // Sort in descending order as id will give us even really old posts,
+        // which were recently imported. For example, if a remote instance had
+        // problems and just managed to post here.
+        $notice->whereAdd(
+            sprintf('id IN (SELECT DISTINCT id FROM (' .
+                '(SELECT id FROM notice WHERE profile_id IN (SELECT subscribed FROM subscription WHERE subscriber = %1$d)) UNION ' .
+                '(SELECT notice_id AS id FROM reply WHERE profile_id = %1$d) UNION ' .
+                '(SELECT notice_id AS id FROM attention WHERE profile_id = %1$d) UNION ' .
+                '(SELECT notice_id AS id FROM group_inbox WHERE group_id IN (SELECT group_id FROM group_member WHERE profile_id = %1$d)) ' .
+                'ORDER BY id DESC) AS T)',
+                $this->target->getID())
+        );
 
         if (!empty($since_id)) {
             $notice->whereAdd(sprintf('notice.id > %d', $since_id));
@@ -168,16 +130,10 @@ class RawInboxNoticeStream extends FullNoticeStream
         self::filterVerbs($notice, $this->selectVerbs);
 
         $notice->limit($offset, $limit);
-        // notice.id will give us even really old posts, which were
-        // recently imported. For example if a remote instance had
-        // problems and just managed to post here. Another solution
-        // would be to have a 'notice.imported' field and order by it.
-        $notice->orderBy('notice.id DESC');
 
         if (!$notice->find()) {
             return [];
         }
-
 
         return $notice->fetchAll('id');
     }
