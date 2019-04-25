@@ -81,7 +81,12 @@ class AttachmentListItem extends Widget
     function show()
     {
         $this->showStart();
-        $this->showNoticeAttachment();
+        try {
+            $this->showNoticeAttachment();
+        } catch (Exception $e) {
+            $this->element('div', ['class'=>'error'], $e->getMessage());
+            common_debug($e->getMessage());
+        }
         $this->showEnd();
     }
 
