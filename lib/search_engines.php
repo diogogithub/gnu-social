@@ -17,7 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
+if (!defined('STATUSNET') && !defined('LACONICA')) {
+    exit(1);
+}
 
 class SearchEngine
 {
@@ -42,33 +44,33 @@ class SearchEngine
     function set_sort_mode($mode)
     {
         switch ($mode) {
-        case 'chron':
-            return $this->target->orderBy('created DESC');
-            break;
-        case 'reverse_chron':
-            return $this->target->orderBy('created ASC');
-            break;
-        case 'nickname_desc':
-            if ($this->table != 'profile') {
-                throw new Exception(
-                    'nickname_desc sort mode can only be use when searching profile.'
-                );
-            } else {
-                return $this->target->orderBy(sprintf('%1$s.nickname DESC', $this->table));
-            }
-            break;
-        case 'nickname_asc':
-            if ($this->table != 'profile') {
-                throw new Exception(
-                    'nickname_desc sort mode can only be use when searching profile.'
-                );
-            } else {
-                return $this->target->orderBy(sprintf('%1$s.nickname ASC', $this->table));
-            }
-            break;
-        default:
-            return $this->target->orderBy('created DESC');
-            break;
+            case 'chron':
+                return $this->target->orderBy('created DESC');
+                break;
+            case 'reverse_chron':
+                return $this->target->orderBy('created ASC');
+                break;
+            case 'nickname_desc':
+                if ($this->table != 'profile') {
+                    throw new Exception(
+                        'nickname_desc sort mode can only be use when searching profile.'
+                    );
+                } else {
+                    return $this->target->orderBy(sprintf('%1$s.nickname DESC', $this->table));
+                }
+                break;
+            case 'nickname_asc':
+                if ($this->table != 'profile') {
+                    throw new Exception(
+                        'nickname_desc sort mode can only be use when searching profile.'
+                    );
+                } else {
+                    return $this->target->orderBy(sprintf('%1$s.nickname ASC', $this->table));
+                }
+                break;
+            default:
+                return $this->target->orderBy('created DESC');
+                break;
         }
     }
 }
@@ -78,11 +80,20 @@ class MySQLSearch extends SearchEngine
     function query($q)
     {
         if ('profile' === $this->table) {
-            $this->target->whereAdd('MATCH(nickname, fullname, location, bio, homepage) ' .
-                                    'AGAINST (\''.$this->target->escape($q).'\' IN BOOLEAN MODE)');
+            $this->target->whereAdd(
+                sprintf('MATCH (%2$s.nickname, %2$s.fullname, %2$s.location, %2$s.bio, %2$s.homepage) ' .
+                    'AGAINST ("%1$s" IN BOOLEAN MODE)',
+                    $this->target->escape($q, true),
+                    $this->table)
+            );
             if (strtolower($q) != $q) {
-                $this->target->whereAdd('MATCH(nickname, fullname, location, bio, homepage) ' .
-                                        'AGAINST (\''.$this->target->escape(strtolower($q)).'\' IN BOOLEAN MODE)', 'OR');
+                $this->target->whereAdd(
+                    sprintf('MATCH (%2$s.nickname, %2$s.fullname, %2$s.location, %2$s.bio, %2$s.homepage) ' .
+                        'AGAINST ("%1$s" IN BOOLEAN MODE)',
+                        $this->target->escape(strtolower($q), true),
+                        $this->table),
+                    'OR'
+                );
             }
             return true;
         } else if ('notice' === $this->table) {
@@ -90,14 +101,18 @@ class MySQLSearch extends SearchEngine
             // Don't show imported notices
             $this->target->whereAdd('notice.is_local != ' . Notice::GATEWAY);
 
+            $this->target->whereAdd(
+                sprintf('MATCH (%2$s.content) AGAINST ("%1$s" IN BOOLEAN MODE)',
+                    $this->target->escape($q, true),
+                    $this->table)
+            );
             if (strtolower($q) != $q) {
-                $this->target->whereAdd("( MATCH(content) AGAINST ('" . $this->target->escape($q) .
-                    "' IN BOOLEAN MODE)) OR ( MATCH(content) " .
-                    "AGAINST ('"  . $this->target->escape(strtolower($q)) .
-                    "' IN BOOLEAN MODE))");
-            } else {
-                $this->target->whereAdd('MATCH(content) ' .
-                                         'AGAINST (\''.$this->target->escape($q).'\' IN BOOLEAN MODE)');
+                $this->target->whereAdd(
+                    sprintf('MATCH (%2$s.content) AGAINST ("%1$s" IN BOOLEAN MODE)',
+                        $this->target->escape(strtolower($q), true),
+                        $this->table),
+                    'OR'
+                );
             }
 
             return true;
@@ -112,11 +127,11 @@ class MySQLLikeSearch extends SearchEngine
     function query($q)
     {
         if ('profile' === $this->table) {
-            $qry = sprintf('(%2$s.nickname LIKE "%%%1$s%%" OR '.
-                            ' %2$s.fullname LIKE "%%%1$s%%" OR '.
-                            ' %2$s.location LIKE "%%%1$s%%" OR '.
-                            ' %2$s.bio      LIKE "%%%1$s%%" OR '.
-                            ' %2$s.homepage LIKE "%%%1$s%%")',
+            $qry = sprintf('(%2$s.nickname LIKE "%%%1$s%%" OR ' .
+                           ' %2$s.fullname LIKE "%%%1$s%%" OR ' .
+                           ' %2$s.location LIKE "%%%1$s%%" OR ' .
+                           ' %2$s.bio      LIKE "%%%1$s%%" OR ' .
+                           ' %2$s.homepage LIKE "%%%1$s%%")',
                            $this->target->escape($q, true),
                            $this->table);
         } else if ('notice' === $this->table) {
@@ -136,12 +151,12 @@ class PGSearch extends SearchEngine
     function query($q)
     {
         if ('profile' === $this->table) {
-            return $this->target->whereAdd('textsearch @@ plainto_tsquery(\''.$this->target->escape($q).'\')');
+            return $this->target->whereAdd('textsearch @@ plainto_tsquery(\'' . $this->target->escape($q) . '\')');
         } else if ('notice' === $this->table) {
 
             // XXX: We need to filter out gateway notices (notice.is_local = -2) --Zach
 
-            return $this->target->whereAdd('to_tsvector(\'english\', content) @@ plainto_tsquery(\''.$this->target->escape($q).'\')');
+            return $this->target->whereAdd('to_tsvector(\'english\', content) @@ plainto_tsquery(\'' . $this->target->escape($q) . '\')');
         } else {
             throw new ServerException('Unknown table: ' . $this->table);
         }
