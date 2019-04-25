@@ -41,6 +41,7 @@ if (!defined('GNUSOCIAL')) {
  * @author    Evan Prodromou <evan@status.net>
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @author    Alexei Sorokin <sor.alexei@meowr.ru>
+ * @author    chimo <chimo@chromic.org>
  * @copyright 2011 StatusNet, Inc.
  * @copyright 2014 Free Software Foundation, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
@@ -56,8 +57,7 @@ class InboxNoticeStream extends ScopingNoticeStream
      */
     public function __construct(Profile $target, Profile $scoped = null)
     {
-        // FIXME: we don't use CachingNoticeStream - but maybe we should?
-        parent::__construct(new CachingNoticeStream(new RawInboxNoticeStream($target), 'profileall'), $scoped);
+        parent::__construct(new CachingNoticeStream(new RawInboxNoticeStream($target), 'profileall:'.$target->getID()), $scoped);
     }
 }
 
