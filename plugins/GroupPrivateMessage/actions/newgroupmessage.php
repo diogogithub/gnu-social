@@ -53,13 +53,15 @@ class NewgroupmessageAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
+     * @throws NicknameException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         $this->user = common_current_user();
 
@@ -71,7 +73,7 @@ class NewgroupmessageAction extends Action
         if (!$this->user->hasRight(Right::NEWMESSAGE)) {
             // TRANS: Exception thrown when user %s is not allowed to send a private group message.
             throw new Exception(sprintf(_m('User %s is not allowed to send private messages.'),
-                                        $this->user->nickname));
+                $this->user->nickname));
         }
 
         $nicknameArg = $this->trimmed('nickname');
@@ -112,23 +114,15 @@ class NewgroupmessageAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
-    function handle($argarray=null)
+    function handle()
     {
         if ($this->isPost()) {
             $this->sendNewMessage();
         } else {
             $this->showPage();
         }
-    }
-
-    function showNoticeForm()
-    {
-        $form = new GroupMessageForm($this, $this->group);
-        $form->show();
     }
 
     function sendNewMessage()
@@ -143,15 +137,21 @@ class NewgroupmessageAction extends Action
             $this->elementEnd('head');
             $this->elementStart('body');
             $this->element('p',
-                           array('id' => 'command_result'),
-                           // TRANS: Succes text after sending a direct message to group %s.
-                           sprintf(_m('Direct message to %s sent.'),
-                                   $this->group->nickname));
+                array('id' => 'command_result'),
+                // TRANS: Succes text after sending a direct message to group %s.
+                sprintf(_m('Direct message to %s sent.'),
+                    $this->group->nickname));
             $this->elementEnd('body');
             $this->endHTML();
         } else {
             common_redirect($gm->url, 303);
         }
+    }
+
+    function showNoticeForm()
+    {
+        $form = new GroupMessageForm($this, $this->group);
+        $form->show();
     }
 
     function title()

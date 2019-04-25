@@ -50,15 +50,15 @@ class GlobalregisterAction extends GlobalApiAction
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
      */
 
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
         try {
-            parent::prepare($argarray);
+            parent::prepare($args);
             return true;
         } catch (ClientException $e) {
             $this->showError($e->getMessage(), $e->getCode());
@@ -73,12 +73,10 @@ class GlobalregisterAction extends GlobalApiAction
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
 
-    function handle($argarray=null)
+    function handle()
     {
         try {
             $confirm = DomainStatusNetworkPlugin::registerEmail($this->email);

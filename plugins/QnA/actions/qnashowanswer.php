@@ -51,13 +51,15 @@ class QnashowanswerAction extends ShownoticeAction
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
+     * @throws ServerException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        Action::prepare($argarray);
+        Action::prepare($args);
 
         $this->id = $this->trimmed('id');
 
@@ -117,8 +119,8 @@ class QnashowanswerAction extends ShownoticeAction
         $question = $this->answer->getQuestion();
 
         return sprintf(
-            // TRANS: Page title.
-            // TRANS: %1$s is the user who answered a question, %2$s is the question.
+        // TRANS: Page title.
+        // TRANS: %1$s is the user who answered a question, %2$s is the question.
             _m('%1$s\'s answer to "%2$s"'),
             $this->user->nickname,
             $question->title

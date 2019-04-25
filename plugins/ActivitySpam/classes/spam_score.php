@@ -1,32 +1,32 @@
 <?php
-  /**
-   * StatusNet - the distributed open-source microblogging tool
-   * Copyright (C) 2011, StatusNet, Inc.
-   *
-   * Score of a notice by activity spam service
-   * 
-   * PHP version 5
-   *
-   * This program is free software: you can redistribute it and/or modify
-   * it under the terms of the GNU Affero General Public License as published by
-   * the Free Software Foundation, either version 3 of the License, or
-   * (at your option) any later version.
-   *
-   * This program is distributed in the hope that it will be useful,
-   * but WITHOUT ANY WARRANTY; without even the implied warranty of
-   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   * GNU Affero General Public License for more details.
-   *
-   * You should have received a copy of the GNU Affero General Public License
-   * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-   *
-   * @category  Spam
-   * @package   StatusNet
-   * @author    Evan Prodromou <evan@status.net>
-   * @copyright 2011 StatusNet, Inc.
-   * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
-   * @link      http://status.net/
-   */
+/**
+ * StatusNet - the distributed open-source microblogging tool
+ * Copyright (C) 2011, StatusNet, Inc.
+ *
+ * Score of a notice by activity spam service
+ *
+ * PHP version 5
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @category  Spam
+ * @package   StatusNet
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2011 StatusNet, Inc.
+ * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
+ * @link      http://status.net/
+ */
 
 if (!defined('STATUSNET')) {
     exit(1);
@@ -43,7 +43,6 @@ if (!defined('STATUSNET')) {
  *
  * @see      DB_DataObject
  */
-
 class Spam_score extends Managed_DataObject
 {
     const MAX_SCALE = 10000;
@@ -53,27 +52,10 @@ class Spam_score extends Managed_DataObject
     public $score;       // float
     public $created;     // datetime
 
-    function saveNew($notice, $result) {
+    public static function save($notice, $result)
+    {
 
-        $score = new Spam_score();
-
-        $score->notice_id      = $notice->id;
-        $score->score          = $result->probability;
-        $score->is_spam        = $result->isSpam;
-        $score->scaled         = Spam_score::scale($score->score);
-        $score->created        = common_sql_now();
-        $score->notice_created = $notice->created;
-
-        $score->insert();
-
-        self::blow('spam_score:notice_ids');
-
-        return $score;
-    }
-
-    function save($notice, $result) {
-
-        $orig  = null;
+        $orig = null;
         $score = Spam_score::getKV('notice_id', $notice->id);
 
         if (empty($score)) {
@@ -82,11 +64,11 @@ class Spam_score extends Managed_DataObject
             $orig = clone($score);
         }
 
-        $score->notice_id      = $notice->id;
-        $score->score          = $result->probability;
-        $score->is_spam        = $result->isSpam;
-        $score->scaled         = Spam_score::scale($score->score);
-        $score->created        = common_sql_now();
+        $score->notice_id = $notice->id;
+        $score->score = $result->probability;
+        $score->is_spam = $result->isSpam;
+        $score->scaled = Spam_score::scale($score->score);
+        $score->created = common_sql_now();
         $score->notice_created = $notice->created;
 
         if (empty($orig)) {
@@ -94,17 +76,10 @@ class Spam_score extends Managed_DataObject
         } else {
             $score->update($orig);
         }
-        
+
         self::blow('spam_score:notice_ids');
 
         return $score;
-    }
-
-    function delete($useWhere=false)
-    {
-        self::blow('spam_score:notice_ids');
-        self::blow('spam_score:notice_ids;last');
-        return parent::delete($useWhere);
     }
 
     /**
@@ -116,20 +91,20 @@ class Spam_score extends Managed_DataObject
             'description' => 'score of the notice per activityspam',
             'fields' => array(
                 'notice_id' => array('type' => 'int',
-                                     'not null' => true,
-                                     'description' => 'notice getting scored'),
+                    'not null' => true,
+                    'description' => 'notice getting scored'),
                 'score' => array('type' => 'double',
-                                 'not null' => true,
-                                 'description' => 'score for the notice (0.0, 1.0)'),
+                    'not null' => true,
+                    'description' => 'score for the notice (0.0, 1.0)'),
                 'scaled' => array('type' => 'int',
-                                  'description' => 'scaled score for the notice (0, 10000)'),
+                    'description' => 'scaled score for the notice (0, 10000)'),
                 'is_spam' => array('type' => 'tinyint',
-                                   'description' => 'flag for spamosity'),
+                    'description' => 'flag for spamosity'),
                 'created' => array('type' => 'datetime',
-                                   'not null' => true,
-                                   'description' => 'date this record was created'),
+                    'not null' => true,
+                    'description' => 'date this record was created'),
                 'notice_created' => array('type' => 'datetime',
-                                          'description' => 'date the notice was created'),
+                    'description' => 'date the notice was created'),
             ),
             'primary key' => array('notice_id'),
             'foreign keys' => array(
@@ -153,7 +128,7 @@ class Spam_score extends Managed_DataObject
     {
         $score = new Spam_score();
         $score->whereAdd('scaled IS NULL');
-        
+
         if ($score->find()) {
             while ($score->fetch()) {
                 $orig = clone($score);
@@ -167,7 +142,7 @@ class Spam_score extends Managed_DataObject
     {
         $score = new Spam_score();
         $score->whereAdd('is_spam IS NULL');
-        
+
         if ($score->find()) {
             while ($score->fetch()) {
                 $orig = clone($score);
@@ -181,7 +156,7 @@ class Spam_score extends Managed_DataObject
     {
         $score = new Spam_score();
         $score->whereAdd('notice_created IS NULL');
-        
+
         if ($score->find()) {
             while ($score->fetch()) {
                 $notice = Notice::getKV('id', $score->notice_id);
@@ -194,9 +169,35 @@ class Spam_score extends Managed_DataObject
         }
     }
 
+    function saveNew($notice, $result)
+    {
+
+        $score = new Spam_score();
+
+        $score->notice_id = $notice->id;
+        $score->score = $result->probability;
+        $score->is_spam = $result->isSpam;
+        $score->scaled = Spam_score::scale($score->score);
+        $score->created = common_sql_now();
+        $score->notice_created = $notice->created;
+
+        $score->insert();
+
+        self::blow('spam_score:notice_ids');
+
+        return $score;
+    }
+
     public static function scale($score)
     {
         $raw = round($score * Spam_score::MAX_SCALE);
         return max(0, min(Spam_score::MAX_SCALE, $raw));
+    }
+
+    public function delete($useWhere = false)
+    {
+        self::blow('spam_score:notice_ids');
+        self::blow('spam_score:notice_ids;last');
+        return parent::delete($useWhere);
     }
 }

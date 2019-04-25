@@ -51,13 +51,15 @@ class GroupinboxAction extends GroupAction
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
+     * @throws NicknameException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         $cur = common_current_user();
 
@@ -101,8 +103,8 @@ class GroupinboxAction extends GroupAction
         }
 
         $this->gm = Group_message::forGroup($this->group,
-                                            ($this->page - 1) * MESSAGES_PER_PAGE,
-                                            MESSAGES_PER_PAGE + 1);
+            ($this->page - 1) * MESSAGES_PER_PAGE,
+            MESSAGES_PER_PAGE + 1);
         return true;
     }
 
@@ -128,20 +130,18 @@ class GroupinboxAction extends GroupAction
             $this->element('p', 'guide', _m('This group has not received any private messages.'));
         }
         $this->pagination($this->page > 1,
-                          $cnt > MESSAGES_PER_PAGE,
-                          $this->page,
-                          'groupinbox',
-                          array('nickname' => $this->group->nickname));
+            $cnt > MESSAGES_PER_PAGE,
+            $this->page,
+            'groupinbox',
+            array('nickname' => $this->group->nickname));
     }
 
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
-    function handle($argarray=null)
+    function handle()
     {
         $this->showPage();
     }
@@ -176,8 +176,8 @@ class GroupinboxAction extends GroupAction
             // TRANS: Page title for any but first group page.
             // TRANS: %1$s is a group name, $2$s is a page number.
             return sprintf(_m('%1$s group inbox, page %2$d'),
-                           $base,
-                           $this->page);
+                $base,
+                $this->page);
         }
     }
 
@@ -190,7 +190,7 @@ class GroupinboxAction extends GroupAction
      */
     function showPageNotice()
     {
-        $instr  = $this->getInstructions();
+        $instr = $this->getInstructions();
         $output = common_markup_to_html($instr);
 
         $this->elementStart('div', 'instructions');

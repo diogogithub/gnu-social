@@ -75,9 +75,9 @@ class EmailregisterAction extends Action
     protected $error;
     protected $complete;
 
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         if (common_config('site', 'closed')) {
             // TRANS: Client exception trown when registration by e-mail is not allowed.
@@ -165,28 +165,27 @@ class EmailregisterAction extends Action
     function title()
     {
         switch ($this->state) {
-        case self::NEWREGISTER:
-        case self::NEWEMAIL:
-            // TRANS: Title for registration page.
-            return _m('TITLE','Register');
-            break;
-        case self::SETPASSWORD:
-        case self::CONFIRMINVITE:
-        case self::CONFIRMREGISTER:
-            // TRANS: Title for page where to register with a confirmation code.
-            return _m('TITLE','Complete registration');
-            break;
+            case self::NEWREGISTER:
+            case self::NEWEMAIL:
+                // TRANS: Title for registration page.
+                return _m('TITLE', 'Register');
+                break;
+            case self::SETPASSWORD:
+            case self::CONFIRMINVITE:
+            case self::CONFIRMREGISTER:
+                // TRANS: Title for page where to register with a confirmation code.
+                return _m('TITLE', 'Complete registration');
+                break;
         }
     }
 
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
+     * @throws Exception
      */
-    function handle($argarray=null)
+    function handle()
     {
         $cur = common_current_user();
 
@@ -195,21 +194,21 @@ class EmailregisterAction extends Action
         }
 
         switch ($this->state) {
-        case self::NEWREGISTER:
-            $this->showRegistrationForm();
-            break;
-        case self::NEWEMAIL:
-            $this->registerUser();
-            break;
-        case self::CONFIRMINVITE:
-            $this->confirmRegistration();
-            break;
-        case self::CONFIRMREGISTER:
-            $this->confirmRegistration();
-            break;
-        case self::SETPASSWORD:
-            $this->setPassword();
-            break;
+            case self::NEWREGISTER:
+                $this->showRegistrationForm();
+                break;
+            case self::NEWEMAIL:
+                $this->registerUser();
+                break;
+            case self::CONFIRMINVITE:
+                $this->confirmRegistration();
+                break;
+            case self::CONFIRMREGISTER:
+                $this->confirmRegistration();
+                break;
+            case self::SETPASSWORD:
+                $this->setPassword();
+                break;
         }
         return;
     }
@@ -235,7 +234,7 @@ class EmailregisterAction extends Action
         // TRANS: Confirmation text after initial registration.
         // TRANS: %s an e-mail address.
         $prompt = sprintf(_m('An email was sent to %s to confirm that address. Check your email inbox for instructions.'),
-                          $this->email);
+            $this->email);
 
         $this->complete = $prompt;
 
@@ -253,10 +252,15 @@ class EmailregisterAction extends Action
         $nickname = $this->nicknameFromEmail($email);
 
         $this->form = new ConfirmRegistrationForm($this,
-                                                  $nickname,
-                                                  $email,
-                                                  $this->code);
+            $nickname,
+            $email,
+            $this->code);
         $this->showPage();
+    }
+
+    function nicknameFromEmail($email)
+    {
+        return EmailRegistrationPlugin::nicknameFromEmail($email);
     }
 
     function setPassword()
@@ -293,9 +297,9 @@ class EmailregisterAction extends Action
 
             try {
                 $fields = array('nickname' => $this->nickname,
-                                'email' => $email,
-                                'password' => $this->password1,
-                                'email_confirmed' => true);
+                    'email' => $email,
+                    'password' => $this->password1,
+                    'email_confirmed' => true);
 
                 if (!empty($this->invitation)) {
                     $fields['code'] = $this->invitation->code;
@@ -346,23 +350,23 @@ class EmailregisterAction extends Action
 
         $headers['From'] = mail_notify_from();
         $headers['To'] = trim($confirm->address);
-         // TRANS: Subject for confirmation e-mail.
-         // TRANS: %s is the StatusNet sitename.
+        // TRANS: Subject for confirmation e-mail.
+        // TRANS: %s is the StatusNet sitename.
         $headers['Subject'] = sprintf(_m('Confirm your registration on %s'), $sitename);
 
         $confirmUrl = common_local_url('register', array('code' => $confirm->code));
 
         // TRANS: Body for confirmation e-mail.
         // TRANS: %1$s is the StatusNet sitename, %2$s is the confirmation URL.
-        $body = sprintf(_m('Someone (probably you) has requested an account on %1$s using this email address.'.
-                          "\n".
-                          'To confirm the address, click the following URL or copy it into the address bar of your browser.'.
-                          "\n".
-                          '%2$s'.
-                          "\n".
-                          'If it was not you, you can safely ignore this message.'),
-                        $sitename,
-                        $confirmUrl);
+        $body = sprintf(_m('Someone (probably you) has requested an account on %1$s using this email address.' .
+            "\n" .
+            'To confirm the address, click the following URL or copy it into the address bar of your browser.' .
+            "\n" .
+            '%2$s' .
+            "\n" .
+            'If it was not you, you can safely ignore this message.'),
+            $sitename,
+            $confirmUrl);
 
         mail_send($recipients, $headers, $body);
     }
@@ -398,11 +402,6 @@ class EmailregisterAction extends Action
     function isReadOnly($args)
     {
         return false;
-    }
-
-    function nicknameFromEmail($email)
-    {
-        return EmailRegistrationPlugin::nicknameFromEmail($email);
     }
 
     /**

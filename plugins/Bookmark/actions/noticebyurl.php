@@ -54,13 +54,14 @@ class NoticebyurlAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         $this->file = File::getKV('id', $this->trimmed('id'));
 
@@ -102,11 +103,9 @@ class NoticebyurlAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
-    function handle($argarray=null)
+    function handle()
     {
         $this->showPage();
     }

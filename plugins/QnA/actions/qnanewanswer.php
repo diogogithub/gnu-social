@@ -45,12 +45,11 @@ if (!defined('STATUSNET')) {
  */
 class QnanewanswerAction extends Action
 {
-    protected $user     = null;
-    protected $error    = null;
+    public $question = null;
+    protected $user = null;
+    protected $error = null;
     protected $complete = null;
-
-    public    $question = null;
-    protected $content  = null;
+    protected $content = null;
 
     /**
      * Returns the title of the action
@@ -66,13 +65,14 @@ class QnanewanswerAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
         if ($this->boolean('ajax')) {
             GNUsocial::setApi(true);
         }
@@ -81,7 +81,7 @@ class QnanewanswerAction extends Action
 
         if (empty($this->user)) {
             throw new ClientException(
-                // TRANS: Client exception thrown trying to answer a question while not logged in.
+            // TRANS: Client exception thrown trying to answer a question while not logged in.
                 _m("You must be logged in to answer to a question."),
                 403
             );
@@ -97,7 +97,7 @@ class QnanewanswerAction extends Action
 
         if (empty($this->question)) {
             throw new ClientException(
-                // TRANS: Client exception thrown trying to respond to a non-existing question.
+            // TRANS: Client exception thrown trying to respond to a non-existing question.
                 _m('Invalid or missing question.'),
                 404
             );
@@ -111,13 +111,11 @@ class QnanewanswerAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
-    function handle($argarray=null)
+    function handle()
     {
-        parent::handle($argarray);
+        parent::handle();
 
         if ($this->isPost()) {
             $this->newAnswer();
@@ -172,39 +170,24 @@ class QnanewanswerAction extends Action
     }
 
     /**
-     * Show the Answer form
+     * @param string $msg An error message, if any
      *
      * @return void
      */
-    function showContent()
+    function showForm($msg = null)
     {
-        if (!empty($this->error)) {
-            $this->element('p', 'error', $this->error);
+        common_debug("show form - msg = $msg");
+        if ($this->boolean('ajax')) {
+            if ($msg) {
+                $this->ajaxErrorMsg($msg);
+            } else {
+                $this->ajaxShowForm();
+            }
+            return;
         }
 
-        $form = new QnanewanswerForm($this->question, $this);
-        $form->show();
-
-        return;
-    }
-
-    /**
-     * Return true if read only.
-     *
-     * MAY override
-     *
-     * @param array $args other arguments
-     *
-     * @return boolean is read only action?
-     */
-    function isReadOnly($args)
-    {
-        if ($_SERVER['REQUEST_METHOD'] == 'GET' ||
-            $_SERVER['REQUEST_METHOD'] == 'HEAD') {
-            return true;
-        } else {
-            return false;
-        }
+        $this->msg = $msg;
+        $this->showPage();
     }
 
     /**
@@ -244,7 +227,7 @@ class QnanewanswerAction extends Action
         $this->startHTML('text/xml;charset=utf-8', true);
         $this->elementStart('head');
         // TRANS: Title for form to send answer to a question.
-        $this->element('title', null, _m('TITLE','Your answer'));
+        $this->element('title', null, _m('TITLE', 'Your answer'));
         $this->elementEnd('head');
         $this->elementStart('body');
 
@@ -256,24 +239,39 @@ class QnanewanswerAction extends Action
     }
 
     /**
-     * @param string $msg An error message, if any
+     * Show the Answer form
      *
      * @return void
      */
-    function showForm($msg = null)
+    function showContent()
     {
-        common_debug("show form - msg = $msg");
-        if ($this->boolean('ajax')) {
-            if ($msg) {
-                $this->ajaxErrorMsg($msg);
-            } else {
-                $this->ajaxShowForm();
-            }
-            return;
+        if (!empty($this->error)) {
+            $this->element('p', 'error', $this->error);
         }
 
-        $this->msg = $msg;
-        $this->showPage();
+        $form = new QnanewanswerForm($this->question, $this);
+        $form->show();
+
+        return;
+    }
+
+    /**
+     * Return true if read only.
+     *
+     * MAY override
+     *
+     * @param array $args other arguments
+     *
+     * @return boolean is read only action?
+     */
+    function isReadOnly($args)
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'GET' ||
+            $_SERVER['REQUEST_METHOD'] == 'HEAD') {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
@@ -288,12 +286,15 @@ class NoticeAnswerListItem extends NoticeListItem
      * Also initializes the profile attribute.
      *
      * @param Notice $notice The notice we'll display
+     * @param $out
+     * @param $question
+     * @param $answer
      */
-    function __construct($notice, $out=null, $question, $answer)
+    function __construct($notice, $out, $question, $answer)
     {
         parent::__construct($notice, $out);
         $this->question = $question;
-        $this->answer   = $answer;
+        $this->answer = $answer;
 
     }
 
@@ -334,7 +335,7 @@ class NoticeAnswerListItem extends NoticeListItem
             $form->show();
         } else {
             // TRANS: Error message displayed when an answer has no content.
-            $out->text(_m('Answer data is missing.'));
+            $this->out->text(_m('Answer data is missing.'));
         }
 
         $this->out->elementEnd('p');

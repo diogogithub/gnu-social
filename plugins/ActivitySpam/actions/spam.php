@@ -4,7 +4,7 @@
  * Copyright (C) 2012, StatusNet, Inc.
  *
  * Stream of latest spam messages
- * 
+ *
  * PHP version 5
  *
  * This program is free software: you can redistribute it and/or modify
@@ -34,13 +34,13 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-require_once INSTALLDIR.'/lib/noticelist.php';
+require_once INSTALLDIR . '/lib/noticelist.php';
 
 /**
  * SpamAction
- * 
+ *
  * Shows the latest spam on the service
- * 
+ *
  * @category  Spam
  * @package   StatusNet
  * @author    Evan Prodromou <evan@status.net>
@@ -48,29 +48,30 @@ require_once INSTALLDIR.'/lib/noticelist.php';
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
-
 class SpamAction extends Action
 {
     var $page = null;
     var $notices = null;
 
-    function title() {
+    function title()
+    {
         return _("Latest Spam");
     }
 
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
 
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
-        $this->page = ($this->arg('page')) ? ($this->arg('page')+0) : 1;
+        $this->page = ($this->arg('page')) ? ($this->arg('page') + 0) : 1;
 
         // User must be logged in.
 
@@ -86,10 +87,10 @@ class SpamAction extends Action
 
         $stream = new SpamNoticeStream($this->scoped);
 
-        $this->notices = $stream->getNotices(($this->page-1)*NOTICES_PER_PAGE,
-                                             NOTICES_PER_PAGE + 1);
+        $this->notices = $stream->getNotices(($this->page - 1) * NOTICES_PER_PAGE,
+            NOTICES_PER_PAGE + 1);
 
-        if($this->page > 1 && $this->notices->N == 0) {
+        if ($this->page > 1 && $this->notices->N == 0) {
             throw new ClientException(_('No such page.'), 404);
         }
 
@@ -99,12 +100,10 @@ class SpamAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
 
-    function handle($argarray=null)
+    function handle()
     {
         parent::handle();
 
@@ -130,10 +129,10 @@ class SpamAction extends Action
             $this->showEmptyList();
         }
 
-        $this->pagination($this->page > 1, 
-                          $cnt > NOTICES_PER_PAGE,
-                          $this->page,
-                          'spam');
+        $this->pagination($this->page > 1,
+            $cnt > NOTICES_PER_PAGE,
+            $this->page,
+            'spam');
     }
 
     function showEmptyList()

@@ -63,21 +63,22 @@ class ImportdeliciousAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         $cur = common_current_user();
 
         if (empty($cur)) {
             // TRANS: Client exception thrown when trying to import bookmarks without being logged in.
-            throw new ClientException(_m('Only logged-in users can '.
-                                        'import del.icio.us backups.'),
-                                      403);
+            throw new ClientException(_m('Only logged-in users can ' .
+                'import del.icio.us backups.'),
+                403);
         }
 
         if (!$cur->hasRight(BookmarkPlugin::IMPORTDELICIOUS)) {
@@ -91,13 +92,12 @@ class ImportdeliciousAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
+     * @throws ClientException
      */
-    function handle($argarray=null)
+    function handle()
     {
-        parent::handle($argarray);
+        parent::handle();
 
         if ($this->isPost()) {
             $this->importDelicious();
@@ -113,6 +113,7 @@ class ImportdeliciousAction extends Action
      * Uses the DeliciousBackupImporter class; may take a long time!
      *
      * @return void
+     * @throws ClientException
      */
     function importDelicious()
     {
@@ -124,48 +125,40 @@ class ImportdeliciousAction extends Action
         }
 
         switch ($_FILES[ImportDeliciousForm::FILEINPUT]['error']) {
-        case UPLOAD_ERR_OK: // success, jump out
-            break;
-        case UPLOAD_ERR_INI_SIZE:
-            // TRANS: Client exception thrown when an uploaded file is too large.
-            throw new ClientException(_m('The uploaded file exceeds the ' .
-                'upload_max_filesize directive in php.ini.'));
-            return;
-        case UPLOAD_ERR_FORM_SIZE:
-            throw new ClientException(
-            // TRANS: Client exception thrown when an uploaded file is too large.
-                _m('The uploaded file exceeds the MAX_FILE_SIZE directive' .
-                ' that was specified in the HTML form.'));
-            return;
-        case UPLOAD_ERR_PARTIAL:
-            @unlink($_FILES[ImportDeliciousForm::FILEINPUT]['tmp_name']);
-            // TRANS: Client exception thrown when a file was only partially uploaded.
-            throw new ClientException(_m('The uploaded file was only' .
-                ' partially uploaded.'));
-            return;
-        case UPLOAD_ERR_NO_FILE:
-            // No file; probably just a non-AJAX submission.
-            // TRANS: Client exception thrown when a file upload has failed.
-            throw new ClientException(_m('No uploaded file.'));
-            return;
-        case UPLOAD_ERR_NO_TMP_DIR:
-            // TRANS: Client exception thrown when a temporary folder is not present.
-            throw new ClientException(_m('Missing a temporary folder.'));
-            return;
-        case UPLOAD_ERR_CANT_WRITE:
-            // TRANS: Client exception thrown when writing to disk is not possible.
-            throw new ClientException(_m('Failed to write file to disk.'));
-            return;
-        case UPLOAD_ERR_EXTENSION:
-            // TRANS: Client exception thrown when a file upload has been stopped.
-            throw new ClientException(_m('File upload stopped by extension.'));
-            return;
-        default:
-            common_log(LOG_ERR, __METHOD__ . ": Unknown upload error " .
-                $_FILES[ImportDeliciousForm::FILEINPUT]['error']);
-            // TRANS: Client exception thrown when a file upload operation has failed.
-            throw new ClientException(_m('System error uploading file.'));
-            return;
+            case UPLOAD_ERR_OK: // success, jump out
+                break;
+            case UPLOAD_ERR_INI_SIZE:
+                // TRANS: Client exception thrown when an uploaded file is too large.
+                throw new ClientException(_m('The uploaded file exceeds the ' .
+                    'upload_max_filesize directive in php.ini.'));
+            case UPLOAD_ERR_FORM_SIZE:
+                throw new ClientException(
+                // TRANS: Client exception thrown when an uploaded file is too large.
+                    _m('The uploaded file exceeds the MAX_FILE_SIZE directive' .
+                        ' that was specified in the HTML form.'));
+            case UPLOAD_ERR_PARTIAL:
+                @unlink($_FILES[ImportDeliciousForm::FILEINPUT]['tmp_name']);
+                // TRANS: Client exception thrown when a file was only partially uploaded.
+                throw new ClientException(_m('The uploaded file was only' .
+                    ' partially uploaded.'));
+            case UPLOAD_ERR_NO_FILE:
+                // No file; probably just a non-AJAX submission.
+                // TRANS: Client exception thrown when a file upload has failed.
+                throw new ClientException(_m('No uploaded file.'));
+            case UPLOAD_ERR_NO_TMP_DIR:
+                // TRANS: Client exception thrown when a temporary folder is not present.
+                throw new ClientException(_m('Missing a temporary folder.'));
+            case UPLOAD_ERR_CANT_WRITE:
+                // TRANS: Client exception thrown when writing to disk is not possible.
+                throw new ClientException(_m('Failed to write file to disk.'));
+            case UPLOAD_ERR_EXTENSION:
+                // TRANS: Client exception thrown when a file upload has been stopped.
+                throw new ClientException(_m('File upload stopped by extension.'));
+            default:
+                common_log(LOG_ERR, __METHOD__ . ": Unknown upload error " .
+                    $_FILES[ImportDeliciousForm::FILEINPUT]['error']);
+                // TRANS: Client exception thrown when a file upload operation has failed.
+                throw new ClientException(_m('System error uploading file.'));
         }
 
         $filename = $_FILES[ImportDeliciousForm::FILEINPUT]['tmp_name'];
@@ -174,19 +167,19 @@ class ImportdeliciousAction extends Action
             if (!file_exists($filename)) {
                 // TRANS: Server exception thrown when a file upload cannot be found.
                 // TRANS: %s is the file that could not be found.
-                throw new ServerException(sprintf(_m('No such file "%s".'),$filename));
+                throw new ServerException(sprintf(_m('No such file "%s".'), $filename));
             }
 
             if (!is_file($filename)) {
                 // TRANS: Server exception thrown when a file upload is incorrect.
                 // TRANS: %s is the irregular file.
-                throw new ServerException(sprintf(_m('Not a regular file: "%s".'),$filename));
+                throw new ServerException(sprintf(_m('Not a regular file: "%s".'), $filename));
             }
 
             if (!is_readable($filename)) {
                 // TRANS: Server exception thrown when a file upload is not readable.
                 // TRANS: %s is the file that could not be read.
-                throw new ServerException(sprintf(_m('File "%s" not readable.'),$filename));
+                throw new ServerException(sprintf(_m('File "%s" not readable.'), $filename));
             }
 
             common_debug(sprintf("Getting backup from file '%s'.", $filename));
@@ -196,7 +189,7 @@ class ImportdeliciousAction extends Action
             // Enqueue for processing.
 
             $qm = QueueManager::get();
-            $qm->enqueue(array(common_current_user(), $html), 'dlcsback');
+            $qm->enqueue([common_current_user(), $html], 'dlcsback');
 
             if ($qm instanceof UnQueueManager) {
                 // No active queuing means we've actually just completed the job!
@@ -224,12 +217,12 @@ class ImportdeliciousAction extends Action
     {
         if ($this->success) {
             $this->element('p', null,
-                           // TRANS: Success message after importing bookmarks.
-                           _m('Bookmarks have been imported. Your bookmarks should now appear in search and your profile page.'));
+                // TRANS: Success message after importing bookmarks.
+                _m('Bookmarks have been imported. Your bookmarks should now appear in search and your profile page.'));
         } else if ($this->inprogress) {
             $this->element('p', null,
-                           // TRANS: Busy message for importing bookmarks.
-                           _m('Bookmarks are being imported. Please wait a few minutes for results.'));
+                // TRANS: Busy message for importing bookmarks.
+                _m('Bookmarks are being imported. Please wait a few minutes for results.'));
         } else {
             $form = new ImportDeliciousForm($this);
             $form->show();
@@ -272,9 +265,8 @@ class ImportDeliciousForm extends Form
      *
      * @param HTMLOutputter $out output channel
      *
-     * @return ImportDeliciousForm this
      */
-    function __construct($out=null)
+    function __construct($out = null)
     {
         parent::__construct($out);
         $this->enctype = 'multipart/form-data';
@@ -312,17 +304,17 @@ class ImportDeliciousForm extends Form
         $this->out->elementStart('p', 'instructions');
 
         // TRANS: Form instructions for importing bookmarks.
-        $this->out->raw(_m('You can upload a backed-up '.
-                          'delicious.com bookmarks file.'));
+        $this->out->raw(_m('You can upload a backed-up ' .
+            'delicious.com bookmarks file.'));
 
         $this->out->elementEnd('p');
 
         $this->out->elementStart('ul', 'form_data');
 
-        $this->out->elementStart('li', array ('id' => 'settings_attach'));
+        $this->out->elementStart('li', array('id' => 'settings_attach'));
         $this->out->element('input', array('name' => self::FILEINPUT,
-                                           'type' => 'file',
-                                           'id' => self::FILEINPUT));
+            'type' => 'file',
+            'id' => self::FILEINPUT));
         $this->out->elementEnd('li');
 
         $this->out->elementEnd('ul');
@@ -339,11 +331,11 @@ class ImportDeliciousForm extends Form
     function formActions()
     {
         $this->out->submit('submit',
-                           // TRANS: Button text on form to import bookmarks.
-                           _m('BUTTON', 'Upload'),
-                           'submit',
-                           null,
-                           // TRANS: Button title on form to import bookmarks.
-                           _m('Upload the file.'));
+            // TRANS: Button text on form to import bookmarks.
+            _m('BUTTON', 'Upload'),
+            'submit',
+            null,
+            // TRANS: Button title on form to import bookmarks.
+            _m('Upload the file.'));
     }
 }

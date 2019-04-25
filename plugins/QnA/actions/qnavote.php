@@ -45,12 +45,12 @@ if (!defined('STATUSNET')) {
  */
 class Qnavote extends Action
 {
-    protected $user        = null;
-    protected $error       = null;
-    protected $complete    = null;
+    protected $user = null;
+    protected $error = null;
+    protected $complete = null;
 
-    protected $question    = null;
-    protected $answer      = null;
+    protected $question = null;
+    protected $answer = null;
 
     /**
      * Returns the title of the action
@@ -66,13 +66,14 @@ class Qnavote extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
         if ($this->boolean('ajax')) {
             GNUsocial::setApi(true);
         }
@@ -82,7 +83,7 @@ class Qnavote extends Action
         if (empty($this->user)) {
             // TRANS: Client exception thrown trying to answer a question while not logged in.
             throw new ClientException(_m('You must be logged in to answer to a question.'),
-                                      403);
+                403);
         }
 
         if ($this->isPost()) {
@@ -105,13 +106,11 @@ class Qnavote extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
-    function handle($argarray=null)
+    function handle()
     {
-        parent::handle($argarray);
+        parent::handle();
 
         if ($this->isPost()) {
             $this->answer();

@@ -54,13 +54,15 @@ class ConfirmfirstemailAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
+     * @throws ServerException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
         $user = common_current_user();
 
         if (!empty($user)) {
@@ -75,7 +77,6 @@ class ConfirmfirstemailAction extends Action
         if (empty($this->confirm)) {
             // TRANS: Client exception thrown when trying to register with a non-existing confirmation code.
             throw new ClientException(_m('Confirmation code not found.'));
-            return;
         }
 
         $this->user = User::getKV('id', $this->confirm->user_id);
@@ -93,7 +94,7 @@ class ConfirmfirstemailAction extends Action
             throw new ServerException(sprintf(_m('Unrecognized address type %s.'), $type));
         }
 
-        if (!empty($this->user->email) && $this->user->email == $confirm->address) {
+        if (!empty($this->user->email) && $this->user->email == $this->confirm->address) {
             // TRANS: Client error for an already confirmed email/jabber/sms address.
             throw new ClientException(_m('That address has already been confirmed.'));
         }
@@ -103,16 +104,14 @@ class ConfirmfirstemailAction extends Action
             $this->checkSessionToken();
 
             $password = $this->trimmed('password');
-            $confirm  = $this->trimmed('confirm');
+            $confirm = $this->trimmed('confirm');
 
             if (strlen($password) < 6) {
                 // TRANS: Client exception thrown when trying to register with too short a password.
                 throw new ClientException(_m('Password too short.'));
-                return;
             } else if (0 != strcmp($password, $confirm)) {
                 // TRANS: Client exception thrown when trying to register without providing the same password twice.
                 throw new ClientException(_m('Passwords do not match.'));
-                return;
             }
 
             $this->password = $password;
@@ -124,14 +123,13 @@ class ConfirmfirstemailAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
+     * @throws AuthorizationException
      */
-    function handle($argarray=null)
+    function handle()
     {
         $homepage = common_local_url('all',
-                                     array('nickname' => $this->user->nickname));
+            array('nickname' => $this->user->nickname));
 
         if ($this->isPost()) {
             $this->confirmUser();
@@ -167,10 +165,10 @@ class ConfirmfirstemailAction extends Action
     function showContent()
     {
         $this->element('p', 'instructions',
-                       // TRANS: Form instructions. %s is the nickname of the to be registered user.
-                       sprintf(_m('You have confirmed the email address for your new user account %s. '.
-                                 'Use the form below to set your new password.'),
-                               $this->user->nickname));
+            // TRANS: Form instructions. %s is the nickname of the to be registered user.
+            sprintf(_m('You have confirmed the email address for your new user account %s. ' .
+                'Use the form below to set your new password.'),
+                $this->user->nickname));
 
         $form = new ConfirmFirstEmailForm($this, $this->code);
         $form->show();
@@ -202,7 +200,7 @@ class ConfirmFirstEmailForm extends Form
     function action()
     {
         return common_local_url('confirmfirstemail',
-                                array('code' => $this->code));
+            array('code' => $this->code));
     }
 
     function formClass()
@@ -216,14 +214,14 @@ class ConfirmFirstEmailForm extends Form
         $this->out->elementStart('li');
         // TRANS: Field label.
         $this->out->password('password', _m('New password'),
-                             // TRANS: Field title for password field.
-                             _m('6 or more characters.'));
+            // TRANS: Field title for password field.
+            _m('6 or more characters.'));
         $this->out->elementEnd('li');
         $this->out->elementStart('li');
         // TRANS: Field label for repeat password field.
-        $this->out->password('confirm', _m('LABEL','Confirm'),
-                             // TRANS: Field title for repeat password field.
-                             _m('Same as password above.'));
+        $this->out->password('confirm', _m('LABEL', 'Confirm'),
+            // TRANS: Field title for repeat password field.
+            _m('Same as password above.'));
         $this->out->elementEnd('li');
         $this->out->elementEnd('ul');
     }
@@ -231,6 +229,6 @@ class ConfirmFirstEmailForm extends Form
     function formActions()
     {
         // TRANS: Button text for completing registration by e-mail.
-        $this->out->submit('save', _m('BUTTON','Save'));
+        $this->out->submit('save', _m('BUTTON', 'Save'));
     }
 }

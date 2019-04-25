@@ -77,7 +77,7 @@ Plugins are configured using public instance attributes. To set their values,
 site administrators use this syntax:
 
 ```php
-addPlugin('Sample', array('attr1' => 'foo', 'attr2' => 'bar'));
+addPlugin('Sample', ('attr1' => 'foo', 'attr2' => 'bar'));
 ```
 
 The same plugin class can be initialized multiple times with different arguments:
@@ -260,11 +260,11 @@ Take arguments for running
 This method is called first, and it lets the action class get all its arguments
 and validate them. It's also the time to fetch any relevant data from the database.
 
-Action classes should run parent::prepare($args) as the first line of this
-method to make sure the default argument-processing happens.
+Action classes should run parent::prepare(array $args = []) as the first line
+of this method to make sure the default argument-processing happens.
 
 ```php     
-function prepare($args)
+function prepare(array $args = [])
 {
     parent::prepare($args);
 
@@ -286,9 +286,9 @@ should be done in the prepare() method; by the time handle() is called the
 action should be more or less ready to go.
 
 ```php
-function handle($args)
+function handle()
 {
-    parent::handle($args);
+    parent::handle();
 
     $this->showPage();
 }

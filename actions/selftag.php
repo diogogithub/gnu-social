@@ -52,13 +52,14 @@ class SelftagAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         $this->tag = $this->trimmed('tag');
 
@@ -67,7 +68,7 @@ class SelftagAction extends Action
             // TRANS: %s is the invalid list name.
             $this->clientError(sprintf(_('Not a valid list: %s.'),
                 $this->tag));
-            return;
+            return null;
         }
 
         $this->page = ($this->arg('page')) ? $this->arg('page') : 1;
@@ -80,13 +81,11 @@ class SelftagAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
-     * @return boolean is read only action?
+     * @return void is read only action?
      */
-    function handle($argarray)
+    function handle()
     {
-        parent::handle($argarray);
+        parent::handle();
         $this->showPage();
     }
 
@@ -94,8 +93,6 @@ class SelftagAction extends Action
      * Whips up a query to get a list of profiles based on the provided
      * people tag and page, initalizes a ProfileList widget, and displays
      * it to the user.
-     *
-     * @return nothing
      */
     function showContent()
     {
@@ -195,7 +192,7 @@ class SelfTagProfileListItem extends ProfileListItem
 
         $user = common_current_user();
 
-        if (!empty($user) && $user->id != $this->profile->id &&
+        if (!empty($user) && $user->id != $this->profile->getID() &&
                 $user->getProfile()->canTag($this->profile)) {
             $yourtags = new PeopleTagsWidget($this->out, $user, $this->profile);
             $yourtags->show();

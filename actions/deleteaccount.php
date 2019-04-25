@@ -51,25 +51,25 @@ if (!defined('STATUSNET')) {
 class DeleteaccountAction extends Action
 {
     private $_complete = false;
-    private $_error    = null;
+    private $_error = null;
 
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         $cur = common_current_user();
 
         if (empty($cur)) {
             // TRANS: Client exception displayed trying to delete a user account while not logged in.
-            throw new ClientException(_("Only logged-in users ".
-                                        "can delete their account."), 403);
+            throw new ClientException(_("Only logged-in users can delete their account."), 403);
         }
 
         if (!$cur->hasRight(Right::DELETEACCOUNT)) {
@@ -83,20 +83,71 @@ class DeleteaccountAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
+     * @throws AuthorizationException
+     * @throws ServerException
      */
-    function handle($argarray=null)
+    function handle()
     {
-        parent::handle($argarray);
+        parent::handle();
 
         if ($this->isPost()) {
             $this->deleteAccount();
         } else {
             $this->showPage();
         }
-        return;
+        return null;
+    }
+
+    /**
+     * Delete the current user's account
+     *
+     * Checks for the "I am sure." string to make sure the user really
+     * wants to delete their account.
+     *
+     * Then, marks the account as deleted and begins the deletion process
+     * (actually done by a back-end handler).
+     *
+     * If successful it logs the user out, and shows a brief completion message.
+     *
+     * @return void
+     * @throws AuthorizationException
+     * @throws ServerException
+     */
+    function deleteAccount()
+    {
+        $this->checkSessionToken();
+        // !!! If this string is changed, it also needs to be changed in DeleteAccountForm::formData()
+        // TRANS: Confirmation text for user deletion. The user has to type this exactly the same, including punctuation.
+        $iamsure = _('I am sure.');
+        if ($this->trimmed('iamsure') != $iamsure) {
+            // TRANS: Notification for user about the text that must be input to be able to delete a user account.
+            // TRANS: %s is the text that needs to be input.
+            $this->_error = sprintf(_('You must write "%s" exactly in the box.'), $iamsure);
+            $this->showPage();
+            return null;
+        }
+
+        $cur = common_current_user();
+
+        // Mark the account as deleted and shove low-level deletion tasks
+        // to background queues. Removing a lot of posts can take a while...
+
+        if (!$cur->hasRole(Profile_role::DELETED)) {
+            $cur->grantRole(Profile_role::DELETED);
+        }
+
+        $qm = QueueManager::get();
+        $qm->enqueue($cur, 'deluser');
+
+        // The user is really-truly logged out
+
+        common_set_user(null);
+        common_real_login(false); // not logged in
+        common_forgetme(); // don't log back in!
+
+        $this->_complete = true;
+        $this->showPage();
     }
 
     /**
@@ -140,55 +191,6 @@ class DeleteaccountAction extends Action
     }
 
     /**
-     * Delete the current user's account
-     *
-     * Checks for the "I am sure." string to make sure the user really
-     * wants to delete their account.
-     *
-     * Then, marks the account as deleted and begins the deletion process
-     * (actually done by a back-end handler).
-     *
-     * If successful it logs the user out, and shows a brief completion message.
-     *
-     * @return void
-     */
-    function deleteAccount()
-    {
-        $this->checkSessionToken();
-        // !!! If this string is changed, it also needs to be changed in DeleteAccountForm::formData()
-        // TRANS: Confirmation text for user deletion. The user has to type this exactly the same, including punctuation.
-        $iamsure = _('I am sure.');
-        if ($this->trimmed('iamsure') != $iamsure ) {
-            // TRANS: Notification for user about the text that must be input to be able to delete a user account.
-            // TRANS: %s is the text that needs to be input.
-            $this->_error = sprintf(_('You must write "%s" exactly in the box.'), $iamsure);
-            $this->showPage();
-            return;
-        }
-
-        $cur = common_current_user();
-
-        // Mark the account as deleted and shove low-level deletion tasks
-        // to background queues. Removing a lot of posts can take a while...
-
-        if (!$cur->hasRole(Profile_role::DELETED)) {
-            $cur->grantRole(Profile_role::DELETED);
-        }
-
-        $qm = QueueManager::get();
-        $qm->enqueue($cur, 'deluser');
-
-        // The user is really-truly logged out
-
-        common_set_user(null);
-        common_real_login(false); // not logged in
-        common_forgetme(); // don't log back in!
-
-        $this->_complete = true;
-        $this->showPage();
-    }
-
-    /**
      * Shows the page content.
      *
      * If the deletion is complete, just shows a completion message.
@@ -202,9 +204,9 @@ class DeleteaccountAction extends Action
     {
         if ($this->_complete) {
             $this->element('p', 'confirmation',
-                           // TRANS: Confirmation that a user account has been deleted.
-                           _('Account deleted.'));
-            return;
+                // TRANS: Confirmation that a user account has been deleted.
+                _('Account deleted.'));
+            return null;
         }
 
         if (!empty($this->_error)) {
@@ -276,16 +278,13 @@ class DeleteAccountForm extends Form
         $cur = common_current_user();
 
         // TRANS: Form text for user deletion form.
-        $msg = '<p>' . _('This will <strong>permanently delete</strong> '.
-                 'your account data from this server.') . '</p>';
+        $msg = '<p>' . _('This will <strong>permanently delete</strong> your account data from this server.') . '</p>';
 
         if ($cur->hasRight(Right::BACKUPACCOUNT)) {
             // TRANS: Additional form text for user deletion form shown if a user has account backup rights.
             // TRANS: %s is a URL to the backup page.
-            $msg .= '<p>' . sprintf(_('You are strongly advised to '.
-                              '<a href="%s">back up your data</a>'.
-                              ' before deletion.'),
-                           common_local_url('backupaccount')) . '</p>';
+            $msg .= '<p>' . sprintf(_('You are strongly advised to <a href="%s">back up your data</a> before deletion.'),
+                    common_local_url('backupaccount')) . '</p>';
         }
 
         $this->out->elementStart('p');
@@ -296,13 +295,13 @@ class DeleteAccountForm extends Form
         // TRANS: Confirmation text for user deletion. The user has to type this exactly the same, including punctuation.
         $iamsure = _("I am sure.");
         $this->out->input('iamsure',
-                          // TRANS: Field label for delete account confirmation entry.
-                          _('Confirm'),
-                          null,
-                          // TRANS: Input title for the delete account field.
-                          // TRANS: %s is the text that needs to be input.
-                          sprintf(_('Enter "%s" to confirm that '.
-                            'you want to delete your account.'),$iamsure ));
+            // TRANS: Field label for delete account confirmation entry.
+            _('Confirm'),
+            null,
+            // TRANS: Input title for the delete account field.
+            // TRANS: %s is the text that needs to be input.
+            sprintf(_('Enter "%s" to confirm that ' .
+                'you want to delete your account.'), $iamsure));
     }
 
     /**
@@ -315,11 +314,11 @@ class DeleteAccountForm extends Form
     function formActions()
     {
         $this->out->submit('submit',
-                           // TRANS: Button text for user account deletion.
-                           _m('BUTTON', 'Delete'),
-                           'submit',
-                           null,
-                           // TRANS: Button title for user account deletion.
-                           _('Permanently delete your account.'));
+            // TRANS: Button text for user account deletion.
+            _m('BUTTON', 'Delete'),
+            'submit',
+            null,
+            // TRANS: Button title for user account deletion.
+            _('Permanently delete your account.'));
     }
 }

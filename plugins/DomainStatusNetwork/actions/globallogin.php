@@ -4,7 +4,7 @@
  * Copyright (C) 2011, StatusNet, Inc.
  *
  * Log into a site globally
- * 
+ *
  * PHP version 5
  *
  * This program is free software: you can redistribute it and/or modify
@@ -44,7 +44,6 @@ if (!defined('STATUSNET')) {
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
-
 class GloballoginAction extends GlobalApiAction
 {
     var $password;
@@ -52,14 +51,14 @@ class GloballoginAction extends GlobalApiAction
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         $password = $this->trimmed('password');
 
@@ -75,14 +74,12 @@ class GloballoginAction extends GlobalApiAction
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
-
-    function handle($argarray=null)
+    function handle()
     {
         try {
+            // FIXME: $email and $password aren't defined
             $url = DomainStatusNetworkPlugin::login($email, $password);
             $this->showSuccess(array('url' => $url));
         } catch (ClientException $ce) {

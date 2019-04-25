@@ -54,20 +54,22 @@ class ShowgroupmessageAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
+     * @throws ServerException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         $this->user = common_current_user();
 
         if (empty($this->user)) {
             // TRANS: Client exception thrown when trying to view group private messages without being logged in.
             throw new ClientException(_m('Only logged-in users can view private messages.'),
-                                      403);
+                403);
         }
 
         $id = $this->trimmed('id');
@@ -104,11 +106,9 @@ class ShowgroupmessageAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
-    function handle($argarray=null)
+    function handle()
     {
         $this->showPage();
     }
@@ -121,9 +121,9 @@ class ShowgroupmessageAction extends Action
         // TRANS: Title for private group message.
         // TRANS: %1$s is the sender name, %2$s is the group name, %3$s is a timestamp.
         return sprintf(_m('Message from %1$s to group %2$s on %3$s'),
-                       $this->sender->nickname,
-                       $this->group->nickname,
-                       common_exact_date($this->gm->created));
+            $this->sender->nickname,
+            $this->group->nickname,
+            common_exact_date($this->gm->created));
     }
 
     /**
@@ -161,8 +161,8 @@ class ShowgroupmessageAction extends Action
     function lastModified()
     {
         return max(strtotime($this->group->modified),
-                   strtotime($this->sender->modified),
-                   strtotime($this->gm->modified));
+            strtotime($this->sender->modified),
+            strtotime($this->gm->modified));
     }
 
     /**
@@ -182,11 +182,11 @@ class ShowgroupmessageAction extends Action
         }
 
         return 'W/"' . implode(':', array($this->arg('action'),
-                                          common_user_cache_hash(),
-                                          common_language(),
-                                          $this->gm->id,
-                                          strtotime($this->sender->modified),
-                                          strtotime($this->group->modified),
-                                          $avtime)) . '"';
+                common_user_cache_hash(),
+                common_language(),
+                $this->gm->id,
+                strtotime($this->sender->modified),
+                strtotime($this->group->modified),
+                $avtime)) . '"';
     }
 }

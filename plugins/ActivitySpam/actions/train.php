@@ -54,14 +54,16 @@ class TrainAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
+     * @throws ServerException
      */
 
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         // User must be logged in.
 
@@ -111,12 +113,11 @@ class TrainAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
+     * @throws ClientException
      */
 
-    function handle($argarray=null)
+    function handle()
     {
         // Train
 

@@ -45,11 +45,11 @@ if (!defined('STATUSNET')) {
  */
 class QnareviseanswerAction extends Action
 {
-    protected $user     = null;
-    protected $error    = null;
+    protected $user = null;
+    protected $error = null;
     protected $question = null;
-    protected $answer   = null;
-    protected $content  = null;
+    protected $answer = null;
+    protected $content = null;
 
     /**
      * Returns the title of the action
@@ -65,13 +65,14 @@ class QnareviseanswerAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
         if ($this->boolean('ajax')) {
             GNUsocial::setApi(true);
         }
@@ -80,7 +81,7 @@ class QnareviseanswerAction extends Action
 
         if (empty($this->user)) {
             throw new ClientException(
-                // TRANS: Client exception thrown trying to answer a question while not logged in.
+            // TRANS: Client exception thrown trying to answer a question while not logged in.
                 _m("You must be logged in to answer to a question."),
                 403
             );
@@ -88,12 +89,12 @@ class QnareviseanswerAction extends Action
 
         $id = substr($this->trimmed('id'), 7);
 
-        $this->answer   = QnA_Answer::getKV('id', $id);
+        $this->answer = QnA_Answer::getKV('id', $id);
         $this->question = $this->answer->getQuestion();
 
         if (empty($this->answer) || empty($this->question)) {
             throw new ClientException(
-                // TRANS: Client exception thrown trying to respond to a non-existing question.
+            // TRANS: Client exception thrown trying to respond to a non-existing question.
                 _m('Invalid or missing answer.'),
                 404
             );
@@ -107,13 +108,11 @@ class QnareviseanswerAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
-    function handle($argarray=null)
+    function handle()
     {
-        parent::handle($argarray);
+        parent::handle();
 
         if ($this->isPost()) {
             $this->checkSessionToken();
@@ -132,6 +131,83 @@ class QnareviseanswerAction extends Action
         }
 
         $this->showPage();
+    }
+
+    /**
+     * Show the revise answer form
+     *
+     * @return void
+     */
+    function showContent()
+    {
+        if (!empty($this->error)) {
+            $this->element('p', 'error', $this->error);
+        }
+
+        if ($this->boolean('ajax')) {
+            $this->showAjaxReviseForm();
+        } else {
+            $form = new QnareviseanswerForm($this->answer, $this);
+            $form->show();
+        }
+
+        return;
+    }
+
+    function showAjaxReviseForm()
+    {
+        $this->startHTML('text/xml;charset=utf-8');
+        $this->elementStart('head');
+        // TRANS: Form title for sending an answer.
+        $this->element('title', null, _m('TITLE', 'Answer'));
+        $this->elementEnd('head');
+        $this->elementStart('body');
+        $form = new QnareviseanswerForm($this->answer, $this);
+        $form->show();
+        $this->elementEnd('body');
+        $this->endHTML();
+    }
+
+    /**
+     * Mark the answer as the "best" answer
+     *
+     * @return void
+     */
+    function markBest()
+    {
+        $question = $this->question;
+        $answer = $this->answer;
+
+        try {
+            // close the question to further answers
+            $orig = clone($question);
+            $question->closed = 1;
+            $result = $question->update($orig);
+
+            // mark this answer an the best answer
+            $orig = clone($answer);
+            $answer->best = 1;
+            $result = $answer->update($orig);
+        } catch (ClientException $ce) {
+            $this->error = $ce->getMessage();
+            $this->showPage();
+            return;
+        }
+        if ($this->boolean('ajax')) {
+            common_debug("ajaxy part");
+            $this->startHTML('text/xml;charset=utf-8');
+            $this->elementStart('head');
+            // TRANS: Page title after sending an answer.
+            $this->element('title', null, _m('Answer'));
+            $this->elementEnd('head');
+            $this->elementStart('body');
+            $form = new QnashowanswerForm($this, $answer);
+            $form->show();
+            $this->elementEnd('body');
+            $this->endHTML();
+        } else {
+            common_redirect($this->answer->getUrl(), 303);
+        }
     }
 
     /**
@@ -168,83 +244,6 @@ class QnareviseanswerAction extends Action
         } else {
             common_redirect($this->answer->getUrl(), 303);
         }
-    }
-
-    /**
-     * Mark the answer as the "best" answer
-     *
-     * @return void
-     */
-    function markBest()
-    {
-        $question = $this->question;
-        $answer   = $this->answer;
-
-        try {
-            // close the question to further answers
-            $orig = clone($question);
-            $question->closed = 1;
-            $result = $question->update($orig);
-
-            // mark this answer an the best answer
-            $orig = clone($answer);
-            $answer->best = 1;
-            $result = $answer->update($orig);
-        } catch (ClientException $ce) {
-            $this->error = $ce->getMessage();
-            $this->showPage();
-            return;
-        }
-        if ($this->boolean('ajax')) {
-            common_debug("ajaxy part");
-            $this->startHTML('text/xml;charset=utf-8');
-            $this->elementStart('head');
-            // TRANS: Page title after sending an answer.
-            $this->element('title', null, _m('Answer'));
-            $this->elementEnd('head');
-            $this->elementStart('body');
-            $form = new QnashowanswerForm($this, $answer);
-            $form->show();
-            $this->elementEnd('body');
-            $this->endHTML();
-        } else {
-            common_redirect($this->answer->getUrl(), 303);
-        }
-    }
-
-    /**
-     * Show the revise answer form
-     *
-     * @return void
-     */
-    function showContent()
-    {
-        if (!empty($this->error)) {
-            $this->element('p', 'error', $this->error);
-        }
-
-        if ($this->boolean('ajax')) {
-            $this->showAjaxReviseForm();
-        } else {
-            $form = new QnareviseanswerForm($this->answer, $this);
-            $form->show();
-        }
-
-        return;
-    }
-
-    function showAjaxReviseForm()
-    {
-        $this->startHTML('text/xml;charset=utf-8');
-        $this->elementStart('head');
-        // TRANS: Form title for sending an answer.
-        $this->element('title', null, _m('TITLE','Answer'));
-        $this->elementEnd('head');
-        $this->elementStart('body');
-        $form = new QnareviseanswerForm($this->answer, $this);
-        $form->show();
-        $this->elementEnd('body');
-        $this->endHTML();
     }
 
     /**

@@ -63,13 +63,14 @@ class RestoreaccountAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         $cur = common_current_user();
 
@@ -89,20 +90,19 @@ class RestoreaccountAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
+     * @throws ClientException
      */
-    function handle($argarray=null)
+    function handle()
     {
-        parent::handle($argarray);
+        parent::handle();
 
         if ($this->isPost()) {
             $this->restoreAccount();
         } else {
             $this->showPage();
         }
-        return;
+        return null;
     }
 
     /**
@@ -111,6 +111,8 @@ class RestoreaccountAction extends Action
      * Uses the UserActivityStream class; may take a long time!
      *
      * @return void
+     * @throws ClientException
+     * @throws Exception
      */
     function restoreAccount()
     {
@@ -128,41 +130,33 @@ class RestoreaccountAction extends Action
             // TRANS: Client exception thrown when an uploaded file is larger than set in php.ini.
             throw new ClientException(_('The uploaded file exceeds the ' .
                 'upload_max_filesize directive in php.ini.'));
-            return;
         case UPLOAD_ERR_FORM_SIZE:
             throw new ClientException(
                 // TRANS: Client exception.
                 _('The uploaded file exceeds the MAX_FILE_SIZE directive' .
                 ' that was specified in the HTML form.'));
-            return;
         case UPLOAD_ERR_PARTIAL:
             @unlink($_FILES['restorefile']['tmp_name']);
             // TRANS: Client exception.
             throw new ClientException(_('The uploaded file was only' .
                 ' partially uploaded.'));
-            return;
         case UPLOAD_ERR_NO_FILE:
             // TRANS: Client exception. No file; probably just a non-AJAX submission.
             throw new ClientException(_('No uploaded file.'));
-            return;
         case UPLOAD_ERR_NO_TMP_DIR:
             // TRANS: Client exception thrown when a temporary folder is not present to store a file upload.
             throw new ClientException(_('Missing a temporary folder.'));
-            return;
         case UPLOAD_ERR_CANT_WRITE:
             // TRANS: Client exception thrown when writing to disk is not possible during a file upload operation.
             throw new ClientException(_('Failed to write file to disk.'));
-            return;
         case UPLOAD_ERR_EXTENSION:
             // TRANS: Client exception thrown when a file upload operation has been stopped by an extension.
             throw new ClientException(_('File upload stopped by extension.'));
-            return;
         default:
             common_log(LOG_ERR, __METHOD__ . ": Unknown upload error " .
                 $_FILES['restorefile']['error']);
             // TRANS: Client exception thrown when a file upload operation has failed with an unknown reason.
             throw new ClientException(_('System error uploading file.'));
-            return;
         }
 
         $filename = $_FILES['restorefile']['tmp_name'];
@@ -210,7 +204,7 @@ class RestoreaccountAction extends Action
             // Enqueue for processing.
 
             $qm = QueueManager::get();
-            $qm->enqueue(array(common_current_user(), $xml, false), 'feedimp');
+            $qm->enqueue([common_current_user(), $xml, false], 'feedimp');
 
             if ($qm instanceof UnQueueManager) {
                 // No active queuing means we've actually just completed the job!

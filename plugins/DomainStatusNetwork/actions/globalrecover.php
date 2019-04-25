@@ -50,28 +50,28 @@ class GlobalrecoverAction extends GlobalApiAction
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
 
-    function prepare($argarray)
+    function prepare(array $args = array())
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
         return true;
     }
 
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
 
-    function handle($argarray=null)
+    function handle()
     {
         try {
+            // FIXME: $email isn't defined
             DomainStatusNetworkPlugin::recoverPassword($email);
             $this->showSuccess();
         } catch (ClientException $ce) {

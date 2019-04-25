@@ -45,10 +45,10 @@ if (!defined('STATUSNET')) {
  */
 class QnanewquestionAction extends Action
 {
-    protected $user        = null;
-    protected $error       = null;
-    protected $complete    = null;
-    protected $title       = null;
+    protected $user = null;
+    protected $error = null;
+    protected $complete = null;
+    protected $title = null;
     protected $description = null;
 
     /**
@@ -65,19 +65,20 @@ class QnanewquestionAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
 
         $this->user = common_current_user();
 
         if (empty($this->user)) {
             throw new ClientException(
-                // TRANS: Client exception thrown trying to create a Question while not logged in.
+            // TRANS: Client exception thrown trying to create a Question while not logged in.
                 _m('You must be logged in to post a question.'),
                 403
             );
@@ -87,7 +88,7 @@ class QnanewquestionAction extends Action
             $this->checkSessionToken();
         }
 
-        $this->title       = $this->trimmed('title');
+        $this->title = $this->trimmed('title');
         $this->description = $this->trimmed('description');
 
         return true;
@@ -96,13 +97,11 @@ class QnanewquestionAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
-    function handle($argarray=null)
+    function handle()
     {
-        parent::handle($argarray);
+        parent::handle();
 
         if ($this->isPost()) {
             $this->newQuestion();
@@ -228,7 +227,7 @@ class NoticeQuestionListItem extends NoticeListItem
      *
      * @param Notice $notice The notice we'll display
      */
-    function __construct($notice, $out=null)
+    function __construct($notice, $out = null)
     {
         parent::__construct($notice, $out);
     }

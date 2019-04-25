@@ -45,12 +45,12 @@ if (!defined('STATUSNET')) {
  */
 class QnaclosequestionAction extends Action
 {
-    protected $user        = null;
-    protected $error       = null;
-    protected $complete    = null;
+    protected $user = null;
+    protected $error = null;
+    protected $complete = null;
 
-    protected $question    = null;
-    protected $answer      = null;
+    protected $question = null;
+    protected $answer = null;
 
     /**
      * Returns the title of the action
@@ -66,13 +66,14 @@ class QnaclosequestionAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
         if ($this->boolean('ajax')) {
             GNUsocial::setApi(true);
         }
@@ -81,7 +82,7 @@ class QnaclosequestionAction extends Action
 
         if (empty($this->user)) {
             throw new ClientException(
-                // TRANS: Client exception thrown trying to close a question when not logged in
+            // TRANS: Client exception thrown trying to close a question when not logged in
                 _m("You must be logged in to close a question."),
                 403
             );
@@ -104,13 +105,11 @@ class QnaclosequestionAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
-    function handle($argarray=null)
+    function handle()
     {
-        parent::handle($argarray);
+        parent::handle();
 
         if ($this->isPost()) {
             $this->closeQuestion();

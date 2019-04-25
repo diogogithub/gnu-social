@@ -45,12 +45,12 @@ if (!defined('STATUSNET')) {
  */
 class RespondPollAction extends Action
 {
-    protected $user        = null;
-    protected $error       = null;
-    protected $complete    = null;
+    protected $user = null;
+    protected $error = null;
+    protected $complete = null;
 
-    protected $poll        = null;
-    protected $selection   = null;
+    protected $poll = null;
+    protected $selection = null;
 
     /**
      * Returns the title of the action
@@ -66,13 +66,14 @@ class RespondPollAction extends Action
     /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    function prepare($argarray)
+    function prepare(array $args = [])
     {
-        parent::prepare($argarray);
+        parent::prepare($args);
         if ($this->boolean('ajax')) {
             GNUsocial::setApi(true);
         }
@@ -82,7 +83,7 @@ class RespondPollAction extends Action
         if (empty($this->user)) {
             // TRANS: Client exception thrown trying to respond to a poll while not logged in.
             throw new ClientException(_m('You must be logged in to respond to a poll.'),
-                                      403);
+                403);
         }
 
         if ($this->isPost()) {
@@ -109,13 +110,11 @@ class RespondPollAction extends Action
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
      */
-    function handle($argarray=null)
+    function handle()
     {
-        parent::handle($argarray);
+        parent::handle();
 
         if ($this->isPost()) {
             $this->respondPoll();
@@ -135,8 +134,8 @@ class RespondPollAction extends Action
     {
         try {
             $notice = Poll_response::saveNew($this->user->getProfile(),
-                                             $this->poll,
-                                             $this->selection);
+                $this->poll,
+                $this->selection);
         } catch (ClientException $ce) {
             $this->error = $ce->getMessage();
             $this->showPage();
