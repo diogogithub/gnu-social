@@ -46,32 +46,38 @@ if (!defined('STATUSNET')) {
  */
 class ConfirmRegistrationForm extends Form
 {
+    protected $action;
     protected $code;
     protected $nickname;
     protected $email;
 
-    function __construct($out, $nickname, $email, $code)
+    public function __construct($out, $nickname, $email, $code)
     {
         parent::__construct($out);
+        $this->action = $out;
         $this->nickname = $nickname;
         $this->email = $email;
         $this->code = $code;
     }
 
-    function formData()
+    public function formData()
     {
         $this->out->element('p', 'instructions',
                             // TRANS: Form instructions.
-                            sprintf(_m('Enter a password to confirm your new account.')));
+                            sprintf(_m('Enter a password to confirm your new account.'))
+        );
 
         $this->hidden('code', $this->code);
 
         $this->out->elementStart('ul', 'form_data');
 
+        // Hook point for captcha etc
+        Event::handle('StartRegistrationFormData', array($this->action));
+
         $this->elementStart('li');
 
         // TRANS: Field label in e-mail registration form.
-        $this->element('label', array('for' => 'nickname'), _m('LABEL','User name'));
+        $this->element('label', array('for' => 'nickname'), _m('LABEL', 'User name'));
 
         $this->element('input', array('name' => 'nickname',
                                       'type' => 'text',
@@ -97,14 +103,19 @@ class ConfirmRegistrationForm extends Form
         // TRANS: Field label on account registration page.
         $this->password('password1', _m('Password'),
                         // TRANS: Field title on account registration page.
-                        _m('6 or more characters.'));
+                        _m('6 or more characters.')
+        );
         $this->elementEnd('li');
         $this->elementStart('li');
         // TRANS: Field label on account registration page. In this field the password has to be entered a second time.
-        $this->password('password2', _m('PASSWORD','Confirm'),
+        $this->password('password2', _m('PASSWORD', 'Confirm'),
                         // TRANS: Field title on account registration page.
-                        _m('Same as password above.'));
+                        _m('Same as password above.')
+        );
         $this->elementEnd('li');
+
+        // Hook point for captcha etc
+        Event::handle('EndRegistrationFormData', array($this->action));
 
         $this->elementStart('li');
 
@@ -119,10 +130,12 @@ class ConfirmRegistrationForm extends Form
                                            'for' => 'tos'));
 
         // TRANS: Checkbox title for terms of service and privacy policy.
-        $this->raw(sprintf(_m('I agree to the <a href="%1$s">Terms of service</a> and '.
-                             '<a href="%1$s">Privacy policy</a> of this site.'),
-                           common_local_url('doc', array('title' => 'tos')),
-                           common_local_url('doc', array('title' => 'privacy'))));
+        $this->raw(sprintf(
+            _m('I agree to the <a href="%1$s">Terms of service</a> and '.
+               '<a href="%1$s">Privacy policy</a> of this site.'),
+            common_local_url('doc', array('title' => 'tos')),
+            common_local_url('doc', array('title' => 'privacy'))
+        ));
 
         $this->elementEnd('label');
 
@@ -131,7 +144,7 @@ class ConfirmRegistrationForm extends Form
         $this->out->elementEnd('ul');
     }
 
-    function method()
+    public function method()
     {
         return 'post';
     }
@@ -145,7 +158,7 @@ class ConfirmRegistrationForm extends Form
      * @return void
      */
 
-    function formActions()
+    public function formActions()
     {
         // TRANS: Button text for action to register.
         $this->out->submit('submit', _m('BUTTON', 'Register'));
@@ -160,7 +173,7 @@ class ConfirmRegistrationForm extends Form
      * @return int ID of the form
      */
 
-    function id()
+    public function id()
     {
         return 'form_email_registration';
     }
@@ -174,12 +187,12 @@ class ConfirmRegistrationForm extends Form
      * @return string URL to post to
      */
 
-    function action()
+    public function action()
     {
         return common_local_url('register');
     }
 
-    function formClass()
+    public function formClass()
     {
         return 'form_confirm_registration form_settings';
     }
