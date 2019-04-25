@@ -46,9 +46,9 @@ class FaveNoticeStream extends ScopingNoticeStream
     {
         $stream = new RawFaveNoticeStream($target, $scoped);
         if ($target->sameAs($scoped)) {
-            $key = 'fave:ids_by_user_own:'.$user_id;
+            $key = 'fave:ids_by_user_own:'.$target->getID();
         } else {
-            $key = 'fave:ids_by_user:'.$user_id;
+            $key = 'fave:ids_by_user:'.$target->getID();
         }
         parent::__construct(new CachingNoticeStream($stream, $key), $scoped);
     }
