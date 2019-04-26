@@ -19,45 +19,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
+if (!defined('STATUSNET') && !defined('LACONICA')) {
+    exit(1);
+}
 
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
 
 class Session extends Managed_DataObject
 {
     ###START_AUTOCODE
     /* the code below is auto generated do not remove the above tag */
 
-    public $__table = 'session';                         // table name
+    public $__table = 'session';             // table name
     public $id;                              // varchar(32)  primary_key not_null
     public $session_data;                    // text()
     public $created;                         // datetime()   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
 
     public static function schemaDef()
     {
-        return array(
-            'fields' => array(
-                'id' => array('type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'session ID'),
-                'session_data' => array('type' => 'text', 'description' => 'session data'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
-            ),
-            'primary key' => array('id'),
-            'indexes' => array(
-                'session_modified_idx' => array('modified'),
-            ),
-        );
-    }
-
-    static function logdeb($msg)
-    {
-        if (common_config('sessions', 'debug')) {
-            common_debug("Session: " . $msg);
-        }
+        return [
+            'fields' => [
+                'id'           => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'session ID'],
+                'session_data' => ['type' => 'text', 'description' => 'session data'],
+                'created'      => ['type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'],
+                'modified'     => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+            ],
+            'primary key' => ['id'],
+            'indexes' => [
+                'session_modified_idx' => ['modified'],
+            ],
+        ];
     }
 
     static function open($save_path, $session_name)
@@ -87,6 +82,13 @@ class Session extends Managed_DataObject
         }
     }
 
+    static function logdeb($msg)
+    {
+        if (common_config('sessions', 'debug')) {
+            common_debug("Session: " . $msg);
+        }
+    }
+
     static function write($id, $session_data)
     {
         self::logdeb("Writing session '$id'");
@@ -97,9 +99,9 @@ class Session extends Managed_DataObject
             self::logdeb("'$id' doesn't yet exist; inserting.");
             $session = new Session();
 
-            $session->id           = $id;
+            $session->id = $id;
             $session->session_data = $session_data;
-            $session->created      = common_sql_now();
+            $session->created = common_sql_now();
 
             $result = $session->insert();
 
@@ -136,36 +138,16 @@ class Session extends Managed_DataObject
         }
     }
 
-    static function destroy($id)
-    {
-        self::logdeb("Deleting session $id");
-
-        $session = Session::getKV('id', $id);
-
-        if (empty($session)) {
-            self::logdeb("Can't find '$id' to delete.");
-        } else {
-            $result = $session->delete();
-            if (!$result) {
-                common_log_db_error($session, 'DELETE', __FILE__);
-                self::logdeb("Failed to delete '$id'.");
-            } else {
-                self::logdeb("Successfully deleted '$id' (result = $result).");
-            }
-            return $result;
-        }
-    }
-
     static function gc($maxlifetime)
     {
         self::logdeb("garbage collection (maxlifetime = $maxlifetime)");
 
         $epoch = common_sql_date(time() - $maxlifetime);
 
-        $ids = array();
+        $ids = [];
 
         $session = new Session();
-        $session->whereAdd('modified < "'.$epoch.'"');
+        $session->whereAdd('modified < "' . $epoch . '"');
         $session->selectAdd();
         $session->selectAdd('id');
 
@@ -192,6 +174,27 @@ class Session extends Managed_DataObject
         }
     }
 
+    static function destroy($id)
+    {
+        self::logdeb("Deleting session $id");
+
+        $session = Session::getKV('id', $id);
+
+        if (empty($session)) {
+            self::logdeb("Can't find '$id' to delete.");
+            return false;
+        } else {
+            $result = $session->delete();
+            if (!$result) {
+                common_log_db_error($session, 'DELETE', __FILE__);
+                self::logdeb("Failed to delete '$id'.");
+            } else {
+                self::logdeb("Successfully deleted '$id' (result = $result).");
+            }
+            return $result;
+        }
+    }
+
     static function setSaveHandler()
     {
         self::logdeb("setting save handlers");
@@ -204,7 +207,7 @@ class Session extends Managed_DataObject
         // Registering an explicit shutdown function should take care of this before
         // everything breaks on us.
         register_shutdown_function('Session::cleanup');
-        
+
         return $result;
     }
 

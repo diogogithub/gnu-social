@@ -285,14 +285,14 @@ function common_ensure_session()
         if (common_config('sessions', 'handle')) {
             Session::setSaveHandler();
         }
-	if (array_key_exists(session_name(), $_GET)) {
-	    $id = $_GET[session_name()];
-	} else if (array_key_exists(session_name(), $_COOKIE)) {
-	    $id = $_COOKIE[session_name()];
-	}
-	if (isset($id)) {
-	    session_id($id);
-	}
+        if (array_key_exists(session_name(), $_GET)) {
+            $id = $_GET[session_name()];
+        } else if (array_key_exists(session_name(), $_COOKIE)) {
+            $id = $_COOKIE[session_name()];
+        }
+        if (isset($id)) {
+            session_id($id);
+        }
         @session_start();
         if (!isset($_SESSION['started'])) {
             $_SESSION['started'] = time();
