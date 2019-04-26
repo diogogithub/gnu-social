@@ -738,7 +738,10 @@ class Profile extends Managed_DataObject
 
         $cnt = (int) $sub->count('distinct subscribed');
 
-        $cnt = ($cnt > 0) ? $cnt - 1 : $cnt;
+        // Local users are subscribed to themselves
+        if ($this->isLocal()) {
+            $cnt = ($cnt > 0) ? $cnt - 1 : $cnt;
+        }
 
         if (!empty($c)) {
             $c->set(Cache::key('profile:subscription_count:'.$this->id), $cnt);
