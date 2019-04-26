@@ -410,7 +410,7 @@ class EventPlugin extends ActivityVerbHandlerPlugin
     protected function showRSVP(Notice $stored, HTMLOutputter $out, Profile $scoped=null)
     {
         try {
-            $rsvp = RSVP::fromStored($stored);
+            $rsvp = RSVP::fromStored($stored)->asHTML();
         } catch (NoResultException $e) {
             // TRANS: Content for a deleted RSVP list item (RSVP stands for "please respond").
             $out->element('p', null, _m('Deleted.'));
@@ -418,7 +418,7 @@ class EventPlugin extends ActivityVerbHandlerPlugin
         }
 
         $out->elementStart('div', 'rsvp');
-        $out->raw($rsvp->asHTML());
+        $out->raw($rsvp);
         $out->elementEnd('div');
     }
 
