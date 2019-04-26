@@ -83,7 +83,7 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
         $flinks = array();
         $flink = new Foreign_link();
 
-        $conn = &$flink->getDatabaseConnection();
+        $conn = $flink->getDatabaseConnection();
 
         $flink->service = TWITTER_SERVICE;
         $flink->orderBy('last_friendsync');
