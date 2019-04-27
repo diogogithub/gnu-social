@@ -28,7 +28,9 @@
  * @link      http://status.net/
  */
 
-if (!defined('STATUSNET')) { exit(1); }
+if (!defined('STATUSNET')) {
+    exit(1);
+}
 
 /**
  * Change password
@@ -40,7 +42,6 @@ if (!defined('STATUSNET')) { exit(1); }
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
  */
-
 class PasswordsettingsAction extends SettingsAction
 {
     /**
@@ -49,37 +50,36 @@ class PasswordsettingsAction extends SettingsAction
      * @return string Title of the page
      */
 
-    function title()
+    public function title()
     {
         // TRANS: Title for page where to change password.
-        return _m('TITLE','Change password');
+        return _m('TITLE', 'Change password');
     }
 
     /**
      * Instructions for use
      *
-     * @return instructions for use
+     * @return string instructions for use
      */
 
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Instructions for page where to change password.
         return _('Change your password.');
     }
 
-    function showScripts()
+    public function showScripts()
     {
         parent::showScripts();
         $this->autofocus('oldpassword');
     }
 
-    function showContent()
+    public function showContent()
     {
-        $this->elementStart('form', array('method' => 'POST',
-                                          'id' => 'form_password',
-                                          'class' => 'form_settings',
-                                          'action' =>
-                                          common_local_url('passwordsettings')));
+        $this->elementStart('form', ['method' => 'POST',
+                                     'id'     => 'form_password',
+                                     'class'  => 'form_settings',
+                                     'action' => common_local_url('passwordsettings')]);
         $this->elementStart('fieldset');
         // TRANS: Fieldset legend on page where to change password.
         $this->element('legend', null, _('Password change'));
@@ -102,14 +102,14 @@ class PasswordsettingsAction extends SettingsAction
         $this->elementEnd('li');
         $this->elementStart('li');
         // TRANS: Field label on page where to change password. In this field the new password should be typed a second time.
-        $this->password('confirm', _m('LABEL','Confirm'),
+        $this->password('confirm', _m('LABEL', 'Confirm'),
                         // TRANS: Field title on page where to change password.
                         _('Same as password above.'));
         $this->elementEnd('li');
         $this->elementEnd('ul');
 
         // TRANS: Button text on page where to change password.
-        $this->submit('changepass', _m('BUTTON','Change'));
+        $this->submit('changepass', _m('BUTTON', 'Change'));
 
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
@@ -120,14 +120,14 @@ class PasswordsettingsAction extends SettingsAction
         // FIXME: scrub input
 
         $newpassword = $this->arg('newpassword');
-        $confirm     = $this->arg('confirm');
+        $confirm = $this->arg('confirm');
 
         // Some validation
 
         if (strlen($newpassword) < 6) {
             // TRANS: Form validation error on page where to change password.
             throw new ClientException(_('Password must be 6 or more characters.'));
-        } else if (0 != strcmp($newpassword, $confirm)) {
+        } elseif (0 != strcmp($newpassword, $confirm)) {
             // TRANS: Form validation error on password change when password confirmation does not match.
             throw new ClientException(_('Passwords do not match.'));
         }
@@ -142,11 +142,12 @@ class PasswordsettingsAction extends SettingsAction
             }
         }
 
-        if (Event::handle('StartChangePassword', array($this->scoped, $oldpassword, $newpassword))) {
-            //no handler changed the password, so change the password internally
+        if (Event::handle('StartChangePassword', [$this->scoped, $oldpassword, $newpassword])) {
+            // no handler changed the password, so change the password internally
+            $user = $this->scoped->getUser();
             $user->setPassword($newpassword);
 
-            Event::handle('EndChangePassword', array($this->scoped));
+            Event::handle('EndChangePassword', [$this->scoped]);
         }
 
         // TRANS: Form validation notice on page where to change password.
