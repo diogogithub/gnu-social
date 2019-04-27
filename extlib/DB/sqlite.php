@@ -28,7 +28,8 @@
 /**
  * Obtain the DB_common class so it can be extended from
  */
-require_once 'DB/common.php';
+//require_once 'DB/common.php';
+require_once 'common.php';
 
 /**
  * The methods PEAR DB uses to interact with PHP's sqlite extension
@@ -80,13 +81,13 @@ class DB_sqlite extends DB_common
      * @var array
      */
     public $features = array(
-        'limit'         => 'alter',
-        'new_link'      => false,
-        'numrows'       => true,
-        'pconnect'      => true,
-        'prepare'       => false,
-        'ssl'           => false,
-        'transactions'  => false,
+        'limit' => 'alter',
+        'new_link' => false,
+        'numrows' => true,
+        'pconnect' => true,
+        'prepare' => false,
+        'ssl' => false,
+        'transactions' => false,
     );
 
     /**
@@ -98,8 +99,7 @@ class DB_sqlite extends DB_common
      *
      * @var array
      */
-    public $errorcode_map = array(
-    );
+    public $errorcode_map = array();
 
     /**
      * The raw database connection created by PHP
@@ -122,22 +122,22 @@ class DB_sqlite extends DB_common
      * @var array
      */
     public $keywords = array(
-        'BLOB'      => '',
-        'BOOLEAN'   => '',
+        'BLOB' => '',
+        'BOOLEAN' => '',
         'CHARACTER' => '',
-        'CLOB'      => '',
-        'FLOAT'     => '',
-        'INTEGER'   => '',
-        'KEY'       => '',
-        'NATIONAL'  => '',
-        'NUMERIC'   => '',
-        'NVARCHAR'  => '',
-        'PRIMARY'   => '',
-        'TEXT'      => '',
+        'CLOB' => '',
+        'FLOAT' => '',
+        'INTEGER' => '',
+        'KEY' => '',
+        'NATIONAL' => '',
+        'NUMERIC' => '',
+        'NVARCHAR' => '',
+        'PRIMARY' => '',
+        'TEXT' => '',
         'TIMESTAMP' => '',
-        'UNIQUE'    => '',
-        'VARCHAR'   => '',
-        'VARYING'   => '',
+        'UNIQUE' => '',
+        'VARCHAR' => '',
+        'VARYING' => '',
     );
 
     /**
@@ -183,15 +183,15 @@ class DB_sqlite extends DB_common
      * );
      *
      * $db = DB::connect($dsn, $options);
-     * if (PEAR::isError($db)) {
+     * if ((new PEAR)->isError($db)) {
      *     die($db->getMessage());
      * }
      * </code>
      *
-     * @param array $dsn         the data source name
-     * @param bool  $persistent  should the connection be persistent?
+     * @param array $dsn the data source name
+     * @param bool $persistent should the connection be persistent?
      *
-     * @return int  DB_OK on success. A DB_Error object on failure.
+     * @return int|object
      */
     public function connect($dsn, $persistent = false)
     {
@@ -256,9 +256,97 @@ class DB_sqlite extends DB_common
     // {{{ disconnect()
 
     /**
+     * Produces a DB_Error object regarding the current problem
+     *
+     * @param int $errno if the error is being manually raised pass a
+     *                     DB_ERROR* constant here.  If this isn't passed
+     *                     the error information gathered from the DBMS.
+     *
+     * @return object  the DB_Error object
+     *
+     * @see DB_common::raiseError(),
+     *      DB_sqlite::errorNative(), DB_sqlite::errorCode()
+     */
+    public function sqliteRaiseError($errno = null)
+    {
+        $native = $this->errorNative();
+        if ($errno === null) {
+            $errno = $this->errorCode($native);
+        }
+
+        $errorcode = @sqlite_last_error($this->connection);
+        $userinfo = "$errorcode ** $this->last_query";
+
+        return $this->raiseError($errno, null, null, $userinfo, $native);
+    }
+
+    // }}}
+    // {{{ simpleQuery()
+
+    /**
+     * Gets the DBMS' native error message produced by the last query
+     *
+     * {@internal This is used to retrieve more meaningfull error messages
+     * because sqlite_last_error() does not provide adequate info.}}
+     *
+     * @return string  the DBMS' error message
+     */
+    public function errorNative()
+    {
+        return $this->_lasterror;
+    }
+
+    // }}}
+    // {{{ nextResult()
+
+    /**
+     * Determines PEAR::DB error code from the database's text error message
+     *
+     * @param string $errormsg the error message returned from the database
+     *
+     * @return integer  the DB error number
+     */
+    public function errorCode($errormsg)
+    {
+        static $error_regexps;
+
+        // PHP 5.2+ prepends the function name to $php_errormsg, so we need
+        // this hack to work around it, per bug #9599.
+        $errormsg = preg_replace('/^sqlite[a-z_]+\(\): /', '', $errormsg);
+
+        if (!isset($error_regexps)) {
+            $error_regexps = array(
+                '/^no such table:/' => DB_ERROR_NOSUCHTABLE,
+                '/^no such index:/' => DB_ERROR_NOT_FOUND,
+                '/^(table|index) .* already exists$/' => DB_ERROR_ALREADY_EXISTS,
+                '/PRIMARY KEY must be unique/i' => DB_ERROR_CONSTRAINT,
+                '/is not unique/' => DB_ERROR_CONSTRAINT,
+                '/columns .* are not unique/i' => DB_ERROR_CONSTRAINT,
+                '/uniqueness constraint failed/' => DB_ERROR_CONSTRAINT,
+                '/may not be NULL/' => DB_ERROR_CONSTRAINT_NOT_NULL,
+                '/^no such column:/' => DB_ERROR_NOSUCHFIELD,
+                '/no column named/' => DB_ERROR_NOSUCHFIELD,
+                '/column not present in both tables/i' => DB_ERROR_NOSUCHFIELD,
+                '/^near ".*": syntax error$/' => DB_ERROR_SYNTAX,
+                '/[0-9]+ values for [0-9]+ columns/i' => DB_ERROR_VALUE_COUNT_ON_ROW,
+            );
+        }
+        foreach ($error_regexps as $regexp => $code) {
+            if (preg_match($regexp, $errormsg)) {
+                return $code;
+            }
+        }
+        // Fall back to DB_ERROR if there was no mapping.
+        return DB_ERROR;
+    }
+
+    // }}}
+    // {{{ fetchInto()
+
+    /**
      * Disconnects from the database server
      *
-     * @return bool  TRUE on success, FALSE on failure
+     * @return bool|void
      */
     public function disconnect()
     {
@@ -268,7 +356,7 @@ class DB_sqlite extends DB_common
     }
 
     // }}}
-    // {{{ simpleQuery()
+    // {{{ freeResult()
 
     /**
      * Sends a query to the database server
@@ -313,12 +401,68 @@ class DB_sqlite extends DB_common
     }
 
     // }}}
-    // {{{ nextResult()
+    // {{{ numCols()
+
+    /**
+     * Changes a query string for various DBMS specific reasons
+     *
+     * This little hack lets you know how many rows were deleted
+     * when running a "DELETE FROM table" query.  Only implemented
+     * if the DB_PORTABILITY_DELETE_COUNT portability option is on.
+     *
+     * @param string $query the query string to modify
+     *
+     * @return string  the modified query string
+     *
+     * @access protected
+     * @see DB_common::setOption()
+     */
+    public function modifyQuery($query)
+    {
+        if ($this->options['portability'] & DB_PORTABILITY_DELETE_COUNT) {
+            if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
+                $query = preg_replace(
+                    '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
+                    'DELETE FROM \1 WHERE 1=1',
+                    $query
+                );
+            }
+        }
+        return $query;
+    }
+
+    // }}}
+    // {{{ numRows()
+
+    /**
+     * Gets the number of rows in a result set
+     *
+     * This method is not meant to be called directly.  Use
+     * DB_result::numRows() instead.  It can't be declared "protected"
+     * because DB_result is a separate object.
+     *
+     * @param resource $result PHP's query result resource
+     *
+     * @return int|object
+     *
+     * @see DB_result::numRows()
+     */
+    public function numRows($result)
+    {
+        $rows = @sqlite_num_rows($result);
+        if ($rows === null) {
+            return $this->sqliteRaiseError();
+        }
+        return $rows;
+    }
+
+    // }}}
+    // {{{ affected()
 
     /**
      * Move the internal sqlite result pointer to the next available result
      *
-     * @param resource $result  the valid sqlite result resource
+     * @param resource $result the valid sqlite result resource
      *
      * @return bool  true if a result is available otherwise return false
      */
@@ -328,7 +472,7 @@ class DB_sqlite extends DB_common
     }
 
     // }}}
-    // {{{ fetchInto()
+    // {{{ dropSequence()
 
     /**
      * Places a row from the result set into the given array
@@ -340,10 +484,10 @@ class DB_sqlite extends DB_common
      * DB_result::fetchInto() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result    the query result resource
-     * @param array    $arr       the referenced array to put the data in
-     * @param int      $fetchmode how the resulting array should be indexed
-     * @param int      $rownum    the row number to fetch (0 = first row)
+     * @param resource $result the query result resource
+     * @param array $arr the referenced array to put the data in
+     * @param int $fetchmode how the resulting array should be indexed
+     * @param int $rownum the row number to fetch (0 = first row)
      *
      * @return mixed  DB_OK on success, NULL when the end of a result set is
      *                 reached or on failure
@@ -392,9 +536,6 @@ class DB_sqlite extends DB_common
         return DB_OK;
     }
 
-    // }}}
-    // {{{ freeResult()
-
     /**
      * Deletes the result set and frees the memory occupied by the result set
      *
@@ -402,7 +543,7 @@ class DB_sqlite extends DB_common
      * DB_result::free() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
      * @return bool  TRUE on success, FALSE if $result is invalid
      *
@@ -419,7 +560,7 @@ class DB_sqlite extends DB_common
     }
 
     // }}}
-    // {{{ numCols()
+    // {{{ nextId()
 
     /**
      * Gets the number of columns in a result set
@@ -428,9 +569,9 @@ class DB_sqlite extends DB_common
      * DB_result::numCols() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
-     * @return int  the number of columns.  A DB_Error object on failure.
+     * @return int|object
      *
      * @see DB_result::numCols()
      */
@@ -444,32 +585,7 @@ class DB_sqlite extends DB_common
     }
 
     // }}}
-    // {{{ numRows()
-
-    /**
-     * Gets the number of rows in a result set
-     *
-     * This method is not meant to be called directly.  Use
-     * DB_result::numRows() instead.  It can't be declared "protected"
-     * because DB_result is a separate object.
-     *
-     * @param resource $result  PHP's query result resource
-     *
-     * @return int  the number of rows.  A DB_Error object on failure.
-     *
-     * @see DB_result::numRows()
-     */
-    public function numRows($result)
-    {
-        $rows = @sqlite_num_rows($result);
-        if ($rows === null) {
-            return $this->sqliteRaiseError();
-        }
-        return $rows;
-    }
-
-    // }}}
-    // {{{ affected()
+    // {{{ getDbFileStats()
 
     /**
      * Determines the number of rows affected by a data maniuplation query
@@ -484,12 +600,12 @@ class DB_sqlite extends DB_common
     }
 
     // }}}
-    // {{{ dropSequence()
+    // {{{ escapeSimple()
 
     /**
      * Deletes a sequence
      *
-     * @param string $seq_name  name of the sequence to be deleted
+     * @param string $seq_name name of the sequence to be deleted
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      *
@@ -501,46 +617,17 @@ class DB_sqlite extends DB_common
         return $this->query('DROP TABLE ' . $this->getSequenceName($seq_name));
     }
 
-    /**
-     * Creates a new sequence
-     *
-     * @param string $seq_name  name of the new sequence
-     *
-     * @return int  DB_OK on success.  A DB_Error object on failure.
-     *
-     * @see DB_common::createSequence(), DB_common::getSequenceName(),
-     *      DB_sqlite::nextID(), DB_sqlite::dropSequence()
-     */
-    public function createSequence($seq_name)
-    {
-        $seqname = $this->getSequenceName($seq_name);
-        $query   = 'CREATE TABLE ' . $seqname .
-                   ' (id INTEGER UNSIGNED PRIMARY KEY) ';
-        $result  = $this->query($query);
-        if (DB::isError($result)) {
-            return($result);
-        }
-        $query   = "CREATE TRIGGER ${seqname}_cleanup AFTER INSERT ON $seqname
-                    BEGIN
-                        DELETE FROM $seqname WHERE id<LAST_INSERT_ROWID();
-                    END ";
-        $result  = $this->query($query);
-        if (DB::isError($result)) {
-            return($result);
-        }
-    }
-
     // }}}
-    // {{{ nextId()
+    // {{{ modifyLimitQuery()
 
     /**
      * Returns the next free id in a sequence
      *
-     * @param string  $seq_name  name of the sequence
-     * @param boolean $ondemand  when true, the seqence is automatically
+     * @param string $seq_name name of the sequence
+     * @param boolean $ondemand when true, the seqence is automatically
      *                            created if it does not exist
      *
-     * @return int  the next id number in the sequence.
+     * @return int|object
      *               A DB_Error object on failure.
      *
      * @see DB_common::nextID(), DB_common::getSequenceName(),
@@ -561,7 +648,7 @@ class DB_sqlite extends DB_common
                     return $id;
                 }
             } elseif ($ondemand && DB::isError($result) &&
-                      $result->getCode() == DB_ERROR_NOSUCHTABLE) {
+                $result->getCode() == DB_ERROR_NOSUCHTABLE) {
                 $result = $this->createSequence($seq_name);
                 if (DB::isError($result)) {
                     return $this->raiseError($result);
@@ -575,7 +662,39 @@ class DB_sqlite extends DB_common
     }
 
     // }}}
-    // {{{ getDbFileStats()
+    // {{{ modifyQuery()
+
+    /**
+     * Creates a new sequence
+     *
+     * @param string $seq_name name of the new sequence
+     *
+     * @return int  DB_OK on success.  A DB_Error object on failure.
+     *
+     * @see DB_common::createSequence(), DB_common::getSequenceName(),
+     *      DB_sqlite::nextID(), DB_sqlite::dropSequence()
+     */
+    public function createSequence($seq_name)
+    {
+        $seqname = $this->getSequenceName($seq_name);
+        $query = 'CREATE TABLE ' . $seqname .
+            ' (id INTEGER UNSIGNED PRIMARY KEY) ';
+        $result = $this->query($query);
+        if (DB::isError($result)) {
+            return ($result);
+        }
+        $query = "CREATE TRIGGER ${seqname}_cleanup AFTER INSERT ON $seqname
+                    BEGIN
+                        DELETE FROM $seqname WHERE id<LAST_INSERT_ROWID();
+                    END ";
+        $result = $this->query($query);
+        //if (DB::isError($result)) {
+            return ($result);
+        //}
+    }
+
+    // }}}
+    // {{{ sqliteRaiseError()
 
     /**
      * Get the file stats for the current database
@@ -584,7 +703,7 @@ class DB_sqlite extends DB_common
      * atime, mtime, ctime, blksize, blocks or a numeric key between
      * 0 and 12.
      *
-     * @param string $arg  the array key for stats()
+     * @param string $arg the array key for stats()
      *
      * @return mixed  an array on an unspecified key, integer on a passed
      *                arg and false at a stats error
@@ -600,17 +719,17 @@ class DB_sqlite extends DB_common
                 if (((int)$arg <= 12) & ((int)$arg >= 0)) {
                     return false;
                 }
-                return $stats[$arg ];
+                return $stats[$arg];
             }
             if (array_key_exists(trim($arg), $stats)) {
-                return $stats[$arg ];
+                return $stats[$arg];
             }
         }
         return $stats;
     }
 
     // }}}
-    // {{{ escapeSimple()
+    // {{{ errorNative()
 
     /**
      * Escapes a string according to the current DBMS's standards
@@ -620,7 +739,7 @@ class DB_sqlite extends DB_common
      * containing binary data. See the
      * {@link http://php.net/sqlite_escape_string PHP manual} for more info.
      *
-     * @param string $str  the string to be escaped
+     * @param string $str the string to be escaped
      *
      * @return string  the escaped string
      *
@@ -633,15 +752,15 @@ class DB_sqlite extends DB_common
     }
 
     // }}}
-    // {{{ modifyLimitQuery()
+    // {{{ errorCode()
 
     /**
      * Adds LIMIT clauses to a query string according to current DBMS standards
      *
-     * @param string $query   the query to modify
-     * @param int    $from    the row to start to fetching (0 = the first row)
-     * @param int    $count   the numbers of rows to fetch
-     * @param mixed  $params  array, string or numeric data to be used in
+     * @param string $query the query to modify
+     * @param int $from the row to start to fetching (0 = the first row)
+     * @param int $count the numbers of rows to fetch
+     * @param mixed $params array, string or numeric data to be used in
      *                         execution of the statement.  Quantity of items
      *                         passed must match quantity of placeholders in
      *                         query:  meaning 1 placeholder for non-array
@@ -657,134 +776,15 @@ class DB_sqlite extends DB_common
     }
 
     // }}}
-    // {{{ modifyQuery()
-
-    /**
-     * Changes a query string for various DBMS specific reasons
-     *
-     * This little hack lets you know how many rows were deleted
-     * when running a "DELETE FROM table" query.  Only implemented
-     * if the DB_PORTABILITY_DELETE_COUNT portability option is on.
-     *
-     * @param string $query  the query string to modify
-     *
-     * @return string  the modified query string
-     *
-     * @access protected
-     * @see DB_common::setOption()
-     */
-    public function modifyQuery($query)
-    {
-        if ($this->options['portability'] & DB_PORTABILITY_DELETE_COUNT) {
-            if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
-                $query = preg_replace(
-                    '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
-                    'DELETE FROM \1 WHERE 1=1',
-                    $query
-                );
-            }
-        }
-        return $query;
-    }
-
-    // }}}
-    // {{{ sqliteRaiseError()
-
-    /**
-     * Produces a DB_Error object regarding the current problem
-     *
-     * @param int $errno  if the error is being manually raised pass a
-     *                     DB_ERROR* constant here.  If this isn't passed
-     *                     the error information gathered from the DBMS.
-     *
-     * @return object  the DB_Error object
-     *
-     * @see DB_common::raiseError(),
-     *      DB_sqlite::errorNative(), DB_sqlite::errorCode()
-     */
-    public function sqliteRaiseError($errno = null)
-    {
-        $native = $this->errorNative();
-        if ($errno === null) {
-            $errno = $this->errorCode($native);
-        }
-
-        $errorcode = @sqlite_last_error($this->connection);
-        $userinfo = "$errorcode ** $this->last_query";
-
-        return $this->raiseError($errno, null, null, $userinfo, $native);
-    }
-
-    // }}}
-    // {{{ errorNative()
-
-    /**
-     * Gets the DBMS' native error message produced by the last query
-     *
-     * {@internal This is used to retrieve more meaningfull error messages
-     * because sqlite_last_error() does not provide adequate info.}}
-     *
-     * @return string  the DBMS' error message
-     */
-    public function errorNative()
-    {
-        return $this->_lasterror;
-    }
-
-    // }}}
-    // {{{ errorCode()
-
-    /**
-     * Determines PEAR::DB error code from the database's text error message
-     *
-     * @param string $errormsg  the error message returned from the database
-     *
-     * @return integer  the DB error number
-     */
-    public function errorCode($errormsg)
-    {
-        static $error_regexps;
-        
-        // PHP 5.2+ prepends the function name to $php_errormsg, so we need
-        // this hack to work around it, per bug #9599.
-        $errormsg = preg_replace('/^sqlite[a-z_]+\(\): /', '', $errormsg);
-        
-        if (!isset($error_regexps)) {
-            $error_regexps = array(
-                '/^no such table:/' => DB_ERROR_NOSUCHTABLE,
-                '/^no such index:/' => DB_ERROR_NOT_FOUND,
-                '/^(table|index) .* already exists$/' => DB_ERROR_ALREADY_EXISTS,
-                '/PRIMARY KEY must be unique/i' => DB_ERROR_CONSTRAINT,
-                '/is not unique/' => DB_ERROR_CONSTRAINT,
-                '/columns .* are not unique/i' => DB_ERROR_CONSTRAINT,
-                '/uniqueness constraint failed/' => DB_ERROR_CONSTRAINT,
-                '/may not be NULL/' => DB_ERROR_CONSTRAINT_NOT_NULL,
-                '/^no such column:/' => DB_ERROR_NOSUCHFIELD,
-                '/no column named/' => DB_ERROR_NOSUCHFIELD,
-                '/column not present in both tables/i' => DB_ERROR_NOSUCHFIELD,
-                '/^near ".*": syntax error$/' => DB_ERROR_SYNTAX,
-                '/[0-9]+ values for [0-9]+ columns/i' => DB_ERROR_VALUE_COUNT_ON_ROW,
-            );
-        }
-        foreach ($error_regexps as $regexp => $code) {
-            if (preg_match($regexp, $errormsg)) {
-                return $code;
-            }
-        }
-        // Fall back to DB_ERROR if there was no mapping.
-        return DB_ERROR;
-    }
-
-    // }}}
     // {{{ tableInfo()
 
     /**
      * Returns information about a table
      *
-     * @param string         $result  a string containing the name of a table
-     * @param int            $mode    a valid tableInfo mode
+     * @param string $result a string containing the name of a table
+     * @param int $mode a valid tableInfo mode
      *
-     * @return array  an associative array with the information requested.
+     * @return array|object
      *                 A DB_Error object on failure.
      *
      * @see DB_common::tableInfo()
@@ -811,7 +811,7 @@ class DB_sqlite extends DB_common
                 null,
                 null,
                 'This DBMS can not obtain tableInfo' .
-                                     ' from result sets'
+                ' from result sets'
             );
         }
 
@@ -822,7 +822,7 @@ class DB_sqlite extends DB_common
         }
 
         $count = count($id);
-        $res   = array();
+        $res = array();
 
         if ($mode) {
             $res['num_fields'] = $count;
@@ -832,10 +832,10 @@ class DB_sqlite extends DB_common
             if (strpos($id[$i]['type'], '(') !== false) {
                 $bits = explode('(', $id[$i]['type']);
                 $type = $bits[0];
-                $len  = rtrim($bits[1], ')');
+                $len = rtrim($bits[1], ')');
             } else {
                 $type = $id[$i]['type'];
-                $len  = 0;
+                $len = 0;
             }
 
             $flags = '';
@@ -855,9 +855,9 @@ class DB_sqlite extends DB_common
 
             $res[$i] = array(
                 'table' => $case_func($result),
-                'name'  => $case_func($id[$i]['name']),
-                'type'  => $type,
-                'len'   => $len,
+                'name' => $case_func($id[$i]['name']),
+                'type' => $type,
+                'len' => $len,
                 'flags' => $flags,
             );
 
@@ -878,8 +878,8 @@ class DB_sqlite extends DB_common
     /**
      * Obtains the query string needed for listing a given type of objects
      *
-     * @param string $type  the kind of objects you want to retrieve
-     * @param array  $args  SQLITE DRIVER ONLY: a private array of arguments
+     * @param string $type the kind of objects you want to retrieve
+     * @param array $args SQLITE DRIVER ONLY: a private array of arguments
      *                       used by the getSpecialQuery().  Do not use
      *                       this directly.
      *
@@ -906,13 +906,13 @@ class DB_sqlite extends DB_common
                 return 'SELECT * FROM sqlite_master;';
             case 'tables':
                 return "SELECT name FROM sqlite_master WHERE type='table' "
-                       . 'UNION ALL SELECT name FROM sqlite_temp_master '
-                       . "WHERE type='table' ORDER BY name;";
+                    . 'UNION ALL SELECT name FROM sqlite_temp_master '
+                    . "WHERE type='table' ORDER BY name;";
             case 'schema':
                 return 'SELECT sql FROM (SELECT * FROM sqlite_master '
-                       . 'UNION ALL SELECT * FROM sqlite_temp_master) '
-                       . "WHERE type!='meta' "
-                       . 'ORDER BY tbl_name, type DESC, name;';
+                    . 'UNION ALL SELECT * FROM sqlite_temp_master) '
+                    . "WHERE type!='meta' "
+                    . 'ORDER BY tbl_name, type DESC, name;';
             case 'schemax':
             case 'schema_x':
                 /*
@@ -921,10 +921,10 @@ class DB_sqlite extends DB_common
                  *                   array('table' => 'table3')));
                  */
                 return 'SELECT sql FROM (SELECT * FROM sqlite_master '
-                       . 'UNION ALL SELECT * FROM sqlite_temp_master) '
-                       . "WHERE tbl_name LIKE '{$args['table']}' "
-                       . "AND type!='meta' "
-                       . 'ORDER BY type DESC, name;';
+                    . 'UNION ALL SELECT * FROM sqlite_temp_master) '
+                    . "WHERE tbl_name LIKE '{$args['table']}' "
+                    . "AND type!='meta' "
+                    . 'ORDER BY type DESC, name;';
             case 'alter':
                 /*
                  * SQLite does not support ALTER TABLE; this is a helper query

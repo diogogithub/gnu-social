@@ -17,7 +17,7 @@
  * @category   Database
  * @package    DB
  * @author     Sterling Hughes <sterling@php.net>
- * @author     Antônio Carlos Venâncio Júnior <floripa@php.net>
+ * @author     Antï¿½nio Carlos Venï¿½ncio Jï¿½nior <floripa@php.net>
  * @author     Daniel Convissor <danielc@php.net>
  * @copyright  1997-2007 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
@@ -28,7 +28,8 @@
 /**
  * Obtain the DB_common class so it can be extended from
  */
-require_once 'DB/common.php';
+//require_once 'DB/common.php';
+require_once 'common.php';
 
 /**
  * The methods PEAR DB uses to interact with PHP's sybase extension
@@ -42,7 +43,7 @@ require_once 'DB/common.php';
  * @category   Database
  * @package    DB
  * @author     Sterling Hughes <sterling@php.net>
- * @author     Antônio Carlos Venâncio Júnior <floripa@php.net>
+ * @author     Antï¿½nio Carlos Venï¿½ncio Jï¿½nior <floripa@php.net>
  * @author     Daniel Convissor <danielc@php.net>
  * @copyright  1997-2007 The PHP Group
  * @license    http://www.php.net/license/3_0.txt  PHP License 3.0
@@ -79,21 +80,20 @@ class DB_sybase extends DB_common
      * @var array
      */
     public $features = array(
-        'limit'         => 'emulate',
-        'new_link'      => false,
-        'numrows'       => true,
-        'pconnect'      => true,
-        'prepare'       => false,
-        'ssl'           => false,
-        'transactions'  => true,
+        'limit' => 'emulate',
+        'new_link' => false,
+        'numrows' => true,
+        'pconnect' => true,
+        'prepare' => false,
+        'ssl' => false,
+        'transactions' => true,
     );
 
     /**
      * A mapping of native error codes to DB error codes
      * @var array
      */
-    public $errorcode_map = array(
-    );
+    public $errorcode_map = array();
 
     /**
      * The raw database connection created by PHP
@@ -164,10 +164,10 @@ class DB_sybase extends DB_common
      *   + charset       The character set to use on this connection.
      *                   Available since PEAR DB 1.7.0.
      *
-     * @param array $dsn         the data source name
-     * @param bool  $persistent  should the connection be persistent?
+     * @param array $dsn the data source name
+     * @param bool $persistent should the connection be persistent?
      *
-     * @return int  DB_OK on success. A DB_Error object on failure.
+     * @return int|object
      */
     public function connect($dsn, $persistent = false)
     {
@@ -292,6 +292,105 @@ class DB_sybase extends DB_common
     // {{{ nextResult()
 
     /**
+     * Produces a DB_Error object regarding the current problem
+     *
+     * @param int $errno if the error is being manually raised pass a
+     *                     DB_ERROR* constant here.  If this isn't passed
+     *                     the error information gathered from the DBMS.
+     *
+     * @return object  the DB_Error object
+     *
+     * @see DB_common::raiseError(),
+     *      DB_sybase::errorNative(), DB_sybase::errorCode()
+     */
+    public function sybaseRaiseError($errno = null)
+    {
+        $native = $this->errorNative();
+        if ($errno === null) {
+            $errno = $this->errorCode($native);
+        }
+        return $this->raiseError($errno, null, null, null, $native);
+    }
+
+    // }}}
+    // {{{ fetchInto()
+
+    /**
+     * Gets the DBMS' native error message produced by the last query
+     *
+     * @return string  the DBMS' error message
+     */
+    public function errorNative()
+    {
+        return @sybase_get_last_message();
+    }
+
+    // }}}
+    // {{{ freeResult()
+
+    /**
+     * Determines PEAR::DB error code from the database's text error message.
+     *
+     * @param string $errormsg error message returned from the database
+     * @return integer  an error number from a DB error constant
+     */
+    public function errorCode($errormsg)
+    {
+        static $error_regexps;
+
+        // PHP 5.2+ prepends the function name to $php_errormsg, so we need
+        // this hack to work around it, per bug #9599.
+        $errormsg = preg_replace('/^sybase[a-z_]+\(\): /', '', $errormsg);
+
+        if (!isset($error_regexps)) {
+            $error_regexps = array(
+                '/Incorrect syntax near/'
+                => DB_ERROR_SYNTAX,
+                '/^Unclosed quote before the character string [\"\'].*[\"\']\./'
+                => DB_ERROR_SYNTAX,
+                '/Implicit conversion (from datatype|of NUMERIC value)/i'
+                => DB_ERROR_INVALID_NUMBER,
+                '/Cannot drop the table [\"\'].+[\"\'], because it doesn\'t exist in the system catalogs\./'
+                => DB_ERROR_NOSUCHTABLE,
+                '/Only the owner of object [\"\'].+[\"\'] or a user with System Administrator \(SA\) role can run this command\./'
+                => DB_ERROR_ACCESS_VIOLATION,
+                '/^.+ permission denied on object .+, database .+, owner .+/'
+                => DB_ERROR_ACCESS_VIOLATION,
+                '/^.* permission denied, database .+, owner .+/'
+                => DB_ERROR_ACCESS_VIOLATION,
+                '/[^.*] not found\./'
+                => DB_ERROR_NOSUCHTABLE,
+                '/There is already an object named/'
+                => DB_ERROR_ALREADY_EXISTS,
+                '/Invalid column name/'
+                => DB_ERROR_NOSUCHFIELD,
+                '/does not allow null values/'
+                => DB_ERROR_CONSTRAINT_NOT_NULL,
+                '/Command has been aborted/'
+                => DB_ERROR_CONSTRAINT,
+                '/^Cannot drop the index .* because it doesn\'t exist/i'
+                => DB_ERROR_NOT_FOUND,
+                '/^There is already an index/i'
+                => DB_ERROR_ALREADY_EXISTS,
+                '/^There are fewer columns in the INSERT statement than values specified/i'
+                => DB_ERROR_VALUE_COUNT_ON_ROW,
+                '/Divide by zero/i'
+                => DB_ERROR_DIVZERO,
+            );
+        }
+
+        foreach ($error_regexps as $regexp => $code) {
+            if (preg_match($regexp, $errormsg)) {
+                return $code;
+            }
+        }
+        return DB_ERROR;
+    }
+
+    // }}}
+    // {{{ numCols()
+
+    /**
      * Move the internal sybase result pointer to the next available result
      *
      * @param a valid sybase result resource
@@ -306,7 +405,7 @@ class DB_sybase extends DB_common
     }
 
     // }}}
-    // {{{ fetchInto()
+    // {{{ numRows()
 
     /**
      * Places a row from the result set into the given array
@@ -318,10 +417,10 @@ class DB_sybase extends DB_common
      * DB_result::fetchInto() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result    the query result resource
-     * @param array    $arr       the referenced array to put the data in
-     * @param int      $fetchmode how the resulting array should be indexed
-     * @param int      $rownum    the row number to fetch (0 = first row)
+     * @param resource $result the query result resource
+     * @param array $arr the referenced array to put the data in
+     * @param int $fetchmode how the resulting array should be indexed
+     * @param int $rownum the row number to fetch (0 = first row)
      *
      * @return mixed  DB_OK on success, NULL when the end of a result set is
      *                 reached or on failure
@@ -366,7 +465,7 @@ class DB_sybase extends DB_common
     }
 
     // }}}
-    // {{{ freeResult()
+    // {{{ affectedRows()
 
     /**
      * Deletes the result set and frees the memory occupied by the result set
@@ -375,7 +474,7 @@ class DB_sybase extends DB_common
      * DB_result::free() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
      * @return bool  TRUE on success, FALSE if $result is invalid
      *
@@ -387,7 +486,7 @@ class DB_sybase extends DB_common
     }
 
     // }}}
-    // {{{ numCols()
+    // {{{ nextId()
 
     /**
      * Gets the number of columns in a result set
@@ -396,9 +495,9 @@ class DB_sybase extends DB_common
      * DB_result::numCols() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
-     * @return int  the number of columns.  A DB_Error object on failure.
+     * @return int|object
      *
      * @see DB_result::numCols()
      */
@@ -411,9 +510,6 @@ class DB_sybase extends DB_common
         return $cols;
     }
 
-    // }}}
-    // {{{ numRows()
-
     /**
      * Gets the number of rows in a result set
      *
@@ -421,9 +517,9 @@ class DB_sybase extends DB_common
      * DB_result::numRows() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
-     * @return int  the number of rows.  A DB_Error object on failure.
+     * @return int|object
      *
      * @see DB_result::numRows()
      */
@@ -437,7 +533,7 @@ class DB_sybase extends DB_common
     }
 
     // }}}
-    // {{{ affectedRows()
+    // {{{ dropSequence()
 
     /**
      * Determines the number of rows affected by a data maniuplation query
@@ -457,16 +553,16 @@ class DB_sybase extends DB_common
     }
 
     // }}}
-    // {{{ nextId()
+    // {{{ quoteFloat()
 
     /**
      * Returns the next free id in a sequence
      *
-     * @param string  $seq_name  name of the sequence
-     * @param boolean $ondemand  when true, the seqence is automatically
+     * @param string $seq_name name of the sequence
+     * @param boolean $ondemand when true, the seqence is automatically
      *                            created if it does not exist
      *
-     * @return int  the next id number in the sequence.
+     * @return int|object
      *               A DB_Error object on failure.
      *
      * @see DB_common::nextID(), DB_common::getSequenceName(),
@@ -504,10 +600,13 @@ class DB_sybase extends DB_common
         return $result[0];
     }
 
+    // }}}
+    // {{{ autoCommit()
+
     /**
      * Creates a new sequence
      *
-     * @param string $seq_name  name of the new sequence
+     * @param string $seq_name name of the new sequence
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      *
@@ -517,18 +616,18 @@ class DB_sybase extends DB_common
     public function createSequence($seq_name)
     {
         return $this->query('CREATE TABLE '
-                            . $this->getSequenceName($seq_name)
-                            . ' (id numeric(10, 0) IDENTITY NOT NULL,'
-                            . ' vapor int NULL)');
+            . $this->getSequenceName($seq_name)
+            . ' (id numeric(10, 0) IDENTITY NOT NULL,'
+            . ' vapor int NULL)');
     }
 
     // }}}
-    // {{{ dropSequence()
+    // {{{ commit()
 
     /**
      * Deletes a sequence
      *
-     * @param string $seq_name  name of the sequence to be deleted
+     * @param string $seq_name name of the sequence to be deleted
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      *
@@ -541,7 +640,7 @@ class DB_sybase extends DB_common
     }
 
     // }}}
-    // {{{ quoteFloat()
+    // {{{ rollback()
 
     /**
      * Formats a float value for use within a query in a locale-independent
@@ -556,14 +655,14 @@ class DB_sybase extends DB_common
     {
         return $this->escapeSimple(str_replace(',', '.', strval(floatval($float))));
     }
-     
+
     // }}}
-    // {{{ autoCommit()
+    // {{{ sybaseRaiseError()
 
     /**
      * Enables or disables automatic commits
      *
-     * @param bool $onoff  true turns it on, false turns it off
+     * @param bool $onoff true turns it on, false turns it off
      *
      * @return int  DB_OK on success.  A DB_Error object if the driver
      *               doesn't support auto-committing transactions.
@@ -577,12 +676,12 @@ class DB_sybase extends DB_common
     }
 
     // }}}
-    // {{{ commit()
+    // {{{ errorNative()
 
     /**
      * Commits the current transaction
      *
-     * @return int  DB_OK on success.  A DB_Error object on failure.
+     * @return int|object
      */
     public function commit()
     {
@@ -600,12 +699,12 @@ class DB_sybase extends DB_common
     }
 
     // }}}
-    // {{{ rollback()
+    // {{{ errorCode()
 
     /**
      * Reverts the current transaction
      *
-     * @return int  DB_OK on success.  A DB_Error object on failure.
+     * @return int|object
      */
     public function rollback()
     {
@@ -623,105 +722,6 @@ class DB_sybase extends DB_common
     }
 
     // }}}
-    // {{{ sybaseRaiseError()
-
-    /**
-     * Produces a DB_Error object regarding the current problem
-     *
-     * @param int $errno  if the error is being manually raised pass a
-     *                     DB_ERROR* constant here.  If this isn't passed
-     *                     the error information gathered from the DBMS.
-     *
-     * @return object  the DB_Error object
-     *
-     * @see DB_common::raiseError(),
-     *      DB_sybase::errorNative(), DB_sybase::errorCode()
-     */
-    public function sybaseRaiseError($errno = null)
-    {
-        $native = $this->errorNative();
-        if ($errno === null) {
-            $errno = $this->errorCode($native);
-        }
-        return $this->raiseError($errno, null, null, null, $native);
-    }
-
-    // }}}
-    // {{{ errorNative()
-
-    /**
-     * Gets the DBMS' native error message produced by the last query
-     *
-     * @return string  the DBMS' error message
-     */
-    public function errorNative()
-    {
-        return @sybase_get_last_message();
-    }
-
-    // }}}
-    // {{{ errorCode()
-
-    /**
-     * Determines PEAR::DB error code from the database's text error message.
-     *
-     * @param  string  $errormsg  error message returned from the database
-     * @return integer  an error number from a DB error constant
-     */
-    public function errorCode($errormsg)
-    {
-        static $error_regexps;
-        
-        // PHP 5.2+ prepends the function name to $php_errormsg, so we need
-        // this hack to work around it, per bug #9599.
-        $errormsg = preg_replace('/^sybase[a-z_]+\(\): /', '', $errormsg);
-        
-        if (!isset($error_regexps)) {
-            $error_regexps = array(
-                '/Incorrect syntax near/'
-                    => DB_ERROR_SYNTAX,
-                '/^Unclosed quote before the character string [\"\'].*[\"\']\./'
-                    => DB_ERROR_SYNTAX,
-                '/Implicit conversion (from datatype|of NUMERIC value)/i'
-                    => DB_ERROR_INVALID_NUMBER,
-                '/Cannot drop the table [\"\'].+[\"\'], because it doesn\'t exist in the system catalogs\./'
-                    => DB_ERROR_NOSUCHTABLE,
-                '/Only the owner of object [\"\'].+[\"\'] or a user with System Administrator \(SA\) role can run this command\./'
-                    => DB_ERROR_ACCESS_VIOLATION,
-                '/^.+ permission denied on object .+, database .+, owner .+/'
-                    => DB_ERROR_ACCESS_VIOLATION,
-                '/^.* permission denied, database .+, owner .+/'
-                    => DB_ERROR_ACCESS_VIOLATION,
-                '/[^.*] not found\./'
-                    => DB_ERROR_NOSUCHTABLE,
-                '/There is already an object named/'
-                    => DB_ERROR_ALREADY_EXISTS,
-                '/Invalid column name/'
-                    => DB_ERROR_NOSUCHFIELD,
-                '/does not allow null values/'
-                    => DB_ERROR_CONSTRAINT_NOT_NULL,
-                '/Command has been aborted/'
-                    => DB_ERROR_CONSTRAINT,
-                '/^Cannot drop the index .* because it doesn\'t exist/i'
-                    => DB_ERROR_NOT_FOUND,
-                '/^There is already an index/i'
-                    => DB_ERROR_ALREADY_EXISTS,
-                '/^There are fewer columns in the INSERT statement than values specified/i'
-                    => DB_ERROR_VALUE_COUNT_ON_ROW,
-                '/Divide by zero/i'
-                    => DB_ERROR_DIVZERO,
-            );
-        }
-
-        foreach ($error_regexps as $regexp => $code) {
-            if (preg_match($regexp, $errormsg)) {
-                return $code;
-            }
-        }
-        return DB_ERROR;
-    }
-
-    // }}}
     // {{{ tableInfo()
 
     /**
@@ -730,14 +730,14 @@ class DB_sybase extends DB_common
      * NOTE: only supports 'table' and 'flags' if <var>$result</var>
      * is a table name.
      *
-     * @param object|string  $result  DB_result object from a query or a
+     * @param object|string $result DB_result object from a query or a
      *                                 string containing the name of a table.
      *                                 While this also accepts a query result
      *                                 resource identifier, this behavior is
      *                                 deprecated.
-     * @param int            $mode    a valid tableInfo mode
+     * @param int $mode a valid tableInfo mode
      *
-     * @return array  an associative array with the information requested.
+     * @return array|object
      *                 A DB_Error object on failure.
      *
      * @see DB_common::tableInfo()
@@ -786,7 +786,7 @@ class DB_sybase extends DB_common
         }
 
         $count = @sybase_num_fields($id);
-        $res   = array();
+        $res = array();
 
         if ($mode) {
             $res['num_fields'] = $count;
@@ -797,11 +797,11 @@ class DB_sybase extends DB_common
             // column_source is often blank
             $res[$i] = array(
                 'table' => $got_string
-                           ? $case_func($result)
-                           : $case_func($f->column_source),
-                'name'  => $case_func($f->name),
-                'type'  => $f->type,
-                'len'   => $f->max_length,
+                    ? $case_func($result)
+                    : $case_func($f->column_source),
+                'name' => $case_func($f->name),
+                'type' => $f->type,
+                'len' => $f->max_length,
                 'flags' => '',
             );
             if ($res[$i]['table']) {
@@ -835,8 +835,8 @@ class DB_sybase extends DB_common
      *  + <samp>unique_key</samp>    (unique index, unique check or primary_key)
      *  + <samp>multiple_key</samp>  (multi-key index)
      *
-     * @param string  $table   the table name
-     * @param string  $column  the field name
+     * @param string $table the table name
+     * @param string $column the field name
      *
      * @return string  space delimited string of flags.  Empty string if none.
      *
@@ -888,7 +888,7 @@ class DB_sybase extends DB_common
         }
 
         if (array_key_exists($column, $flags)) {
-            return(implode(' ', $flags[$column]));
+            return (implode(' ', $flags[$column]));
         }
 
         return '';
@@ -901,8 +901,8 @@ class DB_sybase extends DB_common
      * Adds a string to the flags array if the flag is not yet in there
      * - if there is no flag present the array is created
      *
-     * @param array  $array  reference of flags array to add a value to
-     * @param mixed  $value  value to add to the flag array
+     * @param array $array reference of flags array to add a value to
+     * @param mixed $value value to add to the flag array
      *
      * @return void
      *
@@ -923,7 +923,7 @@ class DB_sybase extends DB_common
     /**
      * Obtains the query string needed for listing a given type of objects
      *
-     * @param string $type  the kind of objects you want to retrieve
+     * @param string $type the kind of objects you want to retrieve
      *
      * @return string  the SQL query string or null if the driver doesn't
      *                  support the object type requested
@@ -936,7 +936,7 @@ class DB_sybase extends DB_common
         switch ($type) {
             case 'tables':
                 return "SELECT name FROM sysobjects WHERE type = 'U'"
-                       . ' ORDER BY name';
+                    . ' ORDER BY name';
             case 'views':
                 return "SELECT name FROM sysobjects WHERE type = 'V'";
             default:

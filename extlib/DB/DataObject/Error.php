@@ -21,32 +21,32 @@
  * @version    CVS: $Id: Error.php 287158 2009-08-12 13:58:31Z alan_k $
  * @link       http://pear.php.net/package/DB_DataObject
  */
-  
- 
+
+
 class DB_DataObject_Error extends PEAR_Error
 {
-    
+
     /**
      * DB_DataObject_Error constructor.
      *
-     * @param mixed   $code   DB error code, or string with error message.
-     * @param integer $mode   what "error mode" to operate in
-     * @param integer $level  what error level to use for $mode & PEAR_ERROR_TRIGGER
-     * @param mixed   $debuginfo  additional debug info, such as the last query
-     *
+     * @param string $message
+     * @param mixed $code DB error code, or string with error message.
+     * @param integer $mode what "error mode" to operate in
+     * @param integer $level what error level to use for $mode & PEAR_ERROR_TRIGGER
      * @access public
      *
      * @see PEAR_Error
      */
-    public function DB_DataObject_Error(
+    public function __construct(
         $message = '',
         $code = DB_ERROR,
         $mode = PEAR_ERROR_RETURN,
         $level = E_USER_NOTICE
-    ) {
+    )
+    {
         $this->PEAR_Error('DB_DataObject Error: ' . $message, $code, $mode, $level);
     }
-    
-    
+
+
     // todo : - support code -> message handling, and translated error messages...
 }

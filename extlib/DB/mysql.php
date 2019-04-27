@@ -27,7 +27,8 @@
 /**
  * Obtain the DB_common class so it can be extended from
  */
-require_once 'DB/common.php';
+//require_once 'DB/common.php';
+require_once 'common.php';
 
 /**
  * The methods PEAR DB uses to interact with PHP's mysql extension
@@ -74,13 +75,13 @@ class DB_mysql extends DB_common
      * @var array
      */
     public $features = array(
-        'limit'         => 'alter',
-        'new_link'      => '4.2.0',
-        'numrows'       => true,
-        'pconnect'      => true,
-        'prepare'       => false,
-        'ssl'           => false,
-        'transactions'  => true,
+        'limit' => 'alter',
+        'new_link' => '4.2.0',
+        'numrows' => true,
+        'pconnect' => true,
+        'prepare' => false,
+        'ssl' => false,
+        'transactions' => true,
     );
 
     /**
@@ -188,10 +189,10 @@ class DB_mysql extends DB_common
      *                    Only used if PHP is at version 4.3.0 or greater.
      *                    Available since PEAR DB 1.7.0.
      *
-     * @param array $dsn         the data source name
-     * @param bool  $persistent  should the connection be persistent?
+     * @param array $dsn the data source name
+     * @param bool $persistent should the connection be persistent?
      *
-     * @return int  DB_OK on success. A DB_Error object on failure.
+     * @return int|object
      */
     public function connect($dsn, $persistent = false)
     {
@@ -209,7 +210,7 @@ class DB_mysql extends DB_common
             $params[0] = ':' . $dsn['socket'];
         } else {
             $params[0] = $dsn['hostspec'] ? $dsn['hostspec']
-                         : 'localhost';
+                : 'localhost';
             if ($dsn['port']) {
                 $params[0] .= ':' . $dsn['port'];
             }
@@ -227,7 +228,7 @@ class DB_mysql extends DB_common
         }
         if (version_compare(phpversion(), '4.3.0', '>=')) {
             $params[] = isset($dsn['client_flags'])
-                        ? $dsn['client_flags'] : null;
+                ? $dsn['client_flags'] : null;
         }
 
         $connect_function = $persistent ? 'mysql_pconnect' : 'mysql_connect';
@@ -282,6 +283,46 @@ class DB_mysql extends DB_common
     // {{{ disconnect()
 
     /**
+     * Produces a DB_Error object regarding the current problem
+     *
+     * @param int $errno if the error is being manually raised pass a
+     *                     DB_ERROR* constant here.  If this isn't passed
+     *                     the error information gathered from the DBMS.
+     *
+     * @return object  the DB_Error object
+     *
+     * @see DB_common::raiseError(),
+     *      DB_mysql::errorNative(), DB_common::errorCode()
+     */
+    public function mysqlRaiseError($errno = null)
+    {
+        if ($errno === null) {
+            if ($this->options['portability'] & DB_PORTABILITY_ERRORS) {
+                $this->errorcode_map[1022] = DB_ERROR_CONSTRAINT;
+                $this->errorcode_map[1048] = DB_ERROR_CONSTRAINT_NOT_NULL;
+                $this->errorcode_map[1062] = DB_ERROR_CONSTRAINT;
+            } else {
+                // Doing this in case mode changes during runtime.
+                $this->errorcode_map[1022] = DB_ERROR_ALREADY_EXISTS;
+                $this->errorcode_map[1048] = DB_ERROR_CONSTRAINT;
+                $this->errorcode_map[1062] = DB_ERROR_ALREADY_EXISTS;
+            }
+            $errno = $this->errorCode(mysql_errno($this->connection));
+        }
+        return $this->raiseError(
+            $errno,
+            null,
+            null,
+            null,
+            @mysql_errno($this->connection) . ' ** ' .
+            @mysql_error($this->connection)
+        );
+    }
+
+    // }}}
+    // {{{ simpleQuery()
+
+    /**
      * Disconnects from the database server
      *
      * @return bool  TRUE on success, FALSE on failure
@@ -294,7 +335,7 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ simpleQuery()
+    // {{{ nextResult()
 
     /**
      * Sends a query to the database server
@@ -344,7 +385,40 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ nextResult()
+    // {{{ fetchInto()
+
+    /**
+     * Changes a query string for various DBMS specific reasons
+     *
+     * This little hack lets you know how many rows were deleted
+     * when running a "DELETE FROM table" query.  Only implemented
+     * if the DB_PORTABILITY_DELETE_COUNT portability option is on.
+     *
+     * @param string $query the query string to modify
+     *
+     * @return string  the modified query string
+     *
+     * @access protected
+     * @see DB_common::setOption()
+     */
+    public function modifyQuery($query)
+    {
+        if ($this->options['portability'] & DB_PORTABILITY_DELETE_COUNT) {
+            // "DELETE FROM table" gives 0 affected rows in MySQL.
+            // This little hack lets you know how many rows were deleted.
+            if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
+                $query = preg_replace(
+                    '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
+                    'DELETE FROM \1 WHERE 1=1',
+                    $query
+                );
+            }
+        }
+        return $query;
+    }
+
+    // }}}
+    // {{{ freeResult()
 
     /**
      * Move the internal mysql result pointer to the next available result
@@ -361,7 +435,7 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ fetchInto()
+    // {{{ numCols()
 
     /**
      * Places a row from the result set into the given array
@@ -373,10 +447,10 @@ class DB_mysql extends DB_common
      * DB_result::fetchInto() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result    the query result resource
-     * @param array    $arr       the referenced array to put the data in
-     * @param int      $fetchmode how the resulting array should be indexed
-     * @param int      $rownum    the row number to fetch (0 = first row)
+     * @param resource $result the query result resource
+     * @param array $arr the referenced array to put the data in
+     * @param int $fetchmode how the resulting array should be indexed
+     * @param int $rownum the row number to fetch (0 = first row)
      *
      * @return mixed  DB_OK on success, NULL when the end of a result set is
      *                 reached or on failure
@@ -416,7 +490,7 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ freeResult()
+    // {{{ numRows()
 
     /**
      * Deletes the result set and frees the memory occupied by the result set
@@ -425,7 +499,7 @@ class DB_mysql extends DB_common
      * DB_result::free() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
      * @return bool  TRUE on success, FALSE if $result is invalid
      *
@@ -437,7 +511,7 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ numCols()
+    // {{{ autoCommit()
 
     /**
      * Gets the number of columns in a result set
@@ -446,9 +520,9 @@ class DB_mysql extends DB_common
      * DB_result::numCols() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
-     * @return int  the number of columns.  A DB_Error object on failure.
+     * @return int|object
      *
      * @see DB_result::numCols()
      */
@@ -462,7 +536,7 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ numRows()
+    // {{{ commit()
 
     /**
      * Gets the number of rows in a result set
@@ -471,9 +545,9 @@ class DB_mysql extends DB_common
      * DB_result::numRows() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
-     * @return int  the number of rows.  A DB_Error object on failure.
+     * @return int|object
      *
      * @see DB_result::numRows()
      */
@@ -487,12 +561,12 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ autoCommit()
+    // {{{ rollback()
 
     /**
      * Enables or disables automatic commits
      *
-     * @param bool $onoff  true turns it on, false turns it off
+     * @param bool $onoff true turns it on, false turns it off
      *
      * @return int  DB_OK on success.  A DB_Error object if the driver
      *               doesn't support auto-committing transactions.
@@ -506,12 +580,12 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ commit()
+    // {{{ affectedRows()
 
     /**
      * Commits the current transaction
      *
-     * @return int  DB_OK on success.  A DB_Error object on failure.
+     * @return int|object
      */
     public function commit()
     {
@@ -532,12 +606,12 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ rollback()
+    // {{{ nextId()
 
     /**
      * Reverts the current transaction
      *
-     * @return int  DB_OK on success.  A DB_Error object on failure.
+     * @return int|object
      */
     public function rollback()
     {
@@ -558,7 +632,7 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ affectedRows()
+    // {{{ createSequence()
 
     /**
      * Determines the number of rows affected by a data maniuplation query
@@ -577,16 +651,16 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ nextId()
+    // {{{ dropSequence()
 
     /**
      * Returns the next free id in a sequence
      *
-     * @param string  $seq_name  name of the sequence
-     * @param boolean $ondemand  when true, the seqence is automatically
+     * @param string $seq_name name of the sequence
+     * @param boolean $ondemand when true, the seqence is automatically
      *                            created if it does not exist
      *
-     * @return int  the next id number in the sequence.
+     * @return int|object
      *               A DB_Error object on failure.
      *
      * @see DB_common::nextID(), DB_common::getSequenceName(),
@@ -598,8 +672,8 @@ class DB_mysql extends DB_common
         do {
             $repeat = 0;
             $this->pushErrorHandling(PEAR_ERROR_RETURN);
-            $result = $this->query("UPDATE ${seqname} ".
-                                   'SET id=LAST_INSERT_ID(id+1)');
+            $result = $this->query("UPDATE ${seqname} " .
+                'SET id=LAST_INSERT_ID(id+1)');
             $this->popErrorHandling();
             if ($result === DB_OK) {
                 // COMMON CASE
@@ -627,7 +701,7 @@ class DB_mysql extends DB_common
 
                 // Release the lock
                 $result = $this->getOne('SELECT RELEASE_LOCK('
-                                        . "'${seqname}_lock')");
+                    . "'${seqname}_lock')");
                 if (DB::isError($result)) {
                     return $this->raiseError($result);
                 }
@@ -643,7 +717,7 @@ class DB_mysql extends DB_common
                     $repeat = 1;
                 }
             } elseif (DB::isError($result) &&
-                      $result->getCode() == DB_ERROR_ALREADY_EXISTS) {
+                $result->getCode() == DB_ERROR_ALREADY_EXISTS) {
                 // BACKWARDS COMPAT
                 // see _BCsequence() comment
                 $result = $this->_BCsequence($seqname);
@@ -658,12 +732,12 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ createSequence()
+    // {{{ _BCsequence()
 
     /**
      * Creates a new sequence
      *
-     * @param string $seq_name  name of the new sequence
+     * @param string $seq_name name of the new sequence
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      *
@@ -674,8 +748,8 @@ class DB_mysql extends DB_common
     {
         $seqname = $this->getSequenceName($seq_name);
         $res = $this->query('CREATE TABLE ' . $seqname
-                            . ' (id INTEGER UNSIGNED AUTO_INCREMENT NOT NULL,'
-                            . ' PRIMARY KEY(id))');
+            . ' (id INTEGER UNSIGNED AUTO_INCREMENT NOT NULL,'
+            . ' PRIMARY KEY(id))');
         if (DB::isError($res)) {
             return $res;
         }
@@ -689,33 +763,15 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ dropSequence()
-
-    /**
-     * Deletes a sequence
-     *
-     * @param string $seq_name  name of the sequence to be deleted
-     *
-     * @return int  DB_OK on success.  A DB_Error object on failure.
-     *
-     * @see DB_common::dropSequence(), DB_common::getSequenceName(),
-     *      DB_mysql::nextID(), DB_mysql::createSequence()
-     */
-    public function dropSequence($seq_name)
-    {
-        return $this->query('DROP TABLE ' . $this->getSequenceName($seq_name));
-    }
-
-    // }}}
-    // {{{ _BCsequence()
+    // {{{ quoteIdentifier()
 
     /**
      * Backwards compatibility with old sequence emulation implementation
      * (clean up the dupes)
      *
-     * @param string $seqname  the sequence name to clean up
+     * @param string $seqname the sequence name to clean up
      *
-     * @return bool  true on success.  A DB_Error object on failure.
+     * @return bool|object
      *
      * @access private
      */
@@ -742,7 +798,7 @@ class DB_mysql extends DB_common
         // We should probably do something if $highest_id isn't
         // numeric, but I'm at a loss as how to handle that...
         $result = $this->query('DELETE FROM ' . $seqname
-                               . " WHERE id <> $highest_id");
+            . " WHERE id <> $highest_id");
         if (DB::isError($result)) {
             return $result;
         }
@@ -758,7 +814,25 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ quoteIdentifier()
+    // {{{ escapeSimple()
+
+    /**
+     * Deletes a sequence
+     *
+     * @param string $seq_name name of the sequence to be deleted
+     *
+     * @return int  DB_OK on success.  A DB_Error object on failure.
+     *
+     * @see DB_common::dropSequence(), DB_common::getSequenceName(),
+     *      DB_mysql::nextID(), DB_mysql::createSequence()
+     */
+    public function dropSequence($seq_name)
+    {
+        return $this->query('DROP TABLE ' . $this->getSequenceName($seq_name));
+    }
+
+    // }}}
+    // {{{ modifyQuery()
 
     /**
      * Quotes a string so it can be safely used as a table or column name
@@ -767,7 +841,7 @@ class DB_mysql extends DB_common
      * WARNING:  Older versions of MySQL can't handle the backtick
      * character (<kbd>`</kbd>) in table or column names.
      *
-     * @param string $str  identifier name to be quoted
+     * @param string $str identifier name to be quoted
      *
      * @return string  quoted identifier string
      *
@@ -780,12 +854,12 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ escapeSimple()
+    // {{{ modifyLimitQuery()
 
     /**
      * Escapes a string according to the current DBMS's standards
      *
-     * @param string $str  the string to be escaped
+     * @param string $str the string to be escaped
      *
      * @return string  the escaped string
      *
@@ -802,48 +876,15 @@ class DB_mysql extends DB_common
     }
 
     // }}}
-    // {{{ modifyQuery()
-
-    /**
-     * Changes a query string for various DBMS specific reasons
-     *
-     * This little hack lets you know how many rows were deleted
-     * when running a "DELETE FROM table" query.  Only implemented
-     * if the DB_PORTABILITY_DELETE_COUNT portability option is on.
-     *
-     * @param string $query  the query string to modify
-     *
-     * @return string  the modified query string
-     *
-     * @access protected
-     * @see DB_common::setOption()
-     */
-    public function modifyQuery($query)
-    {
-        if ($this->options['portability'] & DB_PORTABILITY_DELETE_COUNT) {
-            // "DELETE FROM table" gives 0 affected rows in MySQL.
-            // This little hack lets you know how many rows were deleted.
-            if (preg_match('/^\s*DELETE\s+FROM\s+(\S+)\s*$/i', $query)) {
-                $query = preg_replace(
-                    '/^\s*DELETE\s+FROM\s+(\S+)\s*$/',
-                    'DELETE FROM \1 WHERE 1=1',
-                    $query
-                );
-            }
-        }
-        return $query;
-    }
-
-    // }}}
-    // {{{ modifyLimitQuery()
+    // {{{ mysqlRaiseError()
 
     /**
      * Adds LIMIT clauses to a query string according to current DBMS standards
      *
-     * @param string $query   the query to modify
-     * @param int    $from    the row to start to fetching (0 = the first row)
-     * @param int    $count   the numbers of rows to fetch
-     * @param mixed  $params  array, string or numeric data to be used in
+     * @param string $query the query to modify
+     * @param int $from the row to start to fetching (0 = the first row)
+     * @param int $count the numbers of rows to fetch
+     * @param mixed $params array, string or numeric data to be used in
      *                         execution of the statement.  Quantity of items
      *                         passed must match quantity of placeholders in
      *                         query:  meaning 1 placeholder for non-array
@@ -860,46 +901,6 @@ class DB_mysql extends DB_common
         } else {
             return $query . " LIMIT $from, $count";
         }
-    }
-
-    // }}}
-    // {{{ mysqlRaiseError()
-
-    /**
-     * Produces a DB_Error object regarding the current problem
-     *
-     * @param int $errno  if the error is being manually raised pass a
-     *                     DB_ERROR* constant here.  If this isn't passed
-     *                     the error information gathered from the DBMS.
-     *
-     * @return object  the DB_Error object
-     *
-     * @see DB_common::raiseError(),
-     *      DB_mysql::errorNative(), DB_common::errorCode()
-     */
-    public function mysqlRaiseError($errno = null)
-    {
-        if ($errno === null) {
-            if ($this->options['portability'] & DB_PORTABILITY_ERRORS) {
-                $this->errorcode_map[1022] = DB_ERROR_CONSTRAINT;
-                $this->errorcode_map[1048] = DB_ERROR_CONSTRAINT_NOT_NULL;
-                $this->errorcode_map[1062] = DB_ERROR_CONSTRAINT;
-            } else {
-                // Doing this in case mode changes during runtime.
-                $this->errorcode_map[1022] = DB_ERROR_ALREADY_EXISTS;
-                $this->errorcode_map[1048] = DB_ERROR_CONSTRAINT;
-                $this->errorcode_map[1062] = DB_ERROR_ALREADY_EXISTS;
-            }
-            $errno = $this->errorCode(mysql_errno($this->connection));
-        }
-        return $this->raiseError(
-            $errno,
-            null,
-            null,
-            null,
-            @mysql_errno($this->connection) . ' ** ' .
-                                 @mysql_error($this->connection)
-        );
     }
 
     // }}}
@@ -921,14 +922,14 @@ class DB_mysql extends DB_common
     /**
      * Returns information about a table or a result set
      *
-     * @param object|string  $result  DB_result object from a query or a
+     * @param object|string $result DB_result object from a query or a
      *                                 string containing the name of a table.
      *                                 While this also accepts a query result
      *                                 resource identifier, this behavior is
      *                                 deprecated.
-     * @param int            $mode    a valid tableInfo mode
+     * @param int $mode a valid tableInfo mode
      *
-     * @return array  an associative array with the information requested.
+     * @return array|object
      *                 A DB_Error object on failure.
      *
      * @see DB_common::tableInfo()
@@ -942,7 +943,7 @@ class DB_mysql extends DB_common
                     return $this->mysqlRaiseError(DB_ERROR_NODBSELECTED);
                 }
             }
-            
+
             /*
              * Probably received a table name.
              * Create a result resource identifier.
@@ -980,7 +981,7 @@ class DB_mysql extends DB_common
         }
 
         $count = @mysql_num_fields($id);
-        $res   = array();
+        $res = array();
 
         if ($mode) {
             $res['num_fields'] = $count;
@@ -989,9 +990,9 @@ class DB_mysql extends DB_common
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
                 'table' => $case_func(@mysql_field_table($id, $i)),
-                'name'  => $case_func(@mysql_field_name($id, $i)),
-                'type'  => @mysql_field_type($id, $i),
-                'len'   => @mysql_field_len($id, $i),
+                'name' => $case_func(@mysql_field_name($id, $i)),
+                'type' => @mysql_field_type($id, $i),
+                'len' => @mysql_field_len($id, $i),
                 'flags' => @mysql_field_flags($id, $i),
             );
             if ($mode & DB_TABLEINFO_ORDER) {
@@ -1015,7 +1016,7 @@ class DB_mysql extends DB_common
     /**
      * Obtains the query string needed for listing a given type of objects
      *
-     * @param string $type  the kind of objects you want to retrieve
+     * @param string $type the kind of objects you want to retrieve
      *
      * @return string  the SQL query string or null if the driver doesn't
      *                  support the object type requested

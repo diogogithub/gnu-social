@@ -27,7 +27,8 @@
 /**
  * Obtain the DB_common class so it can be extended from
  */
-require_once 'DB/common.php';
+//require_once 'DB/common.php';
+require_once 'common.php';
 
 /**
  * The methods PEAR DB uses to interact with PHP's dbase extension
@@ -74,21 +75,20 @@ class DB_dbase extends DB_common
      * @var array
      */
     public $features = array(
-        'limit'         => false,
-        'new_link'      => false,
-        'numrows'       => true,
-        'pconnect'      => false,
-        'prepare'       => false,
-        'ssl'           => false,
-        'transactions'  => false,
+        'limit' => false,
+        'new_link' => false,
+        'numrows' => true,
+        'pconnect' => false,
+        'prepare' => false,
+        'ssl' => false,
+        'transactions' => false,
     );
 
     /**
      * A mapping of native error codes to DB error codes
      * @var array
      */
-    public $errorcode_map = array(
-    );
+    public $errorcode_map = array();
 
     /**
      * The raw database connection created by PHP
@@ -189,15 +189,15 @@ class DB_dbase extends DB_common
      * );
      *
      * $db = DB::connect($dsn, $options);
-     * if (PEAR::isError($db)) {
+     * if ((new PEAR)->isError($db)) {
      *     die($db->getMessage());
      * }
      * </code>
      *
-     * @param array $dsn         the data source name
-     * @param bool  $persistent  should the connection be persistent?
+     * @param array $dsn the data source name
+     * @param bool $persistent should the connection be persistent?
      *
-     * @return int  DB_OK on success. A DB_Error object on failure.
+     * @return int|object
      */
     public function connect($dsn, $persistent = false)
     {
@@ -226,9 +226,9 @@ class DB_dbase extends DB_common
                     null,
                     null,
                     'the dbase file does not exist and '
-                                         . 'it could not be created because '
-                                         . 'the "fields" element of the DSN '
-                                         . 'is not properly set'
+                    . 'it could not be created because '
+                    . 'the "fields" element of the DSN '
+                    . 'is not properly set'
                 );
             }
             $this->connection = @dbase_create(
@@ -242,8 +242,8 @@ class DB_dbase extends DB_common
                     null,
                     null,
                     'the dbase file does not exist and '
-                                         . 'the attempt to create it failed: '
-                                         . $php_errormsg
+                    . 'the attempt to create it failed: '
+                    . $php_errormsg
                 );
             }
         } else {
@@ -306,10 +306,10 @@ class DB_dbase extends DB_common
      * DB_result::fetchInto() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result    the query result resource
-     * @param array    $arr       the referenced array to put the data in
-     * @param int      $fetchmode how the resulting array should be indexed
-     * @param int      $rownum    the row number to fetch (0 = first row)
+     * @param resource $result the query result resource
+     * @param array $arr the referenced array to put the data in
+     * @param int $fetchmode how the resulting array should be indexed
+     * @param int $rownum the row number to fetch (0 = first row)
      *
      * @return mixed  DB_OK on success, NULL when the end of a result set is
      *                 reached or on failure
@@ -350,7 +350,7 @@ class DB_dbase extends DB_common
      * This method is a no-op for dbase, as there aren't result resources in
      * the same sense as most other database backends.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
      * @return bool  TRUE on success, FALSE if $result is invalid
      *
@@ -371,8 +371,7 @@ class DB_dbase extends DB_common
      * DB_result::numCols() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
-     *
+     * @param $foo
      * @return int  the number of columns.  A DB_Error object on failure.
      *
      * @see DB_result::numCols()
@@ -392,8 +391,7 @@ class DB_dbase extends DB_common
      * DB_result::numRows() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
-     *
+     * @param $foo
      * @return int  the number of rows.  A DB_Error object on failure.
      *
      * @see DB_result::numRows()
@@ -419,18 +417,18 @@ class DB_dbase extends DB_common
     {
         return $boolean ? 'T' : 'F';
     }
-     
+
     // }}}
     // {{{ tableInfo()
 
     /**
      * Returns information about the current database
      *
-     * @param mixed $result  THIS IS UNUSED IN DBASE.  The current database
+     * @param mixed $result THIS IS UNUSED IN DBASE.  The current database
      *                       is examined regardless of what is provided here.
-     * @param int   $mode    a valid tableInfo mode
+     * @param int $mode a valid tableInfo mode
      *
-     * @return array  an associative array with the information requested.
+     * @return array|object
      *                 A DB_Error object on failure.
      *
      * @see DB_common::tableInfo()
@@ -467,7 +465,7 @@ class DB_dbase extends DB_common
             }
 
             $id = array();
-            $i  = 0;
+            $i = 0;
 
             $line = fread($db, 32);
             while (!feof($db)) {
@@ -478,8 +476,8 @@ class DB_dbase extends DB_common
                     $pos = strpos(substr($line, 0, 10), chr(0));
                     $pos = ($pos == 0 ? 10 : $pos);
                     $id[$i] = array(
-                        'name'   => substr($line, 0, $pos),
-                        'type'   => $this->types[substr($line, 11, 1)],
+                        'name' => substr($line, 0, $pos),
+                        'type' => $this->types[substr($line, 11, 1)],
                         'length' => ord(substr($line, 16, 1)),
                         'precision' => ord(substr($line, 17, 1)),
                     );
@@ -496,7 +494,7 @@ class DB_dbase extends DB_common
             $case_func = 'strval';
         }
 
-        $res   = array();
+        $res = array();
         $count = count($id);
 
         if ($mode) {
@@ -506,9 +504,9 @@ class DB_dbase extends DB_common
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
                 'table' => $this->dsn['database'],
-                'name'  => $case_func($id[$i]['name']),
-                'type'  => $id[$i]['type'],
-                'len'   => $id[$i]['length'],
+                'name' => $case_func($id[$i]['name']),
+                'type' => $id[$i]['type'],
+                'len' => $id[$i]['length'],
                 'flags' => ''
             );
             if ($mode & DB_TABLEINFO_ORDER) {

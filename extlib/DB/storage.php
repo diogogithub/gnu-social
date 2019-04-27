@@ -46,33 +46,33 @@ class DB_storage extends PEAR
     // {{{ properties
 
     /** the name of the table (or view, if the backend database supports
-        updates in views) we hold data from */
+     * updates in views) we hold data from */
     public $_table = null;
 
     /** which column(s) in the table contains primary keys, can be a
-        string for single-column primary keys, or an array of strings
-        for multiple-column primary keys */
+     * string for single-column primary keys, or an array of strings
+     * for multiple-column primary keys */
     public $_keycolumn = null;
 
     /** DB connection handle used for all transactions */
     public $_dbh = null;
 
     /** an assoc with the names of database fields stored as properties
-        in this object */
+     * in this object */
     public $_properties = array();
 
     /** an assoc with the names of the properties in this object that
-        have been changed since they were fetched from the database */
+     * have been changed since they were fetched from the database */
     public $_changes = array();
 
     /** flag that decides if data in this object can be changed.
-        objects that don't have their table's key column in their
-        property lists will be flagged as read-only. */
+     * objects that don't have their table's key column in their
+     * property lists will be flagged as read-only. */
     public $_readonly = false;
 
     /** function or method that implements a validator for fields that
-        are set, this validator function returns true if the field is
-        valid, false if not */
+     * are set, this validator function returns true if the field is
+     * valid, false if not */
     public $_validator = null;
 
     // }}}
@@ -108,12 +108,89 @@ class DB_storage extends PEAR
     // {{{ _makeWhere()
 
     /**
+     * Create a new (empty) row in the configured table for this
+     * object.
+     * @param $newpk
+     * @return |null
+     */
+    public function insert($newpk)
+    {
+        if (is_array($this->_keycolumn)) {
+            $primarykey = $this->_keycolumn;
+        } else {
+            $primarykey = array($this->_keycolumn);
+        }
+        settype($newpk, "array");
+        for ($i = 0; $i < sizeof($primarykey); $i++) {
+            $pkvals[] = $this->_dbh->quote($newpk[$i]);
+        }
+
+        $sth = $this->_dbh->query("INSERT INTO $this->_table (" .
+            implode(",", $primarykey) . ") VALUES(" .
+            implode(",", $pkvals) . ")");
+        if (DB::isError($sth)) {
+            return $sth;
+        }
+        if (sizeof($newpk) == 1) {
+            $newpk = $newpk[0];
+        }
+        $this->setup($newpk);
+        return null;
+    }
+
+    // }}}
+    // {{{ setup()
+
+    /**
+     * Method used to initialize a DB_storage object from the
+     * configured table.
+     *
+     * @param $keyval mixed the key[s] of the row to fetch (string or array)
+     *
+     * @return int|object
+     */
+    public function setup($keyval)
+    {
+        $whereclause = $this->_makeWhere($keyval);
+        $query = 'SELECT * FROM ' . $this->_table . ' WHERE ' . $whereclause;
+        $sth = $this->_dbh->query($query);
+        if (DB::isError($sth)) {
+            return $sth;
+        }
+        $row = $sth->fetchRow(DB_FETCHMODE_ASSOC);
+        if (DB::isError($row)) {
+            return $row;
+        }
+        if (!$row) {
+            return $this->raiseError(
+                null,
+                DB_ERROR_NOT_FOUND,
+                null,
+                null,
+                $query,
+                null,
+                true
+            );
+        }
+        foreach ($row as $key => $value) {
+            $this->_properties[$key] = true;
+            $this->$key = $value;
+        }
+        return DB_OK;
+    }
+
+    // }}}
+    // {{{ insert()
+
+    /**
      * Utility method to build a "WHERE" clause to locate ourselves in
      * the table.
      *
      * XXX future improvement: use rowids?
      *
      * @access private
+     * @param null $keyval
+     * @return mixed|string|null
      */
     public function _makeWhere($keyval = null)
     {
@@ -151,78 +228,6 @@ class DB_storage extends PEAR
             }
         }
         return $whereclause;
-    }
-
-    // }}}
-    // {{{ setup()
-
-    /**
-     * Method used to initialize a DB_storage object from the
-     * configured table.
-     *
-     * @param $keyval mixed the key[s] of the row to fetch (string or array)
-     *
-     * @return int DB_OK on success, a DB error if not
-     */
-    public function setup($keyval)
-    {
-        $whereclause = $this->_makeWhere($keyval);
-        $query = 'SELECT * FROM ' . $this->_table . ' WHERE ' . $whereclause;
-        $sth = $this->_dbh->query($query);
-        if (DB::isError($sth)) {
-            return $sth;
-        }
-        $row = $sth->fetchRow(DB_FETCHMODE_ASSOC);
-        if (DB::isError($row)) {
-            return $row;
-        }
-        if (!$row) {
-            return $this->raiseError(
-                null,
-                DB_ERROR_NOT_FOUND,
-                null,
-                null,
-                $query,
-                null,
-                true
-            );
-        }
-        foreach ($row as $key => $value) {
-            $this->_properties[$key] = true;
-            $this->$key = $value;
-        }
-        return DB_OK;
-    }
-
-    // }}}
-    // {{{ insert()
-
-    /**
-     * Create a new (empty) row in the configured table for this
-     * object.
-     */
-    public function insert($newpk)
-    {
-        if (is_array($this->_keycolumn)) {
-            $primarykey = $this->_keycolumn;
-        } else {
-            $primarykey = array($this->_keycolumn);
-        }
-        settype($newpk, "array");
-        for ($i = 0; $i < sizeof($primarykey); $i++) {
-            $pkvals[] = $this->_dbh->quote($newpk[$i]);
-        }
-
-        $sth = $this->_dbh->query("INSERT INTO $this->_table (" .
-                                  implode(",", $primarykey) . ") VALUES(" .
-                                  implode(",", $pkvals) . ")");
-        if (DB::isError($sth)) {
-            return $sth;
-        }
-        if (sizeof($newpk) == 1) {
-            $newpk = $newpk[0];
-        }
-        $this->setup($newpk);
     }
 
     // }}}
@@ -293,6 +298,7 @@ class DB_storage extends PEAR
 
     /**
      * Static method used to create new DB storage objects.
+     * @param $table
      * @param $data assoc. array where the keys are the names
      *              of properties/columns
      * @return object a new instance of DB_storage or a subclass of it
@@ -365,6 +371,9 @@ class DB_storage extends PEAR
 
     /**
      * Modify an attriute value.
+     * @param $property
+     * @param $newvalue
+     * @return bool|object
      */
     public function set($property, $newvalue)
     {
@@ -469,7 +478,7 @@ class DB_storage extends PEAR
     /**
      * Stores changes to this object in the database.
      *
-     * @return DB_OK or a DB error
+     * @return DB_OK|int
      */
     public function store()
     {
@@ -514,7 +523,7 @@ class DB_storage extends PEAR
                 true
             );
         }
-        $query = 'DELETE FROM ' . $this->_table .' WHERE '.
+        $query = 'DELETE FROM ' . $this->_table . ' WHERE ' .
             $this->_makeWhere();
         $res = $this->_dbh->query($query);
         if (DB::isError($res)) {

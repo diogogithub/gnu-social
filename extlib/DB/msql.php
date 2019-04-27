@@ -30,7 +30,8 @@
 /**
  * Obtain the DB_common class so it can be extended from
  */
-require_once 'DB/common.php';
+//require_once 'DB/common.php';
+require_once 'common.php';
 
 /**
  * The methods PEAR DB uses to interact with PHP's msql extension
@@ -81,21 +82,20 @@ class DB_msql extends DB_common
      * @var array
      */
     public $features = array(
-        'limit'         => 'emulate',
-        'new_link'      => false,
-        'numrows'       => true,
-        'pconnect'      => true,
-        'prepare'       => false,
-        'ssl'           => false,
-        'transactions'  => false,
+        'limit' => 'emulate',
+        'new_link' => false,
+        'numrows' => true,
+        'pconnect' => true,
+        'prepare' => false,
+        'ssl' => false,
+        'transactions' => false,
     );
 
     /**
      * A mapping of native error codes to DB error codes
      * @var array
      */
-    public $errorcode_map = array(
-    );
+    public $errorcode_map = array();
 
     /**
      * The raw database connection created by PHP
@@ -154,15 +154,15 @@ class DB_msql extends DB_common
      * );
      *
      * $db = DB::connect($dsn, $options);
-     * if (PEAR::isError($db)) {
+     * if ((new PEAR)->isError($db)) {
      *     die($db->getMessage());
      * }
      * </code>
      *
-     * @param array $dsn         the data source name
-     * @param bool  $persistent  should the connection be persistent?
+     * @param array $dsn the data source name
+     * @param bool $persistent should the connection be persistent?
      *
-     * @return int  DB_OK on success. A DB_Error object on failure.
+     * @return int|object
      */
     public function connect($dsn, $persistent = false)
     {
@@ -178,8 +178,8 @@ class DB_msql extends DB_common
         $params = array();
         if ($dsn['hostspec']) {
             $params[] = $dsn['port']
-                        ? $dsn['hostspec'] . ',' . $dsn['port']
-                        : $dsn['hostspec'];
+                ? $dsn['hostspec'] . ',' . $dsn['port']
+                : $dsn['hostspec'];
         }
 
         $connect_function = $persistent ? 'msql_pconnect' : 'msql_connect';
@@ -230,6 +230,127 @@ class DB_msql extends DB_common
     // {{{ disconnect()
 
     /**
+     * Produces a DB_Error object regarding the current problem
+     *
+     * @param int $errno if the error is being manually raised pass a
+     *                     DB_ERROR* constant here.  If this isn't passed
+     *                     the error information gathered from the DBMS.
+     *
+     * @return object  the DB_Error object
+     *
+     * @see DB_common::raiseError(),
+     *      DB_msql::errorNative(), DB_msql::errorCode()
+     */
+    public function msqlRaiseError($errno = null)
+    {
+        $native = $this->errorNative();
+        if ($errno === null) {
+            $errno = $this->errorCode($native);
+        }
+        return $this->raiseError($errno, null, null, null, $native);
+    }
+
+    // }}}
+    // {{{ simpleQuery()
+
+    /**
+     * Gets the DBMS' native error message produced by the last query
+     *
+     * @return string  the DBMS' error message
+     */
+    public function errorNative()
+    {
+        return @msql_error();
+    }
+
+
+    // }}}
+    // {{{ nextResult()
+
+    /**
+     * Determines PEAR::DB error code from the database's text error message
+     *
+     * @param string $errormsg the error message returned from the database
+     *
+     * @return integer  the error number from a DB_ERROR* constant
+     */
+    public function errorCode($errormsg)
+    {
+        static $error_regexps;
+
+        // PHP 5.2+ prepends the function name to $php_errormsg, so we need
+        // this hack to work around it, per bug #9599.
+        $errormsg = preg_replace('/^msql[a-z_]+\(\): /', '', $errormsg);
+
+        if (!isset($error_regexps)) {
+            $error_regexps = array(
+                '/^Access to database denied/i'
+                => DB_ERROR_ACCESS_VIOLATION,
+                '/^Bad index name/i'
+                => DB_ERROR_ALREADY_EXISTS,
+                '/^Bad order field/i'
+                => DB_ERROR_SYNTAX,
+                '/^Bad type for comparison/i'
+                => DB_ERROR_SYNTAX,
+                '/^Can\'t perform LIKE on/i'
+                => DB_ERROR_SYNTAX,
+                '/^Can\'t use TEXT fields in LIKE comparison/i'
+                => DB_ERROR_SYNTAX,
+                '/^Couldn\'t create temporary table/i'
+                => DB_ERROR_CANNOT_CREATE,
+                '/^Error creating table file/i'
+                => DB_ERROR_CANNOT_CREATE,
+                '/^Field .* cannot be null$/i'
+                => DB_ERROR_CONSTRAINT_NOT_NULL,
+                '/^Index (field|condition) .* cannot be null$/i'
+                => DB_ERROR_SYNTAX,
+                '/^Invalid date format/i'
+                => DB_ERROR_INVALID_DATE,
+                '/^Invalid time format/i'
+                => DB_ERROR_INVALID,
+                '/^Literal value for .* is wrong type$/i'
+                => DB_ERROR_INVALID_NUMBER,
+                '/^No Database Selected/i'
+                => DB_ERROR_NODBSELECTED,
+                '/^No value specified for field/i'
+                => DB_ERROR_VALUE_COUNT_ON_ROW,
+                '/^Non unique value for unique index/i'
+                => DB_ERROR_CONSTRAINT,
+                '/^Out of memory for temporary table/i'
+                => DB_ERROR_CANNOT_CREATE,
+                '/^Permission denied/i'
+                => DB_ERROR_ACCESS_VIOLATION,
+                '/^Reference to un-selected table/i'
+                => DB_ERROR_SYNTAX,
+                '/^syntax error/i'
+                => DB_ERROR_SYNTAX,
+                '/^Table .* exists$/i'
+                => DB_ERROR_ALREADY_EXISTS,
+                '/^Unknown database/i'
+                => DB_ERROR_NOSUCHDB,
+                '/^Unknown field/i'
+                => DB_ERROR_NOSUCHFIELD,
+                '/^Unknown (index|system variable)/i'
+                => DB_ERROR_NOT_FOUND,
+                '/^Unknown table/i'
+                => DB_ERROR_NOSUCHTABLE,
+                '/^Unqualified field/i'
+                => DB_ERROR_SYNTAX,
+            );
+        }
+
+        foreach ($error_regexps as $regexp => $code) {
+            if (preg_match($regexp, $errormsg)) {
+                return $code;
+            }
+        }
+        return DB_ERROR;
+    }
+
+    // }}}
+    // {{{ fetchInto()
+
+    /**
      * Disconnects from the database server
      *
      * @return bool  TRUE on success, FALSE on failure
@@ -242,7 +363,7 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ simpleQuery()
+    // {{{ freeResult()
 
     /**
      * Sends a query to the database server
@@ -272,9 +393,8 @@ class DB_msql extends DB_common
         }
     }
 
-
     // }}}
-    // {{{ nextResult()
+    // {{{ numCols()
 
     /**
      * Move the internal msql result pointer to the next available result
@@ -291,7 +411,7 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ fetchInto()
+    // {{{ numRows()
 
     /**
      * Places a row from the result set into the given array
@@ -307,10 +427,10 @@ class DB_msql extends DB_common
      * 4.3.11 and 5.0.4.  Make sure your version of PHP meets or exceeds
      * those versions.
      *
-     * @param resource $result    the query result resource
-     * @param array    $arr       the referenced array to put the data in
-     * @param int      $fetchmode how the resulting array should be indexed
-     * @param int      $rownum    the row number to fetch (0 = first row)
+     * @param resource $result the query result resource
+     * @param array $arr the referenced array to put the data in
+     * @param int $fetchmode how the resulting array should be indexed
+     * @param int $rownum the row number to fetch (0 = first row)
      *
      * @return mixed  DB_OK on success, NULL when the end of a result set is
      *                 reached or on failure
@@ -345,7 +465,7 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ freeResult()
+    // {{{ affected()
 
     /**
      * Deletes the result set and frees the memory occupied by the result set
@@ -354,7 +474,7 @@ class DB_msql extends DB_common
      * DB_result::free() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
      * @return bool  TRUE on success, FALSE if $result is invalid
      *
@@ -366,7 +486,7 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ numCols()
+    // {{{ nextId()
 
     /**
      * Gets the number of columns in a result set
@@ -375,9 +495,9 @@ class DB_msql extends DB_common
      * DB_result::numCols() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
-     * @return int  the number of columns.  A DB_Error object on failure.
+     * @return int|object
      *
      * @see DB_result::numCols()
      */
@@ -391,7 +511,7 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ numRows()
+    // {{{ createSequence()
 
     /**
      * Gets the number of rows in a result set
@@ -400,9 +520,9 @@ class DB_msql extends DB_common
      * DB_result::numRows() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
-     * @return int  the number of rows.  A DB_Error object on failure.
+     * @return int|object
      *
      * @see DB_result::numRows()
      */
@@ -416,7 +536,7 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ affected()
+    // {{{ dropSequence()
 
     /**
      * Determines the number of rows affected by a data maniuplation query
@@ -434,16 +554,16 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ nextId()
+    // {{{ quoteIdentifier()
 
     /**
      * Returns the next free id in a sequence
      *
-     * @param string  $seq_name  name of the sequence
-     * @param boolean $ondemand  when true, the seqence is automatically
+     * @param string $seq_name name of the sequence
+     * @param boolean $ondemand when true, the seqence is automatically
      *                            created if it does not exist
      *
-     * @return int  the next id number in the sequence.
+     * @return int|object
      *               A DB_Error object on failure.
      *
      * @see DB_common::nextID(), DB_common::getSequenceName(),
@@ -479,7 +599,7 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ createSequence()
+    // {{{ quoteFloat()
 
     /**
      * Creates a new sequence
@@ -487,7 +607,7 @@ class DB_msql extends DB_common
      * Also creates a new table to associate the sequence with.  Uses
      * a separate table to ensure portability with other drivers.
      *
-     * @param string $seq_name  name of the new sequence
+     * @param string $seq_name name of the new sequence
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      *
@@ -498,7 +618,7 @@ class DB_msql extends DB_common
     {
         $seqname = $this->getSequenceName($seq_name);
         $res = $this->query('CREATE TABLE ' . $seqname
-                            . ' (id INTEGER NOT NULL)');
+            . ' (id INTEGER NOT NULL)');
         if (DB::isError($res)) {
             return $res;
         }
@@ -507,12 +627,12 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ dropSequence()
+    // {{{ escapeSimple()
 
     /**
      * Deletes a sequence
      *
-     * @param string $seq_name  name of the sequence to be deleted
+     * @param string $seq_name name of the sequence to be deleted
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      *
@@ -525,12 +645,12 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ quoteIdentifier()
+    // {{{ msqlRaiseError()
 
     /**
      * mSQL does not support delimited identifiers
      *
-     * @param string $str  the identifier name to be quoted
+     * @param string $str the identifier name to be quoted
      *
      * @return object  a DB_Error object
      *
@@ -543,7 +663,7 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ quoteFloat()
+    // {{{ errorNative()
 
     /**
      * Formats a float value for use within a query in a locale-independent
@@ -558,14 +678,14 @@ class DB_msql extends DB_common
     {
         return $this->escapeSimple(str_replace(',', '.', strval(floatval($float))));
     }
-     
+
     // }}}
-    // {{{ escapeSimple()
+    // {{{ errorCode()
 
     /**
      * Escapes a string according to the current DBMS's standards
      *
-     * @param string $str  the string to be escaped
+     * @param string $str the string to be escaped
      *
      * @return string  the escaped string
      *
@@ -578,139 +698,19 @@ class DB_msql extends DB_common
     }
 
     // }}}
-    // {{{ msqlRaiseError()
-
-    /**
-     * Produces a DB_Error object regarding the current problem
-     *
-     * @param int $errno  if the error is being manually raised pass a
-     *                     DB_ERROR* constant here.  If this isn't passed
-     *                     the error information gathered from the DBMS.
-     *
-     * @return object  the DB_Error object
-     *
-     * @see DB_common::raiseError(),
-     *      DB_msql::errorNative(), DB_msql::errorCode()
-     */
-    public function msqlRaiseError($errno = null)
-    {
-        $native = $this->errorNative();
-        if ($errno === null) {
-            $errno = $this->errorCode($native);
-        }
-        return $this->raiseError($errno, null, null, null, $native);
-    }
-
-    // }}}
-    // {{{ errorNative()
-
-    /**
-     * Gets the DBMS' native error message produced by the last query
-     *
-     * @return string  the DBMS' error message
-     */
-    public function errorNative()
-    {
-        return @msql_error();
-    }
-
-    // }}}
-    // {{{ errorCode()
-
-    /**
-     * Determines PEAR::DB error code from the database's text error message
-     *
-     * @param string $errormsg  the error message returned from the database
-     *
-     * @return integer  the error number from a DB_ERROR* constant
-     */
-    public function errorCode($errormsg)
-    {
-        static $error_regexps;
-        
-        // PHP 5.2+ prepends the function name to $php_errormsg, so we need
-        // this hack to work around it, per bug #9599.
-        $errormsg = preg_replace('/^msql[a-z_]+\(\): /', '', $errormsg);
-
-        if (!isset($error_regexps)) {
-            $error_regexps = array(
-                '/^Access to database denied/i'
-                    => DB_ERROR_ACCESS_VIOLATION,
-                '/^Bad index name/i'
-                    => DB_ERROR_ALREADY_EXISTS,
-                '/^Bad order field/i'
-                    => DB_ERROR_SYNTAX,
-                '/^Bad type for comparison/i'
-                    => DB_ERROR_SYNTAX,
-                '/^Can\'t perform LIKE on/i'
-                    => DB_ERROR_SYNTAX,
-                '/^Can\'t use TEXT fields in LIKE comparison/i'
-                    => DB_ERROR_SYNTAX,
-                '/^Couldn\'t create temporary table/i'
-                    => DB_ERROR_CANNOT_CREATE,
-                '/^Error creating table file/i'
-                    => DB_ERROR_CANNOT_CREATE,
-                '/^Field .* cannot be null$/i'
-                    => DB_ERROR_CONSTRAINT_NOT_NULL,
-                '/^Index (field|condition) .* cannot be null$/i'
-                    => DB_ERROR_SYNTAX,
-                '/^Invalid date format/i'
-                    => DB_ERROR_INVALID_DATE,
-                '/^Invalid time format/i'
-                    => DB_ERROR_INVALID,
-                '/^Literal value for .* is wrong type$/i'
-                    => DB_ERROR_INVALID_NUMBER,
-                '/^No Database Selected/i'
-                    => DB_ERROR_NODBSELECTED,
-                '/^No value specified for field/i'
-                    => DB_ERROR_VALUE_COUNT_ON_ROW,
-                '/^Non unique value for unique index/i'
-                    => DB_ERROR_CONSTRAINT,
-                '/^Out of memory for temporary table/i'
-                    => DB_ERROR_CANNOT_CREATE,
-                '/^Permission denied/i'
-                    => DB_ERROR_ACCESS_VIOLATION,
-                '/^Reference to un-selected table/i'
-                    => DB_ERROR_SYNTAX,
-                '/^syntax error/i'
-                    => DB_ERROR_SYNTAX,
-                '/^Table .* exists$/i'
-                    => DB_ERROR_ALREADY_EXISTS,
-                '/^Unknown database/i'
-                    => DB_ERROR_NOSUCHDB,
-                '/^Unknown field/i'
-                    => DB_ERROR_NOSUCHFIELD,
-                '/^Unknown (index|system variable)/i'
-                    => DB_ERROR_NOT_FOUND,
-                '/^Unknown table/i'
-                    => DB_ERROR_NOSUCHTABLE,
-                '/^Unqualified field/i'
-                    => DB_ERROR_SYNTAX,
-            );
-        }
-
-        foreach ($error_regexps as $regexp => $code) {
-            if (preg_match($regexp, $errormsg)) {
-                return $code;
-            }
-        }
-        return DB_ERROR;
-    }
-
-    // }}}
     // {{{ tableInfo()
 
     /**
      * Returns information about a table or a result set
      *
-     * @param object|string  $result  DB_result object from a query or a
+     * @param object|string $result DB_result object from a query or a
      *                                 string containing the name of a table.
      *                                 While this also accepts a query result
      *                                 resource identifier, this behavior is
      *                                 deprecated.
-     * @param int            $mode    a valid tableInfo mode
+     * @param int $mode a valid tableInfo mode
      *
-     * @return array  an associative array with the information requested.
+     * @return array|object
      *                 A DB_Error object on failure.
      *
      * @see DB_common::setOption()
@@ -755,7 +755,7 @@ class DB_msql extends DB_common
         }
 
         $count = @msql_num_fields($id);
-        $res   = array();
+        $res = array();
 
         if ($mode) {
             $res['num_fields'] = $count;
@@ -775,9 +775,9 @@ class DB_msql extends DB_common
 
             $res[$i] = array(
                 'table' => $case_func($tmp->table),
-                'name'  => $case_func($tmp->name),
-                'type'  => $tmp->type,
-                'len'   => msql_field_len($id, $i),
+                'name' => $case_func($tmp->name),
+                'type' => $tmp->type,
+                'len' => msql_field_len($id, $i),
                 'flags' => $flags,
             );
 
@@ -802,9 +802,9 @@ class DB_msql extends DB_common
     /**
      * Obtain a list of a given type of objects
      *
-     * @param string $type  the kind of objects you want to retrieve
+     * @param string $type the kind of objects you want to retrieve
      *
-     * @return array  the array containing the list of objects requested
+     * @return array|object
      *
      * @access protected
      * @see DB_common::getListOf()

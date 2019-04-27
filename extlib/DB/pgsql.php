@@ -28,7 +28,8 @@
 /**
  * Obtain the DB_common class so it can be extended from
  */
-require_once 'DB/common.php';
+//require_once 'DB/common.php';
+require_once 'common.php';
 
 /**
  * The methods PEAR DB uses to interact with PHP's pgsql extension
@@ -76,21 +77,20 @@ class DB_pgsql extends DB_common
      * @var array
      */
     public $features = array(
-        'limit'         => 'alter',
-        'new_link'      => '4.3.0',
-        'numrows'       => true,
-        'pconnect'      => true,
-        'prepare'       => false,
-        'ssl'           => true,
-        'transactions'  => true,
+        'limit' => 'alter',
+        'new_link' => '4.3.0',
+        'numrows' => true,
+        'pconnect' => true,
+        'prepare' => false,
+        'ssl' => true,
+        'transactions' => true,
     );
 
     /**
      * A mapping of native error codes to DB error codes
      * @var array
      */
-    public $errorcode_map = array(
-    );
+    public $errorcode_map = array();
 
     /**
      * The raw database connection created by PHP
@@ -194,15 +194,15 @@ class DB_pgsql extends DB_common
      * );
      *
      * $db = DB::connect($dsn, $options);
-     * if (PEAR::isError($db)) {
+     * if ((new PEAR)->isError($db)) {
      *     die($db->getMessage());
      * }
      * </code>
      *
-     * @param array $dsn         the data source name
-     * @param bool  $persistent  should the connection be persistent?
+     * @param array $dsn the data source name
+     * @param bool $persistent should the connection be persistent?
      *
-     * @return int  DB_OK on success. A DB_Error object on failure.
+     * @return int|object
      *
      * @link http://www.postgresql.org/docs/current/static/libpq.html#LIBPQ-CONNECT
      */
@@ -382,6 +382,161 @@ class DB_pgsql extends DB_common
     // {{{ nextResult()
 
     /**
+     * Checks if the given query is a manipulation query. This also takes into
+     * account the _next_query_manip flag and sets the _last_query_manip flag
+     * (and resets _next_query_manip) according to the result.
+     *
+     * @param string The query to check.
+     *
+     * @return boolean true if the query is a manipulation query, false
+     * otherwise
+     *
+     * @access protected
+     */
+    public function _checkManip($query)
+    {
+        return (preg_match('/^\s*(SAVEPOINT|RELEASE)\s+/i', $query)
+            || parent::_checkManip($query));
+    }
+
+    // }}}
+    // {{{ fetchInto()
+
+    /**
+     * Produces a DB_Error object regarding the current problem
+     *
+     * @param int $errno if the error is being manually raised pass a
+     *                     DB_ERROR* constant here.  If this isn't passed
+     *                     the error information gathered from the DBMS.
+     *
+     * @return object  the DB_Error object
+     *
+     * @see DB_common::raiseError(),
+     *      DB_pgsql::errorNative(), DB_pgsql::errorCode()
+     */
+    public function pgsqlRaiseError($errno = null)
+    {
+        $native = $this->errorNative();
+        if (!$native) {
+            $native = 'Database connection has been lost.';
+            $errno = DB_ERROR_CONNECT_FAILED;
+        }
+        if ($errno === null) {
+            $errno = $this->errorCode($native);
+        }
+        return $this->raiseError($errno, null, null, null, $native);
+    }
+
+    // }}}
+    // {{{ freeResult()
+
+    /**
+     * Gets the DBMS' native error message produced by the last query
+     *
+     * {@internal Error messages are used instead of error codes
+     * in order to support older versions of PostgreSQL.}}
+     *
+     * @return string  the DBMS' error message
+     */
+    public function errorNative()
+    {
+        return @pg_errormessage($this->connection);
+    }
+
+    // }}}
+    // {{{ quoteBoolean()
+
+    /**
+     * Determines PEAR::DB error code from the database's text error message.
+     *
+     * @param string $errormsg error message returned from the database
+     * @return integer  an error number from a DB error constant
+     */
+    public function errorCode($errormsg)
+    {
+        static $error_regexps;
+        if (!isset($error_regexps)) {
+            $error_regexps = array(
+                '/column .* (of relation .*)?does not exist/i'
+                => DB_ERROR_NOSUCHFIELD,
+                '/(relation|sequence|table).*does not exist|class .* not found/i'
+                => DB_ERROR_NOSUCHTABLE,
+                '/index .* does not exist/'
+                => DB_ERROR_NOT_FOUND,
+                '/relation .* already exists/i'
+                => DB_ERROR_ALREADY_EXISTS,
+                '/(divide|division) by zero$/i'
+                => DB_ERROR_DIVZERO,
+                '/pg_atoi: error in .*: can\'t parse /i'
+                => DB_ERROR_INVALID_NUMBER,
+                '/invalid input syntax for( type)? (integer|numeric)/i'
+                => DB_ERROR_INVALID_NUMBER,
+                '/value .* is out of range for type \w*int/i'
+                => DB_ERROR_INVALID_NUMBER,
+                '/integer out of range/i'
+                => DB_ERROR_INVALID_NUMBER,
+                '/value too long for type character/i'
+                => DB_ERROR_INVALID,
+                '/attribute .* not found|relation .* does not have attribute/i'
+                => DB_ERROR_NOSUCHFIELD,
+                '/column .* specified in USING clause does not exist in (left|right) table/i'
+                => DB_ERROR_NOSUCHFIELD,
+                '/parser: parse error at or near/i'
+                => DB_ERROR_SYNTAX,
+                '/syntax error at/'
+                => DB_ERROR_SYNTAX,
+                '/column reference .* is ambiguous/i'
+                => DB_ERROR_SYNTAX,
+                '/permission denied/'
+                => DB_ERROR_ACCESS_VIOLATION,
+                '/violates not-null constraint/'
+                => DB_ERROR_CONSTRAINT_NOT_NULL,
+                '/violates [\w ]+ constraint/'
+                => DB_ERROR_CONSTRAINT,
+                '/referential integrity violation/'
+                => DB_ERROR_CONSTRAINT,
+                '/more expressions than target columns/i'
+                => DB_ERROR_VALUE_COUNT_ON_ROW,
+            );
+        }
+        foreach ($error_regexps as $regexp => $code) {
+            if (preg_match($regexp, $errormsg)) {
+                return $code;
+            }
+        }
+        // Fall back to DB_ERROR if there was no mapping.
+        return DB_ERROR;
+    }
+
+    // }}}
+    // {{{ escapeSimple()
+
+    /**
+     * Gets the number of rows in a result set
+     *
+     * This method is not meant to be called directly.  Use
+     * DB_result::numRows() instead.  It can't be declared "protected"
+     * because DB_result is a separate object.
+     *
+     * @param resource $result PHP's query result resource
+     *
+     * @return int|object
+     *
+     * @see DB_result::numRows()
+     */
+    public function numRows($result)
+    {
+        $rows = @pg_numrows($result);
+        if ($rows === null) {
+            return $this->pgsqlRaiseError();
+        }
+        return $rows;
+    }
+
+    // }}}
+    // {{{ numCols()
+
+    /**
      * Move the internal pgsql result pointer to the next available result
      *
      * @param a valid fbsql result resource
@@ -396,7 +551,7 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ fetchInto()
+    // {{{ numRows()
 
     /**
      * Places a row from the result set into the given array
@@ -408,10 +563,10 @@ class DB_pgsql extends DB_common
      * DB_result::fetchInto() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result    the query result resource
-     * @param array    $arr       the referenced array to put the data in
-     * @param int      $fetchmode how the resulting array should be indexed
-     * @param int      $rownum    the row number to fetch (0 = first row)
+     * @param resource $result the query result resource
+     * @param array $arr the referenced array to put the data in
+     * @param int $fetchmode how the resulting array should be indexed
+     * @param int $rownum the row number to fetch (0 = first row)
      *
      * @return mixed  DB_OK on success, NULL when the end of a result set is
      *                 reached or on failure
@@ -447,7 +602,7 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ freeResult()
+    // {{{ autoCommit()
 
     /**
      * Deletes the result set and frees the memory occupied by the result set
@@ -456,7 +611,7 @@ class DB_pgsql extends DB_common
      * DB_result::free() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
      * @return bool  TRUE on success, FALSE if $result is invalid
      *
@@ -474,7 +629,7 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ quoteBoolean()
+    // {{{ commit()
 
     /**
      * Formats a boolean value for use within a query in a locale-independent
@@ -489,9 +644,9 @@ class DB_pgsql extends DB_common
     {
         return $boolean ? 'TRUE' : 'FALSE';
     }
-     
+
     // }}}
-    // {{{ escapeSimple()
+    // {{{ rollback()
 
     /**
      * Escapes a string according to the current DBMS's standards
@@ -499,7 +654,7 @@ class DB_pgsql extends DB_common
      * {@internal PostgreSQL treats a backslash as an escape character,
      * so they are escaped as well.
      *
-     * @param string $str  the string to be escaped
+     * @param string $str the string to be escaped
      *
      * @return string  the escaped string
      *
@@ -526,7 +681,7 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ numCols()
+    // {{{ affectedRows()
 
     /**
      * Gets the number of columns in a result set
@@ -535,9 +690,9 @@ class DB_pgsql extends DB_common
      * DB_result::numCols() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
-     * @return int  the number of columns.  A DB_Error object on failure.
+     * @return int|object
      *
      * @see DB_result::numCols()
      */
@@ -551,37 +706,12 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ numRows()
-
-    /**
-     * Gets the number of rows in a result set
-     *
-     * This method is not meant to be called directly.  Use
-     * DB_result::numRows() instead.  It can't be declared "protected"
-     * because DB_result is a separate object.
-     *
-     * @param resource $result  PHP's query result resource
-     *
-     * @return int  the number of rows.  A DB_Error object on failure.
-     *
-     * @see DB_result::numRows()
-     */
-    public function numRows($result)
-    {
-        $rows = @pg_numrows($result);
-        if ($rows === null) {
-            return $this->pgsqlRaiseError();
-        }
-        return $rows;
-    }
-
-    // }}}
-    // {{{ autoCommit()
+    // {{{ nextId()
 
     /**
      * Enables or disables automatic commits
      *
-     * @param bool $onoff  true turns it on, false turns it off
+     * @param bool $onoff true turns it on, false turns it off
      *
      * @return int  DB_OK on success.  A DB_Error object if the driver
      *               doesn't support auto-committing transactions.
@@ -595,12 +725,12 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ commit()
+    // {{{ createSequence()
 
     /**
      * Commits the current transaction
      *
-     * @return int  DB_OK on success.  A DB_Error object on failure.
+     * @return int|object
      */
     public function commit()
     {
@@ -617,12 +747,12 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ rollback()
+    // {{{ dropSequence()
 
     /**
      * Reverts the current transaction
      *
-     * @return int  DB_OK on success.  A DB_Error object on failure.
+     * @return int|object
      */
     public function rollback()
     {
@@ -637,7 +767,7 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ affectedRows()
+    // {{{ modifyLimitQuery()
 
     /**
      * Determines the number of rows affected by a data maniuplation query
@@ -652,16 +782,16 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ nextId()
+    // {{{ pgsqlRaiseError()
 
     /**
      * Returns the next free id in a sequence
      *
-     * @param string  $seq_name  name of the sequence
-     * @param boolean $ondemand  when true, the seqence is automatically
+     * @param string $seq_name name of the sequence
+     * @param boolean $ondemand when true, the seqence is automatically
      *                            created if it does not exist
      *
-     * @return int  the next id number in the sequence.
+     * @return int|object
      *               A DB_Error object on failure.
      *
      * @see DB_common::nextID(), DB_common::getSequenceName(),
@@ -697,12 +827,12 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ createSequence()
+    // {{{ errorNative()
 
     /**
      * Creates a new sequence
      *
-     * @param string $seq_name  name of the new sequence
+     * @param string $seq_name name of the new sequence
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      *
@@ -717,12 +847,12 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ dropSequence()
+    // {{{ errorCode()
 
     /**
      * Deletes a sequence
      *
-     * @param string $seq_name  name of the sequence to be deleted
+     * @param string $seq_name name of the sequence to be deleted
      *
      * @return int  DB_OK on success.  A DB_Error object on failure.
      *
@@ -732,19 +862,19 @@ class DB_pgsql extends DB_common
     public function dropSequence($seq_name)
     {
         return $this->query('DROP SEQUENCE '
-                            . $this->getSequenceName($seq_name));
+            . $this->getSequenceName($seq_name));
     }
 
     // }}}
-    // {{{ modifyLimitQuery()
+    // {{{ tableInfo()
 
     /**
      * Adds LIMIT clauses to a query string according to current DBMS standards
      *
-     * @param string $query   the query to modify
-     * @param int    $from    the row to start to fetching (0 = the first row)
-     * @param int    $count   the numbers of rows to fetch
-     * @param mixed  $params  array, string or numeric data to be used in
+     * @param string $query the query to modify
+     * @param int $from the row to start to fetching (0 = the first row)
+     * @param int $count the numbers of rows to fetch
+     * @param mixed $params array, string or numeric data to be used in
      *                         execution of the statement.  Quantity of items
      *                         passed must match quantity of placeholders in
      *                         query:  meaning 1 placeholder for non-array
@@ -760,116 +890,7 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ pgsqlRaiseError()
-
-    /**
-     * Produces a DB_Error object regarding the current problem
-     *
-     * @param int $errno  if the error is being manually raised pass a
-     *                     DB_ERROR* constant here.  If this isn't passed
-     *                     the error information gathered from the DBMS.
-     *
-     * @return object  the DB_Error object
-     *
-     * @see DB_common::raiseError(),
-     *      DB_pgsql::errorNative(), DB_pgsql::errorCode()
-     */
-    public function pgsqlRaiseError($errno = null)
-    {
-        $native = $this->errorNative();
-        if (!$native) {
-            $native = 'Database connection has been lost.';
-            $errno = DB_ERROR_CONNECT_FAILED;
-        }
-        if ($errno === null) {
-            $errno = $this->errorCode($native);
-        }
-        return $this->raiseError($errno, null, null, null, $native);
-    }
-
-    // }}}
-    // {{{ errorNative()
-
-    /**
-     * Gets the DBMS' native error message produced by the last query
-     *
-     * {@internal Error messages are used instead of error codes
-     * in order to support older versions of PostgreSQL.}}
-     *
-     * @return string  the DBMS' error message
-     */
-    public function errorNative()
-    {
-        return @pg_errormessage($this->connection);
-    }
-
-    // }}}
-    // {{{ errorCode()
-
-    /**
-     * Determines PEAR::DB error code from the database's text error message.
-     *
-     * @param  string  $errormsg  error message returned from the database
-     * @return integer  an error number from a DB error constant
-     */
-    public function errorCode($errormsg)
-    {
-        static $error_regexps;
-        if (!isset($error_regexps)) {
-            $error_regexps = array(
-                '/column .* (of relation .*)?does not exist/i'
-                    => DB_ERROR_NOSUCHFIELD,
-                '/(relation|sequence|table).*does not exist|class .* not found/i'
-                    => DB_ERROR_NOSUCHTABLE,
-                '/index .* does not exist/'
-                    => DB_ERROR_NOT_FOUND,
-                '/relation .* already exists/i'
-                    => DB_ERROR_ALREADY_EXISTS,
-                '/(divide|division) by zero$/i'
-                    => DB_ERROR_DIVZERO,
-                '/pg_atoi: error in .*: can\'t parse /i'
-                    => DB_ERROR_INVALID_NUMBER,
-                '/invalid input syntax for( type)? (integer|numeric)/i'
-                    => DB_ERROR_INVALID_NUMBER,
-                '/value .* is out of range for type \w*int/i'
-                    => DB_ERROR_INVALID_NUMBER,
-                '/integer out of range/i'
-                    => DB_ERROR_INVALID_NUMBER,
-                '/value too long for type character/i'
-                    => DB_ERROR_INVALID,
-                '/attribute .* not found|relation .* does not have attribute/i'
-                    => DB_ERROR_NOSUCHFIELD,
-                '/column .* specified in USING clause does not exist in (left|right) table/i'
-                    => DB_ERROR_NOSUCHFIELD,
-                '/parser: parse error at or near/i'
-                    => DB_ERROR_SYNTAX,
-                '/syntax error at/'
-                    => DB_ERROR_SYNTAX,
-                '/column reference .* is ambiguous/i'
-                    => DB_ERROR_SYNTAX,
-                '/permission denied/'
-                    => DB_ERROR_ACCESS_VIOLATION,
-                '/violates not-null constraint/'
-                    => DB_ERROR_CONSTRAINT_NOT_NULL,
-                '/violates [\w ]+ constraint/'
-                    => DB_ERROR_CONSTRAINT,
-                '/referential integrity violation/'
-                    => DB_ERROR_CONSTRAINT,
-                '/more expressions than target columns/i'
-                    => DB_ERROR_VALUE_COUNT_ON_ROW,
-            );
-        }
-        foreach ($error_regexps as $regexp => $code) {
-            if (preg_match($regexp, $errormsg)) {
-                return $code;
-            }
-        }
-        // Fall back to DB_ERROR if there was no mapping.
-        return DB_ERROR;
-    }
-
-    // }}}
-    // {{{ tableInfo()
+    // {{{ _pgFieldFlags()
 
     /**
      * Returns information about a table or a result set
@@ -877,14 +898,14 @@ class DB_pgsql extends DB_common
      * NOTE: only supports 'table' and 'flags' if <var>$result</var>
      * is a table name.
      *
-     * @param object|string  $result  DB_result object from a query or a
+     * @param object|string $result DB_result object from a query or a
      *                                 string containing the name of a table.
      *                                 While this also accepts a query result
      *                                 resource identifier, this behavior is
      *                                 deprecated.
-     * @param int            $mode    a valid tableInfo mode
+     * @param int $mode a valid tableInfo mode
      *
-     * @return array  an associative array with the information requested.
+     * @return array|object
      *                 A DB_Error object on failure.
      *
      * @see DB_common::tableInfo()
@@ -926,7 +947,7 @@ class DB_pgsql extends DB_common
         }
 
         $count = @pg_numfields($id);
-        $res   = array();
+        $res = array();
 
         if ($mode) {
             $res['num_fields'] = $count;
@@ -935,12 +956,12 @@ class DB_pgsql extends DB_common
         for ($i = 0; $i < $count; $i++) {
             $res[$i] = array(
                 'table' => $got_string ? $case_func($result) : '',
-                'name'  => $case_func(@pg_fieldname($id, $i)),
-                'type'  => @pg_fieldtype($id, $i),
-                'len'   => @pg_fieldsize($id, $i),
+                'name' => $case_func(@pg_fieldname($id, $i)),
+                'type' => @pg_fieldtype($id, $i),
+                'len' => @pg_fieldsize($id, $i),
                 'flags' => $got_string
-                           ? $this->_pgFieldFlags($id, $i, $result)
-                           : '',
+                    ? $this->_pgFieldFlags($id, $i, $result)
+                    : '',
             );
             if ($mode & DB_TABLEINFO_ORDER) {
                 $res['order'][$res[$i]['name']] = $i;
@@ -958,7 +979,7 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ _pgFieldFlags()
+    // {{{ getSpecialQuery()
 
     /**
      * Get a column's flags
@@ -967,9 +988,10 @@ class DB_pgsql extends DB_common
      * and "multiple_key".  The default value is passed through
      * rawurlencode() in case there are spaces in it.
      *
-     * @param int $resource   the PostgreSQL result identifier
-     * @param int $num_field  the field number
+     * @param int $resource the PostgreSQL result identifier
+     * @param int $num_field the field number
      *
+     * @param $table_name
      * @return string  the flags
      *
      * @access private
@@ -997,7 +1019,7 @@ class DB_pgsql extends DB_common
                                 AND $tableWhere");
         if (@pg_numrows($result) > 0) {
             $row = @pg_fetch_row($result, 0);
-            $flags  = ($row[0] == 't') ? 'not_null ' : '';
+            $flags = ($row[0] == 't') ? 'not_null ' : '';
 
             if ($row[1] == 't') {
                 $result = @pg_exec($this->connection, "SELECT a.adsrc
@@ -1021,7 +1043,7 @@ class DB_pgsql extends DB_common
                                 AND $tableWhere");
         $count = @pg_numrows($result);
 
-        for ($i = 0; $i < $count ; $i++) {
+        for ($i = 0; $i < $count; $i++) {
             $row = @pg_fetch_row($result, $i);
             $keys = explode(' ', $row[2]);
 
@@ -1038,12 +1060,12 @@ class DB_pgsql extends DB_common
     }
 
     // }}}
-    // {{{ getSpecialQuery()
+    // {{{ _checkManip()
 
     /**
      * Obtains the query string needed for listing a given type of objects
      *
-     * @param string $type  the kind of objects you want to retrieve
+     * @param string $type the kind of objects you want to retrieve
      *
      * @return string  the SQL query string or null if the driver doesn't
      *                  support the object type requested
@@ -1056,37 +1078,37 @@ class DB_pgsql extends DB_common
         switch ($type) {
             case 'tables':
                 return 'SELECT c.relname AS "Name"'
-                        . ' FROM pg_class c, pg_user u'
-                        . ' WHERE c.relowner = u.usesysid'
-                        . " AND c.relkind = 'r'"
-                        . ' AND NOT EXISTS'
-                        . ' (SELECT 1 FROM pg_views'
-                        . '  WHERE viewname = c.relname)'
-                        . " AND c.relname !~ '^(pg_|sql_)'"
-                        . ' UNION'
-                        . ' SELECT c.relname AS "Name"'
-                        . ' FROM pg_class c'
-                        . " WHERE c.relkind = 'r'"
-                        . ' AND NOT EXISTS'
-                        . ' (SELECT 1 FROM pg_views'
-                        . '  WHERE viewname = c.relname)'
-                        . ' AND NOT EXISTS'
-                        . ' (SELECT 1 FROM pg_user'
-                        . '  WHERE usesysid = c.relowner)'
-                        . " AND c.relname !~ '^pg_'";
+                    . ' FROM pg_class c, pg_user u'
+                    . ' WHERE c.relowner = u.usesysid'
+                    . " AND c.relkind = 'r'"
+                    . ' AND NOT EXISTS'
+                    . ' (SELECT 1 FROM pg_views'
+                    . '  WHERE viewname = c.relname)'
+                    . " AND c.relname !~ '^(pg_|sql_)'"
+                    . ' UNION'
+                    . ' SELECT c.relname AS "Name"'
+                    . ' FROM pg_class c'
+                    . " WHERE c.relkind = 'r'"
+                    . ' AND NOT EXISTS'
+                    . ' (SELECT 1 FROM pg_views'
+                    . '  WHERE viewname = c.relname)'
+                    . ' AND NOT EXISTS'
+                    . ' (SELECT 1 FROM pg_user'
+                    . '  WHERE usesysid = c.relowner)'
+                    . " AND c.relname !~ '^pg_'";
             case 'schema.tables':
                 return "SELECT schemaname || '.' || tablename"
-                        . ' AS "Name"'
-                        . ' FROM pg_catalog.pg_tables'
-                        . ' WHERE schemaname NOT IN'
-                        . " ('pg_catalog', 'information_schema', 'pg_toast')";
+                    . ' AS "Name"'
+                    . ' FROM pg_catalog.pg_tables'
+                    . ' WHERE schemaname NOT IN'
+                    . " ('pg_catalog', 'information_schema', 'pg_toast')";
             case 'schema.views':
                 return "SELECT schemaname || '.' || viewname from pg_views WHERE schemaname"
-                        . " NOT IN ('information_schema', 'pg_catalog')";
+                    . " NOT IN ('information_schema', 'pg_catalog')";
             case 'views':
                 // Table cols: viewname | viewowner | definition
                 return 'SELECT viewname from pg_views WHERE schemaname'
-                        . " NOT IN ('information_schema', 'pg_catalog')";
+                    . " NOT IN ('information_schema', 'pg_catalog')";
             case 'users':
                 // cols: usename |usesysid|usecreatedb|usetrace|usesuper|usecatupd|passwd  |valuntil
                 return 'SELECT usename FROM pg_user';
@@ -1098,27 +1120,6 @@ class DB_pgsql extends DB_common
             default:
                 return null;
         }
-    }
-
-    // }}}
-    // {{{ _checkManip()
-
-    /**
-     * Checks if the given query is a manipulation query. This also takes into
-     * account the _next_query_manip flag and sets the _last_query_manip flag
-     * (and resets _next_query_manip) according to the result.
-     *
-     * @param string The query to check.
-     *
-     * @return boolean true if the query is a manipulation query, false
-     * otherwise
-     *
-     * @access protected
-     */
-    public function _checkManip($query)
-    {
-        return (preg_match('/^\s*(SAVEPOINT|RELEASE)\s+/i', $query)
-                || parent::_checkManip($query));
     }
 }
 

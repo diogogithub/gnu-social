@@ -27,7 +27,8 @@
 /**
  * Obtain the DB_common class so it can be extended from
  */
-require_once 'DB/common.php';
+//require_once 'DB/common.php';
+require_once 'common.php';
 
 /**
  * The methods PEAR DB uses to interact with PHP's ifx extension
@@ -81,13 +82,13 @@ class DB_ifx extends DB_common
      * @var array
      */
     public $features = array(
-        'limit'         => 'emulate',
-        'new_link'      => false,
-        'numrows'       => 'emulate',
-        'pconnect'      => true,
-        'prepare'       => false,
-        'ssl'           => false,
-        'transactions'  => true,
+        'limit' => 'emulate',
+        'new_link' => false,
+        'numrows' => 'emulate',
+        'pconnect' => true,
+        'prepare' => false,
+        'ssl' => false,
+        'transactions' => true,
     );
 
     /**
@@ -95,33 +96,33 @@ class DB_ifx extends DB_common
      * @var array
      */
     public $errorcode_map = array(
-        '-201'    => DB_ERROR_SYNTAX,
-        '-206'    => DB_ERROR_NOSUCHTABLE,
-        '-217'    => DB_ERROR_NOSUCHFIELD,
-        '-236'    => DB_ERROR_VALUE_COUNT_ON_ROW,
-        '-239'    => DB_ERROR_CONSTRAINT,
-        '-253'    => DB_ERROR_SYNTAX,
-        '-268'    => DB_ERROR_CONSTRAINT,
-        '-292'    => DB_ERROR_CONSTRAINT_NOT_NULL,
-        '-310'    => DB_ERROR_ALREADY_EXISTS,
-        '-316'    => DB_ERROR_ALREADY_EXISTS,
-        '-319'    => DB_ERROR_NOT_FOUND,
-        '-329'    => DB_ERROR_NODBSELECTED,
-        '-346'    => DB_ERROR_CONSTRAINT,
-        '-386'    => DB_ERROR_CONSTRAINT_NOT_NULL,
-        '-391'    => DB_ERROR_CONSTRAINT_NOT_NULL,
-        '-554'    => DB_ERROR_SYNTAX,
-        '-691'    => DB_ERROR_CONSTRAINT,
-        '-692'    => DB_ERROR_CONSTRAINT,
-        '-703'    => DB_ERROR_CONSTRAINT_NOT_NULL,
-        '-1202'   => DB_ERROR_DIVZERO,
-        '-1204'   => DB_ERROR_INVALID_DATE,
-        '-1205'   => DB_ERROR_INVALID_DATE,
-        '-1206'   => DB_ERROR_INVALID_DATE,
-        '-1209'   => DB_ERROR_INVALID_DATE,
-        '-1210'   => DB_ERROR_INVALID_DATE,
-        '-1212'   => DB_ERROR_INVALID_DATE,
-        '-1213'   => DB_ERROR_INVALID_NUMBER,
+        '-201' => DB_ERROR_SYNTAX,
+        '-206' => DB_ERROR_NOSUCHTABLE,
+        '-217' => DB_ERROR_NOSUCHFIELD,
+        '-236' => DB_ERROR_VALUE_COUNT_ON_ROW,
+        '-239' => DB_ERROR_CONSTRAINT,
+        '-253' => DB_ERROR_SYNTAX,
+        '-268' => DB_ERROR_CONSTRAINT,
+        '-292' => DB_ERROR_CONSTRAINT_NOT_NULL,
+        '-310' => DB_ERROR_ALREADY_EXISTS,
+        '-316' => DB_ERROR_ALREADY_EXISTS,
+        '-319' => DB_ERROR_NOT_FOUND,
+        '-329' => DB_ERROR_NODBSELECTED,
+        '-346' => DB_ERROR_CONSTRAINT,
+        '-386' => DB_ERROR_CONSTRAINT_NOT_NULL,
+        '-391' => DB_ERROR_CONSTRAINT_NOT_NULL,
+        '-554' => DB_ERROR_SYNTAX,
+        '-691' => DB_ERROR_CONSTRAINT,
+        '-692' => DB_ERROR_CONSTRAINT,
+        '-703' => DB_ERROR_CONSTRAINT_NOT_NULL,
+        '-1202' => DB_ERROR_DIVZERO,
+        '-1204' => DB_ERROR_INVALID_DATE,
+        '-1205' => DB_ERROR_INVALID_DATE,
+        '-1206' => DB_ERROR_INVALID_DATE,
+        '-1209' => DB_ERROR_INVALID_DATE,
+        '-1210' => DB_ERROR_INVALID_DATE,
+        '-1212' => DB_ERROR_INVALID_DATE,
+        '-1213' => DB_ERROR_INVALID_NUMBER,
     );
 
     /**
@@ -184,10 +185,10 @@ class DB_ifx extends DB_common
      *
      * Don't call this method directly.  Use DB::connect() instead.
      *
-     * @param array $dsn         the data source name
-     * @param bool  $persistent  should the connection be persistent?
+     * @param array $dsn the data source name
+     * @param bool $persistent should the connection be persistent?
      *
-     * @return int  DB_OK on success. A DB_Error object on failure.
+     * @return int|object
      */
     public function connect($dsn, $persistent = false)
     {
@@ -219,6 +220,72 @@ class DB_ifx extends DB_common
     // {{{ disconnect()
 
     /**
+     * Produces a DB_Error object regarding the current problem
+     *
+     * @param int $errno if the error is being manually raised pass a
+     *                     DB_ERROR* constant here.  If this isn't passed
+     *                     the error information gathered from the DBMS.
+     *
+     * @return object  the DB_Error object
+     *
+     * @see DB_common::raiseError(),
+     *      DB_ifx::errorNative(), DB_ifx::errorCode()
+     */
+    public function ifxRaiseError($errno = null)
+    {
+        if ($errno === null) {
+            $errno = $this->errorCode(ifx_error());
+        }
+        return $this->raiseError(
+            $errno,
+            null,
+            null,
+            null,
+            $this->errorNative()
+        );
+    }
+
+    // }}}
+    // {{{ simpleQuery()
+
+    /**
+     * Maps native error codes to DB's portable ones.
+     *
+     * Requires that the DB implementation's constructor fills
+     * in the <var>$errorcode_map</var> property.
+     *
+     * @param string $nativecode error code returned by the database
+     * @return int a portable DB error code, or DB_ERROR if this DB
+     * implementation has no mapping for the given error code.
+     */
+    public function errorCode($nativecode)
+    {
+        if (preg_match('/SQLCODE=(.*)]/', $nativecode, $match)) {
+            $code = $match[1];
+            if (isset($this->errorcode_map[$code])) {
+                return $this->errorcode_map[$code];
+            }
+        }
+        return DB_ERROR;
+    }
+
+    // }}}
+    // {{{ nextResult()
+
+    /**
+     * Gets the DBMS' native error code and message produced by the last query
+     *
+     * @return string  the DBMS' error code and message
+     */
+    public function errorNative()
+    {
+        return @ifx_error() . ' ' . @ifx_errormsg();
+    }
+
+    // }}}
+    // {{{ affectedRows()
+
+    /**
      * Disconnects from the database server
      *
      * @return bool  TRUE on success, FALSE on failure
@@ -231,7 +298,7 @@ class DB_ifx extends DB_common
     }
 
     // }}}
-    // {{{ simpleQuery()
+    // {{{ fetchInto()
 
     /**
      * Sends a query to the database server
@@ -246,7 +313,7 @@ class DB_ifx extends DB_common
     {
         $ismanip = $this->_checkManip($query);
         $this->last_query = $query;
-        $this->affected   = null;
+        $this->affected = null;
         if (preg_match('/(SELECT|EXECUTE)/i', $query)) {    //TESTME: Use !DB::isManip()?
             // the scroll is needed for fetching absolute row numbers
             // in a select query result
@@ -282,7 +349,7 @@ class DB_ifx extends DB_common
     }
 
     // }}}
-    // {{{ nextResult()
+    // {{{ numCols()
 
     /**
      * Move the internal ifx result pointer to the next available result
@@ -299,7 +366,7 @@ class DB_ifx extends DB_common
     }
 
     // }}}
-    // {{{ affectedRows()
+    // {{{ freeResult()
 
     /**
      * Determines the number of rows affected by a data maniuplation query
@@ -318,7 +385,7 @@ class DB_ifx extends DB_common
     }
 
     // }}}
-    // {{{ fetchInto()
+    // {{{ autoCommit()
 
     /**
      * Places a row from the result set into the given array
@@ -330,10 +397,10 @@ class DB_ifx extends DB_common
      * DB_result::fetchInto() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result    the query result resource
-     * @param array    $arr       the referenced array to put the data in
-     * @param int      $fetchmode how the resulting array should be indexed
-     * @param int      $rownum    the row number to fetch (0 = first row)
+     * @param resource $result the query result resource
+     * @param array $arr the referenced array to put the data in
+     * @param int $fetchmode how the resulting array should be indexed
+     * @param int $rownum the row number to fetch (0 = first row)
      *
      * @return mixed  DB_OK on success, NULL when the end of a result set is
      *                 reached or on failure
@@ -359,14 +426,14 @@ class DB_ifx extends DB_common
             return null;
         }
         if ($fetchmode !== DB_FETCHMODE_ASSOC) {
-            $i=0;
+            $i = 0;
             $order = array();
             foreach ($arr as $val) {
                 $order[$i++] = $val;
             }
             $arr = $order;
         } elseif ($fetchmode == DB_FETCHMODE_ASSOC &&
-                  $this->options['portability'] & DB_PORTABILITY_LOWERCASE) {
+            $this->options['portability'] & DB_PORTABILITY_LOWERCASE) {
             $arr = array_change_key_case($arr, CASE_LOWER);
         }
         if ($this->options['portability'] & DB_PORTABILITY_RTRIM) {
@@ -379,7 +446,7 @@ class DB_ifx extends DB_common
     }
 
     // }}}
-    // {{{ numCols()
+    // {{{ commit()
 
     /**
      * Gets the number of columns in a result set
@@ -388,9 +455,9 @@ class DB_ifx extends DB_common
      * DB_result::numCols() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
-     * @return int  the number of columns.  A DB_Error object on failure.
+     * @return int|object
      *
      * @see DB_result::numCols()
      */
@@ -403,7 +470,7 @@ class DB_ifx extends DB_common
     }
 
     // }}}
-    // {{{ freeResult()
+    // {{{ rollback()
 
     /**
      * Deletes the result set and frees the memory occupied by the result set
@@ -412,7 +479,7 @@ class DB_ifx extends DB_common
      * DB_result::free() instead.  It can't be declared "protected"
      * because DB_result is a separate object.
      *
-     * @param resource $result  PHP's query result resource
+     * @param resource $result PHP's query result resource
      *
      * @return bool  TRUE on success, FALSE if $result is invalid
      *
@@ -424,12 +491,12 @@ class DB_ifx extends DB_common
     }
 
     // }}}
-    // {{{ autoCommit()
+    // {{{ ifxRaiseError()
 
     /**
      * Enables or disables automatic commits
      *
-     * @param bool $onoff  true turns it on, false turns it off
+     * @param bool $onoff true turns it on, false turns it off
      *
      * @return int  DB_OK on success.  A DB_Error object if the driver
      *               doesn't support auto-committing transactions.
@@ -443,12 +510,12 @@ class DB_ifx extends DB_common
     }
 
     // }}}
-    // {{{ commit()
+    // {{{ errorNative()
 
     /**
      * Commits the current transaction
      *
-     * @return int  DB_OK on success.  A DB_Error object on failure.
+     * @return int|object
      */
     public function commit()
     {
@@ -463,12 +530,12 @@ class DB_ifx extends DB_common
     }
 
     // }}}
-    // {{{ rollback()
+    // {{{ errorCode()
 
     /**
      * Reverts the current transaction
      *
-     * @return int  DB_OK on success.  A DB_Error object on failure.
+     * @return int|object
      */
     public function rollback()
     {
@@ -483,72 +550,6 @@ class DB_ifx extends DB_common
     }
 
     // }}}
-    // {{{ ifxRaiseError()
-
-    /**
-     * Produces a DB_Error object regarding the current problem
-     *
-     * @param int $errno  if the error is being manually raised pass a
-     *                     DB_ERROR* constant here.  If this isn't passed
-     *                     the error information gathered from the DBMS.
-     *
-     * @return object  the DB_Error object
-     *
-     * @see DB_common::raiseError(),
-     *      DB_ifx::errorNative(), DB_ifx::errorCode()
-     */
-    public function ifxRaiseError($errno = null)
-    {
-        if ($errno === null) {
-            $errno = $this->errorCode(ifx_error());
-        }
-        return $this->raiseError(
-            $errno,
-            null,
-            null,
-            null,
-            $this->errorNative()
-        );
-    }
-
-    // }}}
-    // {{{ errorNative()
-
-    /**
-     * Gets the DBMS' native error code and message produced by the last query
-     *
-     * @return string  the DBMS' error code and message
-     */
-    public function errorNative()
-    {
-        return @ifx_error() . ' ' . @ifx_errormsg();
-    }
-
-    // }}}
-    // {{{ errorCode()
-
-    /**
-     * Maps native error codes to DB's portable ones.
-     *
-     * Requires that the DB implementation's constructor fills
-     * in the <var>$errorcode_map</var> property.
-     *
-     * @param  string  $nativecode  error code returned by the database
-     * @return int a portable DB error code, or DB_ERROR if this DB
-     * implementation has no mapping for the given error code.
-     */
-    public function errorCode($nativecode)
-    {
-        if (preg_match('/SQLCODE=(.*)]/', $nativecode, $match)) {
-            $code = $match[1];
-            if (isset($this->errorcode_map[$code])) {
-                return $this->errorcode_map[$code];
-            }
-        }
-        return DB_ERROR;
-    }
-
-    // }}}
     // {{{ tableInfo()
 
     /**
@@ -560,14 +561,14 @@ class DB_ifx extends DB_common
      * an error will be raised saying
      * <samp>can't distinguish duplicate field names</samp>.
      *
-     * @param object|string  $result  DB_result object from a query or a
+     * @param object|string $result DB_result object from a query or a
      *                                 string containing the name of a table.
      *                                 While this also accepts a query result
      *                                 resource identifier, this behavior is
      *                                 deprecated.
-     * @param int            $mode    a valid tableInfo mode
+     * @param int $mode a valid tableInfo mode
      *
-     * @return array  an associative array with the information requested.
+     * @return array|object
      *                 A DB_Error object on failure.
      *
      * @see DB_common::tableInfo()
@@ -618,7 +619,7 @@ class DB_ifx extends DB_common
             $case_func = 'strval';
         }
 
-        $i   = 0;
+        $i = 0;
         $res = array();
 
         if ($mode) {
@@ -629,9 +630,9 @@ class DB_ifx extends DB_common
             $props = explode(';', $value);
             $res[$i] = array(
                 'table' => $got_string ? $case_func($result) : '',
-                'name'  => $case_func($key),
-                'type'  => $props[0],
-                'len'   => $props[1],
+                'name' => $case_func($key),
+                'type' => $props[0],
+                'len' => $props[1],
                 'flags' => $props[4] == 'N' ? 'not_null' : '',
             );
             if ($mode & DB_TABLEINFO_ORDER) {
@@ -656,7 +657,7 @@ class DB_ifx extends DB_common
     /**
      * Obtains the query string needed for listing a given type of objects
      *
-     * @param string $type  the kind of objects you want to retrieve
+     * @param string $type the kind of objects you want to retrieve
      *
      * @return string  the SQL query string or null if the driver doesn't
      *                  support the object type requested
