@@ -29,7 +29,7 @@
  * @link      http://status.net/
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
+if (!defined('STATUSNET') && !defined('LACONICA') && !defined('GNUSOCIAL')) {
     exit(1);
 }
 
@@ -42,24 +42,63 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  * @package  StatusNet
  * @author   Evan Prodromou <evan@status.net>
  * @author   Zach Copley <zach@status.net>
+ * @author   Alexei Sorokin <sor.alexei@meowr.ru>
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
  */
 class EditgroupAction extends GroupAction
 {
-    var $msg;
+    public $message = null;
+    public $success = null;
+    protected $canPost = true;
 
-    function title()
+    public function title()
     {
         // TRANS: Title for form to edit a group. %s is a group nickname.
         return sprintf(_('Edit %s group'), $this->group->nickname);
     }
 
+    public function showContent()
+    {
+        $form = new GroupEditForm($this, $this->group);
+        $form->show();
+    }
+
+    public function showPageNoticeBlock()
+    {
+        parent::showPageNoticeBlock();
+
+        if ($this->message) {
+            $this->element(
+                'p',
+                ($this->success) ? 'success' : 'error',
+                $this->message
+            );
+        } else {
+            $this->element(
+                'p',
+                'instructions',
+                // TRANS: Form instructions for group edit form.
+                _('Use this form to edit the group.')
+            );
+        }
+    }
+
+    public function showScripts()
+    {
+        parent::showScripts();
+        $this->autofocus('fullname');
+    }
+
     /**
      * Prepare to run
+     * @param array $args
+     * @return bool
+     * @throws ClientException
+     * @throws NicknameException
      */
 
-    protected function prepare(array $args=array())
+    protected function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -74,7 +113,7 @@ class EditgroupAction extends GroupAction
         // Permanent redirect on non-canonical nickname
 
         if ($nickname_arg != $nickname) {
-            $args = array('nickname' => $nickname);
+            $args = ['nickname' => $nickname];
             common_redirect(common_local_url('editgroup', $args), 301);
         }
 
@@ -109,85 +148,42 @@ class EditgroupAction extends GroupAction
         return true;
     }
 
-    /**
-     * Handle the request
-     *
-     * On GET, show the form. On POST, try to save the group.
-     *
-     * @return void
-     */
-    protected function handle()
+    protected function handlePost()
     {
-        parent::handle();
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->trySave();
-        } else {
-            $this->showForm();
-        }
-    }
+        parent::handlePost();
 
-    function showForm($msg=null)
-    {
-        $this->msg = $msg;
-        $this->showPage();
-    }
-
-    function showContent()
-    {
-        $form = new GroupEditForm($this, $this->group);
-        $form->show();
-    }
-
-    function showPageNotice()
-    {
-        if ($this->msg) {
-            $this->element('p', 'error', $this->msg);
-        } else {
-            $this->element('p', 'instructions',
-                           // TRANS: Form instructions for group edit form.
-                           _('Use this form to edit the group.'));
-        }
-    }
-
-    function showScripts()
-    {
-        parent::showScripts();
-        $this->autofocus('fullname');
-    }
-
-    function trySave()
-    {
         $cur = common_current_user();
         if (!$cur->isAdmin($this->group)) {
             // TRANS: Client error displayed trying to edit a group while not being a group admin.
             $this->clientError(_('You must be an admin to edit the group.'), 403);
         }
 
-        if (Event::handle('StartGroupSaveForm', array($this))) {
+        if (Event::handle('StartGroupSaveForm', [$this])) {
 
             // $nickname will only be set if this changenick value is true.
+            $nickname = null;
             if (common_config('profile', 'changenick') == true) {
                 try {
                     $nickname = Nickname::normalize($this->trimmed('newnickname'), true);
                 } catch (NicknameTakenException $e) {
                     // Abort only if the nickname is occupied by _another_ group
                     if ($e->profile->id != $this->group->profile_id) {
-                        $this->showForm($e->getMessage());
+                        $this->setMessage($e->getMessage(), true);
                         return;
                     }
                     $nickname = Nickname::normalize($this->trimmed('newnickname')); // without in-use check this time
                 } catch (NicknameException $e) {
-                    $this->showForm($e->getMessage());
+                    $this->setMessage($e->getMessage(), true);
                     return;
                 }
             }
 
-            $fullname    = $this->trimmed('fullname');
-            $homepage    = $this->trimmed('homepage');
+            $fullname = $this->trimmed('fullname');
+            $homepage = $this->trimmed('homepage');
             $description = $this->trimmed('description');
-            $location    = $this->trimmed('location');
+            $location = $this->trimmed('location');
             $aliasstring = $this->trimmed('aliases');
-            $private     = $this->boolean('private');
+            $private = $this->boolean('private');
 
             if ($private) {
                 $force_scope = 1;
@@ -198,42 +194,51 @@ class EditgroupAction extends GroupAction
             }
 
             if (!is_null($homepage) && (strlen($homepage) > 0) &&
-                       !common_valid_http_url($homepage)) {
+                !common_valid_http_url($homepage)) {
                 // TRANS: Group edit form validation error.
-                $this->showForm(_('Homepage is not a valid URL.'));
+                $this->setMessage(_('Homepage is not a valid URL.'), true);
                 return;
-            } else if (!is_null($fullname) && mb_strlen($fullname) > 255) {
+            } elseif (!is_null($fullname) && mb_strlen($fullname) > 255) {
                 // TRANS: Group edit form validation error.
-                $this->showForm(_('Full name is too long (maximum 255 characters).'));
+                $this->setMessage(_('Full name is too long (maximum 255 characters).'), true);
                 return;
-            } else if (User_group::descriptionTooLong($description)) {
-                $this->showForm(sprintf(
-                                    // TRANS: Group edit form validation error.
-                                    _m('Description is too long (maximum %d character).',
-                                       'Description is too long (maximum %d characters).',
-                                       User_group::maxDescription()),
-                                    User_group::maxDescription()));
-                return;
-            } else if (!is_null($location) && mb_strlen($location) > 255) {
+            } elseif (User_group::descriptionTooLong($description)) {
+                $this->setMessage(sprintf(
                 // TRANS: Group edit form validation error.
-                $this->showForm(_('Location is too long (maximum 255 characters).'));
+                    _m(
+                        'Description is too long (maximum %d character).',
+                        'Description is too long (maximum %d characters).',
+                        User_group::maxDescription()
+                    ),
+                    User_group::maxDescription()
+                ), true);
+                return;
+            } elseif (!is_null($location) && mb_strlen($location) > 255) {
+                // TRANS: Group edit form validation error.
+                $this->setMessage(_('Location is too long (maximum 255 characters).'), true);
                 return;
             }
 
             if (!empty($aliasstring)) {
-                $aliases = array_map(array('Nickname', 'normalize'),
-                                     array_unique(preg_split('/[\s,]+/', $aliasstring)));
+                $aliases = array_map(
+                    ['Nickname', 'normalize'],
+                    array_unique(preg_split('/[\s,]+/', $aliasstring))
+                );
             } else {
-                $aliases = array();
+                $aliases = [];
             }
 
             if (count($aliases) > common_config('group', 'maxaliases')) {
                 // TRANS: Group edit form validation error.
                 // TRANS: %d is the maximum number of allowed aliases.
-                $this->showForm(sprintf(_m('Too many aliases! Maximum %d allowed.',
-                                           'Too many aliases! Maximum %d allowed.',
-                                           common_config('group', 'maxaliases')),
-                                        common_config('group', 'maxaliases')));
+                $this->setMessage(sprintf(
+                    _m(
+                        'Too many aliases! Maximum %d allowed.',
+                        'Too many aliases! Maximum %d allowed.',
+                        common_config('group', 'maxaliases')
+                    ),
+                    common_config('group', 'maxaliases')
+                ), true);
                 return;
             }
 
@@ -242,15 +247,15 @@ class EditgroupAction extends GroupAction
             $orig = clone($this->group);
 
             if (common_config('profile', 'changenick') == true && $this->group->nickname !== $nickname) {
-                assert(Nickname::normalize($nickname)===$nickname);
-                common_debug("Changing group nickname from '{$profile->nickname}' to '{$nickname}'.");
+                assert(Nickname::normalize($nickname) === $nickname);
+                common_debug("Changing group nickname from '{$this->group->nickname}' to '{$nickname}'.");
                 $this->group->nickname = $nickname;
-                $this->group->mainpage = common_local_url('showgroup', array('nickname' => $this->group->nickname));
+                $this->group->mainpage = common_local_url('showgroup', ['nickname' => $this->group->nickname]);
             }
-            $this->group->fullname    = $fullname;
-            $this->group->homepage    = $homepage;
+            $this->group->fullname = $fullname;
+            $this->group->homepage = $homepage;
             $this->group->description = $description;
-            $this->group->location    = $location;
+            $this->group->location = $location;
             $this->group->join_policy = $join_policy;
             $this->group->force_scope = $force_scope;
 
@@ -271,14 +276,20 @@ class EditgroupAction extends GroupAction
 
             $this->group->query('COMMIT');
 
-            Event::handle('EndGroupSaveForm', array($this));
+            Event::handle('EndGroupSaveForm', [$this]);
+
+            if ($this->group->nickname != $orig->nickname) {
+                common_redirect(common_local_url('editgroup', ['nickname' => $this->group->nickname]), 303);
+            }
         }
 
-        if ($this->group->nickname != $orig->nickname) {
-            common_redirect(common_local_url('editgroup', array('nickname' => $this->group->nickname)), 303);
-        } else {
-            // TRANS: Group edit form success message.
-            $this->showForm(_('Options saved.'));
-        }
+        // TRANS: Group edit form success message.
+        $this->setMessage(_('Options saved.'));
+    }
+
+    public function setMessage($msg, $error = false)
+    {
+        $this->message = $msg;
+        $this->success = !$error;
     }
 }

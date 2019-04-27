@@ -28,7 +28,9 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 /**
  * Upload an avatar
@@ -40,21 +42,257 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * @author   Evan Prodromou <evan@status.net>
  * @author   Zach Copley <zach@status.net>
  * @author   Sarven Capadisli <csarven@status.net>
+ * @author   Alexei Sorokin <sor.alexei@meowr.ru>
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
  */
 class GrouplogoAction extends GroupAction
 {
-    var $mode = null;
-    var $imagefile = null;
-    var $filename = null;
-    var $msg = null;
-    var $success = null;
+    public $mode = null;
+    public $imagefile = null;
+    public $filename = null;
+    public $message = null;
+    public $success = null;
+    protected $canPost = true;
+
+    /**
+     * Title of the page
+     *
+     * @return string Title of the page
+     */
+    public function title()
+    {
+        // TRANS: Title for group logo settings page.
+        return _('Group logo');
+    }
+
+    /**
+     * Content area of the page
+     *
+     * Shows a form for uploading an avatar.
+     *
+     * @return void
+     */
+    public function showContent()
+    {
+        if ($this->mode == 'crop') {
+            $this->showCropForm();
+        } else {
+            $this->showUploadForm();
+        }
+    }
+
+    public function showCropForm()
+    {
+        $this->elementStart('form', array('method' => 'post',
+            'id' => 'form_settings_avatar',
+            'class' => 'form_settings',
+            'action' =>
+                common_local_url(
+                    'grouplogo',
+                    array('nickname' => $this->group->nickname)
+                )));
+        $this->elementStart('fieldset');
+        // TRANS: Legend for group logo settings fieldset.
+        $this->element('legend', null, _('Avatar settings'));
+        $this->hidden('token', common_session_token());
+
+        $this->elementStart('ul', 'form_data');
+
+        $this->elementStart(
+            'li',
+            array('id' => 'avatar_original',
+                'class' => 'avatar_view')
+        );
+        // TRANS: Header for originally uploaded file before a crop on the group logo page.
+        $this->element('h2', null, _('Original'));
+        $this->elementStart('div', array('id' => 'avatar_original_view'));
+        $this->element('img', array('src' => Avatar::url($this->filedata['filename']),
+            'width' => $this->filedata['width'],
+            'height' => $this->filedata['height'],
+            'alt' => $this->group->nickname));
+        $this->elementEnd('div');
+        $this->elementEnd('li');
+
+        $this->elementStart(
+            'li',
+            array('id' => 'avatar_preview',
+                'class' => 'avatar_view')
+        );
+        // TRANS: Header for the cropped group logo on the group logo page.
+        $this->element('h2', null, _('Preview'));
+        $this->elementStart('div', array('id' => 'avatar_preview_view'));
+        $this->element('img', array('src' => Avatar::url($this->filedata['filename']),
+            'width' => AVATAR_PROFILE_SIZE,
+            'height' => AVATAR_PROFILE_SIZE,
+            'alt' => $this->group->nickname));
+        $this->elementEnd('div');
+
+        foreach (array('avatar_crop_x', 'avatar_crop_y',
+                     'avatar_crop_w', 'avatar_crop_h') as $crop_info) {
+            $this->element('input', array('name' => $crop_info,
+                'type' => 'hidden',
+                'id' => $crop_info));
+        }
+
+        // TRANS: Button text for cropping an uploaded group logo.
+        $this->submit('crop', _('Crop'));
+
+        $this->elementEnd('li');
+        $this->elementEnd('ul');
+        $this->elementEnd('fieldset');
+        $this->elementEnd('form');
+    }
+
+    public function showUploadForm()
+    {
+        $user = common_current_user();
+
+        $profile = $user->getProfile();
+
+        if (!$profile) {
+            common_log_db_error($user, 'SELECT', __FILE__);
+            // TRANS: Error message displayed when referring to a user without a profile.
+            $this->serverError(_('User has no profile.'));
+        }
+
+        $original = $this->group->original_logo;
+
+        $this->elementStart('form', array('enctype' => 'multipart/form-data',
+            'method' => 'post',
+            'id' => 'form_settings_avatar',
+            'class' => 'form_settings',
+            'action' =>
+                common_local_url(
+                    'grouplogo',
+                    array('nickname' => $this->group->nickname)
+                )));
+        $this->elementStart('fieldset');
+        // TRANS: Group logo form legend.
+        $this->element('legend', null, _('Group logo'));
+        $this->hidden('token', common_session_token());
+
+        $this->elementStart('ul', 'form_data');
+        if ($original) {
+            $this->elementStart('li', array('id' => 'avatar_original',
+                'class' => 'avatar_view'));
+            // TRANS: Uploaded original file in group logo form.
+            $this->element('h2', null, _('Original'));
+            $this->elementStart('div', array('id' => 'avatar_original_view'));
+            $this->element('img', array('src' => $this->group->original_logo,
+                'alt' => $this->group->nickname));
+            $this->elementEnd('div');
+            $this->elementEnd('li');
+        }
+
+        if ($this->group->homepage_logo) {
+            $this->elementStart('li', array('id' => 'avatar_preview',
+                'class' => 'avatar_view'));
+            // TRANS: Header for preview of to be displayed group logo.
+            $this->element('h2', null, _('Preview'));
+            $this->elementStart('div', array('id' => 'avatar_preview_view'));
+            $this->element('img', array('src' => $this->group->homepage_logo,
+                'width' => AVATAR_PROFILE_SIZE,
+                'height' => AVATAR_PROFILE_SIZE,
+                'alt' => $this->group->nickname));
+            $this->elementEnd('div');
+            if (!empty($this->group->homepage_logo)) {
+                // TRANS: Button on group logo upload page to delete current group logo.
+                $this->submit('delete', _('Delete'));
+            }
+            $this->elementEnd('li');
+        }
+
+        $this->elementStart('li', array('id' => 'settings_attach'));
+        $this->element('input', array('name' => 'MAX_FILE_SIZE',
+            'type' => 'hidden',
+            'id' => 'MAX_FILE_SIZE',
+            'value' => ImageFile::maxFileSizeInt()));
+        $this->element('input', array('name' => 'avatarfile',
+            'type' => 'file',
+            'id' => 'avatarfile'));
+        $this->elementEnd('li');
+        $this->elementEnd('ul');
+
+        $this->elementStart('ul', 'form_actions');
+        $this->elementStart('li');
+        // TRANS: Submit button for uploading a group logo.
+        $this->submit('upload', _('Upload'));
+        $this->elementEnd('li');
+        $this->elementEnd('ul');
+
+        $this->elementEnd('fieldset');
+        $this->elementEnd('form');
+    }
+
+    public function showPageNoticeBlock()
+    {
+        parent::showPageNoticeBlock();
+
+        if ($this->message) {
+            $this->element(
+                'div',
+                ($this->success) ? 'success' : 'error',
+                $this->message
+            );
+        } else {
+            $inst = $this->getInstructions();
+            $output = common_markup_to_html($inst);
+
+            $this->elementStart('div', 'instructions');
+            $this->raw($output);
+            $this->elementEnd('div');
+        }
+    }
+
+    /**
+     * Instructions for use
+     *
+     * @return string instructions for use
+     */
+    public function getInstructions()
+    {
+        // TRANS: Instructions for group logo page.
+        // TRANS: %s is the maximum file size for that site.
+        return sprintf(_('You can upload a logo image for your group. The maximum file size is %s.'), ImageFile::maxFileSize());
+    }
+
+    /**
+     * Add the jCrop stylesheet
+     *
+     * @return void
+     */
+    public function showStylesheets()
+    {
+        parent::showStylesheets();
+        $this->cssLink('js/extlib/jquery-jcrop/css/jcrop.css', 'base', 'screen, projection, tv');
+    }
+
+    /**
+     * Add the jCrop scripts
+     *
+     * @return void
+     */
+    public function showScripts()
+    {
+        parent::showScripts();
+
+        if ($this->mode == 'crop') {
+            $this->script('extlib/jquery-jcrop/jcrop.js');
+            $this->script('jcrop.go.js');
+        }
+
+        $this->autofocus('avatarfile');
+    }
 
     /**
      * Prepare to run
+     * @param array $args
+     * @return bool
+     * @throws ClientException
+     * @throws NicknameException
      */
-    protected function prepare(array $args=array())
+    protected function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -104,226 +342,30 @@ class GrouplogoAction extends GroupAction
         return true;
     }
 
-    protected function handle()
-    {
-        parent::handle();
-        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $this->handlePost();
-        } else {
-            $this->showForm();
-        }
-    }
-
-    function showForm($msg = null, $success = false)
-    {
-        $this->msg     = $msg;
-        $this->success = $success;
-
-        $this->showPage();
-    }
-
-    /**
-     * Title of the page
-     *
-     * @return string Title of the page
-     */
-    function title()
-    {
-        // TRANS: Title for group logo settings page.
-        return _('Group logo');
-    }
-
-    /**
-     * Instructions for use
-     *
-     * @return instructions for use
-     */
-    function getInstructions()
-    {
-        // TRANS: Instructions for group logo page.
-        // TRANS: %s is the maximum file size for that site.
-        return sprintf(_('You can upload a logo image for your group. The maximum file size is %s.'), ImageFile::maxFileSize());
-    }
-
-    /**
-     * Content area of the page
-     *
-     * Shows a form for uploading an avatar.
-     *
-     * @return void
-     */
-    function showContent()
-    {
-        if ($this->mode == 'crop') {
-            $this->showCropForm();
-        } else {
-            $this->showUploadForm();
-        }
-    }
-
-    function showUploadForm()
-    {
-        $user = common_current_user();
-
-        $profile = $user->getProfile();
-
-        if (!$profile) {
-            common_log_db_error($user, 'SELECT', __FILE__);
-            // TRANS: Error message displayed when referring to a user without a profile.
-            $this->serverError(_('User has no profile.'));
-        }
-
-        $original = $this->group->original_logo;
-
-        $this->elementStart('form', array('enctype' => 'multipart/form-data',
-                                          'method' => 'post',
-                                          'id' => 'form_settings_avatar',
-                                          'class' => 'form_settings',
-                                          'action' =>
-                                          common_local_url('grouplogo',
-                                                           array('nickname' => $this->group->nickname))));
-        $this->elementStart('fieldset');
-        // TRANS: Group logo form legend.
-        $this->element('legend', null, _('Group logo'));
-        $this->hidden('token', common_session_token());
-
-        $this->elementStart('ul', 'form_data');
-        if ($original) {
-            $this->elementStart('li', array('id' => 'avatar_original',
-                                            'class' => 'avatar_view'));
-            // TRANS: Uploaded original file in group logo form.
-            $this->element('h2', null, _('Original'));
-            $this->elementStart('div', array('id'=>'avatar_original_view'));
-            $this->element('img', array('src' => $this->group->original_logo,
-                                        'alt' => $this->group->nickname));
-            $this->elementEnd('div');
-            $this->elementEnd('li');
-        }
-
-        if ($this->group->homepage_logo) {
-            $this->elementStart('li', array('id' => 'avatar_preview',
-                                            'class' => 'avatar_view'));
-            // TRANS: Header for preview of to be displayed group logo.
-            $this->element('h2', null, _('Preview'));
-            $this->elementStart('div', array('id'=>'avatar_preview_view'));
-            $this->element('img', array('src' => $this->group->homepage_logo,
-                                        'width' => AVATAR_PROFILE_SIZE,
-                                        'height' => AVATAR_PROFILE_SIZE,
-                                        'alt' => $this->group->nickname));
-            $this->elementEnd('div');
-            if (!empty($this->group->homepage_logo)) {
-                // TRANS: Button on group logo upload page to delete current group logo.
-                $this->submit('delete', _('Delete'));
-            }
-            $this->elementEnd('li');
-        }
-
-        $this->elementStart('li', array ('id' => 'settings_attach'));
-        $this->element('input', array('name' => 'MAX_FILE_SIZE',
-                                      'type' => 'hidden',
-                                      'id' => 'MAX_FILE_SIZE',
-                                      'value' => ImageFile::maxFileSizeInt()));
-        $this->element('input', array('name' => 'avatarfile',
-                                      'type' => 'file',
-                                      'id' => 'avatarfile'));
-        $this->elementEnd('li');
-        $this->elementEnd('ul');
-
-        $this->elementStart('ul', 'form_actions');
-        $this->elementStart('li');
-        // TRANS: Submit button for uploading a group logo.
-        $this->submit('upload', _('Upload'));
-        $this->elementEnd('li');
-        $this->elementEnd('ul');
-
-        $this->elementEnd('fieldset');
-        $this->elementEnd('form');
-    }
-
-    function showCropForm()
-    {
-        $this->elementStart('form', array('method' => 'post',
-                                          'id' => 'form_settings_avatar',
-                                          'class' => 'form_settings',
-                                          'action' =>
-                                          common_local_url('grouplogo',
-                                                           array('nickname' => $this->group->nickname))));
-        $this->elementStart('fieldset');
-        // TRANS: Legend for group logo settings fieldset.
-        $this->element('legend', null, _('Avatar settings'));
-        $this->hidden('token', common_session_token());
-
-        $this->elementStart('ul', 'form_data');
-
-        $this->elementStart('li',
-                            array('id' => 'avatar_original',
-                                  'class' => 'avatar_view'));
-        // TRANS: Header for originally uploaded file before a crop on the group logo page.
-        $this->element('h2', null, _('Original'));
-        $this->elementStart('div', array('id'=>'avatar_original_view'));
-        $this->element('img', array('src' => Avatar::url($this->filedata['filename']),
-                                    'width' => $this->filedata['width'],
-                                    'height' => $this->filedata['height'],
-                                    'alt' => $this->group->nickname));
-        $this->elementEnd('div');
-        $this->elementEnd('li');
-
-        $this->elementStart('li',
-                            array('id' => 'avatar_preview',
-                                  'class' => 'avatar_view'));
-        // TRANS: Header for the cropped group logo on the group logo page.
-        $this->element('h2', null, _('Preview'));
-        $this->elementStart('div', array('id'=>'avatar_preview_view'));
-        $this->element('img', array('src' => Avatar::url($this->filedata['filename']),
-                                    'width' => AVATAR_PROFILE_SIZE,
-                                    'height' => AVATAR_PROFILE_SIZE,
-                                    'alt' => $this->group->nickname));
-        $this->elementEnd('div');
-
-        foreach (array('avatar_crop_x', 'avatar_crop_y',
-                       'avatar_crop_w', 'avatar_crop_h') as $crop_info) {
-            $this->element('input', array('name' => $crop_info,
-                                          'type' => 'hidden',
-                                          'id' => $crop_info));
-        }
-
-        // TRANS: Button text for cropping an uploaded group logo.
-        $this->submit('crop', _('Crop'));
-
-        $this->elementEnd('li');
-        $this->elementEnd('ul');
-        $this->elementEnd('fieldset');
-        $this->elementEnd('form');
-    }
-
     /**
      * Handle a post
      *
      * We mux on the button name to figure out what the user actually wanted.
      *
      * @return void
+     * @throws ClientException
+     * @throws NoResultException
+     * @throws UnsupportedMediaException
+     * @throws UseFileAsThumbnailException
      */
-    function handlePost()
+    protected function handlePost()
     {
-        // CSRF protection
-
-        $token = $this->trimmed('token');
-        if (!$token || $token != common_session_token()) {
-            // TRANS: Form validation error message.
-            $this->show_form(_('There was a problem with your session token. '.
-                               'Try again, please.'));
-            return;
-        }
+        parent::handlePost();
 
         if ($this->arg('upload')) {
             $this->uploadLogo();
-        } else if ($this->arg('crop')) {
+        } elseif ($this->arg('crop')) {
             $this->cropLogo();
-        } else if ($this->arg('delete')) {
+        } elseif ($this->arg('delete')) {
             $this->deleteLogo();
         } else {
             // TRANS: Form validation error message when an unsupported argument is used.
-            $this->showForm(_('Unexpected form submission.'));
+            $this->setMessage(_('Unexpected form submission.'), true);
         }
     }
 
@@ -335,30 +377,32 @@ class GrouplogoAction extends GroupAction
      *
      * @return void
      */
-    function uploadLogo()
+    public function uploadLogo()
     {
         try {
             $imagefile = ImageFile::fromUpload('avatarfile');
         } catch (Exception $e) {
-            $this->showForm($e->getMessage());
+            $this->setMessage($e->getMessage(), true);
             return;
         }
 
         $type = $imagefile->preferredType();
-        $filename = Avatar::filename($this->group->id,
-                                     image_type_to_extension($type),
-                                     null,
-                                     'group-temp-'.common_timestamp());
+        $filename = Avatar::filename(
+            $this->group->id,
+            image_type_to_extension($type),
+            null,
+            'group-temp-' . common_timestamp()
+        );
 
         $filepath = Avatar::path($filename);
 
         $imagefile->copyTo($filepath);
 
         $filedata = array('filename' => $filename,
-                          'filepath' => $filepath,
-                          'width' => $imagefile->width,
-                          'height' => $imagefile->height,
-                          'type' => $type);
+            'filepath' => $filepath,
+            'width' => $imagefile->width,
+            'height' => $imagefile->height,
+            'type' => $type);
 
         $_SESSION['FILEDATA'] = $filedata;
 
@@ -367,16 +411,24 @@ class GrouplogoAction extends GroupAction
         $this->mode = 'crop';
 
         // TRANS: Form instructions on the group logo page.
-        $this->showForm(_('Pick a square area of the image to be the logo.'),
-                        true);
+        $this->setMessage(_('Pick a square area of the image to be the logo.'));
+    }
+
+    public function setMessage($msg, $error = false)
+    {
+        $this->message = $msg;
+        $this->success = !$error;
     }
 
     /**
      * Handle the results of jcrop.
      *
      * @return void
+     * @throws NoResultException
+     * @throws UnsupportedMediaException
+     * @throws UseFileAsThumbnailException
      */
-    function cropLogo()
+    public function cropLogo()
     {
         $filedata = $_SESSION['FILEDATA'];
 
@@ -386,20 +438,24 @@ class GrouplogoAction extends GroupAction
         }
 
         // If image is not being cropped assume pos & dimentions of original
-        $dest_x = $this->arg('avatar_crop_x') ? $this->arg('avatar_crop_x'):0;
-        $dest_y = $this->arg('avatar_crop_y') ? $this->arg('avatar_crop_y'):0;
-        $dest_w = $this->arg('avatar_crop_w') ? $this->arg('avatar_crop_w'):$filedata['width'];
-        $dest_h = $this->arg('avatar_crop_h') ? $this->arg('avatar_crop_h'):$filedata['height'];
+        $dest_x = $this->arg('avatar_crop_x') ? $this->arg('avatar_crop_x') : 0;
+        $dest_y = $this->arg('avatar_crop_y') ? $this->arg('avatar_crop_y') : 0;
+        $dest_w = $this->arg('avatar_crop_w') ? $this->arg('avatar_crop_w') : $filedata['width'];
+        $dest_h = $this->arg('avatar_crop_h') ? $this->arg('avatar_crop_h') : $filedata['height'];
         $size = min($dest_w, $dest_h, common_config('avatar', 'maxsize'));
         $box = array('width' => $size, 'height' => $size,
-                     'x' => $dest_x,   'y' => $dest_y,
-                     'w' => $dest_w,   'h' => $dest_h);
+            'x' => $dest_x, 'y' => $dest_y,
+            'w' => $dest_w, 'h' => $dest_h);
 
         $profile = $this->group->getProfile();
 
         $imagefile = new ImageFile(null, $filedata['filepath']);
-        $filename = Avatar::filename($profile->getID(), image_type_to_extension($imagefile->preferredType()),
-                                     $size, common_timestamp());
+        $filename = Avatar::filename(
+            $profile->getID(),
+            image_type_to_extension($imagefile->preferredType()),
+            $size,
+            common_timestamp()
+        );
 
         $imagefile->resizeTo(Avatar::path($filename), $box);
 
@@ -408,10 +464,10 @@ class GrouplogoAction extends GroupAction
             unset($_SESSION['FILEDATA']);
             $this->mode = 'upload';
             // TRANS: Form success message after updating a group logo.
-            $this->showForm(_('Logo updated.'), true);
+            $this->setMessage(_('Logo updated.'));
         } else {
             // TRANS: Form failure message after failing to update a group logo.
-            $this->showForm(_('Failed updating logo.'));
+            $this->setMessage(_('Failed updating logo.'), true);
         }
     }
 
@@ -420,7 +476,7 @@ class GrouplogoAction extends GroupAction
      *
      * @return void
      */
-    function deleteLogo()
+    public function deleteLogo()
     {
         $orig = clone($this->group);
         Avatar::deleteFromProfile($this->group->getProfile());
@@ -428,56 +484,13 @@ class GrouplogoAction extends GroupAction
         @unlink(Avatar::path(basename($this->group->homepage_logo)));
         @unlink(Avatar::path(basename($this->group->stream_logo)));
         @unlink(Avatar::path(basename($this->group->mini_logo)));
-        $this->group->original_logo=User_group::defaultLogo(AVATAR_PROFILE_SIZE);
-        $this->group->homepage_logo=User_group::defaultLogo(AVATAR_PROFILE_SIZE);
-        $this->group->stream_logo=User_group::defaultLogo(AVATAR_STREAM_SIZE);
-        $this->group->mini_logo=User_group::defaultLogo(AVATAR_MINI_SIZE);
+        $this->group->original_logo = User_group::defaultLogo(AVATAR_PROFILE_SIZE);
+        $this->group->homepage_logo = User_group::defaultLogo(AVATAR_PROFILE_SIZE);
+        $this->group->stream_logo = User_group::defaultLogo(AVATAR_STREAM_SIZE);
+        $this->group->mini_logo = User_group::defaultLogo(AVATAR_MINI_SIZE);
         $this->group->update($orig);
 
         // TRANS: Success message for deleting the group logo.
-        $this->showForm(_('Logo deleted.'));
-    }
-
-    function showPageNotice()
-    {
-        if ($this->msg) {
-            $this->element('div', ($this->success) ? 'success' : 'error',
-                           $this->msg);
-        } else {
-            $inst   = $this->getInstructions();
-            $output = common_markup_to_html($inst);
-
-            $this->elementStart('div', 'instructions');
-            $this->raw($output);
-            $this->elementEnd('div');
-        }
-    }
-
-    /**
-     * Add the jCrop stylesheet
-     *
-     * @return void
-     */
-    function showStylesheets()
-    {
-        parent::showStylesheets();
-        $this->cssLink('js/extlib/jquery-jcrop/css/jcrop.css','base','screen, projection, tv');
-    }
-
-    /**
-     * Add the jCrop scripts
-     *
-     * @return void
-     */
-    function showScripts()
-    {
-        parent::showScripts();
-
-        if ($this->mode == 'crop') {
-            $this->script('extlib/jquery-jcrop/jcrop.js');
-            $this->script('jcrop.go.js');
-        }
-
-        $this->autofocus('avatarfile');
+        $this->setMessage(_('Logo deleted.'));
     }
 }
