@@ -31,8 +31,7 @@ $helptext = <<<END_OF_HELP
 fix_stats.php [options]
 Counts the stats from database values and updates the table.
 
-    --type          Optional flag to specify the type to update. They all are updated by default.
-                       Type: can be 'users', 'posts' or 'comments'. Or 'all', to update all the types.
+    --type          Type: can be 'users', 'posts' or 'comments'. Or 'all', to update all the types.
 
 END_OF_HELP;
 
