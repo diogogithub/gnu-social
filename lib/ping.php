@@ -58,13 +58,13 @@ function ping_broadcast_notice($notice) {
             } catch (Exception $e) {
                 common_log(LOG_ERR,
                            "Exception pinging $notify_url: " . $e->getMessage());
-                continue;
+                break;
             }
 
             if (!$httpResponse || mb_strlen($httpResponse->getBody()) == 0) {
                 common_log(LOG_WARNING,
                            "XML-RPC empty results for ping ($notify_url, $notice->id) ");
-                continue;
+                break;
             }
 
             $response = xmlrpc_decode($httpResponse->getBody());
