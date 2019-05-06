@@ -97,7 +97,7 @@ class SortableGroupList extends SortableSubscriptionList
 
         // TRANS: Column header in table for members of a group.
         $this->out->element('th', array('id' => 'Members'), _m('Members'));
-        $this->out->element('th', array('id' => 'controls'), null);
+        $this->out->element('th', array('id' => 'controls'));
 
         $this->out->elementEnd('tr');
         $this->out->elementEnd('thead');

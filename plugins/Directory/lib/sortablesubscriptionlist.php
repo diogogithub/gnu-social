@@ -100,7 +100,7 @@ class SortableSubscriptionList extends SubscriptionList
         $this->out->element('th', array('id' => 'subscriptions'), _m('Subscriptions'));
         // TRANS: Column header for number of notices.
         $this->out->element('th', array('id' => 'notices'), _m('Notices'));
-        $this->out->element('th', array('id' => 'controls'), null);
+        $this->out->element('th', array('id' => 'controls'));
 
         $this->out->elementEnd('tr');
         $this->out->elementEnd('thead');

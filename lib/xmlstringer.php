@@ -42,27 +42,26 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  * @see      Action
  * @see      HTMLOutputter
  */
-
 class XMLStringer extends XMLOutputter
 {
-    function __construct($indent=false)
+    public function __construct($indent = false)
     {
         $this->xw = new XMLWriter();
         $this->xw->openMemory();
         $this->xw->setIndent($indent);
     }
 
-    function getString()
-    {
-        return $this->xw->outputMemory();
-    }
-
-    // utility for quickly creating XML-strings
-
-    static function estring($tag, $attrs=null, $content=null)
+    public static function estring($tag, $attrs = null, $content = null)
     {
         $xs = new XMLStringer();
         $xs->element($tag, $attrs, $content);
         return $xs->getString();
+    }
+
+    // utility for quickly creating XML-strings
+
+    public function getString()
+    {
+        return $this->xw->outputMemory();
     }
 }

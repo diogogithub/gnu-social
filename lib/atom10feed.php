@@ -206,7 +206,7 @@ class Atom10Feed extends XMLStringer
     {
         foreach ($this->links as $attrs)
         {
-            $this->element('link', $attrs, null);
+            $this->element('link', $attrs);
         }
     }
 

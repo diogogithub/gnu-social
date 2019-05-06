@@ -120,7 +120,7 @@ class ApiAction extends Action
 {
     const READ_ONLY = 1;
     const READ_WRITE = 2;
-    public static $reserved_sources = array('web', 'omb', 'ostatus', 'mail', 'xmpp', 'api');
+    public static $reserved_sources = ['web', 'omb', 'ostatus', 'mail', 'xmpp', 'api'];
     public $user = null;
     public $auth_user = null;
     public $page = null;
@@ -136,19 +136,19 @@ class ApiAction extends Action
 
     public function twitterRelationshipArray($source, $target)
     {
-        $relationship = array();
+        $relationship = [];
 
         $relationship['source'] =
             $this->relationshipDetailsArray($source->getProfile(), $target->getProfile());
         $relationship['target'] =
             $this->relationshipDetailsArray($target->getProfile(), $source->getProfile());
 
-        return array('relationship' => $relationship);
+        return ['relationship' => $relationship];
     }
 
     public function relationshipDetailsArray(Profile $source, Profile $target)
     {
-        $details = array();
+        $details = [];
 
         $details['screen_name'] = $source->getNickname();
         $details['followed_by'] = $target->isSubscribed($source);
@@ -195,19 +195,18 @@ class ApiAction extends Action
      * See that method's documentation for more info.
      *
      * @param string $tag Element type or tagname
-     * @param array $attrs Array of element attributes, as
-     *                        key-value pairs
-     * @param string $content string content of the element
+     * @param array|string|null $attrs Array of element attributes, as key-value pairs
+     * @param string|null $content string content of the element
      *
      * @return void
      */
-    public function element($tag, $attrs = [], $content = "")
+    public function element(string $tag, $attrs = null, $content = null)
     {
         if (is_bool($content)) {
-            $content = ($content ? 'true' : 'false');
+            $content = ($content ? "true" : "false");
         }
 
-        return parent::element($tag, $attrs, $content);
+        parent::element($tag, $attrs, $content);
     }
 
     public function showSingleXmlStatus($notice)
@@ -254,23 +253,23 @@ class ApiAction extends Action
         $this->startXML();
         $this->elementStart(
             'rss',
-            array(
+            [
                 'version' => '2.0',
                 'xmlns:atom' => 'http://www.w3.org/2005/Atom',
                 'xmlns:georss' => 'http://www.georss.org/georss'
-            )
+            ]
         );
         $this->elementStart('channel');
-        Event::handle('StartApiRss', array($this));
+        Event::handle('StartApiRss', [$this]);
     }
 
     public function initTwitterAtom()
     {
         $this->startXML();
         // FIXME: don't hardcode the language here!
-        $this->elementStart('feed', array('xmlns' => 'http://www.w3.org/2005/Atom',
+        $this->elementStart('feed', ['xmlns' => 'http://www.w3.org/2005/Atom',
             'xml:lang' => 'en-US',
-            'xmlns:thr' => 'http://purl.org/syndication/thread/1.0'));
+            'xmlns:thr' => 'http://purl.org/syndication/thread/1.0']);
     }
 
     public function twitterStatusArray($notice, $include_user = true)
@@ -293,7 +292,7 @@ class ApiAction extends Action
     {
         $profile = $notice->getProfile();
 
-        $twitter_status = array();
+        $twitter_status = [];
         $twitter_status['text'] = $notice->content;
         $twitter_status['truncated'] = false; # Not possible on StatusNet
         $twitter_status['created_at'] = self::dateTwitter($notice->created);
@@ -346,9 +345,9 @@ class ApiAction extends Action
         try {
             $notloc = Notice_location::locFromStored($notice);
             // This is the format that GeoJSON expects stuff to be in
-            $twitter_status['geo'] = array('type' => 'Point',
-                'coordinates' => array((float)$notloc->lat,
-                    (float)$notloc->lon));
+            $twitter_status['geo'] = ['type' => 'Point',
+                'coordinates' => [(float)$notloc->lat,
+                    (float)$notloc->lon]];
         } catch (ServerException $e) {
             $twitter_status['geo'] = null;
         }
@@ -357,12 +356,12 @@ class ApiAction extends Action
         $attachments = $notice->attachments();
 
         if (!empty($attachments)) {
-            $twitter_status['attachments'] = array();
+            $twitter_status['attachments'] = [];
 
             foreach ($attachments as $attachment) {
                 try {
                     $enclosure_o = $attachment->getEnclosure();
-                    $enclosure = array();
+                    $enclosure = [];
                     $enclosure['url'] = $enclosure_o->url;
                     $enclosure['mimetype'] = $enclosure_o->mimetype;
                     $enclosure['size'] = $enclosure_o->size;
@@ -385,8 +384,8 @@ class ApiAction extends Action
         $twitter_status['statusnet_conversation_id'] = intval($notice->conversation);
 
         // The event call to handle NoticeSimpleStatusArray lets plugins add data to the output array
-        Event::handle('NoticeSimpleStatusArray', array($notice, &$twitter_status, $this->scoped,
-            array('include_user' => $include_user)));
+        Event::handle('NoticeSimpleStatusArray', [$notice, &$twitter_status, $this->scoped,
+            ['include_user' => $include_user]]);
 
         return $twitter_status;
     }
@@ -401,7 +400,7 @@ class ApiAction extends Action
 
     public function twitterUserArray($profile, $get_notice = false)
     {
-        $twitter_user = array();
+        $twitter_user = [];
 
         try {
             $user = $profile->getUser();
@@ -430,7 +429,7 @@ class ApiAction extends Action
         $twitter_user['profile_image_url_original'] = $origurl;
 
         $twitter_user['groups_count'] = $profile->getGroupCount();
-        foreach (array('linkcolor', 'backgroundcolor') as $key) {
+        foreach (['linkcolor', 'backgroundcolor'] as $key) {
             $twitter_user[$key] = Profile_prefs::getConfigData($profile, 'theme', $key);
         }
         // END introduced by qvitter API, not necessary for StatusNet API
@@ -489,14 +488,14 @@ class ApiAction extends Action
         $twitter_user['statusnet_profile_url'] = $profile->profileurl;
 
         // The event call to handle NoticeSimpleStatusArray lets plugins add data to the output array
-        Event::handle('TwitterUserArray', array($profile, &$twitter_user, $this->scoped, array()));
+        Event::handle('TwitterUserArray', [$profile, &$twitter_user, $this->scoped, []]);
 
         return $twitter_user;
     }
 
     public function showTwitterXmlStatus($twitter_status, $tag = 'status', $namespaces = false)
     {
-        $attrs = array();
+        $attrs = [];
         if ($namespaces) {
             $attrs['xmlns:statusnet'] = 'http://status.net/schema/api/1/';
         }
@@ -537,7 +536,7 @@ class ApiAction extends Action
 
     public function showTwitterXmlUser($twitter_user, $role = 'user', $namespaces = false)
     {
-        $attrs = array();
+        $attrs = [];
         if ($namespaces) {
             $attrs['xmlns:statusnet'] = 'http://status.net/schema/api/1/';
         }
@@ -557,9 +556,9 @@ class ApiAction extends Action
     public function showXmlAttachments($attachments)
     {
         if (!empty($attachments)) {
-            $this->elementStart('attachments', array('type' => 'array'));
+            $this->elementStart('attachments', ['type' => 'array']);
             foreach ($attachments as $attachment) {
-                $attrs = array();
+                $attrs = [];
                 $attrs['url'] = $attachment['url'];
                 $attrs['mimetype'] = $attachment['mimetype'];
                 $attrs['size'] = $attachment['size'];
@@ -575,7 +574,7 @@ class ApiAction extends Action
             // empty geo element
             $this->element('geo');
         } else {
-            $this->elementStart('geo', array('xmlns:georss' => 'http://www.georss.org/georss'));
+            $this->elementStart('geo', ['xmlns:georss' => 'http://www.georss.org/georss']);
             $this->element('georss:point', null, $geo['coordinates'][0] . ' ' . $geo['coordinates'][1]);
             $this->elementEnd('geo');
         }
@@ -641,12 +640,12 @@ class ApiAction extends Action
     public function showXmlTimeline($notice)
     {
         $this->initDocument('xml');
-        $this->elementStart('statuses', array('type' => 'array',
-            'xmlns:statusnet' => 'http://status.net/schema/api/1/'));
+        $this->elementStart('statuses', ['type' => 'array',
+            'xmlns:statusnet' => 'http://status.net/schema/api/1/']);
 
         if (is_array($notice)) {
             //FIXME: make everything calling showJsonTimeline use only Notice objects
-            $ids = array();
+            $ids = [];
             foreach ($notice as $n) {
                 $ids[] = $n->getID();
             }
@@ -677,20 +676,20 @@ class ApiAction extends Action
         if (!is_null($self)) {
             $this->element(
                 'atom:link',
-                array(
+                [
                     'type' => 'application/rss+xml',
                     'href' => $self,
                     'rel' => 'self'
-                )
+                ]
             );
         }
 
         if (!is_null($suplink)) {
             // For FriendFeed's SUP protocol
-            $this->element('link', array('xmlns' => 'http://www.w3.org/2005/Atom',
+            $this->element('link', ['xmlns' => 'http://www.w3.org/2005/Atom',
                 'rel' => 'http://api.friendfeed.com/2008/03#sup',
                 'href' => $suplink,
-                'type' => 'application/json'));
+                'type' => 'application/json']);
         }
 
         if (!is_null($logo)) {
@@ -707,7 +706,7 @@ class ApiAction extends Action
 
         if (is_array($notice)) {
             //FIXME: make everything calling showJsonTimeline use only Notice objects
-            $ids = array();
+            $ids = [];
             foreach ($notice as $n) {
                 $ids[] = $n->getID();
             }
@@ -729,16 +728,16 @@ class ApiAction extends Action
 
     public function twitterRssEntryArray($notice)
     {
-        $entry = array();
+        $entry = [];
 
-        if (Event::handle('StartRssEntryArray', array($notice, &$entry))) {
+        if (Event::handle('StartRssEntryArray', [$notice, &$entry])) {
             $profile = $notice->getProfile();
 
             // We trim() to avoid extraneous whitespace in the output
 
             $entry['content'] = common_xml_safe_str(trim($notice->getRendered()));
             $entry['title'] = $profile->nickname . ': ' . common_xml_safe_str(trim($notice->content));
-            $entry['link'] = common_local_url('shownotice', array('notice' => $notice->id));
+            $entry['link'] = common_local_url('shownotice', ['notice' => $notice->id]);
             $entry['published'] = common_date_iso8601($notice->created);
 
             $taguribase = TagURI::base();
@@ -749,12 +748,12 @@ class ApiAction extends Action
 
             // Enclosures
             $attachments = $notice->attachments();
-            $enclosures = array();
+            $enclosures = [];
 
             foreach ($attachments as $attachment) {
                 try {
                     $enclosure_o = $attachment->getEnclosure();
-                    $enclosure = array();
+                    $enclosure = [];
                     $enclosure['url'] = $enclosure_o->url;
                     $enclosure['mimetype'] = $enclosure_o->mimetype;
                     $enclosure['size'] = $enclosure_o->size;
@@ -772,7 +771,7 @@ class ApiAction extends Action
             $tag = new Notice_tag();
             $tag->notice_id = $notice->id;
             if ($tag->find()) {
-                $entry['tags'] = array();
+                $entry['tags'] = [];
                 while ($tag->fetch()) {
                     $entry['tags'][] = $tag->tag;
                 }
@@ -788,14 +787,14 @@ class ApiAction extends Action
                 $notloc = Notice_location::locFromStored($notice);
                 // This is the format that GeoJSON expects stuff to be in.
                 // showGeoRSS() below uses it for XML output, so we reuse it
-                $entry['geo'] = array('type' => 'Point',
-                    'coordinates' => array((float)$notloc->lat,
-                        (float)$notloc->lon));
+                $entry['geo'] = ['type' => 'Point',
+                    'coordinates' => [(float)$notloc->lat,
+                        (float)$notloc->lon]];
             } catch (ServerException $e) {
                 $entry['geo'] = null;
             }
 
-            Event::handle('EndRssEntryArray', array($notice, &$entry));
+            Event::handle('EndRssEntryArray', [$notice, &$entry]);
         }
 
         return $entry;
@@ -813,7 +812,7 @@ class ApiAction extends Action
         // RSS only supports 1 enclosure per item
         if (array_key_exists('enclosures', $entry) and !empty($entry['enclosures'])) {
             $enclosure = $entry['enclosures'][0];
-            $this->element('enclosure', array('url' => $enclosure['url'], 'type' => $enclosure['mimetype'], 'length' => $enclosure['size']), null);
+            $this->element('enclosure', ['url' => $enclosure['url'], 'type' => $enclosure['mimetype'], 'length' => $enclosure['size']]);
         }
 
         if (array_key_exists('tags', $entry)) {
@@ -843,7 +842,7 @@ class ApiAction extends Action
 
         $this->element('title', null, $title);
         $this->element('id', null, $id);
-        $this->element('link', array('href' => $link, 'rel' => 'alternate', 'type' => 'text/html'), null);
+        $this->element('link', ['href' => $link, 'rel' => 'alternate', 'type' => 'text/html']);
 
         if (!is_null($logo)) {
             $this->element('logo', null, $logo);
@@ -851,14 +850,14 @@ class ApiAction extends Action
 
         if (!is_null($suplink)) {
             // For FriendFeed's SUP protocol
-            $this->element('link', array('rel' => 'http://api.friendfeed.com/2008/03#sup',
+            $this->element('link', ['rel' => 'http://api.friendfeed.com/2008/03#sup',
                 'href' => $suplink,
-                'type' => 'application/json'));
+                'type' => 'application/json']);
         }
 
         if (!is_null($selfuri)) {
-            $this->element('link', array('href' => $selfuri,
-                'rel' => 'self', 'type' => 'application/atom+xml'), null);
+            $this->element('link', ['href' => $selfuri,
+                'rel' => 'self', 'type' => 'application/atom+xml']);
         }
 
         $this->element('updated', null, common_date_iso8601('now'));
@@ -866,7 +865,7 @@ class ApiAction extends Action
 
         if (is_array($notice)) {
             //FIXME: make everything calling showJsonTimeline use only Notice objects
-            $ids = array();
+            $ids = [];
             foreach ($notice as $n) {
                 $ids[] = $n->getID();
             }
@@ -912,7 +911,7 @@ class ApiAction extends Action
 
     public function twitterRssGroupArray($group)
     {
-        $entry = array();
+        $entry = [];
         $entry['content'] = $group->description;
         $entry['title'] = $group->nickname;
         $entry['link'] = $group->permalink();
@@ -934,18 +933,18 @@ class ApiAction extends Action
         $this->element('title', null, common_xml_safe_str($entry['title']));
         $this->element(
             'content',
-            array('type' => 'html'),
+            ['type' => 'html'],
             common_xml_safe_str($entry['content'])
         );
         $this->element('id', null, $entry['id']);
         $this->element('published', null, $entry['published']);
         $this->element('updated', null, $entry['updated']);
-        $this->element('link', array('type' => 'text/html',
+        $this->element('link', ['type' => 'text/html',
             'href' => $entry['link'],
-            'rel' => 'alternate'));
-        $this->element('link', array('type' => $entry['avatar-type'],
+            'rel' => 'alternate']);
+        $this->element('link', ['type' => $entry['avatar-type'],
             'href' => $entry['avatar'],
-            'rel' => 'image'));
+            'rel' => 'image']);
         $this->elementStart('author');
 
         $this->element('name', null, $entry['author-name']);
@@ -961,11 +960,11 @@ class ApiAction extends Action
 
         $this->element('title', null, common_xml_safe_str($title));
         $this->element('id', null, $id);
-        $this->element('link', array('href' => $link, 'rel' => 'alternate', 'type' => 'text/html'), null);
+        $this->element('link', ['href' => $link, 'rel' => 'alternate', 'type' => 'text/html']);
 
         if (!is_null($selfuri)) {
-            $this->element('link', array('href' => $selfuri,
-                'rel' => 'self', 'type' => 'application/atom+xml'), null);
+            $this->element('link', ['href' => $selfuri,
+                'rel' => 'self', 'type' => 'application/atom+xml']);
         }
 
         $this->element('updated', null, common_date_iso8601('now'));
@@ -988,11 +987,11 @@ class ApiAction extends Action
     {
         $this->initDocument('json');
 
-        $statuses = array();
+        $statuses = [];
 
         if (is_array($notice)) {
             //FIXME: make everything calling showJsonTimeline use only Notice objects
-            $ids = array();
+            $ids = [];
             foreach ($notice as $n) {
                 $ids[] = $n->getID();
             }
@@ -1018,7 +1017,7 @@ class ApiAction extends Action
     {
         $this->initDocument('json');
 
-        $groups = array();
+        $groups = [];
 
         if (is_array($group)) {
             foreach ($group as $g) {
@@ -1039,7 +1038,7 @@ class ApiAction extends Action
 
     public function twitterGroupArray($group)
     {
-        $twitter_group = array();
+        $twitter_group = [];
 
         $twitter_group['id'] = intval($group->id);
         $twitter_group['url'] = $group->permalink();
@@ -1072,7 +1071,7 @@ class ApiAction extends Action
     public function showXmlGroups($group)
     {
         $this->initDocument('xml');
-        $this->elementStart('groups', array('type' => 'array'));
+        $this->elementStart('groups', ['type' => 'array']);
 
         if (is_array($group)) {
             foreach ($group as $g) {
@@ -1103,7 +1102,7 @@ class ApiAction extends Action
     {
         $this->initDocument('xml');
         $this->elementStart('lists_list');
-        $this->elementStart('lists', array('type' => 'array'));
+        $this->elementStart('lists', ['type' => 'array']);
 
         if (is_array($list)) {
             foreach ($list as $l) {
@@ -1130,7 +1129,7 @@ class ApiAction extends Action
     {
         $profile = Profile::getKV('id', $list->tagger);
 
-        $twitter_list = array();
+        $twitter_list = [];
         $twitter_list['id'] = $list->id;
         $twitter_list['name'] = $list->tag;
         $twitter_list['full_name'] = '@' . $profile->nickname . '/' . $list->tag;;
@@ -1169,7 +1168,7 @@ class ApiAction extends Action
     {
         $this->initDocument('json');
 
-        $lists = array();
+        $lists = [];
 
         if (is_array($list)) {
             foreach ($list as $l) {
@@ -1183,13 +1182,13 @@ class ApiAction extends Action
             }
         }
 
-        $lists_list = array(
+        $lists_list = [
             'lists' => $lists,
             'next_cursor' => $next_cursor,
             'next_cursor_str' => strval($next_cursor),
             'previous_cursor' => $prev_cursor,
             'previous_cursor_str' => strval($prev_cursor)
-        );
+        ];
 
         $this->showJsonObjects($lists_list);
 
@@ -1199,8 +1198,8 @@ class ApiAction extends Action
     public function showTwitterXmlUsers($user)
     {
         $this->initDocument('xml');
-        $this->elementStart('users', array('type' => 'array',
-            'xmlns:statusnet' => 'http://status.net/schema/api/1/'));
+        $this->elementStart('users', ['type' => 'array',
+            'xmlns:statusnet' => 'http://status.net/schema/api/1/']);
 
         if (is_array($user)) {
             foreach ($user as $u) {
@@ -1222,7 +1221,7 @@ class ApiAction extends Action
     {
         $this->initDocument('json');
 
-        $users = array();
+        $users = [];
 
         if (is_array($user)) {
             foreach ($user as $u) {
@@ -1299,7 +1298,6 @@ class ApiAction extends Action
     public function getTargetProfile($id)
     {
         if (empty($id)) {
-
             // Twitter supports these other ways of passing the user ID
             if (self::is_decimal($this->arg('id'))) {
                 return Profile::getKV($this->arg('id'));
@@ -1322,14 +1320,16 @@ class ApiAction extends Action
                 // Fall back to trying the currently authenticated user
                 return $this->scoped;
             }
-        } elseif (self::is_decimal($id) && intval($id) > 0) {
-            return Profile::getByID($id);
-        } else {
-            // FIXME: check if isAcct to identify remote profiles and not just local nicknames
-            $nickname = common_canonical_nickname($id);
-            $user = User::getByNickname($nickname);
-            return $user->getProfile();
         }
+
+        if (self::is_decimal($id) && intval($id) > 0) {
+            return Profile::getByID($id);
+        }
+
+        // FIXME: check if isAcct to identify remote profiles and not just local nicknames
+        $nickname = common_canonical_nickname($id);
+        $user = User::getByNickname($nickname);
+        return $user->getProfile();
     }
 
     private static function is_decimal($str)
@@ -1396,13 +1396,15 @@ class ApiAction extends Action
             } elseif ($this->arg('group_name')) {
                 return User_group::getForNickname($this->arg('group_name'));
             }
-        } elseif (self::is_decimal($id)) {
+        }
+
+        if (self::is_decimal($id)) {
             return User_group::getKV('id', $id);
         } elseif ($this->arg('uri')) { // FIXME: move this into empty($id) check?
             return User_group::getKV('uri', urldecode($this->arg('uri')));
-        } else {
-            return User_group::getForNickname($id);
         }
+
+        return User_group::getForNickname($id);
     }
 
     public function getTargetList($user = null, $id = null)
@@ -1461,12 +1463,14 @@ class ApiAction extends Action
                 // Fall back to trying the currently authenticated user
                 return $this->scoped->getUser();
             }
-        } elseif (self::is_decimal($id)) {
-            return User::getKV($id);
-        } else {
-            $nickname = common_canonical_nickname($id);
-            return User::getKV('nickname', $nickname);
         }
+
+        if (self::is_decimal($id)) {
+            return User::getKV($id);
+        }
+
+        $nickname = common_canonical_nickname($id);
+        return User::getKV('nickname', $nickname);
     }
 
     /**
@@ -1480,7 +1484,7 @@ class ApiAction extends Action
         $action = mb_substr(get_class($this), 0, -6); // remove 'Action'
 
         $id = $this->arg('id');
-        $aargs = array('format' => $this->format);
+        $aargs = ['format' => $this->format];
         if (!empty($id)) {
             $aargs['id'] = $id;
         }
@@ -1517,8 +1521,9 @@ class ApiAction extends Action
      * @param array $args Web and URL arguments
      *
      * @return boolean false if user doesn't exist
+     * @throws ClientException
      */
-    protected function prepare(array $args = array())
+    protected function prepare(array $args = [])
     {
         GNUsocial::setApi(true); // reduce exception reports to aid in debugging
         parent::prepare($args);
@@ -1549,8 +1554,6 @@ class ApiAction extends Action
 
     /**
      * Handle a request
-     *
-     * @param array $args Arguments from $_REQUEST
      *
      * @return void
      */

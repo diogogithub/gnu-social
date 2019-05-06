@@ -31,7 +31,9 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 /**
  * We don't have a rate limit, but some clients check this method.
@@ -48,62 +50,6 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 class ApiAccountRateLimitStatusAction extends ApiBareAuthAction
 {
     /**
-     * Handle the request
-     *
-     * Return some Twitter-ish data about API limits
-     *
-     * @param array $args $_REQUEST data (unused)
-     *
-     * @return void
-     */
-    protected function handle()
-    {
-        parent::handle();
-
-        if (!in_array($this->format, array('xml', 'json'))) {
-            $this->clientError(
-                // TRANS: Client error displayed when coming across a non-supported API method.
-                _('API method not found.'),
-                404,
-                $this->format
-            );
-        }
-
-        $reset   = new DateTime();
-        $reset->modify('+1 hour');
-
-        $this->initDocument($this->format);
-
-         if ($this->format == 'xml') {
-             $this->elementStart('hash');
-             $this->element('remaining-hits', array('type' => 'integer'), 150);
-             $this->element('hourly-limit', array('type' => 'integer'), 150);
-             $this->element(
-                 'reset-time', array('type' => 'datetime'),
-                 common_date_iso8601($reset->format('r'))
-             );
-             $this->element(
-                 'reset_time_in_seconds',
-                 array('type' => 'integer'),
-                 strtotime('+1 hour')
-             );
-             $this->elementEnd('hash');
-         } elseif ($this->format == 'json') {
-             $out = array(
-                 'reset_time_in_seconds' => strtotime('+1 hour'),
-                 'remaining_hits' => 150,
-                 'hourly_limit' => 150,
-                 'reset_time' => common_date_rfc2822(
-                     $reset->format('r')
-                  )
-             );
-             print json_encode($out);
-         }
-
-        $this->endDocument($this->format);
-    }
-
-    /**
      * Return true if read only.
      *
      * MAY override
@@ -112,8 +58,64 @@ class ApiAccountRateLimitStatusAction extends ApiBareAuthAction
      *
      * @return boolean is read only action?
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
+    }
+
+    /**
+     * Handle the request
+     *
+     * Return some Twitter-ish data about API limits
+     *
+     * @return void
+     * @throws ClientException
+     */
+    protected function handle()
+    {
+        parent::handle();
+
+        if (!in_array($this->format, ['xml', 'json'])) {
+            $this->clientError(
+            // TRANS: Client error displayed when coming across a non-supported API method.
+                _('API method not found.'),
+                404,
+                $this->format
+            );
+        }
+
+        $reset = new DateTime();
+        $reset->modify('+1 hour');
+
+        $this->initDocument($this->format);
+
+        if ($this->format == 'xml') {
+            $this->elementStart('hash');
+            $this->element('remaining-hits', ['type' => 'integer'], "150");
+            $this->element('hourly-limit', ['type' => 'integer'], "150");
+            $this->element(
+                'reset-time',
+                ['type' => 'datetime'],
+                common_date_iso8601($reset->format('r'))
+            );
+            $this->element(
+                'reset_time_in_seconds',
+                ['type' => 'integer'],
+                strtotime('+1 hour')
+            );
+            $this->elementEnd('hash');
+        } elseif ($this->format == 'json') {
+            $out = [
+                'reset_time_in_seconds' => strtotime('+1 hour'),
+                'remaining_hits' => 150,
+                'hourly_limit' => 150,
+                'reset_time' => common_date_rfc2822(
+                    $reset->format('r')
+                )
+            ];
+            print json_encode($out);
+        }
+
+        $this->endDocument($this->format);
     }
 }

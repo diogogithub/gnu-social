@@ -28,7 +28,9 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 /**
  * Base class for all actions
@@ -51,12 +53,12 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 class Action extends HTMLOutputter // lawsuit
 {
     // This should be protected/private in the future
-    public $args = array();
+    public $args = [];
 
     // Action properties, set per-class
     protected $action = false;
-    protected $ajax   = false;
-    protected $menus  = true;
+    protected $ajax = false;
+    protected $menus = true;
     protected $needLogin = false;
     protected $needPost = false;    // implies canPost if true
     protected $canPost = false;     // can this action handle POST method?
@@ -66,31 +68,35 @@ class Action extends HTMLOutputter // lawsuit
 
     // Related to front-end user representation
     protected $format = null;
-    protected $error  = null;
-    protected $msg    = null;
+    protected $error = null;
+    protected $msg = null;
 
     /**
      * Constructor
      *
      * Just wraps the HTMLOutputter constructor.
      *
-     * @param string  $output URI to output to, default = stdout
+     * @param string $output URI to output to, default = stdout
      * @param boolean $indent Whether to indent output, default true
      *
      * @see XMLOutputter::__construct
      * @see HTMLOutputter::__construct
      */
-    function __construct($output='php://output', $indent=null)
+    public function __construct($output = 'php://output', $indent = null)
     {
         parent::__construct($output, $indent);
     }
 
-    function getError()
+    public static function run(array $args = [], $output = 'php://output', $indent = null)
     {
-        return $this->error;
+        $class = get_called_class();
+        $action = new $class($output, $indent);
+        set_exception_handler(array($action, 'handleError'));
+        $action->execute($args);
+        return $action;
     }
 
-    function getInfo()
+    public function getInfo()
     {
         return $this->msg;
     }
@@ -107,15 +113,65 @@ class Action extends HTMLOutputter // lawsuit
         }
     }
 
-    static public function run(array $args=array(), $output='php://output', $indent=null) {
-        $class = get_called_class();
-        $action = new $class($output, $indent);
-        set_exception_handler(array($action, 'handleError'));
-        $action->execute($args);
-        return $action;
+    /**
+     * Client error
+     *
+     * @param string $msg error message to display
+     * @param integer $code http error code, 400 by default
+     * @param string $format error format (json, xml, text) for ApiAction
+     *
+     * @return void
+     * @throws ClientException always
+     */
+    public function clientError($msg, $code = 400, $format = null)
+    {
+        // $format is currently only relevant for an ApiAction anyway
+        if ($format === null) {
+            $format = $this->format;
+        }
+
+        common_debug("User error '{$code}' on '{$this->action}': {$msg}", __FILE__);
+
+        if (!array_key_exists($code, ClientErrorAction::$status)) {
+            $code = 400;
+        }
+
+        $status_string = ClientErrorAction::$status[$code];
+
+        switch ($format) {
+            case 'xml':
+                header("HTTP/1.1 {$code} {$status_string}");
+                $this->initDocument('xml');
+                $this->elementStart('hash');
+                $this->element('error', null, $msg);
+                $this->element('request', null, $_SERVER['REQUEST_URI']);
+                $this->elementEnd('hash');
+                $this->endDocument('xml');
+                break;
+            case 'json':
+                if (!isset($this->callback)) {
+                    header("HTTP/1.1 {$code} {$status_string}");
+                }
+                $this->initDocument('json');
+                $error_array = array('error' => $msg, 'request' => $_SERVER['REQUEST_URI']);
+                print(json_encode($error_array));
+                $this->endDocument('json');
+                break;
+            case 'text':
+                header("HTTP/1.1 {$code} {$status_string}");
+                header('Content-Type: text/plain; charset=utf-8');
+                echo $msg;
+                break;
+            default:
+                common_log(LOG_ERR, 'Handled clientError (' . _ve($code) . ') but cannot output into desired format (' . _ve($this->format) . '): ' . _ve($msg));
+                $action = new ClientErrorAction($msg, $code);
+                $action->execute();
+        }
+        exit((int)$code);
     }
 
-    public function execute(array $args=array()) {
+    public function execute(array $args = [])
+    {
         // checkMirror stuff
         if (common_config('db', 'mirror') && $this->isReadOnly($args)) {
             if (is_array(common_config('db', 'mirror'))) {
@@ -134,7 +190,7 @@ class Action extends HTMLOutputter // lawsuit
         if (Event::handle('StartActionExecute', array($this, &$args))) {
             $prepared = $this->prepare($args);
             if ($prepared) {
-                $this->handle($args);
+                $this->handle();
             } else {
                 common_debug('Prepare failed for Action.');
             }
@@ -145,13 +201,28 @@ class Action extends HTMLOutputter // lawsuit
     }
 
     /**
+     * Return true if read only.
+     *
+     * MAY override
+     *
+     * @param array $args other arguments
+     *
+     * @return boolean is read only action?
+     */
+    public function isReadOnly($args)
+    {
+        return false;
+    }
+
+    /**
      * For initializing members of the class.
      *
-     * @param array $argarray misc. arguments
+     * @param array $args misc. arguments
      *
      * @return boolean true
+     * @throws ClientException
      */
-    protected function prepare(array $args=array())
+    protected function prepare(array $args = [])
     {
         if ($this->needPost && !$this->isPost()) {
             // TRANS: Client error. POST is a HTTP command. It should not be translated.
@@ -183,21 +254,257 @@ class Action extends HTMLOutputter // lawsuit
         return true;
     }
 
+    /**
+     * Check if the current request is a POST
+     *
+     * @return boolean true if POST; otherwise false.
+     */
+
+    public function isPost()
+    {
+        return ($_SERVER['REQUEST_METHOD'] == 'POST');
+    }
+
+    // Must be run _after_ prepare
+
+    /**
+     * Returns trimmed query argument or default value if not found
+     *
+     * @param string $key requested argument
+     * @param string $def default value to return if $key is not provided
+     *
+     * @return boolean is read only action?
+     */
+    public function trimmed($key, $def = null)
+    {
+        $arg = $this->arg($key, $def);
+        return is_string($arg) ? trim($arg) : $arg;
+    }
+
+    /**
+     * Returns query argument or default value if not found
+     *
+     * @param string $key requested argument
+     * @param string $def default value to return if $key is not provided
+     *
+     * @return boolean is read only action?
+     */
+    public function arg($key, $def = null)
+    {
+        if (array_key_exists($key, $this->args)) {
+            return $this->args[$key];
+        } else {
+            return $def;
+        }
+    }
+
+    /**
+     * Boolean understands english (yes, no, true, false)
+     *
+     * @param string $key query key we're interested in
+     * @param string $def default value
+     *
+     * @return boolean interprets yes/no strings as boolean
+     */
+    public function boolean($key, $def = false)
+    {
+        $arg = strtolower($this->trimmed($key));
+
+        if (is_null($arg)) {
+            return $def;
+        } elseif (in_array($arg, array('true', 'yes', '1', 'on'))) {
+            return true;
+        } elseif (in_array($arg, array('false', 'no', '0'))) {
+            return false;
+        } else {
+            return $def;
+        }
+    }
+
+    /**
+     * If not logged in, take appropriate action (redir or exception)
+     *
+     * @param boolean $redir Redirect to login if not logged in
+     *
+     * @return boolean true if logged in (never returns if not)
+     * @throws ClientException
+     */
+    public function checkLogin($redir = true)
+    {
+        if (common_logged_in()) {
+            return true;
+        }
+
+        if ($redir == true) {
+            common_set_returnto($_SERVER['REQUEST_URI']);
+            common_redirect(common_local_url('login'));
+        }
+
+        // TRANS: Error message displayed when trying to perform an action that requires a logged in user.
+        $this->clientError(_('Not logged in.'), 403);
+    }
+
     public function updateScopedProfile()
     {
         $this->scoped = Profile::current();
         return $this->scoped;
     }
 
+    /**
+     * Handler method
+     */
+    protected function handle()
+    {
+        header('Vary: Accept-Encoding,Cookie');
+
+        $lm = $this->lastModified();
+        $etag = $this->etag();
+
+        if ($etag) {
+            header('ETag: ' . $etag);
+        }
+
+        if ($lm) {
+            header('Last-Modified: ' . date(DATE_RFC1123, $lm));
+            if ($this->isCacheable()) {
+                header('Expires: ' . gmdate('D, d M Y H:i:s', 0) . ' GMT');
+                header("Cache-Control: private, must-revalidate, max-age=0");
+                header("Pragma:");
+            }
+        }
+
+        $checked = false;
+        if ($etag) {
+            $if_none_match = (array_key_exists('HTTP_IF_NONE_MATCH', $_SERVER)) ?
+                $_SERVER['HTTP_IF_NONE_MATCH'] : null;
+            if ($if_none_match) {
+                // If this check fails, ignore the if-modified-since below.
+                $checked = true;
+                if ($this->_hasEtag($etag, $if_none_match)) {
+                    header('HTTP/1.1 304 Not Modified');
+                    // Better way to do this?
+                    exit(0);
+                }
+            }
+        }
+
+        if (!$checked && $lm && array_key_exists('HTTP_IF_MODIFIED_SINCE', $_SERVER)) {
+            $if_modified_since = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
+            $ims = strtotime($if_modified_since);
+            if ($lm <= $ims) {
+                header('HTTP/1.1 304 Not Modified');
+                // Better way to do this?
+                exit(0);
+            }
+        }
+    }
+
+    /**
+     * Return last modified, if applicable.
+     *
+     * MAY override
+     *
+     * @return string last modified http header
+     */
+    public function lastModified()
+    {
+        // For comparison with If-Last-Modified
+        // If not applicable, return null
+        return null;
+    }
+
+    /**
+     * Return etag, if applicable.
+     *
+     * MAY override
+     *
+     * @return string etag http header
+     */
+    public function etag()
+    {
+        return null;
+    }
+
+    /**
+     * Is this action cacheable?
+     *
+     * If the action returns a last-modified
+     *
+     * @return boolean is read only action?
+     */
+    public function isCacheable()
+    {
+        return true;
+    }
+
+    /**
+     * Has etag? (private)
+     *
+     * @param string $etag etag http header
+     * @param string $if_none_match ifNoneMatch http header
+     *
+     * @return boolean
+     */
+    public function _hasEtag($etag, $if_none_match)
+    {
+        $etags = explode(',', $if_none_match);
+        return in_array($etag, $etags) || in_array('*', $etags);
+    }
+
+    /**
+     * Server error
+     *
+     * @param string $msg error message to display
+     * @param integer $code http error code, 500 by default
+     *
+     * @param string $format
+     * @return void
+     */
+    public function serverError($msg, $code = 500, $format = null)
+    {
+        if ($format === null) {
+            $format = $this->format;
+        }
+
+        common_debug("Server error '{$code}' on '{$this->action}': {$msg}", __FILE__);
+
+        if (!array_key_exists($code, ServerErrorAction::$status)) {
+            $code = 500;
+        }
+
+        $status_string = ServerErrorAction::$status[$code];
+
+        switch ($format) {
+            case 'xml':
+                header("HTTP/1.1 {$code} {$status_string}");
+                $this->initDocument('xml');
+                $this->elementStart('hash');
+                $this->element('error', null, $msg);
+                $this->element('request', null, $_SERVER['REQUEST_URI']);
+                $this->elementEnd('hash');
+                $this->endDocument('xml');
+                break;
+            case 'json':
+                if (!isset($this->callback)) {
+                    header("HTTP/1.1 {$code} {$status_string}");
+                }
+                $this->initDocument('json');
+                $error_array = array('error' => $msg, 'request' => $_SERVER['REQUEST_URI']);
+                print(json_encode($error_array));
+                $this->endDocument('json');
+                break;
+            default:
+                common_log(LOG_ERR, 'Handled serverError (' . _ve($code) . ') but cannot output into desired format (' . _ve($this->format) . '): ' . _ve($msg));
+                $action = new ServerErrorAction($msg, $code);
+                $action->execute();
+        }
+
+        exit((int)$code);
+    }
+
     public function getScoped()
     {
         return ($this->scoped instanceof Profile) ? $this->scoped : null;
-    }
-
-    // Must be run _after_ prepare
-    public function getActionName()
-    {
-        return $this->action;
     }
 
     public function isAction(array $names)
@@ -216,7 +523,10 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Show page, a template method.
      *
-     * @return nothing
+     * @return void
+     * @throws ClientException
+     * @throws ReflectionException
+     * @throws ServerException
      */
     public function showPage()
     {
@@ -253,7 +563,7 @@ class Action extends HTMLOutputter // lawsuit
         $this->elementEnd('head');
         $this->elementStart('body');
         if ($this->getError()) {
-            $this->element('p', array('id'=>'error'), $this->getError());
+            $this->element('p', array('id' => 'error'), $this->getError());
         } else {
             $this->showContent();
         }
@@ -261,7 +571,37 @@ class Action extends HTMLOutputter // lawsuit
         $this->endHTML();
     }
 
-    function endHTML()
+    /**
+     * Returns the page title
+     *
+     * SHOULD overload
+     *
+     * @return string page title
+     */
+
+    public function title()
+    {
+        // TRANS: Page title for a page without a title set.
+        return _('Untitled page');
+    }
+
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    /**
+     * Show content.
+     *
+     * MUST overload (unless there's not a notice)
+     *
+     * @return void
+     */
+    protected function showContent()
+    {
+    }
+
+    public function endHTML()
     {
         global $_startTime;
 
@@ -271,15 +611,15 @@ class Action extends HTMLOutputter // lawsuit
             $this->raw("<!-- ${diff}ms -->");
         }
 
-        return parent::endHTML();
+        parent::endHTML();
     }
 
     /**
      * Show head, a template method.
      *
-     * @return nothing
+     * @return void
      */
-    function showHead()
+    public function showHead()
     {
         // XXX: attributes (profile?)
         $this->elementStart('head');
@@ -302,54 +642,45 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Show title, a template method.
      *
-     * @return nothing
+     * @return void
      */
-    function showTitle()
+    public function showTitle()
     {
-        $this->element('title', null,
-                       // TRANS: Page title. %1$s is the title, %2$s is the site name.
-                       sprintf(_('%1$s - %2$s'),
-                               $this->title(),
-                               common_config('site', 'name')));
-    }
-
-    /**
-     * Returns the page title
-     *
-     * SHOULD overload
-     *
-     * @return string page title
-     */
-
-    function title()
-    {
-        // TRANS: Page title for a page without a title set.
-        return _('Untitled page');
+        $this->element(
+            'title',
+            null,
+            // TRANS: Page title. %1$s is the title, %2$s is the site name.
+            sprintf(
+                _('%1$s - %2$s'),
+                $this->title(),
+                common_config('site', 'name')
+            )
+        );
     }
 
     /**
      * Show themed shortcut icon
      *
-     * @return nothing
+     * @return void
      */
-    function showShortcutIcon()
+    public function showShortcutIcon()
     {
         if (is_readable(INSTALLDIR . '/theme/' . common_config('site', 'theme') . '/favicon.ico')) {
             $this->element('link', array('rel' => 'shortcut icon',
-                                         'href' => Theme::path('favicon.ico')));
+                'href' => Theme::path('favicon.ico')));
         } else {
             // favicon.ico should be HTTPS if the rest of the page is
             $this->element('link', array('rel' => 'shortcut icon',
-                                         'href' => common_path('favicon.ico', GNUsocial::isHTTPS())));
+                'href' => common_path('favicon.ico', GNUsocial::isHTTPS())));
         }
 
         if (common_config('site', 'mobile')) {
             if (is_readable(INSTALLDIR . '/theme/' . common_config('site', 'theme') . '/apple-touch-icon.png')) {
                 $this->element('link', array('rel' => 'apple-touch-icon',
-                                             'href' => Theme::path('apple-touch-icon.png')));
+                    'href' => Theme::path('apple-touch-icon.png')));
             } else {
                 $this->element('link', array('rel' => 'apple-touch-icon',
-                                             'href' => common_path('apple-touch-icon.png')));
+                    'href' => common_path('apple-touch-icon.png')));
             }
         }
     }
@@ -357,9 +688,9 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Show stylesheets
      *
-     * @return nothing
+     * @return void
      */
-    function showStylesheets()
+    public function showStylesheets()
     {
         if (Event::handle('StartShowStyles', array($this))) {
 
@@ -390,7 +721,7 @@ class Action extends HTMLOutputter // lawsuit
         }
     }
 
-    function primaryCssLink($mainTheme=null, $media=null)
+    public function primaryCssLink($mainTheme = null, $media = null)
     {
         $theme = new Theme($mainTheme);
 
@@ -416,126 +747,19 @@ class Action extends HTMLOutputter // lawsuit
     }
 
     /**
-     * Show javascript headers
-     *
-     * @return nothing
-     */
-    function showScripts()
-    {
-        if (Event::handle('StartShowScripts', array($this))) {
-            if (Event::handle('StartShowJQueryScripts', array($this))) {
-                $this->script('extlib/jquery.js');
-                $this->script('extlib/jquery.form.js');
-                $this->script('extlib/jquery-ui/jquery-ui.js');
-                $this->script('extlib/jquery.cookie.js');
-
-                Event::handle('EndShowJQueryScripts', array($this));
-            }
-            if (Event::handle('StartShowStatusNetScripts', array($this))) {
-                $this->script('util.js');
-                $this->script('xbImportNode.js');
-
-                // This route isn't available in single-user mode.
-                // Not sure why, but it causes errors here.
-                $this->inlineScript('var _peopletagAC = "' .
-                                    common_local_url('peopletagautocomplete') . '";');
-                $this->showScriptMessages();
-                $this->showScriptVariables();
-                // Anti-framing code to avoid clickjacking attacks in older browsers.
-                // This will show a blank page if the page is being framed, which is
-                // consistent with the behavior of the 'X-Frame-Options: SAMEORIGIN'
-                // header, which prevents framing in newer browser.
-                if (common_config('javascript', 'bustframes')) {
-                    $this->inlineScript('if (window.top !== window.self) { document.write = ""; window.top.location = window.self.location; setTimeout(function () { document.body.innerHTML = ""; }, 1); window.self.onload = function () { document.body.innerHTML = ""; }; }');
-                }
-                Event::handle('EndShowStatusNetScripts', array($this));
-            }
-            Event::handle('EndShowScripts', array($this));
-        }
-    }
-
-    /**
-     * Exports a map of localized text strings to JavaScript code.
-     *
-     * Plugins can add to what's exported by hooking the StartScriptMessages or EndScriptMessages
-     * events and appending to the array. Try to avoid adding strings that won't be used, as
-     * they'll be added to HTML output.
-     */
-    function showScriptMessages()
-    {
-        $messages = array();
-
-        if (Event::handle('StartScriptMessages', array($this, &$messages))) {
-            // Common messages needed for timeline views etc...
-
-            // TRANS: Localized tooltip for '...' expansion button on overlong remote messages.
-            $messages['showmore_tooltip'] = _m('TOOLTIP', 'Show more');
-            $messages['popup_close_button'] = _m('TOOLTIP', 'Close popup');
-
-            $messages = array_merge($messages, $this->getScriptMessages());
-
-            Event::handle('EndScriptMessages', array($this, &$messages));
-        }
-
-        if (!empty($messages)) {
-            $this->inlineScript('SN.messages=' . json_encode($messages));
-        }
-
-        return $messages;
-    }
-
-    protected function showScriptVariables()
-    {
-        $vars = array();
-
-        if (Event::handle('StartScriptVariables', array($this, &$vars))) {
-            $vars['urlNewNotice'] = common_local_url('newnotice');
-            $vars['xhrTimeout'] = ini_get('max_execution_time')*1000;   // milliseconds
-            Event::handle('EndScriptVariables', array($this, &$vars));
-        }
-
-        $this->inlineScript('SN.V = ' . json_encode($vars) . ';');
-
-        return $vars;
-    }
-
-    /**
-     * If the action will need localizable text strings, export them here like so:
-     *
-     * return array('pool_deepend' => _('Deep end'),
-     *              'pool_shallow' => _('Shallow end'));
-     *
-     * The exported map will be available via SN.msg() to JS code:
-     *
-     *   $('#pool').html('<div class="deepend"></div><div class="shallow"></div>');
-     *   $('#pool .deepend').text(SN.msg('pool_deepend'));
-     *   $('#pool .shallow').text(SN.msg('pool_shallow'));
-     *
-     * Exports a map of localized text strings to JavaScript code.
-     *
-     * Plugins can add to what's exported on any action by hooking the StartScriptMessages or
-     * EndScriptMessages events and appending to the array. Try to avoid adding strings that won't
-     * be used, as they'll be added to HTML output.
-     */
-    function getScriptMessages()
-    {
-        return array();
-    }
-
-    /**
      * Show OpenSearch headers
      *
-     * @return nothing
+     * @return void
      */
-    function showOpenSearch()
+    public function showOpenSearch()
     {
         $this->element('link', array('rel' => 'search',
-                                     'type' => 'application/opensearchdescription+xml',
-                                     'href' =>  common_local_url('opensearch', array('type' => 'people')),
-                                     'title' => common_config('site', 'name').' People Search'));
+            'type' => 'application/opensearchdescription+xml',
+            'href' => common_local_url('opensearch', array('type' => 'people')),
+            'title' => common_config('site', 'name') . ' People Search'));
         $this->element('link', array('rel' => 'search', 'type' => 'application/opensearchdescription+xml',
-                                     'href' =>  common_local_url('opensearch', array('type' => 'notice')),
-                                     'title' => common_config('site', 'name').' Notice Search'));
+            'href' => common_local_url('opensearch', array('type' => 'notice')),
+            'title' => common_config('site', 'name') . ' Notice Search'));
     }
 
     /**
@@ -543,16 +767,28 @@ class Action extends HTMLOutputter // lawsuit
      *
      * MAY overload
      *
-     * @return nothing
+     * @return void
      */
-    function showFeeds()
+    public function showFeeds()
     {
         foreach ($this->getFeeds() as $feed) {
             $this->element('link', array('rel' => $feed->rel(),
-                                         'href' => $feed->url,
-                                         'type' => $feed->mimeType(),
-                                         'title' => $feed->title));
+                'href' => $feed->url,
+                'type' => $feed->mimeType(),
+                'title' => $feed->title));
         }
+    }
+
+    /**
+     * An array of feeds for this action.
+     *
+     * Returns an array of potential feeds for this action.
+     *
+     * @return array Feed object to show in head and links
+     */
+    public function getFeeds()
+    {
+        return [];
     }
 
     /**
@@ -560,9 +796,9 @@ class Action extends HTMLOutputter // lawsuit
      *
      * SHOULD overload
      *
-     * @return nothing
+     * @return void
      */
-    function showDescription()
+    public function showDescription()
     {
         // does nothing by default
     }
@@ -572,9 +808,9 @@ class Action extends HTMLOutputter // lawsuit
      *
      * MAY overload
      *
-     * @return nothing
+     * @return void
      */
-    function extraHead()
+    public function extraHead()
     {
         // does nothing by default
     }
@@ -584,9 +820,11 @@ class Action extends HTMLOutputter // lawsuit
      *
      * Calls template methods
      *
-     * @return nothing
+     * @return void
+     * @throws ServerException
+     * @throws ReflectionException
      */
-    function showBody()
+    public function showBody()
     {
         $params = array('id' => $this->getActionName());
         if ($this->scoped instanceof Profile) {
@@ -611,14 +849,20 @@ class Action extends HTMLOutputter // lawsuit
         $this->elementEnd('body');
     }
 
+    public function getActionName()
+    {
+        return $this->action;
+    }
+
     /**
      * Show header of the page.
      *
      * Calls template methods
      *
-     * @return nothing
+     * @return void
+     * @throws ServerException
      */
-    function showHeader()
+    public function showHeader()
     {
         $this->elementStart('div', array('id' => 'header'));
         $this->showLogo();
@@ -635,17 +879,20 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Show configured logo.
      *
-     * @return nothing
+     * @return void
+     * @throws ServerException
      */
-    function showLogo()
+    public function showLogo()
     {
         $this->elementStart('address', array('id' => 'site_contact', 'class' => 'h-card'));
         if (Event::handle('StartAddressData', array($this))) {
             if (common_config('singleuser', 'enabled')) {
                 $user = User::singleUser();
-                $url = common_local_url('showstream',
-                                        array('nickname' => $user->nickname));
-            } else if (common_logged_in()) {
+                $url = common_local_url(
+                    'showstream',
+                    array('nickname' => $user->nickname)
+                );
+            } elseif (common_logged_in()) {
                 $cur = common_current_user();
                 $url = common_local_url('all', array('nickname' => $cur->nickname));
             } else {
@@ -653,7 +900,7 @@ class Action extends HTMLOutputter // lawsuit
             }
 
             $this->elementStart('a', array('class' => 'home bookmark',
-                                           'href' => $url));
+                'href' => $url));
 
             if (GNUsocial::isHTTPS()) {
                 $logoUrl = common_config('site', 'ssllogo');
@@ -683,8 +930,8 @@ class Action extends HTMLOutputter // lawsuit
 
             if (!empty($logoUrl)) {
                 $this->element('img', array('class' => 'logo u-photo p-name',
-                                            'src' => $logoUrl,
-                                            'alt' => common_config('site', 'name')));
+                    'src' => $logoUrl,
+                    'alt' => common_config('site', 'name')));
             }
 
             $this->elementEnd('a');
@@ -697,9 +944,9 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Show primary navigation.
      *
-     * @return nothing
+     * @return void
      */
-    function showPrimaryNav()
+    public function showPrimaryNav()
     {
         $this->elementStart('div', array('id' => 'site_nav_global_primary'));
 
@@ -718,105 +965,18 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Show site notice.
      *
-     * @return nothing
+     * @return void
      */
-    function showSiteNotice()
+    public function showSiteNotice()
     {
         // Revist. Should probably do an hAtom pattern here
         $text = common_config('site', 'notice');
         if ($text) {
             $this->elementStart('div', array('id' => 'site_notice',
-                                            'class' => 'system_notice'));
+                'class' => 'system_notice'));
             $this->raw($text);
             $this->elementEnd('div');
         }
-    }
-
-    /**
-     * Show notice form.
-     *
-     * MAY overload if no notice form needed... or direct message box????
-     *
-     * @return nothing
-     */
-    function showNoticeForm()
-    {
-        // TRANS: Tab on the notice form.
-        $tabs = array('status' => array('title' => _m('TAB','Status'),
-                                        'href'  => common_local_url('newnotice')));
-
-        $this->elementStart('div', 'input_forms');
-
-        $this->element('label', array('for'=>'input_form_nav'), _m('TAB', 'Share your:'));
-
-        if (Event::handle('StartShowEntryForms', array(&$tabs))) {
-            $this->elementStart('ul', array('class' => 'nav',
-                                            'id' => 'input_form_nav'));
-
-            foreach ($tabs as $tag => $data) {
-                $tag = htmlspecialchars($tag);
-                $attrs = array('id' => 'input_form_nav_'.$tag,
-                               'class' => 'input_form_nav_tab');
-
-                if ($tag == 'status') {
-                    $attrs['class'] .= ' current';
-                }
-                $this->elementStart('li', $attrs);
-
-                $this->element('a',
-                               array('onclick' => 'return SN.U.switchInputFormTab("'.$tag.'");',
-                                     'href' => $data['href']),
-                               $data['title']);
-                $this->elementEnd('li');
-            }
-
-            $this->elementEnd('ul');
-
-            foreach ($tabs as $tag => $data) {
-                $attrs = array('class' => 'input_form',
-                               'id' => 'input_form_'.$tag);
-                if ($tag == 'status') {
-                    $attrs['class'] .= ' current';
-                }
-
-                $this->elementStart('div', $attrs);
-
-                $form = null;
-
-                if (Event::handle('StartMakeEntryForm', array($tag, $this, &$form))) {
-                    if ($tag == 'status') {
-                        $options = $this->noticeFormOptions();
-                        $form = new NoticeForm($this, $options);
-                    }
-                    Event::handle('EndMakeEntryForm', array($tag, $this, $form));
-                }
-
-                if (!empty($form)) {
-                    $form->show();
-                }
-
-                $this->elementEnd('div');
-            }
-        }
-
-        $this->elementEnd('div');
-    }
-
-    function noticeFormOptions()
-    {
-        return array();
-    }
-
-    /**
-     * Show anonymous message.
-     *
-     * SHOULD overload
-     *
-     * @return nothing
-     */
-    function showAnonymousMessage()
-    {
-        // needs to be defined by the class
     }
 
     /**
@@ -824,9 +984,10 @@ class Action extends HTMLOutputter // lawsuit
      *
      * Shows local navigation, content block and aside.
      *
-     * @return nothing
+     * @return void
+     * @throws ReflectionException
      */
-    function showCore()
+    public function showCore()
     {
         $this->elementStart('div', array('id' => 'core'));
         $this->elementStart('div', array('id' => 'aside_primary_wrapper'));
@@ -856,9 +1017,9 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Show local navigation block.
      *
-     * @return nothing
+     * @return void
      */
-    function showLocalNavBlock()
+    public function showLocalNavBlock()
     {
         // Need to have this ID for CSS; I'm too lazy to add it to
         // all menus
@@ -869,72 +1030,25 @@ class Action extends HTMLOutputter // lawsuit
     }
 
     /**
-     * If there's a logged-in user, show a bit of login context
-     *
-     * @return nothing
-     */
-    function showProfileBlock()
-    {
-        if (common_logged_in()) {
-            $block = new DefaultProfileBlock($this);
-            $block->show();
-        }
-    }
-
-    /**
      * Show local navigation.
      *
      * SHOULD overload
      *
-     * @return nothing
+     * @return void
      */
-    function showLocalNav()
+    public function showLocalNav()
     {
         $nav = new DefaultLocalNav($this);
         $nav->show();
     }
 
     /**
-     * Show menu for an object (group, profile)
-     *
-     * This block will only show if a subclass has overridden
-     * the showObjectNav() method.
-     *
-     * @return nothing
-     */
-    function showObjectNavBlock()
-    {
-        $rmethod = new ReflectionMethod($this, 'showObjectNav');
-        $dclass = $rmethod->getDeclaringClass()->getName();
-
-        if ($dclass != 'Action') {
-            // Need to have this ID for CSS; I'm too lazy to add it to
-            // all menus
-            $this->elementStart('div', array('id' => 'site_nav_object',
-                                             'class' => 'section'));
-            $this->showObjectNav();
-            $this->elementEnd('div');
-        }
-    }
-
-    /**
-     * Show object navigation.
-     *
-     * If there are things to do with this object, show it here.
-     *
-     * @return nothing
-     */
-    function showObjectNav()
-    {
-        /* Nothing here. */
-    }
-
-    /**
      * Show content block.
      *
-     * @return nothing
+     * @return void
+     * @throws ReflectionException
      */
-    function showContentBlock()
+    public function showContentBlock()
     {
         $this->elementStart('div', array('id' => 'content'));
         if (common_logged_in()) {
@@ -956,11 +1070,88 @@ class Action extends HTMLOutputter // lawsuit
     }
 
     /**
+     * Show notice form.
+     *
+     * MAY overload if no notice form needed... or direct message box????
+     *
+     * @return void
+     */
+    public function showNoticeForm()
+    {
+        // TRANS: Tab on the notice form.
+        $tabs = array('status' => array('title' => _m('TAB', 'Status'),
+            'href' => common_local_url('newnotice')));
+
+        $this->elementStart('div', 'input_forms');
+
+        $this->element('label', array('for' => 'input_form_nav'), _m('TAB', 'Share your:'));
+
+        if (Event::handle('StartShowEntryForms', array(&$tabs))) {
+            $this->elementStart('ul', array('class' => 'nav',
+                'id' => 'input_form_nav'));
+
+            foreach ($tabs as $tag => $data) {
+                $tag = htmlspecialchars($tag);
+                $attrs = array('id' => 'input_form_nav_' . $tag,
+                    'class' => 'input_form_nav_tab');
+
+                if ($tag == 'status') {
+                    $attrs['class'] .= ' current';
+                }
+                $this->elementStart('li', $attrs);
+
+                $this->element(
+                    'a',
+                    array('onclick' => 'return SN.U.switchInputFormTab("' . $tag . '");',
+                        'href' => $data['href']),
+                    $data['title']
+                );
+                $this->elementEnd('li');
+            }
+
+            $this->elementEnd('ul');
+
+            foreach ($tabs as $tag => $data) {
+                $attrs = array('class' => 'input_form',
+                    'id' => 'input_form_' . $tag);
+                if ($tag == 'status') {
+                    $attrs['class'] .= ' current';
+                }
+
+                $this->elementStart('div', $attrs);
+
+                $form = null;
+
+                if (Event::handle('StartMakeEntryForm', array($tag, $this, &$form))) {
+                    if ($tag == 'status') {
+                        $options = $this->noticeFormOptions();
+                        $form = new NoticeForm($this, $options);
+                    }
+                    Event::handle('EndMakeEntryForm', array($tag, $this, $form));
+                }
+
+                if (!empty($form)) {
+                    $form->show();
+                }
+
+                $this->elementEnd('div');
+            }
+        }
+
+        $this->elementEnd('div');
+    }
+
+    public function noticeFormOptions()
+    {
+        return [];
+    }
+
+    /**
      * Show page title.
      *
-     * @return nothing
+     * @return void
      */
-    function showPageTitle()
+    public function showPageTitle()
     {
         $this->element('h1', null, $this->title());
     }
@@ -974,17 +1165,17 @@ class Action extends HTMLOutputter // lawsuit
      * 'page_notice' definition list is desired.  This is to prevent
      * empty 'page_notice' definition lists from being output everywhere.
      *
-     * @return nothing
+     * @return void
+     * @throws ReflectionException
      */
-    function showPageNoticeBlock()
+    public function showPageNoticeBlock()
     {
         $rmethod = new ReflectionMethod($this, 'showPageNotice');
         $dclass = $rmethod->getDeclaringClass()->getName();
 
         if ($dclass != 'Action' || Event::hasHandler('StartShowPageNotice')) {
-
             $this->elementStart('div', array('id' => 'page_notice',
-                                            'class' => 'system_notice'));
+                'class' => 'system_notice'));
             if (Event::handle('StartShowPageNotice', array($this))) {
                 $this->showPageNotice();
                 Event::handle('EndShowPageNotice', array($this));
@@ -998,32 +1189,22 @@ class Action extends HTMLOutputter // lawsuit
      *
      * SHOULD overload (unless there's not a notice)
      *
-     * @return nothing
+     * @return void
      */
-    function showPageNotice()
-    {
-    }
-
-    /**
-     * Show content.
-     *
-     * MUST overload (unless there's not a notice)
-     *
-     * @return nothing
-     */
-    protected function showContent()
+    public function showPageNotice()
     {
     }
 
     /**
      * Show Aside.
      *
-     * @return nothing
+     * @return void
+     * @throws ReflectionException
      */
-    function showAside()
+    public function showAside()
     {
         $this->elementStart('div', array('id' => 'aside_primary',
-                                         'class' => 'aside'));
+            'class' => 'aside'));
         $this->showProfileBlock();
         if (Event::handle('StartShowObjectNavBlock', array($this))) {
             $this->showObjectNavBlock();
@@ -1041,11 +1222,73 @@ class Action extends HTMLOutputter // lawsuit
     }
 
     /**
+     * If there's a logged-in user, show a bit of login context
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function showProfileBlock()
+    {
+        if (common_logged_in()) {
+            $block = new DefaultProfileBlock($this);
+            $block->show();
+        }
+    }
+
+    /**
+     * Show menu for an object (group, profile)
+     *
+     * This block will only show if a subclass has overridden
+     * the showObjectNav() method.
+     *
+     * @return void
+     * @throws ReflectionException
+     */
+    public function showObjectNavBlock()
+    {
+        $rmethod = new ReflectionMethod($this, 'showObjectNav');
+        $dclass = $rmethod->getDeclaringClass()->getName();
+
+        if ($dclass != 'Action') {
+            // Need to have this ID for CSS; I'm too lazy to add it to
+            // all menus
+            $this->elementStart('div', array('id' => 'site_nav_object',
+                'class' => 'section'));
+            $this->showObjectNav();
+            $this->elementEnd('div');
+        }
+    }
+
+    /**
+     * Show object navigation.
+     *
+     * If there are things to do with this object, show it here.
+     *
+     * @return void
+     */
+    public function showObjectNav()
+    {
+        /* Nothing here. */
+    }
+
+    /**
+     * Show sections.
+     *
+     * SHOULD overload
+     *
+     * @return void
+     */
+    public function showSections()
+    {
+        // for each section, show it
+    }
+
+    /**
      * Show export data feeds.
      *
      * @return void
      */
-    function showExportData()
+    public function showExportData()
     {
         $feeds = $this->getFeeds();
         if (!empty($feeds)) {
@@ -1055,23 +1298,11 @@ class Action extends HTMLOutputter // lawsuit
     }
 
     /**
-     * Show sections.
-     *
-     * SHOULD overload
-     *
-     * @return nothing
-     */
-    function showSections()
-    {
-        // for each section, show it
-    }
-
-    /**
      * Show footer.
      *
-     * @return nothing
+     * @return void
      */
-    function showFooter()
+    public function showFooter()
     {
         $this->elementStart('div', array('id' => 'footer'));
         if (Event::handle('StartShowInsideFooter', array($this))) {
@@ -1085,9 +1316,9 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Show secondary navigation.
      *
-     * @return nothing
+     * @return void
      */
-    function showSecondaryNav()
+    public function showSecondaryNav()
     {
         $sn = new SecondaryNav($this);
         $sn->show();
@@ -1096,9 +1327,9 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Show licenses.
      *
-     * @return nothing
+     * @return void
      */
-    function showLicenses()
+    public function showLicenses()
     {
         $this->showGNUsocialLicense();
         $this->showContentLicense();
@@ -1107,9 +1338,9 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Show GNU social license.
      *
-     * @return nothing
+     * @return void
      */
-    function showGNUsocialLicense()
+    public function showGNUsocialLicense()
     {
         if (common_config('site', 'broughtby')) {
             // TRANS: First sentence of the GNU social site license. Used if 'broughtby' is set.
@@ -1135,67 +1366,76 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Show content license.
      *
-     * @return nothing
+     * @return void
      */
-    function showContentLicense()
+    public function showContentLicense()
     {
         if (Event::handle('StartShowContentLicense', array($this))) {
             switch (common_config('license', 'type')) {
-            case 'private':
-                // TRANS: Content license displayed when license is set to 'private'.
-                // TRANS: %1$s is the site name.
-                $this->element('p', null, sprintf(_('Content and data of %1$s are private and confidential.'),
-                                                  common_config('site', 'name')));
+                case 'private':
+                    // TRANS: Content license displayed when license is set to 'private'.
+                    // TRANS: %1$s is the site name.
+                    $this->element('p', null, sprintf(
+                        _('Content and data of %1$s are private and confidential.'),
+                        common_config('site', 'name')
+                    ));
                 // fall through
-            case 'allrightsreserved':
-                if (common_config('license', 'owner')) {
-                    // TRANS: Content license displayed when license is set to 'allrightsreserved'.
-                    // TRANS: %1$s is the copyright owner.
-                    $this->element('p', null, sprintf(_('Content and data copyright by %1$s. All rights reserved.'),
-                                                      common_config('license', 'owner')));
-                } else {
-                    // TRANS: Content license displayed when license is set to 'allrightsreserved' and no owner is set.
-                    $this->element('p', null, _('Content and data copyright by contributors. All rights reserved.'));
-                }
-                break;
-            case 'cc': // fall through
-            default:
-                $this->elementStart('p');
-
-                $image    = common_config('license', 'image');
-                $sslimage = common_config('license', 'sslimage');
-
-                if (GNUsocial::isHTTPS()) {
-                    if (!empty($sslimage)) {
-                        $url = $sslimage;
-                    } else if (preg_match('#^http://i.creativecommons.org/#', $image)) {
-                        // CC support HTTPS on their images
-                        $url = preg_replace('/^http/', 'https', $image, 1);
+                // no break
+                case 'allrightsreserved':
+                    if (common_config('license', 'owner')) {
+                        // TRANS: Content license displayed when license is set to 'allrightsreserved'.
+                        // TRANS: %1$s is the copyright owner.
+                        $this->element('p', null, sprintf(
+                            _('Content and data copyright by %1$s. All rights reserved.'),
+                            common_config('license', 'owner')
+                        ));
                     } else {
-                        // Better to show mixed content than no content
+                        // TRANS: Content license displayed when license is set to 'allrightsreserved' and no owner is set.
+                        $this->element('p', null, _('Content and data copyright by contributors. All rights reserved.'));
+                    }
+                    break;
+                case 'cc': // fall through
+                default:
+                    $this->elementStart('p');
+
+                    $image = common_config('license', 'image');
+                    $sslimage = common_config('license', 'sslimage');
+
+                    if (GNUsocial::isHTTPS()) {
+                        if (!empty($sslimage)) {
+                            $url = $sslimage;
+                        } elseif (preg_match('#^http://i.creativecommons.org/#', $image)) {
+                            // CC support HTTPS on their images
+                            $url = preg_replace('/^http/', 'https', $image, 1);
+                        } else {
+                            // Better to show mixed content than no content
+                            $url = $image;
+                        }
+                    } else {
                         $url = $image;
                     }
-                } else {
-                    $url = $image;
-                }
 
-                $this->element('img', array('id' => 'license_cc',
-                                            'src' => $url,
-                                            'alt' => common_config('license', 'title'),
-                                            'width' => '80',
-                                            'height' => '15'));
-                $this->text(' ');
-                // TRANS: license message in footer.
-                // TRANS: %1$s is the site name, %2$s is a link to the license URL, with a licence name set in configuration.
-                $notice = _('All %1$s content and data are available under the %2$s license.');
-                $link = sprintf('<a class="license" rel="external license" href="%1$s">%2$s</a>',
-                                htmlspecialchars(common_config('license', 'url')),
-                                htmlspecialchars(common_config('license', 'title')));
-                $this->raw(@sprintf(htmlspecialchars($notice),
-                                   htmlspecialchars(common_config('site', 'name')),
-                                   $link));
-                $this->elementEnd('p');
-                break;
+                    $this->element('img', array('id' => 'license_cc',
+                        'src' => $url,
+                        'alt' => common_config('license', 'title'),
+                        'width' => '80',
+                        'height' => '15'));
+                    $this->text(' ');
+                    // TRANS: license message in footer.
+                    // TRANS: %1$s is the site name, %2$s is a link to the license URL, with a licence name set in configuration.
+                    $notice = _('All %1$s content and data are available under the %2$s license.');
+                    $link = sprintf(
+                        '<a class="license" rel="external license" href="%1$s">%2$s</a>',
+                        htmlspecialchars(common_config('license', 'url')),
+                        htmlspecialchars(common_config('license', 'title'))
+                    );
+                    $this->raw(@sprintf(
+                        htmlspecialchars($notice),
+                        htmlspecialchars(common_config('site', 'name')),
+                        $link
+                    ));
+                    $this->elementEnd('p');
+                    break;
             }
 
             Event::handle('EndShowContentLicense', array($this));
@@ -1203,176 +1443,122 @@ class Action extends HTMLOutputter // lawsuit
     }
 
     /**
-     * Return last modified, if applicable.
+     * Show javascript headers
      *
-     * MAY override
-     *
-     * @return string last modified http header
+     * @return void
      */
-    function lastModified()
+    public function showScripts()
     {
-        // For comparison with If-Last-Modified
-        // If not applicable, return null
-        return null;
-    }
+        if (Event::handle('StartShowScripts', array($this))) {
+            if (Event::handle('StartShowJQueryScripts', array($this))) {
+                $this->script('extlib/jquery.js');
+                $this->script('extlib/jquery.form.js');
+                $this->script('extlib/jquery-ui/jquery-ui.js');
+                $this->script('extlib/jquery.cookie.js');
 
-    /**
-     * Return etag, if applicable.
-     *
-     * MAY override
-     *
-     * @return string etag http header
-     */
-    function etag()
-    {
-        return null;
-    }
-
-    /**
-     * Return true if read only.
-     *
-     * MAY override
-     *
-     * @param array $args other arguments
-     *
-     * @return boolean is read only action?
-     */
-    function isReadOnly($args)
-    {
-        return false;
-    }
-
-    /**
-     * Returns query argument or default value if not found
-     *
-     * @param string $key requested argument
-     * @param string $def default value to return if $key is not provided
-     *
-     * @return boolean is read only action?
-     */
-    function arg($key, $def=null)
-    {
-        if (array_key_exists($key, $this->args)) {
-            return $this->args[$key];
-        } else {
-            return $def;
-        }
-    }
-
-    /**
-     * Returns trimmed query argument or default value if not found
-     *
-     * @param string $key requested argument
-     * @param string $def default value to return if $key is not provided
-     *
-     * @return boolean is read only action?
-     */
-    function trimmed($key, $def=null)
-    {
-        $arg = $this->arg($key, $def);
-        return is_string($arg) ? trim($arg) : $arg;
-    }
-
-    /**
-     * Handler method
-     *
-     * @return boolean is read only action?
-     */
-    protected function handle()
-    {
-        header('Vary: Accept-Encoding,Cookie');
-
-        $lm   = $this->lastModified();
-        $etag = $this->etag();
-
-        if ($etag) {
-            header('ETag: ' . $etag);
-        }
-
-        if ($lm) {
-            header('Last-Modified: ' . date(DATE_RFC1123, $lm));
-            if ($this->isCacheable()) {
-                header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', 0 ) . ' GMT' );
-                header( "Cache-Control: private, must-revalidate, max-age=0" );
-                header( "Pragma:");
+                Event::handle('EndShowJQueryScripts', array($this));
             }
-        }
+            if (Event::handle('StartShowStatusNetScripts', array($this))) {
+                $this->script('util.js');
+                $this->script('xbImportNode.js');
 
-        $checked = false;
-        if ($etag) {
-            $if_none_match = (array_key_exists('HTTP_IF_NONE_MATCH', $_SERVER)) ?
-              $_SERVER['HTTP_IF_NONE_MATCH'] : null;
-            if ($if_none_match) {
-                // If this check fails, ignore the if-modified-since below.
-                $checked = true;
-                if ($this->_hasEtag($etag, $if_none_match)) {
-                    header('HTTP/1.1 304 Not Modified');
-                    // Better way to do this?
-                    exit(0);
+                // This route isn't available in single-user mode.
+                // Not sure why, but it causes errors here.
+                $this->inlineScript('var _peopletagAC = "' .
+                    common_local_url('peopletagautocomplete') . '";');
+                $this->showScriptMessages();
+                $this->showScriptVariables();
+                // Anti-framing code to avoid clickjacking attacks in older browsers.
+                // This will show a blank page if the page is being framed, which is
+                // consistent with the behavior of the 'X-Frame-Options: SAMEORIGIN'
+                // header, which prevents framing in newer browser.
+                if (common_config('javascript', 'bustframes')) {
+                    $this->inlineScript('if (window.top !== window.self) { document.write = ""; window.top.location = window.self.location; setTimeout(function () { document.body.innerHTML = ""; }, 1); window.self.onload = function () { document.body.innerHTML = ""; }; }');
                 }
+                Event::handle('EndShowStatusNetScripts', array($this));
             }
-        }
-
-        if (!$checked && $lm && array_key_exists('HTTP_IF_MODIFIED_SINCE', $_SERVER)) {
-            $if_modified_since = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
-            $ims = strtotime($if_modified_since);
-            if ($lm <= $ims) {
-                header('HTTP/1.1 304 Not Modified');
-                // Better way to do this?
-                exit(0);
-            }
+            Event::handle('EndShowScripts', array($this));
         }
     }
 
     /**
-     * Is this action cacheable?
+     * Exports a map of localized text strings to JavaScript code.
      *
-     * If the action returns a last-modified
-     *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
-     * @return boolean is read only action?
+     * Plugins can add to what's exported by hooking the StartScriptMessages or EndScriptMessages
+     * events and appending to the array. Try to avoid adding strings that won't be used, as
+     * they'll be added to HTML output.
      */
-    function isCacheable()
+    public function showScriptMessages()
     {
-        return true;
-    }
+        $messages = [];
 
-    /**
-     * Has etag? (private)
-     *
-     * @param string $etag          etag http header
-     * @param string $if_none_match ifNoneMatch http header
-     *
-     * @return boolean
-     */
-    function _hasEtag($etag, $if_none_match)
-    {
-        $etags = explode(',', $if_none_match);
-        return in_array($etag, $etags) || in_array('*', $etags);
-    }
+        if (Event::handle('StartScriptMessages', array($this, &$messages))) {
+            // Common messages needed for timeline views etc...
 
-    /**
-     * Boolean understands english (yes, no, true, false)
-     *
-     * @param string $key query key we're interested in
-     * @param string $def default value
-     *
-     * @return boolean interprets yes/no strings as boolean
-     */
-    function boolean($key, $def=false)
-    {
-        $arg = strtolower($this->trimmed($key));
+            // TRANS: Localized tooltip for '...' expansion button on overlong remote messages.
+            $messages['showmore_tooltip'] = _m('TOOLTIP', 'Show more');
+            $messages['popup_close_button'] = _m('TOOLTIP', 'Close popup');
 
-        if (is_null($arg)) {
-            return $def;
-        } else if (in_array($arg, array('true', 'yes', '1', 'on'))) {
-            return true;
-        } else if (in_array($arg, array('false', 'no', '0'))) {
-            return false;
-        } else {
-            return $def;
+            $messages = array_merge($messages, $this->getScriptMessages());
+
+            Event::handle('EndScriptMessages', array($this, &$messages));
         }
+
+        if (!empty($messages)) {
+            $this->inlineScript('SN.messages=' . json_encode($messages));
+        }
+
+        return $messages;
+    }
+
+    /**
+     * If the action will need localizable text strings, export them here like so:
+     *
+     * return array('pool_deepend' => _('Deep end'),
+     *              'pool_shallow' => _('Shallow end'));
+     *
+     * The exported map will be available via SN.msg() to JS code:
+     *
+     *   $('#pool').html('<div class="deepend"></div><div class="shallow"></div>');
+     *   $('#pool .deepend').text(SN.msg('pool_deepend'));
+     *   $('#pool .shallow').text(SN.msg('pool_shallow'));
+     *
+     * Exports a map of localized text strings to JavaScript code.
+     *
+     * Plugins can add to what's exported on any action by hooking the StartScriptMessages or
+     * EndScriptMessages events and appending to the array. Try to avoid adding strings that won't
+     * be used, as they'll be added to HTML output.
+     */
+    public function getScriptMessages()
+    {
+        return [];
+    }
+
+    protected function showScriptVariables()
+    {
+        $vars = [];
+
+        if (Event::handle('StartScriptVariables', array($this, &$vars))) {
+            $vars['urlNewNotice'] = common_local_url('newnotice');
+            $vars['xhrTimeout'] = ini_get('max_execution_time') * 1000;   // milliseconds
+            Event::handle('EndScriptVariables', array($this, &$vars));
+        }
+
+        $this->inlineScript('SN.V = ' . json_encode($vars) . ';');
+
+        return $vars;
+    }
+
+    /**
+     * Show anonymous message.
+     *
+     * SHOULD overload
+     *
+     * @return void
+     */
+    public function showAnonymousMessage()
+    {
+        // needs to be defined by the class
     }
 
     /**
@@ -1383,7 +1569,7 @@ class Action extends HTMLOutputter // lawsuit
      * Upstream bug is::
      * https://pear.php.net/bugs/bug.php?id=20291
      */
-    function booleanintstring($key, $def=false)
+    public function booleanintstring($key, $def = false)
     {
         return $this->boolean($key, $def) ? '1' : '0';
     }
@@ -1391,14 +1577,14 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Integer value of an argument
      *
-     * @param string $key      query key we're interested in
+     * @param string $key query key we're interested in
      * @param string $defValue optional default value (default null)
      * @param string $maxValue optional max value (default null)
      * @param string $minValue optional min value (default null)
      *
      * @return integer integer value
      */
-    function int($key, $defValue=null, $maxValue=null, $minValue=null)
+    public function int($key, $defValue = null, $maxValue = null, $minValue = null)
     {
         $arg = intval($this->arg($key));
 
@@ -1418,154 +1604,39 @@ class Action extends HTMLOutputter // lawsuit
     }
 
     /**
-     * Server error
-     *
-     * @param string  $msg  error message to display
-     * @param integer $code http error code, 500 by default
-     *
-     * @return nothing
-     */
-    function serverError($msg, $code=500, $format=null)
-    {
-        if ($format === null) {
-            $format = $this->format;
-        }
-
-        common_debug("Server error '{$code}' on '{$this->action}': {$msg}", __FILE__);
-
-        if (!array_key_exists($code, ServerErrorAction::$status)) {
-            $code = 500;
-        }
-
-        $status_string = ServerErrorAction::$status[$code];
-
-        switch ($format) {
-        case 'xml':
-            header("HTTP/1.1 {$code} {$status_string}");
-            $this->initDocument('xml');
-            $this->elementStart('hash');
-            $this->element('error', null, $msg);
-            $this->element('request', null, $_SERVER['REQUEST_URI']);
-            $this->elementEnd('hash');
-            $this->endDocument('xml');
-            break;
-        case 'json':
-            if (!isset($this->callback)) {
-                header("HTTP/1.1 {$code} {$status_string}");
-            }
-            $this->initDocument('json');
-            $error_array = array('error' => $msg, 'request' => $_SERVER['REQUEST_URI']);
-            print(json_encode($error_array));
-            $this->endDocument('json');
-            break;
-        default:
-            common_log(LOG_ERR, 'Handled serverError ('._ve($code).') but cannot output into desired format ('._ve($this->format).'): '._ve($msg));
-            $action = new ServerErrorAction($msg, $code);
-            $action->execute();
-        }
-
-        exit((int)$code);
-    }
-
-    /**
-     * Client error
-     *
-     * @param string  $msg    error message to display
-     * @param integer $code   http error code, 400 by default
-     * @param string  $format error format (json, xml, text) for ApiAction
-     *
-     * @return nothing
-     * @throws ClientException always
-     */
-    function clientError($msg, $code=400, $format=null)
-    {
-        // $format is currently only relevant for an ApiAction anyway
-        if ($format === null) {
-            $format = $this->format;
-        }
-
-        common_debug("User error '{$code}' on '{$this->action}': {$msg}", __FILE__);
-
-        if (!array_key_exists($code, ClientErrorAction::$status)) {
-            $code = 400;
-        }
-
-        $status_string = ClientErrorAction::$status[$code];
-
-        switch ($format) {
-        case 'xml':
-            header("HTTP/1.1 {$code} {$status_string}");
-            $this->initDocument('xml');
-            $this->elementStart('hash');
-            $this->element('error', null, $msg);
-            $this->element('request', null, $_SERVER['REQUEST_URI']);
-            $this->elementEnd('hash');
-            $this->endDocument('xml');
-            break;
-        case 'json':
-            if (!isset($this->callback)) {
-                header("HTTP/1.1 {$code} {$status_string}");
-            }
-            $this->initDocument('json');
-            $error_array = array('error' => $msg, 'request' => $_SERVER['REQUEST_URI']);
-            print(json_encode($error_array));
-            $this->endDocument('json');
-            break;
-        case 'text':
-            header("HTTP/1.1 {$code} {$status_string}");
-            header('Content-Type: text/plain; charset=utf-8');
-            echo $msg;
-            break;
-        default:
-            common_log(LOG_ERR, 'Handled clientError ('._ve($code).') but cannot output into desired format ('._ve($this->format).'): '._ve($msg));
-            $action = new ClientErrorAction($msg, $code);
-            $action->execute();
-        }
-        exit((int)$code);
-    }
-
-    /**
-     * If not logged in, take appropriate action (redir or exception)
-     *
-     * @param boolean $redir Redirect to login if not logged in
-     *
-     * @return boolean true if logged in (never returns if not)
-     */
-    public function checkLogin($redir=true)
-    {
-        if (common_logged_in()) {
-            return true;
-        }
-
-        if ($redir==true) {
-            common_set_returnto($_SERVER['REQUEST_URI']);
-            common_redirect(common_local_url('login'));
-        }
-
-        // TRANS: Error message displayed when trying to perform an action that requires a logged in user.
-        $this->clientError(_('Not logged in.'), 403);
-    }
-
-    /**
      * Returns the current URL
      *
      * @return string current URL
      */
-    function selfUrl()
+    public function selfUrl()
     {
         list($action, $args) = $this->returnToArgs();
         return common_local_url($action, $args);
     }
 
     /**
+     * Generate pagination links
+     *
+     * @param boolean $have_before is there something before?
+     * @param boolean $have_after is there something after?
+     * @param integer $page current page
+     * @param string $action current action
+     * @param array $args rest of query arguments
+     *
+     * @return void
+     */
+    // XXX: The messages in this pagination method only tailor to navigating
+    //      notices. In other lists, "Previous"/"Next" type navigation is
+    //      desirable, but not available.
+    /**
      * Returns arguments sufficient for re-constructing URL
      *
      * @return array two elements: action, other args
      */
-    function returnToArgs()
+    public function returnToArgs()
     {
         $action = $this->getActionName();
-        $args   = $this->args;
+        $args = $this->args;
         unset($args['action']);
         if (common_config('site', 'fancy')) {
             unset($args['p']);
@@ -1582,20 +1653,20 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Generate a menu item
      *
-     * @param string  $url         menu URL
-     * @param string  $text        menu name
-     * @param string  $title       title attribute, null by default
+     * @param string $url menu URL
+     * @param string $text menu name
+     * @param string $title title attribute, null by default
      * @param boolean $is_selected current menu item, false by default
-     * @param string  $id          element id, null by default
+     * @param string $id element id, null by default
      *
-     * @return nothing
+     * @return void
      */
-    function menuItem($url, $text, $title=null, $is_selected=false, $id=null, $class=null)
+    public function menuItem($url, $text, $title = null, $is_selected = false, $id = null, $class = null)
     {
         // Added @id to li for some control.
         // XXX: We might want to move this to htmloutputter.php
-        $lattrs  = array();
-        $classes = array();
+        $lattrs = [];
+        $classes = [];
         if ($class !== null) {
             $classes[] = trim($class);
         }
@@ -1621,64 +1692,6 @@ class Action extends HTMLOutputter // lawsuit
     }
 
     /**
-     * Generate pagination links
-     *
-     * @param boolean $have_before is there something before?
-     * @param boolean $have_after  is there something after?
-     * @param integer $page        current page
-     * @param string  $action      current action
-     * @param array   $args        rest of query arguments
-     *
-     * @return nothing
-     */
-    // XXX: The messages in this pagination method only tailor to navigating
-    //      notices. In other lists, "Previous"/"Next" type navigation is
-    //      desirable, but not available.
-    function pagination($have_before, $have_after, $page, $action, $args=null)
-    {
-        // Does a little before-after block for next/prev page
-        if ($have_before || $have_after) {
-            $this->elementStart('ul', array('class' => 'nav',
-                                            'id' => 'pagination'));
-        }
-        if ($have_before) {
-            $pargs   = array('page' => $page-1);
-            $this->elementStart('li', array('class' => 'nav_prev'));
-            $this->element('a', array('href' => common_local_url($action, $args, $pargs),
-                                      'rel' => 'prev'),
-                           // TRANS: Pagination message to go to a page displaying information more in the
-                           // TRANS: present than the currently displayed information.
-                           _('After'));
-            $this->elementEnd('li');
-        }
-        if ($have_after) {
-            $pargs   = array('page' => $page+1);
-            $this->elementStart('li', array('class' => 'nav_next'));
-            $this->element('a', array('href' => common_local_url($action, $args, $pargs),
-                                      'rel' => 'next'),
-                           // TRANS: Pagination message to go to a page displaying information more in the
-                           // TRANS: past than the currently displayed information.
-                           _('Before'));
-            $this->elementEnd('li');
-        }
-        if ($have_before || $have_after) {
-            $this->elementEnd('ul');
-        }
-    }
-
-    /**
-     * An array of feeds for this action.
-     *
-     * Returns an array of potential feeds for this action.
-     *
-     * @return array Feed object to show in head and links
-     */
-    function getFeeds()
-    {
-        return array();
-    }
-
-    /**
      * Check the session token.
      *
      * Checks that the current form has the correct session token,
@@ -1688,7 +1701,47 @@ class Action extends HTMLOutputter // lawsuit
      */
     // XXX: Finding this type of check with the same message about 50 times.
     //      Possible to refactor?
-    function checkSessionToken()
+
+    public function pagination($have_before, $have_after, $page, $action, $args = null)
+    {
+        // Does a little before-after block for next/prev page
+        if ($have_before || $have_after) {
+            $this->elementStart('ul', array('class' => 'nav',
+                'id' => 'pagination'));
+        }
+        if ($have_before) {
+            $pargs = array('page' => $page - 1);
+            $this->elementStart('li', array('class' => 'nav_prev'));
+            $this->element(
+                'a',
+                array('href' => common_local_url($action, $args, $pargs),
+                    'rel' => 'prev'),
+                // TRANS: Pagination message to go to a page displaying information more in the
+                // TRANS: present than the currently displayed information.
+                _('After')
+            );
+            $this->elementEnd('li');
+        }
+        if ($have_after) {
+            $pargs = array('page' => $page + 1);
+            $this->elementStart('li', array('class' => 'nav_next'));
+            $this->element(
+                'a',
+                array('href' => common_local_url($action, $args, $pargs),
+                    'rel' => 'next'),
+                // TRANS: Pagination message to go to a page displaying information more in the
+                // TRANS: past than the currently displayed information.
+                _('Before')
+            );
+            $this->elementEnd('li');
+        }
+        if ($have_before || $have_after) {
+            $this->elementEnd('ul');
+        }
+    }
+
+
+    public function checkSessionToken()
     {
         // CSRF protection
         $token = $this->trimmed('token');
@@ -1696,16 +1749,5 @@ class Action extends HTMLOutputter // lawsuit
             // TRANS: Client error text when there is a problem with the session token.
             $this->clientError(_('There was a problem with your session token.'));
         }
-    }
-
-    /**
-     * Check if the current request is a POST
-     *
-     * @return boolean true if POST; otherwise false.
-     */
-
-    function isPost()
-    {
-        return ($_SERVER['REQUEST_METHOD'] == 'POST');
     }
 }

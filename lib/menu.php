@@ -150,12 +150,12 @@ class Menu extends Widget
 
     function submenu($label, $menu)
     {
-        if (Event::handle('StartSubMenu', array($this->action, $menu, $label))) {
+        if (Event::handle('StartSubMenu', [$this->action, $menu, $label])) {
             $this->action->elementStart('li');
             $this->action->element('h3', null, $label);
             $menu->show();
             $this->action->elementEnd('li');
-            Event::handle('EndSubMenu', array($this->action, $menu, $label));
+            Event::handle('EndSubMenu', [$this->action, $menu, $label]);
         }
     }
 }

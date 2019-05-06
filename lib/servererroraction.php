@@ -29,7 +29,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 /**
  * Class for displaying HTTP server errors
@@ -48,17 +50,16 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
  * @link     http://status.net/
  */
-
 class ServerErrorAction extends ErrorAction
 {
-    static $status = array(500 => 'Internal Server Error',
-                           501 => 'Not Implemented',
-                           502 => 'Bad Gateway',
-                           503 => 'Service Unavailable',
-                           504 => 'Gateway Timeout',
-                           505 => 'HTTP Version Not Supported');
+    static $status = [500 => 'Internal Server Error',
+                      501 => 'Not Implemented',
+                      502 => 'Bad Gateway',
+                      503 => 'Service Unavailable',
+                      504 => 'Gateway Timeout',
+                      505 => 'HTTP Version Not Supported'];
 
-    function __construct($message='Error', $code=500, $ex=null)
+    function __construct($message = 'Error', $code = 500, $ex = null)
     {
         parent::__construct($message, $code);
 
@@ -85,23 +86,23 @@ class ServerErrorAction extends ErrorAction
     /**
      *  To specify additional HTTP headers for the action
      *
-     *  @return void
+     * @return void
      */
     function extraHeaders()
     {
-        $status_string = @self::$status[$this->code];
-        header('HTTP/1.1 '.$this->code.' '.$status_string);
+        $status_string = self::$status[$this->code];
+        header('HTTP/1.1 ' . $this->code . ' ' . $status_string);
     }
 
     /**
      * Page title.
      *
-     * @return page title
+     * @return string page title
      */
 
     function title()
     {
-        return @self::$status[$this->code];
+        return self::$status[$this->code];
     }
 
 }

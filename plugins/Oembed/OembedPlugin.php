@@ -103,7 +103,7 @@ class OembedPlugin extends Plugin
                     array('format'=>'json', 'url'=>
                         common_local_url('attachment',
                             array('attachment' => $action->attachment->getID())))),
-                'title'=>'oEmbed'),null);
+                'title'=>'oEmbed'));
             $action->element('link',array('rel'=>'alternate',
                 'type'=>'text/xml+oembed',
                 'href'=>common_local_url(
@@ -112,7 +112,7 @@ class OembedPlugin extends Plugin
                     array('format'=>'xml','url'=>
                         common_local_url('attachment',
                             array('attachment' => $action->attachment->getID())))),
-                'title'=>'oEmbed'),null);
+                'title'=>'oEmbed'));
             break;
         case 'shownotice':
             if (!$action->notice->isLocal()) {
@@ -125,14 +125,14 @@ class OembedPlugin extends Plugin
                         'oembed',
                         array(),
                         array('format'=>'json','url'=>$action->notice->getUrl())),
-                    'title'=>'oEmbed'),null);
+                    'title'=>'oEmbed'));
                 $action->element('link',array('rel'=>'alternate',
                     'type'=>'text/xml+oembed',
                     'href'=>common_local_url(
                         'oembed',
                         array(),
                         array('format'=>'xml','url'=>$action->notice->getUrl())),
-                    'title'=>'oEmbed'),null);
+                    'title'=>'oEmbed'));
             } catch (InvalidUrlException $e) {
                 // The notice is probably a share or similar, which don't
                 // have a representational URL of their own.

@@ -48,7 +48,6 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  * @see      Action
  * @see      HTMLOutputter
  */
-
 class XMLOutputter
 {
     /**
@@ -56,25 +55,25 @@ class XMLOutputter
      * for output.
      */
 
-    var $xw = null;
+    public $xw = null;
 
     /**
      * Constructor
      *
      * Initializes the wrapped XMLWriter.
      *
-     * @param string  $output URL for outputting, if null it defaults to stdout ('php://output')
+     * @param string $output URL for outputting, if null it defaults to stdout ('php://output')
      * @param boolean $indent Whether to indent output, default true
      */
 
-    function __construct($output=null, $indent=null)
+    public function __construct($output = null, $indent = null)
     {
         if (is_null($output)) {
             $output = 'php://output';
         }
         $this->xw = new XMLWriter();
         $this->xw->openURI($output);
-        if(is_null($indent)) {
+        if (is_null($indent)) {
             $indent = common_config('site', 'indent');
         }
         $this->xw->setIndent($indent);
@@ -83,14 +82,14 @@ class XMLOutputter
     /**
      * Start a new XML document
      *
-     * @param string $doc    document element
+     * @param string $doc document element
      * @param string $public public identifier
      * @param string $system system identifier
      *
      * @return void
      */
 
-    function startXML($doc=null, $public=null, $system=null)
+    public function startXML($doc = null, $public = null, $system = null)
     {
         $this->xw->startDocument('1.0', 'UTF-8');
         if ($doc) {
@@ -107,7 +106,7 @@ class XMLOutputter
      * @return void
      */
 
-    function endXML()
+    public function endXML()
     {
         $this->xw->endDocument();
         $this->xw->flush();
@@ -128,28 +127,18 @@ class XMLOutputter
      * If $attrs is a string instead of an array, it will be treated
      * as the class attribute of the element.
      *
-     * @param string $tag     Element type or tagname
-     * @param array  $attrs   Array of element attributes, as
-     *                        key-value pairs
-     * @param string $content string content of the element
+     * @param string $tag Element type or tagname
+     * @param array|string|null $attrs Array of element attributes, as key-value pairs
+     * @param string|null $content string content of the element
      *
      * @return void
      */
 
-    function element($tag, $attrs=null, $content=null)
+    public function element(string $tag, $attrs = null, $content = null)
     {
         $this->elementStart($tag, $attrs);
         if (!is_null($content)) {
-            $this->xw->text($content);
-        }
-        $this->elementEnd($tag);
-    }
-
-    function elementNS(array $ns, $tag, $attrs=null, $content=null)
-    {
-        $this->elementStartNS($ns, $tag, $attrs);
-        if (!is_null($content)) {
-            $this->xw->text($content);
+            $this->xw->text(strval($content));
         }
         $this->elementEnd($tag);
     }
@@ -163,34 +152,20 @@ class XMLOutputter
      * If $attrs is a string instead of an array, it will be treated
      * as the class attribute of the element.
      *
-     * @param string $tag   Element type or tagname
-     * @param array  $attrs Array of element attributes
+     * @param string $tag Element type or tagname
+     * @param array|string|null $attrs Attributes
      *
      * @return void
      */
 
-    function elementStart($tag, $attrs=null)
+    public function elementStart(string $tag, $attrs = null)
     {
         $this->xw->startElement($tag);
         if (is_array($attrs)) {
             foreach ($attrs as $name => $value) {
                 $this->xw->writeAttribute($name, $value);
             }
-        } else if (is_string($attrs)) {
-            $this->xw->writeAttribute('class', $attrs);
-        }
-    }
-
-    function elementStartNS(array $ns, $tag, $attrs=null)
-    {
-        reset($ns); // array pointer to 0
-        $uri = key($ns);
-        $this->xw->startElementNS($ns[$uri], $tag, $uri);
-        if (is_array($attrs)) {
-            foreach ($attrs as $name => $value) {
-                $this->xw->writeAttribute($name, $value);
-            }
-        } else if (is_string($attrs)) {
+        } elseif (is_string($attrs)) {
             $this->xw->writeAttribute('class', $attrs);
         }
     }
@@ -211,16 +186,39 @@ class XMLOutputter
      * @return void
      */
 
-    function elementEnd($tag)
+    public function elementEnd(string $tag)
     {
-        static $empty_tag = array('base', 'meta', 'link', 'hr',
-                                  'br', 'param', 'img', 'area',
-                                  'input', 'col', 'source');
+        static $empty_tag = ['base', 'meta', 'link', 'hr',
+                             'br', 'param', 'img', 'area',
+                             'input', 'col', 'source'];
         // XXX: check namespace
         if (in_array($tag, $empty_tag)) {
             $this->xw->endElement();
         } else {
             $this->xw->fullEndElement();
+        }
+    }
+
+    public function elementNS(array $ns, $tag, $attrs = null, $content = null)
+    {
+        $this->elementStartNS($ns, $tag, $attrs);
+        if (!is_null($content)) {
+            $this->xw->text($content);
+        }
+        $this->elementEnd($tag);
+    }
+
+    public function elementStartNS(array $ns, $tag, $attrs = null)
+    {
+        reset($ns); // array pointer to 0
+        $uri = key($ns);
+        $this->xw->startElementNS($ns[$uri], $tag, $uri);
+        if (is_array($attrs)) {
+            foreach ($attrs as $name => $value) {
+                $this->xw->writeAttribute($name, $value);
+            }
+        } elseif (is_string($attrs)) {
+            $this->xw->writeAttribute('class', $attrs);
         }
     }
 
@@ -235,7 +233,7 @@ class XMLOutputter
      * @return void
      */
 
-    function text($txt)
+    public function text($txt)
     {
         $this->xw->text($txt);
     }
@@ -251,7 +249,7 @@ class XMLOutputter
      * @return void
      */
 
-    function raw($xml)
+    public function raw($xml)
     {
         $this->xw->writeRaw($xml);
     }
@@ -264,7 +262,7 @@ class XMLOutputter
      * @return void
      */
 
-    function comment($txt)
+    public function comment($txt)
     {
         $this->xw->writeComment($txt);
     }
@@ -275,7 +273,7 @@ class XMLOutputter
      * @return void
      */
 
-    function flush()
+    public function flush()
     {
         $this->xw->flush();
     }

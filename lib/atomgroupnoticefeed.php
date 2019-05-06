@@ -114,6 +114,6 @@ class AtomGroupNoticeFeed extends AtomNoticeFeed
 
         $attrs['member_count'] = $this->group->getMemberCount();
 
-        $this->element('statusnet:group_info', $attrs, null);
+        $this->element('statusnet:group_info', $attrs);
     }
 }

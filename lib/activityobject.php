@@ -28,9 +28,11 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
-require_once(INSTALLDIR.'/lib/activitystreamjsondocument.php');
+require_once(INSTALLDIR . '/lib/activitystreamjsondocument.php');
 
 /**
  * A noun-ish thing in the activity universe
@@ -51,47 +53,47 @@ require_once(INSTALLDIR.'/lib/activitystreamjsondocument.php');
  */
 class ActivityObject
 {
-    const ARTICLE   = 'http://activitystrea.ms/schema/1.0/article';
-    const BLOGENTRY = 'http://activitystrea.ms/schema/1.0/blog-entry';
-    const NOTE      = 'http://activitystrea.ms/schema/1.0/note';
-    const STATUS    = 'http://activitystrea.ms/schema/1.0/status';
-    const FILE      = 'http://activitystrea.ms/schema/1.0/file';
-    const PHOTO     = 'http://activitystrea.ms/schema/1.0/photo';
-    const ALBUM     = 'http://activitystrea.ms/schema/1.0/photo-album';
-    const PLAYLIST  = 'http://activitystrea.ms/schema/1.0/playlist';
-    const VIDEO     = 'http://activitystrea.ms/schema/1.0/video';
-    const AUDIO     = 'http://activitystrea.ms/schema/1.0/audio';
-    const BOOKMARK  = 'http://activitystrea.ms/schema/1.0/bookmark';
-    const PERSON    = 'http://activitystrea.ms/schema/1.0/person';
-    const GROUP     = 'http://activitystrea.ms/schema/1.0/group';
-    const _LIST     = 'http://activitystrea.ms/schema/1.0/list'; // LIST is reserved
-    const PLACE     = 'http://activitystrea.ms/schema/1.0/place';
-    const COMMENT   = 'http://activitystrea.ms/schema/1.0/comment';
+    const ARTICLE     = 'http://activitystrea.ms/schema/1.0/article';
+    const BLOGENTRY   = 'http://activitystrea.ms/schema/1.0/blog-entry';
+    const NOTE        = 'http://activitystrea.ms/schema/1.0/note';
+    const STATUS      = 'http://activitystrea.ms/schema/1.0/status';
+    const FILE        = 'http://activitystrea.ms/schema/1.0/file';
+    const PHOTO       = 'http://activitystrea.ms/schema/1.0/photo';
+    const ALBUM       = 'http://activitystrea.ms/schema/1.0/photo-album';
+    const PLAYLIST    = 'http://activitystrea.ms/schema/1.0/playlist';
+    const VIDEO       = 'http://activitystrea.ms/schema/1.0/video';
+    const AUDIO       = 'http://activitystrea.ms/schema/1.0/audio';
+    const BOOKMARK    = 'http://activitystrea.ms/schema/1.0/bookmark';
+    const PERSON      = 'http://activitystrea.ms/schema/1.0/person';
+    const GROUP       = 'http://activitystrea.ms/schema/1.0/group';
+    const _LIST       = 'http://activitystrea.ms/schema/1.0/list'; // LIST is reserved
+    const PLACE       = 'http://activitystrea.ms/schema/1.0/place';
+    const COMMENT     = 'http://activitystrea.ms/schema/1.0/comment';
     // ^^^^^^^^^^ tea!
-    const ACTIVITY = 'http://activitystrea.ms/schema/1.0/activity';
-    const SERVICE   = 'http://activitystrea.ms/schema/1.0/service';
-    const IMAGE     = 'http://activitystrea.ms/schema/1.0/image';
-    const COLLECTION = 'http://activitystrea.ms/schema/1.0/collection';
+    const ACTIVITY    = 'http://activitystrea.ms/schema/1.0/activity';
+    const SERVICE     = 'http://activitystrea.ms/schema/1.0/service';
+    const IMAGE       = 'http://activitystrea.ms/schema/1.0/image';
+    const COLLECTION  = 'http://activitystrea.ms/schema/1.0/collection';
     const APPLICATION = 'http://activitystrea.ms/schema/1.0/application';
 
     // Atom elements we snarf
 
-    const TITLE   = 'title';
+    const TITLE = 'title';
     const SUMMARY = 'summary';
-    const ID      = 'id';
-    const SOURCE  = 'source';
+    const ID = 'id';
+    const SOURCE = 'source';
 
-    const NAME  = 'name';
-    const URI   = 'uri';
+    const NAME = 'name';
+    const URI = 'uri';
     const EMAIL = 'email';
 
-    const POSTEROUS   = 'http://posterous.com/help/rss/1.0';
-    const AUTHOR      = 'author';
-    const USERIMAGE   = 'userImage';
-    const PROFILEURL  = 'profileUrl';
-    const NICKNAME    = 'nickName';
+    const POSTEROUS = 'http://posterous.com/help/rss/1.0';
+    const AUTHOR = 'author';
+    const USERIMAGE = 'userImage';
+    const PROFILEURL = 'profileUrl';
+    const NICKNAME = 'nickName';
     const DISPLAYNAME = 'displayName';
-
+    const MEDIA_DESCRIPTION = 'description';
     public $element;
     public $type;
     public $id;
@@ -99,21 +101,19 @@ class ActivityObject
     public $summary;
     public $content;
     public $owner;
-    public $link;
-    public $selfLink;   // think APP (Atom Publishing Protocol)
+    public $link;   // think APP (Atom Publishing Protocol)
+    public $selfLink;
     public $source;
-    public $avatarLinks = array();
+    public $avatarLinks = [];
     public $geopoint;
     public $poco;
-    public $displayName;
 
     // @todo move this stuff to it's own PHOTO activity object
-    const MEDIA_DESCRIPTION = 'description';
-
+    public $displayName;
     public $thumbnail;
     public $largerImage;
     public $description;
-    public $extra = array();
+    public $extra = [];
 
     public $stream;
 
@@ -126,7 +126,7 @@ class ActivityObject
      *
      * @param DOMElement $element DOM thing to turn into an Activity thing
      */
-    function __construct($element = null)
+    public function __construct($element = null)
     {
         if (empty($element)) {
             return;
@@ -142,7 +142,7 @@ class ActivityObject
 
         if ($element->tagName == 'author') {
             $this->_fromAuthor($element);
-        } else if ($element->tagName == 'item') {
+        } elseif ($element->tagName == 'item') {
             $this->_fromRssItem($element);
         } else {
             $this->_fromAtomEntry($element);
@@ -168,8 +168,7 @@ class ActivityObject
         }
 
         if ($this->type == self::PHOTO) {
-
-            $this->thumbnail   = ActivityUtils::getLink($element, 'preview');
+            $this->thumbnail = ActivityUtils::getLink($element, 'preview');
             $this->largerImage = ActivityUtils::getLink($element, 'enclosure');
 
             $this->description = ActivityUtils::childContent(
@@ -184,11 +183,18 @@ class ActivityObject
         }
     }
 
+    private function _childContent($element, $tag, $namespace = ActivityUtils::ATOM)
+    {
+        return ActivityUtils::childContent($element, $tag, $namespace);
+    }
+
     private function _fromAuthor($element)
     {
-        $this->type = $this->_childContent($element,
-                                           Activity::OBJECTTYPE,
-                                           Activity::SPEC);
+        $this->type = $this->_childContent(
+            $element,
+            Activity::OBJECTTYPE,
+            Activity::SPEC
+        );
 
         if (empty($this->type)) {
             $this->type = self::PERSON; // XXX: is this fair?
@@ -231,7 +237,7 @@ class ActivityObject
             $email = $this->_childContent($element, self::EMAIL);
             if (!empty($email)) {
                 // XXX: acct: ?
-                $this->id = 'mailto:'.$email;
+                $this->id = 'mailto:' . $email;
             }
         }
 
@@ -244,50 +250,8 @@ class ActivityObject
         }
     }
 
-    private function _fromAtomEntry($element)
-    {
-        $this->type = $this->_childContent($element, Activity::OBJECTTYPE,
-                                           Activity::SPEC);
-
-        if (empty($this->type)) {
-            $this->type = ActivityObject::NOTE;
-        }
-
-        $this->summary = ActivityUtils::childHtmlContent($element, self::SUMMARY);
-        $this->content = ActivityUtils::getContent($element);
-
-        // We don't like HTML in our titles, although it's technically allowed
-        $this->title = common_strip_html(ActivityUtils::childHtmlContent($element, self::TITLE));
-
-        $this->source  = $this->_getSource($element);
-
-        $this->link = ActivityUtils::getPermalink($element);
-        $this->selfLink = ActivityUtils::getSelfLink($element);
-
-        $this->id = $this->_childContent($element, self::ID);
-
-        if (empty($this->id) && !empty($this->link)) { // fallback if there's no ID
-            $this->id = $this->link;
-        }
-
-        $els = $element->childNodes;
-        $out = array();
-
-        for ($i = 0; $i < $els->length; $i++) {
-            $link = $els->item($i);
-            if ($link->localName == ActivityUtils::LINK && $link->namespaceURI == ActivityUtils::ATOM) {
-                $attrs = array();
-                foreach ($link->attributes as $attrName=>$attrNode) {
-                    $attrs[$attrName] = $attrNode->nodeValue;
-                }
-                $this->extra[] = [$link->localName,
-                                    $attrs,
-                                    $link->nodeValue];
-            }
-        }
-    }
-
     // @todo FIXME: rationalize with Activity::_fromRssItem()
+
     private function _fromRssItem($item)
     {
         if (empty($this->type)) {
@@ -321,6 +285,67 @@ class ActivityObject
         }
     }
 
+    private function _fromAtomEntry($element)
+    {
+        $this->type = $this->_childContent(
+            $element,
+            Activity::OBJECTTYPE,
+            Activity::SPEC
+        );
+
+        if (empty($this->type)) {
+            $this->type = ActivityObject::NOTE;
+        }
+
+        $this->summary = ActivityUtils::childHtmlContent($element, self::SUMMARY);
+        $this->content = ActivityUtils::getContent($element);
+
+        // We don't like HTML in our titles, although it's technically allowed
+        $this->title = common_strip_html(ActivityUtils::childHtmlContent($element, self::TITLE));
+
+        $this->source = $this->_getSource($element);
+
+        $this->link = ActivityUtils::getPermalink($element);
+        $this->selfLink = ActivityUtils::getSelfLink($element);
+
+        $this->id = $this->_childContent($element, self::ID);
+
+        if (empty($this->id) && !empty($this->link)) { // fallback if there's no ID
+            $this->id = $this->link;
+        }
+
+        $els = $element->childNodes;
+
+        for ($i = 0; $i < $els->length; $i++) {
+            $link = $els->item($i);
+            if ($link->localName == ActivityUtils::LINK && $link->namespaceURI == ActivityUtils::ATOM) {
+                $attrs = [];
+                foreach ($link->attributes as $attrName => $attrNode) {
+                    $attrs[$attrName] = $attrNode->nodeValue;
+                }
+                $this->extra[] = [$link->localName,
+                    $attrs,
+                    $link->nodeValue];
+            }
+        }
+    }
+
+    private function _getSource($element)
+    {
+        $sourceEl = ActivityUtils::child($element, 'source');
+
+        if (empty($sourceEl)) {
+            return null;
+        } else {
+            $href = ActivityUtils::getLink($sourceEl, 'self');
+            if (!empty($href)) {
+                return $href;
+            } else {
+                return ActivityUtils::childContent($sourceEl, 'id');
+            }
+        }
+    }
+
     public static function fromRssAuthor($el)
     {
         $text = $el->textContent;
@@ -328,10 +353,10 @@ class ActivityObject
         if (preg_match('/^(.*?) \((.*)\)$/', $text, $match)) {
             $email = $match[1];
             $name = $match[2];
-        } else if (preg_match('/^(.*?) <(.*)>$/', $text, $match)) {
+        } elseif (preg_match('/^(.*?) <(.*)>$/', $text, $match)) {
             $name = $match[1];
             $email = $match[2];
-        } else if (preg_match('/.*@.*/', $text)) {
+        } elseif (preg_match('/.*@.*/', $text)) {
             $email = $text;
             $name = null;
         } else {
@@ -345,11 +370,11 @@ class ActivityObject
 
         $obj->element = $el;
 
-        $obj->type  = ActivityObject::PERSON;
+        $obj->type = ActivityObject::PERSON;
         $obj->title = $name;
 
         if (!empty($email)) {
-            $obj->id = 'mailto:'.$email;
+            $obj->id = 'mailto:' . $email;
         }
 
         return $obj;
@@ -366,7 +391,7 @@ class ActivityObject
         $obj->element = $el;
 
         $obj->title = $text;
-        $obj->type  = ActivityObject::PERSON;
+        $obj->type = ActivityObject::PERSON;
 
         return $obj;
     }
@@ -380,8 +405,8 @@ class ActivityObject
         $obj->type = ActivityObject::PERSON; // @fixme guess better
 
         $obj->title = ActivityUtils::childContent($el, ActivityObject::TITLE, Activity::RSS);
-        $obj->link  = ActivityUtils::childContent($el, ActivityUtils::LINK, Activity::RSS);
-        $obj->id    = ActivityUtils::getLink($el, Activity::SELF);
+        $obj->link = ActivityUtils::childContent($el, ActivityUtils::LINK, Activity::RSS);
+        $obj->id = ActivityUtils::getLink($el, Activity::SELF);
 
         if (empty($obj->id)) {
             $obj->id = $obj->link;
@@ -405,6 +430,8 @@ class ActivityObject
         return $obj;
     }
 
+    // Try to get a unique id for the source feed
+
     public static function fromPosterousAuthor($el)
     {
         $obj = new ActivityObject();
@@ -420,93 +447,74 @@ class ActivityObject
         }
 
         $obj->link = ActivityUtils::childContent($el, self::PROFILEURL, self::POSTEROUS);
-        $obj->id   = $obj->link;
+        $obj->id = $obj->link;
 
         $obj->poco = new PoCo();
 
         $obj->poco->preferredUsername = ActivityUtils::childContent($el, self::NICKNAME, self::POSTEROUS);
-        $obj->poco->displayName       = ActivityUtils::childContent($el, self::DISPLAYNAME, self::POSTEROUS);
+        $obj->poco->displayName = ActivityUtils::childContent($el, self::DISPLAYNAME, self::POSTEROUS);
 
         $obj->title = $obj->poco->displayName;
 
         return $obj;
     }
 
-    private function _childContent($element, $tag, $namespace=ActivityUtils::ATOM)
-    {
-        return ActivityUtils::childContent($element, $tag, $namespace);
-    }
-
-    // Try to get a unique id for the source feed
-
-    private function _getSource($element)
-    {
-        $sourceEl = ActivityUtils::child($element, 'source');
-
-        if (empty($sourceEl)) {
-            return null;
-        } else {
-            $href = ActivityUtils::getLink($sourceEl, 'self');
-            if (!empty($href)) {
-                return $href;
-            } else {
-                return ActivityUtils::childContent($sourceEl, 'id');
-            }
-        }
-    }
-
-    static function fromGroup(User_group $group)
+    public static function fromGroup(User_group $group)
     {
         $object = new ActivityObject();
 
-        if (Event::handle('StartActivityObjectFromGroup', array($group, &$object))) {
+        if (Event::handle('StartActivityObjectFromGroup', [$group, &$object])) {
+            $object->type = ActivityObject::GROUP;
+            $object->id = $group->getUri();
+            $object->title = $group->getBestName();
+            $object->link = $group->getUri();
 
-            $object->type   = ActivityObject::GROUP;
-            $object->id     = $group->getUri();
-            $object->title  = $group->getBestName();
-            $object->link   = $group->getUri();
+            $object->avatarLinks[] = AvatarLink::fromFilename(
+                $group->homepage_logo,
+                AVATAR_PROFILE_SIZE
+            );
 
-            $object->avatarLinks[] = AvatarLink::fromFilename($group->homepage_logo,
-                                                              AVATAR_PROFILE_SIZE);
+            $object->avatarLinks[] = AvatarLink::fromFilename(
+                $group->stream_logo,
+                AVATAR_STREAM_SIZE
+            );
 
-            $object->avatarLinks[] = AvatarLink::fromFilename($group->stream_logo,
-                                                              AVATAR_STREAM_SIZE);
-
-            $object->avatarLinks[] = AvatarLink::fromFilename($group->mini_logo,
-                                                              AVATAR_MINI_SIZE);
+            $object->avatarLinks[] = AvatarLink::fromFilename(
+                $group->mini_logo,
+                AVATAR_MINI_SIZE
+            );
 
             $object->poco = PoCo::fromGroup($group);
-            Event::handle('EndActivityObjectFromGroup', array($group, &$object));
+            Event::handle('EndActivityObjectFromGroup', [$group, &$object]);
         }
 
         return $object;
     }
 
-    static function fromPeopletag($ptag)
+    public static function fromPeopletag($ptag)
     {
         $object = new ActivityObject();
-        if (Event::handle('StartActivityObjectFromPeopletag', array($ptag, &$object))) {
-            $object->type    = ActivityObject::_LIST;
+        if (Event::handle('StartActivityObjectFromPeopletag', [$ptag, &$object])) {
+            $object->type = ActivityObject::_LIST;
 
-            $object->id      = $ptag->getUri();
-            $object->title   = $ptag->tag;
+            $object->id = $ptag->getUri();
+            $object->title = $ptag->tag;
             $object->summary = $ptag->description;
-            $object->link    = $ptag->homeUrl();
-            $object->owner   = Profile::getKV('id', $ptag->tagger);
-            $object->poco    = PoCo::fromProfile($object->owner);
-            Event::handle('EndActivityObjectFromPeopletag', array($ptag, &$object));
+            $object->link = $ptag->homeUrl();
+            $object->owner = Profile::getKV('id', $ptag->tagger);
+            $object->poco = PoCo::fromProfile($object->owner);
+            Event::handle('EndActivityObjectFromPeopletag', [$ptag, &$object]);
         }
         return $object;
     }
 
-    static function fromFile(File $file)
+    public static function fromFile(File $file)
     {
         $object = new ActivityObject();
 
-        if (Event::handle('StartActivityObjectFromFile', array($file, &$object))) {
-
+        if (Event::handle('StartActivityObjectFromFile', [$file, &$object])) {
             $object->type = self::mimeTypeToObjectType($file->mimetype);
-            $object->id   = TagURI::mint(sprintf("file:%d", $file->id));
+            $object->id = TagURI::mint(sprintf("file:%d", $file->id));
             $object->link = $file->getAttachmentUrl();
 
             if ($file->title) {
@@ -527,39 +535,73 @@ class ActivityObject
             }
 
             switch (self::canonicalType($object->type)) {
-            case 'image':
-                $object->largerImage = $file->getUrl();
-                break;
-            case 'video':
-            case 'audio':
-                $object->stream = $file->getUrl();
-                break;
+                case 'image':
+                    $object->largerImage = $file->getUrl();
+                    break;
+                case 'video':
+                case 'audio':
+                    $object->stream = $file->getUrl();
+                    break;
             }
 
-            Event::handle('EndActivityObjectFromFile', array($file, &$object));
+            Event::handle('EndActivityObjectFromFile', [$file, &$object]);
         }
 
         return $object;
     }
 
-    static function fromNoticeSource(Notice_source $source)
+    public static function mimeTypeToObjectType($mimeType)
+    {
+        $ot = null;
+
+        // Default
+
+        if (empty($mimeType)) {
+            return self::FILE;
+        }
+
+        $parts = explode('/', $mimeType);
+
+        switch ($parts[0]) {
+            case 'image':
+                $ot = self::IMAGE;
+                break;
+            case 'audio':
+                $ot = self::AUDIO;
+                break;
+            case 'video':
+                $ot = self::VIDEO;
+                break;
+            default:
+                $ot = self::FILE;
+        }
+
+        return $ot;
+    }
+
+    public static function canonicalType($type)
+    {
+        return ActivityUtils::resolveUri($type, true);
+    }
+
+    public static function fromNoticeSource(Notice_source $source)
     {
         $object = new ActivityObject();
-        $wellKnown = array('web', 'xmpp', 'mail', 'omb', 'system', 'api', 'ostatus',
-                           'activity', 'feed', 'mirror', 'twitter', 'facebook');
+        $wellKnown = ['web', 'xmpp', 'mail', 'omb', 'system', 'api', 'ostatus',
+            'activity', 'feed', 'mirror', 'twitter', 'facebook'];
 
-        if (Event::handle('StartActivityObjectFromNoticeSource', array($source, &$object))) {
+        if (Event::handle('StartActivityObjectFromNoticeSource', [$source, &$object])) {
             $object->type = ActivityObject::APPLICATION;
 
             if (in_array($source->code, $wellKnown)) {
                 // We use one ID for all well-known StatusNet sources
-                $object->id = "tag:status.net,2009:notice-source:".$source->code;
-            } else if ($source->url) {
+                $object->id = "tag:status.net,2009:notice-source:" . $source->code;
+            } elseif ($source->url) {
                 // They registered with an URL
                 $object->id = $source->url;
             } else {
                 // Locally-registered, no URL
-                $object->id = TagURI::mint("notice-source:".$source->code);
+                $object->id = TagURI::mint("notice-source:" . $source->code);
             }
 
             if ($source->url) {
@@ -575,47 +617,62 @@ class ActivityObject
             if ($source->created) {
                 $object->date = $source->created;
             }
-            
-            $object->extra[] = array('status_net', array('source_code' => $source->code));
 
-            Event::handle('EndActivityObjectFromNoticeSource', array($source, &$object));
+            $object->extra[] = ['status_net', ['source_code' => $source->code]];
+
+            Event::handle('EndActivityObjectFromNoticeSource', [$source, &$object]);
         }
 
         return $object;
     }
 
-    static function fromMessage(Message $message)
+    public static function fromMessage(Message $message)
     {
         $object = new ActivityObject();
 
-        if (Event::handle('StartActivityObjectFromMessage', array($message, &$object))) {
-
-            $object->type    = ActivityObject::NOTE;
-            $object->id      = ($message->uri) ? $message->uri : (($message->url) ? $message->url : TagURI::mint(sprintf("message:%d", $message->id)));
+        if (Event::handle('StartActivityObjectFromMessage', [$message, &$object])) {
+            $object->type = ActivityObject::NOTE;
+            $object->id = ($message->uri) ? $message->uri : (($message->url) ? $message->url : TagURI::mint(sprintf("message:%d", $message->id)));
             $object->content = $message->rendered;
-            $object->date    = $message->created;
+            $object->date = $message->created;
 
             if ($message->url) {
                 $object->link = $message->url;
             } else {
-                $object->link = common_local_url('showmessage', array('message' => $message->id));
+                $object->link = common_local_url('showmessage', ['message' => $message->id]);
             }
 
-            $object->extra[] = array('status_net', array('message_id' => $message->id));
-            
-            Event::handle('EndActivityObjectFromMessage', array($message, &$object));
+            $object->extra[] = ['status_net', ['message_id' => $message->id]];
+
+            Event::handle('EndActivityObjectFromMessage', [$message, &$object]);
         }
 
         return $object;
     }
 
-    function outputTo($xo, $tag='activity:object')
+    /*
+     * Returns an array based on this Activity Object suitable for
+     * encoding as JSON.
+     *
+     * @return array $object the activity object array
+     */
+
+    public function asString($tag = 'activity:object')
+    {
+        $xs = new XMLStringer(true);
+
+        $this->outputTo($xs, $tag);
+
+        return $xs->getString();
+    }
+
+    public function outputTo($xo, $tag = 'activity:object')
     {
         if (!empty($tag)) {
             $xo->elementStart($tag);
         }
 
-        if (Event::handle('StartActivityObjectOutputAtom', array($this, $xo))) {
+        if (Event::handle('StartActivityObjectOutputAtom', [$this, $xo])) {
             $xo->element('activity:object-type', null, $this->type);
 
             // <author> uses URI
@@ -650,7 +707,7 @@ class ActivityObject
                 // XXX: assuming HTML content here
                 $xo->element(
                     ActivityUtils::CONTENT,
-                    array('type' => 'html'),
+                    ['type' => 'html'],
                     common_xml_safe_str($this->content)
                 );
             }
@@ -658,45 +715,43 @@ class ActivityObject
             if (!empty($this->link)) {
                 $xo->element(
                     'link',
-                    array(
+                    [
                         'rel' => 'alternate',
                         'type' => 'text/html',
                         'href' => $this->link
-                    ),
-                    null
+                    ]
                 );
             }
 
             if (!empty($this->selfLink)) {
                 $xo->element(
                     'link',
-                    array(
+                    [
                         'rel' => 'self',
                         'type' => 'application/atom+xml',
                         'href' => $this->selfLink
-                    ),
-                    null
+                    ]
                 );
             }
 
-            if(!empty($this->owner)) {
+            if (!empty($this->owner)) {
                 $owner = $this->owner->asActivityNoun(self::AUTHOR);
                 $xo->raw($owner);
             }
 
             if ($this->type == ActivityObject::PERSON
                 || $this->type == ActivityObject::GROUP) {
-
                 foreach ($this->avatarLinks as $alink) {
-                    $xo->element('link',
-                            array(
-                                'rel'          => 'avatar',
-                                'type'         => $alink->type,
-                                'media:width'  => $alink->width,
-                                'media:height' => $alink->height,
-                                'href'         => $alink->url,
-                                ),
-                            null);
+                    $xo->element(
+                        'link',
+                        [
+                            'rel' => 'avatar',
+                            'type' => $alink->type,
+                            'media:width' => $alink->width,
+                            'media:height' => $alink->height,
+                            'href' => $alink->url,
+                        ]
+                    );
                 }
             }
 
@@ -719,7 +774,7 @@ class ActivityObject
                 $xo->element($extraTag, $attrs, $content);
             }
 
-            Event::handle('EndActivityObjectOutputAtom', array($this, $xo));
+            Event::handle('EndActivityObjectOutputAtom', [$this, $xo]);
         }
 
         if (!empty($tag)) {
@@ -729,27 +784,11 @@ class ActivityObject
         return;
     }
 
-    function asString($tag='activity:object')
+    public function asArray()
     {
-        $xs = new XMLStringer(true);
+        $object = [];
 
-        $this->outputTo($xs, $tag);
-
-        return $xs->getString();
-    }
-
-    /*
-     * Returns an array based on this Activity Object suitable for
-     * encoding as JSON.
-     *
-     * @return array $object the activity object array
-     */
-
-    function asArray()
-    {
-        $object = array();
-
-        if (Event::handle('StartActivityObjectOutputJson', array($this, &$object))) {
+        if (Event::handle('StartActivityObjectOutputJson', [$this, &$object])) {
             // XXX: attachments are added by Activity
 
             // author (Add object for author? Could be useful for repeats.)
@@ -762,7 +801,7 @@ class ActivityObject
 
             if ($this->id) {
                 $object['id'] = $this->id;
-            } else if ($this->link) {
+            } elseif ($this->link) {
                 $object['id'] = $this->link;
             }
 
@@ -775,8 +814,8 @@ class ActivityObject
                 // XXX: Not sure what the best avatar is to use for the
                 // author's "image". For now, I'm using the large size.
 
-                $imgLink          = null;
-                $avatarMediaLinks = array();
+                $imgLink = null;
+                $avatarMediaLinks = [];
 
                 foreach ($this->avatarLinks as $a) {
 
@@ -798,14 +837,14 @@ class ActivityObject
                 }
 
                 if (!array_key_exists('status_net', $object)) {
-                    $object['status_net'] = array();
+                    $object['status_net'] = [];
                 }
 
                 $object['status_net']['avatarLinks'] = $avatarMediaLinks; // extension
 
                 // image
                 if (!empty($imgLink)) {
-                    $object['image']  = $imgLink->asArray();
+                    $object['image'] = $imgLink->asArray();
                 }
             }
 
@@ -843,7 +882,7 @@ class ActivityObject
                     $parts = explode(":", $objectName);
                     if (count($parts) == 2 && $parts[0] == "statusnet") {
                         if (!array_key_exists('status_net', $object)) {
-                            $object['status_net'] = array();
+                            $object['status_net'] = [];
                         }
                         $object['status_net'][$parts[1]] = $props;
                     } else {
@@ -853,16 +892,15 @@ class ActivityObject
             }
 
             if (!empty($this->geopoint)) {
-
                 list($lat, $lon) = explode(' ', $this->geopoint);
 
                 if (!empty($lat) && !empty($lon)) {
-                    $object['location'] = array(
+                    $object['location'] = [
                         'objectType' => 'place',
                         'position' => sprintf("%+02.5F%+03.5F/", $lat, $lon),
                         'lat' => $lat,
                         'lon' => $lon
-                    );
+                    ];
 
                     $loc = Location::fromLatLon((float)$lat, (float)$lon);
 
@@ -887,9 +925,9 @@ class ActivityObject
 
             if (!empty($this->thumbnail)) {
                 if (is_string($this->thumbnail)) {
-                    $object['image'] = array('url' => $this->thumbnail);
+                    $object['image'] = ['url' => $this->thumbnail];
                 } else {
-                    $object['image'] = array('url' => $this->thumbnail->getUrl());
+                    $object['image'] = ['url' => $this->thumbnail->getUrl()];
                     if ($this->thumbnail->width) {
                         $object['image']['width'] = $this->thumbnail->width;
                     }
@@ -900,63 +938,32 @@ class ActivityObject
             }
 
             switch (self::canonicalType($this->type)) {
-            case 'image':
-                if (!empty($this->largerImage)) {
-                    $object['fullImage'] = array('url' => $this->largerImage);
-                }
-                break;
-            case 'audio':
-            case 'video':
-                if (!empty($this->stream)) {
-                    $object['stream'] = array('url' => $this->stream);
-                }
-                break;
+                case 'image':
+                    if (!empty($this->largerImage)) {
+                        $object['fullImage'] = ['url' => $this->largerImage];
+                    }
+                    break;
+                case 'audio':
+                case 'video':
+                    if (!empty($this->stream)) {
+                        $object['stream'] = ['url' => $this->stream];
+                    }
+                    break;
             }
 
-            Event::handle('EndActivityObjectOutputJson', array($this, &$object));
+            Event::handle('EndActivityObjectOutputJson', [$this, &$object]);
         }
         return array_filter($object);
     }
 
-    public function getIdentifiers() {
-        $ids = array();
-        foreach(array('id', 'link', 'url') as $id) {
+    public function getIdentifiers()
+    {
+        $ids = [];
+        foreach (['id', 'link', 'url'] as $id) {
             if (isset($this->$id)) {
                 $ids[] = $this->$id;
             }
         }
         return array_unique($ids);
-    }
-
-    static function canonicalType($type) {
-        return ActivityUtils::resolveUri($type, true);
-    }
-
-    static function mimeTypeToObjectType($mimeType) {
-        $ot = null;
-
-        // Default
-
-        if (empty($mimeType)) {
-            return self::FILE;
-        }
-
-        $parts = explode('/', $mimeType);
-
-        switch ($parts[0]) {
-        case 'image':
-            $ot = self::IMAGE;
-            break;
-        case 'audio':
-            $ot = self::AUDIO;
-            break;
-        case 'video':
-            $ot = self::VIDEO;
-            break;
-        default:
-            $ot = self::FILE;
-        }
-
-        return $ot;
     }
 }

@@ -93,7 +93,7 @@ class PublicAction extends SitestreamAction
     /**
      * Output <head> elements for RSS and Atom feeds
      *
-     * @return void
+     * @return array
      */
     function getFeeds()
     {

@@ -44,7 +44,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  */
 class ErrorAction extends InfoAction
 {
-    static $status = array();
+    static $status = [];
 
     var $code    = null;
     var $message = null;
@@ -86,11 +86,11 @@ class ErrorAction extends InfoAction
     /**
      * Display content.
      *
-     * @return nothing
+     * @return void
      */
     function showContent()
     {
-        $this->element('div', array('class' => 'error'), $this->message);
+        $this->element('div', ['class' => 'error'], $this->message);
     }
 
     function showNoticeForm()
@@ -102,20 +102,19 @@ class ErrorAction extends InfoAction
      *
      * Goes back to the browser, where it's shown in a popup.
      *
-     * @param string $msg Message to show
-     *
      * @return void
+     * @throws ClientException
      */
 
     function ajaxErrorMsg()
     {
-        $this->startHTML('text/xml;charset=utf-8', true);
+        $this->startHTML('text/xml;charset=utf-8');
         $this->elementStart('head');
         // TRANS: Page title after an AJAX error occurs on the send notice page.
         $this->element('title', null, _('Ajax Error'));
         $this->elementEnd('head');
         $this->elementStart('body');
-        $this->element('p', array('id' => 'error'), $this->message);
+        $this->element('p', ['id' => 'error'], $this->message);
         $this->elementEnd('body');
         $this->endHTML();
     }

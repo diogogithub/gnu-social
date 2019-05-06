@@ -137,8 +137,8 @@ class OpenidloginAction extends Action
         $appendUsername = common_config('openid', 'append_username');
         if ($provider) {
             // TRANS: Field label.
-            $this->element('label', array(), _m('LABEL','OpenID provider'));
-            $this->element('span', array(), $provider);
+            $this->element('label', [], _m('LABEL','OpenID provider'));
+            $this->element('span', [], $provider);
             if ($appendUsername) {
                 $this->element('input', array('id' => 'openid_username',
                                               'name' => 'openid_username',

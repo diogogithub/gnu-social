@@ -49,25 +49,36 @@ class NetworkpublicAction extends SitestreamAction
         // Network public tag cloud?
     }
 
+    /**
+     * Output <head> elements for RSS and Atom feeds
+     *
+     * @return array
+     */
     function getFeeds()
     {
-        return array(new Feed(Feed::JSON,
-                              common_local_url('ApiTimelineNetworkPublic',
-                                               array('format' => 'as')),
-                              // TRANS: Link description for the _global_ network public timeline feed.
-                              _('Network Public Timeline Feed (Activity Streams JSON)')),
-                    new Feed(Feed::RSS1, common_local_url('publicrss'),
-                              // TRANS: Link description for the _global_ network public timeline feed.
-                              _('Network Public Timeline Feed (RSS 1.0)')),
-                     new Feed(Feed::RSS2,
-                              common_local_url('ApiTimelineNetworkPublic',
-                                               array('format' => 'rss')),
-                              // TRANS: Link description for the _global_ network public timeline feed.
-                              _('Network Public Timeline Feed (RSS 2.0)')),
-                     new Feed(Feed::ATOM,
-                              common_local_url('ApiTimelineNetworkPublic',
-                                               array('format' => 'atom')),
-                              // TRANS: Link description for the _global_ network public timeline feed.
-                              _('Network Public Timeline Feed (Atom)')));
+        return [
+            new Feed(Feed::ATOM,
+                common_local_url('ApiTimelinePublic',
+                    array('format' => 'atom')),
+                // TRANS: Link description for public timeline feed.
+                _('Public Timeline Feed (Atom)')
+            ),
+            new Feed(Feed::JSON,
+                common_local_url('ApiTimelinePublic',
+                    array('format' => 'as')),
+                // TRANS: Link description for public timeline feed.
+                _('Public Timeline Feed (Activity Streams JSON)')
+            ),
+            new Feed(Feed::RSS1, common_local_url('publicrss'),
+                // TRANS: Link description for public timeline feed.
+                _('Public Timeline Feed (RSS 1.0)')
+            ),
+            new Feed(Feed::RSS2,
+                common_local_url('ApiTimelinePublic',
+                    array('format' => 'rss')),
+                // TRANS: Link description for public timeline feed.
+                _('Public Timeline Feed (RSS 2.0)')
+            ),
+        ];
     }
 }

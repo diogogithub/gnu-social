@@ -64,7 +64,7 @@ class InfoAction extends ManagedAction
     /**
      * Page title.
      *
-     * @return page title
+     * @return string page title
      */
 
     function title()
@@ -81,8 +81,8 @@ class InfoAction extends ManagedAction
 
     function showBody()
     {
-        $this->elementStart('body', array('id' => 'error'));
-        $this->elementStart('div', array('id' => 'wrap'));
+        $this->elementStart('body', ['id' => 'error']);
+        $this->elementStart('div', ['id' => 'wrap']);
         $this->showHeader();
         $this->showCore();
         $this->showFooter();
@@ -92,10 +92,10 @@ class InfoAction extends ManagedAction
 
     function showCore()
     {
-        $this->elementStart('div', array('id' => 'core'));
-        $this->elementStart('div', array('id' => 'aside_primary_wrapper'));
-        $this->elementStart('div', array('id' => 'content_wrapper'));
-        $this->elementStart('div', array('id' => 'site_nav_local_views_wrapper'));
+        $this->elementStart('div', ['id' => 'core']);
+        $this->elementStart('div', ['id' => 'aside_primary_wrapper']);
+        $this->elementStart('div', ['id' => 'content_wrapper']);
+        $this->elementStart('div', ['id' => 'site_nav_local_views_wrapper']);
         $this->showContentBlock();
         $this->elementEnd('div');
         $this->elementEnd('div');
@@ -105,7 +105,7 @@ class InfoAction extends ManagedAction
 
     function showHeader()
     {
-        $this->elementStart('div', array('id' => 'header'));
+        $this->elementStart('div', ['id' => 'header']);
         $this->showLogo();
         $this->showPrimaryNav();
         $this->elementEnd('div');
@@ -114,11 +114,11 @@ class InfoAction extends ManagedAction
     /**
      * Display content.
      *
-     * @return nothing
+     * @return void
      */
     function showContent()
     {
-        $this->element('div', array('class' => 'info'), $this->message);
+        $this->element('div', ['class' => 'info'], $this->message);
     }
 
 }
