@@ -27,7 +27,9 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 /**
  * A class for generating JSON documents that represent an Activity Streams
@@ -47,7 +49,7 @@ class ActivityStreamJSONDocument extends JSONActivityCollection
     const CONTENT_TYPE = 'application/json; charset=utf-8';
 
     /* Top level array representing the document */
-    protected $doc = array();
+    protected $doc = [];
 
     /* The current authenticated user */
     protected $cur;
@@ -67,9 +69,10 @@ class ActivityStreamJSONDocument extends JSONActivityCollection
      * Constructor
      *
      * @param User $cur the current authenticated user
+     * @throws UserNoProfileException
      */
 
-    function __construct($cur = null, $title = null, array $items=[], $links = null, $url = null)
+    public function __construct($cur = null, $title = null, array $items = [], $links = null, $url = null)
     {
         parent::__construct($items, $url);
 
@@ -84,26 +87,26 @@ class ActivityStreamJSONDocument extends JSONActivityCollection
         }
 
         /* Array of links associated with the document */
-        $this->links = empty($links) ? array() : $items;
+        $this->links = empty($links) ? [] : $items;
 
         /* URL of a document, this document? containing a list of all the items in the stream */
-        if (!empty($this->url)) {
-            $this->url = $this->url;
+        if (!empty($url)) {
+            $this->url = $url;
         }
     }
 
     /**
      * Set the title of the document
      *
-     * @param String $title the title
+     * @param string $title the title
      */
 
-    function setTitle($title)
+    public function setTitle($title)
     {
         $this->title = $title;
     }
 
-    function setUrl($url)
+    public function setUrl($url)
     {
         $this->url = $url;
     }
@@ -113,10 +116,11 @@ class ActivityStreamJSONDocument extends JSONActivityCollection
      * Add more than one Item to the document
      *
      * @param mixed $notices an array of Notice objects or handle
-     *
+     * @throws ClientException
+     * @throws ServerException
      */
 
-    function addItemsFromNotices($notices)
+    public function addItemsFromNotices($notices)
     {
         if (is_array($notices)) {
             foreach ($notices as $notice) {
@@ -135,9 +139,17 @@ class ActivityStreamJSONDocument extends JSONActivityCollection
      * @param Notice $notice a Notice to add
      */
 
-    function addItemFromNotice($notice)
+    public function addItemFromNotice($notice)
     {
-        $act          = $notice->asActivity($this->scoped);
+        try {
+            $act = $notice->asActivity($this->scoped);
+        } catch (Exception $e) {
+            // We know exceptions like
+            // "No result found on Fave lookup."
+            // may happen because of deleted notices etc.
+            // These are irrelevant for the feed purposes.
+            return;
+        }
         $act->extra[] = $notice->noticeInfo($this->scoped);
         array_push($this->items, $act->asArray());
         $this->count++;
@@ -148,8 +160,9 @@ class ActivityStreamJSONDocument extends JSONActivityCollection
      *
      * @param string $url the URL for the link
      * @param string $rel the link relationship
+     * @throws Exception
      */
-    function addLink($url = null, $rel = null, $mediaType = null)
+    public function addLink($url = null, $rel = null, $mediaType = null)
     {
         $link = new ActivityStreamsLink($url, $rel, $mediaType);
         array_push($this->links, $link->asArray());
@@ -160,15 +173,14 @@ class ActivityStreamJSONDocument extends JSONActivityCollection
      *
      * @return string encoded JSON output
      */
-    function asString()
+    public function asString()
     {
         $this->doc['generator'] = 'GNU social ' . GNUSOCIAL_VERSION; // extension
         $this->doc['title'] = $this->title;
-        $this->doc['url']   = $this->url;
+        $this->doc['url'] = $this->url;
         $this->doc['totalItems'] = $this->count;
         $this->doc['items'] = $this->items;
         $this->doc['links'] = $this->links; // extension
         return json_encode(array_filter($this->doc)); // filter out empty elements
     }
-
 }

@@ -1962,9 +1962,11 @@ class Notice extends Managed_DataObject
     /**
      * Convert a notice into an activity for export.
      *
-     * @param Profile $scoped   The currently logged in/scoped profile
+     * @param Profile $scoped The currently logged in/scoped profile
      *
      * @return Activity activity object representing this Notice.
+     * @throws ClientException
+     * @throws ServerException
      */
 
     function asActivity(Profile $scoped=null)

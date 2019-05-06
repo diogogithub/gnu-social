@@ -34,7 +34,9 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 /**
  * Returns the most recent notices (default 20) posted by the authenticating
@@ -55,9 +57,64 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class ApiTimelineUserAction extends ApiBareAuthAction
 {
-    var $notices = null;
+    public $notices = null;
 
-    var $next_id = null;
+    public $next_id = null;
+
+    /**
+     * We expose AtomPub here, so non-GET/HEAD reqs must be read/write.
+     *
+     * @param array $args other arguments
+     *
+     * @return boolean true
+     */
+
+    public function isReadOnly($args)
+    {
+        return ($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'HEAD');
+    }
+
+    /**
+     * When was this feed last modified?
+     *
+     * @return string datestamp of the latest notice in the stream
+     */
+    public function lastModified()
+    {
+        if (!empty($this->notices) && (count($this->notices) > 0)) {
+            return strtotime($this->notices[0]->created);
+        }
+
+        return null;
+    }
+
+    /**
+     * An entity tag for this stream
+     *
+     * Returns an Etag based on the action name, language, user ID, and
+     * timestamps of the first and last notice in the timeline
+     *
+     * @return string etag
+     */
+    public function etag()
+    {
+        if (!empty($this->notices) && (count($this->notices) > 0)) {
+            $last = count($this->notices) - 1;
+
+            return '"' . implode(
+                    ':',
+                    array($this->arg('action'),
+                        common_user_cache_hash($this->scoped),
+                        common_language(),
+                        $this->target->getID(),
+                        strtotime($this->notices[0]->created),
+                        strtotime($this->notices[$last]->created))
+                )
+                . '"';
+        }
+
+        return null;
+    }
 
     /**
      * Take arguments for running
@@ -65,8 +122,10 @@ class ApiTimelineUserAction extends ApiBareAuthAction
      * @param array $args $_REQUEST args
      *
      * @return boolean success flag
+     * @throws AuthorizationException
+     * @throws ClientException
      */
-    protected function prepare(array $args=array())
+    protected function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -87,168 +146,21 @@ class ApiTimelineUserAction extends ApiBareAuthAction
     }
 
     /**
-     * Handle the request
-     *
-     * Just show the notices
-     *
-     * @return void
-     */
-    protected function handle()
-    {
-        parent::handle();
-
-        if ($this->isPost()) {
-            $this->handlePost();
-        } else {
-            $this->showTimeline();
-        }
-    }
-
-    /**
-     * Show the timeline of notices
-     *
-     * @return void
-     */
-    function showTimeline()
-    {
-        // We'll use the shared params from the Atom stub
-        // for other feed types.
-        $atom = new AtomUserNoticeFeed($this->target->getUser(), $this->scoped);
-
-        $link = common_local_url(
-                                 'showstream',
-                                 array('nickname' => $this->target->getNickname())
-                                 );
-
-        $self = $this->getSelfUri();
-
-        // FriendFeed's SUP protocol
-        // Also added RSS and Atom feeds
-
-        $suplink = common_local_url('sup', null, null, $this->target->getID());
-        header('X-SUP-ID: ' . $suplink);
-
-
-        // paging links
-        $nextUrl = !empty($this->next_id)
-                    ? common_local_url('ApiTimelineUser',
-                                    array('format' => $this->format,
-                                          'id' => $this->target->getID()),
-                                    array('max_id' => $this->next_id))
-                    : null;
-
-        $prevExtra = array();
-        if (!empty($this->notices)) {
-            assert($this->notices[0] instanceof Notice);
-            $prevExtra['since_id'] = $this->notices[0]->id;
-        }
-
-        $prevUrl = common_local_url('ApiTimelineUser',
-                                    array('format' => $this->format,
-                                          'id' => $this->target->getID()),
-                                    $prevExtra);
-        $firstUrl = common_local_url('ApiTimelineUser',
-                                    array('format' => $this->format,
-                                          'id' => $this->target->getID()));
-
-        switch($this->format) {
-        case 'xml':
-            $this->showXmlTimeline($this->notices);
-            break;
-        case 'rss':
-            $this->showRssTimeline(
-                                   $this->notices,
-                                   $atom->title,
-                                   $link,
-                                   $atom->subtitle,
-                                   $suplink,
-                                   $atom->logo,
-                                   $self
-                                   );
-            break;
-        case 'atom':
-            header('Content-Type: application/atom+xml; charset=utf-8');
-
-            $atom->setId($self);
-            $atom->setSelfLink($self);
-
-            // Add navigation links: next, prev, first
-            // Note: we use IDs rather than pages for navigation; page boundaries
-            // change too quickly!
-
-            if (!empty($this->next_id)) {
-                $atom->addLink($nextUrl,
-                               array('rel' => 'next',
-                                     'type' => 'application/atom+xml'));
-            }
-
-            if (($this->page > 1 || !empty($this->max_id)) && !empty($this->notices)) {
-                $atom->addLink($prevUrl,
-                               array('rel' => 'prev',
-                                     'type' => 'application/atom+xml'));
-            }
-
-            if ($this->page > 1 || !empty($this->since_id) || !empty($this->max_id)) {
-                $atom->addLink($firstUrl,
-                               array('rel' => 'first',
-                                     'type' => 'application/atom+xml'));
-
-            }
-
-            $atom->addEntryFromNotices($this->notices);
-            $this->raw($atom->getString());
-
-            break;
-        case 'json':
-            $this->showJsonTimeline($this->notices);
-            break;
-        case 'as':
-            header('Content-Type: ' . ActivityStreamJSONDocument::CONTENT_TYPE);
-            $doc = new ActivityStreamJSONDocument($this->scoped);
-            $doc->setTitle($atom->title);
-            $doc->addLink($link, 'alternate', 'text/html');
-            $doc->addItemsFromNotices($this->notices);
-
-            if (!empty($this->next_id)) {
-                $doc->addLink($nextUrl,
-                               array('rel' => 'next',
-                                     'type' => ActivityStreamJSONDocument::CONTENT_TYPE));
-            }
-
-            if (($this->page > 1 || !empty($this->max_id)) && !empty($this->notices)) {
-                $doc->addLink($prevUrl,
-                               array('rel' => 'prev',
-                                     'type' => ActivityStreamJSONDocument::CONTENT_TYPE));
-            }
-
-            if ($this->page > 1 || !empty($this->since_id) || !empty($this->max_id)) {
-                $doc->addLink($firstUrl,
-                               array('rel' => 'first',
-                                     'type' => ActivityStreamJSONDocument::CONTENT_TYPE));
-            }
-
-            $this->raw($doc->asString());
-            break;
-        default:
-            // TRANS: Client error displayed when coming across a non-supported API method.
-            $this->clientError(_('API method not found.'), 404);
-        }
-    }
-
-    /**
      * Get notices
      *
      * @return array notices
      */
-    function getNotices()
+    public function getNotices()
     {
-        $notices = array();
+        $notices = [];
 
-        $notice = $this->target->getNotices(($this->page-1) * $this->count,
-                                          $this->count + 1,
-                                          $this->since_id,
-                                          $this->max_id,
-                                          $this->scoped);
+        $notice = $this->target->getNotices(
+            ($this->page - 1) * $this->count,
+            $this->count + 1,
+            $this->since_id,
+            $this->max_id,
+            $this->scoped
+        );
 
         while ($notice->fetch()) {
             if (count($notices) < $this->count) {
@@ -263,64 +175,29 @@ class ApiTimelineUserAction extends ApiBareAuthAction
     }
 
     /**
-     * We expose AtomPub here, so non-GET/HEAD reqs must be read/write.
+     * Handle the request
      *
-     * @param array $args other arguments
+     * Just show the notices
      *
-     * @return boolean true
+     * @return void
+     * @throws ClientException
+     * @throws ServerException
      */
-
-    function isReadOnly($args)
+    protected function handle()
     {
-        return ($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'HEAD');
-    }
+        parent::handle();
 
-    /**
-     * When was this feed last modified?
-     *
-     * @return string datestamp of the latest notice in the stream
-     */
-    function lastModified()
-    {
-        if (!empty($this->notices) && (count($this->notices) > 0)) {
-            return strtotime($this->notices[0]->created);
+        if ($this->isPost()) {
+            $this->handlePost();
+        } else {
+            $this->showTimeline();
         }
-
-        return null;
     }
 
-    /**
-     * An entity tag for this stream
-     *
-     * Returns an Etag based on the action name, language, user ID, and
-     * timestamps of the first and last notice in the timeline
-     *
-     * @return string etag
-     */
-    function etag()
-    {
-        if (!empty($this->notices) && (count($this->notices) > 0)) {
-            $last = count($this->notices) - 1;
-
-            return '"' . implode(
-                                 ':',
-                                 array($this->arg('action'),
-                                       common_user_cache_hash($this->scoped),
-                                       common_language(),
-                                       $this->target->getID(),
-                                       strtotime($this->notices[0]->created),
-                                       strtotime($this->notices[$last]->created))
-                                 )
-              . '"';
-        }
-
-        return null;
-    }
-
-    function handlePost()
+    public function handlePost()
     {
         if (!$this->scoped instanceof Profile ||
-                !$this->target->sameAs($this->scoped)) {
+            !$this->target->sameAs($this->scoped)) {
             // TRANS: Client error displayed trying to add a notice to another user's timeline.
             $this->clientError(_('Only the user can add to their own timeline.'), 403);
         }
@@ -354,7 +231,7 @@ class ApiTimelineUserAction extends ApiBareAuthAction
 
         $activity = new Activity($dom->documentElement);
 
-        common_debug('AtomPub: Ignoring right now, but this POST was made to collection: '.$activity->id);
+        common_debug('AtomPub: Ignoring right now, but this POST was made to collection: ' . $activity->id);
 
         // Reset activity data so we can handle it in the same functions as with OStatus
         // because we don't let clients set their own UUIDs... Not sure what AtomPub thinks
@@ -375,7 +252,158 @@ class ApiTimelineUserAction extends ApiBareAuthAction
 
         header('HTTP/1.1 201 Created');
         header("Location: " . common_local_url('ApiStatusesShow', array('id' => $stored->getID(),
-                                                                        'format' => 'atom')));
+                'format' => 'atom')));
         $this->showSingleAtomStatus($stored);
+    }
+
+    /**
+     * Show the timeline of notices
+     *
+     * @return void
+     * @throws ClientException
+     * @throws ServerException
+     * @throws UserNoProfileException
+     */
+    public function showTimeline()
+    {
+        // We'll use the shared params from the Atom stub
+        // for other feed types.
+        $atom = new AtomUserNoticeFeed($this->target->getUser(), $this->scoped);
+
+        $link = common_local_url(
+            'showstream',
+            array('nickname' => $this->target->getNickname())
+        );
+
+        $self = $this->getSelfUri();
+
+        // FriendFeed's SUP protocol
+        // Also added RSS and Atom feeds
+
+        $suplink = common_local_url('sup', null, null, $this->target->getID());
+        header('X-SUP-ID: ' . $suplink);
+
+
+        // paging links
+        $nextUrl = !empty($this->next_id)
+            ? common_local_url(
+                'ApiTimelineUser',
+                array('format' => $this->format,
+                    'id' => $this->target->getID()),
+                array('max_id' => $this->next_id)
+            )
+            : null;
+
+        $prevExtra = [];
+        if (!empty($this->notices)) {
+            assert($this->notices[0] instanceof Notice);
+            $prevExtra['since_id'] = $this->notices[0]->id;
+        }
+
+        $prevUrl = common_local_url(
+            'ApiTimelineUser',
+            array('format' => $this->format,
+                'id' => $this->target->getID()),
+            $prevExtra
+        );
+        $firstUrl = common_local_url(
+            'ApiTimelineUser',
+            array('format' => $this->format,
+                'id' => $this->target->getID())
+        );
+
+        switch ($this->format) {
+            case 'xml':
+                $this->showXmlTimeline($this->notices);
+                break;
+            case 'rss':
+                $this->showRssTimeline(
+                    $this->notices,
+                    $atom->title,
+                    $link,
+                    $atom->subtitle,
+                    $suplink,
+                    $atom->logo,
+                    $self
+                );
+                break;
+            case 'atom':
+                header('Content-Type: application/atom+xml; charset=utf-8');
+
+                $atom->setId($self);
+                $atom->setSelfLink($self);
+
+                // Add navigation links: next, prev, first
+                // Note: we use IDs rather than pages for navigation; page boundaries
+                // change too quickly!
+
+                if (!empty($this->next_id)) {
+                    $atom->addLink(
+                        $nextUrl,
+                        array('rel' => 'next',
+                            'type' => 'application/atom+xml')
+                    );
+                }
+
+                if (($this->page > 1 || !empty($this->max_id)) && !empty($this->notices)) {
+                    $atom->addLink(
+                        $prevUrl,
+                        array('rel' => 'prev',
+                            'type' => 'application/atom+xml')
+                    );
+                }
+
+                if ($this->page > 1 || !empty($this->since_id) || !empty($this->max_id)) {
+                    $atom->addLink(
+                        $firstUrl,
+                        array('rel' => 'first',
+                            'type' => 'application/atom+xml')
+                    );
+                }
+
+                $atom->addEntryFromNotices($this->notices);
+                $this->raw($atom->getString());
+
+                break;
+            case 'json':
+                $this->showJsonTimeline($this->notices);
+                break;
+            case 'as':
+                header('Content-Type: ' . ActivityStreamJSONDocument::CONTENT_TYPE);
+                $doc = new ActivityStreamJSONDocument($this->scoped);
+                $doc->setTitle($atom->title);
+                $doc->addLink($link, 'alternate', 'text/html');
+                $doc->addItemsFromNotices($this->notices);
+
+                if (!empty($this->next_id)) {
+                    $doc->addLink(
+                        $nextUrl,
+                        array('rel' => 'next',
+                            'type' => ActivityStreamJSONDocument::CONTENT_TYPE)
+                    );
+                }
+
+                if (($this->page > 1 || !empty($this->max_id)) && !empty($this->notices)) {
+                    $doc->addLink(
+                        $prevUrl,
+                        array('rel' => 'prev',
+                            'type' => ActivityStreamJSONDocument::CONTENT_TYPE)
+                    );
+                }
+
+                if ($this->page > 1 || !empty($this->since_id) || !empty($this->max_id)) {
+                    $doc->addLink(
+                        $firstUrl,
+                        array('rel' => 'first',
+                            'type' => ActivityStreamJSONDocument::CONTENT_TYPE)
+                    );
+                }
+
+                $this->raw($doc->asString());
+                break;
+            default:
+                // TRANS: Client error displayed when coming across a non-supported API method.
+                $this->clientError(_('API method not found.'), 404);
+        }
     }
 }
