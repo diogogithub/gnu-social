@@ -1,0 +1,673 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "description": "## Retrieving objects\nThe HTTP GET method may be dereferenced against an object's `id` property to retrieve the activity.\nThe plugin supports HTTP content negotiation as defined in [RFC7231](https://tools.ietf.org/html/rfc7231) in every endpoint suffixed with .json .\nThe plugin always presents ActivityStreams object representation in response to every request.\nThe client MUST specify an `Accept` header with the `application/ld+json; profile=\"https://www.w3.org/ns/activitystreams\"` media type in order to retrieve the activity.\n\n## Selecting ranges\n\nFor most `GET` operations that return arrays, the query parameters `max_id` and `since_id` can be used to specify the range of IDs to return.\nAPI methods that return collections of items can return a `Link` header containing URLs for the `next` and `prev` pages.\nSee the [Link header RFC](https://tools.ietf.org/html/rfc5988) for more information.\n\n## Pretty output\n\nFor most operations if the `pretty` parameter is set a formated output will be generated (useful for learning about the API or debuging purposes).\n\n## Errors\n\nIf the request you make doesn't go through, the plugin will usually respond with an [Error](#error).\n\n___\n\n> **Note:** Some attributes in the payload can have ``null`` value and are marked as _nullable_ on the tables below. Attributes that are not nullable are guaranteed to return a valid value.",
+        "version": "1.0.0",
+        "title": "ActivityPub plugin for GNU Social",
+        "contact": {
+            "email": "diogo@fc.up.pt"
+        },
+        "license": {
+            "name": "AGPLv3",
+            "url": "https://git.gnu.io/gnu/GS-ActivityPub-plugin/blob/COPYING"
+        }
+    },
+    "externalDocs": {
+        "description": "For a complete definition of the objects and activities available click here.",
+        "url": "https://git.gnu.io/gnu/GS-ActivityPub-plugin/doc/objects_and_activities.md"
+    },
+    "paths": {
+        "/{nickname}": {
+            "get": {
+                "summary": "Fetching an Actor's profile",
+                "description": "Returns a Profile.",
+                "responses": {
+                    "200": {
+                        "description": "Returns a Profile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Profile"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/activity+json"
+                        }
+                    }
+                ]
+            }
+        },
+        "/{nickname}/inbox.json": {
+            "post": {
+                "summary": "Actor Inbox endpoint",
+                "description": "Allows the publish of activities with attention to a given Actor",
+                "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/activity+json"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the same activity it received"
+                    }
+                }
+            }
+        },
+        "/{nickname}/liked.json": {
+            "get": {
+                "summary": "Liked Collection",
+                "description": "Getting an Actor's Liked Collection",
+                "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/activity+json"
+                        }
+                    },
+                    {
+                        "name": "max_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        "description": "Get a list of likes with ID less than this value",
+                        "format": "int32"
+                    },
+                    {
+                        "name": "since_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        },
+                        "description": "Get a list of likes with ID greater than this value"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": "40"
+                        },
+                        "description": "Maximum number of likes to get (Max 80)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns Actor's Liked Collection",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Liked Collection"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{nickname}/followers.json": {
+            "get": {
+                "summary": "Followers Collection",
+                "description": "Getting an Actor's Followers Collection",
+                "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/activity+json"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": "1"
+                        },
+                        "description": "Page index (starts in 1)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns Actor's Followers Collection",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Follow Collection"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/{nickname}/following.json": {
+            "get": {
+                "summary": "Following Collection",
+                "description": "Getting an Actor's Following Collection",
+                "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/activity+json"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": "1"
+                        },
+                        "description": "Page index (starts in 1)"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns Actor's Following Collection",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Follow Collection"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/inbox.json": {
+            "post": {
+                "summary": "SharedInbox endpoint",
+                "description": "Allows the publish of activities",
+                "parameters": [
+                    {
+                        "name": "Content-Type",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/json"
+                        }
+                    },
+                    {
+                        "name": "Accept",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "default": "application/activity+json"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the same activity it received"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Note": {
+                "type": "object",
+                "required": [
+                    "@context",
+                    "id",
+                    "type",
+                    "actor",
+                    "published",
+                    "to",
+                    "cc",
+                    "content",
+                    "url",
+                    "reply_to",
+                    "is_local",
+                    "conversation",
+                    "attachment",
+                    "tag"
+                ],
+                "properties": {
+                    "@context": {
+                        "type": "string",
+                        "value": "https://www.w3.org/ns/activitystreams",
+                        "default": "https://www.w3.org/ns/activitystreams"
+                    },
+                    "id": {
+                        "description": "Notice's URI",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Notice's Type",
+                        "type": "string"
+                    },
+                    "actor": {
+                        "description": "URL of Notice owner profile page (can be remote)",
+                        "type": "string"
+                    },
+                    "published": {
+                        "description": "DateTime of notice creation",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "to": {
+                        "description": "To",
+                        "type": "string"
+                    },
+                    "cc": {
+                        "description": "CC",
+                        "type": "string"
+                    },
+                    "content": {
+                        "description": "Notice's Content in plain text",
+                        "type": "string"
+                    },
+                    "url": {
+                        "description": "Notice's URL",
+                        "type": "string"
+                    },
+                    "reply_to": {
+                        "description": "ID of the notice this replies",
+                        "type": "string"
+                    },
+                    "is_local": {
+                        "description": "true if local, false otherwise",
+                        "type": "string"
+                    },
+                    "conversation": {
+                        "description": "Notice conversation id",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "attachment": {
+                        "description": "Array of Attachments",
+                        "type": "Array of Attachments"
+                    },
+                    "tag": {
+                        "description": "Array of Tags",
+                        "type": "Array of Tags"
+                    }
+                },
+                "xml": {
+                    "name": "Note"
+                }
+            },
+            "Image": {
+                "type": "object",
+                "required": [
+                    "@context",
+                    "type",
+                    "width",
+                    "height",
+                    "url"
+                ],
+                "properties": {
+                    "@context": {
+                        "type": "string",
+                        "value": "https://www.w3.org/ns/activitystreams",
+                        "default": "https://www.w3.org/ns/activitystreams"
+                    },
+                    "type": {
+                        "description": "Image",
+                        "type": "string"
+                    },
+                    "width": {
+                        "description": "Image's width",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "height": {
+                        "description": "Image's height",
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "url": {
+                        "description": "Image URL",
+                        "type": "string"
+                    }
+                },
+                "xml": {
+                    "name": "Image"
+                }
+            },
+            "Attachment": {
+                "type": "object",
+                "required": [
+                    "@context",
+                    "id",
+                    "mimetype",
+                    "url",
+                    "title"
+                ],
+                "properties": {
+                    "@context": {
+                        "type": "string",
+                        "value": "https://www.w3.org/ns/activitystreams",
+                        "default": "https://www.w3.org/ns/activitystreams"
+                    },
+                    "id": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Id of the Attachment"
+                    },
+                    "mimetype": {
+                        "type": "string",
+                        "description": "Mimetype"
+                    },
+                    "url": {
+                        "type": "string",
+                        "description": "URL of locally hosted version of the attachment"
+                    },
+                    "meta": {
+                        "type": "array",
+                        "description": "Attachment metadata:\n\nImages may contain *width*, *height*, *size*.",
+                        "items": {}
+                    },
+                    "title": {
+                        "type": "string",
+                        "description": "Attachment title"
+                    }
+                },
+                "xml": {
+                    "name": "Attachment"
+                }
+            },
+            "Profile": {
+                "type": "object",
+                "required": [
+                    "@context",
+                    "id",
+                    "nickname",
+                    "is_local",
+                    "inbox",
+                    "outbox",
+                    "display_name",
+                    "followers",
+                    "followers_count",
+                    "following",
+                    "following_count",
+                    "liked",
+                    "liked_count",
+                    "summary",
+                    "url",
+                    "avatar"
+                ],
+                "properties": {
+                    "@context": {
+                        "type": "string",
+                        "value": "https://www.w3.org/ns/activitystreams",
+                        "default": "https://www.w3.org/ns/activitystreams"
+                    },
+                    "id": {
+                        "type": "string",
+                        "description": "Local URI"
+                    },
+                    "type": "Person",
+                    "nickname": {
+                        "type": "string",
+                        "description": "Actor's nickname"
+                    },
+                    "is_local": {
+                        "type": "boolean",
+                        "description": "True if local, false otherwise"
+                    },
+                    "inbox": {
+                        "type": "string",
+                        "description": "URL to Actor's inbox endpoint"
+                    },
+                    "sharedInbox": {
+                        "type": "string",
+                        "description": "URL to Actor's sharedInbox endpoint"
+                    },
+                    "outbox": {
+                        "type": "string",
+                        "description": "URL to Actor's outbox endpoint"
+                    },
+                    "display_name": {
+                        "type": "string",
+                        "description": "The Actor's display name"
+                    },
+                    "followers": {
+                        "type": "string",
+                        "description": "URL to Actor's followers collection"
+                    },
+                    "followers_count": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Total number of followers"
+                    },
+                    "following": {
+                        "type": "string",
+                        "description": "URL to Actor's following collection"
+                    },
+                    "following_count": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Total number of following"
+                    },
+                    "liked": {
+                        "type": "string",
+                        "description": "URL to Actor's Liked collection"
+                    },
+                    "liked_count": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Total number of favorites"
+                    },
+                    "summary": {
+                        "type": "string",
+                        "description": "Actor's biography"
+                    },
+                    "url": {
+                        "type": "string",
+                        "description": "URL of the Actor's profile page (can be remote)"
+                    },
+                    "avatar": {
+                        "type": "Image",
+                        "description": "Actor's avatar"
+                    }
+                },
+                "xml": {
+                    "name": "Profile"
+                }
+            },
+            "Tag": {
+                "type": "object",
+                "required": [
+                    "@context",
+                    "name",
+                    "url"
+                ],
+                "properties": {
+                    "@context": {
+                        "type": "string",
+                        "value": "https://www.w3.org/ns/activitystreams",
+                        "default": "https://www.w3.org/ns/activitystreams"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "The hashtag, not including the preceding #"
+                    },
+                    "url": {
+                        "type": "string",
+                        "description": "The URL of the hashtag"
+                    }
+                },
+                "xml": {
+                    "name": "Tag"
+                }
+            },
+            "Liked Collection": {
+                "type": "object",
+                "required": [
+                    "@context",
+                    "id",
+                    "type",
+                    "totalItems",
+                    "orderedItems"
+                ],
+                "properties": {
+                    "@context": {
+                        "type": "string",
+                        "value": "https://www.w3.org/ns/activitystreams",
+                        "default": "https://www.w3.org/ns/activitystreams"
+                    },
+                    "id": {
+                        "type": "string",
+                        "description": "URL for current endpoint"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "OrderedCollection"
+                    },
+                    "totalItems": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Total number of favorites"
+                    },
+                    "orderedItems": {
+                        "type": "Array of Notices",
+                        "description": "Array of Notices"
+                    }
+                }
+            },
+            "Follow Collection": {
+                "type": "object",
+                "required": [
+                    "@context",
+                    "id",
+                    "type",
+                    "totalItems",
+                    "orderedItems"
+                ],
+                "properties": {
+                    "@context": {
+                        "type": "string",
+                        "value": "https://www.w3.org/ns/activitystreams",
+                        "default": "https://www.w3.org/ns/activitystreams"
+                    },
+                    "id": {
+                        "type": "string",
+                        "description": "URL for current endpoint"
+                    },
+                    "type": {
+                        "type": "string",
+                        "description": "OrderedCollection"
+                    },
+                    "totalItems": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "Total number of items"
+                    },
+                    "prev": {
+                        "type": "string",
+                        "description": "Previous page URL"
+                    },
+                    "next": {
+                        "type": "string",
+                        "description": "Next page URL"
+                    },
+                    "orderedItems": {
+                        "type": "Array of string",
+                        "description": "The URL of each profile"
+                    }
+                }
+            }
+        },
+        "links": {},
+        "callbacks": {}
+    },
+    "security": [],
+    "servers": []
+}
