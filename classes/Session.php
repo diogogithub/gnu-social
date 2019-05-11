@@ -25,6 +25,13 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 
 require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
 
+/**
+ * Table definition for Session
+ *
+ * Superclass representing a saved session as it exists in the database and the associated interfaces.
+ *
+ * @author GNU social
+ */
 class Session extends Managed_DataObject
 {
     ###START_AUTOCODE
@@ -39,6 +46,9 @@ class Session extends Managed_DataObject
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
 
+    /**
+     * Returns an array describing how the session is stored in the database.
+     */
     public static function schemaDef()
     {
         return [
@@ -55,17 +65,48 @@ class Session extends Managed_DataObject
         ];
     }
 
-    static function open($save_path, $session_name)
+    /**
+     * A helper function to print a session-related message to the debug log if
+     * the site session debug configuration option is enabled.
+     * @param $msg
+     * @return void
+     */
+    public static function logdeb($msg)
+    {
+        if (common_config('sessions', 'debug')) {
+            common_debug("Session: " . $msg);
+        }
+    }
+
+    /**
+     * Dummy option for saving to file needed for full PHP adherence.
+     *
+     * @param $save_path
+     * @param $session_name
+     * @return bool true
+     */
+    public static function open($save_path, $session_name)
     {
         return true;
     }
 
-    static function close()
+    /**
+     * Dummy option for saving to file needed for full PHP adherence.
+     *
+     * @return bool true
+     */
+    public static function close()
     {
         return true;
     }
 
-    static function read($id)
+    /**
+     * Fetch the session data for the session with the given $id.
+     *
+     * @param $id
+     * @return string Returns an encoded string of the read data. If nothing was read, it must return an empty string. Note this value is returned internally to PHP for processing.
+     */
+    public static function read($id)
     {
         self::logdeb("Fetching session '$id'");
 
@@ -82,14 +123,14 @@ class Session extends Managed_DataObject
         }
     }
 
-    static function logdeb($msg)
-    {
-        if (common_config('sessions', 'debug')) {
-            common_debug("Session: " . $msg);
-        }
-    }
-
-    static function write($id, $session_data)
+    /**
+     * Write the session data for session with given $id as $session_data.
+     *
+     * @param $id
+     * @param $session_data
+     * @return bool Returns TRUE on success or FALSE on failure.
+     */
+    public static function write($id, $session_data)
     {
         self::logdeb("Writing session '$id'");
 
@@ -111,7 +152,7 @@ class Session extends Managed_DataObject
             } else {
                 self::logdeb("Successfully inserted '$id' (result = $result).");
             }
-            return $result;
+            return (bool) $result;
         } else {
             self::logdeb("'$id' already exists; updating.");
             if (strcmp($session->session_data, $session_data) == 0) {
@@ -133,12 +174,20 @@ class Session extends Managed_DataObject
                     self::logdeb("Successfully updated '$id' (result = $result).");
                 }
 
-                return $result;
+                return (bool) $result;
             }
         }
     }
 
-    static function gc($maxlifetime)
+    /**
+     * Find sessions that have persisted beyond $maxlifetime and delete them.
+     * This will be limited by config['sessions']['gc_limit'] - it won't delete
+     * more than the number of sessions specified there at a single pass.
+     *
+     * @param $maxlifetime
+     * @return bool Returns TRUE on success or FALSE on failure.
+     */
+    public static function gc($maxlifetime)
     {
         self::logdeb("garbage collection (maxlifetime = $maxlifetime)");
 
@@ -172,9 +221,17 @@ class Session extends Managed_DataObject
             self::logdeb("Destroying session '$id'.");
             self::destroy($id);
         }
+
+        return true;
     }
 
-    static function destroy($id)
+    /**
+     * Deletes session with given id $id.
+     *
+     * @param $id
+     * @return bool Returns TRUE on success or FALSE on failure.
+     */
+    public static function destroy($id)
     {
         self::logdeb("Deleting session $id");
 
@@ -191,15 +248,26 @@ class Session extends Managed_DataObject
             } else {
                 self::logdeb("Successfully deleted '$id' (result = $result).");
             }
-            return $result;
+            return (bool) $result;
         }
     }
 
-    static function setSaveHandler()
+    /**
+     * Set our session handler as the handler for PHP session handling in the context of GNU social.
+     *
+     * @return bool Returns TRUE on success or FALSE on failure.
+     */
+    public static function setSaveHandler()
     {
         self::logdeb("setting save handlers");
-        $result = session_set_save_handler('Session::open', 'Session::close', 'Session::read',
-                                           'Session::write', 'Session::destroy', 'Session::gc');
+        $result = session_set_save_handler(
+            'Session::open',
+            'Session::close',
+            'Session::read',
+            'Session::write',
+            'Session::destroy',
+            'Session::gc'
+        );
         self::logdeb("save handlers result = $result");
 
         // PHP 5.3 with APC ends up destroying a bunch of object stuff before the session
@@ -211,7 +279,12 @@ class Session extends Managed_DataObject
         return $result;
     }
 
-    static function cleanup()
+    /**
+     * Stuff to do before the request teardown.
+     *
+     * @return void
+     */
+    public static function cleanup()
     {
         session_write_close();
     }
