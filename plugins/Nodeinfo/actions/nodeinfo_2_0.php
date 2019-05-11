@@ -144,7 +144,7 @@ class Nodeinfo_2_0Action extends ApiAction
         // FIXME: Are those always on?
         $inboundServices = array('atom1.0', 'rss2.0');
 
-        if (array_key_exists('twitterbridge', $this->plugins) && $config['twitterimport']['enabled']) {
+        if (array_key_exists('twitterbridge', $this->plugins) && common_config('twitterimport', 'enabled')) {
             $inboundServices[] = 'twitter';
         }
 
