@@ -1,68 +1,99 @@
 server {
-  listen 80;
-  listen [::]:80;
+    listen [::]:80;
+    listen 80;
 
-  # FIXME: change domain name here (and also make sure you do the same in the next 'server' section)
-  server_name social.example.org;
+# FIXME: change domain name here (and also make sure you do the same in the next 'server' section)
+    server_name social.example.org;
 
-  # redirect all traffic to HTTPS
-  rewrite ^ https://$server_name$request_uri? permanent;
+# redirect all traffic to HTTPS
+    rewrite ^ https://$host$request_uri? permanent;
 }
 
 server {
-  # Use HTTPS. Seriously. Set it up with a cert (any cert) before you run the install.
-  listen 443 ssl;
+# HTTPS is mandatory on GNU social unless you are using Tor network. Seriously. Set it up with a cert (any cert) before you run the install.
+    listen [::]:443 ssl http2;
+    listen 443 ssl http2;
 
-  # Server name
-  # Change "social.example.org" to your site's domain name
-  server_name social.example.org;
+# Root
+# Change the path below to where you installed
+# GNU social
+    root /path/to/gnusocial/root;
 
-  # SSL
-  # Uncomment and change the paths to setup
-  # your SSL key/cert. See https://cipherli.st/
-  # for more information
-  ssl_certificate       ssl/certs/social.example.org.crt;
-  ssl_certificate_key   ssl/private/social.example.org.key;
+# Server name
+# Change "social.example.org" to your site's domain name
+# GNU social MUST be installed in the domain root
+    server_name social.example.org;
 
-  # Logs
-  # Uncomment and change the paths to setup
-  # logging
-  #access_log /path/to/access.log;
-  #error_log  /path/to/error.log;
+# SSL
+# Uncomment and change the paths to setup
+# your SSL key/cert. See https://cipherli.st/
+# for more information
+    ssl_certificate       ssl/certs/social.example.org.crt;
+    ssl_certificate_key   ssl/private/social.example.org.key;
 
-  # Root
-  # Change the path below to where you installed
-  # GNU social
-  root /path/to/gnusocial/root;
+# Logs
+# Uncomment and change the paths to setup
+# logging
+#access_log /path/to/access.log;
+#error_log  /path/to/error.log;
 
-  # Index
-  index index.php;
+# Index
+    index index.php;
 
-  # PHP
-  location ~ \.php {
-    include snippets/fastcgi-php.conf;
+# PHP
+    location /index.php {
+        include fastcgi_params;
+        include snippets/fastcgi-php.conf;
 
-    # This should be the same value as in your (optional) /etc/php5/fpm/pool.d/$server.conf
-    fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $request_filename;
 
-    # Remove the "fastcgi_pass" line above and uncomment
-    # the one below to use TCP sockets instead of Unix sockets
-    #fastcgi_pass 127.0.0.1:9000;
-  }
+        # Further optional configuration
+        #fastcgi_buffer_size 128K;
+        #fastcgi_buffers 4 256K;
+        #fastcgi_busy_buffers_size 256K;
+        #fastcgi_read_timeout 600s;
+        #fastcgi_send_timeout 300s;
+        #fastcgi_connect_timeout 75s;
+        #http2_push_preload on;
+    }
 
-  # Location
-  location / {
-    try_files $uri $uri/ @gnusocial;
-  }
+# Location
+    location / {
+        try_files $uri $uri/ @index_handler;
+    }
 
-  # Fancy URLs
-  location @gnusocial {
-    rewrite ^(.*)$ /index.php?p=$1 last;
-  }
+# Fancy URLs
+    error_page 404 @index_handler;
+    location @index_handler {
+        rewrite ^(.*)$ /index.php?p=$1 last;
+    }
 
-  # Restrict access that is unnecessary anyway
-  location ~ /\.(ht|git) {
-    deny all;
-  }
+# Restrict access that is unnecessary anyway
+    location ~ /\.(ht|git) {
+        deny all;
+    }
+
+#
+# Hardening (optional)
+#
+#    add_header Strict-Transport-Security "max-age=15768000; preload;";
+#    add_header X-Content-Type-Options nosniff;
+#    add_header Referrer-Policy strict-origin-when-cross-origin;
+#    add_header Content-Security-Policy "default-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self'; style-src 'self' 'unsafe-inline'; img-src * blob: data:;";
+#    add_header X-Permitted-Cross-Domain-Policies none;
+#    add_header X-Robots-Tag all; # Not really hardening, just here for strictness purposes
+#
+#    client_max_body_size 15M;
+#    client_body_buffer_size 128k;
+#    gzip_vary on;
+#
+#    location ~* \.(?:css|js|woff|svg|gif|png|webp|ttf|ico|jpe?g)$ {
+#        gzip on;
+#        gzip_comp_level 4;
+#        add_header Cache-Control "public";
+#        expires 30d;
+#        access_log off;
+#        log_not_found off;
+#    }
 }
-
