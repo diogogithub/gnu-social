@@ -352,6 +352,7 @@ $default =
                             'Embed' => array(),
                             'OpenID' => array(),
                             'OpportunisticQM' => array(),
+                            'ActivityPub' => array(),
                             'OStatus' => array(),
                             'Poll' => array(),
                             'SimpleCaptcha' => array(),
