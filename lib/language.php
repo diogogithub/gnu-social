@@ -294,11 +294,13 @@ function get_nice_language_list()
  * @return boolean true if language is rtl
  */
 
-function is_rtl($lang)
+function is_rtl($lang_value)
 {
-    $all_languages = common_config('site', 'languages');
-    $lang = $all_languages[$lang];
-    return ($lang['direction'] == 'rtl');
+        foreach (common_config('site', 'languages') as $code => $info) {
+                if ($lang_value == $info['lang']) {
+                        return $info['direction'] == 'rtl';
+                }
+        }
 }
 
 /**
