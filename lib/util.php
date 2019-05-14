@@ -283,7 +283,7 @@ function common_ensure_session()
     }
     if (!common_have_session()) {
         if (common_config('sessions', 'handle')) {
-            Session::setSaveHandler();
+            session_set_save_handler(new InternalSessionHandler(), true);
         }
         if (array_key_exists(session_name(), $_GET)) {
             $id = $_GET[session_name()];
