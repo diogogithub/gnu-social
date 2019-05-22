@@ -73,17 +73,17 @@ class InternalSessionHandler implements SessionHandlerInterface
      */
     public function read($id)
     {
-        self::logdeb("Fetching session '$id'");
+        self::logdeb("Fetching session '$id'.");
 
         $session = Session::getKV('id', $id);
 
         if (empty($session)) {
-            self::logdeb("Couldn't find '$id'");
+            self::logdeb("Couldn't find '$id'.");
             return '';
         } else {
             self::logdeb("Found '$id', returning " .
                          strlen($session->session_data) .
-                         " chars of data");
+                         " chars of data.");
             return (string)$session->session_data;
         }
     }
@@ -97,7 +97,7 @@ class InternalSessionHandler implements SessionHandlerInterface
      */
     public function write($id, $session_data)
     {
-        self::logdeb("Writing session '$id'");
+        self::logdeb("Writing session '$id'.");
 
         $session = Session::getKV('id', $id);
 
@@ -121,15 +121,14 @@ class InternalSessionHandler implements SessionHandlerInterface
         } else {
             self::logdeb("'$id' already exists; updating.");
             if (strcmp($session->session_data, $session_data) == 0) {
-                self::logdeb("Not writing session '$id'; unchanged");
+                self::logdeb("Not writing session '$id' - unchanged.");
                 return true;
             } else {
-                self::logdeb("Session '$id' data changed; updating");
+                self::logdeb("Session '$id' data changed - updating.");
 
+                // Only update the required field
                 $orig = clone($session);
-
                 $session->session_data = $session_data;
-
                 $result = $session->update($orig);
 
                 if (!$result) {
@@ -154,7 +153,7 @@ class InternalSessionHandler implements SessionHandlerInterface
      */
     public function gc($maxlifetime)
     {
-        self::logdeb("garbage collection (maxlifetime = $maxlifetime)");
+        self::logdeb("Garbage Collector has now started with maxlifetime = '$maxlifetime'.");
 
         $epoch = common_sql_date(time() - $maxlifetime);
 
@@ -180,10 +179,10 @@ class InternalSessionHandler implements SessionHandlerInterface
 
         $session->free();
 
-        self::logdeb("Found " . count($ids) . " ids to delete.");
+        self::logdeb("Garbage Collector found " . count($ids) . " ids to delete.");
 
         foreach ($ids as $id) {
-            self::logdeb("Destroying session '$id'.");
+            self::logdeb("Garbage Collector will now delete session '$id'.");
             self::destroy($id);
         }
 
@@ -198,20 +197,20 @@ class InternalSessionHandler implements SessionHandlerInterface
      */
     public function destroy($id)
     {
-        self::logdeb("Deleting session $id");
+        self::logdeb("Destroying session '$id'.");
 
         $session = Session::getKV('id', $id);
 
         if (empty($session)) {
-            self::logdeb("Can't find '$id' to delete.");
+            self::logdeb("Can't find '$id' to destroy.");
             return false;
         } else {
             $result = $session->delete();
             if (!$result) {
                 common_log_db_error($session, 'DELETE', __FILE__);
-                self::logdeb("Failed to delete '$id'.");
+                self::logdeb("Failed to destroy '$id'.");
             } else {
-                self::logdeb("Successfully deleted '$id' (result = $result).");
+                self::logdeb("Successfully destroyed '$id' (result = $result).");
             }
             return (bool) $result;
         }
