@@ -18,5 +18,4 @@ Additional information on using and developing plugins can be found
 at the following locations:
 
 * [Plugin Development](doc/Plugin_development.md)
-* [Community Plugins](http://www.skilledtests.com/wiki/GNU_social_plugins)
-
+* [Community Plugins](https://git.gnu.io/gnu/gnu-social/wikis/GNU-Social-Community-Plugins)
