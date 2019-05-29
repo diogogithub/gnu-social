@@ -2,7 +2,7 @@ server {
     listen [::]:80;
     listen 80;
 
-# FIXME: change domain name here (and also make sure you do the same in the next 'server' section)
+# FIXME: Change domain name here (and also make sure you do the same in the next 'server' section)
     server_name social.example.org;
 
 # redirect all traffic to HTTPS
@@ -10,52 +10,56 @@ server {
 }
 
 server {
-# HTTPS is mandatory on GNU social unless you are using Tor network. Seriously. Set it up with a cert (any cert) before you run the install.
+# HTTPS is mandatory on GNU social unless you are using Tor network. Seriously.
+# Set it up with a cert (any cert) before you run the install.
     listen [::]:443 ssl http2;
     listen 443 ssl http2;
 
 # Root
-# Change the path below to where you installed
-# GNU social
+# FIXME: Change the path below to where you installed GNU social
     root /path/to/gnusocial/root;
 
 # Server name
-# Change "social.example.org" to your site's domain name
+# FIXME: Change "social.example.org" to your site's domain name
 # GNU social MUST be installed in the domain root
     server_name social.example.org;
 
 # SSL
-# Uncomment and change the paths to setup
-# your SSL key/cert. See https://cipherli.st/
-# for more information
+# FIXME: Change the paths to setup your SSL key/cert. See https://cipherli.st/ for more information
     ssl_certificate       ssl/certs/social.example.org.crt;
     ssl_certificate_key   ssl/private/social.example.org.key;
 
 # Logs
-# Uncomment and change the paths to setup
-# logging
-#access_log /path/to/access.log;
-#error_log  /path/to/error.log;
+# FIXME: Uncomment and change the paths to setup logging
+    # access_log /path/to/access.log;
+    # error_log  /path/to/error.log;
 
 # Index
     index index.php;
 
 # PHP
-    location /index.php {
+    location ~ /index.php {
         include fastcgi_params;
         include snippets/fastcgi-php.conf;
 
         fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $request_filename;
 
-        # Further optional configuration
-        #fastcgi_buffer_size 128K;
-        #fastcgi_buffers 4 256K;
-        #fastcgi_busy_buffers_size 256K;
-        #fastcgi_read_timeout 600s;
-        #fastcgi_send_timeout 300s;
-        #fastcgi_connect_timeout 75s;
-        #http2_push_preload on;
+# Further optional configuration
+# fastcgi_buffer_size 128K;
+# fastcgi_buffers 4 256K;
+# fastcgi_busy_buffers_size 256K;
+# fastcgi_read_timeout 600s;
+# fastcgi_send_timeout 300s;
+# fastcgi_connect_timeout 75s;
+# http2_push_preload on;
+    }
+
+# Don't allow any PHP file other than index.php to be executed
+# This will ensure that nor config.php nor plugin files with eventual hardcoded security information are downloadable
+# And this is better than allowing php files to be executed in case of forgotten `if (!defined('GNUSOCIAL')) { exit(1); }`
+    location ~ \.php$ {
+        deny all;
     }
 
 # Location
@@ -97,3 +101,4 @@ server {
 #        log_not_found off;
 #    }
 }
+
