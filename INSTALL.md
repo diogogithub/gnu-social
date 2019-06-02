@@ -27,41 +27,32 @@ PHP modules
 The following software packages are *required* for this software to
 run correctly.
 
-- PHP 5.6+      PHP7.x is also supported.
+- PHP 7+        PHP7.x is also supported.
 - MariaDB 5+    MariaDB 10.x is also supported.
-- Web server    Apache, lighttpd and nginx will all work, see sample
-                configuration files in the web root. Please use PHP-FPM
-                and configure mod_rewrite (or equivalent) for an optimal
-                experience.
+- Web server    Apache, lighttpd and nginx will all work. CGI mode is
+                recommended and also some variant of 'suexec' (or a
+                proper setup php-fpm pool)
+                NOTE: mod_rewrite or its equivalent is extremely useful.
 
 Your PHP installation must include the following PHP extensions for a
-functional setup of GNU Social:
+functional setup of GNU social:
 
 - openssl       (compiled in for Debian, enabled manually in Arch Linux)
-- php5-curl     Fetching files by HTTP.
-- php5-gd       Image manipulation (scaling).
-- php5-gmp      For Salmon signatures (part of OStatus).
-- php5-intl     Internationalization support (transliteration et al).
-- php5-json     For WebFinger lookups and more.
-- php5-mysqlnd  The native driver for PHP5 MariaDB connections. If you
-                  use MySQL, 'php5-mysql' or 'php5-mysqli' may be enough.
+- php-curl      Fetching files by HTTP.
+- php-exif      Exchangeable image information.
+- php-gd        Image manipulation (scaling).
+- php-intl      Internationalization support (transliteration et al).
+- php-json      For WebFinger lookups and more.
+- php-mbstring  String manipulation
+- php-mysql     The native driver for MariaDB connections.
+- php-gmp       For Salmon signatures (part of OStatus)
+- php-bcmath    Arbitrary Precision Mathematics
+- php-opcache   Improved PHP performance by precompilation
+- php-readline  For interactive scripts
+- php-xml       XML parser
+- php-ds        Faster data structures
 
-Or, for PHP7, some or all of these will be necessary. PHP7 works and on
-the development servers we are successful running PHP7.2. This is a good
-list of PHP modules you will want installed with PHP7:
-    php7.0-bcmath
-    php7.0-curl
-    php7.0-exif
-    php7.0-gd
-    php7.0-intl
-    php7.0-mbstring
-    php7.0-mysql
-    php7.0-opcache
-    php7.0-readline
-    php7.0-xmlwriter
-
-NOTE: In Arch Linux, at least PHP5 requires manual enabling in the
-relevant php.ini for some modules, most notably 'gmp'.
+NOTE: Some distros require manual enabling in the relevant php.ini for some modules.
 
 Better performance
 ------------------
@@ -71,9 +62,19 @@ For some functionality, you will also need the following extensions:
 - opcache       Improves performance a _lot_. Included in PHP, must be
                 enabled manually in php.ini for most distributions. Find
                 and set at least:  opcache.enable=1
+- mailparse     Efficient parsing of email requires this extension.
+                Submission by email or SMS-over-email uses this.
+- sphinx        A client for the sphinx server, an alternative to MySQL
+                or Postgresql fulltext search. You will also need a
+                Sphinx server to serve the search queries.
 - gettext       For multiple languages. Default on many PHP installs;
                 will be emulated if not present.
 - exif          For thumbnails to be properly oriented.
+- php-ds        For faster data structures; will be emulated if not present.
+
+You may also experience better performance from your site if you configure
+a PHP cache/accelerator. Most distributions come with "opcache" support.
+Enable it in your php.ini where it is documented together with its settings.
 
 Installation
 ============
@@ -101,7 +102,7 @@ especially if you've previously installed PHP/MariaDB packages.
 
    This will often make your GNU Social instance available in the gnusocial
    path of your server, like "http://example.net/gnusocial". "social" or
-   "blog" might also be good path names. If you know how to configure 
+   "blog" might also be good path names. If you know how to configure
    virtual hosts on your web server, you can try setting up
    "http://social.example.net/" or the like.
 
@@ -185,7 +186,7 @@ your server (like lighttpd or nginx).
 1. See the instructions for each respective webserver software:
     * For Apache, inspect the "htaccess.sample" file and save it as
         ".htaccess" after making any necessary modifications. Our sample
-        file is well commented. 
+        file is well commented.
     * For lighttpd, inspect the lighttpd.conf.example file and apply the
         appropriate changes in your virtualhost configuration for lighttpd.
     * For nginx, inspect the nginx.conf.sample file and apply the appropriate
@@ -195,7 +196,7 @@ your server (like lighttpd or nginx).
 
 2. Assuming your webserver is properly configured and have its settings
     applied (remember to reload/restart it), you can add this to your
-    GNU social's config.php file: 
+    GNU social's config.php file:
        $config['site']['fancy'] = true;
 
 You should now be able to navigate to a "fancy" URL on your server,
@@ -220,10 +221,10 @@ following files:
 display.css: a CSS2 file for "default" styling for all browsers.
 logo.png: a logo image for the site.
 default-avatar-profile.png: a 96x96 pixel image to use as the avatar for
-    users who don't upload their own.
+users who don't upload their own.
 default-avatar-stream.png: Ditto, but 48x48. For streams of notices.
 default-avatar-mini.png: Ditto ditto, but 24x24. For subscriptions
-    listing on profile pages.
+listing on profile pages.
 
 You may want to start by copying the files from the default theme to
 your own directory.
@@ -235,7 +236,7 @@ A GNU social node can be configured as "private", which means it will not
 federate with other nodes in the network. It is not a recommended method
 of using GNU social and we cannot at the current state of development
 guarantee that there are no leaks (what a public network sees as features,
-private sites will likely see as bugs). 
+private sites will likely see as bugs).
 
 Private nodes are however an easy way to easily setup collaboration and
 image sharing within a workgroup or a smaller community where federation
