@@ -43,6 +43,8 @@ if (!defined('GNUSOCIAL')) {
  */
 class GroupdirectoryAction extends ManagedAction
 {
+    protected $redirectAfterLogin = true;
+    
     /**
      * The page we're on
      *
@@ -143,8 +145,6 @@ class GroupdirectoryAction extends ManagedAction
         $this->reverse = $this->boolean('reverse');
         $this->q       = $this->trimmed('q');
         $this->sort    = $this->arg('sort', 'nickname');
-
-        common_set_returnto($this->selfUrl());
     }
 
     /**

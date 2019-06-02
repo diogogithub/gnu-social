@@ -47,6 +47,8 @@ if (!defined('GNUSOCIAL')) {
  */
 class ConversationAction extends ManagedAction
 {
+    protected $redirectAfterLogin = true;
+    
     public $conv        = null;
     public $page        = null;
     public $notices     = null;

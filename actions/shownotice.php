@@ -44,6 +44,8 @@ require_once INSTALLDIR.'/lib/noticelist.php';
  */
 class ShownoticeAction extends ManagedAction
 {
+    protected $redirectAfterLogin = true;
+    
     /**
      * Notice object to show
      */
