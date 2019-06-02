@@ -28,7 +28,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 /**
  * Conversation tree in the browser
@@ -45,9 +47,9 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class ConversationAction extends ManagedAction
 {
-    var $conv        = null;
-    var $page        = null;
-    var $notices     = null;
+    public $conv        = null;
+    public $page        = null;
+    public $notices     = null;
 
     protected function doPreparation()
     {
@@ -59,7 +61,7 @@ class ConversationAction extends ManagedAction
      *
      * @return string page title
      */
-    function title()
+    public function title()
     {
         // TRANS: Title for page with a conversion (multiple notices in context).
         return _('Conversation');
@@ -72,48 +74,48 @@ class ConversationAction extends ManagedAction
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
-        if (Event::handle('StartShowConversation', array($this, $this->conv, $this->scoped))) {
+        if (Event::handle('StartShowConversation', [$this, $this->conv, $this->scoped])) {
             $notices = $this->conv->getNotices($this->scoped);
             $nl = new FullThreadedNoticeList($notices, $this, $this->scoped);
             $cnt = $nl->show();
         }
-        Event::handle('EndShowConversation', array($this, $this->conv, $this->scoped));
+        Event::handle('EndShowConversation', [$this, $this->conv, $this->scoped]);
     }
 
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }
     
-    function getFeeds()
+    public function getFeeds()
     {
-    	
-        return array(new Feed(Feed::JSON,
-                              common_local_url('apiconversation',
-                                               array(
-                                                    'id' => $this->conv->getID(),
-                                                    'format' => 'as')),
-                              // TRANS: Title for link to notice feed.
-                              // TRANS: %s is a user nickname.
-                              _('Conversation feed (Activity Streams JSON)')),
-                     new Feed(Feed::RSS2,
-                              common_local_url('apiconversation',
-                                               array(
-                                                    'id' => $this->conv->getID(),
-                                                    'format' => 'rss')),
-                              // TRANS: Title for link to notice feed.
-                              // TRANS: %s is a user nickname.
-                              _('Conversation feed (RSS 2.0)')),
-                     new Feed(Feed::ATOM,
-                              common_local_url('apiconversation',
-                                               array(
-                                                    'id' => $this->conv->getID(),
-                                                    'format' => 'atom')),
-                              // TRANS: Title for link to notice feed.
-                              // TRANS: %s is a user nickname.
-                              _('Conversation feed (Atom)')));
+        return [
+            new Feed(Feed::JSON,
+                     common_local_url('apiconversation',
+                                      ['id' => $this->conv->getID(),
+                                       'format' => 'as']),
+                     // TRANS: Title for link to notice feed.
+                     // TRANS: %s is a user nickname.
+                     _('Conversation feed (Activity Streams JSON)')
+            ),
+            new Feed(Feed::RSS2,
+                     common_local_url('apiconversation',
+                                      ['id' => $this->conv->getID(),
+                                       'format' => 'rss']),
+                     // TRANS: Title for link to notice feed.
+                     // TRANS: %s is a user nickname.
+                     _('Conversation feed (RSS 2.0)')
+            ),
+            new Feed(Feed::ATOM,
+                     common_local_url('apiconversation',
+                                      ['id' => $this->conv->getID(),
+                                       'format' => 'atom']),
+                     // TRANS: Title for link to notice feed.
+                     // TRANS: %s is a user nickname.
+                     _('Conversation feed (Atom)')
+            )
+        ];
     }
 }
-

@@ -27,7 +27,9 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 /**
  * Group directory
@@ -81,7 +83,7 @@ class GroupdirectoryAction extends ManagedAction
      *
      * @return string Title of the page
      */
-    function title()
+    public function title()
     {
         // @fixme: This looks kinda gross
 
@@ -92,7 +94,7 @@ class GroupdirectoryAction extends ManagedAction
             }
             // TRANS: Title for group directory page.
             return _m('Group directory');
-        } else if ($this->page == 1) {
+        } elseif ($this->page == 1) {
             return sprintf(
                 // TRANS: Title for group directory page when it is filtered.
                 // TRANS: %s is the filter string.
@@ -115,7 +117,7 @@ class GroupdirectoryAction extends ManagedAction
      *
      * @return instructions for use
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Page instructions.
         return _m("After you join a group you can send messages to all other members\n".
@@ -129,7 +131,7 @@ class GroupdirectoryAction extends ManagedAction
      *
      * @return boolean true
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }
@@ -152,7 +154,7 @@ class GroupdirectoryAction extends ManagedAction
      *
      * @return void
      */
-    function showPageNotice()
+    public function showPageNotice()
     {
         $instr  = $this->getInstructions();
         $output = common_markup_to_html($instr);
@@ -170,32 +172,25 @@ class GroupdirectoryAction extends ManagedAction
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         if (common_logged_in()) {
-            $this->elementStart(
-                'p',
-                array(
-                    'id' => 'new_group'
-                )
-            );
-            $this->element(
-                'a',
-                array(
-                    'href'  => common_local_url('newgroup'),
-                    'class' => 'more'),
-                    // TRANS: Link to create a new group on the group list page.
-                    _m('Create a new group')
-            );
+            $this->elementStart('p',
+                                ['id' => 'new_group']);
+            $this->element('a',
+                           ['href'  => common_local_url('newgroup'),
+                            'class' => 'more'],
+                           // TRANS: Link to create a new group on the group list page.
+                           _m('Create a new group'));
             $this->elementEnd('p');
         }
 
         $this->showForm();
 
-        $this->elementStart('div', array('id' => 'profile_directory'));
+        $this->elementStart('div', ['id' => 'profile_directory']);
 
         // @todo FIXME: Does "All" need i18n here?
-        $alphaNav = new AlphaNav($this, false, false, array('0-9', 'All'));
+        $alphaNav = new AlphaNav($this, false, false, ['0-9', 'All']);
         $alphaNav->show();
 
         $group   = null;
@@ -217,7 +212,7 @@ class GroupdirectoryAction extends ManagedAction
             }
         }
 
-        $args = array();
+        $args = [];
         if (isset($this->q)) {
             $args['q'] = $this->q;
         } else {
@@ -235,17 +230,13 @@ class GroupdirectoryAction extends ManagedAction
         $this->elementEnd('div');
     }
 
-    function showForm($error=null)
+    public function showForm($error=null)
     {
-        $this->elementStart(
-            'form',
-            array(
-                'method' => 'get',
-                'id'     => 'form_search',
-                'class'  => 'form_settings',
-                'action' => common_local_url('groupdirectory')
-            )
-        );
+        $this->elementStart('form',
+                            ['method' => 'get',
+                             'id'     => 'form_search',
+                             'class'  => 'form_settings',
+                             'action' => common_local_url('groupdirectory')]);
 
         $this->elementStart('fieldset');
 
@@ -258,7 +249,7 @@ class GroupdirectoryAction extends ManagedAction
         $this->input('q', _m('Keyword(s)'), $this->q);
 
         // TRANS: Button text for searching group directory.
-        $this->submit('search', _m('BUTTON','Search'));
+        $this->submit('search', _m('BUTTON', 'Search'));
         $this->elementEnd('li');
         $this->elementEnd('ul');
         $this->elementEnd('fieldset');
@@ -269,55 +260,56 @@ class GroupdirectoryAction extends ManagedAction
      * Get groups filtered by the current filter, sort key,
      * sort order, and page
      */
-    function getGroups()
+    public function getGroups()
     {
         $group = new User_group();
 
         // Disable this to get global group searches
-        $group->joinAdd(array('id', 'local_group:group_id'));
+        $group->joinAdd(['id', 'local_group:group_id']);
 
         $order = false;
 
         if (!empty($this->q)) {
-            $wheres = array('nickname', 'fullname', 'homepage', 'description', 'location');
+            $wheres = ['nickname', 'fullname', 'homepage', 'description', 'location'];
             foreach ($wheres as $where) {
                 // Double % because of sprintf
                 $group->whereAdd(sprintf('LOWER(%1$s.%2$s) LIKE LOWER("%%%3$s%%")',
-                                        $group->escapedTableName(), $where,
-                                        $group->escape($this->q)),
-                                    'OR');
+                                         $group->escapedTableName(),
+                                         $where,
+                                         $group->escape($this->q)),
+                                 'OR');
             }
 
             $order = sprintf('%1$s.%2$s %3$s',
-                            $group->escapedTableName(),
-                            $this->getSortKey('created'),
-                            $this->reverse ? 'DESC' : 'ASC');
+                             $group->escapedTableName(),
+                             $this->getSortKey('created'),
+                             $this->reverse ? 'DESC' : 'ASC');
         } else {
             // User is browsing via AlphaNav
 
-            switch($this->filter) {
+            switch ($this->filter) {
             case 'all':
                 // NOOP
                 break;
             case '0-9':
                 $group->whereAdd(sprintf('LEFT(%1$s.%2$s, 1) BETWEEN %3$s AND %4$s',
-                                        $group->escapedTableName(),
-                                        'nickname',
-                                        $group->_quote("0"),
-                                        $group->_quote("9")));
+                                         $group->escapedTableName(),
+                                         'nickname',
+                                         $group->_quote("0"),
+                                         $group->_quote("9")));
                 break;
             default:
                 $group->whereAdd(sprintf('LEFT(LOWER(%1$s.%2$s), 1) = %3$s',
-                                            $group->escapedTableName(),
-                                            'nickname',
-                                            $group->_quote($this->filter)));
+                                         $group->escapedTableName(),
+                                         'nickname',
+                                         $group->_quote($this->filter)));
             }
 
             $order = sprintf('%1$s.%2$s %3$s, %1$s.%4$s ASC',
-                            $group->escapedTableName(),
-                            $this->getSortKey('nickname'),
-                            $this->reverse ? 'DESC' : 'ASC',
-                            'nickname');
+                             $group->escapedTableName(),
+                             $this->getSortKey('nickname'),
+                             $this->reverse ? 'DESC' : 'ASC',
+                             'nickname');
         }
 
         $offset = ($this->page-1) * PROFILES_PER_PAGE;
@@ -338,7 +330,7 @@ class GroupdirectoryAction extends ManagedAction
      *
      * @return string   a column name for sorting
      */
-    function getSortKey($def='created')
+    public function getSortKey($def='created')
     {
         switch ($this->sort) {
         case 'nickname':
@@ -352,19 +344,16 @@ class GroupdirectoryAction extends ManagedAction
     /**
      * Show a nice message when there's no search results
      */
-    function showEmptyListMessage()
+    public function showEmptyListMessage()
     {
         if (!empty($this->filter) && ($this->filter != 'all')) {
-            $this->element(
-                'p',
-                'error',
-                sprintf(
-                    // TRANS: Empty list message for searching group directory.
-                    // TRANS: %s is the search string.
-                    _m('No groups starting with %s.'),
-                    $this->filter
-                )
-            );
+            $this->element('p',
+                           'error',
+                           sprintf(
+                               // TRANS: Empty list message for searching group directory.
+                               // TRANS: %s is the search string.
+                               _m('No groups starting with %s.'),
+                               $this->filter));
         } else {
             // TRANS: Empty list message for searching group directory.
             $this->element('p', 'error', _m('No results.'));
@@ -379,7 +368,7 @@ class GroupdirectoryAction extends ManagedAction
         }
     }
 
-    function showSections()
+    public function showSections()
     {
         $gbp = new GroupsByPostsSection($this);
         $gbp->show();

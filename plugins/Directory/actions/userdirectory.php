@@ -27,7 +27,9 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 /**
  * User directory
@@ -80,7 +82,7 @@ class UserdirectoryAction extends ManagedAction
      *
      * @return string Title of the page
      */
-    function title()
+    public function title()
     {
         // @todo fixme: This looks kinda gross
 
@@ -91,7 +93,7 @@ class UserdirectoryAction extends ManagedAction
             }
             // TRANS: Page title for user directory.
             return _m('User directory');
-        } else if ($this->page == 1) {
+        } elseif ($this->page == 1) {
             return sprintf(
                 // TRANS: Page title for user directory. %s is the applied filter.
                 _m('User directory - %s'),
@@ -113,13 +115,12 @@ class UserdirectoryAction extends ManagedAction
      *
      * @return instructions for use
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: %%site.name%% is the name of the StatusNet site.
         return _m('Search for people on %%site.name%% by their name, '
-            . 'location, or interests. Separate the terms by spaces; '
-            . ' they must be 3 characters or more.'
-        );
+                  . 'location, or interests. Separate the terms by spaces; '
+                  . ' they must be 3 characters or more.');
     }
 
     /**
@@ -127,7 +128,7 @@ class UserdirectoryAction extends ManagedAction
      *
      * @return boolean true
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }
@@ -150,7 +151,7 @@ class UserdirectoryAction extends ManagedAction
      *
      * @return void
      */
-    function showPageNotice()
+    public function showPageNotice()
     {
         $instr  = $this->getInstructions();
         $output = common_markup_to_html($instr);
@@ -168,13 +169,13 @@ class UserdirectoryAction extends ManagedAction
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         $this->showForm();
 
-        $this->elementStart('div', array('id' => 'profile_directory'));
+        $this->elementStart('div', ['id' => 'profile_directory']);
 
-        $alphaNav = new AlphaNav($this, false, false, array('0-9', 'All'));
+        $alphaNav = new AlphaNav($this, false, false, ['0-9', 'All']);
         $alphaNav->show();
 
         $profile = null;
@@ -196,7 +197,7 @@ class UserdirectoryAction extends ManagedAction
             }
         }
 
-        $args = array();
+        $args = [];
         if (isset($this->q)) {
             $args['q'] = $this->q;
         } elseif (isset($this->filter) && $this->filter != 'all') {
@@ -205,7 +206,7 @@ class UserdirectoryAction extends ManagedAction
         
         if (isset($this->sort)) {
             $args['sort'] = $this->sort;
-        }        
+        }
         if (!empty($this->reverse)) {
             $args['reverse'] = $this->reverse;
         }
@@ -219,20 +220,15 @@ class UserdirectoryAction extends ManagedAction
         );
 
         $this->elementEnd('div');
-
     }
 
-    function showForm($error=null)
+    public function showForm($error=null)
     {
-        $this->elementStart(
-            'form',
-            array(
-                'method' => 'get',
-                'id'     => 'form_search',
-                'class'  => 'form_settings',
-                'action' => common_local_url('userdirectory')
-            )
-        );
+        $this->elementStart('form',
+                            ['method' => 'get',
+                             'id'     => 'form_search',
+                             'class'  => 'form_settings',
+                             'action' => common_local_url('userdirectory')]);
 
         $this->elementStart('fieldset');
 
@@ -245,7 +241,7 @@ class UserdirectoryAction extends ManagedAction
         $this->input('q', _m('Keyword(s)'), $this->q);
 
         // TRANS: Button text.
-        $this->submit('search', _m('BUTTON','Search'));
+        $this->submit('search', _m('BUTTON', 'Search'));
         $this->elementEnd('li');
         $this->elementEnd('ul');
         $this->elementEnd('fieldset');
@@ -256,39 +252,39 @@ class UserdirectoryAction extends ManagedAction
      * Get users filtered by the current filter, sort key,
      * sort order, and page
      */
-    function getUsers()
+    public function getUsers()
     {
         $profile = new Profile();
 
         // Comment this out or disable to get global profile searches
-        $profile->joinAdd(array('id', 'user:id'));
+        $profile->joinAdd(['id', 'user:id']);
 
         $offset = ($this->page - 1) * PROFILES_PER_PAGE;
         $limit  = PROFILES_PER_PAGE + 1;
 
         if (!empty($this->q)) {
-             // User is searching via query
-             $search_engine = $profile->getSearchEngine('profile');
+            // User is searching via query
+            $search_engine = $profile->getSearchEngine('profile');
 
-             $mode = 'reverse_chron';
+            $mode = 'reverse_chron';
 
-             if ($this->sort == 'nickname') {
-                 if ($this->reverse) {
-                     $mode = 'nickname_desc';
-                 } else {
-                     $mode = 'nickname_asc';
-                 }
-             } else {
-                 if ($this->reverse) {
-                     $mode = 'chron';
-                 }
-             }
+            if ($this->sort == 'nickname') {
+                if ($this->reverse) {
+                    $mode = 'nickname_desc';
+                } else {
+                    $mode = 'nickname_asc';
+                }
+            } else {
+                if ($this->reverse) {
+                    $mode = 'chron';
+                }
+            }
 
-             $search_engine->set_sort_mode($mode);
-             $search_engine->limit($offset, $limit);
-             $search_engine->query($this->q);
+            $search_engine->set_sort_mode($mode);
+            $search_engine->limit($offset, $limit);
+            $search_engine->query($this->q);
 
-             $profile->find();
+            $profile->find();
         } else {
             // User is browsing via AlphaNav
 
@@ -298,23 +294,23 @@ class UserdirectoryAction extends ManagedAction
                 break;
             case '0-9':
                 $profile->whereAdd(sprintf('LEFT(%1$s.%2$s, 1) BETWEEN %3$s AND %4$s',
-                                            $profile->escapedTableName(),
-                                            'nickname',
-                                            $profile->_quote("0"),
-                                            $profile->_quote("9")));
+                                           $profile->escapedTableName(),
+                                           'nickname',
+                                           $profile->_quote("0"),
+                                           $profile->_quote("9")));
                 break;
             default:
                 $profile->whereAdd(sprintf('LEFT(LOWER(%1$s.%2$s), 1) = %3$s',
-                                            $profile->escapedTableName(),
-                                            'nickname',
-                                            $profile->_quote($this->filter)));
+                                           $profile->escapedTableName(),
+                                           'nickname',
+                                           $profile->_quote($this->filter)));
             }
 
             $order = sprintf('%1$s.%2$s %3$s, %1$s.%4$s ASC',
-                            $profile->escapedTableName(),
-                            $this->getSortKey('nickname'),
-                            $this->reverse ? 'DESC' : 'ASC',
-                            'nickname');
+                             $profile->escapedTableName(),
+                             $this->getSortKey('nickname'),
+                             $this->reverse ? 'DESC' : 'ASC',
+                             'nickname');
             $profile->orderBy($order);
             $profile->limit($offset, $limit);
 
@@ -329,7 +325,7 @@ class UserdirectoryAction extends ManagedAction
      *
      * @return string   a column name for sorting
      */
-    function getSortKey($def='nickname')
+    public function getSortKey($def='nickname')
     {
         switch ($this->sort) {
         case 'nickname':
@@ -343,18 +339,15 @@ class UserdirectoryAction extends ManagedAction
     /**
      * Show a nice message when there's no search results
      */
-    function showEmptyListMessage()
+    public function showEmptyListMessage()
     {
         if (!empty($this->filter) && ($this->filter != 'all')) {
-            $this->element(
-                'p',
-                'error',
-                sprintf(
-                    // TRANS: Empty list message for user directory.
-                    _m('No users starting with %s'),
-                    $this->filter
-                )
-            );
+            $this->element('p',
+                           'error',
+                           sprintf(
+                               // TRANS: Empty list message for user directory.
+                               _m('No users starting with %s'),
+                               $this->filter));
         } else {
             // TRANS: Empty list message for user directory.
             $this->element('p', 'error', _m('No results.'));

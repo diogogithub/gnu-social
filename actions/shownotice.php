@@ -27,7 +27,9 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 require_once INSTALLDIR.'/lib/noticelist.php';
 
@@ -45,17 +47,17 @@ class ShownoticeAction extends ManagedAction
     /**
      * Notice object to show
      */
-    var $notice = null;
+    public $notice = null;
 
     /**
      * Profile of the notice object
      */
-    var $profile = null;
+    public $profile = null;
 
     /**
      * Avatar of the profile of the notice object
      */
-    var $avatar = null;
+    public $avatar = null;
 
     /**
      * Load attributes based on database arguments
@@ -66,7 +68,7 @@ class ShownoticeAction extends ManagedAction
      *
      * @return success flag
      */
-    protected function prepare(array $args=array())
+    protected function prepare(array $args=[])
     {
         parent::prepare($args);
         if ($this->boolean('ajax')) {
@@ -122,7 +124,7 @@ class ShownoticeAction extends ManagedAction
         } catch (NoResultException $e) {
             // Hm, not found.
             $deleted = null;
-            Event::handle('IsNoticeDeleted', array($id, &$deleted));
+            Event::handle('IsNoticeDeleted', [$id, &$deleted]);
             if ($deleted === true) {
                 // TRANS: Client error displayed trying to show a deleted notice.
                 throw new ClientException(_('Notice deleted.'), 410);
@@ -137,7 +139,7 @@ class ShownoticeAction extends ManagedAction
      *
      * @return boolean true
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }
@@ -150,7 +152,7 @@ class ShownoticeAction extends ManagedAction
      *
      * @return int last-modified date as unix timestamp
      */
-    function lastModified()
+    public function lastModified()
     {
         return max(strtotime($this->notice->modified),
                    strtotime($this->profile->modified),
@@ -166,18 +168,18 @@ class ShownoticeAction extends ManagedAction
      *
      * @return string etag
      */
-    function etag()
+    public function etag()
     {
         $avtime = ($this->avatar) ?
           strtotime($this->avatar->modified) : 0;
 
-        return 'W/"' . implode(':', array($this->arg('action'),
-                                          common_user_cache_hash(),
-                                          common_language(),
-                                          $this->notice->id,
-                                          strtotime($this->notice->created),
-                                          strtotime($this->profile->modified),
-                                          $avtime)) . '"';
+        return 'W/"' . implode(':', [$this->arg('action'),
+                                     common_user_cache_hash(),
+                                     common_language(),
+                                     $this->notice->id,
+                                     strtotime($this->notice->created),
+                                     strtotime($this->profile->modified),
+                                     $avtime]) . '"';
     }
 
     /**
@@ -185,7 +187,7 @@ class ShownoticeAction extends ManagedAction
      *
      * @return string title of the page
      */
-    function title()
+    public function title()
     {
         return $this->notice->getTitle();
     }
@@ -197,9 +199,9 @@ class ShownoticeAction extends ManagedAction
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
-        $this->elementStart('ol', array('class' => 'notices xoxo'));
+        $this->elementStart('ol', ['class' => 'notices xoxo']);
         $nli = new NoticeListItem($this->notice, $this);
         $nli->show();
         $this->elementEnd('ol');
@@ -210,28 +212,30 @@ class ShownoticeAction extends ManagedAction
      *
      * @return void
      */
-    function showPageNoticeBlock()
+    public function showPageNoticeBlock()
     {
     }
 
-    function getFeeds()
+    public function getFeeds()
     {
-        return array(new Feed(Feed::JSON,
-                              common_local_url('ApiStatusesShow',
-                                               array(
-                                                    'id' => $this->target->getID(),
-                                                    'format' => 'json')),
-                              // TRANS: Title for link to single notice representation.
-                              // TRANS: %s is a user nickname.
-                              sprintf(_('Single notice (JSON)'))),
-                     new Feed(Feed::ATOM,
-                              common_local_url('ApiStatusesShow',
-                                               array(
-                                                    'id' => $this->target->getID(),
-                                                    'format' => 'atom')),
-                              // TRANS: Title for link to notice feed.
-                              // TRANS: %s is a user nickname.
-                              sprintf(_('Single notice (Atom)'))));
+        return [
+            new Feed(Feed::JSON,
+                     common_local_url('ApiStatusesShow',
+                                      ['id' => $this->target->getID(),
+                                       'format' => 'json']),
+                     // TRANS: Title for link to single notice representation.
+                     // TRANS: %s is a user nickname.
+                     sprintf(_('Single notice (JSON)'))
+            ),
+            new Feed(Feed::ATOM,
+                    common_local_url('ApiStatusesShow',
+                                     ['id' => $this->target->getID(),
+                                      'format' => 'atom']),
+                    // TRANS: Title for link to notice feed.
+                    // TRANS: %s is a user nickname.
+                    sprintf(_('Single notice (Atom)'))
+            )
+        ];
     }
 
     /**
@@ -241,13 +245,13 @@ class ShownoticeAction extends ManagedAction
      *
      * @return void
      */
-    function extraHead()
+    public function extraHead()
     {
         // Extras to aid in sharing notices to Facebook
         $avatarUrl = $this->profile->avatarUrl(AVATAR_PROFILE_SIZE);
-        $this->element('meta', array('property' => 'og:image',
-                                     'content' => $avatarUrl));
-        $this->element('meta', array('property' => 'og:description',
-                                     'content' => $this->notice->content));
+        $this->element('meta', ['property' => 'og:image',
+                                'content' => $avatarUrl]);
+        $this->element('meta', ['property' => 'og:description',
+                                'content' => $this->notice->content]);
     }
 }
