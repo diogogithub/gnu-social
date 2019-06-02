@@ -10,13 +10,13 @@ and has a choice of accepting or rejecting the events.
 In the simplest case, you can add a function to config.php and use the
 Event::addHandler() function to hook an event:
 
-function AddMyWebsiteLink($action)
-{
-$action->menuItem('http://mywebsite.net/', _('My web site'), _('Example web link'));
-return true;
-}
+    function AddMyWebsiteLink($action)
+    {
+        $action->menuItem('http://mywebsite.net/', _('My web site'), _('Example web link'));
+        return true;
+    }
 
-Event::addHandler('EndPrimaryNav', 'AddMyWebsiteLink');
+    Event::addHandler('EndPrimaryNav', 'AddMyWebsiteLink');
 
 This adds a menu item to the end of the main navigation menu. You can
 see the list of existing events, and parameters that handlers must

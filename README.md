@@ -1,26 +1,22 @@
 # GNU social 1.3.x
-2015
-
-(c) Free Software Foundation, Inc
+(c) 2010 Free Software Foundation, Inc
 
 This is the README file for GNU social, the free
 software social networking platform. It includes
 general information about the software and the
 project.
 
-Some other files to review:
+The file INSTALL.md has useful instructions on how to
+install this software.
 
-- INSTALL: instructions on how to install the software.
-- UPGRADE: upgrading from earlier versions
-- CONFIGURE: configuration options in gruesome detail.
-- PLUGINS.txt: how to install and configure plugins.
-- EVENTS.txt: events supported by the plugin system
-- COPYING: full text of the software license
+System administrators may find the DOCUMENTATION/SYSTEM_ADMINISTRATORS
+directory useful, namely:
 
-Information on using GNU social can be found in
-the "doc" subdirectory or in the "help" section
-on-line, or you can catch us on IRC in #social on
-the freenode network.
+- upgrade_from: upgrading from different software
+- CONFIGURE.md: configuration options in gruesome detail.
+- PLUGINS.md: how to install and configure plugins.
+
+Developers may find the DOCUMENTATION/DEVELOPERS directory useful.
 
 ## About
 
@@ -39,8 +35,8 @@ mobile phones, instant messenger programs (using
 XMPP), and specially-designed desktop clients that
 support the Twitter API.
 
-GNU social supports an open standard called
-OStatus <https://www.w3.org/community/ostatus/> that lets users in
+GNU social supports open standards (such as OStatus
+<https://www.w3.org/community/ostatus/>) that lets users in
 different networks follow each other. It enables a
 distributed social network spread all across the
 Web.
@@ -97,6 +93,8 @@ liberal terms, but those terms may differ in detail from the AGPL's
 particulars. See each package's license file in the extlib directory
 for additional terms.
 
+Refer to COPYING.md for full text of the software license..
+
 ### Troubleshooting
 
 The primary output for GNU social is syslog,
@@ -117,14 +115,14 @@ to install the development version of GNU social.
 To get it, use the git version control tool
 <http://git-scm.com/> like so:
 
-    git clone git@git.gnu.io:gnu/gnu-social.git
+    git clone git@notabug.org:diogo/gnu-social.git
 
 In the current phase of development it is probably
 recommended to use git as a means to stay up to date
 with the source code. You can choose between these
 branches:
-- master    "stable", more updates, usually working well
-- nightly   "unstable", most updates, not always working
+- master    "stable", usually working well
+- nightly   "unstable", most updates, not always working as expected
 
 To keep it up-to-date, use 'git pull'. Watch for conflicts!
 
@@ -135,9 +133,7 @@ There are several ways to get more information about GNU social.
 * The #social IRC channel on freenode.net <https://www.freenode.net/>.
 * The unofficial XMPP room linked to IRC on <xmpp:gnusocial@conference.bka.li>
 * The GNU social website <https://gnu.io/social/>
-* Following us on GNU social -- <https://quitter.se/gnusocial>
 
 * GNU social has a bug tracker for any defects you may find, or ideas for
-  making things better. <https://git.gnu.io/gnu/gnu-social/issues/>
-* Patches are welcome, preferrably to our repository on git.gnu.io. <https://git.gnu.io/gnu/gnu-social>
-
+  making things better. <https://notabug.org/diogo/gnu-social/issues>
+* Patches are welcome, preferrably to our repository on notabug.org. <https://notabug.org/diogo/gnu-social>
