@@ -21,7 +21,6 @@ server {
 
 # Server name
 # FIXME: Change "social.example.org" to your site's domain name
-# GNU social MUST be installed in the domain root
     server_name social.example.org;
 
 # SSL

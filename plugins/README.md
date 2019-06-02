@@ -17,5 +17,5 @@ Plugins are documented in their own directories.
 Additional information on using and developing plugins can be found
 at the following locations:
 
-* [Plugin Development](doc/Plugin_development.md)
+* [Plugin Development](../DOCUMENTATION/DEVELOPERS/Plugins/README.md)
 * [Community Plugins](https://git.gnu.io/gnu/gnu-social/wikis/GNU-Social-Community-Plugins)
