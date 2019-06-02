@@ -1496,3 +1496,6 @@ StartDocNav: Before outputting the docs Nav
 
 EndDocNav: After outputting the docs Nav
 - $nav: The DoclNav widget
+
+NodeInfoProtocols: List of protocols to be reported on NodeInfo requests
+- &$protocols - Add protocol to the list so it is informed upon request
