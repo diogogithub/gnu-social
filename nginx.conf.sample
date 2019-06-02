@@ -29,30 +29,16 @@ server {
     ssl_certificate       ssl/certs/social.example.org.crt;
     ssl_certificate_key   ssl/private/social.example.org.key;
 
-# Logs
-# FIXME: Uncomment and change the paths to setup logging
-    # access_log /path/to/access.log;
-    # error_log  /path/to/error.log;
-
 # Index
     index index.php;
 
 # PHP
-    location ~ /index.php {
+    location ^~ /index.php {
         include fastcgi_params;
         include snippets/fastcgi-php.conf;
 
-        fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+        fastcgi_pass unix:/var/run/php/php-fpm.sock;
         fastcgi_param SCRIPT_FILENAME $request_filename;
-
-# Further optional configuration
-# fastcgi_buffer_size 128K;
-# fastcgi_buffers 4 256K;
-# fastcgi_busy_buffers_size 256K;
-# fastcgi_read_timeout 600s;
-# fastcgi_send_timeout 300s;
-# fastcgi_connect_timeout 75s;
-# http2_push_preload on;
     }
 
 # Don't allow any PHP file other than index.php to be executed
@@ -101,4 +87,3 @@ server {
 #        log_not_found off;
 #    }
 }
-
