@@ -176,4 +176,13 @@ class NodeinfoPlugin extends Plugin
             'description' => _m('Plugin that presents basic instance information using the NodeInfo standard.')];
         return true;
     }
+
+    public function onEndUpgrade()
+    {
+        $users = new Usage_stats();
+        if ($users->getUserCount() == 0) {
+            define('NODEINFO_UPGRADE', true);
+            require_once __DIR__ . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'fix_stats.php';
+        }
+    }
 }

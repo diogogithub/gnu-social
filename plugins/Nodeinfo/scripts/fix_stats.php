@@ -25,9 +25,11 @@
 
 define('INSTALLDIR', realpath(__DIR__ . '/../../..'));
 
-$longoptions = ['type='];
+if (!defined('NODEINFO_UPGRADE')) {
 
-$helptext = <<<END_OF_HELP
+    $longoptions = ['type='];
+
+    $helptext = <<<END_OF_HELP
 fix_stats.php [options]
 Counts the stats from database values and updates the table.
 
@@ -35,21 +37,27 @@ Counts the stats from database values and updates the table.
 
 END_OF_HELP;
 
-require_once INSTALLDIR . '/scripts/commandline.inc';
+    require_once INSTALLDIR . '/scripts/commandline.inc';
 
-$valid_types = ['all', 'users', 'posts', 'comments'];
+    $valid_types = ['all', 'users', 'posts', 'comments'];
 
-$verbose = have_option('v', 'verbose');
+    $verbose = have_option('v', 'verbose');
 
-$type_to_fix = get_option_value('type');
-if (!in_array($type_to_fix, $valid_types)) {
-    echo "You must provide a valid type!\n\n";
-    show_help();
-    exit(1);
-}
+    $type_to_fix = get_option_value('type');
+    if (!in_array($type_to_fix, $valid_types)) {
+        echo "You must provide a valid type!\n\n";
+        show_help();
+        exit(1);
+    }
 
-if ($verbose) {
-    echo "Started.\n\n";
+    if ($verbose) {
+        echo "Started.\n\n";
+    }
+
+} else {
+    echo "Nodeinfo will now fix stats\n";
+    $type_to_fix = 'all';
+    $verbose = true;
 }
 
 if ($type_to_fix == 'all' || $type_to_fix == 'users') {
