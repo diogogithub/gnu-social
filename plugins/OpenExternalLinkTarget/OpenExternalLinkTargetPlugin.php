@@ -42,6 +42,8 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  */
 class OpenExternalLinkTargetPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     function onEndShowScripts($action)
     {
         $action->inlineScript('$(document).on("click", "a[rel~=external]:not([class~=attachment])", function () { window.open(this.href); return false; });');
@@ -52,7 +54,7 @@ class OpenExternalLinkTargetPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'OpenExternalLinkTarget',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Sarven Capadisli',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/OpenExternalLinkTarget',
                             'rawdescription' =>

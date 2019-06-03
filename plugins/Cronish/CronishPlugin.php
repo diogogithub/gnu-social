@@ -13,6 +13,8 @@
 if (!defined('GNUSOCIAL')) { exit(1); }
 
 class CronishPlugin extends Plugin {
+    const PLUGIN_VERSION = '2.0.0';
+
     public function onCronMinutely()
     {
         common_debug('CRON: Running near-minutely cron job!');
@@ -48,7 +50,7 @@ class CronishPlugin extends Plugin {
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Cronish',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'http://www.gnu.org/software/social/',
                             'description' =>

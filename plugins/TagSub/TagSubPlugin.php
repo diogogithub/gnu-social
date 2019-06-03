@@ -44,7 +44,7 @@ if (!defined('STATUSNET')) {
  */
 class TagSubPlugin extends Plugin
 {
-    const VERSION         = '0.1';
+    const PLUGIN_VERSION = '0.1.0';
 
     /**
      * Database schema setup
@@ -92,7 +92,7 @@ class TagSubPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'TagSub',
-                            'version' => self::VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/TagSub',
                             'rawdescription' =>

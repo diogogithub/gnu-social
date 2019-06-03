@@ -28,6 +28,7 @@ if (!defined('STATUSNET')) {
 
 class ApiLoggerPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
     // Lower this to do random sampling of API requests rather than all.
     // 0.1 will check about 10% of hits, etc.
     public $frequency = 1.0;
@@ -78,7 +79,7 @@ class ApiLoggerPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'ApiLogger',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/ApiLogger',
                             'rawdescription' =>

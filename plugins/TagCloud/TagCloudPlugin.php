@@ -13,6 +13,7 @@
 if (!defined('GNUSOCIAL')) { exit(1); }
 
 class TagCloudPlugin extends Plugin {
+    const PLUGIN_VERSION = '2.0.0';
 
     public function onRouterInitialized(URLMapper $m)
     {
@@ -59,7 +60,7 @@ class TagCloudPlugin extends Plugin {
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'TagCloud',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/social',
                             'description' =>

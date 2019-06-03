@@ -45,7 +45,7 @@ if (!defined('STATUSNET')) {
  */
 class PollPlugin extends MicroAppPlugin
 {
-    const VERSION         = '0.1';
+    const PLUGIN_VERSION = '0.1.0';
 
     // @fixme which domain should we use for these namespaces?
     const POLL_OBJECT          = 'http://activityschema.org/object/poll';
@@ -123,7 +123,7 @@ class PollPlugin extends MicroAppPlugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Poll',
-                            'version' => self::VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Poll',
                             'rawdescription' =>

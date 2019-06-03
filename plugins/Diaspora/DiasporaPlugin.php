@@ -35,6 +35,8 @@ addPlugin('OStatus');
 
 class DiasporaPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '0.2.0';
+
     const REL_SEED_LOCATION = 'http://joindiaspora.com/seed_location';
     const REL_GUID          = 'http://joindiaspora.com/guid';
     const REL_PUBLIC_KEY    = 'diaspora-public-key';
@@ -79,7 +81,7 @@ class DiasporaPlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Diaspora',
-                            'version' => '0.2',
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/social',
                             // TRANS: Plugin description.
@@ -148,7 +150,7 @@ class DiasporaPlugin extends Plugin
         /**
          * Encrypt your <decrypted_header> XML snippet using the “outer key”
          * and “outer iv” (using the aes-256-cbc cipher). This encrypted
-         * blob shall be referred to as “the ciphertext”. 
+         * blob shall be referred to as “the ciphertext”.
          */
         $ciphertext = $outer_key->encrypt($decrypted_header, \phpseclib\Crypt\RSA::PADDING_PKCS1);
 

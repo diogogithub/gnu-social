@@ -40,7 +40,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class BlacklistPlugin extends Plugin
 {
-    const VERSION = GNUSOCIAL_VERSION;
+    const PLUGIN_VERSION = '2.0.0';
 
     public $nicknames = array();
     public $urls      = array();
@@ -265,7 +265,7 @@ class BlacklistPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Blacklist',
-                            'version' => self::VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' =>
                             'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Blacklist',

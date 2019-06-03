@@ -26,6 +26,8 @@ if (!defined('STATUSNET')) { exit(1); }
 
 class ShareNoticePlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $targets = array(
         array('Twitter'),
         array('Facebook'),
@@ -214,7 +216,7 @@ class FacebookShareTarget extends NoticeShareTarget
         $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/ShareNotice';
 
         $versions[] = array('name' => 'ShareNotice',
-            'version' => GNUSOCIAL_VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Brion Vibber',
             'homepage' => $url,
             'rawdescription' =>

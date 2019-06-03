@@ -55,6 +55,8 @@ if (!defined('STATUSNET')) {
  */
 class InProcessCachePlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     private $_items = array();
     private $_hits  = array();
     private $active;
@@ -175,7 +177,7 @@ class InProcessCachePlugin extends Plugin
         $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/InProcessCache';
 
         $versions[] = array('name' => 'InProcessCache',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => $url,
                             'description' =>

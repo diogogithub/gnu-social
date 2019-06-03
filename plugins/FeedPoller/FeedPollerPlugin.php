@@ -13,6 +13,8 @@
 if (!defined('GNUSOCIAL')) { exit(1); }
 
 class FeedPollerPlugin extends Plugin {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $interval = 5;   // interval in minutes for feed checks
 
     public function onEndInitializeQueueManager(QueueManager $qm)
@@ -50,7 +52,7 @@ class FeedPollerPlugin extends Plugin {
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'FeedPoller',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'http://www.gnu.org/software/social/',
                             'description' =>

@@ -48,6 +48,8 @@ if (!defined('STATUSNET')) {
  */
 class DomainWhitelistPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /**
      * Get the path to the plugin's installation directory. Used
      * to link in js files and whatnot.
@@ -270,7 +272,7 @@ class DomainWhitelistPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'DomainWhitelist',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou, Zach Copley',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/DomainWhitelist',
                             'rawdescription' =>

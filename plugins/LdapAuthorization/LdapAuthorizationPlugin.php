@@ -33,6 +33,8 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 
 class LdapAuthorizationPlugin extends AuthorizationPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $roles_to_groups = array();
     public $login_group = null;
 
@@ -121,7 +123,7 @@ class LdapAuthorizationPlugin extends AuthorizationPlugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'LDAP Authorization',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/LdapAuthorization',
                             'rawdescription' =>

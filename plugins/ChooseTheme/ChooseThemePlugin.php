@@ -23,6 +23,7 @@
  */
 
 class ChooseThemePlugin extends Plugin {
+    const PLUGIN_VERSION = '0.1.0';
 
     public function onRouterInitialized(URLMapper $m) {
         $m->connect('main/choosethemesettings', array('action' => 'choosethemesettings'));
@@ -31,7 +32,7 @@ class ChooseThemePlugin extends Plugin {
     public function onPluginVersion(array &$versions) {
 		
         $versions[] = array('name' => 'ChooseTheme',
-                            'version' => '0.1',
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Knut Erik "abjectio" Hollund',
                             'homepage' => 'https://gitlab.com/kollektivet0x242/gsp-choosetheme',
                             'rawdescription' =>

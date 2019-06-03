@@ -31,6 +31,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class WebFingerPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     const OAUTH_ACCESS_TOKEN_REL    = 'http://apinamespace.org/oauth/access_token';
     const OAUTH_REQUEST_TOKEN_REL   = 'http://apinamespace.org/oauth/request_token';
     const OAUTH_AUTHORIZE_REL       = 'http://apinamespace.org/oauth/authorize';
@@ -221,7 +223,7 @@ class WebFingerPlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'WebFinger',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'http://www.gnu.org/software/social/',
                             // TRANS: Plugin description.

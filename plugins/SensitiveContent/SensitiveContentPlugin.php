@@ -6,12 +6,12 @@ if (!defined('GNUSOCIAL')) {
 
 class SensitiveContentPlugin extends Plugin
 {
-	const VERSION = '0.0.1';
+	const PLUGIN_VERSION = '0.0.1';
 
 	function onPluginVersion(array &$versions)
 	{
 		$versions[] = array('name' => 'Sensitive Content',
-			'version' => self::VERSION,
+			'version' => self::PLUGIN_VERSION,
 			'author' => 'MoonMan',
 			'homepage' => 'https://gitgud.io/ShitposterClub/SensitiveContent/',
 			'description' =>

@@ -46,6 +46,8 @@ if (!defined('STATUSNET')) {
  */
 class EmailReminderPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /**
      * Set up email_reminder table
      *
@@ -183,7 +185,7 @@ class EmailReminderPlugin extends Plugin
     {
         $versions[] = array(
             'name'           => 'EmailReminder',
-            'version'        => GNUSOCIAL_VERSION,
+            'version'        => self::PLUGIN_VERSION,
             'author'         => 'Zach Copley',
             'homepage'       => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/EmailReminder',
             // TRANS: Plugin description.

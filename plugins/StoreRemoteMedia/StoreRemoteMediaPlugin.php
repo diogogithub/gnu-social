@@ -6,6 +6,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class StoreRemoteMediaPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     // settings which can be set in config.php with addPlugin('Oembed', array('param'=>'value', ...));
     // WARNING, these are _regexps_ (slashes added later). Always escape your dots and end your strings
     public $domain_whitelist = array(       // hostname => service provider
@@ -201,7 +203,7 @@ class StoreRemoteMediaPlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'StoreRemoteMedia',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/',
                             'description' =>

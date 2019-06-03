@@ -25,6 +25,8 @@ if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
  */
 class SubMirrorPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /**
      * Hook for RouterInitialized event.
      *
@@ -60,7 +62,7 @@ class SubMirrorPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'SubMirror',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/SubMirror',
                             'rawdescription' =>

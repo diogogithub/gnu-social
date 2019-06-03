@@ -26,6 +26,8 @@ if (!defined('STATUSNET')) { exit(1); }
 
 class SlicedFavoritesPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /**
      * Example:
      *
@@ -100,7 +102,7 @@ class SlicedFavoritesPlugin extends Plugin
         $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/SlicedFavorites';
 
         $versions[] = array('name' => 'SlicedFavorites',
-            'version' => GNUSOCIAL_VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Brion Vibber',
             'homepage' => $url,
             'rawdescription' =>

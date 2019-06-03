@@ -30,6 +30,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class OStatusPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /**
      * Hook for RouterInitialized event.
      *
@@ -1350,7 +1352,7 @@ class OStatusPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'OStatus',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou, James Walker, Brion Vibber, Zach Copley',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/OStatus',
                             // TRANS: Plugin description.

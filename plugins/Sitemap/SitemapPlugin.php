@@ -46,6 +46,8 @@ if (!defined('STATUSNET')) {
  */
 class SitemapPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     const USERS_PER_MAP   = 50000;
     const NOTICES_PER_MAP = 50000;
 
@@ -178,7 +180,7 @@ class SitemapPlugin extends Plugin
         $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Sitemap';
 
         $versions[] = array('name' => 'Sitemap',
-            'version' => GNUSOCIAL_VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Evan Prodromou',
             'homepage' => $url,
             'rawdescription' =>

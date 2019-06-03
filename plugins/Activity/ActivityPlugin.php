@@ -46,7 +46,7 @@ if (!defined('STATUSNET')) {
  */
 class ActivityPlugin extends Plugin
 {
-    const VERSION = '0.1';
+    const PLUGIN_VERSION = '0.1.0';
     const SOURCE  = 'activity';
 
     // Flags to switch off certain activity notices
@@ -342,7 +342,7 @@ class ActivityPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Activity',
-                            'version' => self::VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Activity',
                             'rawdescription' =>

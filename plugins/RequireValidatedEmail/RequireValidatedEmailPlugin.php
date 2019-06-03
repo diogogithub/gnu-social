@@ -53,6 +53,8 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  */
 class RequireValidatedEmailPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /**
      * Users created before this time will be grandfathered in
      * without the validation requirement.
@@ -216,7 +218,7 @@ class RequireValidatedEmailPlugin extends Plugin
     {
         $versions[] =
           array('name' => 'Require Validated Email',
-                'version' => GNUSOCIAL_VERSION,
+                'version' => self::PLUGIN_VERSION,
                 'author' => 'Craig Andrews, '.
                 'Evan Prodromou, '.
                 'Brion Vibber',

@@ -36,6 +36,8 @@ set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/ext
 
 class CasAuthenticationPlugin extends AuthenticationPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $server;
     public $port = 443;
     public $path = '';
@@ -152,7 +154,7 @@ class CasAuthenticationPlugin extends AuthenticationPlugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'CAS Authentication',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/CasAuthentication',
                             // TRANS: Plugin description. CAS is Central Authentication Service.

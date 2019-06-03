@@ -25,6 +25,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class FavoritePlugin extends ActivityVerbHandlerPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     protected $email_notify_fave = 1;
 
     public function tag()
@@ -558,7 +560,7 @@ class FavoritePlugin extends ActivityVerbHandlerPlugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Favorite',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'http://gnu.io/',
                             'rawdescription' =>

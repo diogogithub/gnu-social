@@ -47,7 +47,7 @@ require_once __DIR__ . '/twitter.php';
  */
 class TwitterBridgePlugin extends Plugin
 {
-    const VERSION = GNUSOCIAL_VERSION;
+    const PLUGIN_VERSION = '2.0.0';
     public $adminImportControl = false; // Should the 'import' checkbox be exposed in the admin panel?
 
     /**
@@ -299,7 +299,7 @@ class TwitterBridgePlugin extends Plugin
     {
         $versions[] = array(
             'name' => 'TwitterBridge',
-            'version' => self::VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Zach Copley, Julien C, Jean Baptiste Favre',
             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/TwitterBridge',
             // TRANS: Plugin description.

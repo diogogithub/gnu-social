@@ -44,7 +44,7 @@ if (!defined('STATUSNET')) {
  */
 class WikiHashtagsPlugin extends Plugin
 {
-    const VERSION = '0.1';
+    const PLUGIN_VERSION = '0.1.0';
 
     function __construct($code=null)
     {
@@ -107,7 +107,7 @@ class WikiHashtagsPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'WikiHashtags',
-                            'version' => self::VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/WikiHashtags',
                             'rawdescription' =>

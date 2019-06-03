@@ -32,7 +32,7 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-define('BLOGSPAMNETPLUGIN_VERSION', '0.1');
+define('PLUGIN_VERSION', '0.1.0');
 
 /**
  * Plugin to check submitted notices with blogspam.net
@@ -145,13 +145,13 @@ class BlogspamNetPlugin extends Plugin
 
     function version()
     {
-        return BLOGSPAMNETPLUGIN_VERSION;
+        return PLUGIN_VERSION;
     }
 
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'BlogspamNet',
-                            'version' => BLOGSPAMNETPLUGIN_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou, Brion Vibber',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/BlogspamNet',
                             'rawdescription' =>

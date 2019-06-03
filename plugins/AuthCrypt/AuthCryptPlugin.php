@@ -32,6 +32,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class AuthCryptPlugin extends AuthenticationPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
     protected $hash         = '$6$';    // defaults to SHA512, i.e. '$6$', in onInitializePlugin()
     protected $statusnet    = true;     // if true, also check StatusNet style password hash
     protected $overwrite    = true;     // if true, password change means overwrite with crypt()
@@ -153,7 +154,7 @@ class AuthCryptPlugin extends AuthenticationPlugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'AuthCrypt',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/AuthCrypt',
                             'rawdescription' =>

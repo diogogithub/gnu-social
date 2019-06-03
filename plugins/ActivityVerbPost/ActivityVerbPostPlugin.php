@@ -25,6 +25,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class ActivityVerbPostPlugin extends ActivityVerbHandlerPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     // TODO: Implement a "fallback" feature which can handle anything _as_ an activityobject "note"
 
     public function tag()
@@ -128,7 +130,7 @@ class ActivityVerbPostPlugin extends ActivityVerbHandlerPlugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Post verb',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/',
                             'rawdescription' =>

@@ -3,6 +3,7 @@
 if (!defined('GNUSOCIAL')) { exit(1); }
 
 class AntiBrutePlugin extends Plugin {
+    const PLUGIN_VERSION = '2.0.0';
     protected $failed_attempts = 0;
     protected $unauthed_user = null;
     protected $client_ip = null;
@@ -71,7 +72,7 @@ class AntiBrutePlugin extends Plugin {
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'AntiBrute',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'http://gnu.io/',
                             'description' =>

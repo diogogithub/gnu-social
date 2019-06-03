@@ -31,6 +31,8 @@ set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__ . '/extlib/');
 
 class LRDDPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public function onAutoload($cls)
     {
         switch ($cls) {
@@ -55,7 +57,7 @@ class LRDDPlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'LRDD',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'http://www.gnu.org/software/social/',
                             // TRANS: Plugin description.

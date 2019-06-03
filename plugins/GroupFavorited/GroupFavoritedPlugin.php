@@ -26,6 +26,8 @@ if (!defined('STATUSNET')) { exit(1); }
 
 class GroupFavoritedPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /**
      * Hook for RouterInitialized event.
      *
@@ -70,7 +72,7 @@ class GroupFavoritedPlugin extends Plugin
         $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/GroupFavorited';
 
         $versions[] = array('name' => 'GroupFavorited',
-            'version' => GNUSOCIAL_VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Brion Vibber',
             'homepage' => $url,
             'rawdescription' =>

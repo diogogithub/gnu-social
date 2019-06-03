@@ -44,6 +44,8 @@ require_once INSTALLDIR.'/plugins/Realtime/RealtimePlugin.php';
  */
 class CometPlugin extends RealtimePlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $server   = null;
     public $username = null;
     public $password = null;
@@ -107,7 +109,7 @@ class CometPlugin extends RealtimePlugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Comet',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Comet',
                             'rawdescription' =>

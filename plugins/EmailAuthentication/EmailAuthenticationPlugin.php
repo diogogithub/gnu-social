@@ -31,6 +31,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class EmailAuthenticationPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     // $nickname for this plugin is the user's email address
     function onStartCheckPassword($nickname, $password, &$authenticatedUser)
     {
@@ -52,7 +54,7 @@ class EmailAuthenticationPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Email Authentication',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/EmailAuthentication',
                             'rawdescription' =>

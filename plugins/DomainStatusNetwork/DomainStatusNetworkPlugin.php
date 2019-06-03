@@ -52,6 +52,8 @@ require_once $_dir . '/extlib/regDomain.inc.php';
  */
 class DomainStatusNetworkPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     static $_thetree = null;
 
     function initialize()
@@ -193,7 +195,7 @@ class DomainStatusNetworkPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'DomainStatusNetwork',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/DomainStatusNetwork',
                             'rawdescription' =>

@@ -46,6 +46,8 @@ if (!defined('STATUSNET')) {
  */
 class XmppPlugin extends ImPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $server = null;
     public $port = 5222;
     public $user = 'update';
@@ -441,7 +443,7 @@ class XmppPlugin extends ImPlugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'XMPP',
-            'version' => GNUSOCIAL_VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Craig Andrews, Evan Prodromou',
             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/XMPP',
             'rawdescription' =>

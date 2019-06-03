@@ -29,6 +29,8 @@ if (!defined('STATUSNET')) {
  */
 class SQLStatsPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     protected $queryCount = 0;
     protected $queryStart = 0;
     protected $queryTimes = array();
@@ -37,7 +39,7 @@ class SQLStatsPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'SQLStats',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/SQLStats',
                             'rawdescription' =>

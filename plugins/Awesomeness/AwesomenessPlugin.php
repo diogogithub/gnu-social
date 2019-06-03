@@ -42,13 +42,13 @@ if (!defined('STATUSNET')) {
 
 class AwesomenessPlugin extends Plugin
 {
-    const VERSION = '0.0.42';
+    const PLUGIN_VERSION = '0.0.42';
 
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array(
             'name' => 'Awesomeness',
-            'version' => self::VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Jeroen De Dauw',
             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Awesomeness',
             // TRANS: Plugin description for a sample plugin.

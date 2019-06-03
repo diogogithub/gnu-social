@@ -24,6 +24,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class DirectMessagePlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public function onCheckSchema()
     {
         $schema = Schema::get();
@@ -164,7 +166,7 @@ class DirectMessagePlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Direct Message',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'http://gnu.io/',
                             'rawdescription' =>

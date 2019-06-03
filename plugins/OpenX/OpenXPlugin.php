@@ -77,6 +77,8 @@ if (!defined('STATUSNET')) {
  */
 class OpenXPlugin extends UAPPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $adScript = null;
 
     function initialize()
@@ -202,7 +204,7 @@ ENDOFSCRIPT;
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'OpenX',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/OpenX',
                             'rawdescription' =>

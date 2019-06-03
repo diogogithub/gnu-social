@@ -46,7 +46,7 @@ if (!defined('STATUSNET')) {
  */
 class MapstractionPlugin extends Plugin
 {
-    const VERSION = GNUSOCIAL_VERSION;
+    const PLUGIN_VERSION = '2.0.0';
 
     /** provider name, one of:
      'cloudmade', 'microsoft', 'openlayers', 'yahoo' */
@@ -168,7 +168,7 @@ class MapstractionPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Mapstraction',
-                            'version' => self::VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Mapstraction',
                             'rawdescription' =>

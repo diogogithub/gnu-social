@@ -33,6 +33,8 @@ if (!defined('STATUSNET')) {
 
 class TightUrlPlugin extends UrlShortenerPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $serviceUrl;
 
     function onInitializePlugin(){
@@ -60,7 +62,7 @@ class TightUrlPlugin extends UrlShortenerPlugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => sprintf('TightUrl (%s)', $this->shortenerName),
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/TightUrl',
                             'rawdescription' =>

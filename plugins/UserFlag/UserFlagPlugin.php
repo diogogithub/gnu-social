@@ -42,6 +42,8 @@ if (!defined('STATUSNET')) {
  */
 class UserFlagPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     const REVIEWFLAGS = 'UserFlagPlugin::reviewflags';
     const CLEARFLAGS  = 'UserFlagPlugin::clearflags';
 
@@ -232,7 +234,7 @@ class UserFlagPlugin extends Plugin
         $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/UserFlag';
 
         $versions[] = array('name' => 'UserFlag',
-            'version' => GNUSOCIAL_VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Evan Prodromou',
             'homepage' => $url,
             'rawdescription' =>

@@ -35,6 +35,8 @@ if (!defined('STATUSNET')) {
  */
 class LogFilterPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $default = true;     // Set to false to require opting things in
     public $priority = array(); // override by priority: array(LOG_ERR => true, LOG_DEBUG => false)
     public $regex = array();    // override by regex match of message: array('/twitter/i' => false)
@@ -42,7 +44,7 @@ class LogFilterPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'LogFilter',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/LogFilter',
                             'rawdescription' =>

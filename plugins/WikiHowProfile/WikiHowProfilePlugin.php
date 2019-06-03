@@ -49,10 +49,12 @@ if (!defined('STATUSNET')) {
  */
 class WikiHowProfilePlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'WikiHow avatar fetcher',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Sample',
                             'rawdescription' =>

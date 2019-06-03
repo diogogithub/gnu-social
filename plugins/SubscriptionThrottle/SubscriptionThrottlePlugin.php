@@ -46,6 +46,8 @@ if (!defined('STATUSNET')) {
  */
 class SubscriptionThrottlePlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $subLimits = array(86400 => 100,
                               3600 => 50);
 
@@ -160,7 +162,7 @@ class SubscriptionThrottlePlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'SubscriptionThrottle',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/SubscriptionThrottle',
                             'rawdescription' =>

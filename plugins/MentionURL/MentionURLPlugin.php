@@ -10,6 +10,8 @@ require_once __DIR__ . '/lib/util.php';
  */
 class MentionURLPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     function onEndFindMentions(Profile $sender, $text, &$mentions)
     {
         $matches = array();
@@ -73,7 +75,7 @@ class MentionURLPlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'MentionURL',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Stephen Paul Weber',
                             'homepage' => 'http://gnu.io/',
                             'description' =>

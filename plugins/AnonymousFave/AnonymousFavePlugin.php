@@ -43,7 +43,7 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-define('ANONYMOUS_FAVE_PLUGIN_VERSION', '0.1');
+define('ANONYMOUS_FAVE_PLUGIN_VERSION', '0.1.0');
 
 /**
  * Anonymous Fave plugin to allow anonymous (not logged in) users

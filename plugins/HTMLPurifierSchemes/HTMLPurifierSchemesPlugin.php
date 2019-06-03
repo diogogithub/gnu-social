@@ -28,10 +28,12 @@ require_once INSTALLDIR.'/extlib/HTMLPurifier/HTMLPurifier.auto.php';
  */
 class HTMLPurifierSchemesPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'HTMLPurifier Schemes',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/social',
                             'rawdescription' =>

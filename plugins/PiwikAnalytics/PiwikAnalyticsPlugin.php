@@ -51,6 +51,8 @@ if (!defined('STATUSNET')) {
  */
 class PiwikAnalyticsPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /** the base of your Piwik installation */
     public $piwikroot = null;
     /** the Piwik Id of your statusnet installation */
@@ -106,7 +108,7 @@ ENDOFPIWIK;
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'PiwikAnalytics',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Tobias Diekershoff, Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Piwik',
                             'rawdescription' =>

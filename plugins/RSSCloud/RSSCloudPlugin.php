@@ -31,7 +31,7 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-define('RSSCLOUDPLUGIN_VERSION', '0.1');
+define('RSSCLOUDPLUGIN_VERSION', '0.1.0');
 
 /**
  * Plugin class for adding RSSCloud capabilities to StatusNet

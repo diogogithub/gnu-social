@@ -53,6 +53,8 @@ foreach($sphinxDefaults as $key => $val) {
  */
 class SphinxSearchPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /**
      * Automatically load any classes used
      *
@@ -110,7 +112,7 @@ class SphinxSearchPlugin extends Plugin
         $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/SphinxSearch';
 
         $versions[] = array('name' => 'SphinxSearch',
-            'version' => GNUSOCIAL_VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Brion Vibber',
             'homepage' => $url,
             'rawdescription' =>

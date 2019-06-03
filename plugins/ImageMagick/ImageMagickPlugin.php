@@ -46,6 +46,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class ImageMagickPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $preview_imageformat = 'PNG';    // Image format strings: http://www.imagemagick.org/script/formats.php#supported
     public $rasterize_vectors = false;       // Whether we want to turn SVG into PNG etc.
 
@@ -135,7 +137,7 @@ class ImageMagickPlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'ImageMagick',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'http://gnu.io/social',
                             'rawdescription' =>

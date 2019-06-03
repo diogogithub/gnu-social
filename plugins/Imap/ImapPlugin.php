@@ -44,6 +44,8 @@ if (!defined('STATUSNET')) {
  */
 class ImapPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $mailbox;
     public $user;
     public $password;
@@ -79,7 +81,7 @@ class ImapPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'IMAP',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/IMAP',
                             'rawdescription' =>

@@ -44,6 +44,8 @@ require_once INSTALLDIR.'/plugins/Realtime/RealtimePlugin.php';
  */
 class MeteorPlugin extends RealtimePlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $webserver     = null;
     public $webport       = null;
     public $controlport   = null;
@@ -163,7 +165,7 @@ class MeteorPlugin extends RealtimePlugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Meteor',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Meteor',
                             'rawdescription' =>

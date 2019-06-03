@@ -45,6 +45,8 @@ require_once INSTALLDIR.'/plugins/Mobile/WAP20Plugin.php';
  */
 class MobileProfilePlugin extends WAP20Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $DTD            = null;
     public $serveMobile    = false;
     public $reallyMobile   = false;
@@ -371,7 +373,7 @@ class MobileProfilePlugin extends WAP20Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'MobileProfile',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Sarven Capadisli',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/MobileProfile',
                             'rawdescription' =>

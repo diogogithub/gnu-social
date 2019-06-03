@@ -34,6 +34,8 @@ if (!defined('STATUSNET')) {
 
 class PostDebugPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /**
      * Set to a directory to dump individual items instead of
      * sending to the debug log
@@ -51,7 +53,7 @@ class PostDebugPlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'PostDebug',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/PostDebug',
                             'rawdescription' =>

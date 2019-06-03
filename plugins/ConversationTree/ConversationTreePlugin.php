@@ -25,6 +25,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class ConversationTreePlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public function onStartShowConversation(Action $action, Conversation $conv, Profile $scoped=null) {
         $nl = new ConversationTree($conv->getNotices($action->getScoped()), $action);
         $cnt = $nl->show();
@@ -34,7 +36,7 @@ class ConversationTreePlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'ConversationTree',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'http://gnu.io/',
                             'rawdescription' =>

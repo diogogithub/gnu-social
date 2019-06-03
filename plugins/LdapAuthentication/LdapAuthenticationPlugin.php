@@ -33,6 +33,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 
 class LdapAuthenticationPlugin extends AuthenticationPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
     function onInitializePlugin(){
         parent::onInitializePlugin();
         if(!isset($this->attributes['nickname'])){
@@ -145,7 +146,7 @@ class LdapAuthenticationPlugin extends AuthenticationPlugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'LDAP Authentication',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/LdapAuthentication',
                             'rawdescription' =>

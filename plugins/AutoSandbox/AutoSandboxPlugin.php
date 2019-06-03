@@ -38,6 +38,7 @@ define('AUTOSANDBOX', '0.1');
 
 class AutoSandboxPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
     var $contact;
     var $debug;
 
@@ -59,7 +60,7 @@ class AutoSandboxPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'AutoSandbox',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Sean Carmody',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/AutoSandbox',
                             'rawdescription' =>

@@ -43,7 +43,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class BookmarkPlugin extends MicroAppPlugin
 {
-    const VERSION         = '0.1';
+    const PLUGIN_VERSION         = '0.1.0';
     const IMPORTDELICIOUS = 'BookmarkPlugin:IMPORTDELICIOUS';
 
     /**
@@ -180,7 +180,7 @@ class BookmarkPlugin extends MicroAppPlugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Bookmark',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou, Stephane Berube, Jean Baptiste Favre, Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/social',
                             'description' =>

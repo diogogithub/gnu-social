@@ -42,6 +42,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class VideoThumbnailsPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /*
      * This function should only extract an image from the video stream
      * and disregard any cropping or scaling in the resulting file, as
@@ -99,7 +101,7 @@ class VideoThumbnailsPlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Video Thumbnails',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://www.gnu.org/software/social/',
                             'rawdescription' =>

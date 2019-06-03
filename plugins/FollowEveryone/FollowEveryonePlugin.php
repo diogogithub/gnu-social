@@ -48,6 +48,8 @@ if (!defined('STATUSNET')) {
  */
 class FollowEveryonePlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     /**
      * Called when a new user is registered.
      *
@@ -168,7 +170,7 @@ class FollowEveryonePlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'FollowEveryone',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/FollowEveryone',
                             'rawdescription' =>

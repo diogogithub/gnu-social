@@ -47,6 +47,8 @@ require_once INSTALLDIR.'/plugins/Realtime/RealtimePlugin.php';
  */
 class OrbitedPlugin extends RealtimePlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $webserver   = null;
     public $webport     = null;
     public $channelbase = null;
@@ -162,7 +164,7 @@ class OrbitedPlugin extends RealtimePlugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Orbited',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Orbited',
                             'rawdescription' =>

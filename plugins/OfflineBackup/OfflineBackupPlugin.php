@@ -4,7 +4,7 @@
  * Copyright (C) 2011, StatusNet, Inc.
  *
  * Offline backup
- * 
+ *
  * PHP version 5
  *
  * This program is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ if (!defined('STATUSNET')) {
 /**
  * Offline backup
  *
- * Instead of a big 
+ * Instead of a big
  *
  * @category  General
  * @package   StatusNet
@@ -49,6 +49,7 @@ if (!defined('STATUSNET')) {
 
 class OfflineBackupPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
 
     function onRouterInitialized($m)
     {
@@ -74,7 +75,7 @@ class OfflineBackupPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'OfflineBackup',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/OfflineBackup',
                             'rawdescription' =>

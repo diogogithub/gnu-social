@@ -46,6 +46,7 @@ if (!defined('STATUSNET')) {
  */
 class QnAPlugin extends MicroAppPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
 
     var $oldSaveNew = true;
 
@@ -128,7 +129,7 @@ class QnAPlugin extends MicroAppPlugin
     {
         $versions[] = array(
             'name'        => 'QnA',
-            'version'     => GNUSOCIAL_VERSION,
+            'version'     => self::PLUGIN_VERSION,
             'author'      => 'Zach Copley',
             'homepage'    => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/QnA',
             'description' =>

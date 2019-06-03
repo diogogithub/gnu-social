@@ -36,7 +36,7 @@ if (!defined('STATUSNET')) {
 
 /**
  * Check new notices with activity spam service.
- * 
+ *
  * @category  Spam
  * @package   StatusNet
  * @author    Evan Prodromou <evan@status.net>
@@ -46,6 +46,8 @@ if (!defined('STATUSNET')) {
  */
 class ActivitySpamPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $server = null;
     public $hideSpam = false;
 
@@ -67,7 +69,7 @@ class ActivitySpamPlugin extends Plugin
 
         // Let DB_DataObject find Spam_score
 
-        common_config_set('db', 'class_location', 
+        common_config_set('db', 'class_location',
                           common_config('db', 'class_location') .':'.dirname(__FILE__));
 
         return true;
@@ -94,7 +96,7 @@ class ActivitySpamPlugin extends Plugin
 
     /**
      * When a notice is saved, check its spam score
-     * 
+     *
      * @param Notice $notice Notice that was just saved
      *
      * @return boolean hook value; true means continue processing, false means stop.
@@ -111,7 +113,7 @@ class ActivitySpamPlugin extends Plugin
             $this->log(LOG_INFO, "Notice " . $notice->id . " has spam score " . $score->score);
 
         } catch (Exception $e) {
-            // Log but continue 
+            // Log but continue
             $this->log(LOG_ERR, $e->getMessage());
         }
 
@@ -171,7 +173,7 @@ class ActivitySpamPlugin extends Plugin
 
         return true;
     }
-    
+
     /**
      * Map URLs to actions
      *
@@ -218,7 +220,7 @@ class ActivitySpamPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'ActivitySpam',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/ActivitySpam',
                             'description' =>

@@ -31,6 +31,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class StrictTransportSecurityPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $max_age = 15552000;
     public $includeSubDomains = false;
     public $preloadToken = false;
@@ -53,7 +55,7 @@ class StrictTransportSecurityPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'StrictTransportSecurity',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/StrictTransportSecurity',
                             'rawdescription' =>

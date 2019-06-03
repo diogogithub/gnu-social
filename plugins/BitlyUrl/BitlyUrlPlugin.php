@@ -35,6 +35,8 @@ if (!defined('STATUSNET')) {
 
 class BitlyUrlPlugin extends UrlShortenerPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $shortenerName = 'bit.ly';
     public $serviceUrl = 'http://api.bit.ly/v3/shorten?longUrl=%s';
     public $login; // To set a site-default when admins or users don't override it.
@@ -147,7 +149,7 @@ class BitlyUrlPlugin extends UrlShortenerPlugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => sprintf('BitlyUrl (%s)', $this->shortenerName),
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews, Brion Vibber',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/BitlyUrl',
                             'rawdescription' =>

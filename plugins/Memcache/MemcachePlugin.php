@@ -50,6 +50,8 @@ if (!defined('STATUSNET')) {
  */
 class MemcachePlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     static $cacheInitialized = false;
 
     private $_conn  = null;
@@ -239,7 +241,7 @@ class MemcachePlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Memcache',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou, Craig Andrews',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Memcache',
                             'rawdescription' =>

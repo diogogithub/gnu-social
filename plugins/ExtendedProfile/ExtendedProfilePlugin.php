@@ -29,11 +29,13 @@ if (!defined('STATUSNET')) {
  */
 class ExtendedProfilePlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     function onPluginVersion(array &$versions)
     {
         $versions[] = array(
             'name' => 'ExtendedProfile',
-            'version' => GNUSOCIAL_VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Brion Vibber, Samantha Doherty, Zach Copley',
             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/ExtendedProfile',
             // TRANS: Plugin description.

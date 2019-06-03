@@ -44,6 +44,8 @@ if (!defined('STATUSNET')) {
  */
 class DirectoryPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     private $dir = null;
 
     /**
@@ -255,7 +257,7 @@ class DirectoryPlugin extends Plugin
     {
         $versions[] = array(
             'name' => 'Directory',
-            'version' => GNUSOCIAL_VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Zach Copley',
             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Directory',
             // TRANS: Plugin description.

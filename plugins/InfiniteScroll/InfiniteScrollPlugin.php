@@ -31,6 +31,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class InfiniteScrollPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $on_next_only = false;
 
     function onEndShowScripts(Action $action)
@@ -44,7 +46,7 @@ class InfiniteScrollPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'InfiniteScroll',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/InfiniteScroll',
                             'rawdescription' =>

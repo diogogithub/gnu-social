@@ -1,6 +1,8 @@
 <?php
 
 class OpportunisticQMPlugin extends Plugin {
+    const PLUGIN_VERSION = '2.0.0';
+
     public $qmkey = false;
     public $secs_per_action = 1; // total seconds to run script per action
     public $rel_to_pageload = true;  // relative to pageload or queue start
@@ -37,7 +39,7 @@ class OpportunisticQMPlugin extends Plugin {
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'OpportunisticQM',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'http://www.gnu.org/software/social/',
                             'description' =>

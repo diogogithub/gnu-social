@@ -29,12 +29,14 @@ if (!defined('STATUSNET')) {
  */
 class SQLProfilePlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     private $recursionGuard = false;
 
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'SQLProfile',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/SQLProfile',
                             'rawdescription' =>

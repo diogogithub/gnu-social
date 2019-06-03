@@ -6,7 +6,7 @@ if (!defined('GNUSOCIAL')) {
 
 class NodeinfoPlugin extends Plugin
 {
-    const VERSION = '0.0.1';
+    const VERSION = '1.0.1';
 
     public function onRouterInitialized($m)
     {

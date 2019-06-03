@@ -25,6 +25,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class SharePlugin extends ActivityVerbHandlerPlugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     public function tag()
     {
         return 'share';
@@ -360,7 +362,7 @@ class SharePlugin extends ActivityVerbHandlerPlugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Share verb',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/',
                             'rawdescription' =>

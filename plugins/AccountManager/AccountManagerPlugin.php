@@ -33,6 +33,8 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 
 class AccountManagerPlugin extends Plugin
 {
+    const PLUGIN_VERSION = '2.0.0';
+
     const AM_REL = 'acct-mgmt';
 
     function __construct()
@@ -77,7 +79,7 @@ class AccountManagerPlugin extends Plugin
     }
 
     function onLoginAction($action, &$login) {
-        switch ($action) 
+        switch ($action)
         {
          case 'AccountManagementControlDocument':
             $login = true;
@@ -90,7 +92,7 @@ class AccountManagerPlugin extends Plugin
     function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'AccountManager',
-                            'version' => GNUSOCIAL_VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/AccountManager',
                             'rawdescription' =>
