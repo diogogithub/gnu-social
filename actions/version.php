@@ -147,8 +147,7 @@ class VersionAction extends Action
         // TRANS: Content part of engine version page.
         // TRANS: %1$s is the engine name (GNU social) and %2$s is the GNU social version.
         $this->raw(sprintf(_('This site is powered by %1$s version %2$s, '.
-                             'Copyright 2008-2013 StatusNet, Inc. '.
-                             'and contributors.'),
+                             'Copyright 2010 Free Software Foundation, Inc.'),
                            XMLStringer::estring('a', array('href' => GNUSOCIAL_ENGINE_URL),
                                                 // TRANS: Engine name.
                                                 GNUSOCIAL_ENGINE),
@@ -158,8 +157,11 @@ class VersionAction extends Action
         // TRANS: Header for engine software contributors section on the version page.
         $this->element('h2', null, _('Contributors'));
 
-        sort($this->contributors);
-        $this->element('p', null, implode(', ', $this->contributors));
+        $this->elementStart('p');
+        $this->raw(sprintf('See %s for a full list of contributors.',
+                           XMLStringer::estring('a', array('href' => 'https://notabug.org/diogo/gnu-social/src/nightly/CREDITS.md'),
+                                                'https://notabug.org/diogo/gnu-social/src/nightly/CREDITS.md')));
+        $this->elementEnd('p');
 
         // TRANS: Header for engine software license section on the version page.
         $this->element('h2', null, _('License'));
@@ -183,8 +185,8 @@ class VersionAction extends Action
         // TRANS: %s is a link to the AGPL license with link description "http://www.gnu.org/licenses/agpl.html".
         $this->raw(sprintf(_('You should have received a copy of the GNU Affero General Public License '.
                              'along with this program.  If not, see %s.'),
-                           XMLStringer::estring('a', array('href' => 'http://www.gnu.org/licenses/agpl.html'),
-                                                'http://www.gnu.org/licenses/agpl.html')));
+                           XMLStringer::estring('a', array('href' => 'https://www.gnu.org/licenses/agpl.html'),
+                                                'https://www.gnu.org/licenses/agpl.html')));
         $this->elementEnd('p');
 
         // XXX: Theme information?
@@ -240,44 +242,4 @@ class VersionAction extends Action
         }
 
     }
-
-    var $contributors = array('Evan Prodromou (StatusNet)',
-                              'Zach Copley (StatusNet)',
-                              'Earle Martin (StatusNet)',
-                              'Marie-Claude Doyon (StatusNet)',
-                              'Sarven Capadisli (StatusNet)',
-                              'Robin Millette (StatusNet)',
-                              'Ciaran Gultnieks',
-                              'Michael Landers',
-                              'Ori Avtalion',
-                              'Garret Buell',
-                              'Mike Cochrane',
-                              'Matthew Gregg',
-                              'Florian Biree',
-                              'Erik Stambaugh',
-                              'drry',
-                              'Gina Haeussge',
-                              'Tryggvi Björgvinsson',
-                              'Adrian Lang',
-                              'Meitar Moscovitz',
-                              'Sean Murphy',
-                              'Leslie Michael Orchard',
-                              'Eric Helgeson',
-                              'Ken Sedgwick',
-                              'Brian Hendrickson',
-                              'Tobias Diekershoff',
-                              'Dan Moore',
-                              'Fil',
-                              'Jeff Mitchell',
-                              'Brenda Wallace',
-                              'Jeffery To',
-                              'Federico Marani',
-                              'Craig Andrews',
-                              'mEDI',
-                              'Brett Taylor',
-                              'Brigitte Schuster',
-                              'Brion Vibber (StatusNet)',
-                              'Siebrand Mazeland',
-                              'Samantha Doherty (StatusNet)',
-                              'Mikael Nordfeldth (FSF)');
 }
