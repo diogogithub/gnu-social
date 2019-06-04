@@ -47,12 +47,13 @@ function common_user_error($msg, $code=400)
  */
 function common_init_locale($language=null)
 {
-    if(!$language) {
+    if (!$language) {
         $language = common_language();
     }
     putenv('LANGUAGE='.$language);
     putenv('LANG='.$language);
-    $ok =  setlocale(LC_ALL, $language . ".utf8",
+    $ok =  setlocale(LC_ALL,
+                     $language . ".utf8",
                      $language . ".UTF8",
                      $language . ".utf-8",
                      $language . ".UTF-8",
@@ -121,7 +122,7 @@ function common_init_gettext()
 {
     setlocale(LC_CTYPE, 'C');
     // So we do not have to make people install the gettext locales
-    $path = common_config('site','locale_path');
+    $path = common_config('site', 'locale_path');
     bindtextdomain("statusnet", $path);
     bind_textdomain_codeset("statusnet", "UTF-8");
     textdomain("statusnet");
@@ -139,7 +140,7 @@ function common_switch_locale($language=null)
 
     setlocale(LC_CTYPE, 'C');
     // So we do not have to make people install the gettext locales
-    $path = common_config('site','locale_path');
+    $path = common_config('site', 'locale_path');
     bindtextdomain("statusnet", $path);
     bind_textdomain_codeset("statusnet", "UTF-8");
     textdomain("statusnet");
@@ -198,8 +199,9 @@ function common_language()
         $httplang = isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) ? $_SERVER['HTTP_ACCEPT_LANGUAGE'] : null;
         if (!empty($httplang)) {
             $language = client_preferred_language($httplang);
-            if ($language)
-              return $language;
+            if ($language) {
+                return $language;
+            }
         }
     }
 
@@ -214,8 +216,8 @@ function common_munge_password($password, Profile $profile=null)
 {
     $hashed = null;
 
-    if (Event::handle('StartHashPassword', array(&$hashed, $password, $profile))) {
-        Event::handle('EndHashPassword', array(&$hashed, $password, $profile));
+    if (Event::handle('StartHashPassword', [&$hashed, $password, $profile])) {
+        Event::handle('EndHashPassword', [&$hashed, $password, $profile]);
     }
     if (empty($hashed)) {
         throw new PasswordHashException();
@@ -236,8 +238,7 @@ function common_check_user($nickname, $password)
 
     $authenticatedUser = false;
 
-    if (Event::handle('StartCheckPassword', array($nickname, $password, &$authenticatedUser))) {
-
+    if (Event::handle('StartCheckPassword', [$nickname, $password, &$authenticatedUser])) {
         if (common_is_email($nickname)) {
             $user = User::getKV('email', common_canonical_email($nickname));
         } else {
@@ -251,7 +252,7 @@ function common_check_user($nickname, $password)
             }
         }
     }
-    Event::handle('EndCheckPassword', array($nickname, $password, $authenticatedUser));
+    Event::handle('EndCheckPassword', [$nickname, $password, $authenticatedUser]);
 
     return $authenticatedUser;
 }
@@ -287,7 +288,7 @@ function common_ensure_session()
         }
         if (array_key_exists(session_name(), $_GET)) {
             $id = $_GET[session_name()];
-        } else if (array_key_exists(session_name(), $_COOKIE)) {
+        } elseif (array_key_exists(session_name(), $_COOKIE)) {
             $id = $_COOKIE[session_name()];
         }
         if (isset($id)) {
@@ -320,15 +321,15 @@ function common_set_user($user)
         $_cur = null;
         unset($_SESSION['userid']);
         return true;
-    } else if (is_string($user)) {
+    } elseif (is_string($user)) {
         $nickname = $user;
         $user = User::getKV('nickname', $nickname);
-    } else if (!$user instanceof User) {
+    } elseif (!$user instanceof User) {
         return false;
     }
 
     if ($user) {
-        if (Event::handle('StartSetUser', array(&$user))) {
+        if (Event::handle('StartSetUser', [&$user])) {
             if (!empty($user)) {
                 if (!$user->hasRight(Right::WEBLOGIN)) {
                     // TRANS: Authorisation exception thrown when a user a not allowed to login.
@@ -337,7 +338,7 @@ function common_set_user($user)
                 common_ensure_session();
                 $_SESSION['userid'] = $user->id;
                 $_cur = $user;
-                Event::handle('EndSetUser', array($user));
+                Event::handle('EndSetUser', [$user]);
                 return $_cur;
             }
         }
@@ -486,7 +487,6 @@ function common_current_user()
     }
 
     if ($_cur === false) {
-
         if (isset($_COOKIE[session_name()]) || isset($_GET[session_name()])
             || (isset($_SESSION['userid']) && $_SESSION['userid'])) {
             common_ensure_session();
@@ -494,8 +494,8 @@ function common_current_user()
             if ($id) {
                 $user = User::getKV('id', $id);
                 if ($user instanceof User) {
-                	$_cur = $user;
-                	return $_cur;
+                    $_cur = $user;
+                    return $_cur;
                 }
             }
         }
@@ -590,7 +590,7 @@ function common_to_alphanumeric($str)
     return $filtered;
 }
 
-function common_purify($html, array $args=array())
+function common_purify($html, array $args=[])
 {
     require_once INSTALLDIR.'/extlib/HTMLPurifier/HTMLPurifier.auto.php';
 
@@ -604,7 +604,7 @@ function common_purify($html, array $args=array())
      * Source: http://microformats.org/wiki/rel
      */
     $cfg->set('Attr.AllowedRel', ['bookmark', 'enclosure', 'nofollow', 'tag', 'noreferrer']);
-    $cfg->set('HTML.ForbiddenAttributes', array('style'));  // id, on* etc. are already filtered by default
+    $cfg->set('HTML.ForbiddenAttributes', ['style']);  // id, on* etc. are already filtered by default
     $cfg->set('URI.AllowedSchemes', array_fill_keys(common_url_schemes(), true));
     if (isset($args['URI.Base'])) {
         $cfg->set('URI.Base', $args['URI.Base']);   // if null this is like unsetting it I presume
@@ -620,7 +620,7 @@ function common_purify($html, array $args=array())
 
     // Remove more elements than what the default filter removes, default in GNU social are remotely
     // linked resources such as img, video, audio
-    $forbiddenElements = array();
+    $forbiddenElements = [];
     foreach (common_config('htmlfilter') as $tag=>$filter) {
         if ($filter === true) {
             $forbiddenElements[] = $tag;
@@ -632,7 +632,7 @@ function common_purify($html, array $args=array())
 
     $purifier = new HTMLPurifier($cfg);
     $purified = $purifier->purify($html);
-    Event::handle('EndCommonPurify', array(&$purified, $html));
+    Event::handle('EndCommonPurify', [&$purified, $html]);
     
     return $purified;
 }
@@ -678,17 +678,15 @@ function common_linkify_mentions($text, Profile $author, Notice $parent=null)
     // so our positions stay valid despite our fudging with the
     // string!
 
-    $points = array();
+    $points = [];
 
-    foreach ($mentions as $mention)
-    {
+    foreach ($mentions as $mention) {
         $points[$mention['position']] = $mention;
     }
 
     krsort($points);
 
     foreach ($points as $position => $mention) {
-
         $linkText = common_linkify_mention($mention);
 
         $text = substr_replace($text, $linkText, $position, $mention['length']);
@@ -701,12 +699,11 @@ function common_linkify_mention(array $mention)
 {
     $output = null;
 
-    if (Event::handle('StartLinkifyMention', array($mention, &$output))) {
-
+    if (Event::handle('StartLinkifyMention', [$mention, &$output])) {
         $xs = new XMLStringer(false);
 
-        $attrs = array('href' => $mention['url'],
-                       'class' => 'h-card u-url p-nickname '.$mention['type']);
+        $attrs = ['href' => $mention['url'],
+                  'class' => 'h-card u-url p-nickname '.$mention['type']];
 
         if (!empty($mention['title'])) {
             $attrs['title'] = $mention['title'];
@@ -716,7 +713,7 @@ function common_linkify_mention(array $mention)
 
         $output = $xs->getString();
 
-        Event::handle('EndLinkifyMention', array($mention, &$output));
+        Event::handle('EndLinkifyMention', [$mention, &$output]);
     }
 
     return $output;
@@ -725,7 +722,7 @@ function common_linkify_mention(array $mention)
 function common_get_attentions($text, Profile $sender, Notice $parent=null)
 {
     $mentions = common_find_mentions($text, $sender, $parent);
-    $atts = array();
+    $atts = [];
     foreach ($mentions as $mention) {
         foreach ($mention['mentioned'] as $mentioned) {
             $atts[$mentioned->getUri()] = $mentioned->getObjectType();
@@ -757,11 +754,11 @@ function common_get_attentions($text, Profile $sender, Notice $parent=null)
  */
 function common_find_mentions($text, Profile $sender, Notice $parent=null)
 {
-    $mentions = array();
+    $mentions = [];
 
-    if (Event::handle('StartFindMentions', array($sender, $text, &$mentions))) {
+    if (Event::handle('StartFindMentions', [$sender, $text, &$mentions])) {
         // Get the context of the original notice, if any
-        $origMentions = array();
+        $origMentions = [];
         // Does it have a parent notice for context?
         if ($parent instanceof Notice) {
             foreach ($parent->getAttentionProfiles() as $repliedTo) {
@@ -782,12 +779,12 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
                 continue;
             }
 
-			// primarily mention the profiles mentioned in the parent
+            // primarily mention the profiles mentioned in the parent
             $mention_found_in_origMentions = false;
-            foreach($origMentions as $origMentionsId=>$origMention) {
-                if($origMention->getNickname() == $nickname) {
+            foreach ($origMentions as $origMentionsId=>$origMention) {
+                if ($origMention->getNickname() == $nickname) {
                     $mention_found_in_origMentions = $origMention;
-                    // don't mention same twice! the parent might have mentioned 
+                    // don't mention same twice! the parent might have mentioned
                     // two users with same nickname on different instances
                     unset($origMentions[$origMentionsId]);
                     break;
@@ -797,8 +794,8 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
             // Try to get a profile for this nickname.
             // Start with parents mentions, then go to parents sender context
             if ($mention_found_in_origMentions) {
-                $mentioned = $mention_found_in_origMentions;            
-            } else if ($parent instanceof Notice && $parent->getProfile()->getNickname() === $nickname) {
+                $mentioned = $mention_found_in_origMentions;
+            } elseif ($parent instanceof Notice && $parent->getProfile()->getNickname() === $nickname) {
                 $mentioned = $parent->getProfile();
             } else {
                 // sets to null if no match
@@ -812,16 +809,16 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
                         $url = $mentioned->getUrl();
                     }
                 } catch (InvalidUrlException $e) {
-                    $url = common_local_url('userbyid', array('id' => $mentioned->getID()));
+                    $url = common_local_url('userbyid', ['id' => $mentioned->getID()]);
                 }
 
-                $mention = array('mentioned' => array($mentioned),
-                                 'type' => 'mention',
-                                 'text' => $match[0],
-                                 'position' => $match[1],
-                                 'length' => mb_strlen($match[0]),
-                                 'title' => $mentioned->getFullname(),
-                                 'url' => $url);
+                $mention = ['mentioned' => [$mentioned],
+                            'type' => 'mention',
+                            'text' => $match[0],
+                            'position' => $match[1],
+                            'length' => mb_strlen($match[0]),
+                            'title' => $mentioned->getFullname(),
+                            'url' => $url];
 
                 $mentions[] = $mention;
             }
@@ -829,8 +826,12 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
 
         // @#tag => mention of all subscriptions tagged 'tag'
 
-        preg_match_all('/'.Nickname::BEFORE_MENTIONS.'@#([\pL\pN_\-\.]{1,64})/',
-                       $text, $hmatches, PREG_OFFSET_CAPTURE);
+        preg_match_all(
+            '/'.Nickname::BEFORE_MENTIONS.'@#([\pL\pN_\-\.]{1,64})/',
+            $text,
+            $hmatches,
+            PREG_OFFSET_CAPTURE
+        );
         foreach ($hmatches[1] as $hmatch) {
             $tag = common_canonical_tag($hmatch[0]);
             $plist = Profile_list::getByTaggerAndTag($sender->getID(), $tag);
@@ -840,15 +841,15 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
             $tagged = $sender->getTaggedSubscribers($tag);
 
             $url = common_local_url('showprofiletag',
-                                    array('nickname' => $sender->getNickname(),
-                                          'tag' => $tag));
+                                    ['nickname' => $sender->getNickname(),
+                                     'tag' => $tag]);
 
-            $mentions[] = array('mentioned' => $tagged,
-                                'type'      => 'list',
-                                'text' => $hmatch[0],
-                                'position' => $hmatch[1],
-                                'length' => mb_strlen($hmatch[0]),
-                                'url' => $url);
+            $mentions[] = ['mentioned' => $tagged,
+                           'type'      => 'list',
+                           'text' => $hmatch[0],
+                           'position' => $hmatch[1],
+                           'length' => mb_strlen($hmatch[0]),
+                           'url' => $url];
         }
 
         $hmatches = common_find_mentions_raw($text, '!');
@@ -862,16 +863,16 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
 
             $profile = $group->getProfile();
 
-            $mentions[] = array('mentioned' => array($profile),
-                                'type'      => 'group',
-                                'text'      => $hmatch[0],
-                                'position'  => $hmatch[1],
-                                'length'    => mb_strlen($hmatch[0]),
-                                'url'       => $group->permalink(),
-                                'title'     => $group->getFancyName());
+            $mentions[] = ['mentioned' => [$profile],
+                           'type'      => 'group',
+                           'text'      => $hmatch[0],
+                           'position'  => $hmatch[1],
+                           'length'    => mb_strlen($hmatch[0]),
+                           'url'       => $group->permalink(),
+                           'title'     => $group->getFancyName()];
         }
 
-        Event::handle('EndFindMentions', array($sender, $text, &$mentions));
+        Event::handle('EndFindMentions', [$sender, $text, &$mentions]);
     }
 
     return $mentions;
@@ -887,13 +888,13 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
  */
 function common_find_mentions_raw($text, $preMention='@')
 {
-    $tmatches = array();
+    $tmatches = [];
     preg_match_all('/^T (' . Nickname::DISPLAY_FMT . ') /',
                    $text,
                    $tmatches,
                    PREG_OFFSET_CAPTURE);
 
-    $atmatches = array();
+    $atmatches = [];
     // the regexp's "(?!\@)" makes sure it doesn't matches the single "@remote" in "@remote@server.com"
     preg_match_all('/'.Nickname::BEFORE_MENTIONS.preg_quote($preMention, '/').'(' . Nickname::DISPLAY_FMT . ')\b(?!\@)/',
                    $text,
@@ -911,8 +912,13 @@ function common_render_text($text)
 
     $text = preg_replace('/[\x{0}-\x{8}\x{b}-\x{c}\x{e}-\x{19}]/', '', $text);
     $text = common_replace_urls_callback($text, 'common_linkify');
-    $text = preg_replace_callback('/(^|\&quot\;|\'|\(|\[|\{|\s+)#([\pL\pN_\-\.]{1,64})/u',
-                function ($m) { return "{$m[1]}#".common_tag_link($m[2]); }, $text);
+    $text = preg_replace_callback(
+        '/(^|\&quot\;|\'|\(|\[|\{|\s+)#([\pL\pN_\-\.]{1,64})/u',
+        function ($m) {
+            return "{$m[1]}#".common_tag_link($m[2]);
+        },
+        $text
+    );
     // XXX: machine tags
     return $text;
 }
@@ -925,8 +931,7 @@ define('_URL_SCHEME_COLON_COORDINATES', 8);
 function common_url_schemes($filter=null)
 {
     // TODO: move these to $config
-    $schemes = [
-                'http'      => _URL_SCHEME_COLON_DOUBLE_SLASH,
+    $schemes = ['http'      => _URL_SCHEME_COLON_DOUBLE_SLASH,
                 'https'     => _URL_SCHEME_COLON_DOUBLE_SLASH,
                 'ftp'       => _URL_SCHEME_COLON_DOUBLE_SLASH,
                 'ftps'      => _URL_SCHEME_COLON_DOUBLE_SLASH,
@@ -950,15 +955,15 @@ function common_url_schemes($filter=null)
                 'tel'       => _URL_SCHEME_SINGLE_COLON,
                 'xmpp'      => _URL_SCHEME_SINGLE_COLON,
                 'magnet'    => _URL_SCHEME_NO_DOMAIN,
-                'geo'       => _URL_SCHEME_COLON_COORDINATES,
-                ];
+                'geo'       => _URL_SCHEME_COLON_COORDINATES,];
 
     return array_keys(
-            array_filter($schemes,
-                function ($scheme) use ($filter) {
-                    return is_null($filter) || ($scheme & $filter);
-                })
-            );
+        array_filter(
+            $schemes,
+            function ($scheme) use ($filter) {
+                return is_null($filter) || ($scheme & $filter);
+            })
+    );
 }
 
 /**
@@ -968,7 +973,8 @@ function common_url_schemes($filter=null)
  * @param function($text, $arg) $callback: return replacement text
  * @param mixed $arg: optional argument will be passed on to the callback
  */
-function common_replace_urls_callback($text, $callback, $arg = null) {
+function common_replace_urls_callback($text, $callback, $arg = null)
+{
     $geouri_labeltext_regex = '\pN\pL\-';
     $geouri_mark_regex = '\-\_\.\!\~\*\\\'\(\)';    // the \\\' is really pretty
     $geouri_unreserved_regex = '\pN\pL' . $geouri_mark_regex;
@@ -1035,7 +1041,7 @@ function common_replace_urls_callback($text, $callback, $arg = null) {
     '#ixu';
     //preg_match_all($regex,$text,$matches);
     //print_r($matches);
-    return preg_replace_callback($regex, curry('callback_helper',$callback,$arg) ,$text);
+    return preg_replace_callback($regex, curry('callback_helper', $callback, $arg), $text);
 }
 
 /**
@@ -1049,56 +1055,58 @@ function common_replace_urls_callback($text, $callback, $arg = null) {
  *
  * @access private
  */
-function callback_helper($matches, $callback, $arg=null) {
+function callback_helper($matches, $callback, $arg=null)
+{
     $url=$matches[1];
-    $left = strpos($matches[0],$url);
+    $left = strpos($matches[0], $url);
     $right = $left+strlen($url);
 
-    $groupSymbolSets=array(
-        array(
+    $groupSymbolSets=[
+        [
             'left'=>'(',
             'right'=>')'
-        ),
-        array(
+        ],
+        [
             'left'=>'[',
             'right'=>']'
-        ),
-        array(
+        ],
+        [
             'left'=>'{',
             'right'=>'}'
-        ),
-        array(
+        ],
+        [
             'left'=>'<',
             'right'=>'>'
-        )
-    );
-    $cannotEndWith=array('.','?',',','#');
+        ]
+    ];
+    $cannotEndWith=['.','?',',','#'];
     $original_url=$url;
-    do{
+    do {
         $original_url=$url;
-        foreach($groupSymbolSets as $groupSymbolSet){
-            if(substr($url,-1)==$groupSymbolSet['right']){
-                $group_left_count = substr_count($url,$groupSymbolSet['left']);
-                $group_right_count = substr_count($url,$groupSymbolSet['right']);
-                if($group_left_count<$group_right_count){
+        foreach ($groupSymbolSets as $groupSymbolSet) {
+            if (substr($url, -1)==$groupSymbolSet['right']) {
+                $group_left_count = substr_count($url, $groupSymbolSet['left']);
+                $group_right_count = substr_count($url, $groupSymbolSet['right']);
+                if ($group_left_count<$group_right_count) {
                     $right-=1;
-                    $url=substr($url,0,-1);
+                    $url=substr($url, 0, -1);
                 }
             }
         }
-        if(in_array(substr($url,-1),$cannotEndWith)){
+        if (in_array(substr($url, -1), $cannotEndWith)) {
             $right-=1;
-            $url=substr($url,0,-1);
+            $url=substr($url, 0, -1);
         }
-    }while($original_url!=$url);
+    } while ($original_url!=$url);
 
-    $result = call_user_func_array($callback, array($url, $arg));
-    return substr($matches[0],0,$left) . $result . substr($matches[0],$right);
+    $result = call_user_func_array($callback, [$url, $arg]);
+    return substr($matches[0], 0, $left) . $result . substr($matches[0], $right);
 }
 
 require_once INSTALLDIR . "/lib/curry.php";
 
-function common_linkify($url) {
+function common_linkify($url)
+{
     // It comes in special'd, so we unspecial it before passing to the stringifying
     // functions
     $url = htmlspecialchars_decode($url);
@@ -1111,15 +1119,15 @@ function common_linkify($url) {
         $canon = File_redirection::_canonUrl($url);
         $longurl_data = File_redirection::where($canon, common_config('attachments', 'process_links'));
         
-        if(isset($longurl_data->redir_url)) {
-			$longurl = $longurl_data->redir_url;
+        if (isset($longurl_data->redir_url)) {
+            $longurl = $longurl_data->redir_url;
         } else {
             // e.g. local files
-	        $longurl = $longurl_data->url;
+            $longurl = $longurl_data->url;
         }
     }
     
-    $attrs = array('href' => $longurl, 'title' => $longurl);
+    $attrs = ['href' => $longurl, 'title' => $longurl];
 
     $is_attachment = false;
     $attachment_id = null;
@@ -1200,9 +1208,9 @@ function common_shorten_links($text, $always = false, User $user=null)
     $maxLength = User_urlshortener_prefs::maxNoticeLength($user);
 
     if ($always || ($maxLength != -1 && mb_strlen($text) > $maxLength)) {
-        return common_replace_urls_callback($text, array('File_redirection', 'forceShort'), $user);
+        return common_replace_urls_callback($text, ['File_redirection', 'forceShort'], $user);
     } else {
-        return common_replace_urls_callback($text, array('File_redirection', 'makeShort'), $user);
+        return common_replace_urls_callback($text, ['File_redirection', 'makeShort'], $user);
     }
 }
 
@@ -1236,21 +1244,17 @@ function common_validate_utf8($str)
 function common_xml_safe_str($str)
 {
     // Replace common eol and extra whitespace input chars
-    $unWelcome = array(
-        "\t",  // tab
-        "\n",  // newline
-        "\r",  // cr
-        "\0",  // null byte eos
-        "\x0B" // vertical tab
-    );
+    $unWelcome = ["\t",    // tab
+                  "\n",    // newline
+                  "\r",    // cr
+                  "\0",    // null byte eos
+                  "\x0B"]; // vertical tab
 
-    $replacement = array(
-        ' ', // single space
-        ' ',
-        '',  // nothing
-        '',
-        ' '
-    );
+    $replacement = [' ', // single space
+                    ' ',
+                    '',  // nothing
+                    '',
+                    ' '];
 
     $str = str_replace($unWelcome, $replacement, $str);
 
@@ -1268,15 +1272,14 @@ function common_slugify($str)
         $str = substr($str, 0, 64);
         return $str;
     }
-    $str = transliterator_transliterate(
-                        'Any-Latin;' .      // any charset to latin compatible
-                            'NFD;' .        // decompose
-                            '[:Nonspacing Mark:] Remove;' . // remove nonspacing marks (accents etc.)
-                            'NFC;' .        // composite again
-                            '[:Punctuation:] Remove;' . // remove punctuation (.,¿? etc.)
-                            'Lower();' .    // turn into lowercase
-                            'Latin-ASCII;',  // get ASCII equivalents (ð to d for example)
-                        $str);
+    $str = transliterator_transliterate('Any-Latin;' .                  // any charset to latin compatible
+                                        'NFD;' .                        // decompose
+                                        '[:Nonspacing Mark:] Remove;' . // remove nonspacing marks (accents etc.)
+                                        'NFC;' .                        // composite again
+                                        '[:Punctuation:] Remove;' .     // remove punctuation (.,¿? etc.)
+                                        'Lower();' .                    // turn into lowercase
+                                        'Latin-ASCII;',                 // get ASCII equivalents (ð to d for example)
+                                        $str);
     return preg_replace('/[^\pL\pN]/', '', $str);
 }
 
@@ -1286,17 +1289,13 @@ function common_tag_link($tag)
     if (common_config('singleuser', 'enabled')) {
         // regular TagAction isn't set up in 1user mode
         $nickname = User::singleUserNickname();
-        $url = common_local_url('showstream',
-                                array('nickname' => $nickname,
-                                      'tag' => $canonical));
+        $url = common_local_url('showstream', ['nickname' => $nickname, 'tag' => $canonical]);
     } else {
-        $url = common_local_url('tag', array('tag' => $canonical));
+        $url = common_local_url('tag', ['tag' => $canonical]);
     }
     $xs = new XMLStringer();
     $xs->elementStart('span', 'tag');
-    $xs->element('a', array('href' => $url,
-                            'rel' => 'tag'),
-                 $tag);
+    $xs->element('a', ['href' => $url, 'rel' => 'tag'], $tag);
     $xs->elementEnd('span');
     return $xs->getString();
 }
@@ -1375,13 +1374,13 @@ function common_relative_profile($sender, $nickname, $dt=null)
 
 function common_local_url($action, $args=null, $params=null, $fragment=null, $addSession=true)
 {
-    if (Event::handle('StartLocalURL', array(&$action, &$params, &$fragment, &$addSession, &$url))) {
+    if (Event::handle('StartLocalURL', [&$action, &$params, &$fragment, &$addSession, &$url])) {
         $r = Router::get();
         $path = $r->build($action, $args, $params, $fragment);
 
         $ssl = GNUsocial::useHTTPS();
 
-        if (common_config('site','fancy')) {
+        if (common_config('site', 'fancy')) {
             $url = common_path($path, $ssl, $addSession);
         } else {
             if (mb_strpos($path, '/index.php') === 0) {
@@ -1390,7 +1389,7 @@ function common_local_url($action, $args=null, $params=null, $fragment=null, $ad
                 $url = common_path('index.php/'.$path, $ssl, $addSession);
             }
         }
-        Event::handle('EndLocalURL', array(&$action, &$params, &$fragment, &$addSession, &$url));
+        Event::handle('EndLocalURL', [&$action, &$params, &$fragment, &$addSession, &$url]);
     }
     return $url;
 }
@@ -1404,7 +1403,7 @@ function common_path($relative, $ssl=false, $addSession=true)
         if (is_string(common_config('site', 'sslserver')) &&
             mb_strlen(common_config('site', 'sslserver')) > 0) {
             $serverpart = common_config('site', 'sslserver');
-        } else if (common_config('site', 'server')) {
+        } elseif (common_config('site', 'server')) {
             $serverpart = common_config('site', 'server');
         } else {
             common_log(LOG_ERR, 'Site server not configured, unable to determine site name.');
@@ -1449,7 +1448,10 @@ function common_fake_local_fancy_url($url)
                 // [3] site path, or if that is empty just '/' (to retain the /)
                 '('.preg_quote(common_config('site', 'path') ?: '/', '/').')' .
                 // [4] + [5] extract index.php (+ possible leading double /) and the rest of the URL separately.
-                '(\/?index\.php\/)(.*)$/', $url, $matches)) {
+                '(\/?index\.php\/)(.*)$/',
+        $url,
+        $matches
+    )) {
         // if preg_match failed to match
         throw new Exception('No known change could be made to the URL.');
     }
@@ -1481,7 +1483,10 @@ function common_fake_local_nonfancy_url($url)
                 '('.preg_quote(common_config('site', 'path') ?: '/', '/').')' .
                 // [4] should be empty (might contain one or more / and then maybe also index.php). Will be overwritten.
                 // [5] will have the extracted actual URL part (besides site path)
-                '((?!index.php\/)\/*(?:index.php\/)?)(.*)$/', $url, $matches)) {
+                '((?!index.php\/)\/*(?:index.php\/)?)(.*)$/',
+        $url,
+        $matches
+    )) {
         // if preg_match failed to match
         throw new Exception('No known change could be made to the URL.');
     }
@@ -1531,38 +1536,38 @@ function common_date_string($dt)
 
     if ($now < $t) { // that shouldn't happen!
         return common_exact_date($dt);
-    } else if ($diff < 60) {
+    } elseif ($diff < 60) {
         // TRANS: Used in notices to indicate when the notice was made compared to now.
         return _('a few seconds ago');
-    } else if ($diff < 92) {
+    } elseif ($diff < 92) {
         // TRANS: Used in notices to indicate when the notice was made compared to now.
         return _('about a minute ago');
-    } else if ($diff < 3300) {
+    } elseif ($diff < 3300) {
         $minutes = round($diff/60);
         // TRANS: Used in notices to indicate when the notice was made compared to now.
-        return sprintf( _m('about one minute ago', 'about %d minutes ago', $minutes), $minutes);
-    } else if ($diff < 5400) {
+        return sprintf(_m('about one minute ago', 'about %d minutes ago', $minutes), $minutes);
+    } elseif ($diff < 5400) {
         // TRANS: Used in notices to indicate when the notice was made compared to now.
         return _('about an hour ago');
-    } else if ($diff < 22 * 3600) {
+    } elseif ($diff < 22 * 3600) {
         $hours = round($diff/3600);
         // TRANS: Used in notices to indicate when the notice was made compared to now.
-        return sprintf( _m('about one hour ago', 'about %d hours ago', $hours), $hours);
-    } else if ($diff < 37 * 3600) {
+        return sprintf(_m('about one hour ago', 'about %d hours ago', $hours), $hours);
+    } elseif ($diff < 37 * 3600) {
         // TRANS: Used in notices to indicate when the notice was made compared to now.
         return _('about a day ago');
-    } else if ($diff < 24 * 24 * 3600) {
+    } elseif ($diff < 24 * 24 * 3600) {
         $days = round($diff/(24*3600));
         // TRANS: Used in notices to indicate when the notice was made compared to now.
-        return sprintf( _m('about one day ago', 'about %d days ago', $days), $days);
-    } else if ($diff < 46 * 24 * 3600) {
+        return sprintf(_m('about one day ago', 'about %d days ago', $days), $days);
+    } elseif ($diff < 46 * 24 * 3600) {
         // TRANS: Used in notices to indicate when the notice was made compared to now.
         return _('about a month ago');
-    } else if ($diff < 330 * 24 * 3600) {
+    } elseif ($diff < 330 * 24 * 3600) {
         $months = round($diff/(30*24*3600));
         // TRANS: Used in notices to indicate when the notice was made compared to now.
-        return sprintf( _m('about one month ago', 'about %d months ago',$months), $months);
-    } else if ($diff < 480 * 24 * 3600) {
+        return sprintf(_m('about one month ago', 'about %d months ago', $months), $months);
+    } elseif ($diff < 480 * 24 * 3600) {
         // TRANS: Used in notices to indicate when the notice was made compared to now.
         return _('about a year ago');
     } else {
@@ -1643,20 +1648,22 @@ function common_sql_weight($column, $dropoff)
 
 function common_redirect($url, $code=307)
 {
-    static $status = array(301 => "Moved Permanently",
-                           302 => "Found",
-                           303 => "See Other",
-                           307 => "Temporary Redirect");
+    static $status = [301 => "Moved Permanently",
+                      302 => "Found",
+                      303 => "See Other",
+                      307 => "Temporary Redirect"];
 
     header('HTTP/1.1 '.$code.' '.$status[$code]);
     header("Location: $url");
     header("Connection: close");
 
     $xo = new XMLOutputter();
-    $xo->startXML('a',
-                  '-//W3C//DTD XHTML 1.0 Strict//EN',
-                  'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd');
-    $xo->element('a', array('href' => $url), $url);
+    $xo->startXML(
+        'a',
+        '-//W3C//DTD XHTML 1.0 Strict//EN',
+        'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'
+    );
+    $xo->element('a', ['href' => $url], $url);
     $xo->endXML();
     exit;
 }
@@ -1665,9 +1672,9 @@ function common_redirect($url, $code=307)
 
 function common_enqueue_notice($notice)
 {
-    static $localTransports = array('ping');
+    static $localTransports = ['ping'];
 
-    $transports = array();
+    $transports = [];
     if (common_config('sms', 'enabled')) {
         $transports[] = 'sms';
     }
@@ -1680,16 +1687,14 @@ function common_enqueue_notice($notice)
         $transports = array_merge($transports, $localTransports);
     }
 
-    if (Event::handle('StartEnqueueNotice', array($notice, &$transports))) {
-
+    if (Event::handle('StartEnqueueNotice', [$notice, &$transports])) {
         $qm = QueueManager::get();
 
-        foreach ($transports as $transport)
-        {
+        foreach ($transports as $transport) {
             $qm->enqueue($notice, $transport);
         }
 
-        Event::handle('EndEnqueueNotice', array($notice, $transports));
+        Event::handle('EndEnqueueNotice', [$notice, $transports]);
     }
 
     return true;
@@ -1697,8 +1702,11 @@ function common_enqueue_notice($notice)
 
 function common_profile_url($nickname)
 {
-    return common_local_url('showstream', array('nickname' => $nickname),
-                            null, null, false);
+    return common_local_url('showstream',
+                            ['nickname' => $nickname],
+                            null,
+                            null,
+                            false);
 }
 
 /**
@@ -1810,16 +1818,19 @@ function common_ensure_syslog()
 {
     static $initialized = false;
     if (!$initialized) {
-        openlog(common_config('syslog', 'appname'), 0,
-            common_config('syslog', 'facility'));
+        openlog(
+            common_config('syslog', 'appname'),
+            0,
+            common_config('syslog', 'facility')
+        );
         $initialized = true;
     }
 }
 
 function common_log_line($priority, $msg)
 {
-    static $syslog_priorities = array('LOG_EMERG', 'LOG_ALERT', 'LOG_CRIT', 'LOG_ERR',
-                                      'LOG_WARNING', 'LOG_NOTICE', 'LOG_INFO', 'LOG_DEBUG');
+    static $syslog_priorities = ['LOG_EMERG', 'LOG_ALERT', 'LOG_CRIT', 'LOG_ERR',
+                                 'LOG_WARNING', 'LOG_NOTICE', 'LOG_INFO', 'LOG_DEBUG'];
     return date('Y-m-d H:i:s') . ' ' . $syslog_priorities[$priority] . ': ' . $msg . PHP_EOL;
 }
 
@@ -1845,8 +1856,8 @@ function common_request_id()
 
 function common_log($priority, $msg, $filename=null)
 {
-    if(Event::handle('StartLog', array(&$priority, &$msg, &$filename))){
-	$msg = (empty($filename)) ? $msg : basename($filename) . ' - ' . $msg;
+    if (Event::handle('StartLog', [&$priority, &$msg, &$filename])) {
+        $msg = (empty($filename)) ? $msg : basename($filename) . ' - ' . $msg;
         $msg = '[' . common_request_id() . '] ' . $msg;
         $logfile = common_config('site', 'logfile');
         if ($logfile) {
@@ -1860,7 +1871,7 @@ function common_log($priority, $msg, $filename=null)
             common_ensure_syslog();
             syslog($priority, $msg);
         }
-        Event::handle('EndLog', array($priority, $msg, $filename));
+        Event::handle('EndLog', [$priority, $msg, $filename]);
     }
 }
 
@@ -1878,7 +1889,7 @@ function common_log_db_error(&$object, $verb, $filename=null)
     global $_PEAR;
 
     $objstr = common_log_objstring($object);
-    $last_error = &$_PEAR->getStaticProperty('DB_DataObject','lastError');
+    $last_error = &$_PEAR->getStaticProperty('DB_DataObject', 'lastError');
     if (is_object($last_error)) {
         $msg = $last_error->message;
     } else {
@@ -1896,7 +1907,7 @@ function common_log_objstring(&$object)
         return "(unknown)";
     }
     $arr = $object->toArray();
-    $fields = array();
+    $fields = [];
     foreach ($arr as $k => $v) {
         if (is_object($v)) {
             $fields[] = "$k='".get_class($v)."'";
@@ -1942,7 +1953,9 @@ function common_valid_domain($domain)
 {
     $octet = "(?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])";
     $ipv4 = "(?:$octet(?:\.$octet){3})";
-    if (preg_match("/^$ipv4$/u", $domain)) return true;
+    if (preg_match("/^$ipv4$/u", $domain)) {
+        return true;
+    }
 
     $group = "(?:[0-9a-f]{1,4})";
     $ipv6 = "(?:\[($group(?::$group){0,7})?(::)?($group(?::$group){0,7})?\])"; // http://tools.ietf.org/html/rfc3513#section-2.2
@@ -1985,21 +1998,21 @@ function common_valid_domain($domain)
 function common_accept_to_prefs($accept, $def = '*/*')
 {
     // No arg means accept anything (per HTTP spec)
-    if(!$accept) {
-        return array($def => 1);
+    if (!$accept) {
+        return [$def => 1];
     }
 
-    $prefs = array();
+    $prefs = [];
 
     $parts = explode(',', $accept);
 
-    foreach($parts as $part) {
+    foreach ($parts as $part) {
         // FIXME: doesn't deal with params like 'text/html; level=1'
         @list($value, $qpart) = explode(';', trim($part));
-        $match = array();
-        if(!isset($qpart)) {
+        $match = [];
+        if (!isset($qpart)) {
             $prefs[$value] = 1;
-        } elseif(preg_match('/q\s*=\s*(\d*\.\d+)/', $qpart, $match)) {
+        } elseif (preg_match('/q\s*=\s*(\d*\.\d+)/', $qpart, $match)) {
             $prefs[$value] = $match[1];
         }
     }
@@ -2026,7 +2039,7 @@ function common_supported_ext_to_mime($fileext)
         // FIXME: Should we just accept the extension straight off when supported === true?
         throw new UnknownExtensionMimeException($fileext);
     }
-    foreach($supported as $type => $ext) {
+    foreach ($supported as $type => $ext) {
         if ($ext === $fileext) {
             return $type;
         }
@@ -2040,7 +2053,7 @@ function common_supported_mime_to_ext($mimetype)
 {
     $supported = common_config('attachments', 'supported');
     if (is_array($supported)) {
-        foreach($supported as $type => $ext) {
+        foreach ($supported as $type => $ext) {
             if ($mimetype === $type) {
                 return $ext;
             }
@@ -2069,13 +2082,13 @@ function common_bare_mime($mimetype)
 
 function common_mime_type_match($type, $avail)
 {
-    if(array_key_exists($type, $avail)) {
+    if (array_key_exists($type, $avail)) {
         return $type;
     } else {
         $parts = explode('/', $type);
-        if(array_key_exists($parts[0] . '/*', $avail)) {
+        if (array_key_exists($parts[0] . '/*', $avail)) {
             return $parts[0] . '/*';
-        } elseif(array_key_exists('*/*', $avail)) {
+        } elseif (array_key_exists('*/*', $avail)) {
             return '*/*';
         } else {
             return null;
@@ -2085,23 +2098,23 @@ function common_mime_type_match($type, $avail)
 
 function common_negotiate_type($cprefs, $sprefs)
 {
-    $combine = array();
+    $combine = [];
 
-    foreach(array_keys($sprefs) as $type) {
+    foreach (array_keys($sprefs) as $type) {
         $parts = explode('/', $type);
-        if($parts[1] != '*') {
+        if ($parts[1] != '*') {
             $ckey = common_mime_type_match($type, $cprefs);
-            if($ckey) {
+            if ($ckey) {
                 $combine[$type] = $sprefs[$type] * $cprefs[$ckey];
             }
         }
     }
 
-    foreach(array_keys($cprefs) as $type) {
+    foreach (array_keys($cprefs) as $type) {
         $parts = explode('/', $type);
-        if($parts[1] != '*' && !array_key_exists($type, $sprefs)) {
+        if ($parts[1] != '*' && !array_key_exists($type, $sprefs)) {
             $skey = common_mime_type_match($type, $sprefs);
-            if($skey) {
+            if ($skey) {
                 $combine[$type] = $sprefs[$skey] * $cprefs[$type];
             }
         }
@@ -2110,8 +2123,8 @@ function common_negotiate_type($cprefs, $sprefs)
     $bestq = 0;
     $besttype = 'text/html';
 
-    foreach(array_keys($combine) as $type) {
-        if($combine[$type] > $bestq) {
+    foreach (array_keys($combine) as $type) {
+        if ($combine[$type] > $bestq) {
             $besttype = $type;
             $bestq = $combine[$type];
         }
@@ -2128,7 +2141,7 @@ function common_config($main, $sub=null)
     global $config;
     if (is_null($sub)) {
         // Return the config category array
-        return array_key_exists($main, $config) ? $config[$main] : array();
+        return array_key_exists($main, $config) ? $config[$main] : [];
     }
     // Return the config value
     return (array_key_exists($main, $config) &&
@@ -2139,7 +2152,7 @@ function common_config_set($main, $sub, $value)
 {
     global $config;
     if (!array_key_exists($main, $config)) {
-        $config[$main] = array();
+        $config[$main] = [];
     }
     $config[$main][$sub] = $value;
 }
@@ -2148,13 +2161,13 @@ function common_config_append($main, $sub, $value)
 {
     global $config;
     if (!array_key_exists($main, $config)) {
-        $config[$main] = array();
+        $config[$main] = [];
     }
     if (!array_key_exists($sub, $config[$main])) {
-        $config[$main][$sub] = array();
+        $config[$main][$sub] = [];
     }
     if (!is_array($config[$main][$sub])) {
-        $config[$main][$sub] = array($config[$main][$sub]);
+        $config[$main][$sub] = [$config[$main][$sub]];
     }
     array_push($config[$main][$sub], $value);
 }
@@ -2168,10 +2181,10 @@ function common_config_append($main, $sub, $value)
  */
 function common_copy_args($from)
 {
-    $to = array();
+    $to = [];
     $strip = get_magic_quotes_gpc();
     foreach ($from as $k => $v) {
-        if(is_array($v)) {
+        if (is_array($v)) {
             $to[$k] = common_copy_args($v);
         } else {
             if ($strip) {
@@ -2191,16 +2204,19 @@ function common_copy_args($from)
  */
 function common_remove_magic_from_request()
 {
-    if(get_magic_quotes_gpc()) {
-        $_POST=array_map('stripslashes',$_POST);
-        $_GET=array_map('stripslashes',$_GET);
+    if (get_magic_quotes_gpc()) {
+        $_POST=array_map('stripslashes', $_POST);
+        $_GET=array_map('stripslashes', $_GET);
     }
 }
 
 function common_user_uri(&$user)
 {
-    return common_local_url('userbyid', array('id' => $user->id),
-                            null, null, false);
+    return common_local_url('userbyid',
+                            ['id' => $user->id],
+                            null,
+                            null,
+                            false);
 }
 
 // 36 alphanums - lookalikes (0, O, 1, I) = 32 chars = 5 bits
@@ -2229,7 +2245,7 @@ function common_markup_to_html($c, $args=null)
     }
 
     if (is_null($args)) {
-        $args = array();
+        $args = [];
     }
 
     // XXX: not very efficient
@@ -2238,10 +2254,18 @@ function common_markup_to_html($c, $args=null)
         $c = preg_replace('/%%arg.'.$name.'%%/', $value, $c);
     }
 
-    $c = preg_replace_callback('/%%user.(\w+)%%/', function ($m) { return common_user_property($m[1]); }, $c);
-    $c = preg_replace_callback('/%%action.(\w+)%%/', function ($m) { return common_local_url($m[1]); }, $c);
-    $c = preg_replace_callback('/%%doc.(\w+)%%/', function ($m) { return common_local_url('doc', array('title'=>$m[1])); }, $c);
-    $c = preg_replace_callback('/%%(\w+).(\w+)%%/', function ($m) { return common_config($m[1], $m[2]); }, $c);
+    $c = preg_replace_callback('/%%user.(\w+)%%/', function ($m) {
+        return common_user_property($m[1]);
+    }, $c);
+    $c = preg_replace_callback('/%%action.(\w+)%%/', function ($m) {
+        return common_local_url($m[1]);
+    }, $c);
+    $c = preg_replace_callback('/%%doc.(\w+)%%/', function ($m) {
+        return common_local_url('doc', ['title'=>$m[1]]);
+    }, $c);
+    $c = preg_replace_callback('/%%(\w+).(\w+)%%/', function ($m) {
+        return common_config($m[1], $m[2]);
+    }, $c);
 
     return \Michelf\Markdown::defaultTransform($c);
 }
@@ -2282,12 +2306,12 @@ function common_profile_uri($profile)
     $uri = null;
 
     if (!empty($profile)) {
-        if (Event::handle('StartCommonProfileURI', array($profile, &$uri))) {
+        if (Event::handle('StartCommonProfileURI', [$profile, &$uri])) {
             $user = User::getKV('id', $profile->id);
             if ($user instanceof User) {
                 $uri = $user->getUri();
             }
-            Event::handle('EndCommonProfileURI', array($profile, &$uri));
+            Event::handle('EndCommonProfileURI', [$profile, &$uri]);
         }
     }
 
@@ -2356,22 +2380,22 @@ function common_session_token()
 
 function common_license_terms($uri)
 {
-    if(preg_match('/creativecommons.org\/licenses\/([^\/]+)/', $uri, $matches)) {
-        return explode('-',$matches[1]);
+    if (preg_match('/creativecommons.org\/licenses\/([^\/]+)/', $uri, $matches)) {
+        return explode('-', $matches[1]);
     }
-    return array($uri);
+    return [$uri];
 }
 
 function common_compatible_license($from, $to)
 {
     $from_terms = common_license_terms($from);
     // public domain and cc-by are compatible with everything
-    if(count($from_terms) == 1 && ($from_terms[0] == 'publicdomain' || $from_terms[0] == 'by')) {
+    if (count($from_terms) == 1 && ($from_terms[0] == 'publicdomain' || $from_terms[0] == 'by')) {
         return true;
     }
     $to_terms = common_license_terms($to);
     // sa is compatible across versions. IANAL
-    if(in_array('sa',$from_terms) || in_array('sa',$to_terms)) {
+    if (in_array('sa', $from_terms) || in_array('sa', $to_terms)) {
         return count(array_diff($from_terms, $to_terms)) == 0;
     }
     // XXX: better compatibility check needed here!
@@ -2384,11 +2408,11 @@ function common_compatible_license($from, $to)
  */
 function common_database_tablename($tablename)
 {
-  if(common_config('db','quote_identifiers')) {
-      $tablename = '"'. $tablename .'"';
-  }
-  //table prefixes could be added here later
-  return $tablename;
+    if (common_config('db', 'quote_identifiers')) {
+        $tablename = '"'. $tablename .'"';
+    }
+    //table prefixes could be added here later
+    return $tablename;
 }
 
 /**
@@ -2419,12 +2443,14 @@ function common_shorten_url($long_url, User $user=null, $force = false)
 
     $shortenerName = User_urlshortener_prefs::urlShorteningService($user);
 
-    if (Event::handle('StartShortenUrl',
-                      array($long_url, $shortenerName, &$shortenedUrl))) {
+    if (Event::handle(
+        'StartShortenUrl',
+        [$long_url, $shortenerName, &$shortenedUrl]
+    )) {
         if ($shortenerName == 'internal') {
             try {
                 $f = File::processNew($long_url);
-                $shortenedUrl = common_local_url('redirecturl', array('id' => $f->id));
+                $shortenedUrl = common_local_url('redirecturl', ['id' => $f->id]);
                 if ((mb_strlen($shortenedUrl) < mb_strlen($long_url)) || $force) {
                     return $shortenedUrl;
                 } else {
@@ -2474,12 +2500,12 @@ function common_client_ip()
         }
     }
 
-    return array($proxy, $ip);
+    return [$proxy, $ip];
 }
 
 function common_url_to_nickname($url)
 {
-    static $bad = array('query', 'user', 'password', 'port', 'fragment');
+    static $bad = ['query', 'user', 'password', 'port', 'fragment'];
 
     $parts = parse_url($url);
 
@@ -2495,16 +2521,14 @@ function common_url_to_nickname($url)
 
     // If it's just a host...
     if (array_key_exists('host', $parts) &&
-        (!array_key_exists('path', $parts) || strcmp($parts['path'], '/') == 0))
-    {
+        (!array_key_exists('path', $parts) || strcmp($parts['path'], '/') == 0)) {
         $hostparts = explode('.', $parts['host']);
 
         // Try to catch common idiom of nickname.service.tld
 
         if ((count($hostparts) > 2) &&
             (strlen($hostparts[count($hostparts) - 2]) > 3) && # try to skip .co.uk, .com.au
-            (strcmp($hostparts[0], 'www') != 0))
-        {
+            (strcmp($hostparts[0], 'www') != 0)) {
             return common_nicknamize($hostparts[0]);
         } else {
             // Do the whole hostname
@@ -2551,7 +2575,7 @@ function common_perf_counter($key, $val=null)
             if (array_key_exists($key, $_perfCounters)) {
                 $_perfCounters[$key][] = $val;
             } else {
-                $_perfCounters[$key] = array($val);
+                $_perfCounters[$key] = [$val];
             }
             if (common_config('site', 'logperf_detail')) {
                 common_log(LOG_DEBUG, "PERF COUNTER HIT: $key $val");
@@ -2616,7 +2640,7 @@ function common_log_delta($comment=null)
 function common_strip_html($html, $trim=true, $save_whitespace=false)
 {
     // first replace <br /> with \n
-    $html = preg_replace('/\<(\s*)?br(\s*)?\/?(\s*)?\>/i', "\n", $html); 
+    $html = preg_replace('/\<(\s*)?br(\s*)?\/?(\s*)?\>/i', "\n", $html);
     // then, unless explicitly avoided, remove excessive whitespace
     if (!$save_whitespace) {
         $html = preg_replace('/\s+/', ' ', $html);
