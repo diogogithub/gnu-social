@@ -275,12 +275,12 @@ function common_have_session()
     return (0 != strcmp(session_id(), ''));
 }
 
+/**
+ * Make sure session is started and handled by
+ * the correct handler.
+ */
 function common_ensure_session()
 {
-    $c = null;
-    if (array_key_exists(session_name(), $_COOKIE)) {
-        $c = $_COOKIE[session_name()];
-    }
     if (!common_have_session()) {
         if (common_config('sessions', 'handle')) {
             session_set_save_handler(new InternalSessionHandler(), true);
@@ -293,7 +293,7 @@ function common_ensure_session()
         if (isset($id)) {
             session_id($id);
         }
-        @session_start();
+        session_start();
         if (!isset($_SESSION['started'])) {
             $_SESSION['started'] = time();
             if (!empty($id)) {
