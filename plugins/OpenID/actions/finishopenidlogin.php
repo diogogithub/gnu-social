@@ -25,17 +25,17 @@ require_once INSTALLDIR.'/plugins/OpenID/openid.php';
 
 class FinishopenidloginAction extends Action
 {
-    var $error = null;
-    var $username = null;
-    var $message = null;
+    public $error = null;
+    public $username = null;
+    public $message = null;
 
-    function handle()
+    public function handle()
     {
         parent::handle();
         if (common_is_real_login()) {
             // TRANS: Client error message trying to log on with OpenID while already logged on.
             $this->clientError(_m('Already logged in.'));
-        } else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        } elseif ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $token = $this->trimmed('token');
             if (!$token || $token != common_session_token()) {
                 // TRANS: Message given when there is a problem with the user's session token.
@@ -45,27 +45,31 @@ class FinishopenidloginAction extends Action
             if ($this->arg('create')) {
                 if (!$this->boolean('license')) {
                     // TRANS: Message given if user does not agree with the site's license.
-                    $this->showForm(_m('You cannot register if you do not agree to the license.'),
-                                    $this->trimmed('newname'));
+                    $this->showForm(
+                        _m('You cannot register if you do not agree to the license.'),
+                        $this->trimmed('newname')
+                    );
                     return;
                 }
                 $this->createNewUser();
-            } else if ($this->arg('connect')) {
+            } elseif ($this->arg('connect')) {
                 $this->connectUser();
             } else {
                 // TRANS: Messag given on an unknown error.
-                $this->showForm(_m('An unknown error has occured.'),
-                                $this->trimmed('newname'));
+                $this->showForm(
+                    _m('An unknown error has occured.'),
+                    $this->trimmed('newname')
+                );
             }
         } else {
             $this->tryLogin();
         }
     }
 
-    function showPageNotice()
+    public function showPageNotice()
     {
         if ($this->error) {
-            $this->element('div', array('class' => 'error'), $this->error);
+            $this->element('div', ['class' => 'error'], $this->error);
         } else {
             $this->element('div', 'instructions',
                            // TRANS: Instructions given after a first successful logon using OpenID.
@@ -74,13 +78,13 @@ class FinishopenidloginAction extends Action
         }
     }
 
-    function title()
+    public function title()
     {
         // TRANS: Title
-        return _m('TITLE','OpenID Account Setup');
+        return _m('TITLE', 'OpenID Account Setup');
     }
 
-    function showForm($error=null, $username=null)
+    public function showForm($error=null, $username=null)
     {
         $this->error = $error;
         $this->username = $username;
@@ -93,10 +97,10 @@ class FinishopenidloginAction extends Action
      * Should probably be replaced with an extensible mini version of
      * the core registration form.
      */
-    function showContent()
+    public function showContent()
     {
         if (!empty($this->message_text)) {
-            $this->element('div', array('class' => 'error'), $this->message_text);
+            $this->element('div', ['class' => 'error'], $this->message_text);
             return;
         }
 
@@ -107,12 +111,12 @@ class FinishopenidloginAction extends Action
         // info. The profile will be pre-populated with whatever name,
         // email, and location we can get from the OpenID provider, so
         // all we ask for is the license confirmation.
-        $this->elementStart('form', array('method' => 'post',
-                                          'id' => 'account_create',
-                                          'class' => 'form_settings',
-                                          'action' => common_local_url('finishopenidlogin')));
+        $this->elementStart('form', ['method' => 'post',
+                                     'id' => 'account_create',
+                                     'class' => 'form_settings',
+                                     'action' => common_local_url('finishopenidlogin')]);
         $this->hidden('token', common_session_token());
-        $this->elementStart('fieldset', array('id' => 'form_openid_createaccount'));
+        $this->elementStart('fieldset', ['id' => 'form_openid_createaccount']);
         $this->element('legend', null,
                        // TRANS: Fieldset legend.
                        _m('Create new account'));
@@ -122,39 +126,41 @@ class FinishopenidloginAction extends Action
         $this->elementStart('ul', 'form_data');
 
         // Hook point for captcha etc
-        Event::handle('StartRegistrationFormData', array($this));
+        Event::handle('StartRegistrationFormData', [$this]);
 
         $this->elementStart('li');
         // TRANS: Field label.
-        $this->input('newname', _m('New nickname'),
+        $this->input('newname',
+                     _m('New nickname'),
                      ($this->username) ? $this->username : '',
                      // TRANS: Field title.
                      _m('1-64 lowercase letters or numbers, no punctuation or spaces.'));
         $this->elementEnd('li');
         $this->elementStart('li');
         // TRANS: Field label.
-        $this->input('email', _m('Email'), $this->getEmail(),
+        $this->input('email', _m('Email'),
+                     $this->getEmail(),
                      // TRANS: Field title.
                      _m('Used only for updates, announcements, '.
-                       'and password recovery.'));
+                        'and password recovery.'));
         $this->elementEnd('li');
 
         // Hook point for captcha etc
-        Event::handle('EndRegistrationFormData', array($this));
+        Event::handle('EndRegistrationFormData', [$this]);
 
         $this->elementStart('li');
-        $this->element('input', array('type' => 'checkbox',
-                                      'id' => 'license',
-                                      'class' => 'checkbox',
-                                      'name' => 'license',
-                                      'value' => 'true'));
-        $this->elementStart('label', array('for' => 'license',
-                                          'class' => 'checkbox'));
+        $this->element('input', ['type' => 'checkbox',
+                                 'id' => 'license',
+                                 'class' => 'checkbox',
+                                 'name' => 'license',
+                                 'value' => 'true']);
+        $this->elementStart('label', ['for' => 'license',
+                                      'class' => 'checkbox']);
         // TRANS: OpenID plugin link text.
         // TRANS: %s is a link to a license with the license name as link text.
         $message = _m('My text and files are available under %s ' .
-                     'except this private data: password, ' .
-                     'email address, IM address, and phone number.');
+                      'except this private data: password, ' .
+                      'email address, IM address, and phone number.');
         $link = '<a href="' .
                 htmlspecialchars(common_config('license', 'url')) .
                 '">' .
@@ -171,12 +177,12 @@ class FinishopenidloginAction extends Action
 
         // The second option is to attach this OpenID to an existing account
         // on the local system, which they need to provide a password for.
-        $this->elementStart('form', array('method' => 'post',
-                                          'id' => 'account_connect',
-                                          'class' => 'form_settings',
-                                          'action' => common_local_url('finishopenidlogin')));
+        $this->elementStart('form', ['method' => 'post',
+                                     'id' => 'account_connect',
+                                     'class' => 'form_settings',
+                                     'action' => common_local_url('finishopenidlogin')]);
         $this->hidden('token', common_session_token());
-        $this->elementStart('fieldset', array('id' => 'form_openid_createaccount'));
+        $this->elementStart('fieldset', ['id' => 'form_openid_createaccount']);
         $this->element('legend', null,
                        // TRANS: Used as form legend for form in which to connect an OpenID to an existing user on the site.
                        _m('Connect existing account'));
@@ -192,6 +198,11 @@ class FinishopenidloginAction extends Action
         // TRANS: Field label in form in which to connect an OpenID to an existing user on the site.
         $this->password('password', _m('Password'));
         $this->elementEnd('li');
+        $this->elementStart('li');
+        // TRANS: Field label in form in which to connect an OpenID to an existing user on the site.
+        $this->checkbox('openid-sync', _m('Sync Account'), false,
+                        _m('Syncronize GNU social profile with this OpenID identity.'));
+        $this->elementEnd('li');
         $this->elementEnd('ul');
         // TRANS: Button text in form in which to connect an OpenID to an existing user on the site.
         $this->submit('connect', _m('BUTTON', 'Connect'));
@@ -205,7 +216,7 @@ class FinishopenidloginAction extends Action
      *
      * @return string
      */
-    function getEmail()
+    public function getEmail()
     {
         $email = $this->trimmed('email');
         if (!empty($email)) {
@@ -232,7 +243,7 @@ class FinishopenidloginAction extends Action
         return '';
     }
 
-    function tryLogin()
+    public function tryLogin()
     {
         $consumer = oid_consumer();
 
@@ -242,10 +253,10 @@ class FinishopenidloginAction extends Action
             // TRANS: Status message in case the response from the OpenID provider is that the logon attempt was cancelled.
             $this->message(_m('OpenID authentication cancelled.'));
             return;
-        } else if ($response->status == Auth_OpenID_FAILURE) {
+        } elseif ($response->status == Auth_OpenID_FAILURE) {
             // TRANS: OpenID authentication failed; display the error message. %s is the error message.
             $this->message(sprintf(_m('OpenID authentication failed: %s.'), $response->message));
-        } else if ($response->status == Auth_OpenID_SUCCESS) {
+        } elseif ($response->status == Auth_OpenID_SUCCESS) {
             // This means the authentication succeeded; extract the
             // identity URL and Simple Registration data (if it was
             // returned).
@@ -290,13 +301,13 @@ class FinishopenidloginAction extends Action
         }
     }
 
-    function message($msg)
+    public function message($msg)
     {
         $this->message_text = $msg;
         $this->showPage();
     }
 
-    function saveValues($display, $canonical, $sreg)
+    public function saveValues($display, $canonical, $sreg)
     {
         common_ensure_session();
         $_SESSION['openid_display'] = $display;
@@ -304,18 +315,18 @@ class FinishopenidloginAction extends Action
         $_SESSION['openid_sreg'] = $sreg;
     }
 
-    function getSavedValues()
+    public function getSavedValues()
     {
-        return array($_SESSION['openid_display'],
-                     $_SESSION['openid_canonical'],
-                     $_SESSION['openid_sreg']);
+        return [$_SESSION['openid_display'],
+                $_SESSION['openid_canonical'],
+                $_SESSION['openid_sreg']];
     }
 
-    function createNewUser()
+    public function createNewUser()
     {
         // FIXME: save invite code before redirect, and check here
 
-        if (!Event::handle('StartRegistrationTry', array($this))) {
+        if (!Event::handle('StartRegistrationTry', [$this])) {
             return;
         }
 
@@ -364,7 +375,7 @@ class FinishopenidloginAction extends Action
             $this->serverError(_m('Creating new account for OpenID that already has a user.'));
         }
 
-        Event::handle('StartOpenIDCreateNewUser', array($canonical, &$sreg));
+        Event::handle('StartOpenIDCreateNewUser', [$canonical, &$sreg]);
 
         $location = '';
         if (!empty($sreg['country'])) {
@@ -388,10 +399,10 @@ class FinishopenidloginAction extends Action
         // XXX: add language
         // XXX: add timezone
 
-        $args = array('nickname' => $nickname,
-                      'email' => $email,
-                      'fullname' => $fullname,
-                      'location' => $location);
+        $args = ['nickname' => $nickname,
+                 'email' => $email,
+                 'fullname' => $fullname,
+                 'location' => $location];
 
         if (!empty($invite)) {
             $args['code'] = $invite->code;
@@ -401,7 +412,7 @@ class FinishopenidloginAction extends Action
 
         $result = oid_link_user($user->id, $canonical, $display);
 
-        Event::handle('EndOpenIDCreateNewUser', array($user, $canonical, $sreg));
+        Event::handle('EndOpenIDCreateNewUser', [$user, $canonical, $sreg]);
 
         oid_set_last($display);
         common_set_user($user);
@@ -411,16 +422,17 @@ class FinishopenidloginAction extends Action
         }
         unset($_SESSION['openid_rememberme']);
 
-        Event::handle('EndRegistrationTry', array($this));
+        Event::handle('EndRegistrationTry', [$this]);
 
-        common_redirect(common_local_url('showstream', array('nickname' => $user->nickname)), 303);
+        common_redirect(common_local_url('showstream', ['nickname' => $user->nickname]), 303);
     }
 
-    function connectUser()
+    public function connectUser()
     {
         $nickname = $this->trimmed('nickname');
         $password = $this->trimmed('password');
-
+        $sync     = $this->boolean('openid-sync');
+        
         if (!common_check_user($nickname, $password)) {
             // TRANS: OpenID plugin message.
             $this->showForm(_m('Invalid username or password.'));
@@ -445,10 +457,12 @@ class FinishopenidloginAction extends Action
             $this->serverError(_m('Error connecting user to OpenID.'));
         }
 
-        if (Event::handle('StartOpenIDUpdateUser', array($user, $canonical, &$sreg))) {
-            oid_update_user($user, $sreg);
+        if ($sync) {
+            if (Event::handle('StartOpenIDUpdateUser', [$user, $canonical, &$sreg])) {
+                oid_update_user($user, $sreg);
+            }
+            Event::handle('EndOpenIDUpdateUser', [$user, $canonical, $sreg]);
         }
-        Event::handle('EndOpenIDUpdateUser', array($user, $canonical, $sreg));
 
         oid_set_last($display);
         common_set_user($user);
@@ -460,22 +474,20 @@ class FinishopenidloginAction extends Action
         $this->goHome($user->nickname);
     }
 
-    function goHome($nickname)
+    public function goHome($nickname)
     {
         $url = common_get_returnto();
         if ($url) {
             // We don't have to return to it again
             common_set_returnto(null);
-	    $url = common_inject_session($url);
+            $url = common_inject_session($url);
         } else {
-            $url = common_local_url('all',
-                                    array('nickname' =>
-                                          $nickname));
+            $url = common_local_url('all', ['nickname' => $nickname]);
         }
         common_redirect($url, 303);
     }
 
-    function bestNewNickname($display, $sreg)
+    public function bestNewNickname($display, $sreg)
     {
         // Try the passed-in nickname
 
@@ -508,7 +520,7 @@ class FinishopenidloginAction extends Action
         return null;
     }
 
-    function openidToNickname($openid)
+    public function openidToNickname($openid)
     {
         if (Auth_Yadis_identifierScheme($openid) == 'XRI') {
             return $this->xriToNickname($openid);
@@ -521,12 +533,12 @@ class FinishopenidloginAction extends Action
     // 1. Plain hostname, like http://evanp.myopenid.com/
     // 2. One element in path, like http://profile.typekey.com/EvanProdromou/
     //    or http://getopenid.com/evanprodromou
-    function urlToNickname($openid)
+    public function urlToNickname($openid)
     {
         return common_url_to_nickname($openid);
     }
 
-    function xriToNickname($xri)
+    public function xriToNickname($xri)
     {
         $base = $this->xriBase($xri);
 
@@ -540,7 +552,7 @@ class FinishopenidloginAction extends Action
         }
     }
 
-    function xriBase($xri)
+    public function xriBase($xri)
     {
         if (substr($xri, 0, 6) == 'xri://') {
             return substr($xri, 6);

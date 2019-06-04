@@ -46,7 +46,7 @@ require_once INSTALLDIR.'/plugins/OpenID/openid.php';
  */
 class FinishaddopenidAction extends Action
 {
-    var $msg = null;
+    public $msg = null;
 
     /**
      * Handle the redirect back from OpenID confirmation
@@ -58,7 +58,7 @@ class FinishaddopenidAction extends Action
      *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
         if (!common_logged_in()) {
@@ -76,7 +76,7 @@ class FinishaddopenidAction extends Action
      *
      * @return void
      */
-    function tryLogin()
+    public function tryLogin()
     {
         $consumer = oid_consumer();
 
@@ -86,13 +86,14 @@ class FinishaddopenidAction extends Action
             // TRANS: Status message in case the response from the OpenID provider is that the logon attempt was cancelled.
             $this->message(_m('OpenID authentication cancelled.'));
             return;
-        } else if ($response->status == Auth_OpenID_FAILURE) {
+        } elseif ($response->status == Auth_OpenID_FAILURE) {
             // TRANS: OpenID authentication failed; display the error message.
             // TRANS: %s is the error message.
-            $this->message(sprintf(_m('OpenID authentication failed: %s.'),
-                                   $response->message));
-        } else if ($response->status == Auth_OpenID_SUCCESS) {
-
+            $this->message(sprintf(
+                _m('OpenID authentication failed: %s.'),
+                $response->message
+            ));
+        } elseif ($response->status == Auth_OpenID_SUCCESS) {
             $display   = $response->getDisplayIdentifier();
             $canonical = ($response->endpoint && $response->endpoint->canonicalID) ?
               $response->endpoint->canonicalID : $display;
@@ -136,17 +137,20 @@ class FinishaddopenidAction extends Action
                 $this->message(_m('Error connecting user.'));
                 return;
             }
-            if (Event::handle('StartOpenIDUpdateUser', array($cur, $canonical, &$sreg))) {
-                if ($sreg) {
+
+            if (isset($_SESSION['openid_sync']) && $_SESSION['openid_sync']) {
+                if (Event::handle('StartOpenIDUpdateUser', [$cur, $canonical, &$sreg])) {
                     if (!oid_update_user($cur, $sreg)) {
                         // TRANS: Message in case the user or the user profile cannot be saved in StatusNet.
                         $this->message(_m('Error updating profile.'));
                         return;
                     }
                 }
+                Event::handle('EndOpenIDUpdateUser', [$cur, $canonical, $sreg]);
             }
-            Event::handle('EndOpenIDUpdateUser', array($cur, $canonical, $sreg));
 
+            unset($_SESSION['openid_sync']);
+            
             // success!
 
             $cur->query('COMMIT');
@@ -166,7 +170,7 @@ class FinishaddopenidAction extends Action
      *
      * @return void
      */
-    function message($msg)
+    public function message($msg)
     {
         $this->message = $msg;
         $this->showPage();
@@ -177,7 +181,7 @@ class FinishaddopenidAction extends Action
      *
      * @return string title
      */
-    function title()
+    public function title()
     {
         // TRANS: Title after getting the status of the OpenID authorisation request.
         return _m('OpenID Login');
@@ -188,7 +192,7 @@ class FinishaddopenidAction extends Action
      *
      * @return void
      */
-    function showPageNotice()
+    public function showPageNotice()
     {
         if ($this->message) {
             $this->element('p', 'error', $this->message);
