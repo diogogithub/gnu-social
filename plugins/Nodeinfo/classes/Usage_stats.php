@@ -43,8 +43,7 @@ class Usage_stats extends Managed_DataObject
             'fields' => [
                 'type' => ['type' => 'varchar', 'length' => 191, 'description' => 'Type of countable entity'],
                 'count' => ['type' => 'int', 'size' => 'int', 'default' => 0, 'description' => 'Number of entities of this type'],
-
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['type'],
             'unique keys' => [

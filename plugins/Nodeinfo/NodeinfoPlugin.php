@@ -6,7 +6,7 @@ if (!defined('GNUSOCIAL')) {
 
 class NodeinfoPlugin extends Plugin
 {
-    const VERSION = '1.0.1';
+    const PLUGIN_VERSION = '1.0.2';
 
     public function onRouterInitialized($m)
     {
@@ -170,7 +170,7 @@ class NodeinfoPlugin extends Plugin
     public function onPluginVersion(array &$versions)
     {
         $versions[] = ['name' => 'Nodeinfo',
-            'version' => self::VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'chimo',
             'homepage' => 'https://github.com/chimo/gs-nodeinfo',
             'description' => _m('Plugin that presents basic instance information using the NodeInfo standard.')];
