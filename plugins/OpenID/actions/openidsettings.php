@@ -108,8 +108,9 @@ class OpenidsettingsAction extends SettingsAction
             $this->elementEnd('li');
             $this->elementStart('li');
             // TRANS: Field label.
-            $this->checkbox('openid-sync', _m('Sync Account'), false,
-                _m('Syncronize GNU social profile with this OpenID identity.'));
+            $this->checkbox('openid-sync', _m('Synchronize Account'), false,
+                            // TRANS: Form guide.
+                            _m('Synchronize GNU social profile with this OpenID identity.'));
             $this->elementEnd('li');
             $this->elementEnd('ul');
             // TRANS: Button text for adding an OpenID URL.
@@ -125,40 +126,55 @@ class OpenidsettingsAction extends SettingsAction
 
         if ($cnt > 0) {
             // TRANS: Header on OpenID settings page.
-            $this->element('h2', null, _m('HEADER', 'Remove OpenID'));
-
+            $this->element('h2', null, _m('HEADER', 'OpenID Actions'));
+            
             if ($cnt == 1 && !$this->scoped->hasPassword()) {
                 $this->element('p', 'form_guide',
                                // TRANS: Form guide.
-                               _m('Removing your only OpenID '.
-                                  'would make it impossible to log in! ' .
-                                  'If you need to remove it, '.
-                                  'add another OpenID first.'));
+                               _m('You can\'t remove your main OpenID account ' .
+                                  'without either adding a password to your ' .
+                                  'GNU social account or another OpenID account. ' .
+                                  'You can synchronize your profile with your ' .
+                                  'OpenID by clicking the button labeled "Synchronize".'));
 
                 if ($oid->fetch()) {
-                    $this->elementStart('p');
+                    $this->elementStart('form', ['method' => 'POST',
+                                                 'id' => 'form_settings_openid_actions' . $idx,
+                                                 'class' => 'form_settings',
+                                                 'action' => common_local_url('openidsettings')]);
+                    $this->elementStart('fieldset');
+                    $this->hidden('token', common_session_token());
                     $this->element('a', ['href' => $oid->canonical], $oid->display);
-                    $this->elementEnd('p');
+                    $this->hidden("openid_url", $oid->canonical);
+                    // TRANS: Button text to sync OpenID with the GS profile.
+                    $this->submit("sync", _m('BUTTON', 'Synchronize'), 'submit sync');
+                    $this->elementEnd('fieldset');
+                    $this->elementEnd('form');
                 }
             } else {
                 $this->element('p', 'form_guide',
                                // TRANS: Form guide.
-                               _m('You can remove an OpenID from your account '.
-                                  'by clicking the button marked "Remove".'));
+                               _m('You can remove an OpenID from your account ' .
+                                  'by clicking the button labeled "Remove". ' .
+                                  'You can synchronize your profile with an OpenID ' .
+                                  'by clicking the button labeled "Synchronize".'));
                 $idx = 0;
 
                 while ($oid->fetch()) {
                     $this->elementStart('form', ['method' => 'POST',
-                                                 'id' => 'form_settings_openid_delete' . $idx,
+                                                 'id' => 'form_settings_openid_actions' . $idx,
                                                  'class' => 'form_settings',
-                                                 'action' =>
-                                                 common_local_url('openidsettings')]);
+                                                 'action' => common_local_url('openidsettings')]);
                     $this->elementStart('fieldset');
                     $this->hidden('token', common_session_token());
                     $this->element('a', ['href' => $oid->canonical], $oid->display);
                     $this->hidden("openid_url{$idx}", $oid->canonical, 'openid_url');
+                    $this->elementStart('span', ['class' => 'element_actions']);
+                    // TRANS: Button text to sync an OpenID with the GS profile.
+                    $this->submit("sync{$idx}", _m('BUTTON', 'Synchronize'), 'submit', 'sync');
                     // TRANS: Button text to remove an OpenID.
-                    $this->submit("remove{$idx}", _m('BUTTON', 'Remove'), 'submit remove', 'remove');
+                    $this->submit("remove{$idx}", _m('BUTTON', 'Remove'), 'submit', 'remove');
+                    $this->elementEnd('span');
                     $this->elementEnd('fieldset');
                     $this->elementEnd('form');
                     $idx++;
@@ -243,6 +259,8 @@ class OpenidsettingsAction extends SettingsAction
             }
         } elseif ($this->arg('remove')) {
             return $this->removeOpenid();
+        } elseif ($this->arg('sync')) {
+            return $this->syncOpenid();
         } elseif ($this->arg('remove_trustroots')) {
             return $this->removeTrustroots();
         } elseif ($this->arg('save_prefs')) {
@@ -303,6 +321,26 @@ class OpenidsettingsAction extends SettingsAction
         $oid->delete();
         // TRANS: Success message after removing an OpenID.
         return _m('OpenID removed.');
+    }
+
+    /**
+     * Handles a request to sync an OpenID to the user's profile
+     *
+     * @return void
+     */
+    public function syncOpenid()
+    {
+        $oid = User_openid::getKV('canonical', $this->trimmed('openid_url'));
+
+        if (!$oid instanceof User_openid) {
+            throw new ClientException(_m('No such OpenID.'));
+        }
+        
+        $result = oid_authenticate($this->trimmed('openid_url'), 'finishsyncopenid');
+        if (is_string($result)) { // error message
+            throw new ServerException($result);
+        }
+        return _m('Synchronized OpenID.');
     }
 
     /**

@@ -50,7 +50,7 @@ if (!defined('STATUSNET')) {
  */
 class OpenIDPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const PLUGIN_VERSION = '2.1.0';
 
     // Plugin parameter: set true to disallow non-OpenID logins
     // If set, overrides the setting in database or $config['site']['openidonly']
@@ -83,6 +83,8 @@ class OpenIDPlugin extends Plugin
                     array('action' => 'finishopenidlogin'));
         $m->connect('index.php?action=finishaddopenid',
                     array('action' => 'finishaddopenid'));
+        $m->connect('index.php?action=finishsyncopenid',
+                    array('action' => 'finishsyncopenid'));
         $m->connect('main/openidserver', array('action' => 'openidserver'));
         $m->connect('panel/openid', array('action' => 'openidadminpanel'));
 

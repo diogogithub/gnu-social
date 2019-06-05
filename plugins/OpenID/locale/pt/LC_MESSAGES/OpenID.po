@@ -3,13 +3,14 @@
 # This file is under https://www.gnu.org/licenses/agpl v3 or later
 # 
 # Translators:
+# Bruno Casteleiro <brunoccast@fc.up.pt>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU social\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-02 17:47+0100\n"
 "PO-Revision-Date: 2015-02-05 16:23+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Last-Translator: Bruno Casteleiro <brunoccast@fc.up.pt>\n"
 "Language-Team: Portuguese (http://www.transifex.com/gnu-social/gnu-social/language/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -197,10 +198,10 @@ msgid "Add"
 msgstr "Adicionar"
 
 #. TRANS: Header on OpenID settings page.
-#: actions/openidsettings.php:133
+#: actions/openidsettings.php:129
 msgctxt "HEADER"
-msgid "Remove OpenID"
-msgstr ""
+msgid "OpenID Actions"
+msgstr "Opções OpenID"
 
 #. TRANS: Form guide.
 #: actions/openidsettings.php:139
@@ -743,3 +744,44 @@ msgstr ""
 #: OpenIDPlugin.php:687
 msgid "OpenID provider"
 msgstr ""
+
+#. TRANS: Field label.
+#: actions/openidsettings.php:111
+msgid "Synchronize Account"
+msgstr "Sincronizar Conta"
+
+#. TRANS: Form guide.
+#: actions/openidsettings.php:113
+msgid "Synchronize GNU social profile with this OpenID identity."
+msgstr "Sincronizar perfil do GNU social com esta identidade OpenID."
+
+#. TRANS: Form guide.
+#: actions/openidsettings.php:134
+msgid ""
+"You can't remove your main OpenID account without either adding a password "
+"to your GNU social account or another OpenID account. You can synchronize "
+"your profile with your OpenID by clicking the button labeled \"Synchronize\"."
+msgstr "Não podes remover a tua única conta OpenID sem primeiro adicionares uma palavra-passe à tua conta do GNU social ou adicionar outra identidade OpenID. Podes sincronizar o teu perfil com o teu OpenID clicando no botão \"Sincronizar\"."
+
+#. TRANS: Button text to sync OpenID with the GS profile.
+#: actions/openidsettings.php:150 actions/openidsettings.php:174
+msgctxt "BUTTON"
+msgid "Sincronizar"
+msgstr "Sincronizar"
+
+#. TRANS: Form guide.
+#: actions/openidsettings.php:157
+msgid ""
+"You can remove an OpenID from your account by clicking the button labeled "
+"\"Remove\". You can synchronize your profile with an OpenID by clicking "
+"the button labeled \"Synchronize\"."
+msgstr "Podes remover uma das tuas contas OpenID clicando no botão \"Remover\". Podes sincronizar o teu perfil com uma conta OpenID clicando no botão \"Sincronizar\"."
+
+#: actions/openidsettings.php:343
+msgid "Synchronized OpenID."
+msgstr "OpenID sincronizado."
+
+#. TRANS: Title
+#: actions/finishsyncopenid:152
+msgid "OpenID Synchronization"
+msgstr "Sincronização OpenID"

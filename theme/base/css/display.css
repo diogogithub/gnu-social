@@ -1359,8 +1359,16 @@ form label.submit {
     font-weight: normal;
 }
 
+.form_settings input.sync {
+    margin-left: 11px;
+}
+
 .form_settings input.remove {
-    margin-left:11px;
+    margin-left: 11px;
+}
+
+.form_settings .element_actions {
+    margin-left: 11px;
 }
 
 .form_settings .form_data li {
