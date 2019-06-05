@@ -4,7 +4,7 @@
  * Copyright (C) 2012, StatusNet, Inc.
  *
  * User_openid_prefs.php
- * 
+ *
  * PHP version 5
  *
  * This program is free software: you can redistribute it and/or modify
@@ -59,26 +59,37 @@ class User_openid_prefs extends Managed_DataObject
 
     public static function schemaDef()
     {
-        return array(
-                     'description' => 'Per-user preferences for OpenID display',
-                     'fields' => array('user_id' => array('type' => 'integer',
-                                                          'not null' => true,
-                                                          'description' => 'User whose prefs we are saving'),
-                                       'hide_profile_link' => array('type' => 'int',
-                                                                    'not null' => true,
-                                                                    'default' => 0,
-                                                                    'description' => 'Whether to hide profile links from profile block'),
-                                       'created' => array('type' => 'datetime',
-                                                          'not null' => true,
-                                                          'description' => 'date this record was created'),
-                                       'modified' => array('type' => 'datetime',
-                                                           'not null' => true,
-                                                           'description' => 'date this record was modified'),
-                                       ),
-                     'primary key' => array('user_id'),
-                     'foreign keys' => array('user_openid_prefs_user_id_fkey' => array('user', array('user_id' => 'id')),
-                                             ),
-                     'indexes' => array(),
-                     );
+        return [
+            'description' => 'Per-user preferences for OpenID display',
+            'fields' => [
+                'user_id' => [
+                    'type'        => 'integer',
+                    'not null'    => true,
+                    'description' => 'User whose prefs we are saving'
+                ],
+                'hide_profile_link' => [
+                    'type'        => 'integer',
+                    'not null'    => true,
+                    'default'     => 0,
+                    'description' => 'Whether to hide profile links from profile block'
+                ],
+                'created'  => [
+                    'type'        => 'datetime',
+                    'not null'    => true,
+                    'description' => 'date this record was created',
+                    'default'     => 'CURRENT_TIMESTAMP'
+                ],
+                'modified' => [
+                    'type'        => 'timestamp',
+                    'not null'    => true,
+                    'description' => 'date this record was modified',
+                    'default'     => 'CURRENT_TIMESTAMP'
+                ],
+            ],
+                'primary key'  => ['user_id'],
+                'foreign keys' => ['user_openid_prefs_user_id_fkey' => ['user', ['user_id' => 'id']],
+            ],
+            'indexes' => [],
+        ];
     }
 }

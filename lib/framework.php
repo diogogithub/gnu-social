@@ -22,7 +22,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 define('GNUSOCIAL_ENGINE', 'GNU social');
 define('GNUSOCIAL_ENGINE_URL', 'https://www.gnu.org/software/social/');
 
-define('GNUSOCIAL_BASE_VERSION', '1.19.1');
+define('GNUSOCIAL_BASE_VERSION', '1.19.2');
 define('GNUSOCIAL_LIFECYCLE', 'rc0'); // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'
 
 define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
