@@ -1,5 +1,5 @@
 # GNU social 1.19.x
-(c) 2010 Free Software Foundation, Inc
+(c) 2010-2019 Free Software Foundation, Inc
 
 This is the README file for GNU social, the free
 software social networking platform. It includes
@@ -124,7 +124,9 @@ branches:
 - master    "stable", usually working well
 - nightly   "unstable", most updates, not always working as expected
 
-To keep it up-to-date, use 'git pull'. Watch for conflicts!
+To keep it up-to-date, use `git pull`. Watch for conflicts!
+
+As in any upgrade, do `not` forget to run `/scripts/upgrade.php`.
 
 ## Further information
 
