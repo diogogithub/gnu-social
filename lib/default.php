@@ -1,10 +1,7 @@
 <?php
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * GNU social - a federating social network
  *
- * Default settings for core configuration
- *
- * PHP version 5
  *
  * LICENCE: This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -22,9 +19,9 @@
  * @category  Config
  * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2008-9 StatusNet, Inc.
+ * @copyright 2008-2009, 2019 Free Software Foundation http://fsf.org
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://www.gnu.org/software/social/
+ * @link      https://www.gnu.org/software/social/
  */
 
 $default =
@@ -253,11 +250,11 @@ $default =
                                 'application/x-go-sgf' => 'sgf',
                                 'application/xml'   => 'xml',
                                 'application/gpx+xml' => 'gpx',
-                                'image/png'         => 'png',
-                                'image/jpeg'        => 'jpg',
-                                'image/gif'         => 'gif',
-                                'image/svg+xml'     => 'svg',
-                                'image/vnd.microsoft.icon'  => 'ico',
+                                image_type_to_mime_type(IMAGETYPE_PNG)  => image_type_to_extension(IMAGETYPE_PNG),
+                                image_type_to_mime_type(IMAGETYPE_JPEG) => image_type_to_extension(IMAGETYPE_JPEG),
+                                image_type_to_mime_type(IMAGETYPE_GIF)  => image_type_to_extension(IMAGETYPE_GIF),
+                                'image/svg+xml'     => 'svg', // No built-in constant
+                                image_type_to_mime_type(IMAGETYPE_ICO)  => image_type_to_extension(IMAGETYPE_ICO),
                                 'audio/ogg'         => 'ogg',
                                 'audio/mpeg'        => 'mpg',
                                 'audio/x-speex'     => 'spx',
@@ -280,6 +277,7 @@ $default =
                     'php' => 'phps',    // this turns .php into .phps
                     'exe' => false,  // this would deny any uploads to keep the "exe" file extension
                 ],
+              'memory_limit' => '1024M' // PHP's memory limit to use temporarily when handling images
               ),
         'thumbnail' => [
               'dir' => null,    // falls back to File::path('thumb') (equivalent to ['attachments']['dir'] .  '/thumb/')

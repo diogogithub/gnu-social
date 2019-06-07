@@ -1,23 +1,32 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
+/**
+ * GNU social - a federating social network
  *
- * This program is free software: you can redistribute it and/or modify
+ * Abstraction for files
+ *
+ * LICENCE: This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
  *
  * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @category  Files
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Miguel Dantas <biodantas@gmail.com>
+ * @copyright 2008-2009, 2019 Free Software Foundation http://fsf.org
+ * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
+ * @link      https://www.gnu.org/software/social/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Table Definition for file
@@ -93,6 +102,7 @@ class File extends Managed_DataObject
      * @param array $redir_data lookup data eg from File_redirection::where()
      * @param string $given_url
      * @return File
+     * @throws ServerException
      */
     public static function saveNew(array $redir_data, $given_url)
     {
@@ -298,8 +308,10 @@ class File extends Managed_DataObject
     }
 
     /**
-     * @param $mimetype The mimetype we've discovered for this file.
-     * @param $filename An optional filename which we can use on failure.
+     * @param $mimetype string The mimetype we've discovered for this file.
+     * @param $filename string An optional filename which we can use on failure.
+     * @return mixed|string
+     * @throws ClientException
      */
     static function guessMimeExtension($mimetype, $filename=null)
     {
@@ -349,6 +361,8 @@ class File extends Managed_DataObject
 
     /**
      * Validation for as-saved base filenames
+     * @param $filename
+     * @return false|int
      */
     static function validFilename($filename)
     {
@@ -366,7 +380,9 @@ class File extends Managed_DataObject
     }
 
     /**
-     * @throws ClientException on invalid filename
+     * @param $filename
+     * @return string
+     * @throws InvalidFilenameException
      */
     static function path($filename)
     {
@@ -534,7 +550,9 @@ class File extends Managed_DataObject
     }
 
     /**
-     *  @param  mixed   $use_local  true means require local, null means prefer local, false means use whatever is stored
+     * @param mixed $use_local true means require local, null means prefer local, false means use whatever is stored
+     * @return string
+     * @throws FileNotStoredLocallyException
      */
     public function getUrl($use_local=null)
     {
@@ -565,7 +583,9 @@ class File extends Managed_DataObject
     }
 
     /**
-     * @param   string  $hashstr    String of (preferrably lower case) hexadecimal characters, same as result of 'hash_file(...)'
+     * @param string $hashstr String of (preferrably lower case) hexadecimal characters, same as result of 'hash_file(...)'
+     * @return File
+     * @throws NoResultException
      */
     static public function getByHash($hashstr)
     {

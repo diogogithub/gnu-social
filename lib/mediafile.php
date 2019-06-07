@@ -1,12 +1,8 @@
 <?php
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * GNU social - a federating social network
  *
- * Abstraction for media files in general
- *
- * TODO: combine with ImageFile?
- *
- * PHP version 5
+ * Abstraction for media files
  *
  * LICENCE: This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -22,37 +18,76 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  Media
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Robin Millette <robin@millette.info>
+ * @author    Miguel Dantas <biodantas@gmail.com>
  * @author    Zach Copley <zach@status.net>
- * @copyright 2008-2009 StatusNet, Inc.
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @copyright 2008-2009, 2019 Free Software Foundation http://fsf.org
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @link      https://www.gnu.org/software/social/
  */
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
+
+/**
+ * Class responsible for abstracting media files
+ */
 class MediaFile
 {
-    var $filename      = null;
-    var $fileRecord    = null;
-    var $fileurl       = null;
-    var $short_fileurl = null;
-    var $mimetype      = null;
+    public $id            = null;
+    public $filepath      = null;
+    public $filename      = null;
+    public $fileRecord    = null;
+    public $fileurl       = null;
+    public $short_fileurl = null;
+    public $mimetype      = null;
 
-    function __construct($filename = null, $mimetype = null, $filehash = null)
+    /**
+     * @param string $filepath The path of the file this media refers to. Required
+     * @param string $mimetype The mimetype of the file. Required
+     * @param $filehash        The hash of the file, if known. Optional
+     * @param int|null $id     The DB id of the file. Int if known, null if not.
+     *                         If null, it searches for it. If -1, it skips all DB
+     *                         interactions (useful for temporary objects)
+     * @throws ClientException
+     * @throws NoResultException
+     * @throws ServerException
+     */
+    public function __construct(string $filepath, string $mimetype, $filehash = null, $id = null)
     {
-        $this->filename   = $filename;
-        $this->mimetype   = $mimetype;
-        $this->filehash   = $filehash;
-        $this->fileRecord = $this->storeFile();
+        $this->filepath = $filepath;
+        $this->filename = basename($this->filepath);
+        $this->mimetype = $mimetype;
+        $this->filehash = self::getHashOfFile($this->filepath, $filehash);
+        $this->id       = $id;
 
-        $this->fileurl = common_local_url('attachment',
-                                    array('attachment' => $this->fileRecord->id));
+        // If id is -1, it means we're dealing with a temporary object and don't want to store it in the DB,
+        // or add redirects
+        if ($this->id !== -1) {
+            if (!empty($this->id)) {
+                // If we have an id, load it
+                $this->fileRecord = new File();
+                $this->fileRecord->id = $this->id;
+                if (!$this->fileRecord->find(true)) {
+                    // If we have set an ID, we need that ID to exist!
+                    throw new NoResultException($this->fileRecord);
+                }
+            } else {
+                // Otherwise, store it
+                $this->fileRecord = $this->storeFile();
+            }
 
-        $this->maybeAddRedir($this->fileRecord->id, $this->fileurl);
-        $this->short_fileurl = common_shorten_url($this->fileurl);
-        $this->maybeAddRedir($this->fileRecord->id, $this->short_fileurl);
+            $this->fileurl = common_local_url(
+                'attachment',
+                array('attachment' => $this->fileRecord->id)
+            );
+
+            $this->maybeAddRedir($this->fileRecord->id, $this->fileurl);
+            $this->short_fileurl = common_shorten_url($this->fileurl);
+            $this->maybeAddRedir($this->fileRecord->id, $this->short_fileurl);
+        }
     }
 
     public function attachToNotice(Notice $notice)
@@ -77,8 +112,7 @@ class MediaFile
 
     function delete()
     {
-        $filepath = File::path($this->filename);
-        @unlink($filepath);
+        @unlink($this->filepath);
     }
 
     public function getFile()
@@ -90,18 +124,38 @@ class MediaFile
         return $this->fileRecord;
     }
 
-    protected function storeFile()
+    /**
+     * Calculate the hash of a file.
+     *
+     * This won't work for files >2GiB because PHP uses only 32bit.
+     * @param string $filepath
+     * @param string|null $filehash
+     * @return string
+     * @throws ServerException
+     */
+    public static function getHashOfFile(string $filepath, $filehash = null)
     {
-        $filepath       = File::path($this->filename);
-        if (!empty($this->filename) && $this->filehash === null) {
+        assert(!empty($filepath), __METHOD__ . ": filepath cannot be null");
+        if ($filehash === null) {
             // Calculate if we have an older upload method somewhere (Qvitter) that
             // doesn't do this before calling new MediaFile on its local files...
-            $this->filehash = hash_file(File::FILEHASH_ALG, $filepath);
-            if ($this->filehash === false) {
+            $filehash = hash_file(File::FILEHASH_ALG, $filepath);
+            if ($filehash === false) {
                 throw new ServerException('Could not read file for hashing');
             }
         }
+        return $filehash;
+    }
 
+    /**
+     * Retrieve or insert as a file in the DB
+     *
+     * @return object File
+     * @throws ClientException
+     * @throws ServerException
+     */
+    protected function storeFile()
+    {
         try {
             $file = File::getByHash($this->filehash);
             // We're done here. Yes. Already. We assume sha256 won't collide on us anytime soon.
@@ -118,13 +172,12 @@ class MediaFile
         $file->urlhash  = File::hashurl($fileurl);
         $file->url      = $fileurl;
         $file->filehash = $this->filehash;
-        $file->size     = filesize($filepath);
+        $file->size     = filesize($this->filepath);
         if ($file->size === false) {
             throw new ServerException('Could not read file to get its size');
         }
         $file->date     = time();
         $file->mimetype = $this->mimetype;
-
 
         $file_id = $file->insert();
 
@@ -163,10 +216,19 @@ class MediaFile
         $this->maybeAddRedir($file->id, $short);
     }
 
-    function maybeAddRedir($file_id, $url)
+    /**
+     * Adds Redir if needed.
+     *
+     * @param $file_id
+     * @param $url
+     * @return bool false if no need to add, true if added
+     * @throws ClientException If failed adding
+     */
+    public function maybeAddRedir($file_id, $url)
     {
         try {
-            $file_redir = File_redirection::getByUrl($url);
+            File_redirection::getByUrl($url);
+            return false;
         } catch (NoResultException $e) {
             $file_redir = new File_redirection;
             $file_redir->urlhash = File::hashurl($url);
@@ -180,10 +242,76 @@ class MediaFile
                 // TRANS: Client exception thrown when a database error was thrown during a file upload operation.
                 throw new ClientException(_('There was a database error while saving your file. Please try again.'));
             }
+            return $result;
         }
     }
 
-    static function fromUpload($param='media', Profile $scoped=null)
+    /**
+     * The maximum allowed file size, as a string
+     */
+    static function maxFileSize()
+    {
+        $value = self::maxFileSizeInt();
+        if ($value > 1024 * 1024) {
+            $value = $value/(1024*1024);
+            // TRANS: Number of megabytes. %d is the number.
+            return sprintf(_m('%dMB','%dMB',$value),$value);
+        } else if ($value > 1024) {
+            $value = $value/1024;
+            // TRANS: Number of kilobytes. %d is the number.
+            return sprintf(_m('%dkB','%dkB',$value),$value);
+        } else {
+            // TRANS: Number of bytes. %d is the number.
+            return sprintf(_m('%dB','%dB',$value),$value);
+        }
+    }
+
+    /**
+     * The maximum allowed file size, as an int
+     */
+    static function maxFileSizeInt()
+    {
+        return min(self::sizeStrToInt(ini_get('post_max_size')),
+                   self::sizeStrToInt(ini_get('upload_max_filesize')),
+                   self::sizeStrToInt(ini_get('memory_limit')));
+    }
+
+    /**
+     * Convert a string representing a file size (with units), to an int
+     * @param $str
+     * @return bool|int|string
+     */
+    public static function sizeStrToInt($str)
+    {
+        $unit = substr($str, -1);
+        $num = substr($str, 0, -1);
+        switch(strtoupper($unit)){
+        case 'G':
+            $num *= 1024;
+        case 'M':
+            $num *= 1024;
+        case 'K':
+            $num *= 1024;
+        }
+        return $num;
+    }
+
+    /**
+     * Create a new MediaFile or ImageFile object from an upload
+     *
+     * Tries to set the mimetype correctly, using the most secure method available and rejects the file otherwise.
+     * In case the upload is an image, this function returns an new ImageFile (which extends MediaFile)
+     * @param string $param
+     * @param Profile|null $scoped
+     * @return ImageFile|MediaFile
+     * @throws ClientException
+     * @throws NoResultException
+     * @throws NoUploadedMediaException
+     * @throws ServerException
+     * @throws UnsupportedMediaException
+     * @throws UseFileAsThumbnailException
+     */
+    public static function fromUpload(string $param='media', Profile $scoped=null)
     {
         // The existence of the "error" element means PHP has processed it properly even if it was ok.
         if (!isset($_FILES[$param]) || !isset($_FILES[$param]['error'])) {
@@ -194,19 +322,15 @@ class MediaFile
             case UPLOAD_ERR_OK: // success, jump out
                 break;
             case UPLOAD_ERR_INI_SIZE:
-                // TRANS: Client exception thrown when an uploaded file is larger than set in php.ini.
-                throw new ClientException(_('The uploaded file exceeds the ' .
-                            'upload_max_filesize directive in php.ini.'));
             case UPLOAD_ERR_FORM_SIZE:
-                throw new ClientException(
-                        // TRANS: Client exception.
-                        _('The uploaded file exceeds the MAX_FILE_SIZE directive' .
-                            ' that was specified in the HTML form.'));
+                // TRANS: Exception thrown when too large a file is uploaded.
+                // TRANS: %s is the maximum file size, for example "500b", "10kB" or "2MB".
+                throw new ClientException(sprintf(_('That file is too big. The maximum file size is %s.'),
+                                                  self::maxFileSize()));
             case UPLOAD_ERR_PARTIAL:
                 @unlink($_FILES[$param]['tmp_name']);
                 // TRANS: Client exception.
-                throw new ClientException(_('The uploaded file was only' .
-                            ' partially uploaded.'));
+                throw new ClientException(_('The uploaded file was only partially uploaded.'));
             case UPLOAD_ERR_NO_FILE:
                 // No file; probably just a non-AJAX submission.
                 throw new NoUploadedMediaException($param);
@@ -220,39 +344,23 @@ class MediaFile
                 // TRANS: Client exception thrown when a file upload operation has been stopped by an extension.
                 throw new ClientException(_('File upload stopped by extension.'));
             default:
-                common_log(LOG_ERR, __METHOD__ . ": Unknown upload error " .
-                        $_FILES[$param]['error']);
+                common_log(LOG_ERR, __METHOD__ . ": Unknown upload error " . $_FILES[$param]['error']);
                 // TRANS: Client exception thrown when a file upload operation has failed with an unknown reason.
                 throw new ClientException(_('System error uploading file.'));
         }
 
-        // TODO: Make documentation clearer that this won't work for files >2GiB because
-        //       PHP is stupid in its 32bit head. But noone accepts 2GiB files with PHP
-        //       anyway... I hope.
-        $filehash = hash_file(File::FILEHASH_ALG, $_FILES[$param]['tmp_name']);
+        $filehash = strtolower(self::getHashOfFile($_FILES[$param]['tmp_name']));
 
         try {
             $file = File::getByHash($filehash);
             // If no exception is thrown the file exists locally, so we'll use that and just add redirections.
             // but if the _actual_ locally stored file doesn't exist, getPath will throw FileNotFoundException
-            $filename = basename($file->getPath());
+            $filepath = $file->getPath();
             $mimetype = $file->mimetype;
-
-        } catch (FileNotFoundException $e) {
-            // The file does not exist in our local filesystem, so store this upload.
-
-            if (!move_uploaded_file($_FILES[$param]['tmp_name'], $e->path)) {
-                // TRANS: Client exception thrown when a file upload operation fails because the file could
-                // TRANS: not be moved from the temporary folder to the permanent file location.
-                throw new ClientException(_('File could not be moved to destination directory.'));
-            }
-
-            $filename = basename($file->getPath());
-            $mimetype = $file->mimetype;
-
-        } catch (NoResultException $e) {
+        // XXX PHP: Upgrade to PHP 7.1
+        // catch (FileNotFoundException | NoResultException $e)
+        } catch (Exception $e) {
             // We have to save the upload as a new local file. This is the normal course of action.
-
             if ($scoped instanceof Profile) {
                 // Throws exception if additional size does not respect quota
                 // This test is only needed, of course, if we're uploading something new.
@@ -260,21 +368,34 @@ class MediaFile
             }
 
             $mimetype = self::getUploadedMimeType($_FILES[$param]['tmp_name'], $_FILES[$param]['name']);
+            $media = common_get_mime_media($mimetype);
+
             $basename = basename($_FILES[$param]['name']);
-
-            $filename = strtolower($filehash) . '.' . File::guessMimeExtension($mimetype, $basename);
+            $filename = $filehash . '.' . File::guessMimeExtension($mimetype, $basename);
             $filepath = File::path($filename);
-
             $result = move_uploaded_file($_FILES[$param]['tmp_name'], $filepath);
 
             if (!$result) {
                 // TRANS: Client exception thrown when a file upload operation fails because the file could
                 // TRANS: not be moved from the temporary folder to the permanent file location.
+                // UX: too specific
                 throw new ClientException(_('File could not be moved to destination directory.'));
             }
-        }
 
-        return new MediaFile($filename, $mimetype, $filehash);
+            if ($media === 'image') {
+                // Use -1 for the id to avoid adding this temporary file to the DB
+                $img = new ImageFile(-1, $filepath);
+                // Validate the image by reencoding it. Additionally normalizes old formats to PNG,
+                // keeping JPEG and GIF untouched
+                $outpath = $img->resizeTo($img->filepath);
+                $ext = image_type_to_extension($img->preferredType());
+                $filename = $filehash . $ext;
+                $filepath = File::path($filename);
+                $result = rename($outpath, $filepath);
+                return new ImageFile(null, $filepath);
+            }
+        }
+        return new MediaFile($filepath, $mimetype, $filehash);
     }
 
     static function fromFilehandle($fh, Profile $scoped=null) {
@@ -336,19 +457,109 @@ class MediaFile
 
     /**
      * Attempt to identify the content type of a given file.
-     * 
+     *
      * @param string $filepath filesystem path as string (file must exist)
-     * @param string $originalFilename (optional) for extension-based detection
+     * @param bool $originalFilename (optional) for extension-based detection
      * @return string
-     * 
-     * @fixme this seems to tie a front-end error message in, kinda confusing
-     * 
+     *
      * @throws ClientException if type is known, but not supported for local uploads
+     * @throws ServerException
+     * @fixme this seems to tie a front-end error message in, kinda confusing
+     *
      */
-    static function getUploadedMimeType($filepath, $originalFilename=false) {
+    static function getUploadedMimeType(string $filepath, $originalFilename=false) {
         // We only accept filenames to existing files
-        $mimelookup = new finfo(FILEINFO_MIME_TYPE);
-        $mimetype = $mimelookup->file($filepath);
+
+        $mimetype = null;
+
+        // From CodeIgniter
+        // We'll need this to validate the MIME info string (e.g. text/plain; charset=us-ascii)
+        $regexp = '/^([a-z\-]+\/[a-z0-9\-\.\+]+)(;\s.+)?$/';
+        /**
+         * Fileinfo extension - most reliable method
+         *
+         * Apparently XAMPP, CentOS, cPanel and who knows what
+         * other PHP distribution channels EXPLICITLY DISABLE
+         * ext/fileinfo, which is otherwise enabled by default
+         * since PHP 5.3 ...
+         */
+        if (function_exists('finfo_file'))
+        {
+            $finfo = @finfo_open(FILEINFO_MIME);
+            // It is possible that a FALSE value is returned, if there is no magic MIME database
+            // file found on the system
+            if (is_resource($finfo))
+            {
+                $mime = @finfo_file($finfo, $filepath);
+                finfo_close($finfo);
+                /* According to the comments section of the PHP manual page,
+                 * it is possible that this function returns an empty string
+                 * for some files (e.g. if they don't exist in the magic MIME database)
+                 */
+                if (is_string($mime) && preg_match($regexp, $mime, $matches))
+                {
+                    $mimetype = $matches[1];
+                }
+            }
+        }
+        /* This is an ugly hack, but UNIX-type systems provide a "native" way to detect the file type,
+         * which is still more secure than depending on the value of $_FILES[$field]['type'], and as it
+         * was reported in issue #750 (https://github.com/EllisLab/CodeIgniter/issues/750) - it's better
+         * than mime_content_type() as well, hence the attempts to try calling the command line with
+         * three different functions.
+         *
+         * Notes:
+         *  - the DIRECTORY_SEPARATOR comparison ensures that we're not on a Windows system
+         *  - many system admins would disable the exec(), shell_exec(), popen() and similar functions
+         *    due to security concerns, hence the function_usable() checks
+         */
+        if (DIRECTORY_SEPARATOR !== '\\') {
+            $cmd = 'file --brief --mime '.escapeshellarg($filepath).' 2>&1';
+            if (function_exists('exec')) {
+                /* This might look confusing, as $mime is being populated with all of the output
+                 * when set in the second parameter. However, we only need the last line, which is
+                 * the actual return value of exec(), and as such - it overwrites anything that could
+                 * already be set for $mime previously. This effectively makes the second parameter a
+                 * dummy value, which is only put to allow us to get the return status code.
+                 */
+                $mime = @exec($cmd, $mime, $return_status);
+                if ($return_status === 0 && is_string($mime) && preg_match($regexp, $mime, $matches)) {
+                    $mimetype = $matches[1];
+                }
+            }
+            if (function_exists('shell_exec')) {
+                $mime = @shell_exec($cmd);
+                if (strlen($mime) > 0) {
+                    $mime = explode("\n", trim($mime));
+                    if (preg_match($regexp, $mime[(count($mime) - 1)], $matches)) {
+                        $mimetype = $matches[1];
+                    }
+                }
+            }
+            if (function_exists('popen')) {
+                $proc = @popen($cmd, 'r');
+                if (is_resource($proc)) {
+                    $mime = @fread($proc, 512);
+                    @pclose($proc);
+                    if ($mime !== false) {
+                        $mime = explode("\n", trim($mime));
+                        if (preg_match($regexp, $mime[(count($mime) - 1)], $matches)) {
+                            $mimetype = $matches[1];
+                        }
+                    }
+                }
+            }
+        }
+        // Fall back to mime_content_type(), if available (still better than $_FILES[$field]['type'])
+        if (function_exists('mime_content_type'))
+        {
+            $mimetype = @mime_content_type($filepath);
+            // It's possible that mime_content_type() returns FALSE or an empty string
+            if ($mimetype == false && strlen($mimetype) > 0)
+            {
+                throw new ServerException(_m('Could not determine file\'s MIME type.'));
+            }
+        }
 
         // Unclear types are such that we can't really tell by the auto
         // detect what they are (.bin, .exe etc. are just "octet-stream")
