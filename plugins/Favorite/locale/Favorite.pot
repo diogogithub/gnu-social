@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 16:31+0100\n"
+"POT-Creation-Date: 2019-06-08 18:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,63 +17,6 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-
-#. TRANS: Button text for adding the favourite status to a notice.
-#: forms/favor.php:122
-msgctxt "BUTTON"
-msgid "Favor"
-msgstr ""
-
-#. TRANS: Button text for removing the favourite status for a favourite notice.
-#: forms/disfavor.php:123
-msgctxt "BUTTON"
-msgid "Disfavor favorite"
-msgstr ""
-
-#. TRANS: Help message for IM/SMS command "fav <nickname>".
-#: FavoritePlugin.php:422
-msgctxt "COMMANDHELP"
-msgid "add user's last notice as a 'fave'"
-msgstr ""
-
-#. TRANS: Help message for IM/SMS command "fav #<notice_id>".
-#: FavoritePlugin.php:424
-msgctxt "COMMANDHELP"
-msgid "add notice with the given id as a 'fave'"
-msgstr ""
-
-#. TRANS: Menu item in personal group navigation menu.
-#: FavoritePlugin.php:474
-msgctxt "MENU"
-msgid "Favorites"
-msgstr ""
-
-#. TRANS: Menu item in search group navigation panel.
-#: FavoritePlugin.php:487
-msgctxt "MENU"
-msgid "Popular"
-msgstr ""
-
-#. TRANS: Plugin description.
-#: FavoritePlugin.php:513
-msgid "Favorites (likes) using ActivityStreams."
-msgstr ""
-
-#: actions/favor.php:57
-msgid "No such notice."
-msgstr ""
-
-#. TRANS: Client error displayed when trying to reply to a notice a the target has no access to.
-#. TRANS: %1$s is a user nickname, %2$d is a notice ID (number).
-#: actions/favor.php:62
-#, php-format
-msgid "%1$s has no right to reply to notice %2$d."
-msgstr ""
-
-#: classes/Fave.php:82
-#, php-format
-msgid "Could not store new object of type %s"
-msgstr ""
 
 #. TRANS: List message for notice favoured by logged in user.
 #: lib/threadednoticelistfavesitem.php:51
@@ -100,3 +43,61 @@ msgid "%%s likes this."
 msgid_plural "%%s like this."
 msgstr[0] ""
 msgstr[1] ""
+
+#. TRANS: Help message for IM/SMS command "fav <nickname>".
+#: FavoritePlugin.php:421
+msgctxt "COMMANDHELP"
+msgid "add user's last notice as a 'fave'"
+msgstr ""
+
+#. TRANS: Help message for IM/SMS command "fav #<notice_id>".
+#: FavoritePlugin.php:423
+msgctxt "COMMANDHELP"
+msgid "add notice with the given id as a 'fave'"
+msgstr ""
+
+#. TRANS: Menu item in personal group navigation menu.
+#: FavoritePlugin.php:473
+msgctxt "MENU"
+msgid "Favorites"
+msgstr ""
+
+#. TRANS: Menu item in search group navigation panel.
+#: FavoritePlugin.php:486
+msgctxt "MENU"
+msgid "Popular"
+msgstr ""
+
+#. TRANS: Page/dialog box title when a notice is marked as favorite already
+#: FavoritePlugin.php:508
+msgctxt "TITLE"
+msgid "Unmark notice as favorite"
+msgstr ""
+
+#. TRANS: Page/dialog box title when a notice is not marked as favorite
+#: FavoritePlugin.php:510
+msgctxt "TITLE"
+msgid "Mark notice as favorite"
+msgstr ""
+
+#. TRANS: Plugin description.
+#: FavoritePlugin.php:568
+msgid "Favorites (likes) using ActivityStreams."
+msgstr ""
+
+#: classes/Fave.php:108
+#, php-format
+msgid "Could not store new object of type %s"
+msgstr ""
+
+#. TRANS: Button text for adding the favourite status to a notice.
+#: forms/favor.php:124
+msgctxt "BUTTON"
+msgid "Favor"
+msgstr ""
+
+#. TRANS: Button text for removing the favourite status for a favourite notice.
+#: forms/disfavor.php:125
+msgctxt "BUTTON"
+msgid "Disfavor favorite"
+msgstr ""

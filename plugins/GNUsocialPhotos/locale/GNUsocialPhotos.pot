@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 16:31+0100\n"
+"POT-Creation-Date: 2019-06-08 18:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,11 +34,6 @@ msgstr ""
 msgid "%s's Photo."
 msgstr ""
 
-#: actions/photos.php:67
-#, php-format
-msgid "%s's Photos."
-msgstr ""
-
 #: actions/editphoto.php:61
 msgid "Edit photo - "
 msgstr ""
@@ -47,16 +42,21 @@ msgstr ""
 msgid "Edit photo"
 msgstr ""
 
+#: actions/photos.php:67
+#, php-format
+msgid "%s's Photos."
+msgstr ""
+
+#: classes/gnusocialphoto.php:103
+msgid "Problem Saving Photo."
+msgstr ""
+
 #: classes/gnusocialphotoalbum.php:87
 msgid "No such user exists with id "
 msgstr ""
 
 #: classes/gnusocialphotoalbum.php:98
 msgid "Error creating new album."
-msgstr ""
-
-#: classes/gnusocialphoto.php:103
-msgid "Problem Saving Photo."
 msgstr ""
 
 #: GNUsocialPhotosPlugin.php:65

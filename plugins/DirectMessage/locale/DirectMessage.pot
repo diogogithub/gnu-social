@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 16:31+0100\n"
+"POT-Creation-Date: 2019-06-08 18:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,30 +19,27 @@ msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #. TRANS: Menu item in personal group navigation menu.
-#: DirectMessagePlugin.php:126
+#: DirectMessagePlugin.php:128
 msgctxt "MENU"
 msgid "Messages"
 msgstr ""
 
 #. TRANS: Link text for link on user profile.
-#: DirectMessagePlugin.php:146
+#: DirectMessagePlugin.php:148
 msgctxt "BUTTON"
 msgid "Message"
 msgstr ""
 
 #. TRANS: Plugin description.
-#: DirectMessagePlugin.php:172
+#: DirectMessagePlugin.php:174
 msgid "Direct Message to other local users (broken out of core)."
 msgstr ""
 
-#. TRANS: Form validation error displayed when message content is too long.
-#. TRANS: %d is the maximum number of characters for a message.
-#: actions/apidirectmessagenew.php:106 actions/newmessage.php:125
-#, php-format
-msgid "That's too long. Maximum message size is %d character."
-msgid_plural "That's too long. Maximum message size is %d characters."
-msgstr[0] ""
-msgstr[1] ""
+#. TRANS: Button text for sending a direct notice.
+#: lib/messageform.php:175
+msgctxt "Send button for sending notice"
+msgid "Send"
+msgstr ""
 
 #. TRANS: Menu item in mailbox menu. Leads to incoming private messages.
 #: lib/mailboxmenu.php:59
@@ -64,12 +61,6 @@ msgid "Message too long - maximum is %1$d character, you sent %2$d."
 msgid_plural "Message too long - maximum is %1$d characters, you sent %2$d."
 msgstr[0] ""
 msgstr[1] ""
-
-#. TRANS: Button text for sending a direct notice.
-#: lib/messageform.php:175
-msgctxt "Send button for sending notice"
-msgid "Send"
-msgstr ""
 
 #. TRANS: A possible notice source (web interface).
 #: lib/messagelistitem.php:137
@@ -100,3 +91,12 @@ msgstr ""
 msgctxt "SOURCE"
 msgid "api"
 msgstr ""
+
+#. TRANS: Form validation error displayed when message content is too long.
+#. TRANS: %d is the maximum number of characters for a message.
+#: actions/apidirectmessagenew.php:104 actions/newmessage.php:112
+#, php-format
+msgid "That's too long. Maximum message size is %d character."
+msgid_plural "That's too long. Maximum message size is %d characters."
+msgstr[0] ""
+msgstr[1] ""

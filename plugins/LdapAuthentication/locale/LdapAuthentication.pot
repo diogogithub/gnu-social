@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 16:31+0100\n"
+"POT-Creation-Date: 2019-06-08 18:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,24 +18,24 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. TRANS: Exception thrown when initialising the LDAP Auth plugin fails because of an incorrect configuration.
-#: LdapAuthenticationPlugin.php:40
+#: LdapAuthenticationPlugin.php:41
 msgid "You must specify a nickname attribute."
 msgstr ""
 
 #. TRANS: Exception thrown when initialising the LDAP Auth plugin fails because of an incorrect configuration.
-#: LdapAuthenticationPlugin.php:44
+#: LdapAuthenticationPlugin.php:45
 msgid ""
 "If password_changeable is set, the password attribute and password_encoding "
 "must also be specified."
 msgstr ""
 
 #. TRANS: Instructions for LDAP authentication.
-#: LdapAuthenticationPlugin.php:71 LdapAuthenticationPlugin.php:76
+#: LdapAuthenticationPlugin.php:72 LdapAuthenticationPlugin.php:77
 msgid "Do you have an LDAP account? Use your standard username and password."
 msgstr ""
 
 #. TRANS: Plugin description.
-#: LdapAuthenticationPlugin.php:153
+#: LdapAuthenticationPlugin.php:154
 msgid ""
 "The LDAP Authentication plugin allows for StatusNet to handle authentication "
 "through LDAP."

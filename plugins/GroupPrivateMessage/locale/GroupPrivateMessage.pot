@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 16:31+0100\n"
+"POT-Creation-Date: 2019-06-08 18:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,48 +18,31 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#. TRANS: Form legend for sending private message to group %s.
-#: forms/groupmessage.php:89
+#. TRANS: Succes message after sending private group message to group %s.
+#: lib/groupmessagecommand.php:79
 #, php-format
-msgid "Message to %s"
-msgstr ""
-
-#. TRANS: Field label for private group message to group %s.
-#: forms/groupmessage.php:128
-#, php-format
-msgid "Direct message to %s"
-msgstr ""
-
-#. TRANS: Indicator for number of chatacters still available for notice.
-#: forms/groupmessage.php:141
-msgid "Available characters"
-msgstr ""
-
-#. TRANS: Send button text for sending private group notice.
-#: forms/groupmessage.php:162
-msgctxt "Send button for sending notice"
-msgid "Send"
+msgid "Direct message to group %s sent."
 msgstr ""
 
 #. TRANS: Client exception thrown when trying to view group inbox while not logged in.
-#: actions/groupinbox.php:66
+#: actions/groupinbox.php:68
 msgid "Only for logged-in users."
 msgstr ""
 
 #. TRANS: Client exception thrown when trying to view group inbox for non-existing group.
 #. TRANS: Client exception thrown when trying to send a private group message to a non-existing group.
-#: actions/groupinbox.php:82 actions/groupinbox.php:89
-#: actions/newgroupmessage.php:90 actions/newgroupmessage.php:97
+#: actions/groupinbox.php:84 actions/groupinbox.php:91
+#: actions/newgroupmessage.php:92 actions/newgroupmessage.php:99
 msgid "No such group."
 msgstr ""
 
 #. TRANS: Client exception thrown when trying to view group inbox while not a member.
-#: actions/groupinbox.php:94
+#: actions/groupinbox.php:96
 msgid "Only for members."
 msgstr ""
 
 #. TRANS: Text of group inbox if no private messages were sent to it.
-#: actions/groupinbox.php:128
+#: actions/groupinbox.php:130
 msgid "This group has not received any private messages."
 msgstr ""
 
@@ -84,25 +67,25 @@ msgid ""
 msgstr ""
 
 #. TRANS: Client exception thrown when trying to send a private group message while not logged in.
-#: actions/newgroupmessage.php:68
+#: actions/newgroupmessage.php:70
 msgid "Must be logged in."
 msgstr ""
 
 #. TRANS: Exception thrown when user %s is not allowed to send a private group message.
 #. TRANS: Exception thrown when trying to send group private message without having the right to do that.
 #. TRANS: %s is a user nickname.
-#: actions/newgroupmessage.php:73 classes/Group_message.php:96
+#: actions/newgroupmessage.php:75 classes/Group_message.php:96
 #, php-format
 msgid "User %s is not allowed to send private messages."
 msgstr ""
 
 #. TRANS: Title after sending a private group message.
-#: actions/newgroupmessage.php:142
+#: actions/newgroupmessage.php:136
 msgid "Message sent"
 msgstr ""
 
 #. TRANS: Succes text after sending a direct message to group %s.
-#: actions/newgroupmessage.php:148
+#: actions/newgroupmessage.php:142
 #, php-format
 msgid "Direct message to %s sent."
 msgstr ""
@@ -114,27 +97,27 @@ msgid "New message to group %s"
 msgstr ""
 
 #. TRANS: Client exception thrown when trying to view group private messages without being logged in.
-#: actions/showgroupmessage.php:69
+#: actions/showgroupmessage.php:71
 msgid "Only logged-in users can view private messages."
 msgstr ""
 
 #. TRANS: Client exception thrown when trying to view a non-existing group private message.
-#: actions/showgroupmessage.php:79
+#: actions/showgroupmessage.php:81
 msgid "No such message."
 msgstr ""
 
 #. TRANS: Server exception thrown when trying to view group private messages for a non-exsting group.
-#: actions/showgroupmessage.php:86
+#: actions/showgroupmessage.php:88
 msgid "Group not found."
 msgstr ""
 
 #. TRANS: Client exception thrown when trying to view a group private message without being a group member.
-#: actions/showgroupmessage.php:91
+#: actions/showgroupmessage.php:93
 msgid "Cannot read message."
 msgstr ""
 
 #. TRANS: Server exception thrown when trying to view a group private message without a sender.
-#: actions/showgroupmessage.php:98
+#: actions/showgroupmessage.php:100
 msgid "No sender found."
 msgstr ""
 
@@ -143,55 +126,6 @@ msgstr ""
 #: actions/showgroupmessage.php:123
 #, php-format
 msgid "Message from %1$s to group %2$s on %3$s"
-msgstr ""
-
-#. TRANS: Subject for direct-message notification email.
-#. TRANS: %1$s is the sending user's nickname, %2$s is the group nickname.
-#: classes/Group_message_profile.php:114
-#, php-format
-msgid "New private message from %1$s to group %2$s"
-msgstr ""
-
-#. TRANS: Body for direct-message notification email.
-#. TRANS: %1$s is the sending user's long name, %2$s is the sending user's nickname,
-#. TRANS: %3$s is the message content, %4$s a URL to the message,
-#. TRANS: %5$s is the StatusNet sitename.
-#: classes/Group_message_profile.php:120
-#, php-format
-msgid ""
-"%1$s (%2$s) sent a private message to group %3$s:\n"
-"\n"
-"------------------------------------------------------\n"
-"%4$s\n"
-"------------------------------------------------------\n"
-"\n"
-"You can reply to their message here:\n"
-"\n"
-"%5$s\n"
-"\n"
-"Do not reply to this email; it will not get to them.\n"
-"\n"
-"With kind regards,\n"
-"%6$s"
-msgstr ""
-
-#. TRANS: Exception thrown when trying to send group private message that is too long.
-#. TRANS: %d is the maximum meggage length.
-#: classes/Group_message.php:109
-#, php-format
-msgid "That's too long. Maximum message size is %d character."
-msgid_plural "That's too long. Maximum message size is %d characters."
-msgstr[0] ""
-msgstr[1] ""
-
-#. TRANS: Exception thrown when trying to send group private message to a non-existing group.
-#: classes/Group_message.php:153
-msgid "No group for group message."
-msgstr ""
-
-#. TRANS: Exception thrown when trying to send group private message without having a sender.
-#: classes/Group_message.php:163
-msgid "No sender for group message."
 msgstr ""
 
 #. TRANS: Exception thrown when trying to set group privacy setting if group %s does not allow private messages.
@@ -228,95 +162,161 @@ msgstr ""
 msgid "Unknown privacy settings for group %s."
 msgstr ""
 
-#. TRANS: Succes message after sending private group message to group %s.
-#: lib/groupmessagecommand.php:79
+#. TRANS: Exception thrown when trying to send group private message that is too long.
+#. TRANS: %d is the maximum meggage length.
+#: classes/Group_message.php:109
 #, php-format
-msgid "Direct message to group %s sent."
+msgid "That's too long. Maximum message size is %d character."
+msgid_plural "That's too long. Maximum message size is %d characters."
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANS: Exception thrown when trying to send group private message to a non-existing group.
+#: classes/Group_message.php:153
+msgid "No group for group message."
+msgstr ""
+
+#. TRANS: Exception thrown when trying to send group private message without having a sender.
+#: classes/Group_message.php:163
+msgid "No sender for group message."
+msgstr ""
+
+#. TRANS: Subject for direct-message notification email.
+#. TRANS: %1$s is the sending user's nickname, %2$s is the group nickname.
+#: classes/Group_message_profile.php:114
+#, php-format
+msgid "New private message from %1$s to group %2$s"
+msgstr ""
+
+#. TRANS: Body for direct-message notification email.
+#. TRANS: %1$s is the sending user's long name, %2$s is the sending user's nickname,
+#. TRANS: %3$s is the message content, %4$s a URL to the message,
+#. TRANS: %5$s is the StatusNet sitename.
+#: classes/Group_message_profile.php:120
+#, php-format
+msgid ""
+"%1$s (%2$s) sent a private message to group %3$s:\n"
+"\n"
+"------------------------------------------------------\n"
+"%4$s\n"
+"------------------------------------------------------\n"
+"\n"
+"You can reply to their message here:\n"
+"\n"
+"%5$s\n"
+"\n"
+"Do not reply to this email; it will not get to them.\n"
+"\n"
+"With kind regards,\n"
+"%6$s"
+msgstr ""
+
+#. TRANS: Form legend for sending private message to group %s.
+#: forms/groupmessage.php:89
+#, php-format
+msgid "Message to %s"
+msgstr ""
+
+#. TRANS: Field label for private group message to group %s.
+#: forms/groupmessage.php:128
+#, php-format
+msgid "Direct message to %s"
+msgstr ""
+
+#. TRANS: Indicator for number of chatacters still available for notice.
+#: forms/groupmessage.php:141
+msgid "Available characters"
+msgstr ""
+
+#. TRANS: Send button text for sending private group notice.
+#: forms/groupmessage.php:162
+msgctxt "Send button for sending notice"
+msgid "Send"
 msgstr ""
 
 #. TRANS: Menu item in group page.
-#: GroupPrivateMessagePlugin.php:112
+#: GroupPrivateMessagePlugin.php:114
 msgctxt "MENU"
 msgid "Inbox"
 msgstr ""
 
 #. TRANS: Menu title in group page.
-#: GroupPrivateMessagePlugin.php:114
+#: GroupPrivateMessagePlugin.php:116
 msgid "Private messages for this group."
 msgstr ""
 
 #. TRANS: Dropdown label in group settings page for if group allows private messages.
-#: GroupPrivateMessagePlugin.php:160
+#: GroupPrivateMessagePlugin.php:162
 msgid "Private messages"
 msgstr ""
 
 #. TRANS: Dropdown option in group settings page for allowing private messages.
-#: GroupPrivateMessagePlugin.php:162
+#: GroupPrivateMessagePlugin.php:164
 msgid "Sometimes"
 msgstr ""
 
 #. TRANS: Dropdown option in group settings page for allowing private messages.
-#: GroupPrivateMessagePlugin.php:164
+#: GroupPrivateMessagePlugin.php:166
 msgid "Always"
 msgstr ""
 
 #. TRANS: Dropdown option in group settings page for allowing private messages.
-#: GroupPrivateMessagePlugin.php:166
+#: GroupPrivateMessagePlugin.php:168
 msgid "Never"
 msgstr ""
 
 #. TRANS: Dropdown title in group settings page for if group allows private messages.
-#: GroupPrivateMessagePlugin.php:168
+#: GroupPrivateMessagePlugin.php:170
 msgid "Whether to allow private messages to this group."
 msgstr ""
 
 #. TRANS: Dropdown label in group settings page for who can send private messages to the group.
-#: GroupPrivateMessagePlugin.php:175
+#: GroupPrivateMessagePlugin.php:177
 msgid "Private senders"
 msgstr ""
 
 #. TRANS: Dropdown option in group settings page for who can send private messages.
-#: GroupPrivateMessagePlugin.php:177
+#: GroupPrivateMessagePlugin.php:179
 msgid "Everyone"
 msgstr ""
 
 #. TRANS: Dropdown option in group settings page for who can send private messages.
-#: GroupPrivateMessagePlugin.php:179
+#: GroupPrivateMessagePlugin.php:181
 msgid "Member"
 msgstr ""
 
 #. TRANS: Dropdown option in group settings page for who can send private messages.
-#: GroupPrivateMessagePlugin.php:181
+#: GroupPrivateMessagePlugin.php:183
 msgid "Admin"
 msgstr ""
 
 #. TRANS: Dropdown title in group settings page for who can send private messages to the group.
-#: GroupPrivateMessagePlugin.php:183
+#: GroupPrivateMessagePlugin.php:185
 msgid "Who can send private messages to the group."
 msgstr ""
 
 #. TRANS: Title for action in group actions list.
-#: GroupPrivateMessagePlugin.php:288
+#: GroupPrivateMessagePlugin.php:290
 msgid "Send a direct message to this group."
 msgstr ""
 
 #. TRANS: Link text for action in group actions list to send a private message to a group.
-#: GroupPrivateMessagePlugin.php:290
+#: GroupPrivateMessagePlugin.php:292
 msgctxt "LINKTEXT"
 msgid "Message"
 msgstr ""
 
 #. TRANS: Client exception thrown when a private group message has to be forced.
-#: GroupPrivateMessagePlugin.php:368
+#: GroupPrivateMessagePlugin.php:370
 msgid "Forced notice to private group message."
 msgstr ""
 
 #. TRANS: Indicator on the group page that the group is (essentially) private.
-#: GroupPrivateMessagePlugin.php:390
+#: GroupPrivateMessagePlugin.php:392
 msgid "Private"
 msgstr ""
 
 #. TRANS: Plugin description.
-#: GroupPrivateMessagePlugin.php:416
+#: GroupPrivateMessagePlugin.php:418
 msgid "Allow posting private messages to groups."
 msgstr ""

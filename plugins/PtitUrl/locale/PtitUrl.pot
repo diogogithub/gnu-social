@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 16:31+0100\n"
+"POT-Creation-Date: 2019-06-08 18:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,12 +18,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. TRANS: Exception thrown when URL shortening plugin was configured incorrectly.
-#: PtitUrlPlugin.php:42
+#: PtitUrlPlugin.php:44
 msgid "You must specify a serviceUrl for ptit URL shortening."
 msgstr ""
 
 #. TRANS: Plugin description. %1$s is the URL shortening service base URL (for example "bit.ly").
-#: PtitUrlPlugin.php:68
+#: PtitUrlPlugin.php:70
 #, php-format
 msgid "Uses <a href=\"http://%1$s/\">%1$s</a> URL-shortener service."
 msgstr ""

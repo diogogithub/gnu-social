@@ -1,15 +1,15 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Translation file for GNU social - the free software social networking platform
+# Copyright (C) 2019 Free Software Foundation, Inc http://www.fsf.org
+# This file is under https://www.gnu.org/licenses/agpl v3 or later
 #
 # Translators:
-# Alexei Sorokin <sor.alexei@meowr.ru>
+# Alexei Sorokin <sor.alexei@meowr.ru>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: GNU social\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-02 17:47+0100\n"
-"PO-Revision-Date: 2015-02-07 09:29+0000\n"
+"PO-Revision-Date: 2019-06-08 18:39+0100\n"
 "Last-Translator: Alexei Sorokin <sor.alexei@meowr.ru>\n"
 "Language-Team: Russian (http://www.transifex.com/gnu-social/gnu-social/language/ru/)\n"
 "MIME-Version: 1.0\n"

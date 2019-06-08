@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 16:31+0100\n"
+"POT-Creation-Date: 2019-06-08 18:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,37 +17,37 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. TRANS: Plugin description.
+#: EmailSummaryPlugin.php:78
+msgid "Send an email summary of the inbox to users."
+msgstr ""
+
+#. TRANS: Checkbox label in e-mail preferences form.
+#: EmailSummaryPlugin.php:109
+msgid "Send me a periodic summary of updates from my network"
+msgstr ""
+
 #. TRANS: Subject for e-mail.
-#: lib/useremailsummaryhandler.php:125
+#: lib/useremailsummaryhandler.php:123
 #, php-format
 msgid "Your latest updates from %s"
 msgstr ""
 
 #. TRANS: Text in e-mail summary.
 #. TRANS: %1$s is the StatusNet sitename, %2$s is the recipient's profile name.
-#: lib/useremailsummaryhandler.php:140
+#: lib/useremailsummaryhandler.php:138
 #, php-format
 msgid "Recent updates from %1$s for %2$s:"
 msgstr ""
 
 #. TRANS: Link text for link to conversation view.
-#: lib/useremailsummaryhandler.php:188
+#: lib/useremailsummaryhandler.php:186
 msgid "in context"
 msgstr ""
 
 #. TRANS: Link text for link to e-mail settings.
 #. TRANS: %1$s is a link to the e-mail settings, %2$s is the StatusNet sitename.
-#: lib/useremailsummaryhandler.php:198
+#: lib/useremailsummaryhandler.php:196
 #, php-format
 msgid "<a href=\"%1$s\">change your email settings for %2$s</a>"
-msgstr ""
-
-#. TRANS: Plugin description.
-#: EmailSummaryPlugin.php:77
-msgid "Send an email summary of the inbox to users."
-msgstr ""
-
-#. TRANS: Checkbox label in e-mail preferences form.
-#: EmailSummaryPlugin.php:108
-msgid "Send me a periodic summary of updates from my network"
 msgstr ""

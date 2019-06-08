@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 16:31+0100\n"
+"POT-Creation-Date: 2019-06-08 18:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,35 +18,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#. TRANS: Form title for flagging a profile for review.
-#: forms/flagprofile.php:78
-msgid "Flag"
-msgstr ""
-
-#. TRANS: Form description.
-#: forms/flagprofile.php:89
-msgid "Flag profile for review."
-msgstr ""
-
-#. TRANS: Form title for action on a profile.
-#: forms/clearflag.php:76
-msgid "Clear"
-msgstr ""
-
-#. TRANS: Form description for clearing flags from a profile.
-#: forms/clearflag.php:88
-msgid "Clear all flags"
-msgstr ""
-
-#. TRANS: AJAX form title for a flagged profile.
-#: actions/flagprofile.php:123
-msgid "Flagged for review"
-msgstr ""
-
-#. TRANS: Body text for AJAX form when a profile has been flagged for review.
 #. TRANS: Message added to a profile if it has been flagged for review.
-#: actions/flagprofile.php:127 UserFlagPlugin.php:134
+#. TRANS: Body text for AJAX form when a profile has been flagged for review.
+#: UserFlagPlugin.php:136 actions/flagprofile.php:127
 msgid "Flagged"
+msgstr ""
+
+#. TRANS: Plugin description.
+#: UserFlagPlugin.php:242
+msgid ""
+"This plugin allows flagging of profiles for review and reviewing flagged "
+"profiles."
 msgstr ""
 
 #. TRANS: Error message displayed when trying to perform an action that requires a logged in user.
@@ -103,6 +85,11 @@ msgstr ""
 msgid "Cleared"
 msgstr ""
 
+#. TRANS: AJAX form title for a flagged profile.
+#: actions/flagprofile.php:123
+msgid "Flagged for review"
+msgstr ""
+
 #. TRANS: Server exception.
 #. TRANS: %d is a profile ID (number).
 #: classes/User_flag_profile.php:115
@@ -110,9 +97,22 @@ msgstr ""
 msgid "Could not flag profile \"%d\" for review."
 msgstr ""
 
-#. TRANS: Plugin description.
-#: UserFlagPlugin.php:240
-msgid ""
-"This plugin allows flagging of profiles for review and reviewing flagged "
-"profiles."
+#. TRANS: Form title for action on a profile.
+#: forms/clearflag.php:76
+msgid "Clear"
+msgstr ""
+
+#. TRANS: Form description for clearing flags from a profile.
+#: forms/clearflag.php:88
+msgid "Clear all flags"
+msgstr ""
+
+#. TRANS: Form title for flagging a profile for review.
+#: forms/flagprofile.php:78
+msgid "Flag"
+msgstr ""
+
+#. TRANS: Form description.
+#: forms/flagprofile.php:89
+msgid "Flag profile for review."
 msgstr ""

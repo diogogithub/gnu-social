@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 16:31+0100\n"
+"POT-Creation-Date: 2019-06-08 18:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,19 +18,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. TRANS: Exception thrown when initialising the LDAP Auth plugin fails because of an incorrect configuration.
-#: LdapAuthorizationPlugin.php:42
+#: LdapAuthorizationPlugin.php:44
 msgid ""
 "provider_name must be set. Use the provider_name from the LDAP "
 "Authentication plugin."
 msgstr ""
 
 #. TRANS: Exception thrown when initialising the LDAP Auth plugin fails because of an incorrect configuration.
-#: LdapAuthorizationPlugin.php:46
+#: LdapAuthorizationPlugin.php:48
 msgid "uniqueMember_attribute must be set."
 msgstr ""
 
 #. TRANS: Plugin description.
-#: LdapAuthorizationPlugin.php:129
+#: LdapAuthorizationPlugin.php:131
 msgid ""
 "The LDAP Authorization plugin allows for StatusNet to handle authorization "
 "through LDAP."

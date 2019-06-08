@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-27 16:31+0100\n"
+"POT-Creation-Date: 2019-06-08 18:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,88 +17,88 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. TRANS: Presence announcement for XMPP.
+#. TRANS: Message for XMPP reconnect.
+#: lib/xmppmanager.php:90 lib/xmppmanager.php:218
+msgid "Send me a message to post a notice"
+msgstr ""
+
 #. TRANS: Plugin display name.
-#: XmppPlugin.php:62
+#: XmppPlugin.php:65
 msgid "XMPP/Jabber"
 msgstr ""
 
 #. TRANS: Exception thrown when using too many @ signs in a Jabber ID.
-#: XmppPlugin.php:123
+#: XmppPlugin.php:169
 msgid "Invalid JID: too many @s."
 msgstr ""
 
 #. TRANS: Exception thrown when using @ sign not followed by a Jabber ID.
-#: XmppPlugin.php:132
+#: XmppPlugin.php:178
 msgid "Invalid JID: @ but no node"
 msgstr ""
 
 #. TRANS: Exception thrown when using too long a Jabber ID (>1023).
-#: XmppPlugin.php:140
+#: XmppPlugin.php:186
 msgid "Invalid JID: node too long."
 msgstr ""
 
 #. TRANS: Exception thrown when using an invalid Jabber ID.
 #. TRANS: %s is the invalid Jabber ID.
-#: XmppPlugin.php:145
+#: XmppPlugin.php:192
 #, php-format
 msgid "Invalid JID node \"%s\"."
 msgstr ""
 
 #. TRANS: Exception thrown when using too long a Jabber domain (>1023).
-#: XmppPlugin.php:151
+#: XmppPlugin.php:198
 msgid "Invalid JID: domain too long."
 msgstr ""
 
 #. TRANS: Exception thrown when using an invalid Jabber domain name.
 #. TRANS: %s is the invalid domain name.
-#: XmppPlugin.php:156
+#: XmppPlugin.php:203
 #, php-format
 msgid "Invalid JID domain name \"%s\"."
 msgstr ""
 
 #. TRANS: Exception thrown when using an invalid Jabber resource.
 #. TRANS: %s is the invalid resource.
-#: XmppPlugin.php:167
+#: XmppPlugin.php:214
 #, php-format
 msgid "Invalid JID resource \"%s\"."
 msgstr ""
 
-#. TRANS: Link description to notice in conversation.
-#. TRANS: %s is a notice ID.
-#: XmppPlugin.php:372
-#, php-format
-msgid "[%u]"
-msgstr ""
-
 #. TRANS: Exception thrown when the plugin configuration is incorrect.
-#: XmppPlugin.php:410
+#: XmppPlugin.php:281
 msgid "You must specify a server in the configuration."
 msgstr ""
 
 #. TRANS: Exception thrown when the plugin configuration is incorrect.
-#: XmppPlugin.php:414
+#: XmppPlugin.php:285
 msgid "You must specify a port in the configuration."
 msgstr ""
 
 #. TRANS: Exception thrown when the plugin configuration is incorrect.
-#: XmppPlugin.php:418
+#: XmppPlugin.php:289
 msgid "You must specify a user in the configuration."
 msgstr ""
 
 #. TRANS: Exception thrown when the plugin configuration is incorrect.
-#: XmppPlugin.php:422
+#: XmppPlugin.php:293
 msgid "You must specify a password in the configuration."
 msgstr ""
 
+#. TRANS: Link description to notice in conversation.
+#. TRANS: %s is a notice ID.
+#: XmppPlugin.php:359
+#, php-format
+msgid "[%u]"
+msgstr ""
+
 #. TRANS: Plugin description.
-#: XmppPlugin.php:473
+#: XmppPlugin.php:451
 msgid ""
 "The XMPP plugin allows users to send and receive notices over the XMPP/"
 "Jabber network."
-msgstr ""
-
-#. TRANS: Presence announcement for XMPP.
-#. TRANS: Message for XMPP reconnect.
-#: lib/xmppmanager.php:167 lib/xmppmanager.php:207
-msgid "Send me a message to post a notice"
 msgstr ""
