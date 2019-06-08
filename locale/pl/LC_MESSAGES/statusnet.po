@@ -1,6 +1,6 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Translation file for GNU social - the free software social networking platform
+# Copyright (C) 2009 - 2019 Free Software Foundation, Inc http://www.fsf.org
+# This file is under https://www.gnu.org/licenses/agpl v3 or later
 #
 # Translators:
 # Mateusz Zimniak <lonetraveller@wp.pl>, 2015
