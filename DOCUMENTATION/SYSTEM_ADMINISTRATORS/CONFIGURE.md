@@ -649,7 +649,16 @@ detection.
 * `supported`: an array of mime types you accept to store and distribute,
     like 'image/gif', 'video/mpeg', 'audio/mpeg', etc. Make sure you
     setup your server to properly recognize the types you want to
-    support.
+    support. It's important to use the result of calling `image_type_to_extension`
+    for the appropriate image type, in the case of images. This is so all parts of
+    the code see the same extension for each image type (jpg vs jpeg).
+    For example, to enable BMP uploads, add this to the config.php file:
+        $config['attachments']['supported'][image_type_to_mime_type(IMAGETYPE_GIF)]
+        = image_type_to_extension(IMAGETYPE_GIF);
+    See https://www.php.net/manual/en/function.image-type-to-mime-type.php for a
+    list of such constants. If a filetype is not listed there, it's possible to add
+    the mimetype and the extension by hand, but they need to match those returned by
+    the file command.
 
 * `uploads`: false to disable uploading files with notices (true by default).
 
