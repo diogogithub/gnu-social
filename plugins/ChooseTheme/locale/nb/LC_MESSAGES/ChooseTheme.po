@@ -1,5 +1,5 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Translation file for GNU social - the free software social networking platform
+# Copyright (C) 2015 - 2019 Free Software Foundation, Inc http://www.fsf.org
 # This file is distributed under the same license as the GNU social package.
 # FIRST AUTHOR abjectio@kollektivet0x242.no, 2015.
 #

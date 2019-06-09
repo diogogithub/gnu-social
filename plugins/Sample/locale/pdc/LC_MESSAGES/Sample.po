@@ -1,10 +1,9 @@
-# Translation of StatusNet - Sample to Deitsch (Deitsch)
+# Translation file for GNU social - the free software social networking platform
+# Copyright (C) 2011 - 2019 Free Software Foundation, Inc http://www.fsf.org
+# This file is under https://www.gnu.org/licenses/agpl v3 or later
+#
 # Exported from translatewiki.net
-#
 # Author: Xqt
-# --
-# This file is distributed under the same license as the StatusNet package.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: StatusNet - Sample\n"
