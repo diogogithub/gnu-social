@@ -28,7 +28,9 @@
  * @link      https://www.gnu.org/software/social/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 
 /**
@@ -100,17 +102,17 @@ class MediaFile
         return File::path($this->filename);
     }
 
-    function shortUrl()
+    public function shortUrl()
     {
         return $this->short_fileurl;
     }
 
-    function getEnclosure()
+    public function getEnclosure()
     {
         return $this->getFile()->getEnclosure();
     }
 
-    function delete()
+    public function delete()
     {
         @unlink($this->filepath);
     }
@@ -211,7 +213,7 @@ class MediaFile
         return $file;
     }
 
-    function rememberFile($file, $short)
+    public function rememberFile($file, $short)
     {
         $this->maybeAddRedir($file->id, $short);
     }
@@ -249,31 +251,33 @@ class MediaFile
     /**
      * The maximum allowed file size, as a string
      */
-    static function maxFileSize()
+    public static function maxFileSize()
     {
         $value = self::maxFileSizeInt();
         if ($value > 1024 * 1024) {
             $value = $value/(1024*1024);
             // TRANS: Number of megabytes. %d is the number.
-            return sprintf(_m('%dMB','%dMB',$value),$value);
-        } else if ($value > 1024) {
+            return sprintf(_m('%dMB', '%dMB', $value), $value);
+        } elseif ($value > 1024) {
             $value = $value/1024;
             // TRANS: Number of kilobytes. %d is the number.
-            return sprintf(_m('%dkB','%dkB',$value),$value);
+            return sprintf(_m('%dkB', '%dkB', $value), $value);
         } else {
             // TRANS: Number of bytes. %d is the number.
-            return sprintf(_m('%dB','%dB',$value),$value);
+            return sprintf(_m('%dB', '%dB', $value), $value);
         }
     }
 
     /**
      * The maximum allowed file size, as an int
      */
-    static function maxFileSizeInt()
+    public static function maxFileSizeInt()
     {
-        return min(self::sizeStrToInt(ini_get('post_max_size')),
-                   self::sizeStrToInt(ini_get('upload_max_filesize')),
-                   self::sizeStrToInt(ini_get('memory_limit')));
+        return min(
+            self::sizeStrToInt(ini_get('post_max_size')),
+            self::sizeStrToInt(ini_get('upload_max_filesize')),
+            self::sizeStrToInt(ini_get('memory_limit'))
+        );
     }
 
     /**
@@ -285,11 +289,13 @@ class MediaFile
     {
         $unit = substr($str, -1);
         $num = substr($str, 0, -1);
-        switch(strtoupper($unit)){
+        switch (strtoupper($unit)) {
         case 'G':
             $num *= 1024;
+            // no break
         case 'M':
             $num *= 1024;
+            // no break
         case 'K':
             $num *= 1024;
         }
@@ -325,8 +331,10 @@ class MediaFile
             case UPLOAD_ERR_FORM_SIZE:
                 // TRANS: Exception thrown when too large a file is uploaded.
                 // TRANS: %s is the maximum file size, for example "500b", "10kB" or "2MB".
-                throw new ClientException(sprintf(_('That file is too big. The maximum file size is %s.'),
-                                                  self::maxFileSize()));
+                throw new ClientException(sprintf(
+                    _('That file is too big. The maximum file size is %s.'),
+                    self::maxFileSize()
+                ));
             case UPLOAD_ERR_PARTIAL:
                 @unlink($_FILES[$param]['tmp_name']);
                 // TRANS: Client exception.
@@ -357,7 +365,7 @@ class MediaFile
             // but if the _actual_ locally stored file doesn't exist, getPath will throw FileNotFoundException
             $filepath = $file->getPath();
             $mimetype = $file->mimetype;
-        // XXX PHP: Upgrade to PHP 7.1
+            // XXX PHP: Upgrade to PHP 7.1
         // catch (FileNotFoundException | NoResultException $e)
         } catch (Exception $e) {
             // We have to save the upload as a new local file. This is the normal course of action.
@@ -398,7 +406,8 @@ class MediaFile
         return new MediaFile($filepath, $mimetype, $filehash);
     }
 
-    static function fromFilehandle($fh, Profile $scoped=null) {
+    public static function fromFilehandle($fh, Profile $scoped=null)
+    {
         $stream = stream_get_meta_data($fh);
         // So far we're only handling filehandles originating from tmpfile(),
         // so we can always do hash_file on $stream['uri'] as far as I can tell!
@@ -431,7 +440,6 @@ class MediaFile
 
             $filename = basename($file->getPath());
             $mimetype = $file->mimetype;
-
         } catch (NoResultException $e) {
             if ($scoped instanceof Profile) {
                 File::respectsQuota($scoped, filesize($stream['uri']));
@@ -448,7 +456,7 @@ class MediaFile
                 common_log(LOG_ERR, 'File could not be moved (or chmodded) from '._ve($stream['uri']) . ' to ' . _ve($filepath));
                 // TRANS: Client exception thrown when a file upload operation fails because the file could
                 // TRANS: not be moved from the temporary folder to the permanent file location.
-                throw new ClientException(_('File could not be moved to destination directory.' ));
+                throw new ClientException(_('File could not be moved to destination directory.'));
             }
         }
 
@@ -467,7 +475,8 @@ class MediaFile
      * @fixme this seems to tie a front-end error message in, kinda confusing
      *
      */
-    static function getUploadedMimeType(string $filepath, $originalFilename=false) {
+    public static function getUploadedMimeType(string $filepath, $originalFilename=false)
+    {
         // We only accept filenames to existing files
 
         $mimetype = null;
@@ -483,21 +492,18 @@ class MediaFile
          * ext/fileinfo, which is otherwise enabled by default
          * since PHP 5.3 ...
          */
-        if (function_exists('finfo_file'))
-        {
+        if (function_exists('finfo_file')) {
             $finfo = @finfo_open(FILEINFO_MIME);
             // It is possible that a FALSE value is returned, if there is no magic MIME database
             // file found on the system
-            if (is_resource($finfo))
-            {
+            if (is_resource($finfo)) {
                 $mime = @finfo_file($finfo, $filepath);
                 finfo_close($finfo);
                 /* According to the comments section of the PHP manual page,
                  * it is possible that this function returns an empty string
                  * for some files (e.g. if they don't exist in the magic MIME database)
                  */
-                if (is_string($mime) && preg_match($regexp, $mime, $matches))
-                {
+                if (is_string($mime) && preg_match($regexp, $mime, $matches)) {
                     $mimetype = $matches[1];
                 }
             }
@@ -551,12 +557,10 @@ class MediaFile
             }
         }
         // Fall back to mime_content_type(), if available (still better than $_FILES[$field]['type'])
-        if (function_exists('mime_content_type'))
-        {
+        if (function_exists('mime_content_type')) {
             $mimetype = @mime_content_type($filepath);
             // It's possible that mime_content_type() returns FALSE or an empty string
-            if ($mimetype == false && strlen($mimetype) > 0)
-            {
+            if ($mimetype == false && strlen($mimetype) > 0) {
                 throw new ServerException(_m('Could not determine file\'s MIME type.'));
             }
         }

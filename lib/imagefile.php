@@ -153,9 +153,14 @@ class ImageFile extends MediaFile
                 // doesn't exist anyway, so it's safe to delete $imgPath
                 @unlink($imgPath);
             }
-            common_debug(sprintf('Exception %s caught when creating ImageFile for File id==%s ' .
-                                 'and imgPath==%s: %s', get_class($e), _ve($file->id),
-                                 _ve($imgPath), _ve($e->getMessage())));
+            common_debug(sprintf(
+                'Exception %s caught when creating ImageFile for File id==%s ' .
+                                 'and imgPath==%s: %s',
+                get_class($e),
+                _ve($file->id),
+                _ve($imgPath),
+                _ve($e->getMessage())
+            ));
             throw $e;
         }
         return $image;
@@ -223,7 +228,7 @@ class ImageFile extends MediaFile
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
      */
-    function copyTo($outpath)
+    public function copyTo($outpath)
     {
         return new ImageFile(null, $this->resizeTo($outpath));
     }
@@ -237,7 +242,7 @@ class ImageFile extends MediaFile
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
      */
-    function resizeTo($outpath, array $box=array())
+    public function resizeTo($outpath, array $box=array())
     {
         $box['width']  = isset($box['width'])  ? intval($box['width'])  : $this->width;
         $box['height'] = isset($box['height']) ? intval($box['height']) : $this->height;
@@ -259,7 +264,6 @@ class ImageFile extends MediaFile
             && $box['w']      === $this->width
             && $box['h']      === $this->height
             && $this->type    === $this->preferredType()) {
-
             if (abs($this->rotate) == 90) {
                 // Box is rotated 90 degrees in either direction,
                 // so we have to redefine x to y and vice versa.
@@ -337,17 +341,18 @@ class ImageFile extends MediaFile
         $image_dest = imagecreatetruecolor($box['width'], $box['height']);
 
         if ($this->type == IMAGETYPE_PNG || $this->type == IMAGETYPE_BMP) {
-
             $transparent_idx = imagecolortransparent($image_src);
 
             if ($transparent_idx >= 0 && $transparent_idx < 255) {
                 $transparent_color = imagecolorsforindex($image_src, $transparent_idx);
-                $transparent_idx = imagecolorallocate($image_dest, $transparent_color['red'],
-                                                                   $transparent_color['green'],
-                                                                   $transparent_color['blue']);
+                $transparent_idx = imagecolorallocate(
+                    $image_dest,
+                    $transparent_color['red'],
+                    $transparent_color['green'],
+                    $transparent_color['blue']
+                );
                 imagefill($image_dest, 0, 0, $transparent_idx);
                 imagecolortransparent($image_dest, $transparent_idx);
-
             } elseif ($this->type == IMAGETYPE_PNG) {
                 imagealphablending($image_dest, false);
                 $transparent = imagecolorallocatealpha($image_dest, 0, 0, 0, 127);
@@ -356,8 +361,18 @@ class ImageFile extends MediaFile
             }
         }
 
-        imagecopyresampled($image_dest, $image_src, 0, 0, $box['x'], $box['y'],
-                           $box['width'], $box['height'], $box['w'], $box['h']);
+        imagecopyresampled(
+            $image_dest,
+            $image_src,
+            0,
+            0,
+            $box['x'],
+            $box['y'],
+            $box['width'],
+            $box['height'],
+            $box['w'],
+            $box['h']
+        );
 
         $type = $this->preferredType();
         $ext = image_type_to_extension($type, true);
@@ -390,8 +405,14 @@ class ImageFile extends MediaFile
 
     public function scaleToFit($maxWidth=null, $maxHeight=null, $crop=null)
     {
-        return self::getScalingValues($this->width, $this->height,
-                                      $maxWidth, $maxHeight, $crop, $this->rotate);
+        return self::getScalingValues(
+            $this->width,
+            $this->height,
+            $maxWidth,
+            $maxHeight,
+            $crop,
+            $this->rotate
+        );
     }
 
     /**
@@ -409,10 +430,14 @@ class ImageFile extends MediaFile
      * @return array
      * @throws ServerException
      */
-    public static function getScalingValues($width, $height,
-                                            $maxW=null, $maxH=null,
-                                            $crop=null, $rotate=0)
-    {
+    public static function getScalingValues(
+        $width,
+        $height,
+        $maxW=null,
+        $maxH=null,
+        $crop=null,
+        $rotate=0
+    ) {
         $maxW = $maxW ?: common_config('thumbnail', 'width');
         $maxH = $maxH ?: common_config('thumbnail', 'height');
 
@@ -490,7 +515,7 @@ class ImageFile extends MediaFile
 
         // We read through the file til we reach the end of the file, or we've found
         // at least 2 frame headers
-        while(!feof($fh) && $count < 2) {
+        while (!feof($fh) && $count < 2) {
             $chunk = fread($fh, 1024 * 100); //read 100kb at a time
             $count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00\x2C#s', $chunk, $matches);
             // rewind in case we ended up in the middle of the header, but avoid
@@ -561,12 +586,16 @@ class ImageFile extends MediaFile
                 || $box['w'] < 1 || $box['x'] >= $this->width
                 || $box['h'] < 1 || $box['y'] >= $this->height) {
             // Fail on bad width parameter. If this occurs, it's due to algorithm in ImageFile->scaleToFit
-            common_debug("Boundary box parameters for resize of {$this->filepath} : ".var_export($box,true));
+            common_debug("Boundary box parameters for resize of {$this->filepath} : ".var_export($box, true));
             throw new ServerException('Bad thumbnail size parameters.');
         }
 
-        common_debug(sprintf('Generating a thumbnail of File id==%u of size %ux%u',
-                             $this->fileRecord->getID(), $width, $height));
+        common_debug(sprintf(
+            'Generating a thumbnail of File id==%u of size %ux%u',
+            $this->fileRecord->getID(),
+            $width,
+            $height
+        ));
 
         // Perform resize and store into file
         $this->resizeTo($outpath, $box);
@@ -580,10 +609,14 @@ class ImageFile extends MediaFile
             // $this->getPath() says the file doesn't exist anyway, so no point in trying to delete it!
         }
 
-        return File_thumbnail::saveThumbnail($this->fileRecord->getID(),
+        return File_thumbnail::saveThumbnail(
+            $this->fileRecord->getID(),
                                              // no url since we generated it ourselves and can dynamically
                                              // generate the url
                                              null,
-                                             $width, $height, $outname);
+            $width,
+            $height,
+            $outname
+        );
     }
 }

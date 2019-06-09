@@ -80,20 +80,20 @@ class File extends Managed_DataObject
         );
     }
 
-    public static function isProtected($url) {
+    public static function isProtected($url)
+    {
+        $protected_urls_exps = array(
+            'https://www.facebook.com/login.php',
+            common_path('main/login')
+            );
 
-		$protected_urls_exps = array(
-			'https://www.facebook.com/login.php',
-        	common_path('main/login')
-        	);
+        foreach ($protected_urls_exps as $protected_url_exp) {
+            if (preg_match('!^'.preg_quote($protected_url_exp).'(.*)$!i', $url) === 1) {
+                return true;
+            }
+        }
 
-		foreach ($protected_urls_exps as $protected_url_exp) {
-			if (preg_match('!^'.preg_quote($protected_url_exp).'(.*)$!i', $url) === 1) {
-				return true;
-			}
-		}
-
-		return false;
+        return false;
     }
 
     /**
@@ -152,16 +152,27 @@ class File extends Managed_DataObject
 
         $file = new File;
         $file->url = $given_url;
-        if (!empty($redir_data['protected'])) $file->protected = $redir_data['protected'];
-        if (!empty($redir_data['title'])) $file->title = $redir_data['title'];
-        if (!empty($redir_data['type'])) $file->mimetype = $redir_data['type'];
-        if (!empty($redir_data['size'])) $file->size = intval($redir_data['size']);
-        if (isset($redir_data['time']) && $redir_data['time'] > 0) $file->date = intval($redir_data['time']);
+        if (!empty($redir_data['protected'])) {
+            $file->protected = $redir_data['protected'];
+        }
+        if (!empty($redir_data['title'])) {
+            $file->title = $redir_data['title'];
+        }
+        if (!empty($redir_data['type'])) {
+            $file->mimetype = $redir_data['type'];
+        }
+        if (!empty($redir_data['size'])) {
+            $file->size = intval($redir_data['size']);
+        }
+        if (isset($redir_data['time']) && $redir_data['time'] > 0) {
+            $file->date = intval($redir_data['time']);
+        }
         $file->saveFile();
         return $file;
     }
 
-    public function saveFile() {
+    public function saveFile()
+    {
         $this->urlhash = self::hashurl($this->url);
 
         if (!Event::handle('StartFileSaveNew', array(&$this))) {
@@ -193,7 +204,8 @@ class File extends Managed_DataObject
      *
      * @throws ServerException on failure
      */
-    public static function processNew($given_url, Notice $notice=null, $followRedirects=true) {
+    public static function processNew($given_url, Notice $notice=null, $followRedirects=true)
+    {
         if (empty($given_url)) {
             throw new ServerException('No given URL to process');
         }
@@ -222,12 +234,13 @@ class File extends Managed_DataObject
         return $file;
     }
 
-    public static function respectsQuota(Profile $scoped, $fileSize) {
+    public static function respectsQuota(Profile $scoped, $fileSize)
+    {
         if ($fileSize > common_config('attachments', 'file_quota')) {
             // TRANS: Message used to be inserted as %2$s in  the text "No file may
             // TRANS: be larger than %1$d byte and the file you sent was %2$s.".
             // TRANS: %1$d is the number of bytes of an uploaded file.
-            $fileSizeText = sprintf(_m('%1$d byte','%1$d bytes',$fileSize),$fileSize);
+            $fileSizeText = sprintf(_m('%1$d byte', '%1$d bytes', $fileSize), $fileSize);
 
             $fileQuota = common_config('attachments', 'file_quota');
             // TRANS: Message given if an upload is larger than the configured maximum.
@@ -235,10 +248,16 @@ class File extends Managed_DataObject
             // TRANS: %2$s is the proper form of "n bytes". This is the only ways to have
             // TRANS: gettext support multiple plurals in the same message, unfortunately...
             throw new ClientException(
-                    sprintf(_m('No file may be larger than %1$d byte and the file you sent was %2$s. Try to upload a smaller version.',
-                              'No file may be larger than %1$d bytes and the file you sent was %2$s. Try to upload a smaller version.',
-                              $fileQuota),
-                    $fileQuota, $fileSizeText));
+                sprintf(
+                        _m(
+                        'No file may be larger than %1$d byte and the file you sent was %2$s. Try to upload a smaller version.',
+                        'No file may be larger than %1$d bytes and the file you sent was %2$s. Try to upload a smaller version.',
+                        $fileQuota
+                    ),
+                        $fileQuota,
+                        $fileSizeText
+                    )
+            );
         }
 
         $file = new File;
@@ -251,10 +270,15 @@ class File extends Managed_DataObject
             // TRANS: Message given if an upload would exceed user quota.
             // TRANS: %d (number) is the user quota in bytes and is used for plural.
             throw new ClientException(
-                    sprintf(_m('A file this large would exceed your user quota of %d byte.',
-                              'A file this large would exceed your user quota of %d bytes.',
-                              common_config('attachments', 'user_quota')),
-                    common_config('attachments', 'user_quota')));
+                sprintf(
+                        _m(
+                        'A file this large would exceed your user quota of %d byte.',
+                        'A file this large would exceed your user quota of %d bytes.',
+                        common_config('attachments', 'user_quota')
+                    ),
+                        common_config('attachments', 'user_quota')
+                    )
+            );
         }
         $query .= ' AND EXTRACT(month FROM file.modified) = EXTRACT(month FROM now()) and EXTRACT(year FROM file.modified) = EXTRACT(year FROM now())';
         $file->query($query);
@@ -264,10 +288,15 @@ class File extends Managed_DataObject
             // TRANS: Message given id an upload would exceed a user's monthly quota.
             // TRANS: $d (number) is the monthly user quota in bytes and is used for plural.
             throw new ClientException(
-                    sprintf(_m('A file this large would exceed your monthly quota of %d byte.',
-                              'A file this large would exceed your monthly quota of %d bytes.',
-                              common_config('attachments', 'monthly_quota')),
-                    common_config('attachments', 'monthly_quota')));
+                sprintf(
+                        _m(
+                        'A file this large would exceed your monthly quota of %d byte.',
+                        'A file this large would exceed your monthly quota of %d bytes.',
+                        common_config('attachments', 'monthly_quota')
+                    ),
+                        common_config('attachments', 'monthly_quota')
+                    )
+            );
         }
         return true;
     }
@@ -284,7 +313,7 @@ class File extends Managed_DataObject
 
     // where should the file go?
 
-    static function filename(Profile $profile, $origname, $mimetype)
+    public static function filename(Profile $profile, $origname, $mimetype)
     {
         $ext = self::guessMimeExtension($mimetype, $origname);
 
@@ -313,7 +342,7 @@ class File extends Managed_DataObject
      * @return mixed|string
      * @throws ClientException
      */
-    static function guessMimeExtension($mimetype, $filename=null)
+    public static function guessMimeExtension($mimetype, $filename=null)
     {
         try {
             // first see if we know the extension for our mimetype
@@ -364,15 +393,14 @@ class File extends Managed_DataObject
      * @param $filename
      * @return false|int
      */
-    static function validFilename($filename)
+    public static function validFilename($filename)
     {
         return preg_match('/^[A-Za-z0-9._-]+$/', $filename);
     }
 
-    static function tryFilename($filename)
+    public static function tryFilename($filename)
     {
-        if (!self::validFilename($filename))
-        {
+        if (!self::validFilename($filename)) {
             throw new InvalidFilenameException($filename);
         }
         // if successful, return the filename for easy if-statementing
@@ -384,7 +412,7 @@ class File extends Managed_DataObject
      * @return string
      * @throws InvalidFilenameException
      */
-    static function path($filename)
+    public static function path($filename)
     {
         self::tryFilename($filename);
 
@@ -397,19 +425,18 @@ class File extends Managed_DataObject
         return $dir . $filename;
     }
 
-    static function url($filename)
+    public static function url($filename)
     {
         self::tryFilename($filename);
 
-        if (common_config('site','private')) {
-
-            return common_local_url('getfile',
-                                array('filename' => $filename));
-
+        if (common_config('site', 'private')) {
+            return common_local_url(
+                'getfile',
+                array('filename' => $filename)
+            );
         }
 
         if (GNUsocial::useHTTPS()) {
-
             $sslserver = common_config('attachments', 'sslserver');
 
             if (empty($sslserver)) {
@@ -418,7 +445,7 @@ class File extends Managed_DataObject
                 if (is_string(common_config('site', 'sslserver')) &&
                     mb_strlen(common_config('site', 'sslserver')) > 0) {
                     $server = common_config('site', 'sslserver');
-                } else if (common_config('site', 'server')) {
+                } elseif (common_config('site', 'server')) {
                     $server = common_config('site', 'server');
                 }
                 $path = common_config('site', 'path') . '/file/';
@@ -455,9 +482,10 @@ class File extends Managed_DataObject
         return $protocol.'://'.$server.$path.$filename;
     }
 
-    static $_enclosures = array();
+    public static $_enclosures = array();
 
-    function getEnclosure(){
+    public function getEnclosure()
+    {
         if (isset(self::$_enclosures[$this->getID()])) {
             return self::$_enclosures[$this->getID()];
         }
@@ -531,8 +559,12 @@ class File extends Managed_DataObject
             }
         }
 
-        return $image->getFileThumbnail($width, $height, $crop,
-                                        !is_null($upscale) ? $upscale : common_config('thumbnail', 'upscale'));
+        return $image->getFileThumbnail(
+            $width,
+            $height,
+            $crop,
+            !is_null($upscale) ? $upscale : common_config('thumbnail', 'upscale')
+        );
     }
 
     public function getPath()
@@ -572,7 +604,7 @@ class File extends Managed_DataObject
         return $this->url;
     }
 
-    static public function getByUrl($url)
+    public static function getByUrl($url)
     {
         $file = new File();
         $file->urlhash = self::hashurl($url);
@@ -587,7 +619,7 @@ class File extends Managed_DataObject
      * @return File
      * @throws NoResultException
      */
-    static public function getByHash($hashstr)
+    public static function getByHash($hashstr)
     {
         $file = new File();
         $file->filehash = strtolower($hashstr);
@@ -604,10 +636,13 @@ class File extends Managed_DataObject
             throw new ServerException('URL already exists in DB');
         }
         $sql = 'UPDATE %1$s SET urlhash=%2$s, url=%3$s WHERE urlhash=%4$s;';
-        $result = $this->query(sprintf($sql, $this->tableName(),
-                                             $this->_quote((string)self::hashurl($url)),
-                                             $this->_quote((string)$url),
-                                             $this->_quote((string)$this->urlhash)));
+        $result = $this->query(sprintf(
+            $sql,
+            $this->tableName(),
+            $this->_quote((string)self::hashurl($url)),
+            $this->_quote((string)$url),
+            $this->_quote((string)$this->urlhash)
+        ));
         if ($result === false) {
             common_log_db_error($this, 'UPDATE', __FILE__);
             throw new ServerException("Could not UPDATE {$this->tableName()}.url");
@@ -624,7 +659,7 @@ class File extends Managed_DataObject
      * @return void
      */
 
-    function blowCache($last=false)
+    public function blowCache($last=false)
     {
         self::blow('file:notice-ids:%s', $this->id);
         if ($last) {
@@ -644,7 +679,7 @@ class File extends Managed_DataObject
      * @return array ids of notices that link to this file
      */
 
-    function stream($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $max_id=0)
+    public function stream($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $max_id=0)
     {
         // FIXME: Try to get the Profile::current() here in some other way to avoid mixing
         // the current session user with possibly background/queue processing.
@@ -652,14 +687,13 @@ class File extends Managed_DataObject
         return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 
-    function noticeCount()
+    public function noticeCount()
     {
         $cacheKey = sprintf('file:notice-count:%d', $this->id);
         
         $count = self::cacheGet($cacheKey);
 
         if ($count === false) {
-
             $f2p = new File_to_post();
 
             $f2p->file_id = $this->id;
@@ -667,7 +701,7 @@ class File extends Managed_DataObject
             $count = $f2p->count();
 
             self::cacheSet($cacheKey, $count);
-        } 
+        }
 
         return $count;
     }
@@ -724,7 +758,7 @@ class File extends Managed_DataObject
         return $this->update($orig);
     }
 
-    static public function hashurl($url)
+    public static function hashurl($url)
     {
         if (empty($url)) {
             throw new Exception('No URL provided to hash algorithm.');
@@ -732,7 +766,7 @@ class File extends Managed_DataObject
         return hash(self::URLHASH_ALG, $url);
     }
 
-    static public function beforeSchemaUpdate()
+    public static function beforeSchemaUpdate()
     {
         $table = strtolower(get_called_class());
         $schema = Schema::get();
@@ -765,7 +799,7 @@ class File extends Managed_DataObject
                 $dupfile->update($orig);
                 print "\nDeleting duplicate entries of too long URL on $table id: {$file->id} [";
                 // only start deleting with this fetch.
-                while($dupfile->fetch()) {
+                while ($dupfile->fetch()) {
                     common_log(LOG_INFO, sprintf('Deleting duplicate File entry of %1$d: %2$d (original URL: %3$s collides with these first 191 characters: %4$s', $dupfile->id, $file->id, $origurl, $file->shortenedurl));
                     print ".";
                     $dupfile->delete();
@@ -781,13 +815,13 @@ class File extends Managed_DataObject
         echo "\n...now running hacky pre-schemaupdate change for $table:";
         // We have to create a urlhash that is _not_ the primary key,
         // transfer data and THEN run checkSchema
-        $schemadef['fields']['urlhash'] = array (
+        $schemadef['fields']['urlhash'] = array(
                                               'type' => 'varchar',
                                               'length' => 64,
                                               'not null' => false,  // this is because when adding column, all entries will _be_ NULL!
                                               'description' => 'sha256 of destination URL (url field)',
                                             );
-        $schemadef['fields']['url'] = array (
+        $schemadef['fields']['url'] = array(
                                               'type' => 'text',
                                               'description' => 'destination URL after following possible redirections',
                                             );
@@ -800,11 +834,13 @@ class File extends Managed_DataObject
         // urlhash is hash('sha256', $url) in the File table
         echo "Updating urlhash fields in $table table...";
         // Maybe very MySQL specific :(
-        $tablefix->query(sprintf('UPDATE %1$s SET %2$s=%3$s;',
-                            $schema->quoteIdentifier($table),
-                            'urlhash',
+        $tablefix->query(sprintf(
+            'UPDATE %1$s SET %2$s=%3$s;',
+            $schema->quoteIdentifier($table),
+            'urlhash',
                             // The line below is "result of sha256 on column `url`"
-                            'SHA2(url, 256)'));
+                            'SHA2(url, 256)'
+        ));
         echo "DONE.\n";
         echo "Resuming core schema upgrade...";
     }
