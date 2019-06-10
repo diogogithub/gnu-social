@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-09 18:01+0100\n"
+"POT-Creation-Date: 2019-06-10 16:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -4849,41 +4849,39 @@ msgid "No uploaded file."
 msgstr ""
 
 #. TRANS: Client exception thrown when an uploaded file is larger than set in php.ini.
-#: actions/restoreaccount.php:131 lib/mediafile.php:198
+#: actions/restoreaccount.php:131
 msgid "The uploaded file exceeds the upload_max_filesize directive in php.ini."
 msgstr ""
 
 #. TRANS: Client exception.
-#: actions/restoreaccount.php:136 lib/mediafile.php:203
+#: actions/restoreaccount.php:136
 msgid ""
 "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in "
 "the HTML form."
 msgstr ""
 
 #. TRANS: Client exception.
-#: actions/restoreaccount.php:141 lib/mediafile.php:208
+#: actions/restoreaccount.php:141 lib/mediafile.php:341
 msgid "The uploaded file was only partially uploaded."
 msgstr ""
 
 #. TRANS: Client exception thrown when a temporary folder is not present to store a file upload.
-#: actions/restoreaccount.php:148 lib/mediafile.php:215
+#: actions/restoreaccount.php:148 lib/mediafile.php:347
 msgid "Missing a temporary folder."
 msgstr ""
 
 #. TRANS: Client exception thrown when writing to disk is not possible during a file upload operation.
-#: actions/restoreaccount.php:151 lib/mediafile.php:218
+#: actions/restoreaccount.php:151 lib/mediafile.php:350
 msgid "Failed to write file to disk."
 msgstr ""
 
 #. TRANS: Client exception thrown when a file upload operation has been stopped by an extension.
-#: actions/restoreaccount.php:154 lib/mediafile.php:221
+#: actions/restoreaccount.php:154 lib/mediafile.php:353
 msgid "File upload stopped by extension."
 msgstr ""
 
 #. TRANS: Client exception thrown when a file upload operation has failed with an unknown reason.
-#. TRANS: Exception thrown when uploading an image fails for an unknown reason.
-#. TRANS: Client exception thrown when a file upload operation has failed with an unknown reason.
-#: actions/restoreaccount.php:159 lib/imagefile.php:205 lib/mediafile.php:226
+#: actions/restoreaccount.php:159 lib/mediafile.php:357
 msgid "System error uploading file."
 msgstr ""
 
@@ -6381,14 +6379,14 @@ msgstr ""
 #. TRANS: Message used to be inserted as %2$s in  the text "No file may
 #. TRANS: be larger than %1$d byte and the file you sent was %2$s.".
 #. TRANS: %1$d is the number of bytes of an uploaded file.
-#: classes/File.php:220
+#: classes/File.php:243
 #, php-format
 msgid "%1$d byte"
 msgid_plural "%1$d bytes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/File.php:228
+#: classes/File.php:253
 #, php-format
 msgid ""
 "No file may be larger than %1$d byte and the file you sent was %2$s. Try to "
@@ -6399,21 +6397,21 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/File.php:244
+#: classes/File.php:275
 #, php-format
 msgid "A file this large would exceed your user quota of %d byte."
 msgid_plural "A file this large would exceed your user quota of %d bytes."
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/File.php:257
+#: classes/File.php:293
 #, php-format
 msgid "A file this large would exceed your monthly quota of %d byte."
 msgid_plural "A file this large would exceed your monthly quota of %d bytes."
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/File.php:326
+#: classes/File.php:367
 msgid "Blacklisted file extension."
 msgstr ""
 
@@ -8338,73 +8336,28 @@ msgid "Could not GET URL %s."
 msgstr ""
 
 #. TRANS: Exception thrown when trying to upload an unsupported image file format.
-#: lib/imagefile.php:88
+#: lib/imagefile.php:70
 msgid "Unsupported image format."
 msgstr ""
 
-#: lib/imagefile.php:129
+#: lib/imagefile.php:118
 msgid "File without filename could not get a thumbnail source."
 msgstr ""
 
-#: lib/imagefile.php:144
+#: lib/imagefile.php:133
 msgid "Unsupported media format."
 msgstr ""
 
-#. TRANS: Exception thrown when too large a file is uploaded.
-#. TRANS: %s is the maximum file size, for example "500b", "10kB" or "2MB".
-#: lib/imagefile.php:191
-#, php-format
-msgid "That file is too big. The maximum file size is %s."
-msgstr ""
-
-#. TRANS: Exception thrown when uploading an image and that action could not be completed.
-#: lib/imagefile.php:196
-msgid "Partial upload."
-msgstr ""
-
-#: lib/imagefile.php:200
-msgid "No file uploaded."
-msgstr ""
-
-#. TRANS: Exception thrown when uploading a file as image that is not an image or is a corrupt file.
-#: lib/imagefile.php:213
-msgid "Not an image or corrupt file."
-msgstr ""
-
 #. TRANS: Exception thrown during resize when image has been registered as present, but is no longer there.
-#: lib/imagefile.php:251
+#: lib/imagefile.php:256
 msgid "Lost our file."
 msgstr ""
 
 #. TRANS: Exception thrown when trying to resize an unknown file type.
 #. TRANS: Exception thrown when trying resize an unknown file type.
-#: lib/imagefile.php:320 lib/imagefile.php:364
+#: lib/imagefile.php:334 lib/imagefile.php:393
 msgid "Unknown file type"
 msgstr ""
-
-#. TRANS: Number of megabytes. %d is the number.
-#: lib/imagefile.php:408
-#, php-format
-msgid "%dMB"
-msgid_plural "%dMB"
-msgstr[0] ""
-msgstr[1] ""
-
-#. TRANS: Number of kilobytes. %d is the number.
-#: lib/imagefile.php:412
-#, php-format
-msgid "%dkB"
-msgid_plural "%dkB"
-msgstr[0] ""
-msgstr[1] ""
-
-#. TRANS: Number of bytes. %d is the number.
-#: lib/imagefile.php:415
-#, php-format
-msgid "%dB"
-msgid_plural "%dB"
-msgstr[0] ""
-msgstr[1] ""
 
 #. TRANS: Body text for confirmation code e-mail.
 #. TRANS: %1$s is a user nickname, %2$s is the StatusNet sitename,
@@ -8811,21 +8764,56 @@ msgid ""
 msgstr ""
 
 #. TRANS: Client exception thrown when a database error was thrown during a file upload operation.
-#: lib/mediafile.php:134 lib/mediafile.php:181
+#: lib/mediafile.php:189 lib/mediafile.php:245
 msgid "There was a database error while saving your file. Please try again."
+msgstr ""
+
+#. TRANS: Number of megabytes. %d is the number.
+#: lib/mediafile.php:260
+#, php-format
+msgid "%dMB"
+msgid_plural "%dMB"
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANS: Number of kilobytes. %d is the number.
+#: lib/mediafile.php:264
+#, php-format
+msgid "%dkB"
+msgid_plural "%dkB"
+msgstr[0] ""
+msgstr[1] ""
+
+#. TRANS: Number of bytes. %d is the number.
+#: lib/mediafile.php:267
+#, php-format
+msgid "%dB"
+msgid_plural "%dB"
+msgstr[0] ""
+msgstr[1] ""
+
+#: lib/mediafile.php:335
+#, php-format
+msgid "That file is too big. The maximum file size is %s."
 msgstr ""
 
 #. TRANS: Client exception thrown when a file upload operation fails because the file could
 #. TRANS: not be moved from the temporary folder to the permanent file location.
-#: lib/mediafile.php:247 lib/mediafile.php:273 lib/mediafile.php:305
-#: lib/mediafile.php:330
+#. UX: too specific
+#. TRANS: Client exception thrown when a file upload operation fails because the file could
+#. TRANS: not be moved from the temporary folder to the permanent file location.
+#: lib/mediafile.php:390 lib/mediafile.php:435 lib/mediafile.php:459
 msgid "File could not be moved to destination directory."
+msgstr ""
+
+#: lib/mediafile.php:564
+msgid "Could not determine file's MIME type."
 msgstr ""
 
 #. TRANS: Client exception thrown trying to upload a forbidden MIME type.
 #. TRANS: %1$s is the file type that was denied, %2$s is the application part of
 #. TRANS: the MIME type that was denied.
-#: lib/mediafile.php:391
+#: lib/mediafile.php:606
 #, php-format
 msgid ""
 "\"%1$s\" is not a supported file type on this server. Try using another %2$s "
@@ -8834,7 +8822,7 @@ msgstr ""
 
 #. TRANS: Client exception thrown trying to upload a forbidden MIME type.
 #. TRANS: %s is the file type that was denied.
-#: lib/mediafile.php:396
+#: lib/mediafile.php:611
 #, php-format
 msgid "\"%s\" is not a supported file type on this server."
 msgstr ""

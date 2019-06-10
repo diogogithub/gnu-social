@@ -93,7 +93,7 @@ class OpenidsettingsAction extends SettingsAction
                                          'action' =>
                                          common_local_url('openidsettings')]);
             $this->elementStart('fieldset', ['id' => 'settings_openid_add']);
-    
+
             // TRANS: Fieldset legend.
             $this->element('legend', null, _m('LEGEND', 'Add OpenID'));
             $this->hidden('token', common_session_token());
@@ -127,7 +127,7 @@ class OpenidsettingsAction extends SettingsAction
         if ($cnt > 0) {
             // TRANS: Header on OpenID settings page.
             $this->element('h2', null, _m('HEADER', 'OpenID Actions'));
-            
+
             if ($cnt == 1 && !$this->scoped->hasPassword()) {
                 $this->element('p', 'form_guide',
                                // TRANS: Form guide.
@@ -218,7 +218,7 @@ class OpenidsettingsAction extends SettingsAction
         // TRANS: Button text to remove an OpenID trustroot.
         $this->submit('settings_openid_trustroots_action-submit', _m('BUTTON', 'Remove'), 'submit', 'remove_trustroots');
         $this->elementEnd('fieldset');
-        
+
         $prefs = User_openid_prefs::getKV('user_id', $this->scoped->getID());
 
         $this->elementStart('fieldset');
@@ -247,9 +247,8 @@ class OpenidsettingsAction extends SettingsAction
                 // TRANS: Form validation error if no OpenID providers can be added.
                 throw new ServerException(_m('Cannot add new providers.'));
             } else {
-                common_ensure_session();
                 $_SESSION['openid_synch'] = $this->boolean('openid-synch');
-                
+
                 $result = oid_authenticate($this->trimmed('openid_url'), 'finishaddopenid');
                 if (is_string($result)) { // error message
                     unset($_SESSION['openid-synch']);
@@ -335,7 +334,7 @@ class OpenidsettingsAction extends SettingsAction
         if (!$oid instanceof User_openid) {
             throw new ClientException(_m('No such OpenID.'));
         }
-        
+
         $result = oid_authenticate($this->trimmed('openid_url'), 'finishsynchopenid');
         if (is_string($result)) { // error message
             throw new ServerException($result);

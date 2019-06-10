@@ -35,11 +35,34 @@ define('OPENID_COOKIE_KEY', 'lastusedopenid');
 function oid_store()
 {
     static $store = null;
-    if (!$store) {
-        // Can't be called statically
-        $user = new User();
-        $conn = $user->getDatabaseConnection();
-        $store = new Auth_OpenID_MySQLStore($conn);
+    if (is_null($store)) {
+        // To create a new Database connection is an absolute must
+        // because database is in transaction (auto-commit = false)
+        // mode during OpenID operation
+        // Is a must because our Internal Session Handler uses database
+        // and depends on auto-commit = true
+        $dsn = common_config('db', 'database');
+        $options = PEAR::getStaticProperty('DB', 'options');
+
+        if (!is_array($options)) {
+            $options = [];
+        }
+        $db = DB::connect($dsn, $options);
+
+        if (PEAR::isError($db)) {
+            throw new ServerException($db->getMessage());
+        }
+
+        switch (common_config('db', 'type')) {
+            case 'mysql':
+                $store = new Auth_OpenID_MySQLStore($db);
+                break;
+            case 'postgresql':
+                $store = new Auth_OpenID_PostgreSQLStore($db);
+                break;
+            default:
+                throw new ServerException(_m('Unknown DB type for OpenID.'));
+        }
     }
     return $store;
 }
@@ -47,6 +70,8 @@ function oid_store()
 function oid_consumer()
 {
     $store = oid_store();
+    // No need to declare a Yadis Session Handler
+    common_ensure_session(); // This is transparent to OpenID's eyes
     $consumer = new Auth_OpenID_Consumer($store);
     return $consumer;
 }
@@ -197,7 +222,7 @@ function oid_authenticate($openid_url, $returnto, $immediate=false)
     //
     // Since the GET should always work anyway, we'll just take out the
     // autosubmitter for now.
-    // 
+    //
     //if ($auth_request->shouldSendRedirect()) {
         $redirect_url = $auth_request->redirectURL($trust_root,
                                                    $process_url,

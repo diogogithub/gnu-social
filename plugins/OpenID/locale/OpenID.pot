@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-10 15:40+0100\n"
+"POT-Creation-Date: 2019-06-10 16:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -205,40 +205,40 @@ msgid "Cannot add new providers."
 msgstr ""
 
 #. TRANS: Unexpected form validation error.
-#: actions/openidsettings.php:271
+#: actions/openidsettings.php:270
 msgid "No known action for POST."
 msgstr ""
 
 #. TRANS: Form validation error when trying to remove a non-existing trustroot.
-#: actions/openidsettings.php:293
+#: actions/openidsettings.php:292
 msgid "No such OpenID trustroot."
 msgstr ""
 
 #. TRANS: Success message after removing trustroots.
-#: actions/openidsettings.php:298
+#: actions/openidsettings.php:297
 msgid "Trustroots removed."
 msgstr ""
 
 #. TRANS: Form validation error for a non-existing OpenID.
-#: actions/openidsettings.php:315 actions/openidsettings.php:336
+#: actions/openidsettings.php:314 actions/openidsettings.php:335
 msgid "No such OpenID."
 msgstr ""
 
 #. TRANS: Form validation error if OpenID is connected to another user.
-#: actions/openidsettings.php:319
+#: actions/openidsettings.php:318
 msgid "That OpenID does not belong to you."
 msgstr ""
 
 #. TRANS: Success message after removing an OpenID.
-#: actions/openidsettings.php:323
+#: actions/openidsettings.php:322
 msgid "OpenID removed."
 msgstr ""
 
-#: actions/openidsettings.php:343
+#: actions/openidsettings.php:342
 msgid "Synchronized OpenID."
 msgstr ""
 
-#: actions/openidsettings.php:375
+#: actions/openidsettings.php:374
 msgid "OpenID preferences saved."
 msgstr ""
 
@@ -670,68 +670,72 @@ msgstr ""
 msgid "OpenID provider"
 msgstr ""
 
-#: openid.php:136
+#: openid.php:64
+msgid "Unknown DB type for OpenID."
+msgstr ""
+
+#: openid.php:161
 msgid "No valid URL provided for OpenID."
 msgstr ""
 
 #. TRANS: OpenID plugin server error.
-#: openid.php:143
+#: openid.php:168
 msgid "Cannot instantiate OpenID consumer object."
 msgstr ""
 
 #. TRANS: OpenID plugin message. Given when an OpenID is not valid.
-#: openid.php:154
+#: openid.php:179
 msgid "Not a valid OpenID."
 msgstr ""
 
 #. TRANS: OpenID plugin server error. Given when the OpenID authentication request fails.
 #. TRANS: %s is the failure message.
-#: openid.php:159
+#: openid.php:184
 #, php-format
 msgid "OpenID failure: %s."
 msgstr ""
 
 #. TRANS: OpenID plugin server error. Given when the OpenID authentication request cannot be redirected.
 #. TRANS: %s is the failure message.
-#: openid.php:208
+#: openid.php:233
 #, php-format
 msgid "Could not redirect to server: %s."
 msgstr ""
 
 #. TRANS: OpenID plugin user instructions.
-#: openid.php:246
+#: openid.php:271
 msgid ""
 "This form should automatically submit itself. If not, click the submit "
 "button to go to your OpenID provider."
 msgstr ""
 
 #. TRANS: OpenID plugin server error.
-#: openid.php:282
+#: openid.php:307
 msgid "Error saving the profile."
 msgstr ""
 
 #. TRANS: OpenID plugin server error.
-#: openid.php:294
+#: openid.php:319
 msgid "Error saving the user."
 msgstr ""
 
 #. TRANS: OpenID plugin client exception (403).
-#: openid.php:324
+#: openid.php:349
 msgid "Unauthorized URL used for OpenID login."
 msgstr ""
 
 #. TRANS: Title
-#: openid.php:372
+#: openid.php:397
 msgid "OpenID Login Submission"
 msgstr ""
 
 #. TRANS: OpenID plugin message used while requesting authorization user's OpenID login provider.
-#: openid.php:383
+#: openid.php:408
 msgid "Requesting authorization from your login provider..."
 msgstr ""
 
 #. TRANS: OpenID plugin message. User instruction while requesting authorization user's OpenID login provider.
-#: openid.php:387
+#: openid.php:412
 msgid ""
 "If you are not redirected to your login provider in a few seconds, try "
 "pushing the button below."
