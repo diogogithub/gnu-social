@@ -200,8 +200,8 @@ class FinishopenidloginAction extends Action
         $this->elementEnd('li');
         $this->elementStart('li');
         // TRANS: Field label in form in which to connect an OpenID to an existing user on the site.
-        $this->checkbox('openid-sync', _m('Sync Account'), false,
-                        _m('Syncronize GNU social profile with this OpenID identity.'));
+        $this->checkbox('openid-synch', _m('Synchronize Account'), false,
+                        _m('Synchronize GNU social profile with this OpenID identity.'));
         $this->elementEnd('li');
         $this->elementEnd('ul');
         // TRANS: Button text in form in which to connect an OpenID to an existing user on the site.
@@ -431,8 +431,8 @@ class FinishopenidloginAction extends Action
     {
         $nickname = $this->trimmed('nickname');
         $password = $this->trimmed('password');
-        $sync     = $this->boolean('openid-sync');
-        
+        $synch     = $this->boolean('openid-synch');
+
         if (!common_check_user($nickname, $password)) {
             // TRANS: OpenID plugin message.
             $this->showForm(_m('Invalid username or password.'));
@@ -457,7 +457,7 @@ class FinishopenidloginAction extends Action
             $this->serverError(_m('Error connecting user to OpenID.'));
         }
 
-        if ($sync) {
+        if ($synch) {
             if (Event::handle('StartOpenIDUpdateUser', [$user, $canonical, &$sreg])) {
                 oid_update_user($user, $sreg);
             }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-09 16:58+0100\n"
+"POT-Creation-Date: 2019-06-10 15:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,288 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#. TRANS: Client error message trying to log on with OpenID while already logged on.
+#: actions/openidlogin.php:33 actions/finishopenidlogin.php:37
+msgid "Already logged in."
+msgstr ""
+
+#. TRANS: OpenID plugin message. Rememberme logins have to reauthenticate before changing any profile settings.
+#. TRANS: "OpenID" is the display text for a link with URL "(%%doc.openid%%)".
+#: actions/openidlogin.php:74
+#, php-format
+msgid ""
+"For security reasons, please re-login with your [OpenID](%%doc.openid%%) "
+"before changing your settings."
+msgstr ""
+
+#. TRANS: OpenID plugin message.
+#. TRANS: "OpenID" is the display text for a link with URL "(%%doc.openid%%)".
+#: actions/openidlogin.php:80
+#, php-format
+msgid "Login with an [OpenID](%%doc.openid%%) account."
+msgstr ""
+
+#. TRANS: OpenID plugin message. Title.
+#: actions/openidlogin.php:114
+msgctxt "TITLE"
+msgid "OpenID Login"
+msgstr ""
+
+#. TRANS: OpenID plugin logon form legend.
+#: actions/openidlogin.php:132 OpenIDPlugin.php:634
+msgctxt "LEGEND"
+msgid "OpenID login"
+msgstr ""
+
+#. TRANS: Field label.
+#: actions/openidlogin.php:140
+msgctxt "LABEL"
+msgid "OpenID provider"
+msgstr ""
+
+#. TRANS: Form guide.
+#: actions/openidlogin.php:149 OpenIDPlugin.php:651
+msgid "Enter your username."
+msgstr ""
+
+#. TRANS: Form guide.
+#: actions/openidlogin.php:151 OpenIDPlugin.php:653
+msgid "You will be sent to the provider's site for authentication."
+msgstr ""
+
+#. TRANS: OpenID plugin logon form field label.
+#. TRANS: Field label.
+#. TRANS: OpenID plugin logon form field label.
+#: actions/openidlogin.php:155 actions/openidsettings.php:103
+#: OpenIDPlugin.php:657
+msgid "OpenID URL"
+msgstr ""
+
+#. TRANS: OpenID plugin logon form field title.
+#. TRANS: OpenID plugin logon form field instructions.
+#: actions/openidlogin.php:158 OpenIDPlugin.php:660
+msgid "Your OpenID URL."
+msgstr ""
+
+#. TRANS: OpenID plugin logon form checkbox label for setting to put the OpenID information in a cookie.
+#: actions/openidlogin.php:163
+msgid "Remember me"
+msgstr ""
+
+#. TRANS: OpenID plugin logon form field title.
+#: actions/openidlogin.php:165
+msgid "Automatically login in the future; not for shared computers!"
+msgstr ""
+
+#. TRANS: OpenID plugin logon form button label to start logon with the data provided in the logon form.
+#: actions/openidlogin.php:170
+msgctxt "BUTTON"
+msgid "Login"
+msgstr ""
+
+#. TRANS: Title of OpenID settings page for a user.
+#: actions/openidsettings.php:57
+msgctxt "TITLE"
+msgid "OpenID settings"
+msgstr ""
+
+#. TRANS: Form instructions for OpenID settings.
+#. TRANS: This message contains Markdown links in the form [description](link).
+#: actions/openidsettings.php:69
+#, php-format
+msgid ""
+"[OpenID](%%doc.openid%%) lets you log into many sites with the same user "
+"account. Manage your associated OpenIDs from here."
+msgstr ""
+
+#. TRANS: Fieldset legend.
+#: actions/openidsettings.php:98
+msgctxt "LEGEND"
+msgid "Add OpenID"
+msgstr ""
+
+#. TRANS: Form guide.
+#: actions/openidsettings.php:105
+msgid "An OpenID URL which identifies you."
+msgstr ""
+
+#. TRANS: Field label.
+#. TRANS: Field label in form in which to connect an OpenID to an existing user on the site.
+#: actions/openidsettings.php:111 actions/finishopenidlogin.php:203
+msgid "Synchronize Account"
+msgstr ""
+
+#. TRANS: Form guide.
+#: actions/openidsettings.php:113 actions/finishopenidlogin.php:204
+msgid "Synchronize GNU social profile with this OpenID identity."
+msgstr ""
+
+#. TRANS: Button text for adding an OpenID URL.
+#: actions/openidsettings.php:117
+msgctxt "BUTTON"
+msgid "Add"
+msgstr ""
+
+#. TRANS: Header on OpenID settings page.
+#: actions/openidsettings.php:129
+msgctxt "HEADER"
+msgid "OpenID Actions"
+msgstr ""
+
+#. TRANS: Form guide.
+#: actions/openidsettings.php:134
+msgid ""
+"You can't remove your main OpenID account without either adding a password "
+"to your GNU social account or another OpenID account. You can synchronize "
+"your profile with your OpenID by clicking the button labeled \"Synchronize\"."
+msgstr ""
+
+#. TRANS: Button text to synchronize OpenID with the GS profile.
+#. TRANS: Button text to sync an OpenID with the GS profile.
+#: actions/openidsettings.php:150 actions/openidsettings.php:174
+msgctxt "BUTTON"
+msgid "Synchronize"
+msgstr ""
+
+#. TRANS: Form guide.
+#: actions/openidsettings.php:157
+msgid ""
+"You can remove an OpenID from your account by clicking the button labeled "
+"\"Remove\". You can synchronize your profile with an OpenID by clicking the "
+"button labeled \"Synchronize\"."
+msgstr ""
+
+#. TRANS: Button text to remove an OpenID.
+#. TRANS: Button text to remove an OpenID trustroot.
+#: actions/openidsettings.php:176 actions/openidsettings.php:219
+msgctxt "BUTTON"
+msgid "Remove"
+msgstr ""
+
+#. TRANS: Fieldset legend.
+#: actions/openidsettings.php:192
+msgid "OpenID Trusted Sites"
+msgstr ""
+
+#. TRANS: Form guide.
+#: actions/openidsettings.php:196
+msgid ""
+"The following sites are allowed to access your identity and log you in. You "
+"can remove a site from this list to deny it access to your OpenID."
+msgstr ""
+
+#: actions/openidsettings.php:225
+msgctxt "LEGEND"
+msgid "Preferences"
+msgstr ""
+
+#. TRANS: Button text to save OpenID prefs
+#. TRANS: Button text to save OpenID settings.
+#: actions/openidsettings.php:229 actions/openidadminpanel.php:284
+msgctxt "BUTTON"
+msgid "Save"
+msgstr ""
+
+#. TRANS: Form validation error if no OpenID providers can be added.
+#: actions/openidsettings.php:248
+msgid "Cannot add new providers."
+msgstr ""
+
+#. TRANS: Unexpected form validation error.
+#: actions/openidsettings.php:271
+msgid "No known action for POST."
+msgstr ""
+
+#. TRANS: Form validation error when trying to remove a non-existing trustroot.
+#: actions/openidsettings.php:293
+msgid "No such OpenID trustroot."
+msgstr ""
+
+#. TRANS: Success message after removing trustroots.
+#: actions/openidsettings.php:298
+msgid "Trustroots removed."
+msgstr ""
+
+#. TRANS: Form validation error for a non-existing OpenID.
+#: actions/openidsettings.php:315 actions/openidsettings.php:336
+msgid "No such OpenID."
+msgstr ""
+
+#. TRANS: Form validation error if OpenID is connected to another user.
+#: actions/openidsettings.php:319
+msgid "That OpenID does not belong to you."
+msgstr ""
+
+#. TRANS: Success message after removing an OpenID.
+#: actions/openidsettings.php:323
+msgid "OpenID removed."
+msgstr ""
+
+#: actions/openidsettings.php:343
+msgid "Synchronized OpenID."
+msgstr ""
+
+#: actions/openidsettings.php:375
+msgid "OpenID preferences saved."
+msgstr ""
+
+#. TRANS: Error message displayed when trying to perform an action that requires a logged in user.
+#: actions/finishaddopenid.php:66 actions/finishsynchopenid.php:55
+msgid "Not logged in."
+msgstr ""
+
+#. TRANS: Status message in case the response from the OpenID provider is that the logon attempt was cancelled.
+#: actions/finishaddopenid.php:87 actions/finishsynchopenid.php:76
+#: actions/finishopenidlogin.php:254
+msgid "OpenID authentication cancelled."
+msgstr ""
+
+#. TRANS: OpenID authentication failed; display the error message. %s is the error message.
+#: actions/finishaddopenid.php:93 actions/finishsynchopenid.php:82
+#: actions/finishopenidlogin.php:258
+#, php-format
+msgid "OpenID authentication failed: %s."
+msgstr ""
+
+#. TRANS: OpenID authentication error.
+#. TRANS: Message displayed when OpenID authentication is aborted.
+#: actions/finishaddopenid.php:110 actions/finishsynchopenid.php:99
+#: actions/finishopenidlogin.php:279
+msgid ""
+"OpenID authentication aborted: You are not allowed to login to this site."
+msgstr ""
+
+#. TRANS: Message in case a user tries to add an OpenID that is already connected to them.
+#: actions/finishaddopenid.php:121
+msgid "You already have this OpenID!"
+msgstr ""
+
+#. TRANS: Message in case a user tries to add an OpenID that is already used by another user.
+#: actions/finishaddopenid.php:124
+msgid "Someone else already has this OpenID."
+msgstr ""
+
+#. TRANS: Message in case the OpenID object cannot be connected to the user.
+#: actions/finishaddopenid.php:137
+msgid "Error connecting user."
+msgstr ""
+
+#. TRANS: Message in case the user or the user profile cannot be saved in StatusNet.
+#: actions/finishaddopenid.php:145 actions/finishsynchopenid.php:112
+msgid "Error updating profile."
+msgstr ""
+
+#. TRANS: Title after getting the status of the OpenID authorisation request.
+#: actions/finishaddopenid.php:187
+msgid "OpenID Login"
+msgstr ""
+
+#. TRANS: Title after getting the status of the OpenID authorisation request.
+#. TODO update after understanding the function ^
+#: actions/finishsynchopenid.php:152
+msgid "OpenID Synchronization"
+msgstr ""
 
 #. TRANS: Title for identity verification page.
 #: actions/openidtrust.php:51
@@ -49,44 +331,6 @@ msgctxt "BUTTON"
 msgid "Cancel"
 msgstr ""
 
-#. TRANS: Error message displayed when trying to perform an action that requires a logged in user.
-#: actions/finishsyncopenid.php:55 actions/finishaddopenid.php:66
-msgid "Not logged in."
-msgstr ""
-
-#. TRANS: Status message in case the response from the OpenID provider is that the logon attempt was cancelled.
-#: actions/finishsyncopenid.php:76 actions/finishopenidlogin.php:254
-#: actions/finishaddopenid.php:87
-msgid "OpenID authentication cancelled."
-msgstr ""
-
-#. TRANS: OpenID authentication failed; display the error message. %s is the error message.
-#: actions/finishsyncopenid.php:82 actions/finishopenidlogin.php:258
-#: actions/finishaddopenid.php:93
-#, php-format
-msgid "OpenID authentication failed: %s."
-msgstr ""
-
-#. TRANS: OpenID authentication error.
-#. TRANS: Message displayed when OpenID authentication is aborted.
-#. TRANS: OpenID authentication error.
-#: actions/finishsyncopenid.php:99 actions/finishopenidlogin.php:279
-#: actions/finishaddopenid.php:110
-msgid ""
-"OpenID authentication aborted: You are not allowed to login to this site."
-msgstr ""
-
-#. TRANS: Message in case the user or the user profile cannot be saved in StatusNet.
-#: actions/finishsyncopenid.php:112 actions/finishaddopenid.php:145
-msgid "Error updating profile."
-msgstr ""
-
-#. TRANS: Title after getting the status of the OpenID authorisation request.
-#. TODO update after understanding the function ^
-#: actions/finishsyncopenid.php:152
-msgid "OpenID Synchronization"
-msgstr ""
-
 #. TRANS: OpenID plugin client error given trying to add an unauthorised OpenID to a user (403).
 #. TRANS: %s is a request identity.
 #: actions/openidserver.php:113
@@ -99,9 +343,96 @@ msgstr ""
 msgid "Just an OpenID provider. Nothing to see here, move along..."
 msgstr ""
 
-#. TRANS: Client error message trying to log on with OpenID while already logged on.
-#: actions/finishopenidlogin.php:37 actions/openidlogin.php:33
-msgid "Already logged in."
+#. TRANS: Title for OpenID bridge administration page.
+#: actions/openidadminpanel.php:53
+msgctxt "TITLE"
+msgid "OpenID Settings"
+msgstr ""
+
+#. TRANS: Page instructions.
+#: actions/openidadminpanel.php:64
+msgid "OpenID settings"
+msgstr ""
+
+#. TRANS: Client error displayed when OpenID provider URL is too long.
+#: actions/openidadminpanel.php:145
+msgid "Invalid provider URL. Maximum length is 255 characters."
+msgstr ""
+
+#. TRANS: Client error displayed when Launchpad team name is too long.
+#: actions/openidadminpanel.php:152
+msgid "Invalid team name. Maximum length is 255 characters."
+msgstr ""
+
+#. TRANS: Fieldset legend.
+#: actions/openidadminpanel.php:206
+msgctxt "LEGEND"
+msgid "Trusted provider"
+msgstr ""
+
+#. TRANS: Form guide.
+#: actions/openidadminpanel.php:209
+msgid ""
+"By default, users are allowed to authenticate with any OpenID provider. If "
+"you are using your own OpenID service for shared sign-in, you can restrict "
+"access to only your own users here."
+msgstr ""
+
+#. TRANS: Field label.
+#: actions/openidadminpanel.php:218
+msgid "Provider URL"
+msgstr ""
+
+#. TRANS: Field title.
+#: actions/openidadminpanel.php:220
+msgid ""
+"All OpenID logins will be sent to this URL; other providers may not be used."
+msgstr ""
+
+#. TRANS: Checkbox label.
+#: actions/openidadminpanel.php:228
+msgid "Append a username to base URL"
+msgstr ""
+
+#. TRANS: Checkbox title.
+#: actions/openidadminpanel.php:231
+msgid ""
+"Login form will show the base URL and prompt for a username to add at the "
+"end. Use when OpenID provider URL should be the profile page for individual "
+"users."
+msgstr ""
+
+#. TRANS: Field label.
+#: actions/openidadminpanel.php:240
+msgid "Required team"
+msgstr ""
+
+#. TRANS: Field title.
+#: actions/openidadminpanel.php:242
+msgid "Only allow logins from users in the given team (Launchpad extension)."
+msgstr ""
+
+#. TRANS: Fieldset legend.
+#: actions/openidadminpanel.php:255
+msgctxt "LEGEND"
+msgid "Options"
+msgstr ""
+
+#. TRANS: Checkbox label.
+#: actions/openidadminpanel.php:263
+msgid "Enable OpenID-only mode"
+msgstr ""
+
+#. TRANS: Checkbox title.
+#: actions/openidadminpanel.php:266
+msgid ""
+"Require all users to login via OpenID. Warning: disables password "
+"authentication for all users!"
+msgstr ""
+
+#. TRANS: Button title to save OpenID settings.
+#: actions/openidadminpanel.php:286
+msgid "Save OpenID settings."
 msgstr ""
 
 #. TRANS: Message given when there is a problem with the user's session token.
@@ -199,15 +530,6 @@ msgstr ""
 msgid "Password"
 msgstr ""
 
-#. TRANS: Field label in form in which to connect an OpenID to an existing user on the site.
-#: actions/finishopenidlogin.php:203
-msgid "Sync Account"
-msgstr ""
-
-#: actions/finishopenidlogin.php:204
-msgid "Syncronize GNU social profile with this OpenID identity."
-msgstr ""
-
 #. TRANS: Button text in form in which to connect an OpenID to an existing user on the site.
 #: actions/finishopenidlogin.php:208
 msgctxt "BUTTON"
@@ -244,336 +566,6 @@ msgstr ""
 #. TRANS: OpenID plugin server error. The user or user profile could not be saved.
 #: actions/finishopenidlogin.php:457
 msgid "Error connecting user to OpenID."
-msgstr ""
-
-#. TRANS: Title for OpenID bridge administration page.
-#: actions/openidadminpanel.php:53
-msgctxt "TITLE"
-msgid "OpenID Settings"
-msgstr ""
-
-#. TRANS: Page instructions.
-#: actions/openidadminpanel.php:64
-msgid "OpenID settings"
-msgstr ""
-
-#. TRANS: Client error displayed when OpenID provider URL is too long.
-#: actions/openidadminpanel.php:145
-msgid "Invalid provider URL. Maximum length is 255 characters."
-msgstr ""
-
-#. TRANS: Client error displayed when Launchpad team name is too long.
-#: actions/openidadminpanel.php:152
-msgid "Invalid team name. Maximum length is 255 characters."
-msgstr ""
-
-#. TRANS: Fieldset legend.
-#: actions/openidadminpanel.php:206
-msgctxt "LEGEND"
-msgid "Trusted provider"
-msgstr ""
-
-#. TRANS: Form guide.
-#: actions/openidadminpanel.php:209
-msgid ""
-"By default, users are allowed to authenticate with any OpenID provider. If "
-"you are using your own OpenID service for shared sign-in, you can restrict "
-"access to only your own users here."
-msgstr ""
-
-#. TRANS: Field label.
-#: actions/openidadminpanel.php:218
-msgid "Provider URL"
-msgstr ""
-
-#. TRANS: Field title.
-#: actions/openidadminpanel.php:220
-msgid ""
-"All OpenID logins will be sent to this URL; other providers may not be used."
-msgstr ""
-
-#. TRANS: Checkbox label.
-#: actions/openidadminpanel.php:228
-msgid "Append a username to base URL"
-msgstr ""
-
-#. TRANS: Checkbox title.
-#: actions/openidadminpanel.php:231
-msgid ""
-"Login form will show the base URL and prompt for a username to add at the "
-"end. Use when OpenID provider URL should be the profile page for individual "
-"users."
-msgstr ""
-
-#. TRANS: Field label.
-#: actions/openidadminpanel.php:240
-msgid "Required team"
-msgstr ""
-
-#. TRANS: Field title.
-#: actions/openidadminpanel.php:242
-msgid "Only allow logins from users in the given team (Launchpad extension)."
-msgstr ""
-
-#. TRANS: Fieldset legend.
-#: actions/openidadminpanel.php:255
-msgctxt "LEGEND"
-msgid "Options"
-msgstr ""
-
-#. TRANS: Checkbox label.
-#: actions/openidadminpanel.php:263
-msgid "Enable OpenID-only mode"
-msgstr ""
-
-#. TRANS: Checkbox title.
-#: actions/openidadminpanel.php:266
-msgid ""
-"Require all users to login via OpenID. Warning: disables password "
-"authentication for all users!"
-msgstr ""
-
-#. TRANS: Button text to save OpenID settings.
-#. TRANS: Button text to save OpenID prefs
-#: actions/openidadminpanel.php:284 actions/openidsettings.php:229
-msgctxt "BUTTON"
-msgid "Save"
-msgstr ""
-
-#. TRANS: Button title to save OpenID settings.
-#: actions/openidadminpanel.php:286
-msgid "Save OpenID settings."
-msgstr ""
-
-#. TRANS: Title of OpenID settings page for a user.
-#: actions/openidsettings.php:57
-msgctxt "TITLE"
-msgid "OpenID settings"
-msgstr ""
-
-#. TRANS: Form instructions for OpenID settings.
-#. TRANS: This message contains Markdown links in the form [description](link).
-#: actions/openidsettings.php:69
-#, php-format
-msgid ""
-"[OpenID](%%doc.openid%%) lets you log into many sites with the same user "
-"account. Manage your associated OpenIDs from here."
-msgstr ""
-
-#. TRANS: Fieldset legend.
-#: actions/openidsettings.php:98
-msgctxt "LEGEND"
-msgid "Add OpenID"
-msgstr ""
-
-#. TRANS: Field label.
-#. TRANS: OpenID plugin logon form field label.
-#: actions/openidsettings.php:103 actions/openidlogin.php:155
-#: OpenIDPlugin.php:657
-msgid "OpenID URL"
-msgstr ""
-
-#. TRANS: Form guide.
-#: actions/openidsettings.php:105
-msgid "An OpenID URL which identifies you."
-msgstr ""
-
-#. TRANS: Field label.
-#: actions/openidsettings.php:111
-msgid "Synchronize Account"
-msgstr ""
-
-#. TRANS: Form guide.
-#: actions/openidsettings.php:113
-msgid "Synchronize GNU social profile with this OpenID identity."
-msgstr ""
-
-#. TRANS: Button text for adding an OpenID URL.
-#: actions/openidsettings.php:117
-msgctxt "BUTTON"
-msgid "Add"
-msgstr ""
-
-#. TRANS: Header on OpenID settings page.
-#: actions/openidsettings.php:129
-msgctxt "HEADER"
-msgid "OpenID Actions"
-msgstr ""
-
-#. TRANS: Form guide.
-#: actions/openidsettings.php:134
-msgid ""
-"You can't remove your main OpenID account without either adding a password "
-"to your GNU social account or another OpenID account. You can synchronize "
-"your profile with your OpenID by clicking the button labeled \"Synchronize\"."
-msgstr ""
-
-#. TRANS: Button text to sync OpenID with the GS profile.
-#. TRANS: Button text to sync an OpenID with the GS profile.
-#: actions/openidsettings.php:150 actions/openidsettings.php:174
-msgctxt "BUTTON"
-msgid "Synchronize"
-msgstr ""
-
-#. TRANS: Form guide.
-#: actions/openidsettings.php:157
-msgid ""
-"You can remove an OpenID from your account by clicking the button labeled "
-"\"Remove\". You can synchronize your profile with an OpenID by clicking the "
-"button labeled \"Synchronize\"."
-msgstr ""
-
-#. TRANS: Button text to remove an OpenID.
-#. TRANS: Button text to remove an OpenID trustroot.
-#: actions/openidsettings.php:176 actions/openidsettings.php:219
-msgctxt "BUTTON"
-msgid "Remove"
-msgstr ""
-
-#. TRANS: Fieldset legend.
-#: actions/openidsettings.php:192
-msgid "OpenID Trusted Sites"
-msgstr ""
-
-#. TRANS: Form guide.
-#: actions/openidsettings.php:196
-msgid ""
-"The following sites are allowed to access your identity and log you in. You "
-"can remove a site from this list to deny it access to your OpenID."
-msgstr ""
-
-#: actions/openidsettings.php:225
-msgctxt "LEGEND"
-msgid "Preferences"
-msgstr ""
-
-#. TRANS: Form validation error if no OpenID providers can be added.
-#: actions/openidsettings.php:248
-msgid "Cannot add new providers."
-msgstr ""
-
-#. TRANS: Unexpected form validation error.
-#: actions/openidsettings.php:271
-msgid "No known action for POST."
-msgstr ""
-
-#. TRANS: Form validation error when trying to remove a non-existing trustroot.
-#: actions/openidsettings.php:293
-msgid "No such OpenID trustroot."
-msgstr ""
-
-#. TRANS: Success message after removing trustroots.
-#: actions/openidsettings.php:298
-msgid "Trustroots removed."
-msgstr ""
-
-#. TRANS: Form validation error for a non-existing OpenID.
-#: actions/openidsettings.php:315 actions/openidsettings.php:336
-msgid "No such OpenID."
-msgstr ""
-
-#. TRANS: Form validation error if OpenID is connected to another user.
-#: actions/openidsettings.php:319
-msgid "That OpenID does not belong to you."
-msgstr ""
-
-#. TRANS: Success message after removing an OpenID.
-#: actions/openidsettings.php:323
-msgid "OpenID removed."
-msgstr ""
-
-#: actions/openidsettings.php:343
-msgid "Synchronized OpenID."
-msgstr ""
-
-#: actions/openidsettings.php:375
-msgid "OpenID preferences saved."
-msgstr ""
-
-#. TRANS: OpenID plugin message. Rememberme logins have to reauthenticate before changing any profile settings.
-#. TRANS: "OpenID" is the display text for a link with URL "(%%doc.openid%%)".
-#: actions/openidlogin.php:74
-#, php-format
-msgid ""
-"For security reasons, please re-login with your [OpenID](%%doc.openid%%) "
-"before changing your settings."
-msgstr ""
-
-#. TRANS: OpenID plugin message.
-#. TRANS: "OpenID" is the display text for a link with URL "(%%doc.openid%%)".
-#: actions/openidlogin.php:80
-#, php-format
-msgid "Login with an [OpenID](%%doc.openid%%) account."
-msgstr ""
-
-#. TRANS: OpenID plugin message. Title.
-#: actions/openidlogin.php:114
-msgctxt "TITLE"
-msgid "OpenID Login"
-msgstr ""
-
-#. TRANS: OpenID plugin logon form legend.
-#: actions/openidlogin.php:132 OpenIDPlugin.php:634
-msgctxt "LEGEND"
-msgid "OpenID login"
-msgstr ""
-
-#. TRANS: Field label.
-#: actions/openidlogin.php:140
-msgctxt "LABEL"
-msgid "OpenID provider"
-msgstr ""
-
-#. TRANS: Form guide.
-#: actions/openidlogin.php:149 OpenIDPlugin.php:651
-msgid "Enter your username."
-msgstr ""
-
-#. TRANS: Form guide.
-#: actions/openidlogin.php:151 OpenIDPlugin.php:653
-msgid "You will be sent to the provider's site for authentication."
-msgstr ""
-
-#. TRANS: OpenID plugin logon form field title.
-#. TRANS: OpenID plugin logon form field instructions.
-#: actions/openidlogin.php:158 OpenIDPlugin.php:660
-msgid "Your OpenID URL."
-msgstr ""
-
-#. TRANS: OpenID plugin logon form checkbox label for setting to put the OpenID information in a cookie.
-#: actions/openidlogin.php:163
-msgid "Remember me"
-msgstr ""
-
-#. TRANS: OpenID plugin logon form field title.
-#: actions/openidlogin.php:165
-msgid "Automatically login in the future; not for shared computers!"
-msgstr ""
-
-#. TRANS: OpenID plugin logon form button label to start logon with the data provided in the logon form.
-#: actions/openidlogin.php:170
-msgctxt "BUTTON"
-msgid "Login"
-msgstr ""
-
-#. TRANS: Message in case a user tries to add an OpenID that is already connected to them.
-#: actions/finishaddopenid.php:121
-msgid "You already have this OpenID!"
-msgstr ""
-
-#. TRANS: Message in case a user tries to add an OpenID that is already used by another user.
-#: actions/finishaddopenid.php:124
-msgid "Someone else already has this OpenID."
-msgstr ""
-
-#. TRANS: Message in case the OpenID object cannot be connected to the user.
-#: actions/finishaddopenid.php:137
-msgid "Error connecting user."
-msgstr ""
-
-#. TRANS: Title after getting the status of the OpenID authorisation request.
-#: actions/finishaddopenid.php:187
-msgid "OpenID Login"
 msgstr ""
 
 #. TRANS: Client exception thrown when an action is not available.

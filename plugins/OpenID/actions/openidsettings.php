@@ -108,7 +108,7 @@ class OpenidsettingsAction extends SettingsAction
             $this->elementEnd('li');
             $this->elementStart('li');
             // TRANS: Field label.
-            $this->checkbox('openid-sync', _m('Synchronize Account'), false,
+            $this->checkbox('openid-synch', _m('Synchronize Account'), false,
                             // TRANS: Form guide.
                             _m('Synchronize GNU social profile with this OpenID identity.'));
             $this->elementEnd('li');
@@ -146,8 +146,8 @@ class OpenidsettingsAction extends SettingsAction
                     $this->hidden('token', common_session_token());
                     $this->element('a', ['href' => $oid->canonical], $oid->display);
                     $this->hidden("openid_url", $oid->canonical);
-                    // TRANS: Button text to sync OpenID with the GS profile.
-                    $this->submit("sync", _m('BUTTON', 'Synchronize'), 'submit sync');
+                    // TRANS: Button text to synchronize OpenID with the GS profile.
+                    $this->submit("synch", _m('BUTTON', 'Synchronize'), 'submit synch');
                     $this->elementEnd('fieldset');
                     $this->elementEnd('form');
                 }
@@ -171,7 +171,7 @@ class OpenidsettingsAction extends SettingsAction
                     $this->hidden("openid_url{$idx}", $oid->canonical, 'openid_url');
                     $this->elementStart('span', ['class' => 'element_actions']);
                     // TRANS: Button text to sync an OpenID with the GS profile.
-                    $this->submit("sync{$idx}", _m('BUTTON', 'Synchronize'), 'submit', 'sync');
+                    $this->submit("synch{$idx}", _m('BUTTON', 'Synchronize'), 'submit', 'synch');
                     // TRANS: Button text to remove an OpenID.
                     $this->submit("remove{$idx}", _m('BUTTON', 'Remove'), 'submit', 'remove');
                     $this->elementEnd('span');
@@ -248,19 +248,19 @@ class OpenidsettingsAction extends SettingsAction
                 throw new ServerException(_m('Cannot add new providers.'));
             } else {
                 common_ensure_session();
-                $_SESSION['openid_sync'] = $this->boolean('openid-sync');
+                $_SESSION['openid_synch'] = $this->boolean('openid-synch');
                 
                 $result = oid_authenticate($this->trimmed('openid_url'), 'finishaddopenid');
                 if (is_string($result)) { // error message
-                    unset($_SESSION['openid-sync']);
+                    unset($_SESSION['openid-synch']);
                     throw new ServerException($result);
                 }
                 return _('Added new provider.');
             }
         } elseif ($this->arg('remove')) {
             return $this->removeOpenid();
-        } elseif ($this->arg('sync')) {
-            return $this->syncOpenid();
+        } elseif ($this->arg('synch')) {
+            return $this->synchOpenid();
         } elseif ($this->arg('remove_trustroots')) {
             return $this->removeTrustroots();
         } elseif ($this->arg('save_prefs')) {
@@ -324,11 +324,11 @@ class OpenidsettingsAction extends SettingsAction
     }
 
     /**
-     * Handles a request to sync an OpenID to the user's profile
+     * Handles a request to synch an OpenID to the user's profile
      *
      * @return void
      */
-    public function syncOpenid()
+    public function synchOpenid()
     {
         $oid = User_openid::getKV('canonical', $this->trimmed('openid_url'));
 
@@ -336,7 +336,7 @@ class OpenidsettingsAction extends SettingsAction
             throw new ClientException(_m('No such OpenID.'));
         }
         
-        $result = oid_authenticate($this->trimmed('openid_url'), 'finishsyncopenid');
+        $result = oid_authenticate($this->trimmed('openid_url'), 'finishsynchopenid');
         if (is_string($result)) { // error message
             throw new ServerException($result);
         }

@@ -15,7 +15,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * OpenID Sync completion
+ * OpenID Synch completion
  *
  * @package   GNUsocial
  * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
@@ -28,12 +28,12 @@ defined('GNUSOCIAL') || die();
 require_once(INSTALLDIR . '/plugins/OpenID/openid.php');
 
 /**
- * Action that handles OpenID Sync completion.
+ * Action that handles OpenID Synch completion.
  *
  * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class FinishsyncopenidAction extends Action
+class FinishsynchopenidAction extends Action
 {
     public $msg = null;
 
@@ -69,7 +69,7 @@ class FinishsyncopenidAction extends Action
     {
         $consumer = oid_consumer();
 
-        $response = $consumer->complete(common_local_url('finishsyncopenid'));
+        $response = $consumer->complete(common_local_url('finishsynchopenid'));
 
         if ($response->status == Auth_OpenID_CANCEL) {
             // TRANS: Status message in case the response from the OpenID provider is that the logon attempt was cancelled.

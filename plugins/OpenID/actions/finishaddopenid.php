@@ -138,7 +138,7 @@ class FinishaddopenidAction extends Action
                 return;
             }
 
-            if (isset($_SESSION['openid_sync']) && $_SESSION['openid_sync']) {
+            if (isset($_SESSION['openid_synch']) && $_SESSION['openid_synch']) {
                 if (Event::handle('StartOpenIDUpdateUser', [$cur, $canonical, &$sreg])) {
                     if (!oid_update_user($cur, $sreg)) {
                         // TRANS: Message in case the user or the user profile cannot be saved in StatusNet.
@@ -149,7 +149,7 @@ class FinishaddopenidAction extends Action
                 Event::handle('EndOpenIDUpdateUser', [$cur, $canonical, $sreg]);
             }
 
-            unset($_SESSION['openid_sync']);
+            unset($_SESSION['openid_synch']);
             
             // success!
 
