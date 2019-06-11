@@ -9,14 +9,14 @@ project.
 The file INSTALL.md has useful instructions on how to
 install this software.
 
-System administrators may find the DOCUMENTATION/SYSTEM_ADMINISTRATORS
+System administrators may find the `DOCUMENTATION/SYSTEM_ADMINISTRATORS`
 directory useful, namely:
 
 - upgrade_from: upgrading from different software
 - CONFIGURE.md: configuration options in gruesome detail.
 - PLUGINS.md: how to install and configure plugins.
 
-Developers may find the DOCUMENTATION/DEVELOPERS directory useful.
+Developers may find the `DOCUMENTATION/DEVELOPERS` directory useful.
 
 ## About
 
@@ -121,12 +121,13 @@ In the current phase of development it is probably
 recommended to use git as a means to stay up to date
 with the source code. You can choose between these
 branches:
-- master    "stable", usually working well
-- nightly   "unstable", most updates, not always working as expected
+* 1.20.x    "oldstable", few updates, well tested coded
+* master    "stable", usually working well
+* nightly   "testing", most updates, not always working as expected
 
 To keep it up-to-date, use `git pull`. Watch for conflicts!
 
-As in any upgrade, do `not` forget to run `/scripts/upgrade.php`.
+As in any upgrade, do __not__ forget to run `/scripts/upgrade.php`.
 
 ## Further information
 
@@ -139,3 +140,18 @@ There are several ways to get more information about GNU social.
 * GNU social has a bug tracker for any defects you may find, or ideas for
   making things better. <https://notabug.org/diogo/gnu-social/issues>
 * Patches are welcome, preferrably to our repository on notabug.org. <https://notabug.org/diogo/gnu-social>
+
+## Credits
+
+An incomplete list of developers who've worked on GNU social,
+or its predecessors StatusNet and Free Social has been made available
+in `CREDITS.md`.
+
+### Current team
+
+* Matt Lee
+* Mikael Nordfeldth
+* Diogo Cordeiro
+* Bruno Casteleiro
+* Miguel Dantas
+* Alexei Sorokin

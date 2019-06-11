@@ -13,6 +13,7 @@ Current team
 * Diogo Cordeiro
 * Bruno Casteleiro
 * Miguel Dantas
+* Alexei Sorokin
 
 Additional Contributors
 -----------------------
@@ -54,6 +55,8 @@ Additional Contributors
 * Moonman
 * Normandy
 * Verius
+* Alexei Sorokin
+* Daniel Supernault
 
 Credits for StatusNet
 --------------
