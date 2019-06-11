@@ -1,33 +1,43 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008-2010, StatusNet, Inc.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Bootstrapping code to initialize the application.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @package   GNUsocial
+ * @author    Evan Prodromou
+ * @author    Shashi Gowda
+ * @author    Neil E. Hodges
+ * @author    Brion Vibber
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @copyright 2010-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 define('GNUSOCIAL_ENGINE', 'GNU social');
 define('GNUSOCIAL_ENGINE_URL', 'https://www.gnu.org/software/social/');
 
 define('GNUSOCIAL_BASE_VERSION', '1.20.0');
-define('GNUSOCIAL_LIFECYCLE', 'rc0'); // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'
+define('GNUSOCIAL_LIFECYCLE', 'release'); // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'
 
 define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
 
-define('GNUSOCIAL_CODENAME', 'Not decided yet');
+define('GNUSOCIAL_CODENAME', 'The Invicta Crusade');
 
 define('AVATAR_PROFILE_SIZE', 96);
 define('AVATAR_STREAM_SIZE', 48);
@@ -186,7 +196,7 @@ function PEAR_ErrorToPEAR_Exception(PEAR_Error $err)
 
     common_log(LOG_ERR, "PEAR Error: $msg ($userInfo)");
 
-    // HACK: queue handlers get kicked by the long-query killer, and 
+    // HACK: queue handlers get kicked by the long-query killer, and
     // keep the same broken connection. We die here to get a new
     // process started.
 
