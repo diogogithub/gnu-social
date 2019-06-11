@@ -746,7 +746,7 @@ class File extends Managed_DataObject
 
     public function getTitle()
     {
-        $title = $this->title ?: $this->filename;
+        $title = $this->title ?: MediaFile::getDisplayName($this);
 
         return $title ?: null;
     }

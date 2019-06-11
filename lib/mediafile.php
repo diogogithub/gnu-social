@@ -28,10 +28,7 @@
  * @link      https://www.gnu.org/software/social/
  */
 
-if (!defined('GNUSOCIAL')) {
-    exit(1);
-}
-
+defined('GNUSOCIAL') || die();
 
 /**
  * Class responsible for abstracting media files
@@ -307,6 +304,11 @@ class MediaFile
      *
      * Tries to set the mimetype correctly, using the most secure method available and rejects the file otherwise.
      * In case the upload is an image, this function returns an new ImageFile (which extends MediaFile)
+     * The filename has a new format:
+     *   bin2hex("{$original_name}.{$ext}")."-{$filehash}"
+     * This format should be respected. Notice the dash, which is important to distinguish it from the previous
+     * format ("{$hash}.{$ext}")
+     *
      * @param string $param
      * @param Profile|null $scoped
      * @return ImageFile|MediaFile
@@ -378,11 +380,28 @@ class MediaFile
             $mimetype = self::getUploadedMimeType($_FILES[$param]['tmp_name'], $_FILES[$param]['name']);
             $media = common_get_mime_media($mimetype);
 
-            $basename = basename($_FILES[$param]['name']);
-            $filename = $filehash . '.' . File::guessMimeExtension($mimetype, $basename);
-            $filepath = File::path($filename);
-            $result = move_uploaded_file($_FILES[$param]['tmp_name'], $filepath);
+            $basename = preg_replace("/\..+$/i", '', basename($_FILES[$param]['name']));
+            $ext = File::guessMimeExtension($mimetype, $basename);
 
+            if ($media === 'image') {
+                // Use -1 for the id to avoid adding this temporary file to the DB
+                $img = new ImageFile(-1, $_FILES[$param]['tmp_name']);
+                // Validate the image by reencoding it. Additionally normalizes old formats to PNG,
+                // keeping JPEG and GIF untouched
+                $outpath = $img->resizeTo($img->filepath);
+                $ext = image_type_to_extension($img->preferredType(), false);
+            }
+
+            // New file name format
+            $original_filename = bin2hex("{$basename}.{$ext}");
+            $filename = "{$original_filename}-{$filehash}";
+            $filepath = File::path($filename);
+
+            if ($media === 'image') {
+                $result = rename($outpath, $filepath);
+            } else {
+                $result = move_uploaded_file($_FILES[$param]['tmp_name'], $filepath);
+            }
             if (!$result) {
                 // TRANS: Client exception thrown when a file upload operation fails because the file could
                 // TRANS: not be moved from the temporary folder to the permanent file location.
@@ -391,15 +410,6 @@ class MediaFile
             }
 
             if ($media === 'image') {
-                // Use -1 for the id to avoid adding this temporary file to the DB
-                $img = new ImageFile(-1, $filepath);
-                // Validate the image by reencoding it. Additionally normalizes old formats to PNG,
-                // keeping JPEG and GIF untouched
-                $outpath = $img->resizeTo($img->filepath);
-                $ext = image_type_to_extension($img->preferredType());
-                $filename = $filehash . $ext;
-                $filepath = File::path($filename);
-                $result = rename($outpath, $filepath);
                 return new ImageFile(null, $filepath);
             }
         }
@@ -611,5 +621,50 @@ class MediaFile
             $hint = sprintf(_('"%s" is not a supported file type on this server.'), $mimetype);
         }
         throw new ClientException($hint);
+    }
+
+    /**
+     * Title for a file, to display in the interface (if there's no better title) and
+     * for download filenames
+     * @param $file File object
+     * @returns string
+     */
+    public static function getDisplayName(File $file) : string {
+        // New file name format is "{bin2hex(original_name.ext)}-{$hash}"
+        $ret = preg_match('/^([^\-]+)-.+$/', $file->filename, $matches);
+        // If there was an error in the match, something's wrong with some piece
+        // of code (could be a file with utf8 chars in the name)
+        $user_error_mesg = "Invalid file name ({$file->filename}).";
+        $log_error_msg   = "Invalid file name for File with id={$file->id} " .
+                           "({$file->filename}). Some plugin probably did something wrong.";
+
+        if ($ret === false) {
+            common_log(LOG_ERR, $log_error_msg);
+            throw new ServerException($user_error_msg);
+        } elseif ($ret === 1) {
+            $filename = hex2bin($matches[1]);
+        } else {
+            // The old file name format was "{hash}.{ext}"
+            // This estracts the extension
+            $ret = preg_match('/^[^\.]+\.(.+)$/', $file->filename, $matches);
+            if ($ret !== 1) {
+                common_log(LOG_ERR, $log_error_msg);
+                throw new ServerException($user_error_msg);
+            }
+            $ext = $matches[1];
+            // Previously, there was a blacklisted extension array, which could have an alternative
+            // extension, such as phps, to replace php. We want to turn it back
+            $blacklist = common_config('attachments', 'extblacklist');
+            if (is_array($blacklist)) {
+                foreach ($blacklist as $upload_ext => $safe_ext) {
+                    if ($ext === $safe_ext) {
+                        $ext = $upload_ext;
+                        break;
+                    }
+                }
+            }
+            $filename = "untitled.{$ext}";
+        }
+        return $filename;
     }
 }

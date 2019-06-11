@@ -41,9 +41,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 class AttachmentAction extends ManagedAction
 {
     /**
-     * Attachment object to show
+     * Attachment File object to show
      */
-
     var $attachment = null;
 
     /**
