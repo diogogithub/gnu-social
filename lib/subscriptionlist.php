@@ -44,7 +44,7 @@ class SubscriptionList extends ProfileList
     /** Owner of this list */
     var $owner = null;
 
-    public function __construct(Profile $profile, $owner=null, $action=null)
+    public function __construct($profile, $owner=null, $action=null)
     {
         parent::__construct($profile, $action);
 

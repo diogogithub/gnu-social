@@ -37,14 +37,18 @@ class ProfileListItem extends Widget
     /** Action object using us. */
     var $action = null;
 
-    // FIXME: Directory plugin sends a User_group here, but should send a Profile and handle User_group specifics itself
-    function __construct($target, HTMLOutputter $action)
+    // FIXME: Directory plugin sends a User_group here, but should send a Profile and handle User_group specifics itself?
+    function __construct($target, HTMLOutputter $action, Profile $owner = null)
     {
         parent::__construct($action);
 
         $this->target = $target;
-        $this->profile = $this->target;
-        $this->action  = $action;
+        if ($owner !== null) {
+            $this->profile = $owner;
+        } else {
+            $this->profile = $this->target;
+        }
+        $this->action = $action;
     }
 
     function getTarget()
@@ -165,7 +169,7 @@ class ProfileListItem extends Widget
     {
         $user = common_current_user();
         if (!empty($user)) {
-            if ($user->id == $this->profile->id) {
+            if ($user->id == $this->profile->getID()) {
                 $tags = new SelftagsWidget($this->out, $user, $this->profile);
                 $tags->show();
             } else if ($user->getProfile()->canTag($this->profile)) {

@@ -79,7 +79,7 @@ class TagSub extends Managed_DataObject
      * @param string $tag subscribee
      * @return TagSub
      */
-    static function start(Profile $profile, $tag)
+    public static function start(Profile $profile, $tag)
     {
         $ts = new TagSub();
         $ts->tag = $tag;
@@ -96,35 +96,35 @@ class TagSub extends Managed_DataObject
      * @param profile $profile subscriber
      * @param string $tag subscribee
      */
-    static function cancel(Profile $profile, $tag)
+    public static function cancel(Profile $profile, $tag)
     {
         $ts = TagSub::pkeyGet(array('tag' => $tag,
-                                    'profile_id' => $profile->id));
+            'profile_id' => $profile->id));
         if ($ts) {
             $ts->delete();
             self::blow('tagsub:by_profile:%d', $profile->id);
         }
     }
 
-    static function forProfile(Profile $profile)
+    public static function forProfile(Profile $profile)
     {
         $tags = array();
 
         $keypart = sprintf('tagsub:by_profile:%d', $profile->id);
         $tagstring = self::cacheGet($keypart);
-        
+
         if ($tagstring !== false) { // cache hit
-        	if (!empty($tagstring)) {
-            	$tags = explode(',', $tagstring);
-        	}
+            if (!empty($tagstring)) {
+                $tags = explode(',', $tagstring);
+            }
         } else {
-            $tagsub             = new TagSub();
+            $tagsub = new TagSub();
             $tagsub->profile_id = $profile->id;
             $tagsub->selectAdd();
             $tagsub->selectAdd('tag');
 
             if ($tagsub->find()) {
-				$tags = $tagsub->fetchAll('tag');
+                $tags = $tagsub->fetchAll('tag');
             }
 
             self::cacheSet($keypart, implode(',', $tags));

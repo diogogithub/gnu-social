@@ -49,40 +49,40 @@ class TagSubMenu extends MoreMenu
     protected $user;
     protected $tags;
 
-    function __construct($out, $user, $tags)
+    public function __construct($out, $user, $tags)
     {
         parent::__construct($out);
         $this->user = $user;
         $this->tags = $tags;
     }
 
-    function getItems()
+    public function getItems()
     {
         $items = array();
-        
+
         foreach ($this->tags as $tag) {
             if (!empty($tag)) {
                 $items[] = array('tag',
-                                 array('tag' => $tag),
-                                 sprintf('#%s', $tag),
-                                 // TRANS: Menu item title. %s is a tag.
-                                 sprintf(_('Notices tagged with "%s".'), $tag));
+                    array('tag' => $tag),
+                    sprintf('#%s', $tag),
+                    // TRANS: Menu item title. %s is a tag.
+                    sprintf(_('Notices tagged with "%s".'), $tag));
             }
         }
 
         return $items;
     }
 
-    function tag()
+    public function tag()
     {
         return 'tagsubs';
     }
-    
-    function seeAllItem()
+
+    public function seeAllItem()
     {
         return array('tagsubs',
-                     array('nickname' => $this->user->nickname),
-                     _('See all'),
-                     _('See all tags you are following'));
+            array('nickname' => $this->user->nickname),
+            _('See all'),
+            _('See all tags you are following'));
     }
 }

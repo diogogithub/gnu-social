@@ -44,16 +44,16 @@ if (!defined('STATUSNET')) {
  */
 class TagSubPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '0.1.0';
+    const PLUGIN_VERSION = '0.1.1';
 
     /**
      * Database schema setup
      *
+     * @return bool hook value; true means continue processing, false means stop.
      * @see Schema
      *
-     * @return boolean hook value; true means continue processing, false means stop.
      */
-    function onCheckSchema()
+    public function onCheckSchema()
     {
         $schema = Schema::get();
         $schema->ensureTable('tagsub', TagSub::schemaDef());
@@ -69,16 +69,22 @@ class TagSubPlugin extends Plugin
      */
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('tag/:tag/subscribe',
-                    array('action' => 'tagsub'),
-                    array('tag' => Router::REGEX_TAG));
-        $m->connect('tag/:tag/unsubscribe',
-                    array('action' => 'tagunsub'),
-                    array('tag' => Router::REGEX_TAG));
+        $m->connect(
+            'tag/:tag/subscribe',
+            array('action' => 'tagsub'),
+            array('tag' => Router::REGEX_TAG)
+        );
+        $m->connect(
+            'tag/:tag/unsubscribe',
+            array('action' => 'tagunsub'),
+            array('tag' => Router::REGEX_TAG)
+        );
 
-        $m->connect(':nickname/tag-subscriptions',
-                    array('action' => 'tagsubs'),
-                    array('nickname' => Nickname::DISPLAY_FMT));
+        $m->connect(
+            ':nickname/tag-subscriptions',
+            array('action' => 'tagsubs'),
+            array('nickname' => Nickname::DISPLAY_FMT)
+        );
         return true;
     }
 
@@ -87,17 +93,17 @@ class TagSubPlugin extends Plugin
      *
      * @param array &$versions array of version data
      *
-     * @return value
+     * @return bool true hook value
      */
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions)
     {
-        $versions[] = array('name' => 'TagSub',
-                            'version' => self::PLUGIN_VERSION,
-                            'author' => 'Brion Vibber',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/TagSub',
-                            'rawdescription' =>
-                            // TRANS: Plugin description.
-                            _m('Plugin to allow following all messages with a given tag.'));
+        $versions[] = ['name' => 'TagSub',
+            'version' => self::PLUGIN_VERSION,
+            'author' => 'Brion Vibber',
+            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/TagSub',
+            'rawdescription' =>
+            // TRANS: Plugin description.
+                _m('Plugin to allow following all messages with a given tag.')];
         return true;
     }
 
@@ -113,7 +119,7 @@ class TagSubPlugin extends Plugin
      * @param array $ni in/out map of profile IDs to inbox constants
      * @return boolean hook result
      */
-    function onStartNoticeWhoGets(Notice $notice, array &$ni)
+    public function onStartNoticeWhoGets(Notice $notice, array &$ni)
     {
         foreach ($notice->getTags() as $tag) {
             $tagsub = new TagSub();
@@ -133,13 +139,13 @@ class TagSubPlugin extends Plugin
      * @param TagAction $action
      * @return boolean hook result
      */
-    function onStartTagShowContent(TagAction $action)
+    public function onStartTagShowContent(TagAction $action)
     {
         $user = common_current_user();
         if ($user) {
             $tag = $action->trimmed('tag');
             $tagsub = TagSub::pkeyGet(array('tag' => $tag,
-                                            'profile_id' => $user->id));
+                'profile_id' => $user->id));
             if ($tagsub) {
                 $form = new TagUnsubForm($action, $tag);
             } else {
@@ -162,28 +168,30 @@ class TagSubPlugin extends Plugin
      * @param Widget $widget Widget being executed
      *
      * @return boolean hook return
+     * @throws Exception
      */
-    function onEndSubGroupNav($widget)
+    public function onEndSubGroupNav($widget)
     {
         $action = $widget->out;
         $action_name = $action->trimmed('action');
 
-        $action->menuItem(common_local_url('tagsubs', array('nickname' => $action->user->nickname)),
-                          // TRANS: SubMirror plugin menu item on user settings page.
-                          _m('MENU', 'Tags'),
-                          // TRANS: SubMirror plugin tooltip for user settings menu item.
-                          _m('Configure tag subscriptions'),
-                          $action_name == 'tagsubs' && $action->arg('nickname') == $action->user->nickname);
+        $action->menuItem(
+            common_local_url('tagsubs', array('nickname' => $action->user->nickname)),
+            // TRANS: SubMirror plugin menu item on user settings page.
+            _m('MENU', 'Tags'),
+            // TRANS: SubMirror plugin tooltip for user settings menu item.
+            _m('Configure tag subscriptions'),
+            $action_name == 'tagsubs' && $action->arg('nickname') == $action->user->nickname
+        );
 
         return true;
     }
 
-    function onEndDefaultLocalNav($menu, $user)
+    public function onEndDefaultLocalNav($menu, $user)
     {
-        $user = common_current_user();
+        $user = $user ? $user : common_current_user();
 
         if (!empty($user)) {
-
             $tags = TagSub::forProfile($user->getProfile());
 
             if (!empty($tags) && count($tags) > 0) {

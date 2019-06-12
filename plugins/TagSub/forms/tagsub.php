@@ -51,15 +51,15 @@ class TagSubForm extends Form
     /**
      * Name of tag to subscribe to
      */
-    var $tag = '';
+    public $tag = '';
 
     /**
      * Constructor
      *
-     * @param HTMLOutputter $out     output channel
-     * @param string        $tag     name of tag to subscribe to
+     * @param HTMLOutputter $out output channel
+     * @param string $tag name of tag to subscribe to
      */
-    function __construct($out=null, $tag=null)
+    public function __construct($out = null, $tag = null)
     {
         parent::__construct($out);
 
@@ -71,7 +71,7 @@ class TagSubForm extends Form
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'tag-subscribe-' . $this->tag;
     }
@@ -81,7 +81,7 @@ class TagSubForm extends Form
      *
      * @return string of the form class
      */
-    function formClass()
+    public function formClass()
     {
         // class to match existing styles...
         return 'form_user_subscribe ajax';
@@ -92,7 +92,7 @@ class TagSubForm extends Form
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('tagsub', array('tag' => $this->tag));
     }
@@ -101,8 +101,9 @@ class TagSubForm extends Form
      * Legend of the Form
      *
      * @return void
+     * @throws Exception
      */
-    function formLegend()
+    public function formLegend()
     {
         // TRANS: Form legend.
         $this->out->element('legend', null, _m('Subscribe to this tag'));
@@ -113,23 +114,31 @@ class TagSubForm extends Form
      *
      * @return void
      */
-    function formData()
+    public function formData()
     {
-        $this->out->hidden('subscribeto-' . $this->tag,
-                           $this->tag,
-                           'subscribeto');
+        $this->out->hidden(
+            'subscribeto-' . $this->tag,
+            $this->tag,
+            'subscribeto'
+        );
     }
 
     /**
      * Action elements
      *
      * @return void
+     * @throws Exception
      */
-    function formActions()
+    public function formActions()
     {
         // TRANS: Submit button text to subscribe to a tag.
-        $this->out->submit('submit', _m('BUTTON','Subscribe'),
-                           // TRANS: Submit button title to subscribe to a tag.
-                           'submit', null, _m('Subscribe to this tag.'));
+        $this->out->submit(
+            'submit',
+            _m('BUTTON', 'Subscribe'),
+            // TRANS: Submit button title to subscribe to a tag.
+            'submit',
+            null,
+            _m('Subscribe to this tag.')
+        );
     }
 }

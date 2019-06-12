@@ -53,7 +53,7 @@ class TagUnsubForm extends TagSubForm
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'tag-unsubscribe-' . $this->tag;
     }
@@ -63,7 +63,7 @@ class TagUnsubForm extends TagSubForm
      *
      * @return string of the form class
      */
-    function formClass()
+    public function formClass()
     {
         // class to match existing styles...
         return 'form_user_unsubscribe ajax';
@@ -74,7 +74,7 @@ class TagUnsubForm extends TagSubForm
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('tagunsub', array('tag' => $this->tag));
     }
@@ -83,8 +83,9 @@ class TagUnsubForm extends TagSubForm
      * Legend of the Form
      *
      * @return void
+     * @throws Exception
      */
-    function formLegend()
+    public function formLegend()
     {
         // TRANS: Form legend.
         $this->out->element('legend', null, _m('Unsubscribe from this tag'));
@@ -94,12 +95,18 @@ class TagUnsubForm extends TagSubForm
      * Action elements
      *
      * @return void
+     * @throws Exception
      */
-    function formActions()
+    public function formActions()
     {
         // TRANS: Submit button text to unsubscribe from a tag.
-        $this->out->submit('submit', _m('BUTTON','Unsubscribe'),
-                           // TRANS: Submit button title to unsubscribe from a tag.
-                           'submit', null, _m('Unsubscribe from this tag.'));
+        $this->out->submit(
+            'submit',
+            _m('BUTTON', 'Unsubscribe'),
+            // TRANS: Submit button title to unsubscribe from a tag.
+            'submit',
+            null,
+            _m('Unsubscribe from this tag.')
+        );
     }
 }

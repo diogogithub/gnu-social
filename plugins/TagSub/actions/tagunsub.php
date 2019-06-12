@@ -58,16 +58,17 @@ class TagunsubAction extends TagsubAction
      *
      * Does the subscription and returns results.
      *
-     * @param Array $args unused.
-     *
      * @return void
+     * @throws ClientException
      */
-    function handle()
+    public function handle()
     {
         // Throws exception on error
 
-        TagSub::cancel($this->user->getProfile(),
-                       $this->tag);
+        TagSub::cancel(
+            $this->user->getProfile(),
+            $this->tag
+        );
 
         if ($this->boolean('ajax')) {
             $this->startHTML('text/xml;charset=utf-8');
@@ -81,8 +82,10 @@ class TagunsubAction extends TagsubAction
             $this->elementEnd('body');
             $this->endHTML();
         } else {
-            $url = common_local_url('tag',
-                                    array('tag' => $this->tag));
+            $url = common_local_url(
+                'tag',
+                array('tag' => $this->tag)
+            );
             common_redirect($url, 303);
         }
     }

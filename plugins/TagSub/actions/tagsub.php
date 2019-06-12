@@ -53,8 +53,8 @@ if (!defined('STATUSNET')) {
  */
 class TagsubAction extends Action
 {
-    var $user;
-    var $tag;
+    public $user;
+    public $tag;
 
     /**
      * Check pre-requisites and instantiate attributes
@@ -62,8 +62,9 @@ class TagsubAction extends Action
      * @param Array $args array of arguments (URL, GET, POST)
      *
      * @return boolean success flag
+     * @throws ClientException
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = array())
     {
         parent::prepare($args);
         if ($this->boolean('ajax')) {
@@ -84,8 +85,8 @@ class TagsubAction extends Action
 
         if (!$token || $token != common_session_token()) {
             // TRANS: Client error displayed when the session token is not okay.
-            $this->clientError(_m('There was a problem with your session token.'.
-                                 ' Try again, please.'));
+            $this->clientError(_m('There was a problem with your session token.' .
+                ' Try again, please.'));
         }
 
         // Only for logged-in users
@@ -114,16 +115,17 @@ class TagsubAction extends Action
      *
      * Does the subscription and returns results.
      *
-     * @param Array $args unused.
-     *
      * @return void
+     * @throws ClientException
      */
-    function handle()
+    public function handle()
     {
         // Throws exception on error
 
-        TagSub::start($this->user->getProfile(),
-                      $this->tag);
+        TagSub::start(
+            $this->user->getProfile(),
+            $this->tag
+        );
 
         if ($this->boolean('ajax')) {
             $this->startHTML('text/xml;charset=utf-8');
@@ -137,8 +139,10 @@ class TagsubAction extends Action
             $this->elementEnd('body');
             $this->endHTML();
         } else {
-            $url = common_local_url('tag',
-                                    array('tag' => $this->tag));
+            $url = common_local_url(
+                'tag',
+                array('tag' => $this->tag)
+            );
             common_redirect($url, 303);
         }
     }

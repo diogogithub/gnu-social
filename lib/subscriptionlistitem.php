@@ -7,9 +7,14 @@ class SubscriptionListItem extends ProfileListItem
     /** Owner of this list */
     var $owner = null;
 
-    function __construct(Profile $profile, $owner, $action)
+    // FIXME: TagSubs plugin sends a TagSub here, but should send a Profile and handle TagSub specifics itself?
+    function __construct($target, $owner, HTMLOutputter $action)
     {
-        parent::__construct($profile, $action);
+        if ($owner instanceof Profile) {
+            parent::__construct($target, $action, $owner);
+        } else {
+            parent::__construct($target, $action);
+        }
 
         $this->owner = $owner;
     }

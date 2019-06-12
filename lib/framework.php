@@ -32,7 +32,7 @@ defined('GNUSOCIAL') || die();
 define('GNUSOCIAL_ENGINE', 'GNU social');
 define('GNUSOCIAL_ENGINE_URL', 'https://www.gnu.org/software/social/');
 
-define('GNUSOCIAL_BASE_VERSION', '1.20.2');
+define('GNUSOCIAL_BASE_VERSION', '1.20.3');
 define('GNUSOCIAL_LIFECYCLE', 'release'); // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'
 
 define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
