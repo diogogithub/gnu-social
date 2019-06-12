@@ -30,7 +30,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class OStatusPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const PLUGIN_VERSION = '2.0.1';
 
     /**
      * Hook for RouterInitialized event.
@@ -1269,7 +1269,7 @@ class OStatusPlugin extends Plugin
         }
         try {
             $oprofile = Ostatus_profile::fromProfile($profile);
-        } catch (NoResultException $e) {
+        } catch (Exception $e) {
             // Not a remote Ostatus_profile! Maybe some other network
             // that has imported a non-local user?
             return true;
