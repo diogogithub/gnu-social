@@ -37,7 +37,7 @@ defined('GNUSOCIAL') || die();
  */
 class OembedPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const PLUGIN_VERSION = '2.0.1';
 
     // settings which can be set in config.php with addPlugin('Oembed', array('param'=>'value', ...));
     // WARNING, these are _regexps_ (slashes added later). Always escape your dots and end your strings
@@ -579,7 +579,8 @@ class OembedPlugin extends Plugin
         $ext = File::guessMimeExtension($info['mime']);
 
         try {
-            $filename = sprintf('oembed-%d.%s', $thumbnail->getFileId(), $ext);
+            // We'll trust sha256 (File::FILEHASH_ALG) not to have collision issues any time soon :)
+            $filename = sprintf('oembed-%d.%s', hash(File::FILEHASH_ALG, $imgData), $ext);
             $fullpath = File_thumbnail::path($filename);
             // Write the file to disk. Throw Exception on failure
             if (!file_exists($fullpath) && file_put_contents($fullpath, $imgData) === false) {
