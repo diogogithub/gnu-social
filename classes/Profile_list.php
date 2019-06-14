@@ -48,7 +48,7 @@ class Profile_list extends Managed_DataObject
                 'description' => array('type' => 'text', 'description' => 'description of the people tag'),
                 'private' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'is this tag private'),
 
-                'created' => array('type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date the tag was added'),
+                'created' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date the tag was added'),
                 'modified' => array('type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date the tag was modified'),
 
                 'uri' => array('type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'),
