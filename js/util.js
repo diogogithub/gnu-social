@@ -952,7 +952,8 @@ var SN = { // StatusNet
                 preview = false;
             }
 
-            var imageTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml'];
+            var imageTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml',
+                              'image/bmp', 'image/webp', 'image/vnd.microsoft.icon'];
             if ($.inArray(file.type, imageTypes) == -1) {
                 // We probably don't know how to show the file.
                 preview = false;
@@ -966,14 +967,16 @@ var SN = { // StatusNet
 
             if (preview) {
                 blobAsDataURL(file, function (url) {
-                    var fileentry = $('<li class="attachment"></li>');
-                    fileentry.append($('<code>' + file.name + '</code>'));
+                    var fileentry = $('<li>')
+                        .attr('class', 'attachment')
+                        .attr('style', 'text-align: center');
                     var img = $('<img>')
                         .attr('title', tooltip)
                         .attr('alt', tooltip)
                         .attr('src', url)
                         .attr('style', 'height: 120px');
                     fileentry.append(img);
+                    fileentry.append($('<br><code>' + file.name + '</code>'));
                     form.find('.attach-status').append(fileentry);
                 });
             } else {
