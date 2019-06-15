@@ -965,11 +965,11 @@ var SN = { // StatusNet
                 preview = false;
             }
 
+            var fileentry = $('<li>')
+                .attr('class', 'attachment')
+                .attr('style', 'text-align: center');
             if (preview) {
                 blobAsDataURL(file, function (url) {
-                    var fileentry = $('<li>')
-                        .attr('class', 'attachment')
-                        .attr('style', 'text-align: center');
                     var img = $('<img>')
                         .attr('title', tooltip)
                         .attr('alt', tooltip)
@@ -980,8 +980,9 @@ var SN = { // StatusNet
                     form.find('.attach-status').append(fileentry);
                 });
             } else {
-                var img = $('<div></div>').text(tooltip);
-                form.find('.attach-status').append(img);
+                fileentry.append($('<code>' + file.type + '</code>'));
+                fileentry.append($('<br><code>' + file.name + '</code>'));
+                form.find('.attach-status').append(fileentry);
             }
         },
 

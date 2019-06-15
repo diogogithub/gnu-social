@@ -380,8 +380,7 @@ class MediaFile
             $mimetype = self::getUploadedMimeType($_FILES[$param]['tmp_name'], $_FILES[$param]['name']);
             $media = common_get_mime_media($mimetype);
 
-            $basename = preg_replace("/\..+$/i", '', basename($_FILES[$param]['name']));
-            $ext = File::guessMimeExtension($mimetype, $basename);
+            $basename = basename($_FILES[$param]['name']);
 
             if ($media === 'image') {
                 // Use -1 for the id to avoid adding this temporary file to the DB
@@ -390,6 +389,11 @@ class MediaFile
                 // keeping JPEG and GIF untouched
                 $outpath = $img->resizeTo($img->filepath);
                 $ext = image_type_to_extension($img->preferredType(), false);
+            }
+
+            // If we have a replacement extension (either from the config or from converting an image)
+            if ($ext !== false) {
+                $basename = preg_replace("/\..+$/i", ".{$ext}", $basename);
             }
 
             // New file name format
@@ -649,7 +653,7 @@ class MediaFile
             $ret = preg_match('/^[^\.]+\.(.+)$/', $file->filename, $matches);
             if ($ret !== 1) {
                 common_log(LOG_ERR, $log_error_msg);
-                throw new ServerException($user_error_msg);
+                return _('Untitled attachment');
             }
             $ext = $matches[1];
             // Previously, there was a blacklisted extension array, which could have an alternative

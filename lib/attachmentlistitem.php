@@ -63,7 +63,7 @@ class AttachmentListItem extends Widget
     }
 
     function title() {
-        return $this->attachment->getTitle() ?: _('Untitled attachment');
+        return $this->attachment->getTitle() ?: MediaFile::getDisplayName($this->attachment);
     }
 
     function linkTitle() {

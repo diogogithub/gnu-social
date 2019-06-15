@@ -611,9 +611,9 @@ class ImageFile extends MediaFile
 
         return File_thumbnail::saveThumbnail(
             $this->fileRecord->getID(),
-                                             // no url since we generated it ourselves and can dynamically
-                                             // generate the url
-                                             null,
+            // no url since we generated it ourselves and can dynamically
+            // generate the url
+            null,
             $width,
             $height,
             $outname
