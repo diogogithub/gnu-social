@@ -266,7 +266,7 @@ $default =
                                 'video/quicktime'   => 'mov',
                                 'video/webm'        => 'webm',
                                 ),
-              'file_quota' => 5000000,
+              'file_quota' => common_get_preferred_php_upload_limit(),
               'user_quota' => 50000000,
               'monthly_quota' => 15000000,
               'uploads' => true,

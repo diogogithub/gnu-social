@@ -268,35 +268,9 @@ class MediaFile
     /**
      * The maximum allowed file size, as an int
      */
-    public static function maxFileSizeInt()
+    public static function maxFileSizeInt() : int
     {
-        return min(
-            self::sizeStrToInt(ini_get('post_max_size')),
-            self::sizeStrToInt(ini_get('upload_max_filesize')),
-            self::sizeStrToInt(ini_get('memory_limit'))
-        );
-    }
-
-    /**
-     * Convert a string representing a file size (with units), to an int
-     * @param $str
-     * @return bool|int|string
-     */
-    public static function sizeStrToInt($str)
-    {
-        $unit = substr($str, -1);
-        $num = substr($str, 0, -1);
-        switch (strtoupper($unit)) {
-        case 'G':
-            $num *= 1024;
-            // no break
-        case 'M':
-            $num *= 1024;
-            // no break
-        case 'K':
-            $num *= 1024;
-        }
-        return $num;
+        return common_config('attachments', 'file_quota');
     }
 
     /**

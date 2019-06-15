@@ -2649,6 +2649,54 @@ function common_strip_html($html, $trim=true, $save_whitespace=false)
     return $trim ? trim($text) : $text;
 }
 
+/**
+ * An internal helper function that converts a $size from php.ini for
+ * file size limit from the 'human-readable' shorthand into a int. If
+ * $size is empty (the value is not set in php.ini), returns a default
+ * value (5000000)
+ *
+ * @param string|bool $size
+ * @return int the php.ini upload limit in machine-readable format
+ */
+function _common_size_str_to_int($size) : int
+{
+    if (empty($size)) {
+        return 5000000;
+    }
+
+    $suffix = substr($size, -1);
+    $size   = substr($size, 0, -1);
+    switch (strtoupper($suffix)) {
+    case 'P':
+        $size *= 1024;
+        // no break
+    case 'T':
+        $size *= 1024;
+        // no break
+    case 'G':
+        $size *= 1024;
+        // no break
+    case 'M':
+        $size *= 1024;
+        // no break
+    case 'K':
+        $size *= 1024;
+        break;
+    }
+    return $size;
+}
+
+/**
+ * Uses `_common_size_str_to_int()` to find the smallest value for uploads in php.ini
+ *
+ * @returns int
+ */
+function common_get_preferred_php_upload_limit() {
+    return min(_common_size_str_to_int(ini_get('post_max_size')),
+               _common_size_str_to_int(ini_get('upload_max_filesize')),
+               _common_size_str_to_int(ini_get('memory_limit')));
+}
+
 function html_sprintf()
 {
     $args = func_get_args();
