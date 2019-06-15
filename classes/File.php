@@ -337,6 +337,31 @@ class File extends Managed_DataObject
     }
 
     /**
+     * @param string $filename
+     * @return string|bool Value from the 'extblacklist' array, in the config
+     */
+    public static function getSafeExtension(string $filename) {
+        if (preg_match('/^.+?\.([A-Za-z0-9]+)$/', $filename, $matches)) {
+            // we matched on a file extension, so let's see if it means something.
+            $ext = mb_strtolower($matches[1]);
+            $blacklist = common_config('attachments', 'extblacklist');
+            // If we got an extension from $filename we want to check if it's in a blacklist
+            // so we avoid people uploading restricted files
+            if (array_key_exists($ext, $blacklist)) {
+                if (!is_string($blacklist[$ext])) {
+                    return false;
+                }
+                // return a safe replacement extension ('php' => 'phps' for example)
+                return $blacklist[$ext];
+            }
+            // the attachment extension based on its filename was not blacklisted so it's ok to use it
+            return $ext;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * @param $mimetype string The mimetype we've discovered for this file.
      * @param $filename string An optional filename which we can use on failure.
      * @return mixed|string
@@ -351,28 +376,16 @@ class File extends Managed_DataObject
             return $ext;
         } catch (UnknownMimeExtensionException $e) {
             // We don't know the extension for this mimetype, but let's guess.
-
             // If we can't recognize the extension from the MIME, we try
             // to guess based on filename, if one was supplied.
-            if (!is_null($filename) && preg_match('/^.+\.([A-Za-z0-9]+)$/', $filename, $matches)) {
-                // we matched on a file extension, so let's see if it means something.
-                $ext = mb_strtolower($matches[1]);
-
-                $blacklist = common_config('attachments', 'extblacklist');
-                // If we got an extension from $filename we want to check if it's in a blacklist
-                // so we avoid people uploading .php files etc.
-                if (array_key_exists($ext, $blacklist)) {
-                    if (!is_string($blacklist[$ext])) {
-                        // we don't have a safe replacement extension
-                        throw new ClientException(_('Blacklisted file extension.'));
-                    }
-                    common_debug('Found replaced extension for filename '._ve($filename).': '._ve($ext));
-
-                    // return a safe replacement extension ('php' => 'phps' for example)
-                    return $blacklist[$ext];
+            if (!is_null($filename)) {
+                $ext = getSafeExtension($filename);
+                if ($ext === false) {
+                    // we don't have a safe replacement extension
+                    throw new ClientException(_('Blacklisted file extension.'));
+                } else {
+                    return $ext;
                 }
-                // the attachment extension based on its filename was not blacklisted so it's ok to use it
-                return $ext;
             }
         } catch (Exception $e) {
             common_log(LOG_INFO, 'Problem when figuring out extension for mimetype: '._ve($e));
@@ -381,9 +394,9 @@ class File extends Managed_DataObject
         // If nothing else has given us a result, try to extract it from
         // the mimetype value (this turns .jpg to .jpeg for example...)
         $matches = array();
-        // FIXME: try to build a regexp that will get jpeg from image/jpeg as well as json from application/jrd+json
-        if (!preg_match('/\/([a-z0-9]+)/', mb_strtolower($mimetype), $matches)) {
-            throw new Exception('Malformed mimetype: '.$mimetype);
+        // Will get jpeg from image/jpeg as well as json from application/jrd+json
+        if (!preg_match('/[\/+-\.]([a-z0-9]+)/', mb_strtolower($mimetype), $matches)) {
+            throw new Exception("Malformed mimetype: {$mimetype}");
         }
         return mb_strtolower($matches[1]);
     }

@@ -351,6 +351,12 @@ class MediaFile
                 File::respectsQuota($scoped, $_FILES[$param]['size']);
             }
 
+            // Gets a replacement extension if configured in the config, returns false if it's blocked
+            $ext = File::getSafeExtension($_FILES[$param]['name']);
+            if ($ext === false) {
+                throw new ClientException(_('Blacklisted file extension.'));
+            }
+
             $mimetype = self::getUploadedMimeType($_FILES[$param]['tmp_name'], $_FILES[$param]['name']);
             $media = common_get_mime_media($mimetype);
 
@@ -371,7 +377,7 @@ class MediaFile
             }
 
             // New file name format
-            $original_filename = bin2hex("{$basename}.{$ext}");
+            $original_filename = bin2hex($basename);
             $filename = "{$original_filename}-{$filehash}";
             $filepath = File::path($filename);
 
@@ -609,22 +615,20 @@ class MediaFile
      */
     public static function getDisplayName(File $file) : string {
         // New file name format is "{bin2hex(original_name.ext)}-{$hash}"
-        $ret = preg_match('/^([^\-]+)-.+$/', $file->filename, $matches);
+        $ret = preg_match('/^([^\.-]+)-.+$/', $file->filename, $matches);
         // If there was an error in the match, something's wrong with some piece
         // of code (could be a file with utf8 chars in the name)
-        $user_error_mesg = "Invalid file name ({$file->filename}).";
-        $log_error_msg   = "Invalid file name for File with id={$file->id} " .
-                           "({$file->filename}). Some plugin probably did something wrong.";
+        $log_error_msg = "Invalid file name for File with id={$file->id} " .
+                         "({$file->filename}). Some plugin probably did something wrong.";
 
         if ($ret === false) {
             common_log(LOG_ERR, $log_error_msg);
-            throw new ServerException($user_error_msg);
         } elseif ($ret === 1) {
             $filename = hex2bin($matches[1]);
         } else {
             // The old file name format was "{hash}.{ext}"
             // This estracts the extension
-            $ret = preg_match('/^[^\.]+\.(.+)$/', $file->filename, $matches);
+            $ret = preg_match('/^.+?\.(.+)$/', $file->filename, $matches);
             if ($ret !== 1) {
                 common_log(LOG_ERR, $log_error_msg);
                 return _('Untitled attachment');

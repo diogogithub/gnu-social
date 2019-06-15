@@ -273,10 +273,7 @@ $default =
               'show_html' => false,  // show (filtered) text/html attachments (and oEmbed HTML etc.). Doesn't affect AJAX calls.
               'show_thumbs' => true, // show thumbnails in notice lists for uploaded images, and photos and videos linked remotely that provide oEmbed info
               'process_links' => true, // check linked resources for embeddable photos and videos; this will hit referenced external web sites when processing new messages.
-              'extblacklist' => [
-                    'php' => 'phps',    // this turns .php into .phps
-                    'exe' => false,  // this would deny any uploads to keep the "exe" file extension
-                ],
+              'extblacklist' => [],
               'memory_limit' => '1024M' // PHP's memory limit to use temporarily when handling images
               ),
         'thumbnail' => [

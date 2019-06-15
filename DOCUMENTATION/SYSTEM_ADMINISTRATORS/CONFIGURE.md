@@ -667,6 +667,12 @@ in php.ini to be large enough to handle your upload. In httpd.conf
 (if you're using apache), check that the LimitRequestBody directive isn't
 set too low (it's optional, so it may not be there at all).
 
+* `extblacklist`: associative array to either deny certain extensions or
+    change them to a different one. For example:
+    $config['attachments']['extblacklist']['php'] = 'phps';  // this turns .php into .phps
+    $config['attachments']['extblacklist']['exe'] = false;   // this would deny any uploads
+                                                             // of files with the "exe" extension
+
 * `process_links`: follow redirects and save all available file information
     (mimetype, date, size, oembed, etc.). Defaults to true.
 

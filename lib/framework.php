@@ -32,12 +32,12 @@ defined('GNUSOCIAL') || die();
 define('GNUSOCIAL_ENGINE', 'GNU social');
 define('GNUSOCIAL_ENGINE_URL', 'https://www.gnu.org/software/social/');
 
-define('GNUSOCIAL_BASE_VERSION', '1.21.3');
+define('GNUSOCIAL_BASE_VERSION', '1.22.0');
 define('GNUSOCIAL_LIFECYCLE', 'dev'); // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'
 
 define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
 
-define('GNUSOCIAL_CODENAME', 'The Invicta Crusade');
+define('GNUSOCIAL_CODENAME', 'Undecided');
 
 define('AVATAR_PROFILE_SIZE', 96);
 define('AVATAR_STREAM_SIZE', 48);
