@@ -2660,7 +2660,9 @@ function common_strip_html($html, $trim=true, $save_whitespace=false)
  */
 function _common_size_str_to_int($size) : int
 {
-    if (empty($size)) {
+    // `memory_limit` can be -1 and `post_max_size` can be 0
+    // for unlimited. Consistency.
+    if (empty($size) || $size === '-1' || $size === '0') {
         return 5000000;
     }
 
@@ -2689,9 +2691,9 @@ function _common_size_str_to_int($size) : int
 /**
  * Uses `_common_size_str_to_int()` to find the smallest value for uploads in php.ini
  *
- * @returns int
+ * @return int
  */
-function common_get_preferred_php_upload_limit() {
+function common_get_preferred_php_upload_limit() : int {
     return min(_common_size_str_to_int(ini_get('post_max_size')),
                _common_size_str_to_int(ini_get('upload_max_filesize')),
                _common_size_str_to_int(ini_get('memory_limit')));
