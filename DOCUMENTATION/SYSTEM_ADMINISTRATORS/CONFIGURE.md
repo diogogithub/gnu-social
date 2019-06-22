@@ -146,6 +146,7 @@ This section is a catch-all for site-wide variables.
     be fine-tuned for notices, messages, profile bios and group descriptions.
     Zero indicates no limit.
 
+* favicon: the path to a custom favicon, eg: favicon.png
 
 db
 -------------------------------------------------------------------------------

@@ -249,7 +249,7 @@ class Action extends HTMLOutputter // lawsuit
         if ($this->needLogin) {
             $this->checkLogin(); // if not logged in, this redirs/excepts
         }
-        
+
         if ($this->redirectAfterLogin) {
             common_set_returnto($this->selfUrl());
         }
