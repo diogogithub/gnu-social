@@ -1,10 +1,12 @@
 <?php
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 class PollPrefsForm extends Form
 {
-    function __construct(Action $out, User_poll_prefs $prefs=null)
+    public function __construct(Action $out, User_poll_prefs $prefs = null)
     {
         parent::__construct($out);
         $this->prefs = $prefs;
@@ -19,14 +21,16 @@ class PollPrefsForm extends Form
      * @return void
      */
 
-    function formData()
+    public function formData()
     {
         $this->elementStart('fieldset');
         $this->elementStart('ul', 'form_data');
         $this->elementStart('li');
-        $this->checkbox('hide_responses',
-                        _('Do not deliver poll responses to my home timeline'),
-                        ($this->prefs instanceof User_poll_prefs && $this->prefs->hide_responses));
+        $this->checkbox(
+            'hide_responses',
+            _('Do not deliver poll responses to my home timeline'),
+            ($this->prefs instanceof User_poll_prefs && $this->prefs->hide_responses)
+        );
         $this->elementEnd('li');
         $this->elementEnd('ul');
         $this->elementEnd('fieldset');
@@ -41,7 +45,7 @@ class PollPrefsForm extends Form
      * @return void
      */
 
-    function formActions()
+    public function formActions()
     {
         $this->submit('submit', _('Save'));
     }
@@ -55,7 +59,7 @@ class PollPrefsForm extends Form
      * @return int ID of the form
      */
 
-    function id()
+    public function id()
     {
         return 'form_poll_prefs';
     }
@@ -69,7 +73,7 @@ class PollPrefsForm extends Form
      * @return string URL to post to
      */
 
-    function action()
+    public function action()
     {
         return common_local_url('pollsettings');
     }
@@ -80,7 +84,7 @@ class PollPrefsForm extends Form
      * @return string the form's class
      */
 
-    function formClass()
+    public function formClass()
     {
         return 'form_settings';
     }

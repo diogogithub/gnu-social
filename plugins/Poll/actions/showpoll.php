@@ -48,7 +48,7 @@ class ShowPollAction extends ShownoticeAction
 {
     protected $poll = null;
 
-    function getNotice()
+    public function getNotice()
     {
         $this->id = $this->trimmed('id');
 
@@ -77,19 +77,21 @@ class ShowPollAction extends ShownoticeAction
      *
      * @return string page tile
      */
-    function title()
+    public function title()
     {
         // TRANS: Page title for a poll.
         // TRANS: %1$s is the nickname of the user that created the poll, %2$s is the poll question.
-        return sprintf(_m('%1$s\'s poll: %2$s'),
-                       $this->user->nickname,
-                       $this->poll->question);
+        return sprintf(
+            _m('%1$s\'s poll: %2$s'),
+            $this->user->nickname,
+            $this->poll->question
+        );
     }
 
     /**
      * @fixme combine the notice time with poll update time
      */
-    function lastModified()
+    public function lastModified()
     {
         return Action::lastModified();
     }
@@ -98,7 +100,7 @@ class ShowPollAction extends ShownoticeAction
     /**
      * @fixme combine the notice time with poll update time
      */
-    function etag()
+    public function etag()
     {
         return Action::etag();
     }

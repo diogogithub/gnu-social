@@ -27,7 +27,9 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 class PollSettingsAction extends SettingsAction
 {
@@ -36,7 +38,7 @@ class PollSettingsAction extends SettingsAction
      *
      * @return string Page title
      */
-    function title()
+    public function title()
     {
         // TRANS: Page title.
         return _m('Poll settings');
@@ -48,7 +50,7 @@ class PollSettingsAction extends SettingsAction
      * @return string Instructions for use
      */
 
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Page instructions.
         return _m('Set your poll preferences');
@@ -57,7 +59,7 @@ class PollSettingsAction extends SettingsAction
     protected function getForm()
     {
         $prefs = User_poll_prefs::getKV('user_id', $this->scoped->getID());
-        $form = new PollPrefsForm($this, $prefs);
+        $form = new PollPrefsForm($this, $prefs ? $prefs : null);
         return $form;
     }
 
@@ -75,7 +77,7 @@ class PollSettingsAction extends SettingsAction
         }
 
         $upp->hide_responses = $this->boolean('hide_responses');
-        $upp->modified       = common_sql_now();
+        $upp->modified = common_sql_now();
 
         if ($orig instanceof User_poll_prefs) {
             $upp->update($orig);

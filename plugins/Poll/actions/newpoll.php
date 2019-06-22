@@ -45,19 +45,20 @@ if (!defined('STATUSNET')) {
  */
 class NewPollAction extends Action
 {
-    protected $user        = null;
-    protected $error       = null;
-    protected $complete    = null;
+    protected $user = null;
+    protected $error = null;
+    protected $complete = null;
 
-    protected $question    = null;
-    protected $options     = array();
+    protected $question = null;
+    protected $options = array();
 
     /**
      * Returns the title of the action
      *
      * @return string Action title
+     * @throws Exception
      */
-    function title()
+    public function title()
     {
         // TRANS: Title for poll page.
         return _m('New poll');
@@ -71,7 +72,7 @@ class NewPollAction extends Action
      * @return boolean true
      * @throws ClientException
      */
-    function prepare(array $args = [])
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -79,8 +80,10 @@ class NewPollAction extends Action
 
         if (empty($this->user)) {
             // TRANS: Client exception thrown trying to create a poll while not logged in.
-            throw new ClientException(_m('You must be logged in to post a poll.'),
-                                      403);
+            throw new ClientException(
+                _m('You must be logged in to post a poll.'),
+                403
+            );
         }
 
         if ($this->isPost()) {
@@ -102,8 +105,12 @@ class NewPollAction extends Action
      * Handler method
      *
      * @return void
+     * @throws ClientException
+     * @throws InvalidUrlException
+     * @throws ReflectionException
+     * @throws ServerException
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
 
@@ -120,15 +127,19 @@ class NewPollAction extends Action
      * Add a new Poll
      *
      * @return void
+     * @throws ClientException
+     * @throws InvalidUrlException
+     * @throws ReflectionException
+     * @throws ServerException
      */
-    function newPoll()
+    public function newPoll()
     {
         if ($this->boolean('ajax')) {
             GNUsocial::setApi(true);
         }
         try {
             if (empty($this->question)) {
-            // TRANS: Client exception thrown trying to create a poll without a question.
+                // TRANS: Client exception thrown trying to create a poll without a question.
                 throw new ClientException(_m('Poll must have a question.'));
             }
 
@@ -145,11 +156,12 @@ class NewPollAction extends Action
 
             ToSelector::fillOptions($this, $options);
 
-            $saved = Poll::saveNew($this->user->getProfile(),
-                                   $this->question,
-                                   $this->options,
-                                   $options);
-
+            $saved = Poll::saveNew(
+                $this->user->getProfile(),
+                $this->question,
+                $this->options,
+                $options
+            );
         } catch (ClientException $ce) {
             $this->error = $ce->getMessage();
             $this->showPage();
@@ -180,7 +192,7 @@ class NewPollAction extends Action
      *
      * @return void
      */
-    function showNotice(Notice $notice)
+    public function showNotice(Notice $notice)
     {
         class_exists('NoticeList'); // @fixme hack for autoloader
         $nli = new NoticeListItem($notice, $this);
@@ -192,15 +204,17 @@ class NewPollAction extends Action
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         if (!empty($this->error)) {
             $this->element('p', 'error', $this->error);
         }
 
-        $form = new NewPollForm($this,
-                                 $this->question,
-                                 $this->options);
+        $form = new NewPollForm(
+            $this,
+            $this->question,
+            $this->options
+        );
 
         $form->show();
 
@@ -216,7 +230,7 @@ class NewPollAction extends Action
      *
      * @return boolean is read only action?
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET' ||
             $_SERVER['REQUEST_METHOD'] == 'HEAD') {

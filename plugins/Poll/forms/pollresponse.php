@@ -52,11 +52,11 @@ class PollResponseForm extends Form
      * Construct a new poll form
      *
      * @param Poll $poll
-     * @param HTMLOutputter $out         output channel
+     * @param HTMLOutputter $out output channel
      *
      * @return void
      */
-    function __construct(Poll $poll, HTMLOutputter $out)
+    public function __construct(Poll $poll, HTMLOutputter $out)
     {
         parent::__construct($out);
         $this->poll = $poll;
@@ -67,7 +67,7 @@ class PollResponseForm extends Form
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'pollresponse-form';
     }
@@ -77,7 +77,7 @@ class PollResponseForm extends Form
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_settings ajax';
     }
@@ -87,7 +87,7 @@ class PollResponseForm extends Form
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('respondpoll', array('id' => $this->poll->id));
     }
@@ -97,18 +97,17 @@ class PollResponseForm extends Form
      *
      * @return void
      */
-    function formData()
+    public function formData()
     {
         $poll = $this->poll;
         $out = $this->out;
-        $id = "poll-" . $poll->id;
 
         $out->element('p', 'poll-question', $poll->question);
         $out->elementStart('ul', 'poll-options');
         foreach ($poll->getOptions() as $i => $opt) {
             $out->elementStart('li');
             $out->elementStart('label');
-            $out->element('input', array('type' => 'radio', 'name' => 'pollselection', 'value' => $i + 1), '');
+            $out->element('input', ['type' => 'radio', 'name' => 'pollselection', 'value' => $i + 1], '');
             $out->text(' ' . $opt);
             $out->elementEnd('label');
             $out->elementEnd('li');
@@ -121,7 +120,7 @@ class PollResponseForm extends Form
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
         // TRANS: Button text for submitting a poll response.
         $this->out->submit('poll-response-submit', _m('BUTTON', 'Submit'), 'submit', 'submit');

@@ -32,7 +32,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class ManagedAction extends Action
 {
-    protected function prepare(array $args=array())
+    protected function prepare(array $args = [])
     {
         if (!parent::prepare($args)) {
             return false;

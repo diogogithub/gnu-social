@@ -52,11 +52,11 @@ class PollResultForm extends Form
      * Construct a new poll form
      *
      * @param Poll $poll
-     * @param HTMLOutputter $out         output channel
+     * @param HTMLOutputter $out output channel
      *
      * @return void
      */
-    function __construct(Poll $poll, HTMLOutputter $out)
+    public function __construct(Poll $poll, HTMLOutputter $out)
     {
         parent::__construct($out);
         $this->poll = $poll;
@@ -67,7 +67,7 @@ class PollResultForm extends Form
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'pollresult-form';
     }
@@ -77,7 +77,7 @@ class PollResultForm extends Form
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_settings ajax';
     }
@@ -87,7 +87,7 @@ class PollResultForm extends Form
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('respondpoll', array('id' => $this->poll->id));
     }
@@ -97,7 +97,7 @@ class PollResultForm extends Form
      *
      * @return void
      */
-    function formData()
+    public function formData()
     {
         $poll = $this->poll;
         $out = $this->out;
@@ -121,9 +121,12 @@ class PollResultForm extends Form
             $out->elementEnd('td');
 
             $out->elementStart('td');
-            $out->element('span', array('class' => 'poll-block',
-                                       'style' => "width: {$w}px"),
-                                  "\xc2\xa0"); // nbsp
+            $out->element(
+                'span',
+                array('class' => 'poll-block',
+                    'style' => "width: {$w}px"),
+                "\xc2\xa0"
+            ); // nbsp
             $out->text($counts[$i]);
             $out->elementEnd('td');
 
@@ -137,7 +140,7 @@ class PollResultForm extends Form
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
     }
 }

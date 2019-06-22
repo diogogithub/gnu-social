@@ -83,9 +83,9 @@ class Poll_response extends Managed_DataObject
      *
      * @param Notice $notice Notice to check for
      *
-     * @return Poll_response found response or null
+     * @return get_called_class found response or null
      */
-    static function getByNotice($notice)
+    public static function getByNotice($notice)
     {
         return self::getKV('uri', $notice->uri);
     }
@@ -93,40 +93,41 @@ class Poll_response extends Managed_DataObject
     /**
      * Get the notice that belongs to this response...
      *
-     * @return Notice
+     * @return get_called_class
      */
-    function getNotice()
+    public function getNotice()
     {
         return Notice::getKV('uri', $this->uri);
     }
 
-    function getUrl()
+    public function getUrl()
     {
         return $this->getNotice()->getUrl();
     }
 
     /**
      *
-     * @return Poll
+     * @return get_called_class
      */
-    function getPoll()
+    public function getPoll()
     {
         return Poll::getKV('id', $this->poll_id);
     }
+
     /**
      * Save a new poll notice
      *
      * @param Profile $profile
-     * @param Poll    $poll the poll being responded to
-     * @param int     $selection (1-based)
-     * @param array   $opts (poll responses)
-     *
+     * @param Poll $poll the poll being responded to
+     * @param int $selection (1-based)
+     * @param null $options
      * @return Notice saved notice
+     * @throws ClientException
      */
-    static function saveNew($profile, $poll, $selection, $options=null)
+    public static function saveNew($profile, $poll, $selection, $options = null)
     {
         if (empty($options)) {
-            $options = array();
+            $options = [];
         }
 
         if (!$poll->isValidSelection($selection)) {
@@ -137,10 +138,10 @@ class Poll_response extends Managed_DataObject
         $answer = $opts[$selection - 1];
 
         $pr = new Poll_response();
-        $pr->id          = UUID::gen();
-        $pr->profile_id  = $profile->id;
-        $pr->poll_id     = $poll->id;
-        $pr->selection   = $selection;
+        $pr->id = UUID::gen();
+        $pr->profile_id = $profile->id;
+        $pr->poll_id = $poll->id;
+        $pr->selection = $selection;
 
         if (array_key_exists('created', $options)) {
             $pr->created = $options['created'];
@@ -151,8 +152,10 @@ class Poll_response extends Managed_DataObject
         if (array_key_exists('uri', $options)) {
             $pr->uri = $options['uri'];
         } else {
-            $pr->uri = common_local_url('showpollresponse',
-                                        array('id' => $pr->id));
+            $pr->uri = common_local_url(
+                'showpollresponse',
+                array('id' => $pr->id)
+            );
         }
 
         common_log(LOG_DEBUG, "Saving poll response: $pr->id $pr->uri");
@@ -160,31 +163,37 @@ class Poll_response extends Managed_DataObject
 
         // TRANS: Notice content voting for a poll.
         // TRANS: %s is the chosen option in the poll.
-        $content  = sprintf(_m('voted for "%s"'),
-                            $answer);
+        $content = sprintf(
+            _m('voted for "%s"'),
+            $answer
+        );
         $link = '<a href="' . htmlspecialchars($poll->uri) . '">' . htmlspecialchars($answer) . '</a>';
         // TRANS: Rendered version of the notice content voting for a poll.
         // TRANS: %s a link to the poll with the chosen option as link description.
         $rendered = sprintf(_m('voted for "%s"'), $link);
 
-        $tags    = array();
+        $tags = array();
 
-        $options = array_merge(array('urls' => array(),
-                                     'rendered' => $rendered,
-                                     'tags' => $tags,
-                                     'reply_to' => $poll->getNotice()->id,
-                                     'object_type' => PollPlugin::POLL_RESPONSE_OBJECT),
-                               $options);
+        $options = array_merge(
+            array('urls' => array(),
+                'rendered' => $rendered,
+                'tags' => $tags,
+                'reply_to' => $poll->getNotice()->id,
+                'object_type' => PollPlugin::POLL_RESPONSE_OBJECT),
+            $options
+        );
 
         if (!array_key_exists('uri', $options)) {
             $options['uri'] = $pr->uri;
         }
 
-        $saved = Notice::saveNew($profile->id,
-                                 $content,
-                                 array_key_exists('source', $options) ?
-                                 $options['source'] : 'web',
-                                 $options);
+        $saved = Notice::saveNew(
+            $profile->id,
+            $content,
+            array_key_exists('source', $options) ?
+                $options['source'] : 'web',
+            $options
+        );
 
         return $saved;
     }

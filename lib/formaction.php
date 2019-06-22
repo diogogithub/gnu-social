@@ -47,7 +47,7 @@ class FormAction extends ManagedAction
     protected $needLogin = true;
     protected $canPost = true;
 
-    protected function prepare(array $args=array()) {
+    protected function prepare(array $args = []) {
         parent::prepare($args);
 
         $this->form = $this->form ?: ucfirst($this->action);

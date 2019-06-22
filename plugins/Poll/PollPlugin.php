@@ -45,23 +45,23 @@ if (!defined('STATUSNET')) {
  */
 class PollPlugin extends MicroAppPlugin
 {
-    const PLUGIN_VERSION = '0.1.0';
+    const PLUGIN_VERSION = '0.1.1';
 
     // @fixme which domain should we use for these namespaces?
-    const POLL_OBJECT          = 'http://activityschema.org/object/poll';
+    const POLL_OBJECT = 'http://activityschema.org/object/poll';
     const POLL_RESPONSE_OBJECT = 'http://activityschema.org/object/poll-response';
 
-    var $oldSaveNew = true;
+    public $oldSaveNew = true;
 
     /**
      * Database schema setup
      *
-     * @see Schema
+     * @return boolean hook value; true means continue processing, false means stop.
      * @see ColumnDef
      *
-     * @return boolean hook value; true means continue processing, false means stop.
+     * @see Schema
      */
-    function onCheckSchema()
+    public function onCheckSchema()
     {
         $schema = Schema::get();
         $schema->ensureTable('poll', Poll::schemaDef());
@@ -77,7 +77,7 @@ class PollPlugin extends MicroAppPlugin
      *
      * @return boolean hook value
      */
-    function onEndShowStyles($action)
+    public function onEndShowStyles($action)
     {
         $action->cssLink($this->path('css/poll.css'));
         return true;
@@ -92,23 +92,33 @@ class PollPlugin extends MicroAppPlugin
      */
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('main/poll/new',
-                    array('action' => 'newpoll'));
+        $m->connect(
+            'main/poll/new',
+            array('action' => 'newpoll')
+        );
 
-        $m->connect('main/poll/:id',
-                    array('action' => 'showpoll'),
-                    array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'));
+        $m->connect(
+            'main/poll/:id',
+            array('action' => 'showpoll'),
+            array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+        );
 
-        $m->connect('main/poll/response/:id',
-                    array('action' => 'showpollresponse'),
-                    array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'));
+        $m->connect(
+            'main/poll/response/:id',
+            array('action' => 'showpollresponse'),
+            array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+        );
 
-        $m->connect('main/poll/:id/respond',
-                    array('action' => 'respondpoll'),
-                    array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'));
+        $m->connect(
+            'main/poll/:id/respond',
+            array('action' => 'respondpoll'),
+            array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+        );
 
-        $m->connect('settings/poll',
-                    array('action' => 'pollsettings'));
+        $m->connect(
+            'settings/poll',
+            array('action' => 'pollsettings')
+        );
 
         return true;
     }
@@ -118,21 +128,22 @@ class PollPlugin extends MicroAppPlugin
      *
      * @param array &$versions array of version data
      *
-     * @return value
+     * @return bool true hook value
+     * @throws Exception
      */
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions)
     {
         $versions[] = array('name' => 'Poll',
-                            'version' => self::PLUGIN_VERSION,
-                            'author' => 'Brion Vibber',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Poll',
-                            'rawdescription' =>
-                            // TRANS: Plugin description.
-                            _m('Simple extension for supporting basic polls.'));
+            'version' => self::PLUGIN_VERSION,
+            'author' => 'Brion Vibber',
+            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Poll',
+            'rawdescription' =>
+            // TRANS: Plugin description.
+                _m('Simple extension for supporting basic polls.'));
         return true;
     }
 
-    function types()
+    public function types()
     {
         return array(self::POLL_OBJECT, self::POLL_RESPONSE_OBJECT);
     }
@@ -144,7 +155,7 @@ class PollPlugin extends MicroAppPlugin
      *
      * @return boolean hook value
      */
-    function deleteRelated(Notice $notice)
+    public function deleteRelated(Notice $notice)
     {
         $p = Poll::getByNotice($notice);
 
@@ -158,13 +169,14 @@ class PollPlugin extends MicroAppPlugin
     /**
      * Save a poll from an activity
      *
-     * @param Profile  $profile  Profile to use as author
      * @param Activity $activity Activity to save
-     * @param array    $options  Options to pass to bookmark-saving code
+     * @param Profile $profile Profile to use as author
+     * @param array $options Options to pass to bookmark-saving code
      *
      * @return Notice resulting notice
+     * @throws Exception if it failed
      */
-    function saveNoticeFromActivity(Activity $activity, Profile $profile, array $options=array())
+    public function saveNoticeFromActivity(Activity $activity, Profile $profile, array $options = array())
     {
         // @fixme
         common_log(LOG_DEBUG, "XXX activity: " . var_export($activity, true));
@@ -178,7 +190,7 @@ class PollPlugin extends MicroAppPlugin
             $responseElements = $activity->entry->getElementsByTagNameNS(self::POLL_OBJECT, 'response');
             if ($pollElements->length) {
                 $question = '';
-                $opts = array();
+                $opts = [];
 
                 $data = $pollElements->item(0);
                 foreach ($data->getElementsByTagNameNS(self::POLL_OBJECT, 'question') as $node) {
@@ -194,7 +206,7 @@ class PollPlugin extends MicroAppPlugin
                 } catch (Exception $e) {
                     common_log(LOG_DEBUG, "Poll save from ActivityStream data failed: " . $e->getMessage());
                 }
-            } else if ($responseElements->length) {
+            } elseif ($responseElements->length) {
                 $data = $responseElements->item(0);
                 $pollUri = $data->getAttribute('poll');
                 $selection = intval($data->getAttribute('selection'));
@@ -213,38 +225,41 @@ class PollPlugin extends MicroAppPlugin
                     common_log(LOG_DEBUG, "Saved Poll_response ok, notice id: " . $notice->id);
                     return $notice;
                 } catch (Exception $e) {
-                    common_log(LOG_DEBUG, "Poll response  save fail: " . $e->getMessage());
+                    common_log(LOG_DEBUG, "Poll response save fail: " . $e->getMessage());
+                    // TRANS: Exception thrown trying to respond to a non-existing poll.
                 }
             } else {
                 common_log(LOG_DEBUG, "YYY no poll data");
             }
         }
+        // If it didn't return before
+        throw new ServerException(_m('Failed to save Poll response.'));
     }
 
-    function activityObjectFromNotice(Notice $notice)
+    public function activityObjectFromNotice(Notice $notice)
     {
         assert($this->isMyNotice($notice));
 
         switch ($notice->object_type) {
-        case self::POLL_OBJECT:
-            return $this->activityObjectFromNoticePoll($notice);
-        case self::POLL_RESPONSE_OBJECT:
-            return $this->activityObjectFromNoticePollResponse($notice);
-        default:
-            // TRANS: Exception thrown when performing an unexpected action on a poll.
-            // TRANS: %s is the unexpected object type.
-            throw new Exception(sprintf(_m('Unexpected type for poll plugin: %s.'), $notice->object_type));
+            case self::POLL_OBJECT:
+                return $this->activityObjectFromNoticePoll($notice);
+            case self::POLL_RESPONSE_OBJECT:
+                return $this->activityObjectFromNoticePollResponse($notice);
+            default:
+                // TRANS: Exception thrown when performing an unexpected action on a poll.
+                // TRANS: %s is the unexpected object type.
+                throw new Exception(sprintf(_m('Unexpected type for poll plugin: %s.'), $notice->object_type));
         }
     }
 
-    function activityObjectFromNoticePollResponse(Notice $notice)
+    public function activityObjectFromNoticePollResponse(Notice $notice)
     {
         $object = new ActivityObject();
-        $object->id      = $notice->uri;
-        $object->type    = self::POLL_RESPONSE_OBJECT;
-        $object->title   = $notice->content;
+        $object->id = $notice->uri;
+        $object->type = self::POLL_RESPONSE_OBJECT;
+        $object->title = $notice->content;
         $object->summary = $notice->content;
-        $object->link    = $notice->getUrl();
+        $object->link = $notice->getUrl();
 
         $response = Poll_response::getByNotice($notice);
         if ($response) {
@@ -260,14 +275,14 @@ class PollPlugin extends MicroAppPlugin
         return $object;
     }
 
-    function activityObjectFromNoticePoll(Notice $notice)
+    public function activityObjectFromNoticePoll(Notice $notice)
     {
         $object = new ActivityObject();
-        $object->id      = $notice->uri;
-        $object->type    = self::POLL_OBJECT;
-        $object->title   = $notice->content;
+        $object->id = $notice->uri;
+        $object->type = self::POLL_OBJECT;
+        $object->title = $notice->content;
         $object->summary = $notice->content;
-        $object->link    = $notice->getUrl();
+        $object->link = $notice->getUrl();
 
         $poll = Poll::getByNotice($notice);
         if ($poll) {
@@ -295,7 +310,7 @@ class PollPlugin extends MicroAppPlugin
      * @param ActivityObject $obj
      * @param XMLOutputter $out to add elements at end of object
      */
-    function activityObjectOutputAtom(ActivityObject $obj, XMLOutputter $out)
+    public function activityObjectOutputAtom(ActivityObject $obj, XMLOutputter $out)
     {
         if (isset($obj->pollQuestion)) {
             /**
@@ -321,8 +336,8 @@ class PollPlugin extends MicroAppPlugin
              *                selection="3" />
              */
             $data = array('xmlns:poll' => self::POLL_OBJECT,
-                          'poll'       => $obj->pollUri,
-                          'selection'  => $obj->pollSelection);
+                'poll' => $obj->pollUri,
+                'selection' => $obj->pollSelection);
             $out->element('poll:response', $data, '');
         }
     }
@@ -356,7 +371,7 @@ class PollPlugin extends MicroAppPlugin
              * }
              */
             $data = array('question' => $obj->pollQuestion,
-                          'options' => array());
+                'options' => array());
             foreach ($obj->pollOptions as $opt) {
                 $data['options'][] = $opt;
             }
@@ -369,30 +384,30 @@ class PollPlugin extends MicroAppPlugin
              *   "selection": 3
              * }
              */
-            $data = array('poll'       => $obj->pollUri,
-                          'selection'  => $obj->pollSelection);
+            $data = array('poll' => $obj->pollUri,
+                'selection' => $obj->pollSelection);
             $out['pollResponse'] = $data;
         }
     }
 
-    function entryForm($out)
+    public function entryForm($out)
     {
         return new NewPollForm($out);
     }
 
     // @fixme is this from parent?
-    function tag()
+    public function tag()
     {
         return 'poll';
     }
 
-    function appTitle()
+    public function appTitle()
     {
         // TRANS: Application title.
-        return _m('APPTITLE','Poll');
+        return _m('APPTITLE', 'Poll');
     }
 
-    function onStartAddNoticeReply($nli, $parent, $child)
+    public function onStartAddNoticeReply($nli, $parent, $child)
     {
         // Filter out any poll responses
         if ($parent->object_type == self::POLL_OBJECT &&
@@ -404,7 +419,8 @@ class PollPlugin extends MicroAppPlugin
 
     // Hide poll responses for @chuck
 
-    function onEndNoticeWhoGets($notice, &$ni) {
+    public function onEndNoticeWhoGets($notice, &$ni)
+    {
         if ($notice->object_type == self::POLL_RESPONSE_OBJECT) {
             foreach ($ni as $id => $source) {
                 $user = User::getKV('id', $id);
@@ -427,21 +443,23 @@ class PollPlugin extends MicroAppPlugin
      * @return boolean hook return
      */
 
-    function onEndAccountSettingsNav($action)
+    public function onEndAccountSettingsNav($action)
     {
         $action_name = $action->trimmed('action');
 
-        $action->menuItem(common_local_url('pollsettings'),
-                          // TRANS: Poll plugin menu item on user settings page.
-                          _m('MENU', 'Polls'),
-                          // TRANS: Poll plugin tooltip for user settings menu item.
-                          _m('Configure poll behavior'),
-                          $action_name === 'pollsettings');
+        $action->menuItem(
+            common_local_url('pollsettings'),
+            // TRANS: Poll plugin menu item on user settings page.
+            _m('MENU', 'Polls'),
+            // TRANS: Poll plugin tooltip for user settings menu item.
+            _m('Configure poll behavior'),
+            $action_name === 'pollsettings'
+        );
 
         return true;
     }
 
-    protected function showNoticeContent(Notice $stored, HTMLOutputter $out, Profile $scoped=null)
+    protected function showNoticeContent(Notice $stored, HTMLOutputter $out, Profile $scoped = null)
     {
         if ($stored->object_type == self::POLL_RESPONSE_OBJECT) {
             parent::showNoticeContent($stored, $out, $scoped);

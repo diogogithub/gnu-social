@@ -63,7 +63,7 @@ class Widget
      * @param Action $out output helper, defaults to null
      */
 
-    function __construct(Action $out=null, array $widgetOpts=array())
+    function __construct(Action $out = null, array $widgetOpts = [])
     {
         $this->out = $out;
         if (!array_key_exists('scoped', $widgetOpts)) {

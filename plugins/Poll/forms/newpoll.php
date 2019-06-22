@@ -52,11 +52,12 @@ class NewpollForm extends Form
     /**
      * Construct a new poll form
      *
-     * @param HTMLOutputter $out         output channel
+     * @param HTMLOutputter $out output channel
      *
-     * @return void
+     * @param null $question
+     * @param null $options
      */
-    function __construct($out=null, $question=null, $options=null)
+    public function __construct(HTMLOutputter $out = null, $question = null, $options = null)
     {
         parent::__construct($out);
     }
@@ -66,7 +67,7 @@ class NewpollForm extends Form
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'newpoll-form';
     }
@@ -76,7 +77,7 @@ class NewpollForm extends Form
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_settings ajax-notice';
     }
@@ -86,7 +87,7 @@ class NewpollForm extends Form
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('newpoll');
     }
@@ -96,20 +97,22 @@ class NewpollForm extends Form
      *
      * @return void
      */
-    function formData()
+    public function formData()
     {
         $this->out->elementStart('fieldset', array('id' => 'newpoll-data'));
         $this->out->elementStart('ul', 'form_data');
 
         $this->li();
-        $this->out->input('question',
-                          // TRANS: Field label on the page to create a poll.
-                          _m('Question'),
-                          $this->question,
-                          // TRANS: Field title on the page to create a poll.
-                          _m('What question are people answering?'),
-                          'question',
-                          true);    // HTML5 "required" attribute
+        $this->out->input(
+            'question',
+            // TRANS: Field label on the page to create a poll.
+            _m('Question'),
+            $this->question,
+            // TRANS: Field title on the page to create a poll.
+            _m('What question are people answering?'),
+            'question',
+            true
+        );    // HTML5 "required" attribute
         $this->unli();
 
         $max = 5;
@@ -124,22 +127,26 @@ class NewpollForm extends Form
                 $default = '';
             }
             $this->li();
-            $this->out->input('poll-option' . ($i + 1),
-                              // TRANS: Field label for an answer option on the page to create a poll.
-                              // TRANS: %d is the option number.
-                              sprintf(_m('Option %d'), $i + 1),
-                              $default,
-                              null,
-                              'option' . ($i + 1),
-                              $i<2);   // HTML5 "required" attribute for 2 options
+            $this->out->input(
+                'poll-option' . ($i + 1),
+                // TRANS: Field label for an answer option on the page to create a poll.
+                // TRANS: %d is the option number.
+                sprintf(_m('Option %d'), $i + 1),
+                $default,
+                null,
+                'option' . ($i + 1),
+                $i < 2
+            );   // HTML5 "required" attribute for 2 options
             $this->unli();
         }
 
         $this->out->elementEnd('ul');
 
-        $toWidget = new ToSelector($this->out,
-                                   common_current_user(),
-                                   null);
+        $toWidget = new ToSelector(
+            $this->out,
+            common_current_user(),
+            null
+        );
         $toWidget->show();
 
         $this->out->elementEnd('fieldset');
@@ -150,7 +157,7 @@ class NewpollForm extends Form
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
         // TRANS: Button text for saving a new poll.
         $this->out->submit('poll-submit', _m('BUTTON', 'Save'), 'submit', 'submit');

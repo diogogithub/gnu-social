@@ -56,8 +56,9 @@ class RespondPollAction extends Action
      * Returns the title of the action
      *
      * @return string Action title
+     * @throws Exception
      */
-    function title()
+    public function title()
     {
         // TRANS: Page title for poll response.
         return _m('Poll response');
@@ -70,8 +71,10 @@ class RespondPollAction extends Action
      *
      * @return boolean true
      * @throws ClientException
+     * @throws Exception
+     * @throws Exception
      */
-    function prepare(array $args = [])
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
         if ($this->boolean('ajax')) {
@@ -82,8 +85,10 @@ class RespondPollAction extends Action
 
         if (empty($this->user)) {
             // TRANS: Client exception thrown trying to respond to a poll while not logged in.
-            throw new ClientException(_m('You must be logged in to respond to a poll.'),
-                403);
+            throw new ClientException(
+                _m('You must be logged in to respond to a poll.'),
+                403
+            );
         }
 
         if ($this->isPost()) {
@@ -111,8 +116,11 @@ class RespondPollAction extends Action
      * Handler method
      *
      * @return void
+     * @throws ClientException
+     * @throws ReflectionException
+     * @throws ServerException
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
 
@@ -129,13 +137,18 @@ class RespondPollAction extends Action
      * Add a new Poll
      *
      * @return void
+     * @throws ClientException
+     * @throws ReflectionException
+     * @throws ServerException
      */
-    function respondPoll()
+    public function respondPoll()
     {
         try {
-            $notice = Poll_response::saveNew($this->user->getProfile(),
+            Poll_response::saveNew(
+                $this->user->getProfile(),
                 $this->poll,
-                $this->selection);
+                $this->selection
+            );
         } catch (ClientException $ce) {
             $this->error = $ce->getMessage();
             $this->showPage();
@@ -163,7 +176,7 @@ class RespondPollAction extends Action
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         if (!empty($this->error)) {
             $this->element('p', 'error', $this->error);
@@ -185,7 +198,7 @@ class RespondPollAction extends Action
      *
      * @return boolean is read only action?
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET' ||
             $_SERVER['REQUEST_METHOD'] == 'HEAD') {
