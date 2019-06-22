@@ -4,21 +4,59 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit4f5ec3b37be240134637564819b99dd2
+class ComposerStaticInit444c3f31864f68a3f466e2c19837e185
 {
     public static $files = array (
         '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         '757772e28a0943a9afe83def8db95bdf' => __DIR__ . '/..' . '/mf2/mf2/Mf2/Parser.php',
+        'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'p' => 
+        array (
+            'phpseclib\\' => 10,
+        ),
+        'X' => 
+        array (
+            'XMPPHP\\' => 7,
+        ),
+        'S' => 
+        array (
+            'Stomp\\' => 6,
+        ),
+        'P' => 
+        array (
+            'ParagonIE\\ConstantTime\\' => 23,
+        ),
         'M' => 
         array (
+            'Michelf\\' => 8,
             'Masterminds\\' => 12,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'phpseclib\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
+        ),
+        'XMPPHP\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/diogocomposer/xmpphp/XMPPHP',
+        ),
+        'Stomp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/stomp-php/stomp-php/src',
+        ),
+        'ParagonIE\\ConstantTime\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src',
+        ),
+        'Michelf\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/michelf/php-markdown/Michelf',
+        ),
         'Masterminds\\' => 
         array (
             0 => __DIR__ . '/..' . '/masterminds/html5/src',
@@ -131,6 +169,50 @@ class ComposerStaticInit4f5ec3b37be240134637564819b99dd2
         'Auth_Yadis_Yadis' => __DIR__ . '/..' . '/openid/php-openid/Auth/Yadis/Yadis.php',
         'Auth_Yadis_dom' => __DIR__ . '/..' . '/openid/php-openid/Auth/Yadis/XML.php',
         'Auth_Yadis_domxml' => __DIR__ . '/..' . '/openid/php-openid/Auth/Yadis/XML.php',
+        'CAS_AuthenticationException' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/AuthenticationException.php',
+        'CAS_Client' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Client.php',
+        'CAS_CookieJar' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/CookieJar.php',
+        'CAS_Exception' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Exception.php',
+        'CAS_GracefullTerminationException' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/GracefullTerminationException.php',
+        'CAS_InvalidArgumentException' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/InvalidArgumentException.php',
+        'CAS_Languages_Catalan' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Languages/Catalan.php',
+        'CAS_Languages_ChineseSimplified' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Languages/ChineseSimplified.php',
+        'CAS_Languages_English' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Languages/English.php',
+        'CAS_Languages_French' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Languages/French.php',
+        'CAS_Languages_German' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Languages/German.php',
+        'CAS_Languages_Greek' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Languages/Greek.php',
+        'CAS_Languages_Japanese' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Languages/Japanese.php',
+        'CAS_Languages_LanguageInterface' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Languages/LanguageInterface.php',
+        'CAS_Languages_Spanish' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Languages/Spanish.php',
+        'CAS_OutOfSequenceBeforeAuthenticationCallException' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/OutOfSequenceBeforeAuthenticationCallException.php',
+        'CAS_OutOfSequenceBeforeClientException' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/OutOfSequenceBeforeClientException.php',
+        'CAS_OutOfSequenceBeforeProxyException' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/OutOfSequenceBeforeProxyException.php',
+        'CAS_OutOfSequenceException' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/OutOfSequenceException.php',
+        'CAS_PGTStorage_AbstractStorage' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/PGTStorage/AbstractStorage.php',
+        'CAS_PGTStorage_Db' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/PGTStorage/Db.php',
+        'CAS_PGTStorage_File' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/PGTStorage/File.php',
+        'CAS_ProxiedService' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxiedService.php',
+        'CAS_ProxiedService_Abstract' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxiedService/Abstract.php',
+        'CAS_ProxiedService_Exception' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxiedService/Exception.php',
+        'CAS_ProxiedService_Http' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxiedService/Http.php',
+        'CAS_ProxiedService_Http_Abstract' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxiedService/Http/Abstract.php',
+        'CAS_ProxiedService_Http_Get' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxiedService/Http/Get.php',
+        'CAS_ProxiedService_Http_Post' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxiedService/Http/Post.php',
+        'CAS_ProxiedService_Imap' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxiedService/Imap.php',
+        'CAS_ProxiedService_Testable' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxiedService/Testable.php',
+        'CAS_ProxyChain' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxyChain.php',
+        'CAS_ProxyChain_AllowedList' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxyChain/AllowedList.php',
+        'CAS_ProxyChain_Any' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxyChain/Any.php',
+        'CAS_ProxyChain_Interface' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxyChain/Interface.php',
+        'CAS_ProxyChain_Trusted' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxyChain/Trusted.php',
+        'CAS_ProxyTicketException' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/ProxyTicketException.php',
+        'CAS_Request_AbstractRequest' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Request/AbstractRequest.php',
+        'CAS_Request_CurlMultiRequest' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Request/CurlMultiRequest.php',
+        'CAS_Request_CurlRequest' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Request/CurlRequest.php',
+        'CAS_Request_Exception' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Request/Exception.php',
+        'CAS_Request_MultiRequestInterface' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Request/MultiRequestInterface.php',
+        'CAS_Request_RequestInterface' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Request/RequestInterface.php',
+        'CAS_TypeMismatchException' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/TypeMismatchException.php',
         'HTMLPurifier' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.php',
         'HTMLPurifier_Arborize' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Arborize.php',
         'HTMLPurifier_AttrCollections' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrCollections.php',
@@ -385,15 +467,106 @@ class ComposerStaticInit4f5ec3b37be240134637564819b99dd2
         'Masterminds\\HTML5\\Serializer\\OutputRules' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/OutputRules.php',
         'Masterminds\\HTML5\\Serializer\\RulesInterface' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/RulesInterface.php',
         'Masterminds\\HTML5\\Serializer\\Traverser' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Serializer/Traverser.php',
+        'Michelf\\Markdown' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/Markdown.php',
+        'Michelf\\MarkdownExtra' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownExtra.php',
+        'Michelf\\MarkdownInterface' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownInterface.php',
+        'ParagonIE\\ConstantTime\\Base32' => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src/Base32.php',
+        'ParagonIE\\ConstantTime\\Base32Hex' => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src/Base32Hex.php',
+        'ParagonIE\\ConstantTime\\Base64' => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src/Base64.php',
+        'ParagonIE\\ConstantTime\\Base64DotSlash' => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src/Base64DotSlash.php',
+        'ParagonIE\\ConstantTime\\Base64DotSlashOrdered' => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src/Base64DotSlashOrdered.php',
+        'ParagonIE\\ConstantTime\\Base64UrlSafe' => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src/Base64UrlSafe.php',
+        'ParagonIE\\ConstantTime\\Binary' => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src/Binary.php',
+        'ParagonIE\\ConstantTime\\EncoderInterface' => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src/EncoderInterface.php',
+        'ParagonIE\\ConstantTime\\Encoding' => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src/Encoding.php',
+        'ParagonIE\\ConstantTime\\Hex' => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src/Hex.php',
+        'ParagonIE\\ConstantTime\\RFC4648' => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src/RFC4648.php',
+        'Stomp\\Broker\\ActiveMq\\ActiveMq' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Broker/ActiveMq/ActiveMq.php',
+        'Stomp\\Broker\\ActiveMq\\Mode\\ActiveMqMode' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Broker/ActiveMq/Mode/ActiveMqMode.php',
+        'Stomp\\Broker\\ActiveMq\\Mode\\DurableSubscription' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Broker/ActiveMq/Mode/DurableSubscription.php',
+        'Stomp\\Broker\\ActiveMq\\Options' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Broker/ActiveMq/Options.php',
+        'Stomp\\Broker\\Apollo\\Apollo' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Broker/Apollo/Apollo.php',
+        'Stomp\\Broker\\Apollo\\Mode\\QueueBrowser' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Broker/Apollo/Mode/QueueBrowser.php',
+        'Stomp\\Broker\\Apollo\\Mode\\SequenceQueueBrowser' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Broker/Apollo/Mode/SequenceQueueBrowser.php',
+        'Stomp\\Broker\\Exception\\UnsupportedBrokerException' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Broker/Exception/UnsupportedBrokerException.php',
+        'Stomp\\Broker\\OpenMq\\OpenMq' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Broker/OpenMq/OpenMq.php',
+        'Stomp\\Broker\\RabbitMq\\RabbitMq' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Broker/RabbitMq/RabbitMq.php',
+        'Stomp\\Client' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Client.php',
+        'Stomp\\Exception\\ConnectionException' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Exception/ConnectionException.php',
+        'Stomp\\Exception\\ErrorFrameException' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Exception/ErrorFrameException.php',
+        'Stomp\\Exception\\MissingReceiptException' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Exception/MissingReceiptException.php',
+        'Stomp\\Exception\\StompException' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Exception/StompException.php',
+        'Stomp\\Exception\\UnexpectedResponseException' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Exception/UnexpectedResponseException.php',
+        'Stomp\\Network\\Connection' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Network/Connection.php',
+        'Stomp\\Network\\Observer\\AbstractBeats' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Network/Observer/AbstractBeats.php',
+        'Stomp\\Network\\Observer\\ConnectionObserver' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Network/Observer/ConnectionObserver.php',
+        'Stomp\\Network\\Observer\\ConnectionObserverCollection' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Network/Observer/ConnectionObserverCollection.php',
+        'Stomp\\Network\\Observer\\Exception\\HeartbeatException' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Network/Observer/Exception/HeartbeatException.php',
+        'Stomp\\Network\\Observer\\HeartbeatEmitter' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Network/Observer/HeartbeatEmitter.php',
+        'Stomp\\Network\\Observer\\ServerAliveObserver' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Network/Observer/ServerAliveObserver.php',
+        'Stomp\\Protocol\\Protocol' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Protocol/Protocol.php',
+        'Stomp\\Protocol\\Version' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Protocol/Version.php',
+        'Stomp\\SimpleStomp' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/SimpleStomp.php',
+        'Stomp\\StatefulStomp' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/StatefulStomp.php',
+        'Stomp\\States\\ConsumerState' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/States/ConsumerState.php',
+        'Stomp\\States\\ConsumerTransactionState' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/States/ConsumerTransactionState.php',
+        'Stomp\\States\\Exception\\InvalidStateException' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/States/Exception/InvalidStateException.php',
+        'Stomp\\States\\IStateful' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/States/IStateful.php',
+        'Stomp\\States\\Meta\\Subscription' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/States/Meta/Subscription.php',
+        'Stomp\\States\\Meta\\SubscriptionList' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/States/Meta/SubscriptionList.php',
+        'Stomp\\States\\ProducerState' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/States/ProducerState.php',
+        'Stomp\\States\\ProducerTransactionState' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/States/ProducerTransactionState.php',
+        'Stomp\\States\\StateSetter' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/States/StateSetter.php',
+        'Stomp\\States\\StateTemplate' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/States/StateTemplate.php',
+        'Stomp\\States\\TransactionsTrait' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/States/TransactionsTrait.php',
+        'Stomp\\Transport\\Bytes' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Transport/Bytes.php',
+        'Stomp\\Transport\\Frame' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Transport/Frame.php',
+        'Stomp\\Transport\\FrameFactory' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Transport/FrameFactory.php',
+        'Stomp\\Transport\\Map' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Transport/Map.php',
+        'Stomp\\Transport\\Message' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Transport/Message.php',
+        'Stomp\\Transport\\Parser' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Transport/Parser.php',
+        'Stomp\\Util\\IdGenerator' => __DIR__ . '/..' . '/stomp-php/stomp-php/src/Util/IdGenerator.php',
+        'XMPPHP\\BOSH' => __DIR__ . '/..' . '/diogocomposer/xmpphp/XMPPHP/BOSH.php',
+        'XMPPHP\\Exception' => __DIR__ . '/..' . '/diogocomposer/xmpphp/XMPPHP/Exception.php',
+        'XMPPHP\\Log' => __DIR__ . '/..' . '/diogocomposer/xmpphp/XMPPHP/Log.php',
+        'XMPPHP\\Roster' => __DIR__ . '/..' . '/diogocomposer/xmpphp/XMPPHP/Roster.php',
+        'XMPPHP\\XMLObj' => __DIR__ . '/..' . '/diogocomposer/xmpphp/XMPPHP/XMLObj.php',
+        'XMPPHP\\XMLStream' => __DIR__ . '/..' . '/diogocomposer/xmpphp/XMPPHP/XMLStream.php',
+        'XMPPHP\\XMPP' => __DIR__ . '/..' . '/diogocomposer/xmpphp/XMPPHP/XMPP.php',
+        'phpCAS' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS.php',
+        'phpseclib\\Crypt\\AES' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/AES.php',
+        'phpseclib\\Crypt\\Base' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Base.php',
+        'phpseclib\\Crypt\\Blowfish' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Blowfish.php',
+        'phpseclib\\Crypt\\DES' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/DES.php',
+        'phpseclib\\Crypt\\Hash' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Hash.php',
+        'phpseclib\\Crypt\\RC2' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/RC2.php',
+        'phpseclib\\Crypt\\RC4' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/RC4.php',
+        'phpseclib\\Crypt\\RSA' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/RSA.php',
+        'phpseclib\\Crypt\\Random' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Random.php',
+        'phpseclib\\Crypt\\Rijndael' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Rijndael.php',
+        'phpseclib\\Crypt\\TripleDES' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/TripleDES.php',
+        'phpseclib\\Crypt\\Twofish' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Twofish.php',
+        'phpseclib\\File\\ANSI' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/File/ANSI.php',
+        'phpseclib\\File\\ASN1' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/File/ASN1.php',
+        'phpseclib\\File\\ASN1\\Element' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/File/ASN1/Element.php',
+        'phpseclib\\File\\X509' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/File/X509.php',
+        'phpseclib\\Math\\BigInteger' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Math/BigInteger.php',
+        'phpseclib\\Net\\SCP' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SCP.php',
+        'phpseclib\\Net\\SFTP' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SFTP.php',
+        'phpseclib\\Net\\SFTP\\Stream' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SFTP/Stream.php',
+        'phpseclib\\Net\\SSH1' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SSH1.php',
+        'phpseclib\\Net\\SSH2' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SSH2.php',
+        'phpseclib\\System\\SSH\\Agent' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent.php',
+        'phpseclib\\System\\SSH\\Agent\\Identity' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent/Identity.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit4f5ec3b37be240134637564819b99dd2::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit4f5ec3b37be240134637564819b99dd2::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit4f5ec3b37be240134637564819b99dd2::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit4f5ec3b37be240134637564819b99dd2::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit444c3f31864f68a3f466e2c19837e185::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit444c3f31864f68a3f466e2c19837e185::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit444c3f31864f68a3f466e2c19837e185::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit444c3f31864f68a3f466e2c19837e185::$classMap;
 
         }, null, ClassLoader::class);
     }
