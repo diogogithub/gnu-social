@@ -1,4 +1,4 @@
-PHP-gettext 1.0 (https://launchpad.net/php-gettext)
+PHP-gettext 1.0.12 (https://launchpad.net/php-gettext)
 
 Copyright 2003, 2006, 2009 -- Danilo "angry with PHP[1]" Segan
 Licensed under GPLv2 (or any later version, see COPYING)
@@ -28,7 +28,7 @@ Why?
 
     I got used to having gettext work even without gettext
     library. It's there in my favourite language Python, so I was
-    surprised that I couldn't find it in PHP. I even searched for it,
+    surprised that I couldn't find it in PHP. I even Googled for it,
     but to no avail.
 
     So, I said, what the heck, I'm going to write it for this
