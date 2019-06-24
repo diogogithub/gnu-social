@@ -46,7 +46,7 @@ class ProfileList extends Widget
     /** Action object using us. */
     var $action = null;
 
-    function __construct($profile, HTMLOutputter $action=null)
+    function __construct($profile, HTMLOutputter $action = null)
     {
         parent::__construct($action);
 

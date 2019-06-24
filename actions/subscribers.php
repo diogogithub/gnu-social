@@ -92,7 +92,7 @@ class SubscribersAction extends GalleryAction
         }
 
         if ($subscribers) {
-            $subscribers_list = new SubscribersList($subscribers, $this->target, $this);
+            $subscribers_list = new SubscribersList($subscribers, $this->target->getUser(), $this);
             $cnt = $subscribers_list->show();
             if (0 == $cnt) {
                 $this->showEmptyListMessage();

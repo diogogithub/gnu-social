@@ -96,7 +96,7 @@ class SubscriptionsAction extends GalleryAction
             }
 
             if ($subscriptions) {
-                $subscriptions_list = new SubscriptionsList($subscriptions, $this->target, $this);
+                $subscriptions_list = new SubscriptionsList($subscriptions, $this->target->getUser(), $this);
                 $cnt = $subscriptions_list->show();
                 if (0 == $cnt) {
                     $this->showEmptyListMessage();
