@@ -927,7 +927,7 @@ define('_URL_SCHEME_SINGLE_COLON', 2);
 define('_URL_SCHEME_NO_DOMAIN', 4);
 define('_URL_SCHEME_COLON_COORDINATES', 8);
 
-function common_url_schemes($filter=null)
+function common_url_schemes($filter = null)
 {
     // TODO: move these to $config
     $schemes = ['http'      => _URL_SCHEME_COLON_DOUBLE_SLASH,
@@ -1040,7 +1040,7 @@ function common_replace_urls_callback($text, $callback, $arg = null)
     '#ixu';
     //preg_match_all($regex,$text,$matches);
     //print_r($matches);
-    return preg_replace_callback($regex, curry('callback_helper', $callback, $arg), $text);
+    return preg_replace_callback($regex, callable_left_curry('callback_helper', $callback, $arg), $text);
 }
 
 /**
@@ -1054,11 +1054,11 @@ function common_replace_urls_callback($text, $callback, $arg = null)
  *
  * @access private
  */
-function callback_helper($matches, $callback, $arg=null)
+function callback_helper($matches, $callback, $arg = null)
 {
-    $url=$matches[1];
+    $url = $matches[1];
     $left = strpos($matches[0], $url);
-    $right = $left+strlen($url);
+    $right = $left + strlen($url);
 
     $groupSymbolSets=[
         [
@@ -1078,31 +1078,31 @@ function callback_helper($matches, $callback, $arg=null)
             'right'=>'>'
         ]
     ];
-    $cannotEndWith=['.','?',',','#'];
-    $original_url=$url;
+
+    $cannotEndWith = ['.','?',',','#'];
     do {
-        $original_url=$url;
+        $original_url = $url;
         foreach ($groupSymbolSets as $groupSymbolSet) {
-            if (substr($url, -1)==$groupSymbolSet['right']) {
+            if (substr($url, -1) == $groupSymbolSet['right']) {
                 $group_left_count = substr_count($url, $groupSymbolSet['left']);
                 $group_right_count = substr_count($url, $groupSymbolSet['right']);
-                if ($group_left_count<$group_right_count) {
-                    $right-=1;
-                    $url=substr($url, 0, -1);
+                if ($group_left_count < $group_right_count) {
+                    $right -= 1;
+                    $url = substr($url, 0, -1);
                 }
             }
         }
         if (in_array(substr($url, -1), $cannotEndWith)) {
-            $right-=1;
+            $right -= 1;
             $url=substr($url, 0, -1);
         }
-    } while ($original_url!=$url);
+    } while ($original_url != $url);
 
     $result = call_user_func_array($callback, [$url, $arg]);
     return substr($matches[0], 0, $left) . $result . substr($matches[0], $right);
 }
 
-require_once INSTALLDIR . "/lib/curry.php";
+require_once INSTALLDIR . "/lib/callable_left_curry.php";
 
 function common_linkify($url)
 {

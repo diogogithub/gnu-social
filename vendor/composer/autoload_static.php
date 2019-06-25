@@ -7,6 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInit444c3f31864f68a3f466e2c19837e185
 {
     public static $files = array (
+        'e88992873b7765f9b5710cab95ba5dd7' => __DIR__ . '/..' . '/hoa/consistency/Prelude.php',
         '5255c38a0faeba867671b61dfda6d864' => __DIR__ . '/..' . '/paragonie/random_compat/lib/random.php',
         '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         '757772e28a0943a9afe83def8db95bdf' => __DIR__ . '/..' . '/mf2/mf2/Mf2/Parser.php',
@@ -35,6 +36,12 @@ class ComposerStaticInit444c3f31864f68a3f466e2c19837e185
             'Michelf\\' => 8,
             'Masterminds\\' => 12,
         ),
+        'H' => 
+        array (
+            'Hoa\\Exception\\' => 14,
+            'Hoa\\Event\\' => 10,
+            'Hoa\\Consistency\\' => 16,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -61,6 +68,18 @@ class ComposerStaticInit444c3f31864f68a3f466e2c19837e185
         'Masterminds\\' => 
         array (
             0 => __DIR__ . '/..' . '/masterminds/html5/src',
+        ),
+        'Hoa\\Exception\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/hoa/exception',
+        ),
+        'Hoa\\Event\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/hoa/event',
+        ),
+        'Hoa\\Consistency\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/hoa/consistency',
         ),
     );
 
@@ -448,6 +467,37 @@ class ComposerStaticInit444c3f31864f68a3f466e2c19837e185
         'HTMLPurifier_VarParser_Flexible' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/VarParser/Flexible.php',
         'HTMLPurifier_VarParser_Native' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/VarParser/Native.php',
         'HTMLPurifier_Zipper' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Zipper.php',
+        'Hoa\\Consistency\\Autoloader' => __DIR__ . '/..' . '/hoa/consistency/Autoloader.php',
+        'Hoa\\Consistency\\Consistency' => __DIR__ . '/..' . '/hoa/consistency/Consistency.php',
+        'Hoa\\Consistency\\Exception' => __DIR__ . '/..' . '/hoa/consistency/Exception.php',
+        'Hoa\\Consistency\\Test\\Unit\\Autoloader' => __DIR__ . '/..' . '/hoa/consistency/Test/Unit/Autoloader.php',
+        'Hoa\\Consistency\\Test\\Unit\\Consistency' => __DIR__ . '/..' . '/hoa/consistency/Test/Unit/Consistency.php',
+        'Hoa\\Consistency\\Test\\Unit\\Exception' => __DIR__ . '/..' . '/hoa/consistency/Test/Unit/Exception.php',
+        'Hoa\\Consistency\\Test\\Unit\\Xcallable' => __DIR__ . '/..' . '/hoa/consistency/Test/Unit/Xcallable.php',
+        'Hoa\\Consistency\\Xcallable' => __DIR__ . '/..' . '/hoa/consistency/Xcallable.php',
+        'Hoa\\Event\\Bucket' => __DIR__ . '/..' . '/hoa/event/Bucket.php',
+        'Hoa\\Event\\Event' => __DIR__ . '/..' . '/hoa/event/Event.php',
+        'Hoa\\Event\\Exception' => __DIR__ . '/..' . '/hoa/event/Exception.php',
+        'Hoa\\Event\\Listenable' => __DIR__ . '/..' . '/hoa/event/Listenable.php',
+        'Hoa\\Event\\Listener' => __DIR__ . '/..' . '/hoa/event/Listener.php',
+        'Hoa\\Event\\Listens' => __DIR__ . '/..' . '/hoa/event/Listens.php',
+        'Hoa\\Event\\Source' => __DIR__ . '/..' . '/hoa/event/Source.php',
+        'Hoa\\Event\\Test\\Unit\\Bucket' => __DIR__ . '/..' . '/hoa/event/Test/Unit/Bucket.php',
+        'Hoa\\Event\\Test\\Unit\\Event' => __DIR__ . '/..' . '/hoa/event/Test/Unit/Event.php',
+        'Hoa\\Event\\Test\\Unit\\Exception' => __DIR__ . '/..' . '/hoa/event/Test/Unit/Exception.php',
+        'Hoa\\Event\\Test\\Unit\\Listenable' => __DIR__ . '/..' . '/hoa/event/Test/Unit/Listenable.php',
+        'Hoa\\Event\\Test\\Unit\\Listener' => __DIR__ . '/..' . '/hoa/event/Test/Unit/Listener.php',
+        'Hoa\\Event\\Test\\Unit\\Listens' => __DIR__ . '/..' . '/hoa/event/Test/Unit/Listens.php',
+        'Hoa\\Event\\Test\\Unit\\Source' => __DIR__ . '/..' . '/hoa/event/Test/Unit/Source.php',
+        'Hoa\\Event\\Test\\Unit\\_Listenable' => __DIR__ . '/..' . '/hoa/event/Test/Unit/Listens.php',
+        'Hoa\\Exception\\Error' => __DIR__ . '/..' . '/hoa/exception/Error.php',
+        'Hoa\\Exception\\Exception' => __DIR__ . '/..' . '/hoa/exception/Exception.php',
+        'Hoa\\Exception\\Group' => __DIR__ . '/..' . '/hoa/exception/Group.php',
+        'Hoa\\Exception\\Idle' => __DIR__ . '/..' . '/hoa/exception/Idle.php',
+        'Hoa\\Exception\\Test\\Unit\\Error' => __DIR__ . '/..' . '/hoa/exception/Test/Unit/Error.php',
+        'Hoa\\Exception\\Test\\Unit\\Exception' => __DIR__ . '/..' . '/hoa/exception/Test/Unit/Exception.php',
+        'Hoa\\Exception\\Test\\Unit\\Group' => __DIR__ . '/..' . '/hoa/exception/Test/Unit/Group.php',
+        'Hoa\\Exception\\Test\\Unit\\Idle' => __DIR__ . '/..' . '/hoa/exception/Test/Unit/Idle.php',
         'Masterminds\\HTML5' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5.php',
         'Masterminds\\HTML5\\Elements' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Elements.php',
         'Masterminds\\HTML5\\Entities' => __DIR__ . '/..' . '/masterminds/html5/src/HTML5/Entities.php',

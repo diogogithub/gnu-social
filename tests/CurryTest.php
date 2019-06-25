@@ -20,7 +20,7 @@ class CurryTest extends PHPUnit_Framework_TestCase
     public function testProduction($callback, $curry_params, $call_params, $expected)
     {
         $params = array_merge(array($callback), $curry_params);
-        $curried = call_user_func_array('curry', $params);
+        $curried = call_user_func_array('callable_left_curry', $params);
         $result = call_user_func_array($curried, $call_params);
         $this->assertEquals($expected, $result);
     }

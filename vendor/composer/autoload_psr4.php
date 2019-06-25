@@ -12,4 +12,7 @@ return array(
     'ParagonIE\\ConstantTime\\' => array($vendorDir . '/paragonie/constant_time_encoding/src'),
     'Michelf\\' => array($vendorDir . '/michelf/php-markdown/Michelf'),
     'Masterminds\\' => array($vendorDir . '/masterminds/html5/src'),
+    'Hoa\\Exception\\' => array($vendorDir . '/hoa/exception'),
+    'Hoa\\Event\\' => array($vendorDir . '/hoa/event'),
+    'Hoa\\Consistency\\' => array($vendorDir . '/hoa/consistency'),
 );

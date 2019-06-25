@@ -25,7 +25,7 @@
  * @param ... any remaining arguments will be appended to call-time params
  * @return callback
  */
-function curry($fn) {
+function callable_left_curry($fn) {
     $extra_args = func_get_args();
     array_shift($extra_args);
     return function() use ($fn, $extra_args) {
