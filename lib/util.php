@@ -633,7 +633,7 @@ function common_purify($html, array $args=[])
     $purifier = new HTMLPurifier($cfg);
     $purified = $purifier->purify($html);
     Event::handle('EndCommonPurify', [&$purified, $html]);
-    
+
     return $purified;
 }
 
@@ -1118,7 +1118,7 @@ function common_linkify($url)
     } else {
         $canon = File_redirection::_canonUrl($url);
         $longurl_data = File_redirection::where($canon, common_config('attachments', 'process_links'));
-        
+
         if (isset($longurl_data->redir_url)) {
             $longurl = $longurl_data->redir_url;
         } else {
@@ -1126,7 +1126,7 @@ function common_linkify($url)
             $longurl = $longurl_data->url;
         }
     }
-    
+
     $attrs = ['href' => $longurl, 'title' => $longurl];
 
     $is_attachment = false;
@@ -1856,6 +1856,11 @@ function common_request_id()
 
 function common_log($priority, $msg, $filename=null)
 {
+    // Don't write LOG_DEBUG if that's not wanted
+    if ($priority === LOG_DEBUG && !common_config('site', 'logdebug')) {
+        return;
+    }
+
     if (Event::handle('StartLog', [&$priority, &$msg, &$filename])) {
         $msg = (empty($filename)) ? $msg : basename($filename) . ' - ' . $msg;
         $msg = '[' . common_request_id() . '] ' . $msg;
