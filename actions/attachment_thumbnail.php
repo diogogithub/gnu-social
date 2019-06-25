@@ -57,11 +57,44 @@ class Attachment_thumbnailAction extends AttachmentAction
     {
         // Returns a File_thumbnail object or throws exception if not available
         try {
-            $thumbnail = $this->attachment->getThumbnail($this->thumb_w, $this->thumb_h, $this->thumb_c);
+            $file = $this->attachment->getThumbnail($this->thumb_w, $this->thumb_h, $this->thumb_c)->getFile();
         } catch (UseFileAsThumbnailException $e) {
-            common_redirect($e->file->getUrl(), 302);
+            // With this exception, the file exists locally
+            $file = $e->file;
         }
 
-        common_redirect(File_thumbnail::url($thumbnail->getFilename()), 302);
+        if (!$file->isLocal()) {
+            // Not locally stored, redirect to the URL the file came from
+            // Don't use getURL because it can give us a local URL, which we don't want
+            common_redirect($file->url, 302);
+        } else {
+            $filepath = $this->attachment->getPath();
+            $filename = MediaFile::getDisplayName($file);
+
+            // Disable errors, to not mess with the file contents (suppress errors in case access to this
+            // function is blocked, like in some shared hosts). Automatically reset at the end of the
+            // script execution, and we don't want to have any more errors until then, so don't reset it
+            @ini_set('display_errors', 0);
+
+            header("Content-Description: File Transfer");
+            header("Content-Type: {$file->mimetype}");
+            header("Content-Disposition: inline; filename=\"{$filename}\"");
+            header('Expires: 0');
+            header('Content-Transfer-Encoding: binary');
+            $filesize = $this->file->size;
+            // 'if available', it says, so ensure we have it
+            if (empty($filesize)) {
+                $filesize = filesize($this->attachment->filename);
+            }
+            header("Content-Length: {$filesize}");
+            // header('Cache-Control: private, no-transform, no-store, must-revalidate');
+
+            $ret = @readfile($filepath);
+
+            if ($ret === false || $ret !== $filesize) {
+                common_log(LOG_ERR, "The lengths of the file as recorded on the DB (or on disk) for the file " .
+                           "{$filepath}, with id={$this->attachment->id} differ from what was sent to the user.");
+            }
+        }
     }
 }

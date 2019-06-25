@@ -594,6 +594,11 @@ class File extends Managed_DataObject
         return common_local_url('attachment', array('attachment'=>$this->getID()));
     }
 
+    public function getAttachmentDownloadUrl()
+    {
+        return common_local_url('attachment_download', array('attachment'=>$this->getID()));
+    }
+
     /**
      * @param mixed $use_local true means require local, null means prefer local, false means use whatever is stored
      * @return string

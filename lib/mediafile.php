@@ -83,9 +83,7 @@ class MediaFile
                 array('attachment' => $this->fileRecord->id)
             );
 
-            $this->maybeAddRedir($this->fileRecord->id, $this->fileurl);
             $this->short_fileurl = common_shorten_url($this->fileurl);
-            $this->maybeAddRedir($this->fileRecord->id, $this->short_fileurl);
         }
     }
 
@@ -208,41 +206,6 @@ class MediaFile
         }
 
         return $file;
-    }
-
-    public function rememberFile($file, $short)
-    {
-        $this->maybeAddRedir($file->id, $short);
-    }
-
-    /**
-     * Adds Redir if needed.
-     *
-     * @param $file_id
-     * @param $url
-     * @return bool false if no need to add, true if added
-     * @throws ClientException If failed adding
-     */
-    public function maybeAddRedir($file_id, $url)
-    {
-        try {
-            File_redirection::getByUrl($url);
-            return false;
-        } catch (NoResultException $e) {
-            $file_redir = new File_redirection;
-            $file_redir->urlhash = File::hashurl($url);
-            $file_redir->url = $url;
-            $file_redir->file_id = $file_id;
-
-            $result = $file_redir->insert();
-
-            if ($result===false) {
-                common_log_db_error($file_redir, "INSERT", __FILE__);
-                // TRANS: Client exception thrown when a database error was thrown during a file upload operation.
-                throw new ClientException(_('There was a database error while saving your file. Please try again.'));
-            }
-            return $result;
-        }
     }
 
     /**
