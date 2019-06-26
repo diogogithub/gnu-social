@@ -30,19 +30,7 @@ class Attachment_downloadAction extends AttachmentAction
         header("Content-Disposition: attachment; filename=\"{$filename}\"");
         header('Expires: 0');
         header('Content-Transfer-Encoding: binary'); // FIXME? Can this be different?
-        $filesize = $this->attachment->size;
-        // 'if available', it says, so ensure we have it
-        if (empty($filesize)) {
-            $filesize = filesize($this->attachment->filename);
-        }
-        header("Content-Length: {$filesize}");
-        // header('Cache-Control: private, no-transform, no-store, must-revalidate');
 
-        $ret = @readfile($filepath);
-
-        if ($ret === false || $ret !== $filesize) {
-            common_log(LOG_ERR, "The lengths of the file as recorded on the DB (or on disk) for the file " .
-                       "{$filepath}, with id={$this->attachment->id} differ from what was sent to the user.");
-        }
+        $this->sendFile($filepath);
     }
 }
