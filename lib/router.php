@@ -219,21 +219,17 @@ class Router
                         array('q' => '.+'));
             $m->connect('search/notice/rss', array('action' => 'noticesearchrss'));
 
-            $m->connect('attachment/:attachment',
-                        array('action' => 'attachment'),
-                        array('attachment' => '[0-9]+'));
-
-            $m->connect('attachment/:attachment/view',
-                        array('action' => 'attachment_view'),
-                        array('attachment' => '[0-9]+'));
-
-            $m->connect('attachment/:attachment/download',
-                        array('action' => 'attachment_download'),
-                        array('attachment' => '[0-9]+'));
-
-            $m->connect('attachment/:attachment/thumbnail',
-                        array('action' => 'attachment_thumbnail'),
-                        array('attachment' => '[0-9]+'));
+            foreach (['' => 'attachment',
+                      '/view' => 'attachment_view',
+                      '/download' => 'attachment_download',
+                      '/thumbnail' => 'attachment_thumbnail'] as $postfix => $action) {
+                foreach (['attachment' => '[0-9]+',
+                          'filehash' => '[A-Za-z0-9._-]+'] as $type => $match) {
+                    $m->connect("attachment/:{$type}{$postfix}",
+                                ['action' => $action],
+                                [$type => $match]);
+                }
+            }
 
             $m->connect('notice/new?replyto=:replyto&inreplyto=:inreplyto',
                         array('action' => 'newnotice'),

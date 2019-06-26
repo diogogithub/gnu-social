@@ -59,8 +59,10 @@ class AttachmentAction extends ManagedAction
     {
         parent::prepare($args);
 
-        if ($id = $this->trimmed('attachment')) {
+        if (!empty($id = $this->trimmed('attachment'))) {
             $this->attachment = File::getKV($id);
+        } elseif (!empty($filehash = $this->trimmed('filehash'))) {
+            $this->attachment = File::getByHash($filehash);
         }
 
         if (!$this->attachment instanceof File) {

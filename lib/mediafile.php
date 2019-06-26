@@ -161,7 +161,7 @@ class MediaFile
             // Well, let's just continue below.
         }
 
-        $fileurl = File::url($this->filename);
+        $fileurl = common_local_url('attachment_view', array('filehash' => $this->filehash));
 
         $file = new File;
 

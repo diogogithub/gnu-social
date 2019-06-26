@@ -1,4 +1,4 @@
-# GNU social 1.24.x
+# GNU social 1.25.x
 (c) 2010-2019 Free Software Foundation, Inc
 
 This is the README file for GNU social, the free

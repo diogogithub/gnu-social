@@ -614,7 +614,7 @@ class File extends Managed_DataObject
         if ($use_local !== false) {
             if (is_string($this->filename) || !empty($this->filename)) {
                 // A locally stored file, so let's generate a URL for our instance.
-                return getAttachmentViewUrl();
+                return $this->getAttachmentViewUrl();
             }
             if ($use_local) {
                 // if the file wasn't stored locally (has filename) and we require a local URL
