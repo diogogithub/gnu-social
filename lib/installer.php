@@ -141,6 +141,7 @@ abstract class Installer
             define('STATUSNET', true);
             require_once INSTALLDIR . '/lib/language.php';
             $_server=$this->server; $_path=$this->path; // We won't be using those so it's safe to do this small hack
+            require_once INSTALLDIR.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'util.php';
             require_once INSTALLDIR.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'default.php';
             $fileSubdirs = [empty($this->avatarDir) ? $default['avatar']['dir'] : $this->avatarDir,
                             empty($this->fileDir)   ? $default['attachments']['dir'] : $this->fileDir];
