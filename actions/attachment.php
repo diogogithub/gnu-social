@@ -60,7 +60,7 @@ class AttachmentAction extends ManagedAction
         parent::prepare($args);
 
         if (!empty($id = $this->trimmed('attachment'))) {
-            $this->attachment = File::getKV($id);
+            $this->attachment = File::getByID($id);
         } elseif (!empty($filehash = $this->trimmed('filehash'))) {
             $this->attachment = File::getByHash($filehash);
         }
@@ -135,6 +135,52 @@ class AttachmentAction extends ManagedAction
         $ns->show();
     }
 
+    /**
+     * Last-modified date for file
+     *
+     * @return int last-modified date as unix timestamp
+     */
+    public function lastModified()
+    {
+        if (common_config('site', 'use_x_sendfile')) {
+            return null;
+        }
+
+        return filemtime($this->attachment->getPath());
+    }
+
+    /**
+     * etag header for file
+     *
+     * This returns the same data (inode, size, mtime) as Apache would,
+     * but in decimal instead of hex.
+     *
+     * @return string etag http header
+     */
+    function etag()
+    {
+        if (common_config('site', 'use_x_sendfile')) {
+            return null;
+        }
+
+        $cache = Cache::instance();
+        if($cache) {
+            $key = Cache::key('attachments:etag:' . $this->attachment->getPath());
+            $etag = $cache->get($key);
+            if($etag === false) {
+                $etag = crc32(file_get_contents($this->attachment->getPath()));
+                $cache->set($key,$etag);
+            }
+            return $etag;
+        }
+
+        $stat = stat($this->path);
+        return '"' . $stat['ino'] . '-' . $stat['size'] . '-' . $stat['mtime'] . '"';
+    }
+
+    /**
+     * Include $this as a file read from $filepath, for viewing and downloading
+     */
     public function sendFile(string $filepath) {
         if (common_config('site', 'use_x_sendfile')) {
             header('X-Sendfile: ' . $filepath);

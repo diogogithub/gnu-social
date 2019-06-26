@@ -802,10 +802,6 @@ class Router
                         array('action' => 'plugindisable'),
                         array('plugin' => '[A-Za-z0-9_]+'));
 
-            $m->connect('getfile/:filename',
-                        array('action' => 'getfile'),
-                        array('filename' => '[A-Za-z0-9._-]+'));
-
             // Common people-tag stuff
 
             $m->connect('peopletag/:tag', array('action' => 'peopletag',
