@@ -223,6 +223,10 @@ class Router
                         array('action' => 'attachment'),
                         array('attachment' => '[0-9]+'));
 
+            $m->connect('attachment/:attachment/view',
+                        array('action' => 'attachment_view'),
+                        array('attachment' => '[0-9]+'));
+
             $m->connect('attachment/:attachment/download',
                         array('action' => 'attachment_download'),
                         array('attachment' => '[0-9]+'));
