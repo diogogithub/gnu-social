@@ -59,15 +59,20 @@ class AttachmentAction extends ManagedAction
     {
         parent::prepare($args);
 
-        if (!empty($id = $this->trimmed('attachment'))) {
-            $this->attachment = File::getByID($id);
-        } elseif (!empty($filehash = $this->trimmed('filehash'))) {
-            $this->attachment = File::getByHash($filehash);
+        try {
+            if (!empty($id = $this->trimmed('attachment'))) {
+                $this->attachment = File::getByID($id);
+            } elseif (!empty($filehash = $this->trimmed('filehash'))) {
+                $this->attachment = File::getByHash($filehash);
+            }
+        } catch (Exception $e) {
+            // Not found
         }
-
         if (!$this->attachment instanceof File) {
             // TRANS: Client error displayed trying to get a non-existing attachment.
             $this->clientError(_('No such attachment.'), 404);
+        } elseif (empty($this->attachment->filename)) {
+            $this->clientError(_('Requested local URL for a file that is not stored locally.'), 404);
         }
         return true;
     }
@@ -145,8 +150,11 @@ class AttachmentAction extends ManagedAction
         if (common_config('site', 'use_x_sendfile')) {
             return null;
         }
-
-        return filemtime($this->attachment->getPath());
+        try {
+            return filemtime($this->attachment->getPath());
+        } catch (InvalidFilenameException $e) {
+            return null;
+        }
     }
 
     /**
@@ -165,11 +173,15 @@ class AttachmentAction extends ManagedAction
 
         $cache = Cache::instance();
         if($cache) {
-            $key = Cache::key('attachments:etag:' . $this->attachment->getPath());
-            $etag = $cache->get($key);
-            if($etag === false) {
-                $etag = crc32(file_get_contents($this->attachment->getPath()));
-                $cache->set($key,$etag);
+            try {
+                $key = Cache::key('attachments:etag:' . $this->attachment->getPath());
+                $etag = $cache->get($key);
+                if($etag === false) {
+                    $etag = crc32(file_get_contents($this->attachment->getPath()));
+                    $cache->set($key,$etag);
+                }
+            } catch (InvalidFilenameException $e) {
+                return null;
             }
             return $etag;
         }
@@ -181,22 +193,23 @@ class AttachmentAction extends ManagedAction
     /**
      * Include $filepath in the response, for viewing and downloading
      */
-    static function sendFile(string $filepath, int $size) {
+    static function sendFile(string $filepath, int $filesize) {
         if (common_config('site', 'use_x_sendfile')) {
             header('X-Sendfile: ' . $filepath);
         } else {
-            // ensure we have a file size
-            if (empty($size)) {
-                $size = filesize($filepath);
+            if (empty($filesize)) {
+                $filesize = filesize($filepath);
             }
-            header("Content-Length: {$size}");
+            header("Content-Length: {$filesize}");
             // header('Cache-Control: private, no-transform, no-store, must-revalidate');
 
             $ret = @readfile($filepath);
 
-            if ($ret === false || $ret !== $filesize) {
+            if (ret === false) {
+                common_log(LOG_ERR, "Couldn't read file at {$filepath}.");
+            } elseif ($ret !== $filesize) {
                 common_log(LOG_ERR, "The lengths of the file as recorded on the DB (or on disk) for the file " .
-                           "{$filepath}, with id={$this->attachment->id} differ from what was sent to the user.");
+                           "{$filepath} differ from what was sent to the user ({$filesize} vs {$ret}).");
             }
         }
     }

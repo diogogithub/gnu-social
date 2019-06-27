@@ -31,6 +31,6 @@ class Attachment_downloadAction extends AttachmentAction
         header('Expires: 0');
         header('Content-Transfer-Encoding: binary'); // FIXME? Can this be different?
 
-        parent::sendFile($filepath, $filesize);
+        AttachmentAction::sendFile($filepath, $filesize);
     }
 }

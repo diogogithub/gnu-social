@@ -83,6 +83,10 @@ class StoreRemoteMediaPlugin extends Plugin
 
         $remoteUrl = $file->getUrl();
 
+        if (empty($remoteUrl)) {
+            return true;
+        }
+
         if (!$this->checkWhiteList($remoteUrl) ||
             !$this->checkBlackList($remoteUrl)) {
 		    return true;

@@ -577,6 +577,10 @@ class MediaFile
      * @returns string
      */
     public static function getDisplayName(File $file) : string {
+        if (empty($file->filename)) {
+            return _('Untitled attachment');
+        }
+
         // New file name format is "{bin2hex(original_name.ext)}-{$hash}"
         $ret = preg_match('/^([^\.-]+)-.+$/', $file->filename, $matches);
         // If there was an error in the match, something's wrong with some piece

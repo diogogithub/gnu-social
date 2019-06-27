@@ -34,6 +34,6 @@ class Attachment_viewAction extends AttachmentAction
         header('Expires: 0');
         header('Content-Transfer-Encoding: binary');
 
-        parrent::sendFile($filepath, $filesize);
+        AttachmentAction::sendFile($filepath, $filesize);
     }
 }

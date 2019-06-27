@@ -64,12 +64,17 @@ class Attachment_thumbnailAction extends AttachmentAction
             $file = $e->file;
         }
 
-        if (!empty($thumb)) {
-            $filepath = $thumb->getPath();
-            $filesize = 0;
-        } else {
-            $filepath = $file->getPath();
-            $filesize = $file->size;
+        try {
+            if (!empty($thumb)) {
+                $filepath = $thumb->getPath();
+                $size = 0;
+            } elseif ($file->isLocal()) {
+                $filepath = $file->getPath();
+                $size = $file->size;
+            }
+        } catch (InvalidFilenameException $e) {
+            // We don't have a file to display
+            return;
         }
 
         $filename = MediaFile::getDisplayName($file);
@@ -85,6 +90,6 @@ class Attachment_thumbnailAction extends AttachmentAction
         header('Expires: 0');
         header('Content-Transfer-Encoding: binary');
 
-        parent::sendFile($filepath, $filesize);
+        AttachmentAction::sendFile($filepath, $size);
     }
 }

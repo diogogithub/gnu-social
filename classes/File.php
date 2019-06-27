@@ -127,11 +127,11 @@ class File extends Managed_DataObject
                 $args = $r->map(mb_substr($u['path'], 1));
                 if ($args['action'] === 'attachment') {
                     try {
-                        // $args['attachment'] should always be set if action===attachment, given our routing rules
-                        $file = File::getByID($args['attachment']);
-                        return $file;
-                    } catch (EmptyPkeyValueException $e) {
-                        // ...but $args['attachment'] can also be 0...
+                        if (!empty($args['attachment'])) {
+                            return File::getByID($args['attachment']);
+                        } elseif ($args['filehash']) {
+                            return File::getByHash($args['filehash']);
+                        }
                     } catch (NoResultException $e) {
                         // apparently this link goes to us, but is _not_ an existing attachment (File) ID?
                     }
