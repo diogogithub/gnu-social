@@ -57,13 +57,21 @@ class Attachment_thumbnailAction extends AttachmentAction
     {
         // Returns a File_thumbnail object or throws exception if not available
         try {
-            $file = $this->attachment->getThumbnail($this->thumb_w, $this->thumb_h, $this->thumb_c)->getFile();
+            $thumb = $this->attachment->getThumbnail($this->thumb_w, $this->thumb_h, $this->thumb_c);
+            $file = $thumb->getFile();
         } catch (UseFileAsThumbnailException $e) {
             // With this exception, the file exists locally
             $file = $e->file;
         }
 
-        $filepath = $this->attachment->getPath();
+        if (!empty($thumb)) {
+            $filepath = $thumb->getPath();
+            $filesize = 0;
+        } else {
+            $filepath = $file->getPath();
+            $filesize = $file->size;
+        }
+
         $filename = MediaFile::getDisplayName($file);
 
         // Disable errors, to not mess with the file contents (suppress errors in case access to this
@@ -76,19 +84,7 @@ class Attachment_thumbnailAction extends AttachmentAction
         header("Content-Disposition: inline; filename=\"{$filename}\"");
         header('Expires: 0');
         header('Content-Transfer-Encoding: binary');
-        $filesize = $this->file->size;
-        // 'if available', it says, so ensure we have it
-        if (empty($filesize)) {
-            $filesize = filesize($this->attachment->filename);
-        }
-        header("Content-Length: {$filesize}");
-        // header('Cache-Control: private, no-transform, no-store, must-revalidate');
 
-        $ret = @readfile($filepath);
-
-        if ($ret === false || $ret !== $filesize) {
-            common_log(LOG_ERR, "The lengths of the file as recorded on the DB (or on disk) for the file " .
-                       "{$filepath}, with id={$this->attachment->id} differ from what was sent to the user.");
-        }
+        parent::sendFile($filepath, $filesize);
     }
 }

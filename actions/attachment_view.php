@@ -15,6 +15,7 @@ class Attachment_viewAction extends AttachmentAction
     {
         // Checks file exists or throws FileNotStoredLocallyException
         $filepath = $this->attachment->getPath();
+        $filesize = $this->attachment->size;
 
         $filename = MediaFile::getDisplayName($this->attachment);
 
@@ -33,6 +34,6 @@ class Attachment_viewAction extends AttachmentAction
         header('Expires: 0');
         header('Content-Transfer-Encoding: binary');
 
-        $this->sendFile($filepath);
+        parrent::sendFile($filepath, $filesize);
     }
 }

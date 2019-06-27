@@ -179,18 +179,17 @@ class AttachmentAction extends ManagedAction
     }
 
     /**
-     * Include $this as a file read from $filepath, for viewing and downloading
+     * Include $filepath in the response, for viewing and downloading
      */
-    public function sendFile(string $filepath) {
+    static function sendFile(string $filepath, int $size) {
         if (common_config('site', 'use_x_sendfile')) {
             header('X-Sendfile: ' . $filepath);
         } else {
-            $filesize = $this->attachment->size;
-            // 'if available', it says, so ensure we have it
-            if (empty($filesize)) {
-                $filesize = filesize($filepath);
+            // ensure we have a file size
+            if (empty($size)) {
+                $size = filesize($filepath);
             }
-            header("Content-Length: {$filesize}");
+            header("Content-Length: {$size}");
             // header('Cache-Control: private, no-transform, no-store, must-revalidate');
 
             $ret = @readfile($filepath);

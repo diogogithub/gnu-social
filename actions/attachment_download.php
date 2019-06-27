@@ -17,7 +17,7 @@ class Attachment_downloadAction extends AttachmentAction
     {
         // Checks file exists or throws FileNotStoredLocallyException
         $filepath = $this->attachment->getPath();
-
+        $filesize = $this->attachment->size;
         $filename = MediaFile::getDisplayName($this->attachment);
 
         // Disable errors, to not mess with the file contents (suppress errors in case access to this
@@ -31,6 +31,6 @@ class Attachment_downloadAction extends AttachmentAction
         header('Expires: 0');
         header('Content-Transfer-Encoding: binary'); // FIXME? Can this be different?
 
-        $this->sendFile($filepath);
+        parent::sendFile($filepath, $filesize);
     }
 }
