@@ -72,9 +72,12 @@ class Attachment_thumbnailAction extends AttachmentAction
                 $filepath = $file->getPath();
                 $size = $file->size;
             }
-        } catch (InvalidFilenameException $e) {
+            // XXX PHP: Upgrade to PHP 7.1
+            // FileNotFoundException | InvalidFilenameException
+        } catch (Exception $e) {
             // We don't have a file to display
-            return;
+            $this->clientError(_('No such attachment.'), 404);
+            return false;
         }
 
         $filename = MediaFile::getDisplayName($file);

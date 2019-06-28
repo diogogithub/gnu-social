@@ -535,6 +535,11 @@ class ImageFile extends MediaFile
             throw new ServerException('No File object attached to this ImageFile object.');
         }
 
+        // File not stored locally, can't generate a thumbnail
+        if (empty($this->fileRecord->filename)) {
+            throw new FileNotStoredLocallyException($this->fileRecord);
+        }
+
         if ($width === null) {
             $width  = common_config('thumbnail', 'width');
             $height = common_config('thumbnail', 'height');
