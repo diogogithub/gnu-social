@@ -13,9 +13,14 @@ class Attachment_viewAction extends AttachmentAction
 {
     public function showPage()
     {
-        // Checks file exists or throws FileNotStoredLocallyException
-        $filepath = $this->attachment->getPath();
-        $filesize = $this->attachment->size;
+        // Checks file exists or throws FileNotFoundException
+        $filepath = $this->attachment->getFileOrThumbnailPath();
+        $filesize = $this->attachment->size ?: 0;
+        $mimetype = $this->attachment->getFileOrThumbnailMimetype();
+
+        if (empty($filepath)) {
+            $thiis->clientError(_('No such attachment'), 404);
+        }
 
         $filename = MediaFile::getDisplayName($this->attachment);
 
@@ -25,8 +30,8 @@ class Attachment_viewAction extends AttachmentAction
         @ini_set('display_errors', 0);
 
         header("Content-Description: File Transfer");
-        header("Content-Type: {$this->attachment->mimetype}");
-        if (in_array(common_get_mime_media($this->attachment->mimetype), ['image', 'video'])) {
+        header("Content-Type: {$mimetype}");
+        if (in_array(common_get_mime_media($mimetype), ['image', 'video'])) {
             header("Content-Disposition: inline; filename=\"{$filename}\"");
         } else {
             header("Content-Disposition: attachment; filename=\"{$filename}\"");

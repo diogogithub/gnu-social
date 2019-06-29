@@ -55,31 +55,22 @@ class Attachment_thumbnailAction extends AttachmentAction
 
     public function showPage()
     {
+        // Checks file exists or throws FileNotFoundException
+        $size = $this->attachment->size ?: 0;
+
         // Returns a File_thumbnail object or throws exception if not available
         try {
-            $thumb = $this->attachment->getThumbnail($this->thumb_w, $this->thumb_h, $this->thumb_c);
-            $file = $thumb->getFile();
+            $thumbnail = $this->attachment->getThumbnail($this->thumb_w, $this->thumb_h, $this->thumb_c);
+            $file = $thumbnail->getFile();
         } catch (UseFileAsThumbnailException $e) {
             // With this exception, the file exists locally
             $file = $e->file;
+        } catch(FileNotFoundException $e) {
+            $this->clientError(_('No such attachment'), 404);
         }
 
-        try {
-            if (!empty($thumb)) {
-                $filepath = $thumb->getPath();
-                $size = 0;
-            } elseif ($file->isLocal()) {
-                $filepath = $file->getPath();
-                $size = $file->size;
-            }
-            // XXX PHP: Upgrade to PHP 7.1
-            // FileNotFoundException | InvalidFilenameException
-        } catch (Exception $e) {
-            // We don't have a file to display
-            $this->clientError(_('No such attachment.'), 404);
-            return false;
-        }
-
+        $filepath = $file->getFileOrThumbnailPath();
+        $mimetype = $file->getFileOrThumbnailMimetype();
         $filename = MediaFile::getDisplayName($file);
 
         // Disable errors, to not mess with the file contents (suppress errors in case access to this
@@ -88,7 +79,7 @@ class Attachment_thumbnailAction extends AttachmentAction
         @ini_set('display_errors', 0);
 
         header("Content-Description: File Transfer");
-        header("Content-Type: {$file->mimetype}");
+        header("Content-Type: {$mimetype}");
         header("Content-Disposition: inline; filename=\"{$filename}\"");
         header('Expires: 0');
         header('Content-Transfer-Encoding: binary');

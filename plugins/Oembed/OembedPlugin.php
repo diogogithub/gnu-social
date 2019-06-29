@@ -411,7 +411,7 @@ class OembedPlugin extends Plugin
      * states where it isn't oEmbed data, so it doesn't mess up the event handle
      * for other things hooked into it), or the exception if it fails.
      */
-    public function onCreateFileImageThumbnailSource(File $file, &$imgPath)
+    public function onCreateFileImageThumbnailSource(File $file, &$imgPath, $media)
     {
         // If we are on a private node, we won't do any remote calls (just as a precaution until
         // we can configure this from config.php for the private nodes)

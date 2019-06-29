@@ -589,6 +589,58 @@ class File extends Managed_DataObject
         return $filepath;
     }
 
+    /**
+     * Returns the path to either a file, or it's thumbnail if the file doesn't exist.
+     * This is useful in case the original file is deleted, or, as is the case for Embed
+     * thumbnails, we only have a thumbnail and not a file
+     * @return string Path
+     * @throws FileNotFoundException
+     * @throws FileNotStoredLocallyException
+     * @throws InvalidFilenameException
+     * @throws ServerException
+     */
+    public function getFileOrThumbnailPath() : string
+    {
+        if (!empty($this->filename)) {
+            $filepath = self::path($this->filename);
+            if (file_exists($filepath)) {
+                return $filepath;
+            } else {
+                throw new FileNotFoundException($filepath);
+            }
+        } else {
+            try {
+                return File_thumbnail::byFile($this)->getPath();
+            } catch (NoResultException $e) {
+                // File not stored locally
+                throw new FileNotStoredLocallyException($this);
+            }
+        }
+    }
+
+    /**
+     * Return the mime type of the thumbnail if we have it, or, if not, of the File
+     * @return string
+     * @throws FileNotFoundException
+     * @throws NoResultException
+     * @throws ServerException
+     * @throws UnsupportedMediaException
+     */
+    public function getFileOrThumbnailMimetype() : string
+    {
+        if (empty($this->filename)) {
+            $filepath = File_thumbnail::byFile($this)->getPath();
+            $info = @getimagesize($filepath);
+            if ($info !== false) {
+                return $info['mime'];
+            } else {
+                throw new UnsupportedMediaException(_("Thumbnail is not an image."));
+            }
+        } else {
+            return $this->mimetype;
+        }
+    }
+
     public function getAttachmentUrl()
     {
         return common_local_url('attachment', array('attachment'=>$this->getID()));

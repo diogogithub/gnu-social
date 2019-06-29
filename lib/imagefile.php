@@ -535,10 +535,8 @@ class ImageFile extends MediaFile
             throw new ServerException('No File object attached to this ImageFile object.');
         }
 
-        // File not stored locally, can't generate a thumbnail
-        if (empty($this->fileRecord->filename)) {
-            throw new FileNotStoredLocallyException($this->fileRecord);
-        }
+        // Throws FileNotFoundException or FileNotStoredLocallyException
+        $this->filepath = $this->fileRecord->getFileOrThumbnailPath();
 
         if ($width === null) {
             $width  = common_config('thumbnail', 'width');
@@ -575,7 +573,7 @@ class ImageFile extends MediaFile
             return $thumb;
         }
 
-        $filename = $this->fileRecord->filehash ?: $this->filename;    // Remote files don't have $this->filehash
+        $filename = basename($this->filepath);
         $extension = File::guessMimeExtension($this->mimetype);
         $outname = "thumb-{$this->fileRecord->getID()}-{$width}x{$height}-{$filename}." . $extension;
         $outpath = File_thumbnail::path($outname);
