@@ -168,12 +168,12 @@ class AttachmentListItem extends Widget
                     }
 
                     $this->out->elementStart($mediatype,
-                                        array('class'=>"attachment_player u-{$mediatype}",
-                                            'poster'=>$poster,
-                                            'controls'=>'controls'));
+                                             array('class'=>"attachment_player u-{$mediatype}",
+                                                   'poster'=>$poster,
+                                                   'controls'=>'controls'));
                     $this->out->element('source',
                                         array('src'=>$this->attachment->getUrl(),
-                                            'type'=>$this->attachment->mimetype));
+                                              'type'=>$this->attachment->mimetype));
                     $this->out->elementEnd($mediatype);
                     break;
 
@@ -181,7 +181,8 @@ class AttachmentListItem extends Widget
                     unset($thumb);  // there's no need carrying this along
                     switch (common_bare_mime($this->attachment->mimetype)) {
                     case 'text/plain':
-                        $this->element('div', ['class'=>'e-content plaintext'], file_get_contents($this->attachment->getPath()));
+                        $this->element('div', ['class'=>'e-content plaintext'],
+                                       file_get_contents($this->attachment->getPath()));
                         break;
                     case 'text/html':
                         if (!empty($this->attachment->filename)

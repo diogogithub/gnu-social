@@ -237,6 +237,76 @@ class MediaFile
     }
 
     /**
+     * Encodes a file name and a file hash in the new file format, which is used to avoid
+     * having an extension in the file, removing trust in extensions, while keeping the original name
+     * @throws ClientException
+     */
+    public static function encodeFilename(string $original_name, string $filehash, string $ext = null) : string
+    {
+        if (empty($original_name)) {
+            $original_name = _('Untitled attachment');
+        }
+
+        // If we're given an extension explicitly, use it, otherwise...
+        $ext = $ext ?:
+             // get a replacement extension if configured, returns false if it's blocked,
+             // null if no extension
+             File::getSafeExtension($original_name);
+        if ($ext === false) {
+            throw new ClientException(_('Blacklisted file extension.'));
+        }
+
+        common_debug("EXT: " . print_r($ext, true));
+
+        if (!empty($ext)) {
+            // Remove dots if we have them (make sure they're not repeated)
+            $ext = preg_replace('/^\.+/', '', $ext);
+            $original_name = preg_replace('/\.+.+$/i', ".{$ext}", $original_name);
+        }
+
+        $enc_name = bin2hex($original_name);
+        return "{$enc_name}-{$filehash}";
+    }
+
+    /**
+     * Decode the new filename format
+     * @return false | null | string on failure, no match (old format) or original file name, respectively
+     */
+    public static function decodeFilename(string $encoded_filename)
+    {
+        $ret = preg_match('/^([^-]+?)-[^-]+$/', $encoded_filename, $matches);
+        if ($ret === false) {
+            return false;
+        } elseif ($ret === 0) {
+            return null; // No match
+        } else {
+            $filename = hex2bin($matches[1]);
+
+            // Matches extension
+            if (preg_match('/^(.+?)\.(.+)$/', $filename, $sub_matches) === 1) {
+                $ext = $sub_matches[2];
+                // Previously, there was a blacklisted extension array, which could have an alternative
+                // extension, such as phps, to replace php. We want to turn it back (this is deprecated,
+                // as it no longer makes sense, since we don't trust trust files based on extension,
+                // but keep the feature)
+                $blacklist = common_config('attachments', 'extblacklist');
+                if (is_array($blacklist)) {
+                    foreach ($blacklist as $upload_ext => $safe_ext) {
+                        if ($ext === $safe_ext) {
+                            $ext = $upload_ext;
+                            break;
+                        }
+                    }
+                }
+                return "{$sub_matches[1]}.{$ext}";
+            } else {
+                // No extension, don't bother trying to replace it
+                return $filename;
+            }
+        }
+    }
+
+    /**
      * Create a new MediaFile or ImageFile object from an upload
      *
      * Tries to set the mimetype correctly, using the most secure method available and rejects the file otherwise.
@@ -314,12 +384,6 @@ class MediaFile
                 File::respectsQuota($scoped, $_FILES[$param]['size']);
             }
 
-            // Gets a replacement extension if configured in the config, returns false if it's blocked
-            $ext = File::getSafeExtension($_FILES[$param]['name']);
-            if ($ext === false) {
-                throw new ClientException(_('Blacklisted file extension.'));
-            }
-
             $mimetype = self::getUploadedMimeType($_FILES[$param]['tmp_name'], $_FILES[$param]['name']);
             $media = common_get_mime_media($mimetype);
 
@@ -334,14 +398,7 @@ class MediaFile
                 $ext = image_type_to_extension($img->preferredType(), false);
             }
 
-            // If we have a replacement extension (either from the config or from converting an image)
-            if ($ext !== false) {
-                $basename = preg_replace("/\..+$/i", ".{$ext}", $basename);
-            }
-
-            // New file name format
-            $original_filename = bin2hex($basename);
-            $filename = "{$original_filename}-{$filehash}";
+            $filename = self::encodeFilename($basename, $filehash, $ext);
             $filepath = File::path($filename);
 
             if ($media === 'image') {
@@ -582,27 +639,26 @@ class MediaFile
         }
 
         // New file name format is "{bin2hex(original_name.ext)}-{$hash}"
-        $ret = preg_match('/^([^\.-]+)-.+$/', $file->filename, $matches);
+        $filename = self::decodeFilename($file->filename);
+
         // If there was an error in the match, something's wrong with some piece
         // of code (could be a file with utf8 chars in the name)
         $log_error_msg = "Invalid file name for File with id={$file->id} " .
-                         "({$file->filename}). Some plugin probably did something wrong.";
-
-        if ($ret === false) {
+                       "({$file->filename}). Some plugin probably did something wrong.";
+        if ($filename === false) {
             common_log(LOG_ERR, $log_error_msg);
-        } elseif ($ret === 1) {
-            $filename = hex2bin($matches[1]);
-        } else {
-            // The old file name format was "{hash}.{ext}"
-            // This estracts the extension
+        } elseif ($filename === null) {
+            // The old file name format was "{hash}.{ext}" so we didn't have a name
+            // This extracts the extension
             $ret = preg_match('/^.+?\.(.+)$/', $file->filename, $matches);
             if ($ret !== 1) {
                 common_log(LOG_ERR, $log_error_msg);
                 return _('Untitled attachment');
             }
             $ext = $matches[1];
-            // Previously, there was a blacklisted extension array, which could have an alternative
+            // There's a blacklisted extension array, which could have an alternative
             // extension, such as phps, to replace php. We want to turn it back
+            // (currently defaulted to empty, but let's keep the feature)
             $blacklist = common_config('attachments', 'extblacklist');
             if (is_array($blacklist)) {
                 foreach ($blacklist as $upload_ext => $safe_ext) {

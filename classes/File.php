@@ -341,23 +341,27 @@ class File extends Managed_DataObject
      * @return string|bool Value from the 'extblacklist' array, in the config
      */
     public static function getSafeExtension(string $filename) {
-        if (preg_match('/^.+?\.([A-Za-z0-9]+)$/', $filename, $matches)) {
+        if (preg_match('/^.+?\.([A-Za-z0-9]+)$/', $filename, $matches) === 1) {
             // we matched on a file extension, so let's see if it means something.
+            common_debug("MATCHES EXT: " . print_r($matches, true));
             $ext = mb_strtolower($matches[1]);
             $blacklist = common_config('attachments', 'extblacklist');
             // If we got an extension from $filename we want to check if it's in a blacklist
             // so we avoid people uploading restricted files
             if (array_key_exists($ext, $blacklist)) {
                 if (!is_string($blacklist[$ext])) {
+                    // Blocked
                     return false;
                 }
                 // return a safe replacement extension ('php' => 'phps' for example)
                 return $blacklist[$ext];
+            } else {
+                // the attachment extension based on its filename was not blacklisted so it's ok to use it
+                return $ext;
             }
-            // the attachment extension based on its filename was not blacklisted so it's ok to use it
-            return $ext;
         } else {
-            return false;
+            // No extension
+            return null;
         }
     }
 

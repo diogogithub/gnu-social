@@ -273,7 +273,7 @@ class OembedPlugin extends Plugin
                 $out->element(
                     'a',
                     array('href' => $oembed->author_url,
-                                         'class' => 'url'),
+                          'class' => 'url'),
                     $oembed->author_name
                 );
             }
@@ -286,7 +286,7 @@ class OembedPlugin extends Plugin
                 $out->element(
                     'a',
                     array('href' => $oembed->provider_url,
-                                         'class' => 'url'),
+                          'class' => 'url'),
                     $oembed->provider
                 );
             }
@@ -421,7 +421,8 @@ class OembedPlugin extends Plugin
 
         // All our remote Oembed images lack a local filename property in the File object
         if (!is_null($file->filename)) {
-            common_debug(sprintf('Filename of file id==%d is not null (%s), so nothing oEmbed should handle.', $file->getID(), _ve($file->filename)));
+            common_debug(sprintf('Filename of file id==%d is not null (%s), so nothing oEmbed '.
+                                 'should handle.', $file->getID(), _ve($file->filename)));
             return true;
         }
 
@@ -440,10 +441,12 @@ class OembedPlugin extends Plugin
         } catch (AlreadyFulfilledException $e) {
             // aw yiss!
         } catch (Exception $e) {
-            common_debug(sprintf('oEmbed encountered an exception (%s) for file id==%d: %s', get_class($e), $file->getID(), _ve($e->getMessage())));
+            common_debug(sprintf('oEmbed encountered an exception (%s) for file id==%d: %s',
+                                 get_class($e), $file->getID(), _ve($e->getMessage())));
             throw $e;
         }
 
+        // Out
         $imgPath = $thumbnail->getPath();
 
         return false;
@@ -544,7 +547,8 @@ class OembedPlugin extends Plugin
     protected function storeRemoteFileThumbnail(File_thumbnail $thumbnail)
     {
         if (!empty($thumbnail->filename) && file_exists($thumbnail->getPath())) {
-            throw new AlreadyFulfilledException(sprintf('A thumbnail seems to already exist for remote file with id==%u', $thumbnail->file_id));
+            throw new AlreadyFulfilledException(
+                sprintf('A thumbnail seems to already exist for remote file with id==%u', $thumbnail->file_id));
         }
 
         $url = $thumbnail->getUrl();
@@ -556,7 +560,8 @@ class OembedPlugin extends Plugin
                 $max_size  = common_get_preferred_php_upload_limit();
                 $file_size = $this->getRemoteFileSize($url);
                 if (($file_size!=false) && ($file_size > $max_size)) {
-                    common_debug("Went to store remote thumbnail of size " . $file_size . " but the upload limit is " . $max_size . " so we aborted.");
+                    common_debug("Went to store remote thumbnail of size " . $file_size .
+                                 " but the upload limit is " . $max_size . " so we aborted.");
                     return false;
                 }
             }
@@ -567,7 +572,8 @@ class OembedPlugin extends Plugin
 
         // First we download the file to memory and test whether it's actually an image file
         // FIXME: To support remote video/whatever files, this needs reworking.
-        common_debug(sprintf('Downloading remote thumbnail for file id==%u with thumbnail URL: %s', $thumbnail->file_id, $url));
+        common_debug(sprintf('Downloading remote thumbnail for file id==%u with thumbnail URL: %s',
+                             $thumbnail->file_id, $url));
         $imgData = HTTPClient::quickGet($url);
         $info = @getimagesizefromstring($imgData);
         if ($info === false) {
@@ -580,14 +586,17 @@ class OembedPlugin extends Plugin
 
         try {
             // We'll trust sha256 (File::FILEHASH_ALG) not to have collision issues any time soon :)
-            $filename = sprintf('oembed-%d.%s', hash(File::FILEHASH_ALG, $imgData), $ext);
+            $original_filename = bin2hex('oembed.' . $ext);
+            $filehash = hash(File::FILEHASH_ALG, $imgData);
+            $filename = "{$original_filename}-{$filehash}";
             $fullpath = File_thumbnail::path($filename);
             // Write the file to disk. Throw Exception on failure
             if (!file_exists($fullpath) && file_put_contents($fullpath, $imgData) === false) {
                 throw new ServerException(_('Could not write downloaded file to disk.'));
             }
         } catch (Exception $err) {
-            common_log(LOG_ERROR, "Went to write a thumbnail to disk in OembedPlugin::storeRemoteThumbnail but encountered error: {$err}");
+            common_log(LOG_ERROR, "Went to write a thumbnail to disk in OembedPlugin::storeRemoteThumbnail " .
+                       "but encountered error: {$err}");
             return $err;
         } finally {
             unset($imgData);
@@ -602,7 +611,8 @@ class OembedPlugin extends Plugin
             // Throws exception on failure.
             $thumbnail->updateWithKeys($orig);
         } catch (exception $err) {
-            common_log(LOG_ERROR, "Went to write a thumbnail entry to the database in OembedPlugin::storeRemoteThumbnail but encountered error: ".$err);
+            common_log(LOG_ERROR, "Went to write a thumbnail entry to the database in " .
+                       "OembedPlugin::storeRemoteThumbnail but encountered error: ".$err);
             return $err;
         }
         return true;
