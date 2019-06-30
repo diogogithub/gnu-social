@@ -603,8 +603,11 @@ class File extends Managed_DataObject
      * @throws InvalidFilenameException
      * @throws ServerException
      */
-    public function getFileOrThumbnailPath() : string
+    public function getFileOrThumbnailPath($thumbnail = null) : string
     {
+        if (!empty($thumbnail)) {
+            return $thumbnail->getPath();
+        }
         if (!empty($this->filename)) {
             $filepath = self::path($this->filename);
             if (file_exists($filepath)) {
@@ -630,18 +633,39 @@ class File extends Managed_DataObject
      * @throws ServerException
      * @throws UnsupportedMediaException
      */
-    public function getFileOrThumbnailMimetype() : string
+    public function getFileOrThumbnailMimetype($thumbnail = null) : string
     {
-        if (empty($this->filename)) {
+        if (!empty($thumbnail)) {
+            $filepath = $thumbnail->getPath();
+        } elseif (empty($this->filename)) {
             $filepath = File_thumbnail::byFile($this)->getPath();
-            $info = @getimagesize($filepath);
-            if ($info !== false) {
-                return $info['mime'];
-            } else {
-                throw new UnsupportedMediaException(_("Thumbnail is not an image."));
-            }
         } else {
             return $this->mimetype;
+        }
+
+        $info = @getimagesize($filepath);
+        if ($info !== false) {
+            return $info['mime'];
+        } else {
+            throw new UnsupportedMediaException(_("Thumbnail is not an image."));
+        }
+    }
+
+    /**
+     * Return the size of the thumbnail if we have it, or, if not, of the File
+     * @return int
+     * @throws FileNotFoundException
+     * @throws NoResultException
+     * @throws ServerException
+     */
+    public function getFileOrThumbnailSize($thumbnail = null) : int
+    {
+        if (!empty($thumbnail)) {
+            return filesize($thumbnail->getPath());
+        } elseif (!empty($this->filename)) {
+            return $this->size;
+        } else {
+            return filesize(File_thumbnail::byFile($this)->getPath());
         }
     }
 

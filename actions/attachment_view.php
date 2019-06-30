@@ -15,7 +15,7 @@ class Attachment_viewAction extends AttachmentAction
     {
         // Checks file exists or throws FileNotFoundException
         $filepath = $this->attachment->getFileOrThumbnailPath();
-        $filesize = $this->attachment->size ?: 0;
+        $filesize = $this->attachment->getFileOrThumbnailSize();
         $mimetype = $this->attachment->getFileOrThumbnailMimetype();
 
         if (empty($filepath)) {

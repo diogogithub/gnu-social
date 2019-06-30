@@ -204,7 +204,7 @@ class AttachmentAction extends ManagedAction
     /**
      * Include $filepath in the response, for viewing and downloading
      */
-    static function sendFile(string $filepath, int $filesize) {
+    static function sendFile(string $filepath, $filesize) {
         if (common_config('site', 'use_x_sendfile')) {
             header('X-Sendfile: ' . $filepath);
         } else {

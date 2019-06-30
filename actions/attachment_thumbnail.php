@@ -55,8 +55,6 @@ class Attachment_thumbnailAction extends AttachmentAction
 
     public function showPage()
     {
-        // Checks file exists or throws FileNotFoundException
-        $size = $this->attachment->size ?: 0;
 
         // Returns a File_thumbnail object or throws exception if not available
         try {
@@ -69,8 +67,10 @@ class Attachment_thumbnailAction extends AttachmentAction
             $this->clientError(_('No such attachment'), 404);
         }
 
-        $filepath = $file->getFileOrThumbnailPath();
-        $mimetype = $file->getFileOrThumbnailMimetype();
+        // Checks file exists or throws FileNotFoundException
+        $filepath = $file->getFileOrThumbnailPath($thumbnail);
+        $filesize = $this->attachment->getFileOrThumbnailSize($thumbnail);
+        $mimetype = $file->getFileOrThumbnailMimetype($thumbnail);
         $filename = MediaFile::getDisplayName($file);
 
         // Disable errors, to not mess with the file contents (suppress errors in case access to this

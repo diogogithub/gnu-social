@@ -172,9 +172,9 @@ class File_thumbnail extends Managed_DataObject
     }
 
     /**
-     *
      * @return  string  full filesystem path to the locally stored thumbnail file
-     * @throws  
+     * @throws FileNotFoundException
+     * @throws ServerException
      */
     public function getPath()
     {
