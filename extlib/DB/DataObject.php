@@ -558,8 +558,7 @@ class DB_DataObject extends DB_DataObject_Overload
         if ((new PEAR)->isError($message)) {
             $error = $message;
         } else {
-            //require_once 'DB/DataObject/Error.php';
-            require_once 'Error.php';
+            require_once 'DB/DataObject/Error.php';
             $dor = new PEAR();
             $error = $dor->raiseError(
                 $message,
