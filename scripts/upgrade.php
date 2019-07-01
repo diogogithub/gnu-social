@@ -1,27 +1,36 @@
 #!/usr/bin/env php
 <?php
-/*
- * StatusNet - a distributed open-source microblogging tool
- * Copyright (C) 2008-2011 StatusNet, Inc.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Upgrade database schema and data to latest software and check DB integrity
+ * Usage: php upgrade.php [options]
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @package   GNUsocial
+ * @author    Bhuvan Krishna <bhuvan@swecha.net>
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @copyright 2010-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
+define('INSTALLDIR', dirname(__DIR__));
 
 $shortoptions = 'dfx::';
-$longoptions = array('debug', 'files', 'extensions=');
+$longoptions = ['debug', 'files', 'extensions='];
 
 $helptext = <<<END_OF_UPGRADE_HELP
 php upgrade.php [options]
@@ -68,7 +77,7 @@ function main()
         initGroupProfileId();
         initLocalGroup();
         initNoticeReshare();
-    
+
         initSubscriptionURI();
         initGroupMemberURI();
 
@@ -82,9 +91,9 @@ function main()
 
 function tableDefs()
 {
-	$schema = array();
-	require INSTALLDIR.'/db/core.php';
-	return $schema;
+    $schema = [];
+    require INSTALLDIR . '/db/core.php';
+    return $schema;
 }
 
 function updateSchemaCore()
@@ -124,9 +133,9 @@ function fixupNoticeConversation()
     while ($notice->fetch()) {
         try {
             $cid = null;
-    
+
             $orig = clone($notice);
-    
+
             if (!empty($notice->reply_to)) {
                 $reply = Notice::getKV('id', $notice->reply_to);
 
@@ -201,24 +210,27 @@ function initConversation()
     }
 
     while ($notice->fetch()) {
-
         $id = $notice->conversation;
 
-        $uri = common_local_url('conversation', array('id' => $id));
+        $uri = common_local_url('conversation', ['id' => $id]);
 
         // @fixme db_dataobject won't save our value for an autoincrement
         // so we're bypassing the insert wrappers
         $conv = new Conversation();
-        $sql = "insert into conversation (id,uri,created) values(%d,'%s','%s')";
-        $sql = sprintf($sql,
-                       $id,
-                       $conv->escape($uri),
-                       $conv->escape(common_sql_now()));
+        $sql = "INSERT INTO conversation (id,uri,created) VALUES (%d,'%s','%s')";
+        $sql = sprintf(
+            $sql,
+            $id,
+            $conv->escape($uri),
+            $conv->escape(common_sql_now())
+        );
         $conv->query($sql);
     }
 
     // This is something we should only have to do once unless introducing new, bad code.
-    if (DEBUG) printfnq(sprintf('Storing in config that we have done %s', __METHOD__));
+    if (DEBUG) {
+        printfnq(sprintf('Storing in config that we have done %s', __METHOD__));
+    }
     common_config_set('fix', 'upgrade_initConversation', 1);
 
     printfnq("DONE.\n");
@@ -234,9 +246,12 @@ function fixupConversationURIs()
     if ($conv->find()) {
         $rounds = 0;
         while ($conv->fetch()) {
-            $uri = common_local_url('conversation', array('id' => $conv->id));
-            $sql = sprintf('UPDATE conversation SET uri="%1$s" WHERE id="%2$d";',
-                            $conv->escape($uri), $conv->id);
+            $uri = common_local_url('conversation', ['id' => $conv->id]);
+            $sql = sprintf(
+                'UPDATE conversation SET uri="%1$s" WHERE id="%2$d";',
+                $conv->escape($uri),
+                $conv->id
+            );
             $conv->query($sql);
             if (($conv->N-++$rounds) % 500 == 0) {
                 printfnq(sprintf(' %d items left...', $conv->N-$rounds));
@@ -297,7 +312,7 @@ function initLocalGroup()
     while ($group->fetch()) {
         try {
             // Hack to check for local groups
-            if ($group->getUri() == common_local_url('groupbyid', array('id' => $group->id))) {
+            if ($group->getUri() == common_local_url('groupbyid', ['id' => $group->id])) {
                 $lg = new Local_group();
 
                 $lg->group_id = $group->id;
@@ -323,7 +338,7 @@ function initNoticeReshare()
     }
 
     printfnq("Ensuring all reshares have the correct verb and object-type...");
-    
+
     $notice = new Notice();
     $notice->whereAdd('repeat_of is not null');
     $notice->whereAdd('(verb != "'.ActivityVerb::SHARE.'" OR object_type != "'.ActivityObject::ACTIVITY.'")');
@@ -342,7 +357,9 @@ function initNoticeReshare()
     }
 
     // This is something we should only have to do once unless introducing new, bad code.
-    if (DEBUG) printfnq(sprintf('Storing in config that we have done %s', __METHOD__));
+    if (DEBUG) {
+        printfnq(sprintf('Storing in config that we have done %s', __METHOD__));
+    }
     common_config_set('fix', 'upgrade_initNoticeReshare', 1);
 
     printfnq("DONE.\n");
@@ -359,13 +376,15 @@ function initSubscriptionURI()
         while ($sub->fetch()) {
             try {
                 $sub->decache();
-                $sub->query(sprintf('update subscription '.
-                                    'set uri = "%s" '.
-                                    'where subscriber = %d '.
-                                    'and subscribed = %d',
-                                    $sub->escape(Subscription::newUri($sub->getSubscriber(), $sub->getSubscribed(), $sub->created)),
-                                    $sub->subscriber,
-                                    $sub->subscribed));
+                $sub->query(sprintf(
+                    'UPDATE subscription '.
+                    'SET uri = "%s" '.
+                    'WHERE subscriber = %d '.
+                      'AND subscribed = %d',
+                    $sub->escape(Subscription::newUri($sub->getSubscriber(), $sub->getSubscribed(), $sub->created)),
+                    $sub->subscriber,
+                    $sub->subscribed
+                ));
             } catch (Exception $e) {
                 common_log(LOG_ERR, "Error updated subscription URI: " . $e->getMessage());
             }
@@ -386,15 +405,18 @@ function initGroupMemberURI()
         while ($mem->fetch()) {
             try {
                 $mem->decache();
-                $mem->query(sprintf('update group_member set uri = "%s" '.
-                                    'where profile_id = %d ' . 
-                                    'and group_id = %d ',
-                                    Group_member::newUri(Profile::getByID($mem->profile_id), User_group::getByID($mem->group_id), $mem->created),
-                                    $mem->profile_id,
-                                    $mem->group_id));
+                $mem->query(sprintf(
+                    'UPDATE group_member '.
+                    'SET uri = "%s" '.
+                    'WHERE profile_id = %d ' .
+                      'AND group_id = %d',
+                    Group_member::newUri(Profile::getByID($mem->profile_id), User_group::getByID($mem->group_id), $mem->created),
+                    $mem->profile_id,
+                    $mem->group_id
+                ));
             } catch (Exception $e) {
-                common_log(LOG_ERR, "Error updated membership URI: " . $e->getMessage());  
-          }
+                common_log(LOG_ERR, "Error updated membership URI: " . $e->getMessage());
+            }
         }
     }
 
@@ -407,10 +429,10 @@ function initProfileLists()
 
     $ptag = new Profile_tag();
     $ptag->selectAdd();
-    $ptag->selectAdd('tagger, tag, count(*) as tagged_count');
-    $ptag->whereAdd('NOT EXISTS (SELECT tagger, tagged from profile_list '.
-                    'where profile_tag.tagger = profile_list.tagger '.
-                    'and profile_tag.tag = profile_list.tag)');
+    $ptag->selectAdd('tagger, tag, COUNT(*) AS tagged_count');
+    $ptag->whereAdd('NOT EXISTS (SELECT tagger, tagged FROM profile_list '.
+                    'WHERE profile_tag.tagger = profile_list.tagger '.
+                    'AND profile_tag.tag = profile_list.tag)');
     $ptag->groupBy('tagger, tag');
     $ptag->orderBy('tagger, tag');
 
@@ -423,9 +445,12 @@ function initProfileLists()
             $plist->private  = 0;
             $plist->created  = common_sql_now();
             $plist->modified = $plist->created;
-            $plist->mainpage = common_local_url('showprofiletag',
-                                                array('tagger' => $plist->getTagger()->nickname,
-                                                      'tag'    => $plist->tag));;
+            $plist->mainpage = common_local_url(
+                'showprofiletag',
+                ['tagger' => $plist->getTagger()->nickname,
+                 'tag'    => $plist->tag]
+            );
+            ;
 
             $plist->tagged_count     = $ptag->tagged_count;
             $plist->subscriber_count = 0;
@@ -434,8 +459,11 @@ function initProfileLists()
 
             $orig = clone($plist);
             // After insert since it uses auto-generated ID
-            $plist->uri      = common_local_url('profiletagbyid',
-                                        array('id' => $plist->id, 'tagger_id' => $plist->tagger));
+            $plist->uri = common_local_url(
+                'profiletagbyid',
+                ['id'        => $plist->id,
+                 'tagger_id' => $plist->tagger]
+            );
 
             $plist->update($orig);
         }
@@ -457,25 +485,33 @@ function fixupFileGeometry()
 
     if ($file->find()) {
         while ($file->fetch()) {
-            if (DEBUG) printfnq(sprintf('Found file without width: %s\n', _ve($file->getFilename())));
+            if (DEBUG) {
+                printfnq(sprintf('Found file without width: %s\n', _ve($file->getFilename())));
+            }
 
             // Set file geometrical properties if available
             try {
                 $image = ImageFile::fromFileObject($file);
             } catch (ServerException $e) {
                 // We couldn't make out an image from the file.
-                if (DEBUG) printfnq(sprintf('Could not make an image out of the file.\n'));
+                if (DEBUG) {
+                    printfnq(sprintf('Could not make an image out of the file.\n'));
+                }
                 continue;
             }
             $orig = clone($file);
             $file->width = $image->width;
             $file->height = $image->height;
-            if (DEBUG) printfnq(sprintf('Setting image file and with to %sx%s.\n', $file->width, $file->height));
+            if (DEBUG) {
+                printfnq(sprintf('Setting image file and with to %sx%s.\n', $file->width, $file->height));
+            }
             $file->update($orig);
 
             // FIXME: Do this more automagically inside ImageFile or so.
             if ($image->getPath() != $file->getPath()) {
-                if (DEBUG) printfnq(sprintf('Deleting the temporarily stored ImageFile.\n'));
+                if (DEBUG) {
+                    printfnq(sprintf('Deleting the temporarily stored ImageFile.\n'));
+                }
                 $image->unlink();
             }
             unset($image);
@@ -581,10 +617,10 @@ function migrateProfilePrefs()
 {
     printfnq("Finding and possibly migrating Profile_prefs entries: ");
 
-    $prefs = array();   // ['qvitter' => ['cover_photo'=>'profile_banner_url', ...], ...]
-    Event::handle('GetProfilePrefsMigrations', array(&$prefs));
+    $prefs = [];   // ['qvitter' => ['cover_photo'=>'profile_banner_url', ...], ...]
+    Event::handle('GetProfilePrefsMigrations', [&$prefs]);
 
-    foreach($prefs as $namespace=>$mods) {
+    foreach ($prefs as $namespace=>$mods) {
         echo "$namespace... ";
         assert(is_array($mods));
         $p = new Profile_prefs();
