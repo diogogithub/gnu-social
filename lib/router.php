@@ -924,7 +924,7 @@ class Router
 
                 $m->connect('all/:tag',
                                 array('action' => 'showprofiletag',
-                                      'nickname' => $nickname,
+                                      'tagger' => $nickname,
                                       'tag' => self::REGEX_TAG));
 
                 foreach (array('subscriptions', 'subscribers') as $a) {

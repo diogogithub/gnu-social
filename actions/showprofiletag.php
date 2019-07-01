@@ -32,7 +32,7 @@ class ShowprofiletagAction extends ShowstreamAction
     {
         $tag = common_canonical_tag($this->arg('tag'));
         try {
-            $this->peopletag = Profile_list::getByPK(array('tagger' => $this->target->getID(), 'tag' => $tag));
+            $this->peopletag = Profile_list::getByPK(['tagger' => $this->target->getID(), 'tag' => $tag]);
         } catch (NoResultException $e) {
             // TRANS: Client error displayed trying to reference a non-existing list.
             throw new ClientException('No such list.');
