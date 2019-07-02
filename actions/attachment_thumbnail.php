@@ -84,6 +84,6 @@ class Attachment_thumbnailAction extends AttachmentAction
         header('Expires: 0');
         header('Content-Transfer-Encoding: binary');
 
-        AttachmentAction::sendFile($filepath, $size);
+        AttachmentAction::sendFile($filepath, $filesize);
     }
 }

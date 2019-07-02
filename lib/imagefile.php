@@ -575,7 +575,7 @@ class ImageFile extends MediaFile
 
         $filename = basename($this->filepath);
         $extension = File::guessMimeExtension($this->mimetype);
-        $outname = "thumb-{$this->fileRecord->getID()}-{$width}x{$height}-{$filename}." . $extension;
+        $outname = "thumb-{$this->fileRecord->getID()}-{$width}x{$height}-{$filename}";
         $outpath = File_thumbnail::path($outname);
 
         // The boundary box for our resizing

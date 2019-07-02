@@ -202,11 +202,16 @@ class AttachmentAction extends ManagedAction
     }
 
     /**
-     * Include $filepath in the response, for viewing and downloading
+     * Include $filepath in the response, for viewing and downloading.
+     * If provided, $filesize is used to size the HTTP request,
+     * otherwise it's value is calculated
      */
     static function sendFile(string $filepath, $filesize) {
-        if (common_config('site', 'use_x_sendfile')) {
-            header('X-Sendfile: ' . $filepath);
+        if (is_string(common_config('site', 'x-static-delivery'))) {
+            $relative_path = end(explode(INSTALLDIR, $filepath));
+            common_debug("Using Static Delivery with header: '" .
+                         common_config('site', 'x-static-delivery') . ": {$relative_path}'");
+            header(common_config('site', 'x-static-delivery') . ": {$relative_path}");
         } else {
             if (empty($filesize)) {
                 $filesize = filesize($filepath);
