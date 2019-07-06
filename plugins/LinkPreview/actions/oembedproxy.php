@@ -31,27 +31,27 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 }
 
 /**
- * Oembed proxy implementation
+ * Embed proxy implementation
  *
  * This class provides an interface for our JS-side code to pull info on
- * links from other sites, using either native oEmbed, our own custom
+ * links from other sites, using either native embed, our own custom
  * handlers, or the noembed.com offsite proxy service as configured.
  *
- * @category  oEmbed
+ * @category  embed
  * @package   StatusNet
  * @author    Brion Vibber <brion@status.net>
  * @copyright 2010 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link      http://status.net/
  */
-class OembedproxyAction extends OembedAction
+class OEmbedproxyAction extends OEmbedAction
 {
     function handle()
     {
         // Trigger short error responses; not a human-readable web page.
         GNUsocial::setApi(true);
 
-        // We're not a general oEmbed proxy service; limit to valid sessions.
+        // We're not a general embed proxy service; limit to valid sessions.
         $token = $this->trimmed('token');
         if (!$token || $token != common_session_token()) {
             // TRANS: Client error displayed when the session token does not match or is not given.
@@ -79,7 +79,7 @@ class OembedproxyAction extends OembedAction
             $params['maxheight'] = $this->arg('maxheight');
         }
 
-        $data = oEmbedHelper::getObject($url, $params);
+        $data = EmbedHelper::getObject($url, $params);
 
         $this->init_document('json');
         print json_encode($data);

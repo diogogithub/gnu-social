@@ -48,7 +48,7 @@ if (!defined('STATUSNET')) {
 class BookmarkforurlAction extends Action
 {
     protected $url        = null;
-    protected $oembed     = null;
+    protected $embed      = null;
     protected $thumbnail  = null;
     protected $title      = null;
 
@@ -89,9 +89,9 @@ class BookmarkforurlAction extends Action
 
         if ($f instanceof File) {
             // FIXME: Use some File metadata Event instead
-            $this->oembed    = File_oembed::getKV('file_id', $f->id);
-            if ($this->oembed instanceof File_oembed) {
-                $this->title = $this->oembed->title;
+            $this->embed    = File_embed::getKV('file_id', $f->id);
+            if ($this->embed instanceof File_embed) {
+                $this->title = $this->embed->title;
             }
             $this->thumbnail = File_thumbnail::getKV('file_id', $f->id);
         }

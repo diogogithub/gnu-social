@@ -36,7 +36,7 @@ defined('GNUSOCIAL') || die();
  * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class EmbedAction extends Action
+class OEmbedAction extends Action
 {
     protected function handle()
     {
@@ -48,7 +48,7 @@ class EmbedAction extends Action
 
         if (substr(strtolower($url), 0, mb_strlen($root_url)) !== strtolower($root_url)) {
             // TRANS: Error message displaying attachments. %s is the site's base URL.
-            throw new ClientException(sprintf(_('oEmbed data will only be provided for %s URLs.'), $root_url));
+            throw new ClientException(sprintf(_('Embed data will only be provided for %s URLs.'), $root_url));
         }
 
         $path = substr($url, strlen($root_url));
@@ -87,7 +87,8 @@ class EmbedAction extends Action
             // maybe add thumbnail
             foreach ($notice->attachments() as $attachment) {
                 if (!$attachment instanceof File) {
-                    common_debug('ATTACHMENTS array entry from notice id=='._ve($notice->getID()).' is something else than a File dataobject: '._ve($attachment));
+                    common_debug('ATTACHMENTS array entry from notice id=='._ve($notice->getID()).
+                                 ' is something else than a File dataobject: '._ve($attachment));
                     continue;
                 }
                 try {

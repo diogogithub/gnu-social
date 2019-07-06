@@ -28,12 +28,12 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * Utility class to wrap basic oEmbed lookups.
+ * Utility class to wrap basic embed lookups.
  *
  * Blacklisted hosts will use an alternate lookup method:
  *  - Twitpic
  *
- * Whitelisted hosts will use known oEmbed API endpoints:
+ * Whitelisted hosts will use known embed API endpoints:
  *  - Flickr, YFrog
  *
  * Sites that provide discovery links will use them directly; a bug
@@ -46,7 +46,7 @@ defined('GNUSOCIAL') || die();
  * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class oEmbedHelper
+class EmbedHelper
 {
     protected static $apiMap = array(
         'flickr.com' => 'https://www.flickr.com/services/oembed/',

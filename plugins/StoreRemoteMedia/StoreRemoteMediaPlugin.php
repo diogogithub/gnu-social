@@ -8,7 +8,7 @@ class StoreRemoteMediaPlugin extends Plugin
 {
     const PLUGIN_VERSION = '2.0.0';
 
-    // settings which can be set in config.php with addPlugin('Oembed', array('param'=>'value', ...));
+    // settings which can be set in config.php with addPlugin('Embed', array('param'=>'value', ...));
     // WARNING, these are _regexps_ (slashes added later). Always escape your dots and end your strings
     public $domain_whitelist = [
         // hostname             => service provider
