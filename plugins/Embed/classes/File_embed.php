@@ -28,14 +28,14 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * Table Definition for file_oembed
+ * Table Definition for file_embed
  *
  * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class File_oembed extends Managed_DataObject
+class File_embed extends Managed_DataObject
 {
-    public $__table = 'file_oembed';                     // table name
+    public $__table = 'file_embed';                     // table name
     public $file_id;                         // int(4)  primary_key not_null
     public $version;                         // varchar(20)
     public $type;                            // varchar(20)
@@ -72,7 +72,7 @@ class File_oembed extends Managed_DataObject
             ),
             'primary key' => array('file_id'),
             'foreign keys' => array(
-                'file_oembed_file_id_fkey' => array('file', array('file_id' => 'id')),
+                'file_embed_file_id_fkey' => array('file', array('file_id' => 'id')),
             ),
         );
     }

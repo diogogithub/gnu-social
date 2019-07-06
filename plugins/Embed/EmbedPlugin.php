@@ -73,9 +73,17 @@ class EmbedPlugin extends Plugin
      */
     public function onCheckSchema()
     {
+        $this->onEndUpgrade(); // Ensure rename
+
         $schema = Schema::get();
-        $schema->ensureTable('file_oembed', File_oembed::schemaDef());
+        $schema->ensureTable('file_embed', File_embed::schemaDef());
         return true;
+    }
+
+    public function onEndUpgrade()
+    {
+        $schema = Schema::get();
+        return $schema->renameTable('file_oembed', 'file_embed');
     }
 
     /**

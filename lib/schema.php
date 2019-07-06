@@ -1066,6 +1066,24 @@ class Schema
         return $out;
     }
 
+    public function renameTable(string $old_name, string $new_name) : bool
+    {
+        try {
+            $this->getTableDef($old_name);
+            try {
+                $this->getTableDef($new_name);
+                // New table exists, can't work
+                throw new ServerException("Both table {$old_name} and {$new_name} exist. You're on your own");
+            } catch(SchemaTableMissingException $e) {
+                // New table doesn't exist, carry on
+            }
+        } catch(SchemaTableMissingException $e) {
+            // Already renamed, or no previous table, so we're done
+            return true;
+        }
+        return $this->runSqlSet(["ALTER TABLE {$old_name} RENAME TO {$new_name};"]);
+    }
+
 }
 
 class SchemaTableMissingException extends Exception
