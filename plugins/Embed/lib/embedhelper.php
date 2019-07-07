@@ -104,7 +104,7 @@ class EmbedHelper
             $unicode_check_dom = new DOMDocument();
             $ok = $unicode_check_dom->loadHTML($body);
             if (!$ok) {
-                throw new oEmbedHelper_BadHtmlException();
+                throw new EmbedHelper_BadHtmlException();
             }
             $metaNodes = $unicode_check_dom->getElementsByTagName('meta');
             foreach ($metaNodes as $metaNode) {
@@ -135,7 +135,7 @@ class EmbedHelper
             error_reporting($old);
 
             if (!$ok) {
-                throw new oEmbedHelper_BadHtmlException();
+                throw new EmbedHelper_BadHtmlException();
             }
 
             Event::handle('GetRemoteUrlMetadataFromDom', array($url, $dom, &$metadata));
@@ -185,7 +185,7 @@ class EmbedHelper
             }
         }
 
-        throw new oEmbedHelper_DiscoveryException();
+        throw new EmbedHelper_DiscoveryException();
     }
 
     /**
@@ -245,7 +245,7 @@ class EmbedHelper
     }
 }
 
-class oEmbedHelper_Exception extends Exception
+class EmbedHelper_Exception extends Exception
 {
     public function __construct($message = "", $code = 0, $previous = null)
     {
@@ -253,7 +253,7 @@ class oEmbedHelper_Exception extends Exception
     }
 }
 
-class oEmbedHelper_BadHtmlException extends oEmbedHelper_Exception
+class EmbedHelper_BadHtmlException extends EmbedHelper_Exception
 {
     public function __construct($previous=null)
     {
@@ -261,7 +261,7 @@ class oEmbedHelper_BadHtmlException extends oEmbedHelper_Exception
     }
 }
 
-class oEmbedHelper_DiscoveryException extends oEmbedHelper_Exception
+class EmbedHelper_DiscoveryException extends EmbedHelper_Exception
 {
     public function __construct($previous=null)
     {

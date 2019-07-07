@@ -51,7 +51,7 @@ $url = get_option_value('u', 'url');
 
 print "Contacting URL\n";
 
-$oEmbed = oEmbedHelper::getObject($url);
+$oEmbed = EmbedHelper::getObject($url);
 var_dump($oEmbed);
 
 print "\nDONE.\n";

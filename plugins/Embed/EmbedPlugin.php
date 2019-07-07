@@ -29,6 +29,8 @@
 
 defined('GNUSOCIAL') || die();
 
+use Embed\Embed;
+
 /**
  * Base class for the Embed plugin that does most of the heavy lifting to get
  * and display representations for remote content.
@@ -100,7 +102,7 @@ class EmbedPlugin extends Plugin
 
     /**
      * This event executes when GNU social encounters a remote URL we then decide
-     * to interrogate for metadata.  Embed gloms onto it to see if we have an
+     * to interrogate for metadata. Embed gloms onto it to see if we have an
      * oEmbed endpoint or image to try to represent in the post.
      *
      * @param $url string        the remote URL we're looking at
@@ -110,41 +112,58 @@ class EmbedPlugin extends Plugin
      */
     public function onGetRemoteUrlMetadataFromDom($url, DOMDocument $dom, stdClass &$metadata)
     {
+
         try {
-            common_log(LOG_INFO, 'Trying to discover an oEmbed endpoint using link headers.');
-            $api = oEmbedHelper::oEmbedEndpointFromHTML($dom);
-            common_log(LOG_INFO, 'Found oEmbed API endpoint ' . $api . ' for URL ' . $url);
-            $params = array(
-                'maxwidth' => common_config('thumbnail', 'width'),
-                'maxheight' => common_config('thumbnail', 'height'),
-            );
-            $metadata = oEmbedHelper::getOembedFrom($api, $url, $params);
+            common_log(LOG_INFO, "Trying to find Embed data for {$url} with 'oscarotero/Embed'");
+            $info = Embed::create($url);
 
-            // Facebook just gives us javascript in its oembed html,
-            // so use the content of the title element instead
-            if (strpos($url, 'https://www.facebook.com/') === 0) {
-                $metadata->html = @$dom->getElementsByTagName('title')->item(0)->nodeValue;
-            }
+            $metadata->version = '1.0'; // Yes.
+            $metadata->provider_name = $info->authorName;
+            $metadata->title = $info->title;
+            $metadata->html = common_purify($info->description);
+            $metadata->type = $info->type;
+            $metadata->url = $info->url;
+            $metadata->thumbnail_url = $info->image;
+            $metadata->thumbnail_height = $info->imageHeight;
+            $metadata->thumbnail_width = $info->imageWidth;
+        } catch (Exception $e) {
+            common_log(LOG_INFO, "Failed to find Embed data for {$url} with 'oscarotero/Embed'");
+            try {
+                common_log(LOG_INFO, "Trying to discover an oEmbed endpoint for {$url} using link headers.");
+                $api = EmbedHelper::oEmbedEndpointFromHTML($dom);
+                common_log(LOG_INFO, 'Found oEmbed API endpoint ' . $api . ' for URL ' . $url);
+                $params = array(
+                    'maxwidth' => common_config('thumbnail', 'width'),
+                    'maxheight' => common_config('thumbnail', 'height'),
+                );
+                $metadata = EmbedHelper::getOembedFrom($api, $url, $params);
+                // Facebook just gives us javascript in its oembed html,
+                // so use the content of the title element instead
+                if (strpos($url, 'https://www.facebook.com/') === 0) {
+                    $metadata->html = @$dom->getElementsByTagName('title')->item(0)->nodeValue;
+                }
 
-            // Wordpress sometimes also just gives us javascript, use og:description if it is available
-            $xpath = new DomXpath($dom);
-            $generatorNode = @$xpath->query('//meta[@name="generator"][1]')->item(0);
-            if ($generatorNode instanceof DomElement) {
-                // when wordpress only gives us javascript, the html stripped from tags
-                // is the same as the title, so this helps us to identify this (common) case
-                if (strpos($generatorNode->getAttribute('content'), 'WordPress') === 0
-                && trim(strip_tags($metadata->html)) == trim($metadata->title)) {
-                    $propertyNode = @$xpath->query('//meta[@property="og:description"][1]')->item(0);
-                    if ($propertyNode instanceof DomElement) {
-                        $metadata->html = $propertyNode->getAttribute('content');
+                // Wordpress sometimes also just gives us javascript, use og:description if it is available
+                $xpath = new DomXpath($dom);
+                $generatorNode = @$xpath->query('//meta[@name="generator"][1]')->item(0);
+                if ($generatorNode instanceof DomElement) {
+                    // when wordpress only gives us javascript, the html stripped from tags
+                    // is the same as the title, so this helps us to identify this (common) case
+                    if (strpos($generatorNode->getAttribute('content'), 'WordPress') === 0
+                        && trim(strip_tags($metadata->html)) == trim($metadata->title)) {
+                        $propertyNode = @$xpath->query('//meta[@property="og:description"][1]')->item(0);
+                        if ($propertyNode instanceof DomElement) {
+                            $metadata->html = $propertyNode->getAttribute('content');
+                        }
                     }
                 }
+            } catch (Exception $e) {
+                // FIXME - make sure the error was because we couldn't get metadata, not something else! -mb
+                common_log(LOG_INFO, 'Could not find an oEmbed endpoint using link headers, ' .
+                           'trying OpenGraph from HTML.');
+                // Just ignore it!
+                $metadata = OpenGraphHelper::ogFromHtml($dom);
             }
-        } catch (Exception $e) {
-            // FIXME - make sure the error was because we couldn't get metadata, not something else! -mb
-            common_log(LOG_INFO, 'Could not find an oEmbed endpoint using link headers, trying OpenGraph from HTML.');
-            // Just ignore it!
-            $metadata = OpenGraphHelper::ogFromHtml($dom);
         }
 
         if (isset($metadata->thumbnail_url)) {
@@ -153,7 +172,8 @@ class EmbedPlugin extends Plugin
             // add protocol and host if the thumbnail_url starts with /
             if (substr($metadata->thumbnail_url, 0, 1) == '/') {
                 $thumbnail_url_parsed = parse_url($metadata->url);
-                $metadata->thumbnail_url = $thumbnail_url_parsed['scheme']."://".$thumbnail_url_parsed['host'].$metadata->thumbnail_url;
+                $metadata->thumbnail_url = $thumbnail_url_parsed['scheme']."://".
+                                         $thumbnail_url_parsed['host'].$metadata->thumbnail_url;
             }
 
             // some wordpress opengraph implementations sometimes return a white blank image

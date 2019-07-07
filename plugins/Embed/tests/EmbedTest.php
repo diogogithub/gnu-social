@@ -92,7 +92,7 @@ class oEmbedTest extends PHPUnit_Framework_TestCase
     public function _doTest($url, $expectedType)
     {
         try {
-            $data = oEmbedHelper::getObject($url);
+            $data = EmbedHelper::getObject($url);
             $this->assertEquals($expectedType, $data->type);
             if ($data->type == 'photo') {
                 $this->assertTrue(!empty($data->url), 'Photo must have a URL.');

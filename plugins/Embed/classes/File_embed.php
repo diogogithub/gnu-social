@@ -77,10 +77,10 @@ class File_embed extends Managed_DataObject
         );
     }
 
-    public static function _getOembed($url)
+    public static function _getEmbed($url)
     {
         try {
-            return oEmbedHelper::getObject($url);
+            return EmbedHelper::getObject($url);
         } catch (Exception $e) {
             common_log(LOG_INFO, "Error during oembed lookup for $url - " . $e->getMessage());
             return false;
