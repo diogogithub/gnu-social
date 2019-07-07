@@ -1978,8 +1978,8 @@ function common_valid_domain($domain)
     }
 
     try {
-        require_once "Net/IDNA.php";
-        $idn = Net_IDNA::getInstance();
+        require_once "Net/IDNA2.php";
+        $idn = Net_IDNA2::getInstance();
         $domain = $idn->encode($domain);
     } catch (Exception $e) {
         return false;
