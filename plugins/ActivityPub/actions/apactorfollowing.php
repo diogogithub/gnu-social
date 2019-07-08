@@ -70,10 +70,10 @@ class apActorFollowingAction extends ManagedAction
         }
 
         $since = ($page - 1) * PROFILES_PER_MINILIST;
-        $limit = (($page - 1) == 0 ? 1 : $page) * PROFILES_PER_MINILIST;
+        $limit = PROFILES_PER_MINILIST;
 
         /* Calculate total items */
-        $total_subs  = $profile->subscriptionCount();
+        $total_subs  = Activitypub_profile::subscriptionCount($profile);
         $total_pages = ceil($total_subs / PROFILES_PER_MINILIST);
 
         $res = [
@@ -118,16 +118,17 @@ class apActorFollowingAction extends ManagedAction
     {
         /* Fetch Following */
         try {
-            $sub = $profile->getSubscribed($since, $limit);
+            $sub = Activitypub_profile::getSubscribed($profile, $since, $limit);
         } catch (NoResultException $e) {
             // Just let the exception go on its merry way
         }
 
         /* Get followed' URLs */
         $subs = [];
-        while ($sub->fetch()) {
-            $subs[] = ActivityPubPlugin::actor_uri($sub);
+        foreach ($sub as $s) {
+            $subs[] = ActivityPubPlugin::actor_uri($s);
         }
+
         return $subs;
     }
 }

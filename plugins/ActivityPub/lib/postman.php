@@ -61,7 +61,7 @@ class Activitypub_postman
         $followers = apActorFollowersAction::generate_followers($this->actor, 0, null);
         foreach ($followers as $sub) {
             try {
-                $to[]= Activitypub_profile::from_profile($discovery->lookup($sub)[0]);
+                $this->to[]= Activitypub_profile::from_profile($discovery->lookup($sub)[0]);
             } catch (Exception $e) {
                 // Not an ActivityPub Remote Follower, let it go
             }
@@ -157,6 +157,7 @@ class Activitypub_postman
         $res_body = json_decode($res->getBody());
 
         if ($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409) {
+            Activitypub_profile::unsubscribeCacheUpdate($this->actor, $this->to[0]->local_profile());
             $pending_list = new Activitypub_pending_follow_requests($this->actor->getID(), $this->to[0]->getID());
             $pending_list->remove();
             return true;
@@ -191,7 +192,7 @@ class Activitypub_postman
         $res_body = json_decode($res->getBody());
 
         if ($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409) {
-            $pending_list = new Activitypub_pending_follow_requests($this->actor->getID(), $this->to[0]->getID());
+            $pending_list = new Activitypub_pending_follow_requests($this->to[0]->getID(), $this->actor->getID());
             $pending_list->remove();
             return true;
         }

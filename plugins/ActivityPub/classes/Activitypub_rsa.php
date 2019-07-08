@@ -75,6 +75,7 @@ class Activitypub_rsa extends Managed_DataObject
             if ($profile->isLocal()) {
                 self::generate_keys($this->private_key, $this->public_key);
                 $this->store_keys();
+                $apRSA->private_key = $this->private_key;
             } else {
                 throw new Exception('This is a remote Profile, there is no Private Key for this Profile.');
             }
@@ -100,6 +101,7 @@ class Activitypub_rsa extends Managed_DataObject
             if ($profile->isLocal()) {
                 self::generate_keys($this->private_key, $this->public_key);
                 $this->store_keys();
+                $apRSA->public_key = $this->public_key;
             } else {
                 // This should never happen, but try to recover!
                 if ($fetch) {

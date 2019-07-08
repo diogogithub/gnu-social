@@ -473,4 +473,196 @@ class Activitypub_profile extends Managed_DataObject
 
         return $profile;
     }
+
+    /**
+     * Getter for the number of subscribers of a
+     * given local profile
+     *
+     * @param Profile $profile profile object
+     * @return int number of subscribers
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function subscriberCount(Profile $profile): int {
+        $cnt = self::cacheGet(sprintf('activitypub_profile:subscriberCount:%d', $profile->id));
+
+        if ($cnt !== false && is_int($cnt)) {
+            return $cnt;
+        }
+
+        $sub = new Subscription();
+        $sub->subscribed = $profile->id;
+        $sub->joinAdd(['subscriber', 'user:id'], 'LEFT');
+        $sub->joinAdd(['subscriber', 'activitypub_profile:profile_id'], 'LEFT');
+        $sub->whereAdd('subscriber != subscribed');
+        $cnt = $sub->count('distinct subscriber');
+
+        self::cacheSet(sprintf('activitypub_profile:subscriberCount:%d', $profile->id), $cnt);
+
+        return $cnt;
+    }
+
+    /**
+     * Getter for the number of subscriptions of a
+     * given local profile
+     *
+     * @param Profile $profile profile object
+     * @return int number of subscriptions
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function subscriptionCount(Profile $profile): int {
+        $cnt = self::cacheGet(sprintf('activitypub_profile:subscriptionCount:%d', $profile->id));
+
+        if ($cnt !== false && is_int($cnt)) {
+            return $cnt;
+        }
+
+        $sub = new Subscription();
+        $sub->subscriber = $profile->id;
+        $sub->joinAdd(['subscribed', 'user:id'], 'LEFT');
+        $sub->joinAdd(['subscribed', 'activitypub_profile:profile_id'], 'LEFT');
+        $sub->whereAdd('subscriber != subscribed');
+        $cnt = $sub->count('distinct subscribed');
+
+        self::cacheSet(sprintf('activitypub_profile:subscriptionCount:%d', $profile->id), $cnt);
+
+        return $cnt;
+    }
+
+    public static function updateSubscriberCount(Profile $profile, $adder) {
+        $cnt = self::cacheGet(sprintf('activitypub_profile:subscriberCount:%d', $profile->id));
+
+        if ($cnt !== false && is_int($cnt)) {
+            self::cacheSet(sprintf('activitypub_profile:subscriberCount:%d', $profile->id), $cnt+$adder);
+        }
+    }
+
+    public static function updateSubscriptionCount(Profile $profile, $adder) {
+        $cnt = self::cacheGet(sprintf('activitypub_profile:subscriptionCount:%d', $profile->id));
+
+        if ($cnt !== false && is_int($cnt)) {
+            self::cacheSet(sprintf('activitypub_profile:subscriptionCount:%d', $profile->id), $cnt+$adder);
+        }
+    }
+
+    /**
+     * Getter for the subscriber profiles of a
+     * given local profile
+     *
+     * @param Profile $profile profile object
+     * @param int $offset index of the starting row to fetch from
+     * @param int $limit maximum number of rows allowed for fetching
+     * @return array subscriber profile objects
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function getSubscribers(Profile $profile, $offset = 0, $limit = null): array {
+        $cache = false;
+        if ($offset + $limit <= Subscription::CACHE_WINDOW) {
+            $subs = self::cacheGet(sprintf('activitypub_profile:subscriberCollection:%d', $profile->id));
+            if ($subs !== false && is_array($subs)) {
+                return array_slice($subs, $offset, $limit);
+            }
+
+            $cache = true;
+        }
+
+        $subs = Subscription::getSubscriberIDs($profile->id, $offset, $limit);
+        try {
+            $profiles = [];
+
+            $users = User::multiGet('id', $subs);
+            foreach ($users->fetchAll() as $user) {
+                $profiles[$user->id] = $user->getProfile();
+            }
+
+            $ap_profiles = Activitypub_profile::multiGet('profile_id', $subs);
+            foreach ($ap_profiles->fetchAll() as $ap) {
+                $profiles[$ap->getID()] = $ap->local_profile();
+            }
+        } catch (NoResultException $e) {
+            return $e->obj;
+        }
+
+        if ($cache) {
+            self::cacheSet(sprintf('activitypub_profile:subscriberCollection:%d', $profile->id), $profiles);
+        }
+
+        return $profiles;
+    }
+
+    /**
+     * Getter for the subscribed profiles of a
+     * given local profile
+     *
+     * @param Profile $profile profile object
+     * @param int $offset index of the starting row to fetch from
+     * @param int $limit maximum number of rows allowed for fetching
+     * @return array subscribed profile objects
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function getSubscribed(Profile $profile, $offset = 0, $limit = null): array {
+        $cache = false;
+        if ($offset + $limit <= Subscription::CACHE_WINDOW) {
+            $subs = self::cacheGet(sprintf('activitypub_profile:subscribedCollection:%d', $profile->id));
+            if (is_array($subs)) {
+                return array_slice($subs, $offset, $limit);
+            }
+
+            $cache = true;
+        }
+
+        $subs = Subscription::getSubscribedIDs($profile->id, $offset, $limit);
+        try {
+            $profiles = [];
+
+            $users = User::multiGet('id', $subs);
+            foreach ($users->fetchAll() as $user) {
+                $profiles[$user->id] = $user->getProfile();
+            }
+
+            $ap_profiles = Activitypub_profile::multiGet('profile_id', $subs);
+            foreach ($ap_profiles->fetchAll() as $ap) {
+                $profiles[$ap->getID()] = $ap->local_profile();
+            }
+        } catch (NoResultException $e) {
+            return $e->obj;
+        }
+
+        if ($cache) {
+           self::cacheSet(sprintf('activitypub_profile:subscribedCollection:%d', $profile->id), $profiles);
+        }
+
+        return $profiles;
+    }
+
+    /**
+     * Update cached values that are relevant to
+     * the users involved in a subscription
+     *
+     * @param Profile $actor subscriber profile object
+     * @param Profile $other subscribed profile object
+     * @return void
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function subscribeCacheUpdate(Profile $actor, Profile $other) {
+        self::blow('activitypub_profile:subscribedCollection:%d', $actor->getID());
+        self::blow('activitypub_profile:subscriberCollection:%d', $other->id);
+        self::updateSubscriptionCount($actor, +1);
+        self::updateSubscriberCount($other, +1);
+    }
+
+    /**
+     * Update cached values that are relevant to
+     * the users involved in an unsubscription
+     *
+     * @param Profile $actor subscriber profile object
+     * @param Profile $other subscribed profile object
+     * @return void
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function unsubscribeCacheUpdate(Profile $actor, Profile $other) {
+        self::blow('activitypub_profile:subscribedCollection:%d', $actor->getID());
+        self::blow('activitypub_profile:subscriberCollection:%d', $other->id);
+        self::updateSubscriptionCount($actor, -1);
+        self::updateSubscriberCount($other, -1);
+    }
 }
