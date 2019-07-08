@@ -387,7 +387,7 @@ class ActivityPubPlugin extends Plugin
                 ActivityPubPlugin::actor_uri($object->getProfile()),
                 'application/activity+json'
             );
-            $xrd->links[] = clone ($link);
+            $xrd->links[] = clone($link);
         }
     }
 
@@ -559,8 +559,7 @@ class ActivityPubPlugin extends Plugin
      * @throws HTTP_Request2_Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function onStartSubscribe(Profile $profile, Profile $other)
-    {
+    public function onStartSubscribe(Profile $profile, Profile $other) {
         if (!$profile->isLocal() && $other->isLocal()) {
             return true;
         }

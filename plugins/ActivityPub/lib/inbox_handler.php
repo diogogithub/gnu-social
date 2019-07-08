@@ -175,10 +175,14 @@ class Activitypub_inbox_handler
     private function handle_accept_follow($actor, $object)
     {
         // Get valid Object profile
+        // Note that, since this an accept_follow, the $object
+        // profile is actually the actor that followed someone
         $object_profile = new Activitypub_explorer;
         $object_profile = $object_profile->lookup($object['object'])[0];
 
-        $pending_list = new Activitypub_pending_follow_requests($actor->getID(), $object_profile->getID());
+        Activitypub_profile::subscribeCacheUpdate($object_profile, $actor);
+
+        $pending_list = new Activitypub_pending_follow_requests($object_profile->getID(), $actor->getID());
         $pending_list->remove();
     }
 
@@ -302,7 +306,8 @@ class Activitypub_inbox_handler
 
         if (Subscription::exists($actor, $object_profile)) {
             Subscription::cancel($actor, $object_profile);
-        // You are no longer following this person.
+            // You are no longer following this person.
+            Activitypub_profile::unsubscribeCacheUpdate($actor, $object_profile);
         } else {
             // 409: You are not following this person already.
         }

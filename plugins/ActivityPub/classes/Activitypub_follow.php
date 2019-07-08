@@ -78,6 +78,7 @@ class Activitypub_follow extends Managed_DataObject
 
         if (!Subscription::exists($actor_profile, $object_profile)) {
             Subscription::start($actor_profile, $object_profile);
+            Activitypub_profile::subscribeCacheUpdate($actor_profile, $object_profile);
             common_debug('ActivityPubPlugin: Accepted Follow request from '.ActivityPubPlugin::actor_uri($actor_profile).' to '.$object);
         } else {
             common_debug('ActivityPubPlugin: Received a repeated Follow request from '.ActivityPubPlugin::actor_uri($actor_profile).' to '.$object);
@@ -85,7 +86,7 @@ class Activitypub_follow extends Managed_DataObject
 
         // Notify remote instance that we have accepted their request
         common_debug('ActivityPubPlugin: Notifying remote instance that we have accepted their Follow request request from '.ActivityPubPlugin::actor_uri($actor_profile).' to '.$object);
-        $postman = new Activitypub_postman($actor_profile, [$actor_aprofile]);
+        $postman = new Activitypub_postman($object_profile, [$actor_aprofile]);
         $postman->accept_follow();
     }
 }
