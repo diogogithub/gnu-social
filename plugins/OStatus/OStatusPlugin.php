@@ -30,7 +30,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class OStatusPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.1';
+    const PLUGIN_VERSION = '2.0.2';
 
     /**
      * Hook for RouterInitialized event.
@@ -274,6 +274,7 @@ class OStatusPlugin extends Plugin
                        PREG_OFFSET_CAPTURE);
         if ($result === false) {
             common_log(LOG_ERR, __METHOD__ . ': Error parsing webfinger IDs from text (preg_last_error=='.preg_last_error().').');
+            return [];
         } elseif (count($wmatches)) {
             common_debug(sprintf('Found %d matches for WebFinger IDs: %s', count($wmatches), _ve($wmatches)));
         }
@@ -298,6 +299,7 @@ class OStatusPlugin extends Plugin
                        PREG_OFFSET_CAPTURE);
         if ($result === false) {
             common_log(LOG_ERR, __METHOD__ . ': Error parsing profile URL mentions from text (preg_last_error=='.preg_last_error().').');
+            return [];
         } elseif (count($wmatches)) {
             common_debug(sprintf('Found %d matches for profile URL mentions: %s', count($wmatches), _ve($wmatches)));
         }
@@ -593,7 +595,7 @@ class OStatusPlugin extends Plugin
         try {
             $url = $notice->getUrl();
             // If getUrl() throws exception, $url is never set
-            
+
             $bits = parse_url($url);
             $domain = $bits['host'];
             if (substr($domain, 0, 4) == 'www.') {
