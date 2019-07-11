@@ -55,12 +55,12 @@ class URLMapper
 {
     const ACTION = 'action';
 
-    protected $statics = array();
-    protected $variables = array();
-    protected $reverse = array();
-    protected $allpaths = array();
+    protected $statics = [];
+    protected $variables = [];
+    protected $reverse = [];
+    protected $allpaths = [];
 
-    function connect($path, $args, $paramPatterns=array())
+    public function connect($path, $args, $paramPatterns = array())
     {
         if (!array_key_exists(self::ACTION, $args)) {
             throw new Exception(sprintf("Can't connect %s; path has no action.", $path));
@@ -75,9 +75,9 @@ class URLMapper
         if (empty($paramNames)) {
             $this->statics[$path] = $args;
             if (array_key_exists($action, $this->reverse)) {
-                $this->reverse[$args[self::ACTION]][] = array($args, $path);
+                $this->reverse[$args[self::ACTION]][] = [$args, $path];
             } else {
-                $this->reverse[$args[self::ACTION]] = array(array($args, $path));
+                $this->reverse[$args[self::ACTION]] = [[$args, $path]];
             }
         } else {
 
@@ -94,19 +94,19 @@ class URLMapper
 
             $regex = self::makeRegex($path, $paramPatterns);
 
-            $this->variables[] = array($args, $regex, $paramNames);
+            $this->variables[] = [$args, $regex, $paramNames];
 
             $format = $this->makeFormat($path, $paramPatterns);
 
             if (array_key_exists($action, $this->reverse)) {
-                $this->reverse[$args[self::ACTION]][] = array($args, $format, $paramNames);
+                $this->reverse[$args[self::ACTION]][] = [$args, $format, $paramNames];
             } else {
-                $this->reverse[$args[self::ACTION]] = array(array($args, $format, $paramNames));
+                $this->reverse[$args[self::ACTION]] = [[$args, $format, $paramNames]];
             }
         }
     }
 
-    function match($path)
+    public function match($path)
     {
         if (array_key_exists($path, $this->statics)) {
             return $this->statics[$path];
@@ -126,7 +126,7 @@ class URLMapper
         throw new NoRouteMapException($path);
     }
 
-    function generate($args, $qstring, $fragment)
+    public function generate($args, $qstring, $fragment)
     {
         if (!array_key_exists(self::ACTION, $args)) {
             throw new Exception("Every path needs an action.");
@@ -163,7 +163,7 @@ class URLMapper
 
                 // success
 
-                $toFormat = array();
+                $toFormat = [];
 
                 foreach ($paramNames as $name) {
                     if (!array_key_exists($name, $args)) {
@@ -207,12 +207,12 @@ class URLMapper
         return $match['name'];
     }
 
-    static function makeRegex($path, $paramPatterns)
+    public static function makeRegex($path, $paramPatterns)
     {
         $pr = new PatternReplacer($paramPatterns);
 
         $regex = preg_replace_callback('/:(\w+)/',
-                                       array($pr, 'toPattern'),
+                                       [$pr, 'toPattern'],
                                        $path);
 
         $regex = '#^' . str_replace('#', '\#', $regex) . '$#';
@@ -237,12 +237,12 @@ class PatternReplacer
 {
     private $patterns;
 
-    function __construct($patterns)
+    public function __construct($patterns)
     {
         $this->patterns = $patterns;
     }
 
-    function toPattern($matches)
+    public function toPattern($matches)
     {
         // trim out the :
         $name = $matches[1];
