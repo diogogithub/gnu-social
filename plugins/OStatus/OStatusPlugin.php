@@ -42,44 +42,48 @@ class OStatusPlugin extends Plugin
     {
         // Discovery actions
         $m->connect('main/ostatustag',
-                    array('action' => 'ostatustag'));
+                    ['action' => 'ostatustag']);
         $m->connect('main/ostatustag?nickname=:nickname',
-                    array('action' => 'ostatustag'), array('nickname' => '[A-Za-z0-9_-]+'));
+                    ['action' => 'ostatustag'],
+                    ['nickname' => '[A-Za-z0-9_-]+']);
         $m->connect('main/ostatus/nickname/:nickname',
-                  array('action' => 'ostatusinit'), array('nickname' => '[A-Za-z0-9_-]+'));
+                    ['action' => 'ostatusinit'],
+                    ['nickname' => '[A-Za-z0-9_-]+']);
         $m->connect('main/ostatus/group/:group',
-                  array('action' => 'ostatusinit'), array('group' => '[A-Za-z0-9_-]+'));
+                    ['action' => 'ostatusinit'],
+                    ['group' => '[A-Za-z0-9_-]+']);
         $m->connect('main/ostatus/peopletag/:peopletag/tagger/:tagger',
-                  array('action' => 'ostatusinit'), array('tagger' => '[A-Za-z0-9_-]+',
-                                                          'peopletag' => '[A-Za-z0-9_-]+'));
+                    ['action' => 'ostatusinit'],
+                    ['tagger'    => '[A-Za-z0-9_-]+',
+                     'peopletag' => '[A-Za-z0-9_-]+']);
         $m->connect('main/ostatus',
-                    array('action' => 'ostatusinit'));
+                    ['action' => 'ostatusinit']);
 
         // Remote subscription actions
         $m->connect('main/ostatussub',
-                    array('action' => 'ostatussub'));
+                    ['action' => 'ostatussub']);
         $m->connect('main/ostatusgroup',
-                    array('action' => 'ostatusgroup'));
+                    ['action' => 'ostatusgroup']);
         $m->connect('main/ostatuspeopletag',
-                    array('action' => 'ostatuspeopletag'));
+                    ['action' => 'ostatuspeopletag']);
 
         // WebSub actions
-        $m->connect('main/push/hub', array('action' => 'pushhub'));
+        $m->connect('main/push/hub', ['action' => 'pushhub']);
 
         $m->connect('main/push/callback/:feed',
-                    array('action' => 'pushcallback'),
-                    array('feed' => '[0-9]+'));
+                    ['action' => 'pushcallback'],
+                    ['feed' => '[0-9]+']);
 
         // Salmon endpoint
         $m->connect('main/salmon/user/:id',
-                    array('action' => 'usersalmon'),
-                    array('id' => '[0-9]+'));
+                    ['action' => 'usersalmon'],
+                    ['id' => '[0-9]+']);
         $m->connect('main/salmon/group/:id',
-                    array('action' => 'groupsalmon'),
-                    array('id' => '[0-9]+'));
+                    ['action' => 'groupsalmon'],
+                    ['id' => '[0-9]+']);
         $m->connect('main/salmon/peopletag/:id',
-                    array('action' => 'peopletagsalmon'),
-                    array('id' => '[0-9]+'));
+                    ['action' => 'peopletagsalmon'],
+                    ['id' => '[0-9]+']);
         return true;
     }
 

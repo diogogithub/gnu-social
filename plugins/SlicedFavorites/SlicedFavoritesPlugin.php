@@ -60,8 +60,8 @@ class SlicedFavoritesPlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('favorited/:slice',
-                    array('action' => 'favoritedslice'),
-                    array('slice' => '[a-zA-Z0-9]+'));
+                    ['action' => 'favoritedslice'],
+                    ['slice' => '[a-zA-Z0-9]+']);
 
         return true;
     }

@@ -69,22 +69,18 @@ class TagSubPlugin extends Plugin
      */
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect(
-            'tag/:tag/subscribe',
-            array('action' => 'tagsub'),
-            array('tag' => Router::REGEX_TAG)
-        );
-        $m->connect(
-            'tag/:tag/unsubscribe',
-            array('action' => 'tagunsub'),
-            array('tag' => Router::REGEX_TAG)
-        );
+        $m->connect('tag/:tag/subscribe',
+                    ['action' => 'tagsub'],
+                    ['tag' => Router::REGEX_TAG]);
 
-        $m->connect(
-            ':nickname/tag-subscriptions',
-            array('action' => 'tagsubs'),
-            array('nickname' => Nickname::DISPLAY_FMT)
-        );
+        $m->connect('tag/:tag/unsubscribe',
+                    ['action' => 'tagunsub'],
+                    ['tag' => Router::REGEX_TAG]);
+
+        $m->connect(':nickname/tag-subscriptions',
+                    ['action' => 'tagsubs'],
+                    ['nickname' => Nickname::DISPLAY_FMT]);
+
         return true;
     }
 

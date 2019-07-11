@@ -36,23 +36,25 @@ class DirectMessagePlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
         // web front-end actions
-        $m->connect('message/new', array('action' => 'newmessage'));
-        $m->connect('message/new?to=:to', array('action' => 'newmessage'), array('to' => Nickname::DISPLAY_FMT));
+        $m->connect('message/new', ['action' => 'newmessage']);
+        $m->connect('message/new?to=:to',
+                    ['action' => 'newmessage'],
+                    ['to' => Nickname::DISPLAY_FMT]);
         $m->connect('message/:message',
-                    array('action' => 'showmessage'),
-                    array('message' => '[0-9]+'));
+                    ['action' => 'showmessage'],
+                    ['message' => '[0-9]+']);
 
         // direct messages
         $m->connect('api/direct_messages.:format',
-                    array('action' => 'ApiDirectMessage',
-                          'format' => '(xml|json|rss|atom)'));
+                    ['action' => 'ApiDirectMessage'],
+                    ['format' => '(xml|json|rss|atom)']);
         $m->connect('api/direct_messages/sent.:format',
-                    array('action' => 'ApiDirectMessage',
-                          'format' => '(xml|json|rss|atom)',
-                          'sent' => true));
+                    ['action' => 'ApiDirectMessage',
+                     'sent'   => true],
+                    ['format' => '(xml|json|rss|atom)']);
         $m->connect('api/direct_messages/new.:format',
-                    array('action' => 'ApiDirectMessageNew',
-                          'format' => '(xml|json)'));
+                    ['action' => 'ApiDirectMessageNew'],
+                    ['format' => '(xml|json)']);
 
         return true;
     }

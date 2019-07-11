@@ -78,24 +78,24 @@ class EventPlugin extends ActivityVerbHandlerPlugin
     public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('main/event/new',
-                    array('action' => 'newevent'));
+                    ['action' => 'newevent']);
         $m->connect('main/event/rsvp',
-                    array('action' => 'rsvp'));
+                    ['action' => 'rsvp']);
         $m->connect('main/event/rsvp/:rsvp',    // this will probably change to include event notice id
-                    array('action' => 'rsvp'),
-                    array('rsvp'   => '[a-z]+'));
+                    ['action' => 'rsvp'],
+                    ['rsvp'   => '[a-z]+']);
         $m->connect('event/:id',
-                    array('action' => 'showevent'),
-                    array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'));
+                    ['action' => 'showevent'],
+                    ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}']);
         $m->connect('rsvp/:id',
-                    array('action' => 'showrsvp'),
-                    array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'));
+                    ['action' => 'showrsvp'],
+                    ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}']);
         $m->connect('main/event/updatetimes',
-                    array('action' => 'timelist'));
+                    ['action' => 'timelist']);
 
         $m->connect(':nickname/events',
-                    array('action' => 'events'),
-                    array('nickname' => Nickname::DISPLAY_FMT));
+                    ['action' => 'events'],
+                    ['nickname' => Nickname::DISPLAY_FMT]);
         return true;
     }
 

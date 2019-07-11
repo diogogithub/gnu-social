@@ -46,8 +46,8 @@ class GNUsocialPhotoPlugin extends MicroAppPlugin
 
     function onRouterInitialized($m)
     {
-        $m->connect('main/photo/new', array('action' => 'newphoto'));
-        $m->connect('main/photo/:id', array('action' => 'showphoto'));
+        $m->connect('main/photo/new', ['action' => 'newphoto']);
+        $m->connect('main/photo/:id', ['action' => 'showphoto']);
         return true;
     }
 

@@ -77,11 +77,11 @@ class RealtimePlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('main/channel/:channelkey/keepalive',
-                    array('action' => 'keepalivechannel'),
-                    array('channelkey' => '[a-z0-9]{32}'));
+                    ['action' => 'keepalivechannel'],
+                    ['channelkey' => '[a-z0-9]{32}']);
         $m->connect('main/channel/:channelkey/close',
-                    array('action' => 'closechannel'),
-                    array('channelkey' => '[a-z0-9]{32}'));
+                    ['action' => 'closechannel'],
+                    ['channelkey' => '[a-z0-9]{32}']);
         return true;
     }
 

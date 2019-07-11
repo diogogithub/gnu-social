@@ -36,14 +36,14 @@ class SubMirrorPlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('settings/mirror',
-                    array('action' => 'mirrorsettings'));
+                    ['action' => 'mirrorsettings']);
         $m->connect('settings/mirror/add/:provider',
-                    array('action' => 'mirrorsettings'),
-                    array('provider' => '[A-Za-z0-9_-]+'));
+                    ['action' => 'mirrorsettings'],
+                    ['provider' => '[A-Za-z0-9_-]+']);
         $m->connect('settings/mirror/add',
-                    array('action' => 'addmirror'));
+                    ['action' => 'addmirror']);
         $m->connect('settings/mirror/edit',
-                    array('action' => 'editmirror'));
+                    ['action' => 'editmirror']);
         return true;
     }
 

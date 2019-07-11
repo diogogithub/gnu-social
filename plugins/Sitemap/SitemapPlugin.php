@@ -77,24 +77,24 @@ class SitemapPlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('sitemapindex.xml',
-                    array('action' => 'sitemapindex'));
+                    ['action' => 'sitemapindex']);
 
         $m->connect('notice-sitemap-:year-:month-:day-:index.xml',
-                    array('action' => 'noticesitemap'),
-                    array('year' => '[0-9]{4}',
-                          'month' => '[01][0-9]',
-                          'day' => '[0123][0-9]',
-                          'index' => '[1-9][0-9]*'));
+                    ['action' => 'noticesitemap'],
+                    ['year'  => '[0-9]{4}',
+                     'month' => '[01][0-9]',
+                     'day'   => '[0123][0-9]',
+                     'index' => '[1-9][0-9]*']);
 
         $m->connect('user-sitemap-:year-:month-:day-:index.xml',
-                    array('action' => 'usersitemap'),
-                    array('year' => '[0-9]{4}',
-                          'month' => '[01][0-9]',
-                          'day' => '[0123][0-9]',
-                          'index' => '[1-9][0-9]*'));
+                    ['action' => 'usersitemap'),
+                    ['year'  => '[0-9]{4}',
+                     'month' => '[01][0-9]',
+                     'day'   => '[0123][0-9]',
+                     'index' => '[1-9][0-9]*']);
 
         $m->connect('panel/sitemap',
-                    array('action' => 'sitemapadminpanel'));
+                    ['action' => 'sitemapadminpanel']);
 
         return true;
     }

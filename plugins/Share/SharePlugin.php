@@ -53,30 +53,30 @@ class SharePlugin extends ActivityVerbHandlerPlugin
     public function onRouterInitialized(URLMapper $m)
     {
         // Web UI actions
-        $m->connect('main/repeat', array('action' => 'repeat'));
+        $m->connect('main/repeat', ['action' => 'repeat']);
 
         // Share for Twitter API ("Retweet")
         $m->connect('api/statuses/retweeted_by_me.:format',
-                    array('action' => 'ApiTimelineRetweetedByMe',
-                          'format' => '(xml|json|atom|as)'));
+                    ['action' => 'ApiTimelineRetweetedByMe'],
+                    ['format' => '(xml|json|atom|as)']);
 
         $m->connect('api/statuses/retweeted_to_me.:format',
-                    array('action' => 'ApiTimelineRetweetedToMe',
-                          'format' => '(xml|json|atom|as)'));
+                    ['action' => 'ApiTimelineRetweetedToMe'],
+                    ['format' => '(xml|json|atom|as)']);
 
         $m->connect('api/statuses/retweets_of_me.:format',
-                    array('action' => 'ApiTimelineRetweetsOfMe',
-                          'format' => '(xml|json|atom|as)'));
+                    ['action' => 'ApiTimelineRetweetsOfMe'],
+                    ['format' => '(xml|json|atom|as)']);
 
         $m->connect('api/statuses/retweet/:id.:format',
-                    array('action' => 'ApiStatusesRetweet',
-                          'id' => '[0-9]+',
-                          'format' => '(xml|json)'));
+                    ['action' => 'ApiStatusesRetweet'],
+                    ['id'     => '[0-9]+',
+                     'format' => '(xml|json)']);
 
         $m->connect('api/statuses/retweets/:id.:format',
-                    array('action' => 'ApiStatusesRetweets',
-                          'id' => '[0-9]+',
-                          'format' => '(xml|json)'));
+                    ['action' => 'ApiStatusesRetweets'],
+                    ['id'     => '[0-9]+',
+                     'format' => '(xml|json)']);
     }
 
     // FIXME: Set this to abstract public in lib/activityhandlerplugin.php when all plugins have migrated!

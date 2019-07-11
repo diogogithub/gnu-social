@@ -17,10 +17,10 @@ class TagCloudPlugin extends Plugin {
 
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('tags/', array('action' => 'publictagcloud'));
-        $m->connect('tag/', array('action' => 'publictagcloud'));
-        $m->connect('tags', array('action' => 'publictagcloud'));
-        $m->connect('tag', array('action' => 'publictagcloud'));
+        $m->connect('tags/', ['action' => 'publictagcloud']);
+        $m->connect('tag/', ['action' => 'publictagcloud']);
+        $m->connect('tags', ['action' => 'publictagcloud']);
+        $m->connect('tag', ['action' => 'publictagcloud']);
     }
 
     public function onEndPublicGroupNav(Menu $menu)

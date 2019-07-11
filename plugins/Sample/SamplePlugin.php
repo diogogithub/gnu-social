@@ -191,7 +191,7 @@ class SamplePlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('main/hello',
-                    array('action' => 'hello'));
+                    ['action' => 'hello']);
         return true;
     }
 

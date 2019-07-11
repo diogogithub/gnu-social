@@ -169,7 +169,7 @@ class BitlyUrlPlugin extends UrlShortenerPlugin
     public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('panel/bitly',
-                    array('action' => 'bitlyadminpanel'));
+                    ['action' => 'bitlyadminpanel']);
         return true;
     }
 

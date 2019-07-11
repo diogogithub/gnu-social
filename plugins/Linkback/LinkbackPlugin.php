@@ -338,8 +338,10 @@ class LinkbackPlugin extends Plugin
 
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('main/linkback/webmention', array('action' => 'webmention'));
-        $m->connect('main/linkback/pingback', array('action' => 'pingback'));
+        $m->connect('main/linkback/webmention',
+                    ['action' => 'webmention']);
+        $m->connect('main/linkback/pingback',
+                    ['action' => 'pingback']);
     }
 
     public function onStartShowHTML($action)

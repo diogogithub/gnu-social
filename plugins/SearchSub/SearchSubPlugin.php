@@ -70,14 +70,14 @@ class SearchSubPlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('search/:search/subscribe',
-                    array('action' => 'searchsub'),
-                    array('search' => Router::REGEX_TAG));
+                    ['action' => 'searchsub'],
+                    ['search' => Router::REGEX_TAG]);
         $m->connect('search/:search/unsubscribe',
-                    array('action' => 'searchunsub'),
-                    array('search' => Router::REGEX_TAG));
+                    ['action' => 'searchunsub'],
+                    ['search' => Router::REGEX_TAG]);
         $m->connect(':nickname/search-subscriptions',
-                    array('action' => 'searchsubs'),
-                    array('nickname' => Nickname::DISPLAY_FMT));
+                    ['action' => 'searchsubs'],
+                    ['nickname' => Nickname::DISPLAY_FMT]);
         return true;
     }
 

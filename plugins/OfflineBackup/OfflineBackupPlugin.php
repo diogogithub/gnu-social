@@ -54,7 +54,7 @@ class OfflineBackupPlugin extends Plugin
     function onRouterInitialized($m)
     {
         $m->connect('main/backupaccount',
-                    array('action' => 'offlinebackup'));
+                    ['action' => 'offlinebackup']);
         return true;
     }
 

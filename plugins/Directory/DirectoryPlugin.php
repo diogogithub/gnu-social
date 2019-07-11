@@ -81,62 +81,42 @@ class DirectoryPlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
 
-        $m->connect(
-            'directory/users/:filter/sort_by/:sort/reverse/:reverse',
-            array('action' => 'userdirectory'),
-            array('filter' => '[0-9a-zA-Z]|(0-9)'),            
-            array('sort' => '[a-z]+'),
-            array('reverse' => '[0-9]')                        
-        );
+        $m->connect('directory/users/:filter/sort_by/:sort/reverse/:reverse',
+                    ['action' => 'userdirectory'],
+                    ['filter'  => '[0-9a-zA-Z]|(0-9)',
+                     'sort'    => '[a-z]+',
+                     'reverse' => '[0-9]']);
 
-        $m->connect(
-            'directory/users/:filter/sort_by/:sort',
-            array('action' => 'userdirectory'),
-            array('filter' => '[0-9a-zA-Z]|(0-9)'),            
-            array('sort' => '[a-z]+')            
-        );  
+        $m->connect('directory/users/:filter/sort_by/:sort',
+                    ['action' => 'userdirectory'],
+                    ['filter' => '[0-9a-zA-Z]|(0-9)',
+                     'sort' => '[a-z]+']);
 
-
-        $m->connect(
-            'directory/users/:filter',
-            array('action' => 'userdirectory'),
-            array('filter' => '[0-9a-zA-Z]|(0-9)')
-        );
+        $m->connect('directory/users/:filter',
+                    ['action' => 'userdirectory'],
+                    ['filter' => '[0-9a-zA-Z]|(0-9)']);
         
-        $m->connect(
-            'directory/users/sort_by/:sort/reverse/:reverse',
-            array('action' => 'userdirectory'),
-            array('sort' => '[a-z]+'),
-            array('reverse' => '[0-9]')                        
-        );
+        $m->connect('directory/users/sort_by/:sort/reverse/:reverse',
+                    ['action' => 'userdirectory'],
+                    ['sort'    => '[a-z]+',
+                     'reverse' => '[0-9]']);
 
-        $m->connect(
-            'directory/users/sort_by/:sort',
-            array('action' => 'userdirectory'),
-            array('sort' => '[a-z]+')            
-        );        
+        $m->connect('directory/users/sort_by/:sort',
+                    ['action' => 'userdirectory'],
+                    ['sort' => '[a-z]+']);
 
-        $m->connect(
-            'directory/users',
-            array('action' => 'userdirectory')
-        );
+        $m->connect('directory/users',
+                    ['action' => 'userdirectory']);
 
-        $m->connect(
-            'groups/:filter',
-            array('action' => 'groupdirectory'),
-            array('filter' => '[0-9a-zA-Z]|(0-9)')
-        );
+        $m->connect('groups/:filter',
+                    ['action' => 'groupdirectory'],
+                    ['filter' => '[0-9a-zA-Z]|(0-9)']);
 
-        $m->connect(
-            'groups',
-            array('action' => 'groupdirectory')
-        );
+        $m->connect('groups',
+                    ['action' => 'groupdirectory']);
 
-        $m->connect(
-            'groups/all',
-            array('action' => 'groupdirectory')
-        );
-
+        $m->connect('groups/all',
+                    ['action' => 'groupdirectory']);
 
         return true;
     }

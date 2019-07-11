@@ -79,16 +79,16 @@ class GroupPrivateMessagePlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('group/:nickname/inbox',
-                    array('action' => 'groupinbox'),
-                    array('nickname' => Nickname::DISPLAY_FMT));
+                    ['action' => 'groupinbox'],
+                    ['nickname' => Nickname::DISPLAY_FMT]);
 
         $m->connect('group/message/:id',
-                    array('action' => 'showgroupmessage'),
-                    array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'));
+                    ['action' => 'showgroupmessage'],
+                    ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}']);
 
         $m->connect('group/:nickname/message/new',
-                    array('action' => 'newgroupmessage'),
-                    array('nickname' => Nickname::DISPLAY_FMT));
+                    ['action' => 'newgroupmessage'],
+                    ['nickname' => Nickname::DISPLAY_FMT]);
 
         return true;
     }

@@ -104,120 +104,124 @@ class Router
     {
         $m = new URLMapper();
 
-        if (Event::handle('StartInitializeRouter', array(&$m))) {
+        if (Event::handle('StartInitializeRouter', [&$m])) {
 
             // top of the menu hierarchy, sometimes "Home"
-            $m->connect('', array('action' => 'top'));
+            $m->connect('', ['action' => 'top']);
 
             // public endpoints
 
-            $m->connect('robots.txt', array('action' => 'robotstxt'));
+            $m->connect('robots.txt', ['action' => 'robotstxt']);
 
-            $m->connect('opensearch/people', array('action' => 'opensearch',
-                                                   'type' => 'people'));
-            $m->connect('opensearch/notice', array('action' => 'opensearch',
-                                                   'type' => 'notice'));
+            $m->connect('opensearch/people',
+                        ['action' => 'opensearch',
+                         'type' => 'people']);
+
+            $m->connect('opensearch/notice',
+                        ['action' => 'opensearch',
+                         'type' => 'notice']);
 
             // docs
 
-            $m->connect('doc/:title', array('action' => 'doc'));
+            $m->connect('doc/:title', ['action' => 'doc']);
 
             $m->connect('main/otp/:user_id/:token',
-                        array('action' => 'otp'),
-                        array('user_id' => '[0-9]+',
-                              'token' => '.+'));
+                        ['action' => 'otp'],
+                        ['user_id' => '[0-9]+',
+                         'token' => '.+']);
 
             // these take a code; before the main part
 
-            foreach (array('register', 'confirmaddress', 'recoverpassword') as $c) {
-                $m->connect('main/'.$c.'/:code', array('action' => $c));
+            foreach (['register', 'confirmaddress', 'recoverpassword'] as $c) {
+                $m->connect('main/'.$c.'/:code', ['action' => $c]);
             }
 
             // Also need a block variant accepting ID on URL for mail links
             $m->connect('main/block/:profileid',
-                        array('action' => 'block'),
-                        array('profileid' => '[0-9]+'));
+                        ['action' => 'block'],
+                        ['profileid' => '[0-9]+']);
 
-            $m->connect('main/sup/:seconds', array('action' => 'sup'),
-                        array('seconds' => '[0-9]+'));
+            $m->connect('main/sup/:seconds',
+                        ['action' => 'sup'],
+                        ['seconds' => '[0-9]+']);
 
             // main stuff is repetitive
 
-            $main = array('login', 'logout', 'register', 'subscribe',
-                          'unsubscribe', 'cancelsubscription', 'approvesub',
-                          'confirmaddress', 'recoverpassword',
-                          'invite', 'sup',
-                          'block', 'unblock', 'subedit',
-                          'groupblock', 'groupunblock',
-                          'sandbox', 'unsandbox',
-                          'silence', 'unsilence',
-                          'grantrole', 'revokerole',
-                          'deleteuser',
-                          'geocode',
-                          'version',
-                          'backupaccount',
-                          'deleteaccount',
-                          'restoreaccount',
-                          'top',
-                          'public',
-            );
+            $main = ['login', 'logout', 'register', 'subscribe',
+                     'unsubscribe', 'cancelsubscription', 'approvesub',
+                     'confirmaddress', 'recoverpassword',
+                     'invite', 'sup',
+                     'block', 'unblock', 'subedit',
+                     'groupblock', 'groupunblock',
+                     'sandbox', 'unsandbox',
+                     'silence', 'unsilence',
+                     'grantrole', 'revokerole',
+                     'deleteuser',
+                     'geocode',
+                     'version',
+                     'backupaccount',
+                     'deleteaccount',
+                     'restoreaccount',
+                     'top',
+                     'public'];
 
             foreach ($main as $a) {
-                $m->connect('main/'.$a, array('action' => $a));
+                $m->connect('main/'.$a, ['action' => $a]);
             }
 
-            $m->connect('main/all', array('action' => 'networkpublic'));
+            $m->connect('main/all', ['action' => 'networkpublic']);
 
-            $m->connect('main/tagprofile/:id', array('action' => 'tagprofile'),
-                                               array('id' => '[0-9]+'));
+            $m->connect('main/tagprofile/:id',
+                        ['action' => 'tagprofile'],
+                        ['id' => '[0-9]+']);
 
-            $m->connect('main/tagprofile', array('action' => 'tagprofile'));
+            $m->connect('main/tagprofile', ['action' => 'tagprofile']);
 
             $m->connect('main/xrds',
-                        array('action' => 'publicxrds'));
+                        ['action' => 'publicxrds']);
 
             // settings
 
-            foreach (array('profile', 'avatar', 'password', 'im', 'oauthconnections',
-                           'oauthapps', 'email', 'sms', 'url') as $s) {
-                $m->connect('settings/'.$s, array('action' => $s.'settings'));
+            foreach (['profile', 'avatar', 'password', 'im', 'oauthconnections',
+                           'oauthapps', 'email', 'sms', 'url'] as $s) {
+                $m->connect('settings/'.$s, ['action' => $s.'settings']);
             }
 
             if (common_config('oldschool', 'enabled')) {
-                $m->connect('settings/oldschool', array('action' => 'oldschoolsettings'));
+                $m->connect('settings/oldschool', ['action' => 'oldschoolsettings']);
             }
 
             $m->connect('settings/oauthapps/show/:id',
-                        array('action' => 'showapplication'),
-                        array('id' => '[0-9]+')
-            );
+                        ['action' => 'showapplication'],
+                        ['id' => '[0-9]+']);
+
             $m->connect('settings/oauthapps/new',
-                        array('action' => 'newapplication')
-            );
+                        ['action' => 'newapplication']);
+
             $m->connect('settings/oauthapps/edit/:id',
-                        array('action' => 'editapplication'),
-                        array('id' => '[0-9]+')
-            );
+                        ['action' => 'editapplication'],
+                        ['id' => '[0-9]+']);
+
             $m->connect('settings/oauthapps/delete/:id',
-                        array('action' => 'deleteapplication'),
-                        array('id' => '[0-9]+')
-            );
+                        ['action' => 'deleteapplication'],
+                        ['id' => '[0-9]+']);
 
             // search
 
-            foreach (array('group', 'people', 'notice') as $s) {
+            foreach (['group', 'people', 'notice'] as $s) {
                 $m->connect('search/'.$s.'?q=:q',
-                            array('action' => $s.'search'),
-                            array('q' => '.+'));
-                $m->connect('search/'.$s, array('action' => $s.'search'));
+                            ['action' => $s.'search'],
+                            ['q' => '.+']);
+                $m->connect('search/'.$s, ['action' => $s.'search']);
             }
 
             // The second of these is needed to make the link work correctly
             // when inserted into the page. The first is needed to match the
             // route on the way in. Seems to be another Net_URL_Mapper bug to me.
-            $m->connect('search/notice/rss?q=:q', array('action' => 'noticesearchrss'),
-                        array('q' => '.+'));
-            $m->connect('search/notice/rss', array('action' => 'noticesearchrss'));
+            $m->connect('search/notice/rss?q=:q',
+                        ['action' => 'noticesearchrss'],
+                        ['q' => '.+']);
+            $m->connect('search/notice/rss', ['action' => 'noticesearchrss']);
 
             foreach (['' => 'attachment',
                       '/view' => 'attachment_view',
@@ -232,372 +236,383 @@ class Router
             }
 
             $m->connect('notice/new?replyto=:replyto&inreplyto=:inreplyto',
-                        array('action' => 'newnotice'),
-                        array('replyto' => Nickname::DISPLAY_FMT),
-                        array('inreplyto' => '[0-9]+'));
+                        ['action' => 'newnotice'],
+                        ['replyto' => Nickname::DISPLAY_FMT,
+                         'inreplyto' => '[0-9]+']);
 
             $m->connect('notice/new?replyto=:replyto',
-                        array('action' => 'newnotice'),
-                        array('replyto' => Nickname::DISPLAY_FMT));
+                        ['action' => 'newnotice'],
+                        ['replyto' => Nickname::DISPLAY_FMT]);
 
-            $m->connect('notice/new', array('action' => 'newnotice'));
+            $m->connect('notice/new', ['action' => 'newnotice']);
 
             $m->connect('notice/:notice',
-                        array('action' => 'shownotice'),
-                        array('notice' => '[0-9]+'));
+                        ['action' => 'shownotice'],
+                        ['notice' => '[0-9]+']);
 
             $m->connect('notice/:notice/delete',
-                        array('action' => 'deletenotice'),
-                        array('notice' => '[0-9]+'));
+                        ['action' => 'deletenotice'],
+                        ['notice' => '[0-9]+']);
 
             // conversation
 
             $m->connect('conversation/:id',
-                        array('action' => 'conversation'),
-                        array('id' => '[0-9]+'));
+                        ['action' => 'conversation'],
+                        ['id' => '[0-9]+']);
 
             $m->connect('user/:id',
-                        array('action' => 'userbyid'),
-                        array('id' => '[0-9]+'));
+                        ['action' => 'userbyid'],
+                        ['id' => '[0-9]+']);
 
             $m->connect('tag/:tag/rss',
-                        array('action' => 'tagrss'),
-                        array('tag' => self::REGEX_TAG));
+                        ['action' => 'tagrss'],
+                        ['tag' => self::REGEX_TAG]);
             $m->connect('tag/:tag',
-                        array('action' => 'tag'),
-                        array('tag' => self::REGEX_TAG));
+                        ['action' => 'tag'],
+                        ['tag' => self::REGEX_TAG]);
 
             // groups
 
-            $m->connect('group/new', array('action' => 'newgroup'));
+            $m->connect('group/new', ['action' => 'newgroup']);
 
-            foreach (array('edit', 'join', 'leave', 'delete', 'cancel', 'approve') as $v) {
+            foreach (['edit', 'join', 'leave', 'delete', 'cancel', 'approve'] as $v) {
                 $m->connect('group/:nickname/'.$v,
-                            array('action' => $v.'group'),
-                            array('nickname' => Nickname::DISPLAY_FMT));
+                            ['action' => $v.'group'],
+                            ['nickname' => Nickname::DISPLAY_FMT]);
                 $m->connect('group/:id/id/'.$v,
-                            array('action' => $v.'group'),
-                            array('id' => '[0-9]+'));
+                            ['action' => $v.'group'],
+                            ['id' => '[0-9]+']);
             }
 
-            foreach (array('members', 'logo', 'rss') as $n) {
+            foreach (['members', 'logo', 'rss'] as $n) {
                 $m->connect('group/:nickname/'.$n,
-                            array('action' => 'group'.$n),
-                            array('nickname' => Nickname::DISPLAY_FMT));
+                            ['action' => 'group'.$n],
+                            ['nickname' => Nickname::DISPLAY_FMT]);
             }
 
             $m->connect('group/:nickname/foaf',
-                        array('action' => 'foafgroup'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'foafgroup'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect('group/:nickname/blocked',
-                        array('action' => 'blockedfromgroup'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'blockedfromgroup'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect('group/:nickname/makeadmin',
-                        array('action' => 'makeadmin'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'makeadmin'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect('group/:nickname/members/pending',
-                        array('action' => 'groupqueue'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'groupqueue'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect('group/:id/id',
-                        array('action' => 'groupbyid'),
-                        array('id' => '[0-9]+'));
+                        ['action' => 'groupbyid'],
+                        ['id' => '[0-9]+']);
 
             $m->connect('group/:nickname',
-                        array('action' => 'showgroup'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'showgroup'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect('group/:nickname/',
-                        array('action' => 'showgroup'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'showgroup'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
-            $m->connect('group/', array('action' => 'groups'));
-            $m->connect('group', array('action' => 'groups'));
-            $m->connect('groups/', array('action' => 'groups'));
-            $m->connect('groups', array('action' => 'groups'));
+            $m->connect('group/', ['action' => 'groups']);
+            $m->connect('group', ['action' => 'groups']);
+            $m->connect('groups/', ['action' => 'groups']);
+            $m->connect('groups', ['action' => 'groups']);
 
             // Twitter-compatible API
 
             // statuses API
 
             $m->connect('api',
-                        array('action' => 'Redirect',
-                              'nextAction' => 'doc',
-                              'args' => array('title' => 'api')));
+                        ['action' => 'Redirect',
+                         'nextAction' => 'doc',
+                         'args' => ['title' => 'api']]);
 
             $m->connect('api/statuses/public_timeline.:format',
-                        array('action' => 'ApiTimelinePublic',
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelinePublic'],
+                        ['format' => '(xml|json|rss|atom|as)']);
 
             // this is not part of the Twitter API. Also may require authentication depending on server config!
             $m->connect('api/statuses/networkpublic_timeline.:format',
-                        array('action' => 'ApiTimelineNetworkPublic',
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineNetworkPublic'],
+                        ['format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/friends_timeline/:id.:format',
-                        array('action' => 'ApiTimelineFriends',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineFriends'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/friends_timeline.:format',
-                        array('action' => 'ApiTimelineFriends',
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineFriends'],
+                        ['format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/home_timeline/:id.:format',
-                        array('action' => 'ApiTimelineHome',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineHome'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/home_timeline.:format',
-                        array('action' => 'ApiTimelineHome',
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineHome'],
+                        ['format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/user_timeline/:id.:format',
-                        array('action' => 'ApiTimelineUser',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineUser'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/user_timeline.:format',
-                        array('action' => 'ApiTimelineUser',
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineUser'],
+                        ['format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/mentions/:id.:format',
-                        array('action' => 'ApiTimelineMentions',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineMentions'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/mentions.:format',
-                        array('action' => 'ApiTimelineMentions',
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineMentions'],
+                        ['format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/replies/:id.:format',
-                        array('action' => 'ApiTimelineMentions',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineMentions'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/replies.:format',
-                        array('action' => 'ApiTimelineMentions',
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineMentions'],
+                        ['format' => '(xml|json|rss|atom|as)']);
  
             $m->connect('api/statuses/mentions_timeline/:id.:format',
-                        array('action' => 'ApiTimelineMentions',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineMentions'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/mentions_timeline.:format',
-                        array('action' => 'ApiTimelineMentions',
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineMentions'],
+                        ['format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statuses/friends/:id.:format',
-                        array('action' => 'ApiUserFriends',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiUserFriends'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/statuses/friends.:format',
-                        array('action' => 'ApiUserFriends',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiUserFriends'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/statuses/followers/:id.:format',
-                        array('action' => 'ApiUserFollowers',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiUserFollowers'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/statuses/followers.:format',
-                        array('action' => 'ApiUserFollowers',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiUserFollowers'],
+                         ['format' => '(xml|json)']);
 
             $m->connect('api/statuses/show/:id.:format',
-                        array('action' => 'ApiStatusesShow',
-                              'id' => '[0-9]+',
-                              'format' => '(xml|json|atom)'));
+                        ['action' => 'ApiStatusesShow'],
+                        ['id' => '[0-9]+',
+                         'format' => '(xml|json|atom)']);
 
             $m->connect('api/statuses/show.:format',
-                        array('action' => 'ApiStatusesShow',
-                              'format' => '(xml|json|atom)'));
+                        ['action' => 'ApiStatusesShow'],
+                        ['format' => '(xml|json|atom)']);
 
             $m->connect('api/statuses/update.:format',
-                        array('action' => 'ApiStatusesUpdate',
-                              'format' => '(xml|json|atom)'));
+                        ['action' => 'ApiStatusesUpdate'],
+                        ['format' => '(xml|json|atom)']);
 
             $m->connect('api/statuses/destroy/:id.:format',
-                        array('action' => 'ApiStatusesDestroy',
-                              'id' => '[0-9]+',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiStatusesDestroy'],
+                        ['id' => '[0-9]+',
+                         'format' => '(xml|json)']);
 
             $m->connect('api/statuses/destroy.:format',
-                        array('action' => 'ApiStatusesDestroy',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiStatusesDestroy'],
+                        ['format' => '(xml|json)']);
 
             // START qvitter API additions
             
             $m->connect('api/attachment/:id.:format',
-                        array('action' => 'ApiAttachment',
-                              'id' => '[0-9]+',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiAttachment'],
+                        ['id' => '[0-9]+',
+                         'format' => '(xml|json)']);
             
             $m->connect('api/checkhub.:format',
-                        array('action' => 'ApiCheckHub',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiCheckHub'],
+                        ['format' => '(xml|json)']);
             
             $m->connect('api/externalprofile/show.:format',
-                        array('action' => 'ApiExternalProfileShow',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiExternalProfileShow'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/statusnet/groups/admins/:id.:format',
-                        array('action' => 'ApiGroupAdmins',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupAdmins'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
             
             $m->connect('api/account/update_link_color.:format',
-                        array('action' => 'ApiAccountUpdateLinkColor',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiAccountUpdateLinkColor'],
+                        ['format' => '(xml|json)']);
                 
             $m->connect('api/account/update_background_color.:format',
-                        array('action' => 'ApiAccountUpdateBackgroundColor',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiAccountUpdateBackgroundColor'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/account/register.:format',
-                        array('action' => 'ApiAccountRegister',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiAccountRegister'],
+                        ['format' => '(xml|json)']);
             
             $m->connect('api/check_nickname.:format',
-                        array('action' => 'ApiCheckNickname',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiCheckNickname'],
+                        ['format' => '(xml|json)']);
 
             // END qvitter API additions
 
             // users
 
             $m->connect('api/users/show/:id.:format',
-                        array('action' => 'ApiUserShow',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiUserShow'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/users/show.:format',
-                        array('action' => 'ApiUserShow',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiUserShow'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/users/profile_image/:screen_name.:format',
-                        array('action' => 'ApiUserProfileImage',
-                              'screen_name' => Nickname::DISPLAY_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiUserProfileImage'],
+                        ['screen_name' => Nickname::DISPLAY_FMT,
+                         'format' => '(xml|json)']);
 
             // friendships
 
             $m->connect('api/friendships/show.:format',
-                        array('action' => 'ApiFriendshipsShow',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiFriendshipsShow'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/friendships/exists.:format',
-                        array('action' => 'ApiFriendshipsExists',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiFriendshipsExists'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/friendships/create/:id.:format',
-                        array('action' => 'ApiFriendshipsCreate',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiFriendshipsCreate'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/friendships/create.:format',
-                        array('action' => 'ApiFriendshipsCreate',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiFriendshipsCreate'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/friendships/destroy/:id.:format',
-                        array('action' => 'ApiFriendshipsDestroy',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiFriendshipsDestroy'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/friendships/destroy.:format',
-                        array('action' => 'ApiFriendshipsDestroy',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiFriendshipsDestroy'],
+                        ['format' => '(xml|json)']);
 
             // Social graph
 
             $m->connect('api/friends/ids/:id.:format',
-                        array('action' => 'ApiUserFriends',
-                              'ids_only' => true));
+                        ['action' => 'ApiUserFriends',
+                         'ids_only' => true],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/followers/ids/:id.:format',
-                        array('action' => 'ApiUserFollowers',
-                              'ids_only' => true));
+                        ['action' => 'ApiUserFollowers',
+                         'ids_only' => true],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/friends/ids.:format',
-                        array('action' => 'ApiUserFriends',
-                              'ids_only' => true));
+                        ['action' => 'ApiUserFriends',
+                         'ids_only' => true],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/followers/ids.:format',
-                        array('action' => 'ApiUserFollowers',
-                              'ids_only' => true));
+                        ['action' => 'ApiUserFollowers',
+                         'ids_only' => true],
+                        ['format' => '(xml|json)']);
 
             // account
 
             $m->connect('api/account/verify_credentials.:format',
-                        array('action' => 'ApiAccountVerifyCredentials'));
+                        ['action' => 'ApiAccountVerifyCredentials'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/account/update_profile.:format',
-                        array('action' => 'ApiAccountUpdateProfile'));
+                        ['action' => 'ApiAccountUpdateProfile'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/account/update_profile_image.:format',
-                        array('action' => 'ApiAccountUpdateProfileImage'));
+                        ['action' => 'ApiAccountUpdateProfileImage'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/account/update_delivery_device.:format',
-                        array('action' => 'ApiAccountUpdateDeliveryDevice'));
+                        ['action' => 'ApiAccountUpdateDeliveryDevice'],
+                        ['format' => '(xml|json)']);
 
             // special case where verify_credentials is called w/out a format
 
             $m->connect('api/account/verify_credentials',
-                        array('action' => 'ApiAccountVerifyCredentials'));
+                        ['action' => 'ApiAccountVerifyCredentials']);
 
             $m->connect('api/account/rate_limit_status.:format',
-                        array('action' => 'ApiAccountRateLimitStatus'));
+                        ['action' => 'ApiAccountRateLimitStatus'],
+                        ['format' => '(xml|json)']);
 
             // blocks
 
             $m->connect('api/blocks/create/:id.:format',
-                        array('action' => 'ApiBlockCreate',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiBlockCreate'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/blocks/create.:format',
-                        array('action' => 'ApiBlockCreate',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiBlockCreate'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/blocks/destroy/:id.:format',
-                        array('action' => 'ApiBlockDestroy',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiBlockDestroy'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/blocks/destroy.:format',
-                        array('action' => 'ApiBlockDestroy',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiBlockDestroy'],
+                        ['format' => '(xml|json)']);
 
             // help
 
             $m->connect('api/help/test.:format',
-                        array('action' => 'ApiHelpTest',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiHelpTest'],
+                        ['format' => '(xml|json)']);
 
             // statusnet
 
             $m->connect('api/statusnet/version.:format',
-                        array('action' => 'ApiGNUsocialVersion',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGNUsocialVersion'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/statusnet/config.:format',
-                        array('action' => 'ApiGNUsocialConfig',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGNUsocialConfig'],
+                        ['format' => '(xml|json)']);
 
             // For our current software name, we provide "gnusocial" base action
 
             $m->connect('api/gnusocial/version.:format',
-                        array('action' => 'ApiGNUsocialVersion',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGNUsocialVersion'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/gnusocial/config.:format',
-                        array('action' => 'ApiGNUsocialConfig',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGNUsocialConfig'],
+                        ['format' => '(xml|json)']);
 
             // Groups and tags are newer than 0.8.1 so no backward-compatibility
             // necessary
@@ -606,217 +621,214 @@ class Router
             //'list' has to be handled differently, as php will not allow a method to be named 'list'
 
             $m->connect('api/statusnet/groups/timeline/:id.:format',
-                        array('action' => 'ApiTimelineGroup',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineGroup'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json|rss|atom|as)']);
 
             $m->connect('api/statusnet/groups/show/:id.:format',
-                        array('action' => 'ApiGroupShow',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupShow'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/statusnet/groups/show.:format',
-                        array('action' => 'ApiGroupShow',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupShow'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/statusnet/groups/join/:id.:format',
-                        array('action' => 'ApiGroupJoin',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupJoin'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/statusnet/groups/join.:format',
-                        array('action' => 'ApiGroupJoin',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupJoin'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/statusnet/groups/leave/:id.:format',
-                        array('action' => 'ApiGroupLeave',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupLeave'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/statusnet/groups/leave.:format',
-                        array('action' => 'ApiGroupLeave',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupLeave'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/statusnet/groups/is_member.:format',
-                        array('action' => 'ApiGroupIsMember',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupIsMember'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/statusnet/groups/list/:id.:format',
-                        array('action' => 'ApiGroupList',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json|rss|atom)'));
+                        ['action' => 'ApiGroupList'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json|rss|atom)']);
 
             $m->connect('api/statusnet/groups/list.:format',
-                        array('action' => 'ApiGroupList',
-                              'format' => '(xml|json|rss|atom)'));
+                        ['action' => 'ApiGroupList'],
+                        ['format' => '(xml|json|rss|atom)']);
 
             $m->connect('api/statusnet/groups/list_all.:format',
-                        array('action' => 'ApiGroupListAll',
-                              'format' => '(xml|json|rss|atom)'));
+                        ['action' => 'ApiGroupListAll'],
+                        ['format' => '(xml|json|rss|atom)']);
 
             $m->connect('api/statusnet/groups/membership/:id.:format',
-                        array('action' => 'ApiGroupMembership',
-                              'id' => Nickname::INPUT_FMT,
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupMembership'],
+                        ['id' => Nickname::INPUT_FMT,
+                         'format' => '(xml|json)']);
 
             $m->connect('api/statusnet/groups/membership.:format',
-                        array('action' => 'ApiGroupMembership',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupMembership'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/statusnet/groups/create.:format',
-                        array('action' => 'ApiGroupCreate',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupCreate'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/statusnet/groups/update/:id.:format',
-                        array('action' => 'ApiGroupProfileUpdate',
-                              'id' => '[a-zA-Z0-9]+',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiGroupProfileUpdate'],
+                        ['id' => '[a-zA-Z0-9]+',
+                         'format' => '(xml|json)']);
                               
             $m->connect('api/statusnet/conversation/:id.:format',
-                        array('action' => 'apiconversation',
-                              'id' => '[0-9]+',
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'apiconversation'],
+                        ['id' => '[0-9]+',
+                         'format' => '(xml|json|rss|atom|as)']);
 
             // Lists (people tags)
             $m->connect('api/lists/list.:format',
-                        array('action' => 'ApiListSubscriptions',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiListSubscriptions'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/lists/memberships.:format',
-                        array('action' => 'ApiListMemberships',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiListMemberships'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/:user/lists/memberships.:format',
-                        array('action' => 'ApiListMemberships',
-                              'user' => '[a-zA-Z0-9]+',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiListMemberships'],
+                        ['user' => '[a-zA-Z0-9]+',
+                         'format' => '(xml|json)']);
 
             $m->connect('api/lists/subscriptions.:format',
-                        array('action' => 'ApiListSubscriptions',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiListSubscriptions'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/:user/lists/subscriptions.:format',
-                        array('action' => 'ApiListSubscriptions',
-                              'user' => '[a-zA-Z0-9]+',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiListSubscriptions'],
+                        ['user' => '[a-zA-Z0-9]+',
+                         'format' => '(xml|json)']);
 
             $m->connect('api/lists.:format',
-                        array('action' => 'ApiLists',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiLists'],
+                        ['format' => '(xml|json)']);
 
             $m->connect('api/:user/lists/:id.:format',
-                        array('action' => 'ApiList',
-                              'user' => '[a-zA-Z0-9]+',
-                              'id' => '[a-zA-Z0-9]+',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiList'],
+                        ['user' => '[a-zA-Z0-9]+',
+                         'id' => '[a-zA-Z0-9]+',
+                         'format' => '(xml|json)']);
 
             $m->connect('api/:user/lists.:format',
-                        array('action' => 'ApiLists',
-                              'user' => '[a-zA-Z0-9]+',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiLists'],
+                        ['user' => '[a-zA-Z0-9]+',
+                         'format' => '(xml|json)']);
 
             $m->connect('api/:user/lists/:id/statuses.:format',
-                        array('action' => 'ApiTimelineList',
-                              'user' => '[a-zA-Z0-9]+',
-                              'id' => '[a-zA-Z0-9]+',
-                              'format' => '(xml|json|rss|atom)'));
+                        ['action' => 'ApiTimelineList'],
+                        ['user' => '[a-zA-Z0-9]+',
+                         'id' => '[a-zA-Z0-9]+',
+                         'format' => '(xml|json|rss|atom)']);
 
             $m->connect('api/:user/:list_id/members/:id.:format',
-                        array('action' => 'ApiListMember',
-                              'user' => '[a-zA-Z0-9]+',
-                              'list_id' => '[a-zA-Z0-9]+',
-                              'id' => '[a-zA-Z0-9]+',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiListMember'],
+                        ['user' => '[a-zA-Z0-9]+',
+                         'list_id' => '[a-zA-Z0-9]+',
+                         'id' => '[a-zA-Z0-9]+',
+                         'format' => '(xml|json)']);
 
             $m->connect('api/:user/:list_id/members.:format',
-                        array('action' => 'ApiListMembers',
-                              'user' => '[a-zA-Z0-9]+',
-                              'list_id' => '[a-zA-Z0-9]+',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiListMembers'],
+                        ['user' => '[a-zA-Z0-9]+',
+                        'list_id' => '[a-zA-Z0-9]+',
+                        'format' => '(xml|json)']);
 
             $m->connect('api/:user/:list_id/subscribers/:id.:format',
-                        array('action' => 'ApiListSubscriber',
-                              'user' => '[a-zA-Z0-9]+',
-                              'list_id' => '[a-zA-Z0-9]+',
-                              'id' => '[a-zA-Z0-9]+',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiListSubscriber'],
+                        ['user' => '[a-zA-Z0-9]+',
+                         'list_id' => '[a-zA-Z0-9]+',
+                         'id' => '[a-zA-Z0-9]+',
+                         'format' => '(xml|json)']);
 
             $m->connect('api/:user/:list_id/subscribers.:format',
-                        array('action' => 'ApiListSubscribers',
-                              'user' => '[a-zA-Z0-9]+',
-                              'list_id' => '[a-zA-Z0-9]+',
-                              'format' => '(xml|json)'));
+                        ['action' => 'ApiListSubscribers'],
+                        ['user' => '[a-zA-Z0-9]+',
+                         'list_id' => '[a-zA-Z0-9]+',
+                         'format' => '(xml|json)']);
 
             // Tags
             $m->connect('api/statusnet/tags/timeline/:tag.:format',
-                        array('action' => 'ApiTimelineTag',
-                              'tag'    => self::REGEX_TAG,
-                              'format' => '(xml|json|rss|atom|as)'));
+                        ['action' => 'ApiTimelineTag'],
+                        ['tag'    => self::REGEX_TAG,
+                         'format' => '(xml|json|rss|atom|as)']);
 
             // media related
-            $m->connect(
-                'api/statusnet/media/upload',
-                array('action' => 'ApiMediaUpload')
-            );
-            $m->connect(
-                'api/statuses/update_with_media.json',
-                array('action' => 'ApiMediaUpload')
-            );
+            $m->connect('api/statusnet/media/upload',
+                        ['action' => 'ApiMediaUpload']);
+
+            $m->connect('api/statuses/update_with_media.json',
+                        ['action' => 'ApiMediaUpload']);
+
             // Twitter Media upload API v1.1
-            $m->connect(
-                'api/media/upload.:format',
-                array('action' => 'ApiMediaUpload',
-                      'format' => '(xml|json)',
-                      )
-            );
+            $m->connect('api/media/upload.:format',
+                        ['action' => 'ApiMediaUpload'],
+                        ['format' => '(xml|json)']);
 
             // search
-            $m->connect('api/search.atom', array('action' => 'ApiSearchAtom'));
-            $m->connect('api/search.json', array('action' => 'ApiSearchJSON'));
-            $m->connect('api/trends.json', array('action' => 'ApiTrends'));
+            $m->connect('api/search.atom', ['action' => 'ApiSearchAtom']);
+            $m->connect('api/search.json', ['action' => 'ApiSearchJSON']);
+            $m->connect('api/trends.json', ['action' => 'ApiTrends']);
 
             $m->connect('api/oauth/request_token',
-                        array('action' => 'ApiOAuthRequestToken'));
+                        ['action' => 'ApiOAuthRequestToken']);
 
             $m->connect('api/oauth/access_token',
-                        array('action' => 'ApiOAuthAccessToken'));
+                        ['action' => 'ApiOAuthAccessToken']);
 
             $m->connect('api/oauth/authorize',
-                        array('action' => 'ApiOAuthAuthorize'));
+                        ['action' => 'ApiOAuthAuthorize']);
 
             // Admin
 
-            $m->connect('panel/site', array('action' => 'siteadminpanel'));
-            $m->connect('panel/user', array('action' => 'useradminpanel'));
-            $m->connect('panel/access', array('action' => 'accessadminpanel'));
-            $m->connect('panel/paths', array('action' => 'pathsadminpanel'));
-            $m->connect('panel/sessions', array('action' => 'sessionsadminpanel'));
-            $m->connect('panel/sitenotice', array('action' => 'sitenoticeadminpanel'));
-            $m->connect('panel/license', array('action' => 'licenseadminpanel'));
+            $m->connect('panel/site', ['action' => 'siteadminpanel']);
+            $m->connect('panel/user', ['action' => 'useradminpanel']);
+            $m->connect('panel/access', ['action' => 'accessadminpanel']);
+            $m->connect('panel/paths', ['action' => 'pathsadminpanel']);
+            $m->connect('panel/sessions', ['action' => 'sessionsadminpanel']);
+            $m->connect('panel/sitenotice', ['action' => 'sitenoticeadminpanel']);
+            $m->connect('panel/license', ['action' => 'licenseadminpanel']);
 
-            $m->connect('panel/plugins', array('action' => 'pluginsadminpanel'));
+            $m->connect('panel/plugins', ['action' => 'pluginsadminpanel']);
             $m->connect('panel/plugins/enable/:plugin',
-                        array('action' => 'pluginenable'),
-                        array('plugin' => '[A-Za-z0-9_]+'));
+                        ['action' => 'pluginenable'],
+                        ['plugin' => '[A-Za-z0-9_]+']);
             $m->connect('panel/plugins/disable/:plugin',
-                        array('action' => 'plugindisable'),
-                        array('plugin' => '[A-Za-z0-9_]+'));
+                        ['action' => 'plugindisable'],
+                        ['plugin' => '[A-Za-z0-9_]+']);
 
             // Common people-tag stuff
 
-            $m->connect('peopletag/:tag', array('action' => 'peopletag',
-                                                'tag'    => self::REGEX_TAG));
+            $m->connect('peopletag/:tag',
+                        ['action' => 'peopletag'],
+                        ['tag'    => self::REGEX_TAG]);
 
-            $m->connect('selftag/:tag', array('action' => 'selftag',
-                                              'tag'    => self::REGEX_TAG));
+            $m->connect('selftag/:tag',
+                        ['action' => 'selftag'],
+                        ['tag'    => self::REGEX_TAG]);
 
-            $m->connect('main/addpeopletag', array('action' => 'addpeopletag'));
+            $m->connect('main/addpeopletag', ['action' => 'addpeopletag']);
 
-            $m->connect('main/removepeopletag', array('action' => 'removepeopletag'));
+            $m->connect('main/removepeopletag', ['action' => 'removepeopletag']);
 
-            $m->connect('main/profilecompletion', array('action' => 'profilecompletion'));
+            $m->connect('main/profilecompletion', ['action' => 'profilecompletion']);
 
-            $m->connect('main/peopletagautocomplete', array('action' => 'peopletagautocomplete'));
+            $m->connect('main/peopletagautocomplete', ['action' => 'peopletagautocomplete']);
 
             // In the "root"
 
@@ -824,269 +836,272 @@ class Router
 
                 $nickname = User::singleUserNickname();
 
-                foreach (array('subscriptions', 'subscribers',
-                               'all', 'foaf', 'replies',
-                               ) as $a) {
+                foreach (['subscriptions', 'subscribers', 'all', 'foaf', 'replies'] as $a) {
                     $m->connect($a,
-                                array('action' => $a,
-                                      'nickname' => $nickname));
+                                ['action' => $a,
+                                 'nickname' => $nickname]);
                 }
 
-                foreach (array('subscriptions', 'subscribers') as $a) {
+                foreach (['subscriptions', 'subscribers'] as $a) {
                     $m->connect($a.'/:tag',
-                                array('action' => $a,
-                                      'nickname' => $nickname),
-                                array('tag' => self::REGEX_TAG));
+                                ['action' => $a,
+                                 'nickname' => $nickname],
+                                ['tag' => self::REGEX_TAG]);
                 }
 
                 $m->connect('subscribers/pending',
-                            array('action' => 'subqueue',
-                                  'nickname' => $nickname));
+                            ['action' => 'subqueue',
+                             'nickname' => $nickname]);
 
-                foreach (array('rss', 'groups') as $a) {
+                foreach (['rss', 'groups'] as $a) {
                     $m->connect($a,
-                                array('action' => 'user'.$a,
-                                      'nickname' => $nickname));
+                                ['action' => 'user'.$a,
+                                 'nickname' => $nickname]);
                 }
 
-                foreach (array('all', 'replies') as $a) {
+                foreach (['all', 'replies'] as $a) {
                     $m->connect($a.'/rss',
-                                array('action' => $a.'rss',
-                                      'nickname' => $nickname));
+                                ['action' => $a.'rss',
+                                 'nickname' => $nickname]);
                 }
 
                 $m->connect('avatar',
-                            array('action' => 'avatarbynickname',
-                                  'nickname' => $nickname));
+                            ['action' => 'avatarbynickname',
+                             'nickname' => $nickname]);
+
                 $m->connect('avatar/:size',
-                            array('action' => 'avatarbynickname',
-                                  'nickname' => $nickname),
-                            array('size' => '(|original|\d+)'));
+                            ['action' => 'avatarbynickname',
+                             'nickname' => $nickname],
+                            ['size' => '(|original|\d+)']);
 
                 $m->connect('tag/:tag/rss',
-                            array('action' => 'userrss',
-                                  'nickname' => $nickname),
-                            array('tag' => self::REGEX_TAG));
+                            ['action' => 'userrss',
+                             'nickname' => $nickname],
+                            ['tag' => self::REGEX_TAG]);
 
                 $m->connect('tag/:tag',
-                            array('action' => 'showstream',
-                                  'nickname' => $nickname),
-                            array('tag' => self::REGEX_TAG));
+                            ['action' => 'showstream',
+                             'nickname' => $nickname],
+                            ['tag' => self::REGEX_TAG]);
 
                 $m->connect('rsd.xml',
-                            array('action' => 'rsd',
-                                  'nickname' => $nickname));
+                            ['action' => 'rsd',
+                             'nickname' => $nickname]);
 
                 // peopletags
 
                 $m->connect('peopletags',
-                            array('action' => 'peopletagsbyuser'));
+                            ['action' => 'peopletagsbyuser']);
 
                 $m->connect('peopletags/private',
-                            array('action' => 'peopletagsbyuser',
-                                  'private' => 1));
+                            ['action' => 'peopletagsbyuser',
+                             'private' => 1]);
 
                 $m->connect('peopletags/public',
-                            array('action' => 'peopletagsbyuser',
-                                  'public' => 1));
+                            ['action' => 'peopletagsbyuser',
+                             'public' => 1]);
 
                 $m->connect('othertags',
-                            array('action' => 'peopletagsforuser'));
+                            ['action' => 'peopletagsforuser']);
 
                 $m->connect('peopletagsubscriptions',
-                            array('action' => 'peopletagsubscriptions'));
+                            ['action' => 'peopletagsubscriptions']);
 
                 $m->connect('all/:tag/subscribers',
-                            array('action' => 'peopletagsubscribers',
-                                  'tag' => self::REGEX_TAG));
+                            ['action' => 'peopletagsubscribers'],
+                            ['tag' => self::REGEX_TAG]);
 
                 $m->connect('all/:tag/tagged',
-                                array('action' => 'peopletagged',
-                                      'tag' => self::REGEX_TAG));
+                            ['action' => 'peopletagged'],
+                            ['tag' => self::REGEX_TAG]);
 
                 $m->connect('all/:tag/edit',
-                                array('action' => 'editpeopletag',
-                                      'tag' => self::REGEX_TAG));
+                            ['action' => 'editpeopletag'],
+                            ['tag' => self::REGEX_TAG]);
 
-                foreach(array('subscribe', 'unsubscribe') as $v) {
+                foreach (['subscribe', 'unsubscribe'] as $v) {
                     $m->connect('peopletag/:id/'.$v,
-                                    array('action' => $v.'peopletag',
-                                          'id' => '[0-9]{1,64}'));
+                                ['action' => $v.'peopletag'],
+                                ['id' => '[0-9]{1,64}']);
                 }
+
                 $m->connect('user/:tagger_id/profiletag/:id/id',
-                                array('action' => 'profiletagbyid',
-                                      'tagger_id' => '[0-9]+',
-                                      'id' => '[0-9]+'));
+                            ['action' => 'profiletagbyid'],
+                            ['tagger_id' => '[0-9]+',
+                             'id' => '[0-9]+']);
 
                 $m->connect('all/:tag',
-                                array('action' => 'showprofiletag',
-                                      'tagger' => $nickname,
-                                      'tag' => self::REGEX_TAG));
+                            ['action' => 'showprofiletag',
+                             'tagger' => $nickname],
+                            ['tag' => self::REGEX_TAG]);
 
-                foreach (array('subscriptions', 'subscribers') as $a) {
+                foreach (['subscriptions', 'subscribers'] as $a) {
                     $m->connect($a.'/:tag',
-                                array('action' => $a),
-                                array('tag' => self::REGEX_TAG));
+                                ['action' => $a],
+                                ['tag' => self::REGEX_TAG]);
                 }
             }
 
-            $m->connect('rss', array('action' => 'publicrss'));
-            $m->connect('featuredrss', array('action' => 'featuredrss'));
-            $m->connect('featured/', array('action' => 'featured'));
-            $m->connect('featured', array('action' => 'featured'));
-            $m->connect('rsd.xml', array('action' => 'rsd'));
+            $m->connect('rss', ['action' => 'publicrss']);
+            $m->connect('featuredrss', ['action' => 'featuredrss']);
+            $m->connect('featured/', ['action' => 'featured']);
+            $m->connect('featured', ['action' => 'featured']);
+            $m->connect('rsd.xml', ['action' => 'rsd']);
 
-            foreach (array('subscriptions', 'subscribers',
+            foreach (['subscriptions', 'subscribers',
                            'nudge', 'all', 'foaf', 'replies',
-                           'inbox', 'outbox') as $a) {
+                           'inbox', 'outbox'] as $a) {
                 $m->connect(':nickname/'.$a,
-                            array('action' => $a),
-                            array('nickname' => Nickname::DISPLAY_FMT));
+                            ['action' => $a],
+                            ['nickname' => Nickname::DISPLAY_FMT]);
             }
+            
             $m->connect(':nickname/subscribers/pending',
-                        array('action' => 'subqueue'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'subqueue'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             // some targeted RSS 1.0 actions (extends TargetedRss10Action)
-            foreach (array('all', 'replies') as $a) {
+            foreach (['all', 'replies'] as $a) {
                 $m->connect(':nickname/'.$a.'/rss',
-                            array('action' => $a.'rss'),
-                            array('nickname' => Nickname::DISPLAY_FMT));
+                            ['action' => $a.'rss'],
+                            ['nickname' => Nickname::DISPLAY_FMT]);
             }
 
             // people tags
 
             $m->connect(':nickname/peopletags',
-                            array('action' => 'peopletagsbyuser',
-                                  'nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'peopletagsbyuser'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect(':nickname/peopletags/private',
-                            array('action' => 'peopletagsbyuser',
-                                  'nickname' => Nickname::DISPLAY_FMT,
-                                  'private' => 1));
+                        ['action' => 'peopletagsbyuser',
+                         'private' => 1],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect(':nickname/peopletags/public',
-                            array('action' => 'peopletagsbyuser',
-                                  'nickname' => Nickname::DISPLAY_FMT,
-                                  'public' => 1));
+                        ['action' => 'peopletagsbyuser',
+                         'public' => 1],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect(':nickname/othertags',
-                            array('action' => 'peopletagsforuser',
-                                  'nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'peopletagsforuser'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect(':nickname/peopletagsubscriptions',
-                            array('action' => 'peopletagsubscriptions',
-                                  'nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'peopletagsubscriptions'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect(':tagger/all/:tag/subscribers',
-                            array('action' => 'peopletagsubscribers',
-                                  'tagger' => Nickname::DISPLAY_FMT,
-                                  'tag' => self::REGEX_TAG));
+                        ['action' => 'peopletagsubscribers'],
+                        ['tagger' => Nickname::DISPLAY_FMT,
+                         'tag' => self::REGEX_TAG]);
 
             $m->connect(':tagger/all/:tag/tagged',
-                            array('action' => 'peopletagged',
-                                  'tagger' => Nickname::DISPLAY_FMT,
-                                  'tag' => self::REGEX_TAG));
+                        ['action' => 'peopletagged'],
+                        ['tagger' => Nickname::DISPLAY_FMT,
+                         'tag' => self::REGEX_TAG]);
 
             $m->connect(':tagger/all/:tag/edit',
-                            array('action' => 'editpeopletag',
-                                  'tagger' => Nickname::DISPLAY_FMT,
-                                  'tag' => self::REGEX_TAG));
+                        ['action' => 'editpeopletag'],
+                        ['tagger' => Nickname::DISPLAY_FMT,
+                         'tag' => self::REGEX_TAG]);
 
-            foreach(array('subscribe', 'unsubscribe') as $v) {
+            foreach (['subscribe', 'unsubscribe'] as $v) {
                 $m->connect('peopletag/:id/'.$v,
-                                array('action' => $v.'peopletag',
-                                      'id' => '[0-9]{1,64}'));
+                            ['action' => $v.'peopletag'],
+                            ['id' => '[0-9]{1,64}']);
             }
+            
             $m->connect('user/:tagger_id/profiletag/:id/id',
-                            array('action' => 'profiletagbyid',
-                                  'tagger_id' => '[0-9]+',
-                                  'id' => '[0-9]+'));
+                        ['action' => 'profiletagbyid'],
+                        ['tagger_id' => '[0-9]+',
+                         'id' => '[0-9]+']);
 
             $m->connect(':nickname/all/:tag',
-                            array('action' => 'showprofiletag'),
-                            array('nickname' => Nickname::DISPLAY_FMT,
-                                  'tag' => self::REGEX_TAG));
+                        ['action' => 'showprofiletag'],
+                        ['nickname' => Nickname::DISPLAY_FMT,
+                         'tag' => self::REGEX_TAG]);
 
-            foreach (array('subscriptions', 'subscribers') as $a) {
+            foreach (['subscriptions', 'subscribers'] as $a) {
                 $m->connect(':nickname/'.$a.'/:tag',
-                            array('action' => $a),
-                            array('tag' => self::REGEX_TAG,
-                                  'nickname' => Nickname::DISPLAY_FMT));
+                            ['action' => $a],
+                            ['tag' => self::REGEX_TAG,
+                             'nickname' => Nickname::DISPLAY_FMT]);
             }
 
-            foreach (array('rss', 'groups') as $a) {
+            foreach (['rss', 'groups'] as $a) {
                 $m->connect(':nickname/'.$a,
-                            array('action' => 'user'.$a),
-                            array('nickname' => Nickname::DISPLAY_FMT));
+                            ['action' => 'user'.$a],
+                            ['nickname' => Nickname::DISPLAY_FMT]);
             }
 
             $m->connect(':nickname/avatar',
-                        array('action' => 'avatarbynickname'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'avatarbynickname'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
+            
             $m->connect(':nickname/avatar/:size',
-                        array('action' => 'avatarbynickname'),
-                        array('size' => '(|original|\d+)',
-                              'nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'avatarbynickname'],
+                        ['size' => '(|original|\d+)',
+                         'nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect(':nickname/tag/:tag/rss',
-                        array('action' => 'userrss'),
-                        array('nickname' => Nickname::DISPLAY_FMT),
-                        array('tag' => self::REGEX_TAG));
+                        ['action' => 'userrss'],
+                        ['nickname' => Nickname::DISPLAY_FMT,
+                         'tag' => self::REGEX_TAG]);
 
             $m->connect(':nickname/tag/:tag',
-                        array('action' => 'showstream'),
-                        array('nickname' => Nickname::DISPLAY_FMT),
-                        array('tag' => self::REGEX_TAG));
+                        ['action' => 'showstream'],
+                        ['nickname' => Nickname::DISPLAY_FMT,
+                         'tag' => self::REGEX_TAG]);
 
             $m->connect(':nickname/rsd.xml',
-                        array('action' => 'rsd'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'rsd'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect(':nickname',
-                        array('action' => 'showstream'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'showstream'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             $m->connect(':nickname/',
-                        array('action' => 'showstream'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'showstream'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
 
             // AtomPub API
 
             $m->connect('api/statusnet/app/service/:id.xml',
-                        array('action' => 'ApiAtomService'),
-                        array('id' => Nickname::DISPLAY_FMT));
+                        ['action' => 'ApiAtomService'],
+                        ['id' => Nickname::DISPLAY_FMT]);
 
             $m->connect('api/statusnet/app/service.xml',
-                        array('action' => 'ApiAtomService'));
+                        ['action' => 'ApiAtomService']);
 
             $m->connect('api/statusnet/app/subscriptions/:subscriber/:subscribed.atom',
-                        array('action' => 'AtomPubShowSubscription'),
-                        array('subscriber' => '[0-9]+',
-                              'subscribed' => '[0-9]+'));
+                        ['action' => 'AtomPubShowSubscription'],
+                        ['subscriber' => '[0-9]+',
+                         'subscribed' => '[0-9]+']);
 
             $m->connect('api/statusnet/app/subscriptions/:subscriber.atom',
-                        array('action' => 'AtomPubSubscriptionFeed'),
-                        array('subscriber' => '[0-9]+'));
+                        ['action' => 'AtomPubSubscriptionFeed'],
+                        ['subscriber' => '[0-9]+']);
 
             $m->connect('api/statusnet/app/memberships/:profile/:group.atom',
-                        array('action' => 'AtomPubShowMembership'),
-                        array('profile' => '[0-9]+',
-                              'group' => '[0-9]+'));
+                        ['action' => 'AtomPubShowMembership'],
+                        ['profile' => '[0-9]+',
+                         'group' => '[0-9]+']);
 
             $m->connect('api/statusnet/app/memberships/:profile.atom',
-                        array('action' => 'AtomPubMembershipFeed'),
-                        array('profile' => '[0-9]+'));
+                        ['action' => 'AtomPubMembershipFeed'],
+                        ['profile' => '[0-9]+']);
 
             // URL shortening
 
             $m->connect('url/:id',
-                        array('action' => 'redirecturl',
-                              'id' => '[0-9]+'));
+                        ['action' => 'redirecturl'],
+                        ['id' => '[0-9]+']);
 
             // user stuff
 
-            Event::handle('RouterInitialized', array($m));
+            Event::handle('RouterInitialized', [$m]);
         }
 
         return $m;

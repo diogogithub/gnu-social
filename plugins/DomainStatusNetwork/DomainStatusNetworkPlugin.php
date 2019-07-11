@@ -131,7 +131,7 @@ class DomainStatusNetworkPlugin extends Plugin
         if (common_config('globalapi', 'enabled')) {
             foreach (array('register', 'login', 'recover') as $method) {
                 $m->connect('api/statusnet/global/'.$method,
-                            array('action' => 'global'.$method));
+                            ['action' => 'global'.$method]);
             }
         }
         return true;

@@ -114,43 +114,44 @@ class BookmarkPlugin extends MicroAppPlugin
         if (common_config('singleuser', 'enabled')) {
             $nickname = User::singleUserNickname();
             $m->connect('bookmarks',
-                        array('action' => 'bookmarks', 'nickname' => $nickname));
+                        ['action'   => 'bookmarks',
+                         'nickname' => $nickname]);
             $m->connect('bookmarks/rss',
-                        array('action' => 'bookmarksrss', 'nickname' => $nickname));
+                        ['action'   => 'bookmarksrss',
+                         'nickname' => $nickname]);
         } else {
             $m->connect(':nickname/bookmarks',
-                        array('action' => 'bookmarks'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'bookmarks'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
             $m->connect(':nickname/bookmarks/rss',
-                        array('action' => 'bookmarksrss'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'bookmarksrss'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
         }
 
         $m->connect('api/bookmarks/:id.:format',
-                    array('action' => 'ApiTimelineBookmarks',
-                          'id' => Nickname::INPUT_FMT,
-                          'format' => '(xml|json|rss|atom|as)'));
+                    ['action' => 'ApiTimelineBookmarks'],
+                    ['id' => Nickname::INPUT_FMT,
+                     'format' => '(xml|json|rss|atom|as)']);
 
         $m->connect('main/bookmark/new',
-                    array('action' => 'newbookmark'),
-                    array('id' => '[0-9]+'));
+                    ['action' => 'newbookmark']);
 
         $m->connect('main/bookmark/popup',
-                    array('action' => 'bookmarkpopup'));
+                    ['action' => 'bookmarkpopup']);
 
         $m->connect('main/bookmark/import',
-                    array('action' => 'importdelicious'));
+                    ['action' => 'importdelicious']);
 
         $m->connect('main/bookmark/forurl',
-                    array('action' => 'bookmarkforurl'));
+                    ['action' => 'bookmarkforurl']);
 
         $m->connect('bookmark/:id',
-                    array('action' => 'showbookmark'),
-                    array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'));
+                    ['action' => 'showbookmark'],
+                    ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}']);
 
         $m->connect('notice/by-url/:id',
-                    array('action' => 'noticebyurl'),
-                    array('id' => '[0-9]+'));
+                    ['action' => 'noticebyurl'],
+                    ['id' => '[0-9]+']);
 
         return true;
     }

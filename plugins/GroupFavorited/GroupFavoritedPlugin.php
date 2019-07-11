@@ -37,8 +37,8 @@ class GroupFavoritedPlugin extends Plugin
     function onRouterInitialized(URLMapper $m)
     {
         $m->connect('group/:nickname/favorited',
-                    array('action' => 'groupfavorited'),
-                    array('nickname' => '[a-zA-Z0-9]+'));
+                    ['action' => 'groupfavorited'],
+                    ['nickname' => '[a-zA-Z0-9]+']);
 
         return true;
     }

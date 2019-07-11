@@ -10,19 +10,11 @@ class NodeinfoPlugin extends Plugin
 
     public function onRouterInitialized($m)
     {
-        $m->connect(
-            '.well-known/nodeinfo',
-            array(
-                'action' => 'nodeinfojrd'
-            )
-        );
+        $m->connect('.well-known/nodeinfo',
+                    ['action' => 'nodeinfojrd']);
 
-        $m->connect(
-            'main/nodeinfo/2.0',
-            array(
-                'action' => 'nodeinfo_2_0'
-            )
-        );
+        $m->connect('main/nodeinfo/2.0',
+                    ['action' => 'nodeinfo_2_0']);
 
         return true;
     }

@@ -10,7 +10,8 @@ class OpportunisticQMPlugin extends Plugin {
 
     public function onRouterInitialized($m)
     {
-        $m->connect('main/runqueue', array('action' => 'runqueue'));
+        $m->connect('main/runqueue',
+                    ['action' => 'runqueue']);
     }
 
     /**

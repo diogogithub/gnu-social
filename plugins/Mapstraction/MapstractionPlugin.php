@@ -66,11 +66,11 @@ class MapstractionPlugin extends Plugin
     function onRouterInitialized($m)
     {
         $m->connect(':nickname/all/map',
-                    array('action' => 'allmap'),
-                    array('nickname' => Nickname::DISPLAY_FMT));
+                    ['action' => 'allmap'],
+                    ['nickname' => Nickname::DISPLAY_FMT]);
         $m->connect(':nickname/map',
-                    array('action' => 'usermap'),
-                    array('nickname' => Nickname::DISPLAY_FMT));
+                    ['action' => 'usermap'],
+                    ['nickname' => Nickname::DISPLAY_FMT]);
         return true;
     }
 

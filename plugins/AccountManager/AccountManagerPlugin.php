@@ -52,9 +52,9 @@ class AccountManagerPlugin extends Plugin
     {
         // Discovery actions
         $m->connect('main/amcd.json',
-                    array('action' => 'AccountManagementControlDocument'));
+                    ['action' => 'AccountManagementControlDocument']);
         $m->connect('main/amsessionstatus',
-                    array('action' => 'AccountManagementSessionStatus'));
+                    ['action' => 'AccountManagementSessionStatus']);
         return true;
     }
 

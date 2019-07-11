@@ -75,9 +75,9 @@ class UserFlagPlugin extends Plugin
      */
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('main/flag/profile', array('action' => 'flagprofile'));
-        $m->connect('main/flag/clear', array('action' => 'clearflag'));
-        $m->connect('panel/profile/flag', array('action' => 'adminprofileflag'));
+        $m->connect('main/flag/profile', ['action' => 'flagprofile']);
+        $m->connect('main/flag/clear', ['action' => 'clearflag']);
+        $m->connect('panel/profile/flag', ['action' => 'adminprofileflag']);
         return true;
     }
 

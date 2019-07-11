@@ -114,72 +114,77 @@ class FavoritePlugin extends ActivityVerbHandlerPlugin
     public function onRouterInitialized(URLMapper $m)
     {
         // Web UI actions
-        $m->connect('main/favor', array('action' => 'favor'));
-        $m->connect('main/disfavor', array('action' => 'disfavor'));
+        $m->connect('main/favor',
+                    ['action' => 'favor']);
+        $m->connect('main/disfavor',
+                    ['action' => 'disfavor']);
 
         if (common_config('singleuser', 'enabled')) {
             $nickname = User::singleUserNickname();
 
             $m->connect('favorites',
-                        array('action' => 'showfavorites',
-                              'nickname' => $nickname));
+                        ['action'   => 'showfavorites',
+                         'nickname' => $nickname]);
             $m->connect('favoritesrss',
-                        array('action' => 'favoritesrss',
-                              'nickname' => $nickname));
+                        ['action'   => 'favoritesrss',
+                         'nickname' => $nickname]);
         } else {
-            $m->connect('favoritedrss', array('action' => 'favoritedrss'));
-            $m->connect('favorited/', array('action' => 'favorited'));
-            $m->connect('favorited', array('action' => 'favorited'));
+            $m->connect('favoritedrss',
+                        ['action' => 'favoritedrss']);
+            $m->connect('favorited/',
+                        ['action' => 'favorited']);
+            $m->connect('favorited',
+                        ['action' => 'favorited']);
 
             $m->connect(':nickname/favorites',
-                        array('action' => 'showfavorites'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'showfavorites'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
             $m->connect(':nickname/favorites/rss',
-                        array('action' => 'favoritesrss'),
-                        array('nickname' => Nickname::DISPLAY_FMT));
+                        ['action' => 'favoritesrss'],
+                        ['nickname' => Nickname::DISPLAY_FMT]);
         }
 
         // Favorites for API
         $m->connect('api/favorites/create.:format',
-                    array('action' => 'ApiFavoriteCreate'),
-                    array('format' => '(xml|json)'));
+                    ['action' => 'ApiFavoriteCreate'],
+                    ['format' => '(xml|json)']);
         $m->connect('api/favorites/destroy.:format',
-                    array('action' => 'ApiFavoriteDestroy'),
-                    array('format' => '(xml|json)'));
+                    ['action' => 'ApiFavoriteDestroy'],
+                    ['format' => '(xml|json)']);
         $m->connect('api/favorites/list.:format',
-                    array('action' => 'ApiTimelineFavorites'),
-                    array('format' => '(xml|json|rss|atom|as)'));
+                    ['action' => 'ApiTimelineFavorites'],
+                    ['format' => '(xml|json|rss|atom|as)']);
         $m->connect('api/favorites/:id.:format',
-                    array('action' => 'ApiTimelineFavorites'),
-                    array('id' => Nickname::INPUT_FMT,
-                          'format' => '(xml|json|rss|atom|as)'));
+                    ['action' => 'ApiTimelineFavorites'],
+                    ['id'     => Nickname::INPUT_FMT,
+                     'format' => '(xml|json|rss|atom|as)']);
         $m->connect('api/favorites.:format',
-                    array('action' => 'ApiTimelineFavorites'),
-                    array('format' => '(xml|json|rss|atom|as)'));
+                    ['action' => 'ApiTimelineFavorites'],
+                    ['format' => '(xml|json|rss|atom|as)']);
         $m->connect('api/favorites/create/:id.:format',
-                    array('action' => 'ApiFavoriteCreate'),
-                    array('id' => '[0-9]+',
-                          'format' => '(xml|json)'));
+                    ['action' => 'ApiFavoriteCreate'],
+                    ['id'     => '[0-9]+',
+                     'format' => '(xml|json)']);
         $m->connect('api/favorites/destroy/:id.:format',
-                    array('action' => 'ApiFavoriteDestroy'),
-                    array('id' => '[0-9]+',
-                          'format' => '(xml|json)'));
+                    ['action' => 'ApiFavoriteDestroy'],
+                    ['id'     => '[0-9]+',
+                     'format' => '(xml|json)']);
 
         // AtomPub API
         $m->connect('api/statusnet/app/favorites/:profile/:notice.atom',
-                    array('action' => 'AtomPubShowFavorite'),
-                    array('profile' => '[0-9]+',
-                          'notice' => '[0-9]+'));
+                    ['action' => 'AtomPubShowFavorite'],
+                    ['profile' => '[0-9]+',
+                     'notice'  => '[0-9]+']);
 
         $m->connect('api/statusnet/app/favorites/:profile.atom',
-                    array('action' => 'AtomPubFavoriteFeed'),
-                    array('profile' => '[0-9]+'));
+                    ['action' => 'AtomPubFavoriteFeed'],
+                    ['profile' => '[0-9]+']);
 
         // Required for qvitter API
         $m->connect('api/statuses/favs/:id.:format',
-                    array('action' => 'ApiStatusesFavs'),
-                    array('id' => '[0-9]+',
-                          'format' => '(xml|json)'));
+                    ['action' => 'ApiStatusesFavs'],
+                    ['id'     => '[0-9]+',
+                     'format' => '(xml|json)']);
     }
 
     // FIXME: Set this to abstract public in lib/activityhandlerplugin.php ddwhen all plugins have migrated!

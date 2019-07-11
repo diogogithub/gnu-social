@@ -39,16 +39,16 @@ class WebFingerPlugin extends Plugin
 
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('.well-known/host-meta', array('action' => 'hostmeta'));
+        $m->connect('.well-known/host-meta', ['action' => 'hostmeta']);
         $m->connect('.well-known/host-meta.:format',
-                        array('action' => 'hostmeta',
-                              'format' => '(xml|json)'));
+                    ['action' => 'hostmeta'],
+                    ['format' => '(xml|json)']);
         // the resource GET parameter can be anywhere, so don't mention it here
-        $m->connect('.well-known/webfinger', array('action' => 'webfinger'));
+        $m->connect('.well-known/webfinger', ['action' => 'webfinger']);
         $m->connect('.well-known/webfinger.:format',
-                        array('action' => 'webfinger',
-                              'format' => '(xml|json)'));
-        $m->connect('main/ownerxrd', array('action' => 'ownerxrd'));
+                    ['action' => 'webfinger'],
+                    ['format' => '(xml|json)']);
+        $m->connect('main/ownerxrd', ['action' => 'ownerxrd']);
         return true;
     }
 

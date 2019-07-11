@@ -105,7 +105,7 @@ class RSSCloudPlugin extends Plugin
     function onRouterInitialized($m)
     {
         $m->connect('/main/rsscloud/request_notify',
-                    array('action' => 'RSSCloudRequestNotify'));
+                    ['action' => 'RSSCloudRequestNotify']);
 
         // XXX: This is just for end-to-end testing. Uncomment if you need to pretend
         //      to be a cloud hub for some reason.

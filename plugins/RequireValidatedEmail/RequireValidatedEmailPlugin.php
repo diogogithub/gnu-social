@@ -84,8 +84,8 @@ class RequireValidatedEmailPlugin extends Plugin
 
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('main/confirmfirst/:code',
-                    array('action' => 'confirmfirstemail'));
+        $m->('main/confirmfirst/:code',
+             ['action' => 'confirmfirstemail']);
         return true;
     }
 

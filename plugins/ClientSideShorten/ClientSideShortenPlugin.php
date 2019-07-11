@@ -51,7 +51,8 @@ class ClientSideShortenPlugin extends Plugin
     function onRouterInitialized($m)
     {
         if (common_logged_in()) {
-            $m->connect('plugins/ClientSideShorten/shorten', array('action'=>'shorten'));
+            $m->connect('plugins/ClientSideShorten/shorten',
+                        ['action'=>'shorten']);
         }
     }
 

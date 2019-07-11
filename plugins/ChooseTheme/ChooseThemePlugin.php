@@ -26,7 +26,7 @@ class ChooseThemePlugin extends Plugin {
     const PLUGIN_VERSION = '0.1.0';
 
     public function onRouterInitialized(URLMapper $m) {
-        $m->connect('main/choosethemesettings', array('action' => 'choosethemesettings'));
+        $m->connect('main/choosethemesettings', ['action' => 'choosethemesettings']);
     }
 
     public function onPluginVersion(array &$versions) {

@@ -111,23 +111,17 @@ class TwitterBridgePlugin extends Plugin
      */
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('panel/twitter', array('action' => 'twitteradminpanel'));
+        $m->connect('panel/twitter', ['action' => 'twitteradminpanel']);
 
         if (self::hasKeys()) {
-            $m->connect(
-                'twitter/authorization',
-                array('action' => 'twitterauthorization')
-            );
-            $m->connect(
-                'settings/twitter', array(
-                    'action' => 'twittersettings'
-                    )
-                );
+            $m->connect('twitter/authorization',
+                        ['action' => 'twitterauthorization']);
+            $m->connect('settings/twitter',
+                        ['action' => 'twittersettings']);
+
             if (common_config('twitter', 'signin')) {
-                $m->connect(
-                    'main/twitterlogin',
-                    array('action' => 'twitterlogin')
-                );
+                $m->connect('main/twitterlogin',
+                            ['action' => 'twitterlogin']);
             }
         }
 

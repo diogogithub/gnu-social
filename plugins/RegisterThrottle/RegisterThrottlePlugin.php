@@ -94,8 +94,8 @@ class RegisterThrottlePlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('main/ipregistrations/:ipaddress',
-                    array('action'      => 'ipregistrations'),
-                    array('ipaddress'   => '[0-9a-f\.\:]+'));
+                    ['action' => 'ipregistrations'],
+                    ['ipaddress'   => '[0-9a-f\.\:]+']);
     }
 
     /**

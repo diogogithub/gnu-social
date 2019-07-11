@@ -46,8 +46,8 @@ class GNUsocialVideoPlugin extends MicroAppPlugin
 
     function onRouterInitialized($m)
     {
-        $m->connect('main/postvideo', array('action' => 'postvideo'));
-        $m->connect('showvideo/:id', array('action' => 'showvideo'));
+        $m->connect('main/postvideo', ['action' => 'postvideo']);
+        $m->connect('showvideo/:id', ['action' => 'showvideo']);
         return true;
     }
 

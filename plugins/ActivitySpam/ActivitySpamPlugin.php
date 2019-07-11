@@ -185,11 +185,13 @@ class ActivitySpamPlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
         $m->connect('main/train/spam',
-                    array('action' => 'train', 'category' => 'spam'));
+                    ['action' => 'train',
+                     'category' => 'spam']);
         $m->connect('main/train/ham',
-                    array('action' => 'train', 'category' => 'ham'));
+                    ['action' => 'train',
+                     'category' => 'ham']);
         $m->connect('main/spam',
-                    array('action' => 'spam'));
+                    ['action' => 'spam']);
         return true;
     }
 

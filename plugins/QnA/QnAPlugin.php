@@ -85,42 +85,35 @@ class QnAPlugin extends MicroAppPlugin
     {
         $UUIDregex = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 
-        $m->connect(
-            'main/qna/newquestion',
-            array('action' => 'qnanewquestion')
-        );
-        $m->connect(
-            'answer/qna/closequestion',
-            array('action' => 'qnaclosequestion')
-        );
-        $m->connect(
-            'main/qna/newanswer',
-            array('action' => 'qnanewanswer')
-        );
-        $m->connect(
-            'main/qna/reviseanswer',
-            array('action' => 'qnareviseanswer')
-        );
-        $m->connect(
-            'question/vote/:id',
-            array('action' => 'qnavote', 'type' => 'question'),
-            array('id' => $UUIDregex)
-        );
-        $m->connect(
-            'question/:id',
-            array('action' => 'qnashowquestion'),
-            array('id' => $UUIDregex)
-        );
-        $m->connect(
-            'answer/vote/:id',
-            array('action' => 'qnavote', 'type' => 'answer'),
-            array('id' => $UUIDregex)
-        );
-        $m->connect(
-            'answer/:id',
-            array('action' => 'qnashowanswer'),
-            array('id' => $UUIDregex)
-        );
+        $m->connect('main/qna/newquestion',
+                    ['action' => 'qnanewquestion']);
+
+        $m->connect('answer/qna/closequestion',
+                    ['action' => 'qnaclosequestion']);
+
+        $m->connect('main/qna/newanswer',
+                    ['action' => 'qnanewanswer']);
+
+        $m->connect('main/qna/reviseanswer',
+                    ['action' => 'qnareviseanswer']);
+
+        $m->connect('question/vote/:id',
+                    ['action' => 'qnavote',
+                     'type'   => 'question'],
+                    ['id' => $UUIDregex]);
+
+        $m->connect('question/:id',
+                    ['action' => 'qnashowquestion'],
+                    ['id' => $UUIDregex]);
+
+        $m->connect('answer/vote/:id',
+                    ['action' => 'qnavote',
+                     'type'   => 'answer'],
+                    ['id' => $UUIDregex]);
+
+        $m->connect('answer/:id',
+                    ['action' => 'qnashowanswer'],
+                    ['id' => $UUIDregex]);
 
         return true;
     }

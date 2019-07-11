@@ -84,7 +84,7 @@ class OembedPlugin extends Plugin
      */
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('main/oembed', array('action' => 'oembed'));
+        $m->connect('main/oembed', ['action' => 'oembed']);
     }
 
     /**

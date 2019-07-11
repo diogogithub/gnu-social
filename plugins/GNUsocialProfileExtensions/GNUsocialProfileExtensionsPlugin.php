@@ -45,9 +45,9 @@ class GNUsocialProfileExtensionsPlugin extends Plugin
 
     function onRouterInitialized($m)
     {
-        $m->connect(':nickname/bio', array('action' => 'bio'));
-        $m->connect('admin/profilefields', array('action' => 'profilefieldsAdminPanel'));
-        $m->connect('notice/respond', array('action' => 'newresponse'));
+        $m->connect(':nickname/bio', ['action' => 'bio']);
+        $m->connect('admin/profilefields', ['action' => 'profilefieldsAdminPanel']);
+        $m->connect('notice/respond', ['action' => 'newresponse']);
         return true;
     }
 

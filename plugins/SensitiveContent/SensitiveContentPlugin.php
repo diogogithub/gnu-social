@@ -49,7 +49,7 @@ class SensitiveContentPlugin extends Plugin
 	public function onRouterInitialized(URLMapper $m)
 	{
 		$m->connect('settings/sensitivecontent',
-			array('action' => 'sensitivecontentsettings'));
+                    ['action' => 'sensitivecontentsettings']);
 	}
 
 

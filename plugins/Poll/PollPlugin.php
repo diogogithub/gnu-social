@@ -92,33 +92,23 @@ class PollPlugin extends MicroAppPlugin
      */
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect(
-            'main/poll/new',
-            array('action' => 'newpoll')
-        );
+        $m->connect('main/poll/new',
+                    ['action' => 'newpoll']);
 
-        $m->connect(
-            'main/poll/:id',
-            array('action' => 'showpoll'),
-            array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
-        );
+        $m->connect('main/poll/:id',
+                    ['action' => 'showpoll'],
+                    ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}']);
 
-        $m->connect(
-            'main/poll/response/:id',
-            array('action' => 'showpollresponse'),
-            array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
-        );
+        $m->connect('main/poll/response/:id',
+                    ['action' => 'showpollresponse'],
+                    ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}']);
 
-        $m->connect(
-            'main/poll/:id/respond',
-            array('action' => 'respondpoll'),
-            array('id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
-        );
+        $m->connect('main/poll/:id/respond',
+                    ['action' => 'respondpoll'],
+                    ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}']);
 
-        $m->connect(
-            'settings/poll',
-            array('action' => 'pollsettings')
-        );
+        $m->connect('settings/poll',
+                    ['action' => 'pollsettings']);
 
         return true;
     }
