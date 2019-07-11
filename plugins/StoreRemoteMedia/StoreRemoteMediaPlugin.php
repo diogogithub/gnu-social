@@ -75,8 +75,15 @@ class StoreRemoteMediaPlugin extends Plugin
                                  'unnecessarily downloading too large files. URL: %s',
                                  $file->getID(), $remoteUrl));
 
+            $url = $remoteUrl;
             $head = $http->head($remoteUrl);
             $remoteUrl = $head->getEffectiveUrl();   // to avoid going through redirects again
+
+            if (empty($remoteUrl)) {
+                common_log(LOG_ERR, "URL after redirects is somehow empty, for URL {$url}");
+                return true;
+            }
+
             if (!$this->checkBlackList($remoteUrl)) {
                 common_log(LOG_WARN, sprintf('%s: Non-blacklisted URL %s redirected to blacklisted URL %s',
                                              __CLASS__, $file->getUrl(), $remoteUrl));
@@ -84,6 +91,7 @@ class StoreRemoteMediaPlugin extends Plugin
             }
 
             $headers = $head->getHeader();
+            $headers = array_change_key_case($headers, CASE_LOWER);
             $filesize = isset($headers['content-length']) ?: $file->getSize();
 
             if (empty($filesize)) {
@@ -133,18 +141,16 @@ class StoreRemoteMediaPlugin extends Plugin
 
             //FIXME: Add some code so we don't have to store duplicate File rows for same hash files.
         } catch (NoResultException $e) {
-            if (preg_match('/^.+; filename="(.+?)"$/', $headers['content-disposition'], $matches) === 1) {
-                $filename = MediaFile::encodeFilename($matches[1], $filehash);
-            } else {
-                common_log(LOG_ERR, "Couldn't determine filename for url: {$remoteUrl}");
-                // throw new ServerError(_("Couldn't determine filename for url: {$remoteUrl}"));
-            }
+            $original_name = HTTPClient::get_filename($remoteUrl, $headers);
+            $filename = MediaFile::encodeFilename($original_name, $filehash);
             $fullpath = File::path($filename);
 
-            common_debug("StoreRemoteMedia retrieved file with id={$file->id} and will store in {$filename}");
+            common_debug("StoreRemoteMedia retrieved url {$remoteUrl} for file with id={$file->id} " .
+                         "and will store in {$fullpath}");
 
             // Write the file to disk if it doesn't exist yet. Throw Exception on failure.
-            if (!file_exists($fullpath) && file_put_contents($fullpath, $imgData) === false) {
+            if ((!file_exists($fullpath) || substr($fullpath, 0, strlen(INSTALLDIR)) != INSTALLDIR) &&
+                file_put_contents($fullpath, $imgData) === false) {
                 throw new ServerException(_('Could not write downloaded file to disk.'));
             }
 

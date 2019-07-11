@@ -244,11 +244,9 @@ class File_thumbnail extends Managed_DataObject
      */
     public function getHtmlAttrs(array $orig=array(), $overwrite=true)
     {
-        $attrs = [
-                'height' => $this->getHeight(),
-                'width'  => $this->getWidth(),
-                'src'    => $this->getUrl(),
-            ];
+        $attrs = [ 'height' => $this->getHeight(),
+                   'width'  => $this->getWidth(),
+                   'src'    => $this->getUrl() ];
         return $overwrite ? array_merge($orig, $attrs) : array_merge($attrs, $orig);
     }
 

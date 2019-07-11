@@ -125,12 +125,10 @@ class ImageFile extends MediaFile
             }
 
             // And we'll only consider it an image if it has such a media type
-            switch ($media) {
-            case 'image':
-                $imgPath = $file->getPath();
-                break;
-            default:
+            if($media !== 'image') {
                 throw new UnsupportedMediaException(_m('Unsupported media format.'), $file->getPath());
+            } else if (!empty($file->filename)) {
+                $imgPath = $file->getPath();
             }
         }
 
@@ -376,7 +374,11 @@ class ImageFile extends MediaFile
 
         $type = $this->preferredType();
         $ext = image_type_to_extension($type, true);
-        $outpath = preg_replace("/\.[^\.]+$/", $ext, $outpath);
+        // Decoding returns null if the file is in the old format
+        $filename = MediaFile::decodeFilename(basename($outpath));
+        // Encoding null makes the file use 'untitled', and also replaces the extension
+        $outfilename = MediaFile::encodeFilename($filename, $this->filehash, $ext);
+        $outpath = dirname($outpath) . DIRECTORY_SEPARATOR . $outfilename;
 
         switch ($type) {
          case IMAGETYPE_GIF:
@@ -573,9 +575,8 @@ class ImageFile extends MediaFile
             return $thumb;
         }
 
-        $filename = basename($this->filepath);
         $extension = File::guessMimeExtension($this->mimetype);
-        $outname = "thumb-{$this->fileRecord->getID()}-{$width}x{$height}-{$filename}";
+        $outname = "thumb-{$this->fileRecord->getID()}-{$width}x{$height}-{$this->filename}";
         $outpath = File_thumbnail::path($outname);
 
         // The boundary box for our resizing
@@ -601,16 +602,8 @@ class ImageFile extends MediaFile
         ));
 
         // Perform resize and store into file
-        $this->resizeTo($outpath, $box);
-
-        try {
-            // Avoid deleting the original
-            if (!in_array($this->getPath(), [File::path($this->filename), File_thumbnail::path($this->filename)])) {
-                $this->unlink();
-            }
-        } catch (FileNotFoundException $e) {
-            // $this->getPath() says the file doesn't exist anyway, so no point in trying to delete it!
-        }
+        $outpath = $this->resizeTo($outpath, $box);
+        $outname = basename($outpath);
 
         return File_thumbnail::saveThumbnail(
             $this->fileRecord->getID(),

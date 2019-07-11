@@ -617,7 +617,7 @@ class File extends Managed_DataObject
             }
         } else {
             try {
-                return File_thumbnail::byFile($this)->getPath();
+                return File_thumbnail::byFile($this, true)->getPath();
             } catch (NoResultException $e) {
                 // File not stored locally
                 throw new FileNotStoredLocallyException($this);
@@ -637,10 +637,10 @@ class File extends Managed_DataObject
     {
         if (!empty($thumbnail)) {
             $filepath = $thumbnail->getPath();
-        } elseif (empty($this->filename)) {
-            $filepath = File_thumbnail::byFile($this)->getPath();
-        } else {
+        } elseif (!empty($this->filename)) {
             return $this->mimetype;
+        } else {
+            $filepath = File_thumbnail::byFile($this, true)->getPath();
         }
 
         $info = @getimagesize($filepath);

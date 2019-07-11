@@ -241,7 +241,7 @@ class MediaFile
      * having an extension in the file, removing trust in extensions, while keeping the original name
      * @throws ClientException
      */
-    public static function encodeFilename(string $original_name, string $filehash, string $ext = null) : string
+    public static function encodeFilename($original_name, string $filehash, $ext = null) : string
     {
         if (empty($original_name)) {
             $original_name = _('Untitled attachment');
@@ -274,7 +274,8 @@ class MediaFile
      */
     public static function decodeFilename(string $encoded_filename)
     {
-        $ret = preg_match('/^([^-]+?)-[^-]+$/', $encoded_filename, $matches);
+        // The x is because it is using in thumbnails
+        $ret = preg_match('/^([^-x]+?)-[^-]+$/', $encoded_filename, $matches);
         if ($ret === false) {
             return false;
         } elseif ($ret === 0) {
@@ -650,7 +651,7 @@ class MediaFile
         } elseif ($filename === null) {
             // The old file name format was "{hash}.{ext}" so we didn't have a name
             // This extracts the extension
-            $ret = preg_match('/^.+?\.(.+)$/', $file->filename, $matches);
+            $ret = preg_match('/^.+?\.+?(.+)$/', $file->filename, $matches);
             if ($ret !== 1) {
                 common_log(LOG_ERR, $log_error_msg);
                 return _('Untitled attachment');

@@ -208,7 +208,8 @@ class AttachmentAction extends ManagedAction
      */
     static function sendFile(string $filepath, $filesize) {
         if (is_string(common_config('site', 'x-static-delivery'))) {
-            $relative_path = end(explode(INSTALLDIR, $filepath));
+            $tmp = explode(INSTALLDIR, $filepath);
+            $relative_path = end($tmp);
             common_debug("Using Static Delivery with header: '" .
                          common_config('site', 'x-static-delivery') . ": {$relative_path}'");
             header(common_config('site', 'x-static-delivery') . ": {$relative_path}");
