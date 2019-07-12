@@ -23,84 +23,43 @@
  * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+// namespace Tests\Unit;
 
-if (isset($_SERVER) && array_key_exists('REQUEST_METHOD', $_SERVER)) {
-    print "This script must be run from the command line\n";
-    exit();
-}
+use PHPUnit\Framework\TestCase;
 
 define('INSTALLDIR', realpath(__DIR__ . '/../../..'));
-define('GNUSOCIAL', true);
-define('STATUSNET', true);  // compatibility
-
+if (!defined('GNUSOCIAL')) {
+    define('GNUSOCIAL', true);
+}
+if (!defined('STATUSNET')) { // Compatibility
+    define('STATUSNET', true);
+}
 require_once INSTALLDIR . '/lib/common.php';
 
-class oEmbedTest extends PHPUnit_Framework_TestCase
+final class oEmbedTest extends TestCase
 {
-    public function setup()
-    {
-        $this->old_ohembed = common_config('ohembed', 'endpoint');
-    }
-
-    public function tearDown()
-    {
-        $GLOBALS['config']['oembed']['endpoint'] = $this->old_ohembed;
-    }
-
     /**
-     * Test with ohembed DISABLED.
-     *
-     * @dataProvider discoverableSources
-     */
-    public function testoEmbed($url, $expectedType)
-    {
-        $GLOBALS['config']['oembed']['endpoint'] = false;
-        $this->_doTest($url, $expectedType);
-    }
-
-    /**
-     * Test with oohembed ENABLED.
-     *
-     * @dataProvider fallbackSources
-     */
-    public function testnoEmbed($url, $expectedType)
-    {
-        $GLOBALS['config']['oembed']['endpoint'] = $this->_endpoint();
-        $this->_doTest($url, $expectedType);
-    }
-
-    /**
-     * Get default oembed endpoint.
-     *
-     * @return string
-     */
-    public function _endpoint()
-    {
-        $default = array();
-        $_server = 'localhost';
-        $_path = '';
-        require INSTALLDIR . '/lib/default.php';
-        return $default['oembed']['endpoint'];
-    }
-
-    /**
-     * Actually run an individual test.
+     * Run tests
      *
      * @param string $url
      * @param string $expectedType
+     * @dataProvider sources
      */
-    public function _doTest($url, $expectedType)
+    public function testEmbed($url, $expectedType)
     {
         try {
             $data = EmbedHelper::getObject($url);
             $this->assertEquals($expectedType, $data->type);
             if ($data->type == 'photo') {
-                $this->assertTrue(!empty($data->url), 'Photo must have a URL.');
-                $this->assertTrue(!empty($data->width), 'Photo must have a width.');
-                $this->assertTrue(!empty($data->height), 'Photo must have a height.');
+                $this->assertTrue(!empty($data->thumbnail_url), 'Photo must have a URL.');
+                $this->assertTrue(!empty($data->thumbnail_width), 'Photo must have a width.');
+                $this->assertTrue(!empty($data->thumbnail_height), 'Photo must have a height.');
             } elseif ($data->type == 'video') {
                 $this->assertTrue(!empty($data->html), 'Video must have embedding HTML.');
                 $this->assertTrue(!empty($data->thumbnail_url), 'Video should have a thumbnail.');
+            } else {
+                $this->assertTrue(!empty($data->title), 'Page must have a title');
+                $this->assertTrue(!empty($data->url), 'Page must have a URL');
             }
             if (!empty($data->thumbnail_url)) {
                 $this->assertTrue(!empty($data->thumbnail_width), 'Thumbnail must list a width.');
@@ -115,51 +74,15 @@ class oEmbedTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    /**
-     * Sample oEmbed targets for sites we know ourselves...
-     * @return array
-     */
-    public static function knownSources()
-    {
-        $sources = array(
-            array('https://www.flickr.com/photos/brionv/5172500179/', 'photo'),
-        );
-        return $sources;
-    }
-
-    /**
-     * Sample oEmbed targets that can be found via discovery.
-     * Includes also knownSources() output.
-     *
-     * @return array
-     */
-    public static function discoverableSources()
-    {
-        $sources = array(
-
-            array('http://www.youtube.com/watch?v=eUgLR232Cnw', 'video'),
-            array('http://vimeo.com/9283184', 'video'),
-
-            // Will fail discovery:
-            array('http://leuksman.com/log/2010/10/29/statusnet-0-9-6-release/', 'none'),
-        );
-        return array_merge(self::knownSources(), $sources);
-    }
-
-    /**
-     * Sample oEmbed targets that can be found via noembed.com.
-     * Includes also discoverableSources() output.
-     *
-     * @return array
-     */
-    public static function fallbackSources()
-    {
-        $sources = array(
-            array('https://github.com/git/git/commit/85e9c7e1d42849c5c3084a9da748608468310c0e', 'Github Commit'), // @fixme in future there may be a native provider -- will change to 'photo'
-        );
-
-        $sources = array();
-
-        return array_merge(self::discoverableSources(), $sources);
+    public static function sources() {
+        return [
+            ['https://notabug.org/', 'link'],
+            ['http://www.youtube.com/watch?v=eUgLR232Cnw', 'video'],
+            ['https://gnu.io/', 'link'],
+            ['https://www.gnu.org/graphics/heckert_gnu.transp.small.png', 'photo'],
+            ['http://vimeo.com/9283184', 'video'],
+            ['http://leuksman.com/log/2010/10/29/statusnet-0-9-6-release/', 'none'],
+            ['https://github.com/git/git/commit/85e9c7e1d42849c5c3084a9da748608468310c0e', 'link']
+        ];
     }
 }
