@@ -48,13 +48,6 @@ defined('GNUSOCIAL') || die();
  */
 class EmbedHelper
 {
-    protected static $apiMap = array(
-        'flickr.com' => 'https://www.flickr.com/services/oembed/',
-        'youtube.com' => 'https://www.youtube.com/oembed',
-        'viddler.com' => 'http://lab.viddler.com/services/oembed/',
-        'revision3.com' => 'https://revision3.com/api/oembed/',
-        'vimeo.com' => 'https://vimeo.com/api/oembed.json',
-    );
 
     /**
      * Perform or fake an oEmbed lookup for the given resource.
@@ -72,10 +65,11 @@ class EmbedHelper
      * Throws exceptions on failure.
      *
      * @param string $url
-     * @param array $params
      * @return object
+     * @throws EmbedHelper_BadHtmlException
+     * @throws HTTP_Request2_Exception
      */
-    public static function getObject($url, $params=array())
+    public static function getObject($url)
     {
         common_log(LOG_INFO, 'Checking for remote URL metadata for ' . $url);
 
@@ -145,83 +139,11 @@ class EmbedHelper
     }
 
     /**
-     * Partially ripped from OStatus' FeedDiscovery class.
-     *
-     * @param string $url source URL, used to resolve relative links
-     * @param string $body HTML body text
-     * @return mixed string with URL or false if no target found
-     */
-    public static function oEmbedEndpointFromHTML(DOMDocument $dom)
-    {
-        // Ok... now on to the links!
-        $feeds = array(
-            'application/json+oembed' => false,
-        );
-
-        $nodes = $dom->getElementsByTagName('link');
-        for ($i = 0; $i < $nodes->length; $i++) {
-            $node = $nodes->item($i);
-            if ($node->hasAttributes()) {
-                $rel = $node->attributes->getNamedItem('rel');
-                $type = $node->attributes->getNamedItem('type');
-                $href = $node->attributes->getNamedItem('href');
-                if ($rel && $type && $href) {
-                    $rel = array_filter(explode(" ", $rel->value));
-                    $type = trim($type->value);
-                    $href = trim($href->value);
-
-                    if (in_array('alternate', $rel) && array_key_exists($type, $feeds) && empty($feeds[$type])) {
-                        // Save the first feed found of each type...
-                        $feeds[$type] = $href;
-                    }
-                }
-            }
-        }
-
-        // Return the highest-priority feed found
-        foreach ($feeds as $type => $url) {
-            if ($url) {
-                return $url;
-            }
-        }
-
-        throw new EmbedHelper_DiscoveryException();
-    }
-
-    /**
-     * Actually do an oEmbed lookup to a particular API endpoint.
-     *
-     * @param string $api oEmbed API endpoint URL
-     * @param string $url target URL to look up info about
-     * @param array $params
-     * @return object
-     */
-    public static function getOembedFrom($api, $url, $params=array())
-    {
-        if (empty($api)) {
-            // TRANS: Server exception thrown in oEmbed action if no API endpoint is available.
-            throw new ServerException(_('No oEmbed API endpoint available.'));
-        }
-        $params['url'] = $url;
-        $params['format'] = 'json';
-        $key=common_config('oembed', 'apikey');
-        if (isset($key)) {
-            $params['key'] = common_config('oembed', 'apikey');
-        }
-
-        $oembed_data = HTTPClient::quickGetJson($api, $params);
-        if (isset($oembed_data->html)) {
-            $oembed_data->html = common_purify($oembed_data->html);
-        }
-
-        return $oembed_data;
-    }
-
-    /**
      * Normalize oEmbed format.
      *
-     * @param object $orig
+     * @param stdClass $data
      * @return object
+     * @throws Exception
      */
     public static function normalize(stdClass $data)
     {
@@ -249,7 +171,7 @@ class EmbedHelper_Exception extends Exception
 {
     public function __construct($message = "", $code = 0, $previous = null)
     {
-        parent::__construct($message, $code);
+        parent::__construct($message, $code, $previous);
     }
 }
 
