@@ -498,7 +498,7 @@ class MediaFile
 
         // From CodeIgniter
         // We'll need this to validate the MIME info string (e.g. text/plain; charset=us-ascii)
-        $regexp = '/^([a-z\-]+\/[a-z0-9\-\.\+]+)(;\s.+)?$/';
+        $regexp = '/^([a-z\-]+\/[a-z0-9\-\.\+]+)(;\s[^\/]+)?$/';
         /**
          * Fileinfo extension - most reliable method
          *
@@ -536,7 +536,7 @@ class MediaFile
          */
         if (DIRECTORY_SEPARATOR !== '\\') {
             $cmd = 'file --brief --mime '.escapeshellarg($filepath).' 2>&1';
-            if (function_exists('exec')) {
+            if (empty($mimetype) && function_exists('exec')) {
                 /* This might look confusing, as $mime is being populated with all of the output
                  * when set in the second parameter. However, we only need the last line, which is
                  * the actual return value of exec(), and as such - it overwrites anything that could
@@ -548,7 +548,7 @@ class MediaFile
                     $mimetype = $matches[1];
                 }
             }
-            if (function_exists('shell_exec')) {
+            if (empty($mimetype) && function_exists('shell_exec')) {
                 $mime = @shell_exec($cmd);
                 if (strlen($mime) > 0) {
                     $mime = explode("\n", trim($mime));
@@ -557,7 +557,7 @@ class MediaFile
                     }
                 }
             }
-            if (function_exists('popen')) {
+            if (empty($mimetype) && function_exists('popen')) {
                 $proc = @popen($cmd, 'r');
                 if (is_resource($proc)) {
                     $mime = @fread($proc, 512);
@@ -572,7 +572,7 @@ class MediaFile
             }
         }
         // Fall back to mime_content_type(), if available (still better than $_FILES[$field]['type'])
-        if (function_exists('mime_content_type')) {
+        if (empty($mimetype) && function_exists('mime_content_type')) {
             $mimetype = @mime_content_type($filepath);
             // It's possible that mime_content_type() returns FALSE or an empty string
             if ($mimetype == false && strlen($mimetype) > 0) {
