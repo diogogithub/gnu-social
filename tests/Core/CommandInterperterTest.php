@@ -1,23 +1,46 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (isset($_SERVER) && array_key_exists('REQUEST_METHOD', $_SERVER)) {
-    print "This script must be run from the command line\n";
-    exit();
+namespace Tests\Unit;
+
+if (!defined('INSTALLDIR')) {
+    define('INSTALLDIR', dirname(dirname(__DIR__)));
+}
+if (!defined('GNUSOCIAL')) {
+    define('GNUSOCIAL', true);
+}
+if (!defined('STATUSNET')) { // Compatibility
+    define('STATUSNET', true);
 }
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
-define('GNUSOCIAL', true);
-define('STATUSNET', true);  // compatibility
+use CommandInterpreter;
+use PHPUnit\Framework\TestCase;
 
 require_once INSTALLDIR . '/lib/common.php';
 
-class CommandInterpreterTest extends PHPUnit_Framework_TestCase
+final class CommandInterpreterTest extends TestCase
 {
 
     /**
      * @dataProvider commandInterpreterCases
+     * @param $input
+     * @param $expectedType
+     * @param string $comment
      */
-    public function testCommandInterpreter($input, $expectedType, $comment='')
+    public function testCommandInterpreter($input, $expectedType, $comment = '')
     {
         $inter = new CommandInterpreter();
 
@@ -130,9 +153,9 @@ class CommandInterpreterTest extends PHPUnit_Framework_TestCase
             array('whois foo', 'WhoisCommand'),
             array('whois foo bar', null),
 
-/*            array('fav', null),
-            array('fav foo', 'FavCommand'),
-            array('fav foo bar', null),*/
+            /*            array('fav', null),
+                        array('fav foo', 'FavCommand'),
+                        array('fav foo bar', null),*/
 
             array('nudge', null),
             array('nudge foo', 'NudgeCommand'),

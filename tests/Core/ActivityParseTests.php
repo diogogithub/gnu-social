@@ -1,24 +1,48 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (isset($_SERVER) && array_key_exists('REQUEST_METHOD', $_SERVER)) {
-    print "This script must be run from the command line\n";
-    exit();
+namespace Tests\Unit;
+
+if (!defined('INSTALLDIR')) {
+    define('INSTALLDIR', dirname(dirname(__DIR__)));
+}
+if (!defined('GNUSOCIAL')) {
+    define('GNUSOCIAL', true);
+}
+if (!defined('STATUSNET')) { // Compatibility
+    define('STATUSNET', true);
 }
 
-// XXX: we should probably have some common source for this stuff
-
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
-define('GNUSOCIAL', true);
-define('STATUSNET', true);  // compatibility
+use Activity;
+use ActivityObject;
+use ActivityUtils;
+use ActivityVerb;
+use DOMDocument;
+use PHPUnit\Framework\TestCase;
 
 require_once INSTALLDIR . '/lib/common.php';
 
-class ActivityParseTests extends PHPUnit_Framework_TestCase
+final class ActivityParseTests extends TestCase
 {
 
-    public function testMastodonRetweet() {
+    public function testMastodonRetweet()
+    {
         global $_mastodon_retweet;
-        $dom = DOMDocument::loadXML($_mastodon_retweet);
+        $dom = new DOMDocument();
+        $dom->loadXML($_mastodon_retweet);
         $feed = $dom->documentElement;
         $entries = $feed->getElementsByTagName('entry');
         $entry = $entries->item(0);
@@ -30,9 +54,11 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
         $this->assertEquals($object->verb, ActivityVerb::POST);
     }
 
-    public function testGSReweet() {
+    public function testGSReweet()
+    {
         global $_gs_retweet;
-        $dom = DOMDocument::loadXML($_gs_retweet);
+        $dom = new DOMDocument();
+        $dom->loadXML($_gs_retweet);
         $feed = $dom->documentElement;
         $entries = $feed->getElementsByTagName('entry');
         $entry = $entries->item(0);
@@ -47,7 +73,8 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
     public function testExample1()
     {
         global $_example1;
-        $dom = DOMDocument::loadXML($_example1);
+        $dom = new DOMDocument();
+        $dom->loadXML($_example1);
         $act = new Activity($dom->documentElement);
 
         $this->assertFalse(empty($act));
@@ -65,19 +92,21 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
     public function testExample2()
     {
         global $_example2;
-        $dom = DOMDocument::loadXML($_example2);
+        $dom = new DOMDocument();
+        $dom->loadXML($_example2);
         $act = new Activity($dom->documentElement);
 
         $this->assertFalse(empty($act));
         // Did we handle <content type="html"> correctly with a typical payload?
         $this->assertEquals("<p>Geraldine posted a Photo on PhotoPanic</p>\n     " .
-                            "<img src=\"/geraldine/photo1.jpg\">", trim($act->content));
+            "<img src=\"/geraldine/photo1.jpg\">", trim($act->content));
     }
 
     public function testExample3()
     {
         global $_example3;
-        $dom = DOMDocument::loadXML($_example3);
+        $dom = new DOMDocument();
+        $dom->loadXML($_example3);
 
         $feed = $dom->documentElement;
 
@@ -116,7 +145,8 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
     public function testExample4()
     {
         global $_example4;
-        $dom = DOMDocument::loadXML($_example4);
+        $dom = new DOMDocument();
+        $dom->loadXML($_example4);
 
         $entry = $dom->documentElement;
 
@@ -134,7 +164,7 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
 
         $this->assertFalse(empty($act->objects[0]));
         $this->assertEquals($act->objects[0]->content,
-                            '@<span class="vcard"><a href="http://example.net/user/1" class="url"><span class="fn nickname">evan</span></a></span> now is the time for all good men to come to the aid of their country. #<span class="tag"><a href="http://example.net/tag/thetime" rel="tag">thetime</a></span>');
+            '@<span class="vcard"><a href="http://example.net/user/1" class="url"><span class="fn nickname">evan</span></a></span> now is the time for all good men to come to the aid of their country. #<span class="tag"><a href="http://example.net/tag/thetime" rel="tag">thetime</a></span>');
 
         $this->assertFalse(empty($act->actor));
     }
@@ -142,7 +172,8 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
     public function testExample5()
     {
         global $_example5;
-        $dom = DOMDocument::loadXML($_example5);
+        $dom = new DOMDocument();
+        $dom->loadXML($_example5);
 
         $feed = $dom->documentElement;
 
@@ -167,8 +198,8 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
         $avatars = $act->actor->avatarLinks;
 
         $this->assertEquals(
-                $avatars[0]->url,
-                'http://example.net/mysite/avatar/3-96-20100224004207.jpeg'
+            $avatars[0]->url,
+            'http://example.net/mysite/avatar/3-96-20100224004207.jpeg'
         );
 
         $this->assertEquals($act->actor->displayName, 'Test User');
@@ -186,7 +217,8 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
     {
         global $_example6;
 
-        $dom = DOMDocument::loadXML($_example6);
+        $dom = new DOMDocument();
+        $dom->loadXML($_example6);
 
         $rss = $dom->documentElement;
 
@@ -217,7 +249,8 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
     {
         global $_example7;
 
-        $dom = DOMDocument::loadXML($_example7);
+        $dom = new DOMDocument();
+        $dom->loadXML($_example7);
 
         $rss = $dom->documentElement;
 
@@ -249,7 +282,7 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
         $this->assertTrue(is_array($actor->avatarLinks));
         $this->assertEquals(1, count($actor->avatarLinks));
         $this->assertEquals('http://files.posterous.com/user_profile_pics/480326/2009-08-05-142447.jpg',
-                            $actor->avatarLinks[0]->url);
+            $actor->avatarLinks[0]->url);
         $this->assertNotNull($actor->poco);
         $this->assertEquals('evanpro', $actor->poco->preferredUsername);
         $this->assertEquals('Evan Prodromou', $actor->poco->displayName);
@@ -262,7 +295,8 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
     public function testExample8()
     {
         global $_example8;
-        $dom = DOMDocument::loadXML($_example8);
+        $dom = new DOMDocument();
+        $dom->loadXML($_example8);
 
         $feed = $dom->documentElement;
 
@@ -350,32 +384,33 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
     public function testAtomContent()
     {
         $tests = array(array("<content>Some regular plain text.</content>",
-                             "Some regular plain text."),
-                       array("<content>&lt;b&gt;this is not HTML&lt;/b&gt;</content>",
-                             "&lt;b&gt;this is not HTML&lt;/b&gt;"),
-                       array("<content type='html'>Some regular plain HTML.</content>",
-                             "Some regular plain HTML."),
-                       array("<content type='html'>&lt;b&gt;this is too HTML&lt;/b&gt;</content>",
-                             "<b>this is too HTML</b>"),
-                       array("<content type='html'>&amp;lt;b&amp;gt;but this is not HTML!&amp;lt;/b&amp;gt;</content>",
-                             "&lt;b&gt;but this is not HTML!&lt;/b&gt;"),
-                       array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>Some regular plain XHTML.</div></content>",
-                             "Some regular plain XHTML."),
-                       array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'><b>This is some XHTML!</b></div></content>",
-                             "<b>This is some XHTML!</b>"),
-                       array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>&lt;b&gt;This is not some XHTML!&lt;/b&gt;</div></content>",
-                             "&lt;b&gt;This is not some XHTML!&lt;/b&gt;"),
-                       array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>&amp;lt;b&amp;gt;This is not some XHTML either!&amp;lt;/b&amp;gt;</div></content>",
-                             "&amp;lt;b&amp;gt;This is not some XHTML either!&amp;lt;/b&amp;gt;"));
+            "Some regular plain text."),
+            array("<content>&lt;b&gt;this is not HTML&lt;/b&gt;</content>",
+                "&lt;b&gt;this is not HTML&lt;/b&gt;"),
+            array("<content type='html'>Some regular plain HTML.</content>",
+                "Some regular plain HTML."),
+            array("<content type='html'>&lt;b&gt;this is too HTML&lt;/b&gt;</content>",
+                "<b>this is too HTML</b>"),
+            array("<content type='html'>&amp;lt;b&amp;gt;but this is not HTML!&amp;lt;/b&amp;gt;</content>",
+                "&lt;b&gt;but this is not HTML!&lt;/b&gt;"),
+            array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>Some regular plain XHTML.</div></content>",
+                "Some regular plain XHTML."),
+            array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'><b>This is some XHTML!</b></div></content>",
+                "<b>This is some XHTML!</b>"),
+            array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>&lt;b&gt;This is not some XHTML!&lt;/b&gt;</div></content>",
+                "&lt;b&gt;This is not some XHTML!&lt;/b&gt;"),
+            array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>&amp;lt;b&amp;gt;This is not some XHTML either!&amp;lt;/b&amp;gt;</div></content>",
+                "&amp;lt;b&amp;gt;This is not some XHTML either!&amp;lt;/b&amp;gt;"));
         foreach ($tests as $data) {
             list($source, $output) = $data;
             $xml = "<entry xmlns='http://www.w3.org/2005/Atom'>" .
-                   "<id>http://example.com/fakeid</id>" .
-                   "<author><name>Test</name></author>" .
-                   "<title>Atom content tests</title>" .
-                   $source .
-                   "</entry>";
-            $dom = DOMDocument::loadXML($xml);
+                "<id>http://example.com/fakeid</id>" .
+                "<author><name>Test</name></author>" .
+                "<title>Atom content tests</title>" .
+                $source .
+                "</entry>";
+            $dom = new DOMDocument();
+            $dom->loadXML($xml);
             $act = new Activity($dom->documentElement);
 
             $this->assertFalse(empty($act));
@@ -386,25 +421,26 @@ class ActivityParseTests extends PHPUnit_Framework_TestCase
     public function testRssContent()
     {
         $tests = array(array("<content:encoded>Some regular plain HTML.</content:encoded>",
-                             "Some regular plain HTML."),
-                       array("<content:encoded>Some &lt;b&gt;exciting bold HTML&lt;/b&gt;</content:encoded>",
-                             "Some <b>exciting bold HTML</b>"),
-                       array("<content:encoded>Some &amp;lt;b&amp;gt;escaped non-HTML.&amp;lt;/b&amp;gt;</content:encoded>",
-                             "Some &lt;b&gt;escaped non-HTML.&lt;/b&gt;"),
-                       array("<description>Some plain text.</description>",
-                             "Some plain text."),
-                       array("<description>Some &lt;b&gt;non-HTML text&lt;/b&gt;</description>",
-                             "Some &lt;b&gt;non-HTML text&lt;/b&gt;"),
-                       array("<description>Some &amp;lt;b&amp;gt;double-escaped text&amp;lt;/b&amp;gt;</description>",
-                             "Some &amp;lt;b&amp;gt;double-escaped text&amp;lt;/b&amp;gt;"));
+            "Some regular plain HTML."),
+            array("<content:encoded>Some &lt;b&gt;exciting bold HTML&lt;/b&gt;</content:encoded>",
+                "Some <b>exciting bold HTML</b>"),
+            array("<content:encoded>Some &amp;lt;b&amp;gt;escaped non-HTML.&amp;lt;/b&amp;gt;</content:encoded>",
+                "Some &lt;b&gt;escaped non-HTML.&lt;/b&gt;"),
+            array("<description>Some plain text.</description>",
+                "Some plain text."),
+            array("<description>Some &lt;b&gt;non-HTML text&lt;/b&gt;</description>",
+                "Some &lt;b&gt;non-HTML text&lt;/b&gt;"),
+            array("<description>Some &amp;lt;b&amp;gt;double-escaped text&amp;lt;/b&amp;gt;</description>",
+                "Some &amp;lt;b&amp;gt;double-escaped text&amp;lt;/b&amp;gt;"));
         foreach ($tests as $data) {
             list($source, $output) = $data;
             $xml = "<item xmlns:content='http://purl.org/rss/1.0/modules/content/'>" .
-                   "<guid>http://example.com/fakeid</guid>" .
-                   "<title>RSS content tests</title>" .
-                   $source .
-                   "</item>";
-            $dom = DOMDocument::loadXML($xml);
+                "<guid>http://example.com/fakeid</guid>" .
+                "<title>RSS content tests</title>" .
+                $source .
+                "</item>";
+            $dom = new DOMDocument();
+            $dom->loadXML($xml);
             $act = new Activity($dom->documentElement);
 
             $this->assertFalse(empty($act));

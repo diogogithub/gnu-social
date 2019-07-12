@@ -1040,7 +1040,7 @@ function common_replace_urls_callback($text, $callback, $arg = null)
     '#ixu';
     //preg_match_all($regex,$text,$matches);
     //print_r($matches);
-    return preg_replace_callback($regex, callable_left_curry('callback_helper', $callback, $arg), $text);
+    return preg_replace_callback($regex, callableLeftCurry('callback_helper', $callback, $arg), $text);
 }
 
 /**
@@ -1102,7 +1102,7 @@ function callback_helper($matches, $callback, $arg = null)
     return substr($matches[0], 0, $left) . $result . substr($matches[0], $right);
 }
 
-require_once INSTALLDIR . "/lib/callable_left_curry.php";
+require_once INSTALLDIR . "/lib/callableleftcurry.php";
 
 function common_linkify($url)
 {

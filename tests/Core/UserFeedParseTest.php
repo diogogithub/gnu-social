@@ -1,22 +1,45 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (isset($_SERVER) && array_key_exists('REQUEST_METHOD', $_SERVER)) {
-    print "This script must be run from the command line\n";
-    exit();
+namespace Tests\Unit;
+
+if (!defined('INSTALLDIR')) {
+    define('INSTALLDIR', dirname(dirname(__DIR__)));
+}
+if (!defined('GNUSOCIAL')) {
+    define('GNUSOCIAL', true);
+}
+if (!defined('STATUSNET')) { // Compatibility
+    define('STATUSNET', true);
 }
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
-define('GNUSOCIAL', true);
-define('STATUSNET', true);  // compatibility
+use Activity;
+use ActivityObject;
+use DOMDocument;
+use PHPUnit\Framework\TestCase;
 
 require_once INSTALLDIR . '/lib/common.php';
 
-class UserFeedParseTests extends PHPUnit_Framework_TestCase
+final class UserFeedParseTests extends TestCase
 {
     public function testFeed1()
     {
         global $_testfeed1;
-        $dom = DOMDocument::loadXML($_testfeed1);
+        $dom = new DOMDocument();
+        $dom->loadXML($_testfeed1);
         $this->assertFalse(empty($dom));
 
         $entries = $dom->getElementsByTagName('entry');
@@ -40,18 +63,18 @@ class UserFeedParseTests extends PHPUnit_Framework_TestCase
         $avatars = $act1->actor->avatarLinks;
 
         $this->assertEquals(
-                $avatars[0]->url,
-                'http://localhost/statusnet/theme/default/default-avatar-profile.png'
+            $avatars[0]->url,
+            'http://localhost/statusnet/theme/default/default-avatar-profile.png'
         );
 
         $this->assertEquals(
-                $avatars[1]->url,
-                'http://localhost/statusnet/theme/default/default-avatar-stream.png'
+            $avatars[1]->url,
+            'http://localhost/statusnet/theme/default/default-avatar-stream.png'
         );
 
         $this->assertEquals(
-                $avatars[2]->url,
-                'http://localhost/statusnet/theme/default/default-avatar-mini.png'
+            $avatars[2]->url,
+            'http://localhost/statusnet/theme/default/default-avatar-mini.png'
         );
 
         $this->assertEquals($act1->actor->displayName, 'Zach Copley');

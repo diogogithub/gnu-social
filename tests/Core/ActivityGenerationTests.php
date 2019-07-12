@@ -1,19 +1,49 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (isset($_SERVER) && array_key_exists('REQUEST_METHOD', $_SERVER)) {
-    print "This script must be run from the command line\n";
-    exit();
+namespace Tests\Unit;
+
+if (!defined('INSTALLDIR')) {
+    define('INSTALLDIR', dirname(dirname(__DIR__)));
+}
+if (!defined('PUBLICDIR')) {
+    define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
+}
+if (!defined('GNUSOCIAL')) {
+    define('GNUSOCIAL', true);
+}
+if (!defined('STATUSNET')) { // Compatibility
+    define('STATUSNET', true);
 }
 
-// XXX: we should probably have some common source for this stuff
-
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
-define('GNUSOCIAL', true);
-define('STATUSNET', true);  // compatibility
+use Activity;
+use ActivityObject;
+use ActivityUtils;
+use ActivityVerb;
+use Conversation;
+use DOMDocument;
+use Exception;
+use Notice;
+use PHPUnit\Framework\TestCase;
+use User;
+use User_group;
 
 require_once INSTALLDIR . '/lib/common.php';
 
-class ActivityGenerationTests extends PHPUnit_Framework_TestCase
+final class ActivityGenerationTests extends TestCase
 {
     static $author1 = null;
     static $author2 = null;
@@ -35,44 +65,44 @@ class ActivityGenerationTests extends PHPUnit_Framework_TestCase
         $groupNick1 = 'activitygenerationtestsgroup' . common_random_hexstr(4);
         $groupNick2 = 'activitygenerationtestsgroup' . common_random_hexstr(4);
 
-        try{
-        	self::$author1 = User::register(array('nickname' => $authorNick1,
-                                              'email' => $authorNick1 . '@example.net',
-                                              'email_confirmed' => true));
+        try {
+            self::$author1 = User::register(array('nickname' => $authorNick1,
+                'email' => $authorNick1 . '@example.net',
+                'email_confirmed' => true));
 
-        	self::$author2 = User::register(array('nickname' => $authorNick2,
-                                              'email' => $authorNick2 . '@example.net',
-                                              'email_confirmed' => true));
+            self::$author2 = User::register(array('nickname' => $authorNick2,
+                'email' => $authorNick2 . '@example.net',
+                'email_confirmed' => true));
 
-        	self::$targetUser1 = User::register(array('nickname' => $targetNick1,
-                                                  'email' => $targetNick1 . '@example.net',
-                                                  'email_confirmed' => true));
+            self::$targetUser1 = User::register(array('nickname' => $targetNick1,
+                'email' => $targetNick1 . '@example.net',
+                'email_confirmed' => true));
 
-        	self::$targetUser2 = User::register(array('nickname' => $targetNick2,
-                                                  'email' => $targetNick2 . '@example.net',
-                                                  'email_confirmed' => true));
+            self::$targetUser2 = User::register(array('nickname' => $targetNick2,
+                'email' => $targetNick2 . '@example.net',
+                'email_confirmed' => true));
 
-        	self::$targetGroup1 = User_group::register(array('nickname' => $groupNick1,
-                                                         'userid' => self::$author1->id,
-                                                         'aliases' => array(),
-                                                         'local' => true,
-                                                         'location' => null,
-                                                         'description' => null,
-                                                         'fullname' => null,
-                                                         'homepage' => null,
-                                                         'mainpage' => null));
-        	self::$targetGroup2 = User_group::register(array('nickname' => $groupNick2,
-                                                         'userid' => self::$author1->id,
-                                                         'aliases' => array(),
-                                                         'local' => true,
-                                                         'location' => null,
-                                                         'description' => null,
-                                                         'fullname' => null,
-                                                         'homepage' => null,
-                                                         'mainpage' => null));
+            self::$targetGroup1 = User_group::register(array('nickname' => $groupNick1,
+                'userid' => self::$author1->id,
+                'aliases' => array(),
+                'local' => true,
+                'location' => null,
+                'description' => null,
+                'fullname' => null,
+                'homepage' => null,
+                'mainpage' => null));
+            self::$targetGroup2 = User_group::register(array('nickname' => $groupNick2,
+                'userid' => self::$author1->id,
+                'aliases' => array(),
+                'local' => true,
+                'location' => null,
+                'description' => null,
+                'fullname' => null,
+                'homepage' => null,
+                'mainpage' => null));
         } catch (Exception $e) {
-        	self::tearDownAfterClass();
-        	throw $e;
+            self::tearDownAfterClass();
+            throw $e;
         }
     }
 
@@ -85,7 +115,7 @@ class ActivityGenerationTests extends PHPUnit_Framework_TestCase
         $element = $this->_entryToElement($entry, false);
 
         $this->assertEquals($notice->getUri(), ActivityUtils::childContent($element, 'id'));
-        $this->assertEquals('New note by '. self::$author1->nickname, ActivityUtils::childContent($element, 'title'));
+        $this->assertEquals('New note by ' . self::$author1->nickname, ActivityUtils::childContent($element, 'title'));
         $this->assertEquals($notice->rendered, ActivityUtils::childContent($element, 'content'));
         $this->assertEquals(strtotime($notice->created), strtotime(ActivityUtils::childContent($element, 'published')));
         $this->assertEquals(strtotime($notice->created), strtotime(ActivityUtils::childContent($element, 'updated')));
@@ -195,7 +225,7 @@ class ActivityGenerationTests extends PHPUnit_Framework_TestCase
         $element = $this->_entryToElement($entry, true);
 
         $author = ActivityUtils::child($element, 'author');
-        $actor  = ActivityUtils::child($element, 'actor', Activity::SPEC);
+        $actor = ActivityUtils::child($element, 'actor', Activity::SPEC);
 
         $this->assertFalse(is_null($author));
         $this->assertTrue(is_null($actor)); // <activity:actor> is obsolete, no longer added
@@ -459,32 +489,32 @@ class ActivityGenerationTests extends PHPUnit_Framework_TestCase
         $this->assertEquals('false', $noticeInfo->getAttribute('repeated'));
     }
 
-/*    public function testNoticeInfoFave()
-    {
-        $notice = $this->_fakeNotice();
+    /*    public function testNoticeInfoFave()
+        {
+            $notice = $this->_fakeNotice();
 
-        $fave = Fave::addNew(self::$author2->getProfile(), $notice);
+            $fave = Fave::addNew(self::$author2->getProfile(), $notice);
 
-        // Should be set if user has faved
+            // Should be set if user has faved
 
-        $entry = $notice->asAtomEntry(false, false, false, self::$author2);
+            $entry = $notice->asAtomEntry(false, false, false, self::$author2);
 
-        $element = $this->_entryToElement($entry, true);
+            $element = $this->_entryToElement($entry, true);
 
-        $noticeInfo = ActivityUtils::child($element, 'notice_info', "http://status.net/schema/api/1/");
+            $noticeInfo = ActivityUtils::child($element, 'notice_info', "http://status.net/schema/api/1/");
 
-        $this->assertEquals('true', $noticeInfo->getAttribute('favorite'));
+            $this->assertEquals('true', $noticeInfo->getAttribute('favorite'));
 
-        // Shouldn't be set if user has not faved
+            // Shouldn't be set if user has not faved
 
-        $entry = $notice->asAtomEntry(false, false, false, self::$targetUser1);
+            $entry = $notice->asAtomEntry(false, false, false, self::$targetUser1);
 
-        $element = $this->_entryToElement($entry, true);
+            $element = $this->_entryToElement($entry, true);
 
-        $noticeInfo = ActivityUtils::child($element, 'notice_info', "http://status.net/schema/api/1/");
+            $noticeInfo = ActivityUtils::child($element, 'notice_info', "http://status.net/schema/api/1/");
 
-        $this->assertEquals('false', $noticeInfo->getAttribute('favorite'));
-    }*/
+            $this->assertEquals('false', $noticeInfo->getAttribute('favorite'));
+        }*/
 
     public function testConversationLink()
     {
@@ -545,7 +575,7 @@ class ActivityGenerationTests extends PHPUnit_Framework_TestCase
 
     private function _entryToElement($entry, $namespace = false)
     {
-        $xml = '<?xml version="1.0" encoding="utf-8"?>'."\n\n";
+        $xml = '<?xml version="1.0" encoding="utf-8"?>' . "\n\n";
         $xml .= '<feed';
         if ($namespace) {
             $xml .= ' xmlns="http://www.w3.org/2005/Atom"';
@@ -558,7 +588,8 @@ class ActivityGenerationTests extends PHPUnit_Framework_TestCase
             $xml .= ' xmlns:statusnet="http://status.net/schema/api/1/"';
         }
         $xml .= '>' . "\n" . $entry . "\n" . '</feed>' . "\n";
-        $doc = DOMDocument::loadXML($xml);
+        $doc = new DOMDocument();
+        $doc->loadXML($xml);
         $feed = $doc->documentElement;
         $entries = $feed->getElementsByTagName('entry');
 

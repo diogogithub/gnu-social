@@ -1,55 +1,82 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (isset($_SERVER) && array_key_exists('REQUEST_METHOD', $_SERVER)) {
-    print "This script must be run from the command line\n";
-    exit();
+namespace Tests\Unit;
+
+if (!defined('INSTALLDIR')) {
+    define('INSTALLDIR', dirname(dirname(__DIR__)));
+}
+if (!defined('GNUSOCIAL')) {
+    define('GNUSOCIAL', true);
+}
+if (!defined('STATUSNET')) { // Compatibility
+    define('STATUSNET', true);
 }
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
-define('GNUSOCIAL', true);
-define('STATUSNET', true);  // compatibility
-
-mb_internal_encoding('UTF-8'); // @fixme this probably belongs in common.php?
+use GNUsocial;
+use PHPUnit\Framework\TestCase;
+use XmppPlugin;
 
 require_once INSTALLDIR . '/lib/common.php';
+
 require_once INSTALLDIR . '/plugins/Xmpp/XmppPlugin.php';
 
-class XmppValidateTest extends PHPUnit_Framework_TestCase
+final class XmppValidateTest extends TestCase
 {
-	public function setUp()
-	{
-		if(!array_key_exists('Xmpp', GNUsocial::getActivePlugins())){
-			$this->markTestSkipped('XmppPlugin is not enabled.');
-		}
-	}
+    public function setUp()
+    {
+        if (!array_key_exists('Xmpp', GNUsocial::getActivePlugins())) {
+            $this->markTestSkipped('XmppPlugin is not enabled.');
+        }
+    }
+
     /**
      * @dataProvider validationCases
-     *
+     * @param $jid
+     * @param $validFull
+     * @param $validBase
      */
     public function testValidate($jid, $validFull, $validBase)
     {
-    	$xmpp = new TestXmppPlugin();
-    	$this->assertEquals($validFull || $validBase, $xmpp->validate($jid));
+        $xmpp = new TestXmppPlugin();
+        $this->assertEquals($validFull || $validBase, $xmpp->validate($jid));
         $this->assertEquals($validFull, $xmpp->validateFullJid($jid), "validating as full or base JID");
         $this->assertEquals($validBase, $xmpp->validateBaseJid($jid), "validating as base JID only");
     }
 
     /**
      * @dataProvider normalizationCases
-     *
+     * @param $jid
+     * @param $expected
      */
     public function testNormalize($jid, $expected)
     {
-    	$xmpp = new XmppPlugin();
+        $xmpp = new XmppPlugin();
         $this->assertEquals($expected, $xmpp->normalize($jid));
     }
 
     /**
      * @dataProvider domainCheckCases()
+     * @param $domain
+     * @param $expected
+     * @param $note
      */
     public function testDomainCheck($domain, $expected, $note)
     {
-    	$xmpp = new TestXmppPlugin();
+        $xmpp = new TestXmppPlugin();
         $this->assertEquals($expected, $xmpp->checkDomain($domain), $note);
     }
 
@@ -68,7 +95,7 @@ class XmppValidateTest extends PHPUnit_Framework_TestCase
             array('example.com', true, true),
             array('example.com/resource', true, false),
             array('jabchat', true, true),
-            
+
             array("$long1023@$long1023/$long1023", true, false), // max 1023 "bytes" per portion per spec. Do they really mean bytes though?
             array("$long1024@$long1023/$long1023", false, false),
             array("$long1023@$long1024/$long1023", false, false),
@@ -125,7 +152,7 @@ class XmppValidateTest extends PHPUnit_Framework_TestCase
             //array("foo@example.com/٭simplexe٭", false, false)
         );
     }
-    
+
     static public function normalizationCases()
     {
         return array(
@@ -153,19 +180,20 @@ class XmppValidateTest extends PHPUnit_Framework_TestCase
 
 }
 
-class TestXmppPlugin extends XmppPlugin {
-	public function checkDomain($domain)
-	{
-		return parent::checkDomain($domain);
-	}
-	
-	public function validateBaseJid($jid, $check_domain=false)
-	{
-		return parent::validateBaseJid($jid, $check_domain);
-	}
-	
-	public function validateFullJid($jid, $check_domain=false)
-	{
-		return parent::validateFullJid($jid, $check_domain);
-	}
+class TestXmppPlugin extends XmppPlugin
+{
+    public function checkDomain($domain)
+    {
+        return parent::checkDomain($domain);
+    }
+
+    public function validateBaseJid($jid, $check_domain = false)
+    {
+        return parent::validateBaseJid($jid, $check_domain);
+    }
+
+    public function validateFullJid($jid, $check_domain = false)
+    {
+        return parent::validateFullJid($jid, $check_domain);
+    }
 }
