@@ -31,7 +31,6 @@ use PHPUnit\Framework\TestCase;
 use XmppPlugin;
 
 require_once INSTALLDIR . '/lib/common.php';
-
 require_once INSTALLDIR . '/plugins/Xmpp/XmppPlugin.php';
 
 final class XmppValidateTest extends TestCase
