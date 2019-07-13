@@ -175,12 +175,12 @@ class EmbedPlugin extends Plugin
         if (isset($url)) {
             foreach (['xml', 'json'] as $format) {
                 $action->element('link',
-                                 array('rel'   =>'alternate',
-                                       'type'  => "application/{$format}+oembed",
-                                       'href'  => common_local_url('oembed',
-                                                                   array(),
-                                                                   array('format' => $format, 'url' => $url)),
-                                       'title' => 'oEmbed'));
+                                 ['rel'   =>'alternate',
+                                  'type'  => "application/{$format}+oembed",
+                                  'href'  => common_local_url('oembed',
+                                                              [],
+                                                              ['format' => $format, 'url' => $url]),
+                                  'title' => 'oEmbed']);
             }
         }
         return true;
@@ -291,6 +291,8 @@ class EmbedPlugin extends Plugin
             $thumb = $file->getThumbnail(128, 128);
             $out->element('img', $thumb->getHtmlAttrs(['class'=>'u-photo embed']));
             unset($thumb);
+        } catch (FileNotFoundException $e){
+            // Nothing to show
         } catch (Exception $e) {
             $out->element('div', ['class'=>'error'], $e->getMessage());
         }
@@ -411,7 +413,7 @@ class EmbedPlugin extends Plugin
         // Out
         $imgPath = $thumbnail->getPath();
 
-        return false;
+        return !file_exists($imgPath);
     }
 
     /**

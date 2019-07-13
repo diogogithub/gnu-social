@@ -115,7 +115,7 @@ class ImageFile extends MediaFile
         $media = common_get_mime_media($file->mimetype);
         if (Event::handle('CreateFileImageThumbnailSource', array($file, &$imgPath, $media))) {
             if (empty($file->filename) && !file_exists($imgPath)) {
-                throw new UnsupportedMediaException(_m('File without filename could not get a thumbnail source.'));
+                throw new FileNotFoundException($imgPath);
             }
 
             // First some mimetype specific exceptions
