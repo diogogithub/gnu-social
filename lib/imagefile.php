@@ -278,7 +278,7 @@ class ImageFile extends MediaFile
         }
 
         if (Event::handle('StartResizeImageFile', array($this, $outpath, $box))) {
-            $this->resizeToFile($outpath, $box);
+            $outpath = $this->resizeToFile($outpath, $box);
         }
 
         if (!file_exists($outpath)) {
@@ -304,7 +304,7 @@ class ImageFile extends MediaFile
      * @param array $box
      * @throws Exception
      */
-    protected function resizeToFile($outpath, array $box)
+    protected function resizeToFile(string $outpath, array $box) : string
     {
         $old_limit = ini_set('memory_limit', common_config('attachments', 'memory_limit'));
         $image_src = null;
@@ -373,12 +373,6 @@ class ImageFile extends MediaFile
         );
 
         $type = $this->preferredType();
-        $ext = image_type_to_extension($type, true);
-        // Decoding returns null if the file is in the old format
-        $filename = MediaFile::decodeFilename(basename($outpath));
-        // Encoding null makes the file use 'untitled', and also replaces the extension
-        $outfilename = MediaFile::encodeFilename($filename, $this->filehash, $ext);
-        $outpath = dirname($outpath) . DIRECTORY_SEPARATOR . $outfilename;
 
         switch ($type) {
          case IMAGETYPE_GIF:
@@ -398,6 +392,8 @@ class ImageFile extends MediaFile
         imagedestroy($image_src);
         imagedestroy($image_dest);
         ini_set('memory_limit', $old_limit); // Restore the old memory limit
+
+        return $outpath;
     }
 
     public function unlink()
@@ -539,6 +535,7 @@ class ImageFile extends MediaFile
 
         // Throws FileNotFoundException or FileNotStoredLocallyException
         $this->filepath = $this->fileRecord->getFileOrThumbnailPath();
+        $filename = basename($this->filepath);
 
         if ($width === null) {
             $width  = common_config('thumbnail', 'width');
@@ -575,9 +572,14 @@ class ImageFile extends MediaFile
             return $thumb;
         }
 
-        $extension = File::guessMimeExtension($this->mimetype);
-        $outname = "thumb-{$this->fileRecord->getID()}-{$width}x{$height}-{$this->filename}";
-        $outpath = File_thumbnail::path($outname);
+        $type = $this->preferredType();
+        $ext = image_type_to_extension($type, true);
+        // Decoding returns null if the file is in the old format
+        $filename = MediaFile::decodeFilename(basename($this->filepath));
+        // Encoding null makes the file use 'untitled', and also replaces the extension
+        $outfilename = MediaFile::encodeFilename($filename, $this->filehash, $ext);
+        $outpath = File_thumbnail::path(
+            "thumb-{$this->fileRecord->id}-{$box['width']}x{$box['height']}-{$outfilename}");
 
         // The boundary box for our resizing
         $box = array('width'=>$width, 'height'=>$height,
@@ -595,7 +597,7 @@ class ImageFile extends MediaFile
         }
 
         common_debug(sprintf(
-            'Generating a thumbnail of File id==%u of size %ux%u',
+            'Generating a thumbnail of File id=%u of size %ux%u',
             $this->fileRecord->getID(),
             $width,
             $height
