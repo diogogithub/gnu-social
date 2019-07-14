@@ -549,8 +549,10 @@ class EmbedPlugin extends Plugin
                 }
             } else {
                 throw new AlreadyFulfilledException('A thumbnail seems to already exist for remote file with id==' .
-                                                    $thumbnail->file_id);
+                                                    $thumbnail->file_id . ' at path ' . $fullpath);
             }
+        } catch (AlreadyFulfilledException $e) {
+            // Carry on
         } catch (Exception $err) {
             common_log(LOG_ERR, "Went to write a thumbnail to disk in EmbedPlugin::storeRemoteThumbnail " .
                        "but encountered error: {$err}");
