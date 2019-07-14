@@ -77,12 +77,12 @@ class File_embed extends Managed_DataObject
         );
     }
 
-    public static function _getEmbed($url)
+    public static function getEmbed($url)
     {
         try {
             return EmbedHelper::getObject($url);
         } catch (Exception $e) {
-            common_log(LOG_INFO, "Error during oembed lookup for $url - " . $e->getMessage());
+            common_log(LOG_INFO, "Error during Embed lookup for {$url} - " . $e->getMessage());
             return false;
         }
     }
@@ -116,15 +116,15 @@ class File_embed extends Managed_DataObject
         $file_embed = new File_embed;
         $file_embed->file_id = $file_id;
         if (!isset($data->version)) {
-            common_debug('DEBUGGING oEmbed: data->version undefined in variable $data: '.var_export($data, true));
+            common_debug('Embed: data->version undefined in variable $data: '.var_export($data, true));
         }
         $file_embed->version = $data->version;
         $file_embed->type = $data->type;
-        if (!empty($data->provider_name)) {
-            $file_embed->provider = $data->provider_name;
-        }
         if (!empty($data->provider)) {
             $file_embed->provider = $data->provider;
+        }
+        if (!empty($data->provider_name)) {
+            $file_embed->provider = $data->provider_name;
         }
         if (!empty($data->provider_url)) {
             $file_embed->provider_url = $data->provider_url;

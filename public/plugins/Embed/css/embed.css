@@ -1,14 +1,14 @@
-.u-photo.oembed {
+.u-photo.embed {
     float: left;
     margin-bottom: 1ex;
     margin-right: 1em;
 }
 
-.p-author.oembed {
+.p-author.embed {
     font-style: italic;
 }
 
-.p-summary.oembed {
+.p-summary.embed {
     line-height: 1.25em;
     max-height: 5em;
     overflow: auto;

@@ -1073,7 +1073,7 @@ class Schema
             try {
                 $this->getTableDef($new_name);
                 // New table exists, can't work
-                throw new ServerException("Both table {$old_name} and {$new_name} exist. You're on your own");
+                throw new ServerException("Both table {$old_name} and {$new_name} exist. You're on your own.");
             } catch(SchemaTableMissingException $e) {
                 // New table doesn't exist, carry on
             }
