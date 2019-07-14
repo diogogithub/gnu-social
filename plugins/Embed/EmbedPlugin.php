@@ -451,6 +451,7 @@ class EmbedPlugin extends Plugin
                 }
                 $head = (new HTTPClient())->head($url);
                 $headers = $head->getHeader();
+                $headers = array_change_key_case($headers, CASE_LOWER);
             }
             return $headers['content-length'] ?: false;
         } catch (Exception $err) {
@@ -475,6 +476,7 @@ class EmbedPlugin extends Plugin
             }
             $head = (new HTTPClient())->head($url);
             $headers = $head->getHeader();
+            $headers = array_change_key_case($headers, CASE_LOWER);
         }
         return !empty($headers['content-type']) && common_get_mime_media($headers['content-type']) === 'image';
     }
@@ -498,6 +500,7 @@ class EmbedPlugin extends Plugin
 
         $head = (new HTTPClient())->head($url);
         $headers = $head->getHeader();
+        $headers = array_change_key_case($headers, CASE_LOWER);
 
         try {
             $isImage = $this->isRemoteImage($url, $headers);
