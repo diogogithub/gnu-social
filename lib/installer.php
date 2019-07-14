@@ -164,6 +164,11 @@ abstract class Installer
             unset($default);
             foreach ($fileSubdirs as $fileFullPath) {
                 if (!file_exists($fileFullPath)) {
+                    $this->warning(
+                        sprintf('GNU social was unable to create a directory on this path: %s', $fileFullPath),
+                        'Either create that directory with the right permissions so that GNU social can use it or '.
+                        'set the necessary permissions and it will be created.'
+                    );
                     $pass = $pass && mkdir($fileFullPath);
                 } elseif (!is_dir($fileFullPath)) {
                     $this->warning(
