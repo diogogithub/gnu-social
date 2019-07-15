@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'HTMLPurifier' => array($vendorDir . '/ezyang/htmlpurifier/library'),
+    'Console' => array($vendorDir . '/pear/console_getopt'),
 );

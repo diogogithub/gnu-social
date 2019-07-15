@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     $vendorDir . '/openid/php-openid',
+    $vendorDir . '/pear/console_getopt',
 );

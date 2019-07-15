@@ -16,14 +16,14 @@ Options:
 
 ENDOFHELP;
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
+define('INSTALLDIR', dirname(__DIR__));
 set_include_path(INSTALLDIR . DIRECTORY_SEPARATOR . 'extlib' . PATH_SEPARATOR . get_include_path());
 
 $pattern = "*.php *.inc";
 $exclude = 'config.php */extlib/* */local/* */plugins/* */scripts/*';
 $plugin = false;
 
-require_once 'Console/Getopt.php';
+require_once INSTALLDIR . '/vendor/autoload.php';
 $parser = new Console_Getopt();
 $result = $parser->getopt($_SERVER['argv'], $shortoptions, $longoptions);
 if (PEAR::isError($result)) {

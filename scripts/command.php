@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
+define('INSTALLDIR', realpath(__DIR__ . '/..'));
 
 $shortoptions = 'i:n:o';
 $longoptions = array('id=', 'nickname=', 'owner');
@@ -33,7 +33,7 @@ Perform commands on behalf of a user, such as sub, unsub, join, drop
 
 END_OF_USERROLE_HELP;
 
-require_once INSTALLDIR.'/scripts/commandline.inc';
+require_once INSTALLDIR . '/scripts/commandline.inc';
 
 function interpretCommand($user, $body)
 {

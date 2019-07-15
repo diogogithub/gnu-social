@@ -7,6 +7,9 @@ plugin_mo = $(patsubst %.po,%.mo,$(wildcard plugins/*/locale/*/LC_MESSAGES/*.po)
 
 translations : $(core_mo) $(plugin_mo)
 
+upgrade :
+	php scripts/upgrade.php
+
 clean :
 	rm -f $(core_mo) $(plugin_mo)
 

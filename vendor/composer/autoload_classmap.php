@@ -145,6 +145,7 @@ return array(
     'CAS_Request_MultiRequestInterface' => $vendorDir . '/apereo/phpcas/source/CAS/Request/MultiRequestInterface.php',
     'CAS_Request_RequestInterface' => $vendorDir . '/apereo/phpcas/source/CAS/Request/RequestInterface.php',
     'CAS_TypeMismatchException' => $vendorDir . '/apereo/phpcas/source/CAS/TypeMismatchException.php',
+    'Console_Getopt' => $vendorDir . '/pear/console_getopt/Console/Getopt.php',
     'HTMLPurifier' => $vendorDir . '/ezyang/htmlpurifier/library/HTMLPurifier.php',
     'HTMLPurifier_Arborize' => $vendorDir . '/ezyang/htmlpurifier/library/HTMLPurifier/Arborize.php',
     'HTMLPurifier_AttrCollections' => $vendorDir . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrCollections.php',

@@ -91,6 +91,13 @@ class ComposerStaticInit444c3f31864f68a3f466e2c19837e185
                 0 => __DIR__ . '/..' . '/ezyang/htmlpurifier/library',
             ),
         ),
+        'C' => 
+        array (
+            'Console' => 
+            array (
+                0 => __DIR__ . '/..' . '/pear/console_getopt',
+            ),
+        ),
     );
 
     public static $classMap = array (
@@ -233,6 +240,7 @@ class ComposerStaticInit444c3f31864f68a3f466e2c19837e185
         'CAS_Request_MultiRequestInterface' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Request/MultiRequestInterface.php',
         'CAS_Request_RequestInterface' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/Request/RequestInterface.php',
         'CAS_TypeMismatchException' => __DIR__ . '/..' . '/apereo/phpcas/source/CAS/TypeMismatchException.php',
+        'Console_Getopt' => __DIR__ . '/..' . '/pear/console_getopt/Console/Getopt.php',
         'HTMLPurifier' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.php',
         'HTMLPurifier_Arborize' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Arborize.php',
         'HTMLPurifier_AttrCollections' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrCollections.php',

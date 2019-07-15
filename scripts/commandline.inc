@@ -39,13 +39,11 @@ set_time_limit(0);
 mb_internal_encoding('UTF-8');
 error_reporting(E_ALL & ~E_STRICT & ~E_DEPRECATED);
 
-// Add extlib to our path so we can get Console_Getopt
-
-$_extra_path = array(INSTALLDIR.'/extlib/');
-
+// Autoload composer dependencies
+require_once INSTALLDIR . '/vendor/autoload.php';
+// Add extlib to our path
+$_extra_path = [INSTALLDIR.'/extlib/'];
 set_include_path(implode(PATH_SEPARATOR, $_extra_path) . PATH_SEPARATOR . get_include_path());
-
-require_once 'Console/Getopt.php';
 
 // Note: $shortoptions and $longoptions should be pre-defined!
 
