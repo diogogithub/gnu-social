@@ -205,6 +205,8 @@ class AttachmentAction extends ManagedAction
      * Include $filepath in the response, for viewing and downloading.
      * If provided, $filesize is used to size the HTTP request,
      * otherwise it's value is calculated
+     * @param string $filepath the absolute path to the file to send
+     * @param $filesize optional, calculated if unkown
      */
     static function sendFile(string $filepath, $filesize) {
         if (is_string(common_config('site', 'x-static-delivery'))) {

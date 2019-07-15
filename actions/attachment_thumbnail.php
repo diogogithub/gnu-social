@@ -53,6 +53,12 @@ class Attachment_thumbnailAction extends AttachmentAction
         $this->thumb_c = $this->boolean('c');
     }
 
+    /**
+     * Show an inline representation of an attachment of the size
+     * requested in the GET variables (read in the constructor). Tries
+     * to send the most appropriate file with the correct size and
+     * headers or displays an error if it's not possible.
+     */
     public function showPage()
     {
 

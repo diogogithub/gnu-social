@@ -21,7 +21,7 @@ class Attachment_downloadAction extends AttachmentAction
         $mimetype = $this->attachment->getFileOrThumbnailMimetype();
 
         if (empty($filepath)) {
-            $thiis->clientError(_('No such attachment'), 404);
+            $this->clientError(_('No such attachment'), 404);
         }
 
         $filename = MediaFile::getDisplayName($this->attachment);
