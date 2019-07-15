@@ -1,76 +1,88 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009-2010, StatusNet, Inc.
+ * Installation lib
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category Installation
- * @package  Installation
- *
- * @author   Adrian Lang <mail@adrianlang.de>
- * @author   Brenda Wallace <shiny@cpan.org>
- * @author   Brett Taylor <brett@webfroot.co.nz>
- * @author   Brion Vibber <brion@pobox.com>
- * @author   CiaranG <ciaran@ciarang.com>
- * @author   Craig Andrews <candrews@integralblue.com>
- * @author   Eric Helgeson <helfire@Erics-MBP.local>
- * @author   Evan Prodromou <evan@status.net>
- * @author   Mikael Nordfeldth <mmn@hethane.se>
- * @author   Robin Millette <millette@controlyourself.ca>
- * @author   Sarven Capadisli <csarven@status.net>
- * @author   Tom Adams <tom@holizz.com>
- * @author   Zach Copley <zach@status.net>
- * @copyright 2009-2010 StatusNet, Inc http://status.net
- * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
- * @license  GNU Affero General Public License http://www.gnu.org/licenses/
- * @version  1.0.x
- * @link     http://status.net
+ * @package   Installation
+ * @author    Adrian Lang <mail@adrianlang.de>
+ * @author    Brenda Wallace <shiny@cpan.org>
+ * @author    Brett Taylor <brett@webfroot.co.nz>
+ * @author    Brion Vibber <brion@pobox.com>
+ * @author    CiaranG <ciaran@ciarang.com>
+ * @author    Craig Andrews <candrews@integralblue.com>
+ * @author    Eric Helgeson <helfire@Erics-MBP.local>
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Robin Millette <millette@controlyourself.ca>
+ * @author    Sarven Capadisli <csarven@status.net>
+ * @author    Tom Adams <tom@holizz.com>
+ * @author    Zach Copley <zach@status.net>
+ * @author    Diogo Cordeiro <diogo@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 abstract class Installer
 {
     /** Web site info */
-    public $sitename, $server, $path, $fancy, $siteProfile, $ssl;
+    public $sitename;
+    public $server;
+    public $path;
+    public $fancy;
+    public $siteProfile;
+    public $ssl;
     /** DB info */
-    public $host, $database, $dbtype, $username, $password, $db;
+    public $host;
+    public $database;
+    public $dbtype;
+    public $username;
+    public $password;
+    public $db;
     /** Storage info */
-    public $avatarDir, $fileDir;
+    public $avatarDir;
+    public $fileDir;
     /** Administrator info */
-    public $adminNick, $adminPass, $adminEmail;
+    public $adminNick;
+    public $adminPass;
+    public $adminEmail;
     /** Should we skip writing the configuration file? */
     public $skipConfig = false;
 
-    public static $dbModules = array(
-        'mysql' => array(
+    public static $dbModules = [
+        'mysql' => [
             'name' => 'MariaDB 10.3+',
             'check_module' => 'mysqli',
             'scheme' => 'mysqli', // DSN prefix for PEAR::DB
-        ),
-/*        'pgsql' => array(
+        ],
+        /*'pgsql' => [
             'name' => 'PostgreSQL',
             'check_module' => 'pgsql',
             'scheme' => 'pgsql', // DSN prefix for PEAR::DB
-        ),*/
-    );
+        ]*/
+    ];
 
     /**
      * Attempt to include a PHP file and report if it worked, while
      * suppressing the annoying warning messages on failure.
+     * @param string $filename
+     * @return bool
      */
-    private function haveIncludeFile($filename) {
+    private function haveIncludeFile(string $filename): bool
+    {
         $old = error_reporting(error_reporting() & ~E_WARNING);
         $ok = include_once($filename);
         error_reporting($old);
@@ -80,13 +92,13 @@ abstract class Installer
     /**
      * Check if all is ready for installation
      *
-     * @return void
+     * @return bool
      */
-    function checkPrereqs()
+    public function checkPrereqs(): bool
     {
         $pass = true;
 
-        $config = INSTALLDIR.'/config.php';
+        $config = INSTALLDIR . '/config.php';
         if (!$this->skipConfig && file_exists($config)) {
             if (!is_writable($config) || filesize($config) > 0) {
                 if (filesize($config) == 0) {
@@ -103,20 +115,19 @@ abstract class Installer
             $pass = false;
         }
 
-        $reqs = array('gd', 'curl', 'intl', 'json',
-                      'xmlwriter', 'mbstring', 'xml', 'dom', 'simplexml');
-
+        $reqs = ['bcmath', 'curl', 'dom', 'gd', 'intl', 'json', 'mbstring', 'openssl', 'simplexml', 'xml', 'xmlwriter'];
         foreach ($reqs as $req) {
-            if (!$this->checkExtension($req)) {
+            // Checks if a php extension is both installed and loaded
+            if (!extension_loaded($req)) {
                 $this->warning(sprintf('Cannot load required extension: <code>%s</code>', $req));
                 $pass = false;
             }
         }
 
         // Make sure we have at least one database module available
-        $missingExtensions = array();
+        $missingExtensions = [];
         foreach (self::$dbModules as $type => $info) {
-            if (!$this->checkExtension($info['check_module'])) {
+            if (!extension_loaded($info['check_module'])) {
                 $missingExtensions[] = $info['check_module'];
             }
         }
@@ -129,8 +140,10 @@ abstract class Installer
 
         // @fixme this check seems to be insufficient with Windows ACLs
         if (!$this->skipConfig && !is_writable(INSTALLDIR)) {
-            $this->warning(sprintf('Cannot write config file to: <code>%s</code></p>', INSTALLDIR),
-                           sprintf('On your server, try this command: <code>chmod a+w %s</code>', INSTALLDIR));
+            $this->warning(
+                sprintf('Cannot write config file to: <code>%s</code></p>', INSTALLDIR),
+                sprintf('On your server, try this command: <code>chmod a+w %s</code>', INSTALLDIR)
+            );
             $pass = false;
         }
 
@@ -140,22 +153,29 @@ abstract class Installer
             define('GNUSOCIAL', true);
             define('STATUSNET', true);
             require_once INSTALLDIR . '/lib/language.php';
-            $_server=$this->server; $_path=$this->path; // We won't be using those so it's safe to do this small hack
-            require_once INSTALLDIR.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'util.php';
-            require_once INSTALLDIR.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'default.php';
-            $fileSubdirs = [empty($this->avatarDir) ? $default['avatar']['dir'] : $this->avatarDir,
-                            empty($this->fileDir)   ? $default['attachments']['dir'] : $this->fileDir];
+            $_server = $this->server;
+            $_path = $this->path; // We won't be using those so it's safe to do this small hack
+            require_once INSTALLDIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'util.php';
+            require_once INSTALLDIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'default.php';
+            $fileSubdirs = [
+                empty($this->avatarDir) ? $default['avatar']['dir'] : $this->avatarDir,
+                empty($this->fileDir) ? $default['attachments']['dir'] : $this->fileDir
+            ];
             unset($default);
             foreach ($fileSubdirs as $fileFullPath) {
                 if (!file_exists($fileFullPath)) {
                     $pass = $pass && mkdir($fileFullPath);
                 } elseif (!is_dir($fileFullPath)) {
-                    $this->warning(sprintf('GNU social expected a directory but found something else on this path: %s', $fileFullPath),
-                                   'Either make sure it goes to a directory or remove it and a directory will be created.');
+                    $this->warning(
+                        sprintf('GNU social expected a directory but found something else on this path: %s', $fileFullPath),
+                        'Either make sure it goes to a directory or remove it and a directory will be created.'
+                    );
                     $pass = false;
                 } elseif (!is_writable($fileFullPath)) {
-                    $this->warning(sprintf('Cannot write to %s directory: <code>%s</code>', $fileSubdir, $fileFullPath),
-                                   sprintf('On your server, try this command: <code>chmod a+w %s</code>', $fileFullPath));
+                    $this->warning(
+                        sprintf('Cannot write to directory: <code>%s</code>', $fileFullPath),
+                        sprintf('On your server, try this command: <code>chmod a+w %s</code>', $fileFullPath)
+                    );
                     $pass = false;
                 }
             }
@@ -164,36 +184,12 @@ abstract class Installer
     }
 
     /**
-     * Checks if a php extension is both installed and loaded
-     *
-     * @param string $name of extension to check
-     *
-     * @return boolean whether extension is installed and loaded
-     */
-    function checkExtension($name)
-    {
-        if (extension_loaded($name)) {
-            return true;
-        } elseif (function_exists('dl') && ini_get('enable_dl') && !ini_get('safe_mode')) {
-            // dl will throw a fatal error if it's disabled or we're in safe mode.
-            // More fun, it may not even exist under some SAPIs in 5.3.0 or later...
-            $soname = $name . '.' . PHP_SHLIB_SUFFIX;
-            if (PHP_SHLIB_SUFFIX == 'dll') {
-                $soname = "php_" . $soname;
-            }
-            return @dl($soname);
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Basic validation on the database paramters
+     * Basic validation on the database parameters
      * Side effects: error output if not valid
      *
-     * @return boolean success
+     * @return bool success
      */
-    function validateDb()
+    public function validateDb(): bool
     {
         $fail = false;
 
@@ -221,12 +217,12 @@ abstract class Installer
     }
 
     /**
-     * Basic validation on the administrator user paramters
+     * Basic validation on the administrator user parameters
      * Side effects: error output if not valid
      *
-     * @return boolean success
+     * @return bool success
      */
-    function validateAdmin()
+    public function validateAdmin(): bool
     {
         $fail = false;
 
@@ -236,15 +232,16 @@ abstract class Installer
         }
         if ($this->adminNick && !preg_match('/^[0-9a-z]{1,64}$/', $this->adminNick)) {
             $this->updateStatus('The user nickname "' . htmlspecialchars($this->adminNick) .
-                         '" is invalid; should be plain letters and numbers no longer than 64 characters.', true);
+                '" is invalid; should be plain letters and numbers no longer than 64 characters.', true);
             $fail = true;
         }
+
         // @fixme hardcoded list; should use Nickname::isValid()
         // if/when it's safe to have loaded the infrastructure here
-        $blacklist = array('main', 'panel', 'twitter', 'settings', 'rsd.xml', 'favorited', 'featured', 'favoritedrss', 'featuredrss', 'rss', 'getfile', 'api', 'groups', 'group', 'peopletag', 'tag', 'user', 'message', 'conversation', 'notice', 'attachment', 'search', 'index.php', 'doc', 'opensearch', 'robots.txt', 'xd_receiver.html', 'facebook', 'activity');
+        $blacklist = ['main', 'panel', 'twitter', 'settings', 'rsd.xml', 'favorited', 'featured', 'favoritedrss', 'featuredrss', 'rss', 'getfile', 'api', 'groups', 'group', 'peopletag', 'tag', 'user', 'message', 'conversation', 'notice', 'attachment', 'search', 'index.php', 'doc', 'opensearch', 'robots.txt', 'xd_receiver.html', 'facebook', 'activity'];
         if (in_array($this->adminNick, $blacklist)) {
             $this->updateStatus('The user nickname "' . htmlspecialchars($this->adminNick) .
-                         '" is reserved.', true);
+                '" is reserved.', true);
             $fail = true;
         }
 
@@ -259,11 +256,11 @@ abstract class Installer
     /**
      * Make sure a site profile was selected
      *
-     * @return type boolean success
+     * @return bool success
      */
-    function validateSiteProfile()
+    public function validateSiteProfile(): bool
     {
-        if (empty($this->siteProfile))  {
+        if (empty($this->siteProfile)) {
             $this->updateStatus("No site profile selected.", true);
             return false;
         }
@@ -277,8 +274,9 @@ abstract class Installer
      *
      * @fixme escape things in the connection string in case we have a funny pass etc
      * @return mixed array of database connection params on success, false on failure
+     * @throws Exception
      */
-    function setupDatabase()
+    public function setupDatabase()
     {
         if ($this->db) {
             throw new Exception("Bad order of operations: DB already set up.");
@@ -302,15 +300,17 @@ abstract class Installer
         }
 
         // ensure database encoding is UTF8
+        $conn->query('SET NAMES utf8mb4');
         if ($this->dbtype == 'mysql') {
-            // @fixme utf8m4 support for mysql 5.5?
-            // Force the comms charset to utf8 for sanity
-            // This doesn't currently work. :P
-            //$conn->executes('set names utf8');
-        } else if ($this->dbtype == 'pgsql') {
-            $record = $conn->getRow('SHOW server_encoding');
-            if ($record->server_encoding != 'UTF8') {
-                $this->updateStatus("GNU social requires UTF8 character encoding. Your database is ". htmlentities($record->server_encoding));
+            $server_encoding = $conn->getRow("SHOW VARIABLES LIKE 'character_set_server'")[1];
+            if ($server_encoding != 'utf8mb4') {
+                $this->updateStatus("GNU social requires UTF8 character encoding. Your database is " . htmlentities($server_encoding));
+                return false;
+            }
+        } elseif ($this->dbtype == 'pgsql') {
+            $server_encoding = $conn->getRow('SHOW server_encoding')[0];
+            if ($server_encoding != 'UTF8') {
+                $this->updateStatus("GNU social requires UTF8 character encoding. Your database is " . htmlentities($server_encoding));
                 return false;
             }
         }
@@ -321,29 +321,29 @@ abstract class Installer
             return false;
         }
 
-        foreach (array('sms_carrier' => 'SMS carrier',
-                    'notice_source' => 'notice source',
-                    'foreign_services' => 'foreign service')
-              as $scr => $name) {
+        foreach (['sms_carrier' => 'SMS carrier',
+                     'notice_source' => 'notice source',
+                     'foreign_services' => 'foreign service']
+                 as $scr => $name) {
             $this->updateStatus(sprintf("Adding %s data to database...", $name));
-            $res = $this->runDbScript($scr.'.sql', $conn);
+            $res = $this->runDbScript($scr . '.sql', $conn);
             if ($res === false) {
                 $this->updateStatus(sprintf("Can't run %s script.", $name), true);
                 return false;
             }
         }
 
-        $db = array('type' => $this->dbtype, 'database' => $dsn);
+        $db = ['type' => $this->dbtype, 'database' => $dsn];
         return $db;
     }
 
     /**
      * Open a connection to the database.
      *
-     * @param <type> $dsn
-     * @return <type>
+     * @param string $dsn
+     * @return DB|DB_Error
      */
-    function connectDatabase($dsn)
+    public function connectDatabase(string $dsn)
     {
         global $_DB;
         return $_DB->connect($dsn);
@@ -353,8 +353,9 @@ abstract class Installer
      * Create core tables on the given database connection.
      *
      * @param DB_common $conn
+     * @return bool
      */
-    function createCoreTables(DB_common $conn)
+    public function createCoreTables(DB_common $conn): bool
     {
         $schema = Schema::get($conn);
         $tableDefs = $this->getCoreSchema();
@@ -372,9 +373,9 @@ abstract class Installer
      *
      * @return array of table names => table def arrays
      */
-    function getCoreSchema()
+    public function getCoreSchema(): array
     {
-        $schema = array();
+        $schema = [];
         include INSTALLDIR . '/db/core.php';
         return $schema;
     }
@@ -386,7 +387,7 @@ abstract class Installer
      * @param mixed $val
      * @return string
      */
-    function phpVal($val)
+    public function phpVal($val): string
     {
         return var_export($val, true);
     }
@@ -395,63 +396,63 @@ abstract class Installer
      * Return an array of parseable PHP literal for the given values.
      * These will include quotes for strings, etc.
      *
-     * @param mixed $val
+     * @param mixed $map
      * @return array
      */
-    function phpVals($map)
+    public function phpVals($map): array
     {
-        return array_map(array($this, 'phpVal'), $map);
+        return array_map([$this, 'phpVal'], $map);
     }
 
     /**
      * Write a stock configuration file.
      *
-     * @return boolean success
+     * @return bool success
      *
      * @fixme escape variables in output in case we have funny chars, apostrophes etc
      */
-    function writeConf()
+    public function writeConf(): bool
     {
-        $vals = $this->phpVals(array(
+        $vals = $this->phpVals([
             'sitename' => $this->sitename,
             'server' => $this->server,
             'path' => $this->path,
-            'ssl' => in_array($this->ssl, array('never', 'always'))
-                     ? $this->ssl
-                     : 'never',
+            'ssl' => in_array($this->ssl, ['never', 'always'])
+                ? $this->ssl
+                : 'never',
             'db_database' => $this->db['database'],
             'db_type' => $this->db['type']
-        ));
+        ]);
 
         // assemble configuration file in a string
-        $cfg =  "<?php\n".
-                "if (!defined('GNUSOCIAL')) { exit(1); }\n\n".
+        $cfg = "<?php\n" .
+            "if (!defined('GNUSOCIAL')) { exit(1); }\n\n" .
 
-                // site name
-                "\$config['site']['name'] = {$vals['sitename']};\n\n".
+            // site name
+            "\$config['site']['name'] = {$vals['sitename']};\n\n" .
 
-                // site location
-                "\$config['site']['server'] = {$vals['server']};\n".
-                "\$config['site']['path'] = {$vals['path']}; \n\n".
-                "\$config['site']['ssl'] = {$vals['ssl']}; \n\n".
+            // site location
+            "\$config['site']['server'] = {$vals['server']};\n" .
+            "\$config['site']['path'] = {$vals['path']}; \n\n" .
+            "\$config['site']['ssl'] = {$vals['ssl']}; \n\n" .
 
-                // checks if fancy URLs are enabled
-                ($this->fancy ? "\$config['site']['fancy'] = true;\n\n":'').
+            // checks if fancy URLs are enabled
+            ($this->fancy ? "\$config['site']['fancy'] = true;\n\n" : '') .
 
-                // database
-                "\$config['db']['database'] = {$vals['db_database']};\n\n".
-                ($this->db['type'] == 'pgsql' ? "\$config['db']['quote_identifiers'] = true;\n\n":'').
-                "\$config['db']['type'] = {$vals['db_type']};\n\n".
+            // database
+            "\$config['db']['database'] = {$vals['db_database']};\n\n" .
+            ($this->db['type'] == 'pgsql' ? "\$config['db']['quote_identifiers'] = true;\n\n" : '') .
+            "\$config['db']['type'] = {$vals['db_type']};\n\n" .
 
-                "// Uncomment below for better performance. Just remember you must run\n".
-                "// php scripts/checkschema.php whenever your enabled plugins change!\n".
-                "//\$config['db']['schemacheck'] = 'script';\n\n";
+            "// Uncomment below for better performance. Just remember you must run\n" .
+            "// php scripts/checkschema.php whenever your enabled plugins change!\n" .
+            "//\$config['db']['schemacheck'] = 'script';\n\n";
 
         // Normalize line endings for Windows servers
         $cfg = str_replace("\n", PHP_EOL, $cfg);
 
         // write configuration file out to install directory
-        $res = file_put_contents(INSTALLDIR.'/config.php', $cfg);
+        $res = file_put_contents(INSTALLDIR . '/config.php', $cfg);
 
         return $res;
     }
@@ -465,16 +466,16 @@ abstract class Installer
      *
      * @return int res number of bytes written
      */
-    function writeSiteProfile()
+    public function writeSiteProfile(): int
     {
-        $vals = $this->phpVals(array(
+        $vals = $this->phpVals([
             'site_profile' => $this->siteProfile,
             'nickname' => $this->adminNick
-        ));
+        ]);
 
         $cfg =
-        // site profile
-        "\$config['site']['profile'] = {$vals['site_profile']};\n";
+            // site profile
+            "\$config['site']['profile'] = {$vals['site_profile']};\n";
 
         if ($this->siteProfile == "singleuser") {
             $cfg .= "\$config['singleuser']['nickname'] = {$vals['nickname']};\n\n";
@@ -486,7 +487,7 @@ abstract class Installer
         $cfg = str_replace("\n", PHP_EOL, $cfg);
 
         // write configuration file out to install directory
-        $res = file_put_contents(INSTALLDIR.'/config.php', $cfg, FILE_APPEND);
+        $res = file_put_contents(INSTALLDIR . '/config.php', $cfg, FILE_APPEND);
 
         return $res;
     }
@@ -494,12 +495,12 @@ abstract class Installer
     /**
      * Install schema into the database
      *
-     * @param string    $filename location of database schema file
-     * @param DB_common $conn     connection to database
+     * @param string $filename location of database schema file
+     * @param DB_common $conn connection to database
      *
-     * @return boolean - indicating success or failure
+     * @return bool - indicating success or failure
      */
-    function runDbScript($filename, DB_common $conn)
+    public function runDbScript(string $filename, DB_common $conn): bool
     {
         $sql = trim(file_get_contents(INSTALLDIR . '/db/' . $filename));
         $stmts = explode(';', $sql);
@@ -509,7 +510,7 @@ abstract class Installer
                 continue;
             }
             try {
-                $res = $conn->simpleQuery($stmt);
+                $res = $conn->query($stmt);
             } catch (Exception $e) {
                 $error = $e->getMessage();
                 $this->updateStatus("ERROR ($error) for SQL '$stmt'");
@@ -524,16 +525,16 @@ abstract class Installer
      * Side effect: may load portions of GNU social framework.
      * Side effect: outputs program info
      */
-    function registerInitialUser()
+    public function registerInitialUser(): bool
     {
         // initalize hostname from install arguments, so it can be used to find
         // the /etc config file from the commandline installer
         $server = $this->server;
         require_once INSTALLDIR . '/lib/common.php';
 
-        $data = array('nickname' => $this->adminNick,
-                      'password' => $this->adminPass,
-                      'fullname' => $this->adminNick);
+        $data = ['nickname' => $this->adminNick,
+            'password' => $this->adminPass,
+            'fullname' => $this->adminNick];
         if ($this->adminEmail) {
             $data['email'] = $this->adminEmail;
         }
@@ -558,9 +559,9 @@ abstract class Installer
      *
      * Prerequisites: validation of input data.
      *
-     * @return boolean success
+     * @return bool success
      */
-    function doInstall()
+    public function doInstall(): bool
     {
         global $config;
 
@@ -595,8 +596,8 @@ abstract class Installer
         }
 
         if (!$this->skipConfig) {
-        // Make sure we can write to the file twice
-        $oldUmask = umask(000); 
+            // Make sure we can write to the file twice
+            $oldUmask = umask(000);
 
             $this->updateStatus("Writing config file...");
             $res = $this->writeConf();
@@ -631,18 +632,18 @@ abstract class Installer
                 return false;
             }
 
-        // Restore original umask
-        umask($oldUmask);
-        // Set permissions back to something decent
-        chmod(INSTALLDIR.'/config.php', 0644);
+            // Restore original umask
+            umask($oldUmask);
+            // Set permissions back to something decent
+            chmod(INSTALLDIR . '/config.php', 0644);
         }
-        
+
         $scheme = $this->ssl === 'always' ? 'https' : 'http';
         $link = "{$scheme}://{$this->server}/{$this->path}";
 
         $this->updateStatus("GNU social has been installed at $link");
         $this->updateStatus(
-            '<strong>DONE!</strong> You can visit your <a href="'.htmlspecialchars($link).'">new GNU social site</a> (log in as "'.htmlspecialchars($this->adminNick).'"). If this is your first GNU social install, make your experience the best possible by visiting our resource site to join the <a href="https://gnu.io/social/resources/">mailing list or IRC</a>. <a href="'.htmlspecialchars($link).'/doc/faq">FAQ is found here</a>.'
+            '<strong>DONE!</strong> You can visit your <a href="' . htmlspecialchars($link) . '">new GNU social site</a> (log in as "' . htmlspecialchars($this->adminNick) . '"). If this is your first GNU social install, make your experience the best possible by visiting our resource site to join the <a href="https://gnu.io/social/resources/">mailing list or IRC</a>. <a href="' . htmlspecialchars($link) . '/doc/faq">FAQ is found here</a>.'
         );
 
         return true;
@@ -653,13 +654,12 @@ abstract class Installer
      * @param string $message HTML ok, but should be plaintext-able
      * @param string $submessage HTML ok, but should be plaintext-able
      */
-    abstract function warning($message, $submessage='');
+    abstract public function warning(string $message, string $submessage = '');
 
     /**
      * Output an install-time progress message
-     * @param string $message HTML ok, but should be plaintext-able
-     * @param boolean $error true if this should be marked as an error condition
+     * @param string $status HTML ok, but should be plaintext-able
+     * @param bool $error true if this should be marked as an error condition
      */
-    abstract function updateStatus($status, $error=false);
-
+    abstract public function updateStatus(string $status, bool $error = false);
 }

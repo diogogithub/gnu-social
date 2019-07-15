@@ -1,57 +1,56 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009-2010, StatusNet, Inc.
+ * Web Installer
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category Installation
- * @package  Installation
- *
- * @author   Adrian Lang <mail@adrianlang.de>
- * @author   Brenda Wallace <shiny@cpan.org>
- * @author   Brett Taylor <brett@webfroot.co.nz>
- * @author   Brion Vibber <brion@pobox.com>
- * @author   CiaranG <ciaran@ciarang.com>
- * @author   Craig Andrews <candrews@integralblue.com>
- * @author   Eric Helgeson <helfire@Erics-MBP.local>
- * @author   Evan Prodromou <evan@status.net>
- * @author   Mikael Nordfeldth <mmn@hethane.se>
- * @author   Robin Millette <millette@controlyourself.ca>
- * @author   Sarven Capadisli <csarven@status.net>
- * @author   Tom Adams <tom@holizz.com>
- * @author   Zach Copley <zach@status.net>
- * @copyright 2009 Free Software Foundation, Inc http://www.fsf.org
- * @license  GNU Affero General Public License http://www.gnu.org/licenses/
- * @version  0.9.x
- * @link     http://status.net
+ * @package   Installation
+ * @author    Adrian Lang <mail@adrianlang.de>
+ * @author    Brenda Wallace <shiny@cpan.org>
+ * @author    Brett Taylor <brett@webfroot.co.nz>
+ * @author    Brion Vibber <brion@pobox.com>
+ * @author    CiaranG <ciaran@ciarang.com>
+ * @author    Craig Andrews <candrews@integralblue.com>
+ * @author    Eric Helgeson <helfire@Erics-MBP.local>
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Robin Millette <millette@controlyourself.ca>
+ * @author    Sarven Capadisli <csarven@status.net>
+ * @author    Tom Adams <tom@holizz.com>
+ * @author    Zach Copley <zach@status.net>
+ * @author    Diogo Cordeiro <diogo@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-define('INSTALLDIR', __DIR__);
+define('INSTALLDIR', dirname(__DIR__));
 
-require dirname(INSTALLDIR) . '/lib/installer.php';
+require INSTALLDIR . '/lib/installer.php';
 
 /**
  * Helper class for building form
  */
-class Posted {
+class Posted
+{
     /**
      * HTML-friendly escaped string for the POST param of given name, or empty.
      * @param string $name
      * @return string
      */
-    function value($name)
+    public function value(string $name): string
     {
         return htmlspecialchars($this->string($name));
     }
@@ -63,7 +62,7 @@ class Posted {
      * @param string $name
      * @return string
      */
-    function string($name)
+    public function string(string $name): string
     {
         return strval($this->raw($name));
     }
@@ -76,7 +75,7 @@ class Posted {
      * @param string $name
      * @return mixed
      */
-    function raw($name)
+    public function raw(string $name)
     {
         if (isset($_POST[$name])) {
             return $this->dequote($_POST[$name]);
@@ -91,13 +90,13 @@ class Posted {
      * @param mixed $val
      * @return mixed
      */
-    function dequote($val)
+    public function dequote($val)
     {
         if (get_magic_quotes_gpc()) {
             if (is_string($val)) {
                 return stripslashes($val);
-            } else if (is_array($val)) {
-                return array_map(array($this, 'dequote'), $val);
+            } elseif (is_array($val)) {
+                return array_map([$this, 'dequote'], $val);
             }
         }
         return $val;
@@ -115,7 +114,7 @@ class WebInstaller extends Installer
      *
      * @return void
      */
-    function main()
+    public function main()
     {
         if (!$this->checkPrereqs()) {
             $this->warning(_('Please fix the above stated problems and refresh this page to continue installing.'));
@@ -131,8 +130,10 @@ class WebInstaller extends Installer
 
     /**
      * Web implementation of warning output
+     * @param string $message
+     * @param string $submessage
      */
-    function warning($message, $submessage='')
+    public function warning(string $message, string $submessage = '')
     {
         print "<p class=\"error\">$message</p>\n";
         if ($submessage != '') {
@@ -142,43 +143,48 @@ class WebInstaller extends Installer
 
     /**
      * Web implementation of status output
+     * @param string $status
+     * @param bool $error
      */
-    function updateStatus($status, $error=false)
+    public function updateStatus(string $status, bool $error = false)
     {
-        echo '<li' . ($error ? ' class="error"': '' ) . ">$status</li>";
+        echo '<li' . ($error ? ' class="error"' : '') . ">$status</li>";
     }
 
     /**
      * Show the web form!
      */
-    function showForm()
+    public function showForm()
     {
         global $dbModules;
         $post = new Posted();
         $dbRadios = '';
         $dbtype = $post->raw('dbtype');
         foreach (self::$dbModules as $type => $info) {
-            if ($this->checkExtension($info['check_module'])) {
+            if (extension_loaded($info['check_module'])) {
                 if ($dbtype == null || $dbtype == $type) {
                     $checked = 'checked="checked" ';
                     $dbtype = $type; // if we didn't have one checked, hit the first
                 } else {
                     $checked = '';
                 }
-                $dbRadios .= sprintf('<input type="radio" name="dbtype" id="dbtype-%1$s" value="%1$s" %2$s/>%3$s<br />',
-                                htmlspecialchars($type), $checked,
-                                htmlspecialchars($info['name']));
+                $dbRadios .= sprintf(
+                    '<input type="radio" name="dbtype" id="dbtype-%1$s" value="%1$s" %2$s/>%3$s<br>',
+                    htmlspecialchars($type),
+                    $checked,
+                    htmlspecialchars($info['name'])
+                );
             }
         }
 
-        $ssl = array('always'=>null, 'never'=>null);
+        $ssl = ['always' => null, 'never' => null];
         if (!empty($_SERVER['HTTPS'])) {
             $ssl['always'] = 'checked="checked"';
         } else {
             $ssl['never'] = 'checked="checked"';
         }
 
-        echo<<<E_O_T
+        echo <<<E_O_T
     <form method="post" action="install.php" class="form_settings" id="form_install">
         <fieldset>
             <fieldset id="settings_site">
@@ -186,19 +192,19 @@ class WebInstaller extends Installer
                 <ul class="form_data">
                     <li>
                         <label for="sitename">Site name</label>
-                        <input type="text" id="sitename" name="sitename" value="{$post->value('sitename')}" />
+                        <input type="text" id="sitename" name="sitename" value="{$post->value('sitename')}">
                         <p class="form_guide">The name of your site</p>
                     </li>
                     <li>
                         <label for="fancy-enable">Fancy URLs</label>
-                        <input type="radio" name="fancy" id="fancy-enable" value="enable" checked='checked' /> enable<br />
-                        <input type="radio" name="fancy" id="fancy-disable" value="" /> disable<br />
+                        <input type="radio" name="fancy" id="fancy-enable" value="enable" checked='checked'> enable<br>
+                        <input type="radio" name="fancy" id="fancy-disable" value=""> disable<br>
                         <p class="form_guide" id='fancy-form_guide'>Enable fancy (pretty) URLs. Auto-detection failed, it depends on Javascript.</p>
                     </li>
                     <li>
                         <label for="ssl">Server SSL</label>
-                        <input type="radio" name="ssl" id="ssl-always" value="always" {$ssl['always']} /> enable<br />
-                        <input type="radio" name="ssl" id="ssl-never" value="never" {$ssl['never']} /> disable<br />
+                        <input type="radio" name="ssl" id="ssl-always" value="always" {$ssl['always']}> enable<br>
+                        <input type="radio" name="ssl" id="ssl-never" value="never" {$ssl['never']}> disable<br>
                         <p class="form_guide" id="ssl-form_guide">Enabling SSL (https://) requires extra webserver configuration and certificate generation not offered by this installation.</p>
                     </li>
                 </ul>
@@ -209,7 +215,7 @@ class WebInstaller extends Installer
                 <ul class="form_data">
                     <li>
                         <label for="host">Hostname</label>
-                        <input type="text" id="host" name="host" value="{$post->value('host')}" />
+                        <input type="text" id="host" name="host" value="{$post->value('host')}">
                         <p class="form_guide">Database hostname</p>
                     </li>
                     <li>
@@ -219,17 +225,17 @@ class WebInstaller extends Installer
                     </li>
                     <li>
                         <label for="database">Name</label>
-                        <input type="text" id="database" name="database" value="{$post->value('database')}" />
+                        <input type="text" id="database" name="database" value="{$post->value('database')}">
                         <p class="form_guide">Database name</p>
                     </li>
                     <li>
                         <label for="dbusername">DB username</label>
-                        <input type="text" id="dbusername" name="dbusername" value="{$post->value('dbusername')}" />
+                        <input type="text" id="dbusername" name="dbusername" value="{$post->value('dbusername')}">
                         <p class="form_guide">Database username</p>
                     </li>
                     <li>
                         <label for="dbpassword">DB password</label>
-                        <input type="password" id="dbpassword" name="dbpassword" value="{$post->value('dbpassword')}" />
+                        <input type="password" id="dbpassword" name="dbpassword" value="{$post->value('dbpassword')}">
                         <p class="form_guide">Database password (optional)</p>
                     </li>
                 </ul>
@@ -240,21 +246,21 @@ class WebInstaller extends Installer
                 <ul class="form_data">
                     <li>
                         <label for="admin_nickname">Administrator nickname</label>
-                        <input type="text" id="admin_nickname" name="admin_nickname" value="{$post->value('admin_nickname')}" />
+                        <input type="text" id="admin_nickname" name="admin_nickname" value="{$post->value('admin_nickname')}">
                         <p class="form_guide">Nickname for the initial user (administrator)</p>
                     </li>
                     <li>
                         <label for="admin_password">Administrator password</label>
-                        <input type="password" id="admin_password" name="admin_password" value="{$post->value('admin_password')}" />
+                        <input type="password" id="admin_password" name="admin_password" value="{$post->value('admin_password')}">
                         <p class="form_guide">Password for the initial user (administrator)</p>
                     </li>
                     <li>
                         <label for="admin_password2">Confirm password</label>
-                        <input type="password" id="admin_password2" name="admin_password2" value="{$post->value('admin_password2')}" />
+                        <input type="password" id="admin_password2" name="admin_password2" value="{$post->value('admin_password2')}">
                     </li>
                     <li>
                         <label for="admin_email">Administrator e-mail</label>
-                        <input id="admin_email" name="admin_email" value="{$post->value('admin_email')}" />
+                        <input id="admin_email" name="admin_email" value="{$post->value('admin_email')}">
                         <p class="form_guide">Optional email address for the initial user (administrator)</p>
                     </li>
                 </ul>
@@ -274,7 +280,7 @@ class WebInstaller extends Installer
                     </li>
                 </ul>
             </fieldset>
-            <input type="submit" name="submit" class="submit" value="Submit" />
+            <input type="submit" name="submit" class="submit" value="Submit">
         </fieldset>
     </form>
 
@@ -285,7 +291,7 @@ E_O_T;
      * Handle a POST submission... if we have valid input, start the install!
      * Otherwise shows the form along with any error messages.
      */
-    function handlePost()
+    public function handlePost()
     {
         echo <<<STR
         <dl class="system_notice">
@@ -311,23 +317,23 @@ STR;
      * Read and validate input data.
      * May output side effects.
      *
-     * @return boolean success
+     * @return bool success
      */
-    function prepare()
+    public function prepare(): bool
     {
         $post = new Posted();
-        $this->host     = $post->string('host');
-        $this->dbtype   = $post->string('dbtype');
+        $this->host = $post->string('host');
+        $this->dbtype = $post->string('dbtype');
         $this->database = $post->string('database');
         $this->username = $post->string('dbusername');
         $this->password = $post->string('dbpassword');
         $this->sitename = $post->string('sitename');
-        $this->fancy    = (bool)$post->string('fancy');
+        $this->fancy = (bool)$post->string('fancy');
 
-        $this->adminNick    = strtolower($post->string('admin_nickname'));
-        $this->adminPass    = $post->string('admin_password');
-        $adminPass2         = $post->string('admin_password2');
-        $this->adminEmail   = $post->string('admin_email');
+        $this->adminNick = strtolower($post->string('admin_nickname'));
+        $this->adminPass = $post->string('admin_password');
+        $adminPass2 = $post->string('admin_password2');
+        $this->adminEmail = $post->string('admin_email');
 
         $this->siteProfile = $post->string('site_profile');
 
@@ -350,7 +356,7 @@ STR;
             $fail = true;
         }
 
-        if (!in_array($this->ssl, array('never', 'always'))) {
+        if (!in_array($this->ssl, ['never', 'always'])) {
             $this->updateStatus("Bad value for server SSL enabling.");
             $fail = true;
         }
@@ -361,57 +367,53 @@ STR;
 
         return !$fail;
     }
-
 }
 
 ?>
-<?php echo"<?"; ?> xml version="1.0" encoding="UTF-8" <?php echo "?>"; ?>
-<!DOCTYPE html
-PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en_US" lang="en_US">
-    <head>
-        <title>Install GNU social</title>
-        <link rel="shortcut icon" href="favicon.ico"/>
-        <link rel="stylesheet" type="text/css" href="theme/base/css/display.css" media="screen, projection, tv"/>
-        <link rel="stylesheet" type="text/css" href="theme/neo/css/display.css" media="screen, projection, tv"/>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        <script src="js/extlib/jquery.js"></script>
-        <script src="js/install.js"></script>
-    </head>
-    <body id="install">
-        <div id="wrap">
-            <div id="header">
-                <address id="site_contact" class="h-card">
-                    <a class="u-url p-name home bookmark org" href=".">
-                        <img class="logo u-photo" src="theme/neo/logo.png" alt="GNU social"/>
-                        GNU social
-                    </a>
-                </address>
-                <div id="site_nav_global_primary"></div>
-            </div>
-            <div id="core">
-             <div id="aside_primary_wrapper">
-              <div id="content_wrapper">
-               <div id="site_nav_local_views_wrapper">
-                <div id="site_nav_local_views"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Install GNU social</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" type="text/css" href="theme/base/css/display.css" media="screen, projection, tv">
+    <link rel="stylesheet" type="text/css" href="theme/neo/css/display.css" media="screen, projection, tv">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script src="js/extlib/jquery.js"></script>
+    <script src="js/install.js"></script>
+</head>
+<body id="install">
+<div id="wrap">
+    <div id="header">
+        <address id="site_contact" class="h-card">
+            <a class="u-url p-name home bookmark org" href=".">
+                <img class="logo u-photo" src="theme/neo/logo.png" alt="GNU social"/>
+                GNU social
+            </a>
+        </address>
+        <div id="site_nav_global_primary"></div>
+    </div>
+    <div id="core">
+        <div id="aside_primary_wrapper">
+            <div id="content_wrapper">
+                <div id="site_nav_local_views_wrapper">
+                    <div id="site_nav_local_views"></div>
 
-                <div id="content">
-                     <div id="content_inner">
-                        <h1>Install GNU social</h1>
-<?php
-$installer = new WebInstaller();
-$installer->main();
-?>
-                   </div>
+                    <div id="content">
+                        <div id="content_inner">
+                            <h1>Install GNU social</h1>
+                            <?php
+                            $installer = new WebInstaller();
+                            $installer->main();
+                            ?>
+                        </div>
+                    </div>
+
+                    <div id="aside_primary" class="aside"></div>
                 </div>
-
-                <div id="aside_primary" class="aside"></div>
-               </div>
-              </div>
-             </div>
             </div>
-            <div id="footer"></div>
         </div>
-    </body>
+    </div>
+    <div id="footer"></div>
+</div>
+</body>
 </html>
