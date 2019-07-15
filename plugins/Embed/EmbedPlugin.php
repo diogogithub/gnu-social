@@ -42,7 +42,7 @@ class EmbedPlugin extends Plugin
 {
     const PLUGIN_VERSION = '0.1.0';
 
-    // settings which can be set in config.php with addPlugin('Embed', array('param'=>'value', ...));
+    // settings which can be set in config.php with addPlugin('Embed', ['param'=>'value', ...]);
     // WARNING, these are _regexps_ (slashes added later). Always escape your dots and end ('$') your strings
 
     public $domain_whitelist = [
@@ -50,10 +50,10 @@ class EmbedPlugin extends Plugin
         '^i\d*\.ytimg\.com$' => 'YouTube',
         '^i\d*\.vimeocdn\.com$' => 'Vimeo',
     ];
-    public $append_whitelist = array();  // fill this array as domain_whitelist to add more trusted sources
+    public $append_whitelist = [];  // fill this array as domain_whitelist to add more trusted sources
     public $check_whitelist  = false;    // security/abuse precaution
 
-    protected $imgData = array();
+    protected $imgData = [];
 
     /**
      * Initialize the Embed plugin and set up the environment it needs for it.
@@ -113,7 +113,6 @@ class EmbedPlugin extends Plugin
      */
     public function onGetRemoteUrlMetadataFromDom($url, DOMDocument $dom, stdClass &$metadata)
     {
-
         try {
             common_log(LOG_INFO, "Trying to find Embed data for {$url} with 'oscarotero/Embed'");
             $info = Embed::create($url);
@@ -156,7 +155,7 @@ class EmbedPlugin extends Plugin
     {
         switch ($action->getActionName()) {
         case 'attachment':
-            $url = common_local_url('attachment', array('attachment' => $action->attachment->getID()));
+            $url = common_local_url('attachment', ['attachment' => $action->attachment->getID()]);
             break;
         case 'shownotice':
             if (!$action->notice->isLocal()) {
@@ -174,13 +173,17 @@ class EmbedPlugin extends Plugin
 
         if (isset($url)) {
             foreach (['xml', 'json'] as $format) {
-                $action->element('link',
-                                 ['rel'   =>'alternate',
+                $action->element(
+                    'link',
+                    ['rel'   =>'alternate',
                                   'type'  => "application/{$format}+oembed",
-                                  'href'  => common_local_url('oembed',
-                                                              [],
-                                                              ['format' => $format, 'url' => $url]),
-                                  'title' => 'oEmbed']);
+                                  'href'  => common_local_url(
+                                      'oembed',
+                                      [],
+                                      ['format' => $format, 'url' => $url]
+                                  ),
+                                  'title' => 'oEmbed']
+                );
             }
         }
         return true;
@@ -219,8 +222,11 @@ class EmbedPlugin extends Plugin
                 }
                 $file->setTitle($embed_data->title);
             } catch (Exception $e) {
-                common_log(LOG_WARNING, sprintf(__METHOD__.': %s thrown when getting embed data: %s',
-                                                get_class($e), _ve($e->getMessage())));
+                common_log(LOG_WARNING, sprintf(
+                    __METHOD__.': %s thrown when getting embed data: %s',
+                    get_class($e),
+                    _ve($e->getMessage())
+                ));
                 return true;
             }
 
@@ -235,7 +241,7 @@ class EmbedPlugin extends Plugin
         if (empty($embed->author_name) && empty($embed->provider)) {
             return true;
         }
-        $out->elementStart('div', array('id'=>'oembed_info', 'class'=>'e-content'));
+        $out->elementStart('div', ['id'=>'oembed_info', 'class'=>'e-content']);
         foreach (['author_name' => ['class' => ' author', 'url' => 'author_url'],
                   'provider'    => ['class' => '',        'url' => 'provider_url']]
                  as $field => $options) {
@@ -244,10 +250,11 @@ class EmbedPlugin extends Plugin
                 if (empty($embed->{$options['url']})) {
                     $out->text($embed->{$field});
                 } else {
-                    $out->element('a',
-                                  array('href' => $embed->{$options['url']},
-                                        'class' => 'url'),
-                                  $embed->{$field}
+                    $out->element(
+                        'a',
+                        ['href' => $embed->{$options['url']},
+                         'class' => 'url'],
+                        $embed->{$field}
                     );
                 }
             }
@@ -260,7 +267,7 @@ class EmbedPlugin extends Plugin
         // Never treat generic HTML links as an enclosure type!
         // But if we have embed info, we'll consider it golden.
         $embed = File_embed::getKV('file_id', $file->getID());
-        if (!$embed instanceof File_embed || !in_array($embed->type, array('photo', 'video'))) {
+        if (!$embed instanceof File_embed || !in_array($embed->type, ['photo', 'video'])) {
             return true;
         }
 
@@ -291,7 +298,7 @@ class EmbedPlugin extends Plugin
             $thumb = $file->getThumbnail(128, 128);
             $out->element('img', $thumb->getHtmlAttrs(['class'=>'u-photo embed']));
             unset($thumb);
-        } catch (FileNotFoundException $e){
+        } catch (FileNotFoundException $e) {
             // Nothing to show
         } catch (Exception $e) {
             $out->element('div', ['class'=>'error'], $e->getMessage());
@@ -405,8 +412,12 @@ class EmbedPlugin extends Plugin
         } catch (AlreadyFulfilledException $e) {
             // aw yiss!
         } catch (Exception $e) {
-            common_debug(sprintf('Embed encountered an exception (%s) for file id==%d: %s',
-                                 get_class($e), $file->getID(), _ve($e->getMessage())));
+            common_debug(sprintf(
+                'Embed encountered an exception (%s) for file id==%d: %s',
+                get_class($e),
+                $file->getID(),
+                _ve($e->getMessage())
+            ));
             throw $e;
         }
 
@@ -494,7 +505,8 @@ class EmbedPlugin extends Plugin
     {
         if (!empty($thumbnail->filename) && file_exists($thumbnail->getPath())) {
             throw new AlreadyFulfilledException(
-                sprintf('A thumbnail seems to already exist for remote file with id==%u', $thumbnail->file_id));
+                sprintf('A thumbnail seems to already exist for remote file with id==%u', $thumbnail->file_id)
+            );
         }
 
         $url = $thumbnail->getUrl();
@@ -522,8 +534,11 @@ class EmbedPlugin extends Plugin
 
         // First we download the file to memory and test whether it's actually an image file
         // FIXME: To support remote video/whatever files, this needs reworking.
-        common_debug(sprintf('Downloading remote thumbnail for file id==%u with thumbnail URL: %s',
-                             $thumbnail->file_id, $url));
+        common_debug(sprintf(
+            'Downloading remote thumbnail for file id==%u with thumbnail URL: %s',
+            $thumbnail->file_id,
+            $url
+        ));
         $imgData = HTTPClient::quickGet($url);
         $info = @getimagesizefromstring($imgData);
         if ($info === false) {
@@ -547,7 +562,9 @@ class EmbedPlugin extends Plugin
                 if (common_get_mime_media(MediaFile::getUploadedMimeType($fullpath)) !== 'image') {
                     @unlink($fullpath);
                     throw new UnsupportedMediaException(
-                        _('Remote file format was not identified as an image.'), $url);
+                        _('Remote file format was not identified as an image.'),
+                        $url
+                    );
                 }
             } else {
                 throw new AlreadyFulfilledException('A thumbnail seems to already exist for remote file with id==' .
@@ -588,13 +605,13 @@ class EmbedPlugin extends Plugin
      */
     public function onPluginVersion(array &$versions)
     {
-        $versions[] = array('name' => 'Embed',
-                            'version' => self::PLUGIN_VERSION,
-                            'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'http://gnu.io/social/',
-                            'description' =>
-                            // TRANS: Plugin description.
-                            _m('Plugin for using and representing oEmbed, OpenGraph and other data.'));
+        $versions[] = ['name' => 'Embed',
+                       'version' => self::PLUGIN_VERSION,
+                       'author' => 'Mikael Nordfeldth',
+                       'homepage' => 'http://gnu.io/social/',
+                       'description' =>
+                       // TRANS: Plugin description.
+                       _m('Plugin for using and representing oEmbed, OpenGraph and other data.')];
         return true;
     }
 }
