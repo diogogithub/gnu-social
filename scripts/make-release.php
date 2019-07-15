@@ -20,7 +20,8 @@
 
 // Abort if called from a web server
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
+define('INSTALLDIR', dirname(__DIR__));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 require_once INSTALLDIR.'/scripts/commandline.inc';
 

@@ -17,7 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
+define('INSTALLDIR', dirname(__DIR__));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'i:n:r:w:y';
 $longoptions = array('id=', 'nickname=', 'remote=', 'password=');

@@ -18,7 +18,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
+define('INSTALLDIR', dirname(__DIR__));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $helptext = <<<END_OF_CHECKSCHEMA_HELP
 Attempt to pull a schema definition for a given table.

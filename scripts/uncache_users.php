@@ -17,7 +17,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
+define('INSTALLDIR', dirname(__DIR__));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $helptext = <<<ENDOFHELP
 uncache_users.php <idfile>

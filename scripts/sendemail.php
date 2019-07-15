@@ -23,7 +23,8 @@
  * @link      https://www.gnu.org/software/social/
  */
 
-define('INSTALLDIR', realpath(dirname(__DIR__)));
+define('INSTALLDIR', dirname(__DIR__));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'i:n:a:';
 $longoptions = ['id=', 'nickname=', 'subject=', 'all='];

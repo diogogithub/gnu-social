@@ -1,7 +1,8 @@
 #!/usr/bin/env php
 <?php
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
+define('INSTALLDIR', dirname(__DIR__));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'e::ay';
 $longoptions = array('email=', 'all', 'yes');

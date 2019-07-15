@@ -17,6 +17,7 @@ Options:
 ENDOFHELP;
 
 define('INSTALLDIR', dirname(__DIR__));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 set_include_path(INSTALLDIR . DIRECTORY_SEPARATOR . 'extlib' . PATH_SEPARATOR . get_include_path());
 
 $pattern = "*.php *.inc";

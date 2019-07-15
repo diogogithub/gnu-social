@@ -20,7 +20,8 @@
 
 // Abort if called from a web server
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/..'));
+define('INSTALLDIR', dirname(__DIR__));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $helptext = <<<ENDOFHELP
 console.php - provide an interactive PHP interpreter for testing
