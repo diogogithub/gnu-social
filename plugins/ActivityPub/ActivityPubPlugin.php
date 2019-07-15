@@ -26,13 +26,9 @@
 
 defined('GNUSOCIAL') || die();
 
-// Ensure proper timezone
-date_default_timezone_set('GMT');
-
 // Import required files by the plugin
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'httpsignature.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'discoveryhints.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'AcceptHeader.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'explorer.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'postman.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'inbox_handler.php';
@@ -135,29 +131,32 @@ class ActivityPubPlugin extends Plugin
      */
     public function onRouterInitialized(URLMapper $m)
     {
-        if (ActivityPubURLMapperOverwrite::should()) {
-            ActivityPubURLMapperOverwrite::variable(
-                $m,
-                'user/:id',
-                ['id'     => '[0-9]+'],
-                'apActorProfile'
-            );
+        $acceptHeaders = [
+            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' => 0,
+            'application/activity+json' => 1,
+            'application/json' => 2,
+            'application/ld+json' => 3
+        ];
 
-            // Special route for webfinger purposes
-            ActivityPubURLMapperOverwrite::variable(
-                $m,
-                ':nickname',
-                ['nickname' => Nickname::DISPLAY_FMT],
-                'apActorProfile'
-            );
-        }
+        $m->connect('user/:id',
+                    ['action' => 'apActorProfile'],
+                    ['id'     => '[0-9]+'],
+                    $acceptHeaders);
 
-        // No .json here for convenience purposes on Notice grabber
-        $m->connect(
-            'note/:id',
-            ['action' => 'apNotice'],
-            ['id'     => '[0-9]+']
-        );
+        $m->connect(':nickname',
+                    ['action'   => 'apActorProfile'],
+                    ['nickname' => Nickname::DISPLAY_FMT],
+                    $acceptHeaders);
+
+        $m->connect(':nickname/',
+                    ['action'   => 'apActorProfile'],
+                    ['nickname' => Nickname::DISPLAY_FMT],
+                    $acceptHeaders);
+
+        $m->connect('notice/:id',
+                    ['action' => 'apNotice'],
+                    ['id'     => '[0-9]+'],
+                    $acceptHeaders);
 
         $m->connect(
             'user/:id/liked.json',
@@ -954,64 +953,5 @@ class ActivityPubReturn
         $res[] = Activitypub_error::error_message_to_array($m);
         echo json_encode($res, JSON_UNESCAPED_SLASHES);
         exit;
-    }
-}
-
-/**
- * Overwrites variables in URL-mapping
- */
-class ActivityPubURLMapperOverwrite extends URLMapper
-{
-    /**
-     * Overwrites a route.
-     *
-     * @author Hannes Mannerheim <h@nnesmannerhe.im>
-     * @param URLMapper $m
-     * @param string $path
-     * @param string $paramPatterns
-     * @param string $newaction
-     * @return void
-     * @throws Exception
-     */
-    public static function variable($m, $path, $paramPatterns, $newaction)
-    {
-        $m->connect($path, array('action' => $newaction), $paramPatterns);
-        $regex = self::makeRegex($path, $paramPatterns);
-        foreach ($m->variables as $n => $v) {
-            if ($v[1] == $regex) {
-                $m->variables[$n][0]['action'] = $newaction;
-            }
-        }
-    }
-
-    /**
-     * Determines whether the route should or not be overwrited.
-     * If ACCEPT header isn't set false will be returned.
-     *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @return boolean true if it should, false otherwise
-     */
-    public static function should()
-    {
-        // Do not operate without Accept Header
-        if (!isset($_SERVER['HTTP_ACCEPT'])) {
-            return false;
-        }
-
-        $mimes = [
-            'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' => 0,
-            'application/activity+json' => 1,
-            'application/json' => 2,
-            'application/ld+json' => 3
-        ];
-
-        $acceptheader = new AcceptHeader($_SERVER['HTTP_ACCEPT']);
-        foreach ($acceptheader as $ah) {
-            if (isset($mimes[$ah['raw']])) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
