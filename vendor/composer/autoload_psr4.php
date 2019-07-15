@@ -15,4 +15,6 @@ return array(
     'Hoa\\Exception\\' => array($vendorDir . '/hoa/exception'),
     'Hoa\\Event\\' => array($vendorDir . '/hoa/event'),
     'Hoa\\Consistency\\' => array($vendorDir . '/hoa/consistency'),
+    'Embed\\' => array($vendorDir . '/embed/embed/src'),
+    'Composer\\CaBundle\\' => array($vendorDir . '/composer/ca-bundle/src'),
 );

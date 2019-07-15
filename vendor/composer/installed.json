@@ -57,6 +57,64 @@
         ]
     },
     {
+        "name": "composer/ca-bundle",
+        "version": "1.1.4",
+        "version_normalized": "1.1.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/composer/ca-bundle.git",
+            "reference": "558f321c52faeb4828c03e7dc0cfe39a09e09a2d"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/composer/ca-bundle/zipball/558f321c52faeb4828c03e7dc0cfe39a09e09a2d",
+            "reference": "558f321c52faeb4828c03e7dc0cfe39a09e09a2d",
+            "shasum": ""
+        },
+        "require": {
+            "ext-openssl": "*",
+            "ext-pcre": "*",
+            "php": "^5.3.2 || ^7.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.5",
+            "psr/log": "^1.0",
+            "symfony/process": "^2.5 || ^3.0 || ^4.0"
+        },
+        "time": "2019-01-28T09:30:10+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "1.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Composer\\CaBundle\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Jordi Boggiano",
+                "email": "j.boggiano@seld.be",
+                "homepage": "http://seld.be"
+            }
+        ],
+        "description": "Lets you find a path to the system CA bundle, and includes a fallback to the Mozilla CA bundle.",
+        "keywords": [
+            "cabundle",
+            "cacert",
+            "certificate",
+            "ssl",
+            "tls"
+        ]
+    },
+    {
         "name": "diogocomposer/xmpphp",
         "version": "v3.0.0",
         "version_normalized": "3.0.0.0",
@@ -130,27 +188,82 @@
         ]
     },
     {
-        "name": "ezyang/htmlpurifier",
-        "version": "v4.10.0",
-        "version_normalized": "4.10.0.0",
+        "name": "embed/embed",
+        "version": "v3.4.0",
+        "version_normalized": "3.4.0.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/ezyang/htmlpurifier.git",
-            "reference": "d85d39da4576a6934b72480be6978fb10c860021"
+            "url": "https://github.com/oscarotero/Embed.git",
+            "reference": "5594b253dee90888c14cdca43696183c98f078e9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/d85d39da4576a6934b72480be6978fb10c860021",
-            "reference": "d85d39da4576a6934b72480be6978fb10c860021",
+            "url": "https://api.github.com/repos/oscarotero/Embed/zipball/5594b253dee90888c14cdca43696183c98f078e9",
+            "reference": "5594b253dee90888c14cdca43696183c98f078e9",
+            "shasum": ""
+        },
+        "require": {
+            "composer/ca-bundle": "^1.0",
+            "ext-curl": "*",
+            "ext-mbstring": "*",
+            "php": "^5.6|^7.0"
+        },
+        "require-dev": {
+            "friendsofphp/php-cs-fixer": "^2.0",
+            "phpunit/phpunit": "^4.8|^5.7"
+        },
+        "time": "2019-06-23T11:12:03+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Embed\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Oscar Otero",
+                "email": "oom@oscarotero.com",
+                "homepage": "http://oscarotero.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "PHP library to retrieve page info using oembed, opengraph, etc",
+        "homepage": "https://github.com/oscarotero/Embed",
+        "keywords": [
+            "embed",
+            "embedly",
+            "oembed",
+            "opengraph",
+            "twitter cards"
+        ]
+    },
+    {
+        "name": "ezyang/htmlpurifier",
+        "version": "v4.11.0",
+        "version_normalized": "4.11.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ezyang/htmlpurifier.git",
+            "reference": "83ab08bc1af7d808a9e0fbf024f1c24bfd73c0a7"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/83ab08bc1af7d808a9e0fbf024f1c24bfd73c0a7",
+            "reference": "83ab08bc1af7d808a9e0fbf024f1c24bfd73c0a7",
             "shasum": ""
         },
         "require": {
             "php": ">=5.2"
         },
         "require-dev": {
-            "simpletest/simpletest": "^1.1"
+            "simpletest/simpletest": "dev-master#72de02a7b80c6bb8864ef9bf66d41d2f58f826bd"
         },
-        "time": "2018-02-23T01:58:20+00:00",
+        "time": "2019-07-14T18:58:38+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -163,7 +276,7 @@
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
-            "LGPL"
+            "LGPL-2.1-or-later"
         ],
         "authors": [
             {
