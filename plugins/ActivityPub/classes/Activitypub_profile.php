@@ -229,6 +229,20 @@ class Activitypub_profile extends Managed_DataObject
         return $aprofile;
     }
 
+    public static function from_profile_collection(array $profiles): array {
+        $ap_profiles = [];
+
+        foreach ($profiles as $profile) {
+            try {
+                $ap_profiles[] = self::from_profile($profile);
+            } catch (Exception $e) {
+                // Don't mind local profiles
+            }
+        }
+
+        return $ap_profiles;
+    }
+
     /**
      * Given an existent local profile creates an ActivityPub profile.
      * One must be careful not to give a user profile to this function
