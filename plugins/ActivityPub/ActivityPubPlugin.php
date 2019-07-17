@@ -805,37 +805,37 @@ class ActivityPubPlugin extends Plugin
             return true;
         }
 
-        // Ignore for activity/non-post-verb notices
+        // Ignore for activity/non-(post/share)-verb notices
         if (method_exists('ActivityUtils', 'compareVerbs')) {
-            $is_post_verb = ActivityUtils::compareVerbs(
-                $notice->verb,
-                [ActivityVerb::POST]
-                        );
+            $is_valid_verb = ActivityUtils::compareVerbs($notice->verb,
+                                                         [ActivityVerb::POST,
+                                                          ActivityVerb::SHARE]);
         } else {
-            $is_post_verb = ($notice->verb == ActivityVerb::POST ? true : false);
+            $is_valid_verb = ($notice->verb == ActivityVerb::POST ||
+                              $notice->verb == ActivityVerb::SHARE);
         }
-        if ($notice->source == 'activity' || !$is_post_verb) {
+
+        if ($notice->source == 'activity' || !$is_valid_verb) {
+            common_log(LOG_DEBUG, "Ignoring distribution of notice with id {$notice->id} due to invalid Verb");
             return true;
         }
 
-        $other = [];
-        foreach ($notice->getAttentionProfiles() as $mention) {
-            try {
-                $other[] = Activitypub_profile::from_profile($mention);
-            } catch (Exception $e) {
-                // Local user can be ignored
-            }
-        }
+        $other = Activitypub_profile::from_profile_collection(
+            $notice->getAttentionProfiles()
+        );
 
         // Is a reply?
         if ($notice->reply_to) {
             try {
-                $other[] = Activitypub_profile::from_profile($notice->getParent()->getProfile());
-            } catch (Exception $e) {
-                // Local user can be ignored
-            }
-            try {
-                foreach ($notice->getParent()->getAttentionProfiles() as $mention) {
+                $parent_notice = $notice->getParent();
+
+                try {
+                    $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
+                } catch (Exception $e) {
+                    // Local user can be ignored
+                }
+
+                foreach ($parent_notice->getAttentionProfiles() as $mention) {
                     try {
                         $other[] = Activitypub_profile::from_profile($mention);
                     } catch (Exception $e) {
@@ -854,6 +854,11 @@ class ActivityPubPlugin extends Plugin
         if ($notice->isRepeat()) {
             $repeated_notice = Notice::getKV('id', $notice->repeat_of);
             if ($repeated_notice instanceof Notice) {
+                $other = array_merge($other,
+                                     Activitypub_profile::from_profile_collection(
+                                         $repeated_notice->getAttentionProfiles()
+                                     ));
+
                 try {
                     $other[] = Activitypub_profile::from_profile($repeated_notice->getProfile());
                 } catch (Exception $e) {
@@ -863,8 +868,10 @@ class ActivityPubPlugin extends Plugin
                 // That was it
                 $postman = new Activitypub_postman($profile, $other);
                 $postman->announce($repeated_notice);
-                return true;
             }
+
+            // either made the announce or found nothing to repeat
+            return true;
         }
 
         // That was it

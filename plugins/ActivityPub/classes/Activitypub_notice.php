@@ -72,14 +72,13 @@ class Activitypub_notice extends Managed_DataObject
 
         $item = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'           => common_local_url('apNotice', ['id' => $notice->getID()]),
+            'id'           => self::getUrl($notice),
             'type'         => 'Note',
             'published'    => str_replace(' ', 'T', $notice->getCreated()).'Z',
-            'url'          => $notice->getUrl(),
+            'url'          => self::getUrl($notice),
             'attributedTo' => ActivityPubPlugin::actor_uri($profile),
             'to'           => ['https://www.w3.org/ns/activitystreams#Public'],
             'cc'           => $cc,
-            'atomUri'      => $notice->getUrl(),
             'conversation' => $notice->getConversationUrl(),
             'content'      => $notice->getRendered(),
             'isLocal'      => $notice->isLocal(),
@@ -89,8 +88,7 @@ class Activitypub_notice extends Managed_DataObject
 
         // Is this a reply?
         if (!empty($notice->reply_to)) {
-            $item['inReplyTo'] = common_local_url('apNotice', ['id' => $notice->getID()]);
-            $item['inReplyToAtomUri'] = Notice::getById($notice->reply_to)->getUrl();
+            $item['inReplyTo'] = self::getUrl(Notice::getById($notice->reply_to));
         }
 
         // Do we have a location for this notice?
@@ -135,7 +133,7 @@ class Activitypub_notice extends Managed_DataObject
 
         // Ensure Actor Profile
         if (is_null($actor_profile)) {
-            $actor_profile = ActivityPub_explorer::get_profile_from_url($object['actor']);
+            $actor_profile = ActivityPub_explorer::get_profile_from_url($object['attributedTo']);
         }
 
         $act = new Activity();
@@ -192,9 +190,9 @@ class Activitypub_notice extends Managed_DataObject
         }
 
         /* Reject notice if it is too long (without the HTML)
-        if (Notice::contentTooLong($content)) {
-            throw new Exception('That\'s too long. Maximum notice size is %d character.');
-        }*/
+           if (Notice::contentTooLong($content)) {
+           throw new Exception('That\'s too long. Maximum notice size is %d character.');
+           }*/
 
         $actobj = new ActivityObject();
         $actobj->type = ActivityObject::NOTE;
@@ -248,5 +246,20 @@ class Activitypub_notice extends Managed_DataObject
             throw new Exception('Object CC was not specified.');
         }
         return true;
+    }
+
+    /**
+     * Get the original representation URL of a given notice.
+     *
+     * @param Notice $notice notice from which to retrieve the URL
+     * @return string URL
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function getUrl(Notice $notice): string {
+	if ($notice->isLocal()) {
+	    return common_local_url('apNotice', ['id' => $notice->getID()]);
+	} else {
+	    return $notice->getUrl();
+	}
     }
 }
