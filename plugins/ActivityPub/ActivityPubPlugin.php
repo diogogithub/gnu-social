@@ -624,33 +624,32 @@ class ActivityPubPlugin extends Plugin
         }
 
         $other = [];
+
         try {
             $other[] = Activitypub_profile::from_profile($notice->getProfile());
         } catch (Exception $e) {
             // Local user can be ignored
         }
-        foreach ($notice->getAttentionProfiles() as $to_profile) {
-            try {
-                $other[] = Activitypub_profile::from_profile($to_profile);
-            } catch (Exception $e) {
-                // Local user can be ignored
-            }
-        }
+
+        $other = array_merge($other,
+                             Activitypub_profile::from_profile_collection(
+                                 $notice->getAttentionProfiles()
+                             ));
+
         if ($notice->reply_to) {
             try {
-                $other[] = Activitypub_profile::from_profile($notice->getParent()->getProfile());
-            } catch (Exception $e) {
-                // Local user can be ignored
-            }
-            try {
-                $mentions = $notice->getParent()->getAttentionProfiles();
-                foreach ($mentions as $to_profile) {
-                    try {
-                        $other[] = Activitypub_profile::from_profile($to_profile);
-                    } catch (Exception $e) {
-                        // Local user can be ignored
-                    }
+                $parent_notice = $notice->getParent();
+
+                try {
+                    $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
+                } catch (Exception $e) {
+                    // Local user can be ignored
                 }
+
+                $other = array_merge($other,
+                                     Activitypub_profile::from_profile_collection(
+                                         $parent_notice->getAttentionProfiles()
+                                     ));
             } catch (NoParentNoticeException $e) {
                 // This is not a reply to something (has no parent)
             } catch (NoResultException $e) {
@@ -660,7 +659,6 @@ class ActivityPubPlugin extends Plugin
         }
 
         $postman = new Activitypub_postman($profile, $other);
-
         $postman->like($notice);
 
         return true;
@@ -685,33 +683,32 @@ class ActivityPubPlugin extends Plugin
         }
 
         $other = [];
+
         try {
             $other[] = Activitypub_profile::from_profile($notice->getProfile());
         } catch (Exception $e) {
             // Local user can be ignored
         }
-        foreach ($notice->getAttentionProfiles() as $to_profile) {
-            try {
-                $other[] = Activitypub_profile::from_profile($to_profile);
-            } catch (Exception $e) {
-                // Local user can be ignored
-            }
-        }
+
+        $other = array_merge($other,
+                             Activitypub_profile::from_profile_collection(
+                                 $notice->getAttentionProfiles()
+                             ));
+
         if ($notice->reply_to) {
             try {
-                $other[] = Activitypub_profile::from_profile($notice->getParent()->getProfile());
-            } catch (Exception $e) {
-                // Local user can be ignored
-            }
-            try {
-                $mentions = $notice->getParent()->getAttentionProfiles();
-                foreach ($mentions as $to_profile) {
-                    try {
-                        $other[] = Activitypub_profile::from_profile($to_profile);
-                    } catch (Exception $e) {
-                        // Local user can be ignored
-                    }
+                $parent_notice = $notice->getParent();
+
+                try {
+                    $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
+                } catch (Exception $e) {
+                    // Local user can be ignored
                 }
+
+                $other = array_merge($other,
+                                     Activitypub_profile::from_profile_collection(
+                                         $parent_notice->getAttentionProfiles()
+                                     ));
             } catch (NoParentNoticeException $e) {
                 // This is not a reply to something (has no parent)
             } catch (NoResultException $e) {
@@ -721,7 +718,6 @@ class ActivityPubPlugin extends Plugin
         }
 
         $postman = new Activitypub_postman($profile, $other);
-
         $postman->undo_like($notice);
 
         return true;

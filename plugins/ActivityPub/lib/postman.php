@@ -215,12 +215,23 @@ class Activitypub_postman
     {
         $data = Activitypub_like::like_to_array(
             ActivityPubPlugin::actor_uri($this->actor),
-            $notice->getUrl()
+            Activitypub_notice::getUrl($notice)
                 );
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
         foreach ($this->to_inbox() as $inbox) {
-            $this->send($data, $inbox);
+            $res = $this->send($data, $inbox);
+
+            // accummulate errors for later use, if needed
+            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                $res_body = json_decode($res->getBody(), true);
+                $errors[] = isset($res_body[0]['error']) ?
+                          $res_body[0]['error'] : "An unknown error occurred.";
+            }
+        }
+
+        if (!empty($errors)) {
+            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the like activity!");
         }
     }
 
@@ -238,13 +249,24 @@ class Activitypub_postman
         $data = Activitypub_undo::undo_to_array(
             Activitypub_like::like_to_array(
                 ActivityPubPlugin::actor_uri($this->actor),
-                $notice->getUrl()
+                Activitypub_notice::getUrl($notice)
                          )
                 );
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
         foreach ($this->to_inbox() as $inbox) {
-            $this->send($data, $inbox);
+            $res = $this->send($data, $inbox);
+
+            // accummulate errors for later use, if needed
+            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                $res_body = json_decode($res->getBody(), true);
+                $errors[] = isset($res_body[0]['error']) ?
+                          $res_body[0]['error'] : "An unknown error occurred.";
+            }
+        }
+
+        if (!empty($errors)) {
+            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the undo-like activity!");
         }
     }
 
@@ -267,7 +289,18 @@ class Activitypub_postman
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
         foreach ($this->to_inbox() as $inbox) {
-            $this->send($data, $inbox);
+            $res = $this->send($data, $inbox);
+
+            // accummulate errors for later use, if needed
+            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                $res_body = json_decode($res->getBody(), true);
+                $errors[] = isset($res_body[0]['error']) ?
+                          $res_body[0]['error'] : "An unknown error occurred.";
+            }
+        }
+
+        if (!empty($errors)) {
+            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the create-note activity!");
         }
     }
 
@@ -288,7 +321,18 @@ class Activitypub_postman
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
         foreach ($this->to_inbox() as $inbox) {
-            $this->send($data, $inbox);
+            $res = $this->send($data, $inbox);
+
+            // accummulate errors for later use, if needed
+            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                $res_body = json_decode($res->getBody(), true);
+                $errors[] = isset($res_body[0]['error']) ?
+                          $res_body[0]['error'] : "An unknown error occurred.";
+            }
+        }
+
+        if (!empty($errors)) {
+            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the announce activity!");
         }
     }
 
@@ -312,13 +356,10 @@ class Activitypub_postman
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
         foreach ($this->to_inbox() as $inbox) {
             $res = $this->send($data, $inbox);
-            if (!$res->getStatus() == 200) {
+            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
                 $res_body = json_decode($res->getBody(), true);
-                if (isset($res_body[0]['error'])) {
-                    $errors[] = ($res_body[0]['error']);
-                    continue;
-                }
-                $errors[] = ("An unknown error occurred.");
+                $errors[] = isset($res_body[0]['error']) ?
+                          $res_body[0]['error'] : "An unknown error occurred.";
             }
         }
         if (!empty($errors)) {
