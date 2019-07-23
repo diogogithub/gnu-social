@@ -578,13 +578,16 @@ class ImageFile extends MediaFile
         $filename = MediaFile::decodeFilename(basename($this->filepath));
         // Encoding null makes the file use 'untitled', and also replaces the extension
         $outfilename = MediaFile::encodeFilename($filename, $this->filehash, $ext);
-        $outpath = File_thumbnail::path(
-            "thumb-{$this->fileRecord->id}-{$box['width']}x{$box['height']}-{$outfilename}");
 
         // The boundary box for our resizing
-        $box = array('width'=>$width, 'height'=>$height,
-                     'x'=>$x,         'y'=>$y,
-                     'w'=>$w,         'h'=>$h);
+        $box = [
+            'width'=>$width, 'height'=>$height,
+            'x'=>$x,         'y'=>$y,
+            'w'=>$w,         'h'=>$h
+        ];
+
+        $outpath = File_thumbnail::path(
+            "thumb-{$this->fileRecord->id}-{$box['width']}x{$box['height']}-{$outfilename}");
 
         // Doublecheck that parameters are sane and integers.
         if ($box['width'] < 1 || $box['width'] > common_config('thumbnail', 'maxsize')
