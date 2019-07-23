@@ -30,7 +30,7 @@ class GNUsocial
     protected static $plugins = array();
 
     /**
-     * Configure and instantiate a plugin into the current configuration.
+     * Configure and instantiate a plugin (or a core module) into the current configuration.
      * Class definitions will be loaded from standard paths if necessary.
      * Note that initialization events won't be fired until later.
      *
@@ -39,7 +39,7 @@ class GNUsocial
      *
      * @throws ServerException if plugin can't be found
      */
-    public static function addPlugin($name, array $attrs=array())
+    public static function addPlugin($name, array $attrs = [])
     {
         $name = ucfirst($name);
 
@@ -54,12 +54,16 @@ class GNUsocial
 
         if (!class_exists($pluginclass)) {
 
-            $files = array("local/plugins/{$pluginclass}.php",
-                           "local/plugins/{$name}/{$pluginclass}.php",
-                           "local/{$pluginclass}.php",
-                           "local/{$name}/{$pluginclass}.php",
-                           "plugins/{$pluginclass}.php",
-                           "plugins/{$name}/{$pluginclass}.php");
+            $files = [
+                "local/plugins/{$pluginclass}.php",
+                "local/plugins/{$name}/{$pluginclass}.php",
+                "local/{$pluginclass}.php",
+                "local/{$name}/{$pluginclass}.php",
+                "modules/{$pluginclass}.php",
+                "modules/{$name}/{$pluginclass}.php",
+                "plugins/{$pluginclass}.php",
+                "plugins/{$name}/{$pluginclass}.php"
+            ];
 
             foreach ($files as $file) {
                 $fullpath = INSTALLDIR.'/'.$file;

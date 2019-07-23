@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-13 00:46+0100\n"
+"POT-Creation-Date: 2019-08-14 14:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -99,23 +99,23 @@ msgid "Unsubscribed"
 msgstr ""
 
 #. TRANS: Plugin description.
-#: TagSubPlugin.php:106
+#: TagSubPlugin.php:102
 msgid "Plugin to allow following all messages with a given tag."
 msgstr ""
 
 #. TRANS: SubMirror plugin menu item on user settings page.
-#: TagSubPlugin.php:181
+#: TagSubPlugin.php:177
 msgctxt "MENU"
 msgid "Tags"
 msgstr ""
 
 #. TRANS: SubMirror plugin tooltip for user settings menu item.
-#: TagSubPlugin.php:183
+#: TagSubPlugin.php:179
 msgid "Configure tag subscriptions"
 msgstr ""
 
 #. TRANS: Menu item text for tags submenu.
-#: TagSubPlugin.php:200
+#: TagSubPlugin.php:196
 msgid "Tags"
 msgstr ""
 

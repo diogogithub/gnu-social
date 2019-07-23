@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-08 18:20+0100\n"
+"POT-Creation-Date: 2019-08-14 14:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,19 +19,19 @@ msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #. TRANS: Menu item in personal group navigation menu.
-#: DirectMessagePlugin.php:128
+#: DirectMessagePlugin.php:130
 msgctxt "MENU"
 msgid "Messages"
 msgstr ""
 
 #. TRANS: Link text for link on user profile.
-#: DirectMessagePlugin.php:148
+#: DirectMessagePlugin.php:150
 msgctxt "BUTTON"
 msgid "Message"
 msgstr ""
 
 #. TRANS: Plugin description.
-#: DirectMessagePlugin.php:174
+#: DirectMessagePlugin.php:176
 msgid "Direct Message to other local users (broken out of core)."
 msgstr ""
 
