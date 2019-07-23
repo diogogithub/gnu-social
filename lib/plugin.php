@@ -64,9 +64,9 @@ class Plugin
     }
 
     /**
-     * Load related modules when needed
+     * Load related components when needed
      *
-     * Most non-trivial plugins will require extra modules to do their work. Typically
+     * Most non-trivial plugins will require extra components to do their work. Typically
      * these include data classes, action classes, widget classes, or external libraries.
      *
      * This method receives a class name and loads the PHP file related to that class. By
@@ -79,11 +79,14 @@ class Plugin
      *
      * @param string $cls Name of the class to be loaded
      *
-     * @return boolean hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop.
      */
     public function onAutoload($cls) {
         $cls = basename($cls);
         $basedir = INSTALLDIR . '/local/plugins/' . mb_substr(get_called_class(), 0, -6);
+        if (!file_exists($basedir)) {
+            $basedir = INSTALLDIR . '/modules/' . mb_substr(get_called_class(), 0, -6);
+        }
         if (!file_exists($basedir)) {
             $basedir = INSTALLDIR . '/plugins/' . mb_substr(get_called_class(), 0, -6);
         }
@@ -92,17 +95,17 @@ class Plugin
 
         if (preg_match('/^(\w+)(Action|Form)$/', $cls, $type)) {
             $type = array_map('strtolower', $type);
-            $file = "$basedir/{$type[2]}s/{$type[1]}.php";
+            $file = "{$basedir}/{$type[2]}s/{$type[1]}.php";
         }
         if (!file_exists($file)) {
-            $file = "$basedir/classes/{$cls}.php";
+            $file = "{$basedir}/classes/{$cls}.php";
 
             // library files can be put into subdirs ('_'->'/' conversion)
             // such as LRDDMethod_WebFinger -> lib/lrddmethod/webfinger.php
             if (!file_exists($file)) {
                 $type = strtolower($cls);
                 $type = str_replace('_', '/', $type);
-                $file = "$basedir/lib/{$type}.php";
+                $file = "{$basedir}/lib/{$type}.php";
             }
         }
 
@@ -127,9 +130,12 @@ class Plugin
             if (!$path) {
                 // @fixme this will fail for things installed in local/plugins
                 // ... but then so will web links so far.
-                $path = INSTALLDIR . "/plugins/$name/locale";
+                $path = INSTALLDIR . "/plugins/{$name}/locale";
                 if (!file_exists($path)) {
-                    $path = INSTALLDIR . "/local/plugins/$name/locale";
+                    $path = INSTALLDIR . "/modules/{$name}/locale";
+                }
+                if (!file_exists($path)) {
+                    $path = INSTALLDIR . "/local/plugins/{$name}/locale";
                 }
             }
             if (file_exists($path) && is_dir($path)) {
@@ -148,7 +154,7 @@ class Plugin
     {
         $this->log(LOG_DEBUG, $msg);
     }
-    
+
     public function name()
     {
         $cls = get_class($this);
@@ -206,8 +212,10 @@ class Plugin
 
         if (empty($path)) {
             // XXX: extra stat().
-            if (@file_exists(PUBLICDIR.'/local/plugins/'.$plugin.'/'.$relative)) {
+            if (@file_exists(PUBLICDIR . '/local/plugins/' . $plugin . '/' . $relative)) {
                 $path = common_config('site', 'path') . '/local/plugins/';
+            } elseif (@file_exists(PUBLICDIR . '/modules/' . $plugin . '/' . $relative)) {
+                $path = common_config('site', 'path') . '/modules/';
             } else {
                 $path = common_config('site', 'path') . '/plugins/';
             }

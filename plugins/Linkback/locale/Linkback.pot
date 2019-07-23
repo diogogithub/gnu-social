@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-08 18:20+0100\n"
+"POT-Creation-Date: 2019-08-14 14:44+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgid "%1$s's status on %2$s"
 msgstr ""
 
 #. TRANS: Plugin description.
-#: LinkbackPlugin.php:364
+#: LinkbackPlugin.php:366
 msgid ""
 "Notify blog authors when their posts have been linked in microblog notices "
 "using <a href=\"http://www.hixie.ch/specs/pingback/pingback\">Pingback</a> "
@@ -34,18 +34,18 @@ msgid ""
 msgstr ""
 
 #. TRANS: OpenID plugin menu item on user settings page.
-#: LinkbackPlugin.php:383
+#: LinkbackPlugin.php:385
 msgctxt "MENU"
 msgid "Send Linkbacks"
 msgstr ""
 
 #. TRANS: OpenID plugin tooltip for user settings menu item.
-#: LinkbackPlugin.php:385
+#: LinkbackPlugin.php:387
 msgid "Opt-out of sending linkbacks."
 msgstr ""
 
 #. TRANS: Title. %s is a domain name.
-#: LinkbackPlugin.php:410
+#: LinkbackPlugin.php:412
 #, php-format
 msgid "Sent from %s via Linkback"
 msgstr ""
