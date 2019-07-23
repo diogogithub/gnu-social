@@ -227,8 +227,8 @@ class Router
                       '/view' => 'attachment_view',
                       '/download' => 'attachment_download',
                       '/thumbnail' => 'attachment_thumbnail'] as $postfix => $action) {
-                foreach (['attachment' => '[0-9]+',
-                          'filehash' => '[A-Za-z0-9._-]+'] as $type => $match) {
+                foreach (['filehash' => '[A-Za-z0-9._-]{64}',
+                          'attachment' => '[0-9]+'] as $type => $match) {
                     $m->connect("attachment/:{$type}{$postfix}",
                                 ['action' => $action],
                                 [$type => $match]);
