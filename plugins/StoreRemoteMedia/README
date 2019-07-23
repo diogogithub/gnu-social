@@ -13,6 +13,8 @@ check_blacklist: Whether to check the domain_blacklist.
 domain_whitelist: Array of regular expressions. Always escape your dots and end your strings.
 check_whitelist: Whether to check the domain_whitelist.
 
+max_image_bytes: Max image size. Anything bigger than this is rejected. 10MiB by default
+
 When check_whitelist is set, only images from URLs matching a regex in the
 domain_whitelist array are accepted for local storage. When check_blacklist
 is set, images from URLs matching any regex in the domain_blacklist are
