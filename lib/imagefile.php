@@ -372,6 +372,10 @@ class ImageFile extends MediaFile
             $box['h']
         );
 
+        if ($this->filepath === $outpath) {
+            @unlink($outpath);
+        }
+
         $type = $this->preferredType();
 
         switch ($type) {

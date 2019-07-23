@@ -53,6 +53,10 @@ class EmbedPlugin extends Plugin
     public $append_whitelist = [];  // fill this array as domain_whitelist to add more trusted sources
     public $check_whitelist  = false;    // security/abuse precaution
 
+    public $thumbnail_width  = 128;
+    public $thumbnail_height = 128;
+    public $thumbnail_crop   = true;
+
     protected $imgData = [];
 
     /**
@@ -295,7 +299,7 @@ class EmbedPlugin extends Plugin
         $out->elementStart('article', ['class'=>'h-entry embed']);
         $out->elementStart('header');
         try {
-            $thumb = $file->getThumbnail(128, 128);
+            $thumb = $file->getThumbnail($this->thumbnail_width, $this->thumbnail_height);
             $out->element('img', $thumb->getHtmlAttrs(['class'=>'u-photo embed']));
             unset($thumb);
         } catch (FileNotFoundException $e) {
@@ -398,8 +402,8 @@ class EmbedPlugin extends Plugin
         }
 
         try {
-            // If we have proper Embed data, there should be an entry in the File_embed
-            // and File_thumbnail tables respectively. If not, we're not going to do anything.
+            // If we have proper Embed data, there should be an entry in the File_thumbnail table.
+            // If not, we're not going to do anything.
             $thumbnail = File_thumbnail::byFile($file);
         } catch (NoResultException $e) {
             // Not Embed data, or at least nothing we either can or want to use.
@@ -466,7 +470,7 @@ class EmbedPlugin extends Plugin
                 $headers = $head->getHeader();
                 $headers = array_change_key_case($headers, CASE_LOWER);
             }
-            return $headers['content-length'] ?: false;
+            return isset($headers['content-length']) ? $headers['content-length'] : false;
         } catch (Exception $err) {
             common_log(LOG_ERR, __CLASS__.': getRemoteFileSize on URL : '._ve($url).
                        ' threw exception: '.$err->getMessage());
@@ -541,6 +545,8 @@ class EmbedPlugin extends Plugin
         ));
         $imgData = HTTPClient::quickGet($url);
         $info = @getimagesizefromstring($imgData);
+        // array indexes documented on php.net:
+        // https://php.net/manual/en/function.getimagesize.php
         if ($info === false) {
             throw new UnsupportedMediaException(_('Remote file format was not identified as an image.'), $url);
         } elseif (!$info[0] || !$info[1]) {
@@ -548,6 +554,8 @@ class EmbedPlugin extends Plugin
         }
 
         $filehash = hash(File::FILEHASH_ALG, $imgData);
+        $width = min($info[0], $this->thumbnail_width);
+        $height = min($info[1], $this->thumbnail_height);
 
         try {
             $original_name = HTTPClient::get_filename($url, $headers);
@@ -566,6 +574,18 @@ class EmbedPlugin extends Plugin
                         $url
                     );
                 }
+
+                // If the image is not of the desired size, resize it
+                if ($info[0] !== $this->thumbnail_width || $info[1] !== $this->thumbnail_height) {
+                    // Temporary object, not stored in DB
+                    $img = new ImageFile(-1, $fullpath);
+                    $box = $img->scaleToFit($width, $height, $this->thumbnail_crop);
+                    $outpath = $img->resizeTo($fullpath, $box);
+                    $filename = basename($outpath);
+                    if ($fullpath !== $outpath) {
+                        @unlink($fullpath);
+                    }
+                }
             } else {
                 throw new AlreadyFulfilledException('A thumbnail seems to already exist for remote file with id==' .
                                                     $thumbnail->file_id . ' at path ' . $fullpath);
@@ -581,14 +601,14 @@ class EmbedPlugin extends Plugin
         }
 
         try {
-            // Updated our database for the file record
+            // Update our database for the file record
             $orig = clone($thumbnail);
             $thumbnail->filename = $filename;
-            $thumbnail->width = $info[0];    // array indexes documented on php.net:
-            $thumbnail->height = $info[1];   // https://php.net/manual/en/function.getimagesize.php
+            $thumbnail->width = $width;
+            $thumbnail->height = $height;
             // Throws exception on failure.
             $thumbnail->updateWithKeys($orig);
-        } catch (exception $err) {
+        } catch (Exception $err) {
             common_log(LOG_ERR, "Went to write a thumbnail entry to the database in " .
                        "EmbedPlugin::storeRemoteThumbnail but encountered error: ".$err);
             return $err;

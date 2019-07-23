@@ -342,7 +342,6 @@ class File extends Managed_DataObject
     public static function getSafeExtension(string $filename) {
         if (preg_match('/^.+?\.([A-Za-z0-9]+)$/', $filename, $matches) === 1) {
             // we matched on a file extension, so let's see if it means something.
-            common_debug("MATCHES EXT: " . print_r($matches, true));
             $ext = mb_strtolower($matches[1]);
             $blacklist = common_config('attachments', 'extblacklist');
             // If we got an extension from $filename we want to check if it's in a blacklist

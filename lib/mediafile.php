@@ -256,8 +256,6 @@ class MediaFile
             throw new ClientException(_('Blacklisted file extension.'));
         }
 
-        common_debug("EXT: " . print_r($ext, true));
-
         if (!empty($ext)) {
             // Remove dots if we have them (make sure they're not repeated)
             $ext = preg_replace('/^\.+/', '', $ext);
