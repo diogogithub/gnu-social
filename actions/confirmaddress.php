@@ -140,6 +140,7 @@ class ConfirmaddressAction extends ManagedAction
                 $user_im_prefs->screenname = $confirm->address;
                 $user_im_prefs->transport = $confirm->address_type;
                 $user_im_prefs->user_id = $cur->id;
+                $user_im_prefs->created = common_sql_now();
                 $result = $user_im_prefs->insert();
 
                 if ($result === false) {
