@@ -21,6 +21,7 @@
         "embed/embed": "^3.4",
         "ezyang/htmlpurifier": "^4.10",
         "hoa/consistency": "^1.17.05.02",
+        "intervention/image": "^2.5",
         "masterminds/html5": "^2.6",
         "mf2/mf2": "^0.4.6",
         "michelf/php-markdown": "^1.8.0",

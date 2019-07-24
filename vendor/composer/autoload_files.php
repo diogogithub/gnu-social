@@ -8,6 +8,8 @@ $baseDir = dirname($vendorDir);
 return array(
     'e88992873b7765f9b5710cab95ba5dd7' => $vendorDir . '/hoa/consistency/Prelude.php',
     '5255c38a0faeba867671b61dfda6d864' => $vendorDir . '/paragonie/random_compat/lib/random.php',
+    '7b11c4dc42b3b3023073cb14e519683c' => $vendorDir . '/ralouphie/getallheaders/src/getallheaders.php',
+    'a0edc8309cc5e1d60e3047b5df6b7052' => $vendorDir . '/guzzlehttp/psr7/src/functions_include.php',
     '2cffec82183ee1cea088009cef9a6fc3' => $vendorDir . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
     '757772e28a0943a9afe83def8db95bdf' => $vendorDir . '/mf2/mf2/Mf2/Parser.php',
     'decc78cc4436b1292c6c0d151b19445c' => $vendorDir . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
