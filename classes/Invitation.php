@@ -15,7 +15,7 @@ class Invitation extends Managed_DataObject
     public $address;                         // varchar(191)  multiple_key not_null   not 255 because utf8mb4 takes more space
     public $address_type;                    // varchar(8)  multiple_key not_null
     public $registered_user_id;              // int(4)   not_null
-    public $created;                         // datetime()   not_null
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -36,7 +36,7 @@ class Invitation extends Managed_DataObject
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'who sent the invitation'),
                 'address' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'invitation sent to'),
                 'address_type' => array('type' => 'varchar', 'length' => 8, 'not null' => true, 'description' => 'address type ("email", "xmpp", "sms")'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
                 'registered_user_id' => array('type' => 'int', 'not null' => false, 'description' => 'if the invitation is converted, who the new user is'),
             ),
             'primary key' => array('code'),

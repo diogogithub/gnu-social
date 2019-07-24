@@ -17,8 +17,8 @@ class Token extends Managed_DataObject
     public $state;                           // tinyint(1)
     public $verifier;                        // varchar(191)   not 255 because utf8mb4 takes more space
     public $verified_callback;               // varchar(191)   not 255 because utf8mb4 takes more space
-    public $created;                         // datetime()   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -34,9 +34,8 @@ class Token extends Managed_DataObject
                 'state' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'for requests, 0 = initial, 1 = authorized, 2 = used'),
                 'verifier' => array('type' => 'varchar', 'length' => 191, 'description' => 'verifier string for OAuth 1.0a'),
                 'verified_callback' => array('type' => 'varchar', 'length' => 191, 'description' => 'verified callback URL for OAuth 1.0a'),
-
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('consumer_key', 'tok'),
             'foreign keys' => array(

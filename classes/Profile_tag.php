@@ -9,7 +9,7 @@ class Profile_tag extends Managed_DataObject
     public $tagger;                          // int(4)  primary_key not_null
     public $tagged;                          // int(4)  primary_key not_null
     public $tag;                             // varchar(64)  primary_key not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     public static function schemaDef()
     {
@@ -19,7 +19,7 @@ class Profile_tag extends Managed_DataObject
                 'tagger' => array('type' => 'int', 'not null' => true, 'description' => 'user making the tag'),
                 'tagged' => array('type' => 'int', 'not null' => true, 'description' => 'profile tagged'),
                 'tag' => array('type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date the tag was added'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date the tag was added'),
             ),
             'primary key' => array('tagger', 'tagged', 'tag'),
             'foreign keys' => array(

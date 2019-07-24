@@ -13,7 +13,7 @@ class Foreign_subscription extends Managed_DataObject
     public $service;                         // int(4)  primary_key not_null
     public $subscriber;                      // int(4)  primary_key not_null
     public $subscribed;                      // int(4)  primary_key not_null
-    public $created;                         // datetime()   not_null
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -26,7 +26,7 @@ class Foreign_subscription extends Managed_DataObject
                 'service' => array('type' => 'int', 'not null' => true, 'description' => 'service where relationship happens'),
                 'subscriber' => array('type' => 'int', 'size' => 'big', 'not null' => true, 'description' => 'subscriber on foreign service'),
                 'subscribed' => array('type' => 'int', 'size' => 'big', 'not null' => true, 'description' => 'subscribed user'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
             ),
             'primary key' => array('service', 'subscriber', 'subscribed'),
             'foreign keys' => array(

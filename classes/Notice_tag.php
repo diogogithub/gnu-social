@@ -27,7 +27,7 @@ class Notice_tag extends Managed_DataObject
     public $__table = 'notice_tag';                      // table name
     public $tag;                             // varchar(64)  primary_key not_null
     public $notice_id;                       // int(4)  primary_key not_null
-    public $created;                         // datetime()   not_null
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -39,7 +39,7 @@ class Notice_tag extends Managed_DataObject
             'fields' => array(
                 'tag' => array('type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'),
                 'notice_id' => array('type' => 'int', 'not null' => true, 'description' => 'notice tagged'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
             ),
             'primary key' => array('tag', 'notice_id'),
             'foreign keys' => array(

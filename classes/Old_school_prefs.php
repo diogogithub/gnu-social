@@ -72,8 +72,8 @@ class Old_school_prefs extends Managed_DataObject
                                             'size' => 'tiny', 
                                             'default' => 1, 
                                             'description' => 'Show nicknames for authors and addressees in streams'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('user_id'),
             'foreign keys' => array(

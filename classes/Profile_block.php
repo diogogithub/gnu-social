@@ -33,7 +33,7 @@ class Profile_block extends Managed_DataObject
     public $__table = 'profile_block';                   // table name
     public $blocker;                         // int(4)  primary_key not_null
     public $blocked;                         // int(4)  primary_key not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -44,7 +44,7 @@ class Profile_block extends Managed_DataObject
             'fields' => array(
                 'blocker' => array('type' => 'int', 'not null' => true, 'description' => 'user making the block'),
                 'blocked' => array('type' => 'int', 'not null' => true, 'description' => 'profile that is blocked'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date of blocking'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date of blocking'),
             ),
             'foreign keys' => array(
                 'profile_block_blocker_fkey' => array('user', array('blocker' => 'id')),

@@ -12,7 +12,7 @@ class Reply extends Managed_DataObject
     public $__table = 'reply';                           // table name
     public $notice_id;                       // int(4)  primary_key not_null
     public $profile_id;                      // int(4)  primary_key not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
     public $replied_id;                      // int(4)
 
     /* the code above is auto generated do not remove the tag below */
@@ -24,7 +24,7 @@ class Reply extends Managed_DataObject
             'fields' => array(
                 'notice_id' => array('type' => 'int', 'not null' => true, 'description' => 'notice that is the reply'),
                 'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'profile replied to'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
                 'replied_id' => array('type' => 'int', 'description' => 'notice replied to (not used, see notice.reply_to)'),
             ),
             'primary key' => array('notice_id', 'profile_id'),

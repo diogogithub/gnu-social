@@ -34,7 +34,7 @@ class File_redirection extends Managed_DataObject
     public $file_id;                         // int(4)
     public $redirections;                    // int(4)
     public $httpcode;                        // int(4)
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -50,7 +50,7 @@ class File_redirection extends Managed_DataObject
                 'file_id' => array('type' => 'int', 'description' => 'short URL for what URL/file'),
                 'redirections' => array('type' => 'int', 'description' => 'redirect count'),
                 'httpcode' => array('type' => 'int', 'description' => 'HTTP status code (20x, 30x, etc.)'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('urlhash'),
             'foreign keys' => array(

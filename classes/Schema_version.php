@@ -11,7 +11,7 @@ class Schema_version extends Managed_DataObject
     public $__table = 'schema_version';      // table name
     public $table_name;                      // varchar(64)  primary_key not_null
     public $checksum;                        // varchar(64)  not_null
-    public $modified;                        // datetime()   not_null
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -23,7 +23,7 @@ class Schema_version extends Managed_DataObject
             'fields' => array(
                 'table_name' => array('type' => 'varchar', 'length' => '64', 'not null' => true, 'description' => 'Table name'),
                 'checksum' => array('type' => 'varchar', 'length' => '64', 'not null' => true, 'description' => 'Checksum of schema array; a mismatch indicates we should check the table more thoroughly.'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('table_name'),
         );

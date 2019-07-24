@@ -48,7 +48,7 @@ class Unavailable_status_network extends Managed_DataObject
     public $__table = 'unavailable_status_network'; // table name
 
     public $nickname;              // varchar(64) UUID
-    public $created;               // datetime
+    public $created;               // datetime()   not_null default_0000-00-00%2000%3A00%3A00
 
     /**
      * The One True Thingy that must be defined and declared.
@@ -62,7 +62,7 @@ class Unavailable_status_network extends Managed_DataObject
                                     'length' => 64,
                                     'not null' => true, 'description' => 'nickname not to use'),
                 'created' => array('type' => 'datetime',
-                                   'not null' => true),
+                                   'not null' => true, 'default' => '0000-00-00 00:00:00'),
             ),
             'primary key' => array('nickname'),
         );

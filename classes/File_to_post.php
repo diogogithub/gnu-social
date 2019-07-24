@@ -31,7 +31,7 @@ class File_to_post extends Managed_DataObject
     public $__table = 'file_to_post';                    // table name
     public $file_id;                         // int(4)  primary_key not_null
     public $post_id;                         // int(4)  primary_key not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -42,7 +42,7 @@ class File_to_post extends Managed_DataObject
             'fields' => array(
                 'file_id' => array('type' => 'int', 'not null' => true, 'description' => 'id of URL/file'),
                 'post_id' => array('type' => 'int', 'not null' => true, 'description' => 'id of the notice it belongs to'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('file_id', 'post_id'),
             'foreign keys' => array(

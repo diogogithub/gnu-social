@@ -13,8 +13,8 @@ class Consumer extends Managed_DataObject
     public $consumer_key;                    // varchar(191)  primary_key not_null   not 255 because utf8mb4 takes more space
     public $consumer_secret;                 // varchar(191)   not_null   not 255 because utf8mb4 takes more space
     public $seed;                            // char(32)   not_null
-    public $created;                         // datetime   not_null
-    public $modified;                        // timestamp   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -27,9 +27,8 @@ class Consumer extends Managed_DataObject
                 'consumer_key' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'unique identifier, root URL'),
                 'consumer_secret' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'secret value'),
                 'seed' => array('type' => 'char', 'length' => 32, 'not null' => true, 'description' => 'seed for new tokens by this consumer'),
-
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('consumer_key'),
         );

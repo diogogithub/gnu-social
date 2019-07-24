@@ -31,8 +31,8 @@ class User_urlshortener_prefs extends Managed_DataObject
     public $urlshorteningservice;            // varchar(50)   default_ur1.ca
     public $maxurllength;                    // int(4)   not_null
     public $maxnoticelength;                 // int(4)   not_null
-    public $created;                         // datetime   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // timestamp   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()  not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -45,9 +45,8 @@ class User_urlshortener_prefs extends Managed_DataObject
                 'urlshorteningservice' => array('type' => 'varchar', 'length' => 50, 'default' => 'internal', 'description' => 'service to use for auto-shortening URLs'),
                 'maxurllength' => array('type' => 'int', 'not null' => true, 'description' => 'urls greater than this length will be shortened, 0 = always, null = never'),
                 'maxnoticelength' => array('type' => 'int', 'not null' => true, 'description' => 'notices with content greater than this value will have all urls shortened, 0 = always, -1 = only if notice text is longer than max allowed'),
-        
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('user_id'),
             'foreign keys' => array(

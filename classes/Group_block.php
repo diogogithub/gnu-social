@@ -32,7 +32,7 @@ class Group_block extends Managed_DataObject
     public $group_id;                        // int(4)  primary_key not_null
     public $blocked;                         // int(4)  primary_key not_null
     public $blocker;                         // int(4)   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -44,7 +44,7 @@ class Group_block extends Managed_DataObject
                 'group_id' => array('type' => 'int', 'not null' => true, 'description' => 'group profile is blocked from'),
                 'blocked' => array('type' => 'int', 'not null' => true, 'description' => 'profile that is blocked'),
                 'blocker' => array('type' => 'int', 'not null' => true, 'description' => 'user making the block'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date of blocking'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date of blocking'),
             ),
             'primary key' => array('group_id', 'blocked'),
             'foreign keys' => array(

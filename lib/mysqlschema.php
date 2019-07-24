@@ -1,60 +1,51 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * Database schema for MariaDB
  *
- * Database schema utilities
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Database
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
- * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @category Database
+ * @package  GNUsocial
+ * @author   Evan Prodromou <evan@status.net>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
- * Class representing the database schema
+ * Class representing the database schema for MariaDB
  *
  * A class representing the database schema. Can be used to
  * manipulate the schema -- especially for plugins and upgrade
  * utilities.
  *
- * @category Database
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 class MysqlSchema extends Schema
 {
     static $_single = null;
     protected $conn = null;
 
-
     /**
      * Main public entry point. Use this to get
      * the singleton object.
      *
+     * @param null $conn
      * @return Schema the (single) Schema object
      */
 
@@ -74,13 +65,14 @@ class MysqlSchema extends Schema
      *
      * @param string $table Name of the table to get
      *
-     * @return TableDef tabledef for that table.
+     * @return array of tabledef for that table.
+     * @throws PEAR_Exception
      * @throws SchemaTableMissingException
      */
 
     public function getTableDef($table)
     {
-        $def = array();
+        $def = [];
         $hasKeys = false;
 
         // Pull column data from INFORMATION_SCHEMA
@@ -92,7 +84,7 @@ class MysqlSchema extends Schema
         foreach ($columns as $row) {
 
             $name = $row['COLUMN_NAME'];
-            $field = array();
+            $field = [];
 
             // warning -- 'unsigned' attr on numbers isn't given in DATA_TYPE and friends.
             // It is stuck in on COLUMN_TYPE though (eg 'bigint(20) unsigned')
@@ -119,7 +111,7 @@ class MysqlSchema extends Schema
             if ($row['COLUMN_DEFAULT'] !== null) {
                 // Hack for timestamp cols
                 if ($type == 'timestamp' && $row['COLUMN_DEFAULT'] == 'CURRENT_TIMESTAMP') {
-                    // skip
+                    // skip because timestamp is numerical, but it accepts datetime strings as well
                 } else {
                     $field['default'] = $row['COLUMN_DEFAULT'];
                     if ($this->isNumericType($type)) {
@@ -144,11 +136,11 @@ class MysqlSchema extends Schema
                 // ^ ...... how to specify?
             }
 
+            /* @fixme check against defaults?
             if ($row['CHARACTER_SET_NAME'] !== null) {
-                // @fixme check against defaults?
-                //$def['charset'] = $row['CHARACTER_SET_NAME'];
-                //$def['collate']  = $row['COLLATION_NAME'];
-            }
+                $def['charset'] = $row['CHARACTER_SET_NAME'];
+                $def['collate'] = $row['COLLATION_NAME'];
+            }*/
 
             $def['fields'][$name] = $field;
         }
@@ -161,13 +153,14 @@ class MysqlSchema extends Schema
             // Let's go old school and use SHOW INDEX :D
             //
             $keyInfo = $this->fetchIndexInfo($table);
-            $keys = array();
+            $keys = [];
+            $keyTypes = [];
             foreach ($keyInfo as $row) {
                 $name = $row['Key_name'];
                 $column = $row['Column_name'];
 
                 if (!isset($keys[$name])) {
-                    $keys[$name] = array();
+                    $keys[$name] = [];
                 }
                 $keys[$name][] = $column;
 
@@ -199,8 +192,11 @@ class MysqlSchema extends Schema
      * Pull the given table properties from INFORMATION_SCHEMA.
      * Most of the good stuff is MySQL extensions.
      *
+     * @param $table
+     * @param $props
      * @return array
-     * @throws Exception if table info can't be looked up
+     * @throws PEAR_Exception
+     * @throws SchemaTableMissingException
      */
 
     function getTableProperties($table, $props)
@@ -217,12 +213,15 @@ class MysqlSchema extends Schema
      * Pull some INFORMATION.SCHEMA data for the given table.
      *
      * @param string $table
+     * @param $infoTable
+     * @param null $orderBy
      * @return array of arrays
+     * @throws PEAR_Exception
      */
-    function fetchMetaInfo($table, $infoTable, $orderBy=null)
+    function fetchMetaInfo($table, $infoTable, $orderBy = null)
     {
         $query = "SELECT * FROM INFORMATION_SCHEMA.%s " .
-                 "WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'";
+            "WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'";
         $schema = $this->conn->dsn['database'];
         $sql = sprintf($query, $infoTable, $schema, $table);
         if ($orderBy) {
@@ -236,6 +235,7 @@ class MysqlSchema extends Schema
      *
      * @param string $table
      * @return array of arrays
+     * @throws PEAR_Exception
      */
     function fetchIndexInfo($table)
     {
@@ -284,6 +284,9 @@ class MysqlSchema extends Schema
 
     /**
      * Get the unique index key name for a given column on this table
+     * @param $tableName
+     * @param $columnName
+     * @return string
      */
     function _uniqueKey($tableName, $columnName)
     {
@@ -292,6 +295,9 @@ class MysqlSchema extends Schema
 
     /**
      * Get the index key name for a given column on this table
+     * @param $tableName
+     * @param $columnName
+     * @return string
      */
     function _key($tableName, $columnName)
     {
@@ -314,7 +320,7 @@ class MysqlSchema extends Schema
      * if they were indexes here.
      *
      * @param array $phrase
-     * @param <type> $keyName MySQL
+     * @param string $keyName MySQL
      */
     function appendAlterDropUnique(array &$phrase, $keyName)
     {
@@ -324,13 +330,17 @@ class MysqlSchema extends Schema
     /**
      * Throw some table metadata onto the ALTER TABLE if we have a mismatch
      * in expected type, collation.
+     * @param array $phrase
+     * @param $tableName
+     * @param array $def
+     * @throws Exception
      */
     function appendAlterExtras(array &$phrase, $tableName, array $def)
     {
         // Check for table properties: make sure we're using a sane
         // engine type and charset/collation.
         // @fixme make the default engine configurable?
-        $oldProps = $this->getTableProperties($tableName, array('ENGINE', 'TABLE_COLLATION'));
+        $oldProps = $this->getTableProperties($tableName, ['ENGINE', 'TABLE_COLLATION']);
         $engine = $this->preferredEngine($def);
         if (strtolower($oldProps['ENGINE']) != strtolower($engine)) {
             $phrase[] = "ENGINE=$engine";
@@ -344,10 +354,12 @@ class MysqlSchema extends Schema
 
     /**
      * Is this column a string type?
+     * @param array $cd
+     * @return bool
      */
     private function _isString(array $cd)
     {
-        $strings = array('char', 'varchar', 'text');
+        $strings = ['char', 'varchar', 'text'];
         return in_array(strtolower($cd['type']), $strings);
     }
 
@@ -358,14 +370,14 @@ class MysqlSchema extends Schema
      * Appropriate for use in CREATE TABLE or
      * ALTER TABLE statements.
      *
-     * @param ColumnDef $cd column to create
+     * @param array $cd column to create
      *
      * @return string correct SQL for that column
      */
 
     function columnSql(array $cd)
     {
-        $line = array();
+        $line = [];
         $line[] = parent::columnSql($cd);
 
         // This'll have been added from our transform of 'serial' type
@@ -383,9 +395,11 @@ class MysqlSchema extends Schema
 
     function mapType($column)
     {
-        $map = array('serial' => 'int',
-                     'integer' => 'int',
-                     'numeric' => 'decimal');
+        $map = [
+            'serial' => 'int',
+            'integer' => 'int',
+            'numeric' => 'decimal'
+        ];
 
         $type = $column['type'];
         if (isset($map[$type])) {
@@ -395,10 +409,10 @@ class MysqlSchema extends Schema
         if (!empty($column['size'])) {
             $size = $column['size'];
             if ($type == 'int' &&
-                       in_array($size, array('tiny', 'small', 'medium', 'big'))) {
+                in_array($size, ['tiny', 'small', 'medium', 'big'])) {
                 $type = $size . $type;
-            } else if (in_array($type, array('blob', 'text')) &&
-                       in_array($size, array('tiny', 'medium', 'long'))) {
+            } else if (in_array($type, ['blob', 'text']) &&
+                in_array($size, ['tiny', 'medium', 'long'])) {
                 $type = $size . $type;
             }
         }
@@ -409,7 +423,7 @@ class MysqlSchema extends Schema
     function typeAndSize($column)
     {
         if ($column['type'] == 'enum') {
-            $vals = array_map(array($this, 'quote'), $column['enum']);
+            $vals = array_map([$this, 'quote'], $column['enum']);
             return 'enum(' . implode(',', $vals) . ')';
         } else if ($this->_isString($column)) {
             $col = parent::typeAndSize($column);
@@ -433,6 +447,7 @@ class MysqlSchema extends Schema
      * or type variants that we wouldn't get back from getTableDef().
      *
      * @param array $tableDef
+     * @return array
      */
     function filterDef(array $tableDef)
     {
@@ -443,26 +458,6 @@ class MysqlSchema extends Schema
                 $col['auto_increment'] = true;
             }
 
-            // Avoid invalid date errors in MySQL 5.7+
-            if ($col['type'] == 'timestamp' && !isset($col['default'])
-                && $version >= 50605) {
-                $col['default'] = 'CURRENT_TIMESTAMP';
-            }
-            if ($col['type'] == 'datetime') {
-                // Avoid invalid date errors in MySQL 5.7+
-                if (!isset($col['default']) && $version >= 50605) {
-                    $col['default'] = 'CURRENT_TIMESTAMP';
-                }
-
-                // If we are using MySQL 5.5, convert datetime to timestamp if
-                // default value is CURRENT_TIMESTAMP. Not needed for MySQL 5.6+
-                // and MariaDB 10.0+
-                if (isset($col['default'])
-                    && $col['default'] == 'CURRENT_TIMESTAMP'
-                    && $version < 50605) {
-                    $col['type'] = 'timestamp';
-                }
-            }
             $col['type'] = $this->mapType($col);
             unset($col['size']);
         }

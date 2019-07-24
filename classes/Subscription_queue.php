@@ -20,7 +20,7 @@ class Subscription_queue extends Managed_DataObject
             'fields' => array(
                 'subscriber' => array('type' => 'int', 'not null' => true, 'description' => 'remote or local profile making the request'),
                 'subscribed' => array('type' => 'int', 'not null' => true, 'description' => 'remote or local profile being subscribed to'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
             ),
             'primary key' => array('subscriber', 'subscribed'),
             'indexes' => array(

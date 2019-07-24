@@ -1,52 +1,43 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * Database schema for PostgreSQL
  *
- * Database schema utilities
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Database
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
- * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @category Database
+ * @package  GNUsocial
+ * @author   Evan Prodromou <evan@status.net>
+ * @author   Brenda Wallace <shiny@cpan.org>
+ * @author   Brion Vibber <brion@status.net>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
- * Class representing the database schema
+ * Class representing the database schema for PostgreSQL
  *
  * A class representing the database schema. Can be used to
  * manipulate the schema -- especially for plugins and upgrade
  * utilities.
  *
- * @category Database
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Brenda Wallace <shiny@cpan.org>
- * @author   Brion Vibber <brion@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 class PgsqlSchema extends Schema
 {
 
@@ -59,11 +50,12 @@ class PgsqlSchema extends Schema
      * @param string $table Name of the table to get
      *
      * @return array tabledef for that table.
+     * @throws SchemaTableMissingException
      */
 
     public function getTableDef($table)
     {
-        $def = array();
+        $def = [];
         $hasKeys = false;
 
         // Pull column data from INFORMATION_SCHEMA
@@ -73,15 +65,15 @@ class PgsqlSchema extends Schema
         }
 
         // We'll need to match up fields by ordinal reference
-        $orderedFields = array();
+        $orderedFields = [];
 
         foreach ($columns as $row) {
 
             $name = $row['column_name'];
             $orderedFields[$row['ordinal_position']] = $name;
 
-            $field = array();
-            $field['type'] = $row['udt_name'];
+            $field = [];
+            $field['type'] = $type = $row['udt_name'];
 
             if ($type == 'char' || $type == 'varchar') {
                 if ($row['character_maximum_length'] !== null) {
@@ -123,7 +115,7 @@ class PgsqlSchema extends Schema
             // These are inconvenient arrays with partial references to the
             // pg_att table, but since we've already fetched up the column
             // info on the current table, we can look those up locally.
-            $cols = array();
+            $cols = [];
             $colPositions = explode(' ', $row['indkey']);
             foreach ($colPositions as $ord) {
                 if ($ord == 0) {
@@ -139,13 +131,13 @@ class PgsqlSchema extends Schema
         // Pull constraint data from INFORMATION_SCHEMA:
         // Primary key, unique keys, foreign keys
         $keyColumns = $this->fetchMetaInfo($table, 'key_column_usage', 'constraint_name,ordinal_position');
-        $keys = array();
+        $keys = [];
 
         foreach ($keyColumns as $row) {
             $keyName = $row['constraint_name'];
             $keyCol = $row['column_name'];
             if (!isset($keys[$keyName])) {
-                $keys[$keyName] = array();
+                $keys[$keyName] = [];
             }
             $keys[$keyName][] = $keyCol;
         }
@@ -157,7 +149,7 @@ class PgsqlSchema extends Schema
             } else if (preg_match("/^{$table}_(.*)_fkey$/", $keyName, $matches)) {
                 $fkey = $this->getForeignKeyInfo($table, $keyName);
                 $colMap = array_combine($cols, $fkey['col_names']);
-                $def['foreign keys'][$keyName] = array($fkey['table_name'], $colMap);
+                $def['foreign keys'][$keyName] = [$fkey['table_name'], $colMap];
             } else {
                 $def['unique keys'][$keyName] = $cols;
             }
@@ -169,12 +161,15 @@ class PgsqlSchema extends Schema
      * Pull some INFORMATION.SCHEMA data for the given table.
      *
      * @param string $table
+     * @param $infoTable
+     * @param null $orderBy
      * @return array of arrays
+     * @throws PEAR_Exception
      */
-    function fetchMetaInfo($table, $infoTable, $orderBy=null)
+    function fetchMetaInfo($table, $infoTable, $orderBy = null)
     {
         $query = "SELECT * FROM information_schema.%s " .
-                 "WHERE table_name='%s'";
+            "WHERE table_name='%s'";
         $sql = sprintf($query, $infoTable, $table);
         if ($orderBy) {
             $sql .= ' ORDER BY ' . $orderBy;
@@ -186,36 +181,39 @@ class PgsqlSchema extends Schema
      * Pull some PG-specific index info
      * @param string $table
      * @return array of arrays
+     * @throws PEAR_Exception
      */
     function getIndexInfo($table)
     {
         $query = 'SELECT ' .
-                 '(SELECT relname FROM pg_class WHERE oid=indexrelid) AS key_name, ' .
-                 '* FROM pg_index ' .
-                 'WHERE indrelid=(SELECT oid FROM pg_class WHERE relname=\'%s\') ' .
-                 'AND indisprimary=\'f\' AND indisunique=\'f\' ' .
-                 'ORDER BY indrelid, indexrelid';
+            '(SELECT relname FROM pg_class WHERE oid=indexrelid) AS key_name, ' .
+            '* FROM pg_index ' .
+            'WHERE indrelid=(SELECT oid FROM pg_class WHERE relname=\'%s\') ' .
+            'AND indisprimary=\'f\' AND indisunique=\'f\' ' .
+            'ORDER BY indrelid, indexrelid';
         $sql = sprintf($query, $table);
         return $this->fetchQueryData($sql);
     }
 
     /**
      * Column names from the foreign table can be resolved with a call to getTableColumnNames()
-     * @param <type> $table
+     * @param string $table
+     * @param $constraint_name
      * @return array array of rows with keys: fkey_name, table_name, table_id, col_names (array of strings)
+     * @throws PEAR_Exception
      */
     function getForeignKeyInfo($table, $constraint_name)
     {
         // In a sane world, it'd be easier to query the column names directly.
         // But it's pretty hard to work with arrays such as col_indexes in direct SQL here.
         $query = 'SELECT ' .
-                 '(SELECT relname FROM pg_class WHERE oid=confrelid) AS table_name, ' .
-                 'confrelid AS table_id, ' .
-                 '(SELECT indkey FROM pg_index WHERE indexrelid=conindid) AS col_indexes ' .
-                 'FROM pg_constraint ' .
-                 'WHERE conrelid=(SELECT oid FROM pg_class WHERE relname=\'%s\') ' .
-                 'AND conname=\'%s\' ' .
-                 'AND contype=\'f\'';
+            '(SELECT relname FROM pg_class WHERE oid=confrelid) AS table_name, ' .
+            'confrelid AS table_id, ' .
+            '(SELECT indkey FROM pg_index WHERE indexrelid=conindid) AS col_indexes ' .
+            'FROM pg_constraint ' .
+            'WHERE conrelid=(SELECT oid FROM pg_class WHERE relname=\'%s\') ' .
+            'AND conname=\'%s\' ' .
+            'AND contype=\'f\'';
         $sql = sprintf($query, $table, $constraint_name);
         $data = $this->fetchQueryData($sql);
         if (count($data) < 1) {
@@ -223,10 +221,10 @@ class PgsqlSchema extends Schema
         }
 
         $row = $data[0];
-        return array(
+        return [
             'table_name' => $row['table_name'],
             'col_names' => $this->getTableColumnNames($row['table_id'], $row['col_indexes'])
-        );
+        ];
     }
 
     /**
@@ -234,22 +232,23 @@ class PgsqlSchema extends Schema
      * @param int $table_id
      * @param array $col_indexes
      * @return array of strings
+     * @throws PEAR_Exception
      */
     function getTableColumnNames($table_id, $col_indexes)
     {
         $indexes = array_map('intval', explode(' ', $col_indexes));
         $query = 'SELECT attnum AS col_index, attname AS col_name ' .
-                 'FROM pg_attribute where attrelid=%d ' .
-                 'AND attnum IN (%s)';
+            'FROM pg_attribute where attrelid=%d ' .
+            'AND attnum IN (%s)';
         $sql = sprintf($query, $table_id, implode(',', $indexes));
         $data = $this->fetchQueryData($sql);
 
-        $byId = array();
+        $byId = [];
         foreach ($data as $row) {
             $byId[$row['col_index']] = $row['col_name'];
         }
 
-        $out = array();
+        $out = [];
         foreach ($indexes as $id) {
             $out[] = $byId[$id];
         }
@@ -262,14 +261,15 @@ class PgsqlSchema extends Schema
      *
      * @return string postgres happy column type
      */
-    private function _columnTypeTranslation($type) {
-      $map = array(
-      'datetime' => 'timestamp',
-      );
-      if(!empty($map[$type])) {
-        return $map[$type];
-      }
-      return $type;
+    private function _columnTypeTranslation($type)
+    {
+        $map = [
+            'datetime' => 'timestamp',
+        ];
+        if (!empty($map[$type])) {
+            return $map[$type];
+        }
+        return $type;
     }
 
     /**
@@ -286,7 +286,7 @@ class PgsqlSchema extends Schema
 
     function columnSql(array $cd)
     {
-        $line = array();
+        $line = [];
         $line[] = parent::columnSql($cd);
 
         /*
@@ -341,7 +341,6 @@ class PgsqlSchema extends Schema
      * @param array $statements
      * @param string $table
      * @param string $name
-     * @param array $def
      */
     function appendDropIndex(array &$statements, $table, $name)
     {
@@ -361,10 +360,12 @@ class PgsqlSchema extends Schema
 
     function mapType($column)
     {
-        $map = array('serial' => 'bigserial', // FIXME: creates the wrong name for the sequence for some internal sequence-lookup function, so better fix this to do the real 'create sequence' dance.
-                     'numeric' => 'decimal',
-                     'datetime' => 'timestamp',
-                     'blob' => 'bytea');
+        $map = [
+            'serial' => 'bigserial', // FIXME: creates the wrong name for the sequence for some internal sequence-lookup function, so better fix this to do the real 'create sequence' dance.
+            'numeric' => 'decimal',
+            'datetime' => 'timestamp',
+            'blob' => 'bytea'
+        ];
 
         $type = $column['type'];
         if (isset($map[$type])) {
@@ -390,7 +391,7 @@ class PgsqlSchema extends Schema
     function typeAndSize($column)
     {
         if ($column['type'] == 'enum') {
-            $vals = array_map(array($this, 'quote'), $column['enum']);
+            $vals = array_map([$this, 'quote'], $column['enum']);
             return "text check ($name in " . implode(',', $vals) . ')';
         } else {
             return parent::typeAndSize($column);
@@ -405,6 +406,7 @@ class PgsqlSchema extends Schema
      * or type variants that we wouldn't get back from getTableDef().
      *
      * @param array $tableDef
+     * @return array
      */
     function filterDef(array $tableDef)
     {
@@ -444,8 +446,7 @@ class PgsqlSchema extends Schema
     function filterKeyDef(array $def)
     {
         // PostgreSQL doesn't like prefix lengths specified on keys...?
-        foreach ($def as $i => $item)
-        {
+        foreach ($def as $i => $item) {
             if (is_array($item)) {
                 $def[$i] = $item[0];
             }

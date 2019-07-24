@@ -11,8 +11,8 @@ class Local_group extends Managed_DataObject
     public $__table = 'local_group';                     // table name
     public $group_id;                        // int(4)  primary_key not_null
     public $nickname;                        // varchar(64)  unique_key
-    public $created;                         // datetime   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // timestamp   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -24,9 +24,8 @@ class Local_group extends Managed_DataObject
             'fields' => array(
                 'group_id' => array('type' => 'int', 'not null' => true, 'description' => 'group represented'),
                 'nickname' => array('type' => 'varchar', 'length' => 64, 'description' => 'group represented'),
-
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('group_id'),
             'foreign keys' => array(

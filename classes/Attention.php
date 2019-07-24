@@ -23,8 +23,8 @@ class Attention extends Managed_DataObject
     public $notice_id;              // int(4) primary_key not_null
     public $profile_id;             // int(4) primary_key not_null
     public $reason;                 // varchar(191)   not 255 because utf8mb4 takes more space
-    public $created;                // datetime()   not_null
-    public $modified;               // timestamp   not_null default_CURRENT_TIMESTAMP
+    public $created;                // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;               // datetime()   not_null default_CURRENT_TIMESTAMP
 
     public static function schemaDef()
     {
@@ -34,8 +34,8 @@ class Attention extends Managed_DataObject
                 'notice_id' => array('type' => 'int', 'not null' => true, 'description' => 'notice_id to give attention'),
                 'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'profile_id for feed receiver'),
                 'reason' => array('type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of profile_id'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('notice_id', 'profile_id'),
             'foreign keys' => array(

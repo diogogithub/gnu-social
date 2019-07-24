@@ -12,8 +12,8 @@ class Profile_tag_subscription extends Managed_DataObject
     public $__table = 'profile_tag_subscription';                     // table name
     public $profile_tag_id;                         // int(4)  not_null
     public $profile_id;                             // int(4)  not_null
-    public $created;                                // datetime   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                               // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $created;                                // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                               // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -25,8 +25,8 @@ class Profile_tag_subscription extends Managed_DataObject
                 'profile_tag_id' => array('type' => 'int', 'not null' => true, 'description' => 'foreign key to profile_tag'),
                 'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'),
 
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('profile_tag_id', 'profile_id'),
             'foreign keys' => array(

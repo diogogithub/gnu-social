@@ -13,8 +13,8 @@ class User_username extends Managed_DataObject
     public $user_id;                        // int(4)  not_null
     public $provider_name;                  // varchar(191)  primary_key not_null   not 255 because utf8mb4 takes more space
     public $username;                       // varchar(191)  primary_key not_null   not 255 because utf8mb4 takes more space
-    public $created;                        // datetime()   not_null
-    public $modified;                       // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $created;                        // datetime()  not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                       // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -26,8 +26,8 @@ class User_username extends Managed_DataObject
                 'provider_name' => array('type' => 'varchar', 'length' => 191, 'description' => 'provider name'),
                 'username' => array('type' => 'varchar', 'length' => 191, 'description' => 'username'),
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'notice id this title relates to'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('provider_name', 'username'),
             'indexes' => array(

@@ -15,8 +15,8 @@ class Avatar extends Managed_DataObject
     public $height;                          // int(4)  primary_key not_null
     public $mediatype;                       // varchar(32)   not_null
     public $filename;                        // varchar(191)   not 255 because utf8mb4 takes more space
-    public $created;                         // datetime()   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 	
     public static function schemaDef()
     {
@@ -28,8 +28,8 @@ class Avatar extends Managed_DataObject
                 'height' => array('type' => 'int', 'not null' => true, 'description' => 'image height'),
                 'mediatype' => array('type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'file type'),
                 'filename' => array('type' => 'varchar', 'length' => 191, 'description' => 'local filename, if local'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('profile_id', 'width', 'height'),
             'unique keys' => array(

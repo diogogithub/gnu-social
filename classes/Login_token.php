@@ -31,8 +31,8 @@ class Login_token extends Managed_DataObject
     public $__table = 'login_token';         // table name
     public $user_id;                         // int(4)  primary_key not_null
     public $token;                           // char(32)  not_null
-    public $created;                         // datetime()   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -43,8 +43,8 @@ class Login_token extends Managed_DataObject
             'fields' => array(
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'user owning this token'),
                 'token' => array('type' => 'char', 'length' => 32, 'not null' => true, 'description' => 'token useable for logging in'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('user_id'),
             'foreign keys' => array(

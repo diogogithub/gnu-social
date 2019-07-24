@@ -12,7 +12,7 @@ class Remember_me extends Managed_DataObject
     public $__table = 'remember_me';                     // table name
     public $code;                            // varchar(32)  primary_key not_null
     public $user_id;                         // int(4)   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -23,7 +23,7 @@ class Remember_me extends Managed_DataObject
             'fields' => array(
                 'code' => array('type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'good random code'),
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'user who is logged in'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('code'),
             'foreign keys' => array(

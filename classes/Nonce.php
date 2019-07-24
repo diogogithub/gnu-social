@@ -14,8 +14,8 @@ class Nonce extends Managed_DataObject
     public $tok;                             // char(32)
     public $nonce;                           // char(32)  primary_key not_null
     public $ts;                              // datetime()  primary_key not_null
-    public $created;                         // datetime()   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -43,9 +43,8 @@ class Nonce extends Managed_DataObject
                 'tok' => array('type' => 'char', 'length' => 32, 'description' => 'buggy old value, ignored'),
                 'nonce' => array('type' => 'char', 'length' => 32, 'not null' => true, 'description' => 'nonce'),
                 'ts' => array('type' => 'datetime', 'not null' => true, 'description' => 'timestamp sent'),
-
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('consumer_key', 'ts', 'nonce'),
         );

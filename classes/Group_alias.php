@@ -31,7 +31,7 @@ class Group_alias extends Managed_DataObject
     public $__table = 'group_alias';                     // table name
     public $alias;                           // varchar(64)  primary_key not_null
     public $group_id;                        // int(4)   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -42,7 +42,7 @@ class Group_alias extends Managed_DataObject
             'fields' => array(
                 'alias' => array('type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'additional nickname for the group'),
                 'group_id' => array('type' => 'int', 'not null' => true, 'description' => 'group profile is blocked from'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date alias was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date alias was created'),
             ),
             'primary key' => array('alias'),
             'foreign keys' => array(

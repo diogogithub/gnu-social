@@ -11,7 +11,7 @@ class Notice_location extends Managed_DataObject
     public $lon;                             // decimal(10,7)
     public $location_id;                     // int(4)
     public $location_ns;                     // int(4)
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     public static function schemaDef()
     {
@@ -22,7 +22,7 @@ class Notice_location extends Managed_DataObject
                 'lon' => array('type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'),
                 'location_id' => array('type' => 'int', 'description' => 'location id if possible'),
                 'location_ns' => array('type' => 'int', 'description' => 'namespace for location'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('notice_id'),
             'foreign keys' => array(

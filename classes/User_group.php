@@ -24,8 +24,8 @@ class User_group extends Managed_DataObject
     public $homepage_logo;                   // varchar(191)   not 255 because utf8mb4 takes more space
     public $stream_logo;                     // varchar(191)   not 255 because utf8mb4 takes more space
     public $mini_logo;                       // varchar(191)   not 255 because utf8mb4 takes more space
-    public $created;                         // datetime   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // timestamp   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
     public $uri;                             // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
     public $mainpage;                        // varchar(191)   not 255 because utf8mb4 takes more space
     public $join_policy;                     // tinyint
@@ -58,8 +58,8 @@ class User_group extends Managed_DataObject
                 'stream_logo' => array('type' => 'varchar', 'length' => 191, 'description' => 'stream-sized logo'),
                 'mini_logo' => array('type' => 'varchar', 'length' => 191, 'description' => 'mini logo'),
 
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
 
                 'uri' => array('type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'),
                 'mainpage' => array('type' => 'varchar', 'length' => 191, 'description' => 'page for group info to link to'),

@@ -19,8 +19,8 @@ class Foreign_link extends Managed_DataObject
     public $profilesync;                     // tinyint(1)   not_null default_1
     public $last_noticesync;                 // datetime()
     public $last_friendsync;                 // datetime()
-    public $created;                         // datetime()   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -38,8 +38,8 @@ class Foreign_link extends Managed_DataObject
                 'profilesync' => array('type' => 'int', 'size' => 'tiny', 'not null' => true, 'default' => 1, 'description' => 'profile synchronization, bit 1 = sync outgoing, bit 2 = sync incoming'),
                 'last_noticesync' => array('type' => 'datetime', 'description' => 'last time notices were imported'),
                 'last_friendsync' => array('type' => 'datetime', 'description' => 'last time friends were imported'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('user_id', 'foreign_id', 'service'),
             'foreign keys' => array(

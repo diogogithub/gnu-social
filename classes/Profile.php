@@ -36,8 +36,8 @@ class Profile extends Managed_DataObject
     public $lon;                             // decimal(10,7)
     public $location_id;                     // int(4)
     public $location_ns;                     // int(4)
-    public $created;                         // datetime()   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     public static function schemaDef()
     {
@@ -55,9 +55,8 @@ class Profile extends Managed_DataObject
                 'lon' => array('type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'),
                 'location_id' => array('type' => 'int', 'description' => 'location id if possible'),
                 'location_ns' => array('type' => 'int', 'description' => 'namespace for location'),
-
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('id'),
             'indexes' => array(

@@ -27,7 +27,7 @@ class Status_network_tag extends Safe_DataObject
     public $__table = 'status_network_tag';                      // table name
     public $site_id;                  // int(4)  primary_key not_null
     public $tag;                      // varchar(64)  primary_key not_null
-    public $created;                 // datetime()   not_null
+    public $created;                 // datetime()   not_null default_0000-00-00%2000%3A00%3A00
 
 
     function __construct()

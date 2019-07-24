@@ -37,8 +37,8 @@ class User_location_prefs extends Managed_DataObject
     public $__table = 'user_location_prefs';             // table name
     public $user_id;                         // int(4)  primary_key not_null
     public $share_location;                  // tinyint(1)   default_1
-    public $created;                         // datetime   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // timestamp   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -49,8 +49,8 @@ class User_location_prefs extends Managed_DataObject
             'fields' => array(
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'user who has the preference'),
                 'share_location' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Whether to share location data'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('user_id'),
             'foreign keys' => array(

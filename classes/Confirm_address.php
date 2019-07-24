@@ -13,7 +13,7 @@ class Confirm_address extends Managed_DataObject
     public $address_type;                    // varchar(8)   not_null
     public $claimed;                         // datetime()
     public $sent;                            // datetime()
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     public static function schemaDef()
     {
@@ -26,7 +26,7 @@ class Confirm_address extends Managed_DataObject
                 'address_type' => array('type' => 'varchar', 'length' => 8, 'not null' => true, 'description' => 'address type ("email", "xmpp", "sms")'),
                 'claimed' => array('type' => 'datetime', 'description' => 'date this was claimed for queueing'),
                 'sent' => array('type' => 'datetime', 'description' => 'date this was sent for queueing'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('code'),
             'foreign keys' => array(

@@ -13,7 +13,7 @@ class Queue_item extends Managed_DataObject
     public $id;                              // int(4)  primary_key not_null
     public $frame;                           // blob not_null
     public $transport;                       // varchar(32)
-    public $created;                         // datetime()   not_null
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
     public $claimed;                         // datetime()
 
     /* the code above is auto generated do not remove the tag below */
@@ -26,7 +26,7 @@ class Queue_item extends Managed_DataObject
                 'id' => array('type' => 'serial', 'not null' => true, 'description' => 'unique identifier'),
                 'frame' => array('type' => 'blob', 'not null' => true, 'description' => 'data: object reference or opaque string'),
                 'transport' => array('type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'queue for what? "email", "xmpp", "sms", "irc", ...'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
                 'claimed' => array('type' => 'datetime', 'description' => 'date this item was claimed'),
             ),
             'primary key' => array('id'),

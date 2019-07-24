@@ -13,8 +13,8 @@ class Group_member extends Managed_DataObject
     public $profile_id;                      // int(4)  primary_key not_null
     public $is_admin;                        // tinyint(1)
     public $uri;                             // varchar(191)   not 255 because utf8mb4 takes more space
-    public $created;                         // datetime()   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -27,8 +27,8 @@ class Group_member extends Managed_DataObject
                 'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'),
                 'is_admin' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'is this user an admin?'),
                 'uri' => array('type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('group_id', 'profile_id'),
             'unique keys' => array(

@@ -11,7 +11,7 @@ class Group_inbox extends Managed_DataObject
     public $__table = 'group_inbox';                     // table name
     public $group_id;                        // int(4)  primary_key not_null
     public $notice_id;                       // int(4)  primary_key not_null
-    public $created;                         // datetime()   not_null
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -23,7 +23,7 @@ class Group_inbox extends Managed_DataObject
             'fields' => array(
                 'group_id' => array('type' => 'int', 'not null' => true, 'description' => 'group receiving the message'),
                 'notice_id' => array('type' => 'int', 'not null' => true, 'description' => 'notice received'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date the notice was created'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the notice was created'),
             ),
             'primary key' => array('group_id', 'notice_id'),
             'foreign keys' => array(

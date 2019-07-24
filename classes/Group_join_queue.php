@@ -24,7 +24,7 @@ class Group_join_queue extends Managed_DataObject
             'fields' => array(
                 'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'remote or local profile making the request'),
                 'group_id' => array('type' => 'int', 'description' => 'remote or local group to join, if any'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
             ),
             'primary key' => array('profile_id', 'group_id'),
             'indexes' => array(

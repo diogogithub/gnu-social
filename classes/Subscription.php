@@ -35,8 +35,8 @@ class Subscription extends Managed_DataObject
     public $token;                           // varchar(191)   not 255 because utf8mb4 takes more space
     public $secret;                          // varchar(191)   not 255 because utf8mb4 takes more space
     public $uri;                             // varchar(191)   not 255 because utf8mb4 takes more space
-    public $created;                         // datetime()   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     public static function schemaDef()
     {
@@ -49,8 +49,8 @@ class Subscription extends Managed_DataObject
                 'token' => array('type' => 'varchar', 'length' => 191, 'description' => 'authorization token'),
                 'secret' => array('type' => 'varchar', 'length' => 191, 'description' => 'token secret'),
                 'uri' => array('type' => 'varchar', 'length' => 191, 'description' => 'universally unique identifier'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('subscriber', 'subscribed'),
             'unique keys' => array(

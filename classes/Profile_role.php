@@ -35,7 +35,7 @@ class Profile_role extends Managed_DataObject
     public $__table = 'profile_role';                    // table name
     public $profile_id;                      // int(4)  primary_key not_null
     public $role;                            // varchar(32)  primary_key not_null
-    public $created;                         // datetime   not_null default_0000-00-00%2000%3A00%3A00
+    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -46,7 +46,7 @@ class Profile_role extends Managed_DataObject
             'fields' => array(
                 'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'account having the role'),
                 'role' => array('type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'string representing the role'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date the role was granted'),
+                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the role was granted'),
             ),
             'primary key' => array('profile_id', 'role'),
             'foreign keys' => array(

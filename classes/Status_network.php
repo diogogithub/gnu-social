@@ -39,7 +39,7 @@ class Status_network extends Safe_DataObject
     public $theme;                           // varchar(191)               not 255 because utf8mb4 takes more space
     public $logo;                            // varchar(191)               not 255 because utf8mb4 takes more space
     public $created;                         // datetime()   not_null
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
     /* Static get */
     static function getKV($k,$v=NULL) {
