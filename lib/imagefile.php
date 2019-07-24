@@ -30,6 +30,8 @@
 
 defined('GNUSOCIAL') || die();
 
+use Intervention\Image\ImageManagerStatic as Image;
+
 /**
  * A wrapper on uploaded images
  *
@@ -53,27 +55,37 @@ class ImageFile extends MediaFile
 
     public function __construct($id, string $filepath)
     {
+        $old_limit = ini_set('memory_limit', common_config('attachments', 'memory_limit'));
+
         // These do not have to be the same as fileRecord->filename for example,
         // since we may have generated an image source file from something else!
         $this->filepath = $filepath;
         $this->filename = basename($filepath);
 
-        $info = @getimagesize($this->filepath);
+        $img = Image::make($this->filepath);
+        $this->mimetype = $img->mime();
 
-        if (!(($info[2] == IMAGETYPE_GIF  && function_exists('imagecreatefromgif'))  ||
-              ($info[2] == IMAGETYPE_JPEG && function_exists('imagecreatefromjpeg')) ||
-              ($info[2] == IMAGETYPE_BMP  && function_exists('imagecreatefrombmp')) ||
-              ($info[2] == IMAGETYPE_WBMP && function_exists('imagecreatefromwbmp')) ||
-              ($info[2] == IMAGETYPE_XBM  && function_exists('imagecreatefromxbm'))  ||
-              ($info[2] == IMAGETYPE_PNG  && function_exists('imagecreatefrompng')))) {
+        $cmp = function($obj, $type) {
+            if ($obj->mimetype == image_type_to_mime_type($type)) {
+                $obj->type = $type;
+                return true;
+            } else {
+                return false;
+            }
+        };
+        if (!(($cmp($this, IMAGETYPE_GIF)  && function_exists('imagecreatefromgif'))  ||
+              ($cmp($this, IMAGETYPE_JPEG) && function_exists('imagecreatefromjpeg')) ||
+              ($cmp($this, IMAGETYPE_BMP)  && function_exists('imagecreatefrombmp'))  ||
+              ($cmp($this, IMAGETYPE_WBMP) && function_exists('imagecreatefromwbmp')) ||
+              ($cmp($this, IMAGETYPE_XBM)  && function_exists('imagecreatefromxbm'))  ||
+              ($cmp($this, IMAGETYPE_PNG)  && function_exists('imagecreatefrompng')))) {
+            common_debug("Mimetype '{$this->mimetype}' was not recognized as a supported format");
             // TRANS: Exception thrown when trying to upload an unsupported image file format.
             throw new UnsupportedMediaException(_m('Unsupported image format.'), $this->filepath);
         }
 
-        $this->width    = $info[0];
-        $this->height   = $info[1];
-        $this->type     = $info[2];
-        $this->mimetype = $info['mime'];
+        $this->width    = $img->width();
+        $this->height   = $img->height();
 
         parent::__construct(
             $filepath,
@@ -82,9 +94,9 @@ class ImageFile extends MediaFile
             $id
         );
 
-        if ($this->type === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
+        if ($this->type === IMAGETYPE_JPEG) {
             // Orientation value to rotate thumbnails properly
-            $exif = @exif_read_data($this->filepath);
+            $exif = @$img->exif();
             if (is_array($exif) && isset($exif['Orientation'])) {
                 switch (intval($exif['Orientation'])) {
                 case 1: // top is top
@@ -107,8 +119,16 @@ class ImageFile extends MediaFile
         }
 
         Event::handle('FillImageFileMetadata', array($this));
+
+        $img->destroy();
+        ini_set('memory_limit', $old_limit); // Restore the old memory limit
     }
 
+    /**
+     * Create a thumbnail from a file object
+     *
+     * @return ImageFile
+     */
     public static function fromFileObject(File $file)
     {
         $imgPath = null;
@@ -250,8 +270,9 @@ class ImageFile extends MediaFile
         $box['h']      = isset($box['h'])      ? intval($box['h'])      : $this->height;
 
         if (!file_exists($this->filepath)) {
-            // TRANS: Exception thrown during resize when image has been registered as present, but is no longer there.
-            throw new Exception(_m('Lost our file.'));
+            // TRANS: Exception thrown during resize when image has been registered as present,
+            // but is no longer there.
+            throw new FileNotFoundException($this->filepath);
         }
 
         // Don't rotate/crop/scale if it isn't necessary
@@ -307,94 +328,44 @@ class ImageFile extends MediaFile
     protected function resizeToFile(string $outpath, array $box) : string
     {
         $old_limit = ini_set('memory_limit', common_config('attachments', 'memory_limit'));
-        $image_src = null;
-        switch ($this->type) {
-        case IMAGETYPE_GIF:
-            $image_src = imagecreatefromgif($this->filepath);
-            break;
-        case IMAGETYPE_JPEG:
-            $image_src = imagecreatefromjpeg($this->filepath);
-            break;
-        case IMAGETYPE_PNG:
-            $image_src = imagecreatefrompng($this->filepath);
-            break;
-        case IMAGETYPE_BMP:
-            $image_src = imagecreatefrombmp($this->filepath);
-            break;
-        case IMAGETYPE_WBMP:
-            $image_src = imagecreatefromwbmp($this->filepath);
-            break;
-        case IMAGETYPE_XBM:
-            $image_src = imagecreatefromxbm($this->filepath);
-            break;
-        default:
+
+        try {
+            $img = Image::make($this->filepath);
+        } catch (Exception $e) {
+            common_log(LOG_ERR, __METHOD__ . ' ecountered exception: ' . print_r($e, true));
             // TRANS: Exception thrown when trying to resize an unknown file type.
             throw new Exception(_m('Unknown file type'));
         }
-
-        if ($this->rotate != 0) {
-            $image_src = imagerotate($image_src, $this->rotate, 0);
-        }
-
-        $image_dest = imagecreatetruecolor($box['width'], $box['height']);
-
-        if ($this->type == IMAGETYPE_PNG || $this->type == IMAGETYPE_BMP) {
-            $transparent_idx = imagecolortransparent($image_src);
-
-            if ($transparent_idx >= 0 && $transparent_idx < 255) {
-                $transparent_color = imagecolorsforindex($image_src, $transparent_idx);
-                $transparent_idx = imagecolorallocate(
-                    $image_dest,
-                    $transparent_color['red'],
-                    $transparent_color['green'],
-                    $transparent_color['blue']
-                );
-                imagefill($image_dest, 0, 0, $transparent_idx);
-                imagecolortransparent($image_dest, $transparent_idx);
-            } elseif ($this->type == IMAGETYPE_PNG) {
-                imagealphablending($image_dest, false);
-                $transparent = imagecolorallocatealpha($image_dest, 0, 0, 0, 127);
-                imagefill($image_dest, 0, 0, $transparent);
-                imagesavealpha($image_dest, true);
-            }
-        }
-
-        imagecopyresampled(
-            $image_dest,
-            $image_src,
-            0,
-            0,
-            $box['x'],
-            $box['y'],
-            $box['width'],
-            $box['height'],
-            $box['w'],
-            $box['h']
-        );
 
         if ($this->filepath === $outpath) {
             @unlink($outpath);
         }
 
-        $type = $this->preferredType();
+        if ($this->rotate != 0) {
+            $img = $img->orientate();
+        }
 
+        $img->crop($box['width'], $box['height'], $box['x'], $box['y']);
+
+        // Ensure we save in the correct format and allow customization based on type
+        $type = $this->preferredType();
         switch ($type) {
-         case IMAGETYPE_GIF:
-            imagegif($image_dest, $outpath);
+        case IMAGETYPE_GIF:
+            $img->save($outpath, 100, 'gif');
+            break;
+        case IMAGETYPE_PNG:
+            $img->save($outpath, 100, 'png');
             break;
          case IMAGETYPE_JPEG:
-            imagejpeg($image_dest, $outpath, common_config('image', 'jpegquality'));
-            break;
-         case IMAGETYPE_PNG:
-            imagepng($image_dest, $outpath);
+             $img->save($outpath, common_config('image', 'jpegquality'), 'jpg');
             break;
          default:
             // TRANS: Exception thrown when trying resize an unknown file type.
             throw new Exception(_m('Unknown file type'));
         }
 
-        imagedestroy($image_src);
-        imagedestroy($image_dest);
+        $img->destroy();
+
         ini_set('memory_limit', $old_limit); // Restore the old memory limit
 
         return $outpath;
