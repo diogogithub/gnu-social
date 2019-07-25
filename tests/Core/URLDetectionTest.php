@@ -19,6 +19,9 @@ namespace Tests\Unit;
 if (!defined('INSTALLDIR')) {
     define('INSTALLDIR', dirname(dirname(__DIR__)));
 }
+if (!defined('PUBLICDIR')) {
+    define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
+}
 if (!defined('GNUSOCIAL')) {
     define('GNUSOCIAL', true);
 }

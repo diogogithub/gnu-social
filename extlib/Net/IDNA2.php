@@ -1,6 +1,6 @@
 <?php
 
-// {{{ license{{{{{{
+// {{{ license{{{{{{{{{
 
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4 foldmethod=marker: */
 //
@@ -22,7 +22,7 @@
 // +----------------------------------------------------------------------+
 //
 
-// }}}}}}}}}
+// }}}}}}}}}}}}
 require_once 'Net/IDNA2/Exception.php';
 require_once 'Net/IDNA2/Exception/Nameprep.php';
 
@@ -3304,7 +3304,7 @@ class Net_IDNA2
      * @static
      * @access private
      */
-    private static function _showHex(array $input, bool $include_bit = false) //: void  XXX PHP: Upgrade to PHP 7.1
+    private static function _showHex(array $input, bool $include_bit = false): void
     {
         foreach ($input as $k => $v) {
             echo '[', $k, '] => ', sprintf('%X', $v);

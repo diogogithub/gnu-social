@@ -19,6 +19,9 @@ namespace Tests\Unit;
 if (!defined('INSTALLDIR')) {
     define('INSTALLDIR', dirname(dirname(__DIR__)));
 }
+if (!defined('PUBLICDIR')) {
+    define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
+}
 if (!defined('GNUSOCIAL')) {
     define('GNUSOCIAL', true);
 }
@@ -35,7 +38,7 @@ require_once INSTALLDIR . '/plugins/Xmpp/XmppPlugin.php';
 
 final class XmppValidateTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         if (!array_key_exists('Xmpp', GNUsocial::getActivePlugins())) {
             $this->markTestSkipped('XmppPlugin is not enabled.');

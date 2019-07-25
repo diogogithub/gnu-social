@@ -4,7 +4,7 @@
     "type": "project",
     "license": "AGPL-3.0-only",
     "require": {
-        "php": "^7.0.0",
+        "php": "^7.3.0",
         "ext-bcmath": "*",
         "ext-curl": "*",
         "ext-dom": "*",
@@ -32,7 +32,7 @@
     },
     "require-dev": {
         "phpdocumentor/phpdocumentor": "^2.9",
-        "phpunit/phpunit": "^6.5",
+        "phpunit/phpunit": "^8.2",
         "psy/psysh": "^0.9.9"
     },
     "suggest": {
@@ -69,10 +69,7 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true,
-        "platform": {
-            "php": "7.0.0"
-        }
+        "sort-packages": true
     },
     "scripts": {
         "post-update-cmd": [

@@ -19,6 +19,9 @@ namespace Tests\Unit;
 if (!defined('INSTALLDIR')) {
     define('INSTALLDIR', dirname(dirname(__DIR__)));
 }
+if (!defined('PUBLICDIR')) {
+    define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
+}
 if (!defined('GNUSOCIAL')) {
     define('GNUSOCIAL', true);
 }
@@ -36,7 +39,7 @@ final class UserRightsTest extends TestCase
 {
     protected $user = null;
 
-    function setUp()
+    function setUp(): void
     {
         $user = User::getKV('nickname', 'userrightstestuser');
         if ($user) {
@@ -51,7 +54,7 @@ final class UserRightsTest extends TestCase
         }
     }
 
-    function tearDown()
+    function tearDown(): void
     {
         if ($this->user) {
             $profile = $this->user->getProfile();

@@ -373,9 +373,7 @@ class MediaFile
             // but if the _actual_ locally stored file doesn't exist, getPath will throw FileNotFoundException
             $filepath = $file->getPath();
             $mimetype = $file->mimetype;
-            // XXX PHP: Upgrade to PHP 7.1
-        // catch (FileNotFoundException | NoResultException $e)
-        } catch (Exception $e) {
+        } catch (FileNotFoundException | NoResultException $e) {
             // We have to save the upload as a new local file. This is the normal course of action.
             if ($scoped instanceof Profile) {
                 // Throws exception if additional size does not respect quota

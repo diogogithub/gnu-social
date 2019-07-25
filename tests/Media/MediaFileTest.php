@@ -19,6 +19,9 @@ namespace Tests\Unit;
 if (!defined('INSTALLDIR')) {
     define('INSTALLDIR', dirname(dirname(__DIR__)));
 }
+if (!defined('PUBLICDIR')) {
+    define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
+}
 if (!defined('GNUSOCIAL')) {
     define('GNUSOCIAL', true);
 }
@@ -37,13 +40,13 @@ require_once INSTALLDIR . '/lib/common.php';
 final class MediaFileTest extends TestCase
 {
 
-    public function setup()
+    public function setup(): void
     {
         $this->old_attachments_supported = common_config('attachments', 'supported');
         $GLOBALS['config']['attachments']['supported'] = true;
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $GLOBALS['config']['attachments']['supported'] = $this->old_attachments_supported;
     }

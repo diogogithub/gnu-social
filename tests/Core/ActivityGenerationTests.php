@@ -54,7 +54,7 @@ final class ActivityGenerationTests extends TestCase
     static $targetGroup1 = null;
     static $targetGroup2 = null;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $authorNick1 = 'activitygenerationtestsuser' . common_random_hexstr(4);
         $authorNick2 = 'activitygenerationtestsuser' . common_random_hexstr(4);
@@ -533,7 +533,7 @@ final class ActivityGenerationTests extends TestCase
         $this->assertEquals($conv->getUrl(), ActivityUtils::getLink($element, 'ostatus:conversation'));
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         if (!is_null(self::$author1)) {
             self::$author1->getProfile()->delete();
