@@ -350,7 +350,7 @@ class Activitypub_postman
     {
         $data = Activitypub_delete::delete_to_array(
             ActivityPubPlugin::actor_uri($notice->getProfile()),
-            $notice->getUrl()
+            Activitypub_notice::getUrl($notice)
                 );
         $errors = [];
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);

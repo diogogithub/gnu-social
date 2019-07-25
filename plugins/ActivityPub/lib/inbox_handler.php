@@ -213,8 +213,19 @@ class Activitypub_inbox_handler
      */
     private function handle_delete($actor, $object)
     {
-        $notice = ActivityPubPlugin::grab_notice_from_url($object['object']);
-        $notice->deleteAs($actor);
+        // some moderator could already have deleted the
+        // notice, so we test it first
+        try {
+            $found = Deleted_notice::getByUri($object);
+            $deleted = ($found instanceof Deleted_notice);
+        } catch (NoResultException $e) {
+            $deleted = false;
+        }
+
+        if (!$deleted) {
+            $notice = ActivityPubPlugin::grab_notice_from_url($object);
+            $notice->deleteAs($actor);
+        }
     }
 
     /**
