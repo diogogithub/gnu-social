@@ -51,7 +51,7 @@ class User_openid_prefs extends Managed_DataObject
     public $user_id;            // The User with the prefs
     public $hide_profile_link;  // Hide the link on the profile block?
     public $created;            // datetime
-    public $modified;           // datetime
+    public $modified;           // timestamp
 
     /**
      * The One True Thingy that must be defined and declared.
@@ -77,13 +77,11 @@ class User_openid_prefs extends Managed_DataObject
                     'type'        => 'datetime',
                     'not null'    => true,
                     'description' => 'date this record was created',
-                    'default'     => 'CURRENT_TIMESTAMP'
                 ],
                 'modified' => [
                     'type'        => 'timestamp',
                     'not null'    => true,
                     'description' => 'date this record was modified',
-                    'default'     => 'CURRENT_TIMESTAMP'
                 ],
             ],
                 'primary key'  => ['user_id'],
