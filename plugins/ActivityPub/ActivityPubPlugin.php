@@ -743,30 +743,31 @@ class ActivityPubPlugin extends Plugin
             return true;
         }
 
-        $other = [];
-
-        foreach ($notice->getAttentionProfiles() as $to_profile) {
-            try {
-                $other[] = Activitypub_profile::from_profile($to_profile);
-            } catch (Exception $e) {
-                // Local user can be ignored
-            }
+        // The deleting user must have permission to do so, but
+        // it still doesn't own the notitce, so we just need to
+        // handle things locally
+        if (!$notice->isLocal()) {
+            return true;
         }
+
+        $other = Activitypub_profile::from_profile_collection(
+            $notice->getAttentionProfiles()
+        );
+
         if ($notice->reply_to) {
             try {
-                $other[] = Activitypub_profile::from_profile($notice->getParent()->getProfile());
-            } catch (Exception $e) {
-                // Local user can be ignored
-            }
-            try {
-                $mentions = $notice->getParent()->getAttentionProfiles();
-                foreach ($mentions as $to_profile) {
-                    try {
-                        $other[] = Activitypub_profile::from_profile($to_profile);
-                    } catch (Exception $e) {
-                        // Local user can be ignored
-                    }
+                $parent_notice = $notice->getParent();
+                
+                try {
+                    $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
+                } catch (Exception $e) {
+                    // Local user can be ignored
                 }
+
+                $other = array_merge($other,
+                                     Activitypub_profile::from_profile_collection(
+                                         $parent_notice->getAttentionProfiles()
+                                     ));
             } catch (NoParentNoticeException $e) {
                 // This is not a reply to something (has no parent)
             } catch (NoResultException $e) {
