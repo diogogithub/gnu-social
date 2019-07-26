@@ -32,7 +32,8 @@ server {
     index index.php;
 
 # PHP
-    location ^~ /index.php {
+    location ~ ^/(index|install)\.php$ {
+    #location ^~ /index.php {
         include fastcgi_params;
         include snippets/fastcgi-php.conf;
 
