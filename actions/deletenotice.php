@@ -39,9 +39,10 @@ class DeletenoticeAction extends FormAction
     {
         $this->notice = Notice::getByID($this->trimmed('notice'));
 
-        if (!$this->scoped->sameAs($this->notice->getProfile()) &&
-                   !$this->scoped->hasRight(Right::DELETEOTHERSNOTICE)) {
-            // TRANS: Error message displayed trying to delete a notice that was not made by the current user.
+        if ($this->notice->isVerb([ActivityVerb::DELETE]) ||
+            (!$this->scoped->sameAs($this->notice->getProfile()) &&
+              !$this->scoped->hasRight(Right::DELETEOTHERSNOTICE))) {
+            // TRANS: Error message displayed when trying to delete a notice that was not made by the current user.
             $this->clientError(_('Cannot delete this notice.'));
         }
 

@@ -35,14 +35,26 @@ class ActivityVerbPlugin extends Plugin
 
     public function onRouterInitialized(URLMapper $m)
     {
+        $unsupported = ['delete', 'share'];
+
+        foreach ($unsupported as $idx => $verb) {
+            $unsupported[$idx] = "(?!".$verb.")";
+        }
+
+        // not all verbs are currently handled by ActivityVerb Plugins,
+        // so we need a strong regexp to prevent route replacement in
+        // the URLMapper
+        $verb_regexp = implode("", $unsupported) . '[a-z]+';
+
         $m->connect('notice/:id/:verb',
-                    array('action' => 'activityverb'),
-                    array('id'     => '[0-9]+',
-                          'verb'   => '[a-z]+'));
+                    ['action' => 'activityverb'],
+                    ['id'     => '[0-9]+',
+                     'verb'   => $verb_regexp]);
+
         $m->connect('activity/:id/:verb',
-                    array('action' => 'activityverb'),
-                    array('id'     => '[0-9]+',
-                          'verb'   => '[a-z]+'));
+                    ['action' => 'activityverb'],
+                    ['id'     => '[0-9]+',
+                     'verb'   => $verb_regexp]);
     }
 
     public function onPluginVersion(array &$versions)
