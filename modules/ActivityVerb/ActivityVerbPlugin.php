@@ -38,7 +38,7 @@ class ActivityVerbPlugin extends Plugin
         $unsupported = ['delete', 'share'];
 
         foreach ($unsupported as $idx => $verb) {
-            $unsupported[$idx] = "(?!".$verb.")";
+            $unsupported[$idx] = "(?!{$verb})";
         }
 
         // not all verbs are currently handled by ActivityVerb Plugins,

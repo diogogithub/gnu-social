@@ -79,7 +79,7 @@ class SharePlugin extends ActivityVerbHandlerPlugin
                      'format' => '(xml|json)']);
     }
 
-    // FIXME: Set this to abstract public in lib/activityhandlerplugin.php when all plugins have migrated!
+    // FIXME: Set this to abstract public in lib/modules/ActivityHandlerPlugin.php when all plugins have migrated!
     protected function saveObjectFromActivity(Activity $act, Notice $stored, array $options=array())
     {
         assert($this->isMyActivity($act));
@@ -139,7 +139,7 @@ class SharePlugin extends ActivityVerbHandlerPlugin
         return true;
     }
 
-    // FIXME: Put this in lib/activityhandlerplugin.php when we're ready
+    // FIXME: Put this in lib/modules/ActivityHandlerPlugin.php when we're ready
     //          with the other microapps/activityhandlers as well.
     //          Also it should be StartNoticeAsActivity (with a prepped Activity, including ->context etc.)
     public function onEndNoticeAsActivity(Notice $stored, Activity $act, Profile $scoped=null)
