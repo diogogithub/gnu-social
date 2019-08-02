@@ -19,10 +19,11 @@
  *
  * @package   GNUsocial
  * @author    Evan Prodromou
- * @author    Shashi Gowda
- * @author    Neil E. Hodges
- * @author    Brion Vibber
+ * @author    Shashi Gowda <connect2shashi@gmail.com>
+ * @author    Neil E. Hodges <47hasbegun@gmail.com>
+ * @author    Brion Vibber <brion@pobox.com>
  * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2010-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -73,10 +74,10 @@ define('NOTICE_INBOX_SOURCE_GATEWAY', -1);
  * Some of those characters can be troublesome when auto-linking plain text. Such as "http://some.com/)"
  * URL encoding should be used whenever a weird character is used, the following strings are not definitive.
  */
-define('URL_REGEX_VALID_PATH_CHARS',        '\pN\pL\,\!\.\:\-\_\+\/\@\=\;\%\~\*\(\)');
-define('URL_REGEX_VALID_QSTRING_CHARS',     URL_REGEX_VALID_PATH_CHARS    . '\&');
-define('URL_REGEX_VALID_FRAGMENT_CHARS',    URL_REGEX_VALID_QSTRING_CHARS . '\?\#');
-define('URL_REGEX_EXCLUDED_END_CHARS',      '\?\.\,\!\#\:\'');  // don't include these if they are directly after a URL
+define('URL_REGEX_VALID_PATH_CHARS', '\pN\pL\,\!\.\:\-\_\+\/\@\=\;\%\~\*\(\)');
+define('URL_REGEX_VALID_QSTRING_CHARS', URL_REGEX_VALID_PATH_CHARS . '\&');
+define('URL_REGEX_VALID_FRAGMENT_CHARS', URL_REGEX_VALID_QSTRING_CHARS . '\?\#');
+define('URL_REGEX_EXCLUDED_END_CHARS', '\?\.\,\!\#\:\'');  // don't include these if they are directly after a URL
 define('URL_REGEX_DOMAIN_NAME', '(?:(?!-)[A-Za-z0-9\-]{1,63}(?<!-)\.)+[A-Za-z]{2,10}');
 
 // Autoload composer dependencies
@@ -99,15 +100,15 @@ require_once 'DB/DataObject/Cast.php'; # for dates
 global $_DB;
 $_DB = new DB;
 
-require_once(INSTALLDIR.'/lib/language.php');
+require_once INSTALLDIR . '/lib/language.php';
 
 // This gets included before the config file, so that admin code and plugins
 // can use it
 
-require_once(INSTALLDIR.'/lib/event.php');
-require_once(INSTALLDIR.'/lib/plugin.php');
+require_once INSTALLDIR . '/lib/event.php';
+require_once INSTALLDIR . '/lib/modules/Plugin.php';
 
-function addPlugin($name, array $attrs=array())
+function addPlugin($name, array $attrs = [])
 {
     return GNUsocial::addPlugin($name, $attrs);
 }
@@ -121,10 +122,12 @@ function GNUsocial_class_autoload($cls)
 {
     if (file_exists(INSTALLDIR.'/classes/' . $cls . '.php')) {
         require_once(INSTALLDIR.'/classes/' . $cls . '.php');
+    } elseif (file_exists(INSTALLDIR . '/lib/modules/' . $cls . '.php')) {
+        require_once INSTALLDIR . '/lib/modules/' . $cls . '.php';
     } else if (file_exists(INSTALLDIR.'/lib/' . strtolower($cls) . '.php')) {
         require_once(INSTALLDIR.'/lib/' . strtolower($cls) . '.php');
     } else if (mb_substr($cls, -6) == 'Action' &&
-               file_exists(INSTALLDIR.'/actions/' . strtolower(mb_substr($cls, 0, -6)) . '.php')) {
+        file_exists(INSTALLDIR.'/actions/' . strtolower(mb_substr($cls, 0, -6)) . '.php')) {
         require_once(INSTALLDIR.'/actions/' . strtolower(mb_substr($cls, 0, -6)) . '.php');
     } else if ($cls === 'OAuthRequest' || $cls === 'OAuthException') {
         require_once('OAuth.php');
@@ -143,10 +146,10 @@ spl_autoload_register('GNUsocial_class_autoload');
  * The namespaced based structure is called "PSR-0 autoloading standard":
  *    \<Vendor Name>\(<Namespace>\)*<Class Name>
  * and is available here: http://www.php-fig.org/psr/psr-0/
-*/
-spl_autoload_register(function($class){
+ */
+spl_autoload_register(function ($class) {
     $class_base = preg_replace('{\\\\|_(?!.*\\\\)}', DIRECTORY_SEPARATOR, ltrim($class, '\\'));
-    $file = INSTALLDIR."/extlib/{$class_base}.php";
+    $file = INSTALLDIR . "/extlib/{$class_base}.php";
     if (file_exists($file)) {
         require_once $file;
         return;
@@ -159,9 +162,9 @@ spl_autoload_register(function($class){
         return;
     }
 });
-require_once INSTALLDIR.'/lib/util.php';
-require_once INSTALLDIR.'/lib/action.php';
-require_once INSTALLDIR.'/lib/mail.php';
+require_once INSTALLDIR . '/lib/util.php';
+require_once INSTALLDIR . '/lib/action.php';
+require_once INSTALLDIR . '/lib/mail.php';
 
 //set PEAR error handling to use regular PHP exceptions
 function PEAR_ErrorToPEAR_Exception(PEAR_Error $err)
@@ -173,7 +176,7 @@ function PEAR_ErrorToPEAR_Exception(PEAR_Error $err)
         return;
     }
 
-    $msg      = $err->getMessage();
+    $msg = $err->getMessage();
     $userInfo = $err->getUserInfo();
 
     // Log this; push the message up as an exception
@@ -194,3 +197,4 @@ function PEAR_ErrorToPEAR_Exception(PEAR_Error $err)
     }
     throw new PEAR_Exception($err->getMessage());
 }
+

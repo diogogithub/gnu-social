@@ -19,7 +19,7 @@ defined('GNUSOCIAL') || die();
 /**
  * Base class for plugins
  *
- * A base class for StatusNet plugins. Mostly a light wrapper around
+ * A base class for GNU social modules. Mostly a light wrapper around
  * the Event framework.
  *
  * Subclasses of Plugin will automatically handle an event if they define

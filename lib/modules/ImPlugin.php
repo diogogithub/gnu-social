@@ -31,7 +31,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 }
 
 /**
- * Superclass for plugins that do authentication
+ * Superclass for plugins that do IM transport
  *
  * Implementations will likely want to override onStartIoManagerClasses() so that their
  *   IO manager is used

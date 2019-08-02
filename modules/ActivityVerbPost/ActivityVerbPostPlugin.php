@@ -50,7 +50,7 @@ class ActivityVerbPostPlugin extends ActivityVerbHandlerPlugin
         return array(ActivityVerb::POST);
     }
 
-    // FIXME: Set this to abstract public in lib/activityhandlerplugin.php when all plugins have migrated!
+    // FIXME: Set this to abstract public in lib/ActivityHandlerPlugin.php when all plugins have migrated!
     protected function saveObjectFromActivity(Activity $act, Notice $stored, array $options=array())
     {
         assert($this->isMyActivity($act));

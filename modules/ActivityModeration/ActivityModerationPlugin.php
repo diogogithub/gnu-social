@@ -112,7 +112,7 @@ class ActivityModerationPlugin extends ActivityVerbHandlerPlugin
         return true;
     }
 
-    // FIXME: Put this in lib/activityhandlerplugin.php when we're ready
+    // FIXME: Put this in lib/modules/ActivityHandlerPlugin.php when we're ready
     //          with the other microapps/activityhandlers as well.
     //          Also it should be StartNoticeAsActivity (with a prepped Activity, including ->context etc.)
     public function onEndNoticeAsActivity(Notice $stored, Activity $act, Profile $scoped=null)
