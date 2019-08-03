@@ -345,7 +345,13 @@ class ImageFile extends MediaFile
             $img = $img->orientate();
         }
 
-        $img->crop($box['width'], $box['height'], $box['x'], $box['y']);
+        $img->fit($box['width'], $box['height'],
+                  function ($constraint) {
+                      if (common_config('attachments', 'upscale') !== true) {
+                          $constraint->upsize(); // Prevent upscaling
+                      }
+                  }
+        );
 
         // Ensure we save in the correct format and allow customization based on type
         $type = $this->preferredType();
