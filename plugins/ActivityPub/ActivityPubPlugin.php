@@ -141,21 +141,25 @@ class ActivityPubPlugin extends Plugin
         $m->connect('user/:id',
                     ['action' => 'apActorProfile'],
                     ['id'     => '[0-9]+'],
+                    true,
                     $acceptHeaders);
 
         $m->connect(':nickname',
                     ['action'   => 'apActorProfile'],
                     ['nickname' => Nickname::DISPLAY_FMT],
+                    true,
                     $acceptHeaders);
 
         $m->connect(':nickname/',
                     ['action'   => 'apActorProfile'],
                     ['nickname' => Nickname::DISPLAY_FMT],
+                    true,
                     $acceptHeaders);
 
         $m->connect('notice/:id',
                     ['action' => 'apNotice'],
                     ['id'     => '[0-9]+'],
+                    true,
                     $acceptHeaders);
 
         $m->connect(
