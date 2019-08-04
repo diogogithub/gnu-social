@@ -1,32 +1,36 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package ForceGroupPlugin
+ * The ForceGroup plugin allows forced group memberships and allows forcing all notices
+ * to appear in some groups.
+ *
+ * @package   ForceGroupPlugin
  * @maintainer Brion Vibber <brion@status.net>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) { exit(1); }
+defined('GNUSOCIAL') || die;
 
 class ForceGroupPlugin extends Plugin
 {
     const PLUGIN_VERSION = '2.0.0';
+
+    // settings which can be set in config.php with addModule('ForceGroup', ['param'=>'value', ...]);
 
     /**
      * Members of these groups will have all their posts mirrored into
@@ -34,7 +38,7 @@ class ForceGroupPlugin extends Plugin
      *
      * List by local nickname.
      */
-    public $post = array();
+    public $post = [];
 
     /**
      * New user registrations will automatically join these groups on
@@ -42,16 +46,17 @@ class ForceGroupPlugin extends Plugin
      *
      * List by local nickname.
      */
-    public $join = array();
+    public $join = [];
 
     /**
-     * If poster is in one of the forced groups, make sure their notice
+     * If poster is in one of the $post groups, make sure their notice
      * gets saved into that group even if not explicitly mentioned.
      *
      * @param Notice $notice
-     * @return boolean event hook return
+     * @return bool event hook return
+     * @throws ServerException
      */
-    function onStartNoticeDistribute($notice)
+    public function onStartNoticeDistribute($notice): bool
     {
         $profile = $notice->getProfile();
 
@@ -81,6 +86,13 @@ class ForceGroupPlugin extends Plugin
         return true;
     }
 
+    /**
+     * Make sure that this new user is added to all of the $join groups
+     *
+     * @param Profile $profile
+     * @return bool event hook return
+     * @throws ServerException
+     */
     public function onEndUserRegister(Profile $profile)
     {
         foreach ($this->join as $nickname) {
@@ -91,11 +103,15 @@ class ForceGroupPlugin extends Plugin
                 } catch (Exception $e) {
                     // TRANS: Server exception.
                     // TRANS: %1$s is a user nickname, %2$s is a group nickname.
-                    throw new ServerException(sprintf(_m('Could not join user %1$s to group %2$s.'),
-                                               $profile->nickname, $group->nickname));
+                    throw new ServerException(sprintf(
+                        _m('Could not join user %1$s to group %2$s.'),
+                        $profile->nickname,
+                        $group->nickname
+                    ));
                 }
             }
         }
+        return true;
     }
 
     /**
@@ -105,7 +121,8 @@ class ForceGroupPlugin extends Plugin
      *
      * @param array &$versions array of version data arrays; see EVENTS.txt
      *
-     * @return boolean hook value
+     * @return bool hook value
+     * @throws Exception
      */
     public function onPluginVersion(array &$versions): bool
     {
@@ -116,8 +133,8 @@ class ForceGroupPlugin extends Plugin
             'author' => 'Brion Vibber',
             'homepage' => $url,
             'rawdescription' =>
-            // TRANS: Plugin description.
-            _m('Allows forced group memberships and forces all notices to appear in groups that users were forced in.'));
+            // TRANS: Module description.
+                _m('Allows forced group memberships and forces all notices to appear in groups that users were forced in.'));
 
         return true;
     }
