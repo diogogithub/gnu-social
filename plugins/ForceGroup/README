@@ -1,5 +1,5 @@
-The ForceGroup plugin allows forced group memberships and forces all notices
-to appear in groups that users were forced in.
+The ForceGroup plugin allows forced group memberships and allows forcing all notices
+to appear in some groups.
 
 Installation
 ============
@@ -8,9 +8,14 @@ to the bottom of your config.php
 
 Settings
 ========
-none
+post: Members of these groups will have all their posts mirrored into the group even if they don't explicitly mention it.
+join: New user registrations will automatically join these groups on registration. They're _not_ prevented from leaving, however.
 
 Example
 =======
 addPlugin('ForceGroup');
 
+Some Example Use Cases
+=======================
+(join) Forcing a group membership allows to have a group dedicated to your instance or some of your instance main topics.
+(join + post) Allows you to federate your instance timeline
