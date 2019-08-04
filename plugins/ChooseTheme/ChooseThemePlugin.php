@@ -22,54 +22,62 @@
  * @license  GNU Affero General Public License http://www.gnu.org/licenses/
  */
 
-class ChooseThemePlugin extends Plugin {
+defined('GNUSOCIAL') || die();
+
+class ChooseThemePlugin extends Plugin
+{
     const PLUGIN_VERSION = '0.1.0';
 
-    public function onRouterInitialized(URLMapper $m) {
+    public function onRouterInitialized(URLMapper $m)
+    {
         $m->connect('main/choosethemesettings', ['action' => 'choosethemesettings']);
     }
 
-    public function onPluginVersion(array &$versions): bool {
-		
-        $versions[] = array('name' => 'ChooseTheme',
-                            'version' => self::PLUGIN_VERSION,
-                            'author' => 'Knut Erik "abjectio" Hollund',
-                            'homepage' => 'https://gitlab.com/kollektivet0x242/gsp-choosetheme',
-                            'rawdescription' =>
-                            // TRANS: Plugin description.
-                            _m('Allowing user to select the preferred theme.'));
+    public function onPluginVersion(array &$versions): bool
+    {
+        $versions[] = ['name' => 'ChooseTheme',
+            'version' => self::PLUGIN_VERSION,
+            'author' => 'Knut Erik "abjectio" Hollund',
+            'homepage' => 'https://gitlab.com/kollektivet0x242/gsp-choosetheme',
+            'rawdescription' =>
+            // TRANS: Module description.
+            _m('Allowing user to select the preferred theme.')];
         return true;
     }
-    
+
     /**
      * Menu item for ChooseTheme
      *
      * @param Action $action action being executed
      *
-     * @return boolean hook return
+     * @return bool hook return
+     * @throws Exception
      */
-    function onEndAccountSettingsNav(Action $action) {
+    public function onEndAccountSettingsNav(Action $action): bool
+    {
         $action_name = $action->getActionName();
 
-        $action->menuItem(common_local_url('choosethemesettings'),
-                          // TRANS: Poll plugin menu item on user settings page.
-                          _m('MENU', 'Theme'),
-                          // TRANS: Poll plugin tooltip for user settings menu item.
-                          _m('Choose Theme'),
-                          $action_name === 'themesettings');
+        $action->menuItem(
+            common_local_url('choosethemesettings'),
+            // TRANS: Poll plugin menu item on user settings page.
+            _m('MENU', 'Theme'),
+            // TRANS: Poll plugin tooltip for user settings menu item.
+            _m('Choose Theme'),
+            $action_name === 'themesettings'
+        );
 
         return true;
     }
 
 
-    function onStartShowStylesheets(Action $action) {
-
-		//get the theme and set the current config for site and theme.
-		if($action->getScoped() instanceof Profile) {
-			$site_theme = common_config('site','theme');
-			$user_theme = $action->getScoped()->getPref('chosen_theme', 'theme', $site_theme);
-			common_config_set('site', 'theme', $user_theme);
-		}		
-		return true;
-	}
+    public function onStartShowStylesheets(Action $action)
+    {
+        //get the theme and set the current config for site and theme.
+        if ($action->getScoped() instanceof Profile) {
+            $site_theme = common_config('site', 'theme');
+            $user_theme = $action->getScoped()->getPref('chosen_theme', 'theme', $site_theme);
+            common_config_set('site', 'theme', $user_theme);
+        }
+        return true;
+    }
 }
