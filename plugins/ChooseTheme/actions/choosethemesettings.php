@@ -22,18 +22,17 @@
  * @license  GNU Affero General Public License http://www.gnu.org/licenses/
  */
 
-if (!defined('STATUSNET') && !defined('GNUSOCIAL')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
-class ChooseThemeSettingsAction extends SettingsAction {
-	
-
+class ChooseThemeSettingsAction extends SettingsAction
+{
     /**
      * Title of the page
      * @return string Page title
+     * @throws Exception
      */
-    function title() {
+    public function title(): string
+    {
         // TRANS: Page title.
         return _m('Choose theme settings');
     }
@@ -41,8 +40,10 @@ class ChooseThemeSettingsAction extends SettingsAction {
     /**
      * Instructions for use
      * @return string Instructions for use
+     * @throws Exception
      */
-    function getInstructions() {
+    public function getInstructions(): string
+    {
         // TRANS: Page instructions.
         return _m('Choose theme');
     }
@@ -51,17 +52,17 @@ class ChooseThemeSettingsAction extends SettingsAction {
      * Show the form for ChooseTheme
      * @return void
      */
-    function showContent() {
-
-	$site_theme = common_config('site','theme');
-	$prefs = $this->scoped->getPref('chosen_theme', 'theme',$site_theme);
+    public function showContent(): void
+    {
+        $site_theme = common_config('site', 'theme');
+        $prefs = $this->scoped->getPref('chosen_theme', 'theme', $site_theme);
         if ($prefs === null) {
             common_debug('No chosen theme found in database for user.');
         }
-	
-	//Get a list of available themes on instance
-	$available_themes = Theme::listAvailable();		
-	$chosenone = array_search($prefs,$available_themes,true);
+
+        //Get a list of available themes on instance
+        $available_themes = Theme::listAvailable();
+        $chosenone = array_search($prefs, $available_themes, true);
         $form = new ChooseThemeForm($this, $chosenone);
         $form->show();
     }
@@ -70,42 +71,43 @@ class ChooseThemeSettingsAction extends SettingsAction {
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     * @return void
+     * @return string
+     * @throws Exception
      */
-    function handlePost() {
-		
-	//Get a list of available themes on instance
-	$available_themes = Theme::listAvailable();
-	$chosen_theme = $available_themes[(int)$this->arg('dwct','0')];
-		
-        $this->success = true;
-        $this->msg = _m('Settings saved.');
+    public function doPost(): string
+    {
+        //Get a list of available themes on instance
+        $available_themes = Theme::listAvailable();
+        $chosen_theme = $available_themes[(int)$this->arg('dwct', '0')];
 
-	$this->success = $this->scoped->setPref('chosen_theme', 'theme', $chosen_theme);
-        // TRANS: Confirmation shown when user profile settings are saved.        
-	if(!$this->success) $this->msg = _('No valid theme chosen.');
- 
-        $this->showForm(_($this->msg), $this->success);
+        $this->msg = 'Settings saved.';
+
+        $success = $this->scoped->setPref('chosen_theme', 'theme', $chosen_theme);
+        // TRANS: Confirmation shown when user profile settings are saved.
+        if (!$success) {
+            $this->msg = 'No valid theme chosen.';
+        }
+
+        return _m($this->msg);
     }
 }
 
 
-class ChooseThemeForm extends Form {
-
+class ChooseThemeForm extends Form
+{
     protected $prefs = null;
-    
 
-    function __construct($out, $prefs) {
+
+    public function __construct($out, $prefs)
+    {
         parent::__construct($out);
 
-        if ($prefs!=null) {
-			$this->prefs = $prefs;
-	} else {
-			$prefs = common_config('site','theme');
-	}
-	
-}
+        if ($prefs != null) {
+            $this->prefs = $prefs;
+        } else {
+            $this->prefs = common_config('site', 'theme');
+        }
+    }
 
     /**
      * Visible or invisible data elements
@@ -113,29 +115,30 @@ class ChooseThemeForm extends Form {
      * Display the form fields that make up the data of the form.
      * Sub-classes should overload this to show their data.
      * @return void
+     * @throws Exception
      */
 
-    function formData() {
+    public function formData(): void
+    {
 
-	//Get a list of available themes on instance
-	$available_themes = Theme::listAvailable();
-		
-	//Remove theme 'licenses' from selectable themes.
-	//The 'licenses' theme is not an actual theme and
-	//will just mess-up the gui.
-	$key = array_search('licenses',$available_themes);
-	if($key!=false){
-		unset($available_themes[$key]);
-	}		
-		
+        //Get a list of available themes on instance
+        $available_themes = Theme::listAvailable();
+
+        //Remove theme 'licenses' from selectable themes.
+        //The 'licenses' theme is not an actual theme and
+        //will just mess-up the gui.
+        $key = array_search('licenses', $available_themes);
+        if ($key != false) {
+            unset($available_themes[$key]);
+        }
+
         $this->elementStart('fieldset');
         $this->elementStart('ul', 'form_data');
         $this->elementStart('li');
-        $this->dropdown('dwct',_m('Themes'),$available_themes,_m('Select a theme'),false, $this->prefs);
+        $this->dropdown('dwct', _m('Themes'), $available_themes, _m('Select a theme'), false, $this->prefs);
         $this->elementEnd('li');
         $this->elementEnd('ul');
         $this->elementEnd('fieldset');
-      
     }
 
     /**
@@ -146,7 +149,7 @@ class ChooseThemeForm extends Form {
      * @return void
      */
 
-    function formActions()
+    public function formActions(): void
     {
         $this->submit('submit', _('Save'));
     }
@@ -156,10 +159,11 @@ class ChooseThemeForm extends Form {
      *
      * Should be unique on the page. Sub-classes should overload this
      * to show their own IDs.
-     * @return int ID of the form
+     * @return string ID of the form
      */
 
-    function id() {
+    public function id(): string
+    {
         return 'form_choosetheme_prefs';
     }
 
@@ -171,7 +175,8 @@ class ChooseThemeForm extends Form {
      * @return string URL to post to
      */
 
-    function action() {	
+    public function action(): string
+    {
         return common_local_url('choosethemesettings');
     }
 
@@ -181,7 +186,8 @@ class ChooseThemeForm extends Form {
      * @return string the form's class
      */
 
-    function formClass() {
+    public function formClass(): string
+    {
         return 'form_settings';
     }
 }
