@@ -20,6 +20,6 @@ msgstr ""
 #. TRANS: Plugin description for a sample plugin.
 #: AwesomenessPlugin.php:55
 msgid ""
-"The Awesomeness plugin adds additional awesomeness to a StatusNet "
+"The Awesomeness plugin adds additional awesomeness to a GNU social "
 "installation."
-msgstr "Ang pampasak ng Pagiging Kahanga-hanga ay nagdaragdag ng karagdagang pagiging kahanga-hanga sa isang pagtatalaga ng StatusNet."
+msgstr "Ang pampasak ng Pagiging Kahanga-hanga ay nagdaragdag ng karagdagang pagiging kahanga-hanga sa isang pagtatalaga ng GNU social."
