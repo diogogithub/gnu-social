@@ -345,6 +345,7 @@ $default =
                 'ClientSideShorten' => [],
                 'Cronish' => [],
                 'DefaultLayout' => [],
+                'DirectionDetector' => [],
                 'DirectMessage' => [],
                 'Directory' => [],
                 'EmailAuthentication' => [],
