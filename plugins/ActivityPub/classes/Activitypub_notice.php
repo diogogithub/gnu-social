@@ -115,9 +115,9 @@ class Activitypub_notice extends Managed_DataObject
      */
     public static function create_notice($object, $actor_profile = null)
     {
-        $id      = $object['id'];         // int
-        $url     = $object['url'];        // string
-        $content = $object['content'];    // string
+        $id      = $object['id'];                                // int
+        $url     = isset($object['url']) ? $object['url'] : $id; // string
+        $content = $object['content'];                           // string
 
         // possible keys: ['inReplyTo', 'latitude', 'longitude']
         $settings = [];
