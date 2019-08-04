@@ -338,6 +338,7 @@ $default =
                 'Share' => [],
             ],
             'default' => [
+                'AccountManager' => [],
                 'AntiBrute' => [],
                 'Blacklist' => [],
                 'Bookmark' => [],
