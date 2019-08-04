@@ -44,6 +44,11 @@
   # RewriteRule (.*) index.php/$1 [L,QSA]
 </IfModule>
 
+# Enable X-Sendfile if available. Still needs to be enabled in the config
+<IfModule mod_xsendfile.c>
+  XSendFile On
+</IfModule>
+
 <FilesMatch "\.(ini)">
     <IfVersion < 2.3>
         Order allow,deny

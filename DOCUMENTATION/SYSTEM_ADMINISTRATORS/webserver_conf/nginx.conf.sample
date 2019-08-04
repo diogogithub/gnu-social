@@ -31,6 +31,14 @@ server {
 # Index
     index index.php;
 
+# X-Accel/X-Sendfile. Still needs to be enabled in the config
+    location /file {
+        internal;
+        # FIXME: Change "/path/to/gnusocial/root/" to the folder where
+        # attachments are stored (normally the same as the site root)
+        root /path/to/gnusocial/root/;
+    }
+
 # PHP
     location ~ ^/(index|install)\.php(/.*)?$ {
     #location ^~ /index.php {
