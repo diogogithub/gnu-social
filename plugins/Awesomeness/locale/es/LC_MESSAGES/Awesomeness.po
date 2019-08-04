@@ -21,6 +21,6 @@ msgstr ""
 #. TRANS: Plugin description for a sample plugin.
 #: AwesomenessPlugin.php:55
 msgid ""
-"The Awesomeness plugin adds additional awesomeness to a StatusNet "
+"The Awesomeness plugin adds additional awesomeness to a GNU social "
 "installation."
 msgstr "El complemento Awesomeness ('Molonosidad') incrementa en +20 la molonosidad de un sitio GNU social. (Este es un complemento de ejemplo, con un toque de humor)."
