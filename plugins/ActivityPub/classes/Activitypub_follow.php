@@ -42,13 +42,18 @@ class Activitypub_follow extends Managed_DataObject
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $actor
      * @param string $object
+     * @param string|null $id Activity id, to be used when generating for an Accept Activity
      * @return array pretty array to be used in a response
      */
-    public static function follow_to_array($actor, $object)
+    public static function follow_to_array(string $actor, string $object, ?string $id = null): array
     {
+        if ($id === null) {
+            $id = common_root_url().'follow_from_'.urlencode($actor).'_to_'.urlencode($object);
+        }
+
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => common_root_url().'follow_from_'.urlencode($actor).'_to_'.urlencode($object),
+            'id'     => $id,
             'type'   => 'Follow',
             'actor'  => $actor,
             'object' => $object
@@ -61,13 +66,14 @@ class Activitypub_follow extends Managed_DataObject
      *
      * @param Profile $actor_profile Remote Actor
      * @param string $object Local Actor
+     * @param string $id Activity id
      * @throws AlreadyFulfilledException
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function follow($actor_profile, $object)
+    public static function follow(Profile $actor_profile, string $object, string $id)
     {
         // Get Actor's Aprofile
         $actor_aprofile = Activitypub_profile::from_profile($actor_profile);
@@ -87,6 +93,6 @@ class Activitypub_follow extends Managed_DataObject
         // Notify remote instance that we have accepted their request
         common_debug('ActivityPubPlugin: Notifying remote instance that we have accepted their Follow request request from '.ActivityPubPlugin::actor_uri($actor_profile).' to '.$object);
         $postman = new Activitypub_postman($object_profile, [$actor_aprofile]);
-        $postman->accept_follow();
+        $postman->accept_follow($id);
     }
 }

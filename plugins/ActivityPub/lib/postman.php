@@ -119,7 +119,7 @@ class Activitypub_postman
      */
     public function follow()
     {
-        $data = Activitypub_follow::follow_to_array(ActivityPubPlugin::actor_uri($this->actor), $this->to[0]->getUrl());
+        $data = Activitypub_follow::follow_to_array($this->actor_uri, $this->to[0]->getUrl());
         $res = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
         $res_body = json_decode($res->getBody());
 
@@ -149,7 +149,7 @@ class Activitypub_postman
     {
         $data = Activitypub_undo::undo_to_array(
             Activitypub_follow::follow_to_array(
-                ActivityPubPlugin::actor_uri($this->actor),
+                $this->actor_uri,
                 $this->to[0]->getUrl()
                     )
                 );
@@ -171,23 +171,21 @@ class Activitypub_postman
     /**
      * Send a Accept Follow notification to remote instance
      *
+     * @param string $id Follow activity id
      * @return bool
      * @throws HTTP_Request2_Exception
-     * @throws Exception
-     * @throws Exception
-     * @throws Exception
-     * @throws Exception
+     * @throws Exception Description of HTTP Response error or generic error message.
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function accept_follow()
+    public function accept_follow(string $id): bool
     {
         $data = Activitypub_accept::accept_to_array(
             Activitypub_follow::follow_to_array(
                 $this->to[0]->getUrl(),
-                ActivityPubPlugin::actor_uri($this->actor)
-
-                    )
-               );
+                $this->actor_uri,
+                $id
+                )
+            );
         $res = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
         $res_body = json_decode($res->getBody());
 
@@ -214,7 +212,7 @@ class Activitypub_postman
     public function like($notice)
     {
         $data = Activitypub_like::like_to_array(
-            ActivityPubPlugin::actor_uri($this->actor),
+            $this->actor_uri,
             Activitypub_notice::getUrl($notice)
                 );
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
@@ -248,7 +246,7 @@ class Activitypub_postman
     {
         $data = Activitypub_undo::undo_to_array(
             Activitypub_like::like_to_array(
-                ActivityPubPlugin::actor_uri($this->actor),
+                $this->actor_uri,
                 Activitypub_notice::getUrl($notice)
                          )
                 );
@@ -314,11 +312,8 @@ class Activitypub_postman
      */
     public function announce($notice)
     {
-        $data = Activitypub_announce::announce_to_array(
-            ActivityPubPlugin::actor_uri($this->actor),
-            Activitypub_notice::getUrl($notice)
-                        );
-        $data = json_encode($data, JSON_UNESCAPED_SLASHES);
+        $data = json_encode(Activitypub_announce::announce_to_array($this->actor, $notice),
+                            JSON_UNESCAPED_SLASHES);
 
         foreach ($this->to_inbox() as $inbox) {
             $res = $this->send($data, $inbox);

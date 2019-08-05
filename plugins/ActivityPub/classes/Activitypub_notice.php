@@ -77,7 +77,7 @@ class Activitypub_notice extends Managed_DataObject
             'published'    => str_replace(' ', 'T', $notice->getCreated()).'Z',
             'url'          => self::getUrl($notice),
             'attributedTo' => ActivityPubPlugin::actor_uri($profile),
-            'to'           => ['https://www.w3.org/ns/activitystreams#Public'],
+            'to'           => $to,
             'cc'           => $cc,
             'conversation' => $notice->getConversationUrl(),
             'content'      => $notice->getRendered(),
@@ -235,9 +235,7 @@ class Activitypub_notice extends Managed_DataObject
             common_debug('ActivityPub Notice Validator: Rejected because Content was not specified.');
             throw new Exception('Object content was not specified.');
         }
-        if (!isset($object['url'])) {
-            throw new Exception('Object URL was not specified.');
-        } elseif (!filter_var($object['url'], FILTER_VALIDATE_URL)) {
+        if (isset($object['url']) && !filter_var($object['url'], FILTER_VALIDATE_URL)) {
             common_debug('ActivityPub Notice Validator: Rejected because Object URL is invalid.');
             throw new Exception('Invalid Object URL.');
         }

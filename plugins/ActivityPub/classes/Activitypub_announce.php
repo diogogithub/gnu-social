@@ -39,18 +39,31 @@ class Activitypub_announce extends Managed_DataObject
     /**
      * Generates an ActivityPub representation of a Announce
      *
-     * @param $actor
-     * @param array $object
+     * @param Profile $actor
+     * @param Notice $notice
      * @return array pretty array to be used in a response
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function announce_to_array($actor, $object)
+    public static function announce_to_array(Profile $actor, Notice $notice): array
     {
+        $actor_uri = ActivityPubPlugin::actor_uri($actor);
+        $notice_url = Activitypub_notice::getUrl($notice);
+
+        $to = [common_local_url('apActorFollowers', ['id' => $actor->getID()])];
+        foreach ($notice->getAttentionProfiles() as $to_profile) {
+            $to[] = $to_profile->getUri();
+        }
+
+        $cc[]= 'https://www.w3.org/ns/activitystreams#Public';
+
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
+            'id'     => common_root_url().'share_from_'.urlencode($actor_uri).'_to_'.urlencode($notice_url),
             "type"   => "Announce",
-            "actor"  => $actor,
-            "object" => $object
+            "actor"  => $actor_uri,
+            "object" => $notice_url,
+            "to"     => $to,
+            "cc"     => $cc
         ];
         return $res;
     }

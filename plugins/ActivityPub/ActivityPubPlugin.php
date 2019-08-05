@@ -747,10 +747,12 @@ class ActivityPubPlugin extends Plugin
             return true;
         }
 
-        // The deleting user must have permission to do so, but
-        // it still doesn't own the notitce, so we just need to
-        // handle things locally
-        if (!$notice->isLocal()) {
+        // We handle things locally either because:
+        // 1. the deleting user has special permissions to do so,
+        //    but still doesn't own the notice
+        // 2. the notice is an announce, and there's no undo-share
+        //    logic in GS's AP implementation
+        if (!$notice->isLocal() || $notice->isRepeat()) {
             return true;
         }
 
