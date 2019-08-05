@@ -129,7 +129,7 @@ class Activitypub_inbox_handler
                 $this->handle_delete($this->actor, $this->object);
                 break;
             case 'Follow':
-                $this->handle_follow($this->actor, $this->object);
+                $this->handle_follow($this->actor, $this->activity);
                 break;
             case 'Like':
                 $this->handle_like($this->actor, $this->object);
@@ -232,7 +232,7 @@ class Activitypub_inbox_handler
      * Handles a Follow Activity received by our inbox.
      *
      * @param Profile $actor Actor
-     * @param array $object Activity
+     * @param array $activity Activity
      * @throws AlreadyFulfilledException
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -241,9 +241,9 @@ class Activitypub_inbox_handler
      * @throws \HttpSignatures\Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function handle_follow($actor, $object)
+    private function handle_follow($actor, $activity)
     {
-        Activitypub_follow::follow($actor, $object);
+        Activitypub_follow::follow($actor, $activity['object'], $activity['id']);
     }
 
     /**
