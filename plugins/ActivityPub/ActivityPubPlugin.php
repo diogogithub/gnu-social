@@ -32,6 +32,7 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'disc
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'explorer.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'postman.php';
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'inbox_handler.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'activitypubqueuehandler.php';
 
 // So that this isn't hardcoded everywhere
 define('ACTIVITYPUB_BASE_ACTOR_URI', common_root_url().'index.php/user/');
@@ -215,6 +216,42 @@ class ActivityPubPlugin extends Plugin
             'rawdescription' => _m('Follow people across social networks that implement '.
             '<a href="https://activitypub.rocks/">ActivityPub</a>.')
         ];
+        return true;
+    }
+
+    /**
+     * Set up queue handlers for required interactions
+     *
+     * @param QueueManager $qm
+     * @return bool event hook return
+     */
+    public function onEndInitializeQueueManager(QueueManager $qm): bool
+    {
+        // Notice distribution
+        $qm->connect('activitypub', 'ActivityPubQueueHandler');
+        return true;
+    }
+
+    /**
+     * Enqueue saved notices for distribution
+     *
+     * @param Notice $notice notice to be distributed
+     * @param Array &$transports list of transports to queue for
+     * @return bool event hook return
+     */
+    public function onStartEnqueueNotice(Notice $notice, Array &$transports): bool
+    {
+        try {
+            $id = $notice->getID();
+
+            if ($id > 0) {
+                $transports[] = 'activitypub';
+                $this->log(LOG_INFO, "Notice:{$id} queued for distribution");
+            }
+        } catch (Exception $e) {
+            $this->log(LOG_ERR, "Invalid notice, not queueing for distribution");
+        }
+
         return true;
     }
 
@@ -784,102 +821,6 @@ class ActivityPubPlugin extends Plugin
 
         $postman = new Activitypub_postman($profile, $other);
         $postman->delete($notice);
-        return true;
-    }
-
-    /**
-     * Insert notifications for replies, mentions and repeats
-     *
-     * @param $notice
-     * @return boolean hook flag
-     * @throws EmptyPkeyValueException
-     * @throws HTTP_Request2_Exception
-     * @throws InvalidUrlException
-     * @throws ServerException
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     */
-    public function onStartNoticeDistribute($notice)
-    {
-        assert($notice->id > 0);        // Ignore if not a valid notice
-
-        $profile = $notice->getProfile();
-
-        if (!$profile->isLocal()) {
-            return true;
-        }
-
-        // Ignore for activity/non-(post/share)-verb notices
-        if (method_exists('ActivityUtils', 'compareVerbs')) {
-            $is_valid_verb = ActivityUtils::compareVerbs($notice->verb,
-                                                         [ActivityVerb::POST,
-                                                          ActivityVerb::SHARE]);
-        } else {
-            $is_valid_verb = ($notice->verb == ActivityVerb::POST ||
-                              $notice->verb == ActivityVerb::SHARE);
-        }
-
-        if ($notice->source == 'activity' || !$is_valid_verb) {
-            common_log(LOG_DEBUG, "Ignoring distribution of notice with id {$notice->id} due to invalid Verb");
-            return true;
-        }
-
-        $other = Activitypub_profile::from_profile_collection(
-            $notice->getAttentionProfiles()
-        );
-
-        // Is a reply?
-        if ($notice->reply_to) {
-            try {
-                $parent_notice = $notice->getParent();
-
-                try {
-                    $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
-                } catch (Exception $e) {
-                    // Local user can be ignored
-                }
-
-                foreach ($parent_notice->getAttentionProfiles() as $mention) {
-                    try {
-                        $other[] = Activitypub_profile::from_profile($mention);
-                    } catch (Exception $e) {
-                        // Local user can be ignored
-                    }
-                }
-            } catch (NoParentNoticeException $e) {
-                // This is not a reply to something (has no parent)
-            } catch (NoResultException $e) {
-                // Parent author's profile not found! Complain louder?
-                common_log(LOG_ERR, "Parent notice's author not found: ".$e->getMessage());
-            }
-        }
-
-        // Is an Announce?
-        if ($notice->isRepeat()) {
-            $repeated_notice = Notice::getKV('id', $notice->repeat_of);
-            if ($repeated_notice instanceof Notice) {
-                $other = array_merge($other,
-                                     Activitypub_profile::from_profile_collection(
-                                         $repeated_notice->getAttentionProfiles()
-                                     ));
-
-                try {
-                    $other[] = Activitypub_profile::from_profile($repeated_notice->getProfile());
-                } catch (Exception $e) {
-                    // Local user can be ignored
-                }
-
-                // That was it
-                $postman = new Activitypub_postman($profile, $other);
-                $postman->announce($repeated_notice);
-            }
-
-            // either made the announce or found nothing to repeat
-            return true;
-        }
-
-        // That was it
-        $postman = new Activitypub_postman($profile, $other);
-        $postman->create_note($notice);
         return true;
     }
 

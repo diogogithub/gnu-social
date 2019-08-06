@@ -355,6 +355,12 @@ EndAvatarSaveForm: after saving the avatar
 StartNewQueueManager: before trying to start a new queue manager; good for plugins implementing new queue manager classes
 - $qm: empty queue manager to set
 
+StartInitializeQueueManager: about to register queue handlers in the queue manager; good for plugins to register own handlers
+- $qm: queue manager
+
+EndInitializeQueueManager: after registering queue handlers in the queue manager; good for plugins to register own handlers
+- $qm: queue manager
+
 RedirectToLogin: event when we force a redirect to login (like when going to a settings page on a remembered login)
 - $action: action object being shown
 - $user: current user
