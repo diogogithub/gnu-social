@@ -30,7 +30,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class OStatusPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.2';
+    const PLUGIN_VERSION = '2.0.3';
 
     /**
      * Hook for RouterInitialized event.
@@ -120,8 +120,7 @@ class OStatusPlugin extends Plugin
     function onStartEnqueueNotice($notice, &$transports)
     {
         if ($notice->inScope(null) && $notice->getProfile()->hasRight(Right::PUBLICNOTICE)) {
-            // put our transport first, in case there's any conflict (like OMB)
-            array_unshift($transports, 'ostatus');
+            $transports[] = 'ostatus';
             $this->log(LOG_INFO, "OSTATUS [{$notice->getID()}]: queued for OStatus processing");
         } else {
             // FIXME: we don't do privacy-controlled OStatus updates yet.
