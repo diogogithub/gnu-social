@@ -660,7 +660,7 @@ class DB
             $parsed['dbsyntax'] = $str;
         }
 
-        if (!strlen($dsn)) {
+        if (empty($dsn)) {
             return $parsed;
         }
 
