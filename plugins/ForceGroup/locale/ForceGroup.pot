@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:50+0100\n"
+"POT-Creation-Date: 2019-08-14 14:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,15 +17,24 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+<<<<<<< HEAD
 #. TRANS: Server exception.
 #. TRANS: %1$s is a user nickname, %2$s is a group nickname.
 #: ForceGroupPlugin.php:94
+=======
+#: ForceGroupModule.php:107
+>>>>>>> 6b0ad03771... [PLUGINS] Removed GeoURL as the service doesn't exist anymore
 #, php-format
 msgid "Could not join user %1$s to group %2$s."
 msgstr ""
 
+<<<<<<< HEAD
 #. TRANS: Plugin description.
 #: ForceGroupPlugin.php:120
+=======
+#. TRANS: Module description.
+#: ForceGroupModule.php:137
+>>>>>>> 6b0ad03771... [PLUGINS] Removed GeoURL as the service doesn't exist anymore
 msgid ""
 "Allows forced group memberships and forces all notices to appear in groups "
 "that users were forced in."
