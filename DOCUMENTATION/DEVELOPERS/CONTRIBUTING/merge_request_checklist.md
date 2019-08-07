@@ -1,7 +1,7 @@
 Submission Checklist
 ================================================================================
 This document serves as a handy checklist for submitted merges and patches to
-the postActiv project.  Following it isn't a gaurantee a patch will be accepted,
+the GNU social project. Following it isn't a gaurantee a patch will be accepted,
 but it will help you avoid common problems.
 
 1. Ensure all code control paths in all functions return a value.

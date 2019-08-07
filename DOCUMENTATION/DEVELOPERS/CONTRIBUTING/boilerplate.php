@@ -27,7 +27,7 @@ namespace samples;
 
 defined('GNUSOCIAL') || die();
 
-require_once(__DIR__ . DIRECTORY_SEPARATOR . 'SampleHandler.php');
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'SampleHandler.php';
 
 /**
  * Description of this class.
@@ -43,7 +43,7 @@ class MySampleClass
      * @param string $dummy_word just because.
      * @param int $result another just because.
      */
-    public function __construct(string $dummy_word = '', int $result = null)
+    public function __construct(string $dummy_word = '', ?int $result = null)
     {
         global $demo;
         $this->niceWorld();
@@ -54,7 +54,7 @@ class MySampleClass
      *
      * @return string
      */
-    public function niceWorld() : string
+    public function niceWorld(): string
     {
         return 'hello, world.';
     }
