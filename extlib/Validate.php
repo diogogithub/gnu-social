@@ -508,7 +508,7 @@ class Validate
      * Validate an email
      *
      * @param string $email email to validate
-     * @param mixed  boolean (BC) $check_domain Check or not if the domain exists
+     * @param mixed bool (BC) $check_domain Check or not if the domain exists
      *              array $options associative array of options
      *              'check_domain' boolean Check or not if the domain exists
      *              'use_rfc822' boolean Apply the full RFC822 grammar
@@ -528,7 +528,7 @@ class Validate
      * @access public
      * @throws Exception
      */
-    public function email(string $email, array $options = null): bool
+    public function email(string $email, $options = null): bool
     {
         $check_domain = false;
         $use_rfc822 = false;
@@ -683,7 +683,7 @@ class Validate
      * @access public
      * @throws Exception
      */
-    public function uri(string $url, $options = null): bool
+    public function uri(string $url, ?array $options = null): bool
     {
         $strict = ';/?:@$,';
         $domain_check = false;
