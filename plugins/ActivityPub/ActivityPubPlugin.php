@@ -49,7 +49,7 @@ const ACTIVITYPUB_PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
  */
 class ActivityPubPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '22.1.1dev';
+    const PLUGIN_VERSION = '0.1.0alpha0';
 
     /**
      * Returns a Actor's URI from its local $profile
