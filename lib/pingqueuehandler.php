@@ -17,20 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Queue handler for pushing new notices to ping servers.
  */
 class PingQueueHandler extends QueueHandler {
 
-    function transport() {
+    function transport()
+    {
         return 'ping';
     }
 
-    function handle($notice) {
+    function handle($notice): bool
+    {
+        if (!($notice instanceof Notice)) {
+            common_log(LOG_ERR, "Got a bogus notice, not broadcasting");
+            return true;
+        }
+
         require_once INSTALLDIR . '/lib/ping.php';
         return ping_broadcast_notice($notice);
     }

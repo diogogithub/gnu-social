@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 require_once dirname(__DIR__) . '/twitter.php';
 
@@ -28,8 +28,13 @@ class TwitterQueueHandler extends QueueHandler
         return 'twitter';
     }
 
-    function handle($notice)
+    function handle($notice): bool
     {
+        if (!($notice instanceof Notice)) {
+            common_log(LOG_ERR, "Got a bogus notice, not broadcasting");
+            return true;
+        }
+
         $ok = broadcast_twitter($notice);
         return $ok || common_config('twitter', 'ignore_errors');
     }

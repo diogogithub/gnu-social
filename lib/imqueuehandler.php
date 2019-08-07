@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Common superclass for all IM sending queue handlers.
@@ -35,8 +35,13 @@ class ImQueueHandler extends QueueHandler
      * @param Notice $notice
      * @return boolean success
      */
-    function handle($notice)
+    function handle($notice): bool
     {
+        if (!($notice instanceof Notice)) {
+            common_log(LOG_ERR, "Got a bogus notice, not broadcasting");
+            return true;
+        }
+
         $this->plugin->broadcastNotice($notice);
         if ($notice->isLocal()) {
             $this->plugin->publicNotice($notice);

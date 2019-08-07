@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Queue handler for letting plugins handle stuff.
@@ -40,8 +40,13 @@ class PluginQueueHandler extends QueueHandler
         return 'plugin';
     }
 
-    function handle($notice)
+    function handle($notice): bool
     {
+        if (!($notice instanceof Notice)) {
+            common_log(LOG_ERR, "Got a bogus notice, not broadcasting");
+            return true;
+        }
+
         try {
             Event::handle('HandleQueuedNotice', array(&$notice));
         } catch (NoProfileException $unp) {

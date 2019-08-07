@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Process a feed distribution POST from a WebSub (previously PuSH) hub.
@@ -31,9 +31,12 @@ class PushInQueueHandler extends QueueHandler
         return 'pushin';
     }
 
-    function handle($data)
+    function handle($data): bool
     {
-        assert(is_array($data));
+        if (!is_array($data)) {
+            common_log(LOG_ERR, "Got bogus data, not processing");
+            return true;
+        }
 
         $feedsub_id = $data['feedsub_id'];
         $post = $data['post'];

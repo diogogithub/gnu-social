@@ -17,6 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+defined('GNUSOCIAL') || die();
+
 /**
  * Check for subscription mirroring options on each newly seen post!
  *
@@ -30,8 +32,13 @@ class MirrorQueueHandler extends QueueHandler
         return 'mirror';
     }
 
-    function handle($notice)
+    function handle($notice): bool
     {
+        if (!($notice instanceof Notice)) {
+            common_log(LOG_ERR, "Got a bogus notice, not mirroring");
+            return true;
+        }
+
         $mirror = new SubMirror();
         $mirror->subscribed = $notice->profile_id;
         if ($mirror->find()) {

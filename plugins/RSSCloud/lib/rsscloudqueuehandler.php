@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 class RSSCloudQueueHandler extends QueueHandler
 {
@@ -26,8 +26,13 @@ class RSSCloudQueueHandler extends QueueHandler
         return 'rsscloud';
     }
 
-    function handle($notice)
+    function handle($notice): bool
     {
+        if (!($notice instanceof Notice)) {
+            common_log(LOG_ERR, "Got a bogus notice, not using");
+            return true;
+        }
+
         try {
             $profile = $notice->getProfile();
         } catch (Exception $e) {

@@ -17,9 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Prepare WebSub and Salmon distributions for an outgoing message.
@@ -46,9 +44,12 @@ class OStatusQueueHandler extends QueueHandler
         return 'ostatus';
     }
 
-    function handle($notice)
+    function handle($notice): bool
     {
-        assert($notice instanceof Notice);
+        if (!($notice instanceof Notice)) {
+            common_log(LOG_ERR, "Got a bogus notice, not distributing");
+            return true;
+        }
 
         $this->notice = $notice;
         $this->user = User::getKV('id', $notice->profile_id);
