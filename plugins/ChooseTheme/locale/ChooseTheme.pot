@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:50+0100\n"
+"POT-Creation-Date: 2019-08-14 14:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,40 +17,49 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+<<<<<<< HEAD
 #. TRANS: Plugin description.
 #: ChooseThemePlugin.php:40
+=======
+#. TRANS: Module description.
+#: ChooseThemeModule.php:44
+>>>>>>> 6b0ad03771... [PLUGINS] Removed GeoURL as the service doesn't exist anymore
 msgid "Allowing user to select the preferred theme."
 msgstr ""
 
 #. TRANS: Poll plugin menu item on user settings page.
+<<<<<<< HEAD
 #: ChooseThemePlugin.php:56
+=======
+#: ChooseThemeModule.php:63
+>>>>>>> 6b0ad03771... [PLUGINS] Removed GeoURL as the service doesn't exist anymore
 msgctxt "MENU"
 msgid "Theme"
 msgstr ""
 
 #. TRANS: Poll plugin tooltip for user settings menu item.
+<<<<<<< HEAD
 #: ChooseThemePlugin.php:58
+=======
+#: ChooseThemeModule.php:65
+>>>>>>> 6b0ad03771... [PLUGINS] Removed GeoURL as the service doesn't exist anymore
 msgid "Choose Theme"
 msgstr ""
 
 #. TRANS: Page title.
-#: actions/choosethemesettings.php:38
+#: actions/choosethemesettings.php:37
 msgid "Choose theme settings"
 msgstr ""
 
 #. TRANS: Page instructions.
-#: actions/choosethemesettings.php:47
+#: actions/choosethemesettings.php:48
 msgid "Choose theme"
 msgstr ""
 
-#: actions/choosethemesettings.php:83
-msgid "Settings saved."
-msgstr ""
-
-#: actions/choosethemesettings.php:134
+#: actions/choosethemesettings.php:138
 msgid "Themes"
 msgstr ""
 
-#: actions/choosethemesettings.php:134
+#: actions/choosethemesettings.php:138
 msgid "Select a theme"
 msgstr ""
