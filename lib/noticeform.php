@@ -87,8 +87,8 @@ class NoticeForm extends Form
     /**
      * Constructor
      *
-     * @param Action $action  Action we're being embedded into
-     * @param array  $options Array of optional parameters
+     * @param Action $action Action we're being embedded into
+     * @param array $options Array of optional parameters
      *                        'user' a user instead of current
      *                        'content' notice content
      *                        'inreplyto' ID of notice to reply to
@@ -96,18 +96,15 @@ class NoticeForm extends Form
      *                        'lon' Longitude
      *                        'location_id' ID of location
      *                        'location_ns' Namespace of location
+     * @throws UserNoProfileException
      */
-    function __construct($action, $options=null)
+    function __construct(Action $action, array $options = [])
     {
         parent::__construct($action);
 
         // When creating a notice form we don't want to collide with
         // possibly existing HTML elements, as naming conventions are similar.
         $this->id_suffix = rand();
-
-        if (is_null($options)) {
-            $options = array();
-        }
 
         $this->actionName  = $action->trimmed('action');
 

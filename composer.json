@@ -16,6 +16,7 @@
         "ext-simplexml": "*",
         "ext-xml": "*",
         "ext-xmlwriter": "*",
+        "ext-ctype": "*",
         "apereo/phpcas": "^1.3",
         "diogocomposer/xmpphp": "^3.0",
         "embed/embed": "^3.4",
