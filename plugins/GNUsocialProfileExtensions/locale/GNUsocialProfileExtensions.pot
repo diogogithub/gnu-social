@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:51+0100\n"
+"POT-Creation-Date: 2019-08-14 14:54+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,15 +25,90 @@ msgstr ""
 msgid "Custom profile fields"
 msgstr ""
 
-#: actions/bio.php:62
-#, php-format
-msgid "%s's Bio."
+#: actions/profilefieldsadminpanel.php:34
+msgid "Profile fields"
 msgstr ""
 
-#: classes/GNUsocialProfileExtensionField.php:79
+#: actions/profilefieldsadminpanel.php:39
+msgid "GNU Social custom profile fields"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:55
+msgid ""
+"Internal system name must be unique and consist of only alphanumeric "
+"characters!"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:65
+msgid "There was an error with the field data."
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:97
+msgid "New Profile Field"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:106
+msgid "Edit Profile Field"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:110
+msgid "Existing Custom Profile Fields"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:137
+msgid "Title"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:139
+msgid "The title of the field"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:145
+msgid "Internal name"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:147
+msgid ""
+"The alphanumeric name used internally for this field.  Also the key used in "
+"OStatus user info. (optional)"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:153
+msgid "Description"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:155
+msgid "An optional more detailed description of the field"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:161
+msgid "Type"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:162
+msgid "Text"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:163
+msgid "String"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:164
+msgid "The type of the datafield"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:181
+msgid "Save"
+msgstr ""
+
+#: actions/profilefieldsadminpanel.php:181
+msgid "Save new field"
+msgstr ""
+
+#: classes/GNUsocialProfileExtensionField.php:75
 msgid "Error creating new field."
 msgstr ""
 
-#: classes/GNUsocialProfileExtensionResponse.php:78
+#: classes/GNUsocialProfileExtensionResponse.php:73
 msgid "Error creating new response."
 msgstr ""
