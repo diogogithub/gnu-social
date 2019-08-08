@@ -33,7 +33,7 @@ class HubConfQueueHandler extends QueueHandler
         return 'hubconf';
     }
 
-    function handle($data)
+    function handle($data) : bool
     {
         $sub = $data['sub'];
         $mode = $data['mode'];

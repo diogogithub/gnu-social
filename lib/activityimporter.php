@@ -51,7 +51,7 @@ class ActivityImporter extends QueueHandler
      *
      * @return
      */
-    function handle($data)
+    function handle($data) : bool
     {
         list($user, $author, $activity, $trusted) = $data;
 

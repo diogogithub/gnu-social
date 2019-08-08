@@ -51,7 +51,7 @@ class ActivityMover extends QueueHandler
         return 'actmove';
     }
 
-    function handle($data)
+    function handle($data) : bool
     {
         list ($act, $sink, $userURI, $remoteURI) = $data;
 

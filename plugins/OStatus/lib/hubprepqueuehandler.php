@@ -43,7 +43,7 @@ class HubPrepQueueHandler extends QueueHandler
         return 'hubprep';
     }
 
-    function handle($data)
+    function handle($data) : bool
     {
         $topic = $data['topic'];
         $atom = $data['atom'];

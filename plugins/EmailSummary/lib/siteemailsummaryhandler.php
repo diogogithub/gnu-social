@@ -64,7 +64,7 @@ class SiteEmailSummaryHandler extends QueueHandler
      * @param mixed $object
      * @return boolean true on success, false on failure
      */
-    function handle($object)
+    function handle($object) : bool
     {
         $qm = QueueManager::get();
 

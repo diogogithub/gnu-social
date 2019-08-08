@@ -35,7 +35,7 @@ class ImReceiverQueueHandler extends QueueHandler
      * @param object $data
      * @return boolean success
      */
-    function handle($data)
+    function handle($data) : bool
     {
         return $this->plugin->receiveRawMessage($data);
     }

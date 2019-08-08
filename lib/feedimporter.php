@@ -59,7 +59,7 @@ class FeedImporter extends QueueHandler
         return 'feedimp';
     }
 
-    function handle($data)
+    function handle($data) : bool
     {
         list($user, $xml, $trusted) = $data;
 

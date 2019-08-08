@@ -14,7 +14,7 @@ class FeedPollQueueHandler extends QueueHandler
         return FeedPoll::QUEUE_CHECK;
     }
 
-    public function handle($item)
+    public function handle($item) : bool
     {
         $feedsub = FeedSub::getKV('id', $item['id']);
         if (!$feedsub instanceof FeedSub) {

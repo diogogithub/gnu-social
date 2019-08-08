@@ -33,7 +33,7 @@ class SalmonQueueHandler extends QueueHandler
         return 'salmon';
     }
 
-    function handle($data)
+    function handle($data) : bool
     {
         assert(is_array($data));
         assert(is_string($data['salmonuri']));

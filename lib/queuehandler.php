@@ -46,7 +46,7 @@ class QueueHandler
      * @param mixed $object
      * @return boolean true on success, false on failure
      */
-    function handle($object): bool
+    function handle($object) : bool
     {
         return true;
     }

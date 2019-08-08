@@ -64,7 +64,7 @@ class UserEmailSummaryHandler extends QueueHandler
      * @param mixed $object
      * @return boolean true on success, false on failure
      */
-    function handle($user_id)
+    function handle($user_id) : bool
     {
         // Skip if they've asked not to get summaries
 

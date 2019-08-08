@@ -31,7 +31,7 @@ class HubOutQueueHandler extends QueueHandler
         return 'hubout';
     }
 
-    function handle($data)
+    function handle($data) : bool
     {
         assert(array_key_exists('atom', $data));
         assert(is_string($data['atom']));

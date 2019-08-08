@@ -61,7 +61,7 @@ class DistribQueueHandler
      * @param Notice $notice
      * @return boolean true on success, false on failure
      */
-    public function handle(Notice $notice)
+    public function handle(Notice $notice) : bool
     {
         // We have to manually add attentions to non-profile subs and non-mentions
         $ptAtts = $notice->getAttentionsFromProfileTags();

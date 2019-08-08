@@ -46,7 +46,7 @@ class UserReminderHandler extends QueueHandler {
      * @param Confirm_address $confirm the confirmation email/code
      * @return boolean true on success, false on failure
      */
-    function handle($confirm) {
+    function handle($confirm) : bool {
         return $this->sendNextReminder($confirm);
     }
 

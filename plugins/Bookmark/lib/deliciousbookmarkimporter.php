@@ -63,7 +63,7 @@ class DeliciousBookmarkImporter extends QueueHandler
      *
      * @return boolean success value
      */
-    function handle($data)
+    function handle($data) : bool
     {
         $profile = Profile::getKV('id', $data['profile_id']);
 

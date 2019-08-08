@@ -51,7 +51,7 @@ class AccountMover extends QueueHandler
         return 'acctmove';
     }
 
-    function handle($object)
+    function handle($object) : bool
     {
         list($user, $remote, $password) = $object;
 

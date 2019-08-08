@@ -52,7 +52,7 @@ class OfflineBackupQueueHandler extends QueueHandler
         return 'backoff';
     }
 
-    function handle($object)
+    function handle($object) : bool
     {
         $userId = $object;
 

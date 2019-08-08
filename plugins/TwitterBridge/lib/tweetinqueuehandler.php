@@ -40,7 +40,7 @@ class TweetInQueueHandler extends QueueHandler
         return 'tweetin';
     }
 
-    function handle($data)
+    function handle($data) : bool
     {
         // JSON object with Twitter data
         $status = $data['status'];

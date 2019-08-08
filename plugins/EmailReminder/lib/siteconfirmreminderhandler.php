@@ -63,7 +63,7 @@ class SiteConfirmReminderHandler extends QueueHandler
      * @param array $remitem type of reminder to send and any special options
      * @return boolean true on success, false on failure
      */
-    function handle($remitem)
+    function handle($remitem) : bool
     {
         list($type, $opts) = $remitem;
 

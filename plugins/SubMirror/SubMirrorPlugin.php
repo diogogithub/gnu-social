@@ -47,7 +47,7 @@ class SubMirrorPlugin extends Plugin
         return true;
     }
 
-    function handle($notice)
+    function handle($notice) : bool
     {
         // Is anybody mirroring?
         $mirror = new SubMirror();

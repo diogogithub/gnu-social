@@ -35,7 +35,7 @@ class ImQueueHandler extends QueueHandler
      * @param Notice $notice
      * @return boolean success
      */
-    function handle($notice): bool
+    function handle($notice) : bool
     {
         if (!($notice instanceof Notice)) {
             common_log(LOG_ERR, "Got a bogus notice, not broadcasting");

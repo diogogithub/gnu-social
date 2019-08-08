@@ -40,7 +40,7 @@ class TweetCtlQueueHandler extends QueueHandler
         return 'tweetctl';
     }
 
-    function handle($data)
+    function handle($data) : bool
     {
         // A user has activated or deactivated their Twitter bridge
         // import status.

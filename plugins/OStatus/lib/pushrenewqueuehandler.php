@@ -30,7 +30,7 @@ class PushRenewQueueHandler extends QueueHandler
         return 'pushrenew';
     }
 
-    function handle($data)
+    function handle($data) : bool
     {
         $feedsub_id = $data['feedsub_id'];
         $feedsub = FeedSub::getKV('id', $feedsub_id);

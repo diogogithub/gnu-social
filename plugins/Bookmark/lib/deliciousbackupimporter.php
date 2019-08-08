@@ -70,7 +70,7 @@ class DeliciousBackupImporter extends QueueHandler
      *
      * @return boolean success value
      */
-    function handle($data)
+    function handle($data) : bool
     {
         list($user, $body) = $data;
 

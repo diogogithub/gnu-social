@@ -31,7 +31,7 @@ class PushInQueueHandler extends QueueHandler
         return 'pushin';
     }
 
-    function handle($data): bool
+    function handle($data) : bool
     {
         if (!is_array($data)) {
             common_log(LOG_ERR, "Got bogus data, not processing");

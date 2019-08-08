@@ -36,7 +36,7 @@ class DelUserQueueHandler extends QueueHandler
         return 'deluser';
     }
 
-    public function handle($user)
+    public function handle($user) : bool
     {
         if (!($user instanceof User)) {
             common_log(LOG_ERR, "Got a bogus user, not deleting");
