@@ -39,12 +39,12 @@ class Activitypub_delete extends Managed_DataObject
     /**
      * Generates an ActivityPub representation of a Delete
      *
-     * @param $actor
-     * @param array $object
+     * @param string $actor actor URI
+     * @param string $object object URI
      * @return array pretty array to be used in a response
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function delete_to_array($actor, $object)
+    public static function delete_to_array(string $actor, string $object): array
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
@@ -54,5 +54,34 @@ class Activitypub_delete extends Managed_DataObject
             'object' => $object
         ];
         return $res;
+    }
+
+    /**
+     * Verifies if a given object is acceptable for a Delete Activity.
+     *
+     * @param array|string $object
+     * @return bool
+     * @throws Exception
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function validate_object($object): bool
+    {
+        if (!is_array($object)) {
+            if (!filter_var($object, FILTER_VALIDATE_URL)) {
+                throw new Exception('Object is not a valid Object URI for Activity.');
+            }
+        } else {
+            if (!isset($object['type'])) {
+                throw new Exception('Object type was not specified for Delete Activity.');
+            } else if ($object['type'] !== "Tombstone") {
+                throw new Exception('Invalid Object type for Delete Activity.');
+            }
+
+            if (!isset($object['id'])) {
+                throw new Exception('Object id was not specified for Delete Activity.');
+            }
+        }
+
+        return true;
     }
 }
