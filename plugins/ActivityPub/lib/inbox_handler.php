@@ -96,6 +96,8 @@ class Activitypub_inbox_handler
                 Activitypub_create::validate_object($this->object);
                 break;
             case 'Delete':
+                Activitypub_delete::validate_object($this->object);
+                break;
             case 'Follow':
             case 'Like':
             case 'Announce':
@@ -207,12 +209,16 @@ class Activitypub_inbox_handler
      * Handles a Delete Activity received by our inbox.
      *
      * @param Profile $actor Actor
-     * @param array $object Activity
+     * @param array|string $object Activity's object
      * @throws AuthorizationException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function handle_delete($actor, $object)
+    private function handle_delete(Profile $actor, $object)
     {
+        if (is_array($object)) {
+            $object = $object['id'];
+        }
+
         // some moderator could already have deleted the
         // notice, so we test it first
         try {
