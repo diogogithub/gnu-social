@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: GNU social\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-02 17:47+0100\n"
-"PO-Revision-Date: 2015-02-28 16:21+0000\n"
+"PO-Revision-Date: 2019-08-10 01:48+0100\n"
 "Last-Translator: Juan Riquelme González <soulchainer@gmail.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/gnu-social/gnu-social/language/es/)\n"
 "MIME-Version: 1.0\n"
@@ -288,3 +288,24 @@ msgstr "Guardar"
 #: lib/extendedprofilewidget.php:652
 msgid "Save details"
 msgstr "Guardar los detalles"
+
+#: actions/bio.php:62
+#, php-format
+msgid "%s's Bio."
+msgstr "Biografía de %s. "
+
+#: GNUsocialProfileExtensionsModule.php:124
+msgid "Profile Fields"
+msgstr "Campos de perfil "
+
+#: GNUsocialProfileExtensionsModule.php:125
+msgid "Custom profile fields"
+msgstr "Campos de perfil personalizados"
+
+#: classes/GNUsocialProfileExtensionResponse.php:78
+msgid "Error creating new response."
+msgstr "Error creando una nueva respuesta. "
+
+#: classes/GNUsocialProfileExtensionField.php:79
+msgid "Error creating new field."
+msgstr "Error creando un nuevo campo. "

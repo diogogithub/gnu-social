@@ -287,3 +287,24 @@ msgstr "Opslaan"
 #: lib/extendedprofilewidget.php:652
 msgid "Save details"
 msgstr "Gegevens opslaan"
+
+#: actions/bio.php:62
+#, php-format
+msgid "%s's Bio."
+msgstr ""
+
+#: GNUsocialProfileExtensionsModule.php:124
+msgid "Profile Fields"
+msgstr ""
+
+#: GNUsocialProfileExtensionsModule.php:125
+msgid "Custom profile fields"
+msgstr ""
+
+#: classes/GNUsocialProfileExtensionResponse.php:78
+msgid "Error creating new response."
+msgstr ""
+
+#: classes/GNUsocialProfileExtensionField.php:79
+msgid "Error creating new field."
+msgstr ""

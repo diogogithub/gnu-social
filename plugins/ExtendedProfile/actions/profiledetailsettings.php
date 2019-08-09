@@ -17,23 +17,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 class ProfileDetailSettingsAction extends ProfileSettingsAction
 {
-    function title()
+    public function title()
     {
         // TRANS: Title for extended profile settings.
         return _m('Extended profile settings');
     }
 
-    function showStylesheets() {
+    public function showStylesheets()
+    {
         parent::showStylesheets();
         $this->cssLink('plugins/ExtendedProfile/css/profiledetail.css');
         return true;
     }
 
-    function  showScripts() {
+    public function showScripts()
+    {
         parent::showScripts();
         $this->script('plugins/ExtendedProfile/js/profiledetail.js');
         return true;
@@ -49,7 +53,7 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         throw new ClientException(_m('Unexpected form submission.'));
     }
 
-    function showContent()
+    public function showContent()
     {
         $widget = new ExtendedProfileWidget(
             $this,
@@ -59,14 +63,14 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         $widget->show();
     }
 
-    function saveDetails()
+    public function saveDetails()
     {
         common_debug(var_export($_POST, true));
 
         $this->saveStandardProfileDetails();
 
         $simpleFieldNames = array('title', 'spouse', 'kids', 'manager');
-        $dateFieldNames   = array('birthday');
+        $dateFieldNames = array('birthday');
 
         foreach ($simpleFieldNames as $name) {
             $value = $this->trimmed('extprofile-' . $name);
@@ -92,19 +96,19 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         $this->saveWebsites();
         $this->saveExperiences();
         $this->saveEducations();
+        $this->saveCustomFields($this);
 
         // TRANS: Success message after saving extended profile details.
         return _m('Details saved.');
-
     }
 
-    function parseDate($fieldname, $datestr, $required = false)
+    public function parseDate($fieldname, $datestr, $required = false)
     {
         if (empty($datestr)) {
             if ($required) {
                 $msg = sprintf(
-                    // TRANS: Exception thrown when no date was entered in a required date field.
-                    // TRANS: %s is the field name.
+                // TRANS: Exception thrown when no date was entered in a required date field.
+                // TRANS: %s is the field name.
                     _m('You must supply a date for "%s".'),
                     $fieldname
                 );
@@ -115,8 +119,8 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
             if ($ts === false) {
                 throw new Exception(
                     sprintf(
-                        // TRANS: Exception thrown on incorrect data input.
-                        // TRANS: %1$s is a field name, %2$s is the incorrect input.
+                    // TRANS: Exception thrown on incorrect data input.
+                    // TRANS: %1$s is a field name, %2$s is the incorrect input.
                         _m('Invalid date entered for "%1$s": %2$s.'),
                         $fieldname,
                         $ts
@@ -128,11 +132,12 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         return null;
     }
 
-    function savePhoneNumbers() {
+    public function savePhoneNumbers()
+    {
         $phones = $this->findPhoneNumbers();
         $this->removeAll('phone');
         $i = 0;
-        foreach($phones as $phone) {
+        foreach ($phones as $phone) {
             if (!empty($phone['value'])) {
                 ++$i;
                 $this->saveField(
@@ -145,51 +150,54 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         }
     }
 
-    function findPhoneNumbers() {
+    public function findPhoneNumbers()
+    {
 
         // Form vals look like this:
         // 'extprofile-phone-1' => '11332',
         // 'extprofile-phone-1-rel' => 'mobile',
 
-        $phones     = $this->sliceParams('phone', 2);
+        $phones = $this->sliceParams('phone', 2);
         $phoneArray = array();
 
         foreach ($phones as $phone) {
             list($number, $rel) = array_values($phone);
             $phoneArray[] = array(
                 'value' => $number,
-                'rel'   => $rel
+                'rel' => $rel
             );
         }
 
         return $phoneArray;
     }
 
-    function findIms() {
+    public function findIms()
+    {
 
         //  Form vals look like this:
         // 'extprofile-im-0' => 'jed',
         // 'extprofile-im-0-rel' => 'yahoo',
 
-        $ims     = $this->sliceParams('im', 2);
+        $ims = $this->sliceParams('im', 2);
         $imArray = array();
 
         foreach ($ims as $im) {
             list($id, $rel) = array_values($im);
             $imArray[] = array(
                 'value' => $id,
-                'rel'   => $rel
+                'rel' => $rel
             );
         }
 
         return $imArray;
     }
 
-    function saveIms() {
+    public function saveIms()
+    {
         $ims = $this->findIms();
         $this->removeAll('im');
         $i = 0;
-        foreach($ims as $im) {
+        foreach ($ims as $im) {
             if (!empty($im['value'])) {
                 ++$i;
                 $this->saveField(
@@ -202,7 +210,8 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         }
     }
 
-    function findWebsites() {
+    public function findWebsites()
+    {
 
         //  Form vals look like this:
 
@@ -213,18 +222,19 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
             list($id, $rel) = array_values($site);
             $wsArray[] = array(
                 'value' => $id,
-                'rel'   => $rel
+                'rel' => $rel
             );
         }
 
         return $wsArray;
     }
 
-    function saveWebsites() {
+    public function saveWebsites()
+    {
         $sites = $this->findWebsites();
         $this->removeAll('website');
         $i = 0;
-        foreach($sites as $site) {
+        foreach ($sites as $site) {
             if (!empty($site['value']) && !common_valid_http_url($site['value'])) {
                 // TRANS: Exception thrown when entering an invalid URL.
                 // TRANS: %s is the invalid URL.
@@ -243,7 +253,8 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         }
     }
 
-    function findExperiences() {
+    public function findExperiences()
+    {
 
         // Form vals look like this:
         // 'extprofile-experience-0'         => 'Bozotronix',
@@ -264,8 +275,8 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
             if (!empty($company)) {
                 $expArray[] = array(
                     'company' => $company,
-                    'start'   => $this->parseDate('Start', $start, true),
-                    'end'     => ($current == 'false') ? $this->parseDate('End', $end, true) : null,
+                    'start' => $this->parseDate('Start', $start, true),
+                    'end' => ($current == 'false') ? $this->parseDate('End', $end, true) : null,
                     'current' => ($current == 'false') ? false : true
                 );
             }
@@ -274,7 +285,8 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         return $expArray;
     }
 
-    function saveExperiences() {
+    public function saveExperiences()
+    {
         common_debug('save experiences');
         $experiences = $this->findExperiences();
 
@@ -283,7 +295,7 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         $this->removeAll('end'); // also stores 'current'
 
         $i = 0;
-        foreach($experiences as $experience) {
+        foreach ($experiences as $experience) {
             if (!empty($experience['company'])) {
                 ++$i;
                 $this->saveField(
@@ -318,12 +330,12 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
                         $experience['end']
                     );
                 }
-
             }
         }
     }
 
-    function findEducations() {
+    public function findEducations()
+    {
 
         // Form vals look like this:
         // 'extprofile-education-0-school' => 'Pigdog',
@@ -339,11 +351,11 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
             list($school, $degree, $description, $end, $start) = array_values($edu);
             if (!empty($school)) {
                 $eduArray[] = array(
-                    'school'      => $school,
-                    'degree'      => $degree,
+                    'school' => $school,
+                    'degree' => $degree,
                     'description' => $description,
-                    'start'       => $this->parseDate('Start', $start, true),
-                    'end'         => $this->parseDate('End', $end, true)
+                    'start' => $this->parseDate('Start', $start, true),
+                    'end' => $this->parseDate('End', $end, true)
                 );
             }
         }
@@ -352,59 +364,60 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
     }
 
 
-    function saveEducations() {
-         common_debug('save education');
-         $edus = $this->findEducations();
-         common_debug(var_export($edus, true));
+    public function saveEducations()
+    {
+        common_debug('save education');
+        $edus = $this->findEducations();
+        common_debug(var_export($edus, true));
 
-         $this->removeAll('school');
-         $this->removeAll('degree');
-         $this->removeAll('degree_descr');
-         $this->removeAll('school_start');
-         $this->removeAll('school_end');
+        $this->removeAll('school');
+        $this->removeAll('degree');
+        $this->removeAll('degree_descr');
+        $this->removeAll('school_start');
+        $this->removeAll('school_end');
 
-         $i = 0;
-         foreach($edus as $edu) {
-             if (!empty($edu['school'])) {
-                 ++$i;
-                 $this->saveField(
-                     'school',
-                     $edu['school'],
-                     null,
-                     $i
-                 );
-                 $this->saveField(
-                     'degree',
-                     $edu['degree'],
-                     null,
-                     $i
-                 );
-                 $this->saveField(
-                     'degree_descr',
-                     $edu['description'],
-                     null,
-                     $i
-                 );
-                 $this->saveField(
-                     'school_start',
-                     null,
-                     null,
-                     $i,
-                     $edu['start']
-                 );
+        $i = 0;
+        foreach ($edus as $edu) {
+            if (!empty($edu['school'])) {
+                ++$i;
+                $this->saveField(
+                    'school',
+                    $edu['school'],
+                    null,
+                    $i
+                );
+                $this->saveField(
+                    'degree',
+                    $edu['degree'],
+                    null,
+                    $i
+                );
+                $this->saveField(
+                    'degree_descr',
+                    $edu['description'],
+                    null,
+                    $i
+                );
+                $this->saveField(
+                    'school_start',
+                    null,
+                    null,
+                    $i,
+                    $edu['start']
+                );
 
-                 $this->saveField(
-                     'school_end',
-                     null,
-                     null,
-                     $i,
-                     $edu['end']
-                 );
+                $this->saveField(
+                    'school_end',
+                    null,
+                    null,
+                    $i,
+                    $edu['end']
+                );
             }
-         }
-     }
+        }
+    }
 
-    function arraySplit($array, $pieces)
+    public function arraySplit($array, $pieces)
     {
         if ($pieces < 2) {
             return array($array);
@@ -417,9 +430,10 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         return array_merge(array($a), $b);
     }
 
-    function findMultiParams($type) {
+    public function findMultiParams($type)
+    {
         $formVals = array();
-        $target   = $type;
+        $target = $type;
         foreach ($_POST as $key => $val) {
             if (strrpos('extprofile-' . $key, $target) !== false) {
                 $formVals[$key] = $val;
@@ -428,7 +442,8 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         return $formVals;
     }
 
-    function sliceParams($key, $size) {
+    public function sliceParams($key, $size)
+    {
         $slice = array();
         $params = $this->findMultiParams($key);
         ksort($params);
@@ -439,28 +454,29 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
     /**
      * Save an extended profile field as a Profile_detail
      *
-     * @param string $name    field name
-     * @param string $value   field value
-     * @param string $rel     field rel (type)
-     * @param int    $index   index (fields can have multiple values)
-     * @param date   $date    related date
+     * @param string $name field name
+     * @param string $value field value
+     * @param string|null $rel field rel (type)
+     * @param int|null $index index (fields can have multiple values)
+     * @param string|null $date date related date
+     * @throws ServerException
      */
-    function saveField($name, $value, $rel = null, $index = null, $date = null)
+    public function saveField(string $name, ?string $value, ?string $rel = null, ?int $index = null, ?string $date = null)
     {
-        $detail  = new Profile_detail();
+        $detail = new Profile_detail();
 
-        $detail->profile_id  = $this->scoped->getID();
-        $detail->field_name  = $name;
+        $detail->profile_id = $this->scoped->getID();
+        $detail->field_name = $name;
         $detail->value_index = $index;
 
         $result = $detail->find(true);
 
         if (!$result instanceof Profile_detail) {
             $detail->value_index = $index;
-            $detail->rel         = $rel;
+            $detail->rel = $rel;
             $detail->field_value = $value;
-            $detail->date        = $date;
-            $detail->created     = common_sql_now();
+            $detail->date = $date;
+            $detail->created = common_sql_now();
             $result = $detail->insert();
             if ($result === false) {
                 common_log_db_error($detail, 'INSERT', __FILE__);
@@ -471,8 +487,8 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
             $orig = clone($detail);
 
             $detail->field_value = $value;
-            $detail->rel         = $rel;
-            $detail->date        = $date;
+            $detail->rel = $rel;
+            $detail->date = $date;
 
             $result = $detail->update($orig);
             if ($result === false) {
@@ -485,11 +501,11 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         $detail->free();
     }
 
-    function removeAll($name)
+    public function removeAll($name)
     {
-        $detail  = new Profile_detail();
-        $detail->profile_id  = $this->scoped->getID();
-        $detail->field_name  = $name;
+        $detail = new Profile_detail();
+        $detail->profile_id = $this->scoped->getID();
+        $detail->field_name = $name;
         $detail->delete();
         $detail->free();
     }
@@ -500,12 +516,12 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
      * XXX: There's a lot of dupe code here from ProfileSettingsAction.
      *      Do not want.
      */
-    function saveStandardProfileDetails()
+    public function saveStandardProfileDetails()
     {
-        $fullname  = $this->trimmed('extprofile-fullname');
-        $location  = $this->trimmed('extprofile-location');
+        $fullname = $this->trimmed('extprofile-fullname');
+        $location = $this->trimmed('extprofile-location');
         $tagstring = $this->trimmed('extprofile-tags');
-        $bio       = $this->trimmed('extprofile-bio');
+        $bio = $this->trimmed('extprofile-bio');
 
         if ($tagstring) {
             $tags = array_map(
@@ -513,7 +529,7 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
                 preg_split('/[\s,]+/', $tagstring)
             );
         } else {
-            $tags = array();
+            $tags = [];
         }
 
         foreach ($tags as $tag) {
@@ -527,30 +543,29 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         $oldTags = Profile_tag::getSelfTagsArray($this->scoped);
         $newTags = array_diff($tags, $oldTags);
 
-        if ($fullname    != $this->scoped->getFullname()
+        if ($fullname != $this->scoped->getFullname()
             || $location != $this->scoped->location
             || !empty($newTags)
-            || $bio      != $this->scoped->getDescription()) {
-
+            || $bio != $this->scoped->getDescription()) {
             $orig = clone($this->scoped);
 
             // Skipping nickname change here until we add logic for when the site allows it or not
             // old Profilesettings will still let us do that.
 
             $this->scoped->fullname = $fullname;
-            $this->scoped->bio      = $bio;
+            $this->scoped->bio = $bio;
             $this->scoped->location = $location;
 
             $loc = Location::fromName($location);
 
             if (empty($loc)) {
-                $this->scoped->lat         = null;
-                $this->scoped->lon         = null;
+                $this->scoped->lat = null;
+                $this->scoped->lon = null;
                 $this->scoped->location_id = null;
                 $this->scoped->location_ns = null;
             } else {
-                $this->scoped->lat         = $loc->lat;
-                $this->scoped->lon         = $loc->lon;
+                $this->scoped->lat = $loc->lat;
+                $this->scoped->lon = $loc->lon;
                 $this->scoped->location_id = $loc->location_id;
                 $this->scoped->location_ns = $loc->location_ns;
             }
@@ -570,4 +585,36 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         }
     }
 
+    private function saveCustomFields($action)
+    {
+        $fields = GNUsocialProfileExtensionField::allFields();
+        $user = common_current_user();
+        $profile = $user->getProfile();
+        foreach ($fields as $field) {
+            $val = $action->trimmed('extprofile-'.$field->systemname);
+
+            if (empty($val)) {
+                continue;
+            }
+
+            $response = new GNUsocialProfileExtensionResponse();
+            $response->profile_id = $profile->id;
+            $response->extension_id = $field->id;
+
+            if ($response->find()) {
+                $response->fetch();
+                $response->value = $val;
+                if ($response->validate()) {
+                    if (empty($val)) {
+                        $response->delete();
+                    } else {
+                        $response->update();
+                    }
+                }
+            } else {
+                $response->value = $val;
+                $response->insert();
+            }
+        }
+    }
 }

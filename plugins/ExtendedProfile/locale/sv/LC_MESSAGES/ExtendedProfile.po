@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: GNU social\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-02 17:47+0100\n"
-"PO-Revision-Date: 2015-09-16 01:19+0000\n"
+"PO-Revision-Date: 2019-08-10 01:48+0100\n"
 "Last-Translator: digitaldreamer <digitaldreamer@email.cz>\n"
 "Language-Team: Swedish (http://www.transifex.com/gnu-social/gnu-social/language/sv/)\n"
 "MIME-Version: 1.0\n"
@@ -287,3 +287,24 @@ msgstr "Spara"
 #: lib/extendedprofilewidget.php:652
 msgid "Save details"
 msgstr "Spara detaljer"
+
+#: actions/bio.php:62
+#, php-format
+msgid "%s's Bio."
+msgstr "%s's Bio."
+
+#: GNUsocialProfileExtensionsModule.php:124
+msgid "Profile Fields"
+msgstr "Profilfält"
+
+#: GNUsocialProfileExtensionsModule.php:125
+msgid "Custom profile fields"
+msgstr "Anpassade profil-fält"
+
+#: classes/GNUsocialProfileExtensionResponse.php:78
+msgid "Error creating new response."
+msgstr "Fel när ett nytt svar skulle skapas."
+
+#: classes/GNUsocialProfileExtensionField.php:79
+msgid "Error creating new field."
+msgstr "Fel vid skapande av nytt fält."

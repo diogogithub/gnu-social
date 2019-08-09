@@ -17,38 +17,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 class ProfileDetailAction extends ShowstreamAction
 {
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }
 
-    function title()
+    public function title()
     {
         return $this->target->getFancyName();
     }
 
-    function showStylesheets() {
+    public function showStylesheets()
+    {
         parent::showStylesheets();
         $this->cssLink('plugins/ExtendedProfile/css/profiledetail.css');
         return true;
     }
 
-    function showContent()
+    public function showContent()
     {
         $cur = common_current_user();
         if ($this->scoped instanceof Profile && $this->scoped->sameAs($this->target)) {
             $this->elementStart('div', 'entity_actions');
             $this->elementStart('ul');
             $this->elementStart('li', 'entity_edit');
-            $this->element('a', array('href' => common_local_url('profiledetailsettings'),
-                                      // TRANS: Link title for link on user profile.
-                                      'title' => _m('Edit extended profile settings')),
-                           // TRANS: Link text for link on user profile.
-                           _m('Edit'));
+            $this->element(
+                'a',
+                array('href' => common_local_url('profiledetailsettings'),
+                // TRANS: Link title for link on user profile.
+                'title' => _m('Edit extended profile settings')),
+                // TRANS: Link text for link on user profile.
+                _m('Edit')
+            );
             $this->elementEnd('li');
             $this->elementEnd('ul');
             $this->elementEnd('div');

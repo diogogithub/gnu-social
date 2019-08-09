@@ -144,7 +144,7 @@ class ProfilefieldsAdminForm extends AdminForm
             'systemname',
             _m('Internal name'),
             $systemname,
-            _m('The alphanumeric name used internally for this field.  Also the key used in OStatus user info. (optional)')
+            _m('The alphanumeric name used internally for this field.  Also the key used for federation (e.g. ActivityPub and OStatus) user info.')
         );
         $this->unli();
         $this->li();

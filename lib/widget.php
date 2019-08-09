@@ -61,8 +61,8 @@ class Widget
      * Prepare the widget for use
      *
      * @param Action $out output helper, defaults to null
+     * @param array $widgetOpts
      */
-
     function __construct(Action $out = null, array $widgetOpts = [])
     {
         $this->out = $out;

@@ -69,30 +69,30 @@ class Profile_detail extends Managed_DataObject
     public $created;
     public $modified;
 
-    static function schemaDef()
+    public static function schemaDef()
     {
         return array(
             // No need for i18n. Table properties.
             'description'
-                => 'Additional profile details for the ExtendedProfile plugin',
-            'fields'      => array(
-                'id'          => array('type' => 'serial', 'not null' => true),
-                'profile_id'  => array('type' => 'int', 'not null' => true),
-                'field_name'  => array(
-                    'type'     => 'varchar',
-                    'length'   => 16,
+            => 'Additional profile details for the ExtendedProfile plugin',
+            'fields' => array(
+                'id' => array('type' => 'serial', 'not null' => true),
+                'profile_id' => array('type' => 'int', 'not null' => true),
+                'field_name' => array(
+                    'type' => 'varchar',
+                    'length' => 16,
                     'not null' => true
                 ),
                 'value_index' => array('type' => 'int'),
                 'field_value' => array('type' => 'text'),
-                'date'        => array('type' => 'datetime'),
-                'rel'         => array('type' => 'varchar', 'length' => 16),
+                'date' => array('type' => 'datetime'),
+                'rel' => array('type' => 'varchar', 'length' => 16),
                 'rel_profile' => array('type' => 'int'),
-                'created'     => array(
-                    'type'     => 'datetime',
+                'created' => array(
+                    'type' => 'datetime',
                     'not null' => true
-                 ),
-                'modified'    => array(
+                ),
+                'modified' => array(
                     'type' => 'timestamp',
                     'not null' => true
                 ),
@@ -100,7 +100,7 @@ class Profile_detail extends Managed_DataObject
             'primary key' => array('id'),
             'unique keys' => array(
                 'profile_detail_profile_id_field_name_value_index'
-                    => array('profile_id', 'field_name', 'value_index'),
+                => array('profile_id', 'field_name', 'value_index'),
             )
         );
     }
