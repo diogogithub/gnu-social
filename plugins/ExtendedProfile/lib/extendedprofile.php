@@ -32,12 +32,13 @@ class ExtendedProfile
      * Constructor
      *
      * @param Profile $profile
+     * @throws NoSuchUserException
      */
-    function __construct(Profile $profile)
+    public function __construct(Profile $profile)
     {
-        $this->profile  = $profile;
-        $this->user     = $profile->getUser();
-        $this->fields   = $this->loadFields();
+        $this->profile = $profile;
+        $this->user = $profile->getUser();
+        $this->fields = $this->loadFields();
         $this->sections = $this->getSections();
         //common_debug(var_export($this->sections, true));
 
@@ -48,8 +49,9 @@ class ExtendedProfile
      * Load extended profile fields
      *
      * @return array $fields the list of fields
+     * @throws Exception
      */
-    function loadFields()
+    public function loadFields()
     {
         $detail = new Profile_detail();
         $detail->profile_id = $this->profile->getID();
@@ -69,7 +71,7 @@ class ExtendedProfile
      *
      * @return string the concatenated string of tags
      */
-    function getTags()
+    public function getTags()
     {
         return implode(' ', Profile_tag::getSelfTagsArray($this->profile));
     }
@@ -84,21 +86,22 @@ class ExtendedProfile
      *
      * @return string the value
      */
-    function getTextValue($name)
+    public function getTextValue($name)
     {
-        $key           = strtolower($name);
+        $key = strtolower($name);
         $profileFields = array('fullname', 'location', 'bio');
 
         if (in_array($key, $profileFields)) {
             return $this->profile->$name;
-        } else if (array_key_exists($key, $this->fields)) {
+        } elseif (array_key_exists($key, $this->fields)) {
             return $this->fields[$key][0]->field_value;
         } else {
             return null;
         }
     }
 
-    function getDateValue($name) {
+    public function getDateValue($name)
+    {
         $key = strtolower($name);
         if (array_key_exists($key, $this->fields)) {
             return $this->fields[$key][0]->date;
@@ -109,7 +112,7 @@ class ExtendedProfile
 
     // XXX: getPhones, getIms, and getWebsites pretty much do the same thing,
     //      so refactor.
-    function getPhones()
+    public function getPhones()
     {
         $phones = (isset($this->fields['phone'])) ? $this->fields['phone'] : null;
         $pArrays = array();
@@ -119,9 +122,9 @@ class ExtendedProfile
                 // TRANS: Field label for extended profile properties.
                 'label' => _m('Phone'),
                 'index' => 0,
-                'type'  => 'phone',
+                'type' => 'phone',
                 'vcard' => 'tel',
-                'rel'   => 'office',
+                'rel' => 'office',
                 'value' => null
             );
         } else {
@@ -129,20 +132,20 @@ class ExtendedProfile
                 $pa = array(
                     // TRANS: Field label for extended profile properties.
                     'label' => _m('Phone'),
-                    'type'  => 'phone',
+                    'type' => 'phone',
                     'index' => intval($phones[$i]->value_index),
-                    'rel'   => $phones[$i]->rel,
+                    'rel' => $phones[$i]->rel,
                     'value' => $phones[$i]->field_value,
                     'vcard' => 'tel'
                 );
 
-               $pArrays[] = $pa;
+                $pArrays[] = $pa;
             }
         }
         return $pArrays;
     }
 
-    function getIms()
+    public function getIms()
     {
         $ims = (isset($this->fields['im'])) ? $this->fields['im'] : null;
         $iArrays = array();
@@ -158,9 +161,9 @@ class ExtendedProfile
                 $ia = array(
                     // TRANS: Field label for extended profile properties (Instant Messaging).
                     'label' => _m('IM'),
-                    'type'  => 'im',
+                    'type' => 'im',
                     'index' => intval($ims[$i]->value_index),
-                    'rel'   => $ims[$i]->rel,
+                    'rel' => $ims[$i]->rel,
                     'value' => $ims[$i]->field_value,
                 );
 
@@ -170,7 +173,7 @@ class ExtendedProfile
         return $iArrays;
     }
 
-    function getWebsites()
+    public function getWebsites()
     {
         $sites = (isset($this->fields['website'])) ? $this->fields['website'] : null;
         $wArrays = array();
@@ -186,9 +189,9 @@ class ExtendedProfile
                 $wa = array(
                     // TRANS: Field label for extended profile properties.
                     'label' => _m('Website'),
-                    'type'  => 'website',
+                    'type' => 'website',
                     'index' => intval($sites[$i]->value_index),
-                    'rel'   => $sites[$i]->rel,
+                    'rel' => $sites[$i]->rel,
                     'value' => $sites[$i]->field_value,
                 );
 
@@ -198,44 +201,44 @@ class ExtendedProfile
         return $wArrays;
     }
 
-    function getExperiences()
+    public function getExperiences()
     {
         $companies = (isset($this->fields['company'])) ? $this->fields['company'] : null;
         $start = (isset($this->fields['start'])) ? $this->fields['start'] : null;
-        $end   = (isset($this->fields['end'])) ? $this->fields['end'] : null;
+        $end = (isset($this->fields['end'])) ? $this->fields['end'] : null;
 
         $eArrays = array();
 
         if (empty($companies)) {
             $eArrays[] = array(
                 // TRANS: Field label for extended profile properties.
-                'label'   => _m('Employer'),
-                'type'    => 'experience',
+                'label' => _m('Employer'),
+                'type' => 'experience',
                 'company' => null,
-                'start'   => null,
-                'end'     => null,
+                'start' => null,
+                'end' => null,
                 'current' => false,
-                'index'   => 0
+                'index' => 0
             );
         } else {
             for ($i = 0; $i < sizeof($companies); $i++) {
                 $ea = array(
                     // TRANS: Field label for extended profile properties.
-                    'label'   => _m('Employer'),
-                    'type'    => 'experience',
+                    'label' => _m('Employer'),
+                    'type' => 'experience',
                     'company' => $companies[$i]->field_value,
-                    'index'   => intval($companies[$i]->value_index),
+                    'index' => intval($companies[$i]->value_index),
                     'current' => $end[$i]->rel,
-                    'start'   => $start[$i]->date,
-                    'end'     => $end[$i]->date
+                    'start' => $start[$i]->date,
+                    'end' => $end[$i]->date
                 );
-               $eArrays[] = $ea;
+                $eArrays[] = $ea;
             }
         }
         return $eArrays;
     }
 
-    function getEducation()
+    public function getEducation()
     {
         $schools = (isset($this->fields['school'])) ? $this->fields['school'] : null;
         $degrees = (isset($this->fields['degree'])) ? $this->fields['degree'] : null;
@@ -259,17 +262,17 @@ class ExtendedProfile
         } else {
             for ($i = 0; $i < sizeof($schools); $i++) {
                 $ia = array(
-                    'type'    => 'education',
+                    'type' => 'education',
                     // TRANS: Field label for extended profile properties.
-                    'label'   => _m('Institution'),
-                    'school'  => $schools[$i]->field_value,
-                    'degree'  => isset($degrees[$i]->field_value) ? $degrees[$i]->field_value : null,
+                    'label' => _m('Institution'),
+                    'school' => $schools[$i]->field_value,
+                    'degree' => isset($degrees[$i]->field_value) ? $degrees[$i]->field_value : null,
                     'description' => isset($descs[$i]->field_value) ? $descs[$i]->field_value : null,
-                    'index'   => intval($schools[$i]->value_index),
-                    'start'   => $start[$i]->date,
-                    'end'     => $end[$i]->date
+                    'index' => intval($schools[$i]->value_index),
+                    'start' => $start[$i]->date,
+                    'end' => $end[$i]->date
                 );
-               $iArrays[] = $ia;
+                $iArrays[] = $ia;
             }
         }
 
@@ -280,9 +283,27 @@ class ExtendedProfile
      *  Return all the sections of the extended profile
      *
      * @return array the big list of sections and fields
+     * @throws Exception
      */
-    function getSections()
+    public function getSections()
     {
+        $gsefields = GNUsocialProfileExtensionField::allFields();
+        $extra_fields = [];
+        gnusocial_profile_merge($this->profile);
+        foreach ($gsefields as $field) {
+            $field_key = $field->systemname;
+            switch ($field->type) {
+                case 'text':
+                    $extra_fields[$field_key]['type'] = 'custom-textarea';
+                    break;
+                case 'str':
+                default:
+                $extra_fields[$field_key]['type'] = 'custom-text';
+                    break;
+            }
+            $extra_fields[$field_key]['label'] = $field->title;
+            $extra_fields[$field_key]['value'] = $this->profile->$field_key;
+        }
         return array(
             'basic' => array(
                 // TRANS: Field label for extended profile properties.
@@ -328,8 +349,8 @@ class ExtendedProfile
                 // TRANS: Field label for extended profile properties.
                 'label' => _m('Contact'),
                 'fields' => array(
-                    'phone'   => $this->getPhones(),
-                    'im'      => $this->getIms(),
+                    'phone' => $this->getPhones(),
+                    'im' => $this->getIms(),
                     'website' => $this->getWebsites()
                 ),
             ),
@@ -368,6 +389,10 @@ class ExtendedProfile
                     'education' => $this->getEducation()
                 ),
             ),
+            'extra' => [
+                'label' => _m('Extra fields'),
+                'fields' => $extra_fields,
+            ]
         );
     }
 }

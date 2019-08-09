@@ -34,7 +34,7 @@ if (!defined('STATUSNET')) {
 
 class UserautocompleteAction extends Action
 {
-    var $query;
+    public $query;
 
     /**
      * Initialization.
@@ -42,8 +42,9 @@ class UserautocompleteAction extends Action
      * @param array $args Web and URL arguments
      *
      * @return boolean true if nothing goes wrong
+     * @throws ClientException
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = array())
     {
         parent::prepare($args);
         $this->query = $this->trimmed('term');
@@ -53,11 +54,9 @@ class UserautocompleteAction extends Action
     /**
      * Handle a request
      *
-     * @param array $args Arguments from $_REQUEST
-     *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
         $this->showResults();
@@ -68,8 +67,9 @@ class UserautocompleteAction extends Action
      * as a quick-n-dirty JSON document
      *
      * @return void
+     * @throws ServerException
      */
-    function showResults()
+    public function showResults()
     {
         $people = array();
 
@@ -83,7 +83,6 @@ class UserautocompleteAction extends Action
         $cnt = $profile->find();
 
         if ($cnt > 0) {
-
             $sql = 'SELECT profile.* FROM profile, user WHERE profile.id = user.id '
                 . ' AND LEFT(LOWER(profile.nickname), '
                 . strlen($this->query)
@@ -92,9 +91,9 @@ class UserautocompleteAction extends Action
 
             $profile->query(sprintf($sql, $this->query));
         }
-        
+
         while ($profile->fetch()) {
-             $people[] = $profile->nickname;
+            $people[] = $profile->nickname;
         }
 
         header('Content-Type: application/json; charset=utf-8');
@@ -104,9 +103,10 @@ class UserautocompleteAction extends Action
     /**
      * Do we need to write to the database?
      *
+     * @param $args
      * @return boolean true
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }

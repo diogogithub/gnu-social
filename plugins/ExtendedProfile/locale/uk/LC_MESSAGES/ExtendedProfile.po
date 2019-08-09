@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: GNU social\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-02 17:47+0100\n"
-"PO-Revision-Date: 2015-02-07 14:33+0000\n"
+"PO-Revision-Date: 2019-08-10 01:48+0100\n"
 "Last-Translator: digitaldreamer <digitaldreamer@email.cz>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/gnu-social/gnu-social/language/uk/)\n"
 "MIME-Version: 1.0\n"
@@ -287,3 +287,24 @@ msgstr "Зберегти"
 #: lib/extendedprofilewidget.php:652
 msgid "Save details"
 msgstr "Зберегти деталі"
+
+#: actions/bio.php:62
+#, php-format
+msgid "%s's Bio."
+msgstr "Біографія %s"
+
+#: GNUsocialProfileExtensionsModule.php:124
+msgid "Profile Fields"
+msgstr "Поля профілю"
+
+#: GNUsocialProfileExtensionsModule.php:125
+msgid "Custom profile fields"
+msgstr "Власні поля профілю"
+
+#: classes/GNUsocialProfileExtensionResponse.php:78
+msgid "Error creating new response."
+msgstr "Помилка при створенні нової відповіді."
+
+#: classes/GNUsocialProfileExtensionField.php:79
+msgid "Error creating new field."
+msgstr "Помилка створення нового поля."

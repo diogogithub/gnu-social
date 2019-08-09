@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: GNU social\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-02 17:47+0100\n"
-"PO-Revision-Date: 2015-06-17 14:49+0000\n"
+"PO-Revision-Date: 2019-08-10 01:47+0100\n"
 "Last-Translator: Ciencisto Dementa <maliktunga@users.noreply.github.com>\n"
 "Language-Team: Ido (http://www.transifex.com/gnu-social/gnu-social/language/io/)\n"
 "MIME-Version: 1.0\n"
@@ -288,3 +288,24 @@ msgstr "Konservar"
 #: lib/extendedprofilewidget.php:652
 msgid "Save details"
 msgstr "Konservar la detali"
+
+#: actions/bio.php:62
+#, php-format
+msgid "%s's Bio."
+msgstr "La biografio di %s."
+
+#: GNUsocialProfileExtensionsModule.php:124
+msgid "Profile Fields"
+msgstr "Profilo-feldi"
+
+#: GNUsocialProfileExtensionsModule.php:125
+msgid "Custom profile fields"
+msgstr "Personalizita profilo-feldi"
+
+#: classes/GNUsocialProfileExtensionResponse.php:78
+msgid "Error creating new response."
+msgstr "Eroro dum la kreo dil nova respondo."
+
+#: classes/GNUsocialProfileExtensionField.php:79
+msgid "Error creating new field."
+msgstr "Eroro dum la kreo dil nova feldo."

@@ -1,3 +1,8 @@
+SN.U.NoticeReplySet = function(nick,id) {
+    $('div.replyform').hide();
+    $('div#form'+id).show();
+}
+
 var SN_EXTENDED = SN_EXTENDED || {};
 
 SN_EXTENDED.reorder = function (cls) {
@@ -140,5 +145,4 @@ $(document).ready(function () {
             $(input).removeAttr('disabled');
         }
     });
-
 });
