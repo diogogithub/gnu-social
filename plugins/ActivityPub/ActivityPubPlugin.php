@@ -420,7 +420,7 @@ class ActivityPubPlugin extends Plugin
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function onEndWebFingerProfileLinks(XML_XRD &$xrd, Managed_DataObject $object)
+    public function onEndWebFingerProfileLinks(XML_XRD $xrd, Managed_DataObject $object)
     {
         if ($object->isPerson()) {
             $link = new XML_XRD_Element_Link(
