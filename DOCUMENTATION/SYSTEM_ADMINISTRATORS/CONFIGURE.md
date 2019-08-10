@@ -612,10 +612,10 @@ Profile management.
 * `biolimit`: max character length of bio; 0 means no limit; null means to use
     the site text limit default.
 
-* `backup`: whether users can backup their own profiles. Defaults to true.
+* `backup`: whether users can backup their own profiles. Defaults to false.
 
 * `restore`: whether users can restore their profiles from backup files. Defaults
-	 to true.
+	 to false.
 
 * `delete`: whether users can delete their own accounts. Defaults to false.
 
