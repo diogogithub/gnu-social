@@ -50,8 +50,8 @@ class ProfileDetailAction extends ShowstreamAction
             $this->element(
                 'a',
                 array('href' => common_local_url('profiledetailsettings'),
-                // TRANS: Link title for link on user profile.
-                'title' => _m('Edit extended profile settings')),
+                    // TRANS: Link title for link on user profile.
+                    'title' => _m('Edit extended profile settings')),
                 // TRANS: Link text for link on user profile.
                 _m('Edit')
             );

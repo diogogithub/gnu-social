@@ -104,7 +104,7 @@ class ProfilefieldsAdminPanelAction extends AdminPanelAction
     {
         if ($this->arg('save')) {
             return $this->saveField();
-        } else if ($this->arg('remove')) {
+        } elseif ($this->arg('remove')) {
             return $this->removeField();
         }
 
@@ -221,7 +221,7 @@ class ProfilefieldsAdminForm extends AdminForm
      */
     public function formActions(): void
     {
-        $this->out->submit('save', _m('BUTTON','Save'), 'submit', null, _m('Save field'));
+        $this->out->submit('save', _m('BUTTON', 'Save'), 'submit', null, _m('Save field'));
         if ($this->out->trimmed('edit')) {
             $this->out->submit('remove', _m('BUTTON', 'Remove'), 'submit', null, _m('Remove field'));
         }

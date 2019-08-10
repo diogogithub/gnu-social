@@ -597,7 +597,7 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         $user = common_current_user();
         $profile = $user->getProfile();
         foreach ($fields as $field) {
-            $val = $action->trimmed('extprofile-'.$field->systemname);
+            $val = $action->trimmed('extprofile-' . $field->systemname);
 
             if (empty($val)) {
                 continue;
