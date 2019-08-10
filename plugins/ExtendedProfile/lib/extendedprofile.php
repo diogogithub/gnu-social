@@ -57,7 +57,7 @@ class ExtendedProfile
         $detail->profile_id = $this->profile->getID();
         $detail->find();
 
-        $fields = array();
+        $fields = [];
 
         while ($detail->fetch()) {
             $fields[$detail->field_name][] = clone($detail);
@@ -115,7 +115,7 @@ class ExtendedProfile
     public function getPhones()
     {
         $phones = (isset($this->fields['phone'])) ? $this->fields['phone'] : null;
-        $pArrays = array();
+        $pArrays = [];
 
         if (empty($phones)) {
             $pArrays[] = array(
@@ -148,7 +148,7 @@ class ExtendedProfile
     public function getIms()
     {
         $ims = (isset($this->fields['im'])) ? $this->fields['im'] : null;
-        $iArrays = array();
+        $iArrays = [];
 
         if (empty($ims)) {
             $iArrays[] = array(
@@ -176,7 +176,7 @@ class ExtendedProfile
     public function getWebsites()
     {
         $sites = (isset($this->fields['website'])) ? $this->fields['website'] : null;
-        $wArrays = array();
+        $wArrays = [];
 
         if (empty($sites)) {
             $wArrays[] = array(
@@ -207,7 +207,7 @@ class ExtendedProfile
         $start = (isset($this->fields['start'])) ? $this->fields['start'] : null;
         $end = (isset($this->fields['end'])) ? $this->fields['end'] : null;
 
-        $eArrays = array();
+        $eArrays = [];
 
         if (empty($companies)) {
             $eArrays[] = array(
@@ -245,7 +245,7 @@ class ExtendedProfile
         $descs = (isset($this->fields['degree_descr'])) ? $this->fields['degree_descr'] : null;
         $start = (isset($this->fields['school_start'])) ? $this->fields['school_start'] : null;
         $end = (isset($this->fields['school_end'])) ? $this->fields['school_end'] : null;
-        $iArrays = array();
+        $iArrays = [];
 
         if (empty($schools)) {
             $iArrays[] = array(
@@ -287,10 +287,12 @@ class ExtendedProfile
      */
     public function getSections()
     {
+        $display_extra = false;
         $gsefields = GNUsocialProfileExtensionField::allFields();
         $extra_fields = [];
         gnusocial_profile_merge($this->profile);
         foreach ($gsefields as $field) {
+            $display_extra = true;
             $field_key = $field->systemname;
             switch ($field->type) {
                 case 'text':
@@ -298,101 +300,105 @@ class ExtendedProfile
                     break;
                 case 'str':
                 default:
-                $extra_fields[$field_key]['type'] = 'custom-text';
+                    $extra_fields[$field_key]['type'] = 'custom-text';
                     break;
             }
             $extra_fields[$field_key]['label'] = $field->title;
             $extra_fields[$field_key]['value'] = $this->profile->$field_key;
         }
-        return array(
-            'basic' => array(
+
+        $sections = [
+            'basic' => [
                 // TRANS: Field label for extended profile properties.
                 'label' => _m('Personal'),
-                'fields' => array(
-                    'fullname' => array(
+                'fields' => [
+                    'fullname' => [
                         // TRANS: Field label for extended profile properties.
                         'label' => _m('Full name'),
                         'profile' => 'fullname',
                         'vcard' => 'fn',
-                    ),
-                    'title' => array(
+                    ],
+                    'title' => [
                         // TRANS: Field label for extended profile properties.
                         'label' => _m('Title'),
                         'vcard' => 'title',
-                    ),
-                    'manager' => array(
+                    ],
+                    'manager' => [
                         // TRANS: Field label for extended profile properties.
                         'label' => _m('Manager'),
                         'type' => 'person',
                         'vcard' => 'x-manager',
-                    ),
-                    'location' => array(
+                    ],
+                    'location' => [
                         // TRANS: Field label for extended profile properties.
                         'label' => _m('Location'),
                         'profile' => 'location'
-                    ),
-                    'bio' => array(
+                    ],
+                    'bio' => [
                         // TRANS: Field label for extended profile properties.
                         'label' => _m('Bio'),
                         'type' => 'textarea',
                         'profile' => 'bio',
-                    ),
-                    'tags' => array(
+                    ],
+                    'tags' => [
                         // TRANS: Field label for extended profile properties.
                         'label' => _m('Tags'),
                         'type' => 'tags',
                         'profile' => 'tags',
-                    ),
-                ),
-            ),
-            'contact' => array(
+                    ],
+                ],
+            ],
+            'contact' => [
                 // TRANS: Field label for extended profile properties.
                 'label' => _m('Contact'),
-                'fields' => array(
+                'fields' => [
                     'phone' => $this->getPhones(),
                     'im' => $this->getIms(),
                     'website' => $this->getWebsites()
-                ),
-            ),
-            'personal' => array(
+                ],
+            ],
+            'personal' => [
                 // TRANS: Field label for extended profile properties.
                 'label' => _m('Personal'),
-                'fields' => array(
-                    'birthday' => array(
+                'fields' => [
+                    'birthday' => [
                         // TRANS: Field label for extended profile properties.
                         'label' => _m('Birthday'),
                         'type' => 'date',
                         'vcard' => 'bday',
-                    ),
-                    'spouse' => array(
+                    ],
+                    'spouse' => [
                         // TRANS: Field label for extended profile properties.
                         'label' => _m('Spouse\'s name'),
                         'vcard' => 'x-spouse',
-                    ),
-                    'kids' => array(
+                    ],
+                    'kids' => [
                         // TRANS: Field label for extended profile properties.
                         'label' => _m('Kids\' names')
-                    ),
-                ),
-            ),
-            'experience' => array(
+                    ],
+                ],
+            ],
+            'experience' => [
                 // TRANS: Field label for extended profile properties.
                 'label' => _m('Work experience'),
-                'fields' => array(
+                'fields' => [
                     'experience' => $this->getExperiences()
-                ),
-            ),
-            'education' => array(
+                ],
+            ],
+            'education' => [
                 // TRANS: Field label for extended profile properties.
                 'label' => _m('Education'),
-                'fields' => array(
+                'fields' => [
                     'education' => $this->getEducation()
-                ),
-            ),
-            'extra' => [
-                'label' => _m('Extra fields'),
+                ],
+            ],
+        ];
+        if ($display_extra) {
+            $sections['extra'] = [
+                'label' => _m('Additional information'),
                 'fields' => $extra_fields,
-            ]
-        );
+            ];
+        }
+        return $sections;
     }
 }

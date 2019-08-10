@@ -557,7 +557,7 @@ class ExtendedProfileWidget extends Form
                 break;
             case 'custom-text':
             case 'custom-textarea':
-            $this->out->text(isset($field['value']) ? $field['value'] : null);
+                $this->out->text(isset($field['value']) ? $field['value'] : null);
                 break;
             case 'date':
                 $value = $this->ext->getDateValue($name);
