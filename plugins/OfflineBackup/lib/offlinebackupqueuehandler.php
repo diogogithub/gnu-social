@@ -4,7 +4,7 @@
  * Copyright (C) 2011, StatusNet, Inc.
  *
  * Offline backup queue handler
- * 
+ *
  * PHP version 5
  *
  * This program is free software: you can redistribute it and/or modify
@@ -44,15 +44,14 @@ if (!defined('STATUSNET')) {
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
-
 class OfflineBackupQueueHandler extends QueueHandler
 {
-    function transport()
+    public function transport()
     {
         return 'backoff';
     }
 
-    function handle($object) : bool
+    public function handle($object): bool
     {
         $userId = $object;
 
@@ -69,7 +68,7 @@ class OfflineBackupQueueHandler extends QueueHandler
         return true;
     }
 
-    function makeBackupFile($user)
+    public function makeBackupFile($user)
     {
         // XXX: this is pretty lose-y;  try another way
 
@@ -95,23 +94,27 @@ class OfflineBackupQueueHandler extends QueueHandler
         return $fileName;
     }
 
-    function notifyBackupFile($user, $fileName)
+    public function notifyBackupFile($user, $fileName)
     {
         $fileUrl = File::url($fileName);
 
-        $body = sprintf(_m("The backup file you requested is ready for download.\n\n".
+        $body = sprintf(
+            _m(
+                "The backup file you requested is ready for download.\n\n".
                            "%s\n".
                            "Thanks for your time,\n",
-                           "%s\n"),
-                        $fileUrl,
-                        common_config('site', 'name'));
+                "%s\n"
+        ),
+            $fileUrl,
+            common_config('site', 'name')
+        );
 
         $headers = _mail_prepare_headers('offlinebackup', $user->nickname, $user->nickname);
 
         mail_to_user($user, _('Backup file ready for download'), $body, $headers);
     }
 
-    function dumpNotices($user, $dir)
+    public function dumpNotices($user, $dir)
     {
         common_log(LOG_INFO, 'dumping notices by ' . $user->nickname . ' to directory ' . $dir);
 
@@ -122,12 +125,11 @@ class OfflineBackupQueueHandler extends QueueHandler
         $page = 1;
 
         do {
-
             $notice = $stream->getNotices(($page-1)*NOTICES_PER_PAGE, NOTICES_PER_PAGE + 1);
 
             while ($notice->fetch()) {
                 try {
-                    $fname = $dir . '/'. common_date_iso8601($notice->created) . '-notice-' . $notice->id . '.atom'; 
+                    $fname = $dir . '/'. common_date_iso8601($notice->created) . '-notice-' . $notice->id . '.atom';
                     $data  = $notice->asAtomEntry(false, false, false, null);
                     common_log(LOG_INFO, 'dumping notice ' . $notice->id . ' to file ' . $fname);
                     file_put_contents($fname, $data);
@@ -139,14 +141,13 @@ class OfflineBackupQueueHandler extends QueueHandler
             }
 
             $page++;
-
         } while ($notice->N > NOTICES_PER_PAGE);
     }
 
-    function dumpFaves($user, $dir)
+    public function dumpFaves($user, $dir)
     {
         common_log(LOG_INFO, 'dumping faves by ' . $user->nickname . ' to directory ' . $dir);
-        
+
         $page = 1;
 
         do {
@@ -154,7 +155,7 @@ class OfflineBackupQueueHandler extends QueueHandler
 
             while ($fave->fetch()) {
                 try {
-                    $fname = $dir . '/'. common_date_iso8601($fave->modified) . '-fave-' . $fave->notice_id . '.atom'; 
+                    $fname = $dir . '/'. common_date_iso8601($fave->modified) . '-fave-' . $fave->notice_id . '.atom';
                     $act   = $fave->asActivity();
                     $data  = $act->asString(false, false, false);
                     common_log(LOG_INFO, 'dumping fave of ' . $fave->notice_id . ' to file ' . $fname);
@@ -165,16 +166,15 @@ class OfflineBackupQueueHandler extends QueueHandler
                     continue;
                 }
             }
-            
-            $page++;
 
+            $page++;
         } while ($fave->N > NOTICES_PER_PAGE);
     }
 
-    function dumpSubscriptions($user, $dir)
+    public function dumpSubscriptions($user, $dir)
     {
         common_log(LOG_INFO, 'dumping subscriptions by ' . $user->nickname . ' to directory ' . $dir);
-        
+
         $page = 1;
 
         do {
@@ -185,7 +185,7 @@ class OfflineBackupQueueHandler extends QueueHandler
                     if ($sub->subscribed == $user->id) {
                         continue;
                     }
-                    $fname = $dir . '/'. common_date_iso8601($sub->created) . '-subscription-' . $sub->subscribed . '.atom'; 
+                    $fname = $dir . '/'. common_date_iso8601($sub->created) . '-subscription-' . $sub->subscribed . '.atom';
                     $act   = $sub->asActivity();
                     $data  = $act->asString(false, false, false);
                     common_log(LOG_INFO, 'dumping sub of ' . $sub->subscribed . ' to file ' . $fname);
@@ -198,14 +198,13 @@ class OfflineBackupQueueHandler extends QueueHandler
             }
 
             $page++;
-
         } while ($sub->N > PROFILES_PER_PAGE);
     }
 
-    function dumpSubscribers($user, $dir)
+    public function dumpSubscribers($user, $dir)
     {
         common_log(LOG_INFO, 'dumping subscribers to ' . $user->nickname . ' to directory ' . $dir);
-        
+
         $page = 1;
 
         do {
@@ -216,7 +215,7 @@ class OfflineBackupQueueHandler extends QueueHandler
                     if ($sub->subscriber == $user->id) {
                         continue;
                     }
-                    $fname = $dir . '/'. common_date_iso8601($sub->created) . '-subscriber-' . $sub->subscriber . '.atom'; 
+                    $fname = $dir . '/'. common_date_iso8601($sub->created) . '-subscriber-' . $sub->subscriber . '.atom';
                     $act   = $sub->asActivity();
                     $data  = $act->asString(false, true, false);
                     common_log(LOG_INFO, 'dumping sub by ' . $sub->subscriber . ' to file ' . $fname);
@@ -229,23 +228,21 @@ class OfflineBackupQueueHandler extends QueueHandler
             }
 
             $page++;
-
         } while ($sub->N > PROFILES_PER_PAGE);
     }
 
-    function dumpGroups($user, $dir)
+    public function dumpGroups($user, $dir)
     {
         common_log(LOG_INFO, 'dumping memberships of ' . $user->nickname . ' to directory ' . $dir);
-        
+
         $page = 1;
 
         do {
-
             $mem = Group_member::byMember($user->id, ($page-1)*GROUPS_PER_PAGE, GROUPS_PER_PAGE + 1);
 
             while ($mem->fetch()) {
                 try {
-                    $fname = $dir . '/'. common_date_iso8601($mem->created) . '-membership-' . $mem->group_id . '.atom'; 
+                    $fname = $dir . '/'. common_date_iso8601($mem->created) . '-membership-' . $mem->group_id . '.atom';
                     $act   = $mem->asActivity();
                     $data  = $act->asString(false, false, false);
                     common_log(LOG_INFO, 'dumping membership in ' . $mem->group_id . ' to file ' . $fname);
@@ -258,11 +255,10 @@ class OfflineBackupQueueHandler extends QueueHandler
             }
 
             $page++;
-
         } while ($mem->N > GROUPS_PER_PAGE);
     }
 
-    function makeActivityFeed($user, $tmpdir, $fullPath)
+    public function makeActivityFeed($user, $tmpdir, $fullPath)
     {
         $handle = fopen($fullPath, 'c');
 
@@ -285,7 +281,7 @@ class OfflineBackupQueueHandler extends QueueHandler
         fclose($handle);
     }
 
-    function writeFeedHeader($user, $handle)
+    public function writeFeedHeader($user, $handle)
     {
         fwrite($handle, '<?xml version="1.0" encoding="UTF-8"?>');
         fwrite($handle, "\n");
@@ -302,12 +298,12 @@ class OfflineBackupQueueHandler extends QueueHandler
         fwrite($handle, "\n");
     }
 
-    function writeFeedFooter($user, $handle)
+    public function writeFeedFooter($user, $handle)
     {
         fwrite($handle, '</feed>');
     }
 
-    function delTree($dir)
+    public function delTree($dir)
     {
         if (is_dir($dir)) {
             $objects = scandir($dir);
