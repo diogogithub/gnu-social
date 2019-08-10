@@ -23,9 +23,15 @@ if (!defined('GNUSOCIAL')) {
 
 class ProfileDetailSettingsAction extends ProfileSettingsAction
 {
+    /**
+     * Title of the page
+     *
+     * @return string Title of the page
+     */
     public function title()
     {
         // TRANS: Title for extended profile settings.
+        // TRANS: %%site.name%% is the name of the site.
         return _m('Extended profile settings');
     }
 
