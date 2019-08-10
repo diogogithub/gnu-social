@@ -46,15 +46,18 @@ if (!defined('STATUSNET')) {
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
-
 class OfflineBackupPlugin extends Plugin
 {
     const PLUGIN_VERSION = '2.0.0';
 
-    function onRouterInitialized($m)
+    public function onRouterInitialized($m)
     {
-        $m->connect('main/backupaccount',
-                    ['action' => 'offlinebackup']);
+        $m->connect(
+            'main/backupaccount',
+            ['action' => 'offlinebackup'],
+            [],
+            true // Overwrite native backup tool
+        );
         return true;
     }
 
@@ -63,10 +66,9 @@ class OfflineBackupPlugin extends Plugin
      *
      * @param QueueManager $qm current queue manager
      *
-     * @return boolean hook value
+     * @return bool hook value
      */
-
-    function onEndInitializeQueueManager($qm)
+    public function onEndInitializeQueueManager($qm)
     {
         $qm->connect('backoff', 'OfflineBackupQueueHandler');
         return true;
@@ -74,13 +76,15 @@ class OfflineBackupPlugin extends Plugin
 
     public function onPluginVersion(array &$versions): bool
     {
-        $versions[] = array('name' => 'OfflineBackup',
-                            'version' => self::PLUGIN_VERSION,
-                            'author' => 'Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/OfflineBackup',
-                            'rawdescription' =>
-                          // TRANS: Plugin description.
-                            _m('Backup user data in offline queue and email when ready.'));
+        $versions[] = [
+            'name' => 'OfflineBackup',
+            'version' => self::PLUGIN_VERSION,
+            'author' => 'Evan Prodromou',
+            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/OfflineBackup',
+            'rawdescription' =>
+            // TRANS: Module description.
+                _m('Backup user data in offline queue and email when ready.')
+        ];
         return true;
     }
 }

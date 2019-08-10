@@ -4,7 +4,7 @@
  * Copyright (C) 2011, StatusNet, Inc.
  *
  * Initiate an offline backup
- * 
+ *
  * PHP version 5
  *
  * This program is free software: you can redistribute it and/or modify
@@ -44,28 +44,26 @@ if (!defined('STATUSNET')) {
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
-
 class OfflinebackupAction extends BackupaccountAction
 {
     /**
      * Handler method
      *
-     * @param array $argarray is ignored since it's now passed in in prepare()
-     *
      * @return void
+     * @throws ClientException
+     * @throws ReflectionException
+     * @throws ServerException
      */
-
-    function handle($argarray=null)
+    public function handle(): void
     {
         if ($this->isPost()) {
             $this->queueBackup();
         } else {
             $this->showPage();
         }
-        return;
     }
 
-    function queueBackup()
+    public function queueBackup(): void
     {
         $cur = common_current_user();
 
@@ -76,7 +74,7 @@ class OfflinebackupAction extends BackupaccountAction
         $this->showPage();
     }
 
-    function showContent()
+    public function showContent(): void
     {
         if ($this->isPost()) {
             $this->text(_('Backup queued. You will get a notification by email when your backup is ready to download.'));
