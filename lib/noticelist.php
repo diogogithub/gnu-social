@@ -63,9 +63,9 @@ class NoticeList extends Widget
     /**
      * constructor
      *
-     * @param Notice $notice stream of notices from DB_DataObject
+     * @param mixed $notice stream of notices from DB_DataObject (may be a Notice but can also be something like an ArrayWrapper)
      */
-    function __construct(Notice $notice, $out=null, array $prefs=array())
+    function __construct($notice, $out = null, array $prefs = [])
     {
         parent::__construct($out);
         $this->notice = $notice;

@@ -101,7 +101,7 @@ class PeopletagNav extends Menu
                                  sprintf(_m('TOOLTIP','Lists by %s.'), $nickname),
                                  $action_name == 'peopletagsbyuser',
                                  'nav_lists_by');
-            Event::handle('EndGroupGroupNav', array($this));
+            Event::handle('EndPeopletagGroupNav', array($this));
         }
         $this->out->elementEnd('ul');
     }
