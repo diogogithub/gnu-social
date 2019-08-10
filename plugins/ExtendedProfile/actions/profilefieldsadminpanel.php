@@ -29,11 +29,21 @@ defined('GNUSOCIAL') || die();
 
 class ProfilefieldsAdminPanelAction extends AdminPanelAction
 {
+    /**
+     * Title of the page
+     *
+     * @return string Title of the page
+     */
     public function title(): string
     {
         return _m('Profile fields');
     }
 
+    /**
+     * Instructions for use
+     *
+     * @return string instructions for use
+     */
     public function getInstructions(): string
     {
         return _m('GNU Social custom profile fields');
@@ -45,7 +55,7 @@ class ProfilefieldsAdminPanelAction extends AdminPanelAction
         $form->show();
     }
 
-    public function saveSettings(): void
+    protected function saveField(): void
     {
         $field = GNUsocialProfileExtensionField::getKV('id', $this->trimmed('id'));
         if (!$field) {
@@ -67,6 +77,39 @@ class ProfilefieldsAdminPanelAction extends AdminPanelAction
         } else {
             $field->insert();
         }
+    }
+
+    protected function removeField(): void
+    {
+        // Grab field
+        $field = GNUsocialProfileExtensionField::getKV('id', $this->trimmed('id'));
+        if (!$field) {
+            $this->clientError(_m('Field not found.'));
+        }
+
+        // Delete responses to this field
+        $responses = new GNUsocialProfileExtensionResponse();
+        $responses->extension_id = $field->id;
+        $responses->find();
+        $responses = $responses->fetchAll();
+        foreach ($responses as $response) {
+            $response->delete();
+        }
+
+        // Delete field
+        $field->delete();
+    }
+
+    public function saveSettings()
+    {
+        if ($this->arg('save')) {
+            return $this->saveField();
+        } else if ($this->arg('remove')) {
+            return $this->removeField();
+        }
+
+        // TRANS: Message given submitting a form with an unknown action in e-mail settings.
+        throw new ClientException(_('Unexpected form submission.'));
     }
 }
 
@@ -178,6 +221,9 @@ class ProfilefieldsAdminForm extends AdminForm
      */
     public function formActions(): void
     {
-        $this->out->submit('submit', _m('Save'), 'submit', null, _m('Save new field'));
+        $this->out->submit('save', _m('BUTTON','Save'), 'submit', null, _m('Save field'));
+        if ($this->out->trimmed('edit')) {
+            $this->out->submit('remove', _m('BUTTON', 'Remove'), 'submit', null, _m('Remove field'));
+        }
     }
 }
