@@ -1,39 +1,32 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
+ * A sample plugin to show best practices for GNU social plugins
  *
- * A sample Plugin to show best practices for StatusNet plugins
- *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Sample
- * @package   StatusNet
+ * @package   GNU social
  * @author    Brion Vibber <brionv@status.net>
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    // This check helps protect against security problems;
-    // your code file can't be executed directly from the web.
-    exit(1);
-}
+// This check helps protect against security problems;
+// your code file can't be executed directly from the web.
+defined('GNUSOCIAL') || die();
 
 /**
  * Sample plugin main class
@@ -87,38 +80,37 @@ if (!defined('STATUSNET')) {
  * main StatusNet distribution go in 'plugins' and third-party or local ones go
  * in 'local'.
  *
- * Simple plugins can be implemented as a single Plugin. Others are more complex
- * and require additional Plugins; these should use their own directory, like
+ * Simple plugins can be implemented as a single plugin. Others are more complex
+ * and require additional plugins; these should use their own directory, like
  * 'local/plugins/{$name}/'. All files related to the plugin, including images,
- * JavaScript, CSS, external libraries or PHP Plugins should go in the plugin
+ * JavaScript, CSS, external libraries or PHP plugins should go in the plugin
  * directory.
  *
  * @category  Sample
- * @package   StatusNet
+ * @package   GNU social
  * @author    Brion Vibber <brionv@status.net>
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class SamplePlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.0';
+    // Versions start at 0.1.0 in Semver
+    const PLUGIN_VERSION = '0.1.0';
 
     /**
      * Plugins are configured using public instance attributes. To set
      * their values, site administrators use this syntax:
      *
-     * addPlugin('Sample', array('attr1' => 'foo', 'attr2' => 'bar'));
+     * addPlugin('Sample', ['attr1' => 'foo', 'attr2' => 'bar']);
      *
      * The same plugin class can be initialized multiple times with different
      * arguments:
      *
-     * addPlugin('EmailNotify', array('sendTo' => 'evan@status.net'));
-     * addPlugin('EmailNotify', array('sendTo' => 'brionv@status.net'));
+     * addPlugin('EmailNotify', ['sendTo' => 'evan@status.net']);
+     * addPlugin('EmailNotify', ['sendTo' => 'brionv@status.net']);
      *
      */
-
     public $attr1 = null;
     public $attr2 = null;
 
@@ -128,9 +120,9 @@ class SamplePlugin extends Plugin
      * Plugins overload this method to do any initialization they need,
      * like connecting to remote servers or creating paths or so on.
      *
-     * @return boolean hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop.
      */
-    function initialize()
+    public function initialize(): bool
     {
         return true;
     }
@@ -141,9 +133,9 @@ class SamplePlugin extends Plugin
      * Plugins overload this method to do any cleanup they need,
      * like disconnecting from remote servers or deleting temp files or so on.
      *
-     * @return boolean hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop.
      */
-    function cleanup()
+    public function cleanup(): bool
     {
         return true;
     }
@@ -162,12 +154,11 @@ class SamplePlugin extends Plugin
      * However, they need to remember to run that script after installing or
      * upgrading a plugin!
      *
+     * @return bool hook value; true means continue processing, false means stop.
      * @see Schema
      * @see ColumnDef
-     *
-     * @return boolean hook value; true means continue processing, false means stop.
      */
-    function onCheckSchema()
+    public function onCheckSchema(): bool
     {
         $schema = Schema::get();
 
@@ -186,12 +177,15 @@ class SamplePlugin extends Plugin
      *
      * @param URLMapper $m path-to-action mapper
      *
-     * @return boolean hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop.
+     * @throws Exception If it can't connect our required routes
      */
-    public function onRouterInitialized(URLMapper $m)
+    public function onRouterInitialized(URLMapper $m): bool
     {
-        $m->connect('main/hello',
-                    ['action' => 'hello']);
+        $m->connect(
+            'main/hello',
+            ['action' => 'hello']
+        );
         return true;
     }
 
@@ -208,31 +202,45 @@ class SamplePlugin extends Plugin
      * @param Action $action The current action handler. Use this to
      *                       do any output.
      *
-     * @return boolean hook value; true means continue processing, false means stop.
+     * @return bool hook value; true means continue processing, false means stop.
      *
+     * @throws Exception
      * @see Action
      */
-    function onEndPrimaryNav($action)
+    public function onEndPrimaryNav(Action $action): bool
     {
         // common_local_url() gets the correct URL for the action name
         // we provide
-        $action->menuItem(common_local_url('hello'),
-                          // TRANS: Menu item in sample plugin.
-                          _m('Hello'),
-                          // TRANS: Menu item title in sample plugin.
-                          _m('A warm greeting'), false, 'nav_hello');
+        $action->menuItem(
+            common_local_url('hello'),
+            // TRANS: Menu item in sample plugin.
+            _m('Hello'),
+            // TRANS: Menu item title in sample plugin.
+            _m('A warm greeting'),
+            false,
+            'nav_hello'
+        );
         return true;
     }
 
+    /**
+     * Plugin version information/meta-data
+     *
+     * @param array $versions
+     * @return bool hook true
+     * @throws Exception
+     */
     public function onPluginVersion(array &$versions): bool
     {
-        $versions[] = array('name' => 'Sample',
-                            'version' => self::PLUGIN_VERSION,
-                            'author' => 'Brion Vibber, Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Sample',
-                            'rawdescription' =>
-                          // TRANS: Plugin description.
-                            _m('A sample plugin to show basics of development for new hackers.'));
+        $versions[] = [
+            'name' => 'Sample',
+            'version' => self::PLUGIN_VERSION,
+            'author' => 'Brion Vibber, Evan Prodromou',
+            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Sample',
+            'rawdescription' =>
+            // TRANS: Plugin description.
+                _m('A sample plugin to show basics of development for new hackers.')
+        ];
         return true;
     }
 }
