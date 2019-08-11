@@ -61,29 +61,28 @@ class Activitypub_notice
             }
         }
 
-        $cc = [common_local_url('apActorFollowers', ['id' => $profile->getID()])];
+        $to = ['https://www.w3.org/ns/activitystreams#Public'];
         foreach ($notice->getAttentionProfiles() as $to_profile) {
-            $cc[]  = $href = $to_profile->getUri();
+            $to[]  = $href = $to_profile->getUri();
             $tags[] = Activitypub_mention_tag::mention_tag_to_array_from_values($href, $to_profile->getNickname().'@'.parse_url($href, PHP_URL_HOST));
         }
 
-        // In a world without walls and fences, we should make everything Public!
-        $to[]= 'https://www.w3.org/ns/activitystreams#Public';
+        $cc = [common_local_url('apActorFollowers', ['id' => $profile->getID()])];
 
         $item = [
-            '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'           => self::getUrl($notice),
-            'type'         => 'Note',
-            'published'    => str_replace(' ', 'T', $notice->getCreated()).'Z',
-            'url'          => self::getUrl($notice),
-            'attributedTo' => ActivityPubPlugin::actor_uri($profile),
-            'to'           => $to,
-            'cc'           => $cc,
-            'conversation' => $notice->getConversationUrl(),
-            'content'      => $notice->getRendered(),
-            'isLocal'      => $notice->isLocal(),
-            'attachment'   => $attachments,
-            'tag'          => $tags
+            '@context'      => 'https://www.w3.org/ns/activitystreams',
+            'id'            => self::getUrl($notice),
+            'type'          => 'Note',
+            'published'     => str_replace(' ', 'T', $notice->getCreated()).'Z',
+            'url'           => self::getUrl($notice),
+            'attributedTo'  => ActivityPubPlugin::actor_uri($profile),
+            'to'            => $to,
+            'cc'            => $cc,
+            'conversation'  => $notice->getConversationUrl(),
+            'content'       => $notice->getRendered(),
+            'isLocal'       => $notice->isLocal(),
+            'attachment'    => $attachments,
+            'tag'           => $tags
         ];
 
         // Is this a reply?
@@ -239,9 +238,9 @@ class Activitypub_notice
             common_debug('ActivityPub Notice Validator: Rejected because Object URL is invalid.');
             throw new Exception('Invalid Object URL.');
         }
-        if (!isset($object['cc'])) {
-            common_debug('ActivityPub Notice Validator: Rejected because Object CC was not specified.');
-            throw new Exception('Object CC was not specified.');
+        if (!(isset($object['to']) || isset($object['cc']))) {
+            common_debug('ActivityPub Notice Validator: Rejected because neither Object CC and TO were specified.');
+            throw new Exception('Neither Object CC and TO were specified.');
         }
         return true;
     }
