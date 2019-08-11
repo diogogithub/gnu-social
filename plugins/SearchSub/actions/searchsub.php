@@ -1,37 +1,20 @@
 <?php
-/**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008-2011, StatusNet, Inc.
- *
- * Search subscription action.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * PHP version 5
- *
- * @category  Action
- * @package   StatusNet
- * @author    Brion Vibber <brion@status.net>
- * @author    Evan Prodromou <evan@status.net>
- * @copyright 2008-2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPLv3
- * @link      http://status.net/
- */
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Search subscription action
@@ -43,27 +26,27 @@ if (!defined('STATUSNET')) {
  *
  * Only works if the current user is logged in.
  *
- * @category  Action
- * @package   StatusNet
+ * @category  Plugin
+ * @package   SearchSubPlugin
  * @author    Evan Prodromou <evan@status.net>
  * @author    Brion Vibber <brion@status.net>
- * @copyright 2008-2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPLv3
- * @link      http://status.net/
+ * @copyright 2011-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class SearchsubAction extends Action
 {
-    var $user;
-    var $search;
+    public $user;
+    public $search;
 
     /**
      * Check pre-requisites and instantiate attributes
      *
-     * @param Array $args array of arguments (URL, GET, POST)
+     * @param array $args array of arguments (URL, GET, POST)
      *
-     * @return boolean success flag
+     * @return bool success flag
+     * @throws ClientException
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
         if ($this->boolean('ajax')) {
@@ -84,8 +67,8 @@ class SearchsubAction extends Action
 
         if (!$token || $token != common_session_token()) {
             // TRANS: Client error displayed when the session token is not okay.
-            $this->clientError(_m('There was a problem with your session token.'.
-                                 ' Try again, please.'));
+            $this->clientError(_m('There was a problem with your session token.' .
+                ' Try again, please.'));
         }
 
         // Only for logged-in users
@@ -114,16 +97,17 @@ class SearchsubAction extends Action
      *
      * Does the subscription and returns results.
      *
-     * @param Array $args unused.
-     *
      * @return void
+     * @throws ClientException
      */
-    function handle()
+    public function handle()
     {
         // Throws exception on error
 
-        SearchSub::start($this->user->getProfile(),
-                      $this->search);
+        SearchSub::start(
+            $this->user->getProfile(),
+            $this->search
+        );
 
         if ($this->boolean('ajax')) {
             $this->startHTML('text/xml;charset=utf-8');
@@ -137,8 +121,10 @@ class SearchsubAction extends Action
             $this->elementEnd('body');
             $this->endHTML();
         } else {
-            $url = common_local_url('search',
-                                    array('search' => $this->search));
+            $url = common_local_url(
+                'search',
+                array('search' => $this->search)
+            );
             common_redirect($url, 303);
         }
     }

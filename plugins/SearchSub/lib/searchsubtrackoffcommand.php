@@ -1,8 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('GNUSOCIAL') || die();
 
 class SearchSubTrackoffCommand extends Command
 {
-    function handle($channel)
+    public function handle($channel)
     {
         $cur = $this->user;
         $all = new SearchSub();
@@ -22,8 +38,10 @@ class SearchSubTrackoffCommand extends Command
             } catch (Exception $e) {
                 // TRANS: Message given having failed to cancel one of the search subs with 'track off' command.
                 // TRANS: %s is the search for which the subscription removal failed.
-                $channel->error($cur, sprintf(_m('Error disabling search subscription for query "%s".'),
-                                              $all->search));
+                $channel->error($cur, sprintf(
+                    _m('Error disabling search subscription for query "%s".'),
+                    $all->search
+                ));
                 return;
             }
         }
