@@ -2,7 +2,7 @@ The SearchSub plugin allows following all messages with a given search.
 
 Installation
 ============
-This plugin is enabled by default
+- Edit your `config.php` to include `addModule("SearchSub");`
 
 Settings
 ========
