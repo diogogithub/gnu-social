@@ -65,15 +65,16 @@ class URLMapper
      * Route creation.
      * $acceptHeaders should be set to true when, for whatever reason,
      * a path is being re-connected. The $headers list is still optional,
-     * in this case, given that being empty means "accept everything". 
+     * in this case, given that being empty means "accept everything".
      *
      * @author Evan Prodromou <evan@status.net>
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
-     * @param string $path route path
-     * @param array $args route action and, if needed, action settings
-     * @param array $paramPatterns regex patterns for path's parameters
-     * @param bool $acceptHeaders whether a path is being re-connected
-     * @param array $headers headers that should be set for route creation
+     * @param  string $path route path
+     * @param  array $args route action and, if needed, action settings
+     * @param  array $paramPatterns regex patterns for path's parameters
+     * @param  bool $acceptHeaders whether a path is being re-connected
+     * @param  array $headers headers that should be set for route creation
+     * @throws Exception If can't connect
      * @return void
      */
     public function connect(string $path, array $args, array $paramPatterns = [], bool $acceptHeaders = false, array $headers = [])

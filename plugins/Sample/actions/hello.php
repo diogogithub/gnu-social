@@ -1,55 +1,48 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Give a warm greeting to our friendly user
  *
- * PHP version 5
- *
- * @category Sample
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @package   GNU social
+ * @author    Brion Vibber <brionv@status.net>
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
- * Give a warm greeting to our friendly user
- *
  * This sample action shows some basic ways of doing output in an action
  * class.
  *
  * Action classes have several output methods that they override from
  * the parent class.
  *
- * @category Sample
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @category  Sample
+ * @package   GNU social
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class HelloAction extends Action
 {
-    var $user = null;
-    var $gc   = null;
+    public $user = null;
+    public $gc = null;
 
     /**
      * Take arguments for running
@@ -64,16 +57,17 @@ class HelloAction extends Action
      *
      * @param array $args $_REQUEST args
      *
-     * @return boolean success flag
+     * @return bool success flag
+     * @throws ClientException
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
 
         $this->user = common_current_user();
 
         if (!empty($this->user)) {
-            $this->gc = User_greeting_count::inc($this->user->id);
+            $this->gc = User_greeting_count::inc($this->user->getID());
         }
 
         return true;
@@ -87,11 +81,12 @@ class HelloAction extends Action
      * by the time handle() is called the action should be
      * more or less ready to go.
      *
-     * @param array $args $_REQUEST args; handled in prepare()
-     *
      * @return void
+     * @throws ClientException
+     * @throws ReflectionException
+     * @throws ServerException
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
 
@@ -104,15 +99,16 @@ class HelloAction extends Action
      * Override this method to show a custom title.
      *
      * @return string Title of the page
+     * @throws Exception
      */
-    function title()
+    public function title()
     {
         if (empty($this->user)) {
             // TRANS: Page title for sample plugin.
             return _m('Hello');
         } else {
             // TRANS: Page title for sample plugin. %s is a user nickname.
-            return sprintf(_m('Hello, %s!'), $this->user->nickname);
+            return sprintf(_m('Hello, %s!'), $this->user->getNickname());
         }
     }
 
@@ -127,24 +123,38 @@ class HelloAction extends Action
      * This method also demonstrates use of a plural localized string.
      *
      * @return void
+     * @throws Exception
      */
-    function showContent()
+    public function showContent()
     {
         if (empty($this->user)) {
-            $this->element('p', array('class' => 'greeting'),
-                           // TRANS: Message in sample plugin.
-                           _m('Hello, stranger!'));
+            $this->element(
+                'p',
+                ['class' => 'greeting'],
+                // TRANS: Message in sample plugin.
+                _m('Hello, stranger!')
+            );
         } else {
-            $this->element('p', array('class' => 'greeting'),
-                           // TRANS: Message in sample plugin. %s is a user nickname.
-                           sprintf(_m('Hello, %s'), $this->user->nickname));
-            $this->element('p', array('class' => 'greeting_count'),
-                           // TRANS: Message in sample plugin.
-                           // TRANS: %d is the number of times a user is greeted.
-                           sprintf(_m('I have greeted you %d time.',
-                                      'I have greeted you %d times.',
-                                      $this->gc->greeting_count),
-                                   $this->gc->greeting_count));
+            $this->element(
+                'p',
+                ['class' => 'greeting'],
+                // TRANS: Message in sample plugin. %s is a user nickname.
+                sprintf(_m('Hello, %s'), $this->user->getNickname())
+            );
+            $this->element(
+                'p',
+                ['class' => 'greeting_count'],
+                // TRANS: Message in sample plugin.
+                // TRANS: %d is the number of times a user is greeted.
+                sprintf(
+                    _m(
+                        'I have greeted you %d time.',
+                        'I have greeted you %d times.',
+                        $this->gc->greeting_count
+                    ),
+                    $this->gc->greeting_count
+                )
+            );
         }
     }
 
@@ -161,9 +171,9 @@ class HelloAction extends Action
      *
      * @param array $args other arguments, if RO/RW status depends on them.
      *
-     * @return boolean is read only action?
+     * @return bool is read only action?
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return false;
     }
