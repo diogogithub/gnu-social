@@ -1,0 +1,11 @@
+Add "tag clouds" in the UI
+
+Installation
+============
+add "addModule('TagCloud');"
+to the bottom of your config.php
+
+Settings
+========
+No settings.
+
