@@ -1678,7 +1678,7 @@ function common_enqueue_notice($notice)
         $transports[] = 'sms';
     }
     if (Event::hasHandler('HandleQueuedNotice')) {
-        $transports[] = 'plugin';
+        $transports[] = 'Module';
     }
 
     // We can skip these for gatewayed notices.

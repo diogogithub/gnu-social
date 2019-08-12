@@ -78,7 +78,7 @@ class Event {
      * @param string $name Name of the event that's happening
      * @param array  $args Arguments for handlers
      *
-     * @return boolean flag saying whether to continue processing, based
+     * @return bool flag saying whether to continue processing, based
      *                 on results of handlers.
      */
 
@@ -104,7 +104,7 @@ class Event {
      * @param string $name Name of the event to look for
      * @param string $plugin Optional name of the plugin class to look for
      *
-     * @return boolean flag saying whether such a handler exists
+     * @return bool flag saying whether such a handler exists
      *
      */
 

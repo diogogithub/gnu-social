@@ -23,7 +23,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * @package     Activity
  * @maintainer  Mikael Nordfeldth <mmn@hethane.se>
  */
-abstract class ActivityVerbHandlerPlugin extends ActivityHandlerPlugin
+abstract class ActivityVerbHandlerModule extends ActivityHandlerPlugin
 {
     public function onActivityVerbTitle(ManagedAction $action, $verb, Notice $target, Profile $scoped, &$title)
     {

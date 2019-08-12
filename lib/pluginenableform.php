@@ -1,36 +1,22 @@
 <?php
-/**
- * StatusNet, the distributed open-source microblogging tool
- *
- * Form for enabling/disabling plugins
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Form
- * @package   StatusNet
- * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
- */
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('STATUSNET') || die();
 
-require_once INSTALLDIR.'/lib/form.php';
+require_once INSTALLDIR . '/lib/form.php';
 
 /**
  * Form for joining a group
@@ -43,23 +29,22 @@ require_once INSTALLDIR.'/lib/form.php';
  *
  * @see      PluginDisableForm
  */
-
 class PluginEnableForm extends Form
 {
     /**
      * Plugin to enable/disable
      */
 
-    var $plugin = null;
+    public $plugin = null;
 
     /**
      * Constructor
      *
-     * @param HTMLOutputter $out    output channel
-     * @param string        $plugin plugin to enable/disable
+     * @param HTMLOutputter $out output channel
+     * @param string $plugin plugin to enable/disable
      */
 
-    function __construct($out=null, $plugin=null)
+    public function __construct($out = null, $plugin = null)
     {
         parent::__construct($out);
 
@@ -72,7 +57,7 @@ class PluginEnableForm extends Form
      * @return string ID of the form
      */
 
-    function id()
+    public function id()
     {
         return 'plugin-enable-' . $this->plugin;
     }
@@ -83,7 +68,7 @@ class PluginEnableForm extends Form
      * @return string of the form class
      */
 
-    function formClass()
+    public function formClass()
     {
         return 'form_plugin_enable';
     }
@@ -94,19 +79,22 @@ class PluginEnableForm extends Form
      * @return string URL of the action
      */
 
-    function action()
+    public function action()
     {
-        return common_local_url('pluginenable',
-                                array('plugin' => $this->plugin));
+        return common_local_url(
+            'pluginenable',
+            ['plugin' => $this->plugin]
+        );
     }
 
     /**
      * Action elements
      *
      * @return void
+     * @throws Exception
      */
 
-    function formActions()
+    public function formActions()
     {
         // TRANS: Plugin admin panel controls
         $this->out->submit('submit', _m('plugin', 'Enable'));

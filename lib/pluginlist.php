@@ -1,35 +1,20 @@
 <?php
-/**
- * StatusNet, the distributed open-source microblogging tool
- *
- * Plugins administration panel
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Settings
- * @package   StatusNet
- * @author    Brion Vibber <brion@status.net>
- * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
- */
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('STATUSNET') || die();
 
 require INSTALLDIR . "/lib/pluginenableform.php";
 require INSTALLDIR . "/lib/plugindisableform.php";
@@ -38,39 +23,39 @@ require INSTALLDIR . "/lib/plugindisableform.php";
  * Plugin list
  *
  * @category Admin
- * @package  StatusNet
+ * @package  GNUsocial
  * @author   Brion Vibber <brion@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
  */
 class PluginList extends Widget
 {
-    var $plugins = array();
+    public $plugins = [];
 
-    function __construct($plugins, $out)
+    public function __construct($plugins, $out)
     {
         parent::__construct($out);
         $this->plugins = $plugins;
     }
 
-    function show()
+    public function show()
     {
         $this->startList();
         $this->showPlugins();
         $this->endList();
     }
 
-    function startList()
+    public function startList()
     {
         $this->out->elementStart('table', 'plugin_list');
     }
 
-    function endList()
+    public function endList()
     {
         $this->out->elementEnd('table');
     }
 
-    function showPlugins()
+    public function showPlugins()
     {
         foreach ($this->plugins as $plugin) {
             $pli = $this->newListItem($plugin);
@@ -78,7 +63,7 @@ class PluginList extends Widget
         }
     }
 
-    function newListItem($plugin)
+    public function newListItem($plugin)
     {
         return new PluginListItem($plugin, $this->out);
     }
@@ -87,18 +72,18 @@ class PluginList extends Widget
 class PluginListItem extends Widget
 {
     /** Current plugin. */
-    var $plugin = null;
+    public $plugin = null;
 
     /** Local cache for plugin version info */
     protected static $versions = false;
 
-    function __construct($plugin, $out)
+    public function __construct($plugin, $out)
     {
         parent::__construct($out);
         $this->plugin = $plugin;
     }
 
-    function show()
+    public function show()
     {
         $meta = $this->metaInfo();
 
@@ -139,6 +124,8 @@ class PluginListItem extends Widget
         $this->out->elementStart('td');
         if (!empty($meta['rawdescription'])) {
             $this->out->raw($meta['rawdescription']);
+        } elseif (!empty($meta['description'])) {
+            $this->out->raw($meta['description']);
         }
         $this->out->elementEnd('td');
 
@@ -168,18 +155,19 @@ class PluginListItem extends Widget
      *
      * @fixme pull structured data from plugin source
      */
-    function metaInfo()
+    public function metaInfo()
     {
         $versions = self::getPluginVersions();
         $found = false;
 
         foreach ($versions as $info) {
-            // hack for URL shorteners... "LilUrl (ur1.ca)" etc
-            list($name, ) = explode(' ', $info['name']);
+            // We need a proper name for comparison, that is, without spaces nor the `(section)`
+            // Therefore, a plugin named "Diogo Cordeiro (diogo@fc.up.pt)" becomes "DiogoCordeiro"
+            $name_without_spaces = str_replace(' ', '', $info['name']);
+            $name_without_spaces_nor_parentheses_section = substr($name_without_spaces, 0, strpos($name_without_spaces.'(', '('));
 
-            if ($name == $this->plugin) {
+            if (strtolower($name_without_spaces_nor_parentheses_section) == strtolower($this->plugin)) {
                 if ($found) {
-                    // hack for URL shorteners...
                     $found['rawdescription'] .= "<br />\n" . $info['rawdescription'];
                 } else {
                     $found = $info;
@@ -190,9 +178,9 @@ class PluginListItem extends Widget
         if ($found) {
             return $found;
         } else {
-            return array('name' => $this->plugin,
-                         // TRANS: Plugin description for a disabled plugin.
-                         'rawdescription' => _m('plugin-description','(The plugin description is unavailable when a plugin has been disabled.)'));
+            return ['name' => $this->plugin,
+                // TRANS: Plugin description for a disabled plugin.
+                'rawdescription' => _m('plugin-description', '(The plugin description is unavailable when a plugin has been disabled.)')];
         }
     }
 
@@ -203,8 +191,8 @@ class PluginListItem extends Widget
     protected static function getPluginVersions()
     {
         if (!is_array(self::$versions)) {
-            $versions = array();
-            Event::handle('PluginVersion', array(&$versions));
+            $versions = [];
+            Event::handle('ModuleVersion', [&$versions]);
             self::$versions = $versions;
         }
         return self::$versions;

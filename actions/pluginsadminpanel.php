@@ -1,41 +1,26 @@
 <?php
-/**
- * StatusNet, the distributed open-source microblogging tool
- *
- * Plugins administration panel
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Settings
- * @package   StatusNet
- * @author    Brion Vibber <brion@status.net>
- * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
- */
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('STATUSNET') || die();
 
 /**
  * Plugins settings
  *
  * @category Admin
- * @package  StatusNet
+ * @package  GNUsocial
  * @author   Brion Vibber <brion@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/
@@ -46,6 +31,7 @@ class PluginsadminpanelAction extends AdminPanelAction
      * Returns the page title
      *
      * @return string page title
+     * @throws Exception
      */
     function title()
     {
@@ -62,7 +48,7 @@ class PluginsadminpanelAction extends AdminPanelAction
     {
         // TRANS: Instructions at top of plugin admin page.
         return _('Additional plugins can be enabled and configured manually. ' .
-                 'See the <a href="https://git.gnu.io/gnu/gnu-social/blob/master/plugins/README.md">online plugin ' .
+                 'See the <a href="https://notabug.org/diogo/gnu-social/src/nightly/plugins/README.md">online plugin ' .
                  'documentation</a> for more details.');
     }
 
@@ -76,7 +62,7 @@ class PluginsadminpanelAction extends AdminPanelAction
         $this->elementStart('fieldset', array('id' => 'settings_plugins_default'));
 
         // TRANS: Admin form section header
-        $this->element('legend', null, _('Default plugins'), 'default');
+        $this->element('legend', null, _('Default plugins'));
 
         $this->showDefaultPlugins();
 
