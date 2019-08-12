@@ -793,7 +793,7 @@ class Profile extends Managed_DataObject
         return is_null($other) ? false : $other->isSubscribed($this);
     }
 
-    function requiresSubscriptionApproval(Profile $other=null)
+    function requiresSubscriptionApproval(Profile $other=null): bool
     {
         if (!$this->isLocal()) {
             // We don't know for remote users, and we'll always be able to send
@@ -809,7 +809,7 @@ class Profile extends Managed_DataObject
 
         // If the local user either has a private stream (implies the following)
         // or  user has a moderation policy for new subscriptions, return true.
-        return $this->getUser()->private_stream || $this->getUser()->subscribe_policy === User::SUBSCRIBE_POLICY_MODERATE;
+        return $this->isPrivateStream() || $this->getUser()->subscribe_policy === User::SUBSCRIBE_POLICY_MODERATE;
     }
 
     /**
@@ -1792,13 +1792,14 @@ class Profile extends Managed_DataObject
         return $this->getUser()->shortenLinks($text, $always);
     }
 
-    public function isPrivateStream()
+    public function isPrivateStream(): bool
     {
         // We only know of public remote users as of yet...
         if (!$this->isLocal()) {
             return false;
         }
-        return $this->getUser()->private_stream ? true : false;
+        $private_stream = $this->getUser()->private_stream;
+        return !is_null($private_stream) && $private_stream;
     }
 
     public function delPref($namespace, $topic) {
