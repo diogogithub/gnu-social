@@ -32,8 +32,8 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 /**
  * Superclass for plugins that do authentication
  *
- * @category Plugin
- * @package  StatusNet
+ * @category Module
+ * @package  GNUsocial
  * @author   Craig Andrews <candrews@integralblue.com>
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link     http://status.net/

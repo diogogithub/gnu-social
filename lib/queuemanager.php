@@ -294,7 +294,7 @@ abstract class QueueManager extends IoManager
             $this->connect('actmove', 'ActivityMover');
 
             // For compat with old plugins not registering their own handlers.
-            $this->connect('plugin', 'PluginQueueHandler');
+            $this->connect('Module', 'ModuleQueueHandler');
         }
         Event::handle('EndInitializeQueueManager', array($this));
     }

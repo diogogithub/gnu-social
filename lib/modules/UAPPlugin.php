@@ -44,8 +44,8 @@ if (!defined('STATUSNET')) {
  * Leaderboard      728x90
  * Wide Skyscraper  160x600
  *
- * @category Plugin
- * @package  StatusNet
+ * @category Module
+ * @package  GNUsocial
  * @author   Sarven Capadisli <csarven@status.net>
  * @author   Evan Prodromou <evan@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0

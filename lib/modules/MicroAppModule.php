@@ -42,13 +42,13 @@ if (!defined('STATUSNET')) {
  * The applications work more-or-less like other
  *
  * @category  Microapp
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2011 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
-abstract class MicroAppPlugin extends ActivityHandlerPlugin
+abstract class MicroAppModule extends ActivityHandlerPlugin
 {
     /**
      * Returns a localized string which represents this micro-app,

@@ -17,7 +17,7 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * Base class for plugins
+ * Base class for modules
  *
  * A base class for GNU social modules. Mostly a light wrapper around
  * the Event framework.
@@ -29,8 +29,8 @@ defined('GNUSOCIAL') || die();
  * They will also automatically handle the InitializePlugin and CleanupPlugin with the
  * initialize() and cleanup() methods, respectively.
  *
- * @category Plugin
- * @package  GNU social
+ * @category Module
+ * @package  GNUsocial
  * @author   Evan Prodromou <evan@status.net>
  * @copyright 2010-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -39,10 +39,10 @@ defined('GNUSOCIAL') || die();
  */
 class Plugin
 {
-    function __construct()
+    public function __construct()
     {
-        Event::addHandler('InitializePlugin', array($this, 'initialize'));
-        Event::addHandler('CleanupPlugin', array($this, 'cleanup'));
+        Event::addHandler('InitializePlugin', [$this, 'initialize']);
+        Event::addHandler('CleanupPlugin', [$this, 'cleanup']);
 
         foreach (get_class_methods($this) as $method) {
             if (mb_substr($method, 0, 2) == 'on') {
@@ -53,12 +53,12 @@ class Plugin
         $this->setupGettext();
     }
 
-    function initialize()
+    public function initialize()
     {
         return true;
     }
 
-    function cleanup()
+    public function cleanup()
     {
         return true;
     }
@@ -81,7 +81,8 @@ class Plugin
      *
      * @return bool hook value; true means continue processing, false means stop.
      */
-    public function onAutoload($cls) {
+    public function onAutoload($cls)
+    {
         $cls = basename($cls);
         $basedir = INSTALLDIR . '/local/plugins/' . mb_substr(get_called_class(), 0, -6);
         if (!file_exists($basedir)) {
@@ -124,7 +125,7 @@ class Plugin
     protected function setupGettext()
     {
         $class = get_class($this);
-        if (substr($class, -6) == 'Plugin') {
+        if (substr($class, -6) == 'Module') {
             $name = substr($class, 0, -6);
             $path = common_config('plugins', 'locale_path');
             if (!$path) {
@@ -147,7 +148,7 @@ class Plugin
 
     protected function log($level, $msg)
     {
-        common_log($level, get_class($this) . ': '.$msg);
+        common_log($level, get_class($this) . ': ' . $msg);
     }
 
     protected function debug($msg)
@@ -166,28 +167,29 @@ class Plugin
         return GNUSOCIAL_VERSION;
     }
 
-    protected function userAgent() {
+    protected function userAgent()
+    {
         return HTTPClient::userAgent()
-                . ' (' . get_class($this) . ' v' . $this->version() . ')';
+            . ' (' . get_class($this) . ' v' . $this->version() . ')';
     }
 
-    function onPluginVersion(array &$versions)
+    public function onModuleVersion(array &$versions)
     {
         $name = $this->name();
 
         $versions[] = array('name' => $name,
-                            // TRANS: Displayed as version information for a plugin if no version information was found.
-                            'version' => _('Unknown'));
+            // TRANS: Displayed as version information for a plugin if no version information was found.
+            'version' => _('Unknown'));
 
         return true;
     }
 
-    function path($relative)
+    public function path($relative)
     {
         return self::staticPath($this->name(), $relative);
     }
 
-    static function staticPath($plugin, $relative)
+    public static function staticPath($module, $relative)
     {
         if (GNUsocial::useHTTPS()) {
             $server = common_config('plugins', 'sslserver');
@@ -212,25 +214,25 @@ class Plugin
 
         if (empty($path)) {
             // XXX: extra stat().
-            if (@file_exists(PUBLICDIR . '/local/plugins/' . $plugin . '/' . $relative)) {
+            if (@file_exists(PUBLICDIR . '/local/plugins/' . $module . '/' . $relative)) {
                 $path = common_config('site', 'path') . '/local/plugins/';
-            } elseif (@file_exists(PUBLICDIR . '/modules/' . $plugin . '/' . $relative)) {
+            } elseif (@file_exists(PUBLICDIR . '/modules/' . $module . '/' . $relative)) {
                 $path = common_config('site', 'path') . '/modules/';
             } else {
                 $path = common_config('site', 'path') . '/plugins/';
             }
         }
 
-        if ($path[strlen($path)-1] != '/') {
+        if ($path[strlen($path) - 1] != '/') {
             $path .= '/';
         }
 
         if ($path[0] != '/') {
-            $path = '/'.$path;
+            $path = '/' . $path;
         }
 
         $protocol = GNUsocial::useHTTPS() ? 'https' : 'http';
 
-        return $protocol.'://'.$server.$path.$plugin.'/'.$relative;
+        return $protocol . '://' . $server . $path . $module . '/' . $relative;
     }
 }
