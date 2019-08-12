@@ -1,20 +1,52 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('GNUSOCIAL')) {
-    exit(1);
-}
+/**
+ * Plugin that presents basic instance information using the [NodeInfo standard](http://nodeinfo.diaspora.software/).
+ *
+ * @package   NodeInfo
+ * @author    Stéphane Bérubé <chimo@chromic.org>
+ * @author    Diogo Cordeiro <diogo@fc.up.pt>
+ * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 
+defined('GNUSOCIAL') || die();
+
+/**
+ * Controls cache and routes
+ *
+ * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class NodeinfoPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '1.0.2';
+    const PLUGIN_VERSION = '2.0.0';
 
-    public function onRouterInitialized($m)
+    public function onRouterInitialized($m): bool
     {
-        $m->connect('.well-known/nodeinfo',
-                    ['action' => 'nodeinfojrd']);
+        $m->connect(
+            '.well-known/nodeinfo',
+            ['action' => 'nodeinfojrd']
+        );
 
-        $m->connect('main/nodeinfo/2.0',
-                    ['action' => 'nodeinfo_2_0']);
+        $m->connect(
+            'api/nodeinfo/2.0.json',
+            ['action' => 'nodeinfo_2_0']
+        );
 
         return true;
     }
@@ -22,9 +54,10 @@ class NodeinfoPlugin extends Plugin
     /**
      * Make sure necessary tables are filled out.
      *
-     * @return boolean hook true
+     * @return bool hook true
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function onCheckSchema()
+    public function onCheckSchema(): bool
     {
         // Ensure schema
         $schema = Schema::get();
@@ -55,10 +88,11 @@ class NodeinfoPlugin extends Plugin
     /**
      * Increment notices/replies counter
      *
-     * @return boolean hook flag
+     * @param  Notice $notice
+     * @return bool hook flag
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function onStartNoticeDistribute($notice)
+    public function onStartNoticeDistribute(Notice $notice): bool
     {
         assert($notice->id > 0);        // Ignore if not a valid notice
 
@@ -68,16 +102,18 @@ class NodeinfoPlugin extends Plugin
             return true;
         }
 
-        // Ignore for activity/non-post-verb notices
+        // Ignore for activity/non-(post/share)-verb notices
         if (method_exists('ActivityUtils', 'compareVerbs')) {
-            $is_post_verb = ActivityUtils::compareVerbs(
+            $is_valid_verb = ActivityUtils::compareVerbs(
                 $notice->verb,
-                [ActivityVerb::POST]
+                [ActivityVerb::POST,
+                 ActivityVerb::SHARE]
             );
         } else {
-            $is_post_verb = ($notice->verb == ActivityVerb::POST ? true : false);
+            $is_valid_verb = ($notice->verb == ActivityVerb::POST ||
+                              $notice->verb == ActivityVerb::SHARE);
         }
-        if ($notice->source == 'activity' || !$is_post_verb) {
+        if ($notice->source == 'activity' || !$is_valid_verb) {
             return true;
         }
 
@@ -105,10 +141,13 @@ class NodeinfoPlugin extends Plugin
     /**
      * Decrement notices/replies counter
      *
-     * @return boolean hook flag
+     * @param  User $user
+     * @param  Notice $notice
+     * @return bool hook flag
+     * @throws UserNoProfileException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function onStartDeleteOwnNotice($user, $notice)
+    public function onStartDeleteOwnNotice(User $user, Notice $notice): bool
     {
         $profile = $user->getProfile();
 
@@ -133,10 +172,10 @@ class NodeinfoPlugin extends Plugin
     /**
      * Increment users counter
      *
-     * @return boolean hook flag
+     * @return bool hook flag
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function onEndRegistrationTry()
+    public function onEndRegistrationTry(): bool
     {
         $us = Usage_stats::getKV('type', 'users');
         $us->count += 1;
@@ -147,10 +186,10 @@ class NodeinfoPlugin extends Plugin
     /**
      * Decrement users counter
      *
-     * @return boolean hook flag
+     * @return bool hook flag
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function onEndDeleteUser()
+    public function onEndDeleteUser(): bool
     {
         $us = Usage_stats::getKV('type', 'users');
         $us->count -= 1;
@@ -158,23 +197,38 @@ class NodeinfoPlugin extends Plugin
         return true;
     }
 
-
-    public function onPluginVersion(array &$versions)
+    /**
+     * Plugin version information
+     *
+     * @param  array $versions
+     * @return bool hook true
+     * @throws Exception
+     */
+    public function onPluginVersion(array &$versions): bool
     {
-        $versions[] = ['name' => 'Nodeinfo',
+        $versions[] = [
+            'name' => 'Nodeinfo',
             'version' => self::PLUGIN_VERSION,
-            'author' => 'chimo',
-            'homepage' => 'https://github.com/chimo/gs-nodeinfo',
-            'description' => _m('Plugin that presents basic instance information using the NodeInfo standard.')];
+            'author' => 'Stéphane Bérubé, Diogo Cordeiro',
+            'homepage' => 'https://code.chromic.org/chimo/gs-nodeinfo',
+            'description' => _m('Plugin that presents basic instance information using the NodeInfo standard.')
+        ];
         return true;
     }
 
-    public function onEndUpgrade()
+    /**
+     * Cache was added in a newer version of the plugin, this ensures we fix cached values on upgrade
+     *
+     * @return bool hook flag
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     */
+    public function onEndUpgrade(): bool
     {
         $users = new Usage_stats();
         if ($users->getUserCount() == 0) {
             define('NODEINFO_UPGRADE', true);
             require_once __DIR__ . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'fix_stats.php';
         }
+        return true;
     }
 }

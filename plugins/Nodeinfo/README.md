@@ -1,7 +1,8 @@
-# Nodeinfo plugin for GNU social
+# Nodeinfo support for GNU social
 
 Plugin that presents basic instance information using the [NodeInfo standard](http://nodeinfo.diaspora.software/).
 
-At the moment, the information is presented at the "/main/nodeinfo/2.0" endpoint.
+The information is presented at the "/nodeinfo/2.0.json" endpoint.
 
-Other tools can then scrape that information and present it in various ways. For example: [https://fediverse.network/](https://fediverse.network/)
+Other tools can then scrape that information and present it in various ways.
+For example: [https://fediverse.network/](https://fediverse.network/)

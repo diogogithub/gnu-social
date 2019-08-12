@@ -2657,7 +2657,7 @@ function common_strip_html($html, $trim=true, $save_whitespace=false)
  * @param string|bool $size
  * @return int the php.ini upload limit in machine-readable format
  */
-function _common_size_str_to_int($size) : int
+function _common_size_str_to_int($size): int
 {
     // `memory_limit` can be -1 and `post_max_size` can be 0
     // for unlimited. Consistency.
@@ -2692,7 +2692,7 @@ function _common_size_str_to_int($size) : int
  *
  * @return int
  */
-function common_get_preferred_php_upload_limit() : int {
+function common_get_preferred_php_upload_limit(): int {
     return min(_common_size_str_to_int(ini_get('post_max_size')),
                _common_size_str_to_int(ini_get('upload_max_filesize')),
                _common_size_str_to_int(ini_get('memory_limit')));
