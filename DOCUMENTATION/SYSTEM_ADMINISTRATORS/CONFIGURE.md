@@ -148,6 +148,12 @@ This section is a catch-all for site-wide variables.
 
 * favicon: the path to a custom favicon, eg: favicon.png
 
+* `x-static-delivery` (string, default null): when a string, use this
+    as the header with wich to serve static files. Possible values are
+    'X-Sendfile' (for Apache and others) and 'X-Accel-Redirect' (for
+    nginx).
+
+
 db
 -------------------------------------------------------------------------------
 
@@ -201,10 +207,6 @@ The ones that you may want to set are listed below for clarity.
     run scripts/checkschema.php whenever you install or upgrade a
     plugin.
 
-* `x-static-delivery` (string, default null): when a string, use this
-    as the header with wich to serve static files. Possible values are
-    'X-Sendfile' (for Apache and others) and 'X-Accel-Redirect' (for
-    nginx).
 
 syslog
 -------------------------------------------------------------------------------
@@ -675,9 +677,10 @@ set too low (it's optional, so it may not be there at all).
 
 * `extblacklist`: associative array to either deny certain extensions or
     change them to a different one. For example:
-    $config['attachments']['extblacklist']['php'] = 'phps';  // this turns .php into .phps
-    $config['attachments']['extblacklist']['exe'] = false;   // this would deny any uploads
-                                                             // of files with the "exe" extension
+
+        $config['attachments']['extblacklist']['php'] = 'phps';  // this turns .php into .phps
+        $config['attachments']['extblacklist']['exe'] = false;   // this would deny any uploads
+                                                                 // of files with the "exe" extension
 
 * `process_links`: follow redirects and save all available file information
     (mimetype, date, size, oembed, etc.). Defaults to true.
