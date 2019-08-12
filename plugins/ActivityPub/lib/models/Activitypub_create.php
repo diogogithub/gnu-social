@@ -44,16 +44,17 @@ class Activitypub_create
      * @param array $object
      * @return array pretty array to be used in a response
      */
-    public static function create_to_array($actor, $object)
+    public static function create_to_array(string $actor, array $object): array
     {
         $res = [
-            '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => $object['id'].'/create',
-            'type'   => 'Create',
-            'to'     => $object['to'],
-            'cc'     => $object['cc'],
-            'actor'  => $actor,
-            'object' => $object
+            '@context'      => 'https://www.w3.org/ns/activitystreams',
+            'id'            => $object['id'].'/create',
+            'type'          => 'Create',
+            'directMessage' => false,
+            'to'            => $object['to'],
+            'cc'            => $object['cc'],
+            'actor'         => $actor,
+            'object'        => $object
         ];
         return $res;
     }
@@ -68,10 +69,16 @@ class Activitypub_create
     public static function validate_object($object)
     {
         if (!is_array($object)) {
+            common_debug('ActivityPub Create Validator: Rejected because of invalid Object format.');
             throw new Exception('Invalid Object Format for Create Activity.');
         }
         if (!isset($object['type'])) {
+            common_debug('ActivityPub Create Validator: Rejected because of Type.');
             throw new Exception('Object type was not specified for Create Activity.');
+        }
+        if (isset($object['directMessage']) && !is_bool($object['directMessage'])) {
+            common_debug('ActivityPub Create Validator: Rejected because Object directMessage is invalid.');
+            throw new Exception('Invalid Object directMessage.');
         }
         switch ($object['type']) {
             case 'Note':
