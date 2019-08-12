@@ -2,7 +2,7 @@
 /**
  * GNU social - a federating social network
  *
- * Plugin that handles activity verb interact (like 'favorite' etc.)
+ * Module that handles activity verb interact (like 'favorite' etc.)
  *
  * PHP version 5
  *
@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @category  Plugin
+ * @category  Module
  * @package   GNUsocial
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2014 Free Software Foundation http://fsf.org
@@ -29,7 +29,7 @@
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
-class ActivityVerbPlugin extends Plugin
+class ActivityVerbModule extends Module
 {
     const PLUGIN_VERSION = '2.0.0';
 
@@ -57,14 +57,14 @@ class ActivityVerbPlugin extends Plugin
                      'verb'   => $verb_regexp]);
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onModuleVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Activity Verb',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://www.gnu.org/software/social/',
                             'rawdescription' =>
-                            // TRANS: Plugin description.
+                            // TRANS: Module description.
                             _m('Adds more standardized verb handling for activities.'));
         return true;
     }

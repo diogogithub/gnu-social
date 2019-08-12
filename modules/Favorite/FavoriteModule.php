@@ -23,7 +23,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * @package     Activity
  * @maintainer  Mikael Nordfeldth <mmn@hethane.se>
  */
-class FavoritePlugin extends ActivityVerbHandlerPlugin
+class FavoriteModule extends ActivityVerbHandlerModule
 {
     const PLUGIN_VERSION = '2.0.0';
 
@@ -562,7 +562,7 @@ class FavoritePlugin extends ActivityVerbHandlerPlugin
                 : new FavorForm($action, $target);
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onModuleVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Favorite',
                             'version' => self::PLUGIN_VERSION,

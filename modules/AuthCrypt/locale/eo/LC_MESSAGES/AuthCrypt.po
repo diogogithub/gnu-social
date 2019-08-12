@@ -17,7 +17,7 @@ msgstr ""
 "Language: eo\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#. TRANS: Plugin description.
-#: AuthCryptPlugin.php:157
+#. TRANS: Module description.
+#: AuthCryptModule.php:157
 msgid "Authentication and password hashing with crypt()"
 msgstr ""

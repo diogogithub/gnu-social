@@ -78,7 +78,7 @@ class DiasporaPlugin extends Plugin
         return true;
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Diaspora',
                             'version' => self::PLUGIN_VERSION,

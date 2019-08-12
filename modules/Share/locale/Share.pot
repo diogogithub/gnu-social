@@ -19,33 +19,33 @@ msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #. TRANS: Client exception thrown when trying to share multiple activities at once.
-#: SharePlugin.php:91
+#: ShareModule.php:91
 msgid "Can only handle share activities with exactly one object."
 msgstr ""
 
 #. TRANS: Client exception thrown when trying to share a non-activity object.
-#: SharePlugin.php:97
+#: ShareModule.php:97
 msgid "Can only handle shared activities."
 msgstr ""
 
-#: SharePlugin.php:108
+#: ShareModule.php:108
 msgid "Shared activity does not have an id"
 msgstr ""
 
 #. TRANS: Help message for IM/SMS command "repeat #<notice_id>".
-#: SharePlugin.php:329
+#: ShareModule.php:329
 msgctxt "COMMANDHELP"
 msgid "repeat a notice with a given id"
 msgstr ""
 
 #. TRANS: Help message for IM/SMS command "repeat <nickname>".
-#: SharePlugin.php:331
+#: ShareModule.php:331
 msgctxt "COMMANDHELP"
 msgid "repeat the last notice from user"
 msgstr ""
 
-#. TRANS: Plugin description.
-#: SharePlugin.php:370
+#. TRANS: Module description.
+#: ShareModule.php:370
 msgid "Shares (repeats) using ActivityStreams."
 msgstr ""
 

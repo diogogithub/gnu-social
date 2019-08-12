@@ -32,31 +32,31 @@ msgid "Disfavor favorite"
 msgstr "Desfavorar la favorito"
 
 #. TRANS: Help message for IM/SMS command "fav <nickname>".
-#: FavoritePlugin.php:415
+#: FavoriteModule.php:415
 msgctxt "COMMANDHELP"
 msgid "add user's last notice as a 'fave'"
 msgstr "Adjuntar la lasta avizo dil uzanto kom favorato"
 
 #. TRANS: Help message for IM/SMS command "fav #<notice_id>".
-#: FavoritePlugin.php:417
+#: FavoriteModule.php:417
 msgctxt "COMMANDHELP"
 msgid "add notice with the given id as a 'fave'"
 msgstr "Adjuntar l'avizo kun l'identifikilo provizata kom favorato"
 
 #. TRANS: Menu item in personal group navigation menu.
-#: FavoritePlugin.php:469
+#: FavoriteModule.php:469
 msgctxt "MENU"
 msgid "Favorites"
 msgstr "Favorati"
 
 #. TRANS: Menu item in search group navigation panel.
-#: FavoritePlugin.php:482
+#: FavoriteModule.php:482
 msgctxt "MENU"
 msgid "Popular"
 msgstr "Populara"
 
-#. TRANS: Plugin description.
-#: FavoritePlugin.php:508
+#. TRANS: Module description.
+#: FavoriteModule.php:508
 msgid "Favorites (likes) using ActivityStreams."
 msgstr "Favorati (\"likes\") per ActivityStreams."
 

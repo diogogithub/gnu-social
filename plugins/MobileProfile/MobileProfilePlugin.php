@@ -370,7 +370,7 @@ class MobileProfilePlugin extends WAP20Plugin
         return $proto.'://'.$serverpart.'/'.$pathpart.$relative;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'MobileProfile',
                             'version' => self::PLUGIN_VERSION,

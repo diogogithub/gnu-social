@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:44+0100\n"
+"POT-Creation-Date: 2019-08-14 14:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,12 +16,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-
-#. TRANS: Presence announcement for XMPP.
-#. TRANS: Message for XMPP reconnect.
-#: lib/xmppmanager.php:90 lib/xmppmanager.php:218
-msgid "Send me a message to post a notice"
-msgstr ""
 
 #. TRANS: Plugin display name.
 #: XmppPlugin.php:65
@@ -101,4 +95,10 @@ msgstr ""
 msgid ""
 "The XMPP plugin allows users to send and receive notices over the XMPP/"
 "Jabber network."
+msgstr ""
+
+#. TRANS: Presence announcement for XMPP.
+#. TRANS: Message for XMPP reconnect.
+#: lib/xmppmanager.php:90 lib/xmppmanager.php:218
+msgid "Send me a message to post a notice"
 msgstr ""

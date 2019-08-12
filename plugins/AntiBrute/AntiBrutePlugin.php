@@ -69,7 +69,7 @@ class AntiBrutePlugin extends Plugin {
         return true;
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'AntiBrute',
                             'version' => self::PLUGIN_VERSION,

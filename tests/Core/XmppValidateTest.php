@@ -34,13 +34,13 @@ use PHPUnit\Framework\TestCase;
 use XmppPlugin;
 
 require_once INSTALLDIR . '/lib/common.php';
-require_once INSTALLDIR . '/plugins/Xmpp/XmppPlugin.php';
+require_once INSTALLDIR . '/plugins/Xmpp/XmppModule.php';
 
 final class XmppValidateTest extends TestCase
 {
     public function setUp(): void
     {
-        if (!array_key_exists('Xmpp', GNUsocial::getActivePlugins())) {
+        if (!array_key_exists('Xmpp', GNUsocial::getActiveModules())) {
             $this->markTestSkipped('XmppPlugin is not enabled.');
         }
     }

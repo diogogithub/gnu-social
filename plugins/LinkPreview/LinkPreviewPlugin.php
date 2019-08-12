@@ -31,7 +31,7 @@ class LinkPreviewPlugin extends Plugin
 {
     const PLUGIN_VERSION = '2.0.0';
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'LinkPreview',
                             'version' => self::PLUGIN_VERSION,

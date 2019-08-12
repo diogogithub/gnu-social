@@ -23,7 +23,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * @package     Activity
  * @maintainer  Mikael Nordfeldth <mmn@hethane.se>
  */
-class SharePlugin extends ActivityVerbHandlerPlugin
+class ShareModule extends ActivityVerbHandlerModule
 {
     const PLUGIN_VERSION = '2.0.0';
 
@@ -359,7 +359,7 @@ class SharePlugin extends ActivityVerbHandlerPlugin
         return new RepeatForm($action, $target);
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onModuleVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Share verb',
                             'version' => self::PLUGIN_VERSION,

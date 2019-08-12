@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:44+0100\n"
+"POT-Creation-Date: 2019-08-14 14:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,22 +16,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-
-#. TRANS: Client error displayed when trying to log in while already logged on.
-#: actions/caslogin.php:29
-msgid "Already logged in."
-msgstr ""
-
-#. TRANS: Server error displayed when trying to log in with incorrect username or password.
-#. TRANS: Server error displayed when trying to log in with non-whitelisted user name (when whitelists are enabled.)
-#: actions/caslogin.php:41 actions/caslogin.php:46
-msgid "Incorrect username or password."
-msgstr ""
-
-#. TRANS: Server error displayed when login fails in CAS authentication plugin.
-#: actions/caslogin.php:52
-msgid "Error setting user. You are probably not authorized."
-msgstr ""
 
 #. TRANS: Menu item. CAS is Central Authentication Service.
 #: CasAuthenticationPlugin.php:86
@@ -71,4 +55,20 @@ msgstr ""
 msgid ""
 "The CAS Authentication plugin allows for StatusNet to handle authentication "
 "through CAS (Central Authentication Service)."
+msgstr ""
+
+#. TRANS: Client error displayed when trying to log in while already logged on.
+#: actions/caslogin.php:29
+msgid "Already logged in."
+msgstr ""
+
+#. TRANS: Server error displayed when trying to log in with incorrect username or password.
+#. TRANS: Server error displayed when trying to log in with non-whitelisted user name (when whitelists are enabled.)
+#: actions/caslogin.php:41 actions/caslogin.php:46
+msgid "Incorrect username or password."
+msgstr ""
+
+#. TRANS: Server error displayed when login fails in CAS authentication plugin.
+#: actions/caslogin.php:52
+msgid "Error setting user. You are probably not authorized."
 msgstr ""

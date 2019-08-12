@@ -98,7 +98,7 @@ class CacheLogPlugin extends Plugin
         return true;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'CacheLog',
                             'version' => self::PLUGIN_VERSION,

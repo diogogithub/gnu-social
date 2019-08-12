@@ -57,7 +57,7 @@ class TagCloudPlugin extends Plugin {
         }
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'TagCloud',
                             'version' => self::PLUGIN_VERSION,

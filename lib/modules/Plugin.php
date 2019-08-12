@@ -17,9 +17,9 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * Base class for modules
+ * Base class for plugins
  *
- * A base class for GNU social modules. Mostly a light wrapper around
+ * A base class for GNU social plugin. Mostly a light wrapper around
  * the Event framework.
  *
  * Subclasses of Plugin will automatically handle an event if they define
@@ -37,7 +37,7 @@ defined('GNUSOCIAL') || die();
  *
  * @see      Event
  */
-class Plugin
+class Plugin extends Module
 {
     public function __construct()
     {
@@ -46,7 +46,7 @@ class Plugin
 
         foreach (get_class_methods($this) as $method) {
             if (mb_substr($method, 0, 2) == 'on') {
-                Event::addHandler(mb_substr($method, 2), array($this, $method));
+                Event::addHandler(mb_substr($method, 2), [$this, $method]);
             }
         }
 
@@ -86,9 +86,6 @@ class Plugin
         $cls = basename($cls);
         $basedir = INSTALLDIR . '/local/plugins/' . mb_substr(get_called_class(), 0, -6);
         if (!file_exists($basedir)) {
-            $basedir = INSTALLDIR . '/modules/' . mb_substr(get_called_class(), 0, -6);
-        }
-        if (!file_exists($basedir)) {
             $basedir = INSTALLDIR . '/plugins/' . mb_substr(get_called_class(), 0, -6);
         }
 
@@ -111,7 +108,7 @@ class Plugin
         }
 
         if (!is_null($file) && file_exists($file)) {
-            require_once($file);
+            require_once $file;
             return false;
         }
 
@@ -125,16 +122,13 @@ class Plugin
     protected function setupGettext()
     {
         $class = get_class($this);
-        if (substr($class, -6) == 'Module') {
+        if (substr($class, -6) == 'Plugin') {
             $name = substr($class, 0, -6);
             $path = common_config('plugins', 'locale_path');
             if (!$path) {
                 // @fixme this will fail for things installed in local/plugins
                 // ... but then so will web links so far.
                 $path = INSTALLDIR . "/plugins/{$name}/locale";
-                if (!file_exists($path)) {
-                    $path = INSTALLDIR . "/modules/{$name}/locale";
-                }
                 if (!file_exists($path)) {
                     $path = INSTALLDIR . "/local/plugins/{$name}/locale";
                 }
@@ -146,50 +140,25 @@ class Plugin
         }
     }
 
-    protected function log($level, $msg)
-    {
-        common_log($level, get_class($this) . ': ' . $msg);
-    }
-
-    protected function debug($msg)
-    {
-        $this->log(LOG_DEBUG, $msg);
-    }
-
-    public function name()
-    {
-        $cls = get_class($this);
-        return mb_substr($cls, 0, -6);
-    }
-
-    public function version()
-    {
-        return GNUSOCIAL_VERSION;
-    }
-
-    protected function userAgent()
-    {
-        return HTTPClient::userAgent()
-            . ' (' . get_class($this) . ' v' . $this->version() . ')';
-    }
-
-    public function onModuleVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $name = $this->name();
 
-        $versions[] = array('name' => $name,
+        $versions[] = [
+            'name' => $name,
             // TRANS: Displayed as version information for a plugin if no version information was found.
-            'version' => _('Unknown'));
+            'version' => _m('Unknown')
+        ];
 
         return true;
     }
 
-    public function path($relative)
+    public function onModuleVersion(array &$versions): bool
     {
-        return self::staticPath($this->name(), $relative);
+        return true;
     }
 
-    public static function staticPath($module, $relative)
+    public static function staticPath($plugin, $relative)
     {
         if (GNUsocial::useHTTPS()) {
             $server = common_config('plugins', 'sslserver');
@@ -214,10 +183,8 @@ class Plugin
 
         if (empty($path)) {
             // XXX: extra stat().
-            if (@file_exists(PUBLICDIR . '/local/plugins/' . $module . '/' . $relative)) {
+            if (@file_exists(PUBLICDIR . '/local/plugins/' . $plugin . '/' . $relative)) {
                 $path = common_config('site', 'path') . '/local/plugins/';
-            } elseif (@file_exists(PUBLICDIR . '/modules/' . $module . '/' . $relative)) {
-                $path = common_config('site', 'path') . '/modules/';
             } else {
                 $path = common_config('site', 'path') . '/plugins/';
             }
@@ -233,6 +200,11 @@ class Plugin
 
         $protocol = GNUsocial::useHTTPS() ? 'https' : 'http';
 
-        return $protocol . '://' . $server . $path . $module . '/' . $relative;
+        return $protocol . '://' . $server . $path . $plugin . '/' . $relative;
+    }
+
+    public function path($relative)
+    {
+        return self::staticPath($this->name(), $relative);
     }
 }

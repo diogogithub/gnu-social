@@ -33,7 +33,7 @@ class SQLProfilePlugin extends Plugin
 
     private $recursionGuard = false;
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'SQLProfile',
                             'version' => self::PLUGIN_VERSION,

@@ -263,7 +263,7 @@ class BlacklistPlugin extends Plugin
      *
      * @return boolean hook value
      */
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Blacklist',
                             'version' => self::PLUGIN_VERSION,

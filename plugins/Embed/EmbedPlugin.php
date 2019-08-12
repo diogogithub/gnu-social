@@ -662,7 +662,7 @@ class EmbedPlugin extends Plugin
      * @param &$versions array inherited from parent
      * @return bool true hook value
      */
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = ['name' => 'Embed',
                        'version' => self::PLUGIN_VERSION,

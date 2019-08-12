@@ -131,7 +131,7 @@ class RedisCachePlugin extends Plugin
         return false;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'RedisCache',
                             'version' => self::VERSION,

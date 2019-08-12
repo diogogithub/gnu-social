@@ -17,7 +17,7 @@ msgstr ""
 "Language: ksh\n"
 "Plural-Forms: nplurals=3; plural=(n==0) ? 0 : (n==1) ? 1 : 2;\n"
 
-#. TRANS: Plugin description.
-#: AuthCryptPlugin.php:157
+#. TRANS: Module description.
+#: AuthCryptModule.php:157
 msgid "Authentication and password hashing with crypt()"
 msgstr ""

@@ -49,7 +49,7 @@ class SimpleUrlPlugin extends UrlShortenerPlugin
         return $this->http_get(sprintf($this->serviceUrl,urlencode($url)));
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => sprintf('SimpleUrl (%s)', $this->shortenerName),
                             'version' => self::PLUGIN_VERSION,

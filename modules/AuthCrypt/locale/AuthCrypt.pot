@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Plugin description.
-#: AuthCryptPlugin.php:162
+#. TRANS: Module description.
+#: AuthCryptModule.php:162
 msgid "Authentication and password hashing with crypt()"
 msgstr ""

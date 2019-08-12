@@ -46,7 +46,7 @@ class TabFocusPlugin extends Plugin
         $action->script($this->path('tabfocus.js'));
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'TabFocus',
                             'version' => self::PLUGIN_VERSION,

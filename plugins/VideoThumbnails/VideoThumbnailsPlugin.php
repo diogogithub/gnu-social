@@ -98,7 +98,7 @@ class VideoThumbnailsPlugin extends Plugin
         return false;
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Video Thumbnails',
                             'version' => self::PLUGIN_VERSION,

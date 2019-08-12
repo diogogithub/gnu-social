@@ -333,4 +333,5 @@ main();
 // XXX: cleanup exit() calls or add an exit handler so
 // this always gets called
 
+Event::handle('CleanupModule');
 Event::handle('CleanupPlugin');

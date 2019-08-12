@@ -3,7 +3,7 @@
  * StatusNet - the distributed open-source microblogging tool
  * Copyright (C) 2010, StatusNet, Inc.
  *
- * A sample module to show best practices for StatusNet plugins
+ * A sample plugin to show best practices for StatusNet plugins
  *
  * PHP version 5
  *

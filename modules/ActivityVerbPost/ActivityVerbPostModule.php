@@ -23,9 +23,9 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * @package     Activity
  * @maintainer  Mikael Nordfeldth <mmn@hethane.se>
  */
-class ActivityVerbPostPlugin extends ActivityVerbHandlerPlugin
+class ActivityVerbPostModule extends ActivityVerbHandlerModule
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const MODULE_VERSION = '2.0.0';
 
     // TODO: Implement a "fallback" feature which can handle anything _as_ an activityobject "note"
 
@@ -50,7 +50,7 @@ class ActivityVerbPostPlugin extends ActivityVerbHandlerPlugin
         return array(ActivityVerb::POST);
     }
 
-    // FIXME: Set this to abstract public in lib/ActivityHandlerPlugin.php when all plugins have migrated!
+    // FIXME: Set this to abstract public in classes/modules/ActivityHandlerModule.php when all plugins have migrated!
     protected function saveObjectFromActivity(Activity $act, Notice $stored, array $options=array())
     {
         assert($this->isMyActivity($act));
@@ -127,14 +127,14 @@ class ActivityVerbPostPlugin extends ActivityVerbHandlerPlugin
         return new NoticeForm($action, array());
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onModuleVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Post verb',
-                            'version' => self::PLUGIN_VERSION,
+                            'version' => self::MODULE_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/',
                             'rawdescription' =>
-                            // TRANS: Plugin description.
+                            // TRANS: Module description.
                             _m('Post handling with ActivityStreams.'));
 
         return true;

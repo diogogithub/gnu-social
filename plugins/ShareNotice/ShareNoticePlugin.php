@@ -211,7 +211,7 @@ class FacebookShareTarget extends NoticeShareTarget
      *
      * @return boolean hook value
      */
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/ShareNotice';
 

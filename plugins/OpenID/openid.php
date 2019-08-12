@@ -262,7 +262,7 @@ function oid_authenticate($openid_url, $returnto, $immediate=false)
     */
 }
 
-// Half-assed attempt at a module-private function
+// Half-assed attempt at a Plugin-private function
 
 function _oid_print_instructions()
 {

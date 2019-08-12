@@ -67,7 +67,7 @@ class EmailSummaryPlugin extends Plugin
      *
      * @return boolean hook value; true means continue processing, false means stop.
      */
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'EmailSummary',
                             'version' => self::PLUGIN_VERSION,

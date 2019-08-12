@@ -209,7 +209,7 @@ class AtompubfavoritefeedAction extends ApiAuthAction
         $activity = new Activity($dom->documentElement);
         $notice = null;
 
-        // Favorite plugin handles these as ActivityHandlerPlugin through Notice->saveActivity
+        // Favorite plugin handles these as ActivityHandlerModule through Notice->saveActivity
         // which in turn uses "StoreActivityObject" event.
         Event::handle('StartAtomPubNewActivity', array(&$activity, $this->scoped, &$notice));
         assert($notice instanceof Notice);

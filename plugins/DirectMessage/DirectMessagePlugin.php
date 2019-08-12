@@ -212,15 +212,17 @@ class DirectMessagePlugin extends Plugin
         return true;
     }
 
-    public function onPluginVersion(array &$versions) : bool
+    public function onPluginVersion(array &$versions): bool
     {
-        $versions[] = ['name'           => 'Direct Message',
-                       'version'        => self::PLUGIN_VERSION,
-                       'author'         => 'Mikael Nordfeldth, Bruno Casteleiro',
-                       'homepage'       => 'http://gnu.io/',
-                       'rawdescription' =>
-                       // TRANS: Plugin description.
-                       _m('Direct Message to other local users.')];
+        $versions[] = [
+            'name' => 'Direct Message',
+            'version' => self::PLUGIN_VERSION,
+            'author' => 'Mikael Nordfeldth, Bruno Casteleiro',
+            'homepage' => 'https://gnu.social/',
+            'rawdescription' =>
+            // TRANS: Plugin description.
+            _m('Direct Message to other local users.')
+        ];
 
         return true;
     }

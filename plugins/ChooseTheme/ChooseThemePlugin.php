@@ -29,7 +29,7 @@ class ChooseThemePlugin extends Plugin {
         $m->connect('main/choosethemesettings', ['action' => 'choosethemesettings']);
     }
 
-    public function onPluginVersion(array &$versions) {
+    public function onPluginVersion(array &$versions): bool {
 		
         $versions[] = array('name' => 'ChooseTheme',
                             'version' => self::PLUGIN_VERSION,

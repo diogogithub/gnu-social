@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Plugin description.
-#: ActivityVerbPlugin.php:56
+#. TRANS: Module description.
+#: ActivityVerbModule.php:56
 msgid "Adds more standardized verb handling for activities."
 msgstr ""

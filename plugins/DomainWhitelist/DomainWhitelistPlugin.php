@@ -269,7 +269,7 @@ class DomainWhitelistPlugin extends Plugin
        return true;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'DomainWhitelist',
                             'version' => self::PLUGIN_VERSION,

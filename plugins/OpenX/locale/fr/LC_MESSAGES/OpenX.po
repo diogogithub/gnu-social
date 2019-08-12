@@ -30,7 +30,7 @@ msgstr "OpenX"
 #. TRANS: Plugin description.
 #: OpenXPlugin.php:210
 msgid "Plugin for <a href=\"http://www.openx.org/\">OpenX Ad Server</a>."
-msgstr "Module complémentaire pour le <a href=\"http://www.openx.org/\">serveur de publicité OpenX</a>."
+msgstr "Plugin complémentaire pour le <a href=\"http://www.openx.org/\">serveur de publicité OpenX</a>."
 
 #. TRANS: Page title for OpenX admin panel.
 #: actions/openxadminpanel.php:53

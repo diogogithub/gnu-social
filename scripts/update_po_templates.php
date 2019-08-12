@@ -54,6 +54,35 @@ END
     chdir($old);
 }
 
+function do_update_module($dir, $domain)
+{
+    $old = getcwd();
+    chdir($dir);
+    if (!file_exists('locale')) {
+        mkdir('locale');
+    }
+    $files = get_module_sources(".");
+    $cmd = <<<END
+xgettext \
+    --from-code=UTF-8 \
+    --default-domain=$domain \
+    --output=locale/$domain.pot \
+    --language=PHP \
+    --add-comments=TRANS \
+    --keyword='' \
+    --keyword="_m:1,1t" \
+    --keyword="_m:1c,2,2t" \
+    --keyword="_m:1,2,3t" \
+    --keyword="_m:1c,2,3,4t" \
+
+END;
+    foreach ($files as $file) {
+        $cmd .= ' ' . escapeshellarg($file);
+    }
+    passthru($cmd);
+    chdir($old);
+}
+
 function do_update_plugin($dir, $domain)
 {
     $old = getcwd();
@@ -83,6 +112,21 @@ END;
     chdir($old);
 }
 
+function get_modules($dir)
+{
+    $plugins = array();
+    $dirs = new DirectoryIterator("$dir/modules");
+    foreach ($dirs as $item) {
+        if ($item->isDir() && !$item->isDot()) {
+            $name = $item->getBasename();
+            if (file_exists("$dir/modules/$name/{$name}Module.php")) {
+                $plugins[] = $name;
+            }
+        }
+    }
+    return $plugins;
+}
+
 function get_plugins($dir)
 {
     $plugins = array();
@@ -96,6 +140,20 @@ function get_plugins($dir)
         }
     }
     return $plugins;
+}
+
+function get_module_sources($dir)
+{
+    $files = array();
+
+    $dirs = new RecursiveDirectoryIterator($dir);
+    $iter = new RecursiveIteratorIterator($dirs);
+    foreach ($iter as $pathname => $item) {
+        if ($item->isFile() && preg_match('/\.php$/', $item->getBaseName())) {
+            $files[] = $pathname;
+        }
+    }
+    return $files;
 }
 
 function get_plugin_sources($dir)
@@ -112,6 +170,20 @@ function get_plugin_sources($dir)
     return $files;
 }
 
+function module_using_gettext($dir)
+{
+    $files = get_module_sources($dir);
+    foreach ($files as $pathname) {
+        // Check if the file is using our _m gettext wrapper
+        $code = file_get_contents($pathname);
+        if (preg_match('/\b_m\(/', $code)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function plugin_using_gettext($dir)
 {
     $files = get_plugin_sources($dir);
@@ -124,6 +196,17 @@ function plugin_using_gettext($dir)
     }
 
     return false;
+}
+
+function update_module($basedir, $name)
+{
+    $dir = "$basedir/modules/$name";
+    if (module_using_gettext($dir)) {
+        do_update_module($dir, $name);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 function update_plugin($basedir, $name)
@@ -142,6 +225,8 @@ array_shift($args);
 
 $all = false;
 $core = false;
+$allmodules = false;
+$modules = array();
 $allplugins = false;
 $plugins = array();
 if (count($args) == 0) {
@@ -152,12 +237,16 @@ foreach ($args as $arg) {
         $all = true;
     } elseif ($arg == "--core") {
         $core = true;
+    } elseif ($arg == "--modules") {
+        $allmodules = true;
     } elseif ($arg == "--plugins") {
         $allplugins = true;
+    } elseif (substr($arg, 0, 9) == "--module=") {
+        $modules[] = substr($arg, 9);
     } elseif (substr($arg, 0, 9) == "--plugin=") {
         $plugins[] = substr($arg, 9);
     } elseif ($arg == '--help') {
-        echo "options: --all --core --plugins --plugin=Foo\n\n";
+        echo "options: --all --core --plugins --plugin=Foo --modules --module=Foo\n\n";
         exit(0);
     }
 }
@@ -167,8 +256,21 @@ if ($all || $core) {
     update_core(INSTALLDIR, 'statusnet');
     echo " ok\n";
 }
+if ($all || $allmodules) {
+    $plugins = get_modules(INSTALLDIR);
+}
 if ($all || $allplugins) {
     $plugins = get_plugins(INSTALLDIR);
+}
+if ($modules) {
+    foreach ($modules as $module) {
+        echo "$module...";
+        if (update_module(INSTALLDIR, $plugin)) {
+            echo " ok\n";
+        } else {
+            echo " not localized\n";
+        }
+    }
 }
 if ($plugins) {
     foreach ($plugins as $plugin) {

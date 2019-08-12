@@ -20,7 +20,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Mollom is a bayesian spam checker, wrapped into a webservice
- * This plugin is based on the Drupal Mollom module
+ * This plugin is based on the Drupal Mollom Plugin
  *
  * @category  Plugin
  * @package   Laconica

@@ -29,7 +29,7 @@ class ModHelperPlugin extends Plugin
 
     static $rights = array(Right::SILENCEUSER, Right::TRAINSPAM, Right::REVIEWSPAM);
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'ModHelper',
                             'version' => self::PLUGIN_VERSION,

@@ -44,7 +44,7 @@ if (!defined('STATUSNET')) {
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
-class ActivityPlugin extends Plugin
+class ActivityModule extends Module
 {
     const PLUGIN_VERSION = '0.1.0';
     const SOURCE  = 'activity';
@@ -88,7 +88,7 @@ class ActivityPlugin extends Plugin
 
         $notice = Notice::saveNew($profile->id,
                                   $content,
-                                  ActivityPlugin::SOURCE,
+                                  ActivityModule::SOURCE,
                                   array('rendered' => $rendered,
                                         'urls' => array(),
                                         'replies' => array($other->getUri()),
@@ -131,7 +131,7 @@ class ActivityPlugin extends Plugin
 
         $notice = Notice::saveNew($profile->id,
                                   $content,
-                                  ActivityPlugin::SOURCE,
+                                  ActivityModule::SOURCE,
                                   array('rendered' => $rendered,
                                         'urls' => array(),
                                         'replies' => array($other->getUri()),
@@ -176,7 +176,7 @@ class ActivityPlugin extends Plugin
 
         $notice = Notice::saveNew($profile->id,
                                   $content,
-                                  ActivityPlugin::SOURCE,
+                                  ActivityModule::SOURCE,
                                   array('rendered' => $rendered,
                                         'urls' => array(),
                                         'replies' => array($author->getUri()),
@@ -219,7 +219,7 @@ class ActivityPlugin extends Plugin
 
         $notice = Notice::saveNew($profile->id,
                                   $content,
-                                  ActivityPlugin::SOURCE,
+                                  ActivityModule::SOURCE,
                                   array('rendered' => $rendered,
                                         'urls' => array(),
                                         'groups' => array($group->id),
@@ -262,7 +262,7 @@ class ActivityPlugin extends Plugin
 
         $notice = Notice::saveNew($profile->id,
                                   $content,
-                                  ActivityPlugin::SOURCE,
+                                  ActivityModule::SOURCE,
                                   array('rendered' => $rendered,
                                         'urls' => array(),
                                         'groups' => array($group->id),
@@ -339,14 +339,14 @@ class ActivityPlugin extends Plugin
         return true;
     }
 
-    function onPluginVersion(array &$versions)
+    function onModuleVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Activity',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Activity',
                             'rawdescription' =>
-                            // TRANS: Plugin description.
+                            // TRANS: Module description.
                             _m('Emits notices when social activities happen.'));
         return true;
     }

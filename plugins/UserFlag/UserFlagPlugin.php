@@ -229,7 +229,7 @@ class UserFlagPlugin extends Plugin
      *
      * @return boolean hook value
      */
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/UserFlag';
 

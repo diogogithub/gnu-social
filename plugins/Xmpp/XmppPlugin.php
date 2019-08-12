@@ -237,7 +237,7 @@ class XmppPlugin extends ImPlugin
     }
 
     /**
-     * Load related modules when needed
+     * Load related Plugins when needed
      *
      * @param string $cls Name of the class to be loaded
      *
@@ -440,7 +440,7 @@ class XmppPlugin extends ImPlugin
         return true;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'XMPP',
             'version' => self::PLUGIN_VERSION,

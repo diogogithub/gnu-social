@@ -48,7 +48,7 @@ if (!defined('STATUSNET')) {
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
  * @link      http://status.net/
  */
-abstract class MicroAppModule extends ActivityHandlerPlugin
+abstract class MicroAppPlugin extends ActivityHandlerPlugin
 {
     /**
      * Returns a localized string which represents this micro-app,

@@ -59,7 +59,7 @@ if ($plugin) {
     $indir = INSTALLDIR . "/plugins/" . $plugin;
     if (!is_dir($indir)) {
         $indir = INSTALLDIR . "/plugins";
-        $filename = "{$plugin}Plugin.php";
+        $filename = "{$plugin}Module.php";
         if (!file_exists("$indir/$filename")) {
             echo "Can't find plugin $plugin.\n";
             exit(1);

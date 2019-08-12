@@ -198,7 +198,7 @@ class RSSCloudPlugin extends Plugin
         return true;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'RSSCloud',
                             'version' => RSSCLOUDPLUGIN_VERSION,

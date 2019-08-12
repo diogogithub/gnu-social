@@ -33,7 +33,7 @@ class ConversationTreePlugin extends Plugin
         return false;
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'ConversationTree',
                             'version' => self::PLUGIN_VERSION,

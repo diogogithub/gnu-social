@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:44+0100\n"
+"POT-Creation-Date: 2019-08-14 14:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,20 +18,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#. TRANS: Menu item in sample plugin.
 #. TRANS: Page title for sample plugin.
-#: SamplePlugin.php:221 actions/hello.php:112
+#. TRANS: Menu item in sample plugin.
+#: actions/hello.php:112 SamplePlugin.php:221
 msgid "Hello"
-msgstr ""
-
-#. TRANS: Menu item title in sample plugin.
-#: SamplePlugin.php:223
-msgid "A warm greeting"
-msgstr ""
-
-#. TRANS: Plugin description.
-#: SamplePlugin.php:235
-msgid "A sample plugin to show basics of development for new hackers."
 msgstr ""
 
 #. TRANS: Page title for sample plugin. %s is a user nickname.
@@ -72,4 +62,14 @@ msgstr ""
 #: classes/User_greeting_count.php:117
 #, php-format
 msgid "Could not increment greeting count for %d."
+msgstr ""
+
+#. TRANS: Menu item title in sample plugin.
+#: SamplePlugin.php:223
+msgid "A warm greeting"
+msgstr ""
+
+#. TRANS: Plugin description.
+#: SamplePlugin.php:235
+msgid "A sample plugin to show basics of development for new hackers."
 msgstr ""

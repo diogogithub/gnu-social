@@ -23,18 +23,18 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * @package     Activity
  * @maintainer  Mikael Nordfeldth <mmn@hethane.se>
  */
-class HTMLPurifierSchemesPlugin extends Plugin
+class HTMLPurifierSchemesModule extends Module
 {
     const PLUGIN_VERSION = '2.0.0';
 
-    public function onPluginVersion(array &$versions)
+    public function onModuleVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'HTMLPurifier Schemes',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/social',
                             'rawdescription' =>
-                            // TRANS: Plugin description.
+                            // TRANS: Module description.
                             _m('Additional URI schemes for HTMLPurifier.'));
 
         return true;

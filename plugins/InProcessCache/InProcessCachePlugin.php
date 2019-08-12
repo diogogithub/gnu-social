@@ -171,7 +171,7 @@ class InProcessCachePlugin extends Plugin
      *
      * @return boolean true
      */
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/InProcessCache';
 

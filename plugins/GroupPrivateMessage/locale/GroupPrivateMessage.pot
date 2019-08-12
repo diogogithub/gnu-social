@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:44+0100\n"
+"POT-Creation-Date: 2019-08-14 14:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -211,29 +211,6 @@ msgid ""
 "%6$s"
 msgstr ""
 
-#. TRANS: Form legend for sending private message to group %s.
-#: forms/groupmessage.php:89
-#, php-format
-msgid "Message to %s"
-msgstr ""
-
-#. TRANS: Field label for private group message to group %s.
-#: forms/groupmessage.php:128
-#, php-format
-msgid "Direct message to %s"
-msgstr ""
-
-#. TRANS: Indicator for number of chatacters still available for notice.
-#: forms/groupmessage.php:141
-msgid "Available characters"
-msgstr ""
-
-#. TRANS: Send button text for sending private group notice.
-#: forms/groupmessage.php:162
-msgctxt "Send button for sending notice"
-msgid "Send"
-msgstr ""
-
 #. TRANS: Menu item in group page.
 #: GroupPrivateMessagePlugin.php:114
 msgctxt "MENU"
@@ -319,4 +296,27 @@ msgstr ""
 #. TRANS: Plugin description.
 #: GroupPrivateMessagePlugin.php:418
 msgid "Allow posting private messages to groups."
+msgstr ""
+
+#. TRANS: Form legend for sending private message to group %s.
+#: forms/groupmessage.php:89
+#, php-format
+msgid "Message to %s"
+msgstr ""
+
+#. TRANS: Field label for private group message to group %s.
+#: forms/groupmessage.php:128
+#, php-format
+msgid "Direct message to %s"
+msgstr ""
+
+#. TRANS: Indicator for number of chatacters still available for notice.
+#: forms/groupmessage.php:141
+msgid "Available characters"
+msgstr ""
+
+#. TRANS: Send button text for sending private group notice.
+#: forms/groupmessage.php:162
+msgctxt "Send button for sending notice"
+msgid "Send"
 msgstr ""

@@ -121,7 +121,7 @@ class PollPlugin extends MicroAppPlugin
      * @return bool true hook value
      * @throws Exception
      */
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Poll',
             'version' => self::PLUGIN_VERSION,

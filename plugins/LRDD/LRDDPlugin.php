@@ -54,7 +54,7 @@ class LRDDPlugin extends Plugin
         $disco->registerMethod('LRDDMethod_LinkHTML');
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'LRDD',
                             'version' => self::PLUGIN_VERSION,
