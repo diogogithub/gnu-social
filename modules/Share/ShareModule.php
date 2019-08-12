@@ -230,22 +230,31 @@ class ShareModule extends ActivityVerbHandlerModule
      */
     public function onEndShowNoticeOptionItems($nli)
     {
+        $notice = $nli->notice;
+
+        // We shouldn't be restricting Shares for received unlisted notices,
+        // but without subscription_policy working we treat both this type
+        // and followers-only notices the same, so we also restrict both.
+        if (!$notice->isPublic()) {
+            return;
+        }
+
         // FIXME: Use bitmasks (but be aware that PUBLIC_SCOPE is 0!)
         // Also: AHHH, $scope and $scoped are scarily similar looking.
-        $scope = $nli->notice->getScope();
+        $scope = $notice->getScope();
         if ($scope === Notice::PUBLIC_SCOPE || $scope === Notice::SITE_SCOPE) {
             $scoped = Profile::current();
             if ($scoped instanceof Profile &&
-                    $scoped->getID() !== $nli->notice->getProfile()->getID()) {
+                    $scoped->getID() !== $notice->getProfile()->getID()) {
 
-                if ($scoped->hasRepeated($nli->notice)) {
+                if ($scoped->hasRepeated($notice)) {
                     $nli->out->element('span', array('class' => 'repeated',
                                                       // TRANS: Title for repeat form status in notice list when a notice has been repeated.
                                                       'title' => _('Notice repeated.')),
                                         // TRANS: Repeat form status in notice list when a notice has been repeated.
                                         _('Repeated'));
                 } else {
-                    $repeat = new RepeatForm($nli->out, $nli->notice);
+                    $repeat = new RepeatForm($nli->out, $notice);
                     $repeat->show();
                 }
             }

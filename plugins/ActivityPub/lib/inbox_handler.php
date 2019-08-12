@@ -122,25 +122,25 @@ class Activitypub_inbox_handler
     {
         switch ($this->activity['type']) {
             case 'Accept':
-                $this->handle_accept($this->actor, $this->object);
+                $this->handle_accept();
                 break;
             case 'Create':
-                $this->handle_create($this->actor, $this->object);
+                $this->handle_create();
                 break;
             case 'Delete':
-                $this->handle_delete($this->actor, $this->object);
+                $this->handle_delete();
                 break;
             case 'Follow':
-                $this->handle_follow($this->actor, $this->activity);
+                $this->handle_follow();
                 break;
             case 'Like':
-                $this->handle_like($this->actor, $this->object);
+                $this->handle_like();
                 break;
             case 'Undo':
-                $this->handle_undo($this->actor, $this->object);
+                $this->handle_undo();
                 break;
             case 'Announce':
-                $this->handle_announce($this->actor, $this->object);
+                $this->handle_announce();
                 break;
         }
     }
@@ -148,18 +148,16 @@ class Activitypub_inbox_handler
     /**
      * Handles an Accept Activity received by our inbox.
      *
-     * @param Profile $actor Actor
-     * @param array $object Activity
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function handle_accept($actor, $object)
+    private function handle_accept()
     {
-        switch ($object['type']) {
+        switch ($this->object['type']) {
             case 'Follow':
-                $this->handle_accept_follow($actor, $object);
+                $this->handle_accept_follow();
                 break;
         }
     }
@@ -167,54 +165,63 @@ class Activitypub_inbox_handler
     /**
      * Handles an Accept Follow Activity received by our inbox.
      *
-     * @param Profile $actor Actor
-     * @param array $object Activity
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function handle_accept_follow($actor, $object)
+    private function handle_accept_follow()
     {
         // Get valid Object profile
         // Note that, since this an accept_follow, the $object
         // profile is actually the actor that followed someone
         $object_profile = new Activitypub_explorer;
-        $object_profile = $object_profile->lookup($object['object'])[0];
+        $object_profile = $object_profile->lookup($this->object['object'])[0];
 
-        Activitypub_profile::subscribeCacheUpdate($object_profile, $actor);
+        Activitypub_profile::subscribeCacheUpdate($object_profile, $this->actor);
 
-        $pending_list = new Activitypub_pending_follow_requests($object_profile->getID(), $actor->getID());
+        $pending_list = new Activitypub_pending_follow_requests($object_profile->getID(), $this->actor->getID());
         $pending_list->remove();
     }
 
     /**
      * Handles a Create Activity received by our inbox.
      *
-     * @param Profile $actor Actor
-     * @param array $object Activity
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function handle_create($actor, $object)
+    private function handle_create()
     {
-        switch ($object['type']) {
+        switch ($this->object['type']) {
             case 'Note':
-                Activitypub_notice::create_notice($object, $actor);
+                $this->handle_create_note();
                 break;
+        }
+    }
+
+    /**
+     * Handle a Create Note Activity received by our inbox.
+     *
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    private function handle_create_note()
+    {
+        if (Activitypub_notice::isPrivateNote($this->activity)) {
+            // Plugin DirectMessage must handle this
+        } else {
+            Activitypub_notice::create_notice($this->object, $this->actor);
         }
     }
 
     /**
      * Handles a Delete Activity received by our inbox.
      *
-     * @param Profile $actor Actor
-     * @param array|string $object Activity's object
      * @throws AuthorizationException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function handle_delete(Profile $actor, $object)
+    private function handle_delete()
     {
+        $object = $this->object;
         if (is_array($object)) {
             $object = $object['id'];
         }
@@ -230,15 +237,13 @@ class Activitypub_inbox_handler
 
         if (!$deleted) {
             $notice = ActivityPubPlugin::grab_notice_from_url($object);
-            $notice->deleteAs($actor);
+            $notice->deleteAs($this->actor);
         }
     }
 
     /**
      * Handles a Follow Activity received by our inbox.
      *
-     * @param Profile $actor Actor
-     * @param array $activity Activity
      * @throws AlreadyFulfilledException
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -247,100 +252,90 @@ class Activitypub_inbox_handler
      * @throws \HttpSignatures\Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function handle_follow($actor, $activity)
+    private function handle_follow()
     {
-        Activitypub_follow::follow($actor, $activity['object'], $activity['id']);
+        Activitypub_follow::follow($this->actor, $this->object, $this->activity['id']);
     }
 
     /**
      * Handles a Like Activity received by our inbox.
      *
-     * @param Profile $actor Actor
-     * @param array $object Activity
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function handle_like($actor, $object)
+    private function handle_like()
     {
-        $notice = ActivityPubPlugin::grab_notice_from_url($object);
-        Fave::addNew($actor, $notice);
+        $notice = ActivityPubPlugin::grab_notice_from_url($this->object);
+        Fave::addNew($this->actor, $notice);
     }
 
     /**
      * Handles a Undo Activity received by our inbox.
      *
-     * @param Profile $actor Actor
-     * @param array $object Activity
      * @throws AlreadyFulfilledException
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function handle_undo($actor, $object)
+    private function handle_undo()
     {
-        switch ($object['type']) {
+        switch ($this->object['type']) {
             case 'Follow':
-                $this->handle_undo_follow($actor, $object['object']);
+                $this->handle_undo_follow();
                 break;
             case 'Like':
-                $this->handle_undo_like($actor, $object['object']);
+                $this->handle_undo_like();
                 break;
         }
     }
 
     /**
-     * Handles a Undo Like Activity received by our inbox.
-     *
-     * @param Profile $actor Actor
-     * @param array $object Activity
-     * @throws AlreadyFulfilledException
-     * @throws ServerException
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     */
-    private function handle_undo_like($actor, $object)
-    {
-        $notice = ActivityPubPlugin::grab_notice_from_url($object);
-        Fave::removeEntry($actor, $notice);
-    }
-
-    /**
      * Handles a Undo Follow Activity received by our inbox.
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param Profile $actor Actor
-     * @param array $object Activity
      * @throws AlreadyFulfilledException
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function handle_undo_follow($actor, $object)
+    private function handle_undo_follow()
     {
         // Get Object profile
         $object_profile = new Activitypub_explorer;
-        $object_profile = $object_profile->lookup($object)[0];
+        $object_profile = $object_profile->lookup($this->object['object'])[0];
 
-        if (Subscription::exists($actor, $object_profile)) {
-            Subscription::cancel($actor, $object_profile);
+        if (Subscription::exists($this->actor, $object_profile)) {
+            Subscription::cancel($this->actor, $object_profile);
             // You are no longer following this person.
-            Activitypub_profile::unsubscribeCacheUpdate($actor, $object_profile);
+            Activitypub_profile::unsubscribeCacheUpdate($this->actor, $object_profile);
         } else {
             // 409: You are not following this person already.
         }
     }
 
     /**
+     * Handles a Undo Like Activity received by our inbox.
+     *
+     * @throws AlreadyFulfilledException
+     * @throws ServerException
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     */
+    private function handle_undo_like()
+    {
+        $notice = ActivityPubPlugin::grab_notice_from_url($this->object['object']);
+        Fave::removeEntry($this->actor, $notice);
+    }
+
+    /**
      * Handles a Announce Activity received by our inbox.
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param Profile $actor Actor
-     * @param array $object Activity
      * @throws Exception
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function handle_announce($actor, $object)
+    private function handle_announce()
     {
-        $object_notice = ActivityPubPlugin::grab_notice_from_url($object);
-        $object_notice->repeat($actor, 'ActivityPub');
+        $object_notice = ActivityPubPlugin::grab_notice_from_url($this->object);
+        $object_notice->repeat($this->actor, 'ActivityPub');
     }
 }

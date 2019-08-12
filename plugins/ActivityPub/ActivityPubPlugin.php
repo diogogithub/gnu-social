@@ -257,6 +257,36 @@ class ActivityPubPlugin extends Plugin
     }
 
     /**
+     * Update notice before saving.
+     * We'll use this as a hack to maintain replies to unlisted/followers-only
+     * notices away from the public timelines.
+     *
+     * @param Notice &$notice notice to be saved
+     * @return bool event hook return
+     */
+    public function onStartNoticeSave(Notice &$notice): bool {
+        if ($notice->reply_to) {
+            try {
+                $parent = $notice->getParent();
+                $is_local = (int)$parent->is_local;
+
+                // if we're replying unlisted/followers-only notices received by AP
+                // or replying to replies of such notices, then we make sure to set
+                // the correct type flag.
+                if ( ($parent->source === 'ActivityPub' && $is_local === Notice::GATEWAY) ||
+                     ($parent->source === 'web' && $is_local === Notice::LOCAL_NONPUBLIC) ) {
+                    $this->log(LOG_INFO, "Enforcing type flag LOCAL_NONPUBLIC for new notice");
+                    $notice->is_local = Notice::LOCAL_NONPUBLIC;
+                }
+            } catch (NoParentNoticeException $e) {
+                // This is not a reply to something (has no parent)
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Plugin Nodeinfo information
      *
      * @param array $protocols

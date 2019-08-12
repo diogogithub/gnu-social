@@ -61,13 +61,22 @@ class Activitypub_notice
             }
         }
 
-        $to = ['https://www.w3.org/ns/activitystreams#Public'];
-        foreach ($notice->getAttentionProfiles() as $to_profile) {
-            $to[]  = $href = $to_profile->getUri();
-            $tags[] = Activitypub_mention_tag::mention_tag_to_array_from_values($href, $to_profile->getNickname().'@'.parse_url($href, PHP_URL_HOST));
+        if ($notice->isPublic()) {
+            $to = ['https://www.w3.org/ns/activitystreams#Public'];
+            $cc = [common_local_url('apActorFollowers', ['id' => $profile->getID()])];
+        } else {
+            // Since we currently don't support sending unlisted/followers-only
+            // notices, arriving here means we're instead answering to that type
+            // of posts. Not having subscription policy working, its safer to
+            // always send answers of type unlisted.
+            $to = [];
+            $cc = ['https://www.w3.org/ns/activitystreams#Public'];
         }
 
-        $cc = [common_local_url('apActorFollowers', ['id' => $profile->getID()])];
+        foreach ($notice->getAttentionProfiles() as $to_profile) {
+            $to[]   = $href = $to_profile->getUri();
+            $tags[] = Activitypub_mention_tag::mention_tag_to_array_from_values($href, $to_profile->getNickname().'@'.parse_url($href, PHP_URL_HOST));
+        }
 
         $item = [
             '@context'      => 'https://www.w3.org/ns/activitystreams',
@@ -108,11 +117,11 @@ class Activitypub_notice
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param array $object
-     * @param Profile|null $actor_profile
+     * @param Profile $actor_profile
      * @return Notice
      * @throws Exception
      */
-    public static function create_notice($object, $actor_profile = null)
+    public static function create_notice(array $object, Profile $actor_profile = null)
     {
         $id      = $object['id'];                                // int
         $url     = isset($object['url']) ? $object['url'] : $id; // string
@@ -140,7 +149,10 @@ class Activitypub_notice
         $act->time = time();
         $act->actor = $actor_profile->asActivityObject();
         $act->context = new ActivityContext();
-        $options = ['source' => 'ActivityPub', 'uri' => $id, 'url' => $url];
+        $options = ['source'   => 'ActivityPub',
+                    'uri'      => $id,
+                    'url'      => $url,
+                    'is_local' => self::getNotePolicyType($object, $actor_profile)];
 
         // Is this a reply?
         if (isset($settings['inReplyTo'])) {
@@ -238,9 +250,9 @@ class Activitypub_notice
             common_debug('ActivityPub Notice Validator: Rejected because Object URL is invalid.');
             throw new Exception('Invalid Object URL.');
         }
-        if (!(isset($object['to']) || isset($object['cc']))) {
-            common_debug('ActivityPub Notice Validator: Rejected because neither Object CC and TO were specified.');
-            throw new Exception('Neither Object CC and TO were specified.');
+        if (!(isset($object['to']) && isset($object['cc']))) {
+            common_debug('ActivityPub Notice Validator: Rejected because either Object CC or TO wasn\'t specified.');
+            throw new Exception('Either Object CC or TO wasn\'t specified.');
         }
         return true;
     }
@@ -253,10 +265,46 @@ class Activitypub_notice
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
     public static function getUrl(Notice $notice): string {
-	if ($notice->isLocal()) {
-	    return common_local_url('apNotice', ['id' => $notice->getID()]);
-	} else {
-	    return $notice->getUrl();
-	}
+	    if ($notice->isLocal()) {
+	        return common_local_url('apNotice', ['id' => $notice->getID()]);
+	    } else {
+	        return $notice->getUrl();
+	    }
+    }
+
+    /**
+     * Extract note policy type from note targets.
+     *
+     * @param array $note received Note
+     * @param Profile $actor_profile Note author
+     * @return int Notice policy type
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function getNotePolicyType(array $note, Profile $actor_profile): int {
+        if (in_array('https://www.w3.org/ns/activitystreams#Public', $note['to'])) {
+            return $actor_profile->isLocal() ? Notice::LOCAL_PUBLIC : Notice::REMOTE;
+        } else {
+            // either an unlisted or followers-only note, we'll handle
+            // both as a GATEWAY notice since this type is not visible
+            // from the public timelines, hence partially enough while
+            // we don't have subscription_policy working.
+            return Notice::GATEWAY;
+        }
+    }
+
+    /**
+     * Verify if received note is private (direct).
+     * Note that we're conformant with the (yet) non-standard directMessage attribute:
+     * https://github.com/w3c/activitypub/issues/196#issuecomment-304958984
+     *
+     * @param array $activity received Create-Note activity
+     * @return bool true if note is private, false otherwise
+     */
+    public static function isPrivateNote(array $activity): bool {
+        if (isset($activity['directMessage'])) {
+            return $activity['directMessage'];
+        }
+
+        return empty($activity['cc']) && !in_array('https://www.w3.org/ns/activitystreams#Public', $activity['to']);
     }
 }
