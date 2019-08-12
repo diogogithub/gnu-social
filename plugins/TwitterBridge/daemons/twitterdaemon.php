@@ -211,7 +211,7 @@ class TwitterManager extends IoManager
 
     /**
      * We're ready to process input from one of our data sources! Woooooo!
-     * @fixme is there an easier way to map from socket back to owning module? :(
+     * @fixme is there an easier way to map from socket back to owning plugin? :(
      *
      * @param resource $socket
      * @return boolean success

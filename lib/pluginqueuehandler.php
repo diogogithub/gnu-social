@@ -17,16 +17,16 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * Queue handler for letting modules handle stuff.
+ * Queue handler for letting plugins handle stuff.
  *
- * The module queue handler accepts notices over the "module" queue
+ * The module queue handler accepts notices over the "plugin" queue
  * and simply passes them through the "HandleQueuedNotice" event.
  *
  * This gives plugins a chance to do background processing without
  * actually registering their own queue and ensuring that things
  * are queued into it.
  *
- * Fancier modules may wish to instead hook the 'GetQueueHandlerClass'
+ * Fancier plugins may wish to instead hook the 'GetQueueHandlerClass'
  * event with their own class, in which case they must ensure that
  * their notices get enqueued when they need them.
  */

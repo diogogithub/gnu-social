@@ -99,7 +99,7 @@ class EventPlugin extends ActivityVerbHandlerPlugin
         return true;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Event',
                             'version' => self::PLUGIN_VERSION,

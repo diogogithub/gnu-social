@@ -220,7 +220,7 @@ class WebFingerPlugin extends Plugin
         }
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'WebFinger',
                             'version' => self::PLUGIN_VERSION,

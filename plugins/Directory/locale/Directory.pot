@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:44+0100\n"
+"POT-Creation-Date: 2019-08-14 14:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,22 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#. TRANS: Menu item text for user directory.
+#: DirectoryPlugin.php:223
+msgctxt "MENU"
+msgid "People"
+msgstr ""
+
+#. TRANS: Menu item title for user directory.
+#: DirectoryPlugin.php:225
+msgid "People."
+msgstr ""
+
+#. TRANS: Plugin description.
+#: DirectoryPlugin.php:244
+msgid "Add a user directory."
+msgstr ""
 
 #. TRANS: Column header in table for user nickname.
 #: lib/sortablegrouplist.php:51 lib/sortablesubscriptionlist.php:51
@@ -164,20 +180,4 @@ msgstr ""
 #: actions/userdirectory.php:349
 #, php-format
 msgid "No users starting with %s"
-msgstr ""
-
-#. TRANS: Menu item text for user directory.
-#: DirectoryPlugin.php:223
-msgctxt "MENU"
-msgid "People"
-msgstr ""
-
-#. TRANS: Menu item title for user directory.
-#: DirectoryPlugin.php:225
-msgid "People."
-msgstr ""
-
-#. TRANS: Plugin description.
-#: DirectoryPlugin.php:244
-msgid "Add a user directory."
 msgstr ""

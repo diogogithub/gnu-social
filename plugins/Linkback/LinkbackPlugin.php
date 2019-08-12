@@ -355,7 +355,7 @@ class LinkbackPlugin extends Plugin
         return LINKBACKPLUGIN_VERSION;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Linkback',
                             'version' => LINKBACKPLUGIN_VERSION,

@@ -105,7 +105,7 @@ ENDOFPIWIK;
         return true;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'PiwikAnalytics',
                             'version' => self::PLUGIN_VERSION,

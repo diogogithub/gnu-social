@@ -162,7 +162,7 @@ class MeteorPlugin extends RealtimePlugin
         return implode('-', $path);
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Meteor',
                             'version' => self::PLUGIN_VERSION,

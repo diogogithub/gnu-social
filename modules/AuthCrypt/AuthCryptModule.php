@@ -2,7 +2,7 @@
 /**
  * StatusNet, the distributed open-source microblogging tool
  *
- * Plugin to use crypt() for user password hashes
+ * Module to use crypt() for user password hashes
  *
  * PHP version 5
  *
@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @category  Plugin
+ * @category  Module
  * @package   GNUsocial
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2012 StatusNet, Inc.
@@ -30,10 +30,10 @@
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
-class AuthCryptPlugin extends AuthenticationPlugin
+class AuthCryptModule extends AuthenticationModule
 {
     const PLUGIN_VERSION = '2.0.0';
-    protected $hash         = '$6$';    // defaults to SHA512, i.e. '$6$', in onInitializePlugin()
+    protected $hash         = '$6$';    // defaults to SHA512, i.e. '$6$', in onInitializeModule()
     protected $statusnet    = true;     // if true, also check StatusNet style password hash
     protected $overwrite    = true;     // if true, password change means overwrite with crypt()
     protected $argon        = false;    // Use Argon if supported. 
@@ -164,7 +164,7 @@ class AuthCryptPlugin extends AuthenticationPlugin
 
     public function onCheckSchema()
     {
-        // we only use the User database, so default AuthenticationPlugin stuff can be ignored
+        // we only use the User database, so default AuthenticationModule stuff can be ignored
         return true;
     }
 
@@ -174,14 +174,14 @@ class AuthCryptPlugin extends AuthenticationPlugin
         return true;
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onModuleVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'AuthCrypt',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/AuthCrypt',
                             'rawdescription' =>
-                            // TRANS: Plugin description.
+                            // TRANS: Module description.
                             _m('Authentication and password hashing with crypt()'));
         return true;
     }

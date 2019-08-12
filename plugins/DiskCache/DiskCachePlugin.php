@@ -158,7 +158,7 @@ class DiskCachePlugin extends Plugin
         return false;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'DiskCache',
                             'version' => self::PLUGIN_VERSION,

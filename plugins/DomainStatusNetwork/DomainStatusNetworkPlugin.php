@@ -192,7 +192,7 @@ class DomainStatusNetworkPlugin extends Plugin
         return null;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'DomainStatusNetwork',
                             'version' => self::PLUGIN_VERSION,

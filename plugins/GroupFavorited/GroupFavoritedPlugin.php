@@ -65,19 +65,20 @@ class GroupFavoritedPlugin extends Plugin
      *
      * @param array &$versions array of version data arrays; see EVENTS.txt
      *
-     * @return boolean hook value
+     * @return bool hook value
      */
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/GroupFavorited';
 
-        $versions[] = array('name' => 'GroupFavorited',
+        $versions[] = ['name' => 'GroupFavorited',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Brion Vibber',
             'homepage' => $url,
             'rawdescription' =>
             // TRANS: Plugin description.
-            _m('This plugin adds a menu item for popular notices in groups.'));
+            _m('This plugin adds a menu item for popular notices in groups.')
+        ];
 
         return true;
     }

@@ -151,7 +151,7 @@ class CasAuthenticationPlugin extends AuthenticationPlugin
         $casSettings['user_whitelist']=$this->user_whitelist;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'CAS Authentication',
                             'version' => self::PLUGIN_VERSION,

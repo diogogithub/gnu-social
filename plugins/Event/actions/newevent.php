@@ -148,13 +148,13 @@ class NeweventAction extends FormAction
 
         /* We don't use these ourselves, but we add them to be nice RSS/XML citizens */
         $actobj->extra[] = array('startdate',
-                                array('xmlns' => 'http://purl.org/rss/1.0/modules/event/'),
+                                array('xmlns' => 'http://purl.org/rss/1.0/plugins/event/'),
                                 common_date_iso8601($start_str));
         $actobj->extra[] = array('enddate',
-                                array('xmlns' => 'http://purl.org/rss/1.0/modules/event/'),
+                                array('xmlns' => 'http://purl.org/rss/1.0/plugins/event/'),
                                 common_date_iso8601($end_str));
         $actobj->extra[] = array('location',
-                                array('xmlns' => 'http://purl.org/rss/1.0/modules/event/'),
+                                array('xmlns' => 'http://purl.org/rss/1.0/plugins/event/'),
                                 $location);
 
         $act->objects = array($actobj);

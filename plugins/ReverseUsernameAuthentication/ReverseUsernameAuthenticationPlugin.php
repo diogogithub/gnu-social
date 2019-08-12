@@ -58,7 +58,7 @@ class ReverseUsernameAuthenticationPlugin extends AuthenticationPlugin
         return User::register($registration_data);
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Reverse Username Authentication',
                             'version' => self::PLUGIN_VERSION,

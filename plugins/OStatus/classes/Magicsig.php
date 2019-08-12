@@ -3,7 +3,7 @@
  * StatusNet - the distributed open-source microblogging tool
  * Copyright (C) 2010, StatusNet, Inc.
  *
- * A sample module to show best practices for StatusNet plugins
+ * A sample plugin to show best practices for StatusNet plugins
  *
  * PHP version 5
  *
@@ -139,7 +139,7 @@ class Magicsig extends Managed_DataObject
     /**
      * Generate a new keypair for a local user and store in the database.
      *
-     * Warning: this can be very slow on systems without the GMP module.
+     * Warning: this can be very slow on systems without the GMP plugin.
      * Runtimes of 20-30 seconds are not unheard-of.
      *
      * FIXME: More than 1024 bits please. But StatusNet _discards_ non-1024 bits,

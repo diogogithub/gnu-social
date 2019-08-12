@@ -143,7 +143,7 @@ class LdapAuthenticationPlugin extends AuthenticationPlugin
         return common_nicknamize($nickname);
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'LDAP Authentication',
                             'version' => self::PLUGIN_VERSION,

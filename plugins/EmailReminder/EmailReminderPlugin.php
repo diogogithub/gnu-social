@@ -181,7 +181,7 @@ class EmailReminderPlugin extends Plugin
      * @param type $versions
      * @return type
      */
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array(
             'name'           => 'EmailReminder',

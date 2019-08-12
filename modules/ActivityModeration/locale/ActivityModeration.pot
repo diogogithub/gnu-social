@@ -41,7 +41,7 @@ msgctxt "BUTTON"
 msgid "Yes"
 msgstr ""
 
-#: ActivityModerationPlugin.php:64
+#: ActivityModerationModule.php:64
 msgctxt "TITLE"
 msgid "Notice moderation"
 msgstr ""

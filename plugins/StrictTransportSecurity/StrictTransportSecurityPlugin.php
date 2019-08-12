@@ -52,7 +52,7 @@ class StrictTransportSecurityPlugin extends Plugin
         }
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'StrictTransportSecurity',
                             'version' => self::PLUGIN_VERSION,

@@ -10,17 +10,17 @@ Add either of the following configurations to your config.php (see Example below
 
 The recommended use is to overwrite old hash values when logging in (statusnet + overwrite modes) and be the authority on password checks when logging in. If you only wish to update entries on password change the default values are enough. 'statusnet' and 'overwrite' are true by default. 'authoritative' is only necessary if we want to exclude other plugins from verifying the password.
 
-    addPlugin('AuthCrypt');
+    addModule('AuthCrypt');
 
 To disable updating to crypt() on password change (and login with the 'statusnet' compatibility mode), simply set the 'overwrite' setting to false:
 
-    addPlugin('AuthCrypt', array(
+    addModule('AuthCrypt', array(
         'overwrite'=>false,
     ));
 
 Settings
 ========
-Default values in parenthesis. Many settings are inherited from the AuthenticationPlugin class.
+Default values in parenthesis. Many settings are inherited from the AuthenticationModule class.
 
 authoritative (false): Set this to true when _all_ passwords are hashed with crypt()
     (warning: this may disable all other password verification, also when changing passwords!)

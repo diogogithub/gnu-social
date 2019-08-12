@@ -54,7 +54,7 @@ class AutocompletePlugin extends Plugin
                     ['action' => 'autocomplete']);
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Autocomplete',
                             'version' => self::PLUGIN_VERSION,

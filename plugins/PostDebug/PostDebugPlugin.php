@@ -50,7 +50,7 @@ class PostDebugPlugin extends Plugin
         }
     }
 
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'PostDebug',
                             'version' => self::PLUGIN_VERSION,

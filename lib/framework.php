@@ -106,6 +106,7 @@ require_once INSTALLDIR . '/lib/language.php';
 // can use it
 
 require_once INSTALLDIR . '/lib/event.php';
+require_once INSTALLDIR . '/lib/modules/Module.php';
 require_once INSTALLDIR . '/lib/modules/Plugin.php';
 
 function addPlugin($name, array $attrs = [])

@@ -3,7 +3,7 @@
  * StatusNet - the distributed open-source microblogging tool
  * Copyright (C) 2009, StatusNet, Inc.
  *
- * A sample module to show best practices for StatusNet plugins
+ * A sample Plugin to show best practices for StatusNet plugins
  *
  * PHP version 5
  *
@@ -87,10 +87,10 @@ if (!defined('STATUSNET')) {
  * main StatusNet distribution go in 'plugins' and third-party or local ones go
  * in 'local'.
  *
- * Simple plugins can be implemented as a single module. Others are more complex
- * and require additional modules; these should use their own directory, like
+ * Simple plugins can be implemented as a single Plugin. Others are more complex
+ * and require additional Plugins; these should use their own directory, like
  * 'local/plugins/{$name}/'. All files related to the plugin, including images,
- * JavaScript, CSS, external libraries or PHP modules should go in the plugin
+ * JavaScript, CSS, external libraries or PHP Plugins should go in the plugin
  * directory.
  *
  * @category  Sample
@@ -224,7 +224,7 @@ class SamplePlugin extends Plugin
         return true;
     }
 
-    function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Sample',
                             'version' => self::PLUGIN_VERSION,

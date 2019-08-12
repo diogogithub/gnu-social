@@ -223,10 +223,10 @@ function onEndPrimaryNav($action)
     return true;
 }
 
-function onPluginVersion(&$versions)
+public function onPluginVersion(&$versions): bool
 {
     $versions[] = array('name' => 'Sample',
-                        'version' => STATUSNET_VERSION,
+                        'version' => GNUSOCIAL_VERSION,
                         'author' => 'Brion Vibber, Evan Prodromou',
                         'homepage' => 'http://example.org/plugin',
                         'rawdescription' =>

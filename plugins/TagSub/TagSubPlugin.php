@@ -91,7 +91,7 @@ class TagSubPlugin extends Plugin
      *
      * @return bool true hook value
      */
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = ['name' => 'TagSub',
             'version' => self::PLUGIN_VERSION,

@@ -206,7 +206,7 @@ class ActivityPubPlugin extends Plugin
      * @param array $versions
      * @return bool hook true
      */
-    public function onPluginVersion(array &$versions)
+    public function onPluginVersion(array &$versions): bool
     {
         $versions[] = [
             'name' => 'ActivityPub',

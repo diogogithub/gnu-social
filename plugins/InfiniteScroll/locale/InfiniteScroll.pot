@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 15:18+0100\n"
+"POT-Creation-Date: 2019-08-14 15:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,10 +17,10 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Module dscription.
+#. TRANS: Plugin dscription.
 #: InfiniteScrollPlugin.php:51
 msgid ""
-"Infinite Scroll adds the following functionality to your StatusNet "
+"Infinite Scroll adds the following functionality to your GNU social "
 "installation: When a user scrolls towards the bottom of the page, the next "
 "page of notices is automatically retrieved and appended. This means they "
 "never need to click \"Next Page\", which dramatically increases stickiness."

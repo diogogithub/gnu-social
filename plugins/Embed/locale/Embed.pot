@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:44+0100\n"
+"POT-Creation-Date: 2019-08-14 14:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,13 +17,13 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. TRANS: Plugin description.
+#: EmbedPlugin.php:633
+msgid "Plugin for using and representing oEmbed, OpenGraph and other data."
+msgstr ""
+
 #. TRANS: Exception. %s is the URL we tried to GET.
 #: lib/embedhelper.php:87
 #, php-format
 msgid "Could not GET URL %s."
-msgstr ""
-
-#. TRANS: Plugin description.
-#: EmbedPlugin.php:634
-msgid "Plugin for using and representing oEmbed, OpenGraph and other data."
 msgstr ""
