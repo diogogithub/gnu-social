@@ -27,8 +27,8 @@ PHP modules
 The following software packages are *required* for this software to
 run correctly.
 
-- PHP 7+        PHP7.x is also supported.
-- MariaDB 5+    MariaDB 10.x is also supported.
+- PHP 7.3+
+- MariaDB 10.3+
 - Web server    Apache, lighttpd and nginx will all work. CGI mode is
                 recommended and also some variant of 'suexec' (or a
                 proper setup php-fpm pool)
@@ -50,7 +50,6 @@ functional setup of GNU social:
 - php-opcache   Improved PHP performance by precompilation
 - php-readline  For interactive scripts
 - php-xml       XML parser
-- php-ds        Faster data structures
 
 NOTE: Some distros require manual enabling in the relevant php.ini for some modules.
 
@@ -70,7 +69,6 @@ For some functionality, you will also need the following extensions:
 - gettext       For multiple languages. Default on many PHP installs;
                 will be emulated if not present.
 - exif          For thumbnails to be properly oriented.
-- php-ds        For faster data structures; will be emulated if not present.
 
 You may also experience better performance from your site if you configure
 a PHP cache/accelerator. Most distributions come with "opcache" support.

@@ -12,6 +12,16 @@ Load and Storage:
 - New media handling system
 - GS is now structurely divided in includes and public
 - OEmbed upgraded to Embed plugin (Now we provide Open Graph information too)
+- Added Redis based caching and queues
+- Improved memcached support
+
+Federation:
+- Add ActivityPub support
+- RemoteFollow: Remote follow ActivityPub and OStatus remote actors via the click of a button
+- ActorLists: Allow to create collections of Actors and to interact with them - supports both OStatus and ActivityPub
+- The Free Network: Automagically migrate internal remote profiles between Free Network protocols
+- Enable the search box to import remote notices and profiles
+- Improvements on Nodeinfo (and new route)
 
 General:
 - Composer was integrated
@@ -19,56 +29,16 @@ General:
 Modules:
 - Restored built-in plugins
 - New modules system: core plugins and plugins physically separated
-- Refactor of Plugin API to better illustrate the idea of modules
 - Bug fixes of core modules logic
-
-#### TODO before alpha:
-
-Load and Storage:
-- Upgrade STOMP queue
-- Add Redis based caching and queues
-- Review memcached based cache
-- Port PEAR DB to PDO_DataObject
-- Support PostgreSQL
-
-Network:
-- Port PEAR HTTP to Guzzle
-- Port PEAR Mail to PHPSendMail
-- Add OAuth2 support (deprecate OAuth1)
-- Add shinny new Plugins management interface for sysadmins together with a new doc for devs
-
-Federation:
-- Add ActivityPub support
-  - Fix audience targeting
-  - Add Group Actor Type
-- OstatusSub: Remote follow OS and AP profiles via OStatusSub
-- ActorLists: Allow to create collections of Actors and to interact with them - supports both OS and AP
-- The Free Network: Automagically migrate internal remote profiles between Free Network protocols (check Nodeinfo)
-- Enable the search box to import remote notices and profiles
-
-General:
-- Fix failling unit tests
-- Improve Cronish
-  - Run session garbage collection
-  - Cleanup Email Registration
-- Refactoring of confirmation codes
-- Refactoring of Exceptions
-
-Modules:
-- Document conversion of older plugins to the new GS 2
-- Create installer for v2 plugins
-- Introduce new metadata for plugins (category and thumb)
-- Improve plugin management tool (add install form and better UI that makes use of new metadata)
-- Add plugin management tool as a install step
-- Allow to install remote plugins and suggest popular trusted ones
+- Improved plugin management tool (now all available plugins are shown and third party can be uploaded and deleted)
 
 ## v1.20.9release - The Invicta Crusade
 
-Release name chosen after Porto city. Porto is one of the oldest cities in Europe and thanks to its fierce resistance
-during two battles and sieges in history, it has earned the epithet of ‘Cidade Invicta’ (Invincible City). The dev team
-behind this release studies in Porto, Portugal.
-
 Dropped Support for PHP5.6.x. Minimum PHP version now is 7.0.0.
+
+Release name chosen after Porto city. Porto is one of the oldest cities in Europe and thanks to its fierce resistance during
+two battles and sieges in history, it has earned the epithet of ‘Cidade Invicta’ (Invincible City). The dev team behind this
+release studies in Porto, Portugal.
 
 Major changes from previous release:
 
