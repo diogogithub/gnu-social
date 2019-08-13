@@ -20,21 +20,28 @@
  *
  * @category  Files
  * @package   GNUsocial
- * @author    Chimo
+ * @author    Stéphane Bérubé <chimo@chromic.org>
  * @author    Miguel Dantas <biodantas@gmail.com>
- * @copyright 2008-2009, 2019 Free Software Foundation http://fsf.org
+ * @copyright 2018, 2019 Free Software Foundation http://fsf.org
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link      https://www.gnu.org/software/social/
  */
 
 defined('GNUSOCIAL') || die();
 
+use Predis\Client;
+use Predis\PredisException;
+
 class RedisCachePlugin extends Plugin
 {
-    const VERSION = '0.0.1';
+    const PLUGIN_VERSION = '0.0.1';
 
-    private $client = null;
+    // settings which can be set in config.php with addPlugin('Embed', ['param'=>'value', ...]);
+    public $server = null;
     public $defaultExpiry = 86400; // 24h
+
+
+    protected $client = null;
 
     function onInitializePlugin()
     {
@@ -46,27 +53,17 @@ class RedisCachePlugin extends Plugin
     private function _ensureConn()
     {
         if ($this->client === null) {
-            $connection = common_config('rediscache', 'connection');
-
-            $this->client = new Predis\Client($connection);
+            $this->client = new Client($this->server);
         }
     }
 
     function onStartCacheGet(&$key, &$value)
     {
-        // Temporary work-around upstream bug
-        // see: https://github.com/chimo/gs-rediscache/issues/1
-        if ($key === Cache::key('profileall')) {
-            return true;
-        }
-
         try {
             $this->_ensureConn();
-
             $ret = $this->client->get($key);
-        } catch(\Predis\PredisException $Ex) {
-            common_log(LOG_ERR, get_class($Ex) . ' ' . $Ex->getMessage());
-
+        } catch(PredisException $e) {
+            common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
             return true;
         }
 
@@ -74,8 +71,6 @@ class RedisCachePlugin extends Plugin
         // to indicate we took care of this
         if ($ret !== null) {
             $value = unserialize($ret);
-
-            Event::handle('EndCacheGet', array($key, &$value));
             return false;
         }
 
@@ -85,12 +80,6 @@ class RedisCachePlugin extends Plugin
 
     function onStartCacheSet(&$key, &$value, &$flag, &$expiry, &$success)
     {
-        // Temporary work-around upstream bug
-        // see: https://github.com/chimo/gs-rediscache/issues/1
-        if ($key === Cache::key('profileall')) {
-            return true;
-        }
-
         if ($expiry === null) {
             $expiry = $this->defaultExpiry;
         }
@@ -99,17 +88,13 @@ class RedisCachePlugin extends Plugin
             $this->_ensureConn();
 
             $ret = $this->client->setex($key, $expiry, serialize($value));
-        } catch(\Predis\PredisException $Ex) {
-            common_log(LOG_ERR, get_class($Ex) . ' ' . $Ex->getMessage());
-
+        } catch(PredisException $e) {
+            common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
             return true;
         }
 
         if ($ret->getPayload() === "OK") {
             $success = true;
-
-            Event::handle('EndCacheSet', array($key, $value, $flag, $expiry));
-
             return false;
         }
 
@@ -118,32 +103,30 @@ class RedisCachePlugin extends Plugin
 
     function onStartCacheDelete($key)
     {
-        try {
-            $this->_ensureConn();
-
-            $this->client->del($key);
-        } catch(\Predis\PredisException $Ex) {
-            common_log(LOG_ERR, get_class($Ex) . ' ' . $Ex->getMessage());
+        if ($key === null) {
+            return true;
         }
 
-        // Let other Caches delete stuff if they want to
-        return true;
+        try {
+            $this->_ensureConn();
+            $ret = $this->client->del($key);
+        } catch(PredisException $e) {
+            common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
+        }
+
+        // Let other caches delete stuff if we didn't succeed
+        return $ret === 1;
     }
 
     function onStartCacheIncrement(&$key, &$step, &$value)
     {
         try {
             $this->_ensureConn();
-
-            // TODO: handle when this fails
             $this->client->incrby($key, $step);
-        } catch(\Predis\PredisException $Ex) {
-            common_log(LOG_ERR, get_class($Ex) . ' ' . $Ex->getMessage());
-
+        } catch(PredisException $e) {
+            common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
             return true;
         }
-
-        Event::handle('EndCacheIncrement', array($key, $step, $value));
 
         return false;
     }
@@ -156,7 +139,7 @@ class RedisCachePlugin extends Plugin
                             'homepage' => 'https://github.com/chimo/gs-rediscache',
                             'description' =>
                             // TRANS: Plugin description.
-                            _m('')); // TODO
+                            _m(''));
         return true;
     }
 }
