@@ -98,7 +98,6 @@ class InProcessCachePlugin extends Plugin
             } else {
                 $this->_hits[$key] = 1;
             }
-            Event::handle('EndCacheGet', array($key, &$value));
             return false;
         }
         return true;

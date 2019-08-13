@@ -105,7 +105,6 @@ class MemcachePlugin extends Plugin
     {
         $this->_ensureConn();
         $value = $this->_conn->get($key);
-        Event::handle('EndCacheGet', array($key, &$value));
         return false;
     }
 
@@ -127,8 +126,6 @@ class MemcachePlugin extends Plugin
             $expiry = $this->defaultExpiry;
         }
         $success = $this->_conn->set($key, $value, $this->flag(intval($flag)), $expiry);
-        Event::handle('EndCacheSet', array($key, $value, $flag,
-                                           $expiry));
         return false;
     }
 
@@ -146,7 +143,6 @@ class MemcachePlugin extends Plugin
     {
         $this->_ensureConn();
         $value = $this->_conn->increment($key, $step);
-        Event::handle('EndCacheIncrement', array($key, $step, $value));
         return false;
     }
 
@@ -162,7 +158,6 @@ class MemcachePlugin extends Plugin
     {
         $this->_ensureConn();
         $success = $this->_conn->delete($key);
-        Event::handle('EndCacheDelete', array($key));
         return false;
     }
 
