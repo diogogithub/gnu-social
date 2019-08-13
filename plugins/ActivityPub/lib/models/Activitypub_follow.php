@@ -34,7 +34,7 @@ defined('GNUSOCIAL') || die();
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Activitypub_follow extends Managed_DataObject
+class Activitypub_follow
 {
     /**
      * Generates an ActivityPub representation of a subscription

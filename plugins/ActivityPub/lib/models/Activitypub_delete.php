@@ -27,31 +27,61 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * ActivityPub Mention Tag representation
+ * ActivityPub error representation
  *
  * @category  Plugin
  * @package   GNUsocial
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Activitypub_mention_tag extends Managed_DataObject
+class Activitypub_delete
 {
     /**
-     * Generates an ActivityPub representation of a Mention Tag
+     * Generates an ActivityPub representation of a Delete
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param string $href Actor Uri
-     * @param array $name Mention name
+     * @param string $actor actor URI
+     * @param string $object object URI
      * @return array pretty array to be used in a response
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function mention_tag_to_array_from_values($href, $name)
+    public static function delete_to_array(string $actor, string $object): array
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            "type" => "Mention",
-            "href" => $href,
-            "name" => $name
-         ];
+            'id'     => $object.'/delete',
+            'type'   => 'Delete',
+            'actor'  => $actor,
+            'object' => $object
+        ];
         return $res;
+    }
+
+    /**
+     * Verifies if a given object is acceptable for a Delete Activity.
+     *
+     * @param array|string $object
+     * @return bool
+     * @throws Exception
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function validate_object($object): bool
+    {
+        if (!is_array($object)) {
+            if (!filter_var($object, FILTER_VALIDATE_URL)) {
+                throw new Exception('Object is not a valid Object URI for Activity.');
+            }
+        } else {
+            if (!isset($object['type'])) {
+                throw new Exception('Object type was not specified for Delete Activity.');
+            } else if ($object['type'] !== "Tombstone") {
+                throw new Exception('Invalid Object type for Delete Activity.');
+            }
+
+            if (!isset($object['id'])) {
+                throw new Exception('Object id was not specified for Delete Activity.');
+            }
+        }
+
+        return true;
     }
 }

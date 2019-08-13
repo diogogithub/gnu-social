@@ -27,32 +27,41 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * ActivityPub error representation
+ * ActivityPub Attachment representation
  *
  * @category  Plugin
  * @package   GNUsocial
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Activitypub_like extends Managed_DataObject
+class Activitypub_attachment
 {
     /**
-     * Generates an ActivityPub representation of a Like
+     * Generates a pretty array from an Attachment object
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param string $actor  Actor URI
-     * @param string $object Notice URI
+     * @param Attachment $attachment
      * @return array pretty array to be used in a response
      */
-    public static function like_to_array($actor, $object)
+    public static function attachment_to_array($attachment)
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => common_root_url().'like_from_'.urlencode($actor).'_to_'.urlencode($object),
-            "type"   => "Like",
-            "actor"  => $actor,
-            "object" => $object
+            'type'      => 'Document',
+            'mediaType' => $attachment->mimetype,
+            'url'       => $attachment->getUrl(),
+            'size'      => $attachment->getSize(),
+            'name'      => $attachment->getTitle(),
         ];
+
+        // Image
+        if (substr($res["mediaType"], 0, 5) == "image") {
+            $res["meta"]= [
+                'width'  => $attachment->width,
+                'height' => $attachment->height
+            ];
+        }
+
         return $res;
     }
 }

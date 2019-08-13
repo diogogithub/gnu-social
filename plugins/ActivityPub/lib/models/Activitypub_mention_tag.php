@@ -27,27 +27,31 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * ActivityPub error representation
+ * ActivityPub Mention Tag representation
  *
  * @category  Plugin
  * @package   GNUsocial
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Activitypub_error extends Managed_DataObject
+class Activitypub_mention_tag
 {
     /**
-     * Generates a pretty error from a string
+     * Generates an ActivityPub representation of a Mention Tag
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param string $m
+     * @param string $href Actor Uri
+     * @param array $name Mention name
      * @return array pretty array to be used in a response
      */
-    public static function error_message_to_array($m)
+    public static function mention_tag_to_array_from_values($href, $name)
     {
         $res = [
-            'error'=> $m
-        ];
+            '@context' => 'https://www.w3.org/ns/activitystreams',
+            "type" => "Mention",
+            "href" => $href,
+            "name" => $name
+         ];
         return $res;
     }
 }

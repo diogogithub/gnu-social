@@ -34,52 +34,25 @@ defined('GNUSOCIAL') || die();
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Activitypub_create extends Managed_DataObject
+class Activitypub_like
 {
     /**
-     * Generates an ActivityPub representation of a Create
+     * Generates an ActivityPub representation of a Like
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param string $actor
-     * @param array $object
+     * @param string $actor  Actor URI
+     * @param string $object Notice URI
      * @return array pretty array to be used in a response
      */
-    public static function create_to_array($actor, $object)
+    public static function like_to_array($actor, $object)
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => $object['id'].'/create',
-            'type'   => 'Create',
-            'to'     => $object['to'],
-            'cc'     => $object['cc'],
-            'actor'  => $actor,
-            'object' => $object
+            'id'     => common_root_url().'like_from_'.urlencode($actor).'_to_'.urlencode($object),
+            "type"   => "Like",
+            "actor"  => $actor,
+            "object" => $object
         ];
         return $res;
-    }
-
-    /**
-     * Verifies if a given object is acceptable for a Create Activity.
-     *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param array $object
-     * @throws Exception
-     */
-    public static function validate_object($object)
-    {
-        if (!is_array($object)) {
-            throw new Exception('Invalid Object Format for Create Activity.');
-        }
-        if (!isset($object['type'])) {
-            throw new Exception('Object type was not specified for Create Activity.');
-        }
-        switch ($object['type']) {
-            case 'Note':
-                // Validate data
-                Activitypub_notice::validate_note($object);
-                break;
-            default:
-                throw new Exception('This is not a supported Object Type for Create Activity.');
-        }
     }
 }
