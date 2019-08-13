@@ -116,17 +116,16 @@ class apActorFollowersAction extends ManagedAction
      */
     public static function generate_followers($profile, $since, $limit)
     {
-        /* Fetch Followers */
+        $subs = [];
         try {
             $sub = Activitypub_profile::getSubscribers($profile, $since, $limit);
+
+            /* Get followers' URLs */
+            foreach ($sub as $s) {
+                $subs[] = ActivityPubPlugin::actor_uri($s);
+            }
         } catch (NoResultException $e) {
             // Just let the exception go on its merry way
-        }
-
-        /* Get followers' URLs */
-        $subs = [];
-        foreach ($sub as $s) {
-            $subs[] = ActivityPubPlugin::actor_uri($s);
         }
 
         return $subs;
