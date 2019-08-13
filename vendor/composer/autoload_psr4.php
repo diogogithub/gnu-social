@@ -10,6 +10,7 @@ return array(
     'XMPPHP\\' => array($vendorDir . '/diogocomposer/xmpphp/XMPPHP'),
     'Stomp\\' => array($vendorDir . '/stomp-php/stomp-php/src'),
     'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-message/src'),
+    'Predis\\' => array($vendorDir . '/predis/predis/src'),
     'ParagonIE\\ConstantTime\\' => array($vendorDir . '/paragonie/constant_time_encoding/src'),
     'Michelf\\' => array($vendorDir . '/michelf/php-markdown/Michelf'),
     'Masterminds\\' => array($vendorDir . '/masterminds/html5/src'),
