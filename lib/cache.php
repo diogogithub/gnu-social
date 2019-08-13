@@ -105,46 +105,45 @@ class Cache
      * a more-or-less fingerprint of the current running code and adds it to
      * the cache key. In the case of an upgrade of core, or addition or
      * removal of plugins, a new unique fingerprint is generated and used.
-     * 
-     * There can still be problems with a) differences in versions of the 
+     *
+     * There can still be problems with a) differences in versions of the
      * plugins and b) people running code between official versions. This is
      * usually a problem only for experienced users like developers, who know
      * how to clear their cache.
      *
      * For sites that run code between versions (like the status.net cloud),
      * there's an additional build number configuration setting.
-     * 
+     *
      * @param string $extra the real part of the key
      *
      * @return string full key
      */
-    
     static function codeKey($extra)
     {
         static $prefix = null;
-	
+
         if (empty($prefix)) {
-	    
+
             $names   = array();
-	    
+
             foreach (GNUsocial::getActivePlugins() as $plugin=>$attrs) {
                 $names[] = $plugin;
             }
-	    
+
             asort($names);
-	    
+
             // Unique enough.
-	
+
             $uniq = crc32(implode(',', $names));
 
             $build = common_config('site', 'build');
 
             $prefix = GNUSOCIAL_VERSION.':'.$build.':'.$uniq;
         }
-	
+
         return Cache::key($prefix.':'.$extra);
     }
-    
+
     /**
      * Make a string suitable for use as a key
      *
@@ -175,12 +174,12 @@ class Cache
         $value = false;
 
         common_perf_counter('Cache::get', $key);
-        if (Event::handle('StartCacheGet', array(&$key, &$value))) {
+        if (Event::handle('StartCacheGet', [&$key, &$value])) {
             if ($this->_inlineCache && array_key_exists($key, $this->_items)) {
                 $value = unserialize($this->_items[$key]);
             }
-            Event::handle('EndCacheGet', array($key, &$value));
         }
+        Event::handle('EndCacheGet', [$key, &$value]);
 
         return $value;
     }
@@ -200,18 +199,13 @@ class Cache
         $success = false;
 
         common_perf_counter('Cache::set', $key);
-        if (Event::handle('StartCacheSet', array(&$key, &$value, &$flag,
-                                                 &$expiry, &$success))) {
-
+        if (Event::handle('StartCacheSet', [&$key, &$value, &$flag, &$expiry, &$success])) {
             if ($this->_inlineCache) {
                 $this->_items[$key] = serialize($value);
             }
-
             $success = true;
-
-            Event::handle('EndCacheSet', array($key, $value, $flag,
-                                               $expiry));
         }
+        Event::handle('EndCacheSet', [$key, $value, $flag, $expiry]);
 
         return $success;
     }
@@ -229,7 +223,7 @@ class Cache
     {
         $value = false;
         common_perf_counter('Cache::increment', $key);
-        if (Event::handle('StartCacheIncrement', array(&$key, &$step, &$value))) {
+        if (Event::handle('StartCacheIncrement', [&$key, &$step, &$value])) {
             // Fallback is not guaranteed to be atomic,
             // and may original expiry value.
             $value = $this->get($key);
@@ -238,8 +232,8 @@ class Cache
                 $ok = $this->set($key, $value);
                 $got = $this->get($key);
             }
-            Event::handle('EndCacheIncrement', array($key, $step, $value));
         }
+        Event::handle('EndCacheIncrement', [$key, $step, $value]);
         return $value;
     }
 
@@ -255,13 +249,13 @@ class Cache
         $success = false;
 
         common_perf_counter('Cache::delete', $key);
-        if (Event::handle('StartCacheDelete', array(&$key, &$success))) {
+        if (Event::handle('StartCacheDelete', [&$key, &$success])) {
             if ($this->_inlineCache && array_key_exists($key, $this->_items)) {
                 unset($this->_items[$key]);
             }
             $success = true;
-            Event::handle('EndCacheDelete', array($key));
         }
+        Event::handle('EndCacheDelete', [$key]);
 
         return $success;
     }
@@ -276,10 +270,10 @@ class Cache
     {
         $success = false;
 
-        if (Event::handle('StartCacheReconnect', array(&$success))) {
+        if (Event::handle('StartCacheReconnect', [&$success])) {
             $success = true;
-            Event::handle('EndCacheReconnect', array());
         }
+        Event::handle('EndCacheReconnect', []);
 
         return $success;
     }
