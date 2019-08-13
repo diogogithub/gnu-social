@@ -76,7 +76,6 @@ class DiskCachePlugin extends Plugin
             }
         }
 
-        Event::handle('EndCacheGet', array($key, &$value));
         return false;
     }
 
@@ -137,9 +136,6 @@ class DiskCachePlugin extends Plugin
             return false;
         }
 
-        Event::handle('EndCacheSet', array($key, $value, $flag,
-                                           $expiry));
-
         return false;
     }
 
@@ -159,7 +155,6 @@ class DiskCachePlugin extends Plugin
             unlink($filename);
         }
 
-        Event::handle('EndCacheDelete', array($key));
         return false;
     }
 
