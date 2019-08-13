@@ -29,6 +29,7 @@
         "paragonie/constant_time_encoding": "^1.0.4",
         "pear/console_getopt": "^1.4",
         "phpseclib/phpseclib": "dev-master#f815e43077da67d3dd5b4d18a45753f5b79c1ab9",
+        "predis/predis": "^1.1",
         "stomp-php/stomp-php": "^4.5.1"
     },
     "require-dev": {
