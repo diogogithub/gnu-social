@@ -27,29 +27,61 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * ActivityPub representation of a Tag
+ * ActivityPub error representation
  *
  * @category  Plugin
  * @package   GNUsocial
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Activitypub_tag extends Managed_DataObject
+class Activitypub_undo
 {
     /**
-     * Generates a pretty tag from a Tag object
+     * Generates an ActivityPub representation of a Undo
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param array Tag $tag
+     * @param array $object
      * @return array pretty array to be used in a response
      */
-    public static function tag_to_array($tag)
+    public static function undo_to_array($object)
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'name' => $tag,
-            'url'  => common_local_url('tag', ['tag' => $tag])
+            'id'     => $object['id'].'/undo',
+            'type'   => 'Undo',
+            'actor'  => $object['actor'],
+            'object' => $object
         ];
         return $res;
+    }
+
+    /**
+     * Verifies if a given object is acceptable for a Undo Activity.
+     *
+     * @param array $object
+     * @return bool
+     * @throws Exception
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     */
+    public static function validate_object($object)
+    {
+        if (!is_array($object)) {
+            throw new Exception('Invalid Object Format for Undo Activity.');
+        }
+        if (!isset($object['type'])) {
+            throw new Exception('Object type was not specified for Undo Activity.');
+        }
+        switch ($object['type']) {
+            case 'Follow':
+            case 'Like':
+                // Validate data
+                if (!filter_var($object['object'], FILTER_VALIDATE_URL)) {
+                    throw new Exception('Object is not a valid Object URI for Activity.');
+                }
+                break;
+            default:
+                throw new Exception('This is not a supported Object Type for Undo Activity.');
+        }
+        return true;
     }
 }

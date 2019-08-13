@@ -26,13 +26,14 @@
 
 defined('GNUSOCIAL') || die();
 
-// Import required files by the plugin
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'httpsignature.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'discoveryhints.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'explorer.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'postman.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'inbox_handler.php';
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'activitypubqueuehandler.php';
+// Import plugin libs
+foreach (glob(__DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . '*.php') as $filename) {
+    require_once $filename;
+}
+// Import plugin models
+foreach (glob(__DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . '*.php') as $filename) {
+    require_once $filename;
+}
 
 // So that this isn't hardcoded everywhere
 define('ACTIVITYPUB_BASE_ACTOR_URI', common_root_url().'index.php/user/');

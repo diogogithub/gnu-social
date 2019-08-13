@@ -34,22 +34,24 @@ defined('GNUSOCIAL') || die();
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Activitypub_delete extends Managed_DataObject
+class Activitypub_create
 {
     /**
-     * Generates an ActivityPub representation of a Delete
+     * Generates an ActivityPub representation of a Create
      *
-     * @param string $actor actor URI
-     * @param string $object object URI
-     * @return array pretty array to be used in a response
      * @author Diogo Cordeiro <diogo@fc.up.pt>
+     * @param string $actor
+     * @param array $object
+     * @return array pretty array to be used in a response
      */
-    public static function delete_to_array(string $actor, string $object): array
+    public static function create_to_array($actor, $object)
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => $object.'/delete',
-            'type'   => 'Delete',
+            'id'     => $object['id'].'/create',
+            'type'   => 'Create',
+            'to'     => $object['to'],
+            'cc'     => $object['cc'],
             'actor'  => $actor,
             'object' => $object
         ];
@@ -57,31 +59,27 @@ class Activitypub_delete extends Managed_DataObject
     }
 
     /**
-     * Verifies if a given object is acceptable for a Delete Activity.
+     * Verifies if a given object is acceptable for a Create Activity.
      *
-     * @param array|string $object
-     * @return bool
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     * @param array $object
      * @throws Exception
-     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function validate_object($object): bool
+    public static function validate_object($object)
     {
         if (!is_array($object)) {
-            if (!filter_var($object, FILTER_VALIDATE_URL)) {
-                throw new Exception('Object is not a valid Object URI for Activity.');
-            }
-        } else {
-            if (!isset($object['type'])) {
-                throw new Exception('Object type was not specified for Delete Activity.');
-            } else if ($object['type'] !== "Tombstone") {
-                throw new Exception('Invalid Object type for Delete Activity.');
-            }
-
-            if (!isset($object['id'])) {
-                throw new Exception('Object id was not specified for Delete Activity.');
-            }
+            throw new Exception('Invalid Object Format for Create Activity.');
         }
-
-        return true;
+        if (!isset($object['type'])) {
+            throw new Exception('Object type was not specified for Create Activity.');
+        }
+        switch ($object['type']) {
+            case 'Note':
+                // Validate data
+                Activitypub_notice::validate_note($object);
+                break;
+            default:
+                throw new Exception('This is not a supported Object Type for Create Activity.');
+        }
     }
 }

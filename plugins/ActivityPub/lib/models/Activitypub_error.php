@@ -27,41 +27,27 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * ActivityPub Attachment representation
+ * ActivityPub error representation
  *
  * @category  Plugin
  * @package   GNUsocial
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Activitypub_attachment extends Managed_DataObject
+class Activitypub_error
 {
     /**
-     * Generates a pretty array from an Attachment object
+     * Generates a pretty error from a string
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param Attachment $attachment
+     * @param string $m
      * @return array pretty array to be used in a response
      */
-    public static function attachment_to_array($attachment)
+    public static function error_message_to_array($m)
     {
         $res = [
-            '@context' => 'https://www.w3.org/ns/activitystreams',
-            'type'      => 'Document',
-            'mediaType' => $attachment->mimetype,
-            'url'       => $attachment->getUrl(),
-            'size'      => $attachment->getSize(),
-            'name'      => $attachment->getTitle(),
+            'error'=> $m
         ];
-
-        // Image
-        if (substr($res["mediaType"], 0, 5) == "image") {
-            $res["meta"]= [
-                'width'  => $attachment->width,
-                'height' => $attachment->height
-            ];
-        }
-
         return $res;
     }
 }
