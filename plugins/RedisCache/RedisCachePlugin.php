@@ -115,7 +115,7 @@ class RedisCachePlugin extends Plugin
         }
 
         // Let other caches delete stuff if we didn't succeed
-        return $ret === 1;
+        return isset($ret) && $ret === 1;
     }
 
     function onStartCacheIncrement(&$key, &$step, &$value)
