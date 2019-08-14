@@ -56,7 +56,7 @@ class LinkPreviewPlugin extends Plugin
         if ($user && common_config('attachments', 'process_links')) {
             $action->script($this->path('js/linkpreview.js'));
             $data = json_encode(array(
-                'api' => common_local_url('embedproxy'),
+                'api' => common_local_url('oembedproxy'),
                 'width' => common_config('attachments', 'thumbwidth'),
                 'height' => common_config('attachments', 'thumbheight'),
             ));
