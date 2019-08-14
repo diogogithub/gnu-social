@@ -1,0 +1,33 @@
+Redis cache for GNU social
+
+Installation
+============
+
+Tell your `config.php` to use this plugin (replace `tcp://localhost:6379` with the address/port
+of your Redis backend server):
+
+addPlugin('RedisCache', ['server' => 'tcp://localhost:6379']);
+
+Settings
+========
+
+servers: Array of Redis servers addresses. A semicolon (`;`) should be used to separate
+the address from the port, to allow for IPv6 addresses
+
+defaultExpiry: How long before cache expires (in seconds)
+
+Example
+=======
+
+```
+    addPlugin('RedisCache', [ 'server' => 'tcp://localhost:6379',
+                              'defaultExpiry' => 86400 // 24h
+                            ]);
+```
+
+You can also use a unix socket instead of a tcp connection:
+
+```
+    addPlugin('RedisCache', ['server' => 'unix:/var/run/redis/redis.sock']);
+```
+
