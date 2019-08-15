@@ -55,6 +55,20 @@ class MemcachedPlugin extends Plugin
      */
     function onInitializePlugin()
     {
+        if (self::$cacheInitialized) {
+            $this->persistent = true;
+        } else {
+            // If we're a parent command-line process we need
+            // to be able to close out the connection after
+            // forking, so disable persistence.
+            //
+            // We'll turn it back on again the second time
+            // through which will either be in a child process,
+            // or a single-process script which is switching
+            // configurations.
+            $this->persistent = (php_sapi_name() == 'cli') ? false : true;
+        }
+
         try {
             $this->_ensureConn();
             self::$cacheInitialized = true;
@@ -96,7 +110,7 @@ class MemcachedPlugin extends Plugin
      *
      * @param string  &$key     in; Key to use for lookups
      * @param mixed   &$value   in; Value to associate
-     * @param integer &$flag    in; Flag empty or Cache::COMPRESSED
+     * @param integer &$flag    in; Flag empty or Memcached::OPT_COMPRESSION (translated by the `flag` method)
      * @param integer &$expiry  in; Expiry (passed through to Memcache)
      * @param boolean &$success out; Whether the set was successful
      *
@@ -109,6 +123,9 @@ class MemcachedPlugin extends Plugin
         }
         try {
             $this->_ensureConn();
+            if (!empty($flag)) {
+                $this->_conn->setOption(Memcached::OPT_COMPRESSION, $flag);
+            }
             $success = $this->_conn->set($key, $value, $expiry);
         } catch (MemcachedException $e) {
             common_log(LOG_ERR, 'Memcached encountered exception ' . get_class($e) . ': ' . $e->getMessage());
@@ -166,12 +183,19 @@ class MemcachedPlugin extends Plugin
 
     function onStartCacheReconnect(&$success)
     {
-        try {
-            $this->_ensureConn();
-        } catch (MemcachedException $e) {
-            common_log(LOG_ERR, 'Memcached encountered exception ' . get_class($e) . ': ' . $e->getMessage());
+        if (empty($this->_conn)) {
+            // nothing to do
+            return true;
         }
-        return true;
+        if ($this->persistent) {
+            common_log(LOG_ERR, "Cannot close persistent memcached connection");
+            $success = false;
+        } else {
+            common_log(LOG_INFO, "Closing memcached connection");
+            $success = $this->_conn->close();
+            $this->_conn = null;
+        }
+        return false;
     }
 
     /**
@@ -221,8 +245,11 @@ class MemcachedPlugin extends Plugin
      */
     protected function flag($flag)
     {
-        //no flags are presently supported
-        return $flag;
+        $out = 0;
+        if ($flag & Cache::COMPRESSED == Cache::COMPRESSED) {
+            $out |= Memcached::OPT_COMPRESSION;
+        }
+        return $out;
     }
 
     function onPluginVersion(array &$versions)
@@ -231,7 +258,7 @@ class MemcachedPlugin extends Plugin
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou, Craig Andrews',
                             'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Memcached',
-                            'rawdescription' =>
+                            'description' =>
                             // TRANS: Plugin description.
                             _m('Use <a href="http://memcached.org/">Memcached</a> to cache query results.'));
         return true;
