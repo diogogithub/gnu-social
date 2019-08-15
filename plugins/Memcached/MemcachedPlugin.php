@@ -1,13 +1,15 @@
 <?php
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
+ * GNU social - a federating social network
  *
- * Plugin to implement cache interface for memcached
+ * A plugin to use memcached for the interface with memcache
  *
- * PHP version 5
+ * This used to be encoded as config-variable options in the core code;
+ * it's now broken out to a separate plugin. The same interface can be
+ * implemented by other plugins.
  *
- * This program is free software: you can redistribute it and/or modify
+ * LICENCE: This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -21,47 +23,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  Cache
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Craig Andrews <candrews@integralblue.com>
+ * @author    Miguel Dantas <biodantas@gmail.com>
  * @copyright 2009 StatusNet, Inc.
- * @copyright 2009 Free Software Foundation, Inc http://www.fsf.org
+ * @copyright 2009, 2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @link      http://status.net/
  */
 
-if (!defined('STATUSNET')) {
-    // This check helps protect against security problems;
-    // your code file can't be executed directly from the web.
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
-/**
- * A plugin to use memcached for the cache interface
- *
- * This used to be encoded as config-variable options in the core code;
- * it's now broken out to a separate plugin. The same interface can be
- * implemented by other plugins.
- *
- * @category  Cache
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
- * @author    Craig Andrews <candrews@integralblue.com>
- * @copyright 2009 StatusNet, Inc.
- * @copyright 2009 Free Software Foundation, Inc http://www.fsf.org
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
- */
 class MemcachedPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const PLUGIN_VERSION = '2.1.0';
 
     static $cacheInitialized = false;
 
-    private $_conn  = null;
-    public $servers = array('127.0.0.1;11211');
-
+    public $servers = ['127.0.0.1'];
     public $defaultExpiry = 86400; // 24h
+
+    private $_conn  = null;
 
     /**
      * Initialize the plugin
@@ -72,8 +55,12 @@ class MemcachedPlugin extends Plugin
      */
     function onInitializePlugin()
     {
-        $this->_ensureConn();
-        self::$cacheInitialized = true;
+        try {
+            $this->_ensureConn();
+            self::$cacheInitialized = true;
+        } catch (MemcachedException $e) {
+            common_log(LOG_ERR, 'Memcached encountered exception ' . get_class($e) . ': ' . $e->getMessage());
+        }
         return true;
     }
 
@@ -89,9 +76,19 @@ class MemcachedPlugin extends Plugin
      */
     function onStartCacheGet(&$key, &$value)
     {
-        $this->_ensureConn();
-        $value = $this->_conn->get($key);
-        return false;
+        try {
+            $this->_ensureConn();
+            $value = $this->_conn->get($key);
+        } catch (MemcachedException $e) {
+            common_log(LOG_ERR, 'Memcached encountered exception ' . get_class($e) . ': ' . $e->getMessage());
+            return true;
+        }
+        if ($value === false) {
+            // If not found, let other plugins handle it
+            return $this->_conn->getResultCode() === Memcached::RES_NOTFOUND;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -107,12 +104,17 @@ class MemcachedPlugin extends Plugin
      */
     function onStartCacheSet(&$key, &$value, &$flag, &$expiry, &$success)
     {
-        $this->_ensureConn();
         if ($expiry === null) {
             $expiry = $this->defaultExpiry;
         }
-        $success = $this->_conn->set($key, $value, $expiry);
-        return false;
+        try {
+            $this->_ensureConn();
+            $success = $this->_conn->set($key, $value, $expiry);
+        } catch (MemcachedException $e) {
+            common_log(LOG_ERR, 'Memcached encountered exception ' . get_class($e) . ': ' . $e->getMessage());
+            return true;
+        }
+        return !$success;
     }
 
     /**
@@ -127,9 +129,19 @@ class MemcachedPlugin extends Plugin
      */
     function onStartCacheIncrement(&$key, &$step, &$value)
     {
-        $this->_ensureConn();
-        $value = $this->_conn->increment($key, $step);
-        return false;
+        try {
+            $this->_ensureConn();
+            $value = $this->_conn->increment($key, $step);
+        } catch (MemcachedException $e) {
+            common_log(LOG_ERR, 'Memcached encountered exception ' . get_class($e) . ': ' . $e->getMessage());
+            return true;
+        }
+        if ($value === false) {
+            // If not found, let other plugins handle it
+            return $this->_conn->getResultCode() === Memcached::RES_NOTFOUND;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -142,14 +154,23 @@ class MemcachedPlugin extends Plugin
      */
     function onStartCacheDelete(&$key, &$success)
     {
-        $this->_ensureConn();
-        $success = $this->_conn->delete($key);
-        return false;
+        try {
+            $this->_ensureConn();
+            $success = $this->_conn->delete($key);
+        } catch (MemcachedException $e) {
+            common_log(LOG_ERR, 'Memcached encountered exception ' . get_class($e) . ': ' . $e->getMessage());
+            return true;
+        }
+        return !$success;
     }
 
     function onStartCacheReconnect(&$success)
     {
-        // nothing to do
+        try {
+            $this->_ensureConn();
+        } catch (MemcachedException $e) {
+            common_log(LOG_ERR, 'Memcached encountered exception ' . get_class($e) . ': ' . $e->getMessage());
+        }
         return true;
     }
 
@@ -167,28 +188,28 @@ class MemcachedPlugin extends Plugin
             $this->_conn = new Memcached(common_config('site', 'nickname'));
 
             if (!count($this->_conn->getServerList())) {
-            if (is_array($this->servers)) {
-                $servers = $this->servers;
-            } else {
-                $servers = array($this->servers);
-            }
-            foreach ($servers as $server) {
-                if (strpos($server, ';') !== false) {
-                    list($host, $port) = explode(';', $server);
+                if (is_array($this->servers)) {
+                    $servers = $this->servers;
                 } else {
-                    $host = $server;
-                    $port = 11211;
+                    $servers = [$this->servers];
+                }
+                foreach ($servers as $server) {
+                    if (is_array($server) && count($server) === 2) {
+                        list($host, $port) = $server;
+                    } else {
+                        $host = is_array($server) ? $server[0] : $server;
+                        $port = 11211;
+                    }
+
+                    $this->_conn->addServer($host, $port);
                 }
 
-                $this->_conn->addServer($host, $port);
-            }
+                // Compress items stored in the cache.
 
-            // Compress items stored in the cache.
+                // Allows the cache to store objects larger than 1MB (if they
+                // compress to less than 1MB), and improves cache memory efficiency.
 
-            // Allows the cache to store objects larger than 1MB (if they
-            // compress to less than 1MB), and improves cache memory efficiency.
-
-            $this->_conn->setOption(Memcached::OPT_COMPRESSION, true);
+                $this->_conn->setOption(Memcached::OPT_COMPRESSION, true);
             }
         }
     }

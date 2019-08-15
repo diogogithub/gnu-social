@@ -2,20 +2,37 @@ The Memcached plugin implements cache interface for memcached.
 
 See: http://memcached.org/
 
+The difference between the former `MemcachePlugin` and `MemcachedPlugin` is that they use,
+respectively, `memcache` and `memcached` as the underlying php libraries. These are similar
+libraries, made by different authors with slightly different cacpabilities, therefore `memcached`
+was selected.
+
 Installation
 ============
-add "addPlugin('Memcached');"
-to the bottom of your config.php
+
+Tell your `config.php` to use this plugin (replace `tcp://localhost:6379` with the address/port
+of your Memcache backend server):
+
+`addPlugin('Memcached');`
+
+Note that this typically requires configuring the `memcached` extension for `php`, which is
+typically available as a binary package from your system's package manager. In Debian based systems
+and on Arch based systems, this is likely available under the `php-memcached` package. Note the
+final `d`. On Arch, uncomment the line in `/etc/php/conf.d/memcached.ini` and restart your webserver
+and/or php-fpm or similar.
 
 Settings
 ========
-servers: Array of memcached servers addresses
+
+servers: Array of memcached servers addresses. Each server address should be either a string with
+address or an array where the first element is a string with the address an optional second element
+with the port.
+
 defaultExpiry: How long before cache expires (in seconds)
 
 Example
 =======
-addPlugin('Memcached', array(
-    'servers' => array('127.0.0.1;11211'),
-    'defaultExpiry' => 86400 // 24h
-));
 
+addPlugin('Memcached', [ 'servers' => ['127.0.0.1', 11211],
+                         'defaultExpiry' => 86400 // 24h
+                       ]);
