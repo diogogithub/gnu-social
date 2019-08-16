@@ -19,7 +19,7 @@ defined('STATUSNET') || die();
 require_once INSTALLDIR . '/lib/form.php';
 
 /**
- * Form for joining a group
+ * Form for enabling a plugin
  *
  * @category Form
  * @package  StatusNet
@@ -34,7 +34,6 @@ class PluginEnableForm extends Form
     /**
      * Plugin to enable/disable
      */
-
     public $plugin = null;
 
     /**
@@ -43,7 +42,6 @@ class PluginEnableForm extends Form
      * @param HTMLOutputter $out output channel
      * @param string $plugin plugin to enable/disable
      */
-
     public function __construct($out = null, $plugin = null)
     {
         parent::__construct($out);
@@ -56,7 +54,6 @@ class PluginEnableForm extends Form
      *
      * @return string ID of the form
      */
-
     public function id()
     {
         return 'plugin-enable-' . $this->plugin;
@@ -67,7 +64,6 @@ class PluginEnableForm extends Form
      *
      * @return string of the form class
      */
-
     public function formClass()
     {
         return 'form_plugin_enable';
@@ -78,7 +74,6 @@ class PluginEnableForm extends Form
      *
      * @return string URL of the action
      */
-
     public function action()
     {
         return common_local_url(
@@ -93,7 +88,6 @@ class PluginEnableForm extends Form
      * @return void
      * @throws Exception
      */
-
     public function formActions()
     {
         // TRANS: Plugin admin panel controls

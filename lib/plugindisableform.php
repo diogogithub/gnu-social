@@ -17,7 +17,7 @@
 defined('STATUSNET') || die();
 
 /**
- * Form for joining a group
+ * Form for disabling a plugin
  *
  * @category Form
  * @package  StatusNet
@@ -34,7 +34,6 @@ class PluginDisableForm extends PluginEnableForm
      *
      * @return string ID of the form
      */
-
     public function id()
     {
         return 'plugin-disable-' . $this->plugin;
@@ -45,7 +44,6 @@ class PluginDisableForm extends PluginEnableForm
      *
      * @return string of the form class
      */
-
     public function formClass()
     {
         return 'form_plugin_disable';
@@ -56,7 +54,6 @@ class PluginDisableForm extends PluginEnableForm
      *
      * @return string URL of the action
      */
-
     public function action()
     {
         return common_local_url(
@@ -71,7 +68,6 @@ class PluginDisableForm extends PluginEnableForm
      * @return void
      * @throws Exception
      */
-
     public function formActions()
     {
         // TRANS: Plugin admin panel controls
