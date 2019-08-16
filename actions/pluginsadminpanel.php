@@ -47,7 +47,7 @@ class PluginsadminpanelAction extends AdminPanelAction
     function getInstructions()
     {
         // TRANS: Instructions at top of plugin admin page.
-        return _('Additional plugins can be enabled and configured manually. ' .
+        return _m('Additional plugins can be enabled and configured manually. ' .
                  'See the <a href="https://notabug.org/diogo/gnu-social/src/nightly/plugins/README.md">online plugin ' .
                  'documentation</a> for more details.');
     }
@@ -59,34 +59,19 @@ class PluginsadminpanelAction extends AdminPanelAction
      */
     function showForm()
     {
-        $this->elementStart('fieldset', array('id' => 'settings_plugins_default'));
+        $this->elementStart('fieldset', ['id' => 'settings_plugins_default']);
 
         // TRANS: Admin form section header
-        $this->element('legend', null, _('Default plugins'));
+        $this->element('legend', null, _m('Available Plugins'));
 
-        $this->showDefaultPlugins();
+        $this->showPlugins();
 
         $this->elementEnd('fieldset');
     }
 
-    /**
-     * Until we have a general plugin metadata infrastructure, for now
-     * we'll just list up the ones we know from the global default
-     * plugins list.
-     */
-    protected function showDefaultPlugins()
+    protected function showPlugins()
     {
-        $plugins = array_keys(common_config('plugins', 'default'));
-        natsort($plugins);
-
-        if ($plugins) {
-            $list = new PluginList($plugins, $this);
-            $list->show();
-        } else {
-            $this->element('p', null,
-                           // TRANS: Text displayed on plugin admin page when no plugin are enabled.
-                           _('All default plugins have been disabled from the ' .
-                             'site\'s configuration file.'));
-        }
+        $list = new PluginList($this);
+        $list->show();
     }
 }

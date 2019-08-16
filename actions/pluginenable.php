@@ -69,7 +69,7 @@ class PluginenableAction extends Action
 
         if (!$token || $token != common_session_token()) {
             // TRANS: Client error displayed when the session token does not match or is not given.
-            $this->clientError(_('There was a problem with your session token.'.
+            $this->clientError(_m('There was a problem with your session token.'.
                                  ' Try again, please.'));
         }
 
@@ -79,19 +79,18 @@ class PluginenableAction extends Action
 
         if (empty($this->user)) {
             // TRANS: Error message displayed when trying to perform an action that requires a logged in user.
-            $this->clientError(_('Not logged in.'));
+            $this->clientError(_m('Not logged in.'));
         }
 
         if (!AdminPanelAction::canAdmin('plugins')) {
             // TRANS: Client error displayed when trying to enable or disable a plugin without access rights.
-            $this->clientError(_('You cannot administer plugins.'));
+            $this->clientError(_m('You cannot administer plugins.'));
         }
 
         $this->plugin = $this->arg('plugin');
-        $defaultPlugins = common_config('plugins', 'default');
-        if (!array_key_exists($this->plugin, $defaultPlugins)) {
+        if (!array_key_exists($this->plugin, array_flip(PluginList::grabAllPluginNames()))) {
             // TRANS: Client error displayed when trying to enable or disable a non-existing plugin.
-            $this->clientError(_('No such plugin.'));
+            $this->clientError(_m('No such plugin.'));
         }
 
         return true;
@@ -107,6 +106,16 @@ class PluginenableAction extends Action
      */
     function handle()
     {
+        if (!PluginList::isPluginLoaded($this->plugin)) {
+            $config_file = INSTALLDIR . DIRECTORY_SEPARATOR . 'config.php';
+            $handle = fopen($config_file, 'a');
+            if (!$handle) {
+                $this->clientError(_m('No permissions for writing to config.php'));
+            }
+            $data = PHP_EOL.'addPlugin(\''.$this->plugin.'\'); // Added by sysadmin\'s Plugin UI.';
+            fwrite($handle, $data);
+            fclose($handle);
+        }
         $key = 'disable-' . $this->plugin;
         Config::save('plugins', $key, $this->overrideValue());
 
