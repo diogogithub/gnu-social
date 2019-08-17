@@ -811,6 +811,8 @@ class Router
             $m->connect('panel/plugins/disable/:plugin',
                         ['action' => 'plugindisable'],
                         ['plugin' => '[A-Za-z0-9_]+']);
+            $m->connect('panel/plugins/install',
+                        ['action' => 'plugininstall']);
 
             // Common people-tag stuff
 

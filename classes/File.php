@@ -261,7 +261,14 @@ class File extends Managed_DataObject
 
         $file = new File;
 
-        $query = "select sum(size) as total from file join file_to_post on file_to_post.file_id = file.id join notice on file_to_post.post_id = notice.id where profile_id = {$scoped->id} and file.url like '%/notice/%/file'";
+        $query = "SELECT sum(size) AS total
+                  FROM file
+                       INNER JOIN file_to_post
+                              ON file_to_post.file_id = file.id
+                       INNER JOIN notice
+                              ON file_to_post.post_id = notice.id
+                  WHERE profile_id = {$scoped->id} AND
+                        file.url LIKE '%/notice/%/file'";
         $file->query($query);
         $file->fetch();
         $total = $file->total + $fileSize;
@@ -279,7 +286,7 @@ class File extends Managed_DataObject
                     )
             );
         }
-        $query .= ' AND EXTRACT(month FROM file.modified) = EXTRACT(month FROM now()) and EXTRACT(year FROM file.modified) = EXTRACT(year FROM now())';
+        $query .= ' AND EXTRACT(month FROM file.modified) = EXTRACT(month FROM now()) AND EXTRACT(year FROM file.modified) = EXTRACT(year FROM now())';
         $file->query($query);
         $file->fetch();
         $total = $file->total + $fileSize;
@@ -381,10 +388,10 @@ class File extends Managed_DataObject
             // If we can't recognize the extension from the MIME, we try
             // to guess based on filename, if one was supplied.
             if (!is_null($filename)) {
-                $ext = getSafeExtension($filename);
+                $ext = self::getSafeExtension($filename);
                 if ($ext === false) {
                     // we don't have a safe replacement extension
-                    throw new ClientException(_('Blacklisted file extension.'));
+                    throw new ClientException(_m('Blacklisted file extension.'));
                 } else {
                     return $ext;
                 }
@@ -645,7 +652,7 @@ class File extends Managed_DataObject
         if ($info !== false) {
             return $info['mime'];
         } else {
-            throw new UnsupportedMediaException(_("Thumbnail is not an image."));
+            throw new UnsupportedMediaException(_m("Thumbnail is not an image."));
         }
     }
 
