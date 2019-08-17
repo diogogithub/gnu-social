@@ -236,6 +236,9 @@ class PluginListItem extends Widget
         $form = $this->getControlForm();
         $form->show();
 
+        $delete_form = new PluginDeleteForm($this->out, $this->plugin);
+        $delete_form->show();
+
         $this->out->elementEnd('td');
 
         // Version and authors
