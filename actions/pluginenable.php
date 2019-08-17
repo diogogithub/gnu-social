@@ -60,7 +60,7 @@ class PluginenableAction extends Action
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
             // TRANS: Client error displayed when trying to use another method than POST.
             // TRANS: Do not translate POST.
-            $this->clientError(_('This action only accepts POST requests.'));
+            $this->clientError(_m('This action only accepts POST requests.'));
         }
 
         // CSRF protection
@@ -99,7 +99,7 @@ class PluginenableAction extends Action
     /**
      * Handle request
      *
-     * Does the subscription and returns results.
+     * Enables the plugin and returns results.
      *
      * @return void
      * @throws ClientException

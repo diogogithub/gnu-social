@@ -181,7 +181,7 @@ class MediaFile
         if ($file_id===false) {
             common_log_db_error($file, "INSERT", __FILE__);
             // TRANS: Client exception thrown when a database error was thrown during a file upload operation.
-            throw new ClientException(_('There was a database error while saving your file. Please try again.'));
+            throw new ClientException(_m('There was a database error while saving your file. Please try again.'));
         }
 
         // Set file geometrical properties if available
@@ -244,7 +244,7 @@ class MediaFile
     public static function encodeFilename($original_name, string $filehash, $ext = null) : string
     {
         if (empty($original_name)) {
-            $original_name = _('Untitled attachment');
+            $original_name = _m('Untitled attachment');
         }
 
         // If we're given an extension explicitly, use it, otherwise...
@@ -253,7 +253,7 @@ class MediaFile
              // null if no extension
              File::getSafeExtension($original_name);
         if ($ext === false) {
-            throw new ClientException(_('Blacklisted file extension.'));
+            throw new ClientException(_m('Blacklisted file extension.'));
         }
 
         if (!empty($ext)) {
@@ -315,7 +315,7 @@ class MediaFile
      * This format should be respected. Notice the dash, which is important to distinguish it from the previous
      * format ("{$hash}.{$ext}")
      *
-     * @param string $param
+     * @param string $param Form name
      * @param Profile|null $scoped
      * @return ImageFile|MediaFile
      * @throws ClientException
@@ -328,7 +328,7 @@ class MediaFile
     public static function fromUpload(string $param='media', Profile $scoped=null)
     {
         // The existence of the "error" element means PHP has processed it properly even if it was ok.
-        if (!isset($_FILES[$param]) || !isset($_FILES[$param]['error'])) {
+        if (!(isset($_FILES[$param]) && isset($_FILES[$param]['error']))) {
             throw new NoUploadedMediaException($param);
         }
 
@@ -340,29 +340,29 @@ class MediaFile
                 // TRANS: Exception thrown when too large a file is uploaded.
                 // TRANS: %s is the maximum file size, for example "500b", "10kB" or "2MB".
                 throw new ClientException(sprintf(
-                    _('That file is too big. The maximum file size is %s.'),
+                    _m('That file is too big. The maximum file size is %s.'),
                     self::maxFileSize()
                 ));
             case UPLOAD_ERR_PARTIAL:
                 @unlink($_FILES[$param]['tmp_name']);
                 // TRANS: Client exception.
-                throw new ClientException(_('The uploaded file was only partially uploaded.'));
+                throw new ClientException(_m('The uploaded file was only partially uploaded.'));
             case UPLOAD_ERR_NO_FILE:
                 // No file; probably just a non-AJAX submission.
                 throw new NoUploadedMediaException($param);
             case UPLOAD_ERR_NO_TMP_DIR:
                 // TRANS: Client exception thrown when a temporary folder is not present to store a file upload.
-                throw new ClientException(_('Missing a temporary folder.'));
+                throw new ClientException(_m('Missing a temporary folder.'));
             case UPLOAD_ERR_CANT_WRITE:
                 // TRANS: Client exception thrown when writing to disk is not possible during a file upload operation.
-                throw new ClientException(_('Failed to write file to disk.'));
+                throw new ClientException(_m('Failed to write file to disk.'));
             case UPLOAD_ERR_EXTENSION:
                 // TRANS: Client exception thrown when a file upload operation has been stopped by an extension.
-                throw new ClientException(_('File upload stopped by extension.'));
+                throw new ClientException(_m('File upload stopped by extension.'));
             default:
                 common_log(LOG_ERR, __METHOD__ . ": Unknown upload error " . $_FILES[$param]['error']);
                 // TRANS: Client exception thrown when a file upload operation has failed with an unknown reason.
-                throw new ClientException(_('System error uploading file.'));
+                throw new ClientException(_m('System error uploading file.'));
         }
 
         $filehash = strtolower(self::getHashOfFile($_FILES[$param]['tmp_name']));
@@ -386,19 +386,19 @@ class MediaFile
 
             $basename = basename($_FILES[$param]['name']);
 
-            if ($media === 'image') {
+            if ($media == 'image') {
                 // Use -1 for the id to avoid adding this temporary file to the DB
                 $img = new ImageFile(-1, $_FILES[$param]['tmp_name']);
-                // Validate the image by reencoding it. Additionally normalizes old formats to PNG,
+                // Validate the image by re-encoding it. Additionally normalizes old formats to PNG,
                 // keeping JPEG and GIF untouched
                 $outpath = $img->resizeTo($img->filepath);
                 $ext = image_type_to_extension($img->preferredType(), false);
             }
+            $filename = self::encodeFilename($basename, $filehash, isset($ext) ? $ext : File::getSafeExtension($basename));
 
-            $filename = self::encodeFilename($basename, $filehash, $ext);
             $filepath = File::path($filename);
 
-            if ($media === 'image') {
+            if ($media == 'image') {
                 $result = rename($outpath, $filepath);
             } else {
                 $result = move_uploaded_file($_FILES[$param]['tmp_name'], $filepath);
@@ -407,10 +407,10 @@ class MediaFile
                 // TRANS: Client exception thrown when a file upload operation fails because the file could
                 // TRANS: not be moved from the temporary folder to the permanent file location.
                 // UX: too specific
-                throw new ClientException(_('File could not be moved to destination directory.'));
+                throw new ClientException(_m('File could not be moved to destination directory.'));
             }
 
-            if ($media === 'image') {
+            if ($media == 'image') {
                 return new ImageFile(null, $filepath);
             }
         }
@@ -443,7 +443,7 @@ class MediaFile
             if (false === file_put_contents($e->path, fread($fh, filesize($stream['uri'])))) {
                 // TRANS: Client exception thrown when a file upload operation fails because the file could
                 // TRANS: not be moved from the temporary folder to the permanent file location.
-                throw new ClientException(_('File could not be moved to destination directory.'));
+                throw new ClientException(_m('File could not be moved to destination directory.'));
             }
             if (!chmod($e->path, 0664)) {
                 common_log(LOG_ERR, 'Could not chmod uploaded file: '._ve($e->path));
@@ -467,7 +467,7 @@ class MediaFile
                 common_log(LOG_ERR, 'File could not be moved (or chmodded) from '._ve($stream['uri']) . ' to ' . _ve($filepath));
                 // TRANS: Client exception thrown when a file upload operation fails because the file could
                 // TRANS: not be moved from the temporary folder to the permanent file location.
-                throw new ClientException(_('File could not be moved to destination directory.'));
+                throw new ClientException(_m('File could not be moved to destination directory.'));
             }
         }
 
@@ -614,12 +614,12 @@ class MediaFile
             // TRANS: Client exception thrown trying to upload a forbidden MIME type.
             // TRANS: %1$s is the file type that was denied, %2$s is the application part of
             // TRANS: the MIME type that was denied.
-            $hint = sprintf(_('"%1$s" is not a supported file type on this server. ' .
+            $hint = sprintf(_m('"%1$s" is not a supported file type on this server. ' .
             'Try using another %2$s format.'), $mimetype, $media);
         } else {
             // TRANS: Client exception thrown trying to upload a forbidden MIME type.
             // TRANS: %s is the file type that was denied.
-            $hint = sprintf(_('"%s" is not a supported file type on this server.'), $mimetype);
+            $hint = sprintf(_m('"%s" is not a supported file type on this server.'), $mimetype);
         }
         throw new ClientException($hint);
     }
@@ -632,7 +632,7 @@ class MediaFile
      */
     public static function getDisplayName(File $file) : string {
         if (empty($file->filename)) {
-            return _('Untitled attachment');
+            return _m('Untitled attachment');
         }
 
         // New file name format is "{bin2hex(original_name.ext)}-{$hash}"
@@ -650,7 +650,7 @@ class MediaFile
             $ret = preg_match('/^.+?\.+?(.+)$/', $file->filename, $matches);
             if ($ret !== 1) {
                 common_log(LOG_ERR, $log_error_msg);
-                return _('Untitled attachment');
+                return _m('Untitled attachment');
             }
             $ext = $matches[1];
             // There's a blacklisted extension array, which could have an alternative

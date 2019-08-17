@@ -36,7 +36,7 @@ class PluginsadminpanelAction extends AdminPanelAction
     function title()
     {
         // TRANS: Tab and title for plugins admin panel.
-        return _m('TITLE','Plugins');
+        return _m('TITLE', 'Plugins');
     }
 
     /**
@@ -48,8 +48,8 @@ class PluginsadminpanelAction extends AdminPanelAction
     {
         // TRANS: Instructions at top of plugin admin page.
         return _m('Additional plugins can be enabled and configured manually. ' .
-                 'See the <a href="https://notabug.org/diogo/gnu-social/src/nightly/plugins/README.md">online plugin ' .
-                 'documentation</a> for more details.');
+            'See the <a href="https://notabug.org/diogo/gnu-social/src/nightly/plugins/README.md">online plugin ' .
+            'documentation</a> for more details.');
     }
 
     /**
@@ -59,6 +59,46 @@ class PluginsadminpanelAction extends AdminPanelAction
      */
     function showForm()
     {
+        $this->elementStart('form', [
+            'enctype' => 'multipart/form-data',
+            'method' => 'post',
+            'id' => 'form_install_plugin',
+            'class' => 'form_settings',
+            'action' =>
+                common_local_url('plugininstall')
+        ]);
+        $this->elementStart('fieldset');
+        // TRANS: Avatar upload page form legend.
+        $this->element('legend', null, _('Install Plugin'));
+        $this->hidden('token', common_session_token());
+
+        $this->elementStart('ul', 'form_data');
+
+        $this->elementStart('li', ['id' => 'settings_attach']);
+        $this->element('input', [
+            'name' => 'MAX_FILE_SIZE',
+            'type' => 'hidden',
+            'id' => 'MAX_FILE_SIZE',
+            'value' => common_config('attachments', 'file_quota')
+        ]);
+        $this->element('input', [
+            'name' => 'pluginfile',
+            'type' => 'file',
+            'id' => 'pluginfile'
+        ]);
+        $this->elementEnd('li');
+        $this->elementEnd('ul');
+
+        $this->elementStart('ul', 'form_actions');
+        $this->elementStart('li');
+        // TRANS: Button on avatar upload page to upload an avatar.
+        $this->submit('upload', _m('BUTTON', 'Upload'));
+        $this->elementEnd('li');
+        $this->elementEnd('ul');
+
+        $this->elementEnd('fieldset');
+        $this->elementEnd('form');
+
         $this->elementStart('fieldset', ['id' => 'settings_plugins_default']);
 
         // TRANS: Admin form section header
@@ -73,5 +113,10 @@ class PluginsadminpanelAction extends AdminPanelAction
     {
         $list = new PluginList($this);
         $list->show();
+    }
+
+    function saveSettings()
+    {
+        parent::saveSettings();
     }
 }
