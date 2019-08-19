@@ -1,104 +1,87 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * GNUsocial implementation of Direct Messages
  *
- * action handler for message inbox
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Message
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
- * @copyright 2008 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
- * action handler for message inbox
+ * Action handler for the inbox
  *
- * @category Message
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
- * @see      MailboxAction
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class InboxAction extends MailboxAction
 {
-
     /**
-     * Title of the page
+     * Title of the page.
      *
      * @return string page title
      */
-    function title()
+    function title() : string
     {
         if ($this->page > 1) {
             // TRANS: Title for all but the first page of the inbox page.
             // TRANS: %1$s is the user's nickname, %2$s is the page number.
-            return sprintf(_('Inbox for %1$s - page %2$d'), $this->user->nickname,
+            return sprintf(_m('Inbox for %1$s - page %2$d'), $this->user->getNickname(),
                 $this->page);
         } else {
             // TRANS: Title for the first page of the inbox page.
             // TRANS: %s is the user's nickname.
-            return sprintf(_('Inbox for %s'), $this->user->nickname);
+            return sprintf(_m('Inbox for %s'), $this->user->getNickname());
         }
     }
 
     /**
-     * Retrieve the messages for this user and this page
+     * Retrieve the messages for this user and this page.
      *
-     * Does a query for the right messages
-     *
-     * @return Message data object with stream for messages
-     *
-     * @see MailboxAction::getMessages()
+     * @return Notice data object with stream for messages
      */
     function getMessages()
     {
-        $message = new Message();
-
-        $message->to_profile = $this->user->id;
-        $message->orderBy('created DESC, id DESC');
-        $message->limit((($this->page - 1) * MESSAGES_PER_PAGE),
-            MESSAGES_PER_PAGE + 1);
-
-        if ($message->find()) {
-            return $message;
-        } else {
-            return null;
-        }
+        return MessageModel::inboxMessages($this->user, $this->page);
     }
 
+    /**
+     * Retrieve inbox MessageList widget
+     */
     function getMessageList($message)
     {
         return new InboxMessageList($this, $message);
     }
 
     /**
-     * Instructions for using this page
+     * Instructions for using this page.
      *
      * @return string localised instructions for using the page
      */
-    function getInstructions()
+    function getInstructions() : string
     {
         // TRANS: Instructions for user inbox page.
-        return _('This is your inbox, which lists your incoming private messages.');
+        return _m('This is your inbox, which lists your incoming private messages.');
     }
 }

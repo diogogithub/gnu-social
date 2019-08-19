@@ -1,112 +1,102 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
+ * GNUsocial implementation of Direct Messages
  *
- * A single list item for showing in a message list
- *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Widget
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
- * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    // This check helps protect against security problems;
-    // your code file can't be executed directly from the web.
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * A single item in a message list
  *
- * @category  Widget
- * @package   StatusNet
+ * @category  Plugin
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 abstract class MessageListItem extends Widget
 {
-    var $message;
+    protected $message;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param HTMLOutputter $out     Output context
-     * @param Message       $message Message to show
+     * @param Notice        $message Message to show
      */
-    function __construct($out, $message)
+    function __construct(HTMLOutputter $out, $message)
     {
         parent::__construct($out);
         $this->message = $message;
     }
 
     /**
-     * Show the widget
+     * Show the widget.
      *
      * @return void
      */
     function show()
     {
-        $this->out->elementStart('li', array('class' => 'h-entry notice',
-                                             'id' => 'message-' . $this->message->id));
-
         $profile = $this->getMessageProfile();
+        if (is_null($profile)) {
+            // null most probably because there are no attention profiles and
+            // the UI below isn't ready for that, yet.
+            return;
+        }
 
-        $this->out->elementStart('a', array('href' => $profile->profileurl,
-                                            'class' => 'p-author'));
+        $this->out->elementStart('li', ['class' => 'h-entry notice',
+                                        'id'    => 'message-' . $this->message->getID()]);
+
+        $this->out->elementStart('a', ['href'  => $profile->getUrl(),
+                                       'class' => 'p-author']);
         $avatarUrl = $profile->avatarUrl(AVATAR_STREAM_SIZE);
-        $this->out->element('img', array('src' => $avatarUrl,
-                                         'class' => 'avatar u-photo',
-                                         'width' => AVATAR_STREAM_SIZE,
-                                         'height' => AVATAR_STREAM_SIZE,
-                                         'alt' => $profile->getBestName()));
-        $this->out->element('span', array('class' => 'nickname fn'), $profile->getNickname());
+        $this->out->element('img', ['src'    => $avatarUrl,
+                                    'class'  => 'avatar u-photo',
+                                    'width'  => AVATAR_STREAM_SIZE,
+                                    'height' => AVATAR_STREAM_SIZE,
+                                    'alt'    => $profile->getBestName()]);
+        $this->out->element('span', ['class' => 'nickname fn'], $profile->getNickname());
         $this->out->elementEnd('a');
 
         // FIXME: URL, image, video, audio
-        $this->out->elementStart('div', array('class' => 'e-content'));
-        $this->out->raw($this->message->rendered);
+        $this->out->elementStart('div', ['class' => 'e-content']);
+        $this->out->raw($this->message->getRendered());
         $this->out->elementEnd('div');
 
         $messageurl = common_local_url('showmessage',
-                                       array('message' => $this->message->id));
-
-        // XXX: we need to figure this out better. Is this right?
-        if (strcmp($this->message->uri, $messageurl) != 0 &&
-            preg_match('/^http/', $this->message->uri)) {
-            $messageurl = $this->message->uri;
-        }
+                                       ['message' => $this->message->getID()]);
 
         $this->out->elementStart('div', 'entry-metadata');
-        $this->out->elementStart('a', array('rel' => 'bookmark',
-                                            'class' => 'timestamp',
-                                            'href' => $messageurl));
-        $dt = common_date_iso8601($this->message->created);
-        $this->out->element('time', array('class' => 'dt-published',
-                                          'datetime' => common_date_iso8601($this->message->created),
-                                          // TRANS: Timestamp title (tooltip text) for NoticeListItem
-                                          'title' => common_exact_date($this->message->created)),
-                            common_date_string($this->message->created));
+        $this->out->elementStart('a', ['rel'   => 'bookmark',
+                                       'class' => 'timestamp',
+                                       'href'  => $messageurl]);
+        $dt = common_date_iso8601($this->message->getCreated());
+        $this->out->element('time', 
+                            ['class'    => 'dt-published',
+                             'datetime' => common_date_iso8601($this->message->getCreated()),
+                             // TRANS: Timestamp title (tooltip text) for NoticeListItem
+                             'title'    => common_exact_date($this->message->getCreated())],
+                            common_date_string($this->message->getCreated()));
         $this->out->elementEnd('a');
 
         if ($this->message->source) {
@@ -132,7 +122,7 @@ abstract class MessageListItem extends Widget
     {
         // A dummy array with messages. These will get extracted by xgettext and
         // are used in self::showSource().
-        $dummy_messages = array(
+        $dummy_messages = [
             // TRANS: A possible notice source (web interface).
             _m('SOURCE','web'),
             // TRANS: A possible notice source (XMPP).
@@ -142,12 +132,12 @@ abstract class MessageListItem extends Widget
             // TRANS: A possible notice source (OpenMicroBlogging).
             _m('SOURCE','omb'),
             // TRANS: A possible notice source (Application Programming Interface).
-            _m('SOURCE','api'),
-        );
+            _m('SOURCE','api')
+        ];
     }
 
     /**
-     * Show the source of the message
+     * Show the source of the message.
      *
      * Returns either the name (and link) of the API client that posted the notice,
      * or one of other other channels.
@@ -156,7 +146,7 @@ abstract class MessageListItem extends Widget
      *
      * @return void
      */
-    function showSource($source)
+    function showSource(string $source)
     {
         $source_name = _m('SOURCE',$source);
         switch ($source) {
@@ -171,8 +161,9 @@ abstract class MessageListItem extends Widget
             $ns = Notice_source::getKV($source);
             if ($ns) {
                 $this->out->elementStart('span', 'device');
-                $this->out->element('a', array('href' => $ns->url,
-                                               'rel' => 'external'),
+                $this->out->element('a', 
+                                    ['href' => $ns->url,
+                                     'rel'  => 'external'],
                                     $ns->name);
                 $this->out->elementEnd('span');
             } else {
@@ -184,11 +175,11 @@ abstract class MessageListItem extends Widget
     }
 
     /**
-     * Return the profile to show in the message item
-     *
-     * Overridden in sub-classes to show sender, receiver, or whatever
+     * Return the profile to show in the message item.
+     * 
+     * Overridden in sub-classes to show sender, receiver, or whatever.
      *
      * @return Profile profile to show avatar and name of
      */
-    abstract function getMessageProfile();
+    abstract function getMessageProfile(): ?Profile;
 }

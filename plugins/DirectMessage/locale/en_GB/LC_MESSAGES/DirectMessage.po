@@ -32,8 +32,8 @@ msgstr "Message"
 
 #. TRANS: Plugin description.
 #: DirectMessagePlugin.php:168
-msgid "Direct Message to other local users (broken out of core)."
-msgstr "Direct Message to other local users (broken out of core)."
+msgid "Direct Message to other local users."
+msgstr "Direct Message to other local users."
 
 #. TRANS: Form validation error displayed when message content is too long.
 #. TRANS: %d is the maximum number of characters for a message.
@@ -68,7 +68,7 @@ msgstr[1] "Message too long - maximum is %1$d characters, you sent %2$d."
 
 #. TRANS: Button text for sending a direct notice.
 #: lib/messageform.php:175
-msgctxt "Send button for sending notice"
+msgctxt "Send button for direct notice"
 msgid "Send"
 msgstr "Send"
 

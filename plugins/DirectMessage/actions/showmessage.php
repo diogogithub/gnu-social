@@ -1,130 +1,151 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * GNUsocial implementation of Direct Messages
  *
- * Show a single message
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
+
+defined('GNUSOCIAL') || die();
+
+/**
+ * Action for showing a single message
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Personal
- * @package   StatusNet
+ * @category  Plugin
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2008-2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
-
-/**
- * Show a single message
- *
- * @category Personal
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
- */
-
 class ShowmessageAction extends Action
 {
-    /**
-     * Message object to show
-     */
-    var $message = null;
+    protected $message    = null;
+    protected $from       = null;
+    protected $attentions = null;
+    protected $user       = null;
 
     /**
-     * The current user
-     */
-
-    var $user = null;
-
-    /**
-     * Load attributes based on database arguments
-     *
-     * Loads all the DB stuff
+     * Load attributes based on database arguments.
      *
      * @param array $args $_REQUEST array
-     *
-     * @return success flag
+     * @return bool success flag
      */
-    function prepare(array $args = array())
+    function prepare($args = [])
     {
         parent::prepare($args);
 
-        $this->page = 1;
-
-        $id            = $this->trimmed('message');
-        $this->message = Message::getKV('id', $id);
-
-        if (!$this->message) {
-            // TRANS: Client error displayed requesting a single message that does not exist.
-            $this->clientError(_('No such message.'), 404);
+        if (!$this->trimmed('message')) {
+            return true;
         }
+
+        $this->message = Notice::getKV('id', $this->trimmed('message'));
+
+        if (!$this->message instanceof Notice) {
+            // TRANS: Client error displayed requesting a single message that does not exist.
+            $this->clientError(_m('No such message.'), 404);
+        }
+
+        $this->from       = $this->message->getProfile();
+        $this->attentions = $this->message->getAttentionProfiles();
 
         $this->user = common_current_user();
 
-        if (empty($this->user) ||
-            ($this->user->id != $this->message->from_profile &&
-             $this->user->id != $this->message->to_profile)) {
-            // TRANS: Client error displayed requesting a single direct message the requesting user was not a party in.
-            throw new ClientException(_('Only the sender and recipient ' .
-                                        'may read this message.'), 403);
+        if (empty($this->user) || $this->user->getID() != $this->from->getID()) {
+
+            $receiver = false;
+            foreach ($this->attentions as $attention) {
+                if ($this->user->getID() == $attention->getID()) {
+                    $receiver = true;
+                    break;
+                }
+            }
+            
+            if (!$receiver) {
+                // TRANS: Client error displayed requesting a single direct message the requesting user was not a party in.
+                throw new ClientException(_m('Only the sender and recipients may read this message.'), 403);
+            }
         }
 
         return true;
     }
 
+    /**
+     * Handler method.
+     * 
+     * @return void
+     */
     function handle()
     {
         $this->showPage();
     }
 
-    function title()
+    /**
+     * Title of the page.
+     *
+     * @return string page title
+     */
+    function title() : string
     {
-        if ($this->user->id == $this->message->from_profile) {
-            $to = $this->message->getTo();
-            // @todo FIXME: Might be nice if the timestamp could be localised.
-            // TRANS: Page title for single direct message display when viewing user is the sender.
-            // TRANS: %1$s is the addressed user's nickname, $2$s is a timestamp.
-            return sprintf(_('Message to %1$s on %2$s'),
-                             $to->nickname,
-                             common_exact_date($this->message->created));
-        } else if ($this->user->id == $this->message->to_profile) {
-            $from = $this->message->getFrom();
+        if ($this->user->getID() == $this->from->getID()) {
+            if (sizeof($this->attentions) > 1) {
+                return sprintf(_m('Message to many on %1$s'), common_exact_date($this->message->getCreated()));
+            } else {
+                $to = Profile::getKV('id', $this->attentions[0]->getID());
+                // @todo FIXME: Might be nice if the timestamp could be localised.
+                // TRANS: Page title for single direct message display when viewing user is the sender.
+                // TRANS: %1$s is the addressed user's nickname, $2$s is a timestamp.
+                return sprintf(_m('Message to %1$s on %2$s'),
+                               $to->getBestName(),
+                               common_exact_date($this->message->getCreated()));
+            }
+        } else {
             // @todo FIXME: Might be nice if the timestamp could be localised.
             // TRANS: Page title for single message display.
             // TRANS: %1$s is the sending user's nickname, $2$s is a timestamp.
-            return sprintf(_('Message from %1$s on %2$s'),
-                             $from->nickname,
-                             common_exact_date($this->message->created));
+            return sprintf(_m('Message from %1$s on %2$s'),
+                            $this->from->getBestName(),
+                            common_exact_date($this->message->getCreated()));
         }
     }
 
-
+    /**
+     * Show content.
+     *
+     * @return void
+     */
     function showContent()
     {
         $this->elementStart('ul', 'notices messages');
-        $ml = new ShowMessageListItem($this, $this->message, $this->user);
+        $ml = new ShowMessageListItem($this, $this->message, $this->user, $this->from, $this->attentions);
         $ml->show();
         $this->elementEnd('ul');
     }
 
-    function isReadOnly($args)
+    /**
+     * Is this action read-only?
+     *
+     * @param array $args other arguments
+     * @return bool true if read-only action, false otherwise
+     */
+    function isReadOnly($args) : bool
     {
         return true;
     }
@@ -134,30 +155,38 @@ class ShowmessageAction extends Action
      *
      * @return void
      */
-
     function showAside() {
+
     }
 }
 
+/**
+ * showmessage action's MessageListItem widget.
+ *
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class ShowMessageListItem extends MessageListItem
 {
-    var $user;
+    protected $user;
+    protected $from;
+    protected $attentions;
 
-    function __construct($out, $message, $user)
+    function __construct($out, $message, $user, $from, $attentions)
     {
         parent::__construct($out, $message);
-        $this->user = $user;
+
+        $this->user       = $user;
+        $this->from       = $from;
+        $this->attentions = $attentions;
     }
 
-    function getMessageProfile()
+    function getMessageProfile() : ?Profile
     {
-        if ($this->user->id == $this->message->from_profile) {
-            return $this->message->getTo();
-        } else if ($this->user->id == $this->message->to_profile) {
-            return $this->message->getFrom();
-        } else {
-            // This shouldn't happen
-            return null;
-        }
+        return $this->user->getID() == $this->from->getID() ?
+               $this->attentions[0] : $this->from; 
     }
 }

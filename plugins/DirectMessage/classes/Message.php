@@ -1,17 +1,49 @@
 <?php
-
-if (!defined('GNUSOCIAL')) { exit(1); }
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Table Definition for message
+ * GNUsocial implementation of Direct Messages
+ *
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
+defined('GNUSOCIAL') || die();
+
+/**
+ * Table definition for message.
+ * 
+ * Since the new updates this class only has the necessary
+ * logic to upgrade te plugin.
+ *
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class Message extends Managed_DataObject
 {
     ###START_AUTOCODE
     /* the code below is auto generated do not remove the above tag */
 
-    public $__table = 'message';                         // table name
+    public $__table = 'message';             // table name
     public $id;                              // int(4)  primary_key not_null
     public $uri;                             // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
     public $from_profile;                    // int(4)   not_null
@@ -69,76 +101,6 @@ class Message extends Managed_DataObject
         return Profile::getKV('id', $this->to_profile);
     }
 
-    static function saveNew($from, $to, $content, $source) {
-        $sender = Profile::getKV('id', $from);
-
-        if (!$sender->hasRight(Right::NEWMESSAGE)) {
-            // TRANS: Client exception thrown when a user tries to send a direct message while being banned from sending them.
-            throw new ClientException(_('You are banned from sending direct messages.'));
-        }
-
-        $user = User::getKV('id', $sender->id);
-
-        $msg = new Message();
-
-        $msg->from_profile = $from;
-        $msg->to_profile = $to;
-        if ($user) {
-            // Use the sender's URL shortening options.
-            $msg->content = $user->shortenLinks($content);
-        } else {
-            $msg->content = common_shorten_links($content);
-        }
-        $msg->rendered = common_render_text($msg->content);
-        $msg->created = common_sql_now();
-        $msg->source = $source;
-
-        $result = $msg->insert();
-
-        if (!$result) {
-            common_log_db_error($msg, 'INSERT', __FILE__);
-            // TRANS: Message given when a message could not be stored on the server.
-            throw new ServerException(_('Could not insert message.'));
-        }
-
-        $orig = clone($msg);
-        $msg->uri = common_local_url('showmessage', array('message' => $msg->id));
-
-        $result = $msg->update($orig);
-
-        if (!$result) {
-            common_log_db_error($msg, 'UPDATE', __FILE__);
-            // TRANS: Message given when a message could not be updated on the server.
-            throw new ServerException(_('Could not update message with new URI.'));
-        }
-
-        return $msg;
-    }
-
-    static function maxContent()
-    {
-        $desclimit = common_config('message', 'contentlimit');
-        // null => use global limit (distinct from 0!)
-        if (is_null($desclimit)) {
-            $desclimit = common_config('site', 'textlimit');
-        }
-        return $desclimit;
-    }
-
-    static function contentTooLong($content)
-    {
-        $contentlimit = self::maxContent();
-        return ($contentlimit > 0 && !empty($content) && (mb_strlen($content) > $contentlimit));
-    }
-
-    function notify()
-    {
-        $from = User::getKV('id', $this->from_profile);
-        $to   = User::getKV('id', $this->to_profile);
-
-        mail_notify_message($this, $from, $to);
-    }
-
     function getSource()
     {
         if (empty($this->source)) {
@@ -176,38 +138,30 @@ class Message extends Managed_DataObject
         $act = new Activity();
 
         if (Event::handle('StartMessageAsActivity', array($this, &$act))) {
+            $act->verb = ActivityVerb::POST;
+            $act->time = strtotime($this->created);
 
-            $act->id      = TagURI::mint(sprintf('activity:message:%d', $this->id));
-            $act->time    = strtotime($this->created);
-            $act->link    = $this->url;
-
-            $profile = Profile::getKV('id', $this->from_profile);
-
-            if (empty($profile)) {
+            $actor_profile = $this->getFrom();
+            if (is_null($actor_profile)) {
                 throw new Exception(sprintf("Sender profile not found: %d", $this->from_profile));
             }
+            $act->actor = $actor_profile->asActivityObject();
             
-            $act->actor            = $profile->asActivityObject();
-            $act->actor->extra[]   = $profile->profileInfo();
+            $act->context = new ActivityContext();
+            $options = ['source' => $this->source,
+                        'uri'    => TagURI::mint(sprintf('activity:message:%d', $this->id)),
+                        'url'    => $this->uri,
+                        'scope'  => Notice::MESSAGE_SCOPE];
 
-            $act->verb = ActivityVerb::POST;
+            $to_profile = $this->getTo();
+            if (is_null($to_profile)) {
+                throw new Exception(sprintf("Receiver profile not found: %d", $this->to_profile));
+            }
+            $act->context->attention[$to_profile->getUri()] = ActivityObject::PERSON;
 
             $act->objects[] = ActivityObject::fromMessage($this);
 
-            $ctx = new ActivityContext();
-
-            $rprofile = Profile::getKV('id', $this->to_profile);
-
-            if (empty($rprofile)) {
-                throw new Exception(sprintf("Receiver profile not found: %d", $this->to_profile));
-            }
-
-            $ctx->attention[$rprofile->getUri()] = ActivityObject::PERSON;
-
-            $act->context = $ctx;
-
             $source = $this->getSource();
-
             if ($source instanceof Notice_source) {
                 $act->generator = ActivityObject::fromNoticeSource($source);
             }

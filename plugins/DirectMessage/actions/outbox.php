@@ -1,43 +1,39 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * GNUsocial implementation of Direct Messages
  *
- * action handler for message inbox
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Message
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
- * @copyright 2008 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
- * action handler for message outbox
+ * Action handler for the outbox
  *
- * @category Message
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
- * @see      MailboxAction
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class OutboxAction extends MailboxAction
 {
@@ -46,61 +42,57 @@ class OutboxAction extends MailboxAction
      *
      * @return string page title
      */
-    function title()
+    function title() : string
     {
         if ($this->page > 1) {
             // TRANS: Title for outbox for any but the fist page.
             // TRANS: %1$s is the user nickname, %2$d is the page number.
-            return sprintf(_('Outbox for %1$s - page %2$d'),
-                $this->user->nickname, $page);
+            return sprintf(_m('Outbox for %1$s - page %2$d'),
+                $this->user->getNickname(), $page);
         } else {
             // TRANS: Title for first page of outbox.
-            return sprintf(_('Outbox for %s'), $this->user->nickname);
+            return sprintf(_m('Outbox for %s'), $this->user->getNickname());
         }
     }
 
     /**
-     * retrieve the messages for this user and this page
+     * Retrieve the messages for this user and this page.
      *
-     * Does a query for the right messages
-     *
-     * @return Message data object with stream for messages
-     *
-     * @see MailboxAction::getMessages()
+     * @return Notice data object with stream for messages
      */
     function getMessages()
     {
-        $message = new Message();
-
-        $message->from_profile = $this->user->id;
-        $message->orderBy('created DESC, id DESC');
-        $message->limit((($this->page - 1) * MESSAGES_PER_PAGE),
-            MESSAGES_PER_PAGE + 1);
-
-        if ($message->find()) {
-            return $message;
-        } else {
-            return null;
-        }
+        return MessageModel::outboxMessages($this->user, $this->page);
     }
 
+    /**
+     * Retrieve outbox MessageList widget.
+     */
     function getMessageList($message)
     {
         return new OutboxMessageList($this, $message);
     }
 
     /**
-     * instructions for using this page
+     * Instructions for using this page.
      *
      * @return string localised instructions for using the page
      */
-    function getInstructions()
+    function getInstructions() : string
     {
         // TRANS: Instructions for outbox.
-        return _('This is your outbox, which lists private messages you have sent.');
+        return _m('This is your outbox, which lists private messages you have sent.');
     }
 }
 
+/**
+ * Outbox MessageList widget
+ *
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class OutboxMessageList extends MessageList
 {
     function newItem($message)
@@ -109,15 +101,30 @@ class OutboxMessageList extends MessageList
     }
 }
 
+/**
+ * Outbox MessageListItem widget
+ *
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class OutboxMessageListItem extends MessageListItem
 {
     /**
      * Returns the profile we want to show with the message
      *
-     * @return Profile The profile that matches the message
+     * Note that the plugin now handles sending for multiple profiles,
+     * but since the UI isn't changed yet, we still retrieve a single
+     * profile from this function (or null, if for blocking reasons
+     * there are no attentions stored).
+     * 
+     * @return Profile|null
      */
-    function getMessageProfile()
+    function getMessageProfile() : ?Profile
     {
-        return $this->message->getTo();
+        $attentions = $this->message->getAttentionProfiles();
+        return empty($attentions) ? null : $attentions[0];
     }
 }
