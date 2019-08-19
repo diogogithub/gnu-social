@@ -42,6 +42,7 @@ class RawNetworkPublicNoticeStream extends FullNoticeStream
         // -1 == blacklisted, -2 == gateway (i.e. Twitter)
         $notice->whereAdd('is_local !='. Notice::LOCAL_NONPUBLIC);
         $notice->whereAdd('is_local !='. Notice::GATEWAY);
+        $notice->whereAdd('scope != ' . Notice::MESSAGE_SCOPE);
 
         Notice::addWhereSinceId($notice, $since_id);
         Notice::addWhereMaxId($notice, $max_id);

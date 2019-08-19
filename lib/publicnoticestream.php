@@ -79,6 +79,7 @@ class RawPublicNoticeStream extends FullNoticeStream
 
         // This feed always gives only local activities.
         $notice->whereAdd('is_local = ' . Notice::LOCAL_PUBLIC);
+        $notice->whereAdd('scope != ' . Notice::MESSAGE_SCOPE);
 
         Notice::addWhereSinceId($notice, $since_id);
         Notice::addWhereMaxId($notice, $max_id);
