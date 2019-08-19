@@ -101,6 +101,8 @@ class RawReplyNoticeStream extends NoticeStream
             }
         }
 
+        $reply->whereAdd('notice.scope != ' . NOTICE::MESSAGE_SCOPE);
+
         $reply->orderBy('reply.modified DESC, reply.notice_id DESC');
 
         if (!is_null($offset)) {

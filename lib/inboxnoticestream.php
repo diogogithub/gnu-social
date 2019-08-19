@@ -127,6 +127,8 @@ class RawInboxNoticeStream extends FullNoticeStream
             $notice->whereAdd(sprintf('notice.id <= %d', $max_id));
         }
 
+        $notice->whereAdd('scope != ' . Notice::MESSAGE_SCOPE);
+
         self::filterVerbs($notice, $this->selectVerbs);
 
         $notice->limit($offset, $limit);

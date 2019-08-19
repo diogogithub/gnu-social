@@ -127,6 +127,8 @@ class RawProfileNoticeStream extends NoticeStream
         $notice->selectAdd();
         $notice->selectAdd('id');
 
+        $notice->whereAdd('scope != ' . Notice::MESSAGE_SCOPE);
+
         Notice::addWhereSinceId($notice, $since_id);
         Notice::addWhereMaxId($notice, $max_id);
 
