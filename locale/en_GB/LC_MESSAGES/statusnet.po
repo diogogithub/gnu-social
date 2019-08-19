@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: GNU social\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-02-02 17:47+0100\n"
-"PO-Revision-Date: 2015-03-20 20:03+0000\n"
+"PO-Revision-Date: 2019-08-19 18:30+0100\n"
 "Last-Translator: Luke Hollins <luke@farcry.ca>\n"
 "Language-Team: English (United Kingdom) (http://www.transifex.com/gnu-social/gnu-social/language/en_GB/)\n"
 "MIME-Version: 1.0\n"
@@ -6360,17 +6360,17 @@ msgid "How long users must wait (in seconds) to post the same thing again."
 msgstr "How long users must wait (in seconds) to post the same thing again."
 
 #. TRANS: Fieldset legend for form to change logo.
-#: actions/siteadminpanel.php:338
+#: actions/siteadminpanel.php:355
 msgid "Logo"
-msgstr "Logout"
+msgstr "Logo"
 
-#. TRANS: Field label for StatusNet site logo.
-#: actions/siteadminpanel.php:345
+#. TRANS: Field label for GNU social site logo.
+#: actions/siteadminpanel.php:362
 msgid "Site logo"
 msgstr "Site logo"
 
-#. TRANS: Field label for SSL StatusNet site logo.
-#: actions/siteadminpanel.php:353
+#. TRANS: Field label for SSL GNU social site logo.
+#: actions/siteadminpanel.php:370
 msgid "SSL logo"
 msgstr "SSL logo"
 

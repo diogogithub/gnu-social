@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-17 15:27+0100\n"
+"POT-Creation-Date: 2019-08-19 18:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
 #. TRANS: Database error message.
-#: index.php:124
+#: public/index.php:135
 #, php-format
 msgid ""
 "The database for %1$s is not responding correctly, so the site will not work "
@@ -29,12 +29,12 @@ msgid ""
 msgstr ""
 
 #. TRANS: Error message.
-#: index.php:147
+#: public/index.php:158
 msgid "An error occurred."
 msgstr ""
 
 #. TRANS: Error message displayed when there is no StatusNet configuration file.
-#: index.php:240
+#: public/index.php:251
 #, php-format
 msgid ""
 "No configuration file found. Try running the installation program first."
@@ -42,7 +42,7 @@ msgstr ""
 
 #. TRANS: Error message displayed when trying to perform an undefined action.
 #. TRANS: Title for password recovery page when an unknown action has been specified.
-#: index.php:314 actions/recoverpassword.php:215
+#: public/index.php:325 actions/recoverpassword.php:215
 msgid "Unknown action"
 msgstr ""
 
@@ -1108,8 +1108,8 @@ msgid "Can only delete using the Atom format."
 msgstr ""
 
 #. TRANS: Client error displayed when a user has no rights to delete notices of other users.
-#. TRANS: Error message displayed trying to delete a notice that was not made by the current user.
-#: actions/apistatusesshow.php:208 actions/deletenotice.php:45
+#. TRANS: Error message displayed when trying to delete a notice that was not made by the current user.
+#: actions/apistatusesshow.php:208 actions/deletenotice.php:46
 msgid "Cannot delete this notice."
 msgstr ""
 
@@ -1513,8 +1513,17 @@ msgid "Unknown profile %s."
 msgstr ""
 
 #. TRANS: Client error displayed trying to get a non-existing attachment.
-#: actions/attachment.php:69
+#: actions/attachment.php:73
 msgid "No such attachment."
+msgstr ""
+
+#: actions/attachment.php:79 lib/filenotstoredlocallyexception.php:13
+msgid "Requested local URL for a file that is not stored locally."
+msgstr ""
+
+#: actions/attachment_download.php:24 actions/attachment_thumbnail.php:73
+#: actions/attachment_view.php:22
+msgid "No such attachment"
 msgstr ""
 
 #. TRANS: Client error displayed trying to get an avatar without providing a nickname.
@@ -1781,18 +1790,18 @@ msgid "Could not update user IM preferences."
 msgstr ""
 
 #. TRANS: Server error displayed when adding IM preferences fails.
-#: actions/confirmaddress.php:148
+#: actions/confirmaddress.php:149
 msgid "Could not insert user IM preferences."
 msgstr ""
 
 #. TRANS: Title for the contact address confirmation action.
-#: actions/confirmaddress.php:167
+#: actions/confirmaddress.php:168
 msgid "Confirm address"
 msgstr ""
 
 #. TRANS: Success message for the contact address confirmation action.
 #. TRANS: %s can be 'email', 'jabber', or 'sms'.
-#: actions/confirmaddress.php:180
+#: actions/confirmaddress.php:181
 #, php-format
 msgid "The address \"%s\" has been confirmed for your account."
 msgstr ""
@@ -1985,14 +1994,14 @@ msgid "Delete this group."
 msgstr ""
 
 #. TRANS: Instructions for deleting a notice.
-#: actions/deletenotice.php:54
+#: actions/deletenotice.php:55
 msgid ""
 "You are about to permanently delete a notice. Once this is done, it cannot "
 "be undone."
 msgstr ""
 
 #. TRANS: Page title when deleting a notice.
-#: actions/deletenotice.php:61
+#: actions/deletenotice.php:62
 msgid "Delete notice"
 msgstr ""
 
@@ -2548,16 +2557,6 @@ msgstr ""
 msgid "A selection of some great users on %s."
 msgstr ""
 
-#. TRANS: Client error displayed when requesting a non-existent file.
-#: actions/getfile.php:73
-msgid "No such file."
-msgstr ""
-
-#. TRANS: Client error displayed when requesting a file without having read access to it.
-#: actions/getfile.php:77
-msgid "Cannot read file."
-msgstr ""
-
 #. TRANS: Client error displayed when trying to assign an invalid role to a user.
 #. TRANS: Client error displayed when trying to revoke an invalid role.
 #: actions/grantrole.php:61 actions/revokerole.php:61
@@ -2672,7 +2671,7 @@ msgstr ""
 #. TRANS: Title of form for deleting a user.
 #. TRANS: Link text in notice list item to delete a notice.
 #: actions/grouplogo.php:201 lib/deleteuserform.php:64
-#: lib/noticelistitem.php:630
+#: lib/noticelistitem.php:631
 msgid "Delete"
 msgstr ""
 
@@ -4278,7 +4277,7 @@ msgstr ""
 #. TRANS: Form input field label.
 #. TRANS: Field label on group edit form; points to "more info" for a group.
 #: actions/profilesettings.php:120 actions/register.php:440
-#: classes/Profile.php:943 lib/applicationeditform.php:236
+#: classes/Profile.php:942 lib/applicationeditform.php:236
 #: lib/groupeditform.php:163
 msgid "Homepage"
 msgstr ""
@@ -4548,7 +4547,7 @@ msgstr ""
 
 #. TRANS: Title for password recovery page in email sent mode.
 #. TRANS: Subject for password recovery e-mail.
-#: actions/recoverpassword.php:210 classes/User.php:967
+#: actions/recoverpassword.php:210 classes/User.php:966
 msgid "Password recovery requested"
 msgstr ""
 
@@ -4861,27 +4860,27 @@ msgid ""
 msgstr ""
 
 #. TRANS: Client exception.
-#: actions/restoreaccount.php:141 lib/mediafile.php:341
+#: actions/restoreaccount.php:141 lib/mediafile.php:349
 msgid "The uploaded file was only partially uploaded."
 msgstr ""
 
 #. TRANS: Client exception thrown when a temporary folder is not present to store a file upload.
-#: actions/restoreaccount.php:148 lib/mediafile.php:347
+#: actions/restoreaccount.php:148 lib/mediafile.php:355
 msgid "Missing a temporary folder."
 msgstr ""
 
 #. TRANS: Client exception thrown when writing to disk is not possible during a file upload operation.
-#: actions/restoreaccount.php:151 lib/mediafile.php:350
+#: actions/restoreaccount.php:151 lib/mediafile.php:358
 msgid "Failed to write file to disk."
 msgstr ""
 
 #. TRANS: Client exception thrown when a file upload operation has been stopped by an extension.
-#: actions/restoreaccount.php:154 lib/mediafile.php:353
+#: actions/restoreaccount.php:154 lib/mediafile.php:361
 msgid "File upload stopped by extension."
 msgstr ""
 
 #. TRANS: Client exception thrown when a file upload operation has failed with an unknown reason.
-#: actions/restoreaccount.php:159 lib/mediafile.php:357
+#: actions/restoreaccount.php:159 lib/mediafile.php:365
 msgid "System error uploading file."
 msgstr ""
 
@@ -5536,12 +5535,12 @@ msgstr ""
 msgid "Logo"
 msgstr ""
 
-#. TRANS: Field label for StatusNet site logo.
+#. TRANS: Field label for GNU social site logo.
 #: actions/siteadminpanel.php:345
 msgid "Site logo"
 msgstr ""
 
-#. TRANS: Field label for SSL StatusNet site logo.
+#. TRANS: Field label for SSL GNU social site logo.
 #: actions/siteadminpanel.php:353
 msgid "SSL logo"
 msgstr ""
@@ -6379,14 +6378,14 @@ msgstr ""
 #. TRANS: Message used to be inserted as %2$s in  the text "No file may
 #. TRANS: be larger than %1$d byte and the file you sent was %2$s.".
 #. TRANS: %1$d is the number of bytes of an uploaded file.
-#: classes/File.php:243
+#: classes/File.php:242
 #, php-format
 msgid "%1$d byte"
 msgid_plural "%1$d bytes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/File.php:253
+#: classes/File.php:252
 #, php-format
 msgid ""
 "No file may be larger than %1$d byte and the file you sent was %2$s. Try to "
@@ -6397,22 +6396,26 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/File.php:275
+#: classes/File.php:274
 #, php-format
 msgid "A file this large would exceed your user quota of %d byte."
 msgid_plural "A file this large would exceed your user quota of %d bytes."
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/File.php:293
+#: classes/File.php:292
 #, php-format
 msgid "A file this large would exceed your monthly quota of %d byte."
 msgid_plural "A file this large would exceed your monthly quota of %d bytes."
 msgstr[0] ""
 msgstr[1] ""
 
-#: classes/File.php:367
+#: classes/File.php:387 lib/mediafile.php:256
 msgid "Blacklisted file extension."
+msgstr ""
+
+#: classes/File.php:648
+msgid "Thumbnail is not an image."
 msgstr ""
 
 #. TRANS: Exception thrown providing an invalid profile ID.
@@ -6457,7 +6460,7 @@ msgid "%1$s has joined group %2$s."
 msgstr ""
 
 #. TRANS: Server exception thrown when updating a local group fails.
-#: classes/Local_group.php:72
+#: classes/Local_group.php:71
 msgid "Could not update local group."
 msgstr ""
 
@@ -6576,7 +6579,7 @@ msgstr ""
 
 #. TRANS: The "fancy name": Full name of a profile or group (%1$s) followed by some URI (%2$s) in parentheses.
 #. TRANS: Full name of a profile or group followed by nickname in parens
-#: classes/Profile.php:247 classes/User_group.php:347
+#: classes/Profile.php:246 classes/User_group.php:347
 #, php-format
 msgctxt "FANCYNAME"
 msgid "%1$s (%2$s)"
@@ -6584,43 +6587,43 @@ msgstr ""
 
 #. TRANS: Exception thrown when trying to revoke an existing role for a user that does not exist.
 #. TRANS: %1$s is the role name, %2$s is the user ID (number).
-#: classes/Profile.php:1172
+#: classes/Profile.php:1171
 #, php-format
 msgid "Cannot revoke role \"%1$s\" for user #%2$d; does not exist."
 msgstr ""
 
 #. TRANS: Exception thrown when trying to revoke a role for a user with a failing database query.
 #. TRANS: %1$s is the role name, %2$s is the user ID (number).
-#: classes/Profile.php:1181
+#: classes/Profile.php:1180
 #, php-format
 msgid "Cannot revoke role \"%1$s\" for user #%2$d; database error."
 msgstr ""
 
-#: classes/Profile.php:1225
+#: classes/Profile.php:1224
 msgid "You cannot silence users on this site."
 msgstr ""
 
-#: classes/Profile.php:1229
+#: classes/Profile.php:1228
 msgid "You cannot silence other privileged users."
 msgstr ""
 
 #. TRANS: Client error displayed trying to silence an already silenced user.
-#: classes/Profile.php:1233
+#: classes/Profile.php:1232
 msgid "User is already silenced."
 msgstr ""
 
 #. TRANS: Client error displayed trying to unsilence a user when the user does not have the right.
-#: classes/Profile.php:1250
+#: classes/Profile.php:1249
 msgid "You cannot unsilence users on this site."
 msgstr ""
 
 #. TRANS: Client error displayed trying to unsilence a user when the target user has not been silenced.
-#: classes/Profile.php:1254
+#: classes/Profile.php:1253
 msgid "User is not silenced."
 msgstr ""
 
 #. TRANS: Exception thrown when trying view "repeated to me".
-#: classes/Profile.php:1647
+#: classes/Profile.php:1646
 msgid "Not implemented since inbox change."
 msgstr ""
 
@@ -6733,78 +6736,78 @@ msgid "This subscription request is already in progress."
 msgstr ""
 
 #. TRANS: Profile data could not be inserted for some reason.
-#: classes/User.php:290
+#: classes/User.php:289
 msgid "Could not insert profile data for new user."
 msgstr ""
 
 #. TRANS: User data could not be inserted for some reason.
-#: classes/User.php:316
+#: classes/User.php:315
 msgid "Could not insert user data for new user."
 msgstr ""
 
 #. TRANS: Subscription data could not be inserted for some reason.
-#: classes/User.php:332
+#: classes/User.php:331
 msgid "Could not insert subscription data for new user."
 msgstr ""
 
 #. TRANS: Email confirmation data could not be inserted for some reason.
-#: classes/User.php:356
+#: classes/User.php:355
 msgid "Could not insert email confirmation data for new user."
 msgstr ""
 
 #. TRANS: Notice given on user registration.
 #. TRANS: %1$s is the sitename, $2$s is the registering user's nickname.
-#: classes/User.php:404
+#: classes/User.php:403
 #, php-format
 msgid "Welcome to %1$s, @%2$s!"
 msgstr ""
 
-#: classes/User.php:745
+#: classes/User.php:744
 msgid "No site owner configured."
 msgstr ""
 
 #. TRANS: Server exception.
-#: classes/User.php:762
+#: classes/User.php:761
 msgid "Single-user mode code called when not enabled."
 msgstr ""
 
 #. TRANS: Information on password recovery form if no known e-mail address was specified.
-#: classes/User.php:905
+#: classes/User.php:904
 msgid "No user with that email address exists here."
 msgstr ""
 
 #. TRANS: Information on password recovery form if no known username was specified.
-#: classes/User.php:912
+#: classes/User.php:911
 msgid "No user with that nickname exists here."
 msgstr ""
 
 #. TRANS: Client error displayed on password recovery form if a user does not have a registered e-mail address.
-#: classes/User.php:930
+#: classes/User.php:929
 msgid "No registered email address for that user."
 msgstr ""
 
 #. TRANS: Server error displayed if e-mail address confirmation fails in the database on the password recovery form.
-#: classes/User.php:944
+#: classes/User.php:943
 msgid "Error saving address confirmation."
 msgstr ""
 
-#: classes/User.php:1016
+#: classes/User.php:1015
 msgid "Register"
 msgstr ""
 
-#: classes/User.php:1018
+#: classes/User.php:1017
 #, php-format
 msgid "%1$s joined %2$s."
 msgstr ""
 
 #. TRANS: Form validation error on page where to change password.
-#: classes/User.php:1041
+#: classes/User.php:1040
 msgid "Error saving user; invalid."
 msgstr ""
 
 #. TRANS: Server error displayed on page where to change password when password change
 #. TRANS: could not be made because of a server error.
-#: classes/User.php:1048
+#: classes/User.php:1047
 msgid "Cannot save new password."
 msgstr ""
 
@@ -7456,13 +7459,13 @@ msgstr ""
 msgid "Download link"
 msgstr ""
 
-#. TRANS: Message for inline attachments list in notices when the author has been silenced.
-#: lib/attachmentlist.php:90
-msgid "Attachments are hidden because this profile has been silenced."
+#: lib/attachmentlist.php:80 lib/httpclient.php:417 lib/mediafile.php:247
+#: lib/mediafile.php:635 lib/mediafile.php:653
+msgid "Untitled attachment"
 msgstr ""
 
-#: lib/attachmentlistitem.php:66
-msgid "Untitled attachment"
+#: lib/attachmentlist.php:91
+msgid "Attachments are hidden because this profile has been silenced."
 msgstr ""
 
 #. TRANS: Title.
@@ -8004,24 +8007,24 @@ msgid "remind a user to update."
 msgstr ""
 
 #. TRANS: Error message displayed when no configuration file was found for a StatusNet installation.
-#: lib/common.php:32
+#: lib/common.php:35
 msgid "No configuration file found."
 msgstr ""
 
 #. TRANS: Error message displayed when no configuration file was found for a StatusNet installation.
 #. TRANS: Is followed by a list of directories (separated by HTML breaks).
-#: lib/common.php:35
+#: lib/common.php:38
 msgid "I looked for configuration files in the following places:"
 msgstr ""
 
 #. TRANS: Error message displayed when no configuration file was found for a StatusNet installation.
-#: lib/common.php:38
+#: lib/common.php:41
 msgid "You may wish to run the installer to fix this."
 msgstr ""
 
 #. TRANS: Error message displayed when no configuration file was found for a StatusNet installation.
 #. TRANS: The text is link text that leads to the installer page.
-#: lib/common.php:42
+#: lib/common.php:45
 msgid "Go to the installer."
 msgstr ""
 
@@ -8142,10 +8145,6 @@ msgstr ""
 
 #: lib/filenotfoundexception.php:40
 msgid "File not found in filesystem."
-msgstr ""
-
-#: lib/filenotstoredlocallyexception.php:13
-msgid "Requested local URL for a file that is not stored locally."
 msgstr ""
 
 #. TRANS: List element on gallery action page to show all tags.
@@ -8336,26 +8335,17 @@ msgid "Could not GET URL %s."
 msgstr ""
 
 #. TRANS: Exception thrown when trying to upload an unsupported image file format.
-#: lib/imagefile.php:70
+#: lib/imagefile.php:84
 msgid "Unsupported image format."
 msgstr ""
 
-#: lib/imagefile.php:118
-msgid "File without filename could not get a thumbnail source."
-msgstr ""
-
-#: lib/imagefile.php:133
+#: lib/imagefile.php:149
 msgid "Unsupported media format."
-msgstr ""
-
-#. TRANS: Exception thrown during resize when image has been registered as present, but is no longer there.
-#: lib/imagefile.php:256
-msgid "Lost our file."
 msgstr ""
 
 #. TRANS: Exception thrown when trying to resize an unknown file type.
 #. TRANS: Exception thrown when trying resize an unknown file type.
-#: lib/imagefile.php:334 lib/imagefile.php:393
+#: lib/imagefile.php:337 lib/imagefile.php:370
 msgid "Unknown file type"
 msgstr ""
 
@@ -8764,12 +8754,12 @@ msgid ""
 msgstr ""
 
 #. TRANS: Client exception thrown when a database error was thrown during a file upload operation.
-#: lib/mediafile.php:189 lib/mediafile.php:245
+#: lib/mediafile.php:184
 msgid "There was a database error while saving your file. Please try again."
 msgstr ""
 
 #. TRANS: Number of megabytes. %d is the number.
-#: lib/mediafile.php:260
+#: lib/mediafile.php:220
 #, php-format
 msgid "%dMB"
 msgid_plural "%dMB"
@@ -8777,7 +8767,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. TRANS: Number of kilobytes. %d is the number.
-#: lib/mediafile.php:264
+#: lib/mediafile.php:224
 #, php-format
 msgid "%dkB"
 msgid_plural "%dkB"
@@ -8785,14 +8775,14 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. TRANS: Number of bytes. %d is the number.
-#: lib/mediafile.php:267
+#: lib/mediafile.php:227
 #, php-format
 msgid "%dB"
 msgid_plural "%dB"
 msgstr[0] ""
 msgstr[1] ""
 
-#: lib/mediafile.php:335
+#: lib/mediafile.php:343
 #, php-format
 msgid "That file is too big. The maximum file size is %s."
 msgstr ""
@@ -8802,18 +8792,18 @@ msgstr ""
 #. UX: too specific
 #. TRANS: Client exception thrown when a file upload operation fails because the file could
 #. TRANS: not be moved from the temporary folder to the permanent file location.
-#: lib/mediafile.php:390 lib/mediafile.php:435 lib/mediafile.php:459
+#: lib/mediafile.php:410 lib/mediafile.php:446 lib/mediafile.php:470
 msgid "File could not be moved to destination directory."
 msgstr ""
 
-#: lib/mediafile.php:564
+#: lib/mediafile.php:575
 msgid "Could not determine file's MIME type."
 msgstr ""
 
 #. TRANS: Client exception thrown trying to upload a forbidden MIME type.
 #. TRANS: %1$s is the file type that was denied, %2$s is the application part of
 #. TRANS: the MIME type that was denied.
-#: lib/mediafile.php:606
+#: lib/mediafile.php:617
 #, php-format
 msgid ""
 "\"%1$s\" is not a supported file type on this server. Try using another %2$s "
@@ -8822,7 +8812,7 @@ msgstr ""
 
 #. TRANS: Client exception thrown trying to upload a forbidden MIME type.
 #. TRANS: %s is the file type that was denied.
-#: lib/mediafile.php:611
+#: lib/mediafile.php:622
 #, php-format
 msgid "\"%s\" is not a supported file type on this server."
 msgstr ""
@@ -9042,7 +9032,7 @@ msgid "Reply"
 msgstr ""
 
 #. TRANS: Link title in notice list item to delete a notice.
-#: lib/noticelistitem.php:628
+#: lib/noticelistitem.php:629
 msgid "Delete this notice from the timeline."
 msgstr ""
 
@@ -9284,7 +9274,7 @@ msgid "Replies"
 msgstr ""
 
 #. TRANS: Displayed as version information for a plugin if no version information was found.
-#: lib/plugin.php:190
+#: lib/plugin.php:174
 msgid "Unknown"
 msgstr ""
 
@@ -9443,7 +9433,7 @@ msgid "Revoke the \"%s\" role from this user"
 msgstr ""
 
 #. TRANS: Client error on action trying to visit a non-existing page.
-#: lib/router.php:1106
+#: lib/router.php:1117
 msgid "Page not found."
 msgstr ""
 
@@ -9833,7 +9823,7 @@ msgid ""
 msgstr ""
 
 #. TRANS: Server exception displayed if a theme name was invalid.
-#: lib/theme.php:79
+#: lib/theme.php:80
 msgid "Invalid theme name."
 msgstr ""
 
@@ -10073,17 +10063,17 @@ msgid "Not allowed to log in."
 msgstr ""
 
 #. TRANS: Used in notices to indicate when the notice was made compared to now.
-#: lib/util.php:1541
+#: lib/util.php:1540
 msgid "a few seconds ago"
 msgstr ""
 
 #. TRANS: Used in notices to indicate when the notice was made compared to now.
-#: lib/util.php:1544
+#: lib/util.php:1543
 msgid "about a minute ago"
 msgstr ""
 
 #. TRANS: Used in notices to indicate when the notice was made compared to now.
-#: lib/util.php:1548
+#: lib/util.php:1547
 #, php-format
 msgid "about one minute ago"
 msgid_plural "about %d minutes ago"
@@ -10091,12 +10081,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. TRANS: Used in notices to indicate when the notice was made compared to now.
-#: lib/util.php:1551
+#: lib/util.php:1550
 msgid "about an hour ago"
 msgstr ""
 
 #. TRANS: Used in notices to indicate when the notice was made compared to now.
-#: lib/util.php:1555
+#: lib/util.php:1554
 #, php-format
 msgid "about one hour ago"
 msgid_plural "about %d hours ago"
@@ -10104,12 +10094,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. TRANS: Used in notices to indicate when the notice was made compared to now.
-#: lib/util.php:1558
+#: lib/util.php:1557
 msgid "about a day ago"
 msgstr ""
 
 #. TRANS: Used in notices to indicate when the notice was made compared to now.
-#: lib/util.php:1562
+#: lib/util.php:1561
 #, php-format
 msgid "about one day ago"
 msgid_plural "about %d days ago"
@@ -10117,12 +10107,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. TRANS: Used in notices to indicate when the notice was made compared to now.
-#: lib/util.php:1565
+#: lib/util.php:1564
 msgid "about a month ago"
 msgstr ""
 
 #. TRANS: Used in notices to indicate when the notice was made compared to now.
-#: lib/util.php:1569
+#: lib/util.php:1568
 #, php-format
 msgid "about one month ago"
 msgid_plural "about %d months ago"
@@ -10130,12 +10120,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. TRANS: Used in notices to indicate when the notice was made compared to now.
-#: lib/util.php:1572
+#: lib/util.php:1571
 msgid "about a year ago"
 msgstr ""
 
 #. TRANS: Human-readable full date-time specification (formatting on http://php.net/date)
-#: lib/util.php:1592
+#: lib/util.php:1591
 msgid "l, d-M-Y H:i:s T"
 msgstr ""
 
@@ -10147,7 +10137,7 @@ msgid "%s is not a valid color! Use 3 or 6 hex characters."
 msgstr ""
 
 #. TRANS: Commandline script output. %s is the filename that contains a backup for a user.
-#: scripts/restoreuser.php:61
+#: scripts/restoreuser.php:62
 #, php-format
 msgid "Getting backup from file '%s'."
 msgstr ""
