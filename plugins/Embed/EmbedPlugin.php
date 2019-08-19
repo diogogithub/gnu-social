@@ -576,10 +576,10 @@ class EmbedPlugin extends Plugin
                 }
 
                 // If the image is not of the desired size, resize it
-                if ($info[0] !== $this->thumbnail_width || $info[1] !== $this->thumbnail_height) {
+                if ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height) {
                     // Temporary object, not stored in DB
                     $img = new ImageFile(-1, $fullpath);
-                    $box = $img->scaleToFit($width, $height, $this->thumbnail_crop);
+                    $box = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->thumbnail_crop);
                     $outpath = $img->resizeTo($fullpath, $box);
                     $filename = basename($outpath);
                     if ($fullpath !== $outpath) {
