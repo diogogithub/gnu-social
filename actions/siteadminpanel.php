@@ -65,7 +65,7 @@ class SiteadminpanelAction extends AdminPanelAction
     function getInstructions()
     {
         // TRANS: Instructions for site administration panel.
-        return _('Basic settings for this StatusNet site');
+        return _m('Basic settings for this StatusNet site');
     }
 
     /**
@@ -103,7 +103,7 @@ class SiteadminpanelAction extends AdminPanelAction
             )
         );
 
-        $values = array();
+        $values = [];
 
         foreach ($settings as $section => $parts) {
             foreach ($parts as $setting) {
@@ -138,7 +138,7 @@ class SiteadminpanelAction extends AdminPanelAction
 
         if (empty($values['site']['name'])) {
             // TRANS: Client error displayed trying to save an empty site name.
-            $this->clientError(_('Site name must have non-zero length.'));
+            $this->clientError(_m('Site name must have non-zero length.'));
         }
 
         // Validate email
@@ -147,24 +147,24 @@ class SiteadminpanelAction extends AdminPanelAction
 
         if (empty($values['site']['email'])) {
             // TRANS: Client error displayed trying to save site settings without a contact address.
-            $this->clientError(_('You must have a valid contact email address.'));
+            $this->clientError(_m('You must have a valid contact email address.'));
         }
         if (!Validate::email($values['site']['email'], common_config('email', 'check_domain'))) {
             // TRANS: Client error displayed trying to save site settings without a valid contact address.
-            $this->clientError(_('Not a valid email address.'));
+            $this->clientError(_m('Not a valid email address.'));
         }
 
         // Validate logos
         if (!empty($values['site']['logo']) &&
                 !common_valid_http_url($values['site']['logo'])) {
             // TRANS: Client error displayed when a logo URL is not valid.
-            $this->clientError(_('Invalid logo URL.'));
+            $this->clientError(_m('Invalid logo URL.'));
         }
 
         if (!empty($values['site']['ssllogo']) &&
                 !common_valid_http_url($values['site']['ssllogo'], true)) {
             // TRANS: Client error displayed when a SSL logo URL is invalid.
-            $this->clientError(_('Invalid SSL logo URL.'));
+            $this->clientError(_m('Invalid SSL logo URL.'));
         }
 
         // Validate timezone
@@ -172,7 +172,7 @@ class SiteadminpanelAction extends AdminPanelAction
         if (is_null($values['site']['timezone']) ||
             !in_array($values['site']['timezone'], DateTimeZone::listIdentifiers())) {
             // TRANS: Client error displayed trying to save site settings without a timezone.
-            $this->clientError(_('Timezone not selected.'));
+            $this->clientError(_m('Timezone not selected.'));
         }
 
         // Validate language
@@ -181,21 +181,21 @@ class SiteadminpanelAction extends AdminPanelAction
             !in_array($values['site']['language'], array_keys(get_nice_language_list()))) {
             // TRANS: Client error displayed trying to save site settings with an invalid language code.
             // TRANS: %s is the invalid language code.
-            $this->clientError(sprintf(_('Unknown language "%s".'), $values['site']['language']));
+            $this->clientError(sprintf(_m('Unknown language "%s".'), $values['site']['language']));
         }
 
         // Validate text limit
 
         if (!Validate::number($values['site']['textlimit'], array('min' => 0))) {
             // TRANS: Client error displayed trying to save site settings with a text limit below 0.
-            $this->clientError(_('Minimum text limit is 0 (unlimited).'));
+            $this->clientError(_m('Minimum text limit is 0 (unlimited).'));
         }
 
         // Validate dupe limit
 
         if (!Validate::number($values['site']['dupelimit'], array('min' => 1))) {
             // TRANS: Client error displayed trying to save site settings with a text limit below 1.
-            $this->clientError(_('Dupe limit must be one or more seconds.'));
+            $this->clientError(_m('Dupe limit must be one or more seconds.'));
         }
     }
 }
@@ -248,27 +248,27 @@ class SiteAdminPanelForm extends AdminForm
         // TRANS: Field label on site settings panel.
         $this->input('name', _m('LABEL','Site name'),
                      // TRANS: Field title on site settings panel.
-                     _('The name of your site, like "Yourcompany Microblog".'));
+                     _m('The name of your site, like "Yourcompany Microblog".'));
         $this->unli();
 
         $this->li();
         // TRANS: Field label on site settings panel.
-        $this->input('broughtby', _('Brought by'),
+        $this->input('broughtby', _m('Brought by'),
                      // TRANS: Field title on site settings panel.
-                     _('Text used for credits link in footer of each page.'));
+                     _m('Text used for credits link in footer of each page.'));
         $this->unli();
 
         $this->li();
         // TRANS: Field label on site settings panel.
-        $this->input('broughtbyurl', _('Brought by URL'),
+        $this->input('broughtbyurl', _m('Brought by URL'),
                      // TRANS: Field title on site settings panel.
-                     _('URL used for credits link in footer of each page.'));
+                     _m('URL used for credits link in footer of each page.'));
         $this->unli();
         $this->li();
         // TRANS: Field label on site settings panel.
-        $this->input('email', _('Email'),
+        $this->input('email', _m('Email'),
                      // TRANS: Field title on site settings panel.
-                     _('Contact email address for your site.'));
+                     _m('Contact email address for your site.'));
         $this->unli();
         $this->out->elementEnd('ul');
         $this->out->elementEnd('fieldset');
@@ -279,7 +279,7 @@ class SiteAdminPanelForm extends AdminForm
         // TRANS: Fieldset legend on site settings panel.
         $this->out->element('legend', null, _m('LEGEND','Local'));
         $this->out->elementStart('ul', 'form_data');
-        $timezones = array();
+        $timezones = [];
 
         foreach (DateTimeZone::listIdentifiers() as $k => $v) {
             $timezones[$v] = $v;
@@ -289,19 +289,19 @@ class SiteAdminPanelForm extends AdminForm
 
         $this->li();
         // TRANS: Dropdown label on site settings panel.
-        $this->out->dropdown('timezone', _('Default timezone'),
+        $this->out->dropdown('timezone', _m('Default timezone'),
                              // TRANS: Dropdown title on site settings panel.
-                             $timezones, _('Default timezone for the site; usually UTC.'),
+                             $timezones, _m('Default timezone for the site; usually UTC.'),
                              true, $this->value('timezone'));
         $this->unli();
 
         $this->li();
         $this->out->dropdown('language',
                              // TRANS: Dropdown label on site settings panel.
-                             _('Default language'),
+                             _m('Default language'),
                              get_nice_language_list(),
                              // TRANS: Dropdown title on site settings panel.
-                             _('The site language when autodetection from browser settings is not available.'),
+                             _m('The site language when autodetection from browser settings is not available.'),
                              false, $this->value('language'));
         $this->unli();
 
@@ -315,17 +315,17 @@ class SiteAdminPanelForm extends AdminForm
         $this->li();
         $this->input('textlimit',
                      // TRANS: Field label on site settings panel.
-                     _('Text limit'),
+                     _m('Text limit'),
                      // TRANS: Field title on site settings panel.
-                     _('Maximum number of characters for notices.'));
+                     _m('Maximum number of characters for notices.'));
         $this->unli();
 
         $this->li();
         $this->input('dupelimit',
                      // TRANS: Field label on site settings panel.
-                     _('Dupe limit'),
+                     _m('Dupe limit'),
                      // TRANS: Field title on site settings panel.
-                     _('How long users must wait (in seconds) to post the same thing again.'));
+                     _m('How long users must wait (in seconds) to post the same thing again.'));
         $this->unli();
         $this->out->elementEnd('ul');
         $this->out->elementEnd('fieldset');
@@ -333,25 +333,25 @@ class SiteAdminPanelForm extends AdminForm
 
     function showLogo()
     {
-        $this->out->elementStart('fieldset', array('id' => 'settings_site_logo'));
+        $this->out->elementStart('fieldset', ['id' => 'settings_site_logo']);
         // TRANS: Fieldset legend for form to change logo.
-        $this->out->element('legend', null, _('Logo'));
+        $this->out->element('legend', null, _m('Logo'));
 
         $this->out->elementStart('ul', 'form_data');
 
         $this->li();
         $this->input('logo',
-                     // TRANS: Field label for StatusNet site logo.
-                     _('Site logo'),
-                     // TRANS: Title for field label for StatusNet site logo.
+                     // TRANS: Field label for GNU social site logo.
+                     _m('Site logo'),
+                     // TRANS: Title for field label for GNU social site logo.
                      'Logo for the site (full URL).');
         $this->unli();
 
         $this->li();
         $this->input('ssllogo',
-                     // TRANS: Field label for SSL StatusNet site logo.
-                     _('SSL logo'),
-                     // TRANS: Title for field label for SSL StatusNet site logo.
+                     // TRANS: Field label for SSL GNU social site logo.
+                     _m('SSL logo'),
+                     // TRANS: Title for field label for SSL GNU social site logo.
                      'Logo to show on SSL pages (full URL).');
         $this->unli();
 
@@ -373,6 +373,6 @@ class SiteAdminPanelForm extends AdminForm
                            'submit',
                            null,
                            // TRANS: Button title for saving site settings.
-                           _('Save the site settings.'));
+                           _m('Save the site settings.'));
     }
 }
