@@ -127,11 +127,21 @@ class EmbedPlugin extends Plugin
             $metadata->html = common_purify($info->description);
             $metadata->type = $info->type;
             $metadata->url = $info->url;
-            $metadata->thumbnail_url = $info->image;
             $metadata->thumbnail_height = $info->imageHeight;
             $metadata->thumbnail_width = $info->imageWidth;
+
+            if (substr($info->image, 0, 4) === 'data') {
+                // Inline image
+                $img_data = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
+                list($filename, $_, $_) = $this->validateAndWriteImage($img_data);
+                // Use a file URI for images, as file_embed can't store a filename
+                $metadata->thumbnail_url = 'file://' . File_thumbnail::path($filename);
+            } else {
+                $metadata->thumbnail_url = $info->image;
+            }
         } catch (Exception $e) {
-            common_log(LOG_INFO, "Failed to find Embed data for {$url} with 'oscarotero/Embed'");
+            common_log(LOG_INFO, "Failed to find Embed data for {$url} with 'oscarotero/Embed'" .
+                       ", got exception: " . get_class($e));
         }
 
         if (isset($metadata->thumbnail_url)) {
@@ -499,52 +509,18 @@ class EmbedPlugin extends Plugin
     }
 
     /**
-     * Function to create and store a thumbnail representation of a remote image
+     * Validate that $img_data is a valid image before writing it to
+     * disk, as well as resizing it to at most $this->thumbnail_width
+     * by $this->thumbnail_height
      *
-     * @param $thumbnail File_thumbnail object containing the file thumbnail
-     * @return bool true if it succeeded, the exception if it fails, or false if it
-     * is limited by system limits (ie the file is too large.)
+     * @param string $img_data - The image data to validate. Taken by reference to avoid copying
+     * @param string|null $url - The url where the image came from, to fetch metadata
+     * @param array|null $headers - The headers possible previous request to $url
+     * @param int|null $file_id - The id of the file this image belongs to, used for logging
      */
-    protected function storeRemoteFileThumbnail(File_thumbnail $thumbnail)
+    protected function validateAndWriteImage(string &$img_data, ?string $url = null, ?string $headers = null, ?int $file_id = 0) : array
     {
-        if (!empty($thumbnail->filename) && file_exists($thumbnail->getPath())) {
-            throw new AlreadyFulfilledException(
-                sprintf('A thumbnail seems to already exist for remote file with id==%u', $thumbnail->file_id)
-            );
-        }
-
-        $url = $thumbnail->getUrl();
-        $this->checkWhitelist($url);
-
-        $head = (new HTTPClient())->head($url);
-        $headers = $head->getHeader();
-        $headers = array_change_key_case($headers, CASE_LOWER);
-
-        try {
-            $isImage = $this->isRemoteImage($url, $headers);
-            if ($isImage==true) {
-                $max_size  = common_get_preferred_php_upload_limit();
-                $file_size = $this->getRemoteFileSize($url, $headers);
-                if (($file_size!=false) && ($file_size > $max_size)) {
-                    common_debug("Went to store remote thumbnail of size " . $file_size .
-                                 " but the upload limit is " . $max_size . " so we aborted.");
-                    return false;
-                }
-            }
-        } catch (Exception $err) {
-            common_debug("Could not determine size of remote image, aborted local storage.");
-            return $err;
-        }
-
-        // First we download the file to memory and test whether it's actually an image file
-        // FIXME: To support remote video/whatever files, this needs reworking.
-        common_debug(sprintf(
-            'Downloading remote thumbnail for file id==%u with thumbnail URL: %s',
-            $thumbnail->file_id,
-            $url
-        ));
-        $imgData = HTTPClient::quickGet($url);
-        $info = @getimagesizefromstring($imgData);
+        $info = @getimagesizefromstring($img_data);
         // array indexes documented on php.net:
         // https://php.net/manual/en/function.getimagesize.php
         if ($info === false) {
@@ -553,17 +529,19 @@ class EmbedPlugin extends Plugin
             throw new UnsupportedMediaException(_('Image file had impossible geometry (0 width or height)'));
         }
 
-        $filehash = hash(File::FILEHASH_ALG, $imgData);
         $width = min($info[0], $this->thumbnail_width);
         $height = min($info[1], $this->thumbnail_height);
+        $filehash = hash(File::FILEHASH_ALG, $img_data);
 
         try {
-            $original_name = HTTPClient::get_filename($url, $headers);
-            $filename = MediaFile::encodeFilename($original_name, $filehash);
+            if (!empty($url)) {
+                $original_name = HTTPClient::get_filename($url, $headers);
+            }
+            $filename = MediaFile::encodeFilename($original_name ?? '', $filehash);
             $fullpath = File_thumbnail::path($filename);
             // Write the file to disk. Throw Exception on failure
             if (!file_exists($fullpath)) {
-                if (strpos($fullpath, INSTALLDIR) !== 0 || file_put_contents($fullpath, $imgData) === false) {
+                if (strpos($fullpath, INSTALLDIR) !== 0 || file_put_contents($fullpath, $img_data) === false) {
                     throw new ServerException(_('Could not write downloaded file to disk.'));
                 }
 
@@ -587,17 +565,78 @@ class EmbedPlugin extends Plugin
                     }
                 }
             } else {
-                throw new AlreadyFulfilledException('A thumbnail seems to already exist for remote file with id==' .
-                                                    $thumbnail->file_id . ' at path ' . $fullpath);
+                throw new AlreadyFulfilledException('A thumbnail seems to already exist for remote file' .
+                                                    ($file_id ? 'with id==' . $file_id : '') . ' at path ' . $fullpath);
             }
         } catch (AlreadyFulfilledException $e) {
             // Carry on
         } catch (Exception $err) {
             common_log(LOG_ERR, "Went to write a thumbnail to disk in EmbedPlugin::storeRemoteThumbnail " .
                        "but encountered error: {$err}");
-            return $err;
+            throw $err;
         } finally {
-            unset($imgData);
+            unset($img_data);
+        }
+
+        return [$filename, $width, $height];
+    }
+
+    /**
+     * Function to create and store a thumbnail representation of a remote image
+     *
+     * @param $thumbnail File_thumbnail object containing the file thumbnail
+     * @return bool true if it succeeded, the exception if it fails, or false if it
+     * is limited by system limits (ie the file is too large.)
+     */
+    protected function storeRemoteFileThumbnail(File_thumbnail $thumbnail)
+    {
+        if (!empty($thumbnail->filename) && file_exists($thumbnail->getPath())) {
+            throw new AlreadyFulfilledException(
+                sprintf('A thumbnail seems to already exist for remote file with id==%u', $thumbnail->file_id)
+            );
+        }
+
+        $url = $thumbnail->getUrl();
+
+        if (substr($url, 0, 7) == 'file://') {
+            $filename = substr($url, 7);
+            $info = getimagesize($filename);
+            $filename = basename($filename);
+            $width = $info[0];
+            $height = $info[1];
+        } else {
+            $this->checkWhitelist($url);
+            $head = (new HTTPClient())->head($url);
+            $headers = $head->getHeader();
+            $headers = array_change_key_case($headers, CASE_LOWER);
+
+            try {
+                $isImage = $this->isRemoteImage($url, $headers);
+                if ($isImage == true) {
+                    $max_size  = common_get_preferred_php_upload_limit();
+                    $file_size = $this->getRemoteFileSize($url, $headers);
+                    if (($file_size!=false) && ($file_size > $max_size)) {
+                        common_debug("Went to store remote thumbnail of size " . $file_size .
+                                     " but the upload limit is " . $max_size . " so we aborted.");
+                        return false;
+                    }
+                }
+            } catch (Exception $err) {
+                common_debug("Could not determine size of remote image, aborted local storage.");
+                return $err;
+            }
+
+            // First we download the file to memory and test whether it's actually an image file
+            // FIXME: To support remote video/whatever files, this needs reworking.
+            common_debug(sprintf(
+                'Downloading remote thumbnail for file id==%u with thumbnail URL: %s',
+                $thumbnail->file_id,
+                $url
+            ));
+            $img_data = HTTPClient::quickGet($url);
+
+            list($filename, $width, $height) = $this->validateAndWriteImage($img_data, $url, $headers,
+                                                                            $thumbnail->file_id);
         }
 
         try {
