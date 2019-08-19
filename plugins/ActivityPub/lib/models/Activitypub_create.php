@@ -42,15 +42,16 @@ class Activitypub_create
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $actor
      * @param array $object
+     * @param bool $directMesssage whether it is a private Create activity or not
      * @return array pretty array to be used in a response
      */
-    public static function create_to_array(string $actor, array $object): array
+    public static function create_to_array(string $actor, array $object, bool $directMessage = false): array
     {
         $res = [
             '@context'      => 'https://www.w3.org/ns/activitystreams',
             'id'            => $object['id'].'/create',
             'type'          => 'Create',
-            'directMessage' => false,
+            'directMessage' => $directMessage,
             'to'            => $object['to'],
             'cc'            => $object['cc'],
             'actor'         => $actor,
@@ -88,5 +89,22 @@ class Activitypub_create
             default:
                 throw new Exception('This is not a supported Object Type for Create Activity.');
         }
+    }
+
+    /**
+     * Verify if received note is private (direct).
+     * Note that we're conformant with the (yet) non-standard directMessage attribute:
+     * https://github.com/w3c/activitypub/issues/196#issuecomment-304958984
+     *
+     * @param array $activity received Create-Note activity
+     * @return bool true if note is private, false otherwise
+     * @author Bruno casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function isPrivateNote(array $activity): bool {
+        if (isset($activity['directMessage'])) {
+            return $activity['directMessage'];
+        }
+
+        return empty($activity['cc']) && !in_array('https://www.w3.org/ns/activitystreams#Public', $activity['to']);
     }
 }

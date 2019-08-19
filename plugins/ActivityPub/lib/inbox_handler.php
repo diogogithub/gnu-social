@@ -206,8 +206,8 @@ class Activitypub_inbox_handler
      */
     private function handle_create_note()
     {
-        if (Activitypub_notice::isPrivateNote($this->activity)) {
-            // Plugin DirectMessage must handle this
+        if (Activitypub_create::isPrivateNote($this->activity)) {
+            Activitypub_message::create_message($this->object, $this->actor);
         } else {
             Activitypub_notice::create_notice($this->object, $this->actor);
         }
@@ -226,8 +226,7 @@ class Activitypub_inbox_handler
             $object = $object['id'];
         }
 
-        // some moderator could already have deleted the
-        // notice, so we test it first
+        // Already deleted? (By some admin, perhaps?)
         try {
             $found = Deleted_notice::getByUri($object);
             $deleted = ($found instanceof Deleted_notice);

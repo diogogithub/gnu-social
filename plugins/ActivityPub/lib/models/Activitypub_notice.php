@@ -118,10 +118,11 @@ class Activitypub_notice
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param array $object
      * @param Profile $actor_profile
+     * @param bool $directMessage
      * @return Notice
      * @throws Exception
      */
-    public static function create_notice(array $object, Profile $actor_profile = null)
+    public static function create_notice(array $object, Profile $actor_profile = null, bool $directMessage = false): Notice
     {
         $id      = $object['id'];                                // int
         $url     = isset($object['url']) ? $object['url'] : $id; // string
@@ -153,6 +154,10 @@ class Activitypub_notice
                     'uri'      => $id,
                     'url'      => $url,
                     'is_local' => self::getNotePolicyType($object, $actor_profile)];
+
+        if ($directMessage) {
+            $options['scope'] = Notice::MESSAGE_SCOPE;
+        }
 
         // Is this a reply?
         if (isset($settings['inReplyTo'])) {
@@ -192,7 +197,9 @@ class Activitypub_notice
         unset($discovery);
 
         foreach ($mentions_profiles as $mp) {
-            $act->context->attention[ActivityPubPlugin::actor_uri($mp)] = 'http://activitystrea.ms/schema/1.0/person';
+            if (!$mp->hasBlocked($actor_profile)) {
+                $act->context->attention[ActivityPubPlugin::actor_uri($mp)] = 'http://activitystrea.ms/schema/1.0/person';
+            }
         }
 
         // Add location if that is set
@@ -290,21 +297,5 @@ class Activitypub_notice
             // we don't have subscription_policy working.
             return Notice::GATEWAY;
         }
-    }
-
-    /**
-     * Verify if received note is private (direct).
-     * Note that we're conformant with the (yet) non-standard directMessage attribute:
-     * https://github.com/w3c/activitypub/issues/196#issuecomment-304958984
-     *
-     * @param array $activity received Create-Note activity
-     * @return bool true if note is private, false otherwise
-     */
-    public static function isPrivateNote(array $activity): bool {
-        if (isset($activity['directMessage'])) {
-            return $activity['directMessage'];
-        }
-
-        return empty($activity['cc']) && !in_array('https://www.w3.org/ns/activitystreams#Public', $activity['to']);
     }
 }
