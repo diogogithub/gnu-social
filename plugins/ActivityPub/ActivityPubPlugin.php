@@ -287,6 +287,46 @@ class ActivityPubPlugin extends Plugin
     }
 
     /**
+     * Add AP-subscriptions for private messaging
+     *
+     * @param User $current current logged user
+     * @param array &$recipients
+     * @return void
+     */
+    public function onFillDirectMessageRecipients(User $current, array &$recipients): void {
+        try {
+            $subs = Activitypub_profile::getSubscribed($current->getProfile());
+            foreach ($subs as $sub) {
+                if (!$sub->isLocal()) { // AP plugin adds AP users
+                    try {
+                        $value = 'profile:'.$sub->getID();
+                        $recipients[$value] = substr($sub->getAcctUri(), 5) . " [{$sub->getBestName()}]";
+                    } catch (ProfileNoAcctUriException $e) {
+                        $recipients[$value] = "[?@?] " . $e->profile->getBestName();
+                    }
+                }
+            }
+        } catch (NoResultException $e) {
+            // let it go
+        }
+    }
+
+    /**
+     * Validate AP-recipients for profile page message action addition
+     * 
+     * @param Profile $recipient
+     * @return bool hook return value
+     */
+    public function onDirectMessageProfilePageActions(Profile $recipient): bool {
+        $to = Activitypub_profile::getKV('profile_id', $recipient->getID());
+        if ($to instanceof Activitypub_profile) {
+            return false; // we can validate this profile, signal it
+        }
+
+        return true;
+    }
+
+    /**
      * Plugin Nodeinfo information
      *
      * @param array $protocols
@@ -815,12 +855,10 @@ class ActivityPubPlugin extends Plugin
             return true;
         }
 
-        // We handle things locally either because:
-        // 1. the deleting user has special permissions to do so,
-        //    but still doesn't own the notice
-        // 2. the notice is an announce, and there's no undo-share
-        //    logic in GS's AP implementation
-        if (!$notice->isLocal() || $notice->isRepeat()) {
+        // Handle delete locally either because:
+        // 1. There's no undo-share logic yet
+        // 2. The deleting user has previleges to do so (locally)
+        if ($notice->isRepeat() || ($notice->getProfile()->getID() != $profile->getID())) {
             return true;
         }
 
@@ -853,6 +891,29 @@ class ActivityPubPlugin extends Plugin
         $postman = new Activitypub_postman($profile, $other);
         $postman->delete($notice);
         return true;
+    }
+
+    /**
+     * Federate private message
+     *
+     * @param Notice $message
+     * @return void
+     */
+    public function onSendDirectMessage(Notice $message): void {
+        $from = $message->getProfile();
+        if (!$from->isLocal()) {
+            // nothing to do
+            return;
+        }
+
+        $to = Activitypub_profile::from_profile_collection(
+            $message->getAttentionProfiles()
+        );
+
+        if (!empty($to)) {
+            $postman = new Activitypub_postman($from, $to);
+            $postman->create_direct_note($message);
+        }
     }
 
     /**

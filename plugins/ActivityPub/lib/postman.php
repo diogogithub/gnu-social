@@ -48,12 +48,12 @@ class Activitypub_postman
     /**
      * Create a postman to deliver something to someone
      *
-     * @param Profile $from Profile of sender
-     * @param $to
+     * @param Profile $from sender Profile
+     * @param array $to receiver Profiles
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function __construct($from, $to)
+    public function __construct(Profile $from, array $to)
     {
         $this->actor = $from;
         $discovery = new Activitypub_explorer();
@@ -303,6 +303,37 @@ class Activitypub_postman
     }
 
     /**
+     * Send a Create direct-notification to remote instances
+     *
+     * @param Notice $message
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public function create_direct_note(Notice $message)
+    {
+        $data = Activitypub_create::create_to_array(
+            $this->actor_uri,
+            Activitypub_message::message_to_array($message),
+            true
+        );
+        $data = json_encode($data, JSON_UNESCAPED_SLASHES);
+
+        foreach ($this->to_inbox() as $inbox) {
+            $res = $this->send($data, $inbox);
+
+            // accummulate errors for later use, if needed
+            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                $res_body = json_decode($res->getBody(), true);
+                $errors[] = isset($res_body[0]['error']) ?
+                          $res_body[0]['error'] : "An unknown error occurred.";
+            }
+        }
+
+        if (!empty($errors)) {
+            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the create-note activity!");
+        }
+    }
+
+    /**
      * Send a Announce notification to remote instances
      *
      * @param Notice $notice
@@ -368,7 +399,7 @@ class Activitypub_postman
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @return array To Inbox URLs
      */
-    private function to_inbox()
+    private function to_inbox(): array
     {
         $to_inboxes = [];
         foreach ($this->to as $to_profile) {
