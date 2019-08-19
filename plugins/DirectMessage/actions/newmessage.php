@@ -1,66 +1,55 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * GNUsocial implementation of Direct Messages
  *
- * Handler for posting new messages
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Personal
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
- * @author    Zach Copley <zach@status.net>
- * @author    Sarven Capadisli <csarven@status.net>
- * @copyright 2008-2009 StatusNet, Inc.
- * @copyright 2013 Free Software Foundation, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Action for posting new direct messages
  *
- * @category Personal
- * @package  StatusNet
+ * @category Plugin
+ * @package  GNUsocial
  * @author   Evan Prodromou <evan@status.net>
  * @author   Zach Copley <zach@status.net>
  * @author   Sarven Capadisli <csarven@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @author   Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 class NewmessageAction extends FormAction
 {
-    var $content = null;
-    var $to = null;
-    var $other = null;
-
-    protected $form = 'Message';    // will become MessageForm later
+    protected $form     = 'Message';
+    protected $to       = null;
+    protected $content  = null;
 
     /**
-     * Title of the page
-     *
-     * Note that this usually doesn't get called unless something went wrong
+     * Title of the page.
+     * Note that this usually doesn't get called unless something went wrong.
      *
      * @return string page title
      */
-
-    function title()
+    function title() : string
     {
         // TRANS: Page title for new direct message page.
         return _('New message');
@@ -68,31 +57,29 @@ class NewmessageAction extends FormAction
 
     protected function doPreparation()
     {
-        $this->content = $this->trimmed('content');
-        $this->to = $this->trimmed('to');
-
-        if ($this->to) {
-
-            $this->other = Profile::getKV('id', $this->to);
-
-            if (!$this->other instanceof Profile) {
+        if ($this->trimmed('to')) {
+            $this->to = Profile::getKV('id', $this->trimmed('to'));
+            if (!$this->to instanceof Profile) {
                 // TRANS: Client error displayed trying to send a direct message to a non-existing user.
                 $this->clientError(_('No such user.'), 404);
             }
 
-            if (!$this->other->isLocal()) {
-                // TRANS: Explains that current federation does not support direct, private messages yet.
-                $this->clientError(_('You cannot send direct messages to federated users yet.'));
-            }
-
-            if (!$this->scoped->mutuallySubscribed($this->other)) {
-                // TRANS: Client error displayed trying to send a direct message to a user while sender and
-                // TRANS: receiver are not subscribed to each other.
-                $this->clientError(_('You cannot send a message to this user.'), 404);
-            }
+            $this->formOpts['to'] = $this->to;
         }
 
-        return true;
+        if ($this->trimmed('content')) {
+            $this->content = $this->trimmed('content');
+            $this->formOpts['content'] = $this->content;
+        }
+
+        if ($this->trimmed('to-box')) {
+            $selected = explode(':', $this->trimmed('to-box'));
+            
+            if (sizeof($selected) == 2) {
+                $this->to = Profile::getKV('id', $selected[1]);
+                // validating later
+            }
+        }
     }
 
     protected function doPost()
@@ -106,35 +93,43 @@ class NewmessageAction extends FormAction
 
         $content_shortened = $this->scoped->shortenLinks($this->content);
 
-        if (Message::contentTooLong($content_shortened)) {
+        if (MessageModel::contentTooLong($content_shortened)) {
             // TRANS: Form validation error displayed when message content is too long.
             // TRANS: %d is the maximum number of characters for a message.
             $this->clientError(sprintf(_m('That\'s too long. Maximum message size is %d character.',
                                        'That\'s too long. Maximum message size is %d characters.',
-                                       Message::maxContent()),
-                                    Message::maxContent()));
+                                       MessageModel::maxContent()),
+                                    MessageModel::maxContent()));
         }
 
-        if (!$this->other instanceof Profile) {
-            // TRANS: Form validation error displayed trying to send a direct message without specifying a recipient.
-            $this->clientError(_('No recipient specified.'));
-        } else if (!$this->scoped->mutuallySubscribed($this->other)) {
-            // TRANS: Client error displayed trying to send a direct message to a user while sender and
-            // TRANS: receiver are not subscribed to each other.
-            $this->clientError(_('You cannot send a message to this user.'), 404);
-        } else if ($this->scoped->id == $this->other->id) {
-            // TRANS: Client error displayed trying to send a direct message to self.
-            $this->clientError(_('Do not send a message to yourself; ' .
-                'just say it to yourself quietly instead.'), 403);
+        // validate recipients
+        if (!$this->to instanceof Profile) {
+            $mentions = common_find_mentions($this->content, $this->scoped);
+            if (empty($mentions)) {
+                $this->clientError(_('No recipients specified.'));
+            }
+        } else {
+            // push to-box profile to the content message, will be
+            // detected during Notice save
+            try {
+                if ($this->to->isLocal()) {
+                    $this->content = "@{$this->to->getNickname()} {$this->content}";
+                } else {
+                    $this->content = '@' . substr($this->to->getAcctUri(), 5) . " {$this->content}";
+                }
+            } catch (ProfileNoAcctUriException $e) {
+                // well, I'm no magician
+            }
         }
 
-        $message = Message::saveNew($this->scoped->id, $this->other->id, $this->content, 'web');
-        $message->notify();
+        $message = MessageModel::saveNew($this->scoped, $this->content);
+        Event::handle('SendDirectMessage', [$message]);
+        mail_notify_message($message);
 
         if (GNUsocial::isAjax()) {
             // TRANS: Confirmation text after sending a direct message.
             // TRANS: %s is the direct message recipient.
-            return sprintf(_('Direct message to %s sent.'), $this->other->getNickname());
+            return sprintf(_('Direct message to %s sent.'), $this->to->getNickname());
         }
 
         $url = common_local_url('outbox', array('nickname' => $this->scoped->getNickname()));

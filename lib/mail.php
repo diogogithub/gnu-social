@@ -576,53 +576,66 @@ function mail_notify_nudge($from, $to)
  * This function checks to see if the recipient wants notification
  * of DMs and has a configured email address.
  *
- * @param Message $message message to notify about
- * @param User    $from    user sending message; default to sender
- * @param User    $to      user receiving message; default to recipient
+ * @param Notice $message message to notify about
+ * @param User   $from    user sending message
+ * @param array  $to      users receiving the message
  *
  * @return boolean success code
  */
-function mail_notify_message($message, $from=null, $to=null)
+function mail_notify_message(Notice $message, Profile $from = null, ?array $to = null)
 {
     if (is_null($from)) {
-        $from = User::getKV('id', $message->from_profile);
+        $from = $message->getProfile();
     }
 
     if (is_null($to)) {
-        $to = User::getKV('id', $message->to_profile);
+        $to = [];
+        foreach ($message->getAttentionProfiles() as $attention) {
+            if ($attention->isLocal()) {
+                $to[] = $attention;
+            }
+        }
     }
 
-    if (is_null($to->email) || !$to->emailnotifymsg) {
-        return true;
+    $success = true;
+
+    foreach ($to as $t) {
+        if (is_null($t->email) || !$t->emailnotifymsg) {
+            continue;
+        }
+
+        common_switch_locale($t->language);
+        // TRANS: Subject for direct-message notification email.
+        // TRANS: %s is the sending user's nickname.
+        $subject = sprintf(_('New private message from %s'), $from->getNickname());
+
+        // TRANS: Body for direct-message notification email.
+        // TRANS: %1$s is the sending user's long name, %2$s is the sending user's nickname,
+        // TRANS: %3$s is the message content, %4$s a URL to the message,
+        $body = sprintf(_("%1\$s (%2\$s) sent you a private message:\n\n".
+                        "------------------------------------------------------\n".
+                        "%3\$s\n".
+                        "------------------------------------------------------\n\n".
+                        "You can reply to their message here:\n\n".
+                        "%4\$s\n\n".
+                        "Don't reply to this email; it won't get to them."),
+                        $from->getBestName(),
+                        $from->getNickname(),
+                        $message->getContent(),
+                        common_local_url('newmessage', ['to' => $from->getID()])) .
+                mail_footer_block();
+
+        $headers = _mail_prepare_headers('message', $t->getNickname(), $from->getNickname());
+
+        common_switch_locale();
+
+        if (!mail_to_user($t, $subject, $body, $headers)) {
+            common_log(LOG_ERR, "Failed to notify user:{$t->getID()} about the new message:{$message->getID()} sent by user:{$from->getID()}");
+            $success = false;
+        }
     }
 
-    common_switch_locale($to->language);
-    // TRANS: Subject for direct-message notification email.
-    // TRANS: %s is the sending user's nickname.
-    $subject = sprintf(_('New private message from %s'), $from->nickname);
-
-    $from_profile = $from->getProfile();
-
-    // TRANS: Body for direct-message notification email.
-    // TRANS: %1$s is the sending user's long name, %2$s is the sending user's nickname,
-    // TRANS: %3$s is the message content, %4$s a URL to the message,
-    $body = sprintf(_("%1\$s (%2\$s) sent you a private message:\n\n".
-                      "------------------------------------------------------\n".
-                      "%3\$s\n".
-                      "------------------------------------------------------\n\n".
-                      "You can reply to their message here:\n\n".
-                      "%4\$s\n\n".
-                      "Don't reply to this email; it won't get to them."),
-                    $from_profile->getBestName(),
-                    $from->nickname,
-                    $message->content,
-                    common_local_url('newmessage', array('to' => $from->id))) .
-            mail_footer_block();
-
-    $headers = _mail_prepare_headers('message', $to->nickname, $from->nickname);
-
-    common_switch_locale();
-    return mail_to_user($to, $subject, $body, $headers);
+    return $success;
 }
 
 /**
