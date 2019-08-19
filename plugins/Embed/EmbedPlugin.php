@@ -133,7 +133,7 @@ class EmbedPlugin extends Plugin
             if (substr($info->image, 0, 4) === 'data') {
                 // Inline image
                 $img_data = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
-                list($filename, $_, $_) = $this->validateAndWriteImage($img_data);
+                list($filename, , ) = $this->validateAndWriteImage($img_data);
                 // Use a file URI for images, as file_embed can't store a filename
                 $metadata->thumbnail_url = 'file://' . File_thumbnail::path($filename);
             } else {
@@ -509,18 +509,18 @@ class EmbedPlugin extends Plugin
     }
 
     /**
-     * Validate that $img_data is a valid image before writing it to
+     * Validate that $imgData is a valid image before writing it to
      * disk, as well as resizing it to at most $this->thumbnail_width
      * by $this->thumbnail_height
      *
-     * @param string $img_data - The image data to validate. Taken by reference to avoid copying
+     * @param $imgData - The image data to validate. Taken by reference to avoid copying
      * @param string|null $url - The url where the image came from, to fetch metadata
      * @param array|null $headers - The headers possible previous request to $url
      * @param int|null $file_id - The id of the file this image belongs to, used for logging
      */
-    protected function validateAndWriteImage(string &$img_data, ?string $url = null, ?string $headers = null, ?int $file_id = 0) : array
+    protected function validateAndWriteImage(&$imgData, $url = null, $headers = null, $file_id = 0) : array
     {
-        $info = @getimagesizefromstring($img_data);
+        $info = @getimagesizefromstring($imgData);
         // array indexes documented on php.net:
         // https://php.net/manual/en/function.getimagesize.php
         if ($info === false) {
@@ -531,7 +531,7 @@ class EmbedPlugin extends Plugin
 
         $width = min($info[0], $this->thumbnail_width);
         $height = min($info[1], $this->thumbnail_height);
-        $filehash = hash(File::FILEHASH_ALG, $img_data);
+        $filehash = hash(File::FILEHASH_ALG, $imgData);
 
         try {
             if (!empty($url)) {
@@ -611,8 +611,8 @@ class EmbedPlugin extends Plugin
             $headers = array_change_key_case($headers, CASE_LOWER);
 
             try {
-                $isImage = $this->isRemoteImage($url, $headers);
-                if ($isImage == true) {
+                $is_image = $this->isRemoteImage($url, $headers);
+                if ($is_image == true) {
                     $max_size  = common_get_preferred_php_upload_limit();
                     $file_size = $this->getRemoteFileSize($url, $headers);
                     if (($file_size!=false) && ($file_size > $max_size)) {
@@ -633,9 +633,9 @@ class EmbedPlugin extends Plugin
                 $thumbnail->file_id,
                 $url
             ));
-            $img_data = HTTPClient::quickGet($url);
+            $imgData = HTTPClient::quickGet($url);
 
-            list($filename, $width, $height) = $this->validateAndWriteImage($img_data, $url, $headers,
+            list($filename, $width, $height) = $this->validateAndWriteImage($imgData, $url, $headers,
                                                                             $thumbnail->file_id);
         }
 
