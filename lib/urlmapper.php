@@ -57,7 +57,8 @@ class URLMapper
 
     protected $statics = [];
     protected $variables = [];
-    protected $reverse = [];
+    protected $reverse_dynamics = [];
+    protected $reverse_statics = [];
     protected $allpaths = [];
 
     /**
@@ -97,10 +98,10 @@ class URLMapper
 
         if (empty($paramNames)) {
             $this->statics[$path] = $args;
-            if (array_key_exists($action, $this->reverse)) {
-                $this->reverse[$action][] = [$args, $path];
+            if (array_key_exists($action, $this->reverse_statics)) {
+                $this->reverse_statics[$action][] = [$args, $path];
             } else {
-                $this->reverse[$action] = [[$args, $path]];
+                $this->reverse_statics[$action] = [[$args, $path]];
             }
         } else {
             // fix for the code that still make improper use of this function's params
@@ -115,7 +116,6 @@ class URLMapper
             // $variables is used for path matching, so we can't store invalid routes
             if ($should) {
                 $regex = self::makeRegex($path, $paramPatterns);
-
                 if (isset($this->variables[$regex]) || !$acceptHeaders) {
                     $this->variables[$regex] = [$args, $paramNames];
                 } else {
@@ -128,10 +128,10 @@ class URLMapper
 
             $format = $this->makeFormat($path);
 
-            if (array_key_exists($action, $this->reverse)) {
-                $this->reverse[$action][] = [$args, $format, $paramNames];
+            if (array_key_exists($action, $this->reverse_dynamics)) {
+                $this->reverse_dynamics[$action][] = [$args, $format, $paramNames];
             } else {
-                $this->reverse[$action] = [[$args, $format, $paramNames]];
+                $this->reverse_dynamics[$action] = [[$args, $format, $paramNames]];
             }
         }
     }
@@ -164,47 +164,57 @@ class URLMapper
 
         $action = $args[self::ACTION];
 
-        if (!array_key_exists($action, $this->reverse)) {
+        if (!array_key_exists($action, $this->reverse_dynamics) && !array_key_exists($action, $this->reverse_statics)) {
             throw new Exception(sprintf('No candidate paths for action "%s"', $action));
         }
 
-        $candidates = $this->reverse[$action];
+        $candidates = $this->reverse_dynamics[$action];
 
         foreach ($candidates as $candidate) {
-            if (count($candidate) == 2) { // static
-                list($tryArgs, $tryPath) = $candidate;
-                foreach ($tryArgs as $key => $value) {
-                    if (!array_key_exists($key, $args) || $args[$key] != $value) {
-                        // next candidate
-                        continue 2;
-                    }
+            list($tryArgs, $format, $paramNames) = $candidate;
+
+            foreach ($tryArgs as $key => $value) {
+                if (!array_key_exists($key, $args) || $args[$key] != $value) {
+                    // next candidate
+                    continue 2;
                 }
-                // success
-                $path = $tryPath;
-            } else {
-                list($tryArgs, $format, $paramNames) = $candidate;
-
-                foreach ($tryArgs as $key => $value) {
-                    if (!array_key_exists($key, $args) || $args[$key] != $value) {
-                        // next candidate
-                        continue 2;
-                    }
-                }
-
-                // success
-
-                $toFormat = [];
-
-                foreach ($paramNames as $name) {
-                    if (!array_key_exists($name, $args)) {
-                        // next candidate
-                        continue 2;
-                    }
-                    $toFormat[] = $args[$name];
-                }
-
-                $path = vsprintf($format, $toFormat);
             }
+
+            // success
+            $toFormat = [];
+
+            foreach ($paramNames as $name) {
+                if (!array_key_exists($name, $args)) {
+                    // next candidate
+                    continue 2;
+                }
+                $toFormat[] = $args[$name];
+            }
+
+            $path = vsprintf($format, $toFormat);
+
+            if (!empty($qstring)) {
+                $formatted = http_build_query($qstring);
+                $path .= '?' . $formatted;
+            }
+
+            return $path;
+        }
+
+        $candidates = $this->reverse_statics[$action];
+
+        foreach ($candidates as $candidate) {
+            list($tryArgs, $tryPath) = $candidate;
+
+            foreach ($tryArgs as $key => $value) {
+                if (!array_key_exists($key, $args) || $args[$key] != $value) {
+                    // next candidate
+                    continue 2;
+                }
+            }
+
+            // success
+            $path = $tryPath;
 
             if (!empty($qstring)) {
                 $formatted = http_build_query($qstring);
