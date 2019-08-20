@@ -56,17 +56,7 @@ class Activitypub_postman
     public function __construct(Profile $from, array $to)
     {
         $this->actor = $from;
-        $discovery = new Activitypub_explorer();
         $this->to = $to;
-        $followers = apActorFollowersAction::generate_followers($this->actor, 0, null);
-        foreach ($followers as $sub) {
-            try {
-                $this->to[]= Activitypub_profile::from_profile($discovery->lookup($sub)[0]);
-            } catch (Exception $e) {
-                // Not an ActivityPub Remote Follower, let it go
-            }
-        }
-        unset($discovery);
 
         $this->actor_uri = ActivityPubPlugin::actor_uri($this->actor);
 
@@ -317,7 +307,7 @@ class Activitypub_postman
         );
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
-        foreach ($this->to_inbox() as $inbox) {
+        foreach ($this->to_inbox(false) as $inbox) {
             $res = $this->send($data, $inbox);
 
             // accummulate errors for later use, if needed
@@ -397,10 +387,24 @@ class Activitypub_postman
      * Clean list of inboxes to deliver messages
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
+     * @param bool $actorFollowers whether to include the actor's follower collection
      * @return array To Inbox URLs
      */
-    private function to_inbox(): array
+    private function to_inbox(bool $actorFollowers = true): array
     {
+        if ($actorFollowers) {
+            $discovery = new Activitypub_explorer();
+            $followers = apActorFollowersAction::generate_followers($this->actor, 0, null);
+            foreach ($followers as $sub) {
+                try {
+                    $this->to[]= Activitypub_profile::from_profile($discovery->lookup($sub)[0]);
+                } catch (Exception $e) {
+                    // Not an ActivityPub Remote Follower, let it go
+                }
+            }
+            unset($discovery);
+        }
+
         $to_inboxes = [];
         foreach ($this->to as $to_profile) {
             $i = $to_profile->get_inbox();
