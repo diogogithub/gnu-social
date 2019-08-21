@@ -139,7 +139,7 @@ class RedisCachePlugin extends Plugin
                             'homepage' => 'https://github.com/chimo/gs-rediscache',
                             'description' =>
                             // TRANS: Plugin description.
-                            _m(''));
+                            _m('Plugin implementing Redis as a backend for GNU social caching'));
         return true;
     }
 }
