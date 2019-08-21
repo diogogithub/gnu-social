@@ -212,7 +212,7 @@ class ActivityPubPlugin extends Plugin
             'name' => 'ActivityPub',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Diogo Cordeiro',
-            'homepage' => 'https://notabug.org/diogo/gnu-social/src/activitypub/plugins/ActivityPub',
+            'homepage' => 'https://notabug.org/diogo/gnu-social/src/nightly/plugins/ActivityPub',
             // TRANS: Plugin description.
             'rawdescription' => _m('Follow people across social networks that implement '.
             '<a href="https://activitypub.rocks/">ActivityPub</a>.')
