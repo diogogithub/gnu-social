@@ -202,10 +202,10 @@ class ExtendedProfilePlugin extends Plugin
             $action_name = $nav->action->trimmed('action');
 
             $nav->out->menuItem(
-                '/admin/profilefields',
+                common_local_url('profilefieldsAdminPanel'),
                 _m('Profile Fields'),
                 _m('Custom profile fields'),
-                $action_name == 'profilefieldsadminpanel',
+                $action_name == 'profilefieldsAdminPanel',
                 'nav_profilefields_admin_panel'
             );
         }
