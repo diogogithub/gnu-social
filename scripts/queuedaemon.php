@@ -71,7 +71,7 @@ END_OF_QUEUE_HELP;
 
 require_once INSTALLDIR.'/scripts/commandline.inc';
 
-require_once(INSTALLDIR.'/lib/daemon.php');
+require_once(INSTALLDIR . '/lib/daemon.php');
 require_once(INSTALLDIR.'/classes/Queue_item.php');
 require_once(INSTALLDIR.'/classes/Notice.php');
 

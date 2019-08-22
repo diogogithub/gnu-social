@@ -573,7 +573,7 @@ class Memcached_DataObject extends Safe_DataObject
 
     function getSearchEngine($table)
     {
-        require_once INSTALLDIR.'/lib/search_engines.php';
+        require_once INSTALLDIR . '/lib/search_engines.php';
 
         if (Event::handle('GetSearchEngine', array($this, $table, &$search_engine))) {
             if ('mysql' === common_config('db', 'type')) {

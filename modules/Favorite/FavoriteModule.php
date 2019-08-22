@@ -602,7 +602,7 @@ function mail_notify_fave(User $rcpt, Profile $sender, Notice $notice)
     }
 
     // We need the global mail.php for various mail related functions below.
-    require_once INSTALLDIR.'/lib/mail.php';
+    require_once INSTALLDIR . '/lib/mail.php';
 
     $bestname = $sender->getBestName();
 
