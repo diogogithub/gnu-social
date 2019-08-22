@@ -33,7 +33,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-require_once INSTALLDIR.'/lib/searchaction.php';
+require_once INSTALLDIR . '/lib/searchaction.php';
 
 /**
  * Notice search action class.
