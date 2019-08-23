@@ -100,7 +100,7 @@ class DirectMessagePlugin extends Plugin
      * @param Command|bool &$result The resulting command object to be run.
      * @return bool hook value
      */
-    public function onStartInterpretCommand(string $cmd, string $arg, User $user, &$result) : bool
+    public function onStartInterpretCommand(string $cmd, ?string $arg, User $user, &$result) : bool
     {
         $dm_cmds = ['d', 'dm'];
 
