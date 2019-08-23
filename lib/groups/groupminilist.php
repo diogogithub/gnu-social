@@ -31,7 +31,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/grouplist.php';
+require_once INSTALLDIR . '/lib/groups/grouplist.php';
 
 /**
  * Widget to show a list of groups, good for sidebar

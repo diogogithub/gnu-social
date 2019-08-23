@@ -32,7 +32,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/servererroraction.php';
+require_once INSTALLDIR . '/lib/action/servererroraction.php';
 
 /**
  * Class for displaying DB Errors

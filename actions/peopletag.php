@@ -35,7 +35,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/peopletaglist.php';
+require_once INSTALLDIR . '/lib/profile/peopletaglist.php';
 // cache 3 pages
 define('PEOPLETAG_CACHE_WINDOW', PEOPLETAGS_PER_PAGE*3 + 1);
 

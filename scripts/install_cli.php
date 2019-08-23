@@ -34,7 +34,7 @@ define('INSTALLDIR', dirname(__DIR__));
 define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 set_include_path(get_include_path() . PATH_SEPARATOR . INSTALLDIR . '/extlib');
 
-require_once INSTALLDIR . '/lib/installer.php';
+require_once INSTALLDIR . '/lib/util/installer.php';
 require_once 'Console/Getopt.php';
 
 class CliInstaller extends Installer

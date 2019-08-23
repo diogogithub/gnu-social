@@ -31,7 +31,7 @@ if (!defined('GNUSOCIAL')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/noticelist.php';
+require_once INSTALLDIR . '/lib/notices/noticelist.php';
 
 /**
  * Show a single notice

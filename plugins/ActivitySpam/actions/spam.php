@@ -34,7 +34,7 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/noticelist.php';
+require_once INSTALLDIR . '/lib/notices/noticelist.php';
 
 /**
  * SpamAction

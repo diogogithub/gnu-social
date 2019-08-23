@@ -16,7 +16,7 @@
 
 defined('STATUSNET') || die();
 
-require_once INSTALLDIR . '/lib/deletetree.php';
+require_once INSTALLDIR . '/lib/util/deletetree.php';
 
 /**
  * Form for deleting a plugin

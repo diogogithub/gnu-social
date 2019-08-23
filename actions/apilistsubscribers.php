@@ -29,7 +29,7 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/apilistusers.php';
+require_once INSTALLDIR . '/lib/api/apilistusers.php';
 
 class ApiListSubscribersAction extends ApiListUsersAction
 {

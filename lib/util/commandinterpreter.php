@@ -19,7 +19,7 @@
 
 if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
 
-require_once INSTALLDIR . '/lib/command.php';
+require_once INSTALLDIR . '/lib/util/command.php';
 
 class CommandInterpreter
 {

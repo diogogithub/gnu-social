@@ -100,12 +100,12 @@ require_once 'DB/DataObject/Cast.php'; # for dates
 global $_DB;
 $_DB = new DB;
 
-require_once INSTALLDIR . '/lib/language.php';
+require_once INSTALLDIR . '/lib/util/language.php';
 
 // This gets included before the config file, so that admin code and plugins
 // can use it
 
-require_once INSTALLDIR . '/lib/event.php';
+require_once INSTALLDIR . '/lib/util/event.php';
 require_once INSTALLDIR . '/lib/modules/Module.php';
 require_once INSTALLDIR . '/lib/modules/Plugin.php';
 
@@ -163,9 +163,9 @@ spl_autoload_register(function ($class) {
         return;
     }
 });
-require_once INSTALLDIR . '/lib/util.php';
-require_once INSTALLDIR . '/lib/action.php';
-require_once INSTALLDIR . '/lib/mail.php';
+require_once INSTALLDIR . '/lib/util/util.php';
+require_once INSTALLDIR . '/lib/action/action.php';
+require_once INSTALLDIR . '/lib/util/mail.php';
 
 //set PEAR error handling to use regular PHP exceptions
 function PEAR_ErrorToPEAR_Exception(PEAR_Error $err)

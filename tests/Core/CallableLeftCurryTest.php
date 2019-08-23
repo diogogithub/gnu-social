@@ -25,7 +25,7 @@ if (!defined('GNUSOCIAL')) {
 
 use PHPUnit\Framework\TestCase;
 
-require_once INSTALLDIR . "/lib/callableleftcurry.php";
+require_once INSTALLDIR . '/lib/util/callableleftcurry.php';
 
 final class CallableLeftCurryTest extends TestCase
 {

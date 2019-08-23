@@ -31,7 +31,7 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/noticelist.php';
+require_once INSTALLDIR . '/lib/notices/noticelist.php';
 
 /**
  * StatusNet, the distributed open-source microblogging tool

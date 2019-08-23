@@ -2,7 +2,7 @@
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
-require_once __DIR__ . '/lib/util.php';
+require_once __DIR__ . '/lib/util/util.php';
 
 /*
  * This plugin lets you type @twitter.com/singpolyma

@@ -31,7 +31,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-require_once(INSTALLDIR . '/lib/profilelist.php');
+require_once INSTALLDIR . '/lib/profile/profilelist.php';
 
 /**
  * List of people tagged by the user with a tag

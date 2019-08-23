@@ -32,7 +32,7 @@ if (!defined('STATUSNET')) { // Compatibility
 use PHPUnit\Framework\TestCase;
 use UUID;
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 final class UUIDTest extends TestCase
 {

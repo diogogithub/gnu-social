@@ -32,7 +32,7 @@ if (!defined('GNUSOCIAL')) {
     exit(1);
 }
 
-require_once(INSTALLDIR . '/lib/activitystreamjsondocument.php');
+require_once INSTALLDIR . '/lib/activitystreams/activitystreamjsondocument.php';
 
 /**
  * A noun-ish thing in the activity universe

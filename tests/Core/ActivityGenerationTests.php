@@ -41,7 +41,7 @@ use PHPUnit\Framework\TestCase;
 use User;
 use User_group;
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 final class ActivityGenerationTests extends TestCase
 {

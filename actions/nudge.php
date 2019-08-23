@@ -33,7 +33,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/mail.php';
+require_once INSTALLDIR . '/lib/util/mail.php';
 
 /**
  * Nudge a user action class.

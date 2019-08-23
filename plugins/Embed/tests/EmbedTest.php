@@ -34,7 +34,7 @@ if (!defined('GNUSOCIAL')) {
 if (!defined('STATUSNET')) { // Compatibility
     define('STATUSNET', true);
 }
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 final class oEmbedTest extends TestCase
 {

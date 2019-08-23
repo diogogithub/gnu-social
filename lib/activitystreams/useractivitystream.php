@@ -359,7 +359,7 @@ class UserActivityStream extends AtomUserNoticeFeed
 
     function writeJSON($handle)
     {
-        require_once INSTALLDIR . '/lib/activitystreamjsondocument.php';
+        require_once INSTALLDIR . '/lib/activitystreams/activitystreamjsondocument.php';
         fwrite($handle, '{"items": [');
         $this->renderEntries(Feed::JSON, $handle);
         fwrite($handle, ']}');

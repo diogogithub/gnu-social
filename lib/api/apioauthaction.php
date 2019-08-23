@@ -30,7 +30,7 @@
 if (!defined('STATUSNET')) {
     exit(1);
 }
-require_once INSTALLDIR . '/lib/apiaction.php';
+require_once INSTALLDIR . '/lib/api/apiaction.php';
 
 /**
  * Base action for API OAuth enpoints. Clean up the

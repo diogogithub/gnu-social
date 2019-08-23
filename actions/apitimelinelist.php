@@ -35,7 +35,7 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/atomlistnoticefeed.php';
+require_once INSTALLDIR . '/lib/feeds/atomlistnoticefeed.php';
 
 /**
  * Returns the most recent notices (default 20) posted to the list specified by ID

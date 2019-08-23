@@ -32,7 +32,7 @@ if (!defined('STATUSNET')) { // Compatibility
 use CommandInterpreter;
 use PHPUnit\Framework\TestCase;
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 final class CommandInterpreterTest extends TestCase
 {
