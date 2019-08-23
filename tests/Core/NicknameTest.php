@@ -39,7 +39,7 @@ use NicknameTakenException;
 use NicknameTooLongException;
 use PHPUnit\Framework\TestCase;
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 /**
  * Test cases for nickname validity and normalization.

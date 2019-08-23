@@ -33,7 +33,7 @@ use GeonamesPlugin;
 use Location;
 use PHPUnit\Framework\TestCase;
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 // Make sure this is loaded
 // XXX: how to test other plugins...?

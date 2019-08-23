@@ -85,7 +85,7 @@ function mailConfirmAddress(Confirm_address $ca)
     mail_confirm_address($user, $ca->code, $user->getNickname(), $ca->address);
 }
 
-require_once(INSTALLDIR . '/lib/mail.php');
+require_once INSTALLDIR . '/lib/util/mail.php';
 
 if (!$all) {
     mailConfirmAddress($ca);

@@ -352,7 +352,7 @@ class GNUsocial
     protected static function defaultConfig()
     {
         global $_server, $_path;
-        require(INSTALLDIR . '/lib/default.php');
+        require(INSTALLDIR . '/lib/util/default.php');
         return $default;
     }
 

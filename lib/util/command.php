@@ -19,7 +19,7 @@
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
-require_once(INSTALLDIR . '/lib/util/channel.php');
+require_once(INSTALLDIR . '/lib/ui/channel.php');
 
 class Command
 {

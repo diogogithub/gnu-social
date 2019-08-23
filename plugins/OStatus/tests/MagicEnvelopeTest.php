@@ -9,7 +9,7 @@ define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
 define('GNUSOCIAL', true);
 define('STATUSNET', true);  // compatibility
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 class MagicEnvelopeTest extends PHPUnit_Framework_TestCase
 {

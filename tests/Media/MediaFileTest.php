@@ -35,7 +35,7 @@ use MediaFile;
 use PHPUnit\Framework\TestCase;
 use ServerException;
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 final class MediaFileTest extends TestCase
 {

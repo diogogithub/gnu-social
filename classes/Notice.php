@@ -1890,7 +1890,7 @@ class Notice extends Managed_DataObject
 
         $recipientIds = $this->getReplies();
         if (Event::handle('StartNotifyMentioned', array($this, &$recipientIds))) {
-            require_once INSTALLDIR . '/lib/mail.php';
+            require_once INSTALLDIR . '/lib/util/mail.php';
 
             foreach ($recipientIds as $recipientId) {
                 try {

@@ -27,8 +27,8 @@ as STDIN.
 
 END_OF_HELP;
 
-require_once INSTALLDIR.'/scripts/commandline.inc';
-require_once INSTALLDIR . '/lib/mailhandler.php';
+require_once INSTALLDIR . '/scripts/commandline.inc';
+require_once INSTALLDIR . '/lib/util/mailhandler.php';
 
 if (common_config('emailpost', 'enabled')) {
     $mh = new MailHandler();

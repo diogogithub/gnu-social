@@ -142,7 +142,7 @@ class Confirm_address extends Managed_DataObject
                         $args['sitename'],
                         $args['url']);
 
-        require_once(INSTALLDIR . '/lib/mail.php');
+        require_once INSTALLDIR . '/lib/util/mail.php';
         return mail_to_user($this->getProfile()->getUser(), $subject, $body, $args['headers'], $this->getAddress());
     }
 

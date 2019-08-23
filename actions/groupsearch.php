@@ -32,8 +32,8 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-//require_once INSTALLDIR.'/lib/searchaction.php';
-//require_once INSTALLDIR.'/lib/profilelist.php';
+require_once INSTALLDIR . '/lib/search/searchaction.php';
+require_once INSTALLDIR . '/lib/profile/profilelist.php';
 
 /**
  * Group search action class.

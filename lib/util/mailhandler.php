@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once(INSTALLDIR . '/lib/mail.php');
+require_once INSTALLDIR . '/lib/util/mail.php';
 require_once('Mail/mimeDecode.php');
 
 // @todo FIXME: we use both Mail_mimeDecode and mailparse

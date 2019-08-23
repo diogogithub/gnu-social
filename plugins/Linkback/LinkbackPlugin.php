@@ -31,7 +31,7 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-require_once(__DIR__ . '/lib/util.php');
+require_once __DIR__ . '/lib/util/util.php';
 
 define('LINKBACKPLUGIN_VERSION', '0.2');
 

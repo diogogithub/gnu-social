@@ -24,7 +24,7 @@
 
 if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
 
-require_once INSTALLDIR . '/lib/peopletaglist.php';
+require_once INSTALLDIR . '/lib/profile/peopletaglist.php';
 
 /**
  * Key UI methods:

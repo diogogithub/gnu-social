@@ -152,11 +152,11 @@ abstract class Installer
         if (!$this->skipConfig) {
             define('GNUSOCIAL', true);
             define('STATUSNET', true);
-            require_once INSTALLDIR . '/lib/language.php';
+            require_once INSTALLDIR . '/lib/util/language.php';
             $_server = $this->server;
             $_path = $this->path; // We won't be using those so it's safe to do this small hack
-            require_once INSTALLDIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'util.php';
-            require_once INSTALLDIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'default.php';
+            require_once INSTALLDIR . '/lib/util/util.php';
+            require_once INSTALLDIR . '/lib/util/default.php';
             $fileSubdirs = [
                 empty($this->avatarDir) ? $default['avatar']['dir'] : $this->avatarDir,
                 empty($this->fileDir) ? $default['attachments']['dir'] : $this->fileDir
@@ -535,7 +535,7 @@ abstract class Installer
         // initalize hostname from install arguments, so it can be used to find
         // the /etc config file from the commandline installer
         $server = $this->server;
-        require_once INSTALLDIR . '/lib/common.php';
+        require_once INSTALLDIR . '/lib/util/common.php';
 
         $data = ['nickname' => $this->adminNick,
             'password' => $this->adminPass,
@@ -580,7 +580,7 @@ abstract class Installer
             define('STATUSNET', true);
         }
 
-        require_once INSTALLDIR . '/lib/framework.php';
+        require_once INSTALLDIR . '/lib/util/framework.php';
         GNUsocial::initDefaults($this->server, $this->path);
 
         if ($this->siteProfile == "singleuser") {

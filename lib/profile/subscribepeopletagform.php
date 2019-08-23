@@ -31,7 +31,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/form.php';
+require_once INSTALLDIR . '/lib/util/form.php';
 
 /**
  * Form for subscribing to a peopletag

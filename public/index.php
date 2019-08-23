@@ -168,7 +168,7 @@ if (preg_replace("/\?.+$/", "", $_SERVER['REQUEST_URI']) === preg_replace("/^\/$
     die("Fancy URL support detection succeeded. We suggest you enable this to get fancy (pretty) URLs.");
 }
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 /**
  * Format a backtrace line for debug output roughly like debug_print_backtrace() does.

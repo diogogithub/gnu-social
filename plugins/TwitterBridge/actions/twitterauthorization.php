@@ -31,7 +31,7 @@
 if (!defined('GNUSOCIAL')) { exit(1); }
 
 require_once dirname(__DIR__) . '/twitter.php';
-require_once INSTALLDIR . '/lib/oauthclient.php';
+require_once INSTALLDIR . '/lib/util/oauthclient.php';
 
 /**
  * Class for doing OAuth authentication against Twitter

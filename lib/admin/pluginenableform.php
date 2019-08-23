@@ -16,7 +16,7 @@
 
 defined('STATUSNET') || die();
 
-require_once INSTALLDIR . '/lib/form.php';
+require_once INSTALLDIR . '/lib/util/form.php';
 
 /**
  * Form for enabling a plugin

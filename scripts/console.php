@@ -29,7 +29,7 @@ define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 define('GNUSOCIAL', true);
 define('STATUSNET', true);
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 // Try to find an autoloader for a local psysh version.
 // We'll wrap this whole mess in a Closure so it doesn't leak any globals.

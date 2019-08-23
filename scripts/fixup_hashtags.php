@@ -29,7 +29,7 @@ define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 define('GNUSOCIAL', true);
 define('STATUSNET', true);  // compatibility
 
-require_once(INSTALLDIR . '/lib/common.php');
+require_once INSTALLDIR . '/lib/util/common.php';
 
 common_log(LOG_INFO, 'Starting to do old notices.');
 

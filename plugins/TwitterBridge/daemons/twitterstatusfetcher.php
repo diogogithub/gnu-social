@@ -37,8 +37,8 @@ Batch script for retrieving Twitter messages from foreign service.
 END_OF_TRIM_HELP;
 
 require_once INSTALLDIR . '/scripts/commandline.inc';
-require_once INSTALLDIR . '/lib/common.php';
-require_once INSTALLDIR . '/lib/daemon.php';
+require_once INSTALLDIR . '/lib/util/common.php';
+require_once INSTALLDIR . '/lib/util/daemon.php';
 require_once dirname(__DIR__) . '/twitter.php';
 
 /**

@@ -120,7 +120,7 @@ foreach ($options as $option) {
     }
 }
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 set_error_handler('common_error_handler');
 

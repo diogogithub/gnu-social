@@ -1102,7 +1102,7 @@ function callback_helper($matches, $callback, $arg = null)
     return substr($matches[0], 0, $left) . $result . substr($matches[0], $right);
 }
 
-require_once INSTALLDIR . "/lib/callableleftcurry.php";
+require_once INSTALLDIR . '/lib/util/callableleftcurry.php';
 
 function common_linkify($url)
 {

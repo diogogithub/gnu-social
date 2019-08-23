@@ -872,7 +872,7 @@ class User extends Managed_DataObject
 
     static function recoverPassword($nore)
     {
-        require_once(INSTALLDIR . '/lib/mail.php');
+        require_once INSTALLDIR . '/lib/util/mail.php';
 
         // $confirm_email will be used as a fallback if our user doesn't have a confirmed email
         $confirm_email = null;

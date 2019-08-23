@@ -16,8 +16,8 @@
 
 defined('STATUSNET') || die();
 
-require INSTALLDIR . "/lib/pluginenableform.php";
-require INSTALLDIR . "/lib/plugindisableform.php";
+require INSTALLDIR . "/lib/admin/pluginenableform.php";
+require INSTALLDIR . "/lib/admin/plugindisableform.php";
 
 /**
  * Plugin list

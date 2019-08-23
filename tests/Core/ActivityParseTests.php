@@ -36,7 +36,7 @@ use ActivityVerb;
 use DOMDocument;
 use PHPUnit\Framework\TestCase;
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 final class ActivityParseTests extends TestCase
 {

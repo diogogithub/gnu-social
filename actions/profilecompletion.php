@@ -31,7 +31,7 @@ if (!defined('STATUSNET')) {
     exit(1);
 }
 
-require_once INSTALLDIR . '/lib/peopletageditform.php';
+require_once INSTALLDIR . '/lib/profile/peopletageditform.php';
 
 /**
  * Subscription action

@@ -24,7 +24,7 @@ mb_internal_encoding('UTF-8');
 
 // All the fun stuff to actually initialize GNU social's framework code,
 // without loading up a site configuration.
-require_once INSTALLDIR . '/lib/framework.php';
+require_once INSTALLDIR . '/lib/util/framework.php';
 
 try {
     GNUsocial::init(@$server, @$path, @$conffile);

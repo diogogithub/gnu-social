@@ -33,7 +33,7 @@ use Exception;
 use PHPUnit\Framework\TestCase;
 use User;
 
-require_once INSTALLDIR . '/lib/common.php';
+require_once INSTALLDIR . '/lib/util/common.php';
 
 final class UserRightsTest extends TestCase
 {
