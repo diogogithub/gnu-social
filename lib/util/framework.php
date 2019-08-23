@@ -121,19 +121,33 @@ function _have_config()
 
 function GNUsocial_class_autoload($cls)
 {
-    if (file_exists(INSTALLDIR.'/classes/' . $cls . '.php')) {
-        require_once(INSTALLDIR.'/classes/' . $cls . '.php');
-    } elseif (file_exists(INSTALLDIR . '/lib/modules/' . $cls . '.php')) {
-        require_once INSTALLDIR . '/lib/modules/' . $cls . '.php';
-    } else if (file_exists(INSTALLDIR.'/lib/' . strtolower($cls) . '.php')) {
-        require_once(INSTALLDIR.'/lib/' . strtolower($cls) . '.php');
-    } else if (mb_substr($cls, -6) == 'Action' &&
-        file_exists(INSTALLDIR.'/actions/' . strtolower(mb_substr($cls, 0, -6)) . '.php')) {
-        require_once(INSTALLDIR.'/actions/' . strtolower(mb_substr($cls, 0, -6)) . '.php');
-    } else if ($cls === 'OAuthRequest' || $cls === 'OAuthException') {
-        require_once('OAuth.php');
-    } else {
-        Event::handle('Autoload', array(&$cls));
+    if (mb_substr($cls, -6) == 'Action' &&
+        file_exists(($file = INSTALLDIR . '/actions/' . strtolower(mb_substr($cls, 0, -6)) . '.php'))) {
+        require_once $file;
+    }
+
+    $lib_path = INSTALLDIR . '/lib/';
+    $lib_dirs = array_map(function ($dir) {
+                             return '/lib/' . $dir . '/';
+                          },
+                              array_filter(scandir($lib_path),
+                                           function ($dir) use ($lib_path) {
+                                               // Filter out files and both hidden and implicit folders
+                                               return $dir[0] != '.' && is_dir($lib_path . $dir);
+                                           }));
+
+    $found = false;
+    foreach (array_merge(['/classes/'], $lib_dirs) as $dir) {
+        $file = (in_array($dir, ['/classes/', '/lib/modules/'])) ? $cls : strtolower($cls);
+        $inc = INSTALLDIR . $dir . $file . '.php';
+        if (file_exists($inc)) {
+            $found = (require_once $inc);
+            break;
+        }
+    }
+
+    if (!$found) {
+        Event::handle('Autoload', [&$cls]);
     }
 }
 
@@ -149,7 +163,11 @@ spl_autoload_register('GNUsocial_class_autoload');
  * and is available here: http://www.php-fig.org/psr/psr-0/
  */
 spl_autoload_register(function ($class) {
-    $class_base = preg_replace('{\\\\|_(?!.*\\\\)}', DIRECTORY_SEPARATOR, ltrim($class, '\\'));
+    if ($class === 'OAuthRequest' || $class === 'OAuthException') {
+        $class_base = 'OAuth.php';
+    } else {
+        $class_base = preg_replace('{\\\\|_(?!.*\\\\)}', DIRECTORY_SEPARATOR, ltrim($class, '\\'));
+    }
     $file = INSTALLDIR . "/extlib/{$class_base}.php";
     if (file_exists($file)) {
         require_once $file;
