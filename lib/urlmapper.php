@@ -169,60 +169,62 @@ class URLMapper
             throw new Exception(sprintf('No candidate paths for action "%s"', $action));
         }
 
-        $candidates = $this->reverse_dynamics[$action];
+        if (array_key_exists($action, $this->reverse_dynamics)){
+            $candidates = $this->reverse_dynamics[$action];
+            foreach ($candidates as $candidate) {
+                list($tryArgs, $format, $paramNames) = $candidate;
 
-        foreach ($candidates as $candidate) {
-            list($tryArgs, $format, $paramNames) = $candidate;
-
-            foreach ($tryArgs as $key => $value) {
-                if (!array_key_exists($key, $args) || $args[$key] != $value) {
-                    // next candidate
-                    continue 2;
+                foreach ($tryArgs as $key => $value) {
+                    if (!array_key_exists($key, $args) || $args[$key] != $value) {
+                        // next candidate
+                        continue 2;
+                    }
                 }
-            }
 
-            // success
-            $toFormat = [];
+                // success
+                $toFormat = [];
 
-            foreach ($paramNames as $name) {
-                if (!array_key_exists($name, $args)) {
-                    // next candidate
-                    continue 2;
+                foreach ($paramNames as $name) {
+                    if (!array_key_exists($name, $args)) {
+                        // next candidate
+                        continue 2;
+                    }
+                    $toFormat[] = $args[$name];
                 }
-                $toFormat[] = $args[$name];
+
+                $path = vsprintf($format, $toFormat);
+
+                if (!empty($qstring)) {
+                    $formatted = http_build_query($qstring);
+                    $path .= '?' . $formatted;
+                }
+
+                return $path;
             }
-
-            $path = vsprintf($format, $toFormat);
-
-            if (!empty($qstring)) {
-                $formatted = http_build_query($qstring);
-                $path .= '?' . $formatted;
-            }
-
-            return $path;
         }
 
-        $candidates = $this->reverse_statics[$action];
+        if (array_key_exists($action, $this->reverse_statics)) {
+            $candidates = $this->reverse_statics[$action];
+            foreach ($candidates as $candidate) {
+                list($tryArgs, $tryPath) = $candidate;
 
-        foreach ($candidates as $candidate) {
-            list($tryArgs, $tryPath) = $candidate;
-
-            foreach ($tryArgs as $key => $value) {
-                if (!array_key_exists($key, $args) || $args[$key] != $value) {
-                    // next candidate
-                    continue 2;
+                foreach ($tryArgs as $key => $value) {
+                    if (!array_key_exists($key, $args) || $args[$key] != $value) {
+                        // next candidate
+                        continue 2;
+                    }
                 }
+
+                // success
+                $path = $tryPath;
+
+                if (!empty($qstring)) {
+                    $formatted = http_build_query($qstring);
+                    $path .= '?' . $formatted;
+                }
+
+                return $path;
             }
-
-            // success
-            $path = $tryPath;
-
-            if (!empty($qstring)) {
-                $formatted = http_build_query($qstring);
-                $path .= '?' . $formatted;
-            }
-
-            return $path;
         }
 
         // failure; some reporting twiddles
