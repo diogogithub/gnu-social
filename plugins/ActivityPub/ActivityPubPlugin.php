@@ -50,7 +50,7 @@ const ACTIVITYPUB_PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
  */
 class ActivityPubPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '0.1.0alpha0';
+    const PLUGIN_VERSION = '0.2.0alpha0';
 
     /**
      * Returns a Actor's URI from its local $profile
@@ -655,6 +655,28 @@ class ActivityPubPlugin extends Plugin
         } catch (Exception $e) {
             return true; // It's not an ActivityPub profile as far as we know, continue event handling
         }
+    }
+
+    /**
+     * Try to grab and store the remote profile by the given uri
+     * 
+     * @param string $uri
+     * @param Profile &$profile
+     * @return bool
+     */
+    public function onRemoteFollowPullProfile(string $uri, ?Profile &$profile): bool
+    {
+        try {
+            $aprofile = $this->pull_remote_profile($uri);
+            if ($aprofile instanceof Activitypub_profile) {
+                $profile = $aprofile->local_profile();
+            }
+        } catch (Exception $e) {
+            // No remote ActivityPub profile found
+            return true;
+        }
+
+        return is_null($profile);
     }
 
     /********************************************************
