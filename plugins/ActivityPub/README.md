@@ -8,6 +8,11 @@ It includes general information about the plugin.
 
 This plugin adds [ActivityPub](https://www.w3.org/TR/activitypub/) support to GNU social.
 
+## Additional functionality
+
+The RemoteFollow plugin is recommended as it increases the UX significatively,
+it adds a remote follow button to user profiles.
+
 ## Credits
 
 * **[Diogo Cordeiro](https://www.diogo.site/)**
