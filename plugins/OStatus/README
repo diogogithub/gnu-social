@@ -8,6 +8,11 @@ currently non-WebSub feeds cannot be subscribed unless an external
 WebSub hub proxy is used.
 
 
+Additional functionality:
+
+The RemoteFollow plugin is highly recommended as it is the only way to remote
+follow a user in OStatus, it adds a remote follow button to user profiles.
+
 Configuration options available:
 
 $config['ostatus']['hub']

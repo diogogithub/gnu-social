@@ -28,9 +28,11 @@
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'util.php';
+
 class OStatusPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.3';
+    const PLUGIN_VERSION = '2.1.0';
 
     /**
      * Hook for RouterInitialized event.
@@ -46,9 +48,6 @@ class OStatusPlugin extends Plugin
         $m->connect('main/ostatustag?nickname=:nickname',
                     ['action' => 'ostatustag'],
                     ['nickname' => '[A-Za-z0-9_-]+']);
-        $m->connect('main/ostatus/nickname/:nickname',
-                    ['action' => 'ostatusinit'],
-                    ['nickname' => '[A-Za-z0-9_-]+']);
         $m->connect('main/ostatus/group/:group',
                     ['action' => 'ostatusinit'],
                     ['group' => '[A-Za-z0-9_-]+']);
@@ -60,8 +59,6 @@ class OStatusPlugin extends Plugin
                     ['action' => 'ostatusinit']);
 
         // Remote subscription actions
-        $m->connect('main/ostatussub',
-                    ['action' => 'ostatussub']);
         $m->connect('main/ostatusgroup',
                     ['action' => 'ostatusgroup']);
         $m->connect('main/ostatuspeopletag',
@@ -176,12 +173,16 @@ class OStatusPlugin extends Plugin
     }
 
     /**
-     * Add in an OStatus subscribe button
+     * Add in an OStatus list button
+     *
+     * @param HTMLOutputter $output
+     * @param Profile $profile
+     * @return bool hook return value
      */
-    function onStartProfileRemoteSubscribe($output, $profile)
+    function onStartProfileRemoteSubscribe(HTMLOutputter $output, Profile $profile): bool
     {
-        $this->onStartProfileListItemActionElements($output, $profile);
-        return false;
+        $this->onStartProfileListItemActionElements($output);
+        return true;
     }
 
     function onStartGroupSubscribe($widget, $group)
@@ -547,7 +548,7 @@ class OStatusPlugin extends Plugin
 
     function onEndProfileSettingsActions($out) {
         $siteName = common_config('site', 'name');
-        $js = 'navigator.registerContentHandler("application/vnd.mozilla.maybe.feed", "'.addslashes(common_local_url('ostatussub', null, array('profile' => '%s'))).'", "'.addslashes($siteName).'")';
+        $js = 'navigator.registerContentHandler("application/vnd.mozilla.maybe.feed", "'.addslashes(common_local_url('RemoteFollowSub', null, array('profile' => '%s'))).'", "'.addslashes($siteName).'")';
         $out->elementStart('li');
         $out->element('a',
                       array('href' => 'javascript:'.$js),
@@ -1169,21 +1170,7 @@ class OStatusPlugin extends Plugin
         }
     }
 
-    function onStartShowSubscriptionsContent($action)
-    {
-        $this->showEntityRemoteSubscribe($action);
-
-        return true;
-    }
-
     function onStartShowUserGroupsContent($action)
-    {
-        $this->showEntityRemoteSubscribe($action, 'ostatusgroup');
-
-        return true;
-    }
-
-    function onEndShowSubscriptionsMiniList($action)
     {
         $this->showEntityRemoteSubscribe($action);
 
@@ -1192,12 +1179,12 @@ class OStatusPlugin extends Plugin
 
     function onEndShowGroupsMiniList($action)
     {
-        $this->showEntityRemoteSubscribe($action, 'ostatusgroup');
+        $this->showEntityRemoteSubscribe($action);
 
         return true;
     }
 
-    function showEntityRemoteSubscribe($action, $target='ostatussub')
+    function showEntityRemoteSubscribe($action)
     {
         if (!$action->getScoped() instanceof Profile) {
             // early return if we're not logged in
@@ -1208,7 +1195,7 @@ class OStatusPlugin extends Plugin
             $action->elementStart('div', 'entity_actions');
             $action->elementStart('p', array('id' => 'entity_remote_subscribe',
                                              'class' => 'entity_subscribe'));
-            $action->element('a', array('href' => common_local_url($target),
+            $action->element('a', array('href' => common_local_url('ostatusgroup'),
                                         'class' => 'entity_remote_subscribe'),
                                 // TRANS: Link text for link to remote subscribe.
                                 _m('Remote'));
@@ -1306,7 +1293,11 @@ class OStatusPlugin extends Plugin
         if (common_logged_in()) {
             // only non-logged in users get to see the "remote subscribe" form
             return true;
-        } elseif (!$item->getTarget()->isLocal()) {
+        }
+
+        $target = $item->getTarget();
+
+        if (!$target->isLocal()) {
             // we can (for now) only provide remote subscribe forms for local users
             return true;
         }
@@ -1320,22 +1311,12 @@ class OStatusPlugin extends Plugin
             throw new ServerException('Bad item type for onStartProfileListItemActionElements');
         }
 
-        // Add an OStatus subscribe
-        $output->elementStart('li', 'entity_subscribe');
-        $url = common_local_url('ostatusinit',
-                                array('nickname' => $item->getTarget()->getNickname()));
-        $output->element('a', array('href' => $url,
-                                    'class' => 'entity_remote_subscribe'),
-                          // TRANS: Link text for a user to subscribe to an OStatus user.
-                         _m('Subscribe'));
-        $output->elementEnd('li');
-
         $output->elementStart('li', 'entity_tag');
-        $url = common_local_url('ostatustag',
-                                array('nickname' => $item->getTarget()->getNickname()));
-        $output->element('a', array('href' => $url,
-                                    'class' => 'entity_remote_tag'),
-                          // TRANS: Link text for a user to list an OStatus user.
+        $url = common_local_url('ostatustag', ['nickname' => $target->getNickname()]);
+        $output->element('a',
+                         ['href'  => $url,
+                          'class' => 'entity_remote_tag'],
+                         // TRANS: Link text for a user to list an OStatus user.
                          _m('List'));
         $output->elementEnd('li');
 
@@ -1480,12 +1461,6 @@ class OStatusPlugin extends Plugin
         $xrd->links[] = new XML_XRD_Element_Link(Salmon::NS_REPLIES, $salmon_url);
         $xrd->links[] = new XML_XRD_Element_Link(Salmon::NS_MENTIONS, $salmon_url);
 
-        // TODO - finalize where the redirect should go on the publisher
-        $xrd->links[] = new XML_XRD_Element_Link('http://ostatus.org/schema/1.0/subscribe',
-                              common_local_url('ostatussub') . '?profile={uri}',
-                              null, // type not set
-                              true); // isTemplate
-
         return true;
     }
 
@@ -1610,5 +1585,32 @@ class OStatusPlugin extends Plugin
             $item = array('feedsub_id' => $sub->id);
             $qm->enqueue($item, 'pushrenew');
         }
+    }
+    
+    /**
+     * Try to grab and store the remote profile by the given uri
+     * 
+     * @param string $uri
+     * @param Profile &$profile
+     * @return bool
+     */
+    public function onRemoteFollowPullProfile(string $uri, ?Profile &$profile): bool
+    {
+        $oprofile = pullRemoteProfile($uri);
+        if ($oprofile instanceof Ostatus_profile) {
+
+            // validation
+            if ($oprofile->isGroup()) {
+                $target = common_local_url('ostatusgroup', [], ['profile' => $uri]);
+                common_redirect($target, 303);
+            } else if ($oprofile->isPeopletag()) {
+                $target = common_local_url('ostatuspeopletag', [], ['profile' => $uri]);
+                common_redirect($target, 303);
+            }
+
+            $profile = $oprofile->localProfile();
+        }
+
+        return is_null($profile);
     }
 }
