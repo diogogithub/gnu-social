@@ -47,7 +47,7 @@ class OStatusPeopletagAction extends OStatusSubAction
     {
         if (!$this->oprofile->isPeopletag()) {
             // Send us to the user subscription form for conf
-            $target = common_local_url('ostatussub', array(), array('profile' => $this->profile_uri));
+            $target = common_local_url('RemoteFollowSub', array(), array('profile' => $this->profile_uri));
             common_redirect($target, 303);
         }
     }
