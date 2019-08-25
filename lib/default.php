@@ -355,6 +355,7 @@ $default =
                 'Nodeinfo' => [],
                 'OpenID' => [],
                 'OpportunisticQM' => [],
+                'RemoteFollow' => [],
                 'ActivityPub' => [], // The order is important here (IT HAS TO COME BEFORE OSTATUS)
                 'OStatus' => [],
                 'Poll' => [],
