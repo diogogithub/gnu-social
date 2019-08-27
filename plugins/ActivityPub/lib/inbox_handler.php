@@ -226,18 +226,54 @@ class Activitypub_inbox_handler
             $object = $object['id'];
         }
 
-        // Already deleted? (By some admin, perhaps?)
+        // profile deletion ?
+        $aprofile = Activitypub_explorer::get_aprofile_by_url($object);
+        if ($aprofile instanceof Activitypub_profile) {
+            $this->handle_delete_profile($aprofile);
+            return;
+        } 
+        
+        // note deletion ?
         try {
-            $found = Deleted_notice::getByUri($object);
-            $deleted = ($found instanceof Deleted_notice);
-        } catch (NoResultException $e) {
-            $deleted = false;
+            $notice = ActivityPubPlugin::grab_notice_from_url($object, false);
+            if ($notice instanceof Notice) {
+                $this->handle_delete_note($notice);
+            }
+            return;
+        } catch (Exception $e) {
+            // either already deleted or not a notice at all
+            // nothing to do..
         }
 
-        if (!$deleted) {
-            $notice = ActivityPubPlugin::grab_notice_from_url($object);
-            $notice->deleteAs($this->actor);
-        }
+        common_log(LOG_INFO, "Ignoring Delete activity, nothing that we can/need to handle.");
+    }
+
+    /**
+     * Handles a Delete-Profile Activity.
+     * 
+     * Note that the actual ap_profile is deleted during the ProfileDeleteRelated event,
+     * subscribed by ActivityPubPlugin.
+     * 
+     * @param Activitypub_profile $aprofile remote user being deleted
+     * @return void
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    private function handle_delete_profile(Activitypub_profile $aprofile): void
+    {
+        $profile = $aprofile->local_profile();
+        $profile->delete();
+    }
+
+    /**
+     * Handles a Delete-Note Activity.
+     * 
+     * @param Notice $note remote note being deleted
+     * @return void
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    private function handle_delete_note(Notice $note): void
+    {
+        $note->deleteAs($this->actor);
     }
 
     /**
