@@ -50,7 +50,7 @@ const ACTIVITYPUB_PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
  */
 class ActivityPubPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '0.2.0alpha0';
+    const PLUGIN_VERSION = '0.3.0alpha0';
 
     /**
      * Returns a Actor's URI from its local $profile
@@ -89,10 +89,11 @@ class ActivityPubPlugin extends Plugin
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $url Notice's URL
-     * @return Notice The Notice object
-     * @throws Exception This function or provides a Notice or fails with exception
+     * @param bool $grabOnline whether to try online grabbing, defaults to true
+     * @return Notice|null The Notice object
+     * @throws Exception This function or provides a Notice, null, or fails with exception
      */
-    public static function grab_notice_from_url($url)
+    public static function grab_notice_from_url(string $url, bool $grabOnline = true): ?Notice
     {
         /* Offline Grabbing */
         try {
@@ -113,15 +114,20 @@ class ActivityPubPlugin extends Plugin
             }
         }
 
-        /* Online Grabbing */
-        $client    = new HTTPClient();
-        $headers   = [];
-        $headers[] = 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
-        $headers[] = 'User-Agent: GNUSocialBot v0.1 - https://gnu.io/social';
-        $response  = $client->get($url, $headers);
-        $object = json_decode($response->getBody(), true);
-        Activitypub_notice::validate_note($object);
-        return Activitypub_notice::create_notice($object);
+        if ($grabOnline) {
+            /* Online Grabbing */
+            $client    = new HTTPClient();
+            $headers   = [];
+            $headers[] = 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
+            $headers[] = 'User-Agent: GNUSocialBot v0.1 - https://gnu.io/social';
+            $response  = $client->get($url, $headers);
+            $object = json_decode($response->getBody(), true);
+            Activitypub_notice::validate_note($object);
+            return Activitypub_notice::create_notice($object);
+        }
+
+        common_debug('ActivityPubPlugin Notice Grabber: failed to find: '.$url);
+        return null;
     }
 
     /**
@@ -324,6 +330,30 @@ class ActivityPubPlugin extends Plugin
         }
 
         return true;
+    }
+
+    /**
+     * Mark an ap_profile object for deletion
+     * 
+     * @param Profile profile being deleted
+     * @param array &$related objects with same profile_id to be deleted
+     * @return void
+     */
+    public function onProfileDeleteRelated(Profile $profile, array &$related): void
+    {
+        if ($profile->isLocal()) {
+            return;
+        }
+
+        try {
+            $aprofile = Activitypub_profile::getKV('profile_id', $profile->getID());
+            if ($aprofile instanceof Activitypub_profile) {
+                // mark for deletion
+                $related[] = 'Activitypub_profile';
+            }
+        } catch (Exception $e) {
+            // nothing to do
+        } 
     }
 
     /**
@@ -907,8 +937,20 @@ class ActivityPubPlugin extends Plugin
         }
 
         $postman = new Activitypub_postman($profile, $other);
-        $postman->delete($notice);
+        $postman->delete_note($notice);
         return true;
+    }
+
+    /**
+     * Notify remote followers when a user gets deleted
+     * 
+     * @param Action $action
+     * @param User $user user being deleted
+     */
+    public function onEndDeleteUser(Action $action, User $user): void
+    {
+        $postman = new Activitypub_postman($user->getProfile());
+        $postman->delete_profile();
     }
 
     /**

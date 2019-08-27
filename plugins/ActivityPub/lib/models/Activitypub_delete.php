@@ -48,10 +48,11 @@ class Activitypub_delete
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => $object.'/delete',
-            'type'   => 'Delete',
-            'actor'  => $actor,
-            'object' => $object
+            'id'       => $object.'/delete',
+            'type'     => 'Delete',
+            'to'       => ['https://www.w3.org/ns/activitystreams#Public'],
+            'actor'    => $actor,
+            'object'   => $object
         ];
         return $res;
     }
@@ -73,10 +74,10 @@ class Activitypub_delete
         } else {
             if (!isset($object['type'])) {
                 throw new Exception('Object type was not specified for Delete Activity.');
-            } else if ($object['type'] !== "Tombstone") {
+            }
+            if ($object['type'] !== "Tombstone" && $object['type'] !== "Person") {
                 throw new Exception('Invalid Object type for Delete Activity.');
             }
-
             if (!isset($object['id'])) {
                 throw new Exception('Object id was not specified for Delete Activity.');
             }

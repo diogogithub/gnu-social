@@ -53,7 +53,7 @@ class Activitypub_postman
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function __construct(Profile $from, array $to)
+    public function __construct(Profile $from, array $to = [])
     {
         $this->actor = $from;
         $this->to = $to;
@@ -359,10 +359,9 @@ class Activitypub_postman
      * @throws HTTP_Request2_Exception
      * @throws InvalidUrlException
      * @throws Exception
-     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function delete($notice)
+    public function delete_note($notice)
     {
         $data = Activitypub_delete::delete_to_array(
             ActivityPubPlugin::actor_uri($notice->getProfile()),
@@ -380,6 +379,37 @@ class Activitypub_postman
         }
         if (!empty($errors)) {
             throw new Exception(json_encode($errors));
+        }
+    }
+
+    /**
+     * Send a Delete notification to remote followers of some deleted profile
+     *
+     * @param Notice $notice
+     * @throws HTTP_Request2_Exception
+     * @throws InvalidUrlException
+     * @throws Exception
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public function delete_profile()
+    {
+        $data = Activitypub_delete::delete_to_array($this->actor_uri, $this->actor_uri);
+        $data = json_encode($data, JSON_UNESCAPED_SLASHES);
+
+        $errors = [];
+        foreach ($this->to_inbox() as $inbox) {
+            $res = $this->send($data, $inbox);
+
+            // accummulate errors for later use, if needed
+            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                $res_body = json_decode($res->getBody(), true);
+                $errors[] = isset($res_body[0]['error']) ?
+                          $res_body[0]['error'] : "An unknown error occurred.";
+            }
+        }
+
+        if (!empty($errors)) {
+            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the delete_profile activity!");
         }
     }
 
