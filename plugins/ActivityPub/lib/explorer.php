@@ -65,13 +65,14 @@ class Activitypub_explorer
      * so that there is no erroneous data
      *
      * @param string $url User's url
+     * @param bool $remote remote lookup?
      * @return array of Profile objects
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function lookup($url)
+    public function lookup(string $url, bool $remote = true)
     {
         if (in_array($url, ACTIVITYPUB_PUBLIC_TO)) {
             return [];
@@ -80,7 +81,7 @@ class Activitypub_explorer
         common_debug('ActivityPub Explorer: Started now looking for '.$url);
         $this->discovered_actor_profiles = [];
 
-        return $this->_lookup($url);
+        return $this->_lookup($url, $remote);
     }
 
     /**
@@ -89,6 +90,7 @@ class Activitypub_explorer
      * $discovered_actor_profiles array
      *
      * @param string $url User's url
+     * @param bool $remote remote lookup?
      * @return array of Profile objects
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -96,11 +98,13 @@ class Activitypub_explorer
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function _lookup($url)
+    private function _lookup(string $url, bool $remote)
     {
-        // First check if we already have it locally and, if so, return it
-        // If the local fetch fails: grab it remotely, store locally and return
-        if (! ($this->grab_local_user($url) || $this->grab_remote_user($url))) {
+        $grab_local = $this->grab_local_user($url);
+
+        // First check if we already have it locally and, if so, return it.
+        // If the local fetch fails and remote grab is required: store locally and return.
+        if (!$grab_local && (!$remote || !$this->grab_remote_user($url))) {
             throw new Exception('User not found.');
         }
 
@@ -403,7 +407,7 @@ class Activitypub_explorer
         $client    = new HTTPClient();
         $headers   = [];
         $headers[] = 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
-        $headers[] = 'User-Agent: GNUSocialBot v0.1 - https://gnu.io/social';
+        $headers[] = 'User-Agent: GNUSocialBot ' . GNUSOCIAL_VERSION . ' - https://gnu.io/social';
         $response  = $client->get($url, $headers);
         if (!$response->isOk()) {
             throw new Exception('Invalid Actor URL.');

@@ -1496,3 +1496,16 @@ StartDocNav: Before outputting the docs Nav
 
 EndDocNav: After outputting the docs Nav
 - $nav: The DoclNav widget
+
+StartNoticeSearch: Before finding notices that match the given query
+- string $query: The text query
+
+StartNoticeSearchShowResults: Before displaying notices matching the query
+- $out:     HTMLOutputter used to output
+- $query:   The text query
+- $notices: Array of DB notice objects
+
+EndNoticeSearchShowResults: After displaying notices matching the query
+- $out:     HTMLOutputter used to output
+- $query:   The text query
+- $notices: Array of DB notice objects

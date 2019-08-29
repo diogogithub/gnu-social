@@ -50,7 +50,7 @@ const ACTIVITYPUB_PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
  */
 class ActivityPubPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '0.3.0alpha0';
+    const PLUGIN_VERSION = '0.4.0alpha0';
 
     /**
      * Returns a Actor's URI from its local $profile
@@ -119,7 +119,7 @@ class ActivityPubPlugin extends Plugin
             $client    = new HTTPClient();
             $headers   = [];
             $headers[] = 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
-            $headers[] = 'User-Agent: GNUSocialBot v0.1 - https://gnu.io/social';
+            $headers[] = 'User-Agent: GNUSocialBot ' . GNUSOCIAL_VERSION . ' - https://gnu.io/social';
             $response  = $client->get($url, $headers);
             $object = json_decode($response->getBody(), true);
             Activitypub_notice::validate_note($object);
@@ -396,6 +396,68 @@ class ActivityPubPlugin extends Plugin
         $out->elementEnd('dl');
 
         return true;
+    }
+
+    /**
+     * Hack the notice search-box and try to grab remote profiles or notices.
+     * 
+     * Note that, on successful grabbing, this function will redirect to the
+     * new profile/notice, so URL searching is directly affected. A good solution
+     * for this is to store the URLs in the notice text without the https/http
+     * prefixes. This would change the queries for URL searching and therefore we
+     * could do both search and grab.
+     * 
+     * @param string $query search query
+     * @return void
+     */
+    public function onStartNoticeSearch(string $query): void
+    {
+        if (!common_logged_in()) {
+            // early return, search-only for non-logged sessions
+            return;
+        }
+
+        if (!filter_var($query, FILTER_VALIDATE_URL) &&
+            !preg_match('!^((?:\w+\.)*\w+@(?:\w+\.)*\w+(?:\w+\-\w+)*\.\w+)$!', $query)) {
+            // early return, not an url or webfinger ID
+            return;
+        }
+
+        // someone we know about ?
+        try {
+            $explorer = new Activitypub_explorer();
+            $profile = $explorer->lookup($query, false)[0];
+            if ($profile instanceof Profile) {
+                return;
+            }
+        } catch (Exception $e) {
+            // nope
+        }
+
+        // some notice we know about ?
+        try {
+            $notice = self::grab_notice_from_url($query, false);
+            if ($notice instanceof Notice) {
+                return;
+            }
+        } catch (Exception $e) {
+            // nope
+        }
+
+        // try to grab profile
+        $aprofile = self::pull_remote_profile($query);
+        if ($aprofile instanceof Activitypub_profile) {
+            $url = common_local_url('userbyid', ['id' => $aprofile->getID()], null, null, false);
+            common_redirect($url, 303);
+            return;
+        }
+
+        // try to grab notice
+        $notice = self::grab_notice_from_url($query);
+        if ($notice instanceof Notice) {
+            $url = common_local_url('shownotice', ['notice' => $notice->getID()]);
+            common_redirect($url, 303);
+        }
     }
 
     /**
