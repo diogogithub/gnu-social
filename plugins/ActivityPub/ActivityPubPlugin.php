@@ -694,18 +694,16 @@ class ActivityPubPlugin extends Plugin
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function onStartSubscribe(Profile $profile, Profile $other) {
-        if (!$profile->isLocal() && $other->isLocal()) {
+        if (!$profile->isLocal()) {
             return true;
         }
 
-        try {
-            $other = Activitypub_profile::from_profile($other);
-        } catch (Exception $e) {
-            return true; // Let other plugin handle this instead
+        $other = Activitypub_profile::getKV('profile_id', $other->getID());
+        if (!$other instanceof Activitypub_profile) {
+            return true;
         }
 
-        $postman = new Activitypub_postman($profile, array($other));
-
+        $postman = new Activitypub_postman($profile, [$other]);
         $postman->follow();
 
         return true;
@@ -722,18 +720,16 @@ class ActivityPubPlugin extends Plugin
      */
     public function onStartUnsubscribe(Profile $profile, Profile $other)
     {
-        if (!$profile->isLocal() && $other->isLocal()) {
+        if (!$profile->isLocal()) {
             return true;
         }
 
-        try {
-            $other = Activitypub_profile::from_profile($other);
-        } catch (Exception $e) {
-            return true; // Let other plugin handle this instead
+        $other = Activitypub_profile::getKV('profile_id', $other->getID());
+        if (!$other instanceof Activitypub_profile) {
+            return true;
         }
 
-        $postman = new Activitypub_postman($profile, array($other));
-
+        $postman = new Activitypub_postman($profile, [$other]);
         $postman->undo_follow();
 
         return true;
