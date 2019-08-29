@@ -65,6 +65,8 @@ class NoticesearchAction extends SearchAction
 
         if (!empty($this->q)) {
 
+            Event::handle('StartNoticeSearch', [$this->q]);
+
             $stream  = new SearchNoticeStream($this->q, $this->scoped);
             $page    = $this->trimmed('page');
 
