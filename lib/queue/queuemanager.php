@@ -164,7 +164,7 @@ abstract class QueueManager extends IoManager
      * @param mixed $item
      * @return string
      */
-    protected function encode($item)
+    protected function encode($item): string
     {
         return serialize($item);
     }
@@ -176,7 +176,7 @@ abstract class QueueManager extends IoManager
      * @param string
      * @return mixed
      */
-    protected function decode($frame)
+    protected function decode(string $frame)
     {
         $object = unserialize($frame);
 
