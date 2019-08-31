@@ -71,9 +71,6 @@ abstract class QueueManager extends IoManager
                      case 'db':
                         self::$qm = new DBQueueManager();
                         break;
-                     case 'stomp':
-                        self::$qm = new StompQueueManager();
-                        break;
                      default:
                         throw new ServerException("No queue manager class for type '$type'");
                     }
