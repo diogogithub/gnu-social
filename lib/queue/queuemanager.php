@@ -59,18 +59,9 @@ abstract class QueueManager extends IoManager
         if (empty(self::$qm)) {
 
             if (Event::handle('StartNewQueueManager', array(&self::$qm))) {
-                $enabled = common_config('queue', 'enabled');
-                $type = common_config('queue', 'subsystem');
-
-                if (!$enabled) {
-                    // does everything immediately
-                    self::$qm = new UnQueueManager();
-                } else {
-                    switch ($type) {
-                     default:
-                        throw new ServerException("No queue manager class for type '$type'");
-                    }
-                }
+                common_log(LOG_ERR, 'Some form of queue manager must be active' .
+                           '(UnQueue does everything immediately and is the default)');
+                throw new ServerException('Some form of queue manager must be active');
             }
         }
 
