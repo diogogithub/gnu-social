@@ -50,13 +50,13 @@ class DBQueueManager extends QueueManager
         }
 
         $this->stats('enqueued', $queue);
-
         return true;
     }
 
     /**
      * Poll every 10 seconds for new events during idle periods.
      * We'll look in more often when there's data available.
+     * Must be greater than 0 for the poll method to be called
      *
      * @return int seconds
      */
@@ -69,9 +69,9 @@ class DBQueueManager extends QueueManager
      * Run a polling cycle during idle processing in the input loop.
      * @return boolean true if we should poll again for more data immediately
      */
-    public function poll()
+    public function poll(): bool
     {
-        //$this->_log(LOG_DEBUG, 'Checking for notices...');
+        $this->_log(LOG_DEBUG, 'Checking for notices...');
         $qi = Queue_item::top($this->activeQueues(), $this->getIgnoredTransports());
         if (!$qi instanceof Queue_item) {
             //$this->_log(LOG_DEBUG, 'No notices waiting; idling.');
@@ -88,7 +88,7 @@ class DBQueueManager extends QueueManager
 
         $rep = $this->logrep($item);
         $this->_log(LOG_DEBUG, 'Got '._ve($rep).' for transport '._ve($qi->transport));
-        
+
         try {
             $handler = $this->getHandler($qi->transport);
             $result = $handler->handle($item);
@@ -96,13 +96,16 @@ class DBQueueManager extends QueueManager
             $this->noHandlerFound($qi, $rep);
             return true;
         } catch (NoResultException $e) {
-            $this->_log(LOG_ERR, "[{$qi->transport}:$rep] ".get_class($e).' thrown ('._ve($e->getMessage()).'), ignoring queue_item '._ve($qi->getID()));
+            $this->_log(LOG_ERR, "[{$qi->transport}:$rep] ".get_class($e).' thrown ('.
+                        _ve($e->getMessage()).'), ignoring queue_item '._ve($qi->getID()));
             $result = true;
         } catch (AlreadyFulfilledException $e) {
-            $this->_log(LOG_ERR, "[{$qi->transport}:$rep] ".get_class($e).' thrown ('._ve($e->getMessage()).'), ignoring queue_item '._ve($qi->getID()));
+            $this->_log(LOG_ERR, "[{$qi->transport}:$rep] ".get_class($e).' thrown ('.
+                        _ve($e->getMessage()).'), ignoring queue_item '._ve($qi->getID()));
             $result = true;
         } catch (Exception $e) {
-            $this->_log(LOG_ERR, "[{$qi->transport}:$rep] Exception (".get_class($e).') thrown: '._ve($e->getMessage()));
+            $this->_log(LOG_ERR, "[{$qi->transport}:$rep] Exception (".
+                        get_class($e).') thrown: '._ve($e->getMessage()));
             $result = false;
         }
 

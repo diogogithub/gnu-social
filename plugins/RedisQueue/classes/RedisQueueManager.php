@@ -10,6 +10,7 @@ class RedisQueueManager extends QueueManager
 
     public function __construct(string $server)
     {
+        parent::__construct();
         $this->server = $server;
         $this->queue = 'gnusocial:' . common_config('site', 'name');
     }
@@ -39,7 +40,6 @@ class RedisQueueManager extends QueueManager
 
     public function poll()
     {
-        common_debug("STARTING POLL");
         try {
             $this->_ensureConn();
             $ret = $this->client->lpop($this->queue);
