@@ -2100,7 +2100,7 @@ function common_negotiate_type($cprefs, $sprefs)
 
     foreach (array_keys($sprefs) as $type) {
         $parts = explode('/', $type);
-        if ($parts[1] != '*') {
+        if (isset($parts[1]) && $parts[1] != '*') {
             $ckey = common_mime_type_match($type, $cprefs);
             if ($ckey) {
                 $combine[$type] = $sprefs[$type] * $cprefs[$ckey];
@@ -2110,7 +2110,7 @@ function common_negotiate_type($cprefs, $sprefs)
 
     foreach (array_keys($cprefs) as $type) {
         $parts = explode('/', $type);
-        if ($parts[1] != '*' && !array_key_exists($type, $sprefs)) {
+        if (isset($parts[1]) && $parts[1] != '*' && !array_key_exists($type, $sprefs)) {
             $skey = common_mime_type_match($type, $sprefs);
             if ($skey) {
                 $combine[$type] = $sprefs[$skey] * $cprefs[$type];
