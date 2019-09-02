@@ -35,7 +35,6 @@ class StompQueueManager extends QueueManager
     public function start($master)
     {
         parent::start($master);
-        common_debug("Starting STOMP queue manager");
         return $this->_ensureConn();
     }
 
@@ -172,6 +171,7 @@ class StompQueueManager extends QueueManager
      */
     protected function subscribe(StatefulStomp $st)
     {
+        $this->_ensureConn();
         $host = $st->getClient()->getConnection()->getHost();
         foreach ($this->subscriptions() as $sub) {
             if (!in_array($sub, $this->subscriptions)) {
@@ -293,40 +293,19 @@ class StompQueueManager extends QueueManager
     }
 
     /**
-     * Send any sockets we're listening on to the IO manager
-     * to wait for input.
+     * Poll every 10 seconds for new events during idle periods.
+     * We'll look in more often when there's data available.
+     * Must be greater than 0 for the poll method to be called
      *
-     * @return array of resources
+     * @return int seconds
      */
-    public function getSockets()
+    public function pollInterval()
     {
-        $sockets = [];
-        foreach ($this->stomps as $st) {
-            if ($st) {
-                $sockets[] = $st->getClient()->getConnection();
-            }
-        }
-        return $sockets;
+        return 10;
     }
 
     /**
-     * Get the Stomp connection object associated with the given socket.
-     * @param resource $socket
-     * @return int index into connections list
-     * @throws Exception
-     */
-    protected function connectionFromSocket($socket)
-    {
-        foreach ($this->stomps as $i => $st) {
-            if ($st && $st->getConnection() === $socket) {
-                return $i;
-            }
-        }
-        throw new Exception(__CLASS__ . " asked to read from unrecognized socket");
-    }
-
-    /**
-     * Handle and acknowledge an event that's come in through a queue.
+     * Poll a queue and Handle an event
      *
      * If the queue handler reports failure, the message is requeued for later.
      * Missing notices or handler classes will drop the message.
@@ -334,15 +313,22 @@ class StompQueueManager extends QueueManager
      * Side effects: in multi-site mode, may reset site configuration to
      * match the site that queued the event.
      *
-     * @param Frame $frame
      * @return bool success
      * @throws ConfigException
      * @throws NoConfigException
      * @throws ServerException
      * @throws StompException
      */
-    protected function handleItem($frame): bool
+    public function poll(): bool
     {
+        $this->_ensureConn();
+
+        $frame = $this->stomps[$this->pl->defaultIdx]->getClient()->readFrame();
+
+        if (empty($frame)) {
+            return false;
+        }
+
         $host = $this->stomps[$this->pl->defaultIdx]->getHost();
         $message = unserialize(base64_decode($frame->body));
 
@@ -396,7 +382,7 @@ class StompQueueManager extends QueueManager
             $this->stats('requeued', $queue);
         }
 
-        return $ok;
+        return false;
     }
 
     /**
@@ -584,7 +570,7 @@ class StompQueueManager extends QueueManager
      * @throws NoConfigException
      * @throws ServerException
      */
-    function switchSite($site)
+    private function switchSite(string $site): void
     {
         if ($site != GNUsocial::currentSite()) {
             $this->stats('switch');
@@ -601,12 +587,12 @@ class StompQueueManager extends QueueManager
      * files might not.
      *
      * @param $nickname
-     * @return void true to continue; false to stop further processing.
+     * @return bool true to continue; false to stop further processing.
      * @throws ConfigException
      * @throws NoConfigException
      * @throws ServerException
      */
-    protected function updateSiteConfig($nickname)
+    protected function updateSiteConfig($nickname): bool
     {
         $sn = Status_network::getKV('nickname', $nickname);
         if ($sn) {

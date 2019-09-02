@@ -36,7 +36,7 @@ class StompQueuePlugin extends Plugin
     public $password = 'guest';
     public $basename = '';
     public $control = 'gnusocial:control';
-    public $breakout;
+    public $breakout = [];
     public $useTransactions = false;
     public $useAcks = false;
     public $manualFailover = false;
@@ -62,7 +62,7 @@ class StompQueuePlugin extends Plugin
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'StompQueue',
-                            'version' => self::VERSION,
+                            'version' => self::PLUGIN_VERSION,
                             'author' => 'Miguel Dantas',
                             'description' =>
                             // TRANS: Plugin description.
