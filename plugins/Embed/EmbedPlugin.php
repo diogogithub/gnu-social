@@ -132,8 +132,8 @@ class EmbedPlugin extends Plugin
 
             if (substr($info->image, 0, 4) === 'data') {
                 // Inline image
-                $img_data = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
-                list($filename, , ) = $this->validateAndWriteImage($img_data);
+                $imgData = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
+                list($filename, , ) = $this->validateAndWriteImage($imgData);
                 // Use a file URI for images, as file_embed can't store a filename
                 $metadata->thumbnail_url = 'file://' . File_thumbnail::path($filename);
             } else {
@@ -541,7 +541,7 @@ class EmbedPlugin extends Plugin
             $fullpath = File_thumbnail::path($filename);
             // Write the file to disk. Throw Exception on failure
             if (!file_exists($fullpath)) {
-                if (strpos($fullpath, INSTALLDIR) !== 0 || file_put_contents($fullpath, $img_data) === false) {
+                if (strpos($fullpath, INSTALLDIR) !== 0 || file_put_contents($fullpath, $imgData) === false) {
                     throw new ServerException(_('Could not write downloaded file to disk.'));
                 }
 
@@ -575,7 +575,7 @@ class EmbedPlugin extends Plugin
                        "but encountered error: {$err}");
             throw $err;
         } finally {
-            unset($img_data);
+            unset($imgData);
         }
 
         return [$filename, $width, $height];
@@ -620,6 +620,8 @@ class EmbedPlugin extends Plugin
                                      " but the upload limit is " . $max_size . " so we aborted.");
                         return false;
                     }
+                } else {
+                    return false;
                 }
             } catch (Exception $err) {
                 common_debug("Could not determine size of remote image, aborted local storage.");
@@ -633,10 +635,19 @@ class EmbedPlugin extends Plugin
                 $thumbnail->file_id,
                 $url
             ));
-            $imgData = HTTPClient::quickGet($url);
-
-            list($filename, $width, $height) = $this->validateAndWriteImage($imgData, $url, $headers,
-                                                                            $thumbnail->file_id);
+            try {
+                $imgData = HTTPClient::quickGet($url);
+                if (isset($imgData)) {
+                    list($filename, $width, $height) = $this->validateAndWriteImage($imgData, $url, $headers,
+                                                                                    $thumbnail->file_id);
+                } else {
+                    throw new UnsupportedMediaException('HTTPClient returned an empty result');
+                }
+            } catch(UnsupportedMediaException $e) {
+                // Couldn't find anything that looks like an image, nothing to do
+                common_debug("Embed was not able to find an image for URL `{$url}`: " . $e->getMessage());
+                return false;
+            }
         }
 
         try {
