@@ -164,7 +164,7 @@ spl_autoload_register('GNUsocial_class_autoload');
  */
 spl_autoload_register(function ($class) {
     if ($class === 'OAuthRequest' || $class === 'OAuthException') {
-        $class_base = 'OAuth.php';
+        $class_base = 'OAuth';
     } else {
         $class_base = preg_replace('{\\\\|_(?!.*\\\\)}', DIRECTORY_SEPARATOR, ltrim($class, '\\'));
     }
