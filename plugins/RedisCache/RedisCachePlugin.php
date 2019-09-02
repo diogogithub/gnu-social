@@ -93,7 +93,7 @@ class RedisCachePlugin extends Plugin
             return true;
         }
 
-        if ($ret->getPayload() === "OK") {
+        if (is_int($ret) || $ret->getPayload() === "OK") {
             $success = true;
             return false;
         }
