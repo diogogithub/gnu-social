@@ -199,7 +199,7 @@ class MemcachedPlugin extends Plugin
             $success = false;
         } else {
             common_log(LOG_INFO, "Closing memcached connection");
-            $success = $this->_conn->close();
+            $success = $this->_conn->quit();
             $this->_conn = null;
         }
         return false;
