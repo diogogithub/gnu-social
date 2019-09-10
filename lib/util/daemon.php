@@ -46,16 +46,26 @@ class Daemon
         // Database connection will likely get lost after forking
         $this->resetDb();
 
-        $pid = pcntl_fork();
-        if ($pid < 0) { // error
-            common_log(LOG_ERR, "Could not fork.");
-            return false;
-        } elseif ($pid > 0) { // parent
-            common_log(LOG_INFO, "Successfully forked.");
-            exit(0);
-        } else { // child
-            return true;
+        // Double-forking.
+        foreach (['single', 'double'] as $v) {
+            switch ($pid = pcntl_fork()) {
+                case -1: // error
+                    common_log(LOG_ERR, 'Could not fork.');
+                    return false;
+                case 0:  // child
+                    if ($v === 'single') {
+                        posix_setsid();
+                    }
+                    break;
+                default: // parent
+                    if ($v === 'double') {
+                        common_log(LOG_INFO, 'Successfully forked.');
+                    }
+                    die();
+            }
         }
+
+        return true;
     }
 
     public function alreadyRunning()
