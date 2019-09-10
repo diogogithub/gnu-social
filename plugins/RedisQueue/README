@@ -1,0 +1,18 @@
+RedisQueuePlugin wraps the RedisQueueManager class which is a queue manager
+that uses Redis as it's backing storage.
+
+Installation
+============
+
+This plugin is replaces other queue manager plugins, such as UnQueue,
+which enabled by default and which should, but is not required to be
+disabled.
+
+addPlugin('RedisQueue', ['server' => 'your-redis-instance-and-port']);
+
+Example
+=======
+
+In config.php
+
+addPlugin('RedisQueue', ['server' => 'tcp://localhost:6379']);

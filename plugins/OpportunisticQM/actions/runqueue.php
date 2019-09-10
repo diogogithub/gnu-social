@@ -23,16 +23,14 @@ class RunqueueAction extends Action
 {
     protected $qm = null;
 
-    protected function prepare(array $args=array())
+    protected function prepare(array $args = [])
     {
         parent::prepare($args);
 
-        $args = array();
+        $args = [];
 
-        foreach (array('qmkey') as $key) {
-            if ($this->arg($key) !== null) {
-                $args[$key] = $this->arg($key);
-            }
+        if ($this->arg('qmkey') !== null) {
+            $args['qmkey'] = $this->arg('qmkey');
         }
 
         try {

@@ -361,6 +361,7 @@ $default =
                 'Poll' => [],
                 'SimpleCaptcha' => [],
                 'TagSub' => [],
+                'UnQueue' => [],
                 'WebFinger' => [],
             ],
             'locale_path' => false, // Set to a path to use *instead of* each plugin's own locale subdirectories

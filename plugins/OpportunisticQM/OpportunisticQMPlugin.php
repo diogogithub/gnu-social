@@ -1,17 +1,16 @@
 <?php
 
 class OpportunisticQMPlugin extends Plugin {
-    const PLUGIN_VERSION = '2.0.0';
+    const PLUGIN_VERSION = '3.0.0';
 
     public $qmkey = false;
-    public $secs_per_action = 1; // total seconds to run script per action
+    public $secs_per_action = 1;     // total seconds to run script per action
     public $rel_to_pageload = true;  // relative to pageload or queue start
     public $verbosity = 1;
 
     public function onRouterInitialized($m)
     {
-        $m->connect('main/runqueue',
-                    ['action' => 'runqueue']);
+        $m->connect('main/runqueue', ['action' => 'runqueue']);
     }
 
     /**
@@ -26,23 +25,21 @@ class OpportunisticQMPlugin extends Plugin {
 
         global $_startTime;
 
-        $args = array(
-                    'qmkey' => common_config('opportunisticqm', 'qmkey'),
-                    'max_execution_time' => $this->secs_per_action,
-                    'started_at'      => $this->rel_to_pageload ? $_startTime : null,
-                    'verbosity'          => $this->verbosity,
-                );
-        $qm = new OpportunisticQueueManager($args); 
+        $args = ['qmkey'              => common_config('opportunisticqm', 'qmkey'),
+                 'max_execution_time' => $this->secs_per_action,
+                 'started_at'         => $this->rel_to_pageload ? $_startTime : null,
+                 'verbosity'          => $this->verbosity];
+        $qm = new OpportunisticQueueManager($args);
         $qm->runQueue();
         return true;
     }
 
     public function onPluginVersion(array &$versions): bool
     {
-        $versions[] = array('name' => 'OpportunisticQM',
-                            'version' => self::PLUGIN_VERSION,
-                            'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'http://www.gnu.org/software/social/',
+        $versions[] = array('name'        => 'OpportunisticQM',
+                            'version'     => self::PLUGIN_VERSION,
+                            'author'      => 'Mikael Nordfeldth',
+                            'homepage'    => 'http://www.gnu.org/software/social/',
                             'description' =>
                             // TRANS: Plugin description.
                             _m('Opportunistic queue manager plugin for background processing.'));
