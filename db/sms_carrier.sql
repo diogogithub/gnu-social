@@ -36,7 +36,7 @@ VALUES
     (100088, 'Orange (Poland)', '%s@orange.pl', now()),
     (100089, 'Personal (Argentina)', '%s@personal-net.com.ar', now()),
     (100090, 'Plus GSM (Poland)', '%s@text.plusgsm.pl', now()),
-    (100091, 'President\'s Choice (Canada)', '%s@txt.bell.ca', now()),
+    (100091, 'President''s Choice (Canada)', '%s@txt.bell.ca', now()),
     (100092, 'Qwest', '%s@qwestmp.com', now()),
     (100093, 'Rogers (Canada)', '%s@pcs.rogers.com', now()),
     (100094, 'Sasktel (Canada)', '%s@sms.sasktel.com', now()),

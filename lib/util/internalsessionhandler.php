@@ -167,7 +167,7 @@ class InternalSessionHandler implements SessionHandlerInterface
         $ids = [];
 
         $session = new Session();
-        $session->whereAdd('modified < "' . $epoch . '"');
+        $session->whereAdd("modified < TIMESTAMP '" . $epoch . "'");
         $session->selectAdd();
         $session->selectAdd('id');
 
