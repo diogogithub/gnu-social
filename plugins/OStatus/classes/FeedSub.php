@@ -68,7 +68,7 @@ class FeedSub extends Managed_DataObject
                 'uri' => array('type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'FeedSub uri'),
                 'huburi' => array('type' => 'text', 'description' => 'FeedSub hub-uri'),
                 'secret' => array('type' => 'text', 'description' => 'FeedSub stored secret'),
-                'sub_state' => array('type' => 'enum("subscribe","active","unsubscribe","inactive","nohub")', 'not null' => true, 'description' => 'subscription state'),
+                'sub_state' => array('type' => 'enum', 'enum' => array('subscribe', 'active', 'unsubscribe', 'inactive', 'nohub'), 'not null' => true, 'description' => 'subscription state'),
                 'sub_start' => array('type' => 'datetime', 'description' => 'subscription start'),
                 'sub_end' => array('type' => 'datetime', 'description' => 'subscription end'),
                 'last_update' => array('type' => 'datetime', 'description' => 'when this record was last updated'),

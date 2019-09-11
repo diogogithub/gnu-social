@@ -709,7 +709,7 @@ class Schema
         $phrase[] = 'ADD COLUMN ' .
             $this->quoteIdentifier($columnName) .
             ' ' .
-            $this->columnSql($cd);
+            $this->columnSql($columnName, $cd);
     }
 
     /**
@@ -726,7 +726,7 @@ class Schema
         $phrase[] = 'MODIFY COLUMN ' .
             $this->quoteIdentifier($columnName) .
             ' ' .
-            $this->columnSql($cd);
+            $this->columnSql($columnName, $cd);
     }
 
     /**
@@ -870,15 +870,15 @@ class Schema
      * Appropriate for use in CREATE TABLE or
      * ALTER TABLE statements.
      *
+     * @param string $name column name to create
      * @param array $cd column to create
      *
      * @return string correct SQL for that column
      */
-
-    public function columnSql(array $cd)
+    public function columnSql(string $name, array $cd)
     {
         $line = [];
-        $line[] = $this->typeAndSize($cd);
+        $line[] = $this->typeAndSize($name, $cd);
 
         if (isset($cd['default'])) {
             $line[] = 'default';
@@ -901,7 +901,7 @@ class Schema
         return $column;
     }
 
-    public function typeAndSize(array $column)
+    public function typeAndSize(string $name, array $column)
     {
         //$type = $this->mapType($column)['type'];
         $type = $column['type'];
