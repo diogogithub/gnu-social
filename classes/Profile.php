@@ -478,13 +478,24 @@ class Profile extends Managed_DataObject
      * @return Profile_list resulting lists
      */
 
-    public function getOtherTags(Profile $scoped = null, $offset = 0, $limit = null, $since_id = 0, $max_id = 0)
+    public function getOtherTags(Profile $scoped = null, int $offset = 0, ?int $limit = null, int $since = 0, int $upto = 0)
     {
         $list = new Profile_list();
 
+        if (common_config('db', 'type') !== 'mysql') {
+            $cursor = sprintf(
+                '((EXTRACT(DAY %1$s) * 24 + EXTRACT(HOUR %1$s)) * 60 + ' .
+                'EXTRACT(MINUTE %1$s)) * 60 + FLOOR(EXTRACT(SECOND %1$s)) AS "cursor"',
+                "FROM (profile_tag.modified - TIMESTAMP '1970-01-01 00:00:00')"
+            );
+        } else {
+            // The SQL/Foundation conforming implementation above doesn't work on MariaDB/MySQL
+            $cursor = "timestampdiff(SECOND, '1970-01-01', profile_tag.modified) AS `cursor`";
+        }
+
         $qry = sprintf(
-            'SELECT profile_list.*, unix_timestamp(profile_tag.modified) AS "cursor" ' .
-            'FROM profile_tag JOIN profile_list '.
+            'SELECT profile_list.*, ' . $cursor . ' ' .
+            'FROM profile_tag INNER JOIN profile_list ' .
             'ON (profile_tag.tagger = profile_list.tagger ' .
             '    AND profile_tag.tag = profile_list.tag) ' .
             'WHERE profile_tag.tagged = %d ',
@@ -502,12 +513,12 @@ class Profile extends Managed_DataObject
             $qry .= 'AND profile_list.private = FALSE ';
         }
 
-        if ($since_id > 0) {
-            $qry .= sprintf('AND (cursor > %d) ', $since_id);
+        if ($since > 0) {
+            $qry .= 'AND cursor > ' . $since . ' ';
         }
 
-        if ($max_id > 0) {
-            $qry .= sprintf('AND (cursor < %d) ', $max_id);
+        if ($upto > 0) {
+            $qry .= 'AND cursor < ' . $upto . ' ';
         }
 
         $qry .= 'ORDER BY profile_tag.modified DESC ';
@@ -558,31 +569,38 @@ class Profile extends Managed_DataObject
         return ($tags->N == 0) ? false : true;
     }
 
-    public function getTagSubscriptions($offset = 0, $limit = null, $since_id = 0, $max_id = 0)
+    public function getTagSubscriptions(int $offset = 0, ?int $limit = null, int $since = 0, int $upto = 0)
     {
         $lists = new Profile_list();
         $subs = new Profile_tag_subscription();
 
-        $lists->joinAdd(array('id', 'profile_tag_subscription:profile_tag_id'));
+        $lists->joinAdd(['id', 'profile_tag_subscription:profile_tag_id']);
 
-        #@fixme: postgres (round(date_part('epoch', my_date)))
-        $lists->selectAdd('unix_timestamp(profile_tag_subscription.created) as "cursor"');
+        if (common_config('db', 'type') !== 'mysql') {
+            $lists->selectAdd(sprintf(
+                '((EXTRACT(DAY %1$s) * 24 + EXTRACT(HOUR %1$s)) * 60 + ' .
+                'EXTRACT(MINUTE %1$s)) * 60 + FLOOR(EXTRACT(SECOND %1$s)) AS "cursor"',
+                "FROM (profile_tag_subscription.created - TIMESTAMP '1970-01-01 00:00:00')"
+            ));
+        } else {
+            $lists->selectAdd("timestampdiff(SECOND, '1970-01-01', profile_tag_subscription.created) AS `cursor`");
+        }
 
         $lists->whereAdd('profile_tag_subscription.profile_id = '.$this->id);
 
-        if ($since_id > 0) {
-            $lists->whereAdd('cursor > ' . $since_id);
+        if ($since > 0) {
+            $lists->whereAdd('cursor > ' . $since);
         }
 
-        if ($max_id > 0) {
-            $lists->whereAdd('cursor <= ' . $max_id);
+        if ($upto > 0) {
+            $lists->whereAdd('cursor <= ' . $upto);
         }
 
         if ($offset >= 0 && !is_null($limit)) {
             $lists->limit($offset, $limit);
         }
 
-        $lists->orderBy('"cursor" DESC');
+        $lists->orderBy('profile_tag_subscription.created DESC');
         $lists->find();
 
         return $lists;

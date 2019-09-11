@@ -226,11 +226,12 @@ abstract class Managed_DataObject extends Memcached_DataObject
         $type = $column['type'];
 
         // For quoting style...
-        $intTypes = array('int',
-                          'integer',
-                          'float',
-                          'serial',
-                          'numeric');
+        $intTypes = [
+            'int',
+            'float',
+            'serial',
+            'numeric'
+        ];
         if (in_array($type, $intTypes)) {
             $style = DB_DATAOBJECT_INT;
         } else {

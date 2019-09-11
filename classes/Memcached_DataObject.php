@@ -1,23 +1,25 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 class Memcached_DataObject extends Safe_DataObject
 {
@@ -30,7 +32,7 @@ class Memcached_DataObject extends Safe_DataObject
      * @param mixed $v key field value, or leave out for primary key lookup
      * @return mixed Memcached_DataObject subtype or false
      */
-    static function getClassKV($cls, $k, $v=null)
+    public static function getClassKV($cls, $k, $v = null)
     {
         if (is_null($v)) {
             $v = $k;
@@ -71,7 +73,7 @@ class Memcached_DataObject extends Safe_DataObject
      *
      * @return array Array of objects, in order
      */
-    static function multiGetClass($cls, $keyCol, array $keyVals, $skipNulls=true)
+    public static function multiGetClass($cls, $keyCol, array $keyVals, $skipNulls = true)
     {
         $obj = new $cls;
 
@@ -100,8 +102,27 @@ class Memcached_DataObject extends Safe_DataObject
             $keyVals[$key] = $obj->escape($val);
         }
 
-        // FIND_IN_SET will make sure we keep the desired order
-        $obj->orderBy(sprintf("FIND_IN_SET(%s, '%s')", $keyCol, implode(',', $keyVals)));
+        switch (common_config('db', 'type')) {
+            case 'pgsql':
+                // "position" will make sure we keep the desired order
+                $obj->orderBy(sprintf(
+                    "position(',' || CAST(%s AS text) || ',' IN ',%s,')",
+                    $keyCol,
+                    implode(',', $keyVals)
+                ));
+                break;
+            case 'mysql':
+                // "find_in_set" will make sure we keep the desired order
+                $obj->orderBy(sprintf(
+                    "find_in_set(%s, '%s')",
+                    $keyCol,
+                    implode(',', $keyVals)
+                ));
+                break;
+            default:
+                throw new ServerException('Unknown DB type selected.');
+        }
+
         $obj->find();
 
         return $obj;
@@ -117,7 +138,7 @@ class Memcached_DataObject extends Safe_DataObject
      *
      * @return array Array mapping $keyVals to objects, or null if not found
      */
-    static function pivotGetClass($cls, $keyCol, array $keyVals, array $otherCols = array())
+    public static function pivotGetClass($cls, $keyCol, array $keyVals, array $otherCols = [])
     {
         if (is_array($keyCol)) {
             foreach ($keyVals as $keyVal) {
@@ -130,7 +151,6 @@ class Memcached_DataObject extends Safe_DataObject
         $toFetch = array();
 
         foreach ($keyVals as $keyVal) {
-
             if (is_array($keyCol)) {
                 $kv = array_combine($keyCol, $keyVal);
             } else {
@@ -147,7 +167,7 @@ class Memcached_DataObject extends Safe_DataObject
                 } else {
                     $result[$keyVal] = $i;
                 }
-            } else if (!empty($keyVal)) {
+            } elseif (!empty($keyVal)) {
                 $toFetch[] = $keyVal;
             }
         }
@@ -207,7 +227,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $result;
     }
 
-    static function _inMultiKey($i, $cols, $values)
+    public static function _inMultiKey($i, $cols, $values)
     {
         $types = array();
 
@@ -255,7 +275,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $query;
     }
 
-    static function pkeyColsClass($cls)
+    public static function pkeyColsClass($cls)
     {
         $i = new $cls;
         $types = $i->keyTypes();
@@ -272,7 +292,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $pkey;
     }
 
-    static function listFindClass($cls, $keyCol, array $keyVals)
+    public static function listFindClass($cls, $keyCol, array $keyVals)
     {
         $i = new $cls;
         $i->whereAddIn($keyCol, $keyVals, $i->columnType($keyCol));
@@ -283,7 +303,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $i;
     }
 
-    static function listGetClass($cls, $keyCol, array $keyVals)
+    public static function listGetClass($cls, $keyCol, array $keyVals)
     {
         $pkeyMap = array_fill_keys($keyVals, array());
         $result = array_fill_keys($keyVals, array());
@@ -296,7 +316,7 @@ class Memcached_DataObject extends Safe_DataObject
         // We only cache keys -- not objects!
 
         foreach ($keyVals as $keyVal) {
-            $l = self::cacheGet(sprintf("%s:list-ids:%s:%s", strtolower($cls), $keyCol, $keyVal));
+            $l = self::cacheGet(sprintf('%s:list-ids:%s:%s', strtolower($cls), $keyCol, $keyVal));
             if ($l !== false) {
                 $pkeyMap[$keyVal] = $l;
                 foreach ($l as $pkey) {
@@ -312,7 +332,7 @@ class Memcached_DataObject extends Safe_DataObject
 
             foreach ($pkeyMap as $keyVal => $pkeyList) {
                 foreach ($pkeyList as $pkeyVal) {
-                    $i = $keyResults[implode(',',$pkeyVal)];
+                    $i = $keyResults[implode(',', $pkeyVal)];
                     if (!empty($i)) {
                         $result[$keyVal][] = $i;
                     }
@@ -338,15 +358,17 @@ class Memcached_DataObject extends Safe_DataObject
                 // no results found for our keyVals, so we leave them as empty arrays
             }
             foreach ($toFetch as $keyVal) {
-                self::cacheSet(sprintf("%s:list-ids:%s:%s", strtolower($cls), $keyCol, $keyVal),
-                               $pkeyMap[$keyVal]);
+                self::cacheSet(
+                    sprintf("%s:list-ids:%s:%s", strtolower($cls), $keyCol, $keyVal),
+                    $pkeyMap[$keyVal]
+                );
             }
         }
 
         return $result;
     }
 
-    function columnType($columnName)
+    public function columnType($columnName)
     {
         $keys = $this->table();
         if (!array_key_exists($columnName, $keys)) {
@@ -365,7 +387,7 @@ class Memcached_DataObject extends Safe_DataObject
     /**
      * @todo FIXME: Should this return false on lookup fail to match getKV?
      */
-    static function pkeyGetClass($cls, array $kv)
+    public static function pkeyGetClass($cls, array $kv)
     {
         $i = self::multicache($cls, $kv);
         if ($i !== false) { // false == cache miss
@@ -395,7 +417,7 @@ class Memcached_DataObject extends Safe_DataObject
         }
     }
 
-    function insert()
+    public function insert()
     {
         $result = parent::insert();
         if ($result) {
@@ -405,7 +427,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $result;
     }
 
-    function update($dataObject=false)
+    public function update($dataObject = false)
     {
         if (is_object($dataObject) && $dataObject instanceof Memcached_DataObject) {
             $dataObject->decache(); # might be different keys
@@ -418,17 +440,19 @@ class Memcached_DataObject extends Safe_DataObject
         return $result;
     }
 
-    function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
         $this->decache(); # while we still have the values!
         return parent::delete($useWhere);
     }
 
-    static function memcache() {
+    public static function memcache()
+    {
         return Cache::instance();
     }
 
-    static function cacheKey($cls, $k, $v) {
+    public static function cacheKey($cls, $k, $v)
+    {
         if (is_object($cls) || is_object($k) || (is_object($v) && !($v instanceof DB_DataObject_Cast))) {
             $e = new Exception();
             common_log(LOG_ERR, __METHOD__ . ' object in param: ' .
@@ -438,7 +462,8 @@ class Memcached_DataObject extends Safe_DataObject
         return Cache::key(strtolower($cls).':'.$k.':'.$vstr);
     }
 
-    static function getcached($cls, $k, $v) {
+    public static function getcached($cls, $k, $v)
+    {
         $c = self::memcache();
         if (!$c) {
             return false;
@@ -456,7 +481,7 @@ class Memcached_DataObject extends Safe_DataObject
         }
     }
 
-    function keyTypes()
+    public function keyTypes()
     {
         // ini-based classes return number-indexed arrays. handbuilt
         // classes return column => keytype. Make this uniform.
@@ -472,18 +497,17 @@ class Memcached_DataObject extends Safe_DataObject
         global $_DB_DATAOBJECT;
         if (!isset($_DB_DATAOBJECT['INI'][$this->_database][$this->tableName()."__keys"])) {
             $this->databaseStructure();
-
         }
         return $_DB_DATAOBJECT['INI'][$this->_database][$this->tableName()."__keys"];
     }
 
-    function encache()
+    public function encache()
     {
         $c = self::memcache();
 
         if (!$c) {
             return false;
-        } else if ($this->tableName() == 'user' && is_object($this->id)) {
+        } elseif ($this->tableName() === 'user' && is_object($this->id)) {
             // Special case for User bug
             $e = new Exception();
             common_log(LOG_ERR, __METHOD__ . ' caching user with User object as ID ' .
@@ -498,7 +522,7 @@ class Memcached_DataObject extends Safe_DataObject
         }
     }
 
-    function decache()
+    public function decache()
     {
         $c = self::memcache();
 
@@ -513,7 +537,7 @@ class Memcached_DataObject extends Safe_DataObject
         }
     }
 
-    function _allCacheKeys()
+    public function _allCacheKeys()
     {
         $ckeys = array();
 
@@ -524,7 +548,6 @@ class Memcached_DataObject extends Safe_DataObject
         $pval = array();
 
         foreach ($types as $key => $type) {
-
             assert(!empty($key));
 
             if ($type == 'U') {
@@ -532,7 +555,7 @@ class Memcached_DataObject extends Safe_DataObject
                     continue;
                 }
                 $ckeys[] = self::cacheKey($this->tableName(), $key, self::valueString($this->$key));
-            } else if ($type == 'K' || $type == 'N') {
+            } elseif (in_array($type, ['K', 'N'])) {
                 $pkey[] = $key;
                 $pval[] = self::valueString($this->$key);
             } else {
@@ -552,7 +575,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $ckeys;
     }
 
-    static function multicache($cls, $kv)
+    public static function multicache($cls, $kv)
     {
         ksort($kv);
         $c = self::memcache();
@@ -563,7 +586,7 @@ class Memcached_DataObject extends Safe_DataObject
         }
     }
 
-    static function multicacheKey($cls, $kv)
+    public static function multicacheKey($cls, $kv)
     {
         ksort($kv);
         $pkeys = implode(',', array_keys($kv));
@@ -571,30 +594,35 @@ class Memcached_DataObject extends Safe_DataObject
         return self::cacheKey($cls, $pkeys, $pvals);
     }
 
-    function getSearchEngine($table)
+    public function getSearchEngine($table)
     {
         require_once INSTALLDIR . '/lib/search/search_engines.php';
 
-        if (Event::handle('GetSearchEngine', array($this, $table, &$search_engine))) {
-            if ('mysql' === common_config('db', 'type')) {
-                $type = common_config('search', 'type');
-                if ($type == 'like') {
-                    $search_engine = new MySQLLikeSearch($this, $table);
-                } else if ($type == 'fulltext') {
-                    $search_engine = new MySQLSearch($this, $table);
-                } else {
-                    // Low level exception. No need for i18n as discussed with Brion.
-                    throw new ServerException('Unknown search type: ' . $type);
+        if (Event::handle('GetSearchEngine', [$this, $table, &$search_engine])) {
+            $type = common_config('search', 'type');
+            if ($type === 'like') {
+                $search_engine = new SQLLikeSearch($this, $table);
+            } elseif ($type === 'fulltext') {
+                switch (common_config('db', 'type')) {
+                    case 'pgsql':
+                        $search_engine = new PostgreSQLSearch($this, $table);
+                        break;
+                    case 'mysql':
+                        $search_engine = new MySQLSearch($this, $table);
+                        break;
+                    default:
+                        throw new ServerException('Unknown DB type selected.');
                 }
             } else {
-                $search_engine = new PGSearch($this, $table);
+                // Low level exception. No need for i18n as discussed with Brion.
+                throw new ServerException('Unknown search type: ' . $type);
             }
         }
 
         return $search_engine;
     }
 
-    static function cachedQuery($cls, $qry, $expiry=3600)
+    public static function cachedQuery($cls, $qry, $expiry = 3600)
     {
         $c = self::memcache();
         if (!$c) {
@@ -631,7 +659,7 @@ class Memcached_DataObject extends Safe_DataObject
      * @access private
      * @return mixed none or PEAR_Error
      */
-    function _query($string)
+    public function _query($string)
     {
         if (common_config('db', 'annotate_queries')) {
             $string = $this->annotateQuery($string);
@@ -680,7 +708,7 @@ class Memcached_DataObject extends Safe_DataObject
      * @param string $string SQL query string
      * @return string SQL query string, with a comment in it
      */
-    function annotateQuery($string)
+    public function annotateQuery($string)
     {
         $ignore = array('annotateQuery',
                         '_query',
@@ -707,7 +735,7 @@ class Memcached_DataObject extends Safe_DataObject
                 }
                 $here = $frame['class'] . '::' . $func;
                 break;
-            } else if (isset($frame['type']) && $frame['type'] == '->') {
+            } elseif (isset($frame['type']) && $frame['type'] === '->') {
                 if ($frame['object'] === $this && in_array($func, $ignore)) {
                     continue;
                 }
@@ -736,7 +764,7 @@ class Memcached_DataObject extends Safe_DataObject
 
     // Sanitize a query for logging
     // @fixme don't trim spaces in string literals
-    function sanitizeQuery($string)
+    public function sanitizeQuery($string)
     {
         $string = preg_replace('/\s+/', ' ', $string);
         $string = trim($string);
@@ -746,7 +774,7 @@ class Memcached_DataObject extends Safe_DataObject
     // We overload so that 'SET NAMES "utf8mb4"' is called for
     // each connection
 
-    function _connect()
+    public function _connect()
     {
         global $_DB_DATAOBJECT, $_PEAR;
 
@@ -757,7 +785,7 @@ class Memcached_DataObject extends Safe_DataObject
             $exists = true;
         } else {
             $exists = false;
-       }
+        }
 
         // @fixme horrible evil hack!
         //
@@ -794,7 +822,7 @@ class Memcached_DataObject extends Safe_DataObject
                 if (!empty($conn)) {
                     if ($DB instanceof DB_mysqli || $DB instanceof MDB2_Driver_mysqli) {
                         mysqli_set_charset($conn, 'utf8mb4');
-                    } else if ($DB instanceof DB_mysql || $DB instanceof MDB2_Driver_mysql) {
+                    } elseif ($DB instanceof DB_mysql || $DB instanceof MDB2_Driver_mysql) {
                         mysql_set_charset('utf8mb4', $conn);
                     }
                 }
@@ -810,7 +838,7 @@ class Memcached_DataObject extends Safe_DataObject
 
     // XXX: largely cadged from DB_DataObject
 
-    function _getDbDsnMD5()
+    public function _getDbDsnMD5()
     {
         if ($this->_database_dsn_md5) {
             return $this->_database_dsn_md5;
@@ -828,7 +856,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $sum;
     }
 
-    function _getDbDsn()
+    public function _getDbDsn()
     {
         global $_DB_DATAOBJECT;
 
@@ -843,14 +871,13 @@ class Memcached_DataObject extends Safe_DataObject
         $dsn = isset($this->_database_dsn) ? $this->_database_dsn : null;
 
         if (!$dsn) {
-
             if (!$this->_database) {
                 $this->_database = isset($options["table_{$this->tableName()}"]) ? $options["table_{$this->tableName()}"] : null;
             }
 
-            if ($this->_database && !empty($options["database_{$this->_database}"]))  {
+            if ($this->_database && !empty($options["database_{$this->_database}"])) {
                 $dsn = $options["database_{$this->_database}"];
-            } else if (!empty($options['database'])) {
+            } elseif (!empty($options['database'])) {
                 $dsn = $options['database'];
             }
         }
@@ -863,7 +890,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $dsn;
     }
 
-    static function blow()
+    public static function blow()
     {
         $c = self::memcache();
 
@@ -882,7 +909,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $c->delete($cacheKey);
     }
 
-    function fixupTimestamps()
+    public function fixupTimestamps()
     {
         // Fake up timestamp columns
         $columns = $this->table();
@@ -893,12 +920,12 @@ class Memcached_DataObject extends Safe_DataObject
         }
     }
 
-    function debugDump()
+    public function debugDump()
     {
         common_debug("debugDump: " . common_log_objstring($this));
     }
 
-    function raiseError($message, $type = null, $behaviour = null)
+    public function raiseError($message, $type = null, $behavior = null)
     {
         $id = get_class($this);
         if (!empty($this->id)) {
@@ -911,7 +938,7 @@ class Memcached_DataObject extends Safe_DataObject
         throw new ServerException("[$id] DB_DataObject error [$type]: $message");
     }
 
-    static function cacheGet($keyPart)
+    public static function cacheGet($keyPart)
     {
         $c = self::memcache();
 
@@ -924,7 +951,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $c->get($cacheKey);
     }
 
-    static function cacheSet($keyPart, $value, $flag=null, $expiry=null)
+    public static function cacheSet($keyPart, $value, $flag = null, $expiry = null)
     {
         $c = self::memcache();
 
@@ -937,7 +964,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $c->set($cacheKey, $value, $flag, $expiry);
     }
 
-    static function valueString($v)
+    public static function valueString($v)
     {
         $vstr = null;
         if (is_object($v) && $v instanceof DB_DataObject_Cast) {

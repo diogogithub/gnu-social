@@ -68,9 +68,7 @@ class SupAction extends Action
         $notice->query('SELECT profile_id, max(id) AS max_id ' .
                        'FROM ( ' .
                        'SELECT profile_id, id FROM notice ' .
-                        ((common_config('db','type') == 'pgsql') ?
-                       'WHERE extract(epoch from created) > (extract(epoch from now()) - ' . $seconds . ') ' :
-                       "WHERE created > TIMESTAMP '" . $divider . "' ") .
+                       "WHERE created > TIMESTAMP '" . $divider . "' " .
                        ') AS latest ' .
                        'GROUP BY profile_id');
 

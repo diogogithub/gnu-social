@@ -200,7 +200,7 @@ class Profile_list extends Managed_DataObject
      * @return Profile results
      */
 
-    public function getSubscribers($offset = 0, $limit = null, $since = 0, $upto = 0)
+    public function getSubscribers(int $offset = 0, ?int $limit = null, int $since = 0, int $upto = 0)
     {
         $subs = new Profile();
 
@@ -209,8 +209,15 @@ class Profile_list extends Managed_DataObject
         );
         $subs->whereAdd('profile_tag_subscription.profile_tag_id = ' . $this->id);
 
-        $subs->selectAdd('unix_timestamp(profile_tag_subscription.' .
-                         'created) as "cursor"');
+        if (common_config('db', 'type') !== 'mysql') {
+            $subs->selectAdd(sprintf(
+                '((EXTRACT(DAY %1$s) * 24 + EXTRACT(HOUR %1$s)) * 60 + ' .
+                'EXTRACT(MINUTE %1$s)) * 60 + FLOOR(EXTRACT(SECOND %1$s)) AS "cursor"',
+                "FROM (profile_tag_subscription.created - TIMESTAMP '1970-01-01 00:00:00')"
+            ));
+        } else {
+            $subs->selectAdd("timestampdiff(SECOND, '1970-01-01', profile_tag_subscription.created) AS `cursor`");
+        }
 
         if ($since != 0) {
             $subs->whereAdd('cursor > ' . $since);
@@ -296,13 +303,21 @@ class Profile_list extends Managed_DataObject
      * @return Profile results
      */
 
-    public function getTagged($offset = 0, $limit = null, $since = 0, $upto = 0)
+    public function getTagged(int $offset = 0, ?int $limit = null, int $since = 0, int $upto = 0)
     {
         $tagged = new Profile();
-        $tagged->joinAdd(array('id', 'profile_tag:tagged'));
+        $tagged->joinAdd(['id', 'profile_tag:tagged']);
 
-        #@fixme: postgres
-        $tagged->selectAdd('unix_timestamp(profile_tag.modified) as "cursor"');
+        if (common_config('db', 'type') !== 'mysql') {
+            $tagged->selectAdd(sprintf(
+                '((EXTRACT(DAY %1$s) * 24 + EXTRACT(HOUR %1$s)) * 60 + ' .
+                'EXTRACT(MINUTE %1$s)) * 60 + FLOOR(EXTRACT(SECOND %1$s)) AS "cursor"',
+                "FROM (profile_tag.modified - TIMESTAMP '1970-01-01 00:00:00')"
+            ));
+        } else {
+            $tagged->selectAdd("timestampdiff(SECOND, '1970-01-01', profile_tag.modified) AS `cursor`");
+        }
+
         $tagged->whereAdd('profile_tag.tagger = '.$this->tagger);
         $tagged->whereAdd("profile_tag.tag = '{$this->tag}'");
 

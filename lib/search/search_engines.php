@@ -70,6 +70,43 @@ class SearchEngine
     }
 }
 
+class PostgreSQLSearch extends SearchEngine
+{
+    public function query($q)
+    {
+        if ($this->table === 'profile') {
+            $cols = implode(" || ' ' || ", array_map(
+                function ($col) {
+                    return sprintf(
+                        "COALESCE(%s.%s, '')",
+                        common_database_tablename($this->table),
+                        $col
+                    );
+                },
+                ['nickname', 'fullname', 'location', 'bio', 'homepage']
+            ));
+
+            $this->target->whereAdd(sprintf(
+                'to_tsvector(\'english\', %2$s) @@ plainto_tsquery(\'%1$s\')',
+                $this->target->escape($q, true),
+                $cols
+            ));
+            return true;
+        } elseif ($this->table === 'notice') {
+            // Don't show imported notices
+            $this->target->whereAdd('notice.is_local <> ' . Notice::GATEWAY);
+
+            $this->target->whereAdd(sprintf(
+                'to_tsvector(\'english\', content) @@ plainto_tsquery(\'%1$s\')',
+                $this->target->escape($q, true)
+            ));
+            return true;
+        } else {
+            throw new ServerException('Unknown table: ' . $this->table);
+        }
+    }
+}
+
 class MySQLSearch extends SearchEngine
 {
     public function query($q)
@@ -120,7 +157,7 @@ class MySQLSearch extends SearchEngine
     }
 }
 
-class MySQLLikeSearch extends SearchEngine
+class SQLLikeSearch extends SearchEngine
 {
     public function query($q)
     {
@@ -143,20 +180,5 @@ class MySQLLikeSearch extends SearchEngine
         $this->target->whereAdd($qry);
 
         return true;
-    }
-}
-
-class PGSearch extends SearchEngine
-{
-    public function query($q)
-    {
-        if ($this->table === 'profile') {
-            return $this->target->whereAdd('textsearch @@ plainto_tsquery(\'' . $this->target->escape($q) . '\')');
-        } elseif ($this->table === 'notice') {
-            // XXX: We need to filter out gateway notices (notice.is_local = -2) --Zach
-            return $this->target->whereAdd('to_tsvector(\'english\', content) @@ plainto_tsquery(\'' . $this->target->escape($q) . '\')');
-        } else {
-            throw new ServerException('Unknown table: ' . $this->table);
-        }
     }
 }

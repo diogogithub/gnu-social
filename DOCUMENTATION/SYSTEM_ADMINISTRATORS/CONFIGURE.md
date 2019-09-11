@@ -164,10 +164,9 @@ The ones that you may want to set are listed below for clarity.
 
 * `database` (string, required, default null): a DSN (Data Source Name) for your
     GNU social database. This is in the format
-    'protocol://username:password@hostname/databasename', where 'protocol' is '
-    mysql' or 'mysqli' (or possibly 'postgresql', if you really know what
-    you're doing), 'username' is the username, 'password' is the password,
-    and etc.
+    'protocol://username:password@hostname/databasename', where 'protocol' is
+    'mysqli' or 'pgsql' or 'mysql', 'username' is the username, 'password' is
+    the password, and etc.
 
 * `ini_yourdbname` (string, default null): if your database is not named 'statusnet',
     you'll need to set this to point to the location of the statusnet.ini file.
@@ -178,9 +177,9 @@ The ones that you may want to set are listed below for clarity.
     'MDB2' to use the other driver type for DB_DataObject, but note that it
     breaks the OpenID libraries, which only support PEAR::DB.
 
-* `type` (enum["mysql", "postgresql"], default 'mysql'): Used for certain
-    database-specific optimization code.  Assumes mysql if not set.  MySQL also
-    covers MySQLi and MariaDB.
+* `type` (enum["mysql", "pgsql"], default 'mysql'): Used for certain
+    database-specific optimization code.  Assumes mysql if not set.  "mysql"
+    covers MariaDB, Oracle MySQL, mysqli or otherwise.
 
 * `mirror` (array, default null): you can set this to an array of DSNs, in the
     format of the above 'database' value. If it's set, certain read-only

@@ -1804,8 +1804,15 @@ class DB_DataObject extends DB_DataObject_Overload
             $kk = (strpos($k, '.') === false && strpos($k, ' ') === false) ?
                 $k : str_replace($replace, '_', $k);
 
-            if ($dbtype === 'pgsql' && $tableInfo[$i]['type'] == 'bool') {
-                $array[$k] = str_replace(['t', 'f'], ['1', '0'], $array[$k]);
+            if ($dbtype === 'pgsql') {
+                switch ($tableInfo[$i]['type']) {
+                    case 'bool':
+                        $array[$k] = str_replace(['t', 'f'], ['1', '0'], $array[$k]);
+                        break;
+                    case 'bytea':
+                        $array[$k] = pg_unescape_bytea($array[$k]);
+                        break;
+                }
             }
 
             if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {
@@ -2433,7 +2440,7 @@ class DB_DataObject extends DB_DataObject_Overload
 
                     case 'pgsql':
                         if (!$seq) {
-                            $seq = $DB->getSequenceName(strtolower($this->tableName()));
+                            $seq = $DB->getSequenceName(strtolower($this->tableName() . '_' . $key));
                         }
                         $db_driver = empty($options['db_driver']) ? 'DB' : $options['db_driver'];
                         $method = ($db_driver == 'DB') ? 'getOne' : 'queryOne';
@@ -2981,8 +2988,15 @@ class DB_DataObject extends DB_DataObject_Overload
             $kk = (strpos($k, '.') === false && strpos($k, ' ') === false) ?
                 $k : str_replace($replace, '_', $k);
 
-            if ($dbtype === 'pgsql' && $tableInfo[$i]['type'] == 'bool') {
-                $array[$k] = str_replace(['t', 'f'], ['1', '0'], $array[$k]);
+            if ($dbtype === 'pgsql') {
+                switch ($tableInfo[$i]['type']) {
+                    case 'bool':
+                        $array[$k] = str_replace(['t', 'f'], ['1', '0'], $array[$k]);
+                        break;
+                    case 'bytea':
+                        $array[$k] = pg_unescape_bytea($array[$k]);
+                        break;
+                }
             }
 
             if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {

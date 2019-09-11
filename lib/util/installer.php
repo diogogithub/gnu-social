@@ -68,11 +68,11 @@ abstract class Installer
             'check_module' => 'mysqli',
             'scheme' => 'mysqli', // DSN prefix for PEAR::DB
         ],
-        /*'pgsql' => [
-            'name' => 'PostgreSQL',
+        'pgsql' => [
+            'name' => 'PostgreSQL 11+',
             'check_module' => 'pgsql',
             'scheme' => 'pgsql', // DSN prefix for PEAR::DB
-        ]*/
+        ]
     ];
 
     /**
@@ -304,20 +304,34 @@ abstract class Installer
             throw new Exception('Cannot connect to database: ' . $conn->getMessage());
         }
 
-        // ensure database encoding is UTF8
-        $conn->query('SET NAMES utf8mb4');
-        if ($this->dbtype == 'mysql') {
-            $server_encoding = $conn->getRow("SHOW VARIABLES LIKE 'character_set_server'")[1];
-            if ($server_encoding != 'utf8mb4') {
-                $this->updateStatus("GNU social requires UTF8 character encoding. Your database is " . htmlentities($server_encoding));
+        switch ($this->dbtype) {
+            case 'pgsql':
+                // ensure the database encoding is UTF8
+                $conn->query("SET NAMES 'UTF8'");
+                $server_encoding = $conn->getRow('SHOW server_encoding')[0];
+                if ($server_encoding !== 'UTF8') {
+                    $this->updateStatus(
+                        'GNU social requires the UTF8 character encoding. Yours is ' .
+                       htmlentities($server_encoding)
+                   );
+                    return false;
+                }
+               break;
+            case 'mysql':
+                // ensure the database encoding is utf8mb4
+                $conn->query("SET NAMES 'utf8mb4'");
+                $server_encoding = $conn->getRow("SHOW VARIABLES LIKE 'character_set_server'")[1];
+                if ($server_encoding !== 'utf8mb4') {
+                    $this->updateStatus(
+                        'GNU social requires the utf8mb4 character encoding. Yours is ' .
+                        htmlentities($server_encoding)
+                    );
+                    return false;
+                }
+                break;
+            default:
+                $this->updateStatus('Unknown DB type selected: ' . $this->dbtype);
                 return false;
-            }
-        } elseif ($this->dbtype == 'pgsql') {
-            $server_encoding = $conn->getRow('SHOW server_encoding')[0];
-            if ($server_encoding != 'UTF8') {
-                $this->updateStatus("GNU social requires UTF8 character encoding. Your database is " . htmlentities($server_encoding));
-                return false;
-            }
         }
 
         $res = $this->updateStatus("Creating database tables...");
@@ -362,7 +376,7 @@ abstract class Installer
      */
     public function createCoreTables(DB_common $conn): bool
     {
-        $schema = Schema::get($conn);
+        $schema = Schema::get($conn, $this->dbtype);
         $tableDefs = $this->getCoreSchema();
         foreach ($tableDefs as $name => $def) {
             if (defined('DEBUG_INSTALLER')) {
