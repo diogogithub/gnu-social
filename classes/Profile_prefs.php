@@ -1,31 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Data class for Profile preferences
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  Data
  * @package   GNUsocial
  * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @copyright 2013 Free Software Foundation, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://www.gnu.org/software/social/
+ * @copyright 2013 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+defined('GNUSOCIAL') || die();
 
 class Profile_prefs extends Managed_DataObject
 {
@@ -58,7 +57,7 @@ class Profile_prefs extends Managed_DataObject
         );
     }
 
-    static function getNamespacePrefs(Profile $profile, $namespace, array $topic=array())
+    public static function getNamespacePrefs(Profile $profile, $namespace, array $topic = [])
     {
         if (empty($topic)) {
             $prefs = new Profile_prefs();
@@ -76,13 +75,13 @@ class Profile_prefs extends Managed_DataObject
         return $prefs;
     }
 
-    static function getNamespace(Profile $profile, $namespace, array $topic=array())
+    public static function getNamespace(Profile $profile, $namespace, array $topic = [])
     {
         $prefs = self::getNamespacePrefs($profile, $namespace, $topic);
         return $prefs->fetchAll();
     }
 
-    static function getAll(Profile $profile)
+    public static function getAll(Profile $profile)
     {
         try {
             $prefs = self::listFind('profile_id', array($profile->getID()));
@@ -100,13 +99,15 @@ class Profile_prefs extends Managed_DataObject
         return $list;
     }
 
-    static function getTopic(Profile $profile, $namespace, $topic) {
+    public static function getTopic(Profile $profile, $namespace, $topic)
+    {
         return Profile_prefs::getByPK(array('profile_id' => $profile->getID(),
                                             'namespace'  => $namespace,
                                             'topic'      => $topic));
     }
 
-    static function getData(Profile $profile, $namespace, $topic, $def=null) {
+    public static function getData(Profile $profile, $namespace, $topic, $def = null)
+    {
         try {
             $pref = self::getTopic($profile, $namespace, $topic);
         } catch (NoResultException $e) {
@@ -120,7 +121,8 @@ class Profile_prefs extends Managed_DataObject
         return $pref->data;
     }
 
-    static function getConfigData(Profile $profile, $namespace, $topic) {
+    public static function getConfigData(Profile $profile, $namespace, $topic)
+    {
         try {
             $data = self::getData($profile, $namespace, $topic);
         } catch (NoResultException $e) {
@@ -140,14 +142,15 @@ class Profile_prefs extends Managed_DataObject
      * @return true if changes are made, false if no action taken
      * @throws ServerException if preference could not be saved
      */
-    static function setData(Profile $profile, $namespace, $topic, $data=null) {
+    public static function setData(Profile $profile, $namespace, $topic, $data = null)
+    {
         try {
             $pref = self::getTopic($profile, $namespace, $topic);
             if (is_null($data)) {
                 $pref->delete();
             } else {
                 $orig = clone($pref);
-                $pref->data = $data;
+                $pref->data = DB_DataObject_Cast::blob($data);
                 $pref->update($orig);
             }
             return true;
@@ -161,7 +164,7 @@ class Profile_prefs extends Managed_DataObject
         $pref->profile_id = $profile->getID();
         $pref->namespace  = $namespace;
         $pref->topic      = $topic;
-        $pref->data       = $data;
+        $pref->data       = DB_DataObject_Cast::blob($data);
         $pref->created    = common_sql_now();
         
         if ($pref->insert() === false) {

@@ -64,9 +64,10 @@ class Schema
      * the schema object.
      *
      * @param object|null $conn
+     * @param string|null Force a database type (necessary for installation purposes in which we don't have a config.php)
      * @return Schema the Schema object for the connection
      */
-    public static function get($conn = null)
+    public static function get($conn = null, $dbtype = null)
     {
         if (is_null($conn)) {
             $key = 'default';
@@ -74,9 +75,11 @@ class Schema
             $key = md5(serialize($conn->dsn));
         }
 
-        $type = common_config('db', 'type');
+        if (is_null($dbtype)) {
+            $dbtype = common_config('db', 'type');
+        }
         if (empty(self::$_static[$key])) {
-            $schemaClass = ucfirst($type) . 'Schema';
+            $schemaClass = ucfirst($dbtype) . 'Schema';
             self::$_static[$key] = new $schemaClass($conn);
         }
         return self::$_static[$key];
@@ -369,6 +372,8 @@ class Schema
     {
         global $_PEAR;
 
+        $qry = [];
+
         if (!is_array($columnNames)) {
             $columnNames = [$columnNames];
         }
@@ -377,11 +382,9 @@ class Schema
             $name = "{$table}_" . implode("_", $columnNames) . "_idx";
         }
 
-        $res = $this->conn->query(
-            'ALTER TABLE ' . $this->quoteIdentifier($table)  .
-            ' ADD INDEX ' . $name . ' (' .
-            implode(',', $columnNames) . ')'
-        );
+        $this->appendCreateIndex($qry, $table, $name, $columnNames);
+
+        $res = $this->conn->query(implode('; ', $qry));
 
         if ($_PEAR->isError($res)) {
             PEAR_ErrorToPEAR_Exception($res);
@@ -602,7 +605,7 @@ class Schema
         }
 
         if (isset($old['primary key']) && (!isset($def['primary key']) || $def['primary key'] != $old['primary key'])) {
-            $this->appendAlterDropPrimary($phrase);
+            $this->appendAlterDropPrimary($phrase, $tableName);
         }
 
         foreach ($fields['add'] as $columnName) {
@@ -765,7 +768,7 @@ class Schema
         $phrase[] = implode(' ', $sql);
     }
 
-    public function appendAlterDropPrimary(array &$phrase)
+    public function appendAlterDropPrimary(array &$phrase, string $tableName)
     {
         $phrase[] = 'DROP CONSTRAINT PRIMARY KEY';
     }

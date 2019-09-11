@@ -605,14 +605,26 @@ function fixupFileThumbnailUrlhash()
 {
     printfnq("Setting urlhash for File_thumbnail entries: ");
 
+    switch (common_config('db', 'type')) {
+        case 'pgsql':
+            $url_sha256 = 'encode(sha256(CAST("url" AS bytea)), \'hex\')';
+            break;
+        case 'mysql':
+            $url_sha256 = 'sha2(`url`, 256)';
+            break;
+        default:
+            throw new Exception('Unknown DB type selected.');
+    }
+
     $thumb = new File_thumbnail();
     $thumb->query(sprintf(
         'UPDATE %1$s ' .
-        'SET urlhash = sha2(url, 256) ' .
+        'SET urlhash = %2$s ' .
         'WHERE url IS NOT NULL ' . // find all entries with a url value
         "AND url <> '' " .         // precaution against non-null empty strings
         'AND urlhash IS NULL',     // but don't touch those we've already calculated
-        $thumb->escapedTableName()
+        $thumb->escapedTableName(),
+        $url_sha256
     ));
 
     printfnq("DONE.\n");

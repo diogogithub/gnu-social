@@ -22,7 +22,7 @@ client side, which itself depends on the sphinx development files.
 "pecl install sphinx" should take care of that. Add "extension=sphinx.so"
 to your php.ini and reload apache to enable it.
 
-You can update your MySQL or Postgresql databases to drop their fulltext
+You can update your MariaDB or PostgreSQL databases to drop their fulltext
 search indexes, since they're now provided by sphinx.
 
 

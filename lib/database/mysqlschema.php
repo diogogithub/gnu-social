@@ -44,13 +44,14 @@ class MysqlSchema extends Schema
      * Main public entry point. Use this to get
      * the singleton object.
      *
-     * @param null $conn
+     * @param object|null $conn
+     * @param string|null dummy param
      * @return Schema the (single) Schema object
      */
-    public static function get($conn = null)
+    public static function get($conn = null, $_ = 'mysql')
     {
         if (empty(self::$_single)) {
-            self::$_single = new Schema($conn);
+            self::$_single = new Schema($conn, 'mysql');
         }
         return self::$_single;
     }
@@ -105,14 +106,16 @@ class MysqlSchema extends Schema
                 $field['not null'] = true;
             }
             if ($row['COLUMN_DEFAULT'] !== null) {
-                // Hack for timestamp cols
-                if ($type == 'timestamp' && $row['COLUMN_DEFAULT'] == 'CURRENT_TIMESTAMP') {
-                    // skip because timestamp is numerical, but it accepts datetime strings as well
+                // Hack for timestamp columns
+                if ($row['COLUMN_DEFAULT'] === 'current_timestamp()') {
+                    // skip timestamp columns as they get a CURRENT_TIMESTAMP default implicitly
+                    if ($type !== 'timestamp') {
+                        $field['default'] = 'CURRENT_TIMESTAMP';
+                    }
+                } elseif ($this->isNumericType($type)) {
+                    $field['default'] = intval($row['COLUMN_DEFAULT']);
                 } else {
                     $field['default'] = $row['COLUMN_DEFAULT'];
-                    if ($this->isNumericType($type)) {
-                        $field['default'] = intval($field['default']);
-                    }
                 }
             }
             if ($row['COLUMN_KEY'] !== null) {
@@ -305,7 +308,7 @@ class MysqlSchema extends Schema
      *
      * @param array $phrase
      */
-    public function appendAlterDropPrimary(array &$phrase)
+    public function appendAlterDropPrimary(array &$phrase, string $tableName)
     {
         $phrase[] = 'DROP PRIMARY KEY';
     }
@@ -406,6 +409,8 @@ class MysqlSchema extends Schema
             if ($type == 'int' &&
                 in_array($size, ['tiny', 'small', 'medium', 'big'])) {
                 $type = $size . $type;
+            } elseif ($type == 'float' && $size == 'big') {
+                $type = 'double';
             } elseif (in_array($type, ['blob', 'text']) &&
                 in_array($size, ['tiny', 'medium', 'long'])) {
                 $type = $size . $type;

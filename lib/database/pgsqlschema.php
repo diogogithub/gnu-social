@@ -40,6 +40,24 @@ defined('GNUSOCIAL') || die();
  */
 class PgsqlSchema extends Schema
 {
+    public static $_single = null;
+
+    /**
+     * Main public entry point. Use this to get
+     * the singleton object.
+     *
+     * @param object|null $conn
+     * @param string|null dummy param
+     * @return Schema the (single) Schema object
+     */
+    public static function get($conn = null, $_ = 'pgsql')
+    {
+        if (empty(self::$_single)) {
+            self::$_single = new Schema($conn, 'pgsql');
+        }
+        return self::$_single;
+    }
+
     /**
      * Returns a table definition array for the table
      * in the schema with the given name.
@@ -72,7 +90,7 @@ class PgsqlSchema extends Schema
             $field = [];
             $field['type'] = $type = $row['udt_name'];
 
-            if ($type == 'char' || $type == 'varchar') {
+            if (in_array($type, ['char', 'bpchar', 'varchar'])) {
                 if ($row['character_maximum_length'] !== null) {
                     $field['length'] = intval($row['character_maximum_length']);
                 }
@@ -103,7 +121,8 @@ class PgsqlSchema extends Schema
         // Pulling index info from pg_class & pg_index
         // This can give us primary & unique key info, but not foreign key constraints
         // so we exclude them and pick them up later.
-        $indexInfo = $this->getIndexInfo($table);
+        $indexInfo = $this->fetchIndexInfo($table);
+
         foreach ($indexInfo as $row) {
             $keyName = $row['key_name'];
 
@@ -144,7 +163,7 @@ class PgsqlSchema extends Schema
             if ($keyName == "{$table}_pkey") {
                 $def['primary key'] = $cols;
             } elseif (preg_match("/^{$table}_(.*)_fkey$/", $keyName, $matches)) {
-                $fkey = $this->getForeignKeyInfo($table, $keyName);
+                $fkey = $this->fetchForeignKeyInfo($table, $keyName);
                 $colMap = array_combine($cols, $fkey['col_names']);
                 $def['foreign keys'][$keyName] = [$fkey['table_name'], $colMap];
             } else {
@@ -180,47 +199,42 @@ class PgsqlSchema extends Schema
      * @return array of arrays
      * @throws PEAR_Exception
      */
-    public function getIndexInfo($table)
+    public function fetchIndexInfo(string $table): array
     {
-        $query = 'SELECT ' .
-            '(SELECT relname FROM pg_class WHERE oid=indexrelid) AS key_name, ' .
-            '* FROM pg_index ' .
-            'WHERE indrelid=(SELECT oid FROM pg_class WHERE relname=\'%s\') ' .
-            'AND indisprimary=\'f\' AND indisunique=\'f\' ' .
+        $query = 'SELECT indexname AS key_name, indexdef AS key_def, pg_index.* ' .
+            'FROM pg_index INNER JOIN pg_indexes ON pg_index.indexrelid = CAST(pg_indexes.indexname AS regclass) ' .
+            'WHERE tablename = \'%s\' AND indisprimary = FALSE AND indisunique = FALSE ' .
             'ORDER BY indrelid, indexrelid';
         $sql = sprintf($query, $table);
         return $this->fetchQueryData($sql);
     }
 
     /**
-     * Column names from the foreign table can be resolved with a call to getTableColumnNames()
      * @param string $table
-     * @param $constraint_name
-     * @return array array of rows with keys: fkey_name, table_name, table_id, col_names (array of strings)
+     * @param string $constraint_name
+     * @return array array of rows with keys: table_name, col_names (array of strings)
      * @throws PEAR_Exception
      */
-    public function getForeignKeyInfo($table, $constraint_name)
+    public function fetchForeignKeyInfo(string $table, string $constraint_name): array
     {
         // In a sane world, it'd be easier to query the column names directly.
         // But it's pretty hard to work with arrays such as col_indexes in direct SQL here.
         $query = 'SELECT ' .
-            '(SELECT relname FROM pg_class WHERE oid=confrelid) AS table_name, ' .
+            '(SELECT relname FROM pg_class WHERE oid = confrelid) AS table_name, ' .
             'confrelid AS table_id, ' .
-            '(SELECT indkey FROM pg_index WHERE indexrelid=conindid) AS col_indexes ' .
+            '(SELECT indkey FROM pg_index WHERE indexrelid = conindid) AS col_indices ' .
             'FROM pg_constraint ' .
-            'WHERE conrelid=(SELECT oid FROM pg_class WHERE relname=\'%s\') ' .
-            'AND conname=\'%s\' ' .
-            'AND contype=\'f\'';
+            'WHERE conrelid = CAST(\'%s\' AS regclass) AND conname = \'%s\' AND contype = \'f\'';
         $sql = sprintf($query, $table, $constraint_name);
         $data = $this->fetchQueryData($sql);
         if (count($data) < 1) {
-            throw new Exception("Could not find foreign key " . $constraint_name . " on table " . $table);
+            throw new Exception('Could not find foreign key ' . $constraint_name . ' on table ' . $table);
         }
 
         $row = $data[0];
         return [
             'table_name' => $row['table_name'],
-            'col_names' => $this->getTableColumnNames($row['table_id'], $row['col_indexes'])
+            'col_names' => $this->getTableColumnNames($row['table_id'], $row['col_indices'])
         ];
     }
 
@@ -253,23 +267,6 @@ class PgsqlSchema extends Schema
     }
 
     /**
-     * Translate the (mostly) mysql-ish column types into somethings more standard
-     * @param string column type
-     *
-     * @return string postgres happy column type
-     */
-    private function _columnTypeTranslation($type)
-    {
-        $map = [
-            'datetime' => 'timestamp',
-        ];
-        if (!empty($map[$type])) {
-            return $map[$type];
-        }
-        return $type;
-    }
-
-    /**
      * Return the proper SQL for creating or
      * altering a column.
      *
@@ -296,12 +293,15 @@ class PgsqlSchema extends Schema
         }
         */
 
-        if (!empty($cd['enum'])) {
-            foreach($cd['enum'] as &$val) {
+        // This'll have been added from our transform of 'serial' type
+        if (!empty($cd['auto_increment'])) {
+            $line[] = 'GENERATED BY DEFAULT AS IDENTITY';
+        } elseif (!empty($cd['enum'])) {
+            foreach ($cd['enum'] as &$val) {
                 $vals[] = "'" . $val . "'";
             }
             $line[] = 'CHECK (' . $name . ' IN (' . implode(',', $vals) . '))';
-         }
+        }
 
         return implode(' ', $line);
     }
@@ -338,6 +338,12 @@ class PgsqlSchema extends Schema
         }
     }
 
+    public function appendAlterDropPrimary(array &$phrase, string $tableName)
+    {
+        // name hack -- is this reliable?
+        $phrase[] = 'DROP CONSTRAINT ' . $this->quoteIdentifier($tableName . '_pkey');
+    }
+
     /**
      * Append an SQL statement to drop an index from a table.
      * Note that in PostgreSQL, index names are DB-unique.
@@ -354,9 +360,8 @@ class PgsqlSchema extends Schema
     public function mapType($column)
     {
         $map = [
-            'serial'   => 'bigserial', // FIXME: creates the wrong name for the sequence for some internal sequence-lookup function, so better fix this to do the real 'create sequence' dance.
-            'bool'     => 'boolean',
-            'numeric'  => 'decimal',
+            'integer'  => 'int',
+            'char'     => 'bpchar',
             'datetime' => 'timestamp',
             'blob'     => 'bytea',
             'enum'     => 'text',
@@ -367,16 +372,17 @@ class PgsqlSchema extends Schema
             $type = $map[$type];
         }
 
-        if ($type == 'int') {
-            if (!empty($column['size'])) {
-                $size = $column['size'];
-                if ($size == 'small') {
-                    return 'int2';
-                } elseif ($size == 'big') {
-                    return 'int8';
-                }
+        $size = $column['size'] ?? null;
+        if ($type === 'int') {
+            if (in_array($size, ['tiny', 'small'])) {
+                $type = 'int2';
+            } elseif ($size === 'big') {
+                $type = 'int8';
+            } else {
+                $type = 'int4';
             }
-            return 'int4';
+        } elseif ($type === 'float') {
+            $type = ($size !== 'big') ? 'float4' : 'float8';
         }
 
         return $type;
@@ -398,17 +404,33 @@ class PgsqlSchema extends Schema
             // No convenient support for field descriptions
             unset($col['description']);
 
-            /*
-            if (isset($col['size'])) {
-                // Don't distinguish between tinyint and int.
-                if ($col['size'] == 'tiny' && $col['type'] == 'int') {
-                    unset($col['size']);
-                }
+            switch ($col['type']) {
+                case 'serial':
+                    $col['type'] = 'int';
+                    $col['auto_increment'] = true;
+                    break;
+                case 'datetime':
+                    // Replace archaic MySQL-specific zero-dates with NULL
+                    if (($col['default'] ?? null) === '0000-00-00 00:00:00') {
+                        $col['default'] = null;
+                        $col['not null'] = false;
+                    }
+                    break;
+                case 'timestamp':
+                    // In MariaDB: If the column does not permit NULL values,
+                    // assigning NULL (or not referencing the column at all
+                    // when inserting) will set the column to CURRENT_TIMESTAMP
+                    // FIXME: ON UPDATE CURRENT_TIMESTAMP
+                    if ($col['not null'] && !isset($col['default'])) {
+                        $col['default'] = 'CURRENT_TIMESTAMP';
+                    }
+                    break;
             }
-             */
+
             $col['type'] = $this->mapType($col);
             unset($col['size']);
         }
+
         if (!empty($tableDef['primary key'])) {
             $tableDef['primary key'] = $this->filterKeyDef($tableDef['primary key']);
         }
