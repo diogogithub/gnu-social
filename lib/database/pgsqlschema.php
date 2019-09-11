@@ -348,10 +348,11 @@ class PgsqlSchema extends Schema
     public function mapType($column)
     {
         $map = [
-            'serial' => 'bigserial', // FIXME: creates the wrong name for the sequence for some internal sequence-lookup function, so better fix this to do the real 'create sequence' dance.
-            'numeric' => 'decimal',
+            'serial'   => 'bigserial', // FIXME: creates the wrong name for the sequence for some internal sequence-lookup function, so better fix this to do the real 'create sequence' dance.
+            'bool'     => 'boolean',
+            'numeric'  => 'decimal',
             'datetime' => 'timestamp',
-            'blob' => 'bytea'
+            'blob'     => 'bytea',
         ];
 
         $type = $column['type'];

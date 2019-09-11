@@ -1,46 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Data class to mark a notice as a question
  *
- * PHP version 5
- *
- * @category QnA
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * @category  QnA
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * For storing a question
  *
- * @category QnA
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      DB_DataObject
+ * @see       DB_DataObject
  */
 class QnA_Question extends Managed_DataObject
 {
@@ -52,7 +44,7 @@ class QnA_Question extends Managed_DataObject
     public $profile_id;  // int -> profile.id
     public $title;       // text
     public $description; // text
-    public $closed;      // int (boolean) whether a question is closed
+    public $closed;      // bool -> whether a question is closed
     public $created;     // datetime
 
     /**
@@ -76,7 +68,7 @@ class QnA_Question extends Managed_DataObject
                 ),
                 'profile_id'  => array('type' => 'int'),
                 'title'       => array('type' => 'text'),
-                'closed'      => array('type' => 'int', 'size' => 'tiny'),
+                'closed'      => array('type' => 'bool'),
                 'description' => array('type' => 'text'),
                 'created'     => array(
                     'type'     => 'datetime',
@@ -97,28 +89,28 @@ class QnA_Question extends Managed_DataObject
      *
      * @return Question found question or null
      */
-    static function getByNotice($notice)
+    public static function getByNotice($notice)
     {
         return self::getKV('uri', $notice->uri);
     }
 
-    function getNotice()
+    public function getNotice()
     {
         return Notice::getKV('uri', $this->uri);
     }
 
-    function getUrl()
+    public function getUrl()
     {
         return $this->getNotice()->getUrl();
     }
 
-    function getProfile()
+    public function getProfile()
     {
         $profile = Profile::getKV('id', $this->profile_id);
         if (empty($profile)) {
             // TRANS: Exception trown when getting a profile for a non-existing ID.
             // TRANS: %s is the provided profile ID.
-            throw new Exception(sprintf(_m('No profile with ID %s'),$this->profile_id));
+            throw new Exception(sprintf(_m('No profile with ID %s'), $this->profile_id));
         }
         return $profile;
     }
@@ -130,7 +122,7 @@ class QnA_Question extends Managed_DataObject
      *
      * @return Answer object or null
      */
-    function getAnswer(Profile $profile)
+    public function getAnswer(Profile $profile)
     {
         $a = new QnA_Answer();
         $a->question_id = $this->id;
@@ -143,7 +135,7 @@ class QnA_Question extends Managed_DataObject
         }
     }
 
-    function getAnswers()
+    public function getAnswers()
     {
         $a = new QnA_Answer();
         $a->question_id = $this->id;
@@ -155,7 +147,7 @@ class QnA_Question extends Managed_DataObject
         }
     }
 
-    function countAnswers()
+    public function countAnswers()
     {
         $a = new QnA_Answer();
 
@@ -164,22 +156,22 @@ class QnA_Question extends Managed_DataObject
         return $a->count();
     }
 
-    static function fromNotice($notice)
+    public static function fromNotice($notice)
     {
         return QnA_Question::getKV('uri', $notice->uri);
     }
 
-    function asHTML()
+    public function asHTML()
     {
         return self::toHTML($this->getProfile(), $this);
     }
 
-    function asString()
+    public function asString()
     {
         return self::toString($this->getProfile(), $this);
     }
 
-    static function toHTML($profile, $question)
+    public static function toHTML($profile, $question)
     {
         $notice = $question->getNotice();
 
@@ -205,7 +197,7 @@ class QnA_Question extends Managed_DataObject
             $out->elementStart('span', 'answer-count');
             // TRANS: Number of given answers to a question.
             // TRANS: %s is the number of given answers.
-            $out->text(sprintf(_m('%s answer','%s answers',$cnt), $cnt));
+            $out->text(sprintf(_m('%s answer', '%s answers', $cnt), $cnt));
             $out->elementEnd('span');
         }
 
@@ -221,7 +213,7 @@ class QnA_Question extends Managed_DataObject
         return $out->getString();
     }
 
-    static function toString($profile, $question, $answers)
+    public static function toString($profile, $question, $answers)
     {
         return sprintf(htmlspecialchars($question->description));
     }
@@ -237,7 +229,7 @@ class QnA_Question extends Managed_DataObject
      *
      * @return Notice saved notice
      */
-    static function saveNew($profile, $title, $description, $options = array())
+    public static function saveNew($profile, $title, $description, $options = [])
     {
         $q = new QnA_Question();
 

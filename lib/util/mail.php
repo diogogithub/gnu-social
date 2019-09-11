@@ -434,11 +434,11 @@ function mail_broadcast_notice_sms($notice)
         // Users (other than the sender) who `want SMS notices':
         'WHERE %1$s.id <> %2$d ' .
         'AND %1$s.smsemail IS NOT NULL ' .
-        'AND %1$s.smsnotify = 1 ' .
+        'AND %1$s.smsnotify = TRUE ' .
         // ... where either the user _is_ subscribed to the sender
         // (any of the "subscription" fields IS NOT NULL)
         // and wants to get SMS for all of this scribe's notices...
-        'AND (subscription.sms = 1 ' .
+        'AND (subscription.sms = TRUE ' .
         // ... or where the user was mentioned in
         // or replied-to with the notice:
         $repliesQry .

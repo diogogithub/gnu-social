@@ -507,9 +507,9 @@ class FavoriteModule extends ActivityVerbHandlerModule
 
     public function onStartEmailSaveForm(Action $action, Profile $scoped)
     {
-        $emailfave = $action->booleanintstring('email-notify_fave');
+        $emailfave = $action->boolean('email-notify_fave');
         try {
-            if ($emailfave == $scoped->getPref('email', 'notify_fave')) {
+            if ($emailfave == (bool) $scoped->getPref('email', 'notify_fave')) {
                 // No need to update setting
                 return true;
             }

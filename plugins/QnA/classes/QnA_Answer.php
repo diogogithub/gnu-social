@@ -1,46 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Data class to save answers to questions
  *
- * PHP version 5
- *
- * @category QnA
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * @category  QnA
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('STATUSNET') || die();
 
 /**
  * For storing answers
  *
- * @category QnA
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      DB_DataObject
+ * @see       DB_DataObject
  */
 class QnA_Answer extends Managed_DataObject
 {
@@ -51,7 +43,7 @@ class QnA_Answer extends Managed_DataObject
     public $uri;         // varchar(191)   not 255 because utf8mb4 takes more space
     public $question_id; // char(36) -> question.id UUID
     public $profile_id;  // int -> question.id
-    public $best;        // (boolean) int -> whether the question asker has marked this as the best answer
+    public $best;        // bool -> whether the question asker has marked this as the best answer
     public $revisions;   // int -> count of revisions to this answer
     public $content;     // text -> response text
     public $created;     // datetime
@@ -82,7 +74,7 @@ class QnA_Answer extends Managed_DataObject
                     'description' => 'UUID of question being responded to',
                 ),
                 'content'    => array('type' => 'text'), // got a better name?
-                'best'       => array('type' => 'int', 'size' => 'tiny'),
+                'best'       => array('type' => 'bool'),
                 'revisions'  => array('type' => 'int'),
                 'profile_id' => array('type' => 'int'),
                 'created'    => array('type' => 'datetime', 'not null' => true),
@@ -105,7 +97,7 @@ class QnA_Answer extends Managed_DataObject
      *
      * @return QnA_Answer found response or null
      */
-    static function getByNotice($notice)
+    public static function getByNotice($notice)
     {
         $answer = self::getKV('uri', $notice->uri);
         if (empty($answer)) {
@@ -119,17 +111,17 @@ class QnA_Answer extends Managed_DataObject
      *
      * @return Notice
      */
-    function getNotice()
+    public function getNotice()
     {
         return Notice::getKV('uri', $this->uri);
     }
 
-    static function fromNotice($notice)
+    public static function fromNotice($notice)
     {
         return QnA_Answer::getKV('uri', $notice->uri);
     }
 
-    function getUrl()
+    public function getUrl()
     {
         return $this->getNotice()->getUrl();
     }
@@ -139,29 +131,29 @@ class QnA_Answer extends Managed_DataObject
      *
      * @return QnA_Question
      */
-    function getQuestion()
+    public function getQuestion()
     {
         $question = QnA_Question::getKV('id', $this->question_id);
         if (empty($question)) {
             // TRANS: Exception thown when getting a question with a non-existing ID.
             // TRANS: %s is the non-existing question ID.
-            throw new Exception(sprintf(_m('No question with ID %s'),$this->question_id));
+            throw new Exception(sprintf(_m('No question with ID %s'), $this->question_id));
         }
         return $question;
     }
 
-    function getProfile()
+    public function getProfile()
     {
         $profile = Profile::getKV('id', $this->profile_id);
         if (empty($profile)) {
             // TRANS: Exception thown when getting a profile with a non-existing ID.
             // TRANS: %s is the non-existing profile ID.
-            throw new Exception(sprintf(_m('No profile with ID %s'),$this->profile_id));
+            throw new Exception(sprintf(_m('No profile with ID %s'), $this->profile_id));
         }
         return $profile;
     }
 
-    function asHTML()
+    public function asHTML()
     {
         return self::toHTML(
             $this->getProfile(),
@@ -170,7 +162,7 @@ class QnA_Answer extends Managed_DataObject
         );
     }
 
-    function asString()
+    public function asString()
     {
         return self::toString(
             $this->getProfile(),
@@ -179,7 +171,7 @@ class QnA_Answer extends Managed_DataObject
         );
     }
 
-    static function toHTML($profile, $question, $answer)
+    public static function toHTML($profile, $question, $answer)
     {
         $notice = $question->getNotice();
 
@@ -201,7 +193,7 @@ class QnA_Answer extends Managed_DataObject
                 htmlspecialchars(
                     // Notification of how often an answer was revised.
                     // TRANS: %s is the number of answer revisions.
-                    sprintf(_m('%s revision','%s revisions',$answer->revisions), $answer->revisions)
+                    sprintf(_m('%s revision', '%s revisions', $answer->revisions), $answer->revisions)
                 )
             );
             $out->elementEnd('span');
@@ -212,7 +204,7 @@ class QnA_Answer extends Managed_DataObject
         return $out->getString();
     }
 
-    static function toString($profile, $question, $answer)
+    public static function toString($profile, $question, $answer)
     {
         // @todo FIXME: unused variable?
         $notice = $question->getNotice();
@@ -237,7 +229,7 @@ class QnA_Answer extends Managed_DataObject
      *
      * @return Notice saved notice
      */
-    static function saveNew($profile, $question, $text, $options = null)
+    public static function saveNew($profile, $question, $text, $options = null)
     {
         if (empty($options)) {
             $options = array();
@@ -248,7 +240,7 @@ class QnA_Answer extends Managed_DataObject
         $answer->profile_id  = $profile->id;
         $answer->question_id = $question->id;
         $answer->revisions   = 0;
-        $answer->best        = 0;
+        $answer->best        = false;
         $answer->content     = $text;
         $answer->created     = common_sql_now();
         $answer->uri         = common_local_url(

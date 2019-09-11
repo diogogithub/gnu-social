@@ -1,35 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Settings for OpenID
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2008-2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 require_once INSTALLDIR.'/plugins/OpenID/openid.php';
 
@@ -38,11 +33,8 @@ require_once INSTALLDIR.'/plugins/OpenID/openid.php';
  *
  * Lets users add, edit and delete OpenIDs from their account
  *
- * @category Settings
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @copyright 2008-2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class OpenidsettingsAction extends SettingsAction
 {
@@ -100,17 +92,26 @@ class OpenidsettingsAction extends SettingsAction
             $this->elementStart('ul', 'form_data');
             $this->elementStart('li');
             // TRANS: Field label.
-            $this->input('openid_url', _m('OpenID URL'), null,
-                         // TRANS: Form guide.
-                         _m('An OpenID URL which identifies you.'),
-                         null, true,
-                         ['placeholder'=>'https://example.com/you']);
+            $this->input(
+                'openid_url',
+                _m('OpenID URL'),
+                null,
+                // TRANS: Form guide.
+                _m('An OpenID URL which identifies you.'),
+                null,
+                true,
+                ['placeholder' => 'https://example.com/you']
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
             // TRANS: Field label.
-            $this->checkbox('openid-synch', _m('Synchronize Account'), false,
-                            // TRANS: Form guide.
-                            _m('Synchronize GNU social profile with this OpenID identity.'));
+            $this->checkbox(
+                'openid-synch',
+                _m('Synchronize Account'),
+                false,
+                // TRANS: Form guide.
+                _m('Synchronize GNU social profile with this OpenID identity.')
+            );
             $this->elementEnd('li');
             $this->elementEnd('ul');
             // TRANS: Button text for adding an OpenID URL.
@@ -129,13 +130,16 @@ class OpenidsettingsAction extends SettingsAction
             $this->element('h2', null, _m('HEADER', 'OpenID Actions'));
 
             if ($cnt == 1 && !$this->scoped->hasPassword()) {
-                $this->element('p', 'form_guide',
-                               // TRANS: Form guide.
-                               _m('You can\'t remove your main OpenID account ' .
-                                  'without either adding a password to your ' .
-                                  'GNU social account or another OpenID account. ' .
-                                  'You can synchronize your profile with your ' .
-                                  'OpenID by clicking the button labeled "Synchronize".'));
+                $this->element(
+                    'p',
+                    'form_guide',
+                    // TRANS: Form guide.
+                    _m('You can\'t remove your main OpenID account ' .
+                    'without either adding a password to your ' .
+                    'GNU social account or another OpenID account. ' .
+                    'You can synchronize your profile with your ' .
+                    'OpenID by clicking the button labeled "Synchronize".')
+                );
 
                 if ($oid->fetch()) {
                     $this->elementStart('form', ['method' => 'POST',
@@ -152,12 +156,15 @@ class OpenidsettingsAction extends SettingsAction
                     $this->elementEnd('form');
                 }
             } else {
-                $this->element('p', 'form_guide',
-                               // TRANS: Form guide.
-                               _m('You can remove an OpenID from your account ' .
-                                  'by clicking the button labeled "Remove". ' .
-                                  'You can synchronize your profile with an OpenID ' .
-                                  'by clicking the button labeled "Synchronize".'));
+                $this->element(
+                    'p',
+                    'form_guide',
+                    // TRANS: Form guide.
+                    _m('You can remove an OpenID from your account ' .
+                       'by clicking the button labeled "Remove". ' .
+                       'You can synchronize your profile with an OpenID ' .
+                       'by clicking the button labeled "Synchronize".')
+                );
                 $idx = 0;
 
                 while ($oid->fetch()) {
@@ -191,26 +198,38 @@ class OpenidsettingsAction extends SettingsAction
         // TRANS: Fieldset legend.
         $this->element('legend', null, _m('OpenID Trusted Sites'));
         $this->hidden('token', common_session_token());
-        $this->element('p', 'form_guide',
-                       // TRANS: Form guide.
-                       _m('The following sites are allowed to access your ' .
-                          'identity and log you in. You can remove a site from ' .
-                          'this list to deny it access to your OpenID.'));
+        $this->element(
+            'p',
+            'form_guide',
+            // TRANS: Form guide.
+            _m('The following sites are allowed to access your ' .
+               'identity and log you in. You can remove a site from ' .
+               'this list to deny it access to your OpenID.')
+        );
         $this->elementStart('ul', 'form_data');
         $user_openid_trustroot = new User_openid_trustroot();
         $user_openid_trustroot->user_id = $this->scoped->getID();
         if ($user_openid_trustroot->find()) {
             while ($user_openid_trustroot->fetch()) {
                 $this->elementStart('li');
-                $this->element('input', ['name' => 'openid_trustroot[]',
-                                         'type' => 'checkbox',
-                                         'class' => 'checkbox',
-                                         'value' => $user_openid_trustroot->trustroot,
-                                         'id' => 'openid_trustroot_' . crc32($user_openid_trustroot->trustroot)]);
-                $this->element('label',
-                               ['class'=>'checkbox',
-                                'for' => 'openid_trustroot_' . crc32($user_openid_trustroot->trustroot)],
-                               $user_openid_trustroot->trustroot);
+                $this->element(
+                    'input',
+                    [
+                        'name'  => 'openid_trustroot[]',
+                        'type'  => 'checkbox',
+                        'class' => 'checkbox',
+                        'value' => $user_openid_trustroot->trustroot,
+                        'id'    => 'openid_trustroot_' . crc32($user_openid_trustroot->trustroot),
+                    ]
+                );
+                $this->element(
+                    'label',
+                    [
+                        'class'=>'checkbox',
+                        'for' => 'openid_trustroot_' . crc32($user_openid_trustroot->trustroot),
+                    ],
+                    $user_openid_trustroot->trustroot
+                );
                 $this->elementEnd('li');
             }
         }
@@ -363,7 +382,7 @@ class OpenidsettingsAction extends SettingsAction
             $orig = clone($prefs);
         }
 
-        $prefs->hide_profile_link = $this->booleanintstring('hide_profile_link');
+        $prefs->hide_profile_link = $this->boolean('hide_profile_link');
 
         if ($orig instanceof User_openid_prefs) {
             $prefs->update($orig);

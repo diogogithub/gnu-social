@@ -1,35 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Plugin
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @author    Julien C <chaumond@gmail.com>
  * @author    Brion Vibber <brion@status.net>
  * @copyright 2009-2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 require_once dirname(__DIR__) . '/twitter.php';
 
@@ -38,14 +33,8 @@ require_once dirname(__DIR__) . '/twitter.php';
  * Is used by both the polling twitterstatusfetcher.php daemon, and the
  * in-progress streaming import.
  *
- * @category Plugin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @author   Julien C <chaumond@gmail.com>
- * @author   Brion Vibber <brion@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
- * @link     http://twitter.com/
+ * @copyright 2009-2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class TwitterImport
 {
@@ -74,12 +63,12 @@ class TwitterImport
         return $notice;
     }
 
-    function name()
+    public function name()
     {
         return get_class($this);
     }
 
-    function saveStatus($status)
+    public function saveStatus($status)
     {
         $profile = $this->ensureProfile($status->user);
 
@@ -103,7 +92,7 @@ class TwitterImport
         }
 
         $dupe = Notice::getKV('uri', $statusUri);
-        if($dupe instanceof Notice) {
+        if ($dupe instanceof Notice) {
             // Add it to our record
             Notice_to_status::saveNew($dupe->id, $statusId);
             common_log(
@@ -123,24 +112,29 @@ class TwitterImport
                 $author = $original->getProfile();
                 // TRANS: Message used to repeat a notice. RT is the abbreviation of 'retweet'.
                 // TRANS: %1$s is the repeated user's name, %2$s is the repeated notice.
-                $content = sprintf(_m('RT @%1$s %2$s'),
-                                   $author->nickname,
-                                   $original->content);
+                $content = sprintf(
+                    _m('RT @%1$s %2$s'),
+                    $author->nickname,
+                    $original->content
+                );
 
                 if (Notice::contentTooLong($content)) {
                     $contentlimit = Notice::maxContent();
                     $content = mb_substr($content, 0, $contentlimit - 4) . ' ...';
                 }
 
-                $repeat = Notice::saveNew($profile->id,
-                                          $content,
-                                          'twitter',
-                                          array('repeat_of' => $original->id,
-                                                'uri' => $statusUri,
-                                                'is_local' => Notice::GATEWAY,
-                                          		'object_type' => ActivityObject::NOTE,
-                                          		'verb' => ActivityVerb::POST
-                                          ));
+                $repeat = Notice::saveNew(
+                    $profile->id,
+                    $content,
+                    'twitter',
+                    [
+                        'repeat_of'   => $original->id,
+                        'uri'         => $statusUri,
+                        'is_local'    => Notice::GATEWAY,
+                        'object_type' => ActivityObject::NOTE,
+                        'verb'        => ActivityVerb::POST,
+                    ]
+                );
                 common_log(LOG_INFO, "Saved {$repeat->id} as a repeat of {$original->id}");
                 Notice_to_status::saveNew($repeat->id, $statusId);
                 return $repeat;
@@ -183,11 +177,10 @@ class TwitterImport
 
         $notice->is_local   = Notice::GATEWAY;
 
-        $notice->content  = html_entity_decode($this->linkify($status, FALSE), ENT_QUOTES, 'UTF-8');
-        $notice->rendered = $this->linkify($status, TRUE);
+        $notice->content  = html_entity_decode($this->linkify($status, false), ENT_QUOTES, 'UTF-8');
+        $notice->rendered = $this->linkify($status, true);
 
         if (Event::handle('StartNoticeSave', array(&$notice))) {
-
             if (empty($notice->conversation)) {
                 $conv = Conversation::create();
                 common_log(LOG_INFO, "No known conversation for status {$statusId} so a new one ({$conv->getID()}) was created.");
@@ -221,7 +214,7 @@ class TwitterImport
      *
      * @return string URI
      */
-    function makeStatusURI($username, $id)
+    public function makeStatusURI($username, $id)
     {
         return 'https://twitter.com/'
           . $username
@@ -283,7 +276,7 @@ class TwitterImport
             if (empty($id)) {
                 throw new Exception('Failed insert');
             }
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             common_log(LOG_WARNING, __METHOD__ . " Couldn't insert profile: " . $e->getMessage());
             common_log_db_error($profile, 'INSERT', __FILE__);
             $profile->query("ROLLBACK");
@@ -314,8 +307,13 @@ class TwitterImport
             if ($avatar->filename === $filename) {
                 return null;
             }
-            common_debug(__METHOD__ . " - Updating profile avatar (profile_id={$profile->id}) " .
-			"from {$avatar->filename} to {$filename}");
+            common_debug(sprintf(
+                '%s - Updating profile avatar (profile_id=%d) from %s to %s',
+                __METHOD__,
+                $profile->id,
+                $avatar->filename,
+                $filename
+            ));
             // else we continue with creating a new avatar
         } catch (NoAvatarException $e) {
             // Avatar was not found. We can catch NoAvatarException or FileNotFoundException
@@ -367,7 +365,7 @@ class TwitterImport
 
         $avatar = new Avatar();
         $avatar->profile_id = $profile->id;
-        $avatar->original   = 1; // this is an original/"uploaded" avatar
+        $avatar->original   = true; // this is an original/"uploaded" avatar
         $avatar->mediatype  = $mediatype;
         $avatar->filename   = $filename;
         $avatar->width      = $this->avatarsize;
@@ -416,7 +414,7 @@ class TwitterImport
     const HASHTAG = 2;
     const MENTION = 3;
 
-    function linkify($status, $html = FALSE)
+    public function linkify($status, $html = false)
     {
         $text = $status->text;
 
@@ -424,10 +422,20 @@ class TwitterImport
             $statusId = twitter_id($status);
             common_log(LOG_WARNING, "No entities data for {$statusId}; trying to fake up links ourselves.");
             $text = common_replace_urls_callback($text, 'common_linkify');
-            $text = preg_replace_callback('/(^|\&quot\;|\'|\(|\[|\{|\s+)#([\pL\pN_\-\.]{1,64})/',
-                        function ($m) { return $m[1].'#'.TwitterStatusFetcher::tagLink($m[2]); }, $text);
-            $text = preg_replace_callback('/(^|\s+)@([a-z0-9A-Z_]{1,64})/',
-                        function ($m) { return $m[1].'@'.TwitterStatusFetcher::atLink($m[2]); }, $text);
+            $text = preg_replace_callback(
+                '/(^|\&quot\;|\'|\(|\[|\{|\s+)#([\pL\pN_\-\.]{1,64})/',
+                function ($m) {
+                    return $m[1] . '#'.TwitterStatusFetcher::tagLink($m[2]);
+                },
+                $text
+            );
+            $text = preg_replace_callback(
+                '/(^|\s+)@([a-z0-9A-Z_]{1,64})/',
+                function ($m) {
+                    return $m[1] . '@'.TwitterStatusFetcher::atLink($m[2]);
+                },
+                $text
+            );
             return $text;
         }
 
@@ -472,21 +480,21 @@ class TwitterImport
                 $cursor = $start;
             }
             $orig = $this->twitEscape(mb_substr($text, $start, $end - $start));
-            switch($type) {
+            switch ($type) {
             case self::URL:
                 $linkText = $this->makeUrlLink($object, $orig, $html);
                 break;
             case self::HASHTAG:
                 if ($html) {
                     $linkText = $this->makeHashtagLink($object, $orig);
-                }else{
+                } else {
                     $linkText = $orig;
                 }
                 break;
             case self::MENTION:
                 if ($html) {
                     $linkText = $this->makeMentionLink($object, $orig);
-                }else{
+                } else {
                     $linkText = $orig;
                 }
                 break;
@@ -503,7 +511,7 @@ class TwitterImport
         return $result;
     }
 
-    function twitEscape($str)
+    public function twitEscape($str)
     {
         // Twitter seems to preemptive turn < and > into &lt; and &gt;
         // but doesn't for &, so while you may have some magic protection
@@ -516,31 +524,31 @@ class TwitterImport
         return htmlspecialchars(html_entity_decode($str, ENT_COMPAT, 'UTF-8'));
     }
 
-    function makeUrlLink($object, $orig, $html)
+    public function makeUrlLink($object, $orig, $html)
     {
         if ($html) {
             return '<a href="'.htmlspecialchars($object->expanded_url).'" class="extlink">'.htmlspecialchars($object->display_url).'</a>';
-        }else{
+        } else {
             return htmlspecialchars($object->expanded_url);
         }
     }
 
-    function makeHashtagLink($object, $orig)
+    public function makeHashtagLink($object, $orig)
     {
         return "#" . self::tagLink($object->text, substr($orig, 1));
     }
 
-    function makeMentionLink($object, $orig)
+    public function makeMentionLink($object, $orig)
     {
         return "@".self::atLink($object->screen_name, $object->name, substr($orig, 1));
     }
 
-    static function tagLink($tag, $orig)
+    public static function tagLink($tag, $orig)
     {
         return "<a href='https://twitter.com/search?q=%23{$tag}' class='hashtag'>{$orig}</a>";
     }
 
-    static function atLink($screenName, $fullName, $orig)
+    public static function atLink($screenName, $fullName, $orig)
     {
         if (!empty($fullName)) {
             return "<a href='https://twitter.com/{$screenName}' title='{$fullName}'>{$orig}</a>";
@@ -549,7 +557,7 @@ class TwitterImport
         }
     }
 
-    function saveStatusMentions($notice, $status)
+    public function saveStatusMentions($notice, $status)
     {
         $mentions = array();
 
@@ -582,7 +590,7 @@ class TwitterImport
      * @param Notice $notice
      * @param object $status
      */
-    function saveStatusAttachments(Notice $notice, $status)
+    public function saveStatusAttachments(Notice $notice, $status)
     {
         if (common_config('attachments', 'process_links')) {
             if (!empty($status->entities) && !empty($status->entities->urls)) {

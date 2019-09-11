@@ -1,23 +1,25 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @copyright 2008, 2009, StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Table Definition for subscription
@@ -30,8 +32,8 @@ class Subscription extends Managed_DataObject
     public $__table = 'subscription';                    // table name
     public $subscriber;                      // int(4)  primary_key not_null
     public $subscribed;                      // int(4)  primary_key not_null
-    public $jabber;                          // tinyint(1)   default_1
-    public $sms;                             // tinyint(1)   default_1
+    public $jabber;                          // bool    default_true
+    public $sms;                             // bool    default_true
     public $token;                           // varchar(191)   not 255 because utf8mb4 takes more space
     public $secret;                          // varchar(191)   not 255 because utf8mb4 takes more space
     public $uri;                             // varchar(191)   not 255 because utf8mb4 takes more space
@@ -44,8 +46,8 @@ class Subscription extends Managed_DataObject
             'fields' => array(
                 'subscriber' => array('type' => 'int', 'not null' => true, 'description' => 'profile listening'),
                 'subscribed' => array('type' => 'int', 'not null' => true, 'description' => 'profile being listened to'),
-                'jabber' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'deliver jabber messages'),
-                'sms' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'deliver sms messages'),
+                'jabber' => array('type' => 'bool', 'default' => true, 'description' => 'deliver jabber messages'),
+                'sms' => array('type' => 'bool', 'default' => true, 'description' => 'deliver sms messages'),
                 'token' => array('type' => 'varchar', 'length' => 191, 'description' => 'authorization token'),
                 'secret' => array('type' => 'varchar', 'length' => 191, 'description' => 'token secret'),
                 'uri' => array('type' => 'varchar', 'length' => 191, 'description' => 'universally unique identifier'),
@@ -74,7 +76,7 @@ class Subscription extends Managed_DataObject
      * @return mixed Subscription or Subscription_queue: new subscription info
      */
 
-    static function start(Profile $subscriber, Profile $other, $force=false)
+    public static function start(Profile $subscriber, Profile $other, $force = false)
     {
         if (!$subscriber->hasRight(Right::SUBSCRIBE)) {
             // TRANS: Exception thrown when trying to subscribe while being banned from subscribing.
@@ -117,7 +119,6 @@ class Subscription extends Managed_DataObject
                     $otherUser->autosubscribe &&
                     !self::exists($other, $subscriber) &&
                     !$subscriber->hasBlocked($other)) {
-
                     try {
                         self::start($other, $subscriber);
                     } catch (AlreadyFulfilledException $e) {
@@ -137,7 +138,7 @@ class Subscription extends Managed_DataObject
         return $sub;
     }
 
-    static function ensureStart(Profile $subscriber, Profile $other, $force=false)
+    public static function ensureStart(Profile $subscriber, Profile $other, $force = false)
     {
         try {
             $sub = self::start($subscriber, $other, $force);
@@ -157,12 +158,14 @@ class Subscription extends Managed_DataObject
 
         $sub->subscriber = $subscriber->getID();
         $sub->subscribed = $other->getID();
-        $sub->jabber     = 1;
-        $sub->sms        = 1;
+        $sub->jabber     = true;
+        $sub->sms        = true;
         $sub->created    = common_sql_now();
-        $sub->uri        = self::newUri($subscriber,
-                                        $other,
-                                        $sub->created);
+        $sub->uri        = self::newUri(
+            $subscriber,
+            $other,
+            $sub->created
+        );
 
         $result = $sub->insert();
 
@@ -175,7 +178,7 @@ class Subscription extends Managed_DataObject
         return $sub;
     }
 
-    function notify()
+    public function notify()
     {
         // XXX: add other notifications (Jabber, SMS) here
         // XXX: queue this and handle it offline
@@ -184,12 +187,11 @@ class Subscription extends Managed_DataObject
         $this->notifyEmail();
     }
 
-    function notifyEmail()
+    public function notifyEmail()
     {
         $subscribedUser = User::getKV('id', $this->subscribed);
 
         if ($subscribedUser instanceof User) {
-
             $subscriber = Profile::getKV('id', $this->subscriber);
 
             mail_subscribe_notify_profile($subscribedUser, $subscriber);
@@ -200,7 +202,7 @@ class Subscription extends Managed_DataObject
      * Cancel a subscription
      *
      */
-    static function cancel(Profile $subscriber, Profile $other)
+    public static function cancel(Profile $subscriber, Profile $other)
     {
         if (!self::exists($subscriber, $other)) {
             // TRANS: Exception thrown when trying to unsibscribe without a subscription.
@@ -215,7 +217,6 @@ class Subscription extends Managed_DataObject
         }
 
         if (Event::handle('StartUnsubscribe', array($subscriber, $other))) {
-
             $sub = Subscription::pkeyGet(array('subscriber' => $subscriber->id,
                                                'subscribed' => $other->id));
 
@@ -245,7 +246,7 @@ class Subscription extends Managed_DataObject
         return;
     }
 
-    static function exists(Profile $subscriber, Profile $other)
+    public static function exists(Profile $subscriber, Profile $other)
     {
         try {
             $sub = self::getSubscription($subscriber, $other);
@@ -256,7 +257,7 @@ class Subscription extends Managed_DataObject
         return true;
     }
 
-    static function getSubscription(Profile $subscriber, Profile $other)
+    public static function getSubscription(Profile $subscriber, Profile $other)
     {
         // This is essentially a pkeyGet but we have an object to return in NoResultException
         $sub = new Subscription();
@@ -278,7 +279,7 @@ class Subscription extends Managed_DataObject
         return Profile::getByID($this->subscribed);
     }
 
-    function asActivity()
+    public function asActivity()
     {
         $subscriber = $this->getSubscriber();
         $subscribed = $this->getSubscribed();
@@ -293,19 +294,25 @@ class Subscription extends Managed_DataObject
 
         $act->time    = strtotime($this->created);
         // TRANS: Activity title when subscribing to another person.
-        $act->title = _m('TITLE','Follow');
+        $act->title = _m('TITLE', 'Follow');
         // TRANS: Notification given when one person starts following another.
         // TRANS: %1$s is the subscriber, %2$s is the subscribed.
-        $act->content = sprintf(_('%1$s is now following %2$s.'),
-                               $subscriber->getBestName(),
-                               $subscribed->getBestName());
+        $act->content = sprintf(
+            _('%1$s is now following %2$s.'),
+            $subscriber->getBestName(),
+            $subscribed->getBestName()
+        );
 
         $act->actor     = $subscriber->asActivityObject();
         $act->objects[] = $subscribed->asActivityObject();
 
-        $url = common_local_url('AtomPubShowSubscription',
-                                array('subscriber' => $subscriber->id,
-                                      'subscribed' => $subscribed->id));
+        $url = common_local_url(
+            'AtomPubShowSubscription',
+            [
+                'subscriber' => $subscriber->id,
+                'subscribed' => $subscribed->id,
+            ]
+        );
 
         $act->selfLink = $url;
         $act->editLink = $url;
@@ -356,11 +363,13 @@ class Subscription extends Managed_DataObject
 
     // The following are helper functions to the subscription lists,
     // notably the public ones get used in places such as Profile
-    public static function getSubscribedIDs($profile_id, $offset, $limit) {
+    public static function getSubscribedIDs($profile_id, $offset, $limit)
+    {
         return self::getSubscriptionIDs('subscribed', $profile_id, $offset, $limit);
     }
 
-    public static function getSubscriberIDs($profile_id, $offset, $limit) {
+    public static function getSubscriberIDs($profile_id, $offset, $limit)
+    {
         return self::getSubscriptionIDs('subscriber', $profile_id, $offset, $limit);
     }
 
@@ -426,7 +435,7 @@ class Subscription extends Managed_DataObject
      *
      * @return boolean success flag.
      */
-    function update($dataObject=false)
+    public function update($dataObject = false)
     {
         self::blow('subscription:by-subscriber:'.$this->subscriber);
         self::blow('subscription:by-subscribed:'.$this->subscribed);

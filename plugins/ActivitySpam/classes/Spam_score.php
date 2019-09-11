@@ -1,47 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
  * Score of a notice by activity spam service
  *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Spam
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Score of a notice per the activity spam service
  *
- * @category Spam
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      DB_DataObject
+ * @see       DB_DataObject
  */
 class Spam_score extends Managed_DataObject
 {
@@ -54,7 +45,6 @@ class Spam_score extends Managed_DataObject
 
     public static function save($notice, $result)
     {
-
         $orig = null;
         $score = Spam_score::getKV('notice_id', $notice->id);
 
@@ -98,7 +88,7 @@ class Spam_score extends Managed_DataObject
                     'description' => 'score for the notice (0.0, 1.0)'),
                 'scaled' => array('type' => 'int',
                     'description' => 'scaled score for the notice (0, 10000)'),
-                'is_spam' => array('type' => 'tinyint',
+                'is_spam' => array('type' => 'bool',
                     'description' => 'flag for spamosity'),
                 'created' => array('type' => 'datetime',
                     'not null' => true,
@@ -146,7 +136,7 @@ class Spam_score extends Managed_DataObject
         if ($score->find()) {
             while ($score->fetch()) {
                 $orig = clone($score);
-                $score->is_spam = ($score->score >= 0.90) ? 1 : 0;
+                $score->is_spam = ($score->score >= 0.90) ? true : false;
                 $score->update($orig);
             }
         }
@@ -169,9 +159,8 @@ class Spam_score extends Managed_DataObject
         }
     }
 
-    function saveNew($notice, $result)
+    public function saveNew($notice, $result)
     {
-
         $score = new Spam_score();
 
         $score->notice_id = $notice->id;

@@ -443,7 +443,7 @@ function initProfileLists()
 
             $plist->tagger   = $ptag->tagger;
             $plist->tag      = $ptag->tag;
-            $plist->private  = 0;
+            $plist->private  = false;
             $plist->created  = common_sql_now();
             $plist->modified = $plist->created;
             $plist->mainpage = common_local_url(

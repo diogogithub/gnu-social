@@ -248,7 +248,7 @@ class User_group extends Managed_DataObject
     {
         $block = new Group_member();
         $block->group_id = $this->id;
-        $block->is_admin = 1;
+        $block->is_admin = true;
 
         return $block->count();
     }
@@ -300,7 +300,7 @@ class User_group extends Managed_DataObject
     {
         $admins = new Profile();
         $admins->joinAdd(array('id', 'group_member:profile_id'));
-        $admins->whereAdd(sprintf('group_member.group_id = %u AND group_member.is_admin = 1', $this->id));
+        $admins->whereAdd('group_member.group_id = ' . $this->id . ' AND group_member.is_admin = true');
         $admins->orderBy('group_member.modified ASC');
         $admins->limit($offset, $limit);
         $admins->find();
@@ -692,7 +692,7 @@ class User_group extends Managed_DataObject
 
             $member->group_id   = $group->id;
             $member->profile_id = $userid;
-            $member->is_admin   = 1;
+            $member->is_admin   = true;
             $member->created    = $group->created;
 
             $result = $member->insert();

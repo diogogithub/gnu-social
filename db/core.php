@@ -4,10 +4,6 @@
  *
  * Some notes...
  *
- * Drupal docs don't list a bool type, but it might be nice to use rather than 'tinyint'
- * Note however that we use bitfields and things as well in tinyints, and PG's
- * "bool" type isn't 100% compatible with 0/1 checks. Just keeping tinyints. :)
- *
  * decimal <-> numeric
  *
  * MySQL 'timestamp' columns were formerly used for 'modified' files for their

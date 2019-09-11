@@ -1,46 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Change profile settings
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Zach Copley <zach@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
  * @copyright 2008-2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Change profile settings
  *
- * @category Settings
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Zach Copley <zach@status.net>
- * @author   Sarven Capadisli <csarven@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @copyright 2008-2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ProfilesettingsAction extends SettingsAction
 {
@@ -49,7 +41,7 @@ class ProfilesettingsAction extends SettingsAction
      *
      * @return string Title of the page
      */
-    function title()
+    public function title()
     {
         // TRANS: Page title for profile settings.
         return _('Profile settings');
@@ -60,14 +52,14 @@ class ProfilesettingsAction extends SettingsAction
      *
      * @return instructions for use
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Usage instructions for profile settings.
         return _('You can update your personal profile info here '.
                  'so people know more about you.');
     }
 
-    function showScripts()
+    public function showScripts()
     {
         parent::showScripts();
         $this->autofocus('fullname');
@@ -80,7 +72,7 @@ class ProfilesettingsAction extends SettingsAction
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         $user = $this->scoped->getUser();
 
@@ -98,29 +90,40 @@ class ProfilesettingsAction extends SettingsAction
         if (Event::handle('StartProfileFormData', array($this))) {
             $this->elementStart('li');
             // TRANS: Field label in form for profile settings.
-            $this->input('nickname', _('Nickname'),
-                         $this->trimmed('nickname') ?: $this->scoped->getNickname(),
-                         // TRANS: Tooltip for field label in form for profile settings.
-                         _('1-64 lowercase letters or numbers, no punctuation or spaces.'),
-                         null, false,   // "name" (will be set to id), then "required"
-                         !common_config('profile', 'changenick')
-                                        ? array('disabled' => 'disabled', 'placeholder' => null)
-                                        : array('placeholder' => null));
+            $this->input(
+                'nickname',
+                _('Nickname'),
+                $this->trimmed('nickname') ?: $this->scoped->getNickname(),
+                // TRANS: Tooltip for field label in form for profile settings.
+                _('1-64 lowercase letters or numbers, no punctuation or spaces.'),
+                null,
+                false,   // "name" (will be set to id), then "required"
+                (common_config('profile', 'changenick')
+                               ? ['placeholder' => null]
+                               : ['disabled' => 'disabled', 'placeholder' => null])
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
             // TRANS: Field label in form for profile settings.
-            $this->input('fullname', _('Full name'),
-                         $this->trimmed('fullname') ?: $this->scoped->getFullname(),
-                         // TRANS: Instructions for full name text field on profile settings
-                         _('A full name is required, if empty it will be set to your nickname.'),
-                         null, true);
+            $this->input(
+                'fullname',
+                _('Full name'),
+                $this->trimmed('fullname') ?: $this->scoped->getFullname(),
+                // TRANS: Instructions for full name text field on profile settings
+                _('A full name is required, if empty it will be set to your nickname.'),
+                null,
+                true
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
             // TRANS: Field label in form for profile settings.
-            $this->input('homepage', _('Homepage'),
-                         $this->trimmed('homepage') ?: $this->scoped->getHomepage(),
-                         // TRANS: Tooltip for field label in form for profile settings.
-                         _('URL of your homepage, blog, or profile on another site.'));
+            $this->input(
+                'homepage',
+                _('Homepage'),
+                $this->trimmed('homepage') ?: $this->scoped->getHomepage(),
+                // TRANS: Tooltip for field label in form for profile settings.
+                _('URL of your homepage, blog, or profile on another site.')
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
             $maxBio = Profile::maxBio();
@@ -128,97 +131,129 @@ class ProfilesettingsAction extends SettingsAction
                 // TRANS: Tooltip for field label in form for profile settings. Plural
                 // TRANS: is decided by the number of characters available for the
                 // TRANS: biography (%d).
-                $bioInstr = sprintf(_m('Describe yourself and your interests in %d character.',
-                                       'Describe yourself and your interests in %d characters.',
-                                       $maxBio),
-                                    $maxBio);
+                $bioInstr = sprintf(
+                    _m('Describe yourself and your interests in %d character.',
+                       'Describe yourself and your interests in %d characters.',
+                       $maxBio),
+                    $maxBio
+                );
             } else {
                 // TRANS: Tooltip for field label in form for profile settings.
                 $bioInstr = _('Describe yourself and your interests.');
             }
             // TRANS: Text area label in form for profile settings where users can provide
             // TRANS: their biography.
-            $this->textarea('bio', _('Bio'),
-                            $this->trimmed('bio') ?: $this->scoped->getDescription(),
-                            $bioInstr);
+            $this->textarea(
+                'bio',
+                _('Bio'),
+                ($this->trimmed('bio') ?: $this->scoped->getDescription()),
+                $bioInstr
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
             // TRANS: Field label in form for profile settings.
-            $this->input('location', _('Location'),
-                         $this->trimmed('location') ?: $this->scoped->location,
-                         // TRANS: Tooltip for field label in form for profile settings.
-                         _('Where you are, like "City, State (or Region), Country".'));
+            $this->input(
+                'location',
+                _('Location'),
+                ($this->trimmed('location') ?: $this->scoped->location),
+                // TRANS: Tooltip for field label in form for profile settings.
+                _('Where you are, like "City, State (or Region), Country".')
+            );
             $this->elementEnd('li');
             if (common_config('location', 'share') == 'user') {
                 $this->elementStart('li');
                 // TRANS: Checkbox label in form for profile settings.
-                $this->checkbox('sharelocation', _('Share my current location when posting notices'),
-                                ($this->arg('sharelocation')) ?
-                                $this->boolean('sharelocation') : $this->scoped->shareLocation());
+                $this->checkbox(
+                    'sharelocation',
+                    _('Share my current location when posting notices'),
+                    ($this->arg('sharelocation') ?
+                    $this->boolean('sharelocation') : $this->scoped->shareLocation())
+                );
                 $this->elementEnd('li');
             }
             Event::handle('EndProfileFormData', array($this));
             $this->elementStart('li');
             // TRANS: Field label in form for profile settings.
-            $this->input('tags', _('Tags'),
-                         $this->trimmed('tags') ?: implode(' ', Profile_tag::getSelfTagsArray($this->scoped)),
-                         // TRANS: Tooltip for field label in form for profile settings.
-                         _('Tags for yourself (letters, numbers, -, ., and _), comma- or space- separated.'));
+            $this->input(
+                'tags',
+                _('Tags'),
+                ($this->trimmed('tags') ?: implode(' ', Profile_tag::getSelfTagsArray($this->scoped))),
+                // TRANS: Tooltip for field label in form for profile settings.
+                _('Tags for yourself (letters, numbers, -, ., and _), comma- or space- separated.')
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
             $language = common_language();
             // TRANS: Dropdownlist label in form for profile settings.
-            $this->dropdown('language', _('Language'),
-                         // TRANS: Tooltip for dropdown list label in form for profile settings.
-                            get_nice_language_list(), _('Preferred language.'),
-                            false, $language);
+            $this->dropdown(
+                'language',
+                _('Language'),
+                // TRANS: Tooltip for dropdown list label in form for profile settings.
+                get_nice_language_list(),
+                _('Preferred language.'),
+                false,
+                $language
+            );
             $this->elementEnd('li');
             $timezone = common_timezone();
             $timezones = array();
-            foreach(DateTimeZone::listIdentifiers() as $k => $v) {
+            foreach (DateTimeZone::listIdentifiers() as $k => $v) {
                 $timezones[$v] = $v;
             }
             $this->elementStart('li');
             // TRANS: Dropdownlist label in form for profile settings.
-            $this->dropdown('timezone', _('Timezone'),
-                         // TRANS: Tooltip for dropdown list label in form for profile settings.
-                            $timezones, _('What timezone are you normally in?'),
-                            true, $timezone);
+            $this->dropdown(
+                'timezone',
+                _('Timezone'),
+                // TRANS: Tooltip for dropdown list label in form for profile settings.
+                $timezones,
+                _('What timezone are you normally in?'),
+                true,
+                $timezone
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
-            $this->checkbox('autosubscribe',
-                            // TRANS: Checkbox label in form for profile settings.
-                            _('Automatically subscribe to whoever '.
-                              'subscribes to me (best for non-humans)'),
-                            ($this->arg('autosubscribe')) ?
-                            $this->boolean('autosubscribe') : $user->autosubscribe);
+            $this->checkbox(
+                'autosubscribe',
+                // TRANS: Checkbox label in form for profile settings.
+                _('Automatically subscribe to whoever '.
+                'subscribes to me (best for non-humans)'),
+                ($this->arg('autosubscribe') ?
+                $this->boolean('autosubscribe') : $user->autosubscribe)
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
-            $this->dropdown('subscribe_policy',
-                            // TRANS: Dropdown field label on profile settings, for what policies to apply when someone else tries to subscribe to your updates.
-                            _('Subscription policy'),
-                            // TRANS: Dropdown field option for following policy.
-                            array(User::SUBSCRIBE_POLICY_OPEN     => _('Let anyone follow me'),
-                                  // TRANS: Dropdown field option for following policy.
-                                  User::SUBSCRIBE_POLICY_MODERATE => _('Ask me first')),
-                            // TRANS: Dropdown field title on group edit form.
-                            _('Whether other users need your permission to follow your updates.'),
-                            false,
-                            (empty($user->subscribe_policy)) ? User::SUBSCRIBE_POLICY_OPEN : $user->subscribe_policy);
+            $this->dropdown(
+                'subscribe_policy',
+                // TRANS: Dropdown field label on profile settings, for what policies to apply when someone else tries to subscribe to your updates.
+                _('Subscription policy'),
+                [
+                    // TRANS: Dropdown field option for following policy.
+                    User::SUBSCRIBE_POLICY_OPEN     => _('Let anyone follow me'),
+                    // TRANS: Dropdown field option for following policy.
+                    User::SUBSCRIBE_POLICY_MODERATE => _('Ask me first'),
+                ],
+                // TRANS: Dropdown field title on group edit form.
+                _('Whether other users need your permission to follow your updates.'),
+                false,
+                (empty($user->subscribe_policy) ? User::SUBSCRIBE_POLICY_OPEN : $user->subscribe_policy)
+            );
             $this->elementEnd('li');
         }
         if (common_config('profile', 'allowprivate') || $user->private_stream) {
             $this->elementStart('li');
-            $this->checkbox('private_stream',
-                            // TRANS: Checkbox label in profile settings.
-                            _('Make updates visible only to my followers'),
-                            ($this->arg('private_stream')) ?
-                            $this->boolean('private_stream') : $user->private_stream);
+            $this->checkbox(
+                'private_stream',
+                // TRANS: Checkbox label in profile settings.
+                _('Make updates visible only to my followers'),
+                ($this->arg('private_stream') ?
+                $this->boolean('private_stream') : $user->private_stream)
+            );
             $this->elementEnd('li');
         }
         $this->elementEnd('ul');
         // TRANS: Button to save input in profile settings.
-        $this->submit('save', _m('BUTTON','Save'));
+        $this->submit('save', _m('BUTTON', 'Save'));
 
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
@@ -255,7 +290,7 @@ class ProfilesettingsAction extends SettingsAction
             $homepage = $this->trimmed('homepage');
             $bio = $this->trimmed('bio');
             $location = $this->trimmed('location');
-            $autosubscribe = $this->booleanintstring('autosubscribe');
+            $autosubscribe = $this->boolean('autosubscribe');
             $subscribe_policy = $this->trimmed('subscribe_policy');
             $language = $this->trimmed('language');
             $timezone = $this->trimmed('timezone');
@@ -266,24 +301,26 @@ class ProfilesettingsAction extends SettingsAction
                        !common_valid_http_url($homepage)) {
                 // TRANS: Validation error in form for profile settings.
                 throw new ClientException(_('Homepage is not a valid URL.'));
-            } else if (!is_null($fullname) && mb_strlen($fullname) > 191) {
+            } elseif (!is_null($fullname) && mb_strlen($fullname) > 191) {
                 // TRANS: Validation error in form for profile settings.
                 throw new ClientException(_('Full name is too long (maximum 191 characters).'));
-            } else if (Profile::bioTooLong($bio)) {
+            } elseif (Profile::bioTooLong($bio)) {
                 // TRANS: Validation error in form for profile settings.
                 // TRANS: Plural form is used based on the maximum number of allowed
                 // TRANS: characters for the biography (%d).
-                throw new ClientException(sprintf(_m('Bio is too long (maximum %d character).',
-                                           'Bio is too long (maximum %d characters).',
-                                           Profile::maxBio()),
-                                        Profile::maxBio()));
-            } else if (!is_null($location) && mb_strlen($location) > 191) {
+                throw new ClientException(sprintf(
+                    _m('Bio is too long (maximum %d character).',
+                       'Bio is too long (maximum %d characters).',
+                       Profile::maxBio()),
+                    Profile::maxBio()
+                ));
+            } elseif (!is_null($location) && mb_strlen($location) > 191) {
                 // TRANS: Validation error in form for profile settings.
                 throw new ClientException(_('Location is too long (maximum 191 characters).'));
-            }  else if (is_null($timezone) || !in_array($timezone, DateTimeZone::listIdentifiers())) {
+            } elseif (is_null($timezone) || !in_array($timezone, DateTimeZone::listIdentifiers())) {
                 // TRANS: Validation error in form for profile settings.
                 throw new ClientException(_('Timezone not selected.'));
-            } else if (!is_null($language) && strlen($language) > 50) {
+            } elseif (!is_null($language) && strlen($language) > 50) {
                 // TRANS: Validation error in form for profile settings.
                 throw new ClientException(_('Language is too long (maximum 50 characters).'));
             }
@@ -291,7 +328,6 @@ class ProfilesettingsAction extends SettingsAction
             $tags = array();
             $tag_priv = array();
             if (is_string($tagstring) && strlen($tagstring) > 0) {
-
                 $tags = preg_split('/[\s,]+/', $tagstring);
 
                 foreach ($tags as &$tag) {
@@ -314,21 +350,19 @@ class ProfilesettingsAction extends SettingsAction
             // Only allow setting private_stream if site policy allows it
             // (or user already _has_ a private stream, then you can unset it)
             if (common_config('profile', 'allowprivate') || $user->private_stream) {
-                $private_stream = $this->booleanintstring('private_stream');
+                $private_stream = $this->boolean('private_stream');
             } else {
                 // if not allowed, we set to the existing value
-                $private_stream = $user->private_stream;
+                $private_stream = (bool) $user->private_stream;
             }
 
             // $user->nickname is updated through Profile->update();
 
-            // XXX: XOR
-            if (($user->autosubscribe ^ $autosubscribe)
-                    || ($user->private_stream ^ $private_stream)
+            if ((bool) $user->autosubscribe != $autosubscribe
+                    || (bool) $user->private_stream != $private_stream
                     || $user->timezone != $timezone
                     || $user->language != $language
                     || $user->subscribe_policy != $subscribe_policy) {
-
                 $original = clone($user);
 
                 $user->autosubscribe    = $autosubscribe;
@@ -378,7 +412,6 @@ class ProfilesettingsAction extends SettingsAction
             }
 
             if (common_config('location', 'share') == 'user') {
-
                 $exists = false;
 
                 $prefs = User_location_prefs::getKV('user_id', $this->scoped->getID());
@@ -393,7 +426,7 @@ class ProfilesettingsAction extends SettingsAction
                     $orig = clone($prefs);
                 }
 
-                $prefs->share_location = $this->booleanintstring('sharelocation');
+                $prefs->share_location = $this->boolean('sharelocation');
 
                 if ($exists) {
                     $result = $prefs->update($orig);
@@ -429,11 +462,11 @@ class ProfilesettingsAction extends SettingsAction
 
             // TRANS: Confirmation shown when user profile settings are saved.
             return _('Settings saved.');
-
         }
     }
 
-    function showAside() {
+    public function showAside()
+    {
         $this->elementStart('div', array('id' => 'aside_primary',
                                          'class' => 'aside'));
 
@@ -443,26 +476,32 @@ class ProfilesettingsAction extends SettingsAction
         if (Event::handle('StartProfileSettingsActions', array($this))) {
             if ($this->scoped->hasRight(Right::BACKUPACCOUNT)) {
                 $this->elementStart('li');
-                $this->element('a',
-                               array('href' => common_local_url('backupaccount')),
-                               // TRANS: Option in profile settings to create a backup of the account of the currently logged in user.
-                               _('Backup account'));
+                $this->element(
+                    'a',
+                    ['href' => common_local_url('backupaccount')],
+                    // TRANS: Option in profile settings to create a backup of the account of the currently logged in user.
+                    _('Backup account')
+                );
                 $this->elementEnd('li');
             }
             if ($this->scoped->hasRight(Right::DELETEACCOUNT)) {
                 $this->elementStart('li');
-                $this->element('a',
-                               array('href' => common_local_url('deleteaccount')),
-                               // TRANS: Option in profile settings to delete the account of the currently logged in user.
-                               _('Delete account'));
+                $this->element(
+                    'a',
+                    ['href' => common_local_url('deleteaccount')],
+                    // TRANS: Option in profile settings to delete the account of the currently logged in user.
+                    _('Delete account')
+                );
                 $this->elementEnd('li');
             }
             if ($this->scoped->hasRight(Right::RESTOREACCOUNT)) {
                 $this->elementStart('li');
-                $this->element('a',
-                               array('href' => common_local_url('restoreaccount')),
-                               // TRANS: Option in profile settings to restore the account of the currently logged in user from a backup.
-                               _('Restore account'));
+                $this->element(
+                    'a',
+                    ['href' => common_local_url('restoreaccount')],
+                    // TRANS: Option in profile settings to restore the account of the currently logged in user from a backup.
+                    _('Restore account')
+                );
                 $this->elementEnd('li');
             }
             Event::handle('EndProfileSettingsActions', array($this));
