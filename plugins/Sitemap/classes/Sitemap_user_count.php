@@ -1,35 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Data class for counting user registrations by date
  *
- * PHP version 5
- *
- * @category Data
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * @category  Data
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2010, StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
 
@@ -39,11 +34,8 @@ require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
  * We make a separate sitemap for each user registered by date.
  * To save ourselves some processing effort, we cache this data
  *
- * @category Action
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @copyright 2010, StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
  * @see      DB_DataObject
  */
@@ -69,12 +61,11 @@ class Sitemap_user_count extends Managed_DataObject
         );
     }
 
-    static function getAll()
+    public static function getAll()
     {
         $userCounts = self::cacheGet('sitemap:user:counts');
 
         if ($userCounts === false) {
-
             $suc = new Sitemap_user_count();
             $suc->orderBy('registration_date DESC');
 
@@ -87,9 +78,9 @@ class Sitemap_user_count extends Managed_DataObject
 
             if (!$n) { // No counts saved yet
                 $userCounts = self::initializeCounts();
-            } else if ($suc->registration_date < $today) { // There are counts but not up to today
+            } elseif ($suc->registration_date < $today) { // There are counts but not up to today
                 $userCounts = self::fillInCounts($suc->registration_date);
-            } else if ($suc->registration_date == $today) { // Refresh today's
+            } elseif ($suc->registration_date === $today) { // Refresh today's
                 $userCounts[$today] = self::updateToday();
             }
 
@@ -107,7 +98,7 @@ class Sitemap_user_count extends Managed_DataObject
         return $userCounts;
     }
 
-    static function initializeCounts()
+    public static function initializeCounts()
     {
         $firstDate = self::getFirstDate(); // awww
         $today     = self::today();
@@ -123,7 +114,7 @@ class Sitemap_user_count extends Managed_DataObject
         return $counts;
     }
 
-    static function fillInCounts($lastDate)
+    public static function fillInCounts($lastDate)
     {
         $today = self::today();
 
@@ -142,7 +133,7 @@ class Sitemap_user_count extends Managed_DataObject
         return $counts;
     }
 
-    static function updateToday()
+    public static function updateToday()
     {
         $today = self::today();
 
@@ -152,16 +143,19 @@ class Sitemap_user_count extends Managed_DataObject
         return $n;
     }
 
-    static function getCount($d)
+    public static function getCount($d)
     {
         $user = new User();
-        $user->whereAdd('created BETWEEN "'.$d.' 00:00:00" AND "'.self::incrementDay($d).' 00:00:00"');
+        $user->whereAdd(
+            "created BETWEEN TIMESTAMP '" . $d . " 00:00:00' AND " .
+            "TIMESTAMP '" . self::incrementDay($d) . " 00:00:00'"
+        );
         $n = $user->count();
 
         return $n;
     }
 
-    static function insertCount($d, $n)
+    public static function insertCount($d, $n)
     {
         $suc = new Sitemap_user_count();
 
@@ -175,7 +169,7 @@ class Sitemap_user_count extends Managed_DataObject
         }
     }
 
-    static function updateCount($d, $n)
+    public static function updateCount($d, $n)
     {
         $suc = Sitemap_user_count::getKV('registration_date', DB_DataObject_Cast::date($d));
 
@@ -196,23 +190,23 @@ class Sitemap_user_count extends Managed_DataObject
         }
     }
 
-    static function incrementDay($d)
+    public static function incrementDay($d)
     {
         $dt = self::dateStrToInt($d);
         return self::dateIntToStr($dt + 24 * 60 * 60);
     }
 
-    static function dateStrToInt($d)
+    public static function dateStrToInt($d)
     {
         return strtotime($d.' 00:00:00');
     }
 
-    static function dateIntToStr($dt)
+    public static function dateIntToStr($dt)
     {
         return date('Y-m-d', $dt);
     }
 
-    static function getFirstDate()
+    public static function getFirstDate()
     {
         $u = new User();
         $u->selectAdd();
@@ -225,7 +219,7 @@ class Sitemap_user_count extends Managed_DataObject
         }
     }
 
-    static function today()
+    public static function today()
     {
         return self::dateIntToStr(time());
     }

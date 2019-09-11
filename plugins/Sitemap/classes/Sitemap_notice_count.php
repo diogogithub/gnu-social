@@ -1,35 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Data class for counting notice postings by date
  *
- * PHP version 5
- *
- * @category Data
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * @category  Data
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2010, StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
 
@@ -43,11 +38,8 @@ require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
  * of notices posted on that day. Since, after the end of the day,
  * this number doesn't change, it's a good candidate for persistent caching.
  *
- * @category Data
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @copyright 2010, StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
  * @see      DB_DataObject
  */
@@ -73,7 +65,7 @@ class Sitemap_notice_count extends Managed_DataObject
         );
     }
 
-    static function getAll()
+    public static function getAll()
     {
         $noticeCounts = self::cacheGet('sitemap:notice:counts');
 
@@ -90,9 +82,9 @@ class Sitemap_notice_count extends Managed_DataObject
 
             if (!$n) { // No counts saved yet
                 $noticeCounts = self::initializeCounts();
-            } else if ($snc->notice_date < $today) { // There are counts but not up to today
+            } elseif ($snc->notice_date < $today) { // There are counts but not up to today
                 $noticeCounts = self::fillInCounts($snc->notice_date);
-            } else if ($snc->notice_date == $today) { // Refresh today's
+            } elseif ($snc->notice_date === $today) { // Refresh today's
                 $noticeCounts[$today] = self::updateToday();
             }
 
@@ -110,7 +102,7 @@ class Sitemap_notice_count extends Managed_DataObject
         return $noticeCounts;
     }
 
-    static function initializeCounts()
+    public static function initializeCounts()
     {
         $firstDate = self::getFirstDate(); // awww
         $today     = self::today();
@@ -126,7 +118,7 @@ class Sitemap_notice_count extends Managed_DataObject
         return $counts;
     }
 
-    static function fillInCounts($lastDate)
+    public static function fillInCounts($lastDate)
     {
         $today = self::today();
 
@@ -145,7 +137,7 @@ class Sitemap_notice_count extends Managed_DataObject
         return $counts;
     }
 
-    static function updateToday()
+    public static function updateToday()
     {
         $today = self::today();
 
@@ -155,17 +147,20 @@ class Sitemap_notice_count extends Managed_DataObject
         return $n;
     }
 
-    static function getCount($d)
+    public static function getCount($d)
     {
         $notice = new Notice();
-        $notice->whereAdd('created BETWEEN "'.$d.' 00:00:00" AND "'.self::incrementDay($d).' 00:00:00"');
+        $notice->whereAdd(
+            "created BETWEEN TIMESTAMP '" . $d . " 00:00:00' AND " .
+            "TIMESTAMP '" . self::incrementDay($d) . " 00:00:00'"
+        );
         $notice->whereAdd('is_local = ' . Notice::LOCAL_PUBLIC);
         $n = $notice->count();
 
         return $n;
     }
 
-    static function insertCount($d, $n)
+    public static function insertCount($d, $n)
     {
         $snc = new Sitemap_notice_count();
 
@@ -180,7 +175,7 @@ class Sitemap_notice_count extends Managed_DataObject
         }
     }
 
-    static function updateCount($d, $n)
+    public static function updateCount($d, $n)
     {
         $snc = Sitemap_notice_count::getKV('notice_date', DB_DataObject_Cast::date($d));
 
@@ -202,23 +197,23 @@ class Sitemap_notice_count extends Managed_DataObject
         }
     }
 
-    static function incrementDay($d)
+    public static function incrementDay($d)
     {
         $dt = self::dateStrToInt($d);
         return self::dateIntToStr($dt + 24 * 60 * 60);
     }
 
-    static function dateStrToInt($d)
+    public static function dateStrToInt($d)
     {
         return strtotime($d.' 00:00:00');
     }
 
-    static function dateIntToStr($dt)
+    public static function dateIntToStr($dt)
     {
         return date('Y-m-d', $dt);
     }
 
-    static function getFirstDate()
+    public static function getFirstDate()
     {
         $n = new Notice();
 
@@ -233,7 +228,7 @@ class Sitemap_notice_count extends Managed_DataObject
         }
     }
 
-    static function today()
+    public static function today()
     {
         return self::dateIntToStr(time());
     }

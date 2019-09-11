@@ -1,23 +1,27 @@
 #!/usr/bin/env php
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - a distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
  * Script to print out current version of the software
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @package   Realtime
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @copyright 2011, StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 define('INSTALLDIR', realpath(__DIR__ . '/../../..'));
@@ -42,7 +46,7 @@ function cleanupChannels()
     $rc->selectAdd();
     $rc->selectAdd('channel_key');
 
-    $rc->whereAdd('modified < "' . common_sql_date(time() - Realtime_channel::TIMEOUT) . '"');
+    $rc->whereAdd(sprintf("modified < TIMESTAMP '%s'", common_sql_date(time() - Realtime_channel::TIMEOUT)));
 
     if ($rc->find()) {
         $keys = $rc->fetchAll();
