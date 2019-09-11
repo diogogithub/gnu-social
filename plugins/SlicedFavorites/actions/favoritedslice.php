@@ -1,40 +1,36 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * List of popular notices
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Public
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2008-2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 class FavoritedSliceAction extends FavoritedAction
 {
-    private $includeUsers = array(), $excludeUsers = array();
+    private $includeUsers = [];
+    private $excludeUsers = [];
 
     /**
      * Take arguments for running
@@ -45,7 +41,7 @@ class FavoritedSliceAction extends FavoritedAction
      *
      * @todo move queries from showContent() to here
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -72,7 +68,7 @@ class FavoritedSliceAction extends FavoritedAction
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         $slice = $this->sliceWhereClause();
         if (!$slice) {
@@ -80,28 +76,21 @@ class FavoritedSliceAction extends FavoritedAction
         }
 
         $weightexpr = common_sql_weight('fave.modified', common_config('popular', 'dropoff'));
-        $cutoff = sprintf("fave.modified > '%s'",
-                          common_sql_date(time() - common_config('popular', 'cutoff')));
-
-        $qry = 'SELECT notice.*, '.
-          $weightexpr . ' as weight ' .
-          'FROM notice JOIN fave ON notice.id = fave.notice_id ' .
-          "WHERE $cutoff AND $slice " .
-          'GROUP BY id,profile_id,uri,content,rendered,url,created,notice.modified,reply_to,is_local,source,notice.conversation ' .
-          'ORDER BY weight DESC';
+        $cutoff = sprintf(
+            "fave.modified > TIMESTAMP '%s'",
+            common_sql_date(time() - common_config('popular', 'cutoff'))
+        );
 
         $offset = ($this->page - 1) * NOTICES_PER_PAGE;
         $limit  = NOTICES_PER_PAGE + 1;
 
-        if (common_config('db', 'type') == 'pgsql') {
-            $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
-        } else {
-            $qry .= ' LIMIT ' . $offset . ', ' . $limit;
-        }
+        $qry = 'SELECT notice.*, ' . $weightexpr . ' AS weight ' .
+            'FROM notice INNER JOIN fave ON notice.id = fave.notice_id ' .
+            'WHERE ' . $cutoff . ' AND ' . $slice . ' ' .
+            'GROUP BY id, profile_id, uri, content, rendered, url, created, notice.modified, reply_to, is_local, source, notice.conversation ' .
+            'ORDER BY weight DESC LIMIT ' . $limit . ' OFFSET ' . $offset;
 
-        $notice = Memcached_DataObject::cachedQuery('Notice',
-                                                    $qry,
-                                                    600);
+        $notice = Memcached_DataObject::cachedQuery('Notice', $qry, 600);
 
         $nl = new NoticeList($notice, $this);
 
@@ -111,8 +100,12 @@ class FavoritedSliceAction extends FavoritedAction
             $this->showEmptyList();
         }
 
-        $this->pagination($this->page > 1, $cnt > NOTICES_PER_PAGE,
-                          $this->page, 'favorited');
+        $this->pagination(
+            $this->page > 1,
+            $cnt > NOTICES_PER_PAGE,
+            $this->page,
+            'favorited'
+        );
     }
 
     private function sliceWhereClause()
@@ -122,11 +115,11 @@ class FavoritedSliceAction extends FavoritedAction
 
         if (count($include) == 1) {
             return "profile_id = " . intval($include[0]);
-        } else if (count($include) > 1) {
+        } elseif (count($include) > 1) {
             return "profile_id IN (" . implode(',', $include) . ")";
-        } else if (count($exclude) == 1) {
+        } elseif (count($exclude) === 1) {
             return "profile_id != " . intval($exclude[0]);
-        } else if (count($exclude) > 1) {
+        } elseif (count($exclude) > 1) {
             return "profile_id NOT IN (" . implode(',', $exclude) . ")";
         } else {
             return false;

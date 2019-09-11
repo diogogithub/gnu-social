@@ -848,11 +848,7 @@ class User extends Managed_DataObject
           'ORDER BY u.created DESC ';
 
         if ($offset > 0) {
-            if (common_config('db','type') == 'pgsql') {
-                $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
-            } else {
-                $qry .= ' LIMIT ' . $offset . ', ' . $limit;
-            }
+            $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
         }
 
         $apps = new Oauth_application_user();

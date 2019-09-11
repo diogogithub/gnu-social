@@ -1,53 +1,45 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Action for showing profiles self-tagged with a given tag
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Action
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Zach Copley <zach@status.net>
  * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * This class outputs a paginated list of profiles self-tagged with a given tag
  *
- * @category Output
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Output
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      Action
+ * @see       Action
  */
 class SelftagAction extends Action
 {
-    var $tag  = null;
-    var $page = null;
+    public $tag  = null;
+    public $page = null;
 
     /**
      * For initializing members of the class.
@@ -57,7 +49,7 @@ class SelftagAction extends Action
      * @return boolean true
      * @throws ClientException
      */
-    function prepare(array $args = [])
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -66,8 +58,10 @@ class SelftagAction extends Action
         if (!common_valid_profile_tag($this->tag)) {
             // TRANS: Client error displayed when trying to list a profile with an invalid list.
             // TRANS: %s is the invalid list name.
-            $this->clientError(sprintf(_('Not a valid list: %s.'),
-                $this->tag));
+            $this->clientError(sprintf(
+                _('Not a valid list: %s.'),
+                $this->tag
+            ));
             return null;
         }
 
@@ -83,7 +77,7 @@ class SelftagAction extends Action
      *
      * @return void is read only action?
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
         $this->showPage();
@@ -94,18 +88,12 @@ class SelftagAction extends Action
      * people tag and page, initalizes a ProfileList widget, and displays
      * it to the user.
      */
-    function showContent()
+    public function showContent()
     {
         $profile = new Profile();
 
         $offset = ($this->page - 1) * PROFILES_PER_PAGE;
         $limit  = PROFILES_PER_PAGE + 1;
-
-        if (common_config('db', 'type') == 'pgsql') {
-            $lim = ' LIMIT ' . $limit . ' OFFSET ' . $offset;
-        } else {
-            $lim = ' LIMIT ' . $offset . ', ' . $limit;
-        }
 
         // XXX: memcached this
 
@@ -125,18 +113,21 @@ class SelftagAction extends Action
                     ' OR profile_list.private = false) ';
         }
 
-        $qry .= 'ORDER BY profile_tag.modified DESC%s';
+        $qry .= 'ORDER BY profile_tag.modified DESC ' .
+                'LIMIT ' . $limit . ' OFFSET ' . $offset;
 
-        $profile->query(sprintf($qry, $this->tag, $lim));
+        $profile->query(sprintf($qry, $this->tag));
 
         $ptl = new SelfTagProfileList($profile, $this); // pass the ammunition
         $cnt = $ptl->show();
 
-        $this->pagination($this->page > 1,
-                          $cnt > PROFILES_PER_PAGE,
-                          $this->page,
-                          'selftag',
-                          array('tag' => $this->tag));
+        $this->pagination(
+            $this->page > 1,
+            $cnt > PROFILES_PER_PAGE,
+            $this->page,
+            'selftag',
+            ['tag' => $this->tag]
+        );
     }
 
     /**
@@ -144,18 +135,21 @@ class SelftagAction extends Action
      *
      * @return string page title
      */
-    function title()
+    public function title()
     {
         // TRANS: Page title for page showing self tags.
         // TRANS: %1$s is a tag, %2$d is a page number.
-        return sprintf(_('Users self-tagged with %1$s, page %2$d'),
-            $this->tag, $this->page);
+        return sprintf(
+            _('Users self-tagged with %1$s, page %2$d'),
+            $this->tag,
+            $this->page
+        );
     }
 }
 
 class SelfTagProfileList extends ProfileList
 {
-    function newListItem(Profile $target)
+    public function newListItem(Profile $target)
     {
         return new SelfTagProfileListItem($target, $this->action);
     }
@@ -163,7 +157,7 @@ class SelfTagProfileList extends ProfileList
 
 class SelfTagProfileListItem extends ProfileListItem
 {
-    function linkAttributes()
+    public function linkAttributes()
     {
         $aAttrs = parent::linkAttributes();
 
@@ -174,7 +168,7 @@ class SelfTagProfileListItem extends ProfileListItem
         return $aAttrs;
     }
 
-    function homepageAttributes()
+    public function homepageAttributes()
     {
         $aAttrs = parent::linkAttributes();
 
@@ -185,7 +179,7 @@ class SelfTagProfileListItem extends ProfileListItem
         return $aAttrs;
     }
 
-    function showTags()
+    public function showTags()
     {
         $selftags = new SelfTagsWidget($this->out, $this->profile, $this->profile);
         $selftags->show();
