@@ -1,30 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
  * Data class for email reminders
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  Data
  * @package   EmailReminder
  * @author    Zach Copley <zach@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+defined('GNUSOCIAL') || die();
 
 class Email_reminder extends Managed_DataObject
 {
@@ -46,8 +46,8 @@ class Email_reminder extends Managed_DataObject
      * @param int    $days      Number of days after the code was created
      * @return boolean true if any Email_reminder records were found
      */
-    static function needsReminder($type, $object, $days = null) {
-
+    public static function needsReminder($type, $object, $days = null)
+    {
         $reminder        = new Email_reminder();
         $reminder->type  = $type;
         $reminder->code  = $object->code;
@@ -72,8 +72,8 @@ class Email_reminder extends Managed_DataObject
      * @param int    $days      Number of days after the code was created
      * @return int   $result    row ID of the new reminder record
      */
-    static function recordReminder($type, $object, $days) {
-
+    public static function recordReminder($type, $object, $days)
+    {
         $reminder        = new Email_reminder();
         $reminder->type  = $type;
         $reminder->code  = $object->code;
@@ -83,9 +83,9 @@ class Email_reminder extends Managed_DataObject
 
         if (empty($result)) {
             common_log_db_error($reminder, 'INSERT', __FILE__);
-                throw new ServerException(
-                    // TRANS: Server exception thrown when a reminder record could not be inserted into the database.
-                    _m('Database error inserting reminder record.')
+            throw new ServerException(
+                // TRANS: Server exception thrown when a reminder record could not be inserted into the database.
+                _m('Database error inserting reminder record.')
             );
         }
 
@@ -108,13 +108,13 @@ class Email_reminder extends Managed_DataObject
                 ),
                 'code' => array(
                     'type'        => 'varchar',
-                    'not null'    => 'true',
+                    'not null'    => true,
                     'length'      => 191,
                     'description' => 'confirmation code'
                  ),
                 'days' => array(
                     'type'        => 'int',
-                    'not null'    => 'true',
+                    'not null'    => true,
                     'description' => 'number of days since code creation'
                  ),
                 'sent' => array(

@@ -63,12 +63,12 @@ class User_openid_prefs extends Managed_DataObject
             'description' => 'Per-user preferences for OpenID display',
             'fields' => [
                 'user_id' => [
-                    'type'        => 'integer',
+                    'type'        => 'int',
                     'not null'    => true,
                     'description' => 'User whose prefs we are saving'
                 ],
                 'hide_profile_link' => [
-                    'type'        => 'integer',
+                    'type'        => 'int',
                     'not null'    => true,
                     'default'     => 0,
                     'description' => 'Whether to hide profile links from profile block'

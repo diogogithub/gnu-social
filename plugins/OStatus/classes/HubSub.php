@@ -57,7 +57,7 @@ class HubSub extends Managed_DataObject
                 'secret' => array('type' => 'text', 'description' => 'HubSub stored secret'),
                 'sub_start' => array('type' => 'datetime', 'description' => 'subscription start'),
                 'sub_end' => array('type' => 'datetime', 'description' => 'subscription end'),
-                'errors' => array('type' => 'integer', 'not null' => true, 'default' => 0, 'description' => 'Queue handling error count, is reset on success.'),
+                'errors' => array('type' => 'int', 'not null' => true, 'default' => 0, 'description' => 'Queue handling error count, is reset on success.'),
                 'error_start' => array('type' => 'datetime', 'default' => null, 'description' => 'time of first error since latest success, should be null if no errors have been counted'),
                 'last_error' => array('type' => 'datetime', 'default' => null, 'description' => 'time of last failure, if ever'),
                 'last_error_msg' => array('type' => 'text', 'default' => null, 'description' => 'Last error _message_'),

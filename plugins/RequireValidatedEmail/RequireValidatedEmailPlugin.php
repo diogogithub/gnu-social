@@ -1,55 +1,43 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Plugin that requires the user to have a validated email address before they
  * can post notices
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Plugin
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Craig Andrews <candrews@integralblue.com>
  * @author    Brion Vibber <brion@status.net>
  * @author    Evan Prodromou <evan@status.net>
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2011 StatusNet Inc. http://status.net/
- * @copyright 2009 Free Software Foundation, Inc http://www.fsf.org
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2009-2013 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Plugin for requiring a validated email before posting.
  *
  * Enable this plugin using addPlugin('RequireValidatedEmail');
- *
- * @category  Plugin
- * @package   StatusNet
- * @author    Craig Andrews <candrews@integralblue.com>
- * @author    Brion Vibber <brion@status.net>
- * @author    Evan Prodromou <evan@status.net>
- * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2009-2013 Free Software Foundation, Inc http://www.fsf.org
  * @copyright 2009-2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class RequireValidatedEmailPlugin extends Plugin
 {
@@ -84,8 +72,10 @@ class RequireValidatedEmailPlugin extends Plugin
 
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->('main/confirmfirst/:code',
-             ['action' => 'confirmfirstemail']);
+        $m->connect(
+            'main/confirmfirst/:code',
+            ['action' => 'confirmfirstemail']
+        );
         return true;
     }
 
@@ -121,7 +111,7 @@ class RequireValidatedEmailPlugin extends Plugin
      *
      * @return bool hook result code
      */
-    function onStartRegisterUser(&$user, &$profile)
+    public function onStartRegisterUser(&$user, &$profile)
     {
         $email = $user->email;
 
@@ -153,8 +143,10 @@ class RequireValidatedEmailPlugin extends Plugin
         // that somebody's ok despite a non-validated email.
 
         // @todo FIXME: This isn't how to do it! Use Start*/End* instead
-        Event::handle('RequireValidatedEmailPlugin_Override',
-                      array($user, &$knownGood));
+        Event::handle(
+            'RequireValidatedEmailPlugin_Override',
+            [$user, &$knownGood]
+        );
 
         return $knownGood;
     }
@@ -188,7 +180,7 @@ class RequireValidatedEmailPlugin extends Plugin
      *
      * @return bool true if user has a trusted OpenID.
      */
-    function hasTrustedOpenID(User $user)
+    public function hasTrustedOpenID(User $user)
     {
         if ($this->trustedOpenIDs && class_exists('User_openid')) {
             foreach ($this->trustedOpenIDs as $regex) {
@@ -240,7 +232,7 @@ class RequireValidatedEmailPlugin extends Plugin
      *
      * @return boolean hook value
      */
-    function onStartMakeEntryForm($tag, $action, &$form)
+    public function onStartMakeEntryForm($tag, $action, &$form)
     {
         $user = common_current_user();
         if (!empty($user)) {
@@ -259,7 +251,7 @@ class RequireValidatedEmailPlugin extends Plugin
      * @param boolean $result if overriding, set to true/false has right
      * @return boolean hook result value
      */
-    function onUserRightsCheck(Profile $profile, $right, &$result)
+    public function onUserRightsCheck(Profile $profile, $right, &$result)
     {
         if ($right == Right::CREATEGROUP ||
             ($this->disallowLogin && ($right == Right::WEBLOGIN || $right == Right::API))) {
@@ -272,7 +264,7 @@ class RequireValidatedEmailPlugin extends Plugin
         return true;
     }
 
-    function onLoginAction($action, &$login)
+    public function onLoginAction($action, &$login)
     {
         if ($action == 'confirmfirstemail') {
             $login = true;

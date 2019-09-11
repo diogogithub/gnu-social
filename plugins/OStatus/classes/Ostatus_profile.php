@@ -51,9 +51,9 @@ class Ostatus_profile extends Managed_DataObject
         return array(
             'fields' => array(
                 'uri' => array('type' => 'varchar', 'length' => 191, 'not null' => true),
-                'profile_id' => array('type' => 'integer'),
-                'group_id' => array('type' => 'integer'),
-                'peopletag_id' => array('type' => 'integer'),
+                'profile_id' => array('type' => 'int'),
+                'group_id' => array('type' => 'int'),
+                'peopletag_id' => array('type' => 'int'),
                 'feeduri' => array('type' => 'varchar', 'length' => 191),
                 'salmonuri' => array('type' => 'varchar', 'length' => 191),
                 'avatar' => array('type' => 'text'),

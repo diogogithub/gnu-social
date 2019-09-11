@@ -79,7 +79,7 @@ class Realtime_channel extends Managed_DataObject
                                'length' => 32,
                                'not null' => true,
                                'description' => 'shared secret key for this channel'),
-                'audience' => array('type' => 'integer',
+                'audience' => array('type' => 'int',
                                     'not null' => true,
                                     'default' => 0,
                                     'description' => 'reference count'),

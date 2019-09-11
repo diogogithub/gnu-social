@@ -19,7 +19,6 @@ defined('GNUSOCIAL') || die();
 /**
  * Table Definition for file_redirection
  */
-
 class File_redirection extends Managed_DataObject
 {
     ###START_AUTOCODE
@@ -51,7 +50,7 @@ class File_redirection extends Managed_DataObject
             ),
             'primary key' => array('urlhash'),
             'foreign keys' => array(
-                'file_redirection_file_id_fkey' => array('file' => array('file_id' => 'id')),
+                'file_redirection_file_id_fkey' => array('file', array('file_id' => 'id')),
             ),
         );
     }
