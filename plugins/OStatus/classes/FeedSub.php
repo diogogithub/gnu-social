@@ -1,28 +1,31 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009-2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-if (!defined('GNUSOCIAL')) { exit(1); }
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package OStatusPlugin
- * @maintainer Brion Vibber <brion@status.net>
+ * FeedSub handles low-level WebSub (PubSubHubbub/PuSH) subscriptions.
+ * Higher-level behavior building OStatus stuff on top is handled
+ * under Ostatus_profile.
+ *
+ * @package   OStatusPlugin
+ * @author    Brion Vibber <brion@status.net>
+ * @copyright 2009-2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+defined('GNUSOCIAL') || die();
 
 /*
 WebSub (previously PubSubHubbub/PuSH) subscription flow:
@@ -37,14 +40,8 @@ WebSub (previously PubSubHubbub/PuSH) subscription flow:
 
     main/push/callback
         hub sends us updates via POST
-
 */
 
-/**
- * FeedSub handles low-level WebSub (PubSubHubbub/PuSH) subscriptions.
- * Higher-level behavior building OStatus stuff on top is handled
- * under Ostatus_profile.
- */
 class FeedSub extends Managed_DataObject
 {
     public $__table = 'feedsub';
@@ -96,7 +93,7 @@ class FeedSub extends Managed_DataObject
         return $this->uri;
     }
 
-    function getLeaseRemaining()
+    public function getLeaseRemaining()
     {
         if (empty($this->sub_end)) {
             return null;
@@ -118,8 +115,8 @@ class FeedSub extends Managed_DataObject
         if (empty($this->huburi)
                 && (!common_config('feedsub', 'fallback_hub')
                     || $this->sub_state === 'nohub')) {
-                // Here we have no huburi set. Also, either there is no 
-                // fallback hub configured or sub_state is "nohub".
+            // Here we have no huburi set. Also, either there is no
+            // fallback hub configured or sub_state is "nohub".
             return false;
         }
         return true;
@@ -180,7 +177,6 @@ class FeedSub extends Managed_DataObject
         try {
             // discover the hub uri
             $feedsub->ensureHub();
-
         } catch (FeedSubNoHubException $e) {
             // Only throw this exception if we can't handle huburi-less feeds
             // (i.e. we have a fallback hub or we can do feed polling (nohub)
@@ -263,7 +259,7 @@ class FeedSub extends Managed_DataObject
      */
     public function subscribe($rediscovered=false)
     {
-        if ($this->sub_state && $this->sub_state != 'inactive') {
+        if ($this->sub_state !== 'inactive') {
             common_log(LOG_WARNING, sprintf('Attempting to (re)start WebSub subscription to %s in unexpected state %s', $this->getUri(), $this->sub_state));
         }
 
@@ -276,7 +272,7 @@ class FeedSub extends Managed_DataObject
             if (common_config('feedsub', 'fallback_hub')) {
                 // No native hub on this feed?
                 // Use our fallback hub, which handles polling on our behalf.
-            } else if (common_config('feedsub', 'nohub')) {
+            } elseif (common_config('feedsub', 'nohub')) {
                 // For this to actually work, we'll need some polling mechanism.
                 // The FeedPoller plugin should take care of it.
                 return;
@@ -298,7 +294,8 @@ class FeedSub extends Managed_DataObject
      *
      * @throws ServerException if feed state is not valid
      */
-    public function unsubscribe() {
+    public function unsubscribe()
+    {
         if ($this->sub_state != 'active') {
             common_log(LOG_WARNING, sprintf('Attempting to (re)end WebSub subscription to %s in unexpected state %s', $this->getUri(), $this->sub_state));
         }
@@ -344,7 +341,7 @@ class FeedSub extends Managed_DataObject
      */
     public function garbageCollect()
     {
-        if ($this->sub_state == '' || $this->sub_state == 'inactive') {
+        if ($this->sub_state === 'inactive') {
             // No active WebSub subscription, we can just leave it be.
             return true;
         }
@@ -366,12 +363,12 @@ class FeedSub extends Managed_DataObject
         return true;
     }
 
-    static public function renewalCheck()
+    public static function renewalCheck()
     {
         $fs = new FeedSub();
-        // the "" empty string check is because we historically haven't saved unsubscribed feeds as NULL
-        $fs->whereAdd('sub_end IS NOT NULL AND sub_end!="" AND sub_end < NOW() + INTERVAL 1 day');
-        if (!$fs->find()) { // find can be both false and 0, depending on why nothing was found
+        $fs->whereAdd('sub_end IS NOT NULL AND sub_end < (CURRENT_TIMESTAMP + INTERVAL 1 DAY)');
+        // find can be both false and 0, depending on why nothing was found
+        if (!$fs->find()) {
             throw new NoResultException($fs);
         }
         return $fs;
@@ -437,10 +434,10 @@ class FeedSub extends Managed_DataObject
             if ($status == 202  || $status == 204) {
                 common_log(LOG_INFO, __METHOD__ . ': sub req ok, awaiting verification callback');
                 return;
-            } else if ($status >= 200 && $status < 300) {
+            } elseif ($status >= 200 && $status < 300) {
                 common_log(LOG_ERR, __METHOD__ . ": sub req returned unexpected HTTP $status: " . $response->getBody());
                 $msg = sprintf(_m("Unexpected HTTP status: %d"), $status);
-            } else if ($status == 422 && !$rediscovered) {
+            } elseif ($status == 422 && !$rediscovered) {
                 // Error code regarding something wrong in the data (it seems
                 // that we're talking to a WebSub hub at least, so let's check
                 // our own data to be sure we're not mistaken somehow, which
@@ -482,7 +479,8 @@ class FeedSub extends Managed_DataObject
         if ($lease_seconds > 0) {
             $this->sub_end = common_sql_date(time() + $lease_seconds);
         } else {
-            $this->sub_end = null;  // Backwards compatibility to StatusNet (PuSH <0.4 supported permanent subs)
+            // Backwards compatibility to StatusNet (PuSH <0.4 supported permanent subs)
+            $this->sub_end = DB_DataObject_Cast::sql('NULL');
         }
         $this->modified = common_sql_now();
 
@@ -498,11 +496,10 @@ class FeedSub extends Managed_DataObject
     {
         $original = clone($this);
 
-        // @fixme these should all be null, but DB_DataObject doesn't save null values...?????
-        $this->secret = '';
-        $this->sub_state = '';
-        $this->sub_start = '';
-        $this->sub_end = '';
+        $this->secret = DB_DataObject_Cast::sql('NULL');
+        $this->sub_state = 'inactive';
+        $this->sub_start = DB_DataObject_Cast::sql('NULL');
+        $this->sub_end = DB_DataObject_Cast::sql('NULL');
         $this->modified = common_sql_now();
 
         return $this->update($original);
@@ -544,7 +541,6 @@ class FeedSub extends Managed_DataObject
             }
 
             $this->receiveFeed($post);
-
         } catch (FeedSubBadPushSignatureException $e) {
             // We got a signature, so something could be wrong. Let's check to see if
             // maybe upstream has switched to another hub. Let's fetch feed and then
@@ -628,7 +624,6 @@ class FeedSub extends Managed_DataObject
                     throw new FeedSubBadPushSignatureException('Incoming WebSub push signature did not match expected HMAC hash.');
                 }
                 return true;
-
             } else {
                 common_log(LOG_ERR, sprintf(__METHOD__.': ignoring WebSub push with bogus HMAC==', _ve($hmac)));
             }

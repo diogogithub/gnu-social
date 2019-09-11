@@ -1,35 +1,32 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Data class for Conversations
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Data
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2010 StatusNet Inc.
  * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 class Conversation extends Managed_DataObject
 {
@@ -57,14 +54,14 @@ class Conversation extends Managed_DataObject
         );
     }
 
-    static public function beforeSchemaUpdate()
+    public static function beforeSchemaUpdate()
     {
         $table = strtolower(get_called_class());
         $schema = Schema::get();
         $schemadef = $schema->getTableDef($table);
 
         // 2016-01-06 We have to make sure there is no conversation with id==0 since it will screw up auto increment resequencing
-        if ($schemadef['fields']['id']['auto_increment']) {
+        if ($schemadef['fields']['id']['auto_increment'] ?? false) {
             // since we already have auto incrementing ('serial') we can continue
             return;
         }
@@ -91,7 +88,7 @@ class Conversation extends Managed_DataObject
      *
      * @return Conversation the new conversation DO
      */
-    static function create(ActivityContext $ctx=null, $created=null)
+    public static function create(ActivityContext $ctx = null, $created = null)
     {
         // Be aware that the Notice does not have an id yet since it's not inserted!
         $conv = new Conversation();
@@ -100,11 +97,16 @@ class Conversation extends Managed_DataObject
             $conv->uri = $ctx->conversation;
             $conv->url = $ctx->conversation_url;
         } else {
-            $conv->uri = sprintf('%s%s=%s:%s=%s',
-                             TagURI::mint(),
-                             'objectType', 'thread',
-                             'nonce', common_random_hexstr(8));
-            $conv->url = null;  // locally generated Conversation objects don't get static URLs stored
+            $conv->uri = sprintf(
+                '%s%s=%s:%s=%s',
+                TagURI::mint(),
+                'objectType',
+                'thread',
+                'nonce',
+                common_random_hexstr(8)
+            );
+            // locally generated Conversation objects don't get static URLs stored
+            $conv->url = DB_DataObject_Cast::sql('NULL');
         }
         // This insert throws exceptions on failure
         $conv->insert();
@@ -112,7 +114,7 @@ class Conversation extends Managed_DataObject
         return $conv;
     }
 
-    static function noticeCount($id)
+    public static function noticeCount($id)
     {
         $keypart = sprintf('conversation:notice_count:%d', $id);
 
@@ -132,7 +134,7 @@ class Conversation extends Managed_DataObject
         return $cnt;
     }
 
-    static public function getUrlFromNotice(Notice $notice, $anchor=true)
+    public static function getUrlFromNotice(Notice $notice, $anchor = true)
     {
         $conv = Conversation::getByID($notice->conversation);
         return $conv->getUrl($anchor ? $notice->getID() : null);
