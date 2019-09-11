@@ -110,6 +110,8 @@ class SearchSubPlugin extends Plugin
         // with a lot of searches!
         $sub = new SearchSub();
         $sub->groupBy('search');
+        $sub->selectAdd();
+        $sub->selectAdd('search');
         $sub->find();
         while ($sub->fetch()) {
             $search = $sub->search;
