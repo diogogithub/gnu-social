@@ -1,48 +1,43 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
  * Notice stream for favorites
- * 
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  Stream
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Notice stream for favorites
  *
  * @category  Stream
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class FaveNoticeStream extends ScopingNoticeStream
 {
-    function __construct(Profile $target, Profile $scoped=null)
+    public function __construct(Profile $target, Profile $scoped = null)
     {
         $stream = new RawFaveNoticeStream($target, $scoped);
         if ($target->sameAs($scoped)) {
@@ -58,11 +53,10 @@ class FaveNoticeStream extends ScopingNoticeStream
  * Raw notice stream for favorites
  *
  * @category  Stream
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class RawFaveNoticeStream extends NoticeStream
 {
@@ -71,7 +65,7 @@ class RawFaveNoticeStream extends NoticeStream
 
     protected $selectVerbs = array();
 
-    function __construct(Profile $target, Profile $scoped=null)
+    public function __construct(Profile $target, Profile $scoped = null)
     {
         parent::__construct();
 
@@ -92,7 +86,7 @@ class RawFaveNoticeStream extends NoticeStream
      * @param <type> $max_id
      * @return <type>
      */
-    function getNoticeIds($offset, $limit, $since_id, $max_id)
+    public function getNoticeIds($offset, $limit, $since_id, $max_id)
     {
         $fav = new Fave();
         $qry = null;
@@ -101,10 +95,10 @@ class RawFaveNoticeStream extends NoticeStream
             $qry  = 'SELECT fave.* FROM fave ';
             $qry .= 'WHERE fave.user_id = ' . $this->user_id . ' ';
         } else {
-             $qry =  'SELECT fave.* FROM fave ';
-             $qry .= 'INNER JOIN notice ON fave.notice_id = notice.id ';
-             $qry .= 'WHERE fave.user_id = ' . $this->user_id . ' ';
-             $qry .= 'AND notice.is_local != ' . Notice::GATEWAY . ' ';
+            $qry =  'SELECT fave.* FROM fave ';
+            $qry .= 'INNER JOIN notice ON fave.notice_id = notice.id ';
+            $qry .= 'WHERE fave.user_id = ' . $this->user_id . ' ';
+            $qry .= 'AND notice.is_local <> ' . Notice::GATEWAY . ' ';
         }
 
         if ($since_id != 0) {
@@ -137,4 +131,3 @@ class RawFaveNoticeStream extends NoticeStream
         return $ids;
     }
 }
-
