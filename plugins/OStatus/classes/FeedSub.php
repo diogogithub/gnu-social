@@ -366,7 +366,7 @@ class FeedSub extends Managed_DataObject
     public static function renewalCheck()
     {
         $fs = new FeedSub();
-        $fs->whereAdd('sub_end IS NOT NULL AND sub_end < (CURRENT_TIMESTAMP + INTERVAL 1 DAY)');
+        $fs->whereAdd("sub_end IS NOT NULL AND sub_end < (CURRENT_TIMESTAMP + INTERVAL '1' DAY)");
         // find can be both false and 0, depending on why nothing was found
         if (!$fs->find()) {
             throw new NoResultException($fs);

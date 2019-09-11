@@ -331,12 +331,12 @@ class Nodeinfo_2_0Action extends Action
          SELECT COUNT(DISTINCT profile_id) AS active_users_count
          FROM (
             SELECT profile_id FROM notice
-               WHERE notice.created >= (CURRENT_TIMESTAMP - INTERVAL {$days} DAY) AND notice.is_local = 1
+               WHERE notice.created >= (CURRENT_TIMESTAMP - INTERVAL '{$days}' DAY) AND notice.is_local = 1
             UNION ALL
             SELECT user_id FROM fave INNER JOIN {$userTable} ON fave.user_id = {$userTable}.id
-               WHERE fave.created >= (CURRENT_TIMESTAMP - INTERVAL {$days} DAY)
+               WHERE fave.created >= (CURRENT_TIMESTAMP - INTERVAL '{$days}' DAY)
             UNION ALL
-            SELECT id FROM {$userTable} WHERE {$userTable}.created >= (CURRENT_TIMESTAMP - INTERVAL {$days} DAY)
+            SELECT id FROM {$userTable} WHERE {$userTable}.created >= (CURRENT_TIMESTAMP - INTERVAL '{$days}' DAY)
          ) AS source";
 
         $activeUsersCount = new DB_DataObject();
