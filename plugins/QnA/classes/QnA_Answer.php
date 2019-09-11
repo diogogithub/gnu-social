@@ -81,11 +81,11 @@ class QnA_Answer extends Managed_DataObject
             ),
             'primary key' => array('id'),
             'unique keys' => array(
-                'question_uri_key' => array('uri'),
-                'question_id_profile_id_key' => array('question_id', 'profile_id'),
+                'qna_answer_uri_key' => array('uri'),
+                'qna_answer_question_id_profile_id_key' => array('question_id', 'profile_id'),
             ),
             'indexes' => array(
-                'profile_id_question_id_index' => array('profile_id', 'question_id'),
+                'qna_answer_profile_id_question_id_idx' => array('profile_id', 'question_id'),
             )
         );
     }

@@ -1,9 +1,26 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('GNUSOCIAL') || die();
+
+require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+
 /**
  * Table Definition for notice_source
  */
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
-
 class Notice_source extends Managed_DataObject
 {
     ###START_AUTOCODE
@@ -26,7 +43,7 @@ class Notice_source extends Managed_DataObject
                 'code' => array('type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'source code'),
                 'name' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'name of the source'),
                 'url' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'url to link to'),
-                'notice_id' => array('type' => 'int', 'not null' => true, 'description' => 'date this record was created'),
+                'notice_id' => array('type' => 'int', 'not null' => true, 'default' => 0, 'description' => 'date this record was created'),
                 'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
                 'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),

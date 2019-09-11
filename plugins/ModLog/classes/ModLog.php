@@ -73,7 +73,7 @@ class ModLog extends Managed_DataObject
                      'primary key' => array('id'),
                      'foreign keys' => array(
                                              'mod_log_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
-                                             'mod_log_moderator_id_fkey' => array('user', array('user_id' => 'id'))
+                                             'mod_log_moderator_id_fkey' => array('user', array('moderator_id' => 'id'))
                                              ),
                      'indexes' => array(
                                         'mod_log_profile_id_created_idx' => array('profile_id', 'created'),

@@ -59,7 +59,8 @@ class Profile_list extends Managed_DataObject
             ),
             'primary key' => array('tagger', 'tag'),
             'unique keys' => array(
-                'profile_list_id_key' => array('id')
+                'profile_list_id_key' => array('id'),
+                'profile_list_tag_key' => array('tag'),
             ),
             'foreign keys' => array(
                 'profile_list_tagger_fkey' => array('profile', array('tagger' => 'id')),

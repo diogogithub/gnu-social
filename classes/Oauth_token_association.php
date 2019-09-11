@@ -1,9 +1,26 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('GNUSOCIAL') || die();
+
+require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
+
 /**
  * Table Definition for oauth_association
  */
-require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
-
 class Oauth_token_association extends Managed_DataObject
 {
     ###START_AUTOCODE
@@ -19,7 +36,7 @@ class Oauth_token_association extends Managed_DataObject
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
 
-    static function getByUserAndToken($user, $token)
+    public static function getByUserAndToken($user, $token)
     {
         if (empty($user) || empty($token)) {
             return null;
@@ -49,8 +66,8 @@ class Oauth_token_association extends Managed_DataObject
             ),
             'primary key' => array('profile_id', 'application_id', 'token'),
             'foreign keys' => array(
-                'oauth_token_association_profile_fkey' => array('profile_id', array('profile' => 'id')),
-                'oauth_token_association_application_fkey' => array('application_id', array('application' => 'id')),
+                'oauth_token_association_profile_fkey' => array('profile', array('profile_id' => 'id')),
+                'oauth_token_association_application_fkey' => array('oauth_application', array('application_id' => 'id')),
             )
         );
     }

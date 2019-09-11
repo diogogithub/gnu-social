@@ -77,7 +77,7 @@ class QnA_Question extends Managed_DataObject
             ),
             'primary key' => array('id'),
             'unique keys' => array(
-                'question_uri_key' => array('uri'),
+                'qna_question_uri_key' => array('uri'),
             ),
         );
     }

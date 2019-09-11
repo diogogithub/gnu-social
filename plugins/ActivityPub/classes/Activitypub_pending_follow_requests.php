@@ -51,9 +51,9 @@ class Activitypub_pending_follow_requests extends Managed_DataObject
     {
         return [
             'fields' => [
-                'local_profile_id'  => ['type' => 'integer', 'not null' => true],
-                'remote_profile_id' => ['type' => 'integer', 'not null' => true],
-                'relation_id'       => ['type' => 'serial',  'not null' => true],
+                'local_profile_id'  => ['type' => 'int', 'not null' => true],
+                'remote_profile_id' => ['type' => 'int', 'not null' => true],
+                'relation_id'       => ['type' => 'serial', 'not null' => true],
             ],
             'primary key' => ['relation_id'],
             'foreign keys' => [

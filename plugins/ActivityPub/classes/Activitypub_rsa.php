@@ -53,7 +53,7 @@ class Activitypub_rsa extends Managed_DataObject
     {
         return [
                 'fields' => [
-                    'profile_id'  => ['type' => 'integer'],
+                    'profile_id'  => ['type' => 'int', 'not null' => true],
                     'private_key' => ['type' => 'text'],
                     'public_key'  => ['type' => 'text', 'not null' => true],
                     'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
