@@ -95,7 +95,7 @@ class MySQLSearch extends SearchEngine
             return true;
         } elseif ($this->table === 'notice') {
             // Don't show imported notices
-            $this->target->whereAdd('notice.is_local != ' . Notice::GATEWAY);
+            $this->target->whereAdd('notice.is_local <> ' . Notice::GATEWAY);
 
             $this->target->whereAdd(sprintf(
                 'MATCH (%2$s.content) AGAINST (\'%1$s\' IN BOOLEAN MODE)',

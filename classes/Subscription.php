@@ -406,7 +406,7 @@ class Subscription extends Managed_DataObject
         $sub = new Subscription();
         $sub->$by_type = $profile_id;
         $sub->selectAdd($get_type);
-        $sub->whereAdd("{$get_type} != {$profile_id}");
+        $sub->whereAdd($get_type . ' <> ' . $profile_id);
         $sub->orderBy('created DESC');
         $sub->limit($queryoffset, $querylimit);
 

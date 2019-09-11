@@ -1,23 +1,25 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 // 10x8
 
@@ -36,12 +38,12 @@ class GalleryAction extends ProfileAction
         parent::handle();
     }
 
-    function showContent()
+    public function showContent()
     {
         $this->showTagsDropdown();
     }
 
-    function showTagsDropdown()
+    public function showTagsDropdown()
     {
         $tag = $this->trimmed('tag');
 
@@ -59,13 +61,17 @@ class GalleryAction extends ProfileAction
             $this->elementStart('ul');
             $this->elementStart('li', array('id' => 'filter_tags_all',
                                              'class' => 'child_1'));
-            $this->element('a',
-                           array('href' =>
-                                 common_local_url($this->trimmed('action'),
-                                                  array('nickname' =>
-                                                        $this->target->getNickname()))),
-                           // TRANS: List element on gallery action page to show all tags.
-                           _m('TAGS','All'));
+            $this->element(
+                'a',
+                [
+                    'href' => common_local_url(
+                        $this->trimmed('action'),
+                        ['nickname' => $this->target->getNickname()]
+                    ),
+                ],
+                // TRANS: List element on gallery action page to show all tags.
+                _m('TAGS', 'All')
+            );
             $this->elementEnd('li');
             $this->elementStart('li', array('id'=>'filter_tags_item'));
             $this->elementStart('form', array('name' => 'bytag',
@@ -76,12 +82,18 @@ class GalleryAction extends ProfileAction
             // TRANS: Fieldset legend on gallery action page.
             $this->element('legend', null, _('Select tag to filter'));
             // TRANS: Dropdown field label on gallery action page for a list containing tags.
-            $this->dropdown('tag', _('Tag'), $content,
-                            // TRANS: Dropdown field title on gallery action page for a list containing tags.
-                            _('Choose a tag to narrow list.'), false, $tag);
+            $this->dropdown(
+                'tag',
+                _('Tag'),
+                $content,
+                // TRANS: Dropdown field title on gallery action page for a list containing tags.
+                _('Choose a tag to narrow list.'),
+                false,
+                $tag
+            );
             $this->hidden('nickname', $this->target->getNickname());
             // TRANS: Submit button text on gallery action page.
-            $this->submit('submit', _m('BUTTON','Go'));
+            $this->submit('submit', _m('BUTTON', 'Go'));
             $this->elementEnd('fieldset');
             $this->elementEnd('form');
             $this->elementEnd('li');
@@ -92,7 +104,7 @@ class GalleryAction extends ProfileAction
     }
 
     // Get list of tags we tagged other users with
-    function getTags($lst, $usr)
+    public function getTags($lst, $usr)
     {
         $profile_tag = new Notice_tag();
         $profile_tag->query('SELECT DISTINCT(tag) ' .
@@ -100,7 +112,7 @@ class GalleryAction extends ProfileAction
                             'WHERE tagger = ' . $this->target->id . ' ' .
                             'AND ' . $usr . ' = ' . $this->target->id . ' ' .
                             'AND ' . $lst . ' = tagged ' .
-                            'AND tagger != tagged');
+                            'AND tagger <> tagged');
         $tags = array();
         while ($profile_tag->fetch()) {
             $tags[] = $profile_tag->tag;
@@ -109,12 +121,12 @@ class GalleryAction extends ProfileAction
         return $tags;
     }
 
-    function getAllTags()
+    public function getAllTags()
     {
         return array();
     }
 
-    function showProfileBlock()
+    public function showProfileBlock()
     {
         $block = new AccountProfileBlock($this, $this->target);
         $block->show();

@@ -1,59 +1,58 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
  * Stream of notices by a profile
  *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Stream
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Stream of notices by a profile
  *
  * @category  General
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 class ProfileNoticeStream extends ScopingNoticeStream
 {
     protected $target;
 
-    function __construct(Profile $target, Profile $scoped=null)
+    public function __construct(Profile $target, Profile $scoped = null)
     {
         $this->target = $target;
-        parent::__construct(new CachingNoticeStream(new RawProfileNoticeStream($target),
-                                                    'profile:notice_ids:' . $target->getID()),
-                            $scoped);
+        parent::__construct(
+            new CachingNoticeStream(
+                new RawProfileNoticeStream($target),
+                'profile:notice_ids:' . $target->getID()
+            ),
+            $scoped
+        );
     }
 
-    function getNoticeIds($offset, $limit, $since_id=null, $max_id=null)
+    public function getNoticeIds($offset, $limit, $since_id = null, $max_id = null)
     {
         if ($this->impossibleStream()) {
             return array();
@@ -62,7 +61,7 @@ class ProfileNoticeStream extends ScopingNoticeStream
         }
     }
 
-    function getNotices($offset, $limit, $since_id=null, $max_id=null)
+    public function getNotices($offset, $limit, $since_id = null, $max_id = null)
     {
         if ($this->impossibleStream()) {
             throw new PrivateStreamException($this->target, $this->scoped);
@@ -71,7 +70,7 @@ class ProfileNoticeStream extends ScopingNoticeStream
         }
     }
 
-    function impossibleStream() 
+    public function impossibleStream()
     {
         if (!$this->target->readableBy($this->scoped)) {
             // cannot read because it's a private stream and either noone's logged in or they are not subscribers
@@ -82,12 +81,11 @@ class ProfileNoticeStream extends ScopingNoticeStream
 
         if (common_config('notice', 'hidespam')) {
             // if this is a silenced user
-            if ($this->target->hasRole(Profile_role::SILENCED)
-                    // and we are either not logged in
-                    && (!$this->scoped instanceof Profile
-                        // or if we are, we are not logged in as the target, and we don't have right to review spam
-                        || (!$this->scoped->sameAs($this->target) && !$this->scoped->hasRight(Right::REVIEWSPAM))
-                    )) {
+            if ($this->target->hasRole(Profile_role::SILENCED) &&
+                // and we are either not logged in
+                (!$this->scoped instanceof Profile ||
+                // or if we are, we are not logged in as the target, and we don't have right to review spam
+                (!$this->scoped->sameAs($this->target) && !$this->scoped->hasRight(Right::REVIEWSPAM)))) {
                 return true;
             }
         }
@@ -100,11 +98,10 @@ class ProfileNoticeStream extends ScopingNoticeStream
  * Raw stream of notices by a profile
  *
  * @category  General
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 class RawProfileNoticeStream extends NoticeStream
@@ -112,13 +109,13 @@ class RawProfileNoticeStream extends NoticeStream
     protected $target;
     protected $selectVerbs = array();   // select all verbs
 
-    function __construct(Profile $target)
+    public function __construct(Profile $target)
     {
         parent::__construct();
         $this->target = $target;
     }
 
-    function getNoticeIds($offset, $limit, $since_id, $max_id)
+    public function getNoticeIds($offset, $limit, $since_id, $max_id)
     {
         $notice = new Notice();
 
@@ -127,7 +124,7 @@ class RawProfileNoticeStream extends NoticeStream
         $notice->selectAdd();
         $notice->selectAdd('id');
 
-        $notice->whereAdd('scope != ' . Notice::MESSAGE_SCOPE);
+        $notice->whereAdd('scope <> ' . Notice::MESSAGE_SCOPE);
 
         Notice::addWhereSinceId($notice, $since_id);
         Notice::addWhereMaxId($notice, $max_id);

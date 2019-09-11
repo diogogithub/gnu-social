@@ -549,8 +549,8 @@ class Profile extends Managed_DataObject
         $tags = new Profile_tag();
 
         $tags->joinAdd(array('tagger', 'user:id'));
-        $tags->whereAdd('tagged  = '.$this->id);
-        $tags->whereAdd('tagger != '.$this->id);
+        $tags->whereAdd('tagged  = ' . $this->id);
+        $tags->whereAdd('tagger <> ' . $this->id);
 
         $tags->limit(0, 1);
         $tags->fetch();
@@ -669,7 +669,7 @@ class Profile extends Managed_DataObject
           'AND profile_tag.tagger = subscription.subscribed) ' .
           'WHERE subscription.subscribed = %d ' .
           "AND profile_tag.tag = '%s' " .
-          'AND subscription.subscribed != subscription.subscriber ' .
+          'AND subscription.subscribed <> subscription.subscriber ' .
           'ORDER BY subscription.created DESC ';
 
         if ($offset) {
@@ -693,7 +693,7 @@ class Profile extends Managed_DataObject
           'AND profile_tag.tagger = subscription.subscriber) ' .
           'WHERE subscription.subscriber = %d ' .
           "AND profile_tag.tag = '%s' " .
-          'AND subscription.subscribed != subscription.subscriber ' .
+          'AND subscription.subscribed <> subscription.subscriber ' .
           'ORDER BY subscription.created DESC ';
 
         $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
@@ -766,8 +766,8 @@ class Profile extends Managed_DataObject
 
         $sub = new Subscription();
         $sub->subscribed = $this->id;
-        $sub->whereAdd('subscriber != subscribed');
-        $cnt = (int) $sub->count('distinct subscriber');
+        $sub->whereAdd('subscriber <> subscribed');
+        $cnt = (int) $sub->count('DISTINCT subscriber');
 
         if (!empty($c)) {
             $c->set(Cache::key('profile:subscriber_count:'.$this->id), $cnt);
