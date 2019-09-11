@@ -1,6 +1,20 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Table Definition for avatar
@@ -10,20 +24,20 @@ class Avatar extends Managed_DataObject
 {
     public $__table = 'avatar';                          // table name
     public $profile_id;                      // int(4)  primary_key not_null
-    public $original;                        // tinyint(1)
+    public $original;                        // bool    default_false
     public $width;                           // int(4)  primary_key not_null
     public $height;                          // int(4)  primary_key not_null
     public $mediatype;                       // varchar(32)   not_null
     public $filename;                        // varchar(191)   not 255 because utf8mb4 takes more space
     public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
     public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
-	
+
     public static function schemaDef()
     {
         return array(
             'fields' => array(
                 'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'),
-                'original' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'uploaded by user or generated?'),
+                'original' => array('type' => 'bool', 'default' => false, 'description' => 'uploaded by user or generated?'),
                 'width' => array('type' => 'int', 'not null' => true, 'description' => 'image width'),
                 'height' => array('type' => 'int', 'not null' => true, 'description' => 'image height'),
                 'mediatype' => array('type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'file type'),
@@ -45,7 +59,7 @@ class Avatar extends Managed_DataObject
     }
 
     // We clean up the file, too
-    function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
         $filename = $this->filename;
         if (file_exists(Avatar::path($filename))) {
@@ -57,11 +71,12 @@ class Avatar extends Managed_DataObject
 
     /*
      * Deletes all avatars (but may spare the original) from a profile.
-     * 
+     *
      * @param   Profile $target     The profile we're deleting avatars of.
      * @param   boolean $original   Whether original should be removed or not.
      */
-    public static function deleteFromProfile(Profile $target, $original=true) {
+    public static function deleteFromProfile(Profile $target, $original = true)
+    {
         try {
             $avatars = self::getProfileAvatars($target);
             foreach ($avatars as $avatar) {
@@ -77,7 +92,7 @@ class Avatar extends Managed_DataObject
         return true;
     }
 
-    static protected $_avatars = array();
+    protected static $_avatars = [];
 
     /*
      * Get an avatar by profile. Currently can't call newSize with $height
@@ -93,7 +108,7 @@ class Avatar extends Managed_DataObject
         $size = "{$width}x{$height}";
         if (!isset(self::$_avatars[$target->id])) {
             self::$_avatars[$target->id] = array();
-        } elseif (isset(self::$_avatars[$target->id][$size])){
+        } elseif (isset(self::$_avatars[$target->id][$size])) {
             return self::$_avatars[$target->id][$size];
         }
 
@@ -137,7 +152,8 @@ class Avatar extends Managed_DataObject
         return $avatar;
     }
 
-    public static function getProfileAvatars(Profile $target) {
+    public static function getProfileAvatars(Profile $target)
+    {
         $avatar = new Avatar();
         $avatar->profile_id = $target->id;
         if (!$avatar->find()) {
@@ -149,7 +165,7 @@ class Avatar extends Managed_DataObject
     /**
      * Where should the avatar go for this user?
      */
-    static function filename($id, $extension, $size=null, $extra=null)
+    public static function filename($id, $extension, $size = null, $extra = null)
     {
         if ($size) {
             return $id . '-' . $size . (($extra) ? ('-' . $extra) : '') . $extension;
@@ -158,7 +174,7 @@ class Avatar extends Managed_DataObject
         }
     }
 
-    static function path($filename)
+    public static function path($filename)
     {
         $dir = common_config('avatar', 'dir');
 
@@ -169,7 +185,7 @@ class Avatar extends Managed_DataObject
         return $dir . $filename;
     }
 
-    static function url($filename)
+    public static function url($filename)
     {
         $path = common_config('avatar', 'path');
 
@@ -194,20 +210,21 @@ class Avatar extends Managed_DataObject
         return $protocol.'://'.$server.$path.$filename;
     }
 
-    function displayUrl()
+    public function displayUrl()
     {
         return Avatar::url($this->filename);
     }
 
-    static function urlByProfile(Profile $target, $width=null, $height=null) {
+    public static function urlByProfile(Profile $target, $width = null, $height = null)
+    {
         try {
-            return self::byProfile($target,  $width, $height)->displayUrl();
+            return self::byProfile($target, $width, $height)->displayUrl();
         } catch (Exception $e) {
             return self::defaultImage($width);
         }
     }
 
-    static function defaultImage($size=null)
+    public static function defaultImage($size = null)
     {
         if (is_null($size)) {
             $size = AVATAR_PROFILE_SIZE;
@@ -218,7 +235,8 @@ class Avatar extends Managed_DataObject
         return Theme::path('default-avatar-'.$sizenames[$size].'.png');
     }
 
-    static function newSize(Profile $target, $width) {
+    public static function newSize(Profile $target, $width)
+    {
         $width = intval($width);
         if ($width < 1 || $width > common_config('avatar', 'maxsize')) {
             // TRANS: An error message when avatar size is unreasonable
@@ -231,8 +249,12 @@ class Avatar extends Managed_DataObject
         $original = Avatar::getUploaded($target);
 
         $imagefile = new ImageFile(null, Avatar::path($original->filename));
-        $filename = Avatar::filename($target->getID(), image_type_to_extension($imagefile->preferredType()),
-                                     $width, common_timestamp());
+        $filename = Avatar::filename(
+            $target->getID(),
+            image_type_to_extension($imagefile->preferredType()),
+            $width,
+            common_timestamp()
+        );
         $imagefile->resizeTo(Avatar::path($filename), array('width'=>$width, 'height'=>$height));
 
         $scaled = clone($original);

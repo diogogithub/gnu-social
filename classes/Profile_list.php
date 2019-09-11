@@ -31,7 +31,7 @@ class Profile_list extends Managed_DataObject
     public $tagger;                          // int(4)
     public $tag;                             // varchar(64)
     public $description;                     // text
-    public $private;                         // tinyint(1)
+    public $private;                         // bool    default_false
     public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
     public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
     public $uri;                             // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
@@ -47,7 +47,7 @@ class Profile_list extends Managed_DataObject
                 'tagger' => array('type' => 'int', 'not null' => true, 'description' => 'user making the tag'),
                 'tag' => array('type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'people tag'),
                 'description' => array('type' => 'text', 'description' => 'description of the people tag'),
-                'private' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'is this tag private'),
+                'private' => array('type' => 'bool', 'default' => false, 'description' => 'is this tag private'),
 
                 'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the tag was added'),
                 'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date the tag was modified'),

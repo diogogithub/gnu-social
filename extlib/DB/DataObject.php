@@ -1787,11 +1787,26 @@ class DB_DataObject extends DB_DataObject_Overload
             // note: we dont declare this to keep the print_r size down.
             $_DB_DATAOBJECT['RESULTFIELDS'][$this->_DB_resultid] = array_flip(array_keys($array));
         }
+
+        $dbtype = $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]->dsn['phptype'];
+        if ($dbtype === 'pgsql') {
+            if (($_DB_DATAOBJECT['CONFIG']['db_driver'] ?? 'DB') === 'DB') {
+                $tableInfo = $result->tableInfo();
+            } elseif ($result->db->supports('result_introspection')) { // MDB2
+                $result->db->loadModule('Reverse', null, true);
+                $tableInfo = $result->db->reverse->tableInfo($result);
+            }
+        }
+
         $replace = array('.', ' ');
-        foreach ($array as $k => $v) {
+        foreach (array_keys($array) as $i => $k) {
             // use strpos as str_replace is slow.
             $kk = (strpos($k, '.') === false && strpos($k, ' ') === false) ?
                 $k : str_replace($replace, '_', $k);
+
+            if ($dbtype === 'pgsql' && $tableInfo[$i]['type'] == 'bool') {
+                $array[$k] = str_replace(['t', 'f'], ['1', '0'], $array[$k]);
+            }
 
             if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {
                 $this->debug("$kk = " . $array[$k], "fetchrow LINE", 3);
@@ -2949,11 +2964,26 @@ class DB_DataObject extends DB_DataObject_Overload
             $this->raiseError("fetchrow: No results available", DB_DATAOBJECT_ERROR_NODATA);
             return false;
         }
+
+        $dbtype = $_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5]->dsn['phptype'];
+        if ($dbtype === 'pgsql') {
+            if (($_DB_DATAOBJECT['CONFIG']['db_driver'] ?? 'DB') === 'DB') {
+                $tableInfo = $result->tableInfo();
+            } elseif ($result->db->supports('result_introspection')) { // MDB2
+                $result->db->loadModule('Reverse', null, true);
+                $tableInfo = $result->db->reverse->tableInfo($result);
+            }
+        }
+
         $replace = array('.', ' ');
-        foreach ($array as $k => $v) {
+        foreach (array_keys($array) as $i => $k) {
             // use strpos as str_replace is slow.
             $kk = (strpos($k, '.') === false && strpos($k, ' ') === false) ?
                 $k : str_replace($replace, '_', $k);
+
+            if ($dbtype === 'pgsql' && $tableInfo[$i]['type'] == 'bool') {
+                $array[$k] = str_replace(['t', 'f'], ['1', '0'], $array[$k]);
+            }
 
             if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {
                 $this->debug("$kk = " . $array[$k], "fetchrow LINE", 3);

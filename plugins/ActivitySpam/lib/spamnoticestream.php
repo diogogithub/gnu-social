@@ -1,52 +1,45 @@
 <?php
-/**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2012, StatusNet, Inc.
- *
- * Spam notice stream
- * 
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Spam
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
- * @copyright 2012 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
- */
-
-if (!defined('GNUSOCIAL')) { exit(1); }
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Spam notice stream
  *
  * @category  Spam
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2012 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
+defined('GNUSOCIAL') || die();
+
+/**
+ * Spam notice stream
+ *
+ * @copyright 2012 StatusNet, Inc.
+ * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
+ */
 class SpamNoticeStream extends ScopingNoticeStream
 {
-    function __construct(Profile $scoped=null)
+    public function __construct(Profile $scoped = null)
     {
-        parent::__construct(new CachingNoticeStream(new RawSpamNoticeStream(), 'spam_score:notice_ids'),
-                            $scoped);
+        parent::__construct(
+            new CachingNoticeStream(new RawSpamNoticeStream(), 'spam_score:notice_ids'),
+            $scoped
+        );
     }
 }
 
@@ -54,20 +47,16 @@ class SpamNoticeStream extends ScopingNoticeStream
  * Raw stream of spammy notices
  *
  * @category  Stream
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
  * @copyright 2011 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
  */
-
 class RawSpamNoticeStream extends NoticeStream
 {
-    function getNoticeIds($offset, $limit, $since_id, $max_id)
+    public function getNoticeIds($offset, $limit, $since_id, $max_id)
     {
         $ss = new Spam_score();
 
-        $ss->is_spam = 1;
+        $ss->is_spam = true;
 
         $ss->selectAdd();
         $ss->selectAdd('notice_id');

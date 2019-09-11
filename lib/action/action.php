@@ -1,36 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Base class for all actions (~views)
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Action
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
  * @copyright 2008 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Base class for all actions
@@ -41,14 +36,11 @@ if (!defined('GNUSOCIAL')) {
  * Actions are responsible for extracting and validating parameters; using
  * model classes to read and write to the database; and doing ouput.
  *
- * @category Output
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Sarven Capadisli <csarven@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Output
+ * @copyright 2008 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      HTMLOutputter
+ * @see       HTMLOutputter
  */
 class Action extends HTMLOutputter // lawsuit
 {
@@ -1564,19 +1556,6 @@ class Action extends HTMLOutputter // lawsuit
     public function showAnonymousMessage()
     {
         // needs to be defined by the class
-    }
-
-    /**
-     * This is a cheap hack to avoid a bug in DB_DataObject
-     * where '' is non-type-aware compared to 0, which means it
-     * will always be true for values like false and 0 too...
-     *
-     * Upstream bug is::
-     * https://pear.php.net/bugs/bug.php?id=20291
-     */
-    public function booleanintstring($key, $def = false)
-    {
-        return $this->boolean($key, $def) ? '1' : '0';
     }
 
     /**

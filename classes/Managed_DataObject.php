@@ -238,12 +238,15 @@ abstract class Managed_DataObject extends Memcached_DataObject
         }
 
         // Data type formatting style...
-        $formatStyles = array('blob' => DB_DATAOBJECT_BLOB,
-                              'text' => DB_DATAOBJECT_TXT,
-                              'date' => DB_DATAOBJECT_DATE,
-                              'time' => DB_DATAOBJECT_TIME,
-                              'datetime' => DB_DATAOBJECT_DATE | DB_DATAOBJECT_TIME,
-                              'timestamp' => DB_DATAOBJECT_MYSQLTIMESTAMP);
+        $formatStyles = [
+            'blob'      => DB_DATAOBJECT_BLOB,
+            'text'      => DB_DATAOBJECT_TXT,
+            'bool'      => DB_DATAOBJECT_BOOL,
+            'date'      => DB_DATAOBJECT_DATE,
+            'time'      => DB_DATAOBJECT_TIME,
+            'datetime'  => DB_DATAOBJECT_DATE | DB_DATAOBJECT_TIME,
+            'timestamp' => DB_DATAOBJECT_MYSQLTIMESTAMP,
+        ];
 
         if (isset($formatStyles[$type])) {
             $style |= $formatStyles[$type];

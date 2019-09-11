@@ -1,47 +1,36 @@
 <?php
-/**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
- * Revise an answer
- *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  QnA
- * @package   StatusNet
- * @author    Zach Copley <zach@status.net>
- * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
- */
-if (!defined('STATUSNET')) {
-    // This check helps protect against security problems;
-    // your code file can't be executed directly from the web.
-    exit(1);
-}
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Revise an answer
  *
  * @category  QnA
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
+
+defined('GNUSOCIAL') || die();
+
+/**
+ * Revise an answer
+ *
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class QnareviseanswerAction extends Action
 {
@@ -56,7 +45,7 @@ class QnareviseanswerAction extends Action
      *
      * @return string Action title
      */
-    function title()
+    public function title()
     {
         // TRANS: Page title for revising a question
         return _m('Revise answer');
@@ -70,7 +59,7 @@ class QnareviseanswerAction extends Action
      * @return boolean true
      * @throws ClientException
      */
-    function prepare(array $args = [])
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
         if ($this->boolean('ajax')) {
@@ -110,7 +99,7 @@ class QnareviseanswerAction extends Action
      *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
 
@@ -119,7 +108,7 @@ class QnareviseanswerAction extends Action
             if ($this->arg('revise')) {
                 $this->showContent();
                 return;
-            } else if ($this->arg('best')) {
+            } elseif ($this->arg('best')) {
                 if ($this->user->id == $this->question->profile_id) {
                     $this->markBest();
                     return;
@@ -138,7 +127,7 @@ class QnareviseanswerAction extends Action
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         if (!empty($this->error)) {
             $this->element('p', 'error', $this->error);
@@ -154,7 +143,7 @@ class QnareviseanswerAction extends Action
         return;
     }
 
-    function showAjaxReviseForm()
+    public function showAjaxReviseForm()
     {
         $this->startHTML('text/xml;charset=utf-8');
         $this->elementStart('head');
@@ -173,7 +162,7 @@ class QnareviseanswerAction extends Action
      *
      * @return void
      */
-    function markBest()
+    public function markBest()
     {
         $question = $this->question;
         $answer = $this->answer;
@@ -181,12 +170,12 @@ class QnareviseanswerAction extends Action
         try {
             // close the question to further answers
             $orig = clone($question);
-            $question->closed = 1;
+            $question->closed = true;
             $result = $question->update($orig);
 
             // mark this answer an the best answer
             $orig = clone($answer);
-            $answer->best = 1;
+            $answer->best = true;
             $result = $answer->update($orig);
         } catch (ClientException $ce) {
             $this->error = $ce->getMessage();
@@ -215,7 +204,7 @@ class QnareviseanswerAction extends Action
      *
      * @return void
      */
-    function reviseAnswer()
+    public function reviseAnswer()
     {
         $answer = $this->answer;
 
@@ -255,7 +244,7 @@ class QnareviseanswerAction extends Action
      *
      * @return boolean is read only action?
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET' ||
             $_SERVER['REQUEST_METHOD'] == 'HEAD') {

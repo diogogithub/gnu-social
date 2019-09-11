@@ -295,11 +295,11 @@ class EmailsettingsAction extends SettingsAction
     public function savePreferences()
     {
         if (Event::handle('StartEmailSaveForm', array($this, $this->scoped))) {
-            $emailnotifysub   = $this->booleanintstring('emailnotifysub');
-            $emailnotifymsg   = $this->booleanintstring('emailnotifymsg');
-            $emailnotifynudge = $this->booleanintstring('emailnotifynudge');
-            $emailnotifyattn  = $this->booleanintstring('emailnotifyattn');
-            $emailpost        = $this->booleanintstring('emailpost');
+            $emailnotifysub   = $this->boolean('emailnotifysub');
+            $emailnotifymsg   = $this->boolean('emailnotifymsg');
+            $emailnotifynudge = $this->boolean('emailnotifynudge');
+            $emailnotifyattn  = $this->boolean('emailnotifyattn');
+            $emailpost        = $this->boolean('emailpost');
 
             $user = $this->scoped->getUser();
             $user->query('BEGIN');
@@ -459,7 +459,7 @@ class EmailsettingsAction extends SettingsAction
 
         $orig = clone($user);
         $user->incomingemail = DB_DataObject_Cast::sql('NULL');
-        $user->emailpost = 0;
+        $user->emailpost = false;
         // Throws exception on failure. Also performs it within a transaction.
         $user->updateWithKeys($orig);
 
@@ -477,7 +477,7 @@ class EmailsettingsAction extends SettingsAction
         $user = common_current_user();
         $orig = clone($user);
         $user->incomingemail = mail_new_incoming_address();
-        $user->emailpost = 1;
+        $user->emailpost = true;
         // Throws exception on failure. Also performs it within a transaction.
         $user->updateWithKeys($orig);
 

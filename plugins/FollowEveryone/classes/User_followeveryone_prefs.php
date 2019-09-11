@@ -1,35 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Data class for counting greetings
  *
- * PHP version 5
- *
- * @category Data
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * @category  Data
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2009, StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
 
@@ -44,19 +39,17 @@ require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
  * extension of DB_DataObject that provides caching, internationalization,
  * and other bits of good functionality to StatusNet-specific data classes.
  *
- * @category Action
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @category  Action
+ * @copyright 2009, StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      DB_DataObject
+ * @see       DB_DataObject
  */
 class User_followeveryone_prefs extends Managed_DataObject
 {
     public $__table = 'user_followeveryone_prefs'; // table name
     public $user_id;                               // int(4)  primary_key not_null
-    public $followeveryone;                        // tinyint(1)
+    public $followeveryone;                        // bool         default_true
     public $created;                               // datetime()   not_null
     public $modified;                              // timestamp()   not_null default_CURRENT_TIMESTAMP
 
@@ -65,7 +58,7 @@ class User_followeveryone_prefs extends Managed_DataObject
         return array(
             'fields' => array(
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'user id'),
-                'followeveryone' => array('type' => 'int', 'default' => 1, 'size' => 'tiny', 'description' => 'whether to follow everyone'),
+                'followeveryone' => array('type' => 'bool', 'default' => true, 'description' => 'whether to follow everyone'),
                 'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
                 'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
@@ -76,7 +69,7 @@ class User_followeveryone_prefs extends Managed_DataObject
         );
     }
 
-    static function followEveryone($user_id)
+    public static function followEveryone($user_id)
     {
         $ufep = self::getKV('user_id', $user_id);
 
@@ -87,7 +80,7 @@ class User_followeveryone_prefs extends Managed_DataObject
         }
     }
 
-    static function savePref($user_id, $followEveryone)
+    public static function savePref($user_id, $followEveryone)
     {
         $ufep = self::getKV('user_id', $user_id);
 
