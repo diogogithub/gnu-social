@@ -1,28 +1,29 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
+ * @copyright 2008-2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Table Definition for file_thumbnail
  */
-
 class File_thumbnail extends Managed_DataObject
 {
     public $__table = 'file_thumbnail';                  // table name
@@ -44,8 +45,8 @@ class File_thumbnail extends Managed_DataObject
                 'urlhash' => array('type' => 'varchar', 'length' => 64, 'description' => 'sha256 of url field if non-empty'),
                 'url' => array('type' => 'text', 'description' => 'URL of thumbnail'),
                 'filename' => array('type' => 'text', 'description' => 'if stored locally, filename is put here'),
-                'width' => array('type' => 'int', 'description' => 'width of thumbnail'),
-                'height' => array('type' => 'int', 'description' => 'height of thumbnail'),
+                'width' => array('type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'),
+                'height' => array('type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'),
                 'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
             'primary key' => array('file_id', 'width', 'height'),
@@ -65,21 +66,26 @@ class File_thumbnail extends Managed_DataObject
      * @param object $data
      * @param int $file_id
      */
-    public static function saveNew($data, $file_id) {
+    public static function saveNew($data, $file_id)
+    {
         if (!empty($data->thumbnail_url)) {
             // Non-photo types such as video will usually
             // show us a thumbnail, though it's not required.
-            self::saveThumbnail($file_id,
-                                $data->thumbnail_url,
-                                $data->thumbnail_width,
-                                $data->thumbnail_height);
-        } else if ($data->type == 'photo') {
+            self::saveThumbnail(
+                $file_id,
+                $data->thumbnail_url,
+                $data->thumbnail_width,
+                $data->thumbnail_height
+            );
+        } elseif ($data->type == 'photo') {
             // The inline photo URL given should also fit within
             // our requested thumbnail size, per oEmbed spec.
-            self::saveThumbnail($file_id,
-                                $data->url,
-                                $data->width,
-                                $data->height);
+            self::saveThumbnail(
+                $file_id,
+                $data->url,
+                $data->width,
+                $data->height
+            );
         }
     }
 
@@ -92,7 +98,8 @@ class File_thumbnail extends Managed_DataObject
      * @return  File_thumbnail
      * @throws  NoResultException if no File_thumbnail matched the criteria
      */
-    static function byFile(File $file, $notNullUrl=true) {
+    public static function byFile(File $file, $notNullUrl = true)
+    {
         $thumb = new File_thumbnail();
         $thumb->file_id = $file->getID();
         if ($notNullUrl) {
@@ -116,7 +123,7 @@ class File_thumbnail extends Managed_DataObject
      * @param int $width
      * @param int $height
      */
-    static function saveThumbnail($file_id, $url, $width, $height, $filename=null)
+    public static function saveThumbnail($file_id, $url, $width, $height, $filename = null)
     {
         $tn = new File_thumbnail;
         $tn->file_id = $file_id;
@@ -128,7 +135,7 @@ class File_thumbnail extends Managed_DataObject
         return $tn;
     }
 
-    static function path($filename)
+    public static function path($filename)
     {
         File::tryFilename($filename);
 
@@ -142,7 +149,7 @@ class File_thumbnail extends Managed_DataObject
         return $dir . $filename;
     }
 
-    static function url($filename)
+    public static function url($filename)
     {
         File::tryFilename($filename);
 
@@ -276,7 +283,7 @@ class File_thumbnail extends Managed_DataObject
         return $this->file_id;
     }
 
-    static public function hashurl($url)
+    public static function hashurl($url)
     {
         if (!mb_strlen($url)) {
             throw new Exception('No URL provided to hash algorithm.');
