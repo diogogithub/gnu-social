@@ -17,9 +17,9 @@
 /**
  * Database schema for MariaDB
  *
- * @category Database
- * @package  GNUsocial
- * @author   Evan Prodromou <evan@status.net>
+ * @category  Database
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
  * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -38,8 +38,7 @@ defined('GNUSOCIAL') || die();
  */
 class MysqlSchema extends Schema
 {
-    static $_single = null;
-    protected $conn = null;
+    public static $_single = null;
 
     /**
      * Main public entry point. Use this to get
@@ -48,8 +47,7 @@ class MysqlSchema extends Schema
      * @param null $conn
      * @return Schema the (single) Schema object
      */
-
-    static function get($conn = null)
+    public static function get($conn = null)
     {
         if (empty(self::$_single)) {
             self::$_single = new Schema($conn);
@@ -69,7 +67,6 @@ class MysqlSchema extends Schema
      * @throws PEAR_Exception
      * @throws SchemaTableMissingException
      */
-
     public function getTableDef($table)
     {
         $def = [];
@@ -82,7 +79,6 @@ class MysqlSchema extends Schema
         }
 
         foreach ($columns as $row) {
-
             $name = $row['COLUMN_NAME'];
             $field = [];
 
@@ -166,9 +162,9 @@ class MysqlSchema extends Schema
 
                 if ($name == 'PRIMARY') {
                     $type = 'primary key';
-                } else if ($row['Non_unique'] == 0) {
+                } elseif ($row['Non_unique'] == 0) {
                     $type = 'unique keys';
-                } else if ($row['Index_type'] == 'FULLTEXT') {
+                } elseif ($row['Index_type'] === 'FULLTEXT') {
                     $type = 'fulltext indexes';
                 } else {
                     $type = 'indexes';
@@ -198,8 +194,7 @@ class MysqlSchema extends Schema
      * @throws PEAR_Exception
      * @throws SchemaTableMissingException
      */
-
-    function getTableProperties($table, $props)
+    public function getTableProperties($table, $props)
     {
         $data = $this->fetchMetaInfo($table, 'TABLES');
         if ($data) {
@@ -218,7 +213,7 @@ class MysqlSchema extends Schema
      * @return array of arrays
      * @throws PEAR_Exception
      */
-    function fetchMetaInfo($table, $infoTable, $orderBy = null)
+    public function fetchMetaInfo($table, $infoTable, $orderBy = null)
     {
         $query = "SELECT * FROM INFORMATION_SCHEMA.%s " .
             "WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'";
@@ -237,7 +232,7 @@ class MysqlSchema extends Schema
      * @return array of arrays
      * @throws PEAR_Exception
      */
-    function fetchIndexInfo($table)
+    public function fetchIndexInfo($table)
     {
         $query = "SHOW INDEX FROM `%s`";
         $sql = sprintf($query, $table);
@@ -253,7 +248,7 @@ class MysqlSchema extends Schema
      * @param string $name
      * @param array $def
      */
-    function appendCreateFulltextIndex(array &$statements, $table, $name, array $def)
+    public function appendCreateFulltextIndex(array &$statements, $table, $name, array $def)
     {
         $statements[] = "CREATE FULLTEXT INDEX $name ON $table " . $this->buildIndexList($def);
     }
@@ -266,13 +261,13 @@ class MysqlSchema extends Schema
      * @return string;
      *
      */
-    function endCreateTable($name, array $def)
+    public function endCreateTable($name, array $def)
     {
         $engine = $this->preferredEngine($def);
         return ") ENGINE=$engine CHARACTER SET utf8mb4 COLLATE utf8mb4_bin";
     }
 
-    function preferredEngine($def)
+    public function preferredEngine($def)
     {
         /* MyISAM is no longer required for fulltext indexes, fortunately
         if (!empty($def['fulltext indexes'])) {
@@ -288,7 +283,7 @@ class MysqlSchema extends Schema
      * @param $columnName
      * @return string
      */
-    function _uniqueKey($tableName, $columnName)
+    public function _uniqueKey($tableName, $columnName)
     {
         return $this->_key($tableName, $columnName);
     }
@@ -299,7 +294,7 @@ class MysqlSchema extends Schema
      * @param $columnName
      * @return string
      */
-    function _key($tableName, $columnName)
+    public function _key($tableName, $columnName)
     {
         return "{$tableName}_{$columnName}_idx";
     }
@@ -310,7 +305,7 @@ class MysqlSchema extends Schema
      *
      * @param array $phrase
      */
-    function appendAlterDropPrimary(array &$phrase)
+    public function appendAlterDropPrimary(array &$phrase)
     {
         $phrase[] = 'DROP PRIMARY KEY';
     }
@@ -322,7 +317,7 @@ class MysqlSchema extends Schema
      * @param array $phrase
      * @param string $keyName MySQL
      */
-    function appendAlterDropUnique(array &$phrase, $keyName)
+    public function appendAlterDropUnique(array &$phrase, $keyName)
     {
         $phrase[] = 'DROP INDEX ' . $keyName;
     }
@@ -335,7 +330,7 @@ class MysqlSchema extends Schema
      * @param array $def
      * @throws Exception
      */
-    function appendAlterExtras(array &$phrase, $tableName, array $def)
+    public function appendAlterExtras(array &$phrase, $tableName, array $def)
     {
         // Check for table properties: make sure we're using a sane
         // engine type and charset/collation.
@@ -370,15 +365,15 @@ class MysqlSchema extends Schema
      * Appropriate for use in CREATE TABLE or
      * ALTER TABLE statements.
      *
+     * @param string $name column name to create
      * @param array $cd column to create
      *
      * @return string correct SQL for that column
      */
-
-    function columnSql(array $cd)
+    public function columnSql(string $name, array $cd)
     {
         $line = [];
-        $line[] = parent::columnSql($cd);
+        $line[] = parent::columnSql($name, $cd);
 
         // This'll have been added from our transform of 'serial' type
         if (!empty($cd['auto_increment'])) {
@@ -393,7 +388,7 @@ class MysqlSchema extends Schema
         return implode(' ', $line);
     }
 
-    function mapType($column)
+    public function mapType($column)
     {
         $map = [
             'integer' => 'int',
@@ -411,7 +406,7 @@ class MysqlSchema extends Schema
             if ($type == 'int' &&
                 in_array($size, ['tiny', 'small', 'medium', 'big'])) {
                 $type = $size . $type;
-            } else if (in_array($type, ['blob', 'text']) &&
+            } elseif (in_array($type, ['blob', 'text']) &&
                 in_array($size, ['tiny', 'medium', 'long'])) {
                 $type = $size . $type;
             }
@@ -420,13 +415,15 @@ class MysqlSchema extends Schema
         return $type;
     }
 
-    function typeAndSize($column)
+    public function typeAndSize(string $name, array $column)
     {
-        if ($column['type'] == 'enum') {
-            $vals = array_map([$this, 'quote'], $column['enum']);
+        if ($column['type'] === 'enum') {
+            foreach ($column['enum'] as &$val) {
+                $vals[] = "'" . $val . "'";
+            }
             return 'enum(' . implode(',', $vals) . ')';
-        } else if ($this->_isString($column)) {
-            $col = parent::typeAndSize($column);
+        } elseif ($this->_isString($column)) {
+            $col = parent::typeAndSize($name, $column);
             if (!empty($column['charset'])) {
                 $col .= ' CHARSET ' . $column['charset'];
             }
@@ -435,7 +432,7 @@ class MysqlSchema extends Schema
             }
             return $col;
         } else {
-            return parent::typeAndSize($column);
+            return parent::typeAndSize($name, $column);
         }
     }
 
@@ -449,7 +446,7 @@ class MysqlSchema extends Schema
      * @param array $tableDef
      * @return array
      */
-    function filterDef(array $tableDef)
+    public function filterDef(array $tableDef)
     {
         $version = $this->conn->getVersion();
         foreach ($tableDef['fields'] as $name => &$col) {

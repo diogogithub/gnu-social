@@ -40,7 +40,6 @@ defined('GNUSOCIAL') || die();
  */
 class PgsqlSchema extends Schema
 {
-
     /**
      * Returns a table definition array for the table
      * in the schema with the given name.
@@ -277,15 +276,15 @@ class PgsqlSchema extends Schema
      * Appropriate for use in CREATE TABLE or
      * ALTER TABLE statements.
      *
+     * @param string $name column name to create
      * @param array $cd column to create
      *
      * @return string correct SQL for that column
      */
-
-    public function columnSql(array $cd)
+    public function columnSql(string $name, array $cd)
     {
         $line = [];
-        $line[] = parent::columnSql($cd);
+        $line[] = parent::columnSql($name, $cd);
 
         /*
         if ($table['foreign keys'][$name]) {
@@ -296,6 +295,13 @@ class PgsqlSchema extends Schema
             }
         }
         */
+
+        if (!empty($cd['enum'])) {
+            foreach($cd['enum'] as &$val) {
+                $vals[] = "'" . $val . "'";
+            }
+            $line[] = 'CHECK (' . $name . ' IN (' . implode(',', $vals) . '))';
+         }
 
         return implode(' ', $line);
     }
@@ -313,8 +319,8 @@ class PgsqlSchema extends Schema
     {
         $prefix = 'ALTER COLUMN ' . $this->quoteIdentifier($columnName) . ' ';
 
-        $oldType = $this->mapType($old);
-        $newType = $this->mapType($cd);
+        $oldType = $this->typeAndSize($columnName, $old);
+        $newType = $this->typeAndSize($columnName, $cd);
         if ($oldType != $newType) {
             $phrase[] = $prefix . 'TYPE ' . $newType;
         }
@@ -353,6 +359,7 @@ class PgsqlSchema extends Schema
             'numeric'  => 'decimal',
             'datetime' => 'timestamp',
             'blob'     => 'bytea',
+            'enum'     => 'text',
         ];
 
         $type = $column['type'];
@@ -373,17 +380,6 @@ class PgsqlSchema extends Schema
         }
 
         return $type;
-    }
-
-    // @fixme need name... :P
-    public function typeAndSize($column)
-    {
-        if ($column['type'] == 'enum') {
-            $vals = array_map([$this, 'quote'], $column['enum']);
-            return "text check ($name in " . implode(',', $vals) . ')';
-        } else {
-            return parent::typeAndSize($column);
-        }
     }
 
     /**
