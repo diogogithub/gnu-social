@@ -1,9 +1,26 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('GNUSOCIAL') || die();
+
+require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+
 /**
  * Table Definition for oauth_application_user
  */
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
-
 class Oauth_application_user extends Managed_DataObject
 {
     ###START_AUTOCODE
@@ -39,7 +56,7 @@ class Oauth_application_user extends Managed_DataObject
         );
     }
 
-    static function getByUserAndToken($user, $token)
+    public static function getByUserAndToken($user, $token)
     {
         if (empty($user) || empty($token)) {
             return null;
@@ -56,7 +73,7 @@ class Oauth_application_user extends Managed_DataObject
         return empty($result) ? null : $oau;
     }
 
-    function updateKeys(&$orig)
+    public function updateKeys(&$orig)
     {
         $this->_connect();
         $parts = array();
@@ -72,13 +89,11 @@ class Oauth_application_user extends Managed_DataObject
         $toupdate = implode(', ', $parts);
 
         $table = $this->tableName();
-        if(common_config('db','quote_identifiers')) {
-            $table = '"' . $table . '"';
-        }
-        $qry = 'UPDATE ' . $table . ' SET ' . $toupdate .
-          ' WHERE profile_id = ' . $orig->profile_id
-          . ' AND application_id = ' . $orig->application_id
-          . " AND token = '$orig->token'";
+        $tableName = $this->escapedTableName();
+        $qry = 'UPDATE ' . $tableName . ' SET ' . $toupdate .
+            ' WHERE profile_id = ' . $orig->profile_id .
+            ' AND application_id = ' . $orig->application_id .
+            " AND token = '" . $orig->token . "'";
         $orig->decache();
         $result = $this->query($qry);
         if ($result) {

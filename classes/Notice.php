@@ -1,40 +1,39 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008-2011 StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
- *
- * @category Notices
- * @package  StatusNet
- * @author   Brenda Wallace <shiny@cpan.org>
- * @author   Christopher Vollick <psycotica0@gmail.com>
- * @author   CiaranG <ciaran@ciarang.com>
- * @author   Craig Andrews <candrews@integralblue.com>
- * @author   Evan Prodromou <evan@controlezvous.ca>
- * @author   Gina Haeussge <osd@foosel.net>
- * @author   Jeffery To <jeffery.to@gmail.com>
- * @author   Mike Cochrane <mikec@mikenz.geek.nz>
- * @author   Robin Millette <millette@controlyourself.ca>
- * @author   Sarven Capadisli <csarven@controlyourself.ca>
- * @author   Tom Adams <tom@holizz.com>
- * @author   Mikael Nordfeldth <mmn@hethane.se>
+ * @category  Notices
+ * @package   GNUsocial
+ * @author    Brenda Wallace <shiny@cpan.org>
+ * @author    Christopher Vollick <psycotica0@gmail.com>
+ * @author    CiaranG <ciaran@ciarang.com>
+ * @author    Craig Andrews <candrews@integralblue.com>
+ * @author    Evan Prodromou <evan@controlezvous.ca>
+ * @author    Gina Haeussge <osd@foosel.net>
+ * @author    Jeffery To <jeffery.to@gmail.com>
+ * @author    Mike Cochrane <mikec@mikenz.geek.nz>
+ * @author    Robin Millette <millette@controlyourself.ca>
+ * @author    Sarven Capadisli <csarven@controlyourself.ca>
+ * @author    Tom Adams <tom@holizz.com>
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2009 Free Software Foundation, Inc http://www.fsf.org
- * @license  GNU Affero General Public License http://www.gnu.org/licenses/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Table Definition for notice
@@ -171,8 +170,8 @@ class Notice extends Managed_DataObject
 
         $result = null;
         if (!$delete_event || Event::handle('DeleteNoticeAsProfile', array($this, $actor, &$result))) {
-            // If $delete_event is true, we run the event. If the Event then 
-            // returns false it is assumed everything was handled properly 
+            // If $delete_event is true, we run the event. If the Event then
+            // returns false it is assumed everything was handled properly
             // and the notice was deleted.
             $result = $this->delete();
         }
@@ -215,7 +214,7 @@ class Notice extends Managed_DataObject
      *
      * @param string $uri A unique identifier for a resource (notice in this case)
      */
-    static function fromUri($uri)
+    public static function fromUri($uri)
     {
         $notice = null;
 
@@ -255,9 +254,11 @@ class Notice extends Managed_DataObject
         if (Event::handle('GetNoticeTitle', array($this, &$title)) && $imply) {
             // TRANS: Title of a notice posted without a title value.
             // TRANS: %1$s is a user name, %2$s is the notice creation date/time.
-            $title = sprintf(_('%1$s\'s status on %2$s'),
-                             $this->getProfile()->getFancyName(),
-                             common_exact_date($this->created));
+            $title = sprintf(
+                _('%1$s\'s status on %2$s'),
+                $this->getProfile()->getFancyName(),
+                common_exact_date($this->created)
+            );
         }
         return $title;
     }
@@ -274,9 +275,11 @@ class Notice extends Managed_DataObject
             // update to include rendered content on-the-fly, so we don't have to have a fix-up script in upgrade.php
             common_debug('Rendering notice '.$this->getID().' as it had no rendered HTML content.');
             $orig = clone($this);
-            $this->rendered = common_render_content($this->getContent(),
-                                                    $this->getProfile(),
-                                                    $this->hasParent() ? $this->getParent() : null);
+            $this->rendered = common_render_content(
+                $this->getContent(),
+                $this->getProfile(),
+                ($this->hasParent() ? $this->getParent() : null)
+            );
             $this->update($orig);
         }
         return $this->rendered;
@@ -336,7 +339,8 @@ class Notice extends Managed_DataObject
         return $selfLink;
     }
 
-    public function getObjectType($canonical=false) {
+    public function getObjectType($canonical = false)
+    {
         if (is_null($this->object_type) || $this->object_type==='') {
             throw new NoObjectTypeException($this);
         }
@@ -355,7 +359,7 @@ class Notice extends Managed_DataObject
     /**
      * Extract #hashtags from this notice's content and save them to the database.
      */
-    function saveTags()
+    public function saveTags()
     {
         /* extract all #hastags */
         $count = preg_match_all('/(?:^|\s)#([\pL\pN_\-\.]{1,64})/u', strtolower($this->content), $match);
@@ -371,16 +375,16 @@ class Notice extends Managed_DataObject
      * Record the given set of hash tags in the db for this notice.
      * Given tag strings will be normalized and checked for dupes.
      */
-    function saveKnownTags($hashtags)
+    public function saveKnownTags($hashtags)
     {
         //turn each into their canonical tag
         //this is needed to remove dupes before saving e.g. #hash.tag = #hashtag
-        for($i=0; $i<count($hashtags); $i++) {
+        for ($i = 0; $i < count($hashtags); ++$i) {
             /* elide characters we don't want in the tag */
             $hashtags[$i] = common_canonical_tag($hashtags[$i]);
         }
 
-        foreach(array_unique($hashtags) as $hashtag) {
+        foreach (array_unique($hashtags) as $hashtag) {
             $this->saveTag($hashtag);
             self::blow('profile:notice_ids_tagged:%d:%s', $this->profile_id, $hashtag);
         }
@@ -391,7 +395,7 @@ class Notice extends Managed_DataObject
      * Record a single hash tag as associated with this notice.
      * Tag format and uniqueness must be validated by caller.
      */
-    function saveTag($hashtag)
+    public function saveTag($hashtag)
     {
         $tag = new Notice_tag();
         $tag->notice_id = $this->id;
@@ -401,8 +405,10 @@ class Notice extends Managed_DataObject
 
         if (!$id) {
             // TRANS: Server exception. %s are the error details.
-            throw new ServerException(sprintf(_('Database error inserting hashtag: %s.'),
-                                              $last_error->message));
+            throw new ServerException(sprintf(
+                _('Database error inserting hashtag: %s.'),
+                $last_error->message
+            ));
             return;
         }
 
@@ -455,7 +461,8 @@ class Notice extends Managed_DataObject
      * @return Notice
      * @throws ClientException
      */
-    static function saveNew($profile_id, $content, $source, array $options=null) {
+    public static function saveNew($profile_id, $content, $source, array $options = null)
+    {
         $defaults = array('uri' => null,
                           'url' => null,
                           'self' => null,
@@ -602,8 +609,11 @@ class Notice extends Managed_DataObject
                 if (!$reply->inScope($profile)) {
                     // TRANS: Client error displayed when trying to reply to a notice a the target has no access to.
                     // TRANS: %1$s is a user nickname, %2$d is a notice ID (number).
-                    throw new ClientException(sprintf(_('%1$s has no access to notice %2$d.'),
-                                                      $profile->nickname, $reply->id), 403);
+                    throw new ClientException(sprintf(
+                        _('%1$s has no access to notice %2$d.'),
+                        $profile->nickname,
+                        $reply->id
+                    ), 403);
                 }
 
                 // If it's a repeat, the reply_to should be to the original
@@ -676,9 +686,11 @@ class Notice extends Managed_DataObject
         if (!empty($rendered)) {
             $notice->rendered = $rendered;
         } else {
-            $notice->rendered = common_render_content($final,
-                                                      $notice->getProfile(),
-                                                      $notice->hasParent() ? $notice->getParent() : null);
+            $notice->rendered = common_render_content(
+                $final,
+                $notice->getProfile(),
+                ($notice->hasParent() ? $notice->getParent() : null)
+            );
         }
 
         if (empty($verb)) {
@@ -769,7 +781,7 @@ class Notice extends Managed_DataObject
         return $notice;
     }
 
-    static function saveActivity(Activity $act, Profile $actor, array $options=array())
+    public static function saveActivity(Activity $act, Profile $actor, array $options = [])
     {
         // First check if we're going to let this Activity through from the specific actor
         if (!$actor->hasRight(Right::NEWNOTICE)) {
@@ -1065,7 +1077,6 @@ class Notice extends Managed_DataObject
         // the activityverb is a POST (since stuff like repeat, favorite etc.
         // reasonably handle notifications themselves.
         if (ActivityUtils::compareVerbs($stored->verb, array(ActivityVerb::POST))) {
-
             if (!empty($tags)) {
                 $stored->saveKnownTags($tags);
             } else {
@@ -1091,7 +1102,8 @@ class Notice extends Managed_DataObject
         return $stored;
     }
 
-    static public function figureOutScope(Profile $actor, array $groups, $scope=null) {
+    public static function figureOutScope(Profile $actor, array $groups, $scope = null)
+    {
         $scope = is_null($scope) ? self::defaultScope() : intval($scope);
 
         // For private streams
@@ -1121,7 +1133,7 @@ class Notice extends Managed_DataObject
         return $scope;
     }
 
-    function blowOnInsert($conversation = false)
+    public function blowOnInsert($conversation = false)
     {
         $this->blowStream('profile:notice_ids:%d', $this->profile_id);
 
@@ -1166,7 +1178,7 @@ class Notice extends Managed_DataObject
      * Clear cache entries related to this notice at delete time.
      * Necessary to avoid breaking paging on public, profile timelines.
      */
-    function blowOnDelete()
+    public function blowOnDelete()
     {
         $this->blowOnInsert();
 
@@ -1190,7 +1202,7 @@ class Notice extends Managed_DataObject
         }
     }
 
-    function blowStream()
+    public function blowStream()
     {
         $c = self::memcache();
 
@@ -1229,7 +1241,8 @@ class Notice extends Managed_DataObject
      *
      * @return void
      */
-    function saveUrls() {
+    public function saveUrls()
+    {
         if (common_config('attachments', 'process_links')) {
             common_replace_urls_callback($this->content, array($this, 'saveUrl'), $this);
         }
@@ -1243,7 +1256,7 @@ class Notice extends Managed_DataObject
      *
      * @return void
      */
-    function saveKnownUrls($urls)
+    public function saveKnownUrls($urls)
     {
         if (common_config('attachments', 'process_links')) {
             // @fixme validation?
@@ -1256,7 +1269,8 @@ class Notice extends Managed_DataObject
     /**
      * @private callback
      */
-    function saveUrl($url, Notice $notice) {
+    public function saveUrl($url, Notice $notice)
+    {
         try {
             File::processNew($url, $notice);
         } catch (ServerException $e) {
@@ -1264,7 +1278,8 @@ class Notice extends Managed_DataObject
         }
     }
 
-    static function checkDupes($profile_id, $content) {
+    public static function checkDupes($profile_id, $content)
+    {
         $profile = Profile::getKV($profile_id);
         if (!$profile instanceof Profile) {
             return false;
@@ -1275,7 +1290,7 @@ class Notice extends Managed_DataObject
             while ($notice->fetch()) {
                 if (time() - strtotime($notice->created) >= common_config('site', 'dupelimit')) {
                     return true;
-                } else if ($notice->content == $content) {
+                } elseif ($notice->content === $content) {
                     return false;
                 }
             }
@@ -1292,7 +1307,8 @@ class Notice extends Managed_DataObject
         return ($cnt == 0);
     }
 
-    static function checkEditThrottle($profile_id) {
+    public static function checkEditThrottle($profile_id)
+    {
         $profile = Profile::getKV($profile_id);
         if (!$profile instanceof Profile) {
             return false;
@@ -1310,34 +1326,35 @@ class Notice extends Managed_DataObject
         return true;
     }
 
-	protected $_attachments = array();
+    protected $_attachments = [];
 
-    function attachments() {
-		if (isset($this->_attachments[$this->id])) {
+    public function attachments()
+    {
+        if (isset($this->_attachments[$this->id])) {
             return $this->_attachments[$this->id];
         }
 
         $f2ps = File_to_post::listGet('post_id', array($this->id));
-		$ids = array();
-		foreach ($f2ps[$this->id] as $f2p) {
+        $ids = [];
+        foreach ($f2ps[$this->id] as $f2p) {
             $ids[] = $f2p->file_id;
         }
 
         return $this->_setAttachments(File::multiGet('id', $ids)->fetchAll());
     }
 
-	public function _setAttachments(array $attachments)
-	{
-	    return $this->_attachments[$this->id] = $attachments;
-	}
+    public function _setAttachments(array $attachments)
+    {
+        return $this->_attachments[$this->id] = $attachments;
+    }
 
-    static function publicStream($offset=0, $limit=20, $since_id=null, $max_id=null)
+    public static function publicStream($offset = 0, $limit = 20, $since_id = null, $max_id = null)
     {
         $stream = new PublicNoticeStream();
         return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 
-    static function conversationStream($id, $offset=0, $limit=20, $since_id=null, $max_id=null, Profile $scoped=null)
+    public static function conversationStream($id, $offset = 0, $limit = 20, $since_id = null, $max_id = null, Profile $scoped = null)
     {
         $stream = new ConversationNoticeStream($id, $scoped);
         return $stream->getNotices($offset, $limit, $since_id, $max_id);
@@ -1349,7 +1366,7 @@ class Notice extends Managed_DataObject
      * @return boolean true if other messages exist in the same
      *                 conversation, false if this is the only one
      */
-    function hasConversation()
+    public function hasConversation()
     {
         if (empty($this->conversation)) {
             // this notice is not part of a conversation apparently
@@ -1370,7 +1387,7 @@ class Notice extends Managed_DataObject
      *
      * @return Notice or null
      */
-    function conversationRoot($profile=-1)
+    public function conversationRoot($profile = -1)
     {
         // XXX: can this happen?
 
@@ -1405,9 +1422,11 @@ class Notice extends Managed_DataObject
         if (is_null($profile)) {
             $keypart = sprintf('notice:conversation_root:%d:null', $this->id);
         } else {
-            $keypart = sprintf('notice:conversation_root:%d:%d',
-                               $this->id,
-                               $profile->id);
+            $keypart = sprintf(
+                'notice:conversation_root:%d:%d',
+                $this->id,
+                $profile->id
+            );
         }
 
         $root = self::cacheGet($keypart);
@@ -1452,7 +1471,7 @@ class Notice extends Managed_DataObject
      *              if left empty, will be loaded from reply records
      * @return array associating recipient user IDs with an inbox source constant
      */
-    function whoGets(array $groups=null, array $recipients=null)
+    public function whoGets(array $groups = null, array $recipients = null)
     {
         $c = self::memcache();
 
@@ -1471,7 +1490,6 @@ class Notice extends Managed_DataObject
 
         // Give plugins a chance to add folks in at start...
         if (Event::handle('StartNoticeWhoGets', array($this, &$ni))) {
-
             $users = $this->getSubscribedUsers();
             foreach ($users as $id) {
                 $ni[$id] = NOTICE_INBOX_SOURCE_SUB;
@@ -1539,23 +1557,19 @@ class Notice extends Managed_DataObject
         return $ni;
     }
 
-    function getSubscribedUsers()
+    public function getSubscribedUsers()
     {
         $user = new User();
 
-        if(common_config('db','quote_identifiers'))
-          $user_table = '"user"';
-        else $user_table = 'user';
+        $user->query(sprintf(
+            'SELECT id FROM %1$s INNER JOIN subscription ' .
+            'ON %1$s.id = subscription.subscriber ' .
+            'WHERE subscription.subscribed = %2$d ',
+            $user->escapedTableName(),
+            $this->profile_id
+        ));
 
-        $qry =
-          'SELECT id ' .
-          'FROM '. $user_table .' JOIN subscription '.
-          'ON '. $user_table .'.id = subscription.subscriber ' .
-          'WHERE subscription.subscribed = %d ';
-
-        $user->query(sprintf($qry, $this->profile_id));
-
-        $ids = array();
+        $ids = [];
 
         while ($user->fetch()) {
             $ids[] = $user->id;
@@ -1566,14 +1580,14 @@ class Notice extends Managed_DataObject
         return $ids;
     }
 
-    function getProfileTags()
+    public function getProfileTags()
     {
         $ptags   = array();
         try {
             $profile = $this->getProfile();
             $list    = $profile->getOtherTags($profile);
 
-            while($list->fetch()) {
+            while ($list->fetch()) {
                 $ptags[] = clone($list);
             }
         } catch (Exception $e) {
@@ -1605,7 +1619,7 @@ class Notice extends Managed_DataObject
      *        best with generalizations on user_group to support
      *        remote groups better.
      */
-    function saveKnownGroups(array $group_ids)
+    public function saveKnownGroups(array $group_ids)
     {
         $groups = array();
         foreach (array_unique($group_ids) as $id) {
@@ -1637,13 +1651,12 @@ class Notice extends Managed_DataObject
         return $groups;
     }
 
-    function addToGroupInbox(User_group $group)
+    public function addToGroupInbox(User_group $group)
     {
         $gi = Group_inbox::pkeyGet(array('group_id' => $group->id,
                                          'notice_id' => $this->id));
 
         if (!$gi instanceof Group_inbox) {
-
             $gi = new Group_inbox();
 
             $gi->group_id  = $group->id;
@@ -1664,7 +1677,7 @@ class Notice extends Managed_DataObject
         return true;
     }
 
-    function saveAttentions(array $uris)
+    public function saveAttentions(array $uris)
     {
         foreach ($uris as $uri=>$type) {
             try {
@@ -1677,7 +1690,7 @@ class Notice extends Managed_DataObject
             try {
                 $this->saveAttention($target);
             } catch (AlreadyFulfilledException $e) {
-                common_debug('Attention already exists: '.var_export($e->getMessage(),true));
+                common_debug('Attention already exists: ' . var_export($e->getMessage(), true));
             } catch (Exception $e) {
                 common_log(LOG_ERR, "Could not save notice id=={$this->getID()} attention for profile id=={$target->getID()}: {$e->getMessage()}");
             }
@@ -1688,7 +1701,7 @@ class Notice extends Managed_DataObject
      * Saves an attention for a profile (user or group) which means
      * it shows up in their home feed and such.
      */
-    function saveAttention(Profile $target, $reason=null)
+    public function saveAttention(Profile $target, $reason = null)
     {
         if ($target->isGroup()) {
             // FIXME: Make sure we check (for both local and remote) users are in the groups they send to!
@@ -1723,7 +1736,7 @@ class Notice extends Managed_DataObject
      *
      * @param array  $uris   Array of unique identifier URIs for recipients
      */
-    function saveKnownReplies(array $uris)
+    public function saveKnownReplies(array $uris)
     {
         if (empty($uris)) {
             return;
@@ -1759,7 +1772,7 @@ class Notice extends Managed_DataObject
      * @return array of integer profile IDs
      */
 
-    function saveReplies()
+    public function saveReplies()
     {
         $sender = $this->getProfile();
 
@@ -1786,7 +1799,6 @@ class Notice extends Managed_DataObject
         $mentions = common_find_mentions($this->content, $sender, $parent);
 
         foreach ($mentions as $mention) {
-
             foreach ($mention['mentioned'] as $mentioned) {
 
                 // skip if they're already covered
@@ -1810,7 +1822,7 @@ class Notice extends Managed_DataObject
         return $recipientIds;
     }
 
-    function saveReply($profileId)
+    public function saveReply($profileId)
     {
         $reply = new Reply();
 
@@ -1830,7 +1842,7 @@ class Notice extends Managed_DataObject
      *
      * @return array of integer profile ids (also group profiles)
      */
-    function getAttentionProfileIDs()
+    public function getAttentionProfileIDs()
     {
         if (!isset($this->_attentionids[$this->getID()])) {
             $atts = Attention::multiGet('notice_id', array($this->getID()));
@@ -1847,7 +1859,7 @@ class Notice extends Managed_DataObject
      *
      * @return array of integer profile ids
      */
-    function getReplies()
+    public function getReplies()
     {
         if (!isset($this->_replies[$this->getID()])) {
             $mentions = Reply::multiGet('notice_id', array($this->getID()));
@@ -1856,7 +1868,7 @@ class Notice extends Managed_DataObject
         return $this->_replies[$this->getID()];
     }
 
-    function _setReplies($replies)
+    public function _setReplies($replies)
     {
         $this->_replies[$this->getID()] = $replies;
     }
@@ -1866,7 +1878,7 @@ class Notice extends Managed_DataObject
      *
      * @return array of Profiles
      */
-    function getAttentionProfiles()
+    public function getAttentionProfiles()
     {
         $ids = array_unique(array_merge($this->getReplies(), $this->getGroupProfileIDs(), $this->getAttentionProfileIDs()));
 
@@ -1881,7 +1893,7 @@ class Notice extends Managed_DataObject
      * Replies must already have been saved; this is expected to be run
      * from the distrib queue handler.
      */
-    function sendReplyNotifications()
+    public function sendReplyNotifications()
     {
         // Don't send reply notifications for repeats
         if ($this->isRepeat()) {
@@ -1910,13 +1922,13 @@ class Notice extends Managed_DataObject
      * @return array of Group _profile_ IDs
      */
 
-    function getGroupProfileIDs()
+    public function getGroupProfileIDs()
     {
         $ids = array();
 
-		foreach ($this->getGroups() as $group) {
-		    $ids[] = $group->profile_id;
-		}
+        foreach ($this->getGroups() as $group) {
+            $ids[] = $group->profile_id;
+        }
 
         return $ids;
     }
@@ -1930,7 +1942,7 @@ class Notice extends Managed_DataObject
 
     protected $_groups = array();
 
-    function getGroups()
+    public function getGroups()
     {
         // Don't save groups for repeats
 
@@ -1944,18 +1956,18 @@ class Notice extends Managed_DataObject
 
         $gis = Group_inbox::listGet('notice_id', array($this->id));
 
-        $ids = array();
+        $ids = [];
 
-		foreach ($gis[$this->id] as $gi) {
-		    $ids[] = $gi->group_id;
-		}
+        foreach ($gis[$this->id] as $gi) {
+            $ids[] = $gi->group_id;
+        }
 
-		$groups = User_group::multiGet('id', $ids);
-		$this->_groups[$this->id] = $groups->fetchAll();
-		return $this->_groups[$this->id];
+        $groups = User_group::multiGet('id', $ids);
+        $this->_groups[$this->id] = $groups->fetchAll();
+        return $this->_groups[$this->id];
     }
 
-    function _setGroups($groups)
+    public function _setGroups($groups)
     {
         $this->_groups[$this->id] = $groups;
     }
@@ -1970,7 +1982,7 @@ class Notice extends Managed_DataObject
      * @throws ServerException
      */
 
-    function asActivity(Profile $scoped=null)
+    public function asActivity(Profile $scoped = null)
     {
         $act = self::cacheGet(Cache::codeKey('notice:as-activity:'.$this->id));
 
@@ -1980,7 +1992,6 @@ class Notice extends Managed_DataObject
         $act = new Activity();
 
         if (Event::handle('StartNoticeAsActivity', array($this, $act, $scoped))) {
-
             $act->id      = $this->uri;
             $act->time    = strtotime($this->created);
             try {
@@ -2085,7 +2096,6 @@ class Notice extends Managed_DataObject
             $atom_feed = $profile->getAtomFeed();
 
             if (!empty($atom_feed)) {
-
                 $act->source = new ActivitySource();
 
                 // XXX: we should store the actual feed ID
@@ -2134,10 +2144,7 @@ class Notice extends Managed_DataObject
     // This has gotten way too long. Needs to be sliced up into functional bits
     // or ideally exported to a utility class.
 
-    function asAtomEntry($namespace=false,
-                         $source=false,
-                         $author=true,
-                         Profile $scoped=null)
+    public function asAtomEntry($namespace = false, $source = false, $author = true, Profile $scoped = null)
     {
         $act = $this->asActivity($scoped);
         $act->extra[] = $this->noticeInfo($scoped);
@@ -2155,7 +2162,7 @@ class Notice extends Managed_DataObject
      * @return array representation of <statusnet:notice_info> element
      */
 
-    function noticeInfo(Profile $scoped=null)
+    public function noticeInfo(Profile $scoped = null)
     {
         // local notice ID (useful to clients for ordering)
 
@@ -2200,7 +2207,7 @@ class Notice extends Managed_DataObject
      * @return string
      */
 
-    function asActivityNoun($element)
+    public function asActivityNoun($element)
     {
         $noun = $this->asActivityObject();
         return $noun->asString('activity:' . $element);
@@ -2250,7 +2257,7 @@ class Notice extends Managed_DataObject
      * @return integer ID of replied-to notice, or null for not a reply.
      */
 
-    static function getInlineReplyTo(Profile $sender, $content)
+    public static function getInlineReplyTo(Profile $sender, $content)
     {
         // Is there an initial @ or T?
         if (preg_match('/^T ([A-Z0-9]{1,64}) /', $content, $match)
@@ -2276,7 +2283,7 @@ class Notice extends Managed_DataObject
         return null;
     }
 
-    static function maxContent()
+    public static function maxContent()
     {
         $contentlimit = common_config('notice', 'contentlimit');
         // null => use global limit (distinct from 0!)
@@ -2286,7 +2293,7 @@ class Notice extends Managed_DataObject
         return $contentlimit;
     }
 
-    static function contentTooLong($content)
+    public static function contentTooLong($content)
     {
         $contentlimit = self::maxContent();
         return ($contentlimit > 0 && !empty($content) && (mb_strlen($content) > $contentlimit));
@@ -2301,15 +2308,17 @@ class Notice extends Managed_DataObject
      *
      * @throws Exception on failure or permission problems
      */
-    function repeat(Profile $repeater, $source)
+    public function repeat(Profile $repeater, $source)
     {
         $author = $this->getProfile();
 
         // TRANS: Message used to repeat a notice. RT is the abbreviation of 'retweet'.
         // TRANS: %1$s is the repeated user's name, %2$s is the repeated notice.
-        $content = sprintf(_('RT @%1$s %2$s'),
-                           $author->getNickname(),
-                           $this->content);
+        $content = sprintf(
+            _('RT @%1$s %2$s'),
+            $author->getNickname(),
+            $this->content
+        );
 
         $maxlen = self::maxContent();
         if ($maxlen > 0 && mb_strlen($content) > $maxlen) {
@@ -2324,16 +2333,17 @@ class Notice extends Managed_DataObject
 
 
         // Scope is same as this one's
-        return self::saveNew($repeater->id,
-                             $content,
-                             $source,
-                             array('repeat_of' => $this->id,
-                                   'scope' => $this->scope));
+        return self::saveNew(
+            $repeater->id,
+            $content,
+            $source,
+            ['repeat_of' => $this->id, 'scope' => $this->scope]
+        );
     }
 
     // These are supposed to be in chron order!
 
-    function repeatStream($limit=100)
+    public function repeatStream($limit = 100)
     {
         $cache = Cache::instance();
 
@@ -2342,11 +2352,11 @@ class Notice extends Managed_DataObject
         } else {
             $idstr = $cache->get(Cache::key('notice:repeats:'.$this->id));
             if ($idstr !== false) {
-            	if (empty($idstr)) {
-            		$ids = array();
-            	} else {
-                	$ids = explode(',', $idstr);
-            	}
+                if (!empty($idstr)) {
+                    $ids = explode(',', $idstr);
+                } else {
+                    $ids = [];
+                }
             } else {
                 $ids = $this->_repeatStreamDirect(100);
                 $cache->set(Cache::key('notice:repeats:'.$this->id), implode(',', $ids));
@@ -2360,7 +2370,7 @@ class Notice extends Managed_DataObject
         return NoticeStream::getStreamByIds($ids);
     }
 
-    function _repeatStreamDirect($limit)
+    public function _repeatStreamDirect($limit)
     {
         $notice = new Notice();
 
@@ -2378,7 +2388,7 @@ class Notice extends Managed_DataObject
         return $notice->fetchAll('id');
     }
 
-    static function locationOptions($lat, $lon, $location_id, $location_ns, $profile = null)
+    public static function locationOptions($lat, $lon, $location_id, $location_ns, $profile = null)
     {
         $options = array();
 
@@ -2392,8 +2402,7 @@ class Notice extends Managed_DataObject
                 $options['lat'] = $location->lat;
                 $options['lon'] = $location->lon;
             }
-
-        } else if (!empty($lat) && !empty($lon)) {
+        } elseif (!empty($lat) && !empty($lon)) {
             $options['lat'] = $lat;
             $options['lon'] = $lon;
 
@@ -2403,7 +2412,7 @@ class Notice extends Managed_DataObject
                 $options['location_id'] = $location->location_id;
                 $options['location_ns'] = $location->location_ns;
             }
-        } else if (!empty($profile)) {
+        } elseif (!empty($profile)) {
             if (isset($profile->lat) && isset($profile->lon)) {
                 $options['lat'] = $profile->lat;
                 $options['lon'] = $profile->lon;
@@ -2418,7 +2427,7 @@ class Notice extends Managed_DataObject
         return $options;
     }
 
-    function clearAttentions()
+    public function clearAttentions()
     {
         $att = new Attention();
         $att->notice_id = $this->getID();
@@ -2432,7 +2441,7 @@ class Notice extends Managed_DataObject
         }
     }
 
-    function clearReplies()
+    public function clearReplies()
     {
         $replyNotice = new Notice();
         $replyNotice->reply_to = $this->id;
@@ -2453,7 +2462,7 @@ class Notice extends Managed_DataObject
         $reply->notice_id = $this->id;
 
         if ($reply->find()) {
-            while($reply->fetch()) {
+            while ($reply->fetch()) {
                 self::blow('reply:stream:%d', $reply->profile_id);
                 $reply->delete();
             }
@@ -2462,7 +2471,7 @@ class Notice extends Managed_DataObject
         $reply->free();
     }
 
-    function clearLocation()
+    public function clearLocation()
     {
         $loc = new Notice_location();
         $loc->notice_id = $this->id;
@@ -2472,7 +2481,7 @@ class Notice extends Managed_DataObject
         }
     }
 
-    function clearFiles()
+    public function clearFiles()
     {
         $f2p = new File_to_post();
 
@@ -2487,7 +2496,7 @@ class Notice extends Managed_DataObject
         // ...and related (actual) files
     }
 
-    function clearRepeats()
+    public function clearRepeats()
     {
         $repeatNotice = new Notice();
         $repeatNotice->repeat_of = $this->id;
@@ -2503,7 +2512,7 @@ class Notice extends Managed_DataObject
         }
     }
 
-    function clearTags()
+    public function clearTags()
     {
         $tag = new Notice_tag();
         $tag->notice_id = $this->id;
@@ -2521,7 +2530,7 @@ class Notice extends Managed_DataObject
         $tag->free();
     }
 
-    function clearGroupInboxes()
+    public function clearGroupInboxes()
     {
         $gi = new Group_inbox();
 
@@ -2537,7 +2546,7 @@ class Notice extends Managed_DataObject
         $gi->free();
     }
 
-    function distribute()
+    public function distribute()
     {
         // We always insert for the author so they don't
         // have to wait
@@ -2563,7 +2572,7 @@ class Notice extends Managed_DataObject
         }
     }
 
-    function insert()
+    public function insert()
     {
         $result = parent::insert();
 
@@ -2578,9 +2587,10 @@ class Notice extends Managed_DataObject
         if (!empty($this->repeat_of)) {
             $c = self::memcache();
             if (!empty($c)) {
-                $ck = self::multicacheKey('Notice',
-                                          array('profile_id' => $this->profile_id,
-                                                'repeat_of' => $this->repeat_of));
+                $ck = self::multicacheKey(
+                    'Notice',
+                    ['profile_id' => $this->profile_id, 'repeat_of' => $this->repeat_of]
+                );
                 $c->delete($ck);
             }
         }
@@ -2593,10 +2603,14 @@ class Notice extends Managed_DataObject
         // We can only get here if it's a local notice, since remote notices
         // should've bailed out earlier due to lacking a URI.
         if (empty($this->uri)) {
-            $this->uri = sprintf('%s%s=%d:%s=%s',
-                                TagURI::mint(),
-                                'noticeId', $this->id,
-                                'objectType', $this->getObjectType(true));
+            $this->uri = sprintf(
+                '%s%s=%d:%s=%s',
+                TagURI::mint(),
+                'noticeId',
+                $this->id,
+                'objectType',
+                $this->getObjectType(true)
+            );
             $changed = true;
         }
 
@@ -2617,7 +2631,7 @@ class Notice extends Managed_DataObject
      * @return Notice_source $ns A notice source object. 'code' is the only attribute
      *                           guaranteed to be populated.
      */
-    function getSource()
+    public function getSource()
     {
         if (empty($this->source)) {
             return false;
@@ -2708,7 +2722,7 @@ class Notice extends Managed_DataObject
         return $tags;
     }
 
-    static private function utcDate($dt)
+    private static function utcDate($dt)
     {
         $dateStr = date('d F Y H:i:s', strtotime($dt));
         $d = new DateTime($dateStr, new DateTimeZone('UTC'));
@@ -2841,7 +2855,7 @@ class Notice extends Managed_DataObject
      *
      * @return boolean whether the profile is in the notice's scope
      */
-    function inScope($profile)
+    public function inScope($profile)
     {
         if (is_null($profile)) {
             $keypart = sprintf('notice:in-scope-for:%d:null', $this->id);
@@ -2889,7 +2903,6 @@ class Notice extends Managed_DataObject
 
         // Only for users mentioned in the notice
         if ($scope & Notice::ADDRESSEE_SCOPE) {
-
             $reply = Reply::pkeyGet(array('notice_id' => $this->id,
                                          'profile_id' => $profile->id));
 
@@ -2920,7 +2933,6 @@ class Notice extends Managed_DataObject
         }
 
         if ($scope & Notice::FOLLOWER_SCOPE || $this->getProfile()->isPrivateStream()) {
-
             if (!Subscription::exists($profile, $this->getProfile())) {
                 return false;
             }
@@ -2929,15 +2941,15 @@ class Notice extends Managed_DataObject
         return !$this->isHiddenSpam($profile);
     }
 
-    function isHiddenSpam($profile) {
+    public function isHiddenSpam($profile)
+    {
 
         // Hide posts by silenced users from everyone but moderators.
 
         if (common_config('notice', 'hidespam')) {
-
             try {
                 $author = $this->getProfile();
-            } catch(Exception $e) {
+            } catch (Exception $e) {
                 // If we can't get an author, keep it hidden.
                 // XXX: technically not spam, but, whatever.
                 return true;
@@ -2977,7 +2989,7 @@ class Notice extends Managed_DataObject
         // the timeline will not display correctly.
         try {
             $reply_to_id = self::getByID($this->reply_to);
-        } catch(Exception $e){
+        } catch (Exception $e) {
             throw new NoParentNoticeException($this);
         }
 
@@ -2994,106 +3006,103 @@ class Notice extends Managed_DataObject
      * @return array of variable names to include in serialization.
      */
 
-    function __sleep()
+    public function __sleep()
     {
         $vars = parent::__sleep();
         $skip = array('_profile', '_groups', '_attachments', '_faves', '_replies', '_repeats');
         return array_diff($vars, $skip);
     }
 
-    static function defaultScope()
+    public static function defaultScope()
     {
-    	$scope = common_config('notice', 'defaultscope');
-    	if (is_null($scope)) {
-    		if (common_config('site', 'private')) {
-    			$scope = 1;
-    		} else {
-    			$scope = 0;
-    		}
-    	}
-    	return $scope;
+        $scope = common_config('notice', 'defaultscope');
+        if (is_null($scope)) {
+            if (common_config('site', 'private')) {
+                $scope = 1;
+            } else {
+                $scope = 0;
+            }
+        }
+        return $scope;
     }
 
-	static function fillProfiles($notices)
-	{
-		$map = self::getProfiles($notices);
-		foreach ($notices as $entry=>$notice) {
+    public static function fillProfiles($notices)
+    {
+        $map = self::getProfiles($notices);
+        foreach ($notices as $entry => $notice) {
             try {
-    			if (array_key_exists($notice->profile_id, $map)) {
-	    			$notice->_setProfile($map[$notice->profile_id]);
-		    	}
+                if (array_key_exists($notice->profile_id, $map)) {
+                    $notice->_setProfile($map[$notice->profile_id]);
+                }
             } catch (NoProfileException $e) {
                 common_log(LOG_WARNING, "Failed to fill profile in Notice with non-existing entry for profile_id: {$e->profile_id}");
                 unset($notices[$entry]);
             }
-		}
+        }
 
-		return array_values($map);
-	}
-
-	static function getProfiles(&$notices)
-	{
-		$ids = array();
-		foreach ($notices as $notice) {
-			$ids[] = $notice->profile_id;
-		}
-		$ids = array_unique($ids);
-		return Profile::pivotGet('id', $ids);
-	}
-
-	static function fillGroups(&$notices)
-	{
-        $ids = self::_idsOf($notices);
-        $gis = Group_inbox::listGet('notice_id', $ids);
-        $gids = array();
-
-		foreach ($gis as $id => $gi) {
-		    foreach ($gi as $g)
-		    {
-		        $gids[] = $g->group_id;
-		    }
-		}
-
-		$gids = array_unique($gids);
-		$group = User_group::pivotGet('id', $gids);
-		foreach ($notices as $notice)
-		{
-			$grps = array();
-			$gi = $gis[$notice->id];
-			foreach ($gi as $g) {
-			    $grps[] = $group[$g->group_id];
-			}
-		    $notice->_setGroups($grps);
-		}
-	}
-
-    static function _idsOf(array &$notices)
-    {
-		$ids = array();
-		foreach ($notices as $notice) {
-			$ids[$notice->id] = true;
-		}
-		return array_keys($ids);
+        return array_values($map);
     }
 
-    static function fillAttachments(&$notices)
+    public static function getProfiles(&$notices)
+    {
+        $ids = [];
+        foreach ($notices as $notice) {
+            $ids[] = $notice->profile_id;
+        }
+        $ids = array_unique($ids);
+        return Profile::pivotGet('id', $ids);
+    }
+
+    public static function fillGroups(&$notices)
+    {
+        $ids = self::_idsOf($notices);
+        $gis = Group_inbox::listGet('notice_id', $ids);
+        $gids = [];
+
+        foreach ($gis as $id => $gi) {
+            foreach ($gi as $g) {
+                $gids[] = $g->group_id;
+            }
+        }
+
+        $gids = array_unique($gids);
+        $group = User_group::pivotGet('id', $gids);
+        foreach ($notices as $notice) {
+            $grps = [];
+            $gi = $gis[$notice->id];
+            foreach ($gi as $g) {
+                $grps[] = $group[$g->group_id];
+            }
+            $notice->_setGroups($grps);
+        }
+    }
+
+    public static function _idsOf(array &$notices)
+    {
+        $ids = [];
+        foreach ($notices as $notice) {
+            $ids[$notice->id] = true;
+        }
+        return array_keys($ids);
+    }
+
+    public static function fillAttachments(&$notices)
     {
         $ids = self::_idsOf($notices);
         $f2pMap = File_to_post::listGet('post_id', $ids);
-		$fileIds = array();
-		foreach ($f2pMap as $noticeId => $f2ps) {
+        $fileIds = [];
+        foreach ($f2pMap as $noticeId => $f2ps) {
             foreach ($f2ps as $f2p) {
                 $fileIds[] = $f2p->file_id;
             }
         }
 
         $fileIds = array_unique($fileIds);
-		$fileMap = File::pivotGet('id', $fileIds);
-		foreach ($notices as $notice)
-		{
-			$files = array();
-			$f2ps = $f2pMap[$notice->id];
-			foreach ($f2ps as $f2p) {
+        $fileMap = File::pivotGet('id', $fileIds);
+        foreach ($notices as $notice) {
+            $files = [];
+            $f2ps = $f2pMap[$notice->id];
+            foreach ($f2ps as $f2p) {
                 if (!isset($fileMap[$f2p->file_id])) {
                     // We have probably deleted value from fileMap since
                     // it as a NULL entry (see the following elseif).
@@ -3107,13 +3116,13 @@ class Notice extends Managed_DataObject
                     unset($fileMap[$f2p->file_id]);
                     continue;
                 }
-			    $files[] = $fileMap[$f2p->file_id];
-			}
-		    $notice->_setAttachments($files);
-		}
+                $files[] = $fileMap[$f2p->file_id];
+            }
+            $notice->_setAttachments($files);
+        }
     }
 
-    static function fillReplies(&$notices)
+    public static function fillReplies(&$notices)
     {
         $ids = self::_idsOf($notices);
         $replyMap = Reply::listGet('notice_id', $ids);
@@ -3127,7 +3136,7 @@ class Notice extends Managed_DataObject
         }
     }
 
-    static public function beforeSchemaUpdate()
+    public static function beforeSchemaUpdate()
     {
         $table = strtolower(get_called_class());
         $schema = Schema::get();
@@ -3146,12 +3155,14 @@ class Notice extends Managed_DataObject
             echo "\nFound old $table table, moving location data to 'notice_location' table... (this will probably take a LONG time, but can be aborted and continued)";
 
             $notice = new Notice();
-            $notice->query(sprintf('SELECT id, lat, lon, location_id, location_ns FROM %1$s ' .
-                                 'WHERE lat IS NOT NULL ' .
-                                    'OR lon IS NOT NULL ' .
-                                    'OR location_id IS NOT NULL ' .
-                                    'OR location_ns IS NOT NULL',
-                                 $schema->quoteIdentifier($table)));
+            $notice->query(sprintf(
+                'SELECT id, lat, lon, location_id, location_ns FROM %1$s ' .
+                'WHERE lat IS NOT NULL ' .
+                'OR lon IS NOT NULL ' .
+                'OR location_id IS NOT NULL ' .
+                'OR location_ns IS NOT NULL',
+                common_database_tablename($table)
+            ));
             print "\nFound {$notice->N} notices with location data, inserting";
             while ($notice->fetch()) {
                 $notloc = Notice_location::getKV('notice_id', $notice->id);
@@ -3230,10 +3241,12 @@ class Notice extends Managed_DataObject
                         }
                         unset($notice);
                         $notice = new Notice();
-                        $notice->query(sprintf('UPDATE %1$s SET %2$s=NULL WHERE id IN (%3$s)',
-                                            $notice->escapedTableName(),
-                                            $field,
-                                            implode(',', $ids)));
+                        $notice->query(sprintf(
+                            'UPDATE %1$s SET %2$s = NULL WHERE id IN (%3$s)',
+                            $notice->escapedTableName(),
+                            $field,
+                            implode(',', $ids)
+                        ));
                         break;
                     default:
                         throw new ServerException('The programmer sucks, invalid action name when fixing table.');
@@ -3245,11 +3258,13 @@ class Notice extends Managed_DataObject
         }
     }
 
-    public function delPref($namespace, $topic) {
+    public function delPref($namespace, $topic)
+    {
         return Notice_prefs::setData($this, $namespace, $topic, null);
     }
 
-    public function getPref($namespace, $topic, $default=null) {
+    public function getPref($namespace, $topic, $default = null)
+    {
         // If you want an exception to be thrown, call Notice_prefs::getData directly
         try {
             return Notice_prefs::getData($this, $namespace, $topic, $default);
@@ -3264,7 +3279,8 @@ class Notice extends Managed_DataObject
         return Notice_prefs::getConfigData($this, $namespace, $topic);
     }
 
-    public function setPref($namespace, $topic, $data) {
+    public function setPref($namespace, $topic, $data)
+    {
         return Notice_prefs::setData($this, $namespace, $topic, $data);
     }
 }

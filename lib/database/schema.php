@@ -17,10 +17,10 @@
 /**
  * Database schema
  *
- * @category Database
- * @package  GNUsocial
- * @author   Evan Prodromou <evan@status.net>
- * @author   Brion Vibber <brion@status.net>
+ * @category  Database
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Brion Vibber <brion@status.net>
  * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -39,14 +39,13 @@ defined('GNUSOCIAL') || die();
  */
 class Schema
 {
-    static $_static = null;
+    public static $_static = null;
     protected $conn = null;
 
     /**
      * Constructor. Only run once for singleton object.
      * @param null $conn
      */
-
     protected function __construct($conn = null)
     {
         if (is_null($conn)) {
@@ -64,11 +63,10 @@ class Schema
      * Main public entry point. Use this to get
      * the schema object.
      *
-     * @param null $conn
+     * @param object|null $conn
      * @return Schema the Schema object for the connection
      */
-
-    static function get($conn = null)
+    public static function get($conn = null)
     {
         if (is_null($conn)) {
             $key = 'default';
@@ -95,7 +93,6 @@ class Schema
      * @return ColumnDef definition of the column or null
      *                   if not found.
      */
-
     public function getColumnDef($table, $column)
     {
         $td = $this->getTableDef($table);
@@ -120,7 +117,6 @@ class Schema
      * @return bool success flag
      * @throws PEAR_Exception
      */
-
     public function createTable($tableName, $def)
     {
         $statements = $this->buildCreateTable($tableName, $def);
@@ -194,7 +190,7 @@ class Schema
      * @param array $def table definition
      * @return string
      */
-    function startCreateTable($name, array $def)
+    public function startCreateTable($name, array $def)
     {
         return 'CREATE TABLE ' . $this->quoteIdentifier($name) . ' (';
     }
@@ -206,7 +202,7 @@ class Schema
      * @param array $def table definition
      * @return string
      */
-    function endCreateTable($name, array $def)
+    public function endCreateTable($name, array $def)
     {
         return ')';
     }
@@ -218,9 +214,9 @@ class Schema
      * @param string $name
      * @param array $def
      */
-    function appendColumnDef(array &$sql, $name, array $def)
+    public function appendColumnDef(array &$sql, string $name, array $def)
     {
-        $sql[] = "$name " . $this->columnSql($def);
+        $sql[] = $name . ' ' . $this->columnSql($name, $def);
     }
 
     /**
@@ -230,7 +226,7 @@ class Schema
      * @param array $sql
      * @param array $def
      */
-    function appendPrimaryKeyDef(array &$sql, array $def)
+    public function appendPrimaryKeyDef(array &$sql, array $def)
     {
         $sql[] = "PRIMARY KEY " . $this->buildIndexList($def);
     }
@@ -243,7 +239,7 @@ class Schema
      * @param string $name
      * @param array $def
      */
-    function appendUniqueKeyDef(array &$sql, $name, array $def)
+    public function appendUniqueKeyDef(array &$sql, $name, array $def)
     {
         $sql[] = "CONSTRAINT $name UNIQUE " . $this->buildIndexList($def);
     }
@@ -257,7 +253,7 @@ class Schema
      * @param array $def
      * @throws Exception
      */
-    function appendForeignKeyDef(array &$sql, $name, array $def)
+    public function appendForeignKeyDef(array &$sql, $name, array $def)
     {
         if (count($def) != 2) {
             throw new Exception("Invalid foreign key def for $name: " . var_export($def, true));
@@ -265,11 +261,11 @@ class Schema
         list($refTable, $map) = $def;
         $srcCols = array_keys($map);
         $refCols = array_values($map);
-        $sql[] = "CONSTRAINT $name FOREIGN KEY " .
+        $sql[] = 'CONSTRAINT ' . $this->quoteIdentifier($name) . ' FOREIGN KEY ' .
             $this->buildIndexList($srcCols) .
-            " REFERENCES " .
+            ' REFERENCES ' .
             $this->quoteIdentifier($refTable) .
-            " " .
+            ' ' .
             $this->buildIndexList($refCols);
     }
 
@@ -282,9 +278,10 @@ class Schema
      * @param string $name
      * @param array $def
      */
-    function appendCreateIndex(array &$statements, $table, $name, array $def)
+    public function appendCreateIndex(array &$statements, $table, $name, array $def)
     {
-        $statements[] = "CREATE INDEX $name ON $table " . $this->buildIndexList($def);
+        $statements[] = 'CREATE INDEX ' . $name . ' ON ' .
+                        $this->quoteIdentifier($table) . ' ' . $this->buildIndexList($def);
     }
 
     /**
@@ -297,7 +294,7 @@ class Schema
      * @param array $def
      * @throws Exception
      */
-    function appendCreateFulltextIndex(array &$statements, $table, $name, array $def)
+    public function appendCreateFulltextIndex(array &$statements, $table, $name, array $def)
     {
         throw new Exception("Fulltext index not supported in this database");
     }
@@ -309,18 +306,18 @@ class Schema
      * @param string $table
      * @param string $name
      */
-    function appendDropIndex(array &$statements, $table, $name)
+    public function appendDropIndex(array &$statements, $table, $name)
     {
         $statements[] = "DROP INDEX $name ON " . $this->quoteIdentifier($table);
     }
 
-    function buildIndexList(array $def)
+    public function buildIndexList(array $def)
     {
         // @fixme
         return '(' . implode(',', array_map([$this, 'buildIndexItem'], $def)) . ')';
     }
 
-    function buildIndexItem($def)
+    public function buildIndexItem($def)
     {
         if (is_array($def)) {
             list($name, $size) = $def;
@@ -339,12 +336,11 @@ class Schema
      * @return bool success flag
      * @throws PEAR_Exception
      */
-
     public function dropTable($name)
     {
         global $_PEAR;
 
-        $res = $this->conn->query("DROP TABLE $name");
+        $res = $this->conn->query('DROP TABLE ' . $this->quoteIdentifier($name));
 
         if ($_PEAR->isError($res)) {
             PEAR_ErrorToPEAR_Exception($res);
@@ -369,7 +365,6 @@ class Schema
      * @return bool success flag
      * @throws PEAR_Exception
      */
-
     public function createIndex($table, $columnNames, $name = null)
     {
         global $_PEAR;
@@ -382,9 +377,11 @@ class Schema
             $name = "{$table}_" . implode("_", $columnNames) . "_idx";
         }
 
-        $res = $this->conn->query("ALTER TABLE $table " .
-            "ADD INDEX $name (" .
-            implode(",", $columnNames) . ")");
+        $res = $this->conn->query(
+            'ALTER TABLE ' . $this->quoteIdentifier($table)  .
+            ' ADD INDEX ' . $name . ' (' .
+            implode(',', $columnNames) . ')'
+        );
 
         if ($_PEAR->isError($res)) {
             PEAR_ErrorToPEAR_Exception($res);
@@ -402,12 +399,14 @@ class Schema
      * @return bool success flag
      * @throws PEAR_Exception
      */
-
     public function dropIndex($table, $name)
     {
         global $_PEAR;
 
-        $res = $this->conn->query("ALTER TABLE $table DROP INDEX $name");
+        $res = $this->conn->query(
+            'ALTER TABLE ' . $this->quoteIdentifier($table) .
+            ' DROP INDEX ' . $name
+        );
 
         if ($_PEAR->isError($res)) {
             PEAR_ErrorToPEAR_Exception($res);
@@ -426,12 +425,12 @@ class Schema
      * @return bool success flag
      * @throws PEAR_Exception
      */
-
     public function addColumn($table, $columndef)
     {
         global $_PEAR;
 
-        $sql = "ALTER TABLE $table ADD COLUMN " . $this->_columnSql($columndef);
+        $sql = 'ALTER TABLE ' . $this->quoteIdentifier($table) .
+               ' ADD COLUMN ' . $this->columnSql($name, $columndef);
 
         $res = $this->conn->query($sql);
 
@@ -453,13 +452,12 @@ class Schema
      * @return bool success flag
      * @throws PEAR_Exception
      */
-
     public function modifyColumn($table, $columndef)
     {
         global $_PEAR;
 
-        $sql = "ALTER TABLE $table MODIFY COLUMN " .
-            $this->_columnSql($columndef);
+        $sql = 'ALTER TABLE ' . $this->quoteIdentifier($table) .
+               ' MODIFY COLUMN ' . $this->columnSql($name, $columndef);
 
         $res = $this->conn->query($sql);
 
@@ -481,12 +479,12 @@ class Schema
      * @return bool success flag
      * @throws PEAR_Exception
      */
-
     public function dropColumn($table, $columnName)
     {
         global $_PEAR;
 
-        $sql = "ALTER TABLE $table DROP COLUMN $columnName";
+        $sql = 'ALTER TABLE ' . $this->quoteIdentifier($table) .
+               ' DROP COLUMN ' . $columnName;
 
         $res = $this->conn->query($sql);
 
@@ -511,7 +509,6 @@ class Schema
      * @return bool success flag
      * @throws PEAR_Exception
      */
-
     public function ensureTable($tableName, $def)
     {
         $statements = $this->buildEnsureTable($tableName, $def);
@@ -527,7 +524,7 @@ class Schema
      * @return bool success flag
      * @throws PEAR_Exception
      */
-    function runSqlSet(array $statements)
+    public function runSqlSet(array $statements)
     {
         global $_PEAR;
 
@@ -561,8 +558,7 @@ class Schema
      * @return array of SQL statements
      * @throws Exception
      */
-
-    function buildEnsureTable($tableName, array $def)
+    public function buildEnsureTable($tableName, array $def)
     {
         try {
             $old = $this->getTableDef($tableName);
@@ -610,14 +606,20 @@ class Schema
         }
 
         foreach ($fields['add'] as $columnName) {
-            $this->appendAlterAddColumn($phrase, $columnName,
-                $def['fields'][$columnName]);
+            $this->appendAlterAddColumn(
+                $phrase,
+                $columnName,
+                $def['fields'][$columnName]
+            );
         }
 
         foreach ($fields['mod'] as $columnName) {
-            $this->appendAlterModifyColumn($phrase, $columnName,
+            $this->appendAlterModifyColumn(
+                $phrase,
+                $columnName,
                 $old['fields'][$columnName],
-                $def['fields'][$columnName]);
+                $def['fields'][$columnName]
+            );
         }
 
         foreach ($fields['del'] as $columnName) {
@@ -639,7 +641,8 @@ class Schema
         $this->appendAlterExtras($phrase, $tableName, $def);
 
         if (count($phrase) > 0) {
-            $sql = 'ALTER TABLE ' . $tableName . ' ' . implode(",\n", $phrase);
+            $sql = 'ALTER TABLE ' . $this->quoteIdentifier($tableName) .
+                   ' ' . implode(",\n", $phrase);
             $statements[] = $sql;
         }
 
@@ -656,7 +659,7 @@ class Schema
         return $statements;
     }
 
-    function diffArrays($oldDef, $newDef, $section, $compareCallback = null)
+    public function diffArrays($oldDef, $newDef, $section, $compareCallback = null)
     {
         $old = isset($oldDef[$section]) ? $oldDef[$section] : [];
         $new = isset($newDef[$section]) ? $newDef[$section] : [];
@@ -701,7 +704,7 @@ class Schema
      * @param string $columnName
      * @param array $cd
      */
-    function appendAlterAddColumn(array &$phrase, $columnName, array $cd)
+    public function appendAlterAddColumn(array &$phrase, string $columnName, array $cd)
     {
         $phrase[] = 'ADD COLUMN ' .
             $this->quoteIdentifier($columnName) .
@@ -718,7 +721,7 @@ class Schema
      * @param array $old previous column definition as found in DB
      * @param array $cd current column definition
      */
-    function appendAlterModifyColumn(array &$phrase, $columnName, array $old, array $cd)
+    public function appendAlterModifyColumn(array &$phrase, string $columnName, array $old, array $cd)
     {
         $phrase[] = 'MODIFY COLUMN ' .
             $this->quoteIdentifier($columnName) .
@@ -733,12 +736,12 @@ class Schema
      * @param array $phrase
      * @param string $columnName
      */
-    function appendAlterDropColumn(array &$phrase, $columnName)
+    public function appendAlterDropColumn(array &$phrase, $columnName)
     {
         $phrase[] = 'DROP COLUMN ' . $this->quoteIdentifier($columnName);
     }
 
-    function appendAlterAddUnique(array &$phrase, $keyName, array $def)
+    public function appendAlterAddUnique(array &$phrase, $keyName, array $def)
     {
         $sql = [];
         $sql[] = 'ADD';
@@ -746,7 +749,7 @@ class Schema
         $phrase[] = implode(' ', $sql);
     }
 
-    function appendAlterAddForeign(array &$phrase, $keyName, array $def)
+    public function appendAlterAddForeign(array &$phrase, $keyName, array $def)
     {
         $sql = [];
         $sql[] = 'ADD';
@@ -754,7 +757,7 @@ class Schema
         $phrase[] = implode(' ', $sql);
     }
 
-    function appendAlterAddPrimary(array &$phrase, array $def)
+    public function appendAlterAddPrimary(array &$phrase, array $def)
     {
         $sql = [];
         $sql[] = 'ADD';
@@ -762,22 +765,22 @@ class Schema
         $phrase[] = implode(' ', $sql);
     }
 
-    function appendAlterDropPrimary(array &$phrase)
+    public function appendAlterDropPrimary(array &$phrase)
     {
         $phrase[] = 'DROP CONSTRAINT PRIMARY KEY';
     }
 
-    function appendAlterDropUnique(array &$phrase, $keyName)
+    public function appendAlterDropUnique(array &$phrase, $keyName)
     {
         $phrase[] = 'DROP CONSTRAINT ' . $keyName;
     }
 
-    function appendAlterDropForeign(array &$phrase, $keyName)
+    public function appendAlterDropForeign(array &$phrase, $keyName)
     {
         $phrase[] = 'DROP FOREIGN KEY ' . $keyName;
     }
 
-    function appendAlterExtras(array &$phrase, $tableName, array $def)
+    public function appendAlterExtras(array &$phrase, $tableName, array $def)
     {
         // no-op
     }
@@ -788,21 +791,21 @@ class Schema
      * @param string $name
      * @return string
      */
-    function quoteIdentifier($name)
+    public function quoteIdentifier($name)
     {
-        return $name;
+        return $this->conn->quoteIdentifier($name);
     }
 
-    function quoteDefaultValue($cd)
+    public function quoteDefaultValue($cd)
     {
-        if (($cd['type'] == 'datetime' || $cd['type'] == 'timestamp') && $cd['default'] == 'CURRENT_TIMESTAMP') {
+        if (in_array($cd['type'], ['datetime', 'timestamp']) && $cd['default'] === 'CURRENT_TIMESTAMP') {
             return $cd['default'];
         } else {
             return $this->quoteValue($cd['default']);
         }
     }
 
-    function quoteValue($val)
+    public function quoteValue($val)
     {
         return $this->conn->quoteSmart($val);
     }
@@ -816,7 +819,7 @@ class Schema
      * @param array $b
      * @return bool
      */
-    function columnsEqual(array $a, array $b)
+    public function columnsEqual(array $a, array $b)
     {
         return !array_diff_assoc($a, $b) && !array_diff_assoc($b, $a);
     }
@@ -829,7 +832,6 @@ class Schema
      *
      * @return array strings for name values
      */
-
     protected function _names($cds)
     {
         $names = [];
@@ -850,7 +852,6 @@ class Schema
      *
      * @return ColumnDef matching item or null if no match.
      */
-
     protected function _byName($cds, $name)
     {
         foreach ($cds as $cd) {
@@ -874,7 +875,7 @@ class Schema
      * @return string correct SQL for that column
      */
 
-    function columnSql(array $cd)
+    public function columnSql(array $cd)
     {
         $line = [];
         $line[] = $this->typeAndSize($cd);
@@ -882,7 +883,7 @@ class Schema
         if (isset($cd['default'])) {
             $line[] = 'default';
             $line[] = $this->quoteDefaultValue($cd);
-        } else if (!empty($cd['not null'])) {
+        } elseif (!empty($cd['not null'])) {
             // Can't have both not null AND default!
             $line[] = 'not null';
         }
@@ -895,14 +896,14 @@ class Schema
      * @param string $column canonical type name in defs
      * @return string native DB type name
      */
-    function mapType($column)
+    public function mapType($column)
     {
         return $column;
     }
 
-    function typeAndSize($column)
+    public function typeAndSize(array $column)
     {
-        //$type = $this->mapType($column);
+        //$type = $this->mapType($column)['type'];
         $type = $column['type'];
         if (isset($column['size'])) {
             $type = $column['size'] . $type;
@@ -914,7 +915,7 @@ class Schema
             if (isset($column['scale'])) {
                 $lengths[] = $column['scale'];
             }
-        } else if (isset($column['length'])) {
+        } elseif (isset($column['length'])) {
             $lengths[] = $column['length'];
         }
 
@@ -977,12 +978,12 @@ class Schema
                     $table['primary key'] = [];
                 }
                 $table['primary key'][] = $cd->name;
-            } else if ($cd->key == 'MUL') {
+            } elseif ($cd->key === 'MUL') {
                 // Individual multiple-value indexes are only per-column
                 // using the old ColumnDef syntax.
                 $idx = "{$tableName}_{$cd->name}_idx";
                 $table['indexes'][$idx] = [$cd->name];
-            } else if ($cd->key == 'UNI') {
+            } elseif ($cd->key === 'UNI') {
                 // Individual unique-value indexes are only per-column
                 // using the old ColumnDef syntax.
                 $idx = "{$tableName}_{$cd->name}_idx";
@@ -1003,7 +1004,7 @@ class Schema
      * @param array $tableDef
      * @return array
      */
-    function filterDef(array $tableDef)
+    public function filterDef(array $tableDef)
     {
         return $tableDef;
     }
@@ -1019,7 +1020,7 @@ class Schema
      *
      * @throws Exception on wildly invalid input
      */
-    function validateDef($tableName, array $def)
+    public function validateDef($tableName, array $def)
     {
         if (isset($def[0]) && $def[0] instanceof ColumnDef) {
             $def = $this->oldToNew($tableName, $def);
@@ -1033,7 +1034,7 @@ class Schema
         return $def;
     }
 
-    function isNumericType($type)
+    public function isNumericType($type)
     {
         $type = strtolower($type);
         $known = ['int', 'serial', 'numeric'];
@@ -1074,20 +1075,21 @@ class Schema
                 $this->getTableDef($new_name);
                 // New table exists, can't work
                 throw new ServerException("Both table {$old_name} and {$new_name} exist. You're on your own.");
-            } catch(SchemaTableMissingException $e) {
+            } catch (SchemaTableMissingException $e) {
                 // New table doesn't exist, carry on
             }
-        } catch(SchemaTableMissingException $e) {
+        } catch (SchemaTableMissingException $e) {
             // Already renamed, or no previous table, so we're done
             return true;
         }
-        return $this->runSqlSet(["ALTER TABLE {$old_name} RENAME TO {$new_name};"]);
+        return $this->runSqlSet([
+            'ALTER TABLE ' . $this->quoteIdentifier($old_name) .
+            ' RENAME TO '  . $this->quoteIdentifier($new_name) . ';',
+        ]);
     }
-
 }
 
 class SchemaTableMissingException extends Exception
 {
     // no-op
 }
-
