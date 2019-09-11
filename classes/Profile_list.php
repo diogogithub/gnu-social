@@ -1,27 +1,28 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
- *
- * @category Notices
- * @package  StatusNet
- * @author   Shashi Gowda <connect2shashi@gmail.com>
- * @license  GNU Affero General Public License http://www.gnu.org/licenses/
+ * @category  Notices
+ * @package   GNUsocial
+ * @author    Shashi Gowda <connect2shashi@gmail.com>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 class Profile_list extends Managed_DataObject
 {
@@ -79,7 +80,7 @@ class Profile_list extends Managed_DataObject
      * @return Profile the tagger
      */
 
-    function getTagger()
+    public function getTagger()
     {
         return Profile::getByID($this->tagger);
     }
@@ -91,7 +92,7 @@ class Profile_list extends Managed_DataObject
      * @return String
      */
 
-    function getBestName()
+    public function getBestName()
     {
         return $this->tag;
     }
@@ -102,15 +103,17 @@ class Profile_list extends Managed_DataObject
      * @return String uri
      */
 
-    function getUri()
+    public function getUri()
     {
         $uri = null;
         if (Event::handle('StartProfiletagGetUri', array($this, &$uri))) {
             if (!empty($this->uri)) {
                 $uri = $this->uri;
             } else {
-                $uri = common_local_url('profiletagbyid',
-                                        array('id' => $this->id, 'tagger_id' => $this->tagger));
+                $uri = common_local_url(
+                    'profiletagbyid',
+                    ['id' => $this->id, 'tagger_id' => $this->tagger]
+                );
             }
         }
         Event::handle('EndProfiletagGetUri', array($this, &$uri));
@@ -123,7 +126,7 @@ class Profile_list extends Managed_DataObject
      * @return String home url
      */
 
-    function homeUrl()
+    public function homeUrl()
     {
         $url = null;
         if (Event::handle('StartUserPeopletagHomeUrl', array($this, &$url))) {
@@ -131,9 +134,13 @@ class Profile_list extends Managed_DataObject
             if (!empty($this->mainpage)) {
                 $url = $this->mainpage;
             } else {
-                $url = common_local_url('showprofiletag',
-                                        array('nickname' => $this->getTagger()->nickname,
-                                              'tag'    => $this->tag));
+                $url = common_local_url(
+                    'showprofiletag',
+                    [
+                        'nickname' => $this->getTagger()->nickname,
+                        'tag'      => $this->tag,
+                    ]
+                );
             }
         }
         Event::handle('EndUserPeopletagHomeUrl', array($this, &$url));
@@ -146,12 +153,14 @@ class Profile_list extends Managed_DataObject
      * @return String permalink
      */
 
-    function permalink()
+    public function permalink()
     {
         $url = null;
         if (Event::handle('StartProfiletagPermalink', array($this, &$url))) {
-            $url = common_local_url('profiletagbyid',
-                                    array('id' => $this->id));
+            $url = common_local_url(
+                'profiletagbyid',
+                ['id' => $this->id]
+            );
         }
         Event::handle('EndProfiletagPermalink', array($this, &$url));
         return $url;
@@ -169,7 +178,7 @@ class Profile_list extends Managed_DataObject
      * @return Notice the query
      */
 
-    function getNotices($offset, $limit, $since_id=null, $max_id=null)
+    public function getNotices($offset, $limit, $since_id = null, $max_id = null)
     {
         // FIXME: Use something else than Profile::current() to avoid
         // possible confusion between session user and queue processing.
@@ -190,7 +199,7 @@ class Profile_list extends Managed_DataObject
      * @return Profile results
      */
 
-    function getSubscribers($offset=0, $limit=null, $since=0, $upto=0)
+    public function getSubscribers($offset = 0, $limit = null, $since = 0, $upto = 0)
     {
         $subs = new Profile();
 
@@ -227,24 +236,22 @@ class Profile_list extends Managed_DataObject
      * @return array ids of users
      */
 
-    function getUserSubscribers()
+    public function getUserSubscribers()
     {
         // XXX: cache this
 
         $user = new User();
-        if(common_config('db','quote_identifiers'))
-            $user_table = '"user"';
-        else $user_table = 'user';
 
-        $qry =
-          'SELECT id ' .
-          'FROM '. $user_table .' JOIN profile_tag_subscription '.
-          'ON '. $user_table .'.id = profile_tag_subscription.profile_id ' .
-          'WHERE profile_tag_subscription.profile_tag_id = %d ';
+        $user->query(sprintf(
+            'SELECT id ' .
+            'FROM %1$s INNER JOIN profile_tag_subscription ' .
+            'ON %1$s.id = profile_tag_subscription.profile_id ' .
+            'WHERE profile_tag_subscription.profile_tag_id = %2$d ',
+            $user->escapedTableName(),
+            $this->id
+        ));
 
-        $user->query(sprintf($qry, $this->id));
-
-        $ids = array();
+        $ids = [];
 
         while ($user->fetch()) {
             $ids[] = $user->id;
@@ -264,7 +271,7 @@ class Profile_list extends Managed_DataObject
      * @return boolean subscription status
      */
 
-    function hasSubscriber($id)
+    public function hasSubscriber($id)
     {
         if (!is_numeric($id)) {
             $id = $id->id;
@@ -288,7 +295,7 @@ class Profile_list extends Managed_DataObject
      * @return Profile results
      */
 
-    function getTagged($offset=0, $limit=null, $since=0, $upto=0)
+    public function getTagged($offset = 0, $limit = null, $since = 0, $upto = 0)
     {
         $tagged = new Profile();
         $tagged->joinAdd(array('id', 'profile_tag:tagged'));
@@ -323,7 +330,7 @@ class Profile_list extends Managed_DataObject
      * @return boolean success
      */
 
-    function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
         // force delete one item at a time.
         if (empty($this->id)) {
@@ -350,7 +357,7 @@ class Profile_list extends Managed_DataObject
      * @return boolean success
      */
 
-    function update($dataObject=false)
+    public function update($dataObject = false)
     {
         if (!is_object($dataObject) && !$dataObject instanceof Profile_list) {
             return parent::update($dataObject);
@@ -361,9 +368,9 @@ class Profile_list extends Managed_DataObject
         // if original tag was different
         // check to see if the new tag already exists
         // if not, rename the tag correctly
-        if($dataObject->tag != $this->tag || $dataObject->tagger != $this->tagger) {
+        if ($dataObject->tag != $this->tag || $dataObject->tagger != $this->tagger) {
             $existing = Profile_list::getByTaggerAndTag($this->tagger, $this->tag);
-            if(!empty($existing)) {
+            if (!empty($existing)) {
                 // TRANS: Server exception.
                 throw new ServerException(_('The tag you are trying to rename ' .
                                             'to already exists.'));
@@ -382,7 +389,7 @@ class Profile_list extends Managed_DataObject
      * @return string atom author element
      */
 
-    function asAtomAuthor()
+    public function asAtomAuthor()
     {
         $xs = new XMLStringer(true);
 
@@ -404,7 +411,7 @@ class Profile_list extends Managed_DataObject
      * @return string activitystreams noun
      */
 
-    function asActivityNoun($element)
+    public function asActivityNoun($element)
     {
         $noun = ActivityObject::fromPeopletag($this);
         return $noun->asString('activity:' . $element);
@@ -419,11 +426,13 @@ class Profile_list extends Managed_DataObject
      * @return integer count
      */
 
-    function taggedCount($recount=false)
+    public function taggedCount($recount = false)
     {
-        $keypart = sprintf('profile_list:tagged_count:%d:%s', 
-                           $this->tagger,
-                           $this->tag);
+        $keypart = sprintf(
+            'profile_list:tagged_count:%d:%s',
+            $this->tagger,
+            $this->tag
+        );
 
         $count = self::cacheGet($keypart);
 
@@ -450,15 +459,16 @@ class Profile_list extends Managed_DataObject
      * @return integer count
      */
 
-    function subscriberCount($recount=false)
+    public function subscriberCount($recount = false)
     {
-        $keypart = sprintf('profile_list:subscriber_count:%d', 
-                           $this->id);
+        $keypart = sprintf(
+            'profile_list:subscriber_count:%d',
+            $this->id
+        );
 
         $count = self::cacheGet($keypart);
 
         if ($count === false) {
-
             $sub = new Profile_tag_subscription();
             $sub->profile_tag_id = $this->id;
             $count = (int) $sub->count('distinct profile_id');
@@ -478,7 +488,7 @@ class Profile_list extends Managed_DataObject
      * @return integer count
      */
 
-    function blowNoticeStreamCache($all=false)
+    public function blowNoticeStreamCache($all = false)
     {
         self::blow('profile_list:notice_ids:%d', $this->id);
         if ($all) {
@@ -496,7 +506,7 @@ class Profile_list extends Managed_DataObject
      * @return integer count
      */
 
-    static function getByTaggerAndTag($tagger, $tag)
+    public static function getByTaggerAndTag($tagger, $tag)
     {
         $ptag = Profile_list::pkeyGet(array('tagger' => $tagger, 'tag' => $tag));
         return $ptag;
@@ -514,11 +524,11 @@ class Profile_list extends Managed_DataObject
      * @return Profile_list the people tag object
      */
 
-    static function ensureTag($tagger, $tag, $description=null, $private=false)
+    public static function ensureTag($tagger, $tag, $description = null, $private = false)
     {
         $ptag = Profile_list::getByTaggerAndTag($tagger, $tag);
 
-        if(empty($ptag->id)) {
+        if (empty($ptag->id)) {
             $args = array(
                 'tag' => $tag,
                 'tagger' => $tagger,
@@ -544,7 +554,7 @@ class Profile_list extends Managed_DataObject
      * @return integer maximum number of characters
      */
 
-    static function maxDescription()
+    public static function maxDescription()
     {
         $desclimit = common_config('peopletag', 'desclimit');
         // null => use global limit (distinct from 0!)
@@ -563,7 +573,7 @@ class Profile_list extends Managed_DataObject
      * @return boolean is the descripition too long?
      */
 
-    static function descriptionTooLong($desc)
+    public static function descriptionTooLong($desc)
     {
         $desclimit = self::maxDescription();
         return ($desclimit > 0 && !empty($desc) && (mb_strlen($desc) > $desclimit));
@@ -578,7 +588,8 @@ class Profile_list extends Managed_DataObject
      *
      * @return mixed Profile_list on success, false on fail
      */
-    static function saveNew(array $fields) {
+    public static function saveNew(array $fields)
+    {
         extract($fields);
 
         $ptag = new Profile_list();
@@ -639,7 +650,7 @@ class Profile_list extends Managed_DataObject
             $result = $ptag->update($orig);
             if (!$result) {
                 common_log_db_error($ptag, 'UPDATE', __FILE__);
-            // TRANS: Server exception saving new tag.
+                // TRANS: Server exception saving new tag.
                 throw new ServerException(_('Could not set profile tag URI.'));
             }
         }
@@ -647,7 +658,7 @@ class Profile_list extends Managed_DataObject
         if (!isset($mainpage) || empty($mainpage)) {
             $orig = clone($ptag);
             $user = User::getKV('id', $ptag->tagger);
-            if(!empty($user)) {
+            if (!empty($user)) {
                 $ptag->mainpage = common_local_url('showprofiletag', array('tag' => $ptag->tag, 'nickname' => $user->getNickname()));
             } else {
                 $ptag->mainpage = $uri; // assume this is a remote peopletag and the uri works
@@ -687,9 +698,9 @@ class Profile_list extends Managed_DataObject
      * @returns array (array (mixed items), int next_cursor, int previous_cursor)
      */
 
-     // XXX: This should be in Memcached_DataObject... eventually.
+    // XXX: This should be in Memcached_DataObject... eventually
 
-    static function getAtCursor($fn, array $args, $cursor, $count=20)
+    public static function getAtCursor($fn, array $args, $cursor, $count = 20)
     {
         $items = array();
 
@@ -698,12 +709,12 @@ class Profile_list extends Managed_DataObject
         $next_cursor = 0;
         $prev_cursor = 0;
 
-        if($cursor > 0) {
+        if ($cursor > 0) {
             // if cursor is +ve fetch $count+2 items before cursor starting at cursor
             $max_id = $cursor;
             $fn_args = array_merge($args, array(0, $count+2, 0, $max_id));
             $list = call_user_func_array($fn, $fn_args);
-            while($list->fetch()) {
+            while ($list->fetch()) {
                 $items[] = clone($list);
             }
 
@@ -734,15 +745,14 @@ class Profile_list extends Managed_DataObject
                 $next_cursor = isset($next->cursor) ?
                     $items[$count-1]->cursor : $items[$count-1]->id;
             }
-
-        } else if($cursor < -1) {
+        } elseif ($cursor < -1) {
             // if cursor is -ve fetch $count+2 items created after -$cursor-1
             $cursor = abs($cursor);
             $since_id = $cursor-1;
 
             $fn_args = array_merge($args, array(0, $count+2, $since_id));
             $list = call_user_func_array($fn, $fn_args);
-            while($list->fetch()) {
+            while ($list->fetch()) {
                 $items[] = clone($list);
             }
 
@@ -755,7 +765,10 @@ class Profile_list extends Managed_DataObject
             } else {
                 $next_cursor = isset($items[$end]->cursor) ?
                     $items[$end]->cursor : $items[$end]->id;
-                if ($end > $count) array_pop($items); // excess item.
+                if ($end > $count) {
+                    // excess item
+                    array_pop($items);
+                }
 
                 // check if there are more items for next page
                 $fn_args = array_merge($args, array(0, 1, 0, $cursor));
@@ -771,23 +784,22 @@ class Profile_list extends Managed_DataObject
                 $prev_cursor = isset($prev->cursor) ?
                     -$items[0]->cursor : -$items[0]->id;
             }
-        } else if($cursor == -1) {
+        } elseif ($cursor == -1) {
             $fn_args = array_merge($args, array(0, $count+1));
             $list = call_user_func_array($fn, $fn_args);
 
-            while($list->fetch()) {
+            while ($list->fetch()) {
                 $items[] = clone($list);
             }
 
             if (count($items)==$count+1) {
                 $next = array_pop($items);
-                if(isset($next->cursor)) {
+                if (isset($next->cursor)) {
                     $next_cursor = $items[$count-1]->cursor;
                 } else {
                     $next_cursor = $items[$count-1]->id;
                 }
             }
-
         }
         return array($items, $next_cursor, $prev_cursor);
     }
@@ -803,7 +815,8 @@ class Profile_list extends Managed_DataObject
      * @return boolean success
      */
 
-    static function setCache($ckey, &$tag, $offset=0, $limit=null) {
+    public static function setCache($ckey, &$tag, $offset = 0, $limit = null)
+    {
         $cache = Cache::instance();
         if (empty($cache)) {
             return false;
@@ -834,8 +847,8 @@ class Profile_list extends Managed_DataObject
      * @return Profile_list results
      */
 
-    static function getCached($ckey, $offset=0, $limit=null) {
-
+    public static function getCached($ckey, $offset = 0, $limit = null)
+    {
         $keys_str = self::cacheGet($ckey);
         if ($keys_str === false) {
             return false;
@@ -862,7 +875,8 @@ class Profile_list extends Managed_DataObject
      * @return Profile_list results
      */
 
-    static function getByKeys(array $keys) {
+    public static function getByKeys(array $keys)
+    {
         $cache = Cache::instance();
 
         if (!empty($cache)) {
@@ -910,7 +924,7 @@ class Profile_list extends Managed_DataObject
         }
     }
 
-    function insert()
+    public function insert()
     {
         $result = parent::insert();
         if ($result) {

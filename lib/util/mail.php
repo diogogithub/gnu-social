@@ -1,36 +1,33 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
- * utilities for sending email
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Utilities for sending email
  *
  * @category  Mail
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Zach Copley <zach@status.net>
  * @author    Robin Millette <millette@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
  * @copyright 2008 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 require_once 'Mail.php';
 
@@ -49,8 +46,10 @@ function mail_backend()
 
     if (!$backend) {
         $mail = new Mail();
-        $backend = $mail->factory(common_config('mail', 'backend'),
-                                 common_config('mail', 'params') ?: array());
+        $backend = $mail->factory(
+            common_config('mail', 'backend'),
+            common_config('mail', 'params') ?: []
+        );
         if ($_PEAR->isError($backend)) {
             throw new EmailException($backend->getMessage(), $backend->getCode());
         }
@@ -76,7 +75,7 @@ function mail_send($recipients, $headers, $body)
         $backend = mail_backend();
 
         if (!isset($headers['Content-Type'])) {
-           $headers['Content-Type'] = 'text/plain; charset=UTF-8';
+            $headers['Content-Type'] = 'text/plain; charset=UTF-8';
         }
 
         assert($backend); // throws an error if it's bad
@@ -124,7 +123,6 @@ function mail_notify_from()
     $notifyfrom = common_config('mail', 'notifyfrom');
 
     if (!$notifyfrom) {
-
         $domain = mail_domain();
 
         $notifyfrom = '"'. str_replace('"', '\\"', common_config('site', 'name')) .'" <noreply@'.$domain.'>';
@@ -194,7 +192,6 @@ function mail_subscribe_notify_profile($listenee, $other)
 {
     if ($other->hasRight(Right::EMAILONSUBSCRIBE) &&
         $listenee->email && $listenee->emailnotifysub) {
-
         $profile = $listenee->getProfile();
 
         $name = $profile->getBestName();
@@ -211,15 +208,19 @@ function mail_subscribe_notify_profile($listenee, $other)
         $headers['To']      = $name . ' <' . $listenee->email . '>';
         // TRANS: Subject of new-subscriber notification e-mail.
         // TRANS: %1$s is the subscribing user's nickname, %2$s is the StatusNet sitename.
-        $headers['Subject'] = sprintf(_('%1$s is now following you on %2$s.'),
-                                      $other->getBestName(),
-                                      common_config('site', 'name'));
+        $headers['Subject'] = sprintf(
+            _('%1$s is now following you on %2$s.'),
+            $other->getBestName(),
+            common_config('site', 'name')
+        );
 
         // TRANS: Main body of new-subscriber notification e-mail.
         // TRANS: %1$s is the subscriber's long name, %2$s is the StatusNet sitename.
-        $body = sprintf(_('%1$s is now following you on %2$s.'),
-                        $long_name,
-                        common_config('site', 'name')) .
+        $body = sprintf(
+            _('%1$s is now following you on %2$s.'),
+            $long_name,
+            common_config('site', 'name')
+        ) .
                 mail_profile_block($other) .
                 mail_footer_block();
 
@@ -233,7 +234,6 @@ function mail_subscribe_pending_notify_profile($listenee, $other)
 {
     if ($other->hasRight(Right::EMAILONSUBSCRIBE) &&
         $listenee->email && $listenee->emailnotifysub) {
-
         $profile = $listenee->getProfile();
 
         $name = $profile->getBestName();
@@ -251,18 +251,22 @@ function mail_subscribe_pending_notify_profile($listenee, $other)
         $headers['To']      = $name . ' <' . $listenee->email . '>';
         // TRANS: Subject of pending new-subscriber notification e-mail.
         // TRANS: %1$s is the subscribing user's nickname, %2$s is the StatusNet sitename.
-        $headers['Subject'] = sprintf(_('%1$s would like to listen to '.
+        $headers['Subject'] = sprintf(
+            _('%1$s would like to listen to '.
                                         'your notices on %2$s.'),
-                                      $other->getBestName(),
-                                      common_config('site', 'name'));
+            $other->getBestName(),
+            common_config('site', 'name')
+        );
 
         // TRANS: Main body of pending new-subscriber notification e-mail.
         // TRANS: %1$s is the subscriber's long name, %2$s is the StatusNet sitename.
-        $body = sprintf(_('%1$s would like to listen to your notices on %2$s. ' .
+        $body = sprintf(
+            _('%1$s would like to listen to your notices on %2$s. ' .
                           'You may approve or reject their subscription at %3$s'),
-                        $long_name,
-                        common_config('site', 'name'),
-                        common_local_url('subqueue', array('nickname' => $listenee->nickname))) .
+            $long_name,
+            common_config('site', 'name'),
+            common_local_url('subqueue', ['nickname' => $listenee->nickname])
+        ) .
                 mail_profile_block($other) .
                 mail_footer_block();
 
@@ -277,13 +281,15 @@ function mail_footer_block()
     // TRANS: Common footer block for StatusNet notification emails.
     // TRANS: %1$s is the StatusNet sitename,
     // TRANS: %2$s is a link to the addressed user's e-mail settings.
-    return "\n\n" . sprintf(_('Faithfully yours,'.
-                              "\n".'%1$s.'."\n\n".
-                              "----\n".
-                              "Change your email address or ".
-                              "notification options at ".'%2$s'),
-                            common_config('site', 'name'),
-                            common_local_url('emailsettings')) . "\n";
+    return "\n\n" . sprintf(
+        _('Faithfully yours,'.
+          "\n".'%1$s.'."\n\n".
+          "----\n".
+          "Change your email address or ".
+          "notification options at ".'%2$s'),
+        common_config('site', 'name'),
+        common_local_url('emailsettings')
+    ) . "\n";
 }
 
 /**
@@ -326,10 +332,12 @@ function mail_profile_block($profile)
 
     // TRANS: This is a paragraph in a new-subscriber e-mail.
     // TRANS: %s is a URL where the subscriber can be reported as abusive.
-    $out[] = sprintf(_('If you believe this account is being used abusively, ' .
-                       'you can block them from your subscribers list and ' .
-                       'report as spam to site administrators at %s.'),
-                     $blocklink);
+    $out[] = sprintf(
+        _('If you believe this account is being used abusively, ' .
+          'you can block them from your subscribers list and ' .
+          'report as spam to site administrators at %s.'),
+        $blocklink
+    );
     $out[] = "";
 
     return implode("\n", $out);
@@ -354,18 +362,22 @@ function mail_new_incoming_notify($user)
     $headers['To']      = $name . ' <' . $user->email . '>';
     // TRANS: Subject of notification mail for new posting email address.
     // TRANS: %s is the StatusNet sitename.
-    $headers['Subject'] = sprintf(_('New email address for posting to %s'),
-                                  common_config('site', 'name'));
+    $headers['Subject'] = sprintf(
+        _('New email address for posting to %s'),
+        common_config('site', 'name')
+    );
 
     // TRANS: Body of notification mail for new posting email address.
     // TRANS: %1$s is the StatusNet sitename, %2$s is the e-mail address to send
     // TRANS: to to post by e-mail, %3$s is a URL to more instructions.
-    $body = sprintf(_("You have a new posting address on %1\$s.\n\n".
-                      "Send email to %2\$s to post new messages.\n\n".
-                      "More email instructions at %3\$s."),
-                    common_config('site', 'name'),
-                    $user->incomingemail,
-                    common_local_url('doc', array('title' => 'email'))) .
+    $body = sprintf(
+        _("You have a new posting address on %1\$s.\n\n".
+          "Send email to %2\$s to post new messages.\n\n".
+          "More email instructions at %3\$s."),
+        common_config('site', 'name'),
+        $user->incomingemail,
+        common_local_url('doc', ['title' => 'email'])
+    ) .
             mail_footer_block();
 
     mail_send($user->email, $headers, $body);
@@ -402,42 +414,58 @@ function mail_broadcast_notice_sms($notice)
 
     $user = new User();
 
-    $UT = common_config('db','type')=='pgsql'?'"user"':'user';
     $replies = $notice->getReplies();
-    $user->query('SELECT nickname, smsemail, incomingemail ' .
-                 "FROM $UT LEFT OUTER JOIN subscription " .
-                 "ON $UT.id = subscription.subscriber " .
-                 'AND subscription.subscribed = ' . $notice->profile_id . ' ' .
-                 'AND subscription.subscribed != subscription.subscriber ' .
-                 // Users (other than the sender) who `want SMS notices':
-                 "WHERE $UT.id != " . $notice->profile_id . ' ' .
-                 "AND $UT.smsemail IS NOT null " .
-                 "AND $UT.smsnotify = 1 " .
-                 // ... where either the user _is_ subscribed to the sender
-                 // (any of the "subscription" fields IS NOT null)
-                 // and wants to get SMS for all of this scribe's notices...
-                 'AND (subscription.sms = 1 ' .
-                 // ... or where the user was mentioned in
-                 // or replied-to with the notice:
-                 ($replies ? sprintf("OR $UT.id in (%s)",
-                                     implode(',', $replies))
-                           : '') .
-                 ')');
+
+    $repliesQry = '';
+    if (!empty($replies)) {
+        $repliesQry = sprintf(
+            'OR %s.id IN (%s)',
+            $user->escapedTableName(),
+            implode(',', $replies)
+        );
+    }
+
+    $user->query(sprintf(
+        'SELECT nickname, smsemail, incomingemail ' .
+        'FROM %1$s LEFT JOIN subscription ' .
+        'ON %1$s.id = subscription.subscriber ' .
+        'AND subscription.subscribed = %2$d ' .
+        'AND subscription.subscribed <> subscription.subscriber ' .
+        // Users (other than the sender) who `want SMS notices':
+        'WHERE %1$s.id <> %2$d ' .
+        'AND %1$s.smsemail IS NOT NULL ' .
+        'AND %1$s.smsnotify = 1 ' .
+        // ... where either the user _is_ subscribed to the sender
+        // (any of the "subscription" fields IS NOT NULL)
+        // and wants to get SMS for all of this scribe's notices...
+        'AND (subscription.sms = 1 ' .
+        // ... or where the user was mentioned in
+        // or replied-to with the notice:
+        $repliesQry .
+        ')',
+        $user->escapedTableName(),
+        $notice->profile_id
+    ));
 
     while ($user->fetch()) {
-        common_log(LOG_INFO,
-                   'Sending notice ' . $notice->id . ' to ' . $user->smsemail,
-                   __FILE__);
-        $success = mail_send_sms_notice_address($notice,
-                                                $user->smsemail,
-                                                $user->incomingemail,
-                                                $user->nickname);
+        common_log(
+            LOG_INFO,
+            'Sending notice ' . $notice->id . ' to ' . $user->smsemail,
+            __FILE__
+        );
+        $success = mail_send_sms_notice_address(
+            $notice,
+            $user->smsemail,
+            $user->incomingemail,
+            $user->nickname
+        );
         if (!$success) {
             // XXX: Not sure, but I think that's the right thing to do
-            common_log(LOG_WARNING,
-                       'Sending notice ' . $notice->id . ' to ' .
-                       $user->smsemail . ' FAILED, cancelling.',
-                       __FILE__);
+            common_log(
+                LOG_WARNING,
+                'Sending notice ' . $notice->id . ' to ' . $user->smsemail . ' FAILED, canceling.',
+                __FILE__
+            );
             return false;
         }
     }
@@ -462,10 +490,12 @@ function mail_broadcast_notice_sms($notice)
  */
 function mail_send_sms_notice($notice, $user)
 {
-    return mail_send_sms_notice_address($notice,
-                                        $user->smsemail,
-                                        $user->incomingemail,
-                                        $user->nickname);
+    return mail_send_sms_notice_address(
+        $notice,
+        $user->smsemail,
+        $user->incomingemail,
+        $user->nickname
+    );
 }
 
 /**
@@ -496,8 +526,7 @@ function mail_send_sms_notice_address($notice, $smsemail, $incomingemail, $nickn
     $headers['To']      = $to;
     // TRANS: Subject line for SMS-by-email notification messages.
     // TRANS: %s is the posting user's nickname.
-    $headers['Subject'] = sprintf(_('%s status'),
-                                  $other->getBestName());
+    $headers['Subject'] = sprintf(_('%s status'), $other->getBestName());
 
     $body = $notice->content;
 
@@ -554,14 +583,16 @@ function mail_notify_nudge($from, $to)
     // TRANS: Body for 'nudge' notification email.
     // TRANS: %1$s is the nuding user's long name, $2$s is the nudging user's nickname,
     // TRANS: %3$s is a URL to post notices at.
-    $body = sprintf(_("%1\$s (%2\$s) is wondering what you are up to ".
-                      "these days and is inviting you to post some news.\n\n".
-                      "So let's hear from you :)\n\n".
-                      "%3\$s\n\n".
-                      "Don't reply to this email; it won't get to them."),
-                    $from_profile->getBestName(),
-                    $from->nickname,
-                    common_local_url('all', array('nickname' => $to->nickname))) .
+    $body = sprintf(
+        _('%1$s (%2$s) is wondering what you are up to ' .
+          "these days and is inviting you to post some news.\n\n" .
+          "So let's hear from you :)\n\n" .
+          "%3\$s\n\n" .
+          "Don't reply to this email; it won't get to them."),
+        $from_profile->getBestName(),
+        $from->nickname,
+        common_local_url('all', ['nickname' => $to->nickname])
+    ) .
             mail_footer_block();
     common_switch_locale();
 
@@ -612,17 +643,19 @@ function mail_notify_message(Notice $message, Profile $from = null, ?array $to =
         // TRANS: Body for direct-message notification email.
         // TRANS: %1$s is the sending user's long name, %2$s is the sending user's nickname,
         // TRANS: %3$s is the message content, %4$s a URL to the message,
-        $body = sprintf(_("%1\$s (%2\$s) sent you a private message:\n\n".
-                        "------------------------------------------------------\n".
-                        "%3\$s\n".
-                        "------------------------------------------------------\n\n".
-                        "You can reply to their message here:\n\n".
-                        "%4\$s\n\n".
-                        "Don't reply to this email; it won't get to them."),
-                        $from->getBestName(),
-                        $from->getNickname(),
-                        $message->getContent(),
-                        common_local_url('newmessage', ['to' => $from->getID()])) .
+        $body = sprintf(
+            _("%1\$s (%2\$s) sent you a private message:\n\n".
+              "------------------------------------------------------\n".
+              "%3\$s\n".
+              "------------------------------------------------------\n\n".
+              "You can reply to their message here:\n\n".
+              "%4\$s\n\n".
+              "Don't reply to this email; it won't get to them."),
+            $from->getBestName(),
+            $from->getNickname(),
+            $message->getContent(),
+            common_local_url('newmessage', ['to' => $from->getID()])
+        ) .
                 mail_footer_block();
 
         $headers = _mail_prepare_headers('message', $t->getNickname(), $from->getNickname());
@@ -675,8 +708,11 @@ function mail_notify_attn(Profile $rcpt, Notice $notice)
     common_switch_locale($user->language);
 
     if ($notice->hasConversation()) {
-        $conversationUrl = common_local_url('conversation',
-                         array('id' => $notice->conversation)).'#notice-'.$notice->getID();
+        $conversationUrl = common_local_url(
+            'conversation',
+            ['id' => $notice->conversation]
+        ) . '#notice-'.$notice->getID();
+
         // TRANS: Line in @-reply notification e-mail. %s is conversation URL.
         $conversationEmailText = sprintf(_("The full conversation can be read here:\n\n".
                                            "\t%s"), $conversationUrl) . "\n\n";
@@ -688,32 +724,40 @@ function mail_notify_attn(Profile $rcpt, Notice $notice)
     // TRANS: %1$s is the "fancy name" for a profile.
     $subject = sprintf(_('%1$s sent a notice to your attention'), $sender->getFancyName());
 
-        // TRANS: Body of @-reply notification e-mail.
-        // TRANS: %1$s is the sending user's name, $2$s is the StatusNet sitename,
-        // TRANS: %3$s is a URL to the notice, %4$s is the notice text,
-        // TRANS: %5$s is the text "The full conversation can be read here:" and a URL to the full conversion if it exists (otherwise empty),
-        // TRANS: %6$s is a URL to reply to the notice, %7$s is a URL to all @-replies for the addressed user,
-        $body = sprintf(_("%1\$s just sent a notice to your attention (an '@-reply') on %2\$s.\n\n".
-                      "The notice is here:\n\n".
-                      "\t%3\$s\n\n" .
-                      "It reads:\n\n".
-                      "\t%4\$s\n\n" .
-                      "%5\$s" .
-                      "You can reply back here:\n\n".
-                      "\t%6\$s\n\n" .
-                      "The list of all @-replies for you here:\n\n" .
-                      "%7\$s"),
-                    $sender->getFancyName(),//%1
-                    common_config('site', 'name'),//%2
-                    common_local_url('shownotice',
-                                     array('notice' => $notice->getID())),//%3
-                    $notice->getContent(),//%4
-                    $conversationEmailText,//%5
-                    common_local_url('newnotice',
-                                     array('replyto' => $sender->getNickname(), 'inreplyto' => $notice->getID())),//%6
-                    common_local_url('replies',
-                                     array('nickname' => $rcpt->getNickname()))) . //%7
-                mail_footer_block();
+    // TRANS: Body of @-reply notification e-mail.
+    // TRANS: %1$s is the sending user's name, $2$s is the GNU social sitename,
+    // TRANS: %3$s is a URL to the notice, %4$s is the notice text,
+    // TRANS: %5$s is the text "The full conversation can be read here:" and a URL to the full conversion if it exists (otherwise empty),
+    // TRANS: %6$s is a URL to reply to the notice, %7$s is a URL to all @-replies for the addressed user,
+    $body = sprintf(
+        _("%1\$s just sent a notice to your attention (an '@-reply') on %2\$s.\n\n".
+          "The notice is here:\n\n".
+          "\t%3\$s\n\n" .
+          "It reads:\n\n".
+          "\t%4\$s\n\n" .
+          "%5\$s" .
+          "You can reply back here:\n\n".
+          "\t%6\$s\n\n" .
+          "The list of all @-replies for you here:\n\n" .
+          "%7\$s"),
+        $sender->getFancyName(), //%1
+        common_config('site', 'name'), //%2
+        common_local_url(
+            'shownotice',
+            ['notice' => $notice->getID()]
+        ), //%3
+        $notice->getContent(), //%4
+        $conversationEmailText, //%5
+        common_local_url(
+            'newnotice',
+            ['replyto' => $sender->getNickname(), 'inreplyto' => $notice->getID()]
+        ), //%6
+        common_local_url(
+            'replies',
+            ['nickname' => $rcpt->getNickname()]
+        )
+    ) . //%7
+            mail_footer_block();
     $headers = _mail_prepare_headers('mention', $rcpt->getNickname(), $sender->getNickname());
 
     common_switch_locale();
@@ -764,20 +808,23 @@ function mail_notify_group_join($group, $joiner)
             $headers['To']      = $admin->getBestName() . ' <' . $adminUser->email . '>';
             // TRANS: Subject of group join notification e-mail.
             // TRANS: %1$s is the joining user's nickname, %2$s is the group name, and %3$s is the StatusNet sitename.
-            $headers['Subject'] = sprintf(_('%1$s has joined '.
-                                            'your group %2$s on %3$s'),
-                                          $joiner->getBestName(),
-                                          $group->getBestName(),
-                                          common_config('site', 'name'));
+            $headers['Subject'] = sprintf(
+                _('%1$s has joined your group %2$s on %3$s'),
+                $joiner->getBestName(),
+                $group->getBestName(),
+                common_config('site', 'name')
+            );
 
             // TRANS: Main body of group join notification e-mail.
             // TRANS: %1$s is the subscriber's long name, %2$s is the group name, and %3$s is the StatusNet sitename,
             // TRANS: %4$s is a block of profile info about the subscriber.
             // TRANS: %5$s is a link to the addressed user's e-mail settings.
-            $body = sprintf(_('%1$s has joined your group %2$s on %3$s.'),
-                            $joiner->getFancyName(),
-                            $group->getFancyName(),
-                            common_config('site', 'name')) .
+            $body = sprintf(
+                _('%1$s has joined your group %2$s on %3$s.'),
+                $joiner->getFancyName(),
+                $group->getFancyName(),
+                common_config('site', 'name')
+            ) .
                     mail_profile_block($joiner) .
                     mail_footer_block();
 
@@ -811,20 +858,24 @@ function mail_notify_group_join_pending($group, $joiner)
             $headers['To']      = $admin->getBestName() . ' <' . $adminUser->email . '>';
             // TRANS: Subject of pending group join request notification e-mail.
             // TRANS: %1$s is the joining user's nickname, %2$s is the group name, and %3$s is the StatusNet sitename.
-            $headers['Subject'] = sprintf(_('%1$s wants to join your group %2$s on %3$s.'),
-                                          $joiner->getBestName(),
-                                          $group->getBestName(),
-                                          common_config('site', 'name'));
+            $headers['Subject'] = sprintf(
+                _('%1$s wants to join your group %2$s on %3$s.'),
+                $joiner->getBestName(),
+                $group->getBestName(),
+                common_config('site', 'name')
+            );
 
             // TRANS: Main body of pending group join request notification e-mail.
             // TRANS: %1$s is the subscriber's long name, %2$s is the group name, and %3$s is the StatusNet sitename,
             // TRANS: %4$s is the URL to the moderation queue page.
-            $body = sprintf(_('%1$s would like to join your group %2$s on %3$s. ' .
-                              'You may approve or reject their group membership at %4$s'),
-                            $joiner->getFancyName(),
-                            $group->getFancyName(),
-                            common_config('site', 'name'),
-                            common_local_url('groupqueue', array('nickname' => $group->nickname))) .
+            $body = sprintf(
+                _('%1$s would like to join your group %2$s on %3$s. ' .
+                  'You may approve or reject their group membership at %4$s'),
+                $joiner->getFancyName(),
+                $group->getFancyName(),
+                common_config('site', 'name'),
+                common_local_url('groupqueue', ['nickname' => $group->nickname])
+            ) .
                     mail_profile_block($joiner) .
                     mail_footer_block();
 

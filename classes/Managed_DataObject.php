@@ -1,28 +1,31 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Wrapper for Memcached_DataObject which knows its own schema definition.
  * Builds its own damn settings from a schema definition.
  *
- * @author Brion Vibber <brion@status.net>
+ * @package   GNUsocial
+ * @author    Brion Vibber <brion@status.net>
+ * @copyright 2010 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+defined('GNUSOCIAL') || die();
+
 abstract class Managed_DataObject extends Memcached_DataObject
 {
     /**
@@ -42,7 +45,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
      * @return get_called_class() object if found, or null for no hits
      *
      */
-    static function getKV($k,$v=NULL)
+    public static function getKV($k, $v = null)
     {
         return parent::getClassKV(get_called_class(), $k, $v);
     }
@@ -59,12 +62,12 @@ abstract class Managed_DataObject extends Memcached_DataObject
      * @return get_called_class() object if found, or null for no hits
      *
      */
-    static function pkeyGet(array $kv)
+    public static function pkeyGet(array $kv)
     {
         return parent::pkeyGetClass(get_called_class(), $kv);
     }
 
-    static function pkeyCols()
+    public static function pkeyCols()
     {
         return parent::pkeyColsClass(get_called_class());
     }
@@ -78,10 +81,10 @@ abstract class Managed_DataObject extends Memcached_DataObject
      *
      * @return array Array of objects, in order
      */
-	static function multiGet($keyCol, array $keyVals, $skipNulls=true)
-	{
-	    return parent::multiGetClass(get_called_class(), $keyCol, $keyVals, $skipNulls);
-	}
+    public static function multiGet($keyCol, array $keyVals, $skipNulls = true)
+    {
+        return parent::multiGetClass(get_called_class(), $keyCol, $keyVals, $skipNulls);
+    }
 
     /**
      * Get multiple items from the database by key
@@ -92,10 +95,10 @@ abstract class Managed_DataObject extends Memcached_DataObject
      *
      * @return array Array mapping $keyVals to objects, or null if not found
      */
-	static function pivotGet($keyCol, array $keyVals, array $otherCols=array())
-	{
-	    return parent::pivotGetClass(get_called_class(), $keyCol, $keyVals, $otherCols);
-	}
+    public static function pivotGet($keyCol, array $keyVals, array $otherCols = [])
+    {
+        return parent::pivotGetClass(get_called_class(), $keyCol, $keyVals, $otherCols);
+    }
 
     /**
      * Get a multi-instance object
@@ -110,7 +113,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
      *         Exception is thrown when no entries are found.
      *
      */
-    static function listFind($keyCol, array $keyVals)
+    public static function listFind($keyCol, array $keyVals)
     {
         return parent::listFindClass(get_called_class(), $keyCol, $keyVals);
     }
@@ -128,7 +131,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
      * @return array with an get_called_class() object for each $keyVals entry
      *
      */
-    static function listGet($keyCol, array $keyVals)
+    public static function listGet($keyCol, array $keyVals)
     {
         return parent::listGetClass(get_called_class(), $keyCol, $keyVals);
     }
@@ -149,11 +152,11 @@ abstract class Managed_DataObject extends Memcached_DataObject
      * get/set an  array of table primary keys
      *
      * Key info is pulled from the table definition array.
-     * 
+     *
      * @access private
      * @return array
      */
-    function keys()
+    public function keys()
     {
         return array_keys($this->keyTypes());
     }
@@ -167,7 +170,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
      * @return array (column,use_native,sequence_name)
      */
 
-    function sequenceKey()
+    public function sequenceKey()
     {
         $table = static::schemaDef();
         foreach ($table['fields'] as $name => $column) {
@@ -191,7 +194,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
      * @return array key definitions
      */
 
-    function keyTypes()
+    public function keyTypes()
     {
         $table = static::schemaDef();
         $keys = array();
@@ -218,7 +221,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
      * @param array $column
      * @return int
      */
-    function columnBitmap($column)
+    public function columnBitmap($column)
     {
         $type = $column['type'];
 
@@ -254,7 +257,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
         return $style;
     }
 
-    function links()
+    public function links()
     {
         $links = array();
 
@@ -277,7 +280,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
      *
      * @return array of strings
      */
-    function _allCacheKeys()
+    public function _allCacheKeys()
     {
         $table = static::schemaDef();
         $ckeys = array();
@@ -322,7 +325,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
      * @return  Managed_DataObject  of the get_called_class() type
      * @throws  NoResultException   if no object with that primary key
      */
-    static function getByPK(array $vals)
+    public static function getByPK(array $vals)
     {
         $classname = get_called_class();
 
@@ -356,7 +359,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
      * @return  Managed_DataObject  of the get_called_class() type
      * @throws  NoResultException   if no object with that primary key
      */
-    static function getByKeys(array $vals)
+    public static function getByKeys(array $vals)
     {
         $classname = get_called_class();
 
@@ -381,7 +384,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
         return $object;
     }
 
-    static function getByID($id)
+    public static function getByID($id)
     {
         if (!property_exists(get_called_class(), 'id')) {
             throw new ServerException('Trying to get undefined property of dataobject class.');
@@ -394,7 +397,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
         return static::getByPK(array('id' => $id));
     }
 
-    static function getByUri($uri)
+    public static function getByUri($uri)
     {
         if (!property_exists(get_called_class(), 'uri')) {
             throw new ServerException('Trying to get undefined property of dataobject class.');
@@ -537,18 +540,20 @@ abstract class Managed_DataObject extends Memcached_DataObject
             $pid = $schema['primary key'];
             unset($schema);
         }
-        $pidWhere = array();
-        foreach((array)$pid as $pidCol) { 
+        $pidWhere = [];
+        foreach ((array) $pid as $pidCol) {
             $pidWhere[] = sprintf('%1$s = %2$s', $pidCol, $this->_quote($orig->$pidCol));
         }
         if (empty($pidWhere)) {
             throw new ServerException('No primary ID column(s) set for updateWithKeys');
         }
 
-        $qry = sprintf('UPDATE %1$s SET %2$s WHERE %3$s',
-                            common_database_tablename($this->tableName()),
-                            implode(', ', $parts),
-                            implode(' AND ', $pidWhere));
+        $qry = sprintf(
+            'UPDATE %1$s SET %2$s WHERE %3$s',
+            $this->escapedTableName(),
+            implode(', ', $parts),
+            implode(' AND ', $pidWhere)
+        );
 
         $result = $this->query($qry);
         if ($result === false) {
@@ -576,21 +581,23 @@ abstract class Managed_DataObject extends Memcached_DataObject
         return $result;
     }
 
-    static public function beforeSchemaUpdate()
+    public static function beforeSchemaUpdate()
     {
         // NOOP
     }
 
-    static function newUri(Profile $actor, Managed_DataObject $object, $created=null)
+    public static function newUri(Profile $actor, Managed_DataObject $object, $created = null)
     {
         if (is_null($created)) {
             $created = common_sql_now();
         }
-        return TagURI::mint(strtolower(get_called_class()).':%d:%s:%d:%s',
-                                        $actor->getID(),
-                                        ActivityUtils::resolveUri($object->getObjectType(), true),
-                                        $object->getID(),
-                                        common_date_iso8601($created));
+        return TagURI::mint(
+            strtolower(get_called_class()) . ':%d:%s:%d:%s',
+            $actor->getID(),
+            ActivityUtils::resolveUri($object->getObjectType(), true),
+            $object->getID(),
+            common_date_iso8601($created)
+        );
     }
 
     protected function onInsert()
