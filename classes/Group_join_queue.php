@@ -1,4 +1,21 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('GNUSOCIAL') || die();
+
 /**
  * Table Definition for request_queue
  */
@@ -23,7 +40,7 @@ class Group_join_queue extends Managed_DataObject
             'description' => 'Holder for group join requests awaiting moderation.',
             'fields' => array(
                 'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'remote or local profile making the request'),
-                'group_id' => array('type' => 'int', 'description' => 'remote or local group to join, if any'),
+                'group_id' => array('type' => 'int', 'not null' => true, 'description' => 'remote or local group to join, if any'),
                 'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
             ),
             'primary key' => array('profile_id', 'group_id'),
@@ -48,27 +65,27 @@ class Group_join_queue extends Managed_DataObject
         return $rq;
     }
 
-    function getMember()
+    public function getMember()
     {
         $member = Profile::getKV('id', $this->profile_id);
 
         if (empty($member)) {
             // TRANS: Exception thrown providing an invalid profile ID.
             // TRANS: %s is the invalid profile ID.
-            throw new Exception(sprintf(_('Profile ID %s is invalid.'),$this->profile_id));
+            throw new Exception(sprintf(_('Profile ID %s is invalid.'), $this->profile_id));
         }
 
         return $member;
     }
 
-    function getGroup()
+    public function getGroup()
     {
         $group  = User_group::getKV('id', $this->group_id);
 
         if (empty($group)) {
             // TRANS: Exception thrown providing an invalid group ID.
             // TRANS: %s is the invalid group ID.
-            throw new Exception(sprintf(_('Group ID %s is invalid.'),$this->group_id));
+            throw new Exception(sprintf(_('Group ID %s is invalid.'), $this->group_id));
         }
 
         return $group;
@@ -77,7 +94,7 @@ class Group_join_queue extends Managed_DataObject
     /**
      * Abort the pending group join...
      */
-    function abort()
+    public function abort()
     {
         $profile = $this->getMember();
         $group = $this->getGroup();
@@ -93,7 +110,7 @@ class Group_join_queue extends Managed_DataObject
      *
      * @return Group_member object on success
      */
-    function complete()
+    public function complete()
     {
         $join = null;
         $profile = $this->getMember();
