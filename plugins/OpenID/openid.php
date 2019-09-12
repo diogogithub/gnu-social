@@ -1,25 +1,25 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 require_once('Auth/OpenID.php');
 require_once('Auth/OpenID/Consumer.php');
@@ -49,19 +49,19 @@ function oid_store()
         }
         $db = DB::connect($dsn, $options);
 
-        if (PEAR::isError($db)) {
+        if ((new PEAR)->isError($db)) {
             throw new ServerException($db->getMessage());
         }
 
         switch (common_config('db', 'type')) {
+            case 'pgsql':
+                $store = new Auth_OpenID_PostgreSQLStore($db);
+                break;
             case 'mysql':
                 $store = new Auth_OpenID_MySQLStore($db);
                 break;
-            case 'postgresql':
-                $store = new Auth_OpenID_PostgreSQLStore($db);
-                break;
             default:
-                throw new ServerException(_m('Unknown DB type for OpenID.'));
+                throw new ServerException('Unknown DB type selected.');
         }
     }
     return $store;
@@ -90,9 +90,11 @@ function oid_clear_last()
 
 function oid_set_last($openid_url)
 {
-    common_set_cookie(OPENID_COOKIE_KEY,
-                     $openid_url,
-                     time() + OPENID_COOKIE_EXPIRY);
+    common_set_cookie(
+        OPENID_COOKIE_KEY,
+        $openid_url,
+        time() + OPENID_COOKIE_EXPIRY
+    );
 }
 
 function oid_get_last()
@@ -119,7 +121,7 @@ function oid_link_user($id, $canonical, $display)
     $oid->created = common_sql_now();
 
     if (!$oid->insert()) {
-        $err = &$_PEAR->getStaticProperty('DB_DataObject','lastError');
+        $err = &$_PEAR->getStaticProperty('DB_DataObject', 'lastError');
         return false;
     }
 
@@ -149,9 +151,11 @@ function oid_check_immediate($openid_url, $backto=null)
 
     $_SESSION['openid_immediate_backto'] = $backto;
 
-    oid_authenticate($openid_url,
-                     'finishimmediate',
-                     true);
+    oid_authenticate(
+        $openid_url,
+        'finishimmediate',
+        true
+    );
 }
 
 function oid_authenticate($openid_url, $returnto, $immediate=false)
@@ -177,23 +181,27 @@ function oid_authenticate($openid_url, $returnto, $immediate=false)
         common_log(LOG_ERR, __METHOD__ . ": mystery fail contacting $openid_url");
         // TRANS: OpenID plugin message. Given when an OpenID is not valid.
         throw new ServerException(_m('Not a valid OpenID.'));
-    } else if (Auth_OpenID::isFailure($auth_request)) {
+    } elseif (Auth_OpenID::isFailure($auth_request)) {
         common_log(LOG_ERR, __METHOD__ . ": OpenID fail to $openid_url: $auth_request->message");
         // TRANS: OpenID plugin server error. Given when the OpenID authentication request fails.
         // TRANS: %s is the failure message.
         throw new ServerException(sprintf(_m('OpenID failure: %s.'), $auth_request->message));
     }
 
-    $sreg_request = Auth_OpenID_SRegRequest::build(// Required
-                                                   array(),
-                                                   // Optional
-                                                   array('nickname',
-                                                         'email',
-                                                         'fullname',
-                                                         'language',
-                                                         'timezone',
-                                                         'postcode',
-                                                         'country'));
+    $sreg_request = Auth_OpenID_SRegRequest::build(
+        // Required
+        [],
+        // Optional
+        [
+            'nickname',
+            'email',
+            'fullname',
+            'language',
+            'timezone',
+            'postcode',
+            'country',
+        ]
+    );
 
     if ($sreg_request) {
         $auth_request->addExtension($sreg_request);
@@ -224,9 +232,11 @@ function oid_authenticate($openid_url, $returnto, $immediate=false)
     // autosubmitter for now.
     //
     //if ($auth_request->shouldSendRedirect()) {
-        $redirect_url = $auth_request->redirectURL($trust_root,
-                                                   $process_url,
-                                                   $immediate);
+        $redirect_url = $auth_request->redirectURL(
+            $trust_root,
+            $process_url,
+            $immediate
+        );
         if (Auth_OpenID::isFailure($redirect_url)) {
             // TRANS: OpenID plugin server error. Given when the OpenID authentication request cannot be redirected.
             // TRANS: %s is the failure message.
@@ -266,11 +276,14 @@ function oid_authenticate($openid_url, $returnto, $immediate=false)
 
 function _oid_print_instructions()
 {
-    common_element('div', 'instructions',
-                   // TRANS: OpenID plugin user instructions.
-                   _m('This form should automatically submit itself. '.
-                      'If not, click the submit button to go to your '.
-                      'OpenID provider.'));
+    common_element(
+        'div',
+        'instructions',
+        // TRANS: OpenID plugin user instructions.
+        _m('This form should automatically submit itself. '.
+           'If not, click the submit button to go to your '.
+           'OpenID provider.')
+    );
 }
 
 /**
@@ -382,22 +395,22 @@ function oid_check_teams($response)
 
 class AutosubmitAction extends Action
 {
-    var $form_html = null;
-    var $form_id = null;
+    public $form_html = null;
+    public $form_id = null;
 
-    function handle()
+    public function handle()
     {
         parent::handle();
         $this->showPage();
     }
 
-    function title()
+    public function title()
     {
         // TRANS: Title
         return _m('OpenID Login Submission');
     }
 
-    function showContent()
+    public function showContent()
     {
         $this->raw('<p style="margin: 20px 80px">');
         // @todo FIXME: This would be better using standard CSS class, but the present theme's a bit scary.
@@ -414,10 +427,13 @@ class AutosubmitAction extends Action
         $this->raw($this->form_html);
     }
 
-    function showScripts()
+    public function showScripts()
     {
         parent::showScripts();
-        $this->element('script', null,
-                       'document.getElementById(\'' . $this->form_id . '\').submit();');
+        $this->element(
+            'script',
+            null,
+            'document.getElementById(\'' . $this->form_id . '\').submit();'
+        );
     }
 }

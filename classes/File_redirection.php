@@ -1,28 +1,24 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
- */
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Table Definition for file_redirection
  */
-
 class File_redirection extends Managed_DataObject
 {
     ###START_AUTOCODE
@@ -54,17 +50,18 @@ class File_redirection extends Managed_DataObject
             ),
             'primary key' => array('urlhash'),
             'foreign keys' => array(
-                'file_redirection_file_id_fkey' => array('file' => array('file_id' => 'id')),
+                'file_redirection_file_id_fkey' => array('file', array('file_id' => 'id')),
             ),
         );
     }
 
-    static public function getByUrl($url)
+    public static function getByUrl($url)
     {
         return self::getByPK(array('urlhash' => File::hashurl($url)));
     }
 
-    static function _commonHttp($url, $redirs) {
+    public static function _commonHttp($url, $redirs)
+    {
         $request = new HTTPClient($url);
         $request->setConfig(array(
             'connect_timeout' => 10, // # seconds to wait
@@ -96,10 +93,13 @@ class File_redirection extends Managed_DataObject
      *                size (optional): byte size from Content-Length header
      *                time (optional): timestamp from Last-Modified header
      */
-    static function lookupWhere($short_url, $redirs = 10, $protected = false) {
-        if ($redirs < 0) return false;
+    public static function lookupWhere($short_url, $redirs = 10, $protected = false)
+    {
+        if ($redirs < 0) {
+            return false;
+        }
 
-        if(strpos($short_url,'://') === false){
+        if (strpos($short_url, '://') === false) {
             return $short_url;
         }
         try {
@@ -128,13 +128,13 @@ class File_redirection extends Managed_DataObject
             common_log(LOG_ERR, "Error while following redirects for $short_url: " . $e->getMessage());
             return $short_url;
         }
-        
-		// if last url after all redirections is protected, 
-		// use the url before it in the redirection chain
+
+        // if last url after all redirections is protected,
+        // use the url before it in the redirection chain
         if ($response->getRedirectCount() && File::isProtected($response->getEffectiveUrl())) {
-			$return_url = $response->redirUrls[$response->getRedirectCount()-1];
+            $return_url = $response->redirUrls[$response->getRedirectCount() - 1];
         } else {
-			$return_url = $response->getEffectiveUrl();
+            $return_url = $response->getEffectiveUrl();
         }
 
         $ret = array('code' => $response->getStatus()
@@ -142,12 +142,20 @@ class File_redirection extends Managed_DataObject
                 , 'url' => $return_url);
 
         $type = $response->getHeader('Content-Type');
-        if ($type) $ret['type'] = $type;
-        if ($protected) $ret['protected'] = true;
+        if ($type) {
+            $ret['type'] = $type;
+        }
+        if ($protected) {
+            $ret['protected'] = true;
+        }
         $size = $response->getHeader('Content-Length'); // @fixme bytes?
-        if ($size) $ret['size'] = $size;
+        if ($size) {
+            $ret['size'] = $size;
+        }
         $time = $response->getHeader('Last-Modified');
-        if ($time) $ret['time'] = strtotime($time);
+        if ($time) {
+            $ret['time'] = strtotime($time);
+        }
         return $ret;
     }
 
@@ -164,7 +172,8 @@ class File_redirection extends Managed_DataObject
      * @param boolean $discover true to attempt dereferencing the redirect if we don't know it already
      * @return File_redirection
      */
-    static function where($in_url, $discover=true) {
+    public static function where($in_url, $discover = true)
+    {
         $redir = new File_redirection();
         $redir->url = $in_url;
         $redir->urlhash = File::hashurl($redir->url);
@@ -179,14 +188,16 @@ class File_redirection extends Managed_DataObject
                 $r->redir_url = $f->url;
             } catch (NoResultException $e) {
                 // Invalid entry, delete and run again
-                common_log(LOG_ERR, "Could not find File with id=".$r->file_id." referenced in File_redirection, deleting File redirection entry and and trying again...");                 
+                common_log(
+                    LOG_ERR,
+                    'Could not find File with id=' . $r->file_id . ' referenced in File_redirection, deleting File redirection entry and and trying again...'
+                );
                 $r->delete();
-                return self::where($in_url);            
+                return self::where($in_url);
             }
             
             // File_redirecion and File record found, return both
             return $r;
-            
         } catch (NoResultException $e) {
             // File_redirecion record not found, but this might be a direct link to a file
             try {
@@ -194,15 +205,15 @@ class File_redirection extends Managed_DataObject
                 $redir->file_id = $f->id;
                 $redir->file = $f;
                 return $redir;
-            } catch (NoResultException $e) {                    
+            } catch (NoResultException $e) {
                 // nope, this was not a direct link to a file either, let's keep going
             }
         }
 
-        if ($discover) {    
-            // try to follow redirects and get the final url        
+        if ($discover) {
+            // try to follow redirects and get the final url
             $redir_info = File_redirection::lookupWhere($in_url);
-            if(is_string($redir_info)) {
+            if (is_string($redir_info)) {
                 $redir_info = array('url' => $redir_info);
             }
             
@@ -212,29 +223,32 @@ class File_redirection extends Managed_DataObject
             try {
                 $r = File_redirection::getByUrl($redir_info['url']);
                 
-                $f = File::getKV('id',$r->file_id);
+                $f = File::getKV('id', $r->file_id);
                 
-                if($f instanceof File) {
+                if ($f instanceof File) {
                     $redir->file = $f;
-                    $redir->redir_url = $f->url;                
+                    $redir->redir_url = $f->url;
                 } else {
                     // Invalid entry in File_redirection, delete and run again
-                    common_log(LOG_ERR, "Could not find File with id=".$r->file_id." referenced in File_redirection, deleting File_redirection entry and trying again...");                 
+                    common_log(
+                        LOG_ERR,
+                        'Could not find File with id=' . $r->file_id . ' referenced in File_redirection, deleting File_redirection entry and trying again...'
+                    );
                     $r->delete();
-                    return self::where($in_url);                
+                    return self::where($in_url);
                 }
             } catch (NoResultException $e) {
                 // save the file now when we know that we don't have it in File_redirection
                 try {
-                    $redir->file = File::saveNew($redir_info,$redir_info['url']);
+                    $redir->file = File::saveNew($redir_info, $redir_info['url']);
                 } catch (ServerException $e) {
                     common_log(LOG_ERR, $e);
-                }   
+                }
             }
              
             // If this is a redirection and we have a file to redirect to, save it
-            // (if it doesn't exist in File_redirection already)            
-            if($redir->file instanceof File && $redir_info['url'] != $in_url) {
+            // (if it doesn't exist in File_redirection already)
+            if ($redir->file instanceof File && $redir_info['url'] != $in_url) {
                 try {
                     $file_redir = File_redirection::getByUrl($in_url);
                 } catch (NoResultException $e) {
@@ -243,12 +257,12 @@ class File_redirection extends Managed_DataObject
                     $file_redir->url = $in_url;
                     $file_redir->file_id = $redir->file->getID();
                     $file_redir->insert();
-                    $file_redir->redir_url = $redir->file->url;                 
-                }       
+                    $file_redir->redir_url = $redir->file->url;
+                }
 
-                $file_redir->file = $redir->file;       
-                return $file_redir; 
-            } 
+                $file_redir->file = $redir->file;
+                return $file_redir;
+            }
         }
 
         return $redir;
@@ -268,7 +282,7 @@ class File_redirection extends Managed_DataObject
      * @param User $user whose shortening options to use; defaults to the current web session user
      * @return string
      */
-    static function makeShort($long_url, $user=null)
+    public static function makeShort($long_url, $user = null)
     {
         $canon = File_redirection::_canonUrl($long_url);
 
@@ -293,7 +307,7 @@ class File_redirection extends Managed_DataObject
      * @return string
      */
 
-    static function forceShort($long_url, $user)
+    public static function forceShort($long_url, $user)
     {
         $canon = File_redirection::_canonUrl($long_url);
 
@@ -303,7 +317,8 @@ class File_redirection extends Managed_DataObject
         return !empty($short_url) ? $short_url : $long_url;
     }
 
-    static function _userMakeShort($long_url, User $user=null, $force = false) {
+    public static function _userMakeShort($long_url, User $user = null, $force = false)
+    {
         $short_url = common_shorten_url($long_url, $user, $force);
         if (!empty($short_url) && $short_url != $long_url) {
             $short_url = (string)$short_url;
@@ -343,8 +358,11 @@ class File_redirection extends Managed_DataObject
      * @param string $default_scheme if given a bare link; defaults to 'http://'
      * @return string
      */
-    static function _canonUrl($in_url, $default_scheme = 'http://') {
-        if (empty($in_url)) return false;
+    public static function _canonUrl($in_url, $default_scheme = 'http://')
+    {
+        if (empty($in_url)) {
+            return false;
+        }
         $out_url = $in_url;
         $p = parse_url($out_url);
         if (empty($p['host']) || empty($p['scheme'])) {
@@ -377,13 +395,17 @@ class File_redirection extends Managed_DataObject
             default:
                 $out_url = $default_scheme . ltrim($out_url, '/');
                 $p = parse_url($out_url);
-                if (empty($p['scheme'])) return false;
+                if (empty($p['scheme'])) {
+                    return false;
+                }
                 break;
             }
         }
 
         if (('ftp' == $p['scheme']) || ('ftps' == $p['scheme']) || ('http' == $p['scheme']) || ('https' == $p['scheme'])) {
-            if (empty($p['host'])) return false;
+            if (empty($p['host'])) {
+                return false;
+            }
             if (empty($p['path'])) {
                 $out_url .= '/';
             }
@@ -392,7 +414,8 @@ class File_redirection extends Managed_DataObject
         return $out_url;
     }
 
-    static function saveNew($data, $file_id, $url) {
+    public static function saveNew($data, $file_id, $url)
+    {
         $file_redir = new File_redirection;
         $file_redir->urlhash = File::hashurl($url);
         $file_redir->url = $url;
@@ -402,7 +425,7 @@ class File_redirection extends Managed_DataObject
         $file_redir->insert();
     }
 
-    static public function beforeSchemaUpdate()
+    public static function beforeSchemaUpdate()
     {
         $table = strtolower(get_called_class());
         $schema = Schema::get();
@@ -416,16 +439,16 @@ class File_redirection extends Managed_DataObject
         echo "\nFound old $table table, upgrading it to contain 'urlhash' field...";
         // We have to create a urlhash that is _not_ the primary key,
         // transfer data and THEN run checkSchema
-        $schemadef['fields']['urlhash'] = array (
-                                              'type' => 'varchar',
-                                              'length' => 64,
-                                              'not null' => true,
-                                              'description' => 'sha256 hash of the URL',
-                                            );
-        $schemadef['fields']['url'] = array (
-                                              'type' => 'text',
-                                              'description' => 'short URL (or any other kind of redirect) for file (id)',
-                                            );
+        $schemadef['fields']['urlhash'] = [
+            'type'        => 'varchar',
+            'length'      => 64,
+            'not null'    => true,
+            'description' => 'sha256 hash of the URL',
+        ];
+        $schemadef['fields']['url'] = [
+            'type'        => 'text',
+            'description' => 'short URL (or any other kind of redirect) for file (id)',
+        ];
         unset($schemadef['primary key']);
         $schema->ensureTable($table, $schemadef);
         echo "DONE.\n";
@@ -434,17 +457,27 @@ class File_redirection extends Managed_DataObject
         $tablefix = new $classname;
         // urlhash is hash('sha256', $url) in the File table
         echo "Updating urlhash fields in $table table...";
-        // Maybe very MySQL specific :(
-        $tablefix->query(sprintf('UPDATE %1$s SET %2$s=%3$s;',
-                            $schema->quoteIdentifier($table),
-                            'urlhash',
-                            // The line below is "result of sha256 on column `url`"
-                            'SHA2(url, 256)'));
+        switch (common_config('db', 'type')) {
+            case 'pgsql':
+                $url_sha256 = 'encode(sha256(CAST("url" AS bytea)), \'hex\')';
+                break;
+            case 'mysql':
+                $url_sha256 = 'sha2(`url`, 256)';
+                break;
+            default:
+                throw new ServerException('Unknown DB type selected.');
+        }
+        $tablefix->query(sprintf(
+            'UPDATE %1$s SET urlhash = %2$s;',
+            $tablefix->escapedTableName(),
+            $url_sha256
+        ));
         echo "DONE.\n";
         echo "Resuming core schema upgrade...";
     }
 
-    public function getFile() {
+    public function getFile()
+    {
         if (!$this->file instanceof File) {
             $this->file = File::getByID($this->file_id);
         }

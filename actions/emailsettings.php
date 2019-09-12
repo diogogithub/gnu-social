@@ -1,48 +1,40 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Settings for email
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Zach Copley <zach@status.net>
  * @copyright 2008-2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Settings for email
  *
- * @category Settings
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @copyright 2008-2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
  * @see      Widget
  */
-
 class EmailsettingsAction extends SettingsAction
 {
     /**
@@ -50,7 +42,7 @@ class EmailsettingsAction extends SettingsAction
      *
      * @return string Title of the page
      */
-    function title()
+    public function title()
     {
         // TRANS: Title for e-mail settings.
         return _('Email settings');
@@ -61,7 +53,7 @@ class EmailsettingsAction extends SettingsAction
      *
      * @return instructions for use
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // XXX: For consistency of parameters in messages, this should be a
         //      regular parameters, replaced with sprintf().
@@ -70,7 +62,7 @@ class EmailsettingsAction extends SettingsAction
         return _('Manage how you get email from %%site.name%%.');
     }
 
-    function showScripts()
+    public function showScripts()
     {
         parent::showScripts();
         $this->script('emailsettings.js');
@@ -85,7 +77,7 @@ class EmailsettingsAction extends SettingsAction
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         $user = $this->scoped->getUser();
 
@@ -106,50 +98,58 @@ class EmailsettingsAction extends SettingsAction
             $this->element('p', array('class' => 'form_note'), _('Current confirmed email address.'));
             $this->hidden('email', $user->email);
             // TRANS: Button label to remove a confirmed e-mail address.
-            $this->submit('remove', _m('BUTTON','Remove'));
+            $this->submit('remove', _m('BUTTON', 'Remove'));
         } else {
             try {
                 $confirm = $this->getConfirmation();
                 $this->element('p', array('id' => 'form_unconfirmed'), $confirm->address);
-                $this->element('p', array('class' => 'form_note'),
-                                        // TRANS: Form note in e-mail settings form.
-                                        _('Awaiting confirmation on this address. '.
-                                        'Check your inbox (and spam box!) for a message '.
-                                        'with further instructions.'));
+                $this->element(
+                    'p',
+                    ['class' => 'form_note'],
+                     // TRANS: Form note in e-mail settings form.
+                     _('Awaiting confirmation on this address. '.
+                     'Check your inbox (and spam box!) for a message '.
+                     'with further instructions.')
+                );
                 $this->hidden('email', $confirm->address);
                 // TRANS: Button label to cancel an e-mail address confirmation procedure.
-                $this->submit('cancel', _m('BUTTON','Cancel'));
+                $this->submit('cancel', _m('BUTTON', 'Cancel'));
             } catch (NoResultException $e) {
                 $this->elementStart('ul', 'form_data');
                 $this->elementStart('li');
                 // TRANS: Field label for e-mail address input in e-mail settings form.
-                $this->input('email', _('Email address'),
-                             $this->trimmed('email') ?: null,
-                             // TRANS: Instructions for e-mail address input form. Do not translate
-                             // TRANS: "example.org". It is one of the domain names reserved for
-                             // TRANS: use in examples by http://www.rfc-editor.org/rfc/rfc2606.txt.
-                             // TRANS: Any other domain may be owned by a legitimate person or
-                             // TRANS: organization.
-                             _('Email address, like "UserName@example.org"'));
+                $this->input(
+                    'email',
+                    _('Email address'),
+                    $this->trimmed('email') ?: null,
+                    // TRANS: Instructions for e-mail address input form. Do not translate
+                    // TRANS: "example.org". It is one of the domain names reserved for
+                    // TRANS: use in examples by http://www.rfc-editor.org/rfc/rfc2606.txt.
+                    // TRANS: Any other domain may be owned by a legitimate person or
+                    // TRANS: organization.
+                    _('Email address, like "UserName@example.org"')
+                );
                 $this->elementEnd('li');
                 $this->elementEnd('ul');
                 // TRANS: Button label for adding an e-mail address in e-mail settings form.
-                $this->submit('add', _m('BUTTON','Add'));
+                $this->submit('add', _m('BUTTON', 'Add'));
             }
         }
         $this->elementEnd('fieldset');
 
-       if (common_config('emailpost', 'enabled') && $user->email) {
+        if (common_config('emailpost', 'enabled') && $user->email) {
             $this->elementStart('fieldset', array('id' => 'settings_email_incoming'));
             // TRANS: Form legend for incoming e-mail settings form.
             $this->element('legend', null, _('Incoming email'));
 
             $this->elementStart('ul', 'form_data');
             $this->elementStart('li');
-            $this->checkbox('emailpost',
-                    // TRANS: Checkbox label in e-mail preferences form.
-                    _('I want to post notices by email.'),
-                    $user->emailpost);
+            $this->checkbox(
+                'emailpost',
+                // TRANS: Checkbox label in e-mail preferences form.
+                _('I want to post notices by email.'),
+                $user->emailpost
+            );
             $this->elementEnd('li');
             $this->elementEnd('ul');
 
@@ -168,12 +168,15 @@ class EmailsettingsAction extends SettingsAction
                 $this->element('span', 'address', $user->incomingemail);
                 // @todo XXX: Looks a little awkward in the UI.
                 //      Something like "xxxx@identi.ca  Send email ..". Needs improvement.
-                $this->element('span', 'input_instructions',
-                               // TRANS: Form instructions for incoming e-mail form in e-mail settings.
-                               _('Send email to this address to post new notices.'));
+                $this->element(
+                    'span',
+                    'input_instructions',
+                    // TRANS: Form instructions for incoming e-mail form in e-mail settings.
+                    _('Send email to this address to post new notices.')
+                );
                 $this->elementEnd('p');
                 // TRANS: Button label for removing a set sender e-mail address to post notices from.
-                $this->submit('removeincoming', _m('BUTTON','Remove'));
+                $this->submit('removeincoming', _m('BUTTON', 'Remove'));
             }
 
             $this->elementStart('p');
@@ -189,7 +192,7 @@ class EmailsettingsAction extends SettingsAction
             $this->elementEnd('p');
 
             // TRANS: Button label for adding an e-mail address to send notices from.
-            $this->submit('newincoming', _m('BUTTON','New'));
+            $this->submit('newincoming', _m('BUTTON', 'New'));
 
             $this->elementEnd('div'); // div#emailincoming
 
@@ -204,34 +207,42 @@ class EmailsettingsAction extends SettingsAction
 
         if (Event::handle('StartEmailFormData', array($this, $this->scoped))) {
             $this->elementStart('li');
-            $this->checkbox('emailnotifysub',
-                            // TRANS: Checkbox label in e-mail preferences form.
-                            _('Send me notices of new subscriptions through email.'),
-                            $user->emailnotifysub);
+            $this->checkbox(
+                'emailnotifysub',
+                // TRANS: Checkbox label in e-mail preferences form.
+                _('Send me notices of new subscriptions through email.'),
+                $user->emailnotifysub
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
-            $this->checkbox('emailnotifymsg',
-                            // TRANS: Checkbox label in e-mail preferences form.
-                            _('Send me email when someone sends me a private message.'),
-                            $user->emailnotifymsg);
+            $this->checkbox(
+                'emailnotifymsg',
+                // TRANS: Checkbox label in e-mail preferences form.
+                _('Send me email when someone sends me a private message.'),
+                $user->emailnotifymsg
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
-            $this->checkbox('emailnotifyattn',
-                            // TRANS: Checkbox label in e-mail preferences form.
-                            _('Send me email when someone sends me an "@-reply".'),
-                            $user->emailnotifyattn);
+            $this->checkbox(
+                'emailnotifyattn',
+                // TRANS: Checkbox label in e-mail preferences form.
+                _('Send me email when someone sends me an "@-reply".'),
+                $user->emailnotifyattn
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
-            $this->checkbox('emailnotifynudge',
-                            // TRANS: Checkbox label in e-mail preferences form.
-                            _('Allow friends to nudge me and send me an email.'),
-                            $user->emailnotifynudge);
+            $this->checkbox(
+                'emailnotifynudge',
+                // TRANS: Checkbox label in e-mail preferences form.
+                _('Allow friends to nudge me and send me an email.'),
+                $user->emailnotifynudge
+            );
             $this->elementEnd('li');
             Event::handle('EndEmailFormData', array($this, $this->scoped));
         }
         $this->elementEnd('ul');
         // TRANS: Button label to save e-mail preferences.
-        $this->submit('save', _m('BUTTON','Save'));
+        $this->submit('save', _m('BUTTON', 'Save'));
         $this->elementEnd('fieldset');
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
@@ -242,7 +253,7 @@ class EmailsettingsAction extends SettingsAction
      *
      * @return Confirm_address Email address confirmation for user, or null
      */
-    function getConfirmation()
+    public function getConfirmation()
     {
         $confirm = new Confirm_address();
 
@@ -260,15 +271,15 @@ class EmailsettingsAction extends SettingsAction
     {
         if ($this->arg('save')) {
             return $this->savePreferences();
-        } else if ($this->arg('add')) {
+        } elseif ($this->arg('add')) {
             return $this->addAddress();
-        } else if ($this->arg('cancel')) {
+        } elseif ($this->arg('cancel')) {
             return $this->cancelConfirmation();
-        } else if ($this->arg('remove')) {
+        } elseif ($this->arg('remove')) {
             return $this->removeAddress();
-        } else if ($this->arg('removeincoming')) {
+        } elseif ($this->arg('removeincoming')) {
             return $this->removeIncoming();
-        } else if ($this->arg('newincoming')) {
+        } elseif ($this->arg('newincoming')) {
             return $this->newIncoming();
         }
 
@@ -281,14 +292,14 @@ class EmailsettingsAction extends SettingsAction
      *
      * @return void
      */
-    function savePreferences()
+    public function savePreferences()
     {
         if (Event::handle('StartEmailSaveForm', array($this, $this->scoped))) {
-            $emailnotifysub   = $this->booleanintstring('emailnotifysub');
-            $emailnotifymsg   = $this->booleanintstring('emailnotifymsg');
-            $emailnotifynudge = $this->booleanintstring('emailnotifynudge');
-            $emailnotifyattn  = $this->booleanintstring('emailnotifyattn');
-            $emailpost        = $this->booleanintstring('emailpost');
+            $emailnotifysub   = $this->boolean('emailnotifysub');
+            $emailnotifymsg   = $this->boolean('emailnotifymsg');
+            $emailnotifynudge = $this->boolean('emailnotifynudge');
+            $emailnotifyattn  = $this->boolean('emailnotifyattn');
+            $emailpost        = $this->boolean('emailpost');
 
             $user = $this->scoped->getUser();
             $user->query('BEGIN');
@@ -322,7 +333,7 @@ class EmailsettingsAction extends SettingsAction
      *
      * @return void
      */
-    function addAddress()
+    public function addAddress()
     {
         $user = $this->scoped->getUser();
 
@@ -344,16 +355,15 @@ class EmailsettingsAction extends SettingsAction
         if (!Validate::email($email, common_config('email', 'check_domain'))) {
             // TRANS: Message given saving e-mail address that not valid.
             throw new ClientException(_('Not a valid email address.'));
-        } else if ($user->email == $email) {
+        } elseif ($user->email === $email) {
             // TRANS: Message given saving e-mail address that is already set.
             throw new ClientException(_('That is already your email address.'));
-        } else if ($this->emailExists($email)) {
+        } elseif ($this->emailExists($email)) {
             // TRANS: Message given saving e-mail address that is already set for another user.
             throw new ClientException(_('That email address already belongs to another user.'));
         }
 
         if (Event::handle('StartAddEmailAddress', array($user, $email))) {
-
             $confirm = new Confirm_address();
 
             $confirm->address      = $email;
@@ -385,7 +395,7 @@ class EmailsettingsAction extends SettingsAction
      *
      * @return void
      */
-    function cancelConfirmation()
+    public function cancelConfirmation()
     {
         $email = $this->trimmed('email');
 
@@ -411,7 +421,7 @@ class EmailsettingsAction extends SettingsAction
      *
      * @return void
      */
-    function removeAddress()
+    public function removeAddress()
     {
         $user = common_current_user();
 
@@ -425,7 +435,7 @@ class EmailsettingsAction extends SettingsAction
         }
 
         $original = clone($user);
-        $user->email = null;
+        $user->email = DB_DataObject_Cast::sql('NULL');
         // Throws exception on failure. Also performs it within a transaction.
         $user->updateWithKeys($original);
 
@@ -438,7 +448,7 @@ class EmailsettingsAction extends SettingsAction
      *
      * @return void
      */
-    function removeIncoming()
+    public function removeIncoming()
     {
         $user = common_current_user();
 
@@ -448,8 +458,8 @@ class EmailsettingsAction extends SettingsAction
         }
 
         $orig = clone($user);
-        $user->incomingemail = null;
-        $user->emailpost = 0;
+        $user->incomingemail = DB_DataObject_Cast::sql('NULL');
+        $user->emailpost = false;
         // Throws exception on failure. Also performs it within a transaction.
         $user->updateWithKeys($orig);
 
@@ -462,12 +472,12 @@ class EmailsettingsAction extends SettingsAction
      *
      * @return void
      */
-    function newIncoming()
+    public function newIncoming()
     {
         $user = common_current_user();
         $orig = clone($user);
         $user->incomingemail = mail_new_incoming_address();
-        $user->emailpost = 1;
+        $user->emailpost = true;
         // Throws exception on failure. Also performs it within a transaction.
         $user->updateWithKeys($orig);
 
@@ -485,7 +495,7 @@ class EmailsettingsAction extends SettingsAction
      * @return boolean Whether the email already exists.
      */
 
-    function emailExists($email)
+    public function emailExists($email)
     {
         $user = common_current_user();
 

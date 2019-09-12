@@ -1,36 +1,18 @@
 <?php
-/**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
- * A channel for real-time browser data
- *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Realtime
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
- * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
- */
-
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * A channel for real-time browser data
@@ -38,11 +20,20 @@ if (!defined('STATUSNET')) {
  * For each user currently browsing the site, we want to know which page they're on
  * so we can send real-time updates to their browser.
  *
- * @category Realtime
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @category  Realtime
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
+
+defined('GNUSOCIAL') || die();
+
+/**
+ * A channel for real-time browser data
+ *
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
  * @see      DB_DataObject
  */
@@ -88,7 +79,7 @@ class Realtime_channel extends Managed_DataObject
                                'length' => 32,
                                'not null' => true,
                                'description' => 'shared secret key for this channel'),
-                'audience' => array('type' => 'integer',
+                'audience' => array('type' => 'int',
                                     'not null' => true,
                                     'default' => 0,
                                     'description' => 'reference count'),
@@ -111,7 +102,7 @@ class Realtime_channel extends Managed_DataObject
         );
     }
 
-    static function saveNew($user_id, $action, $arg1, $arg2)
+    public static function saveNew($user_id, $action, $arg1, $arg2)
     {
         $channel = new Realtime_channel();
 
@@ -131,7 +122,7 @@ class Realtime_channel extends Managed_DataObject
         return $channel;
     }
 
-    static function getChannel($user_id, $action, $arg1, $arg2)
+    public static function getChannel($user_id, $action, $arg1, $arg2)
     {
         $channel = self::fetchChannel($user_id, $action, $arg1, $arg2);
 
@@ -152,7 +143,7 @@ class Realtime_channel extends Managed_DataObject
         return $channel;
     }
 
-    static function getAllChannels($action, $arg1, $arg2)
+    public static function getAllChannels($action, $arg1, $arg2)
     {
         $channel = new Realtime_channel();
 
@@ -170,9 +161,9 @@ class Realtime_channel extends Managed_DataObject
             $channel->arg2 = $arg2;
         }
 
-        $channel->whereAdd('modified > "' . common_sql_date(time() - self::TIMEOUT) . '"');
+        $channel->whereAdd(sprintf("modified > TIMESTAMP '%s'", common_sql_date(time() - self::TIMEOUT)));
 
-        $channels = array();
+        $channels = [];
 
         if ($channel->find()) {
             $channels = $channel->fetchAll();
@@ -181,7 +172,7 @@ class Realtime_channel extends Managed_DataObject
         return $channels;
     }
 
-    static function fetchChannel($user_id, $action, $arg1, $arg2)
+    public static function fetchChannel($user_id, $action, $arg1, $arg2)
     {
         $channel = new Realtime_channel();
 
@@ -213,7 +204,7 @@ class Realtime_channel extends Managed_DataObject
         }
     }
 
-    function increment()
+    public function increment()
     {
         // XXX: race
         $orig = clone($this);
@@ -222,7 +213,7 @@ class Realtime_channel extends Managed_DataObject
         $this->update($orig);
     }
 
-    function touch()
+    public function touch()
     {
         // XXX: race
         $orig = clone($this);
@@ -230,7 +221,7 @@ class Realtime_channel extends Managed_DataObject
         $this->update($orig);
     }
 
-    function decrement()
+    public function decrement()
     {
         // XXX: race
         if ($this->audience == 1) {

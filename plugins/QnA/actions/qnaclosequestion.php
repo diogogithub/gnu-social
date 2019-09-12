@@ -1,47 +1,36 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
  * Close a question to further answers
  *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  QnA
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or late
  */
-if (!defined('STATUSNET')) {
-    // This check helps protect against security problems;
-    // your code file can't be executed directly from the web.
-    exit(1);
-}
+
+defined('GNUSOCIAL') || die();
 
 /**
  * Close a question to new answers
  *
- * @category  QnA
- * @package   StatusNet
- * @author    Zach Copley <zach@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or late
  */
 class QnaclosequestionAction extends Action
 {
@@ -57,7 +46,7 @@ class QnaclosequestionAction extends Action
      *
      * @return string Action title
      */
-    function title()
+    public function title()
     {
         // TRANS: Page title for close a question
         return _m('Close question');
@@ -71,7 +60,7 @@ class QnaclosequestionAction extends Action
      * @return boolean true
      * @throws ClientException
      */
-    function prepare(array $args = [])
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
         if ($this->boolean('ajax')) {
@@ -107,7 +96,7 @@ class QnaclosequestionAction extends Action
      *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
 
@@ -125,7 +114,7 @@ class QnaclosequestionAction extends Action
      *
      * @return void
      */
-    function closeQuestion()
+    public function closeQuestion()
     {
         $user = common_current_user();
 
@@ -136,9 +125,8 @@ class QnaclosequestionAction extends Action
             }
 
             $orig = clone($this->question);
-            $this->question->closed = 1;
+            $this->question->closed = true;
             $this->question->update($orig);
-
         } catch (ClientException $ce) {
             $this->error = $ce->getMessage();
             $this->showPage();
@@ -166,7 +154,7 @@ class QnaclosequestionAction extends Action
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         if (!empty($this->error)) {
             $this->element('p', 'error', $this->error);
@@ -184,7 +172,7 @@ class QnaclosequestionAction extends Action
      *
      * @return boolean is read only action?
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'GET' ||
             $_SERVER['REQUEST_METHOD'] == 'HEAD') {

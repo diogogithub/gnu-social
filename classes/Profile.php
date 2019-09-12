@@ -1,23 +1,25 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008-2011, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @copyright 2008-2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Table Definition for profile
@@ -81,7 +83,7 @@ class Profile extends Managed_DataObject
             throw new NoSuchUserException(array('email'=>$email));
         }
         return $user->getProfile();
-    } 
+    }
 
     protected $_user = array();
 
@@ -202,16 +204,16 @@ class Profile extends Managed_DataObject
      *
      * @return string
      */
-    function getBestName()
+    public function getBestName()
     {
         return ($this->fullname) ? $this->fullname : $this->nickname;
     }
 
     /**
-     * Takes the currently scoped profile into account to give a name 
+     * Takes the currently scoped profile into account to give a name
      * to list in notice streams. Preferences may differ between profiles.
      */
-    function getStreamName()
+    public function getStreamName()
     {
         $user = common_current_user();
         if ($user instanceof User && $user->streamNicknames()) {
@@ -228,7 +230,7 @@ class Profile extends Managed_DataObject
      *
      * @return string
      */
-    function getFancyName()
+    public function getFancyName()
     {
         $uri = null;
         try {
@@ -243,7 +245,7 @@ class Profile extends Managed_DataObject
 
         if (mb_strlen($this->getFullname()) > 0) {
             // TRANS: The "fancy name": Full name of a profile or group (%1$s) followed by some URI (%2$s) in parentheses.
-            return sprintf(_m('FANCYNAME','%1$s (%2$s)'), $this->getFullname(), $uri);
+            return sprintf(_m('FANCYNAME', '%1$s (%2$s)'), $this->getFullname(), $uri);
         } else {
             return $uri;
         }
@@ -254,7 +256,7 @@ class Profile extends Managed_DataObject
      *
      * @return mixed Notice or null
      */
-    function getCurrentNotice(Profile $scoped=null)
+    public function getCurrentNotice(Profile $scoped = null)
     {
         try {
             $notice = $this->getNotices(0, 1, 0, 0, $scoped);
@@ -271,16 +273,16 @@ class Profile extends Managed_DataObject
             // Maybe we should let this through if it's handled well upstream
             return null;
         }
-        
+
         return null;
     }
 
-    function getReplies($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
+    public function getReplies($offset = 0, $limit = NOTICES_PER_PAGE, $since_id = 0, $before_id = 0)
     {
         return Reply::stream($this->getID(), $offset, $limit, $since_id, $before_id);
     }
 
-    function getTaggedNotices($tag, $offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $max_id=0)
+    public function getTaggedNotices($tag, $offset = 0, $limit = NOTICES_PER_PAGE, $since_id = 0, $max_id = 0)
     {
         //FIXME: Get Profile::current() some other way to avoid possible
         // confusion between current session profile and background processing.
@@ -289,39 +291,39 @@ class Profile extends Managed_DataObject
         return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 
-    function getNotices($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $max_id=0, Profile $scoped=null)
+    public function getNotices($offset = 0, $limit = NOTICES_PER_PAGE, $since_id = 0, $max_id = 0, Profile $scoped = null)
     {
         $stream = new ProfileNoticeStream($this, $scoped);
 
         return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 
-    function isMember(User_group $group)
+    public function isMember(User_group $group)
     {
-    	$groups = $this->getGroups(0, null);
+        $groups = $this->getGroups(0, null);
         while ($groups instanceof User_group && $groups->fetch()) {
-    	    if ($groups->id == $group->id) {
-    	        return true;
-    	    }
-    	}
-    	return false;
+            if ($groups->id == $group->id) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    function isAdmin(User_group $group)
+    public function isAdmin(User_group $group)
     {
         $gm = Group_member::pkeyGet(array('profile_id' => $this->id,
                                           'group_id' => $group->id));
         return (!empty($gm) && $gm->is_admin);
     }
 
-    function isPendingMember($group)
+    public function isPendingMember($group)
     {
         $request = Group_join_queue::pkeyGet(array('profile_id' => $this->id,
                                                    'group_id' => $group->id));
         return !empty($request);
     }
 
-    function getGroups($offset=0, $limit=PROFILES_PER_PAGE)
+    public function getGroups($offset = 0, $limit = PROFILES_PER_PAGE)
     {
         $ids = array();
 
@@ -356,14 +358,15 @@ class Profile extends Managed_DataObject
         }
     }
 
-    function getGroupCount() {
+    public function getGroupCount()
+    {
         $groups = $this->getGroups(0, null);
         return $groups instanceof User_group
                 ? $groups->N
                 : 0;
     }
 
-    function isTagged($peopletag)
+    public function isTagged($peopletag)
     {
         $tag = Profile_tag::pkeyGet(array('tagger' => $peopletag->tagger,
                                           'tagged' => $this->id,
@@ -371,7 +374,7 @@ class Profile extends Managed_DataObject
         return !empty($tag);
     }
 
-    function canTag($tagged)
+    public function canTag($tagged)
     {
         if (empty($tagged)) {
             return false;
@@ -395,16 +398,16 @@ class Profile extends Managed_DataObject
             if ($local) {
                 return true;
             }
-        } else if ($subs) {
+        } elseif ($subs) {
             return (Subscription::exists($this, $tagged) ||
                     Subscription::exists($tagged, $this));
-        } else if ($remote) {
+        } elseif ($remote) {
             return true;
         }
         return false;
     }
 
-    function getLists(Profile $scoped=null, $offset=0, $limit=null, $since_id=0, $max_id=0)
+    public function getLists(Profile $scoped = null, $offset = 0, $limit = null, $since_id = 0, $max_id = 0)
     {
         $ids = array();
 
@@ -421,15 +424,15 @@ class Profile extends Managed_DataObject
             $list->tagger = $this->id;
             $list->selectAdd('id as "cursor"');
 
-            if ($since_id>0) {
-               $list->whereAdd('id > '.$since_id);
+            if ($since_id > 0) {
+                $list->whereAdd('id > ' . $since_id);
             }
 
-            if ($max_id>0) {
-                $list->whereAdd('id <= '.$max_id);
+            if ($max_id > 0) {
+                $list->whereAdd('id <= ' . $max_id);
             }
 
-            if($offset>=0 && !is_null($limit)) {
+            if ($offset >= 0 && !is_null($limit)) {
                 $list->limit($offset, $limit);
             }
 
@@ -452,7 +455,6 @@ class Profile extends Managed_DataObject
             $list = Profile_list::getKV('id', $id);
             if (!empty($list) &&
                 ($showPrivate || !$list->private)) {
-
                 if (!isset($list->cursor)) {
                     $list->cursor = $list->id;
                 }
@@ -476,33 +478,47 @@ class Profile extends Managed_DataObject
      * @return Profile_list resulting lists
      */
 
-    function getOtherTags(Profile $scoped=null, $offset=0, $limit=null, $since_id=0, $max_id=0)
+    public function getOtherTags(Profile $scoped = null, int $offset = 0, ?int $limit = null, int $since = 0, int $upto = 0)
     {
         $list = new Profile_list();
 
-        $qry = sprintf('select profile_list.*, unix_timestamp(profile_tag.modified) as "cursor" ' .
-                       'from profile_tag join profile_list '.
-                       'on (profile_tag.tagger = profile_list.tagger ' .
-                       '    and profile_tag.tag = profile_list.tag) ' .
-                       'where profile_tag.tagged = %d ',
-                       $this->id);
+        if (common_config('db', 'type') !== 'mysql') {
+            $cursor = sprintf(
+                '((EXTRACT(DAY %1$s) * 24 + EXTRACT(HOUR %1$s)) * 60 + ' .
+                'EXTRACT(MINUTE %1$s)) * 60 + FLOOR(EXTRACT(SECOND %1$s)) AS "cursor"',
+                "FROM (profile_tag.modified - TIMESTAMP '1970-01-01 00:00:00')"
+            );
+        } else {
+            // The SQL/Foundation conforming implementation above doesn't work on MariaDB/MySQL
+            $cursor = "timestampdiff(SECOND, '1970-01-01', profile_tag.modified) AS `cursor`";
+        }
 
+        $qry = sprintf(
+            'SELECT profile_list.*, ' . $cursor . ' ' .
+            'FROM profile_tag INNER JOIN profile_list ' .
+            'ON (profile_tag.tagger = profile_list.tagger ' .
+            '    AND profile_tag.tag = profile_list.tag) ' .
+            'WHERE profile_tag.tagged = %d ',
+            $this->id
+        );
 
         if (!is_null($scoped)) {
-            $qry .= sprintf('AND ( ( profile_list.private = false ) ' .
-                            'OR ( profile_list.tagger = %d AND ' .
-                            'profile_list.private = true ) )',
-                            $scoped->getID());
+            $qry .= sprintf(
+                'AND ( profile_list.private = false ' .
+                'OR ( profile_list.tagger = %d AND ' .
+                'profile_list.private = TRUE ) )',
+                $scoped->getID()
+            );
         } else {
-            $qry .= 'AND profile_list.private = 0 ';
+            $qry .= 'AND profile_list.private = FALSE ';
         }
 
-        if ($since_id > 0) {
-            $qry .= sprintf('AND (cursor > %d) ', $since_id);
+        if ($since > 0) {
+            $qry .= 'AND cursor > ' . $since . ' ';
         }
 
-        if ($max_id > 0) {
-            $qry .= sprintf('AND (cursor < %d) ', $max_id);
+        if ($upto > 0) {
+            $qry .= 'AND cursor < ' . $upto . ' ';
         }
 
         $qry .= 'ORDER BY profile_tag.modified DESC ';
@@ -515,21 +531,21 @@ class Profile extends Managed_DataObject
         return $list;
     }
 
-    function getPrivateTags($offset=0, $limit=null, $since_id=0, $max_id=0)
+    public function getPrivateTags($offset = 0, $limit = null, $since_id = 0, $max_id = 0)
     {
         $tags = new Profile_list();
         $tags->private = true;
         $tags->tagger = $this->id;
 
-        if ($since_id>0) {
-           $tags->whereAdd('id > '.$since_id);
+        if ($since_id > 0) {
+            $tags->whereAdd('id > ' . $since_id);
         }
 
-        if ($max_id>0) {
-            $tags->whereAdd('id <= '.$max_id);
+        if ($max_id > 0) {
+            $tags->whereAdd('id <= ' . $max_id);
         }
 
-        if($offset>=0 && !is_null($limit)) {
+        if ($offset >= 0 && !is_null($limit)) {
             $tags->limit($offset, $limit);
         }
 
@@ -539,13 +555,13 @@ class Profile extends Managed_DataObject
         return $tags;
     }
 
-    function hasLocalTags()
+    public function hasLocalTags()
     {
         $tags = new Profile_tag();
 
         $tags->joinAdd(array('tagger', 'user:id'));
-        $tags->whereAdd('tagged  = '.$this->id);
-        $tags->whereAdd('tagger != '.$this->id);
+        $tags->whereAdd('tagged  = ' . $this->id);
+        $tags->whereAdd('tagger <> ' . $this->id);
 
         $tags->limit(0, 1);
         $tags->fetch();
@@ -553,31 +569,38 @@ class Profile extends Managed_DataObject
         return ($tags->N == 0) ? false : true;
     }
 
-    function getTagSubscriptions($offset=0, $limit=null, $since_id=0, $max_id=0)
+    public function getTagSubscriptions(int $offset = 0, ?int $limit = null, int $since = 0, int $upto = 0)
     {
         $lists = new Profile_list();
         $subs = new Profile_tag_subscription();
 
-        $lists->joinAdd(array('id', 'profile_tag_subscription:profile_tag_id'));
+        $lists->joinAdd(['id', 'profile_tag_subscription:profile_tag_id']);
 
-        #@fixme: postgres (round(date_part('epoch', my_date)))
-        $lists->selectAdd('unix_timestamp(profile_tag_subscription.created) as "cursor"');
+        if (common_config('db', 'type') !== 'mysql') {
+            $lists->selectAdd(sprintf(
+                '((EXTRACT(DAY %1$s) * 24 + EXTRACT(HOUR %1$s)) * 60 + ' .
+                'EXTRACT(MINUTE %1$s)) * 60 + FLOOR(EXTRACT(SECOND %1$s)) AS "cursor"',
+                "FROM (profile_tag_subscription.created - TIMESTAMP '1970-01-01 00:00:00')"
+            ));
+        } else {
+            $lists->selectAdd("timestampdiff(SECOND, '1970-01-01', profile_tag_subscription.created) AS `cursor`");
+        }
 
         $lists->whereAdd('profile_tag_subscription.profile_id = '.$this->id);
 
-        if ($since_id>0) {
-           $lists->whereAdd('cursor > '.$since_id);
+        if ($since > 0) {
+            $lists->whereAdd('cursor > ' . $since);
         }
 
-        if ($max_id>0) {
-            $lists->whereAdd('cursor <= '.$max_id);
+        if ($upto > 0) {
+            $lists->whereAdd('cursor <= ' . $upto);
         }
 
-        if($offset>=0 && !is_null($limit)) {
+        if ($offset >= 0 && !is_null($limit)) {
             $lists->limit($offset, $limit);
         }
 
-        $lists->orderBy('"cursor" DESC');
+        $lists->orderBy('profile_tag_subscription.created DESC');
         $lists->find();
 
         return $lists;
@@ -590,7 +613,7 @@ class Profile extends Managed_DataObject
      * @param User_group $group
      * @return mixed: Group_member on success, Group_join_queue if pending approval, null on some cancels?
      */
-    function joinGroup(User_group $group)
+    public function joinGroup(User_group $group)
     {
         $join = null;
         if ($group->join_policy == User_group::JOIN_POLICY_MODERATE) {
@@ -616,7 +639,7 @@ class Profile extends Managed_DataObject
      *
      * @param User_group $group
      */
-    function leaveGroup(User_group $group)
+    public function leaveGroup(User_group $group)
     {
         if (Event::handle('StartLeaveGroup', array($group, $this))) {
             Group_member::leave($group->id, $this->id);
@@ -627,12 +650,12 @@ class Profile extends Managed_DataObject
         }
     }
 
-    function avatarUrl($size=AVATAR_PROFILE_SIZE)
+    public function avatarUrl($size = AVATAR_PROFILE_SIZE)
     {
         return Avatar::urlByProfile($this, $size);
     }
 
-    function getSubscribed($offset=0, $limit=null)
+    public function getSubscribed($offset = 0, $limit = null)
     {
         $subs = Subscription::getSubscribedIDs($this->id, $offset, $limit);
         try {
@@ -643,7 +666,7 @@ class Profile extends Managed_DataObject
         return $profiles;
     }
 
-    function getSubscribers($offset=0, $limit=null)
+    public function getSubscribers($offset = 0, $limit = null)
     {
         $subs = Subscription::getSubscriberIDs($this->id, $offset, $limit);
         try {
@@ -654,7 +677,7 @@ class Profile extends Managed_DataObject
         return $profiles;
     }
 
-    function getTaggedSubscribers($tag, $offset=0, $limit=null)
+    public function getTaggedSubscribers($tag, $offset = 0, $limit = null)
     {
         $qry =
           'SELECT profile.* ' .
@@ -664,7 +687,7 @@ class Profile extends Managed_DataObject
           'AND profile_tag.tagger = subscription.subscribed) ' .
           'WHERE subscription.subscribed = %d ' .
           "AND profile_tag.tag = '%s' " .
-          'AND subscription.subscribed != subscription.subscriber ' .
+          'AND subscription.subscribed <> subscription.subscriber ' .
           'ORDER BY subscription.created DESC ';
 
         if ($offset) {
@@ -678,7 +701,7 @@ class Profile extends Managed_DataObject
         return $profile;
     }
 
-    function getTaggedSubscriptions($tag, $offset=0, $limit=null)
+    public function getTaggedSubscriptions($tag, $offset = 0, $limit = null)
     {
         $qry =
           'SELECT profile.* ' .
@@ -688,7 +711,7 @@ class Profile extends Managed_DataObject
           'AND profile_tag.tagger = subscription.subscriber) ' .
           'WHERE subscription.subscriber = %d ' .
           "AND profile_tag.tag = '%s' " .
-          'AND subscription.subscribed != subscription.subscriber ' .
+          'AND subscription.subscribed <> subscription.subscriber ' .
           'ORDER BY subscription.created DESC ';
 
         $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
@@ -707,7 +730,7 @@ class Profile extends Managed_DataObject
      * @param int $limit
      * @return Profile
      */
-    function getRequests($offset=0, $limit=null)
+    public function getRequests($offset = 0, $limit = null)
     {
         // FIXME: mysql only
         $subqueue = new Profile();
@@ -721,7 +744,7 @@ class Profile extends Managed_DataObject
         return $subqueue;
     }
 
-    function subscriptionCount()
+    public function subscriptionCount()
     {
         $c = Cache::instance();
 
@@ -749,7 +772,7 @@ class Profile extends Managed_DataObject
         return $cnt;
     }
 
-    function subscriberCount()
+    public function subscriberCount()
     {
         $c = Cache::instance();
         if (!empty($c)) {
@@ -761,8 +784,8 @@ class Profile extends Managed_DataObject
 
         $sub = new Subscription();
         $sub->subscribed = $this->id;
-        $sub->whereAdd('subscriber != subscribed');
-        $cnt = (int) $sub->count('distinct subscriber');
+        $sub->whereAdd('subscriber <> subscribed');
+        $cnt = (int) $sub->count('DISTINCT subscriber');
 
         if (!empty($c)) {
             $c->set(Cache::key('profile:subscriber_count:'.$this->id), $cnt);
@@ -777,12 +800,12 @@ class Profile extends Managed_DataObject
      * @param Profile $other
      * @return boolean
      */
-    function isSubscribed(Profile $other)
+    public function isSubscribed(Profile $other)
     {
         return Subscription::exists($this, $other);
     }
 
-    function readableBy(Profile $other=null)
+    public function readableBy(Profile $other = null)
     {
         // If it's not a private stream, it's readable by anyone
         if (!$this->isPrivateStream()) {
@@ -793,7 +816,7 @@ class Profile extends Managed_DataObject
         return is_null($other) ? false : $other->isSubscribed($this);
     }
 
-    function requiresSubscriptionApproval(Profile $other=null): bool
+    public function requiresSubscriptionApproval(Profile $other = null): bool
     {
         if (!$this->isLocal()) {
             // We don't know for remote users, and we'll always be able to send
@@ -818,7 +841,7 @@ class Profile extends Managed_DataObject
      * @param Profile $other
      * @return boolean
      */
-    function hasPendingSubscription(Profile $other)
+    public function hasPendingSubscription(Profile $other)
     {
         return Subscription_queue::exists($this, $other);
     }
@@ -829,13 +852,13 @@ class Profile extends Managed_DataObject
      * @param Profile $other
      * @return boolean
      */
-    function mutuallySubscribed(Profile $other)
+    public function mutuallySubscribed(Profile $other)
     {
         return $this->isSubscribed($other) &&
           $other->isSubscribed($this);
     }
 
-    function noticeCount()
+    public function noticeCount()
     {
         $c = Cache::instance();
 
@@ -858,7 +881,7 @@ class Profile extends Managed_DataObject
         return $cnt;
     }
 
-    function blowSubscriberCount()
+    public function blowSubscriberCount()
     {
         $c = Cache::instance();
         if (!empty($c)) {
@@ -866,7 +889,7 @@ class Profile extends Managed_DataObject
         }
     }
 
-    function blowSubscriptionCount()
+    public function blowSubscriptionCount()
     {
         $c = Cache::instance();
         if (!empty($c)) {
@@ -874,7 +897,7 @@ class Profile extends Managed_DataObject
         }
     }
 
-    function blowNoticeCount()
+    public function blowNoticeCount()
     {
         $c = Cache::instance();
         if (!empty($c)) {
@@ -882,7 +905,7 @@ class Profile extends Managed_DataObject
         }
     }
 
-    static function maxBio()
+    public static function maxBio()
     {
         $biolimit = common_config('profile', 'biolimit');
         // null => use global limit (distinct from 0!)
@@ -892,13 +915,13 @@ class Profile extends Managed_DataObject
         return $biolimit;
     }
 
-    static function bioTooLong($bio)
+    public static function bioTooLong($bio)
     {
         $biolimit = self::maxBio();
         return ($biolimit > 0 && !empty($bio) && (mb_strlen($bio) > $biolimit));
     }
 
-    function update($dataObject=false)
+    public function update($dataObject = false)
     {
         if (is_object($dataObject) && $this->nickname != $dataObject->nickname) {
             try {
@@ -946,7 +969,7 @@ class Profile extends Managed_DataObject
         return $relMes;
     }
 
-    function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
         $this->_deleteNotices();
         $this->_deleteSubscriptions();
@@ -957,10 +980,11 @@ class Profile extends Managed_DataObject
 
         // Warning: delete() will run on the batch objects,
         // not on individual objects.
-        $related = array('Reply',
-                         'Group_member',
-        				 'Profile_role'
-                         );
+        $related = [
+            'Reply',
+            'Group_member',
+            'Profile_role',
+        ];
         Event::handle('ProfileDeleteRelated', array($this, &$related));
 
         foreach ($related as $cls) {
@@ -968,7 +992,7 @@ class Profile extends Managed_DataObject
             $inst->profile_id = $this->id;
             $inst->delete();
         }
-        
+
         $this->grantRole(Profile_role::DELETED);
 
         $localuser = User::getKV('id', $this->id);
@@ -979,7 +1003,7 @@ class Profile extends Managed_DataObject
         return parent::delete($useWhere);
     }
 
-    function _deleteNotices()
+    public function _deleteNotices()
     {
         $notice = new Notice();
         $notice->profile_id = $this->id;
@@ -992,7 +1016,7 @@ class Profile extends Managed_DataObject
         }
     }
 
-    function _deleteSubscriptions()
+    public function _deleteSubscriptions()
     {
         $sub = new Subscription();
         $sub->subscriber = $this->getID();
@@ -1040,14 +1064,14 @@ class Profile extends Managed_DataObject
         $self->delete();
     }
 
-    function _deleteTags()
+    public function _deleteTags()
     {
         $tag = new Profile_tag();
         $tag->tagged = $this->id;
         $tag->delete();
     }
 
-    function _deleteBlocks()
+    public function _deleteBlocks()
     {
         $block = new Profile_block();
         $block->blocked = $this->id;
@@ -1058,7 +1082,7 @@ class Profile extends Managed_DataObject
         $block->delete();
     }
 
-    function _deleteAttentions()
+    public function _deleteAttentions()
     {
         $att = new Attention();
         $att->profile_id = $this->getID();
@@ -1103,7 +1127,7 @@ class Profile extends Managed_DataObject
 
         if ($cfg == 'always') {
             return true;
-        } else if ($cfg == 'never') {
+        } elseif ($cfg == 'never') {
             return false;
         } else { // user
             $share = common_config('location', 'sharedefault');
@@ -1120,7 +1144,7 @@ class Profile extends Managed_DataObject
         }
     }
 
-    function hasRole($name)
+    public function hasRole($name)
     {
         $has_role = false;
         if (Event::handle('StartHasRole', array($this, $name, &$has_role))) {
@@ -1132,10 +1156,9 @@ class Profile extends Managed_DataObject
         return $has_role;
     }
 
-    function grantRole($name)
+    public function grantRole($name)
     {
         if (Event::handle('StartGrantRole', array($this, $name))) {
-
             $role = new Profile_role();
 
             $role->profile_id = $this->id;
@@ -1158,17 +1181,20 @@ class Profile extends Managed_DataObject
         return $result;
     }
 
-    function revokeRole($name)
+    public function revokeRole($name)
     {
         if (Event::handle('StartRevokeRole', array($this, $name))) {
-
             $role = Profile_role::pkeyGet(array('profile_id' => $this->id,
                                                 'role' => $name));
 
             if (empty($role)) {
                 // TRANS: Exception thrown when trying to revoke an existing role for a user that does not exist.
                 // TRANS: %1$s is the role name, %2$s is the user ID (number).
-                throw new Exception(sprintf(_('Cannot revoke role "%1$s" for user #%2$d; does not exist.'),$name, $this->id));
+                throw new Exception(sprintf(
+                    _('Cannot revoke role "%1$s" for user #%2$d; does not exist.'),
+                    $name,
+                    $this->id
+                ));
             }
 
             $result = $role->delete();
@@ -1177,7 +1203,11 @@ class Profile extends Managed_DataObject
                 common_log_db_error($role, 'DELETE', __FILE__);
                 // TRANS: Exception thrown when trying to revoke a role for a user with a failing database query.
                 // TRANS: %1$s is the role name, %2$s is the user ID (number).
-                throw new Exception(sprintf(_('Cannot revoke role "%1$s" for user #%2$d; database error.'),$name, $this->id));
+                throw new Exception(sprintf(
+                    _('Cannot revoke role "%1$s" for user #%2$d; database error.'),
+                    $name,
+                    $this->id
+                ));
             }
 
             if ($name == 'owner') {
@@ -1190,27 +1220,27 @@ class Profile extends Managed_DataObject
         }
     }
 
-    function isSandboxed()
+    public function isSandboxed()
     {
         return $this->hasRole(Profile_role::SANDBOXED);
     }
 
-    function isSilenced()
+    public function isSilenced()
     {
         return $this->hasRole(Profile_role::SILENCED);
     }
 
-    function sandbox()
+    public function sandbox()
     {
         $this->grantRole(Profile_role::SANDBOXED);
     }
 
-    function unsandbox()
+    public function unsandbox()
     {
         $this->revokeRole(Profile_role::SANDBOXED);
     }
 
-    function silence()
+    public function silence()
     {
         $this->grantRole(Profile_role::SILENCED);
         if (common_config('notice', 'hidespam')) {
@@ -1218,7 +1248,7 @@ class Profile extends Managed_DataObject
         }
     }
 
-    function silenceAs(Profile $actor)
+    public function silenceAs(Profile $actor)
     {
         if (!$actor->hasRight(Right::SILENCEUSER)) {
             throw new AuthorizationException(_('You cannot silence users on this site.'));
@@ -1234,7 +1264,7 @@ class Profile extends Managed_DataObject
         return $this->silence();
     }
 
-    function unsilence()
+    public function unsilence()
     {
         $this->revokeRole(Profile_role::SILENCED);
         if (common_config('notice', 'hidespam')) {
@@ -1242,7 +1272,7 @@ class Profile extends Managed_DataObject
         }
     }
 
-    function unsilenceAs(Profile $actor)
+    public function unsilenceAs(Profile $actor)
     {
         if (!$actor->hasRight(Right::SILENCEUSER)) {
             // TRANS: Client error displayed trying to unsilence a user when the user does not have the right.
@@ -1255,7 +1285,7 @@ class Profile extends Managed_DataObject
         return $this->unsilence();
     }
 
-    function flushVisibility()
+    public function flushVisibility()
     {
         // Get all notices
         $stream = new ProfileNoticeStream($this, $this);
@@ -1301,8 +1331,7 @@ class Profile extends Managed_DataObject
         }
 
         if (Event::handle('UserRightsCheck', array($this, $right, &$result))) {
-            switch ($right)
-            {
+            switch ($right) {
             case Right::DELETEOTHERSNOTICE:
             case Right::MAKEGROUPADMIN:
             case Right::SANDBOXUSER:
@@ -1380,7 +1409,7 @@ class Profile extends Managed_DataObject
      *
      * @return string
      */
-    function asAtomAuthor($cur = null)
+    public function asAtomAuthor($cur = null)
     {
         $xs = new XMLStringer(true);
 
@@ -1388,7 +1417,7 @@ class Profile extends Managed_DataObject
         $xs->element('name', null, $this->nickname);
         $xs->element('uri', null, $this->getUri());
         if ($cur != null) {
-            $attrs = Array();
+            $attrs = [];
             $attrs['following'] = $cur->isSubscribed($this) ? 'true' : 'false';
             $attrs['blocking']  = $cur->hasBlocked($this) ? 'true' : 'false';
             $xs->element('statusnet:profile_info', $attrs, null);
@@ -1409,7 +1438,7 @@ class Profile extends Managed_DataObject
      * @return array representation of <statusnet:profile_info> element or null
      */
 
-    function profileInfo(Profile $scoped=null)
+    public function profileInfo(Profile $scoped = null)
     {
         $profileInfoAttr = array('local_id' => $this->id);
 
@@ -1431,7 +1460,7 @@ class Profile extends Managed_DataObject
      *
      * @return string
      */
-    function asActivityActor()
+    public function asActivityActor()
     {
         return $this->asActivityNoun('actor');
     }
@@ -1447,7 +1476,7 @@ class Profile extends Managed_DataObject
      *
      * @return string
      */
-    function asActivityNoun($element)
+    public function asActivityNoun($element)
     {
         $noun = $this->asActivityObject();
         return $noun->asString('activity:' . $element);
@@ -1619,7 +1648,7 @@ class Profile extends Managed_DataObject
         return $scheme ? $acct : mb_substr($acct, 5);
     }
 
-    function hasBlocked(Profile $other)
+    public function hasBlocked(Profile $other)
     {
         $block = Profile_block::exists($this, $other);
         return !empty($block);
@@ -1652,7 +1681,7 @@ class Profile extends Managed_DataObject
      *
      * @param string $uri A unique identifier for a resource (profile/group/whatever)
      */
-    static function fromUri($uri)
+    public static function fromUri($uri)
     {
         $profile = null;
 
@@ -1677,7 +1706,7 @@ class Profile extends Managed_DataObject
         return $profile;
     }
 
-    function canRead(Notice $notice)
+    public function canRead(Notice $notice)
     {
         if ($notice->scope & Notice::SITE_SCOPE) {
             $user = $this->getUser();
@@ -1717,7 +1746,7 @@ class Profile extends Managed_DataObject
         return true;
     }
 
-    static function current()
+    public static function current()
     {
         $user = common_current_user();
         if (empty($user)) {
@@ -1728,7 +1757,7 @@ class Profile extends Managed_DataObject
         return $profile;
     }
 
-    static function ensureCurrent()
+    public static function ensureCurrent()
     {
         $profile = self::current();
         if (!$profile instanceof Profile) {
@@ -1747,7 +1776,7 @@ class Profile extends Managed_DataObject
      * @return array of variable names to include in serialization.
      */
 
-    function __sleep()
+    public function __sleep()
     {
         $vars = parent::__sleep();
         $skip = array('_user', '_group');
@@ -1802,11 +1831,13 @@ class Profile extends Managed_DataObject
         return !is_null($private_stream) && $private_stream;
     }
 
-    public function delPref($namespace, $topic) {
+    public function delPref($namespace, $topic)
+    {
         return Profile_prefs::setData($this, $namespace, $topic, null);
     }
 
-    public function getPref($namespace, $topic, $default=null) {
+    public function getPref($namespace, $topic, $default = null)
+    {
         // If you want an exception to be thrown, call Profile_prefs::getData directly
         try {
             return Profile_prefs::getData($this, $namespace, $topic, $default);
@@ -1821,7 +1852,8 @@ class Profile extends Managed_DataObject
         return Profile_prefs::getConfigData($this, $namespace, $topic);
     }
 
-    public function setPref($namespace, $topic, $data) {
+    public function setPref($namespace, $topic, $data)
+    {
         return Profile_prefs::setData($this, $namespace, $topic, $data);
     }
 

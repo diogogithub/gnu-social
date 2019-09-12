@@ -61,7 +61,7 @@ class Activitypub_profile extends Managed_DataObject
         return [
             'fields' => [
                 'uri' => ['type' => 'text', 'not null' => true],
-                'profile_id' => ['type' => 'integer'],
+                'profile_id' => ['type' => 'int', 'not null' => true],
                 'inboxuri' => ['type' => 'text', 'not null' => true],
                 'sharedInboxuri' => ['type' => 'text'],
                 'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],

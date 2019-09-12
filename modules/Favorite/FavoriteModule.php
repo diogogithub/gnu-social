@@ -1,28 +1,28 @@
 <?php
-/*
- * GNU Social - a federating social network
- * Copyright (C) 2014, Free Software Foundation, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-if (!defined('GNUSOCIAL')) { exit(1); }
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package     Activity
- * @maintainer  Mikael Nordfeldth <mmn@hethane.se>
+ * @package   Favorite
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @copyright 2014 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+defined('GNUSOCIAL') || die();
+
 class FavoriteModule extends ActivityVerbHandlerModule
 {
     const PLUGIN_VERSION = '2.0.0';
@@ -93,15 +93,14 @@ class FavoriteModule extends ActivityVerbHandlerModule
             while ($fave->fetch()) {
                 try {
                     $fave->decache();
-                    $fave->query(sprintf('UPDATE fave '.
-                                         'SET uri = "%s", '.
-                                         '    modified = "%s" '.
-                                         'WHERE user_id = %d '.
-                                         'AND notice_id = %d',
-                                         Fave::newUri($fave->getActor(), $fave->getTarget(), $fave->modified),
-                                         common_sql_date(strtotime($fave->modified)),
-                                         $fave->user_id,
-                                         $fave->notice_id));
+                    $fave->query(sprintf(
+                        "UPDATE fave SET uri = '%s', modified = TIMESTAMP '%s' " .
+                        'WHERE user_id = %d AND notice_id = %d',
+                        Fave::newUri($fave->getActor(), $fave->getTarget(), $fave->modified),
+                        common_sql_date(strtotime($fave->modified)),
+                        $fave->user_id,
+                        $fave->notice_id
+                    ));
                 } catch (Exception $e) {
                     common_log(LOG_ERR, "Error updating fave URI: " . $e->getMessage());
                 }
@@ -114,77 +113,129 @@ class FavoriteModule extends ActivityVerbHandlerModule
     public function onRouterInitialized(URLMapper $m)
     {
         // Web UI actions
-        $m->connect('main/favor',
-                    ['action' => 'favor']);
-        $m->connect('main/disfavor',
-                    ['action' => 'disfavor']);
+        $m->connect(
+            'main/favor',
+            ['action' => 'favor']
+        );
+        $m->connect(
+            'main/disfavor',
+            ['action' => 'disfavor']
+        );
 
         if (common_config('singleuser', 'enabled')) {
             $nickname = User::singleUserNickname();
 
-            $m->connect('favorites',
-                        ['action'   => 'showfavorites',
-                         'nickname' => $nickname]);
-            $m->connect('favoritesrss',
-                        ['action'   => 'favoritesrss',
-                         'nickname' => $nickname]);
+            $m->connect(
+                'favorites',
+                [
+                    'action'   => 'showfavorites',
+                    'nickname' => $nickname,
+                ]
+            );
+            $m->connect(
+                'favoritesrss',
+                [
+                    'action'   => 'favoritesrss',
+                    'nickname' => $nickname,
+                ]
+            );
         } else {
-            $m->connect('favoritedrss',
-                        ['action' => 'favoritedrss']);
-            $m->connect('favorited/',
-                        ['action' => 'favorited']);
-            $m->connect('favorited',
-                        ['action' => 'favorited']);
+            $m->connect(
+                'favoritedrss',
+                ['action' => 'favoritedrss']
+            );
+            $m->connect(
+                'favorited/',
+                ['action' => 'favorited']
+            );
+            $m->connect(
+                'favorited',
+                ['action' => 'favorited']
+            );
 
-            $m->connect(':nickname/favorites',
-                        ['action' => 'showfavorites'],
-                        ['nickname' => Nickname::DISPLAY_FMT]);
-            $m->connect(':nickname/favorites/rss',
-                        ['action' => 'favoritesrss'],
-                        ['nickname' => Nickname::DISPLAY_FMT]);
+            $m->connect(
+                ':nickname/favorites',
+                ['action' => 'showfavorites'],
+                ['nickname' => Nickname::DISPLAY_FMT]
+            );
+            $m->connect(
+                ':nickname/favorites/rss',
+                ['action' => 'favoritesrss'],
+                ['nickname' => Nickname::DISPLAY_FMT]
+            );
         }
 
         // Favorites for API
-        $m->connect('api/favorites/create.:format',
-                    ['action' => 'ApiFavoriteCreate'],
-                    ['format' => '(xml|json)']);
-        $m->connect('api/favorites/destroy.:format',
-                    ['action' => 'ApiFavoriteDestroy'],
-                    ['format' => '(xml|json)']);
-        $m->connect('api/favorites/list.:format',
-                    ['action' => 'ApiTimelineFavorites'],
-                    ['format' => '(xml|json|rss|atom|as)']);
-        $m->connect('api/favorites/:id.:format',
-                    ['action' => 'ApiTimelineFavorites'],
-                    ['id'     => Nickname::INPUT_FMT,
-                     'format' => '(xml|json|rss|atom|as)']);
-        $m->connect('api/favorites.:format',
-                    ['action' => 'ApiTimelineFavorites'],
-                    ['format' => '(xml|json|rss|atom|as)']);
-        $m->connect('api/favorites/create/:id.:format',
-                    ['action' => 'ApiFavoriteCreate'],
-                    ['id'     => '[0-9]+',
-                     'format' => '(xml|json)']);
-        $m->connect('api/favorites/destroy/:id.:format',
-                    ['action' => 'ApiFavoriteDestroy'],
-                    ['id'     => '[0-9]+',
-                     'format' => '(xml|json)']);
+        $m->connect(
+            'api/favorites/create.:format',
+            ['action' => 'ApiFavoriteCreate'],
+            ['format' => '(xml|json)']
+        );
+        $m->connect(
+            'api/favorites/destroy.:format',
+            ['action' => 'ApiFavoriteDestroy'],
+            ['format' => '(xml|json)']
+        );
+        $m->connect(
+            'api/favorites/list.:format',
+            ['action' => 'ApiTimelineFavorites'],
+            ['format' => '(xml|json|rss|atom|as)']
+        );
+        $m->connect(
+            'api/favorites/:id.:format',
+            ['action' => 'ApiTimelineFavorites'],
+            [
+                'id'     => Nickname::INPUT_FMT,
+                'format' => '(xml|json|rss|atom|as)',
+            ]
+        );
+        $m->connect(
+            'api/favorites.:format',
+            ['action' => 'ApiTimelineFavorites'],
+            ['format' => '(xml|json|rss|atom|as)']
+        );
+        $m->connect(
+            'api/favorites/create/:id.:format',
+            ['action' => 'ApiFavoriteCreate'],
+            [
+                'id'     => '[0-9]+',
+                'format' => '(xml|json)',
+            ]
+        );
+        $m->connect(
+            'api/favorites/destroy/:id.:format',
+            ['action' => 'ApiFavoriteDestroy'],
+            [
+                'id'     => '[0-9]+',
+                'format' => '(xml|json)',
+            ]
+        );
 
         // AtomPub API
-        $m->connect('api/statusnet/app/favorites/:profile/:notice.atom',
-                    ['action' => 'AtomPubShowFavorite'],
-                    ['profile' => '[0-9]+',
-                     'notice'  => '[0-9]+']);
+        $m->connect(
+            'api/statusnet/app/favorites/:profile/:notice.atom',
+            ['action' => 'AtomPubShowFavorite'],
+            [
+                'profile' => '[0-9]+',
+                'notice'  => '[0-9]+',
+            ]
+        );
 
-        $m->connect('api/statusnet/app/favorites/:profile.atom',
-                    ['action' => 'AtomPubFavoriteFeed'],
-                    ['profile' => '[0-9]+']);
+        $m->connect(
+            'api/statusnet/app/favorites/:profile.atom',
+            ['action' => 'AtomPubFavoriteFeed'],
+            ['profile' => '[0-9]+']
+        );
 
         // Required for qvitter API
-        $m->connect('api/statuses/favs/:id.:format',
-                    ['action' => 'ApiStatusesFavs'],
-                    ['id'     => '[0-9]+',
-                     'format' => '(xml|json)']);
+        $m->connect(
+            'api/statuses/favs/:id.:format',
+            ['action' => 'ApiStatusesFavs'],
+            [
+                'id'     => '[0-9]+',
+                'format' => '(xml|json)',
+            ]
+        );
     }
 
     // FIXME: Set this to abstract public in lib/modules/ActivityHandlerPlugin.php when all plugins have migrated!
@@ -443,10 +494,12 @@ class FavoriteModule extends ActivityVerbHandlerModule
         $emailfave = $scoped->getConfigPref('email', 'notify_fave') ? 1 : 0;
 
         $action->elementStart('li');
-        $action->checkbox('email-notify_fave',
-                        // TRANS: Checkbox label in e-mail preferences form.
-                        _('Send me email when someone adds my notice as a favorite.'),
-                        $emailfave);
+        $action->checkbox(
+            'email-notify_fave',
+            // TRANS: Checkbox label in e-mail preferences form.
+            _('Send me email when someone adds my notice as a favorite.'),
+            $emailfave
+        );
         $action->elementEnd('li');
 
         return true;
@@ -454,9 +507,9 @@ class FavoriteModule extends ActivityVerbHandlerModule
 
     public function onStartEmailSaveForm(Action $action, Profile $scoped)
     {
-        $emailfave = $action->booleanintstring('email-notify_fave');
+        $emailfave = $action->boolean('email-notify_fave');
         try {
-            if ($emailfave == $scoped->getPref('email', 'notify_fave')) {
+            if ($emailfave == (bool) $scoped->getPref('email', 'notify_fave')) {
                 // No need to update setting
                 return true;
             }
@@ -473,24 +526,31 @@ class FavoriteModule extends ActivityVerbHandlerModule
 
     public function onEndPersonalGroupNav(Menu $menu, Profile $target, Profile $scoped=null)
     {
-        $menu->out->menuItem(common_local_url('showfavorites', array('nickname' => $target->getNickname())),
-                             // TRANS: Menu item in personal group navigation menu.
-                             _m('MENU','Favorites'),
-                             // @todo i18n FIXME: Need to make this two messages.
-                             // TRANS: Menu item title in personal group navigation menu.
-                             // TRANS: %s is a username.
-                             sprintf(_('%s\'s favorite notices'), $target->getBestName()),
-                             $scoped instanceof Profile && $target->id === $scoped->id && $menu->actionName =='showfavorites',
-                            'nav_timeline_favorites');
+        $menu->out->menuItem(
+            common_local_url('showfavorites', ['nickname' => $target->getNickname()]),
+            // TRANS: Menu item in personal group navigation menu.
+            _m('MENU', 'Favorites'),
+            // @todo i18n FIXME: Need to make this two messages.
+            // TRANS: Menu item title in personal group navigation menu.
+            // TRANS: %s is a username.
+            sprintf(_('%s\'s favorite notices'), $target->getBestName()),
+            ($scoped instanceof Profile && $target->id === $scoped->id && $menu->actionName === 'showfavorites'),
+            'nav_timeline_favorites'
+        );
     }
 
     public function onEndPublicGroupNav(Menu $menu)
     {
         if (!common_config('singleuser', 'enabled')) {
             // TRANS: Menu item in search group navigation panel.
-            $menu->out->menuItem(common_local_url('favorited'), _m('MENU','Popular'),
-                                 // TRANS: Menu item title in search group navigation panel.
-                                 _('Popular notices'), $menu->actionName == 'favorited', 'nav_timeline_favorited');
+            $menu->out->menuItem(
+                common_local_url('favorited'),
+                _m('MENU', 'Popular'),
+                // TRANS: Menu item title in search group navigation panel.
+                _('Popular notices'),
+                ($menu->actionName === 'favorited'),
+                'nav_timeline_favorited'
+            );
         }
     }
 
@@ -519,7 +579,7 @@ class FavoriteModule extends ActivityVerbHandlerModule
     {
         if ($action->isPost()) {
             // The below tests are only for presenting to the user. POSTs which inflict
-            // duplicate favorite entries are handled with AlreadyFulfilledException. 
+            // duplicate favorite entries are handled with AlreadyFulfilledException.
             return false;
         }
 
@@ -529,9 +589,13 @@ class FavoriteModule extends ActivityVerbHandlerModule
         switch (true) {
         case $exists && ActivityUtils::compareVerbs($verb, array(ActivityVerb::FAVORITE, ActivityVerb::LIKE)):
         case !$exists && ActivityUtils::compareVerbs($verb, array(ActivityVerb::UNFAVORITE, ActivityVerb::UNLIKE)):
-            common_redirect(common_local_url('activityverb',
-                                array('id'   => $target->getID(),
-                                      'verb' => ActivityUtils::resolveUri($expected_verb, true))));
+            common_redirect(common_local_url(
+                'activityverb',
+                [
+                    'id'   => $target->getID(),
+                    'verb' => ActivityUtils::resolveUri($expected_verb, true),
+                ]
+            ));
             break;
         default:
             // No need to redirect as we are on the correct action already.
@@ -617,23 +681,23 @@ function mail_notify_fave(User $rcpt, Profile $sender, Notice $notice)
     // TRANS: %3$s is a URL to the faved notice, %4$s is the faved notice text,
     // TRANS: %5$s is a URL to all faves of the adding user, %6$s is the StatusNet sitename,
     // TRANS: %7$s is the adding user's nickname.
-    $body = sprintf(_("%1\$s (@%7\$s) just added your notice from %2\$s".
-                      " as one of their favorites.\n\n" .
-                      "The URL of your notice is:\n\n" .
-                      "%3\$s\n\n" .
-                      "The text of your notice is:\n\n" .
-                      "%4\$s\n\n" .
-                      "You can see the list of %1\$s's favorites here:\n\n" .
-                      "%5\$s"),
-                    $bestname,
-                    common_exact_date($notice->created),
-                    common_local_url('shownotice',
-                                     array('notice' => $notice->id)),
-                    $notice->content,
-                    common_local_url('showfavorites',
-                                     array('nickname' => $sender->getNickname())),
-                    common_config('site', 'name'),
-                    $sender->getNickname()) .
+    $body = sprintf(
+        _("%1\$s (@%7\$s) just added your notice from %2\$s".
+          " as one of their favorites.\n\n" .
+          "The URL of your notice is:\n\n" .
+          "%3\$s\n\n" .
+          "The text of your notice is:\n\n" .
+          "%4\$s\n\n" .
+          "You can see the list of %1\$s's favorites here:\n\n" .
+          "%5\$s"),
+        $bestname,
+        common_exact_date($notice->created),
+        common_local_url('shownotice', ['notice' => $notice->id]),
+        $notice->content,
+        common_local_url('showfavorites', ['nickname' => $sender->getNickname()]),
+        common_config('site', 'name'),
+        $sender->getNickname()
+    ) .
             mail_footer_block();
 
     $headers = _mail_prepare_headers('fave', $rcpt->getNickname(), $sender->getNickname());

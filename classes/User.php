@@ -1,23 +1,20 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Table Definition for user
@@ -37,24 +34,24 @@ class User extends Managed_DataObject
     public $password;                        // varchar(191)               not 255 because utf8mb4 takes more space
     public $email;                           // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
     public $incomingemail;                   // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
-    public $emailnotifysub;                  // tinyint(1)   default_1
-    public $emailnotifyfav;                  // tinyint(1)   default_1
-    public $emailnotifynudge;                // tinyint(1)   default_1
-    public $emailnotifymsg;                  // tinyint(1)   default_1
-    public $emailnotifyattn;                 // tinyint(1)   default_1
+    public $emailnotifysub;                  // bool          default_true
+    public $emailnotifyfav;                  // tinyint(1)   default_null
+    public $emailnotifynudge;                // bool          default_true
+    public $emailnotifymsg;                  // bool          default_true
+    public $emailnotifyattn;                 // bool          default_true
     public $language;                        // varchar(50)
     public $timezone;                        // varchar(50)
-    public $emailpost;                       // tinyint(1)   default_1
+    public $emailpost;                       // bool          default_true
     public $sms;                             // varchar(64)  unique_key
     public $carrier;                         // int(4)
-    public $smsnotify;                       // tinyint(1)
-    public $smsreplies;                      // tinyint(1)
+    public $smsnotify;                       // bool          default_false
+    public $smsreplies;                      // bool          default_false
     public $smsemail;                        // varchar(191)               not 255 because utf8mb4 takes more space
     public $uri;                             // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
-    public $autosubscribe;                   // tinyint(1)
+    public $autosubscribe;                   // bool          default_false
     public $subscribe_policy;                // tinyint(1)
     public $urlshorteningservice;            // varchar(50)   default_ur1.ca
-    public $private_stream;                  // tinyint(1)   default_0
+    public $private_stream;                  // bool          default_false
     public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
     public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
 
@@ -71,24 +68,24 @@ class User extends Managed_DataObject
                 'password' => array('type' => 'varchar', 'length' => 191, 'description' => 'salted password, can be null for OpenID users'),
                 'email' => array('type' => 'varchar', 'length' => 191, 'description' => 'email address for password recovery etc.'),
                 'incomingemail' => array('type' => 'varchar', 'length' => 191, 'description' => 'email address for post-by-email'),
-                'emailnotifysub' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Notify by email of subscriptions'),
+                'emailnotifysub' => array('type' => 'bool', 'default' => true, 'description' => 'Notify by email of subscriptions'),
                 'emailnotifyfav' => array('type' => 'int', 'size' => 'tiny', 'default' => null, 'description' => 'Notify by email of favorites'),
-                'emailnotifynudge' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Notify by email of nudges'),
-                'emailnotifymsg' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Notify by email of direct messages'),
-                'emailnotifyattn' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Notify by email of @-replies'),
+                'emailnotifynudge' => array('type' => 'bool', 'default' => true, 'description' => 'Notify by email of nudges'),
+                'emailnotifymsg' => array('type' => 'bool', 'default' => true, 'description' => 'Notify by email of direct messages'),
+                'emailnotifyattn' => array('type' => 'bool', 'default' => true, 'description' => 'Notify by email of @-replies'),
                 'language' => array('type' => 'varchar', 'length' => 50, 'description' => 'preferred language'),
                 'timezone' => array('type' => 'varchar', 'length' => 50, 'description' => 'timezone'),
-                'emailpost' => array('type' => 'int', 'size' => 'tiny', 'default' => 1, 'description' => 'Post by email'),
+                'emailpost' => array('type' => 'bool', 'default' => true, 'description' => 'Post by email'),
                 'sms' => array('type' => 'varchar', 'length' => 64, 'description' => 'sms phone number'),
                 'carrier' => array('type' => 'int', 'description' => 'foreign key to sms_carrier'),
-                'smsnotify' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'whether to send notices to SMS'),
-                'smsreplies' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'whether to send notices to SMS on replies'),
+                'smsnotify' => array('type' => 'bool', 'default' => false, 'description' => 'whether to send notices to SMS'),
+                'smsreplies' => array('type' => 'bool', 'default' => false, 'description' => 'whether to send notices to SMS on replies'),
                 'smsemail' => array('type' => 'varchar', 'length' => 191, 'description' => 'built from sms and carrier'),
                 'uri' => array('type' => 'varchar', 'length' => 191, 'description' => 'universally unique identifier, usually a tag URI'),
-                'autosubscribe' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'automatically subscribe to users who subscribe to us'),
+                'autosubscribe' => array('type' => 'bool', 'default' => false, 'description' => 'automatically subscribe to users who subscribe to us'),
                 'subscribe_policy' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => '0 = anybody can subscribe; 1 = require approval'),
                 'urlshorteningservice' => array('type' => 'varchar', 'length' => 50, 'default' => 'internal', 'description' => 'service to use for auto-shortening URLs'),
-                'private_stream' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'whether to limit all notices to followers only'),
+                'private_stream' => array('type' => 'bool', 'default' => false, 'description' => 'whether to limit all notices to followers only'),
                 'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
                 'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
             ),
@@ -144,7 +141,7 @@ class User extends Managed_DataObject
         return $this->getProfile()->getNickname();
     }
 
-    static function getByNickname($nickname)
+    public static function getByNickname($nickname)
     {
         $user = User::getKV('nickname', $nickname);
         if (!$user instanceof User) {
@@ -154,12 +151,12 @@ class User extends Managed_DataObject
         return $user;
     }
 
-    function isSubscribed(Profile $other)
+    public function isSubscribed(Profile $other)
     {
         return $this->getProfile()->isSubscribed($other);
     }
 
-    function hasPendingSubscription(Profile $other)
+    public function hasPendingSubscription(Profile $other)
     {
         return $this->getProfile()->hasPendingSubscription($other);
     }
@@ -169,17 +166,17 @@ class User extends Managed_DataObject
      *
      * @return mixed Notice or null
      */
-    function getCurrentNotice()
+    public function getCurrentNotice()
     {
         return $this->getProfile()->getCurrentNotice();
     }
 
-    function getCarrier()
+    public function getCarrier()
     {
         return Sms_carrier::getKV('id', $this->carrier);
     }
 
-    function hasBlocked(Profile $other)
+    public function hasBlocked(Profile $other)
     {
         return $this->getProfile()->hasBlocked($other);
     }
@@ -206,10 +203,9 @@ class User extends Managed_DataObject
      * @return  User object
      * @throws  Exception on failure
      */
-    static function register(array $fields, $accept_email_fail=false) {
-
+    public static function register(array $fields, $accept_email_fail = false)
+    {
         // MAGICALLY put fields into current scope
-
         extract($fields);
 
         $profile = new Profile();
@@ -262,23 +258,22 @@ class User extends Managed_DataObject
             }
         }
 
-        if(isset($email_confirmed) && $email_confirmed) {
+        if (isset($email_confirmed) && $email_confirmed) {
             $user->email = $email;
         }
 
         // Set default-on options here, otherwise they'll be disabled
         // initially for sites using caching, since the initial encache
         // doesn't know about the defaults in the database.
-        $user->emailnotifysub = 1;
-        $user->emailnotifynudge = 1;
-        $user->emailnotifymsg = 1;
-        $user->emailnotifyattn = 1;
-        $user->emailpost = 1;
+        $user->emailnotifysub = true;
+        $user->emailnotifynudge = true;
+        $user->emailnotifymsg = true;
+        $user->emailnotifyattn = true;
+        $user->emailpost = true;
 
         $user->created = common_sql_now();
 
         if (Event::handle('StartUserRegister', array($profile))) {
-
             $profile->query('BEGIN');
 
             $id = $profile->insert();
@@ -291,7 +286,7 @@ class User extends Managed_DataObject
             
             // Necessary because id has been known to be reissued.
             if ($profile->hasRole(Profile_role::DELETED)) {
-            	$profile->revokeRole(Profile_role::DELETED);
+                $profile->revokeRole(Profile_role::DELETED);
             }
 
             $user->id = $id;
@@ -367,8 +362,11 @@ class User extends Managed_DataObject
             if (!empty($defnick)) {
                 $defuser = User::getKV('nickname', $defnick);
                 if (empty($defuser)) {
-                    common_log(LOG_WARNING, sprintf("Default user %s does not exist.", $defnick),
-                               __FILE__);
+                    common_log(
+                        LOG_WARNING,
+                        sprintf('Default user %s does not exist.', $defnick),
+                        __FILE__
+                    );
                 } else {
                     Subscription::ensureStart($profile, $defuser->getProfile());
                 }
@@ -394,16 +392,23 @@ class User extends Managed_DataObject
             if (!empty($welcome)) {
                 $welcomeuser = User::getKV('nickname', $welcome);
                 if (empty($welcomeuser)) {
-                    common_log(LOG_WARNING, sprintf("Welcome user %s does not exist.", $defnick),
-                               __FILE__);
+                    common_log(
+                        LOG_WARNING,
+                        sprintf('Welcome user %s does not exist.', $defnick),
+                        __FILE__
+                    );
                 } else {
-                    $notice = Notice::saveNew($welcomeuser->id,
-                                              // TRANS: Notice given on user registration.
-                                              // TRANS: %1$s is the sitename, $2$s is the registering user's nickname.
-                                              sprintf(_('Welcome to %1$s, @%2$s!'),
-                                                      common_config('site', 'name'),
-                                                      $profile->getNickname()),
-                                              'system');
+                    $notice = Notice::saveNew(
+                        $welcomeuser->id,
+                        // TRANS: Notice given on user registration.
+                        // TRANS: %1$s is the sitename, $2$s is the registering user's nickname.
+                        sprintf(
+                            _('Welcome to %1$s, @%2$s!'),
+                            common_config('site', 'name'),
+                            $profile->getNickname()
+                        ),
+                        'system'
+                    );
                 }
             }
 
@@ -418,9 +423,8 @@ class User extends Managed_DataObject
     }
 
     // Things we do when the email changes
-    function emailChanged()
+    public function emailChanged()
     {
-
         $invites = new Invitation();
         $invites->address = $this->email;
         $invites->address_type = 'email';
@@ -441,48 +445,53 @@ class User extends Managed_DataObject
         }
     }
 
-    function mutuallySubscribed(Profile $other)
+    public function mutuallySubscribed(Profile $other)
     {
         return $this->getProfile()->mutuallySubscribed($other);
     }
 
-    function mutuallySubscribedUsers()
+    public function mutuallySubscribedUsers()
     {
-        // 3-way join; probably should get cached
-        $UT = common_config('db','type')=='pgsql'?'"user"':'user';
-        $qry = "SELECT $UT.* " .
-          "FROM subscription sub1 JOIN $UT ON sub1.subscribed = $UT.id " .
-          "JOIN subscription sub2 ON $UT.id = sub2.subscriber " .
-          'WHERE sub1.subscriber = %d and sub2.subscribed = %d ' .
-          "ORDER BY $UT.nickname";
         $user = new User();
-        $user->query(sprintf($qry, $this->id, $this->id));
+
+        // 3-way join; probably should get cached
+        $user->query(sprintf(
+            'SELECT %1$s.* ' .
+            'FROM subscription AS sub1 INNER JOIN %1$s ON sub1.subscribed = %1$s.id ' .
+            'INNER JOIN subscription AS sub2 ON %1$s.id = sub2.subscriber ' .
+            'WHERE sub1.subscriber = %2$d AND sub2.subscribed = %2$d ' .
+            'ORDER BY %1$s.nickname',
+            $user->escapedTableName(),
+            $this->id
+        ));
 
         return $user;
     }
 
-    function getReplies($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
+    public function getReplies($offset = 0, $limit = NOTICES_PER_PAGE, $since_id = 0, $before_id = 0)
     {
         return $this->getProfile()->getReplies($offset, $limit, $since_id, $before_id);
     }
 
-    function getTaggedNotices($tag, $offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0) {
+    public function getTaggedNotices($tag, $offset = 0, $limit = NOTICES_PER_PAGE, $since_id = 0, $before_id = 0)
+    {
         return $this->getProfile()->getTaggedNotices($tag, $offset, $limit, $since_id, $before_id);
     }
 
-    function getNotices($offset=0, $limit=NOTICES_PER_PAGE, $since_id=0, $before_id=0)
+    public function getNotices($offset = 0, $limit = NOTICES_PER_PAGE, $since_id = 0, $before_id = 0)
     {
         return $this->getProfile()->getNotices($offset, $limit, $since_id, $before_id);
     }
 
-    function block(Profile $other)
+    public function block(Profile $other)
     {
         // Add a new block record
 
         // no blocking (and thus unsubbing from) yourself
 
         if ($this->id == $other->id) {
-            common_log(LOG_WARNING,
+            common_log(
+                LOG_WARNING,
                 sprintf(
                     "Profile ID %d (%s) tried to block themself.",
                     $this->id,
@@ -521,7 +530,7 @@ class User extends Managed_DataObject
         return true;
     }
 
-    function unblock(Profile $other)
+    public function unblock(Profile $other)
     {
         // Get the block record
 
@@ -541,17 +550,17 @@ class User extends Managed_DataObject
         return true;
     }
 
-    function isMember(User_group $group)
+    public function isMember(User_group $group)
     {
         return $this->getProfile()->isMember($group);
     }
 
-    function isAdmin(User_group $group)
+    public function isAdmin(User_group $group)
     {
         return $this->getProfile()->isAdmin($group);
     }
 
-    function getGroups($offset=0, $limit=null)
+    public function getGroups($offset = 0, $limit = null)
     {
         return $this->getProfile()->getGroups($offset, $limit);
     }
@@ -563,7 +572,7 @@ class User extends Managed_DataObject
      * @param User_group $group
      * @return Group_member
      */
-    function joinGroup(User_group $group)
+    public function joinGroup(User_group $group)
     {
         return $this->getProfile()->joinGroup($group);
     }
@@ -573,37 +582,37 @@ class User extends Managed_DataObject
      *
      * @param User_group $group
      */
-    function leaveGroup(User_group $group)
+    public function leaveGroup(User_group $group)
     {
         return $this->getProfile()->leaveGroup($group);
     }
 
-    function getSubscribed($offset=0, $limit=null)
+    public function getSubscribed($offset = 0, $limit = null)
     {
         return $this->getProfile()->getSubscribed($offset, $limit);
     }
 
-    function getSubscribers($offset=0, $limit=null)
+    public function getSubscribers($offset = 0, $limit = null)
     {
         return $this->getProfile()->getSubscribers($offset, $limit);
     }
 
-    function getTaggedSubscribers($tag, $offset=0, $limit=null)
+    public function getTaggedSubscribers($tag, $offset = 0, $limit = null)
     {
         return $this->getProfile()->getTaggedSubscribers($tag, $offset, $limit);
     }
 
-    function getTaggedSubscriptions($tag, $offset=0, $limit=null)
+    public function getTaggedSubscriptions($tag, $offset = 0, $limit = null)
     {
         return $this->getProfile()->getTaggedSubscriptions($tag, $offset, $limit);
     }
 
-    function hasRight($right)
+    public function hasRight($right)
     {
         return $this->getProfile()->hasRight($right);
     }
 
-    function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
         if (empty($this->id)) {
             common_log(LOG_WARNING, "Ambiguous User->delete(); skipping related tables.");
@@ -640,14 +649,14 @@ class User extends Managed_DataObject
         return parent::delete($useWhere);
     }
 
-    function _deleteTags()
+    public function _deleteTags()
     {
         $tag = new Profile_tag();
         $tag->tagger = $this->id;
         $tag->delete();
     }
 
-    function _deleteBlocks()
+    public function _deleteBlocks()
     {
         $block = new Profile_block();
         $block->blocker = $this->id;
@@ -655,32 +664,32 @@ class User extends Managed_DataObject
         // XXX delete group block? Reset blocker?
     }
 
-    function hasRole($name)
+    public function hasRole($name)
     {
         return $this->getProfile()->hasRole($name);
     }
 
-    function grantRole($name)
+    public function grantRole($name)
     {
         return $this->getProfile()->grantRole($name);
     }
 
-    function revokeRole($name)
+    public function revokeRole($name)
     {
         return $this->getProfile()->revokeRole($name);
     }
 
-    function isSandboxed()
+    public function isSandboxed()
     {
         return $this->getProfile()->isSandboxed();
     }
 
-    function isSilenced()
+    public function isSilenced()
     {
         return $this->getProfile()->isSilenced();
     }
 
-    function receivesEmailNotifications()
+    public function receivesEmailNotifications()
     {
         // We could do this in one large if statement, but that's not as easy to read
         // Don't send notifications if we don't know the user's email address or it is
@@ -695,7 +704,7 @@ class User extends Managed_DataObject
         return true;
     }
 
-    function repeatedByMe($offset=0, $limit=20, $since_id=null, $max_id=null)
+    public function repeatedByMe($offset = 0, $limit = 20, $since_id = null, $max_id = null)
     {
         // FIXME: Use another way to get Profile::current() since we
         // want to avoid confusion between session user and queue processing.
@@ -704,7 +713,7 @@ class User extends Managed_DataObject
     }
 
 
-    function repeatsOfMe($offset=0, $limit=20, $since_id=null, $max_id=null)
+    public function repeatsOfMe($offset = 0, $limit = 20, $since_id = null, $max_id = null)
     {
         // FIXME: Use another way to get Profile::current() since we
         // want to avoid confusion between session user and queue processing.
@@ -712,7 +721,7 @@ class User extends Managed_DataObject
         return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 
-    public function repeatedToMe($offset=0, $limit=20, $since_id=null, $max_id=null)
+    public function repeatedToMe($offset = 0, $limit = 20, $since_id = null, $max_id = null)
     {
         return $this->getProfile()->repeatedToMe($offset, $limit, $since_id, $max_id);
     }
@@ -791,7 +800,7 @@ class User extends Managed_DataObject
      * @throws ServerException if no valid single user account is present
      * @throws ServerException if called when not in single-user mode
      */
-    static function singleUserNickname()
+    public static function singleUserNickname()
     {
         try {
             $user = User::singleUser();
@@ -828,7 +837,7 @@ class User extends Managed_DataObject
      * Get a list of OAuth client applications that have access to this
      * user's account.
      */
-    function getConnectedApps($offset = 0, $limit = null)
+    public function getConnectedApps($offset = 0, $limit = null)
     {
         $qry =
           'SELECT u.* ' .
@@ -839,11 +848,7 @@ class User extends Managed_DataObject
           'ORDER BY u.created DESC ';
 
         if ($offset > 0) {
-            if (common_config('db','type') == 'pgsql') {
-                $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
-            } else {
-                $qry .= ' LIMIT ' . $offset . ', ' . $limit;
-            }
+            $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
         }
 
         $apps = new Oauth_application_user();
@@ -863,14 +868,14 @@ class User extends Managed_DataObject
      * @return array of variable names to include in serialization.
      */
 
-    function __sleep()
+    public function __sleep()
     {
         $vars = parent::__sleep();
         $skip = array('_profile');
         return array_diff($vars, $skip);
     }
 
-    static function recoverPassword($nore)
+    public static function recoverPassword($nore)
     {
         require_once INSTALLDIR . '/lib/util/mail.php';
 
@@ -943,7 +948,7 @@ class User extends Managed_DataObject
             throw new ServerException(_('Error saving address confirmation.'));
         }
 
-         // @todo FIXME: needs i18n.
+        // @todo FIXME: needs i18n.
         $body = "Hey, $user->nickname.";
         $body .= "\n\n";
         $body .= 'Someone just asked for a new password ' .
@@ -951,8 +956,10 @@ class User extends Managed_DataObject
         $body .= "\n\n";
         $body .= 'If it was you, and you want to confirm, use the URL below:';
         $body .= "\n\n";
-        $body .= "\t".common_local_url('recoverpassword',
-                                   array('code' => $confirm->code));
+        $body .= "\t" . common_local_url(
+            'recoverpassword',
+            ['code' => $confirm->code]
+        );
         $body .= "\n\n";
         $body .= 'If not, just ignore this message.';
         $body .= "\n\n";
@@ -966,7 +973,7 @@ class User extends Managed_DataObject
         mail_to_user($user, _('Password recovery requested'), $body, $headers, $confirm->address);
     }
 
-    function streamModeOnly()
+    public function streamModeOnly()
     {
         if (common_config('oldschool', 'enabled')) {
             $osp = Old_school_prefs::getKV('user_id', $this->id);
@@ -978,7 +985,7 @@ class User extends Managed_DataObject
         return false;
     }
 
-    function streamNicknames()
+    public function streamNicknames()
     {
         if (common_config('oldschool', 'enabled')) {
             $osp = Old_school_prefs::getKV('user_id', $this->id);
@@ -989,7 +996,7 @@ class User extends Managed_DataObject
         return false;
     }
 
-    function registrationActivity()
+    public function registrationActivity()
     {
         $profile = $this->getProfile();
 
@@ -1007,16 +1014,20 @@ class User extends Managed_DataObject
 
         $act->objects[] = $service;
 
-        $act->id = TagURI::mint('user:register:%d',
-                                $this->id);
+        $act->id = TagURI::mint(
+            'user:register:%d',
+            $this->id
+        );
 
         $act->time = strtotime($this->created);
 
         $act->title = _("Register");
 
-        $act->content = sprintf(_('%1$s joined %2$s.'),
-                                $profile->getBestName(),
-                                $service->title);
+        $act->content = sprintf(
+            _('%1$s joined %2$s.'),
+            $profile->getBestName(),
+            $service->title
+        );
         return $act;
     }
 

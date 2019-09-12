@@ -1,45 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- *
  * Handler for reminder queue items which send reminder emails to all users
  * we would like to complete a given process (e.g.: registration).
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Email
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Handler for reminder queue items which send reminder emails to all users
  * we would like to complete a given process (e.g.: registration)
  *
- * @category  Email
- * @package   StatusNet
- * @author    Zach Copley <zach@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class SiteConfirmReminderHandler extends QueueHandler
 {
@@ -52,7 +45,7 @@ class SiteConfirmReminderHandler extends QueueHandler
      *
      * @return string
      */
-    function transport()
+    public function transport()
     {
         return 'siterem';
     }
@@ -63,14 +56,14 @@ class SiteConfirmReminderHandler extends QueueHandler
      * @param array $remitem type of reminder to send and any special options
      * @return boolean true on success, false on failure
      */
-    function handle($remitem) : bool
+    public function handle($remitem): bool
     {
         list($type, $opts) = $remitem;
 
         $qm = QueueManager::get();
 
         try {
-            switch($type) {
+            switch ($type) {
             case UserConfirmRegReminderHandler::REGISTER_REMINDER:
                 $confirm               = new Confirm_address();
                 $confirm->address_type = $type;
@@ -87,7 +80,11 @@ class SiteConfirmReminderHandler extends QueueHandler
             case UserInviteReminderHandler::INVITE_REMINDER:
                 $invitation = new Invitation();
                 // Only send one reminder (the latest one), regardless of how many invitations a user has
-                $sql = 'SELECT * FROM (SELECT * FROM invitation WHERE registered_user_id IS NULL ORDER BY created DESC) invitees GROUP BY invitees.address';
+                $sql = 'SELECT * FROM invitation ' .
+                    'WHERE (address, created) IN ' .
+                    '(SELECT address, MAX(created) FROM invitation GROUP BY address) AND ' .
+                    'registered_user_id IS NULL ' .
+                    'ORDER BY created DESC';
                 $invitation->query($sql);
                 while ($invitation->fetch()) {
                     try {

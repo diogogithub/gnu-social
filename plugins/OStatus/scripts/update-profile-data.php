@@ -1,21 +1,23 @@
 #!/usr/bin/env php
 <?php
-/*
- * StatusNet - a distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @copyright 2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
@@ -39,7 +41,8 @@ END_OF_HELP;
 
 require_once INSTALLDIR.'/scripts/commandline.inc';
 
-function showProfileInfo(Ostatus_profile $oprofile) {
+function showProfileInfo(Ostatus_profile $oprofile)
+{
     if ($oprofile->isGroup()) {
         echo "group\n";
     } else {
@@ -51,7 +54,8 @@ function showProfileInfo(Ostatus_profile $oprofile) {
     echo "\n";
 }
 
-function fixProfile(Ostatus_profile $oprofile) {
+function fixProfile(Ostatus_profile $oprofile)
+{
     echo "Before:\n";
     showProfileInfo($oprofile);
 
@@ -102,10 +106,10 @@ if (have_option('all')) {
             echo "Failed on URI=="._ve($oprofile->uri).": {$e->getMessage()}\n";
         }
     }
-} else if (have_option('suspicious')) {
+} elseif (have_option('suspicious')) {
     $oprofile = new Ostatus_profile();
-    $oprofile->joinAdd(array('profile_id', 'profile:id'));
-    $oprofile->whereAdd("nickname rlike '^[0-9]$'");
+    $oprofile->joinAdd(['profile_id', 'profile:id']);
+    $oprofile->whereAdd("CHAR_LENGTH(nickname) = 1 AND nickname BETWEEN '0' AND '9'");
     $oprofile->find();
     echo "Found $oprofile->N matching profiles:\n\n";
     while ($oprofile->fetch()) {
@@ -116,7 +120,7 @@ if (have_option('all')) {
             echo "Failed on URI=="._ve($oprofile->uri).": {$e->getMessage()}\n";
         }
     }
-} else if (!empty($args[0]) && $validate->uri($args[0])) {
+} elseif (!empty($args[0]) && $validate->uri($args[0])) {
     $uri = $args[0];
     $oprofile = Ostatus_profile::getKV('uri', $uri);
 

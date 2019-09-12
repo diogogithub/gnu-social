@@ -1,8 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('GNUSOCIAL') || die();
+
 /**
  * Table Definition for user_group
  */
-
 class User_group extends Managed_DataObject
 {
     const JOIN_POLICY_OPEN = 0;
@@ -63,7 +79,7 @@ class User_group extends Managed_DataObject
 
                 'uri' => array('type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'),
                 'mainpage' => array('type' => 'varchar', 'length' => 191, 'description' => 'page for group info to link to'),
-                'join_policy' => array('type' => 'int', 'size' => 'tiny', 'description' => '0=open; 1=requires admin approval'),      
+                'join_policy' => array('type' => 'int', 'size' => 'tiny', 'description' => '0=open; 1=requires admin approval'),
                 'force_scope' => array('type' => 'int', 'size' => 'tiny', 'description' => '0=never,1=sometimes,-1=always'),
             ),
             'primary key' => array('id'),
@@ -118,40 +134,38 @@ class User_group extends Managed_DataObject
         return Theme::path('default-avatar-'.$sizenames[$size].'.png');
     }
 
-    function homeUrl()
+    public function homeUrl()
     {
         return $this->getProfile()->getUrl();
     }
 
-    function getUri()
+    public function getUri()
     {
         $uri = null;
         if (Event::handle('StartUserGroupGetUri', array($this, &$uri))) {
             if (!empty($this->uri)) {
                 $uri = $this->uri;
             } elseif ($this->isLocal()) {
-                $uri = common_local_url('groupbyid',
-                                        array('id' => $this->id));
+                $uri = common_local_url('groupbyid', ['id' => $this->id]);
             }
         }
         Event::handle('EndUserGroupGetUri', array($this, &$uri));
         return $uri;
     }
 
-    function permalink()
+    public function permalink()
     {
         $url = null;
         if (Event::handle('StartUserGroupPermalink', array($this, &$url))) {
             if ($this->isLocal()) {
-                $url = common_local_url('groupbyid',
-                                        array('id' => $this->id));
+                $url = common_local_url('groupbyid', ['id' => $this->id]);
             }
         }
         Event::handle('EndUserGroupPermalink', array($this, &$url));
         return $url;
     }
 
-    function getNotices($offset, $limit, $since_id=null, $max_id=null)
+    public function getNotices($offset, $limit, $since_id = null, $max_id = null)
     {
         // FIXME: Get the Profile::current() some other way, to avoid
         // possible confusion between current session and queue process.
@@ -160,29 +174,26 @@ class User_group extends Managed_DataObject
         return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 
-    function getMembers($offset=0, $limit=null) {
+    public function getMembers($offset = 0, $limit = null)
+    {
         $ids = null;
         if (is_null($limit) || $offset + $limit > User_group::CACHE_WINDOW) {
-            $ids = $this->getMemberIDs($offset,
-                                       $limit);
+            $ids = $this->getMemberIDs($offset, $limit);
         } else {
             $key = sprintf('group:member_ids:%d', $this->id);
             $window = self::cacheGet($key);
             if ($window === false) {
-                $window = $this->getMemberIDs(0,
-                                              User_group::CACHE_WINDOW);
+                $window = $this->getMemberIDs(0, User_group::CACHE_WINDOW);
                 self::cacheSet($key, $window);
             }
 
-            $ids = array_slice($window,
-                               $offset,
-                               $limit);
+            $ids = array_slice($window, $offset, $limit);
         }
 
         return Profile::multiGet('id', $ids);
     }
 
-    function getMemberIDs($offset=0, $limit=null)
+    public function getMemberIDs($offset = 0, $limit = null)
     {
         $gm = new Group_member();
 
@@ -215,7 +226,7 @@ class User_group extends Managed_DataObject
      * @param int $limit
      * @return Profile
      */
-    function getRequests($offset=0, $limit=null)
+    public function getRequests($offset = 0, $limit = null)
     {
         $rq = new Group_join_queue();
         $rq->group_id = $this->id;
@@ -237,7 +248,7 @@ class User_group extends Managed_DataObject
     {
         $block = new Group_member();
         $block->group_id = $this->id;
-        $block->is_admin = 1;
+        $block->is_admin = true;
 
         return $block->count();
     }
@@ -264,7 +275,7 @@ class User_group extends Managed_DataObject
         return $cnt;
     }
 
-    function getBlockedCount()
+    public function getBlockedCount()
     {
         // XXX: WORM cache this
 
@@ -274,7 +285,7 @@ class User_group extends Managed_DataObject
         return $block->count();
     }
 
-    function getQueueCount()
+    public function getQueueCount()
     {
         // XXX: WORM cache this
 
@@ -284,11 +295,12 @@ class User_group extends Managed_DataObject
         return $queue->count();
     }
 
-    function getAdmins($offset=null, $limit=null)   // offset is null because DataObject wants it, 0 would mean no results
+    // offset is null because DataObject wants it, 0 would mean no results
+    public function getAdmins($offset = null, $limit = null)
     {
         $admins = new Profile();
         $admins->joinAdd(array('id', 'group_member:profile_id'));
-        $admins->whereAdd(sprintf('group_member.group_id = %u AND group_member.is_admin = 1', $this->id));
+        $admins->whereAdd('group_member.group_id = ' . $this->id . ' AND group_member.is_admin = true');
         $admins->orderBy('group_member.modified ASC');
         $admins->limit($offset, $limit);
         $admins->find();
@@ -296,7 +308,8 @@ class User_group extends Managed_DataObject
         return $admins;
     }
 
-    function getBlocked($offset=null, $limit=null)   // offset is null because DataObject wants it, 0 would mean no results
+    // offset is null because DataObject wants it, 0 would mean no results
+    public function getBlocked($offset = null, $limit = null)
     {
         $blocked = new Profile();
         $blocked->joinAdd(array('id', 'group_block:blocked'));
@@ -308,7 +321,7 @@ class User_group extends Managed_DataObject
         return $blocked;
     }
 
-    function setOriginal($filename)
+    public function setOriginal($filename)
     {
         // This should be handled by the Profile->setOriginal function so user and group avatars are handled the same
         $imagefile = new ImageFile(null, Avatar::path($filename));
@@ -320,8 +333,12 @@ class User_group extends Managed_DataObject
         $orig = clone($this);
         $this->original_logo = Avatar::url($filename);
         foreach ($sizes as $name=>$size) {
-            $filename = Avatar::filename($this->profile_id, image_type_to_extension($imagefile->preferredType()),
-                                         $size, common_timestamp());
+            $filename = Avatar::filename(
+                $this->profile_id,
+                image_type_to_extension($imagefile->preferredType()),
+                $size,
+                common_timestamp()
+            );
             $imagefile->resizeTo(Avatar::path($filename), array('width'=>$size, 'height'=>$size));
             $this->$name = Avatar::url($filename);
         }
@@ -329,7 +346,7 @@ class User_group extends Managed_DataObject
         return $this->update($orig);
     }
 
-    function getBestName()
+    public function getBestName()
     {
         return ($this->fullname) ? $this->fullname : $this->nickname;
     }
@@ -340,17 +357,17 @@ class User_group extends Managed_DataObject
      *
      * @return string
      */
-    function getFancyName()
+    public function getFancyName()
     {
         if ($this->fullname) {
             // TRANS: Full name of a profile or group followed by nickname in parens
-            return sprintf(_m('FANCYNAME','%1$s (%2$s)'), $this->fullname, $this->nickname);
+            return sprintf(_m('FANCYNAME', '%1$s (%2$s)'), $this->fullname, $this->nickname);
         } else {
             return $this->nickname;
         }
     }
 
-    function getAliases()
+    public function getAliases()
     {
         $aliases = array();
 
@@ -371,8 +388,8 @@ class User_group extends Managed_DataObject
         return $aliases;
     }
 
-    function setAliases($newaliases) {
-
+    public function setAliases($newaliases)
+    {
         $newaliases = array_unique($newaliases);
 
         $oldaliases = $this->getAliases();
@@ -413,7 +430,7 @@ class User_group extends Managed_DataObject
         return true;
     }
 
-    static function getForNickname($nickname, Profile $profile=null)
+    public static function getForNickname($nickname, Profile $profile = null)
     {
         $nickname = Nickname::normalize($nickname);
 
@@ -440,24 +457,21 @@ class User_group extends Managed_DataObject
         return null;
     }
 
-    function getUserMembers()
+    public function getUserMembers()
     {
         // XXX: cache this
 
         $user = new User();
-        if(common_config('db','quote_identifiers'))
-            $user_table = '"user"';
-        else $user_table = 'user';
 
-        $qry =
-          'SELECT id ' .
-          'FROM '. $user_table .' JOIN group_member '.
-          'ON '. $user_table .'.id = group_member.profile_id ' .
-          'WHERE group_member.group_id = %d ';
+        $user->query(sprintf(
+            'SELECT id FROM %1$s INNER JOIN group_member ' .
+            'ON %1$s.id = group_member.profile_id ' .
+            'WHERE group_member.group_id = %2$d ',
+            $user->escapedTableName(),
+            $this->id
+        ));
 
-        $user->query(sprintf($qry, $this->id));
-
-        $ids = array();
+        $ids = [];
 
         while ($user->fetch()) {
             $ids[] = $user->id;
@@ -468,7 +482,7 @@ class User_group extends Managed_DataObject
         return $ids;
     }
 
-    static function maxDescription()
+    public static function maxDescription()
     {
         $desclimit = common_config('group', 'desclimit');
         // null => use global limit (distinct from 0!)
@@ -478,13 +492,13 @@ class User_group extends Managed_DataObject
         return $desclimit;
     }
 
-    static function descriptionTooLong($desc)
+    public static function descriptionTooLong($desc)
     {
         $desclimit = self::maxDescription();
         return ($desclimit > 0 && !empty($desc) && (mb_strlen($desc) > $desclimit));
     }
 
-    function asAtomEntry($namespace=false, $source=false)
+    public function asAtomEntry($namespace = false, $source = false)
     {
         $xs = new XMLStringer(true);
 
@@ -528,7 +542,7 @@ class User_group extends Managed_DataObject
         return $xs->getString();
     }
 
-    function asAtomAuthor()
+    public function asAtomAuthor()
     {
         $xs = new XMLStringer(true);
 
@@ -551,20 +565,21 @@ class User_group extends Managed_DataObject
      *
      * @return string
      */
-    function asActivityNoun($element)
+    public function asActivityNoun($element)
     {
         $noun = ActivityObject::fromGroup($this);
         return $noun->asString('activity:' . $element);
     }
 
-    function getAvatar()
+    public function getAvatar()
     {
         return empty($this->homepage_logo)
             ? User_group::defaultLogo(AVATAR_PROFILE_SIZE)
             : $this->homepage_logo;
     }
 
-    static function register($fields) {
+    public static function register($fields)
+    {
         if (!empty($fields['userid'])) {
             $profile = Profile::getKV('id', $fields['userid']);
             if ($profile && !$profile->hasRight(Right::CREATEGROUP)) {
@@ -580,18 +595,20 @@ class User_group extends Managed_DataObject
         // MAGICALLY put fields into current scope
         // @fixme kill extract(); it makes debugging absurdly hard
 
-		$defaults = array('nickname' => null,
-						  'fullname' => null,
-						  'homepage' => null,
-						  'description' => null,
-						  'location' => null,
-						  'uri' => null,
-						  'mainpage' => null,
-						  'aliases' => array(),
-						  'userid' => null);
-		
-		$fields = array_merge($defaults, $fields);
-		
+        $defaults = [
+            'nickname'    => null,
+            'fullname'    => null,
+            'homepage'    => null,
+            'description' => null,
+            'location'    => null,
+            'uri'         => null,
+            'mainpage'    => null,
+            'aliases'     => [],
+            'userid'      => null,
+        ];
+
+        $fields = array_merge($defaults, $fields);
+
         extract($fields);
 
         $group = new User_group();
@@ -645,7 +662,6 @@ class User_group extends Managed_DataObject
         }
 
         if (Event::handle('StartGroupSave', array(&$group))) {
-
             $result = $group->insert();
 
             if ($result === false) {
@@ -676,7 +692,7 @@ class User_group extends Managed_DataObject
 
             $member->group_id   = $group->id;
             $member->profile_id = $userid;
-            $member->is_admin   = 1;
+            $member->is_admin   = true;
             $member->created    = $group->created;
 
             $result = $member->insert();
@@ -721,7 +737,7 @@ class User_group extends Managed_DataObject
      * are not de-cached in the UI, including the sidebar lists on
      * GroupsAction
      */
-    function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
         if (empty($this->id)) {
             common_log(LOG_WARNING, "Ambiguous User_group->delete(); skipping related tables.");
@@ -813,7 +829,7 @@ class User_group extends Managed_DataObject
         return parent::update($dataObject);
     }
 
-    function isPrivate()
+    public function isPrivate()
     {
         return ($this->join_policy == self::JOIN_POLICY_MODERATE &&
                 intval($this->force_scope) === 1);
@@ -825,14 +841,16 @@ class User_group extends Managed_DataObject
         return ($local instanceof Local_group);
     }
 
-    static function groupsFromText($text, Profile $profile)
+    public static function groupsFromText($text, Profile $profile)
     {
         $groups = array();
 
         /* extract all !group */
-        $count = preg_match_all('/(?:^|\s)!(' . Nickname::DISPLAY_FMT . ')/',
-                                strtolower($text),
-                                $match);
+        $count = preg_match_all(
+            '/(?:^|\s)!(' . Nickname::DISPLAY_FMT . ')/',
+            strtolower($text),
+            $match
+        );
 
         if (!$count) {
             return $groups;
@@ -848,7 +866,7 @@ class User_group extends Managed_DataObject
         return $groups;
     }
 
-    static function idsFromText($text, Profile $profile)
+    public static function idsFromText($text, Profile $profile)
     {
         $ids = array();
         $groups = self::groupsFromText($text, $profile);

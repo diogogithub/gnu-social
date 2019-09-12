@@ -1,59 +1,51 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Public tag cloud section
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  Widget
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Public tag cloud section
  *
- * @category Widget
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class PublicTagCloudSection extends TagCloudSection
 {
-    function __construct($out=null)
+    public function __construct($out = null)
     {
         parent::__construct($out);
     }
 
-    function title()
+    public function title()
     {
         // TRANS: Title for inbox tag cloud section.
         return _m('TITLE', 'Trends');
     }
 
-    function getTags()
+    public function getTags()
     {
         $profile = Profile::current();
 
@@ -66,7 +58,6 @@ class PublicTagCloudSection extends TagCloudSection
         $tag = Memcached_DataObject::cacheGet($keypart);
 
         if ($tag === false) {
-
             $stream = new PublicNoticeStream($profile);
 
             $ids = $stream->getNoticeIds(0, 500, null, null);
@@ -77,22 +68,14 @@ class PublicTagCloudSection extends TagCloudSection
                 $weightexpr = common_sql_weight('notice_tag.created', common_config('tag', 'dropoff'));
                 // @fixme should we use the cutoff too? Doesn't help with indexing per-user.
 
-                $qry = 'SELECT notice_tag.tag, '.
-                    $weightexpr . ' as weight ' .
+                $limit = TAGS_PER_SECTION;
+
+                $qry = 'SELECT notice_tag.tag, ' . $weightexpr . ' AS weight ' .
                     'FROM notice_tag JOIN notice ' .
                     'ON notice_tag.notice_id = notice.id ' .
                     'WHERE notice.id in (' . implode(',', $ids) . ') '.
                     'GROUP BY notice_tag.tag ' .
-                    'ORDER BY weight DESC ';
-
-                $limit = TAGS_PER_SECTION;
-                $offset = 0;
-
-                if (common_config('db','type') == 'pgsql') {
-                    $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
-                } else {
-                    $qry .= ' LIMIT ' . $offset . ', ' . $limit;
-                }
+                    'ORDER BY weight DESC LIMIT ' . $limit;
 
                 $t = new Notice_tag();
 
@@ -111,7 +94,7 @@ class PublicTagCloudSection extends TagCloudSection
         return new ArrayWrapper($tag);
     }
 
-    function showMore()
+    public function showMore()
     {
     }
 }

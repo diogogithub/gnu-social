@@ -1,8 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('GNUSOCIAL') || die();
+
 /**
  * Table Definition for profile_tag
  */
-
 class Profile_tag extends Managed_DataObject
 {
     public $__table = 'profile_tag';                     // table name
@@ -35,35 +51,34 @@ class Profile_tag extends Managed_DataObject
         );
     }
 
-    function links()
+    public function links()
     {
         return array('tagger,tag' => 'profile_list:tagger,tag');
     }
 
-    function getMeta()
+    public function getMeta()
     {
         return Profile_list::pkeyGet(array('tagger' => $this->tagger, 'tag' => $this->tag));
     }
 
-    static function getSelfTagsArray(Profile $target)
+    public static function getSelfTagsArray(Profile $target)
     {
         return self::getTagsArray($target->getID(), $target->getID(), $target);
     }
 
-    static function setSelfTags(Profile $target, array $newtags, array $privacy=array())
+    public static function setSelfTags(Profile $target, array $newtags, array $privacy = [])
     {
         return self::setTags($target->getID(), $target->getID(), $newtags, $privacy);
     }
 
-    static function getTags($tagger, $tagged, $auth_user=null) {
-
+    public static function getTags($tagger, $tagged, $auth_user = null)
+    {
         $profile_list = new Profile_list();
         $include_priv = 1;
 
         if (!($auth_user instanceof User ||
             $auth_user instanceof Profile) ||
             ($auth_user->id !== $tagger)) {
-
             $profile_list->private = false;
             $include_priv = 0;
         }
@@ -81,7 +96,7 @@ class Profile_tag extends Managed_DataObject
         $qry = sprintf($qry, $tagger, $tagged);
 
         if (!$include_priv) {
-            $qry .= ' and profile_list.private = 0';
+            $qry .= ' AND profile_list.private = FALSE';
         }
 
         $profile_list->query($qry);
@@ -91,20 +106,23 @@ class Profile_tag extends Managed_DataObject
         return $profile_list;
     }
 
-    static function getTagsArray($tagger, $tagged, Profile $scoped=null)
+    public static function getTagsArray($tagger, $tagged, Profile $scoped = null)
     {
         $ptag = new Profile_tag();
 
-        $qry = sprintf('select profile_tag.tag '.
-                       'from profile_tag join profile_list '.
-                       ' on (profile_tag.tagger = profile_list.tagger ' .
-                       '     and profile_tag.tag = profile_list.tag) ' .
-                       'where profile_tag.tagger = %d ' .
-                       'and   profile_tag.tagged = %d ',
-                       $tagger, $tagged);
+        $qry = sprintf(
+            'SELECT profile_tag.tag '.
+            'FROM profile_tag INNER JOIN profile_list '.
+            ' ON (profile_tag.tagger = profile_list.tagger ' .
+            '     and profile_tag.tag = profile_list.tag) ' .
+            'WHERE profile_tag.tagger = %d ' .
+            'AND   profile_tag.tagged = %d ',
+            $tagger,
+            $tagged
+        );
 
         if (!$scoped instanceof Profile || $scoped->getID() !== $tagger) {
-            $qry .= 'and profile_list.private = 0';
+            $qry .= 'AND profile_list.private = FALSE';
         }
 
         $tags = array();
@@ -118,8 +136,8 @@ class Profile_tag extends Managed_DataObject
         return $tags;
     }
 
-    static function setTags($tagger, $tagged, array $newtags, array $privacy=array()) {
-
+    public static function setTags($tagger, $tagged, array $newtags, array $privacy = [])
+    {
         $newtags = array_unique($newtags);
         $oldtags = self::getTagsArray($tagger, $tagged, Profile::getByID($tagger));
 
@@ -145,8 +163,8 @@ class Profile_tag extends Managed_DataObject
     }
 
     # set a single tag
-    static function setTag($tagger, $tagged, $tag, $desc=null, $private=false) {
-
+    public static function setTag($tagger, $tagged, $tag, $desc=null, $private = false)
+    {
         $ptag = Profile_tag::pkeyGet(array('tagger' => $tagger,
                                            'tagged' => $tagged,
                                            'tag' => $tag));
@@ -160,7 +178,6 @@ class Profile_tag extends Managed_DataObject
         $tagged_profile = Profile::getByID($tagged);
 
         if (Event::handle('StartTagProfile', array($tagger_profile, $tagged_profile, $tag))) {
-
             if (!$tagger_profile->canTag($tagged_profile)) {
                 // TRANS: Client exception thrown trying to set a tag for a user that cannot be tagged.
                 throw new ClientException(_('You cannot tag this user.'));
@@ -172,10 +189,12 @@ class Profile_tag extends Managed_DataObject
 
             if ($count >= common_config('peopletag', 'maxtags')) {
                 // TRANS: Client exception thrown trying to set more tags than allowed.
-                throw new ClientException(sprintf(_('You already have created %d or more tags ' .
-                                                    'which is the maximum allowed number of tags. ' .
-                                                    'Try using or deleting some existing tags.'),
-                                                    common_config('peopletag', 'maxtags')));
+                throw new ClientException(sprintf(
+                    _('You already have created %d or more tags ' .
+                      'which is the maximum allowed number of tags. ' .
+                      'Try using or deleting some existing tags.'),
+                    common_config('peopletag', 'maxtags')
+                ));
             }
 
             $plist = new Profile_list();
@@ -185,10 +204,13 @@ class Profile_tag extends Managed_DataObject
 
             if ($profile_list->taggedCount() >= common_config('peopletag', 'maxpeople')) {
                 // TRANS: Client exception thrown when trying to add more people than allowed to a list.
-                throw new ClientException(sprintf(_('You already have %1$d or more people in list %2$s, ' .
-                                                    'which is the maximum allowed number. ' .
-                                                    'Try unlisting others first.'),
-                                                    common_config('peopletag', 'maxpeople'), $tag));
+                throw new ClientException(sprintf(
+                    _('You already have %1$d or more people in list %2$s, ' .
+                      'which is the maximum allowed number. ' .
+                      'Try unlisting others first.'),
+                    common_config('peopletag', 'maxpeople'),
+                    $tag
+                ));
             }
 
             $newtag = new Profile_tag();
@@ -221,7 +243,8 @@ class Profile_tag extends Managed_DataObject
         return $newtag;
     }
 
-    static function unTag($tagger, $tagged, $tag) {
+    public static function unTag($tagger, $tagged, $tag)
+    {
         $ptag = Profile_tag::pkeyGet(array('tagger' => $tagger,
                                            'tagged' => $tagged,
                                            'tag'    => $tag));
@@ -247,13 +270,14 @@ class Profile_tag extends Managed_DataObject
     }
 
     // @fixme: move this to Profile_list?
-    static function cleanup($profile_list) {
+    public static function cleanup($profile_list)
+    {
         $ptag = new Profile_tag();
         $ptag->tagger = $profile_list->tagger;
         $ptag->tag = $profile_list->tag;
         $ptag->find();
 
-        while($ptag->fetch()) {
+        while ($ptag->fetch()) {
             if (Event::handle('StartUntagProfile', array($ptag))) {
                 $orig = clone($ptag);
                 $result = $ptag->delete();
@@ -266,17 +290,18 @@ class Profile_tag extends Managed_DataObject
     }
 
     // move a tag!
-    static function moveTag($orig, $new) {
+    public static function moveTag($orig, $new)
+    {
         $tags = new Profile_tag();
-        $qry = 'UPDATE profile_tag SET ' .
-               'tag = "%s", tagger = "%s" ' .
-               'WHERE tag = "%s" ' .
-               'AND tagger = "%s"';
-        $result = $tags->query(sprintf($qry,
-                                       $tags->escape($new->tag),
-                                       $tags->escape($new->tagger),
-                                       $tags->escape($orig->tag),
-                                       $tags->escape($orig->tagger)));
+        $qry = "UPDATE profile_tag SET tag = '%s', tagger = '%s' " .
+               "WHERE tag = '%s' AND tagger = '%s'";
+        $result = $tags->query(sprintf(
+            $qry,
+            $tags->escape($new->tag),
+            $tags->escape($new->tagger),
+            $tags->escape($orig->tag),
+            $tags->escape($orig->tagger)
+        ));
 
         if ($result === false) {
             common_log_db_error($tags, 'UPDATE', __FILE__);
@@ -285,7 +310,8 @@ class Profile_tag extends Managed_DataObject
         return $result;
     }
 
-    static function blowCaches($tagger, $tagged) {
+    public static function blowCaches($tagger, $tagged)
+    {
         foreach (array(0, 1) as $perm) {
             self::blow(sprintf('profile_tag:tagger_tagged_privacy:%d-%d-%d', $tagger, $tagged, $perm));
         }
@@ -293,38 +319,43 @@ class Profile_tag extends Managed_DataObject
     }
 
     // Return profiles with a given tag
-    static function getTagged($tagger, $tag) {
+    public static function getTagged($tagger, $tag)
+    {
         $profile = new Profile();
         $profile->query('SELECT profile.* ' .
                         'FROM profile JOIN profile_tag ' .
                         'ON profile.id = profile_tag.tagged ' .
                         'WHERE profile_tag.tagger = ' . $profile->escape($tagger) . ' ' .
-                        'AND profile_tag.tag = "' . $profile->escape($tag) . '" ');
-        $tagged = array();
+                        "AND profile_tag.tag = '" . $profile->escape($tag) . "' ");
+        $tagged = [];
         while ($profile->fetch()) {
             $tagged[] = clone($profile);
         }
         return true;
     }
 
-    function insert()
+    public function insert()
     {
         $result = parent::insert();
         if ($result) {
-            self::blow('profile_list:tagged_count:%d:%s', 
-                       $this->tagger,
-                       $this->tag);
+            self::blow(
+                'profile_list:tagged_count:%d:%s',
+                $this->tagger,
+                $this->tag
+            );
         }
         return $result;
     }
 
-    function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
         $result = parent::delete($useWhere);
         if ($result !== false) {
-            self::blow('profile_list:tagged_count:%d:%s', 
-                       $this->tagger,
-                       $this->tag);
+            self::blow(
+                'profile_list:tagged_count:%d:%s',
+                $this->tagger,
+                $this->tag
+            );
         }
         return $result;
     }

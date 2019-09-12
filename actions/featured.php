@@ -1,36 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * List of featured users
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Public
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2008-2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 require_once INSTALLDIR . '/lib/profile/profilelist.php';
 require_once INSTALLDIR . '/lib/groups/publicgroupnav.php';
@@ -38,23 +33,19 @@ require_once INSTALLDIR . '/lib/groups/publicgroupnav.php';
 /**
  * List of featured users
  *
- * @category Public
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @copyright 2008-2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class FeaturedAction extends Action
 {
-    var $page = null;
+    public $page = null;
 
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }
 
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
         $this->page = ($this->arg('page')) ? ($this->arg('page')+0) : 1;
@@ -62,7 +53,7 @@ class FeaturedAction extends Action
         return true;
     }
 
-    function title()
+    public function title()
     {
         if ($this->page == 1) {
             // TRANS: Page title for first page of featured users.
@@ -74,14 +65,14 @@ class FeaturedAction extends Action
         }
     }
 
-    function handle()
+    public function handle()
     {
         parent::handle();
 
         $this->showPage();
     }
 
-    function showPageNotice()
+    public function showPageNotice()
     {
         $instr = $this->getInstructions();
         $output = common_markup_to_html($instr);
@@ -90,14 +81,16 @@ class FeaturedAction extends Action
         $this->elementEnd('div');
     }
 
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Description on page displaying featured users.
-        return sprintf(_('A selection of some great users on %s.'),
-                       common_config('site', 'name'));
+        return sprintf(
+            _('A selection of some great users on %s.'),
+            common_config('site', 'name')
+        );
     }
 
-    function showContent()
+    public function showContent()
     {
         // XXX: Note I'm doing it this two-stage way because a raw query
         // with a JOIN was *not* working. --Zach
@@ -105,7 +98,6 @@ class FeaturedAction extends Action
         $featured_nicks = common_config('nickname', 'featured');
 
         if (count($featured_nicks) > 0) {
-
             $quoted = array();
 
             foreach ($featured_nicks as $nick) {
@@ -115,7 +107,7 @@ class FeaturedAction extends Action
             $user = new User;
             $user->whereAdd(sprintf('nickname IN (%s)', implode(',', $quoted)));
             $user->limit(($this->page - 1) * PROFILES_PER_PAGE, PROFILES_PER_PAGE + 1);
-            $user->orderBy(common_database_tablename('user') .'.nickname ASC');
+            $user->orderBy($user->escapedTableName() . '.nickname ASC');
 
             $user->find();
 
@@ -138,8 +130,12 @@ class FeaturedAction extends Action
 
             $profile->free();
 
-            $this->pagination($this->page > 1, $cnt > PROFILES_PER_PAGE,
-                              $this->page, 'featured');
+            $this->pagination(
+                $this->page > 1,
+                $cnt > PROFILES_PER_PAGE,
+                $this->page,
+                'featured'
+            );
         }
     }
 }

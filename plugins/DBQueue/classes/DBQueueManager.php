@@ -1,32 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Simple-minded queue manager for storing items in the database
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  QueueManager
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Brion Vibber <brion@status.net>
  * @copyright 2009-2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+defined('GNUSOCIAL') || die();
 
 class DBQueueManager extends QueueManager
 {
@@ -39,7 +38,7 @@ class DBQueueManager extends QueueManager
     {
         $qi = new Queue_item();
 
-        $qi->frame     = $this->encode($object);
+        $qi->frame     = DB_DataObject_Cast::blob($this->encode($object));
         $qi->transport = $queue;
         $qi->created   = common_sql_now();
         $result        = $qi->insert();
@@ -121,7 +120,8 @@ class DBQueueManager extends QueueManager
 
     // What to do if no handler was found. For example, the OpportunisticQM
     // should avoid deleting items just because it can't reach XMPP queues etc.
-    protected function noHandlerFound(Queue_item $qi, $rep=null) {
+    protected function noHandlerFound(Queue_item $qi, $rep = null)
+    {
         $this->_log(LOG_INFO, "[{$qi->transport}:{$rep}] No handler for queue {$qi->transport}; discarding.");
         $this->_done($qi);
     }

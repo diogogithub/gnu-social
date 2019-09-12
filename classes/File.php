@@ -1,29 +1,26 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * GNU social - a federating social network
- *
- * Abstraction for files
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Files
  * @package   GNUsocial
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @author    Miguel Dantas <biodantas@gmail.com>
  * @copyright 2008-2009, 2019 Free Software Foundation http://fsf.org
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      https://www.gnu.org/software/social/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 defined('GNUSOCIAL') || die();
@@ -248,14 +245,14 @@ class File extends Managed_DataObject
             // TRANS: gettext support multiple plurals in the same message, unfortunately...
             throw new ClientException(
                 sprintf(
-                        _m(
+                    _m(
                         'No file may be larger than %1$d byte and the file you sent was %2$s. Try to upload a smaller version.',
                         'No file may be larger than %1$d bytes and the file you sent was %2$s. Try to upload a smaller version.',
                         $fileQuota
                     ),
-                        $fileQuota,
-                        $fileSizeText
-                    )
+                    $fileQuota,
+                    $fileSizeText
+                )
             );
         }
 
@@ -277,13 +274,13 @@ class File extends Managed_DataObject
             // TRANS: %d (number) is the user quota in bytes and is used for plural.
             throw new ClientException(
                 sprintf(
-                        _m(
+                    _m(
                         'A file this large would exceed your user quota of %d byte.',
                         'A file this large would exceed your user quota of %d bytes.',
                         common_config('attachments', 'user_quota')
                     ),
-                        common_config('attachments', 'user_quota')
-                    )
+                    common_config('attachments', 'user_quota')
+                )
             );
         }
         $query .= ' AND EXTRACT(month FROM file.modified) = EXTRACT(month FROM now()) AND EXTRACT(year FROM file.modified) = EXTRACT(year FROM now())';
@@ -295,13 +292,13 @@ class File extends Managed_DataObject
             // TRANS: $d (number) is the monthly user quota in bytes and is used for plural.
             throw new ClientException(
                 sprintf(
-                        _m(
+                    _m(
                         'A file this large would exceed your monthly quota of %d byte.',
                         'A file this large would exceed your monthly quota of %d bytes.',
                         common_config('attachments', 'monthly_quota')
                     ),
-                        common_config('attachments', 'monthly_quota')
-                    )
+                    common_config('attachments', 'monthly_quota')
+                )
             );
         }
         return true;
@@ -346,7 +343,8 @@ class File extends Managed_DataObject
      * @param string $filename
      * @return string|bool Value from the 'extblacklist' array, in the config
      */
-    public static function getSafeExtension(string $filename) {
+    public static function getSafeExtension(string $filename)
+    {
         if (preg_match('/^.+?\.([A-Za-z0-9]+)$/', $filename, $matches) === 1) {
             // we matched on a file extension, so let's see if it means something.
             $ext = mb_strtolower($matches[1]);
@@ -888,7 +886,11 @@ class File extends Managed_DataObject
         echo "\nFound old $table table, upgrading it to contain 'urlhash' field...";
 
         $file = new File();
-        $file->query(sprintf('SELECT id, LEFT(url, 191) AS shortenedurl, COUNT(*) AS c FROM %1$s WHERE LENGTH(url)>191 GROUP BY shortenedurl HAVING c > 1', $schema->quoteIdentifier($table)));
+        $file->query(sprintf(
+            'SELECT id, LEFT(url, 191) AS shortenedurl, COUNT(*) FROM %1$s ' .
+            'WHERE LENGTH(url) > 191 GROUP BY id, shortenedurl HAVING COUNT(*) > 1',
+            common_database_tablename($table)
+        ));
         print "\nFound {$file->N} URLs with too long entries in file table\n";
         while ($file->fetch()) {
             // We've got a URL that is too long for our future file table
@@ -941,13 +943,20 @@ class File extends Managed_DataObject
         $tablefix = new $classname;
         // urlhash is hash('sha256', $url) in the File table
         echo "Updating urlhash fields in $table table...";
-        // Maybe very MySQL specific :(
+        switch (common_config('db', 'type')) {
+            case 'pgsql':
+                $url_sha256 = 'encode(sha256(CAST("url" AS bytea)), \'hex\')';
+                break;
+            case 'mysql':
+                $url_sha256 = 'sha2(`url`, 256)';
+                break;
+            default:
+                throw new ServerException('Unknown DB type selected.');
+        }
         $tablefix->query(sprintf(
-            'UPDATE %1$s SET %2$s=%3$s;',
-            $schema->quoteIdentifier($table),
-            'urlhash',
-                            // The line below is "result of sha256 on column `url`"
-                            'SHA2(url, 256)'
+            'UPDATE %1$s SET urlhash = %2$s;',
+            $tablefix->escapedTableName(),
+            $url_sha256
         ));
         echo "DONE.\n";
         echo "Resuming core schema upgrade...";

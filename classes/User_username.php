@@ -1,9 +1,26 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+defined('GNUSOCIAL') || die();
+
+require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+
 /**
  * Table Definition for user_username
  */
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
-
 class User_username extends Managed_DataObject
 {
     ###START_AUTOCODE
@@ -23,8 +40,8 @@ class User_username extends Managed_DataObject
     {
         return array(
             'fields' => array(
-                'provider_name' => array('type' => 'varchar', 'length' => 191, 'description' => 'provider name'),
-                'username' => array('type' => 'varchar', 'length' => 191, 'description' => 'username'),
+                'provider_name' => array('type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'provider name'),
+                'username' => array('type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'username'),
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'notice id this title relates to'),
                 'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
                 'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
@@ -46,7 +63,7 @@ class User_username extends Managed_DataObject
     * @param provider_name string name of the provider
     * @return mixed User_username instance if the registration succeeded, false if it did not
     */
-    static function register($user, $username, $provider_name)
+    public static function register($user, $username, $provider_name)
     {
         $user_username = new User_username();
         $user_username->user_id = $user->id;
@@ -54,9 +71,9 @@ class User_username extends Managed_DataObject
         $user_username->username = $username;
         $user_username->created = common_sql_now();
 
-        if($user_username->insert()){
+        if ($user_username->insert()) {
             return $user_username;
-        }else{
+        } else {
             return false;
         }
     }

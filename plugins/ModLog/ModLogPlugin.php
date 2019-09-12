@@ -1,52 +1,37 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2012, StatusNet, Inc.
- *
- * ModLogPlugin.php
- *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Moderation
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2012 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    // This check helps protect against security problems;
-    // your code file can't be executed directly from the web.
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Moderation logging
  *
  * Shows a history of moderation for this user in the sidebar
  *
- * @category  Moderation
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
  * @copyright 2012 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 class ModLogPlugin extends Plugin
 {
     const PLUGIN_VERSION = '2.0.0';
@@ -63,7 +48,7 @@ class ModLogPlugin extends Plugin
      * @return boolean hook value; true means continue processing, false means stop.
      */
 
-    function onCheckSchema()
+    public function onCheckSchema()
     {
         $schema = Schema::get();
 
@@ -72,7 +57,7 @@ class ModLogPlugin extends Plugin
         return true;
     }
 
-    function onEndGrantRole($profile, $role)
+    public function onEndGrantRole($profile, $role)
     {
         $modlog = new ModLog();
 
@@ -86,7 +71,7 @@ class ModLogPlugin extends Plugin
         }
 
         $modlog->role     = $role;
-        $modlog->is_grant = 1;
+        $modlog->is_grant = true;
         $modlog->created  = common_sql_now();
 
         $modlog->insert();
@@ -94,7 +79,7 @@ class ModLogPlugin extends Plugin
         return true;
     }
 
-    function onEndRevokeRole($profile, $role)
+    public function onEndRevokeRole($profile, $role)
     {
         $modlog = new ModLog();
 
@@ -109,7 +94,7 @@ class ModLogPlugin extends Plugin
         }
 
         $modlog->role     = $role;
-        $modlog->is_grant = 0;
+        $modlog->is_grant = false;
         $modlog->created  = common_sql_now();
 
         $modlog->insert();
@@ -117,7 +102,7 @@ class ModLogPlugin extends Plugin
         return true;
     }
 
-    function onEndShowSections(Action $action)
+    public function onEndShowSections(Action $action)
     {
         if (!$action instanceof ShowstreamAction) {
             // early return for actions we're not interested in
@@ -140,7 +125,6 @@ class ModLogPlugin extends Plugin
         $cnt = $ml->find();
 
         if ($cnt > 0) {
-
             $action->elementStart('div', array('id' => 'entity_mod_log',
                                                'class' => 'section'));
 
@@ -158,9 +142,14 @@ class ModLogPlugin extends Plugin
                     if (empty($mod)) {
                         $action->text(_('[unknown]'));
                     } else {
-                        $action->element('a', array('href' => $mod->getUrl(),
-                                                    'title' => $mod->getFullname()),
-                                         $mod->getNickname());
+                        $action->element(
+                            'a',
+                            [
+                                'href' => $mod->getUrl(),
+                                'title' => $mod->getFullname(),
+                            ],
+                            $mod->getNickname()
+                        );
                     }
                 } else {
                     $action->text(_('[unknown]'));
@@ -175,7 +164,8 @@ class ModLogPlugin extends Plugin
         }
     }
 
-    function onUserRightsCheck($profile, $right, &$result) {
+    public function onUserRightsCheck($profile, $right, &$result)
+    {
         switch ($right) {
         case self::VIEWMODLOG:
             $result = ($profile->hasRole(Profile_role::MODERATOR) || $profile->hasRole('modhelper'));

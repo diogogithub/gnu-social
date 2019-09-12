@@ -1,48 +1,35 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
  * Creates a dynamic sitemap for a StatusNet site
  *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  Sample
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    // This check helps protect against security problems;
-    // your code file can't be executed directly from the web.
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Sitemap plugin
  *
- * @category  Sample
- * @package   StatusNet
- * @author    Evan Prodromou <evan@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class SitemapPlugin extends Plugin
 {
@@ -58,7 +45,7 @@ class SitemapPlugin extends Plugin
      *
      * @return boolean hook value.
      */
-    function onEndRobotsTxt($action)
+    public function onEndRobotsTxt($action)
     {
         $url = common_local_url('sitemapindex');
 
@@ -76,25 +63,37 @@ class SitemapPlugin extends Plugin
      */
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('sitemapindex.xml',
-                    ['action' => 'sitemapindex']);
+        $m->connect(
+            'sitemapindex.xml',
+            ['action' => 'sitemapindex']
+        );
 
-        $m->connect('notice-sitemap-:year-:month-:day-:index.xml',
-                    ['action' => 'noticesitemap'],
-                    ['year'  => '[0-9]{4}',
-                     'month' => '[01][0-9]',
-                     'day'   => '[0123][0-9]',
-                     'index' => '[1-9][0-9]*']);
+        $m->connect(
+            'notice-sitemap-:year-:month-:day-:index.xml',
+            ['action' => 'noticesitemap'],
+            [
+                'year'  => '[0-9]{4}',
+                'month' => '[01][0-9]',
+                'day'   => '[0123][0-9]',
+                'index' => '[1-9][0-9]*',
+            ]
+        );
 
-        $m->connect('user-sitemap-:year-:month-:day-:index.xml',
-                    ['action' => 'usersitemap'),
-                    ['year'  => '[0-9]{4}',
-                     'month' => '[01][0-9]',
-                     'day'   => '[0123][0-9]',
-                     'index' => '[1-9][0-9]*']);
+        $m->connect(
+            'user-sitemap-:year-:month-:day-:index.xml',
+            ['action' => 'usersitemap'],
+            [
+                'year'  => '[0-9]{4}',
+                'month' => '[01][0-9]',
+                'day'   => '[0123][0-9]',
+                'index' => '[1-9][0-9]*',
+            ]
+        );
 
-        $m->connect('panel/sitemap',
-                    ['action' => 'sitemapadminpanel']);
+        $m->connect(
+            'panel/sitemap',
+            ['action' => 'sitemapadminpanel']
+        );
 
         return true;
     }
@@ -109,7 +108,7 @@ class SitemapPlugin extends Plugin
      *
      * @return boolean hook value.
      */
-    function onStartShowHeadElements($action)
+    public function onStartShowHeadElements($action)
     {
         $actionName = $action->trimmed('action');
 
@@ -119,7 +118,6 @@ class SitemapPlugin extends Plugin
 
         if (($singleUser && $actionName == 'showstream') ||
             (!$singleUser && $actionName == 'public')) {
-
             $keys = array('yahookey' => 'y_key',
                           'bingkey' => 'msvalidate.01'); // XXX: is this the same for all sites?
 
@@ -146,7 +144,7 @@ class SitemapPlugin extends Plugin
      *
      * @return boolean hook value; true means continue processing, false means stop.
      */
-    function onCheckSchema()
+    public function onCheckSchema()
     {
         $schema = Schema::get();
 
@@ -155,13 +153,19 @@ class SitemapPlugin extends Plugin
         return true;
     }
 
-    function onEndAdminPanelNav($menu) {
+    public function onEndAdminPanelNav($menu)
+    {
         if (AdminPanelAction::canAdmin('sitemap')) {
             // TRANS: Menu item title/tooltip
             $menu_title = _m('Sitemap configuration');
             // TRANS: Menu item for site administration
-            $menu->out->menuItem(common_local_url('sitemapadminpanel'), _m('MENU','Sitemap'),
-                                 $menu_title, $action_name == 'sitemapadminpanel', 'nav_sitemap_admin_panel');
+            $menu->out->menuItem(
+                common_local_url('sitemapadminpanel'),
+                _m('MENU', 'Sitemap'),
+                $menu_title,
+                ($action_name === 'sitemapadminpanel'),
+                'nav_sitemap_admin_panel'
+            );
         }
         return true;
     }

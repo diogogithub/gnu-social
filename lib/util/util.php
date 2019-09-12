@@ -1,23 +1,22 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008-2011, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /* XXX: break up into separate modules (HTTP, user, files) */
+
+defined('GNUSOCIAL') || die();
 
 /**
  * Show a server error.
@@ -52,12 +51,14 @@ function common_init_locale($language=null)
     }
     putenv('LANGUAGE='.$language);
     putenv('LANG='.$language);
-    $ok =  setlocale(LC_ALL,
-                     $language . ".utf8",
-                     $language . ".UTF8",
-                     $language . ".utf-8",
-                     $language . ".UTF-8",
-                     $language);
+    $ok = setlocale(
+        LC_ALL,
+        $language . '.utf8',
+        $language . '.UTF8',
+        $language . '.utf-8',
+        $language . '.UTF-8',
+        $language
+    );
 
     return $ok;
 }
@@ -356,12 +357,14 @@ function common_set_cookie($key, $value, $expiration=0)
     } else {
         $cookiepath = '/';
     }
-    return setcookie($key,
-                     $value,
-                     $expiration,
-                     $cookiepath,
-                     $server,
-                     GNUsocial::useHTTPS());
+    return setcookie(
+        $key,
+        $value,
+        $expiration,
+        $cookiepath,
+        $server,
+        GNUsocial::useHTTPS()
+    );
 }
 
 define('REMEMBERME', 'rememberme');
@@ -592,7 +595,6 @@ function common_to_alphanumeric($str)
 
 function common_purify($html, array $args=[])
 {
-
     $cfg = \HTMLPurifier_Config::createDefault();
     /**
      * rel values that should be avoided since they can be used to infer
@@ -839,9 +841,10 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
             }
             $tagged = $sender->getTaggedSubscribers($tag);
 
-            $url = common_local_url('showprofiletag',
-                                    ['nickname' => $sender->getNickname(),
-                                     'tag' => $tag]);
+            $url = common_local_url(
+                'showprofiletag',
+                ['nickname' => $sender->getNickname(), 'tag' => $tag]
+            );
 
             $mentions[] = ['mentioned' => $tagged,
                            'type'      => 'list',
@@ -888,17 +891,21 @@ function common_find_mentions($text, Profile $sender, Notice $parent=null)
 function common_find_mentions_raw($text, $preMention='@')
 {
     $tmatches = [];
-    preg_match_all('/^T (' . Nickname::DISPLAY_FMT . ') /',
-                   $text,
-                   $tmatches,
-                   PREG_OFFSET_CAPTURE);
+    preg_match_all(
+        '/^T (' . Nickname::DISPLAY_FMT . ') /',
+        $text,
+        $tmatches,
+        PREG_OFFSET_CAPTURE
+    );
 
     $atmatches = [];
     // the regexp's "(?!\@)" makes sure it doesn't matches the single "@remote" in "@remote@server.com"
-    preg_match_all('/'.Nickname::BEFORE_MENTIONS.preg_quote($preMention, '/').'(' . Nickname::DISPLAY_FMT . ')\b(?!\@)/',
-                   $text,
-                   $atmatches,
-                   PREG_OFFSET_CAPTURE);
+    preg_match_all(
+        '/' . Nickname::BEFORE_MENTIONS . preg_quote($preMention, '/') . '(' . Nickname::DISPLAY_FMT . ')\b(?!\@)/',
+        $text,
+        $atmatches,
+        PREG_OFFSET_CAPTURE
+    );
 
     $matches = array_merge($tmatches[1], $atmatches[1]);
     return $matches;
@@ -961,7 +968,8 @@ function common_url_schemes($filter = null)
             $schemes,
             function ($scheme) use ($filter) {
                 return is_null($filter) || ($scheme & $filter);
-            })
+            }
+        )
     );
 }
 
@@ -1339,8 +1347,10 @@ function common_relative_profile($sender, $nickname, $dt=null)
 
     // Try to find profiles this profile is subscribed to that have this nickname
     $recipient = new Profile();
-    // XXX: use a join instead of a subquery
-    $recipient->whereAdd('EXISTS (SELECT subscribed from subscription where subscriber = '.intval($sender->id).' and subscribed = id)', 'AND');
+    $recipient->whereAdd(
+        sprintf('id IN (SELECT subscribed FROM subscription WHERE subscriber = %d)', $sender->id),
+        'AND'
+    );
     $recipient->whereAdd("nickname = '" . $recipient->escape($nickname) . "'", 'AND');
     if ($recipient->find(true)) {
         // XXX: should probably differentiate between profiles with
@@ -1349,8 +1359,10 @@ function common_relative_profile($sender, $nickname, $dt=null)
     }
     // Try to find profiles that listen to this profile and that have this nickname
     $recipient = new Profile();
-    // XXX: use a join instead of a subquery
-    $recipient->whereAdd('EXISTS (SELECT subscriber from subscription where subscribed = '.intval($sender->id).' and subscriber = id)', 'AND');
+    $recipient->whereAdd(
+        sprintf('id IN (SELECT subscriber FROM subscription WHERE subscribed = %d)', $sender->id),
+        'AND'
+    );
     $recipient->whereAdd("nickname = '" . $recipient->escape($nickname) . "'", 'AND');
     if ($recipient->find(true)) {
         // XXX: should probably differentiate between profiles with
@@ -1701,11 +1713,13 @@ function common_enqueue_notice($notice)
 
 function common_profile_url($nickname)
 {
-    return common_local_url('showstream',
-                            ['nickname' => $nickname],
-                            null,
-                            null,
-                            false);
+    return common_local_url(
+        'showstream',
+        ['nickname' => $nickname],
+        null,
+        null,
+        false
+    );
 }
 
 /**
@@ -2210,11 +2224,13 @@ function common_remove_magic_from_request()
 
 function common_user_uri(&$user)
 {
-    return common_local_url('userbyid',
-                            ['id' => $user->id],
-                            null,
-                            null,
-                            false);
+    return common_local_url(
+        'userbyid',
+        ['id' => $user->id],
+        null,
+        null,
+        false
+    );
 }
 
 /**
@@ -2225,11 +2241,12 @@ function common_user_uri(&$user)
  * alphanums and remove lookalikes (0, O, 1, I) = 32 chars = 5 bits to make it easy for the user to type in
  * @return string confirmation_code of length $bits/5
  */
-function common_confirmation_code($bits, $codechars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ') {
+function common_confirmation_code($bits, $codechars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ')
+{
     $chars = ceil($bits/5);
     $codechars_length = strlen($codechars)-1;
     $code = '';
-    for($i = 0; $i < $chars; ++$i) {
+    for ($i = 0; $i < $chars; ++$i) {
         $random_char = $codechars[random_int(0, $codechars_length)];
         $code .= $random_char;
     }
@@ -2403,15 +2420,13 @@ function common_compatible_license($from, $to)
 }
 
 /**
- * returns a quoted table name, if required according to config
+ * returns a quoted table name
  */
 function common_database_tablename($tablename)
 {
-    if (common_config('db', 'quote_identifiers')) {
-        $tablename = '"'. $tablename .'"';
-    }
-    //table prefixes could be added here later
-    return $tablename;
+    $schema = Schema::get();
+    // table prefixes could be added here later
+    return $schema->quoteIdentifier($tablename);
 }
 
 /**
@@ -2692,10 +2707,13 @@ function _common_size_str_to_int($size): int
  *
  * @return int
  */
-function common_get_preferred_php_upload_limit(): int {
-    return min(_common_size_str_to_int(ini_get('post_max_size')),
-               _common_size_str_to_int(ini_get('upload_max_filesize')),
-               _common_size_str_to_int(ini_get('memory_limit')));
+function common_get_preferred_php_upload_limit(): int
+{
+    return min(
+        _common_size_str_to_int(ini_get('post_max_size')),
+        _common_size_str_to_int(ini_get('upload_max_filesize')),
+        _common_size_str_to_int(ini_get('memory_limit'))
+    );
 }
 
 function html_sprintf()

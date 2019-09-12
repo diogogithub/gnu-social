@@ -249,7 +249,7 @@ function fixupConversationURIs()
         while ($conv->fetch()) {
             $uri = common_local_url('conversation', ['id' => $conv->id]);
             $sql = sprintf(
-                'UPDATE conversation SET uri="%1$s" WHERE id="%2$d";',
+                'UPDATE conversation SET uri = \'%1$s\' WHERE id = %2$d;',
                 $conv->escape($uri),
                 $conv->id
             );
@@ -379,7 +379,7 @@ function initSubscriptionURI()
                 $sub->decache();
                 $sub->query(sprintf(
                     'UPDATE subscription '.
-                    'SET uri = "%s" '.
+                    "SET uri = '%s' " .
                     'WHERE subscriber = %d '.
                       'AND subscribed = %d',
                     $sub->escape(Subscription::newUri($sub->getSubscriber(), $sub->getSubscribed(), $sub->created)),
@@ -408,7 +408,7 @@ function initGroupMemberURI()
                 $mem->decache();
                 $mem->query(sprintf(
                     'UPDATE group_member '.
-                    'SET uri = "%s" '.
+                    "SET uri = '%s' " .
                     'WHERE profile_id = %d ' .
                       'AND group_id = %d',
                     Group_member::newUri(Profile::getByID($mem->profile_id), User_group::getByID($mem->group_id), $mem->created),
@@ -443,7 +443,7 @@ function initProfileLists()
 
             $plist->tagger   = $ptag->tagger;
             $plist->tag      = $ptag->tag;
-            $plist->private  = 0;
+            $plist->private  = false;
             $plist->created  = common_sql_now();
             $plist->modified = $plist->created;
             $plist->mainpage = common_local_url(
@@ -537,7 +537,7 @@ function deleteLocalFileThumbnailsWithoutFilename()
         while ($file->fetch()) {
             $thumbs = new File_thumbnail();
             $thumbs->file_id = $file->id;
-            $thumbs->whereAdd('filename IS NULL OR filename = ""');
+            $thumbs->whereAdd("filename IS NULL OR filename = ''");
             // Checking if there were any File_thumbnail entries without filename
             if (!$thumbs->find()) {
                 continue;
@@ -560,7 +560,7 @@ function deleteMissingLocalFileThumbnails()
     printfnq("Removing all local File_thumbnail entries without existing files...");
 
     $thumbs = new File_thumbnail();
-    $thumbs->whereAdd('filename IS NOT NULL AND filename != ""');
+    $thumbs->whereAdd("filename IS NOT NULL AND filename != ''");
     // Checking if there were any File_thumbnail entries without filename
     if ($thumbs->find()) {
         while ($thumbs->fetch()) {
@@ -583,7 +583,7 @@ function setFilehashOnLocalFiles()
     printfnq('Ensuring all local files have the filehash field set...');
 
     $file = new File();
-    $file->whereAdd('filename IS NOT NULL AND filename != ""');        // local files
+    $file->whereAdd("filename IS NOT NULL AND filename != ''"); // local files
     $file->whereAdd('filehash IS NULL', 'AND');     // without filehash value
 
     if ($file->find()) {
@@ -605,11 +605,27 @@ function fixupFileThumbnailUrlhash()
 {
     printfnq("Setting urlhash for File_thumbnail entries: ");
 
+    switch (common_config('db', 'type')) {
+        case 'pgsql':
+            $url_sha256 = 'encode(sha256(CAST("url" AS bytea)), \'hex\')';
+            break;
+        case 'mysql':
+            $url_sha256 = 'sha2(`url`, 256)';
+            break;
+        default:
+            throw new Exception('Unknown DB type selected.');
+    }
+
     $thumb = new File_thumbnail();
-    $thumb->query('UPDATE '.$thumb->escapedTableName().' SET urlhash=SHA2(url, 256) WHERE'.
-                    ' url IS NOT NULL AND'. // find all entries with a url value
-                    ' url != "" AND'.       // precaution against non-null empty strings
-                    ' urlhash IS NULL');    // but don't touch those we've already calculated
+    $thumb->query(sprintf(
+        'UPDATE %1$s ' .
+        'SET urlhash = %2$s ' .
+        'WHERE url IS NOT NULL ' . // find all entries with a url value
+        "AND url <> '' " .         // precaution against non-null empty strings
+        'AND urlhash IS NULL',     // but don't touch those we've already calculated
+        $thumb->escapedTableName(),
+        $url_sha256
+    ));
 
     printfnq("DONE.\n");
 }
