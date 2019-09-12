@@ -1365,11 +1365,12 @@ class OStatusPlugin extends Plugin
         }
 
         $websub_states = [
-                'subscribe' => _m('Pending'),
-                'active'    => _m('Active'),
-                'nohub'     => _m('Polling'),
-                'inactive'  => _m('Inactive'),
-            ];
+            'subscribe'   => _m('Pending'),
+            'active'      => _m('Active'),
+            'unsubscribe' => _m('Unsubscribing'),
+            'nohub'       => _m('Polling'),
+            'inactive'    => _m('Inactive'),
+        ];
         $out->elementStart('dl', 'entity_tags ostatus_profile');
         $out->element('dt', null, _m('WebSub'));
         $out->element('dd', null, $websub_states[$feedsub->sub_state]);
