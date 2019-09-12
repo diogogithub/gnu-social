@@ -177,7 +177,8 @@ class PluginList extends Widget
             $internal_plugin_name = self::internalizePluginName($info['name']);
 
             // For a proper comparison, we do it in lower case
-            if (strtolower($internal_plugin_name) == strtolower($plugin)) {
+            //if (strtolower($internal_plugin_name) == strtolower($plugin)) {
+            if ($internal_plugin_name == $plugin) {
                 return true;
             }
         }

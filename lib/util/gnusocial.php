@@ -42,7 +42,7 @@ class GNUsocial
      */
     public static function addModule(string $name, array $attrs = [])
     {
-        $name = ucfirst($name);
+        //$name = ucfirst($name);
 
         if (isset(self::$modules[$name])) {
             // We have already loaded this module. Don't try to
@@ -93,12 +93,17 @@ class GNUsocial
      * @param string $name class name & module file/subdir name
      * @param array $attrs key/value pairs of public attributes to set on module instance
      *
-     * @return bool
+     * @return bool true if now enabled, false if just loaded
      * @throws ServerException if module can't be found
      */
     public static function addPlugin(string $name, array $attrs = [])
     {
-        $name = ucfirst($name);
+        //$name = ucfirst($name);
+
+        $key = 'disable-' . $name;
+        if (common_config('plugins', $key)) {
+            return false;
+        }
 
         if (isset(self::$modules[$name])) {
             // We have already loaded this module. Don't try to
@@ -145,13 +150,14 @@ class GNUsocial
 
     public static function delPlugin($name)
     {
+        //$name = ucfirst($name);
+
         // Remove our module if it was previously loaded
-        $name = ucfirst($name);
         if (isset(self::$modules[$name])) {
             unset(self::$modules[$name]);
         }
 
-        // make sure initPlugins will avoid this
+        // make sure addPlugin and addModule will avoid this
         common_config_set('plugins', 'disable-' . $name, true);
 
         return true;
@@ -275,11 +281,6 @@ class GNUsocial
 
         // Load default plugins
         foreach (common_config('plugins', 'default') as $name => $params) {
-            $key = 'disable-' . $name;
-            if (common_config('plugins', $key)) {
-                continue;
-            }
-
             if (count($params) == 0) {
                 self::addPlugin($name);
             } else {
