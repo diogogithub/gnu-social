@@ -61,7 +61,7 @@ class OverwriteThemeBackgroundPlugin extends Plugin
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = [
-            'name' => 'Custom Background',
+            'name' => 'Overwrite Theme Background',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Diogo Cordeiro',
             'homepage' => 'https://www.diogo.site/projects/GNU-social/plugins/OverwriteThemeBackgroundPlugin',

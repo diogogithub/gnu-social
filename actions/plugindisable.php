@@ -39,6 +39,52 @@ defined('STATUSNET') || die();
 class PlugindisableAction extends PluginenableAction
 {
     /**
+     * Handle request
+     *
+     * Disables the plugin and returns results.
+     *
+     * @return void
+     * @throws ClientException
+     */
+    function handle()
+    {
+        if (PluginList::isPluginLoaded($this->plugin)) {
+            $config_file = INSTALLDIR . DIRECTORY_SEPARATOR . 'config.php';
+            $config_lines = file($config_file, FILE_IGNORE_NEW_LINES);
+            foreach($config_lines as $key => $line) {
+                // We are doing it this way to avoid deleting things we shouldn't
+                $line = str_replace('addPlugin(\''.$this->plugin.'\');', '', $line);
+                $config_lines[$key] = $line;
+                if($line === ' // Added by sysadmin\'s Plugin UI.') {
+                    unset($config_lines[$key]);
+                }
+            }
+            $new_config_data = implode(PHP_EOL, $config_lines);
+            if (!file_put_contents($config_file, $new_config_data)) {
+                $this->clientError(_m('No permissions for writing to config.php'));
+            }
+        }
+        $key = 'disable-' . $this->plugin;
+        Config::save('plugins', $key, $this->overrideValue());
+
+        // @fixme this is a pretty common pattern and should be refactored down
+        if ($this->boolean('ajax')) {
+            $this->startHTML('text/xml;charset=utf-8');
+            $this->elementStart('head');
+            $this->element('title', null, $this->successShortTitle());
+            $this->elementEnd('head');
+            $this->elementStart('body');
+            $form = $this->successNextForm();
+            $form->show();
+            $this->elementEnd('body');
+            $this->endHTML();
+        } else {
+            $url = common_local_url('pluginsadminpanel');
+            common_redirect($url, 303);
+        }
+    }
+
+    /**
      * Value to save into $config['plugins']['disable-<name>']
      */
     protected function overrideValue()
