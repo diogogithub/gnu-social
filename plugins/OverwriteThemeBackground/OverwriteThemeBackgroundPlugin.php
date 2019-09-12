@@ -33,7 +33,7 @@ defined('GNUSOCIAL') || die();
  */
 class OverwriteThemeBackgroundPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '0.1.0';
+    const PLUGIN_VERSION = '0.1.1';
 
     /**
      * Route urls
@@ -46,7 +46,7 @@ class OverwriteThemeBackgroundPlugin extends Plugin
     {
         $m->connect('plugins/OverwriteThemeBackground/css/my_custom_theme_bg',
             ['action' => 'OverwriteThemeBackgroundCSS']);
-        $m->connect('admin/overwritethemebackground',
+        $m->connect('panel/overwritethemebackground',
             ['action' => 'overwritethemebackgroundAdminPanel']);
         return true;
     }

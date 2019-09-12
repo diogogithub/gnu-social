@@ -127,7 +127,7 @@ class ProfilefieldsAdminForm extends AdminForm
 
     public function action(): string
     {
-        return '/admin/profilefields';
+        return common_local_url('profilefieldsAdminPanel');
     }
 
     public function formData(): void
@@ -158,7 +158,7 @@ class ProfilefieldsAdminForm extends AdminForm
                 $this->out->elementStart('div');
                 $this->out->element(
                     'a',
-                    array('href' => '/admin/profilefields?edit=' . $field->id),
+                    ['href' => common_local_url('profilefieldsAdminPanel').'?edit=' . $field->id],
                     $field->title
                 );
                 $this->out->text(' (' . $field->type . '): ' . $field->description);
