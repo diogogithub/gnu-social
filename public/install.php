@@ -39,7 +39,7 @@
 define('INSTALLDIR', dirname(__DIR__));
 define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
-require INSTALLDIR . '/lib/installer.php';
+require INSTALLDIR . '/lib/util/installer.php';
 
 /**
  * Helper class for building form
