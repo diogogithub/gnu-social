@@ -272,14 +272,17 @@ class MediaFile
      */
     public static function decodeFilename(string $encoded_filename)
     {
-        // The x is because it is using in thumbnails
-        $ret = preg_match('/^([^-x]+?)-[^-]+$/', $encoded_filename, $matches);
+        // Should match:
+        //   hex-hash
+        //   thumb-id-widthxheight-hex-hash
+        // And return the `hex` part
+        $ret = preg_match('/^(.*-)?([^-]+)-[^-]+$/', $encoded_filename, $matches);
         if ($ret === false) {
             return false;
         } elseif ($ret === 0) {
             return null; // No match
         } else {
-            $filename = hex2bin($matches[1]);
+            $filename = hex2bin($matches[2]);
 
             // Matches extension
             if (preg_match('/^(.+?)\.(.+)$/', $filename, $sub_matches) === 1) {
