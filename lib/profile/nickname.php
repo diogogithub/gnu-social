@@ -192,10 +192,10 @@ class Nickname
      */
      public static function isSystemPath($str)
      {
-        $paths = array();
+        $paths = [];
 
         // All directory and file names in site root should be blacklisted
-        $d = dir(INSTALLDIR);
+        $d = dir(PUBLICDIR);
         while (false !== ($entry = $d->read())) {
             $paths[$entry] = true;
         }

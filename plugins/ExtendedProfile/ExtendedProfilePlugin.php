@@ -33,7 +33,7 @@ include_once __DIR__ . '/lib/profiletools.php';
 
 class ExtendedProfilePlugin extends Plugin
 {
-    const PLUGIN_VERSION = '3.0.0';
+    const PLUGIN_VERSION = '3.0.1';
 
     public function onPluginVersion(array &$versions): bool
     {
@@ -75,7 +75,7 @@ class ExtendedProfilePlugin extends Plugin
             ['action' => 'profiledetailsettings']
         );
         $m->connect(
-            'admin/profilefields',
+            'panel/profilefields',
             ['action' => 'profilefieldsAdminPanel']
         );
 
