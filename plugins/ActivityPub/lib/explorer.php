@@ -43,16 +43,19 @@ class Activitypub_explorer
     /**
      * Shortcut function to get a single profile from its URL.
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $url
+     * @param bool $grab_online whether to try online grabbing, defaults to true
      * @return Profile
-     * @throws Exception
+     * @throws HTTP_Request2_Exception
+     * @throws NoProfileException
+     * @throws ServerException
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function get_profile_from_url($url)
+    public static function get_profile_from_url($url, $grab_online = true)
     {
         $discovery = new Activitypub_explorer;
         // Get valid Actor object
-        $actor_profile = $discovery->lookup($url);
+        $actor_profile = $discovery->lookup($url, $grab_online);
         if (!empty($actor_profile)) {
             return $actor_profile[0];
         }
@@ -65,14 +68,14 @@ class Activitypub_explorer
      * so that there is no erroneous data
      *
      * @param string $url User's url
-     * @param bool $remote remote lookup?
+     * @param bool $grab_online whether to try online grabbing, defaults to true
      * @return array of Profile objects
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function lookup(string $url, bool $remote = true)
+    public function lookup(string $url, bool $grab_online = true)
     {
         if (in_array($url, ACTIVITYPUB_PUBLIC_TO)) {
             return [];
@@ -81,7 +84,7 @@ class Activitypub_explorer
         common_debug('ActivityPub Explorer: Started now looking for '.$url);
         $this->discovered_actor_profiles = [];
 
-        return $this->_lookup($url, $remote);
+        return $this->_lookup($url, $grab_online);
     }
 
     /**
@@ -90,7 +93,7 @@ class Activitypub_explorer
      * $discovered_actor_profiles array
      *
      * @param string $url User's url
-     * @param bool $remote remote lookup?
+     * @param bool $grab_online whether to try online grabbing, defaults to true
      * @return array of Profile objects
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -98,13 +101,13 @@ class Activitypub_explorer
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function _lookup(string $url, bool $remote)
+    private function _lookup(string $url, bool $grab_online = true)
     {
         $grab_local = $this->grab_local_user($url);
 
         // First check if we already have it locally and, if so, return it.
         // If the local fetch fails and remote grab is required: store locally and return.
-        if (!$grab_local && (!$remote || !$this->grab_remote_user($url))) {
+        if (!$grab_local && (!$grab_online || !$this->grab_remote_user($url))) {
             throw new Exception('User not found.');
         }
 
