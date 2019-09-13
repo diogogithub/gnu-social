@@ -331,15 +331,16 @@ class Activitypub_profile extends Managed_DataObject
     /**
      * Ensures a valid Activitypub_profile when provided with a valid URI.
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $url
+     * @param bool $grab_online whether to try online grabbing, defaults to true
      * @return Activitypub_profile
      * @throws Exception if it isn't possible to return an Activitypub_profile
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function fromUri($url)
+    public static function fromUri($url, $grab_online = true)
     {
         try {
-            return self::from_profile(Activitypub_explorer::get_profile_from_url($url));
+            return self::from_profile(Activitypub_explorer::get_profile_from_url($url, $grab_online));
         } catch (Exception $e) {
             throw new Exception('No valid ActivityPub profile found for given URI.');
         }
@@ -347,17 +348,17 @@ class Activitypub_profile extends Managed_DataObject
 
     /**
      * Look up, and if necessary create, an Activitypub_profile for the remote
-     * entity with the given webfinger address.
+     * entity with the given WebFinger address.
      * This should never return null -- you will either get an object or
      * an exception will be thrown.
      *
      * @author GNU social
      * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param string $addr webfinger address
+     * @param string $addr WebFinger address
      * @return Activitypub_profile
      * @throws Exception on error conditions
      */
-    public static function ensure_web_finger($addr)
+    public static function ensure_webfinger($addr)
     {
         // Normalize $addr, i.e. add 'acct:' if missing
         $addr = Discovery::normalize($addr);
@@ -369,12 +370,12 @@ class Activitypub_profile extends Managed_DataObject
             if (is_null($uri)) {
                 // Negative cache entry
                 // TRANS: Exception.
-                throw new Exception(_m('Not a valid webfinger address (via cache).'));
+                throw new Exception(_m('Not a valid WebFinger address (via cache).'));
             }
             try {
                 return self::fromUri($uri);
             } catch (Exception $e) {
-                common_log(LOG_ERR, sprintf(__METHOD__ . ': Webfinger address cache inconsistent with database, did not find Activitypub_profile uri==%s', $uri));
+                common_log(LOG_ERR, sprintf(__METHOD__ . ': WebFinger address cache inconsistent with database, did not find Activitypub_profile uri==%s', $uri));
                 self::cacheSet(sprintf('activitypub_profile:webfinger:%s', $addr), false);
             }
         }
@@ -390,13 +391,13 @@ class Activitypub_profile extends Managed_DataObject
             // @todo FIXME: Distinguish temporary failures?
             self::cacheSet(sprintf('activitypub_profile:webfinger:%s', $addr), null);
             // TRANS: Exception.
-            throw new Exception(_m('Not a valid webfinger address.'));
+            throw new Exception(_m('Not a valid WebFinger address.'));
         }
 
         $hints = array_merge(
-            array('webfinger' => $addr),
+            ['webfinger' => $addr],
             DiscoveryHints::fromXRD($xrd)
-                );
+        );
 
         // If there's an Hcard, let's grab its info
         if (array_key_exists('hcard', $hints)) {
@@ -419,17 +420,17 @@ class Activitypub_profile extends Managed_DataObject
             } catch (Exception $e) {
                 common_log(LOG_WARNING, "Failed creating profile from profile URL '$profileUrl': " . $e->getMessage());
                 // keep looking
-                                //
-                                // @todo FIXME: This means an error discovering from profile page
-                                // may give us a corrupt entry using the webfinger URI, which
-                                // will obscure the correct page-keyed profile later on.
+                //
+                // @todo FIXME: This means an error discovering from profile page
+                // may give us a corrupt entry using the webfinger URI, which
+                // will obscure the correct page-keyed profile later on.
             }
         }
 
         // XXX: try hcard
         // XXX: try FOAF
 
-        // TRANS: Exception. %s is a webfinger address.
+        // TRANS: Exception. %s is a WebFinger address.
         throw new Exception(sprintf(_m('Could not find a valid profile for "%s".'), $addr));
     }
 

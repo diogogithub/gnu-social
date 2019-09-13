@@ -87,13 +87,13 @@ class ActivityPubPlugin extends Plugin
     /**
      * Returns a notice from its URL.
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $url Notice's URL
-     * @param bool $grabOnline whether to try online grabbing, defaults to true
+     * @param bool $grab_online whether to try online grabbing, defaults to true
      * @return Notice|null The Notice object
      * @throws Exception This function or provides a Notice, null, or fails with exception
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function grab_notice_from_url(string $url, bool $grabOnline = true): ?Notice
+    public static function grab_notice_from_url(string $url, bool $grab_online = true): ?Notice
     {
         /* Offline Grabbing */
         try {
@@ -114,7 +114,7 @@ class ActivityPubPlugin extends Plugin
             }
         }
 
-        if ($grabOnline) {
+        if ($grab_online) {
             /* Online Grabbing */
             $client    = new HTTPClient();
             $headers   = [];
@@ -319,7 +319,7 @@ class ActivityPubPlugin extends Plugin
 
     /**
      * Validate AP-recipients for profile page message action addition
-     * 
+     *
      * @param Profile $recipient
      * @return bool hook return value
      */
@@ -334,7 +334,7 @@ class ActivityPubPlugin extends Plugin
 
     /**
      * Mark an ap_profile object for deletion
-     * 
+     *
      * @param Profile profile being deleted
      * @param array &$related objects with same profile_id to be deleted
      * @return void
@@ -353,7 +353,7 @@ class ActivityPubPlugin extends Plugin
             }
         } catch (Exception $e) {
             // nothing to do
-        } 
+        }
     }
 
     /**
@@ -400,70 +400,91 @@ class ActivityPubPlugin extends Plugin
 
     /**
      * Hack the notice search-box and try to grab remote profiles or notices.
-     * 
+     *
      * Note that, on successful grabbing, this function will redirect to the
      * new profile/notice, so URL searching is directly affected. A good solution
      * for this is to store the URLs in the notice text without the https/http
      * prefixes. This would change the queries for URL searching and therefore we
      * could do both search and grab.
-     * 
+     *
      * @param string $query search query
-     * @return void
+     * @return bool hook
+     * @author Bruno Casteleiro <up201505347@fc.up.pt>
      */
-    public function onStartNoticeSearch(string $query): void
+    public function onStartNoticeSearch(string $query): bool
     {
         if (!common_logged_in()) {
-            // early return, search-only for non-logged sessions
-            return;
+            // early return: Only allow logged users to import/search for remote actors or notes
+            return true;
         }
 
-        if (!filter_var($query, FILTER_VALIDATE_URL) &&
-            !preg_match('!^((?:\w+\.)*\w+@(?:\w+\.)*\w+(?:\w+\-\w+)*\.\w+)$!', $query)) {
-            // early return, not an url or webfinger ID
-            return;
-        }
-
-        // someone we know about ?
-        try {
-            $explorer = new Activitypub_explorer();
-            $profile = $explorer->lookup($query, false)[0];
-            if ($profile instanceof Profile) {
-                return;
+        if (preg_match('!^((?:\w+\.)*\w+@(?:\w+\.)*\w+(?:\w+\-\w+)*\.\w+)$!', $query)) { // WebFinger ID found!
+            // Try to grab remote actor
+            $aprofile = self::pull_remote_profile($query);
+            if ($aprofile instanceof Activitypub_profile) {
+                $url = common_local_url('userbyid', ['id' => $aprofile->getID()], null, null, false);
+                common_redirect($url, 303);
+                return true;
             }
-        } catch (Exception $e) {
-            // nope
-        }
+        } elseif (filter_var($query, FILTER_VALIDATE_URL)) { // URL found!
+            /* Is this an ActivityPub notice? */
 
-        // some notice we know about ?
-        try {
-            $notice = self::grab_notice_from_url($query, false);
-            if ($notice instanceof Notice) {
-                return;
+            // If we already know it, just return
+            try {
+                $notice = self::grab_notice_from_url($query, false); // Only check locally
+                if ($notice instanceof Notice) {
+                    return true;
+                }
+            } catch (Exception $e) {
+                // We will next try online
             }
-        } catch (Exception $e) {
-            // nope
-        }
 
-        // try to grab profile
-        $aprofile = self::pull_remote_profile($query);
-        if ($aprofile instanceof Activitypub_profile) {
-            $url = common_local_url('userbyid', ['id' => $aprofile->getID()], null, null, false);
-            common_redirect($url, 303);
-            return;
-        }
+            // Otherwise, try to grab it
+            try {
+                $notice = self::grab_notice_from_url($query); // Unfortunately we will be trying locally again
+                if ($notice instanceof Notice) {
+                    $url = common_local_url('shownotice', ['notice' => $notice->getID()]);
+                    common_redirect($url, 303);
+                }
+            } catch (Exception $e) {
+                // We will next check if this URL is an actor
+            }
 
-        // try to grab notice
-        $notice = self::grab_notice_from_url($query);
-        if ($notice instanceof Notice) {
-            $url = common_local_url('shownotice', ['notice' => $notice->getID()]);
-            common_redirect($url, 303);
+            /* Is this an ActivityPub actor? */
+
+            // If we already know it, just return
+            try {
+                $explorer = new Activitypub_explorer();
+                $profile = $explorer->lookup($query, false)[0]; // Only check locally
+                if ($profile instanceof Profile) {
+                    return true;
+                }
+            } catch (Exception $e) {
+                // We will next try online
+            }
+
+            // Try to grab remote actor
+            try {
+                if (!isset($explorer)) {
+                    $explorer = new Activitypub_explorer();
+                }
+                $profile = $explorer->lookup($query)[0]; // Unfortunately we will be trying locally again
+                if ($profile instanceof Profile) {
+                    $url = common_local_url('userbyid', ['id' => $profile->getID()], null, null, false);
+                    common_redirect($url, 303);
+                    return true;
+                }
+            } catch (Exception $e) {
+                // Let the search run naturally
+            }
         }
+        return true;
     }
 
     /**
      * Make sure necessary tables are filled out.
      *
-     * @return boolean hook true
+     * @return bool hook true
      */
     public function onCheckSchema()
     {
@@ -481,17 +502,17 @@ class ActivityPubPlugin extends Plugin
     /**
      * Get remote user's ActivityPub_profile via a identifier
      *
-     * @author GNU social
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $arg A remote user identifier
      * @return Activitypub_profile|null Valid profile in success | null otherwise
+     * @author GNU social
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function pull_remote_profile($arg)
     {
         if (preg_match('!^((?:\w+\.)*\w+@(?:\w+\.)*\w+(?:\w+\-\w+)*\.\w+)$!', $arg)) {
             // webfinger lookup
             try {
-                return Activitypub_profile::ensure_web_finger($arg);
+                return Activitypub_profile::ensure_webfinger($arg);
             } catch (Exception $e) {
                 common_log(LOG_ERR, 'Webfinger lookup failed for ' .
                                                 $arg . ': ' . $e->getMessage());
@@ -618,7 +639,7 @@ class ActivityPubPlugin extends Plugin
             $this->log(LOG_INFO, "Checking webfinger person '$target'");
             $profile = null;
             try {
-                $aprofile = Activitypub_profile::ensure_web_finger($target);
+                $aprofile = Activitypub_profile::ensure_webfinger($target);
                 $profile = $aprofile->local_profile();
             } catch (Exception $e) {
                 $this->log(LOG_ERR, "Webfinger check failed: " . $e->getMessage());
@@ -751,7 +772,7 @@ class ActivityPubPlugin extends Plugin
 
     /**
      * Try to grab and store the remote profile by the given uri
-     * 
+     *
      * @param string $uri
      * @param Profile &$profile
      * @return bool
@@ -979,7 +1000,7 @@ class ActivityPubPlugin extends Plugin
         if ($notice->reply_to) {
             try {
                 $parent_notice = $notice->getParent();
-                
+
                 try {
                     $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
                 } catch (Exception $e) {
@@ -1005,7 +1026,7 @@ class ActivityPubPlugin extends Plugin
 
     /**
      * Notify remote followers when a user gets deleted
-     * 
+     *
      * @param Action $action
      * @param User $user user being deleted
      */

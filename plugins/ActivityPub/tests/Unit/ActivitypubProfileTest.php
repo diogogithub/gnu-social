@@ -101,7 +101,7 @@ class ProfileObjectTest extends TestCase
         /* Test ensure_web_finger() */
         // TODO: Maybe elaborate on this function's tests
         try {
-            \Activitypub_profile::ensure_web_finger('test1@testinstance.net');
+            \Activitypub_profile::ensure_webfinger('test1@testinstance.net');
             $this->assertTrue(false);
         } catch (\Exception $e) {
             $this->assertTrue($e->getMessage() == 'Not a valid webfinger address.' ||
