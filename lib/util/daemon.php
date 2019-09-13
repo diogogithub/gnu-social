@@ -41,6 +41,41 @@ class Daemon
         $this->_id = $id;
     }
 
+    /**
+     * Reconnect to the database for each child process,
+     * or they'll get very confused trying to use the
+     * same socket.
+     */
+    protected function resetDb()
+    {
+        global $_DB_DATAOBJECT;
+
+        // Can't be called statically
+        $user = new User();
+        $conn = $user->getDatabaseConnection();
+        $conn->disconnect();
+
+        // Remove the disconnected connection from the list
+        foreach ($_DB_DATAOBJECT['CONNECTIONS'] as $k => $v) {
+            if ($v === $conn) {
+                unset($_DB_DATAOBJECT['CONNECTIONS'][$k]);
+            }
+        }
+
+        // Reconnect main memcached, or threads will stomp on
+        // each other and corrupt their requests.
+        $cache = Cache::instance();
+        if ($cache) {
+            $cache->reconnect();
+        }
+
+        // Also reconnect memcached for status_network table.
+        if (!empty(Status_network::$cache)) {
+            Status_network::$cache->close();
+            Status_network::$cache = null;
+        }
+    }
+
     public function background()
     {
         // Database connection will likely get lost after forking
