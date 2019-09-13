@@ -762,8 +762,7 @@ class ActivityPubPlugin extends Plugin
     public function onStartGetProfileFromURI($uri, &$profile)
     {
         try {
-            $explorer = new Activitypub_explorer();
-            $profile = $explorer->lookup($uri)[0];
+            $profile = Activitypub_explorer::get_profile_from_url($uri);
             return false;
         } catch (Exception $e) {
             return true; // It's not an ActivityPub profile as far as we know, continue event handling
