@@ -39,6 +39,7 @@ defined('GNUSOCIAL') || die();
 class Activitypub_explorer
 {
     private $discovered_actor_profiles = [];
+    private $temp_res; // global variable to hold a temporary http response
 
     /**
      * Shortcut function to get a single profile from its URL.
@@ -48,12 +49,13 @@ class Activitypub_explorer
      * @return Profile
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
+     * @throws Exception
      * @throws ServerException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function get_profile_from_url($url, $grab_online = true)
     {
-        $discovery = new Activitypub_explorer;
+        $discovery = new Activitypub_explorer();
         // Get valid Actor object
         $actor_profile = $discovery->lookup($url, $grab_online);
         if (!empty($actor_profile)) {
@@ -72,6 +74,7 @@ class Activitypub_explorer
      * @return array of Profile objects
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
+     * @throws Exception
      * @throws ServerException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
@@ -119,7 +122,7 @@ class Activitypub_explorer
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $url
-     * @return boolean success state (related to the response)
+     * @return bool success state (related to the response)
      * @throws Exception (If the HTTP request fails)
      */
     private function ensure_proper_remote_uri($url)
@@ -146,7 +149,7 @@ class Activitypub_explorer
      *
      * @param string $uri Actor's uri
      * @param bool $online
-     * @return boolean success state
+     * @return bool success state
      * @throws NoProfileException
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
@@ -209,10 +212,11 @@ class Activitypub_explorer
      * $this->discovered_actor_profiles
      *
      * @param string $url User's url
-     * @return boolean success state
+     * @return bool success state
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
+     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function grab_remote_user($url)
@@ -241,7 +245,6 @@ class Activitypub_explorer
             common_debug('ActivityPub Explorer: Invalid potential remote actor while grabbing remotely: '.$url. '. He returned the following: '.json_encode($res, JSON_UNESCAPED_SLASHES));
         }
 
-        // TODO: Fallback to OStatus
         return false;
     }
 
@@ -252,6 +255,7 @@ class Activitypub_explorer
      * @return Profile remote Profile object
      * @throws NoProfileException
      * @throws ServerException
+     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function store_profile($res)
@@ -359,7 +363,7 @@ class Activitypub_explorer
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param array $res remote response
-     * @return boolean success state
+     * @return bool success state
      */
     public static function validate_remote_response($res)
     {
@@ -378,7 +382,7 @@ class Activitypub_explorer
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $v URL
-     * @return boolean|Activitypub_profile false if fails | Aprofile object if successful
+     * @return bool|Activitypub_profile false if fails | Aprofile object if successful
      */
     public static function get_aprofile_by_url($v)
     {
@@ -400,7 +404,7 @@ class Activitypub_explorer
      * Given a valid actor profile url returns its inboxes
      *
      * @param string $url of Actor profile
-     * @return boolean|array false if fails | array with inbox and shared inbox if successful
+     * @return bool|array false if fails | array with inbox and shared inbox if successful
      * @throws HTTP_Request2_Exception
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
@@ -430,7 +434,7 @@ class Activitypub_explorer
      * Allows the Explorer to transverse a collection of persons.
      *
      * @param string $url
-     * @return boolean
+     * @return bool
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
