@@ -1417,14 +1417,14 @@ function common_path($relative, $ssl=false, $addSession=true)
         } elseif (common_config('site', 'server')) {
             $serverpart = common_config('site', 'server');
         } else {
-            common_log(LOG_ERR, 'Site server not configured, unable to determine site name.');
+            throw new ServerException('Site server not configured, unable to determine site name.');
         }
     } else {
         $proto = 'http';
         if (common_config('site', 'server')) {
             $serverpart = common_config('site', 'server');
         } else {
-            common_log(LOG_ERR, 'Site server not configured, unable to determine site name.');
+            throw new ServerException('Site server not configured, unable to determine site name.');
         }
     }
 
@@ -2151,6 +2151,9 @@ function common_negotiate_type($cprefs, $sprefs)
 function common_config($main, $sub=null)
 {
     global $config;
+    if (is_null($config)) {
+        throw new ServerException('common_config was invoked before config.php was read');
+    }
     if (is_null($sub)) {
         // Return the config category array
         return array_key_exists($main, $config) ? $config[$main] : [];

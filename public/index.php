@@ -156,6 +156,7 @@ function handleError($error)
     } catch (Exception $e) {
         // TRANS: Error message.
         echo _('An error occurred.');
+        error_log('Uncaught Exception: ' . $error);
         exit(-1);
     }
     exit(-1);
