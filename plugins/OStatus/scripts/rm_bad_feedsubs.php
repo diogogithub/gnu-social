@@ -24,8 +24,8 @@
  *  Run this from INSTALLDIR/plugins/OStatus/scripts
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
-
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'd';
 $longoptions = array('dry-run');

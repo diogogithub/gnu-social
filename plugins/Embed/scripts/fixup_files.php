@@ -25,9 +25,8 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-defined('GNUSOCIAL');
-
-define('INSTALLDIR', realpath(__DIR__ . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $longoptions = ['dry-run', 'h-bug', 'broken-oembed', 'limit='];
 
@@ -129,7 +128,6 @@ while ($fn->fetch()) {
                 echo " (ok, but embedding lookup failed)\n";
             }
         }
-
     } elseif ($broken &&
               (!$data instanceof File_embed ||
                empty($data->title) ||
@@ -165,7 +163,6 @@ while ($fn->fetch()) {
                 $thumb->decache();
             }
         }
-
     }
 
     if (isset($fetch) && $fetch === true && !$dry) {

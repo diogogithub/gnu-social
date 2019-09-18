@@ -20,11 +20,12 @@
  *
  * @package   Realtime
  * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @copyright 2011, StatusNet, Inc.
+ * @copyright 2011 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-define('INSTALLDIR', realpath(__DIR__ . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'u';
 $longoptions = array('universe');

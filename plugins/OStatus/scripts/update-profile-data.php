@@ -20,7 +20,8 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $longoptions = array('all', 'suspicious', 'quiet');
 

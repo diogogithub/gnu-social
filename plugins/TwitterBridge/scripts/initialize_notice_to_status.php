@@ -18,11 +18,12 @@
 /**
  * @package   TwitterBridge
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2010, StatusNet, Inc.
+ * @copyright 2010 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $helptext = <<<ENDOFHELP
 USAGE: initialize_notice_to_status.php

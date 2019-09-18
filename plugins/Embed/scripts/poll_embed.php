@@ -25,9 +25,8 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-defined('GNUSOCIAL') || die();
-
-define('INSTALLDIR', realpath(__DIR__ . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'u:';
 $longoptions = array('url=');

@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -19,7 +20,8 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'i:n:a';
 $longoptions = array('id=', 'nickname=', 'all');

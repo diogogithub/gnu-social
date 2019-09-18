@@ -1,24 +1,28 @@
 #!/usr/bin/env php
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package   GNUsocial
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $longoptions = array('base=', 'network');
 
@@ -76,15 +80,29 @@ END;
  */
 function sphinx_site_template($sn)
 {
+    if (common_config('db', 'type') !== 'mysql') {
+        $created_ts = sprintf(
+            '((EXTRACT(DAY %1$s) * 24 + EXTRACT(HOUR %1$s)) * 60 + ' .
+            'EXTRACT(MINUTE %1$s)) * 60 + FLOOR(EXTRACT(SECOND %1$s)) AS "created_ts"',
+            'FROM ("created" - TIMESTAMP \'1970-01-01 00:00:00\')'
+        );
+    } else {
+        $created_ts = "timestampdiff(SECOND, '1970-01-01', `created`) AS `created_ts`";
+    }
+
     return
-        sphinx_template($sn,
+        sphinx_template(
+            $sn,
             'profile',
-            'SELECT id, UNIX_TIMESTAMP(created) as created_ts, nickname, fullname, location, bio, homepage FROM profile',
-            'SELECT * FROM profile where id = $id') .
-        sphinx_template($sn,
+            'SELECT id, ' . $created_ts . ', nickname, fullname, location, bio, homepage FROM profile',
+            'SELECT * FROM profile WHERE id = $id'
+        ) .
+        sphinx_template(
+            $sn,
             'notice',
-            'SELECT id, UNIX_TIMESTAMP(created) as created_ts, content FROM notice',
-            'SELECT * FROM notice where notice.id = $id AND notice.is_local != -2');
+            'SELECT id, ' . $created_ts . ', content FROM notice',
+            'SELECT * FROM notice WHERE notice.id = $id AND notice.is_local <> -2'
+        );
 }
 
 function sphinx_template($sn, $table, $query, $query_info)

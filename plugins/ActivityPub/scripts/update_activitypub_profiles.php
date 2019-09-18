@@ -25,7 +25,8 @@
  * @link      http://www.gnu.org/software/social/
  */
 
-define('INSTALLDIR', realpath(__DIR__ . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'u:af';
 $longoptions = ['uri=', 'all', 'force'];
