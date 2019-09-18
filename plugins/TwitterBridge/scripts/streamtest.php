@@ -1,31 +1,30 @@
+#!/usr/bin/env php
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Plugin
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Brion Vibber <brion@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'n:';
 $longoptions = array('nick=','import','all','apiroot=');
@@ -43,13 +42,13 @@ data as it comes.
 
 ENDOFHELP;
 
-require_once INSTALLDIR.'/scripts/commandline.inc';
+require_once INSTALLDIR . '/scripts/commandline.inc';
 require_once dirname(dirname(__FILE__)) . '/lib/jsonstreamreader.php';
 require_once dirname(dirname(__FILE__)) . '/lib/twitterstreamreader.php';
 
 if (have_option('n')) {
     $nickname = get_option_value('n');
-} else if (have_option('nick')) {
+} elseif (have_option('nick')) {
     $nickname = get_option_value('nickname');
 } else {
     show_help($helptext);
@@ -58,7 +57,7 @@ if (have_option('n')) {
 
 /**
  *
- * @param User $user 
+ * @param User $user
  * @return TwitterOAuthClient
  */
 function twitterAuthForUser(User $user)
@@ -119,47 +118,61 @@ if (have_option('all')) {
 }
 
 
-$stream->hookEvent('raw', function($data, $context) {
+$stream->hookEvent('raw', function ($data, $context) {
     common_log(LOG_INFO, json_encode($data) . ' for ' . json_encode($context));
 });
-$stream->hookEvent('friends', function($data, $context) {
+$stream->hookEvent('friends', function ($data, $context) {
     printf("Friend list: %s\n", implode(', ', $data->friends));
 });
-$stream->hookEvent('favorite', function($data, $context) {
-    printf("%s favorited %s's notice: %s\n",
-            $data->source->screen_name,
-            $data->target->screen_name,
-            $data->target_object->text);
+$stream->hookEvent('favorite', function ($data, $context) {
+    printf(
+        "%s favorited %s's notice: %s\n",
+        $data->source->screen_name,
+        $data->target->screen_name,
+        $data->target_object->text
+    );
 });
-$stream->hookEvent('unfavorite', function($data, $context) {
-    printf("%s unfavorited %s's notice: %s\n",
-            $data->source->screen_name,
-            $data->target->screen_name,
-            $data->target_object->text);
+$stream->hookEvent('unfavorite', function ($data, $context) {
+    printf(
+        "%s unfavorited %s's notice: %s\n",
+        $data->source->screen_name,
+        $data->target->screen_name,
+        $data->target_object->text
+    );
 });
-$stream->hookEvent('follow', function($data, $context) {
-    printf("%s friended %s\n",
-            $data->source->screen_name,
-            $data->target->screen_name);
+$stream->hookEvent('follow', function ($data, $context) {
+    printf(
+        '%s friended %s' . "\n",
+        $data->source->screen_name,
+        $data->target->screen_name
+    );
 });
-$stream->hookEvent('unfollow', function($data, $context) {
-    printf("%s unfriended %s\n",
-            $data->source->screen_name,
-            $data->target->screen_name);
+$stream->hookEvent('unfollow', function ($data, $context) {
+    printf(
+        '%s unfriended %s' . "\n",
+        $data->source->screen_name,
+        $data->target->screen_name
+    );
 });
-$stream->hookEvent('delete', function($data, $context) {
-    printf("Deleted status notification: %s\n",
-            $data->status->id);
+$stream->hookEvent('delete', function ($data, $context) {
+    printf(
+        'Deleted status notification: %s' . "\n",
+        $data->status->id
+    );
 });
-$stream->hookEvent('scrub_geo', function($data, $context) {
-    printf("Req to scrub geo data for user id %s up to status ID %s\n",
-            $data->user_id,
-            $data->up_to_status_id);
+$stream->hookEvent('scrub_geo', function ($data, $context) {
+    printf(
+        'Req to scrub geo data for user id %s up to status ID %s' . "\n",
+        $data->user_id,
+        $data->up_to_status_id
+    );
 });
-$stream->hookEvent('status', function($data, $context) {
-    printf("Received status update from %s: %s\n",
-            $data->user->screen_name,
-            $data->text);
+$stream->hookEvent('status', function ($data, $context) {
+    printf(
+        'Received status update from %s: %s' . "\n",
+        $data->user->screen_name,
+        $data->text
+    );
 
     if (have_option('import')) {
         $importer = new TwitterImport();
@@ -170,38 +183,40 @@ $stream->hookEvent('status', function($data, $context) {
         }
     }
 });
-$stream->hookEvent('direct_message', function($data) {
-    printf("Direct message from %s to %s: %s\n",
-            $data->sender->screen_name,
-            $data->recipient->screen_name,
-            $data->text);
+$stream->hookEvent('direct_message', function ($data) {
+    printf(
+        'Direct message from %s to %s: %s' . "\n",
+        $data->sender->screen_name,
+        $data->recipient->screen_name,
+        $data->text
+    );
 });
 
 class TwitterManager extends IoManager
 {
-    function __construct(TwitterStreamReader $stream)
+    public function __construct(TwitterStreamReader $stream)
     {
         $this->stream = $stream;
     }
 
-    function getSockets()
+    public function getSockets()
     {
         return $this->stream->getSockets();
     }
 
-    function handleInput($data)
+    public function handleInput($data)
     {
         $this->stream->handleInput($data);
         return true;
     }
 
-    function start()
+    public function start()
     {
         $this->stream->connect();
         return true;
     }
 
-    function finish()
+    public function finish()
     {
         $this->stream->close();
         return true;
@@ -215,7 +230,7 @@ class TwitterManager extends IoManager
 
 class TwitterStreamMaster extends IoMaster
 {
-    function __construct($id, $ioManager)
+    public function __construct($id, $ioManager)
     {
         parent::__construct($id);
         $this->ioManager = $ioManager;
@@ -224,7 +239,7 @@ class TwitterStreamMaster extends IoMaster
     /**
      * Initialize IoManagers which are appropriate to this instance.
      */
-    function initManagers()
+    public function initManagers()
     {
         $this->instantiate($this->ioManager);
     }

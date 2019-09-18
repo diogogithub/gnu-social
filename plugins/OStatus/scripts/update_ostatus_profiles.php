@@ -1,24 +1,28 @@
 #!/usr/bin/env php
 <?php
-/*
- * StatusNet - a distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package   GNUsocial
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'u:af';
 $longoptions = array('uri=', 'all', 'force');
@@ -69,7 +73,7 @@ class LooseOstatusProfile extends Ostatus_profile
 
         if (!$response->isOk()) {
             // TRANS: Exception. %s is a profile URL.
-            throw new Exception(sprintf(_('Could not reach profile page %s.'),$profile_url));
+            throw new Exception(sprintf(_('Could not reach profile page %s.'), $profile_url));
         }
 
         // Check if we have a non-canonical URL
@@ -120,7 +124,7 @@ class LooseOstatusProfile extends Ostatus_profile
         }
 
         // TRANS: Exception. %s is a URL.
-        throw new Exception(sprintf(_m('Could not find a feed URL for profile page %s.'),$finalUrl));
+        throw new Exception(sprintf(_m('Could not find a feed URL for profile page %s.'), $finalUrl));
     }
 
     /**
@@ -200,25 +204,25 @@ class LooseOstatusProfile extends Ostatus_profile
                 // will obscure the correct page-keyed profile later on.
             }
         }
-        throw new Exception(sprintf(_m('Could not find a valid profile for "%s".'),$addr));
+        throw new Exception(sprintf(_m('Could not find a valid profile for "%s".'), $addr));
     }
 }
 
-function pullOstatusProfile($uri) {
-
+function pullOstatusProfile($uri)
+{
     $oprofile = null;
     $validate = new Validate();
 
     if ($validate->email($uri)) {
         $oprofile = LooseOstatusProfile::updateWebfinger($uri);
-    } else if ($validate->uri($uri)) {
+    } elseif ($validate->uri($uri)) {
         $oprofile = LooseOstatusProfile::updateProfileURL($uri);
     } else {
         print "Sorry, we could not reach the address: $uri\n";
         return false;
     }
 
-   return $oprofile;
+    return $oprofile;
 }
 
 $quiet = have_option('q', 'quiet');
@@ -227,7 +231,7 @@ $lop = new LooseOstatusProfile();
 
 if (have_option('u', 'uri')) {
     $lop->uri = get_option_value('u', 'uri');
-} else if (!have_option('a', 'all')) {
+} elseif (!have_option('a', 'all')) {
     show_help();
     exit(1);
 }
@@ -237,18 +241,26 @@ $forceUpdates = have_option('f', 'force');
 $cnt = $lop->find();
 
 if (!empty($cnt)) {
-    if (!$quiet) { echo "Found {$cnt} OStatus profiles:\n"; }
+    if (!$quiet) {
+        echo 'Found ' . $cnt . ' OStatus profiles:' . "\n";
+    }
 } else {
     if (have_option('u', 'uri')) {
-        if (!$quiet) { echo "Couldn't find an existing OStatus profile with that URI.\n"; }
+        if (!$quiet) {
+            echo "Couldn't find an existing OStatus profile with that URI.\n";
+        }
     } else {
-        if (!$quiet) { echo "Couldn't find any existing OStatus profiles.\n"; }
+        if (!$quiet) {
+            echo "Couldn't find any existing OStatus profiles.\n";
+        }
     }
     exit(0);
 }
 
-while($lop->fetch()) {
-    if (!$quiet) { echo "Updating OStatus profile '{$lop->uri}' ... "; }
+while ($lop->fetch()) {
+    if (!$quiet) {
+        echo "Updating OStatus profile '" . $lop->uri . "' ... ";
+    }
     try {
         $oprofile = pullOstatusProfile($lop->uri);
 
@@ -257,13 +269,19 @@ while($lop->fetch()) {
             $lop->avatar = $oprofile->avatar;
             $lop->update($orig);
             $lop->updateAvatar($oprofile->avatar, $forceUpdates);
-            if (!$quiet) { print "Done.\n"; }
+            if (!$quiet) {
+                echo 'Done.' . "\n";
+            }
         }
     } catch (Exception $e) {
-        if (!$quiet) { print $e->getMessage() . "\n"; }
+        if (!$quiet) {
+            echo $e->getMessage() . "\n";
+        }
         common_log(LOG_WARNING, $e->getMessage(), __FILE__);
         // continue on error
     }
 }
 
-if (!$quiet) { echo "OK.\n"; }
+if (!$quiet) {
+    echo 'OK.' . "\n";
+}

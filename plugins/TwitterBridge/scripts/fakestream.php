@@ -1,31 +1,30 @@
+#!/usr/bin/env php
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Plugin
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Brion Vibber <brion@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'n:';
 $longoptions = array('nick=','import','all');
@@ -46,9 +45,9 @@ require_once INSTALLDIR.'/scripts/commandline.inc';
 
 if (have_option('n')) {
     $nickname = get_option_value('n');
-} else if (have_option('nick')) {
+} elseif (have_option('nick')) {
     $nickname = get_option_value('nickname');
-} else if (have_option('all')) {
+} elseif (have_option('all')) {
     $nickname = null;
 } else {
     show_help($helptext);
@@ -57,7 +56,7 @@ if (have_option('n')) {
 
 /**
  *
- * @param User $user 
+ * @param User $user
  * @return TwitterOAuthClient
  */
 function twitterAuthForUser(User $user)
@@ -115,8 +114,10 @@ foreach ($users as $id) {
         throw new Exception("No user for id $id");
     }
     $auth = twitterAuthForUser($user);
-    $flink = Foreign_link::getByUserID($user->id,
-                                       TWITTER_SERVICE);
+    $flink = Foreign_link::getByUserID(
+        $user->id,
+        TWITTER_SERVICE
+    );
 
     $friends->friends = $auth->friendsIds();
     dumpMessage($flink, $friends);
@@ -127,10 +128,10 @@ foreach ($users as $id) {
     }
 }
 
-usort($output, function($a, $b) {
+usort($output, function ($a, $b) {
     if ($a->message->id < $b->message->id) {
         return -1;
-    } else if ($a->message->id == $b->message->id) {
+    } elseif ($a->message->id == $b->message->id) {
         return 0;
     } else {
         return 1;

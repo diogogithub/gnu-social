@@ -1,23 +1,30 @@
+#!/usr/bin/env php
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2012 StatusNet, Inc.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Description of this file.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @package   GNUsocial
+ * @copyright 2012 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('INSTALLDIR', dirname(__DIR__, 3));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'i:n:a';
 $longoptions = array('id=', 'nickname=', 'all');
@@ -31,15 +38,15 @@ Test user activities against the spam filter
   -a --all      All users
 END_OF_TESTUSER_HELP;
 
-require_once INSTALLDIR.'/scripts/commandline.inc';
+require_once INSTALLDIR . '/scripts/commandline.inc';
 
-function testAllUsers($filter) {
+function testAllUsers($filter)
+{
     $found = false;
     $offset = 0;
     $limit  = 1000;
 
     do {
-
         $user = new User();
         $user->orderBy('created');
         $user->limit($offset, $limit);
@@ -56,12 +63,11 @@ function testAllUsers($filter) {
             }
             $offset += $found;
         }
-
     } while ($found > 0);
 }
 
-function testUser($filter, $user) {
-
+function testUser($filter, $user)
+{
     printfnq("Testing user %s\n", $user->nickname);
 
     $profile = Profile::getKV('id', $user->id);
