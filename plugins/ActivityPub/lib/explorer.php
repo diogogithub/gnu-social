@@ -31,21 +31,23 @@ defined('GNUSOCIAL') || die();
  *
  * Allows to discovery new (or the same) Profiles (both local or remote)
  *
- * @category  Plugin
- * @package   GNUsocial
- * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ * @category Plugin
+ * @package  GNUsocial
+ * @author   Diogo Cordeiro <diogo@fc.up.pt>
+ * @license  https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class Activitypub_explorer
 {
     private $discovered_actor_profiles = [];
     private $temp_res; // global variable to hold a temporary http response
+    private static $headers = ['Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+        'User-Agent: GNUsocialBot ' . GNUSOCIAL_VERSION . ' - https://gnusocial.network'];
 
     /**
      * Shortcut function to get a single profile from its URL.
      *
-     * @param string $url
-     * @param bool $grab_online whether to try online grabbing, defaults to true
+     * @param  string $url
+     * @param  bool   $grab_online whether to try online grabbing, defaults to true
      * @return Profile
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -69,8 +71,8 @@ class Activitypub_explorer
      * This function cleans the $this->discovered_actor_profiles array
      * so that there is no erroneous data
      *
-     * @param string $url User's url
-     * @param bool $grab_online whether to try online grabbing, defaults to true
+     * @param  string $url         User's url
+     * @param  bool   $grab_online whether to try online grabbing, defaults to true
      * @return array of Profile objects
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -84,7 +86,7 @@ class Activitypub_explorer
             return [];
         }
 
-        common_debug('ActivityPub Explorer: Started now looking for '.$url);
+        common_debug('ActivityPub Explorer: Started now looking for ' . $url);
         $this->discovered_actor_profiles = [];
 
         return $this->_lookup($url, $grab_online);
@@ -95,8 +97,8 @@ class Activitypub_explorer
      * This is a recursive function that will accumulate the results on
      * $discovered_actor_profiles array
      *
-     * @param string $url User's url
-     * @param bool $grab_online whether to try online grabbing, defaults to true
+     * @param  string $url         User's url
+     * @param  bool   $grab_online whether to try online grabbing, defaults to true
      * @return array of Profile objects
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -120,24 +122,21 @@ class Activitypub_explorer
     /**
      * This ensures that we are using a valid ActivityPub URI
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param string $url
+     * @param  string $url
      * @return bool success state (related to the response)
      * @throws Exception (If the HTTP request fails)
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function ensure_proper_remote_uri($url)
     {
-        $client    = new HTTPClient();
-        $headers   = [];
-        $headers[] = 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
-        $headers[] = 'User-Agent: GNUSocialBot v0.1 - https://gnu.io/social';
-        $response  = $client->get($url, $headers);
+        $client = new HTTPClient();
+        $response = $client->get($url, self::$headers);
         $res = json_decode($response->getBody(), true);
         if (self::validate_remote_response($res)) {
             $this->temp_res = $res;
             return true;
         } else {
-            common_debug('ActivityPub Explorer: Invalid potential remote actor while ensuring URI: '.$url. '. He returned the following: '.json_encode($res, JSON_UNESCAPED_SLASHES));
+            common_debug('ActivityPub Explorer: Invalid potential remote actor while ensuring URI: ' . $url . '. He returned the following: ' . json_encode($res, JSON_UNESCAPED_SLASHES));
         }
 
         return false;
@@ -147,8 +146,8 @@ class Activitypub_explorer
      * Get a local user profile from its URL and joins it on
      * $this->discovered_actor_profiles
      *
-     * @param string $uri Actor's uri
-     * @param bool $online
+     * @param  string $uri    Actor's uri
+     * @param  bool   $online
      * @return bool success state
      * @throws NoProfileException
      * @throws Exception
@@ -157,9 +156,9 @@ class Activitypub_explorer
     private function grab_local_user($uri, $online = false)
     {
         if ($online) {
-            common_debug('ActivityPub Explorer: Searching locally for '.$uri. ' with online resources.');
+            common_debug('ActivityPub Explorer: Searching locally for ' . $uri . ' with online resources.');
         } else {
-            common_debug('ActivityPub Explorer: Searching locally for '.$uri. ' offline.');
+            common_debug('ActivityPub Explorer: Searching locally for ' . $uri . ' offline.');
         }
         // Ensure proper remote URI
         // If an exception occurs here it's better to just leave everything
@@ -173,34 +172,34 @@ class Activitypub_explorer
         $aprofile = self::get_aprofile_by_url($uri);
         if ($aprofile instanceof Activitypub_profile) {
             $profile = $aprofile->local_profile();
-            common_debug('ActivityPub Explorer: Found a local Aprofile for '.$uri);
+            common_debug('ActivityPub Explorer: Found a local Aprofile for ' . $uri);
             // We found something!
-            $this->discovered_actor_profiles[]= $profile;
+            $this->discovered_actor_profiles[] = $profile;
             unset($this->temp_res); // IMPORTANT to avoid _dangerous_ noise in the Explorer system
             return true;
         } else {
-            common_debug('ActivityPub Explorer: Unable to find a local Aprofile for '.$uri.' - looking for a Profile instead.');
+            common_debug('ActivityPub Explorer: Unable to find a local Aprofile for ' . $uri . ' - looking for a Profile instead.');
             // Well, maybe it is a pure blood?
             // Iff, we are in the same instance:
             $ACTIVITYPUB_BASE_ACTOR_URI_length = strlen(ACTIVITYPUB_BASE_ACTOR_URI);
             if (substr($uri, 0, $ACTIVITYPUB_BASE_ACTOR_URI_length) == ACTIVITYPUB_BASE_ACTOR_URI) {
                 try {
                     $profile = Profile::getByID(intval(substr($uri, $ACTIVITYPUB_BASE_ACTOR_URI_length)));
-                    common_debug('ActivityPub Explorer: Found a Profile for '.$uri);
+                    common_debug('ActivityPub Explorer: Found a Profile for ' . $uri);
                     // We found something!
-                    $this->discovered_actor_profiles[]= $profile;
+                    $this->discovered_actor_profiles[] = $profile;
                     unset($this->temp_res); // IMPORTANT to avoid _dangerous_ noise in the Explorer system
                     return true;
                 } catch (Exception $e) {
                     // Let the exception go on its merry way.
-                    common_debug('ActivityPub Explorer: Unable to find a Profile for '.$uri);
+                    common_debug('ActivityPub Explorer: Unable to find a Profile for ' . $uri);
                 }
             }
         }
 
         // If offline grabbing failed, attempt again with online resources
         if (!$online) {
-            common_debug('ActivityPub Explorer: Will try everything again with online resources against: '.$uri);
+            common_debug('ActivityPub Explorer: Will try everything again with online resources against: ' . $uri);
             return $this->grab_local_user($uri, true);
         }
 
@@ -211,7 +210,7 @@ class Activitypub_explorer
      * Get a remote user(s) profile(s) from its URL and joins it on
      * $this->discovered_actor_profiles
      *
-     * @param string $url User's url
+     * @param  string $url User's url
      * @return bool success state
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -221,28 +220,25 @@ class Activitypub_explorer
      */
     private function grab_remote_user($url)
     {
-        common_debug('ActivityPub Explorer: Trying to grab a remote actor for '.$url);
+        common_debug('ActivityPub Explorer: Trying to grab a remote actor for ' . $url);
         if (!isset($this->temp_res)) {
-            $client    = new HTTPClient();
-            $headers   = [];
-            $headers[] = 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
-            $headers[] = 'User-Agent: GNUSocialBot v0.1 - https://gnu.io/social';
-            $response  = $client->get($url, $headers);
+            $client = new HTTPClient();
+            $response = $client->get($url, self::$headers);
             $res = json_decode($response->getBody(), true);
         } else {
             $res = $this->temp_res;
             unset($this->temp_res);
         }
         if (isset($res['type']) && $res['type'] === 'OrderedCollection' && isset($res['first'])) { // It's a potential collection of actors!!!
-            common_debug('ActivityPub Explorer: Found a collection of actors for '.$url);
+            common_debug('ActivityPub Explorer: Found a collection of actors for ' . $url);
             $this->travel_collection($res['first']);
             return true;
         } elseif (self::validate_remote_response($res)) {
-            common_debug('ActivityPub Explorer: Found a valid remote actor for '.$url);
-            $this->discovered_actor_profiles[]= $this->store_profile($res);
+            common_debug('ActivityPub Explorer: Found a valid remote actor for ' . $url);
+            $this->discovered_actor_profiles[] = $this->store_profile($res);
             return true;
         } else {
-            common_debug('ActivityPub Explorer: Invalid potential remote actor while grabbing remotely: '.$url. '. He returned the following: '.json_encode($res, JSON_UNESCAPED_SLASHES));
+            common_debug('ActivityPub Explorer: Invalid potential remote actor while grabbing remotely: ' . $url . '. He returned the following: ' . json_encode($res, JSON_UNESCAPED_SLASHES));
         }
 
         return false;
@@ -251,7 +247,7 @@ class Activitypub_explorer
     /**
      * Save remote user profile in local instance
      *
-     * @param array $res remote response
+     * @param  array $res remote response
      * @return Profile remote Profile object
      * @throws NoProfileException
      * @throws ServerException
@@ -261,12 +257,12 @@ class Activitypub_explorer
     private function store_profile($res)
     {
         // ActivityPub Profile
-        $aprofile                 = new Activitypub_profile;
-        $aprofile->uri            = $res['id'];
-        $aprofile->nickname       = $res['preferredUsername'];
-        $aprofile->fullname       = isset($res['name']) ? $res['name'] : null;
-        $aprofile->bio            = isset($res['summary']) ? substr(strip_tags($res['summary']), 0, 1000) : null;
-        $aprofile->inboxuri       = $res['inbox'];
+        $aprofile = new Activitypub_profile;
+        $aprofile->uri = $res['id'];
+        $aprofile->nickname = $res['preferredUsername'];
+        $aprofile->fullname = isset($res['name']) ? $res['name'] : null;
+        $aprofile->bio = isset($res['summary']) ? substr(strip_tags($res['summary']), 0, 1000) : null;
+        $aprofile->inboxuri = $res['inbox'];
         $aprofile->sharedInboxuri = isset($res['endpoints']['sharedInbox']) ? $res['endpoints']['sharedInbox'] : $res['inbox'];
 
         $aprofile->do_insert();
@@ -284,7 +280,7 @@ class Activitypub_explorer
                 $this->update_avatar($profile, $res['icon']['url']);
             } catch (Exception $e) {
                 // Let the exception go, it isn't a serious issue
-                common_debug('ActivityPub Explorer: An error ocurred while grabbing remote avatar: '.$e->getMessage());
+                common_debug('ActivityPub Explorer: An error ocurred while grabbing remote avatar: ' . $e->getMessage());
             }
         }
 
@@ -294,18 +290,18 @@ class Activitypub_explorer
     /**
      * Download and update given avatar image
      *
-     * @author GNU social
      * @param  Profile $profile
-     * @param  string $url
+     * @param  string  $url
      * @return Avatar    The Avatar we have on disk.
      * @throws Exception in various failure cases
+     * @author GNU social
      */
     public static function update_avatar(Profile $profile, $url)
     {
-        common_debug('ActivityPub Explorer: Started grabbing remote avatar from: '.$url);
+        common_debug('ActivityPub Explorer: Started grabbing remote avatar from: ' . $url);
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
             // TRANS: Server exception. %s is a URL.
-            common_debug('ActivityPub Explorer: Failed because it is an invalid url: '.$url);
+            common_debug('ActivityPub Explorer: Failed because it is an invalid url: ' . $url);
             throw new ServerException(sprintf('Invalid avatar URL %s.', $url));
         }
 
@@ -316,12 +312,12 @@ class Activitypub_explorer
             $imgData = HTTPClient::quickGet($url);
             // Make sure it's at least an image file. ImageFile can do the rest.
             if (false === getimagesizefromstring($imgData)) {
-                common_debug('ActivityPub Explorer: Failed because the downloaded avatar: '.$url. 'is not a valid image.');
+                common_debug('ActivityPub Explorer: Failed because the downloaded avatar: ' . $url . 'is not a valid image.');
                 throw new UnsupportedMediaException('Downloaded avatar was not an image.');
             }
             file_put_contents($temp_filename, $imgData);
             unset($imgData);    // No need to carry this in memory.
-            common_debug('ActivityPub Explorer: Stored dowloaded avatar in: '.$temp_filename);
+            common_debug('ActivityPub Explorer: Stored dowloaded avatar in: ' . $temp_filename);
 
             $id = $profile->getID();
 
@@ -333,9 +329,9 @@ class Activitypub_explorer
                 common_timestamp()
             );
             rename($temp_filename, Avatar::path($filename));
-            common_debug('ActivityPub Explorer: Moved avatar from: '.$temp_filename.' to '.$filename);
+            common_debug('ActivityPub Explorer: Moved avatar from: ' . $temp_filename . ' to ' . $filename);
         } catch (Exception $e) {
-            common_debug('ActivityPub Explorer: Something went wrong while processing the avatar from: '.$url.' details: '.$e->getMessage());
+            common_debug('ActivityPub Explorer: Something went wrong while processing the avatar from: ' . $url . ' details: ' . $e->getMessage());
             unlink($temp_filename);
             throw $e;
         }
@@ -353,7 +349,7 @@ class Activitypub_explorer
         $profile->avatar = $url;
         $profile->update($orig);
 
-        common_debug('ActivityPub Explorer: Seted Avatar from: '.$url.' to profile.');
+        common_debug('ActivityPub Explorer: Seted Avatar from: ' . $url . ' to profile.');
         return Avatar::getUploaded($profile);
     }
 
@@ -361,9 +357,9 @@ class Activitypub_explorer
      * Validates a remote response in order to determine whether this
      * response is a valid profile or not
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param array $res remote response
+     * @param  array $res remote response
      * @return bool success state
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function validate_remote_response($res)
     {
@@ -380,9 +376,9 @@ class Activitypub_explorer
      * potential ActivityPub remote profiles, as so it is important to use
      * this hacky workaround (at least for now)
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param string $v URL
+     * @param  string $v URL
      * @return bool|Activitypub_profile false if fails | Aprofile object if successful
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function get_aprofile_by_url($v)
     {
@@ -403,7 +399,7 @@ class Activitypub_explorer
     /**
      * Given a valid actor profile url returns its inboxes
      *
-     * @param string $url of Actor profile
+     * @param  string $url of Actor profile
      * @return bool|array false if fails | array with inbox and shared inbox if successful
      * @throws HTTP_Request2_Exception
      * @throws Exception
@@ -411,11 +407,8 @@ class Activitypub_explorer
      */
     public static function get_actor_inboxes_uri($url)
     {
-        $client    = new HTTPClient();
-        $headers   = [];
-        $headers[] = 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
-        $headers[] = 'User-Agent: GNUSocialBot ' . GNUSOCIAL_VERSION . ' - https://gnu.io/social';
-        $response  = $client->get($url, $headers);
+        $client = new HTTPClient();
+        $response = $client->get($url, self::$headers);
         if (!$response->isOk()) {
             throw new Exception('Invalid Actor URL.');
         }
@@ -433,7 +426,7 @@ class Activitypub_explorer
     /**
      * Allows the Explorer to transverse a collection of persons.
      *
-     * @param string $url
+     * @param  string $url
      * @return bool
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -442,11 +435,8 @@ class Activitypub_explorer
      */
     private function travel_collection($url)
     {
-        $client    = new HTTPClient();
-        $headers   = [];
-        $headers[] = 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
-        $headers[] = 'User-Agent: GNUSocialBot v0.1 - https://gnu.io/social';
-        $response  = $client->get($url, $headers);
+        $client = new HTTPClient();
+        $response = $client->get($url, self::$headers);
         $res = json_decode($response->getBody(), true);
 
         if (!isset($res['orderedItems'])) {
@@ -455,7 +445,7 @@ class Activitypub_explorer
 
         foreach ($res["orderedItems"] as $profile) {
             if ($this->_lookup($profile) == false) {
-                common_debug('ActivityPub Explorer: Found an invalid actor for '.$profile);
+                common_debug('ActivityPub Explorer: Found an invalid actor for ' . $profile);
                 // TODO: Invalid actor found, fallback to OStatus
             }
         }
@@ -471,21 +461,18 @@ class Activitypub_explorer
      * Get a remote user array from its URL (this function is only used for
      * profile updating and shall not be used for anything else)
      *
-     * @param string $url User's url
+     * @param  string $url User's url
      * @return mixed
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function get_remote_user_activity($url)
     {
-        $client    = new HTTPClient();
-        $headers   = [];
-        $headers[] = 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
-        $headers[] = 'User-Agent: GNUSocialBot v0.1 - https://gnu.io/social';
-        $response  = $client->get($url, $headers);
+        $client = new HTTPClient();
+        $response = $client->get($url, self::$headers);
         $res = json_decode($response->getBody(), true);
         if (Activitypub_explorer::validate_remote_response($res)) {
-            common_debug('ActivityPub Explorer: Found a valid remote actor for '.$url);
+            common_debug('ActivityPub Explorer: Found a valid remote actor for ' . $url);
             return $res;
         }
         throw new Exception('ActivityPub Explorer: Failed to get activity.');

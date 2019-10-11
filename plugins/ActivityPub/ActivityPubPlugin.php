@@ -424,7 +424,7 @@ class ActivityPubPlugin extends Plugin
             if ($aprofile instanceof Activitypub_profile) {
                 $url = common_local_url('userbyid', ['id' => $aprofile->getID()], null, null, false);
                 common_redirect($url, 303);
-                return true;
+                return false;
             }
         } elseif (filter_var($query, FILTER_VALIDATE_URL)) { // URL found!
             /* Is this an ActivityPub notice? */
