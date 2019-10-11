@@ -54,7 +54,9 @@ class Activitypub_inbox_handler
         $this->object = $activity['object'];
 
         // Validate Activity
-        $this->validate_activity();
+        if (!$this->validate_activity()) {
+            return; // Just ignore
+        }
 
         // Get Actor's Profile
         if (!is_null($actor_profile)) {
@@ -70,10 +72,11 @@ class Activitypub_inbox_handler
     /**
      * Validates if a given Activity is valid. Throws exception if not.
      *
-     * @throws Exception
+     * @throws Exception if invalid
+     * @return bool true if valid and acceptable, false if unsupported
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function validate_activity()
+    private function validate_activity(): bool
     {
         // Activity validation
         // Validate data
@@ -88,15 +91,16 @@ class Activitypub_inbox_handler
         }
 
         // Object validation
+        $valid = true;
         switch ($this->activity['type']) {
             case 'Accept':
-                Activitypub_accept::validate_object($this->object);
+                $valid &= Activitypub_accept::validate_object($this->object);
                 break;
             case 'Create':
-                Activitypub_create::validate_object($this->object);
+                $valid &= Activitypub_create::validate_object($this->object);
                 break;
             case 'Delete':
-                Activitypub_delete::validate_object($this->object);
+                $valid &= Activitypub_delete::validate_object($this->object);
                 break;
             case 'Follow':
             case 'Like':
@@ -106,11 +110,13 @@ class Activitypub_inbox_handler
                 }
                 break;
             case 'Undo':
-                Activitypub_undo::validate_object($this->object);
+                $valid &= Activitypub_undo::validate_object($this->object);
                 break;
             default:
                 throw new Exception('Unknown Activity Type.');
         }
+
+        return $valid;
     }
 
     /**

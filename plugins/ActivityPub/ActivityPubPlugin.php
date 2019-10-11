@@ -41,6 +41,10 @@ const ACTIVITYPUB_PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
                                'Public',
                                'as:Public'
                               ];
+const ACTIVITYPUB_HTTP_CLIENT_HEADERS = [
+    'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+    'User-Agent: GNUsocialBot ' . GNUSOCIAL_VERSION . ' - https://gnusocial.network'
+];
 
 /**
  * @category  Plugin
@@ -117,13 +121,13 @@ class ActivityPubPlugin extends Plugin
         if ($grab_online) {
             /* Online Grabbing */
             $client    = new HTTPClient();
-            $headers   = [];
-            $headers[] = 'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"';
-            $headers[] = 'User-Agent: GNUSocialBot ' . GNUSOCIAL_VERSION . ' - https://gnu.io/social';
-            $response  = $client->get($url, $headers);
+            $response  = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
             $object = json_decode($response->getBody(), true);
-            Activitypub_notice::validate_note($object);
-            return Activitypub_notice::create_notice($object);
+            if (Activitypub_notice::validate_note($object)) {
+                return Activitypub_notice::create_notice($object);
+            } else {
+                throw new Exception("Valid ActivityPub Notice object but unsupported by GNU social.");
+            }
         }
 
         common_debug('ActivityPubPlugin Notice Grabber: failed to find: '.$url);

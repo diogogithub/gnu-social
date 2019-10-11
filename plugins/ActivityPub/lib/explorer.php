@@ -40,8 +40,6 @@ class Activitypub_explorer
 {
     private $discovered_actor_profiles = [];
     private $temp_res; // global variable to hold a temporary http response
-    private static $headers = ['Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-        'User-Agent: GNUsocialBot ' . GNUSOCIAL_VERSION . ' - https://gnusocial.network'];
 
     /**
      * Shortcut function to get a single profile from its URL.
@@ -130,7 +128,7 @@ class Activitypub_explorer
     private function ensure_proper_remote_uri($url)
     {
         $client = new HTTPClient();
-        $response = $client->get($url, self::$headers);
+        $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
         $res = json_decode($response->getBody(), true);
         if (self::validate_remote_response($res)) {
             $this->temp_res = $res;
@@ -224,7 +222,7 @@ class Activitypub_explorer
         common_debug('ActivityPub Explorer: Trying to grab a remote actor for ' . $url);
         if (!isset($this->temp_res)) {
             $client = new HTTPClient();
-            $response = $client->get($url, self::$headers);
+            $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
             $res = json_decode($response->getBody(), true);
         } else {
             $res = $this->temp_res;
@@ -409,7 +407,7 @@ class Activitypub_explorer
     public static function get_actor_inboxes_uri($url)
     {
         $client = new HTTPClient();
-        $response = $client->get($url, self::$headers);
+        $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
         if (!$response->isOk()) {
             throw new Exception('Invalid Actor URL.');
         }
@@ -437,7 +435,7 @@ class Activitypub_explorer
     private function travel_collection($url)
     {
         $client = new HTTPClient();
-        $response = $client->get($url, self::$headers);
+        $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
         $res = json_decode($response->getBody(), true);
 
         if (!isset($res['orderedItems'])) {
@@ -470,7 +468,7 @@ class Activitypub_explorer
     public static function get_remote_user_activity($url)
     {
         $client = new HTTPClient();
-        $response = $client->get($url, self::$headers);
+        $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
         $res = json_decode($response->getBody(), true);
         if (Activitypub_explorer::validate_remote_response($res)) {
             common_debug('ActivityPub Explorer: Found a valid remote actor for ' . $url);
