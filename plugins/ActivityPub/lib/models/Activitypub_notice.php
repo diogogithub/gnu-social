@@ -142,7 +142,13 @@ class Activitypub_notice
 
         // Ensure Actor Profile
         if (is_null($actor_profile)) {
-            $actor_profile = ActivityPub_explorer::get_profile_from_url($object['attributedTo']);
+            if (isset($object['attributedTo'])) {
+                $actor_profile = ActivityPub_explorer::get_profile_from_url($object['attributedTo']);
+            } elseif (isset($object['actor'])) {
+                $actor_profile = ActivityPub_explorer::get_profile_from_url($object['actor']);
+            } else {
+                throw new Exception("A notice can't be created without an actor.");
+            }
         }
 
         $act = new Activity();
@@ -234,10 +240,6 @@ class Activitypub_notice
      */
     public static function validate_note($object)
     {
-        if (!isset($object['attributedTo'])) {
-            common_debug('ActivityPub Notice Validator: Rejected because attributedTo was not specified.');
-            throw new Exception('No attributedTo specified.');
-        }
         if (!isset($object['id'])) {
             common_debug('ActivityPub Notice Validator: Rejected because Object ID was not specified.');
             throw new Exception('Object ID not specified.');
@@ -250,7 +252,7 @@ class Activitypub_notice
             throw new Exception('Invalid Object type.');
         }
         if (!isset($object['content'])) {
-            common_debug('ActivityPub Notice Validator: Rejected because Content was not specified.');
+            common_debug('ActivityPub Notice Validator: Rejected because Content was not specified (GNU social requires content in notes).');
             throw new Exception('Object content was not specified.');
         }
         if (isset($object['url']) && !filter_var($object['url'], FILTER_VALIDATE_URL)) {
