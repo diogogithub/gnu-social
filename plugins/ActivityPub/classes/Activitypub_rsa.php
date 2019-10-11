@@ -46,27 +46,35 @@ class Activitypub_rsa extends Managed_DataObject
     /**
      * Return table definition for Schema setup and DB_DataObject usage.
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @return array array of column definitions
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function schemaDef()
     {
         return [
-                'fields' => [
-                    'profile_id'  => ['type' => 'int', 'not null' => true],
-                    'private_key' => ['type' => 'text'],
-                    'public_key'  => ['type' => 'text', 'not null' => true],
-                    'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                    'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
-                ],
-                'primary key' => ['profile_id'],
-                'foreign keys' => [
-                    'activitypub_profile_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
-                ],
+            'fields' => [
+                'profile_id' => ['type' => 'int', 'not null' => true],
+                'private_key' => ['type' => 'text'],
+                'public_key' => ['type' => 'text', 'not null' => true],
+                'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+            ],
+            'primary key' => ['profile_id'],
+            'foreign keys' => [
+                'activitypub_profile_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+            ],
         ];
     }
 
-    public function get_private_key($profile)
+    /**
+     * Private key getter
+     *
+     * @param Profile $profile
+     * @return string
+     * @throws ServerException
+     * @throws Exception
+     */
+    public function get_private_key(Profile $profile): string
     {
         $this->profile_id = $profile->getID();
         $apRSA = self::getKV('profile_id', $this->profile_id);
@@ -90,9 +98,10 @@ class Activitypub_rsa extends Managed_DataObject
      * @param bool $fetch
      * @return string The public key
      * @throws ServerException It should never occur, but if so, we break everything!
+     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function ensure_public_key($profile, $fetch = true)
+    public function ensure_public_key(Profile $profile, bool $fetch = true): string
     {
         $this->profile_id = $profile->getID();
         $apRSA = self::getKV('profile_id', $this->profile_id);
@@ -119,11 +128,11 @@ class Activitypub_rsa extends Managed_DataObject
     /**
      * Insert the current object variables into the database.
      *
+     * @throws ServerException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @access public
-     * @throws ServerException
      */
-    public function store_keys()
+    public function store_keys(): void
     {
         $this->created = $this->modified = common_sql_now();
         $ok = $this->insert();
@@ -135,14 +144,14 @@ class Activitypub_rsa extends Managed_DataObject
     /**
      * Generates a pair of RSA keys.
      *
-     * @author PHP Manual Contributed Notes <dirt@awoms.com>
      * @param string $private_key in/out
      * @param string $public_key in/out
+     * @author PHP Manual Contributed Notes <dirt@awoms.com>
      */
-    public static function generate_keys(&$private_key, &$public_key)
+    public static function generate_keys(string &$private_key, string &$public_key): void
     {
         $config = [
-            'digest_alg'       => 'sha512',
+            'digest_alg' => 'sha512',
             'private_key_bits' => 2048,
             'private_key_type' => OPENSSL_KEYTYPE_RSA,
         ];
@@ -162,12 +171,12 @@ class Activitypub_rsa extends Managed_DataObject
     /**
      * Update public key.
      *
-     * @param Profile $profile
+     * @param Profile|Activitypub_profile $profile
      * @param string $public_key
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function update_public_key($profile, $public_key)
+    public static function update_public_key($profile, string $public_key): void
     {
         // Public Key
         $apRSA = new Activitypub_rsa();

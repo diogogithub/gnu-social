@@ -37,7 +37,7 @@ defined('GNUSOCIAL') || die();
 class apInboxAction extends ManagedAction
 {
     protected $needLogin = false;
-    protected $canPost   = true;
+    protected $canPost = true;
 
     /**
      * Handle the Inbox request
@@ -57,15 +57,33 @@ class apInboxAction extends ManagedAction
 
         common_debug('ActivityPub Inbox: Received a POST request.');
         $body = $data = file_get_contents('php://input');
-        common_debug('ActivityPub Inbox: Request contents: '.$data);
+        common_debug('ActivityPub Inbox: Request contents: ' . $data);
         $data = json_decode(file_get_contents('php://input'), true);
 
         if (!isset($data['actor'])) {
             ActivityPubReturn::error('Actor not found in the request.');
         }
 
-        $actor = Activitypub_explorer::get_profile_from_url($data['actor']);
-        $aprofile = Activitypub_profile::from_profile($actor);
+        try {
+            $actor = Activitypub_explorer::get_profile_from_url($data['actor']);
+        } catch (HTTP_Request2_Exception $e) {
+            ActivityPubReturn::error('Failed to retrieve remote actor information.');
+        } catch (NoProfileException $e) {
+            // Assert: This won't happen.
+            common_log(LOG_ERR, 'PLEASE REPORT THIS: ActivityPub Inbox Handler failed with NoProfileException while retrieving remote actor information: ' . $e->getMessage());
+            ActivityPubReturn::error('An unknown error has occurred. This was logged, please alert the sysadmin.');
+        } catch (ServerException $e) {
+            ActivityPubReturn::error('Could not store this remote actor.');
+        } catch (Exception $e) {
+            ActivityPubReturn::error('Invalid actor.');
+        }
+        try {
+            $aprofile = Activitypub_profile::from_profile($actor);
+        } catch (Exception $e) {
+            // Assert: This won't happen.
+            common_log(LOG_ERR, 'PLEASE REPORT THIS: ActivityPub Inbox Handler failed while retrieving AProfile from Profile: ' . $e->getMessage());
+            ActivityPubReturn::error('An unknown error has occurred. This was logged, please alert the sysadmin.');
+        }
 
         $actor_public_key = new Activitypub_rsa();
         $actor_public_key = $actor_public_key->ensure_public_key($actor);
@@ -73,7 +91,7 @@ class apInboxAction extends ManagedAction
         common_debug('ActivityPub Inbox: HTTP Signature: Validation will now start!');
 
         $headers = $this->get_all_headers();
-        common_debug('ActivityPub Inbox: Request Headers: '.print_r($headers, true));
+        common_debug('ActivityPub Inbox: Request Headers: ' . print_r($headers, true));
 
         if (!isset($headers['signature'])) {
             common_debug('ActivityPub Inbox: HTTP Signature: Missing Signature header.');
@@ -82,25 +100,33 @@ class apInboxAction extends ManagedAction
 
         // Extract the signature properties
         $signatureData = HTTPSignature::parseSignatureHeader($headers['signature']);
-        common_debug('ActivityPub Inbox: HTTP Signature Data: '.print_r($signatureData, true));
+        common_debug('ActivityPub Inbox: HTTP Signature Data: ' . print_r($signatureData, true));
         if (isset($signatureData['error'])) {
-            common_debug('ActivityPub Inbox: HTTP Signature: '.json_encode($signatureData, true));
+            common_debug('ActivityPub Inbox: HTTP Signature: ' . json_encode($signatureData, true));
             ActivityPubReturn::error(json_encode($signatureData, true), 400);
         }
 
         list($verified, $headers) = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
 
-        // If the signature fails verification the first time, update profile as it might have change public key
-        if($verified !== 1) {
-            $res = Activitypub_explorer::get_remote_user_activity($aprofile->getUri());
-            $actor = Activitypub_profile::update_profile($aprofile, $res);
+        // If the signature fails verification the first time, update profile as it might have changed public key
+        if ($verified !== 1) {
+            try {
+                $res = Activitypub_explorer::get_remote_user_activity($aprofile->getUri());
+            } catch (Exception $e) {
+                ActivityPubReturn::error('Invalid remote actor.');
+            }
+            try {
+                $actor = Activitypub_profile::update_profile($aprofile, $res);
+            } catch (Exception $e) {
+                ActivityPubReturn::error('Failed to updated remote actor information.');
+            }
             $actor_public_key = new Activitypub_rsa();
             $actor_public_key = $actor_public_key->ensure_public_key($actor);
-            list($verified, $headers) = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
+            list($verified, /*$headers*/) = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
         }
 
         // If it still failed despite profile update
-        if($verified !== 1) {
+        if ($verified !== 1) {
             common_debug('ActivityPub Inbox: HTTP Signature: Invalid signature.');
             ActivityPubReturn::error('Invalid signature.');
         }
