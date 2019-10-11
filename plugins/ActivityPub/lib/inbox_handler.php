@@ -70,8 +70,8 @@ class Activitypub_inbox_handler
     /**
      * Validates if a given Activity is valid. Throws exception if not.
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @throws Exception
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function validate_activity()
     {
@@ -116,6 +116,11 @@ class Activitypub_inbox_handler
     /**
      * Sends the Activity to proper handler in order to be processed.
      *
+     * @throws AlreadyFulfilledException
+     * @throws HTTP_Request2_Exception
+     * @throws NoProfileException
+     * @throws ServerException
+     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function process()
@@ -168,6 +173,7 @@ class Activitypub_inbox_handler
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
+     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_accept_follow()
@@ -202,6 +208,7 @@ class Activitypub_inbox_handler
     /**
      * Handle a Create Note Activity received by our inbox.
      *
+     * @throws Exception
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
     private function handle_create_note()
@@ -216,7 +223,7 @@ class Activitypub_inbox_handler
     /**
      * Handles a Delete Activity received by our inbox.
      *
-     * @throws AuthorizationException
+     * @throws NoProfileException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_delete()
@@ -231,8 +238,8 @@ class Activitypub_inbox_handler
         if ($aprofile instanceof Activitypub_profile) {
             $this->handle_delete_profile($aprofile);
             return;
-        } 
-        
+        }
+
         // note deletion ?
         try {
             $notice = ActivityPubPlugin::grab_notice_from_url($object, false);
@@ -250,12 +257,13 @@ class Activitypub_inbox_handler
 
     /**
      * Handles a Delete-Profile Activity.
-     * 
+     *
      * Note that the actual ap_profile is deleted during the ProfileDeleteRelated event,
      * subscribed by ActivityPubPlugin.
-     * 
+     *
      * @param Activitypub_profile $aprofile remote user being deleted
      * @return void
+     * @throws NoProfileException
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
     private function handle_delete_profile(Activitypub_profile $aprofile): void
@@ -266,9 +274,10 @@ class Activitypub_inbox_handler
 
     /**
      * Handles a Delete-Note Activity.
-     * 
+     *
      * @param Notice $note remote note being deleted
      * @return void
+     * @throws AuthorizationException
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
     private function handle_delete_note(Notice $note): void
@@ -283,8 +292,6 @@ class Activitypub_inbox_handler
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
-     * @throws \GuzzleHttp\Exception\GuzzleException
-     * @throws \HttpSignatures\Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_follow()
@@ -332,6 +339,7 @@ class Activitypub_inbox_handler
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
+     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_undo_follow()
@@ -344,9 +352,9 @@ class Activitypub_inbox_handler
             Subscription::cancel($this->actor, $object_profile);
             // You are no longer following this person.
             Activitypub_profile::unsubscribeCacheUpdate($this->actor, $object_profile);
-        } else {
-            // 409: You are not following this person already.
-        }
+        } /*else {
+            // 409: You already aren't following this person.
+        }*/
     }
 
     /**
@@ -354,6 +362,7 @@ class Activitypub_inbox_handler
      *
      * @throws AlreadyFulfilledException
      * @throws ServerException
+     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_undo_like()
