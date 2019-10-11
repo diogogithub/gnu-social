@@ -53,8 +53,8 @@ class Activitypub_profile extends Managed_DataObject
     /**
      * Return table definition for Schema setup and DB_DataObject usage.
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @return array array of column definitions
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function schemaDef()
     {
@@ -81,6 +81,7 @@ class Activitypub_profile extends Managed_DataObject
      * @return array array to be used in a response
      * @throws InvalidUrlException
      * @throws ServerException
+     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function profile_to_array($profile)
@@ -91,38 +92,38 @@ class Activitypub_profile extends Managed_DataObject
         $public_key = $rsa->ensure_public_key($profile);
         unset($rsa);
         $res = [
-            '@context'          => [
+            '@context' => [
                 'https://www.w3.org/ns/activitystreams',
                 'https://w3id.org/security/v1',
                 [
                     'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers'
                 ]
             ],
-            'id'                => $uri,
-            'type'              => 'Person',
-            'following'         => common_local_url('apActorFollowing', ['id' => $id]),
-            'followers'         => common_local_url('apActorFollowers', ['id' => $id]),
-            'liked'             => common_local_url('apActorLiked', ['id' => $id]),
-            'inbox'             => common_local_url('apInbox', ['id' => $id]),
-            'outbox'            => common_local_url('apActorOutbox', ['id' => $id]),
+            'id' => $uri,
+            'type' => 'Person',
+            'following' => common_local_url('apActorFollowing', ['id' => $id]),
+            'followers' => common_local_url('apActorFollowers', ['id' => $id]),
+            'liked' => common_local_url('apActorLiked', ['id' => $id]),
+            'inbox' => common_local_url('apInbox', ['id' => $id]),
+            'outbox' => common_local_url('apActorOutbox', ['id' => $id]),
             'preferredUsername' => $profile->getNickname(),
-            'name'              => $profile->getBestName(),
-            'summary'           => ($desc = $profile->getDescription()) == null ? "" : $desc,
-            'url'               => $profile->getUrl(),
+            'name' => $profile->getBestName(),
+            'summary' => ($desc = $profile->getDescription()) == null ? "" : $desc,
+            'url' => $profile->getUrl(),
             'manuallyApprovesFollowers' => false,
             'publicKey' => [
-                'id'    => $uri."#public-key",
+                'id' => $uri . "#public-key",
                 'owner' => $uri,
                 'publicKeyPem' => $public_key
             ],
             'tag' => [],
             'attachment' => [],
             'icon' => [
-                'type'      => 'Image',
+                'type' => 'Image',
                 'mediaType' => 'image/png',
-                'height'    => AVATAR_PROFILE_SIZE,
-                'width'     => AVATAR_PROFILE_SIZE,
-                'url'       => $profile->avatarUrl(AVATAR_PROFILE_SIZE)
+                'height' => AVATAR_PROFILE_SIZE,
+                'width' => AVATAR_PROFILE_SIZE,
+                'url' => $profile->avatarUrl(AVATAR_PROFILE_SIZE)
             ]
         ];
 
@@ -140,9 +141,9 @@ class Activitypub_profile extends Managed_DataObject
     /**
      * Insert the current object variables into the database
      *
+     * @throws ServerException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @access public
-     * @throws ServerException
      */
     public function do_insert()
     {
@@ -151,11 +152,11 @@ class Activitypub_profile extends Managed_DataObject
         $profile->created = $this->created = $this->modified = common_sql_now();
 
         $fields = [
-                    'uri'      => 'profileurl',
-                    'nickname' => 'nickname',
-                    'fullname' => 'fullname',
-                    'bio'      => 'bio'
-                    ];
+            'uri' => 'profileurl',
+            'nickname' => 'nickname',
+            'fullname' => 'fullname',
+            'bio' => 'bio'
+        ];
 
         foreach ($fields as $af => $pf) {
             $profile->$pf = $this->$af;
@@ -179,7 +180,7 @@ class Activitypub_profile extends Managed_DataObject
     /**
      * Fetch the locally stored profile for this Activitypub_profile
      *
-     * @return Profile
+     * @return get_called_class
      * @throws NoProfileException if it was not found
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
@@ -195,10 +196,10 @@ class Activitypub_profile extends Managed_DataObject
     /**
      * Generates an Activitypub_profile from a Profile
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param Profile $profile
      * @return Activitypub_profile
      * @throws Exception if no Activitypub_profile exists for given Profile
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function from_profile(Profile $profile)
     {
@@ -211,16 +212,16 @@ class Activitypub_profile extends Managed_DataObject
                 // create one!
                 $aprofile = self::create_from_local_profile($profile);
             } else {
-                throw new Exception('No Activitypub_profile for Profile ID: '.$profile_id. ', this is a local user.');
+                throw new Exception('No Activitypub_profile for Profile ID: ' . $profile_id . ', this is a local user.');
             }
         }
 
         $fields = [
-                    'uri'      => 'profileurl',
-                    'nickname' => 'nickname',
-                    'fullname' => 'fullname',
-                    'bio'      => 'bio'
-                    ];
+            'uri' => 'profileurl',
+            'nickname' => 'nickname',
+            'fullname' => 'fullname',
+            'bio' => 'bio'
+        ];
 
         foreach ($fields as $af => $pf) {
             $aprofile->$af = $profile->$pf;
@@ -229,7 +230,8 @@ class Activitypub_profile extends Managed_DataObject
         return $aprofile;
     }
 
-    public static function from_profile_collection(array $profiles): array {
+    public static function from_profile_collection(array $profiles): array
+    {
         $ap_profiles = [];
 
         foreach ($profiles as $profile) {
@@ -251,6 +253,8 @@ class Activitypub_profile extends Managed_DataObject
      * @param Profile $profile
      * @return Activitypub_profile
      * @throws HTTP_Request2_Exception
+     * @throws Exception
+     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private static function create_from_local_profile(Profile $profile)
@@ -266,13 +270,13 @@ class Activitypub_profile extends Managed_DataObject
 
         $aprofile->created = $aprofile->modified = common_sql_now();
 
-        $aprofile                 = new Activitypub_profile;
-        $aprofile->profile_id     = $profile->getID();
-        $aprofile->uri            = $url;
-        $aprofile->nickname       = $profile->getNickname();
-        $aprofile->fullname       = $profile->getFullname();
-        $aprofile->bio            = substr($profile->getDescription(), 0, 1000);
-        $aprofile->inboxuri       = $inboxes["inbox"];
+        $aprofile = new Activitypub_profile;
+        $aprofile->profile_id = $profile->getID();
+        $aprofile->uri = $url;
+        $aprofile->nickname = $profile->getNickname();
+        $aprofile->fullname = $profile->getFullname();
+        $aprofile->bio = substr($profile->getDescription(), 0, 1000);
+        $aprofile->inboxuri = $inboxes["inbox"];
         $aprofile->sharedInboxuri = $inboxes["sharedInbox"];
 
         $aprofile->insert();
@@ -283,8 +287,8 @@ class Activitypub_profile extends Managed_DataObject
     /**
      * Returns sharedInbox if possible, inbox otherwise
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @return string Inbox URL
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function get_inbox()
     {
@@ -298,8 +302,8 @@ class Activitypub_profile extends Managed_DataObject
     /**
      * Getter for uri property
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @return string URI
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function getUri()
     {
@@ -309,8 +313,8 @@ class Activitypub_profile extends Managed_DataObject
     /**
      * Getter for url property
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @return string URL
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function getUrl()
     {
@@ -320,8 +324,8 @@ class Activitypub_profile extends Managed_DataObject
     /**
      * Getter for id property
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @return int
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function getID()
     {
@@ -352,11 +356,11 @@ class Activitypub_profile extends Managed_DataObject
      * This should never return null -- you will either get an object or
      * an exception will be thrown.
      *
-     * @author GNU social
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $addr WebFinger address
      * @return Activitypub_profile
      * @throws Exception on error conditions
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     * @author GNU social
      */
     public static function ensure_webfinger($addr)
     {
@@ -402,7 +406,7 @@ class Activitypub_profile extends Managed_DataObject
         // If there's an Hcard, let's grab its info
         if (array_key_exists('hcard', $hints)) {
             if (!array_key_exists('profileurl', $hints) ||
-                        $hints['hcard'] != $hints['profileurl']) {
+                $hints['hcard'] != $hints['profileurl']) {
                 $hcardHints = DiscoveryHints::fromHcardUrl($hints['hcard']);
                 $hints = array_merge($hcardHints, $hints);
             }
@@ -441,17 +445,17 @@ class Activitypub_profile extends Managed_DataObject
      * @param Activitypub_profile $aprofile
      * @param array $res remote response
      * @return Profile remote Profile object
-     * @throws Exception
+     * @throws NoProfileException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function update_profile($aprofile, $res)
     {
         // ActivityPub Profile
-        $aprofile->uri            = $res['id'];
-        $aprofile->nickname       = $res['preferredUsername'];
-        $aprofile->fullname       = isset($res['name']) ? $res['name'] : null;
-        $aprofile->bio            = isset($res['summary']) ? substr(strip_tags($res['summary']), 0, 1000) : null;
-        $aprofile->inboxuri       = $res['inbox'];
+        $aprofile->uri = $res['id'];
+        $aprofile->nickname = $res['preferredUsername'];
+        $aprofile->fullname = isset($res['name']) ? $res['name'] : null;
+        $aprofile->bio = isset($res['summary']) ? substr(strip_tags($res['summary']), 0, 1000) : null;
+        $aprofile->inboxuri = $res['inbox'];
         $aprofile->sharedInboxuri = isset($res['endpoints']['sharedInbox']) ? $res['endpoints']['sharedInbox'] : $res['inbox'];
 
         $profile = $aprofile->local_profile();
@@ -459,11 +463,11 @@ class Activitypub_profile extends Managed_DataObject
         $profile->modified = $aprofile->modified = common_sql_now();
 
         $fields = [
-                    'uri'      => 'profileurl',
-                    'nickname' => 'nickname',
-                    'fullname' => 'fullname',
-                    'bio'      => 'bio'
-                    ];
+            'uri' => 'profileurl',
+            'nickname' => 'nickname',
+            'fullname' => 'fullname',
+            'bio' => 'bio'
+        ];
 
         foreach ($fields as $af => $pf) {
             $profile->$pf = $aprofile->$af;
@@ -482,7 +486,7 @@ class Activitypub_profile extends Managed_DataObject
                 Activitypub_explorer::update_avatar($profile, $res['icon']['url']);
             } catch (Exception $e) {
                 // Let the exception go, it isn't a serious issue
-                common_debug('An error ocurred while grabbing remote avatar'.$e->getMessage());
+                common_debug('An error ocurred while grabbing remote avatar' . $e->getMessage());
             }
         }
 
@@ -497,7 +501,8 @@ class Activitypub_profile extends Managed_DataObject
      * @return int number of subscribers
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function subscriberCount(Profile $profile): int {
+    public static function subscriberCount(Profile $profile): int
+    {
         $cnt = self::cacheGet(sprintf('activitypub_profile:subscriberCount:%d', $profile->id));
 
         if ($cnt !== false && is_int($cnt)) {
@@ -523,7 +528,8 @@ class Activitypub_profile extends Managed_DataObject
      * @return int number of subscriptions
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function subscriptionCount(Profile $profile): int {
+    public static function subscriptionCount(Profile $profile): int
+    {
         $cnt = self::cacheGet(sprintf('activitypub_profile:subscriptionCount:%d', $profile->id));
 
         if ($cnt !== false && is_int($cnt)) {
@@ -541,19 +547,21 @@ class Activitypub_profile extends Managed_DataObject
         return $cnt;
     }
 
-    public static function updateSubscriberCount(Profile $profile, $adder) {
+    public static function updateSubscriberCount(Profile $profile, $adder)
+    {
         $cnt = self::cacheGet(sprintf('activitypub_profile:subscriberCount:%d', $profile->id));
 
         if ($cnt !== false && is_int($cnt)) {
-            self::cacheSet(sprintf('activitypub_profile:subscriberCount:%d', $profile->id), $cnt+$adder);
+            self::cacheSet(sprintf('activitypub_profile:subscriberCount:%d', $profile->id), $cnt + $adder);
         }
     }
 
-    public static function updateSubscriptionCount(Profile $profile, $adder) {
+    public static function updateSubscriptionCount(Profile $profile, $adder)
+    {
         $cnt = self::cacheGet(sprintf('activitypub_profile:subscriptionCount:%d', $profile->id));
 
         if ($cnt !== false && is_int($cnt)) {
-            self::cacheSet(sprintf('activitypub_profile:subscriptionCount:%d', $profile->id), $cnt+$adder);
+            self::cacheSet(sprintf('activitypub_profile:subscriptionCount:%d', $profile->id), $cnt + $adder);
         }
     }
 
@@ -567,7 +575,8 @@ class Activitypub_profile extends Managed_DataObject
      * @return array subscriber profile objects
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function getSubscribers(Profile $profile, $offset = 0, $limit = null): array {
+    public static function getSubscribers(Profile $profile, $offset = 0, $limit = null): array
+    {
         $cache = false;
         if ($offset + $limit <= Subscription::CACHE_WINDOW) {
             $subs = self::cacheGet(sprintf('activitypub_profile:subscriberCollection:%d', $profile->id));
@@ -612,7 +621,8 @@ class Activitypub_profile extends Managed_DataObject
      * @return array subscribed profile objects
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function getSubscribed(Profile $profile, $offset = 0, $limit = null): array {
+    public static function getSubscribed(Profile $profile, $offset = 0, $limit = null): array
+    {
         $cache = false;
         if ($offset + $limit <= Subscription::CACHE_WINDOW) {
             $subs = self::cacheGet(sprintf('activitypub_profile:subscribedCollection:%d', $profile->id));
@@ -641,7 +651,7 @@ class Activitypub_profile extends Managed_DataObject
         }
 
         if ($cache) {
-           self::cacheSet(sprintf('activitypub_profile:subscribedCollection:%d', $profile->id), $profiles);
+            self::cacheSet(sprintf('activitypub_profile:subscribedCollection:%d', $profile->id), $profiles);
         }
 
         return $profiles;
@@ -654,9 +664,11 @@ class Activitypub_profile extends Managed_DataObject
      * @param Profile $actor subscriber profile object
      * @param Profile $other subscribed profile object
      * @return void
+     * @throws Exception
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function subscribeCacheUpdate(Profile $actor, Profile $other) {
+    public static function subscribeCacheUpdate(Profile $actor, Profile $other)
+    {
         self::blow('activitypub_profile:subscribedCollection:%d', $actor->getID());
         self::blow('activitypub_profile:subscriberCollection:%d', $other->id);
         self::updateSubscriptionCount($actor, +1);
@@ -670,9 +682,11 @@ class Activitypub_profile extends Managed_DataObject
      * @param Profile $actor subscriber profile object
      * @param Profile $other subscribed profile object
      * @return void
+     * @throws Exception
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function unsubscribeCacheUpdate(Profile $actor, Profile $other) {
+    public static function unsubscribeCacheUpdate(Profile $actor, Profile $other)
+    {
         self::blow('activitypub_profile:subscribedCollection:%d', $actor->getID());
         self::blow('activitypub_profile:subscriberCollection:%d', $other->id);
         self::updateSubscriptionCount($actor, -1);

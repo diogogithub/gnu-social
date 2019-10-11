@@ -46,13 +46,13 @@ class Activitypub_explorer
     /**
      * Shortcut function to get a single profile from its URL.
      *
-     * @param  string $url
-     * @param  bool   $grab_online whether to try online grabbing, defaults to true
+     * @param string $url
+     * @param bool $grab_online whether to try online grabbing, defaults to true
      * @return Profile
-     * @throws HTTP_Request2_Exception
-     * @throws NoProfileException
-     * @throws Exception
-     * @throws ServerException
+     * @throws HTTP_Request2_Exception Network issues
+     * @throws NoProfileException This won't happen
+     * @throws Exception Invalid request
+     * @throws ServerException Error storing remote actor
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function get_profile_from_url($url, $grab_online = true)
@@ -71,8 +71,8 @@ class Activitypub_explorer
      * This function cleans the $this->discovered_actor_profiles array
      * so that there is no erroneous data
      *
-     * @param  string $url         User's url
-     * @param  bool   $grab_online whether to try online grabbing, defaults to true
+     * @param string $url User's url
+     * @param bool $grab_online whether to try online grabbing, defaults to true
      * @return array of Profile objects
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -97,8 +97,8 @@ class Activitypub_explorer
      * This is a recursive function that will accumulate the results on
      * $discovered_actor_profiles array
      *
-     * @param  string $url         User's url
-     * @param  bool   $grab_online whether to try online grabbing, defaults to true
+     * @param string $url User's url
+     * @param bool $grab_online whether to try online grabbing, defaults to true
      * @return array of Profile objects
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -122,7 +122,7 @@ class Activitypub_explorer
     /**
      * This ensures that we are using a valid ActivityPub URI
      *
-     * @param  string $url
+     * @param string $url
      * @return bool success state (related to the response)
      * @throws Exception (If the HTTP request fails)
      * @author Diogo Cordeiro <diogo@fc.up.pt>
@@ -146,8 +146,8 @@ class Activitypub_explorer
      * Get a local user profile from its URL and joins it on
      * $this->discovered_actor_profiles
      *
-     * @param  string $uri    Actor's uri
-     * @param  bool   $online
+     * @param string $uri Actor's uri
+     * @param bool $online
      * @return bool success state
      * @throws NoProfileException
      * @throws Exception
@@ -171,6 +171,7 @@ class Activitypub_explorer
         // Is this a known filthy little mudblood?
         $aprofile = self::get_aprofile_by_url($uri);
         if ($aprofile instanceof Activitypub_profile) {
+            // Assert: This AProfile has a Profile, no try catch.
             $profile = $aprofile->local_profile();
             common_debug('ActivityPub Explorer: Found a local Aprofile for ' . $uri);
             // We found something!
@@ -184,7 +185,7 @@ class Activitypub_explorer
             $ACTIVITYPUB_BASE_ACTOR_URI_length = strlen(ACTIVITYPUB_BASE_ACTOR_URI);
             if (substr($uri, 0, $ACTIVITYPUB_BASE_ACTOR_URI_length) == ACTIVITYPUB_BASE_ACTOR_URI) {
                 try {
-                    $profile = Profile::getByID(intval(substr($uri, $ACTIVITYPUB_BASE_ACTOR_URI_length)));
+                    $profile = Profile::getByID((int)substr($uri, $ACTIVITYPUB_BASE_ACTOR_URI_length));
                     common_debug('ActivityPub Explorer: Found a Profile for ' . $uri);
                     // We found something!
                     $this->discovered_actor_profiles[] = $profile;
@@ -210,7 +211,7 @@ class Activitypub_explorer
      * Get a remote user(s) profile(s) from its URL and joins it on
      * $this->discovered_actor_profiles
      *
-     * @param  string $url User's url
+     * @param string $url User's url
      * @return bool success state
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -247,7 +248,7 @@ class Activitypub_explorer
     /**
      * Save remote user profile in local instance
      *
-     * @param  array $res remote response
+     * @param array $res remote response
      * @return Profile remote Profile object
      * @throws NoProfileException
      * @throws ServerException
@@ -290,8 +291,8 @@ class Activitypub_explorer
     /**
      * Download and update given avatar image
      *
-     * @param  Profile $profile
-     * @param  string  $url
+     * @param Profile $profile
+     * @param string $url
      * @return Avatar    The Avatar we have on disk.
      * @throws Exception in various failure cases
      * @author GNU social
@@ -357,7 +358,7 @@ class Activitypub_explorer
      * Validates a remote response in order to determine whether this
      * response is a valid profile or not
      *
-     * @param  array $res remote response
+     * @param array $res remote response
      * @return bool success state
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
@@ -376,7 +377,7 @@ class Activitypub_explorer
      * potential ActivityPub remote profiles, as so it is important to use
      * this hacky workaround (at least for now)
      *
-     * @param  string $v URL
+     * @param string $v URL
      * @return bool|Activitypub_profile false if fails | Aprofile object if successful
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
@@ -399,7 +400,7 @@ class Activitypub_explorer
     /**
      * Given a valid actor profile url returns its inboxes
      *
-     * @param  string $url of Actor profile
+     * @param string $url of Actor profile
      * @return bool|array false if fails | array with inbox and shared inbox if successful
      * @throws HTTP_Request2_Exception
      * @throws Exception
@@ -426,7 +427,7 @@ class Activitypub_explorer
     /**
      * Allows the Explorer to transverse a collection of persons.
      *
-     * @param  string $url
+     * @param string $url
      * @return bool
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
@@ -461,9 +462,9 @@ class Activitypub_explorer
      * Get a remote user array from its URL (this function is only used for
      * profile updating and shall not be used for anything else)
      *
-     * @param  string $url User's url
-     * @return mixed
-     * @throws Exception
+     * @param string $url User's url
+     * @return array
+     * @throws Exception Either network issues or unsupported Activity format
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function get_remote_user_activity($url)
