@@ -224,7 +224,8 @@ class Activitypub_inbox_handler
      * Handles a Delete Activity received by our inbox.
      *
      * @throws NoProfileException
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     * @throws Exception
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
     private function handle_delete()
     {
@@ -234,8 +235,8 @@ class Activitypub_inbox_handler
         }
 
         // profile deletion ?
-        $aprofile = Activitypub_explorer::get_aprofile_by_url($object);
-        if ($aprofile instanceof Activitypub_profile) {
+        if ($this->activity['actor'] == $object) {
+            $aprofile = Activitypub_profile::from_profile($this->actor);
             $this->handle_delete_profile($aprofile);
             return;
         }
@@ -248,7 +249,7 @@ class Activitypub_inbox_handler
             }
             return;
         } catch (Exception $e) {
-            // either already deleted or not a notice at all
+            // either already deleted or not an object at all
             // nothing to do..
         }
 
