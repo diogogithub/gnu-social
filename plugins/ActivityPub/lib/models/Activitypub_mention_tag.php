@@ -41,10 +41,10 @@ class Activitypub_mention_tag
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $href Actor Uri
-     * @param array $name Mention name
+     * @param string $name Mention name
      * @return array pretty array to be used in a response
      */
-    public static function mention_tag_to_array_from_values($href, $name)
+    public static function mention_tag_to_array_from_values(string $href, string $name): array
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',

@@ -44,6 +44,7 @@ class Activitypub_notice
      * @throws EmptyPkeyValueException
      * @throws InvalidUrlException
      * @throws ServerException
+     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function notice_to_array($notice)
@@ -74,24 +75,24 @@ class Activitypub_notice
         }
 
         foreach ($notice->getAttentionProfiles() as $to_profile) {
-            $to[]   = $href = $to_profile->getUri();
-            $tags[] = Activitypub_mention_tag::mention_tag_to_array_from_values($href, $to_profile->getNickname().'@'.parse_url($href, PHP_URL_HOST));
+            $to[] = $href = $to_profile->getUri();
+            $tags[] = Activitypub_mention_tag::mention_tag_to_array_from_values($href, $to_profile->getNickname() . '@' . parse_url($href, PHP_URL_HOST));
         }
 
         $item = [
-            '@context'      => 'https://www.w3.org/ns/activitystreams',
-            'id'            => self::getUrl($notice),
-            'type'          => 'Note',
-            'published'     => str_replace(' ', 'T', $notice->getCreated()).'Z',
-            'url'           => self::getUrl($notice),
-            'attributedTo'  => ActivityPubPlugin::actor_uri($profile),
-            'to'            => $to,
-            'cc'            => $cc,
-            'conversation'  => $notice->getConversationUrl(),
-            'content'       => $notice->getRendered(),
-            'isLocal'       => $notice->isLocal(),
-            'attachment'    => $attachments,
-            'tag'           => $tags
+            '@context' => 'https://www.w3.org/ns/activitystreams',
+            'id' => self::getUrl($notice),
+            'type' => 'Note',
+            'published' => str_replace(' ', 'T', $notice->getCreated()) . 'Z',
+            'url' => self::getUrl($notice),
+            'attributedTo' => ActivityPubPlugin::actor_uri($profile),
+            'to' => $to,
+            'cc' => $cc,
+            'conversation' => $notice->getConversationUrl(),
+            'content' => $notice->getRendered(),
+            'isLocal' => $notice->isLocal(),
+            'attachment' => $attachments,
+            'tag' => $tags
         ];
 
         // Is this a reply?
@@ -102,7 +103,7 @@ class Activitypub_notice
         // Do we have a location for this notice?
         try {
             $location = Notice_location::locFromStored($notice);
-            $item['latitude']  = $location->lat;
+            $item['latitude'] = $location->lat;
             $item['longitude'] = $location->lon;
         } catch (Exception $e) {
             // Apparently no.
@@ -115,17 +116,17 @@ class Activitypub_notice
      * Create a Notice via ActivityPub Note Object.
      * Returns created Notice.
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param array $object
      * @param Profile $actor_profile
      * @param bool $directMessage
      * @return Notice
      * @throws Exception
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function create_notice(array $object, Profile $actor_profile = null, bool $directMessage = false): Notice
     {
-        $id      = $object['id'];                                // int
-        $url     = isset($object['url']) ? $object['url'] : $id; // string
+        $id = $object['id'];                                // int
+        $url = isset($object['url']) ? $object['url'] : $id; // string
         $content = $object['content'];                           // string
 
         // possible keys: ['inReplyTo', 'latitude', 'longitude']
@@ -134,7 +135,7 @@ class Activitypub_notice
             $settings['inReplyTo'] = $object['inReplyTo'];
         }
         if (isset($object['latitude'])) {
-            $settings['latitude']  = $object['latitude'];
+            $settings['latitude'] = $object['latitude'];
         }
         if (isset($object['longitude'])) {
             $settings['longitude'] = $object['longitude'];
@@ -156,10 +157,10 @@ class Activitypub_notice
         $act->time = time();
         $act->actor = $actor_profile->asActivityObject();
         $act->context = new ActivityContext();
-        $options = ['source'   => 'ActivityPub',
-                    'uri'      => $id,
-                    'url'      => $url,
-                    'is_local' => self::getNotePolicyType($object, $actor_profile)];
+        $options = ['source' => 'ActivityPub',
+            'uri' => $id,
+            'url' => $url,
+            'is_local' => self::getNotePolicyType($object, $actor_profile)];
 
         if ($directMessage) {
             $options['scope'] = Notice::MESSAGE_SCOPE;
@@ -169,7 +170,7 @@ class Activitypub_notice
         if (isset($settings['inReplyTo'])) {
             try {
                 $inReplyTo = ActivityPubPlugin::grab_notice_from_url($settings['inReplyTo']);
-                $act->context->replyToID  = $inReplyTo->getUri();
+                $act->context->replyToID = $inReplyTo->getUri();
                 $act->context->replyToUrl = $inReplyTo->getUrl();
             } catch (Exception $e) {
                 // It failed to grab, maybe we got this note from another source
@@ -234,8 +235,8 @@ class Activitypub_notice
      * Validates a note.
      *
      * @param array $object
-     * @return bool
-     * @throws Exception
+     * @return bool false if unacceptable for GS but valid ActivityPub object
+     * @throws Exception if invalid ActivityPub object
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function validate_note($object)
@@ -251,10 +252,6 @@ class Activitypub_notice
             common_debug('ActivityPub Notice Validator: Rejected because of Type.');
             throw new Exception('Invalid Object type.');
         }
-        if (!isset($object['content'])) {
-            common_debug('ActivityPub Notice Validator: Rejected because Content was not specified (GNU social requires content in notes).');
-            throw new Exception('Object content was not specified.');
-        }
         if (isset($object['url']) && !filter_var($object['url'], FILTER_VALIDATE_URL)) {
             common_debug('ActivityPub Notice Validator: Rejected because Object URL is invalid.');
             throw new Exception('Invalid Object URL.');
@@ -262,6 +259,10 @@ class Activitypub_notice
         if (!(isset($object['to']) && isset($object['cc']))) {
             common_debug('ActivityPub Notice Validator: Rejected because either Object CC or TO wasn\'t specified.');
             throw new Exception('Either Object CC or TO wasn\'t specified.');
+        }
+        if (!isset($object['content'])) {
+            common_debug('ActivityPub Notice Validator: Rejected because Content was not specified (GNU social requires content in notes).');
+            return false;
         }
         return true;
     }
@@ -271,14 +272,17 @@ class Activitypub_notice
      *
      * @param Notice $notice notice from which to retrieve the URL
      * @return string URL
+     * @throws InvalidUrlException
+     * @throws Exception
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function getUrl(Notice $notice): string {
-	    if ($notice->isLocal()) {
-	        return common_local_url('apNotice', ['id' => $notice->getID()]);
-	    } else {
-	        return $notice->getUrl();
-	    }
+    public static function getUrl(Notice $notice): string
+    {
+        if ($notice->isLocal()) {
+            return common_local_url('apNotice', ['id' => $notice->getID()]);
+        } else {
+            return $notice->getUrl();
+        }
     }
 
     /**
@@ -289,7 +293,8 @@ class Activitypub_notice
      * @return int Notice policy type
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function getNotePolicyType(array $note, Profile $actor_profile): int {
+    public static function getNotePolicyType(array $note, Profile $actor_profile): int
+    {
         if (in_array('https://www.w3.org/ns/activitystreams#Public', $note['to'])) {
             return $actor_profile->isLocal() ? Notice::LOCAL_PUBLIC : Notice::REMOTE;
         } else {

@@ -39,23 +39,23 @@ class Activitypub_create
     /**
      * Generates an ActivityPub representation of a Create
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $actor
      * @param array $object
-     * @param bool $directMesssage whether it is a private Create activity or not
+     * @param bool $directMessage whether it is a private Create activity or not
      * @return array pretty array to be used in a response
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function create_to_array(string $actor, array $object, bool $directMessage = false): array
     {
         $res = [
-            '@context'      => 'https://www.w3.org/ns/activitystreams',
-            'id'            => $object['id'].'/create',
-            'type'          => 'Create',
+            '@context' => 'https://www.w3.org/ns/activitystreams',
+            'id' => $object['id'] . '/create',
+            'type' => 'Create',
             'directMessage' => $directMessage,
-            'to'            => $object['to'],
-            'cc'            => $object['cc'],
-            'actor'         => $actor,
-            'object'        => $object
+            'to' => $object['to'],
+            'cc' => $object['cc'],
+            'actor' => $actor,
+            'object' => $object
         ];
         return $res;
     }
@@ -63,11 +63,12 @@ class Activitypub_create
     /**
      * Verifies if a given object is acceptable for a Create Activity.
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param array $object
-     * @throws Exception
+     * @return bool True if acceptable, false if valid but unsupported
+     * @throws Exception if invalid
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function validate_object($object)
+    public static function validate_object($object): bool
     {
         if (!is_array($object)) {
             common_debug('ActivityPub Create Validator: Rejected because of invalid Object format.');
@@ -84,11 +85,12 @@ class Activitypub_create
         switch ($object['type']) {
             case 'Note':
                 // Validate data
-                Activitypub_notice::validate_note($object);
+                return Activitypub_notice::validate_note($object);
                 break;
             default:
                 throw new Exception('This is not a supported Object Type for Create Activity.');
         }
+        return true;
     }
 
     /**
@@ -100,7 +102,8 @@ class Activitypub_create
      * @return bool true if note is private, false otherwise
      * @author Bruno casteleiro <brunoccast@fc.up.pt>
      */
-    public static function isPrivateNote(array $activity): bool {
+    public static function isPrivateNote(array $activity): bool
+    {
         if (isset($activity['directMessage'])) {
             return $activity['directMessage'];
         }
