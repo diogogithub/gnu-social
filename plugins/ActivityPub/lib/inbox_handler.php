@@ -94,13 +94,13 @@ class Activitypub_inbox_handler
         $valid = true;
         switch ($this->activity['type']) {
             case 'Accept':
-                $valid &= Activitypub_accept::validate_object($this->object);
+                $valid = Activitypub_accept::validate_object($this->object);
                 break;
             case 'Create':
-                $valid &= Activitypub_create::validate_object($this->object);
+                $valid = Activitypub_create::validate_object($this->object);
                 break;
             case 'Delete':
-                $valid &= Activitypub_delete::validate_object($this->object);
+                $valid = Activitypub_delete::validate_object($this->object);
                 break;
             case 'Follow':
             case 'Like':
@@ -110,7 +110,7 @@ class Activitypub_inbox_handler
                 }
                 break;
             case 'Undo':
-                $valid &= Activitypub_undo::validate_object($this->object);
+                $valid = Activitypub_undo::validate_object($this->object);
                 break;
             default:
                 throw new Exception('Unknown Activity Type.');
