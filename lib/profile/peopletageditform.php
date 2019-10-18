@@ -31,7 +31,7 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
 }
 
 require_once INSTALLDIR . '/lib/util/form.php';
-require_once INSTALLDIR . '/lib/account/togglepeopletag.php';
+require_once INSTALLDIR . '/lib/profile/togglepeopletag.php';
 
 /**
  * Form for editing a peopletag
