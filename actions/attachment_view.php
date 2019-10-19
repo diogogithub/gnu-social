@@ -1,6 +1,20 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * View notice attachment
@@ -11,34 +25,23 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class Attachment_viewAction extends AttachmentAction
 {
-    public function showPage()
+    public function showPage(): void
     {
-        // Checks file exists or throws FileNotFoundException
-        $filepath = $this->attachment->getFileOrThumbnailPath();
-        $filesize = $this->attachment->getFileOrThumbnailSize();
-        $mimetype = $this->attachment->getFileOrThumbnailMimetype();
-
-        if (empty($filepath)) {
-            $this->clientError(_('No such attachment'), 404);
-        }
-
-        $filename = MediaFile::getDisplayName($this->attachment);
-
         // Disable errors, to not mess with the file contents (suppress errors in case access to this
         // function is blocked, like in some shared hosts). Automatically reset at the end of the
         // script execution, and we don't want to have any more errors until then, so don't reset it
         @ini_set('display_errors', 0);
 
         header("Content-Description: File Transfer");
-        header("Content-Type: {$mimetype}");
-        if (in_array(common_get_mime_media($mimetype), ['image', 'video'])) {
-            header("Content-Disposition: inline; filename=\"{$filename}\"");
+        header("Content-Type: {$this->mimetype}");
+        if (in_array(common_get_mime_media($this->mimetype), ['image', 'video'])) {
+            header("Content-Disposition: inline; filename=\"{$this->filename}\"");
         } else {
-            header("Content-Disposition: attachment; filename=\"{$filename}\"");
+            header("Content-Disposition: attachment; filename=\"{$this->filename}\"");
         }
         header('Expires: 0');
         header('Content-Transfer-Encoding: binary');
 
-        AttachmentAction::sendFile($filepath, $filesize);
+        parent::sendFile();
     }
 }

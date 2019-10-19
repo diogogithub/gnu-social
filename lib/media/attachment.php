@@ -28,34 +28,39 @@
  * @link      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+if (!defined('GNUSOCIAL')) {
+    exit(1);
+}
 
 /**
  * used for one-off attachment action
  */
 class Attachment extends AttachmentListItem
 {
-    function showNoticeAttachment() {
-        if (Event::handle('StartShowAttachmentLink', array($this->out, $this->attachment))) {
-            $this->out->elementStart('div', array('id' => 'attachment_view',
-                                                  'class' => 'h-entry'));
+    public function showNoticeAttachment()
+    {
+        if (Event::handle('StartShowAttachmentLink', [$this->out, $this->attachment])) {
+            $this->out->elementStart('div', ['id' => 'attachment_view',
+                                                  'class' => 'h-entry']);
             $this->out->elementStart('div', 'entry-title');
-            $this->out->element('a', $this->linkAttr(), _('Download link'));
+            $this->out->element('a', $this->linkAttr(), _m('Download link'));
             $this->out->elementEnd('div');
 
             $this->out->elementStart('article', 'e-content');
             $this->showRepresentation();
             $this->out->elementEnd('article');
-            Event::handle('EndShowAttachmentLink', array($this->out, $this->attachment));
+            Event::handle('EndShowAttachmentLink', [$this->out, $this->attachment]);
             $this->out->elementEnd('div');
         }
     }
 
-    function show() {
+    public function show()
+    {
         $this->showNoticeAttachment();
     }
 
-    function linkAttr() {
+    public function linkAttr()
+    {
         return array('rel' => 'external', 'href' => $this->attachment->getAttachmentDownloadUrl());
     }
 }
