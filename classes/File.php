@@ -309,9 +309,9 @@ class File extends Managed_DataObject
         return self::tryFilename($this->filename);
     }
 
-    public function getSize()
+    public function getSize(): int
     {
-        return intval($this->size);
+        return (int)$this->size;
     }
 
     // where should the file go?
@@ -342,6 +342,7 @@ class File extends Managed_DataObject
     /**
      * @param string $filename
      * @return string|bool Value from the 'extblacklist' array, in the config
+     * @throws ServerException
      */
     public static function getSafeExtension(string $filename)
     {
@@ -373,6 +374,7 @@ class File extends Managed_DataObject
      * @param $filename string An optional filename which we can use on failure.
      * @return mixed|string
      * @throws ClientException
+     * @throws ServerException
      */
     public static function guessMimeExtension($mimetype, $filename=null)
     {
@@ -431,6 +433,7 @@ class File extends Managed_DataObject
      * @param $filename
      * @return string
      * @throws InvalidFilenameException
+     * @throws ServerException
      */
     public static function path($filename)
     {
@@ -561,7 +564,7 @@ class File extends Managed_DataObject
      * @throws UnsupportedMediaException    if, despite trying, we can't understand how to make a thumbnail for this format
      * @throws ServerException              on various other errors
      */
-    public function getThumbnail($width=null, $height=null, $crop=false, $force_still=true, $upscale=null)
+    public function getThumbnail($width=null, $height=null, $crop=false, $force_still=true, $upscale=null): File_thumbnail
     {
         // Get some more information about this file through our ImageFile class
         $image = ImageFile::fromFileObject($this);
@@ -600,13 +603,14 @@ class File extends Managed_DataObject
      * Returns the path to either a file, or it's thumbnail if the file doesn't exist.
      * This is useful in case the original file is deleted, or, as is the case for Embed
      * thumbnails, we only have a thumbnail and not a file
+     * @param File_thumbnail|null $thumbnail
      * @return string Path
      * @throws FileNotFoundException
      * @throws FileNotStoredLocallyException
      * @throws InvalidFilenameException
      * @throws ServerException
      */
-    public function getFileOrThumbnailPath($thumbnail = null) : string
+    public function getFileOrThumbnailPath(?File_thumbnail $thumbnail = null) : string
     {
         if (!empty($thumbnail)) {
             return $thumbnail->getPath();
@@ -630,13 +634,15 @@ class File extends Managed_DataObject
 
     /**
      * Return the mime type of the thumbnail if we have it, or, if not, of the File
+     * @param File_thumbnail|null $thumbnail
      * @return string
      * @throws FileNotFoundException
      * @throws NoResultException
      * @throws ServerException
      * @throws UnsupportedMediaException
+     * @throws Exception
      */
-    public function getFileOrThumbnailMimetype($thumbnail = null) : string
+    public function getFileOrThumbnailMimetype(?File_thumbnail $thumbnail = null) : string
     {
         if (!empty($thumbnail)) {
             $filepath = $thumbnail->getPath();
@@ -656,17 +662,18 @@ class File extends Managed_DataObject
 
     /**
      * Return the size of the thumbnail if we have it, or, if not, of the File
+     * @param File_thumbnail|null $thumbnail
      * @return int
      * @throws FileNotFoundException
      * @throws NoResultException
      * @throws ServerException
      */
-    public function getFileOrThumbnailSize($thumbnail = null) : int
+    public function getFileOrThumbnailSize(?File_thumbnail $thumbnail = null) : int
     {
         if (!empty($thumbnail)) {
             return filesize($thumbnail->getPath());
         } elseif (!empty($this->filename)) {
-            return $this->size;
+            return $this->getSize();
         } else {
             return filesize(File_thumbnail::byFile($this)->getPath());
         }
