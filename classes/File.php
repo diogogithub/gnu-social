@@ -564,7 +564,7 @@ class File extends Managed_DataObject
      * @throws UnsupportedMediaException    if, despite trying, we can't understand how to make a thumbnail for this format
      * @throws ServerException              on various other errors
      */
-    public function getThumbnail($width=null, $height=null, $crop=false, $force_still=true, $upscale=null): File_thumbnail
+    public function getThumbnail($width = null, $height = null, $crop = false, $force_still = true, $upscale = null): File_thumbnail
     {
         // Get some more information about this file through our ImageFile class
         $image = ImageFile::fromFileObject($this);
@@ -610,7 +610,7 @@ class File extends Managed_DataObject
      * @throws InvalidFilenameException
      * @throws ServerException
      */
-    public function getFileOrThumbnailPath(?File_thumbnail $thumbnail = null) : string
+    public function getFileOrThumbnailPath(?File_thumbnail $thumbnail = null): string
     {
         if (!empty($thumbnail)) {
             return $thumbnail->getPath();
@@ -803,7 +803,7 @@ class File extends Managed_DataObject
     public function noticeCount()
     {
         $cacheKey = sprintf('file:notice-count:%d', $this->id);
-        
+
         $count = self::cacheGet($cacheKey);
 
         if ($count === false) {
