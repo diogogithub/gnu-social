@@ -201,7 +201,7 @@ class Activitypub_profile extends Managed_DataObject
      * @throws Exception if no Activitypub_profile exists for given Profile
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function from_profile(Profile $profile)
+    public static function from_profile(Profile $profile): Activitypub_profile
     {
         $profile_id = $profile->getID();
 
@@ -216,8 +216,9 @@ class Activitypub_profile extends Managed_DataObject
             }
         }
 
+        // extend the ap_profile with some information we
+        // don't store in the database
         $fields = [
-            'uri' => 'profileurl',
             'nickname' => 'nickname',
             'fullname' => 'fullname',
             'bio' => 'bio'
