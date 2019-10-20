@@ -450,7 +450,7 @@ class Activitypub_explorer
         }
         // Go through entire collection
         if (!is_null($res["next"])) {
-            $this->_lookup($res["next"]);
+            $this->travel_collection($res["next"]);
         }
 
         return true;

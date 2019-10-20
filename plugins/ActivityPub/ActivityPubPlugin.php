@@ -345,18 +345,17 @@ class ActivityPubPlugin extends Plugin
      */
     public function onProfileDeleteRelated(Profile $profile, array &$related): void
     {
-        if ($profile->isLocal()) {
-            return;
-        }
+        $related[] = 'Activitypub_profile';
+        $related[] = 'Activitypub_rsa';
 
-        try {
-            $aprofile = Activitypub_profile::getKV('profile_id', $profile->getID());
-            if ($aprofile instanceof Activitypub_profile) {
-                // mark for deletion
-                $related[] = 'Activitypub_profile';
+        // pending_follow_requests doesn't have a profile_id column,
+        // so we must handle it manually
+        $follow = new Activitypub_pending_follow_requests(null, $profile->getID());
+
+        if ($follow->find()) {
+            while ($follow->fetch()) {
+                $follow->delete();
             }
-        } catch (Exception $e) {
-            // nothing to do
         }
     }
 
@@ -386,9 +385,9 @@ class ActivityPubPlugin extends Plugin
         if ($profile->isLocal()) {
             return true;
         }
-        try {
-            Activitypub_profile::from_profile($profile);
-        } catch (Exception $e) {
+        
+        $aprofile = Activitypub_profile::getKV('profile_id', $profile->getID());
+        if (!$aprofile instanceof Activitypub_profile) {
             // Not a remote ActivityPub_profile! Maybe some other network
             // that has imported a non-local user (e.g.: OStatus)?
             return true;
