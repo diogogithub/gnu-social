@@ -1719,4 +1719,36 @@ class OStatusPlugin extends Plugin
 
         return is_null($profile);
     }
+
+    /**
+     * To be consistent with the ActivityPub protocol, we need to make sure that
+     * all ostatus profiles are unique and use non-fancy URIs. This method executes
+     * an external script to ensure that conditions.
+     * 
+     * @return bool hook flag
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public function onEndUpgrade(): bool
+    {
+        $flag   = __DIR__ . DIRECTORY_SEPARATOR . '.ostatus_version.txt';
+        $script = __DIR__ . DIRECTORY_SEPARATOR . 'scripts' . DIRECTORY_SEPARATOR . 'updateuris.php';
+        
+        if (!file_exists($flag)) {
+            // If our flag-file isn't set then we know OStatus hasn't upgraded yet,
+            // run external script and plant the flag
+            define('OSTATUS_UPGRADE', true);
+            require_once $script;
+
+            $file = fopen($flag, "w");
+
+            if ($file === false) {
+                $this->log(LOG_ERR, "Failed to create the file: {$flag}\n");
+            } else {
+                fwrite($file, self::PLUGIN_VERSION . PHP_EOL);
+                fclose($file);
+            }
+        }
+
+        return true;
+    }
 }
