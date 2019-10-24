@@ -80,6 +80,17 @@ class Ostatus_profile extends Managed_DataObject
         return $this->uri;
     }
 
+    /**
+     * Getter for profile_id property
+     *
+     * @return int
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public function getID()
+    {
+        return $this->profile_id;
+    }
+
     public function getFeedSub()
     {
         return FeedSub::getByUri($this->feeduri);
