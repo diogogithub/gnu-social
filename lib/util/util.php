@@ -1383,7 +1383,7 @@ function common_relative_profile($sender, $nickname, $dt=null)
     return null;
 }
 
-function common_local_url($action, $args=null, $params=null, $fragment=null, $addSession=true)
+function common_local_url($action, $args=null, $params=null, $fragment=null, $addSession=true, $defancy = false)
 {
     if (Event::handle('StartLocalURL', [&$action, &$params, &$fragment, &$addSession, &$url])) {
         $r = Router::get();
@@ -1391,7 +1391,7 @@ function common_local_url($action, $args=null, $params=null, $fragment=null, $ad
 
         $ssl = GNUsocial::useHTTPS();
 
-        if (common_config('site', 'fancy')) {
+        if (common_config('site', 'fancy') && !$defancy) {
             $url = common_path($path, $ssl, $addSession);
         } else {
             if (mb_strpos($path, '/index.php') === 0) {
