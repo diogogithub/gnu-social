@@ -2232,7 +2232,8 @@ function common_user_uri(&$user)
         ['id' => $user->id],
         null,
         null,
-        false
+        false,
+        true
     );
 }
 
