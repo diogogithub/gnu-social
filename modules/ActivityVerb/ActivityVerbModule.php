@@ -31,7 +31,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
 
 class ActivityVerbModule extends Module
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const MODULE_VERSION = '2.0.0';
 
     public function onRouterInitialized(URLMapper $m)
     {
@@ -60,7 +60,7 @@ class ActivityVerbModule extends Module
     public function onModuleVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Activity Verb',
-                            'version' => self::PLUGIN_VERSION,
+                            'version' => self::MODULE_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://www.gnu.org/software/social/',
                             'rawdescription' =>

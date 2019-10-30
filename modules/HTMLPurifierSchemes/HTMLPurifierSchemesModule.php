@@ -25,12 +25,12 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class HTMLPurifierSchemesModule extends Module
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const MODULE_VERSION = '2.0.0';
 
     public function onModuleVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'HTMLPurifier Schemes',
-                            'version' => self::PLUGIN_VERSION,
+                            'version' => self::MODULE_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/social',
                             'rawdescription' =>

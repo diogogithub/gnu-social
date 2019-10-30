@@ -25,7 +25,7 @@ defined('GNUSOCIAL') || die();
 
 class FavoriteModule extends ActivityVerbHandlerModule
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const MODULE_VERSION = '2.0.0';
 
     protected $email_notify_fave = 1;
 
@@ -629,7 +629,7 @@ class FavoriteModule extends ActivityVerbHandlerModule
     public function onModuleVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Favorite',
-                            'version' => self::PLUGIN_VERSION,
+                            'version' => self::MODULE_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'http://gnu.io/',
                             'rawdescription' =>
