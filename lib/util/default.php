@@ -336,6 +336,7 @@ $default =
                 'Favorite' => [],
                 'HTMLPurifierSchemes' => [],
                 'Share' => [],
+                'TheFreeNetwork' => [],
             ],
             'default' => [
                 'AccountManager' => [],
