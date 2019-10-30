@@ -25,7 +25,7 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  */
 class ShareModule extends ActivityVerbHandlerModule
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const MODULE_VERSION = '2.0.0';
 
     public function tag()
     {
@@ -371,7 +371,7 @@ class ShareModule extends ActivityVerbHandlerModule
     public function onModuleVersion(array &$versions): bool
     {
         $versions[] = array('name' => 'Share verb',
-                            'version' => self::PLUGIN_VERSION,
+                            'version' => self::MODULE_VERSION,
                             'author' => 'Mikael Nordfeldth',
                             'homepage' => 'https://gnu.io/',
                             'rawdescription' =>
