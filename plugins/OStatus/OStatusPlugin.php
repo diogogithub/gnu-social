@@ -1441,6 +1441,18 @@ class OStatusPlugin extends Plugin
     }
 
     /**
+     * Subscribe OS's profile class to the TFN module
+     * 
+     * @param array $federation
+     * @return bool event hook return
+     */
+    public function onStartTFNCensus(array &$federation): bool
+    {
+        $federation[] = 'Ostatus_profile';
+        return true;
+    }
+
+    /**
      * Utility function to check if the given URI is a canonical group profile
      * page, and if so return the ID number.
      *
