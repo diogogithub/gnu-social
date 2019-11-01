@@ -281,6 +281,8 @@ class MediaFile
             return false;
         } elseif ($ret === 0) {
             return null; // No match
+        } elseif (strlen($matches[2]) % 2 !== 0) {
+            return null; // An odd length won't do for hex2bin
         } else {
             $filename = hex2bin($matches[2]);
 
