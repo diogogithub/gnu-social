@@ -1,24 +1,27 @@
 #!/usr/bin/env php
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @copyright 2008, 2009 StatusNet, Inc
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'di::';
 $longoptions = array('id::', 'debug');
@@ -56,9 +59,12 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
      * @return void
      *
      **/
-    function __construct($id = null, $interval = 60,
-                         $max_children = 2, $debug = null)
-    {
+    public function __construct(
+        $id = null,
+        $interval = 60,
+        $max_children = 2,
+        $debug = null
+    ) {
         parent::__construct($id, $interval, $max_children, $debug);
     }
 
@@ -67,7 +73,7 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
      *
      * @return string Name of the daemon.
      */
-    function name()
+    public function name()
     {
         return ('synctwitterfriends.' . $this->_id);
     }
@@ -78,7 +84,7 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
      *
      * @return array flinks an array of Foreign_link objects
      */
-    function getObjects()
+    public function getObjects()
     {
         $flinks = array();
         $flink = new Foreign_link();
@@ -105,7 +111,8 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
     }
 
     // FIXME: make it so we can force a Foreign_link here without colliding with parent
-    function childTask($flink) {
+    public function childTask($flink)
+    {
         // Each child ps needs its own DB connection
 
         // Note: DataObject::getDatabaseConnection() creates
@@ -125,7 +132,7 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
         unset($_DB_DATAOBJECT['CONNECTIONS']);
     }
 
-    function fetchTwitterFriends(Foreign_link $flink)
+    public function fetchTwitterFriends(Foreign_link $flink)
     {
         $friends = array();
 
@@ -168,15 +175,17 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
         }
 
         for ($i = 1; $i <= $pages; $i++) {
-
-        try {
-            $more_friends = $client->statusesFriends(null, null, null, $i);
-        } catch (Exception $e) {
-            common_log(LOG_WARNING, $this->name() .
-                       ' - cURL error getting Twitter statuses/friends ' .
-                       "page $i - " . $e->getCode() . ' - ' .
-                       $e->getMessage());
-        }
+            try {
+                $more_friends = $client->statusesFriends(null, null, null, $i);
+            } catch (Exception $e) {
+                common_log(
+                    LOG_WARNING,
+                    $this->name() .
+                        ' - cURL error getting Twitter statuses/friends ' .
+                        "page {$i} - " . $e->getCode() . ' - ' .
+                        $e->getMessage()
+                );
+            }
 
             if (empty($more_friends)) {
                 common_log(LOG_WARNING, $this->name() .
@@ -193,7 +202,7 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
         return $friends;
     }
 
-    function subscribeTwitterFriends(Foreign_link $flink)
+    public function subscribeTwitterFriends(Foreign_link $flink)
     {
         try {
             $profile = $flink->getProfile();
@@ -211,7 +220,6 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
         }
 
         foreach ($friends as $friend) {
-
             $friend_name = $friend->screen_name;
             $friend_id = (int) $friend->id;
 
@@ -232,9 +240,11 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
                 $friend_profile = $friend_flink->getProfile();
 
                 Subscription::start($profile, $friend_profile);
-                common_log(LOG_INFO,
-                           $this->name() . ' - Subscribed ' .
-                           "{$friend_profile->nickname} to {$profile->nickname}.");
+                common_log(
+                    LOG_INFO,
+                    $this->name() . ' - Subscribed ' .
+                        "{$friend_profile->nickname} to {$profile->nickname}."
+                );
             } catch (NoResultException $e) {
                 // either no foreign link for this friend's foreign ID or no profile found on local ID.
             } catch (Exception $e) {
@@ -247,7 +257,6 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
 
         return true;
     }
-
 }
 
 $id    = null;
@@ -255,9 +264,9 @@ $debug = null;
 
 if (have_option('i')) {
     $id = get_option_value('i');
-} else if (have_option('--id')) {
+} elseif (have_option('--id')) {
     $id = get_option_value('--id');
-} else if (count($args) > 0) {
+} elseif (count($args) > 0) {
     $id = $args[0];
 } else {
     $id = null;
