@@ -111,14 +111,14 @@ class Activitypub_postman
     {
         $data = Activitypub_follow::follow_to_array($this->actor_uri, $this->to[0]->getUrl());
         $res = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
-        $res_body = json_decode($res->getBody());
+        $res_body = json_decode($res->getBody(), true);
 
         if ($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409) {
             $pending_list = new Activitypub_pending_follow_requests($this->actor->getID(), $this->to[0]->getID());
             $pending_list->add();
             return true;
-        } elseif (isset($res_body[0]->error)) {
-            throw new Exception($res_body[0]->error);
+        } elseif (isset($res_body['error'])) {
+            throw new Exception($res_body['error']);
         }
 
         throw new Exception("An unknown error occurred.");
@@ -144,7 +144,7 @@ class Activitypub_postman
                     )
                 );
         $res = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
-        $res_body = json_decode($res->getBody());
+        $res_body = json_decode($res->getBody(), true);
 
         if ($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409) {
             Activitypub_profile::unsubscribeCacheUpdate($this->actor, $this->to[0]->local_profile());
@@ -152,8 +152,8 @@ class Activitypub_postman
             $pending_list->remove();
             return true;
         }
-        if (isset($res_body[0]->error)) {
-            throw new Exception($res_body[0]->error);
+        if (isset($res_body['error'])) {
+            throw new Exception($res_body['error']);
         }
         throw new Exception("An unknown error occurred.");
     }
@@ -177,15 +177,15 @@ class Activitypub_postman
                 )
             );
         $res = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
-        $res_body = json_decode($res->getBody());
+        $res_body = json_decode($res->getBody(), true);
 
         if ($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409) {
             $pending_list = new Activitypub_pending_follow_requests($this->to[0]->getID(), $this->actor->getID());
             $pending_list->remove();
             return true;
         }
-        if (isset($res_body[0]->error)) {
-            throw new Exception($res_body[0]->error);
+        if (isset($res_body['error'])) {
+            throw new Exception($res_body['error']);
         }
         throw new Exception("An unknown error occurred.");
     }
@@ -213,8 +213,8 @@ class Activitypub_postman
             // accummulate errors for later use, if needed
             if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
                 $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body[0]['error']) ?
-                          $res_body[0]['error'] : "An unknown error occurred.";
+                $errors[] = isset($res_body['error']) ?
+                          $res_body['error'] : "An unknown error occurred.";
             }
         }
 
@@ -248,8 +248,8 @@ class Activitypub_postman
             // accummulate errors for later use, if needed
             if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
                 $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body[0]['error']) ?
-                          $res_body[0]['error'] : "An unknown error occurred.";
+                $errors[] = isset($res_body['error']) ?
+                          $res_body['error'] : "An unknown error occurred.";
             }
         }
 
@@ -282,8 +282,8 @@ class Activitypub_postman
             // accummulate errors for later use, if needed
             if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
                 $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body[0]['error']) ?
-                          $res_body[0]['error'] : "An unknown error occurred.";
+                $errors[] = isset($res_body['error']) ?
+                          $res_body['error'] : "An unknown error occurred.";
             }
         }
 
@@ -313,8 +313,8 @@ class Activitypub_postman
             // accummulate errors for later use, if needed
             if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
                 $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body[0]['error']) ?
-                          $res_body[0]['error'] : "An unknown error occurred.";
+                $errors[] = isset($res_body['error']) ?
+                          $res_body['error'] : "An unknown error occurred.";
             }
         }
 
@@ -342,8 +342,8 @@ class Activitypub_postman
             // accummulate errors for later use, if needed
             if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
                 $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body[0]['error']) ?
-                          $res_body[0]['error'] : "An unknown error occurred.";
+                $errors[] = isset($res_body['error']) ?
+                          $res_body['error'] : "An unknown error occurred.";
             }
         }
 
@@ -373,8 +373,8 @@ class Activitypub_postman
             $res = $this->send($data, $inbox);
             if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
                 $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body[0]['error']) ?
-                          $res_body[0]['error'] : "An unknown error occurred.";
+                $errors[] = isset($res_body['error']) ?
+                          $res_body['error'] : "An unknown error occurred.";
             }
         }
         if (!empty($errors)) {
@@ -403,8 +403,8 @@ class Activitypub_postman
             // accummulate errors for later use, if needed
             if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
                 $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body[0]['error']) ?
-                          $res_body[0]['error'] : "An unknown error occurred.";
+                $errors[] = isset($res_body['error']) ?
+                          $res_body['error'] : "An unknown error occurred.";
             }
         }
 
