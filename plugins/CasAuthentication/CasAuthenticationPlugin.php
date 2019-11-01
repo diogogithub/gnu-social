@@ -1,38 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Plugin to enable Single Sign On via CAS (Central Authentication Service)
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Plugin
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Craig Andrews <candrews@integralblue.com>
  * @copyright 2009 Free Software Foundation, Inc http://www.fsf.org
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
-
-// We bundle the phpCAS library...
-set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/extlib/CAS');
+defined('GNUSOCIAL') || die();
 
 class CasAuthenticationPlugin extends AuthenticationPlugin
 {
@@ -44,68 +36,55 @@ class CasAuthenticationPlugin extends AuthenticationPlugin
     public $takeOverLogin = false;
     public $user_whitelist = null;
 
-    function checkPassword($username, $password)
+    public function checkPassword($username, $password)
     {
         global $casTempPassword;
         return ($casTempPassword == $password);
     }
 
-    function onAutoload($cls)
+    public function onArgsInitialize(&$args)
     {
-        switch ($cls)
-        {
-         case 'phpCAS':
-            require_once(INSTALLDIR.'/plugins/CasAuthentication/extlib/CAS.php');
-            return false;
-        }
-
-        // if it's not our exception, try standard places
-        return parent::onAutoload($cls);
-    }
-
-    function onArgsInitialize(&$args)
-    {
-        if($this->takeOverLogin && $args['action'] == 'login')
-        {
+        if ($this->takeOverLogin && $args['action'] === 'login') {
             $args['action'] = 'caslogin';
         }
     }
 
-    function onStartInitializeRouter($m)
+    public function onStartInitializeRouter($m)
     {
         $m->connect('main/cas', array('action' => 'caslogin'));
         return true;
     }
 
-    function onEndLoginGroupNav($action)
+    public function onEndLoginGroupNav($action)
     {
         $action_name = $action->trimmed('action');
 
-        $action->menuItem(common_local_url('caslogin'),
-                          // TRANS: Menu item. CAS is Central Authentication Service.
-                          _m('CAS'),
-                          // TRANS: Tooltip for menu item. CAS is Central Authentication Service.
-                          _m('Login or register with CAS.'),
-                          $action_name === 'caslogin');
+        $action->menuItem(
+            common_local_url('caslogin'),
+            // TRANS: Menu item. CAS is Central Authentication Service.
+            _m('CAS'),
+            // TRANS: Tooltip for menu item. CAS is Central Authentication Service.
+            _m('Login or register with CAS.'),
+            ($action_name === 'caslogin')
+        );
 
         return true;
     }
 
-    function onEndShowPageNotice($action)
+    public function onEndShowPageNotice($action)
     {
         $name = $action->trimmed('action');
 
-        switch ($name)
-        {
-         case 'login':
-            // TRANS: Invitation to users with a CAS account to log in using the service.
-            // TRANS: "[CAS login]" is a link description. (%%action.caslogin%%) is the URL.
-            // TRANS: These two elements may not be separated.
-            $instr = _m('(Have an account with CAS? ' .
-              'Try our [CAS login](%%action.caslogin%%)!)');
-            break;
-         default:
-            return true;
+        switch ($name) {
+            case 'login':
+                // TRANS: Invitation to users with a CAS account to log in using the service.
+                // TRANS: "[CAS login]" is a link description. (%%action.caslogin%%) is the URL.
+                // TRANS: These two elements may not be separated.
+                $instr = _m('(Have an account with CAS? ' .
+                    'Try our [CAS login](%%action.caslogin%%)!)');
+                break;
+            default:
+                return true;
         }
 
         $output = common_markup_to_html($instr);
@@ -113,29 +92,29 @@ class CasAuthenticationPlugin extends AuthenticationPlugin
         return true;
     }
 
-    function onLoginAction($action, &$login)
+    public function onLoginAction($action, &$login)
     {
-        switch ($action)
-        {
-         case 'caslogin':
-            $login = true;
-            return false;
-         default:
-            return true;
+        switch ($action) {
+            case 'caslogin':
+                $login = true;
+                return false;
+            default:
+                return true;
         }
     }
 
-    function onInitializePlugin(){
+    public function onInitializePlugin()
+    {
         parent::onInitializePlugin();
-        if(!isset($this->server)){
+        if (!isset($this->server)) {
             // TRANS: Exception thrown when the CAS Authentication plugin has been configured incorrectly.
             throw new Exception(_m("Specifying a server is required."));
         }
-        if(!isset($this->port)){
+        if (!isset($this->port)) {
             // TRANS: Exception thrown when the CAS Authentication plugin has been configured incorrectly.
             throw new Exception(_m("Specifying a port is required."));
         }
-        if(!isset($this->path)){
+        if (!isset($this->path)) {
             // TRANS: Exception thrown when the CAS Authentication plugin has been configured incorrectly.
             throw new Exception(_m("Specifying a path is required."));
         }

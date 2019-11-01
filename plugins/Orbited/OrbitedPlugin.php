@@ -1,37 +1,32 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * Laconica, the distributed open-source microblogging tool
- *
  * Plugin to do "real time" updates using Orbited + STOMP
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Plugin
- * @package   Laconica
- * @author    Evan Prodromou <evan@controlyourself.ca>
- * @copyright 2009 Control Yourself, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://laconi.ca/
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL') && !defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
-require_once INSTALLDIR.'/plugins/Realtime/RealtimePlugin.php';
+require_once INSTALLDIR . '/plugins/Realtime/RealtimePlugin.php';
 
 /**
  * Plugin to do realtime updates using Orbited + STOMP
@@ -39,11 +34,10 @@ require_once INSTALLDIR.'/plugins/Realtime/RealtimePlugin.php';
  * This plugin pushes data to a STOMP server which is then served to the
  * browser by the Orbited server.
  *
- * @category Plugin
- * @package  Laconica
- * @author   Evan Prodromou <evan@controlyourself.ca>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://laconi.ca/
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class OrbitedPlugin extends RealtimePlugin
 {
@@ -61,13 +55,13 @@ class OrbitedPlugin extends RealtimePlugin
 
     protected $con      = null;
 
-    function onStartShowHeadElements($action)
+    public function onStartShowHeadElements($action)
     {
         // See http://orbited.org/wiki/Deployment#Cross-SubdomainDeployment
         $action->element('script', null, ' document.domain = document.domain; ');
     }
 
-    function _getScripts()
+    public function _getScripts()
     {
         $scripts = parent::_getScripts();
 
@@ -85,7 +79,7 @@ class OrbitedPlugin extends RealtimePlugin
         return $scripts;
     }
 
-    function _updateInitialize($timeline, $user_id)
+    public function _updateInitialize($timeline, $user_id)
     {
         $script = parent::_updateInitialize($timeline, $user_id);
 
@@ -96,10 +90,8 @@ class OrbitedPlugin extends RealtimePlugin
           "\"{$timeline}\", \"{$this->webuser}\", \"{$this->webpass}\");";
     }
 
-    function _connect()
+    public function _connect()
     {
-        require_once(INSTALLDIR.'/extlib/Stomp.php');
-
         $url = $this->_getStompUrl();
 
         $this->con = new Stomp($url);
@@ -113,21 +105,20 @@ class OrbitedPlugin extends RealtimePlugin
         }
     }
 
-    function _publish($channel, $message)
+    public function _publish($channel, $message)
     {
-        $result = $this->con->send($channel,
-                                   json_encode($message));
+        $result = $this->con->send($channel, json_encode($message));
 
         return $result;
         // @todo Parse and deal with result.
     }
 
-    function _disconnect()
+    public function _disconnect()
     {
         $this->con->disconnect();
     }
 
-    function _pathToChannel($path)
+    public function _pathToChannel($path)
     {
         if (!empty($this->channelbase)) {
             array_unshift($path, $this->channelbase);
@@ -135,19 +126,19 @@ class OrbitedPlugin extends RealtimePlugin
         return '/' . implode('/', $path);
     }
 
-    function _getStompServer()
+    public function _getStompServer()
     {
         return (!is_null($this->stompserver)) ? $this->stompserver :
         (!is_null($this->webserver)) ? $this->webserver :
         common_config('site', 'server');
     }
 
-    function _getStompPort()
+    public function _getStompPort()
     {
         return (!is_null($this->stompport)) ? $this->stompport : 61613;
     }
 
-    function _getStompUrl()
+    public function _getStompUrl()
     {
         $server = $this->_getStompServer();
         $port   = $this->_getStompPort();
