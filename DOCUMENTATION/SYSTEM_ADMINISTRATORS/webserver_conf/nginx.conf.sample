@@ -43,10 +43,16 @@ server {
     location ~ ^/(index|install)\.php(/.*)?$ {
     #location ^~ /index.php {
         include fastcgi_params;
-        include snippets/fastcgi-php.conf;
 
-        fastcgi_pass unix:/run/php/php-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $request_filename;
+        fastcgi_split_path_info ^(.+?\.php)(/.*)$;
+        set $path_info $fastcgi_path_info;
+        try_files $fastcgi_script_name =404;
+
+        fastcgi_pass unix:/run/php/php7.X-fpm.sock;
+        fastcgi_index index.php;
+
+        fastcgi_param PATH_INFO $path_info;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
     }
 
 # Don't allow any PHP file other than index.php to be executed
