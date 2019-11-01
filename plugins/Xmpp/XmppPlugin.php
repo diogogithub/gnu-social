@@ -1,48 +1,39 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
- *
  * Send and receive notices using the XMPP network
  *
- * PHP version 7
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  IM
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    // This check helps protect against security problems;
-    // your code file can't be executed directly from the web.
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Plugin for XMPP
  *
  * @category  Plugin
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class XmppPlugin extends ImPlugin
 {
@@ -59,13 +50,13 @@ class XmppPlugin extends ImPlugin
 
     public $transport = 'xmpp';
 
-    function getDisplayName()
+    public function getDisplayName()
     {
         // TRANS: Plugin display name.
         return _m('XMPP/Jabber');
     }
 
-    function daemonScreenname()
+    public function daemonScreenname()
     {
         $ret = $this->user . '@' . $this->server;
         if ($this->resource) {
@@ -75,7 +66,7 @@ class XmppPlugin extends ImPlugin
         }
     }
 
-    function validate($screenname)
+    public function validate($screenname)
     {
         return $this->validateBaseJid($screenname, common_config('email', 'check_domain'));
     }
@@ -156,7 +147,7 @@ class XmppPlugin extends ImPlugin
         $parts = explode("/", $jid, 2);
         if (count($parts) > 1) {
             $resource = $parts[1];
-            // if ($resource == '') then
+        // if ($resource == '') then
             // Warning: empty resource isn't legit.
             // But if we're normalizing, we may as well take it...
         } else {
@@ -167,7 +158,7 @@ class XmppPlugin extends ImPlugin
         if ((count($node) > 2) || (count($node) == 0)) {
             // TRANS: Exception thrown when using too many @ signs in a Jabber ID.
             throw new Exception(_m('Invalid JID: too many @s.'));
-        } else if (count($node) == 1) {
+        } elseif (count($node) == 1) {
             $domain = $node[0];
             $node = null;
         } else {
@@ -236,33 +227,14 @@ class XmppPlugin extends ImPlugin
         return false;
     }
 
-    /**
-     * Load related Plugins when needed
-     *
-     * @param string $cls Name of the class to be loaded
-     *
-     * @return boolean hook value; true means continue processing, false means stop.
-     */
-
-    function onAutoload($cls)
-    {
-        switch ($cls) {
-            case 'XMPPHP_XMPP':
-                require_once __DIR__ . '/extlib/XMPPHP/XMPP.php';
-                return false;
-        }
-
-        return parent::onAutoload($cls);
-    }
-
-    function onStartImDaemonIoManagers(&$classes)
+    public function onStartImDaemonIoManagers(&$classes)
     {
         parent::onStartImDaemonIoManagers($classes);
         $classes[] = new XmppManager($this); // handles pings/reconnects
         return true;
     }
 
-    function sendMessage($screenname, $body)
+    public function sendMessage($screenname, $body)
     {
         $this->queuedConnection()->message($screenname, $body, 'chat');
     }
@@ -274,7 +246,7 @@ class XmppPlugin extends ImPlugin
      * @return QueuedXMPP
      * @throws Exception if server settings are invalid.
      */
-    function queuedConnection()
+    public function queuedConnection()
     {
         if (!isset($this->server)) {
             // TRANS: Exception thrown when the plugin configuration is incorrect.
@@ -293,22 +265,20 @@ class XmppPlugin extends ImPlugin
             throw new Exception(_m('You must specify a password in the configuration.'));
         }
 
-        return new QueuedXMPP($this, $this->host ?
-            $this->host :
-            $this->server,
+        return new QueuedXMPP(
+            $this,
+            ($this->host ?: $this->server),
             $this->port,
             $this->user,
             $this->password,
             $this->resource,
             $this->server,
-            $this->debug ?
-                true : false,
-            $this->debug ?
-                \XMPPHP\Log::LEVEL_VERBOSE : null
+            ($this->debug ? true : false),
+            ($this->debug ? \XMPPHP\Log::LEVEL_VERBOSE : null)
         );
     }
 
-    function sendNotice($screenname, Notice $notice)
+    public function sendNotice($screenname, Notice $notice)
     {
         try {
             $msg = $this->formatNotice($notice);
@@ -351,12 +321,18 @@ class XmppPlugin extends ImPlugin
         // FIXME: Why do we replace \t with ''? is it just to make it pretty? shouldn't whitespace be handled well...?
         $xs->raw(str_replace("\t", "", $notice->getRendered()));
         $xs->text(" ");
-        $xs->element('a', array(
-            'href' => common_local_url('conversation',
-                    array('id' => $notice->conversation)) . '#notice-' . $notice->id),
+        $xs->element(
+            'a',
+            [
+                'href' => common_local_url(
+                    'conversation',
+                    ['id' => $notice->conversation]
+                ) . '#notice-' . $notice->id,
+            ],
             // TRANS: Link description to notice in conversation.
             // TRANS: %s is a notice ID.
-            sprintf(_m('[%u]'), $notice->id));
+            sprintf(_m('[%u]'), $notice->id)
+        );
         $xs->elementEnd('body');
         $xs->elementEnd('html');
 
@@ -365,7 +341,7 @@ class XmppPlugin extends ImPlugin
         return $html . ' ' . $entry;
     }
 
-    function receiveRawMessage($pl)
+    public function receiveRawMessage($pl)
     {
         $from = $this->normalize($pl['from']);
 
@@ -390,7 +366,7 @@ class XmppPlugin extends ImPlugin
      * @param string $jid JID to check
      * @return string an equivalent JID in normalized (lowercase) form
      */
-    function normalize($jid)
+    public function normalize($jid)
     {
         try {
             $parts = $this->splitJid($jid);
@@ -411,17 +387,15 @@ class XmppPlugin extends ImPlugin
      *
      * @return boolean hook return
      */
-    function onGetValidDaemons(&$daemons)
+    public function onGetValidDaemons(&$daemons)
     {
         if (isset($this->server) &&
             isset($this->port) &&
             isset($this->user) &&
             isset($this->password)) {
-
             array_push(
                 $daemons,
-                INSTALLDIR
-                . '/scripts/imdaemon.php'
+                INSTALLDIR . '/scripts/imdaemon.php'
             );
         }
 
@@ -478,4 +452,3 @@ class XmppPlugin extends ImPlugin
         }
     }
 }
-

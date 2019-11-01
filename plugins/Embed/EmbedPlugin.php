@@ -373,7 +373,6 @@ class EmbedPlugin extends Plugin
         case 'link':
             if (!empty($embed->html)
                     && (GNUsocial::isAjax() || common_config('attachments', 'show_html'))) {
-                require_once INSTALLDIR.'/extlib/HTMLPurifier/HTMLPurifier.auto.php';
                 $purifier = new HTMLPurifier();
                 // FIXME: do we allow <object> and <embed> here? we did that when we used htmLawed,
                 // but I'm not sure anymore...
@@ -638,12 +637,16 @@ class EmbedPlugin extends Plugin
             try {
                 $imgData = HTTPClient::quickGet($url);
                 if (isset($imgData)) {
-                    list($filename, $width, $height) = $this->validateAndWriteImage($imgData, $url, $headers,
-                                                                                    $thumbnail->file_id);
+                    list($filename, $width, $height) = $this->validateAndWriteImage(
+                        $imgData,
+                        $url,
+                        $headers,
+                        $thumbnail->file_id
+                    );
                 } else {
                     throw new UnsupportedMediaException('HTTPClient returned an empty result');
                 }
-            } catch(UnsupportedMediaException $e) {
+            } catch (UnsupportedMediaException $e) {
                 // Couldn't find anything that looks like an image, nothing to do
                 common_debug("Embed was not able to find an image for URL `{$url}`: " . $e->getMessage());
                 return false;
