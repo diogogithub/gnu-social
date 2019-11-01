@@ -1,24 +1,27 @@
 #!/usr/bin/env php
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008-2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
+ * @copyright 2008-2010 StatusNet, Inc
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 // Tune number of processes and how often to poll Twitter
 // XXX: Should these things be in config.php?
@@ -74,9 +77,12 @@ class TwitterStatusFetcher extends ParallelizingDaemon
      * @return void
      *
      **/
-    function __construct($id = null, $interval = 60,
-                         $max_children = 2, $debug = null)
-    {
+    public function __construct(
+        $id = null,
+        $interval = 60,
+        $max_children = 2,
+        $debug = null
+    ) {
         parent::__construct($id, $interval, $max_children, $debug);
     }
 
@@ -85,7 +91,7 @@ class TwitterStatusFetcher extends ParallelizingDaemon
      *
      * @return string Name of the daemon.
      */
-    function name()
+    public function name()
     {
         return ('twitterstatusfetcher.'.$this->_id);
     }
@@ -96,7 +102,7 @@ class TwitterStatusFetcher extends ParallelizingDaemon
      *
      * @return array flinks an array of Foreign_link objects
      */
-    function getObjects()
+    public function getObjects()
     {
         global $_DB_DATAOBJECT;
         $flink = new Foreign_link();
@@ -109,7 +115,6 @@ class TwitterStatusFetcher extends ParallelizingDaemon
         $flinks = array();
 
         while ($flink->fetch()) {
-
             if (($flink->noticesync & FOREIGN_NOTICE_RECV) ==
                 FOREIGN_NOTICE_RECV) {
                 $flinks[] = clone($flink);
@@ -129,7 +134,8 @@ class TwitterStatusFetcher extends ParallelizingDaemon
     }
 
     // FIXME: make it so we can force a Foreign_link here without colliding with parent
-    function childTask($flink) {
+    public function childTask($flink)
+    {
         // Each child ps needs its own DB connection
 
         // Note: DataObject::getDatabaseConnection() creates
@@ -150,7 +156,7 @@ class TwitterStatusFetcher extends ParallelizingDaemon
         unset($_DB_DATAOBJECT['CONNECTIONS']);
     }
 
-    function getTimeline(Foreign_link $flink, $timelineUri = 'home_timeline')
+    public function getTimeline(Foreign_link $flink, $timelineUri = 'home_timeline')
     {
         common_log(LOG_DEBUG, $this->name() . ' - Trying to get ' . $timelineUri .
                    ' timeline for Twitter user ' . $flink->foreign_id);
@@ -219,9 +225,9 @@ $debug = null;
 
 if (have_option('i')) {
     $id = get_option_value('i');
-} else if (have_option('--id')) {
+} elseif (have_option('--id')) {
     $id = get_option_value('--id');
-} else if (count($args) > 0) {
+} elseif (count($args) > 0) {
     $id = $args[0];
 } else {
     $id = null;

@@ -1,24 +1,27 @@
 #!/usr/bin/env php
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008-2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @copyright 2008-2010 StatusNet, Inc
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 define('INSTALLDIR', realpath(dirname(__FILE__) . '/../../..'));
+define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'fi::a';
 $longoptions = array('id::', 'foreground', 'all');
@@ -39,7 +42,7 @@ class TwitterDaemon extends SpawningDaemon
 {
     protected $allsites = false;
 
-    function __construct($id=null, $daemonize=true, $threads=1, $allsites=false)
+    public function __construct($id = null, $daemonize = true, $threads = 1, $allsites = false)
     {
         if ($threads != 1) {
             // This should never happen. :)
@@ -49,7 +52,7 @@ class TwitterDaemon extends SpawningDaemon
         $this->allsites = $allsites;
     }
 
-    function runThread()
+    public function runThread()
     {
         common_log(LOG_INFO, 'Waiting to listen to Twitter and queues');
 
@@ -61,14 +64,13 @@ class TwitterDaemon extends SpawningDaemon
 
         return $master->respawn ? self::EXIT_RESTART : self::EXIT_SHUTDOWN;
     }
-
 }
 
 class TwitterMaster extends IoMaster
 {
     protected $processManager;
 
-    function __construct($id, $processManager)
+    public function __construct($id, $processManager)
     {
         parent::__construct($id);
         $this->processManager = $processManager;
@@ -78,7 +80,7 @@ class TwitterMaster extends IoMaster
      * Initialize IoManagers for the currently configured site
      * which are appropriate to this instance.
      */
-    function initManagers()
+    public function initManagers()
     {
         $qm = QueueManager::get();
         $qm->setActiveGroup('twitter');
@@ -298,7 +300,7 @@ class TwitterManager extends IoManager
 
 if (have_option('i', 'id')) {
     $id = get_option_value('i', 'id');
-} else if (count($args) > 0) {
+} elseif (count($args) > 0) {
     $id = $args[0];
 } else {
     $id = null;
