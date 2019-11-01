@@ -148,6 +148,7 @@ class Fave_tally extends Managed_DataObject
             $tally = new Fave_tally();
             $tally->notice_id = $noticeID;
             $tally->count = Fave_tally::countExistingFaves($noticeID);
+            $tally->created = common_sql_now();
             $result = $tally->insert();
             if (!$result) {
                 $msg = sprintf(
