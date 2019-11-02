@@ -180,8 +180,9 @@ class Activitypub_explorer
             common_debug('ActivityPub Explorer: Unable to find a local Aprofile for ' . $uri . ' - looking for a Profile instead.');
             // Well, maybe it is a pure blood?
             // Iff, we are in the same instance:
-            $ACTIVITYPUB_BASE_ACTOR_URI_length = strlen(ACTIVITYPUB_BASE_ACTOR_URI);
-            if (substr($uri, 0, $ACTIVITYPUB_BASE_ACTOR_URI_length) == ACTIVITYPUB_BASE_ACTOR_URI) {
+            $ACTIVITYPUB_BASE_ACTOR_URI = common_local_url('userbyid', ['id' => null], null, null, false, true); // @FIXME: Could this be too hardcoded?
+            $ACTIVITYPUB_BASE_ACTOR_URI_length = strlen($ACTIVITYPUB_BASE_ACTOR_URI);
+            if (substr($uri, 0, $ACTIVITYPUB_BASE_ACTOR_URI_length) === $ACTIVITYPUB_BASE_ACTOR_URI) {
                 try {
                     $profile = Profile::getByID((int)substr($uri, $ACTIVITYPUB_BASE_ACTOR_URI_length));
                     common_debug('ActivityPub Explorer: Found a Profile for ' . $uri);

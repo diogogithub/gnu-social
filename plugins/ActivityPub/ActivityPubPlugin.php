@@ -36,7 +36,6 @@ foreach (glob(__DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'mod
 }
 
 // So that this isn't hardcoded everywhere
-define('ACTIVITYPUB_BASE_ACTOR_URI', common_root_url().'index.php/user/');
 const ACTIVITYPUB_PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
                                'Public',
                                'as:Public'
@@ -67,11 +66,7 @@ class ActivityPubPlugin extends Plugin
      */
     public static function actor_uri($profile)
     {
-        if ($profile->isLocal()) {
-            return ACTIVITYPUB_BASE_ACTOR_URI.$profile->getID();
-        } else {
-            return $profile->getUri();
-        }
+        return common_profile_uri($profile);
     }
 
     /**
