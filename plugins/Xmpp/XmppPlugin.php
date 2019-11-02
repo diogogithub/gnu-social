@@ -114,38 +114,48 @@ class XmppPlugin extends ImPlugin
      */
     protected function splitJid($jid)
     {
-        $chars = '';
+        $chars = [];
         /* the following definitions come from stringprep, Appendix C,
            which is used in its entirety by nodeprop, Chapter 5, "Prohibited Output" */
-        /* C1.1 ASCII space characters */
-        $chars .= "\x{20}";
-        /* C1.2 Non-ASCII space characters */
-        $chars .= "\x{a0}\x{1680}\x{2000}-\x{200b}\x{202f}\x{205f}\x{3000a}";
-        /* C2.1 ASCII control characters */
-        $chars .= "\x{00}-\x{1f}\x{7f}";
-        /* C2.2 Non-ASCII control characters */
-        $chars .= "\x{80}-\x{9f}\x{6dd}\x{70f}\x{180e}\x{200c}\x{200d}\x{2028}\x{2029}\x{2060}-\x{2063}\x{206a}-\x{206f}\x{feff}\x{fff9}-\x{fffc}\x{1d173}-\x{1d17a}";
-        /* C3 - Private Use */
-        $chars .= "\x{e000}-\x{f8ff}\x{f0000}-\x{ffffd}\x{100000}-\x{10fffd}";
-        /* C4 - Non-character code points */
-        $chars .= "\x{fdd0}-\x{fdef}\x{fffe}\x{ffff}\x{1fffe}\x{1ffff}\x{2fffe}\x{2ffff}\x{3fffe}\x{3ffff}\x{4fffe}\x{4ffff}\x{5fffe}\x{5ffff}\x{6fffe}\x{6ffff}\x{7fffe}\x{7ffff}\x{8fffe}\x{8ffff}\x{9fffe}\x{9ffff}\x{afffe}\x{affff}\x{bfffe}\x{bffff}\x{cfffe}\x{cffff}\x{dfffe}\x{dffff}\x{efffe}\x{effff}\x{ffffe}\x{fffff}\x{10fffe}\x{10ffff}";
-        /* C5 - Surrogate codes */
+        // C.1.1 Latin-1 space characters
+        $chars['1.1'] = "\x{20}";
+        // C.1.2 Non-Latin-1 space characters
+        $chars['1.2'] = "\x{a0}\x{1680}\x{2000}-\x{200b}\x{202f}\x{205f}\x{3000a}";
+        // C.2.1 Latin-1 control characters
+        $chars['2.1'] = "\x{00}-\x{1f}\x{7f}";
+        // C.2.2 Non-Latin-1 control characters
+        $chars['2.2'] = "\x{80}-\x{9f}\x{6dd}\x{70f}\x{180e}\x{200c}\x{200d}"
+             . "\x{2028}\x{2029}\x{2060}-\x{2063}\x{206a}-\x{206f}\x{feff}"
+             . "\x{fff9}-\x{fffc}\x{1d173}-\x{1d17a}";
+        // C.3 - Private Use
+        $chars['3'] = "\x{e000}-\x{f8ff}\x{f0000}-\x{ffffd}\x{100000}-\x{10fffd}";
+        // C.4 - Non-character code points
+        $chars['4'] = "\x{fdd0}-\x{fdef}\x{fffe}\x{ffff}\x{1fffe}\x{1ffff}"
+            . "\x{2fffe}\x{2ffff}\x{3fffe}\x{3ffff}\x{4fffe}\x{4ffff}\x{5fffe}"
+            . "\x{5ffff}\x{6fffe}\x{6ffff}\x{7fffe}\x{7ffff}\x{8fffe}\x{8ffff}"
+            . "\x{9fffe}\x{9ffff}\x{afffe}\x{affff}\x{bfffe}\x{bffff}\x{cfffe}"
+            . "\x{cffff}\x{dfffe}\x{dffff}\x{efffe}\x{effff}\x{ffffe}\x{fffff}"
+            . "\x{10fffe}\x{10ffff}";
+        // C.5 - Surrogate codes
         // We can't use preg_match to check this, fix below
-        // $chars .= "\x{d800}-\x{dfff}";
-        /* C6 - Inappropriate for plain text */
-        $chars .= "\x{fff9}-\x{fffd}";
-        /* C7 - Inappropriate for canonical representation */
-        $chars .= "\x{2ff0}-\x{2ffb}";
-        /* C8 - Change display properties or are deprecated */
-        $chars .= "\x{340}\x{341}\x{200e}\x{200f}\x{202a}-\x{202e}\x{206a}-\x{206f}";
-        /* C9 - Tagging characters */
-        $chars .= "\x{e0001}\x{e0020}-\x{e007f}";
+        // $chars['5'] = "\x{d800}-\x{dfff}";
+        // C.6 - Inappropriate for plain text
+        $chars['6'] = "\x{fff9}-\x{fffd}";
+        // C.7 - Inappropriate for canonical representation
+        $chars['7'] = "\x{2ff0}-\x{2ffb}";
+        // C.8 - Change display properties or are deprecated
+        $chars['8'] = "\x{340}\x{341}\x{200e}\x{200f}\x{202a}-\x{202e}\x{206a}-\x{206f}";
+        // C.9 - Tagging characters
+        $chars['9'] = "\x{e0001}\x{e0020}-\x{e007f}";
 
-        /* Nodeprep forbids some more characters */
-        $nodeprepchars = $chars;
-        $nodeprepchars .= "\x{22}\x{26}\x{27}\x{2f}\x{3a}\x{3c}\x{3e}\x{40}";
+        $nodeprep_chars = implode('', $chars);
+        // Nodeprep forbids some more characters
+        $nodeprep_chars .= "\x{22}\x{26}\x{27}\x{2f}\x{3a}\x{3c}\x{3e}\x{40}";
 
-        $parts = explode("/", $jid, 2);
+        // Resourceprep forbids all from stringprep, Appendix C, except for C.1.1
+        $resprep_chars = implode('', array_slice($chars, 1));
+
+        $parts = explode('/', $jid, 2);
         if (count($parts) > 1) {
             $resource = $parts[1];
         // if ($resource == '') then
@@ -171,21 +181,22 @@ class XmppPlugin extends ImPlugin
             }
         }
 
-        if ($node !== null) {
-            // Length limits per http://xmpp.org/rfcs/rfc3920.html#addressing
-            if (strlen($node) > 1023) {
+        if (!is_null($node)) {
+            // Length limits per https://xmpp.org/rfcs/rfc3920.html#addressing
+            if (mb_strlen($node, '8bit') > 1023) {
                 // TRANS: Exception thrown when using too long a Jabber ID (>1023).
                 throw new UnexpectedValueException(_m('Invalid JID: node too long.'));
             }
             // C5 - Surrogate codes is ensured by encoding check
-            if (preg_match("/[" . $nodeprepchars . "]/u", $node) || mb_detect_encoding($node, 'UTF-8', true) != 'UTF-8') {
+            if (preg_match("/[{$nodeprep_chars}]/u", $node)
+                || mb_detect_encoding($node, 'UTF-8', true) !== 'UTF-8') {
                 // TRANS: Exception thrown when using an invalid Jabber ID.
                 // TRANS: %s is the invalid Jabber ID.
                 throw new UnexpectedValueException(sprintf(_m('Invalid JID node "%s".'), $node));
             }
         }
 
-        if (strlen($domain) > 1023) {
+        if (mb_strlen($domain, '8bit') > 1023) {
             // TRANS: Exception thrown when using too long a Jabber domain (>1023).
             throw new UnexpectedValueException(_m('Invalid JID: domain too long.'));
         }
@@ -195,12 +206,12 @@ class XmppPlugin extends ImPlugin
             throw new UnexpectedValueException(sprintf(_m('Invalid JID domain name "%s".'), $domain));
         }
 
-        if ($resource !== null) {
-            if (strlen($resource) > 1023) {
+        if (!is_null($resource)) {
+            if (mb_strlen($resource, '8bit') > 1023) {
                 // TRANS: Exception thrown when using too long a resource (>1023).
                 throw new UnexpectedValueException('Invalid JID: resource too long.');
             }
-            if (preg_match("/[" . $chars . "]/u", $resource)) {
+            if (preg_match("/[{$resprep_chars}]/u", $resource)) {
                 // TRANS: Exception thrown when using an invalid Jabber resource.
                 // TRANS: %s is the invalid resource.
                 throw new UnexpectedValueException(sprintf(_m('Invalid JID resource "%s".'), $resource));
@@ -346,7 +357,12 @@ class XmppPlugin extends ImPlugin
     {
         $from = $this->normalize($pl['from']);
 
-        if ($pl['type'] != 'chat') {
+        if (is_null($from)) {
+            $this->log(LOG_WARNING, 'Ignoring message from invalid JID: ' . $pl['xml']->toString());
+            return true;
+        }
+
+        if ($pl['type'] !== 'chat') {
             $this->log(LOG_WARNING, "Ignoring message of type " . $pl['type'] . " from $from: " . $pl['xml']->toString());
             return true;
         }
