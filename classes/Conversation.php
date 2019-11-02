@@ -106,7 +106,7 @@ class Conversation extends Managed_DataObject
                 common_random_hexstr(8)
             );
             // locally generated Conversation objects don't get static URLs stored
-            $conv->url = DB_DataObject_Cast::sql('NULL');
+            $conv->url = $conv->sqlValue('NULL');
         }
         // This insert throws exceptions on failure
         $conv->insert();

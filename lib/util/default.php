@@ -74,6 +74,7 @@ $default =
                 'mirror' => null,
                 'utf8' => true,
                 'db_driver' => 'DB', # XXX: JanRain libs only work with DB
+                'disable_null_strings' => true, // 'NULL' can be harmful
                 'quote_identifiers' => true,
                 'type' => 'mysql',
                 'schemacheck' => 'runtime', // 'runtime' or 'script'
