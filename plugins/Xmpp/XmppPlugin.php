@@ -93,8 +93,9 @@ class XmppPlugin extends ImPlugin
                     return false;
                 }
             }
-            return ($parts['resource'] === null); // missing; empty ain't kosher
-        } catch (Exception $e) {
+            // missing; empty isn't kosher
+            return is_null($parts['resource']);
+        } catch (UnexpectedValueException $e) {
             return false;
         }
     }
@@ -106,7 +107,7 @@ class XmppPlugin extends ImPlugin
      * @param string $jid string to check
      *
      * @return array with "node", "domain", and "resource" indices
-     * @throws Exception if input is not valid
+     * @throws UnexpectedValueException if input is not valid
      * @license Licensed under ISC-L, which is compatible with everything else that keeps the copyright notice intact.
      *
      * @copyright 2009 Patrick Georgi <patrick@georgi-clan.de>
@@ -157,7 +158,7 @@ class XmppPlugin extends ImPlugin
         $node = explode("@", $parts[0]);
         if ((count($node) > 2) || (count($node) == 0)) {
             // TRANS: Exception thrown when using too many @ signs in a Jabber ID.
-            throw new Exception(_m('Invalid JID: too many @s.'));
+            throw new UnexpectedValueException(_m('Invalid JID: too many @s.'));
         } elseif (count($node) == 1) {
             $domain = $node[0];
             $node = null;
@@ -166,7 +167,7 @@ class XmppPlugin extends ImPlugin
             $node = $node[0];
             if ($node == '') {
                 // TRANS: Exception thrown when using @ sign not followed by a Jabber ID.
-                throw new Exception(_m('Invalid JID: @ but no node'));
+                throw new UnexpectedValueException(_m('Invalid JID: @ but no node'));
             }
         }
 
@@ -174,35 +175,35 @@ class XmppPlugin extends ImPlugin
             // Length limits per http://xmpp.org/rfcs/rfc3920.html#addressing
             if (strlen($node) > 1023) {
                 // TRANS: Exception thrown when using too long a Jabber ID (>1023).
-                throw new Exception(_m('Invalid JID: node too long.'));
+                throw new UnexpectedValueException(_m('Invalid JID: node too long.'));
             }
             // C5 - Surrogate codes is ensured by encoding check
             if (preg_match("/[" . $nodeprepchars . "]/u", $node) || mb_detect_encoding($node, 'UTF-8', true) != 'UTF-8') {
                 // TRANS: Exception thrown when using an invalid Jabber ID.
                 // TRANS: %s is the invalid Jabber ID.
-                throw new Exception(sprintf(_m('Invalid JID node "%s".'), $node));
+                throw new UnexpectedValueException(sprintf(_m('Invalid JID node "%s".'), $node));
             }
         }
 
         if (strlen($domain) > 1023) {
             // TRANS: Exception thrown when using too long a Jabber domain (>1023).
-            throw new Exception(_m('Invalid JID: domain too long.'));
+            throw new UnexpectedValueException(_m('Invalid JID: domain too long.'));
         }
         if (!common_valid_domain($domain)) {
             // TRANS: Exception thrown when using an invalid Jabber domain name.
             // TRANS: %s is the invalid domain name.
-            throw new Exception(sprintf(_m('Invalid JID domain name "%s".'), $domain));
+            throw new UnexpectedValueException(sprintf(_m('Invalid JID domain name "%s".'), $domain));
         }
 
         if ($resource !== null) {
             if (strlen($resource) > 1023) {
                 // TRANS: Exception thrown when using too long a resource (>1023).
-                throw new Exception("Invalid JID: resource too long.");
+                throw new UnexpectedValueException('Invalid JID: resource too long.');
             }
             if (preg_match("/[" . $chars . "]/u", $resource)) {
                 // TRANS: Exception thrown when using an invalid Jabber resource.
                 // TRANS: %s is the invalid resource.
-                throw new Exception(sprintf(_m('Invalid JID resource "%s".'), $resource));
+                throw new UnexpectedValueException(sprintf(_m('Invalid JID resource "%s".'), $resource));
             }
         }
 
@@ -370,12 +371,12 @@ class XmppPlugin extends ImPlugin
     {
         try {
             $parts = $this->splitJid($jid);
-            if ($parts['node'] !== null) {
+            if (!is_null($parts['node'])) {
                 return $parts['node'] . '@' . $parts['domain'];
             } else {
                 return $parts['domain'];
             }
-        } catch (Exception $e) {
+        } catch (UnexpectedValueException $e) {
             return null;
         }
     }
@@ -447,7 +448,7 @@ class XmppPlugin extends ImPlugin
                 }
             }
             return $parts['resource'] !== ''; // missing or present; empty ain't kosher
-        } catch (Exception $e) {
+        } catch (UnexpectedValueException $e) {
             return false;
         }
     }
