@@ -98,7 +98,7 @@ class SmssettingsAction extends SettingsAction
         $this->element('legend', null, _('SMS address'));
         $this->hidden('token', common_session_token());
 
-        if ($user->sms) {
+        if (!$user->isNull('sms')) {
             $carrier = $user->getCarrier();
             $this->element(
                 'p',
@@ -170,13 +170,13 @@ class SmssettingsAction extends SettingsAction
         }
         $this->elementEnd('fieldset');
 
-        if ($user->sms) {
+        if (!$user->isNull('sms')) {
             $this->elementStart('fieldset', ['id' => 'settings_sms_incoming_email']);
             // XXX: Confused! This is about SMS. Should this message be updated?
             // TRANS: Form legend for incoming SMS settings form.
             $this->element('legend', null, _('Incoming email'));
 
-            if ($user->incomingemail) {
+            if (!$user->isNull('incomingemail')) {
                 $this->element('p', 'form_unconfirmed', $user->incomingemail);
                 $this->element(
                     'p',
@@ -417,9 +417,9 @@ class SmssettingsAction extends SettingsAction
 
         $original = clone($user);
 
-        $user->sms      = DB_DataObject_Cast::sql('NULL');
-        $user->carrier  = DB_DataObject_Cast::sql('NULL');
-        $user->smsemail = DB_DataObject_Cast::sql('NULL');
+        $user->sms      = $user->sqlValue('NULL');
+        $user->carrier  = $user->sqlValue('NULL');
+        $user->smsemail = $user->sqlValue('NULL');
 
         // Throws exception on failure. Also performs it within a transaction.
         $user->updateWithKeys($original);
@@ -531,7 +531,7 @@ class SmssettingsAction extends SettingsAction
 
         $orig = clone($user);
 
-        $user->incomingemail = DB_DataObject_Cast::sql('NULL');
+        $user->incomingemail = $user->sqlValue('NULL');
 
         // Throws exception on failure. Also performs it within a transaction.
         $user->updateWithKeys($orig);

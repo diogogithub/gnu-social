@@ -283,6 +283,8 @@ abstract class Managed_DataObject extends Memcached_DataObject
      * Memcached_DataObject doesn't have enough info to handle properly.
      *
      * @return array of strings
+     * @throws MethodNotImplementedException
+     * @throws ServerException
      */
     public function _allCacheKeys()
     {
@@ -441,6 +443,32 @@ abstract class Managed_DataObject extends Memcached_DataObject
     }
 
     /**
+     * Check whether the column is NULL in SQL
+     *
+     * @param string $key column property name
+     *
+     * @return bool
+     */
+    public function isNull(string $key): bool
+    {
+        if (array_key_exists($key, get_object_vars($this))
+            && is_null($this->$key)) {
+            // If there was no fetch, this is a false positive.
+            return true;
+        } elseif (is_object($this->$key)
+                  && $this->$key instanceof DB_DataObject_Cast
+                  && $this->$key->type === 'sql') {
+            // This is cast to raw SQL, let's see if it's NULL.
+            return (strcasecmp($this->$key->value, 'NULL') == 0);
+        } elseif (DB_DataObject::_is_null($this, $key)) {
+            // DataObject's NULL magic should be disabled,
+            // this is just for completeness.
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * WARNING: Only use this on Profile and Notice. We should probably do
      * this with traits/"implements" or whatever, but that's over the top
      * right now, I'm just throwing this in here to avoid code duplication
@@ -516,10 +544,20 @@ abstract class Managed_DataObject extends Memcached_DataObject
         // do it in a transaction
         $this->query('BEGIN');
 
-        $parts = array();
+        $parts = [];
         foreach ($this->keys() as $k) {
-            if (strcmp($this->$k, $orig->$k) != 0) {
-                $parts[] = $k . ' = ' . $this->_quote($this->$k);
+            $v = $this->table()[$k];
+            if ($this->$k !== $orig->$k) {
+                if (is_object($this->$k) && $this->$k instanceof DB_DataObject_Cast) {
+                    $value = $this->$k->toString($v, $this->getDatabaseConnection());
+                } elseif (DB_DataObject::_is_null($this, $k)) {
+                    $value = 'NULL';
+                } elseif ($v & DB_DATAOBJECT_STR) { // if a string
+                    $value = $this->_quote((string) $this->$k);
+                } else {
+                    $value = (int) $this->$k;
+                }
+                $parts[] = "{$k} = {$value}";
             }
         }
         if (count($parts) == 0) {

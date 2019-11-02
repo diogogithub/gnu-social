@@ -62,6 +62,7 @@ function main()
 
         fixupNoticeConversation();
         initConversation();
+        fixupUserBadNulls();
         fixupGroupURI();
         if ($iterate_files) {
             printfnq("Running file iterations:\n");
@@ -117,6 +118,26 @@ function updateSchemaPlugins()
 
     Event::handle('BeforePluginCheckSchema');
     Event::handle('CheckSchema');
+
+    printfnq("DONE.\n");
+}
+
+function fixupUserBadNulls(): void
+{
+    printfnq("Ensuring all users have no empty strings for NULLs...");
+
+    foreach (['email', 'incomingemail', 'sms', 'smsemail'] as $col) {
+        $user = new User();
+        $user->whereAdd("{$col} = ''");
+
+        if ($user->find()) {
+            while ($user->fetch()) {
+                $sql = "UPDATE {$user->escapedTableName()} SET {$col} = NULL "
+                     . "WHERE id = {$user->id}";
+                $user->query($sql);
+            }
+        }
+    }
 
     printfnq("DONE.\n");
 }

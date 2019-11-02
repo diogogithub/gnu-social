@@ -92,7 +92,7 @@ class EmailsettingsAction extends SettingsAction
         $this->element('legend', null, _('Email address'));
         $this->hidden('token', common_session_token());
 
-        if ($user->email) {
+        if (!$user->isNull('email')) {
             $this->element('p', array('id' => 'form_confirmed'), $user->email);
             // TRANS: Form note in e-mail settings form.
             $this->element('p', array('class' => 'form_note'), _('Current confirmed email address.'));
@@ -163,7 +163,7 @@ class EmailsettingsAction extends SettingsAction
 
             $this->elementStart('div', array('id' => 'emailincoming'));
 
-            if ($user->incomingemail) {
+            if (!$user->isNull('incomingemail')) {
                 $this->elementStart('p');
                 $this->element('span', 'address', $user->incomingemail);
                 // @todo XXX: Looks a little awkward in the UI.
@@ -180,7 +180,7 @@ class EmailsettingsAction extends SettingsAction
             }
 
             $this->elementStart('p');
-            if ($user->incomingemail) {
+            if (!$user->isNull('incomingemail')) {
                 // TRANS: Instructions for incoming e-mail address input form, when an address has already been assigned.
                 $msg = _('Make a new email address for posting to; '.
                          'cancels the old one.');
@@ -435,7 +435,7 @@ class EmailsettingsAction extends SettingsAction
         }
 
         $original = clone($user);
-        $user->email = DB_DataObject_Cast::sql('NULL');
+        $user->email = $user->sqlValue('NULL');
         // Throws exception on failure. Also performs it within a transaction.
         $user->updateWithKeys($original);
 
@@ -458,7 +458,7 @@ class EmailsettingsAction extends SettingsAction
         }
 
         $orig = clone($user);
-        $user->incomingemail = DB_DataObject_Cast::sql('NULL');
+        $user->incomingemail = $user->sqlValue('NULL');
         $user->emailpost = false;
         // Throws exception on failure. Also performs it within a transaction.
         $user->updateWithKeys($orig);

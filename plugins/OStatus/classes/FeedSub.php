@@ -480,7 +480,7 @@ class FeedSub extends Managed_DataObject
             $this->sub_end = common_sql_date(time() + $lease_seconds);
         } else {
             // Backwards compatibility to StatusNet (PuSH <0.4 supported permanent subs)
-            $this->sub_end = DB_DataObject_Cast::sql('NULL');
+            $this->sub_end = $this->sqlValue('NULL');
         }
         $this->modified = common_sql_now();
 
@@ -496,10 +496,10 @@ class FeedSub extends Managed_DataObject
     {
         $original = clone($this);
 
-        $this->secret = DB_DataObject_Cast::sql('NULL');
+        $this->secret = $this->sqlValue('NULL');
         $this->sub_state = 'inactive';
-        $this->sub_start = DB_DataObject_Cast::sql('NULL');
-        $this->sub_end = DB_DataObject_Cast::sql('NULL');
+        $this->sub_start = $this->sqlValue('NULL');
+        $this->sub_end = $this->sqlValue('NULL');
         $this->modified = common_sql_now();
 
         return $this->update($original);

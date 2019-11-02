@@ -972,9 +972,15 @@ class Memcached_DataObject extends Safe_DataObject
             case 'date':
                 $vstr = "{$v->year} - {$v->month} - {$v->day}";
                 break;
+            case 'sql':
+                if (strcasecmp($v->value, 'NULL') == 0) {
+                    // Very selectively handling NULLs.
+                    $vstr = '';
+                    break;
+                }
+                // fallthrough
             case 'blob':
             case 'string':
-            case 'sql':
             case 'datetime':
             case 'time':
                 // Low level exception. No need for i18n as discussed with Brion.
