@@ -47,7 +47,7 @@ define('DB_DATAOBJECT_FETCHMODE_ASSOC', 2);
 
 /**
  * these are constants for the get_table array
- * user to determine what type of escaping is required around the object vars.
+ * used to determine what type of escaping is required around the object vars.
  */
 define('DB_DATAOBJECT_INT', 1);  // does not require ''
 define('DB_DATAOBJECT_STR', 2);  // requires ''
@@ -118,40 +118,11 @@ $GLOBALS['_DB_DATAOBJECT']['OVERLOADED'] = false;
 $GLOBALS['_DB_DATAOBJECT']['QUERYENDTIME'] = 0;
 
 
-// this will be horrifically slow!!!!
-// these two are BC/FC handlers for call in PHP4/5
-
-
-if (!defined('DB_DATAOBJECT_NO_OVERLOAD')) {
-    class DB_DataObject_Overload
-    {
-        public function __call($method, $args)
-        {
-            $return = null;
-            $this->_call($method, $args, $return);
-            return $return;
-        }
-
-        public function __sleep()
-        {
-            return array_keys(get_object_vars($this));
-        }
-    }
-} else {
-    class DB_DataObject_Overload
-    {
-    }
-}
-
-
-/*
-*
-* @package  DB_DataObject
-* @author   Alan Knowles <alan@akbkhome.com>
-* @since    PHP 4.0
-*/
-
-class DB_DataObject extends DB_DataObject_Overload
+/**
+ * @package  DB_DataObject
+ * @author   Alan Knowles <alan@akbkhome.com>
+ */
+class DB_DataObject
 {
     /**
      * The Version - use this to check feature changes
@@ -274,7 +245,7 @@ class DB_DataObject extends DB_DataObject_Overload
      *
      * @param int $v level
      * @access  public
-     * @return int|none
+     * @return int|void
      */
     public static function debugLevel($v = null)
     {
@@ -804,7 +775,7 @@ class DB_DataObject extends DB_DataObject_Overload
             $this->debug(print_r($dsn, true) . " {$this->_database_dsn_md5}", "CONNECT", 3);
         }
 
-        // Note this is verbose deliberatly!
+        // Note this is verbose deliberately!
 
         if ($db_driver == 'DB') {
 
@@ -856,7 +827,7 @@ class DB_DataObject extends DB_DataObject_Overload
             }
         }
 
-        // Oracle need to optimize for portibility - not sure exactly what this does though :)
+        // Oracle needs to optimise for portability - not sure exactly what this does though :)
 
         return true;
     }
@@ -986,12 +957,12 @@ class DB_DataObject extends DB_DataObject_Overload
      * It should append to the table structure array
      *
      *
-     * @param optional string  name of database to assign / read
-     * @param optional array   structure of database, and keys
-     * @param optional array  table links
+     * @param string optional name of database to assign / read
+     * @param array optional   structure of database, and keys
+     * @param array optional table links
      *
      * @access public
-     * @return true or PEAR:error on wrong paramenters.. or false if no file exists..
+     * @return true or PEAR:error on wrong parameters.. or false if no file exists..
      *              or the array(tablename => array(column_name=>type)) if called with 1 argument.. (databasename)
      */
     public function databaseStructure()
@@ -1109,7 +1080,7 @@ class DB_DataObject extends DB_DataObject_Overload
                 }
             }
         }
-        // are table name lowecased..
+        // are table names lower-cased..
         if (!empty($_DB_DATAOBJECT['CONFIG']['portability']) && $_DB_DATAOBJECT['CONFIG']['portability'] & 1) {
             foreach ($_DB_DATAOBJECT['INI'][$this->_database] as $k => $v) {
                 // results in duplicate cols.. but not a big issue..
@@ -2631,33 +2602,40 @@ class DB_DataObject extends DB_DataObject_Overload
 
     /**
      * Updates  current objects variables into the database
+     *
      * uses the keys() to decide how to update
-     * Returns the  true on success
      *
-     * for example
+     * WARNING: Be aware that this function doesn't update keys.
      *
+     * Usage:
+     * ```
      * $object = DB_DataObject::factory('mytable');
      * $object->get("ID",234);
      * $object->email="testing@test.com";
-     * if(!$object->update())
+     * if (!$object->update())
      *   echo "UPDATE FAILED";
+     * ```
      *
-     * to only update changed items :
+     * to only update changed items:
+     * ```
      * $dataobject->get(132);
      * $original = $dataobject; // clone/copy it..
      * $dataobject->setFrom($_POST);
      * if ($dataobject->validate()) {
      *    $dataobject->update($original);
      * } // otherwise an error...
+     * ```
      *
      * performing global updates:
+     * ```
      * $object = DB_DataObject::factory('mytable');
      * $object->status = "dead";
      * $object->whereAdd('age > 150');
      * $object->update(DB_DATAOBJECT_WHEREADD_ONLY);
+     * ```
      *
-     * @param bool $dataObject
-     * @return  int rows affected or false on failure
+     * @param object|bool (optional) $dataObject|DB_DataObject::WHERE_ONLY - used to only update changed items.
+     * @return int|bool Number rows affected (may be 0), true (if no difference between old/new), false on failure
      * @access public
      */
     public function update($dataObject = false)
@@ -2709,7 +2687,7 @@ class DB_DataObject extends DB_DataObject_Overload
 
         foreach ($items as $k => $v) {
 
-            // I think this is ignoring empty vlalues
+            // I think this is ignoring empty values
             if ((!isset($this->$k) || ($v == 1 && $this->$k === ''))
                 && $ignore_null
             ) {
@@ -2717,7 +2695,7 @@ class DB_DataObject extends DB_DataObject_Overload
             }
             // ignore stuff thats
 
-            // dont write things that havent changed..
+            // don't write things that haven't changed..
             if (($dataObject !== false) && isset($dataObject->$k) && ($dataObject->$k === $this->$k)) {
                 continue;
             }
@@ -2756,7 +2734,7 @@ class DB_DataObject extends DB_DataObject_Overload
                 continue;
             }
             // DATE is empty... on a col. that can be null..
-            // note: this may be usefull for time as well..
+            // note: this may be useful for time as well..
             if (!$this->$k &&
                 (($v & DB_DATAOBJECT_DATE) || ($v & DB_DATAOBJECT_TIME)) &&
                 !($v & DB_DATAOBJECT_NOTNULL)) {
@@ -4812,7 +4790,7 @@ class DB_DataObject extends DB_DataObject_Overload
     }
 }
 
-// technially 4.3.2RC1 was broken!!
+// technically 4.3.2RC1 was broken!!
 // looks like 4.3.3 may have problems too....
 if (!defined('DB_DATAOBJECT_NO_OVERLOAD')) {
     if ((phpversion() != '4.3.2-RC1') && (version_compare(phpversion(), "4.3.1") > 0)) {

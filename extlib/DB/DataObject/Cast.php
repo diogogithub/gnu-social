@@ -40,7 +40,7 @@
  *    $data = DB_DataObject_Cast::sql('cast("123123",datetime)');
  *    $data = DB_DataObject_Cast::sql('NULL');
  *
- *   // int's/string etc. are proably pretty pointless..!!!!
+ *   // int's/string etc. are probably pretty pointless..!!!!
  *
  *
  *   inside DB_DataObject,

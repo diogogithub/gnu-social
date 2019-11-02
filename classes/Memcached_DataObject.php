@@ -970,7 +970,7 @@ class Memcached_DataObject extends Safe_DataObject
         if (is_object($v) && $v instanceof DB_DataObject_Cast) {
             switch ($v->type) {
             case 'date':
-                $vstr = $v->year . '-' . $v->month . '-' . $v->day;
+                $vstr = "{$v->year} - {$v->month} - {$v->day}";
                 break;
             case 'blob':
             case 'string':
