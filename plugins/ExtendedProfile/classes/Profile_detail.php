@@ -71,37 +71,35 @@ class Profile_detail extends Managed_DataObject
 
     public static function schemaDef()
     {
-        return array(
+        return [
             // No need for i18n. Table properties.
-            'description'
-            => 'Additional profile details for the ExtendedProfile plugin',
-            'fields' => array(
-                'id' => array('type' => 'serial', 'not null' => true),
-                'profile_id' => array('type' => 'int', 'not null' => true),
-                'field_name' => array(
+            'description' => 'Additional profile details for the ExtendedProfile plugin',
+            'fields' => [
+                'id' => ['type' => 'serial', 'not null' => true],
+                'profile_id' => ['type' => 'int', 'not null' => true],
+                'field_name' => [
                     'type' => 'varchar',
                     'length' => 16,
-                    'not null' => true
-                ),
-                'value_index' => array('type' => 'int'),
-                'field_value' => array('type' => 'text'),
-                'date' => array('type' => 'datetime'),
-                'rel' => array('type' => 'varchar', 'length' => 16),
-                'rel_profile' => array('type' => 'int'),
-                'created' => array(
+                    'not null' => true,
+                ],
+                'value_index' => ['type' => 'int'],
+                'field_value' => ['type' => 'text'],
+                'date' => ['type' => 'datetime'],
+                'rel' => ['type' => 'varchar', 'length' => 16],
+                'rel_profile' => ['type' => 'int'],
+                'created' => [
                     'type' => 'datetime',
-                    'not null' => true
-                ),
-                'modified' => array(
+                    'not null' => true,
+                ],
+                'modified' => [
                     'type' => 'timestamp',
-                    'not null' => true
-                ),
-            ),
-            'primary key' => array('id'),
-            'unique keys' => array(
-                'profile_detail_profile_id_field_name_value_index'
-                => array('profile_id', 'field_name', 'value_index'),
-            )
-        );
+                    'not null' => true,
+                ],
+            ],
+            'primary key' => ['id'],
+            'unique keys' => [
+                'profile_detail_profile_id_field_name_value_index' => ['profile_id', 'field_name', 'value_index']
+            ],
+        ];
     }
 }

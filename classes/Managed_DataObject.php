@@ -522,14 +522,18 @@ abstract class Managed_DataObject extends Memcached_DataObject
         return $aliases;
     }
 
-    // 'update' won't write key columns, so we have to do it ourselves.
-    // This also automatically calls "update" _before_ it sets the keys.
-    // FIXME: This only works with single-column primary keys so far! Beware!
     /**
-     * @param DB_DataObject &$orig  Must be "instanceof" $this
-     * @param string         $pid   Primary ID column (no escaping is done on column name!)
+     * update() won't write key columns, so we have to do it ourselves.
+     * This also automatically calls "update" _before_ it sets the keys.
+     * FIXME: This only works with single-column primary keys so far! Beware!
+     *
+     * @param Managed_DataObject $orig Must be "instanceof" $this
+     * @param string $pid Primary ID column (no escaping is done on column name!)
+     * @return bool|void
+     * @throws MethodNotImplementedException
+     * @throws ServerException
      */
-    public function updateWithKeys(Managed_DataObject $orig, $pid=null)
+    public function updateWithKeys(Managed_DataObject $orig, ?string $pid = null)
     {
         if (!$orig instanceof $this) {
             throw new ServerException('Tried updating a DataObject with a different class than itself.');

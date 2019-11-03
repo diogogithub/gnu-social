@@ -33,7 +33,7 @@ include_once __DIR__ . '/lib/profiletools.php';
 
 class ExtendedProfilePlugin extends Plugin
 {
-    const PLUGIN_VERSION = '3.0.1';
+    const PLUGIN_VERSION = '3.0.2';
 
     public function onPluginVersion(array &$versions): bool
     {
