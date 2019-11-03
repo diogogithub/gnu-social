@@ -23,7 +23,7 @@
  * @category  Realtime
  * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2011 StatusNet, Inc.
+ * @copyright 2011-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
@@ -32,10 +32,9 @@ defined('GNUSOCIAL') || die();
 /**
  * A channel for real-time browser data
  *
- * @copyright 2011 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      DB_DataObject
+ * @see       DB_DataObject
  */
 class Realtime_channel extends Managed_DataObject
 {
@@ -57,64 +56,64 @@ class Realtime_channel extends Managed_DataObject
      */
     public static function schemaDef()
     {
-        return array(
+        return [
             'description' => 'A channel of realtime notice data',
-            'fields' => array(
-                'user_id' => array('type' => 'int',
-                                   'not null' => false,
-                                   'description' => 'user viewing page; can be null'),
-                'action' => array('type' => 'varchar',
-                                  'length' => 191,
-                                  'not null' => true,
-                                  'description' => 'page being viewed'),
-                'arg1' => array('type' => 'varchar',
-                                'length' => 191,
-                                'not null' => false,
-                                'description' => 'page argument, like username or tag'),
-                'arg2' => array('type' => 'varchar',
-                                'length' => 191,
-                                'not null' => false,
-                                'description' => 'second page argument, like tag for showstream'),
-                'channel_key' => array('type' => 'varchar',
-                               'length' => 32,
-                               'not null' => true,
-                               'description' => 'shared secret key for this channel'),
-                'audience' => array('type' => 'int',
-                                    'not null' => true,
-                                    'default' => 0,
-                                    'description' => 'reference count'),
-                'created' => array('type' => 'datetime',
-                                   'not null' => true,
-                                   'description' => 'date this record was created'),
-                'modified' => array('type' => 'datetime',
-                                    'not null' => true,
-                                    'description' => 'date this record was modified'),
-            ),
-            'primary key' => array('channel_key'),
-            'unique keys' => array('realtime_channel_user_page_idx' => array('user_id', 'action', 'arg1', 'arg2')),
-            'foreign keys' => array(
-                'realtime_channel_user_id_fkey' => array('user', array('user_id' => 'id')),
-            ),
-            'indexes' => array(
-                'realtime_channel_modified_idx' => array('modified'),
-                'realtime_channel_page_idx' => array('action', 'arg1', 'arg2')
-            ),
-        );
+            'fields' => [
+                'user_id' => ['type' => 'int',
+                    'not null' => false,
+                    'description' => 'user viewing page; can be null'],
+                'action' => ['type' => 'varchar',
+                    'length' => 191,
+                    'not null' => true,
+                    'description' => 'page being viewed'],
+                'arg1' => ['type' => 'varchar',
+                    'length' => 191,
+                    'not null' => false,
+                    'description' => 'page argument, like username or tag'],
+                'arg2' => ['type' => 'varchar',
+                    'length' => 191,
+                    'not null' => false,
+                    'description' => 'second page argument, like tag for showstream'],
+                'channel_key' => ['type' => 'varchar',
+                    'length' => 32,
+                    'not null' => true,
+                    'description' => 'shared secret key for this channel'],
+                'audience' => ['type' => 'int',
+                    'not null' => true,
+                    'default' => 0,
+                    'description' => 'reference count'],
+                'created' => ['type' => 'datetime',
+                    'not null' => true,
+                    'description' => 'date this record was created'],
+                'modified' => ['type' => 'datetime',
+                    'not null' => true,
+                    'description' => 'date this record was modified'],
+            ],
+            'primary key' => ['channel_key'],
+            'unique keys' => ['realtime_channel_user_page_idx' => ['user_id', 'action', 'arg1', 'arg2']],
+            'foreign keys' => [
+                'realtime_channel_user_id_fkey' => ['user', ['user_id' => 'id']],
+            ],
+            'indexes' => [
+                'realtime_channel_modified_idx' => ['modified'],
+                'realtime_channel_page_idx' => ['action', 'arg1', 'arg2']
+            ],
+        ];
     }
 
-    public static function saveNew($user_id, $action, $arg1, $arg2)
+    public static function saveNew(int $user_id, Action $action, $arg1, $arg2): Realtime_channel
     {
         $channel = new Realtime_channel();
 
         $channel->user_id = $user_id;
-        $channel->action  = $action;
-        $channel->arg1    = $arg1;
-        $channel->arg2    = $arg2;
-        $channel->audience  = 1;
+        $channel->action = $action;
+        $channel->arg1 = $arg1;
+        $channel->arg2 = $arg2;
+        $channel->audience = 1;
 
         $channel->channel_key = common_random_hexstr(16); // 128-bit key, 32 hex chars
 
-        $channel->created  = common_sql_now();
+        $channel->created = common_sql_now();
         $channel->modified = $channel->created;
 
         $channel->insert();
@@ -122,7 +121,7 @@ class Realtime_channel extends Managed_DataObject
         return $channel;
     }
 
-    public static function getChannel($user_id, $action, $arg1, $arg2)
+    public static function getChannel(int $user_id, Action $action, $arg1, $arg2): Realtime_channel
     {
         $channel = self::fetchChannel($user_id, $action, $arg1, $arg2);
 
@@ -143,7 +142,7 @@ class Realtime_channel extends Managed_DataObject
         return $channel;
     }
 
-    public static function getAllChannels($action, $arg1, $arg2)
+    public static function getAllChannels(Action $action, $arg1, $arg2): array
     {
         $channel = new Realtime_channel();
 
@@ -172,7 +171,7 @@ class Realtime_channel extends Managed_DataObject
         return $channels;
     }
 
-    public static function fetchChannel($user_id, $action, $arg1, $arg2)
+    public static function fetchChannel(int $user_id, Action $action, $arg1, $arg2): ?Realtime_channel
     {
         $channel = new Realtime_channel();
 
@@ -204,7 +203,7 @@ class Realtime_channel extends Managed_DataObject
         }
     }
 
-    public function increment()
+    public function increment(): void
     {
         // XXX: race
         $orig = clone($this);
@@ -213,7 +212,7 @@ class Realtime_channel extends Managed_DataObject
         $this->update($orig);
     }
 
-    public function touch()
+    public function touch(): void
     {
         // XXX: race
         $orig = clone($this);
@@ -221,7 +220,7 @@ class Realtime_channel extends Managed_DataObject
         $this->update($orig);
     }
 
-    public function decrement()
+    public function decrement(): void
     {
         // XXX: race
         if ($this->audience == 1) {

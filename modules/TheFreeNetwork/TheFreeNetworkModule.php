@@ -26,6 +26,17 @@
 
 defined('GNUSOCIAL') || die();
 
+/**
+ * Class TheFreeNetworkModule
+ * This module ensures that multiple protocols serving the same purpose won't result in duplicated data.
+ * This class is not to be extended but a developer implementing a new protocol should be aware of it and notify the
+ * StartTFNCensus event.
+ *
+ * @category  Module
+ * @package   GNUsocial
+ * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class TheFreeNetworkModule extends Module
 {
     const MODULE_VERSION = '0.1.0alpha0';

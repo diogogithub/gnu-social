@@ -30,36 +30,36 @@ class Bayeux
 
     public $sUrl = '';
 
-    function __construct($sUrl, $sUser='', $sPassword='')
+    public function __construct($sUrl, $sUser='', $sPassword='')
     {
         $this->sUrl = $sUrl;
 
         $this->oCurl = curl_init();
 
-        $aHeaders = array();
+        $aHeaders = [];
         $aHeaders[] = 'Connection: Keep-Alive';
 
         curl_setopt($this->oCurl, CURLOPT_URL, $sUrl);
         curl_setopt($this->oCurl, CURLOPT_HTTPHEADER, $aHeaders);
         curl_setopt($this->oCurl, CURLOPT_HEADER, 0);
         curl_setopt($this->oCurl, CURLOPT_POST, 1);
-        curl_setopt($this->oCurl, CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($this->oCurl, CURLOPT_RETURNTRANSFER, 1);
 
         if (!is_null($sUser) && mb_strlen($sUser) > 0) {
-            curl_setopt($this->oCurl, CURLOPT_USERPWD,"$sUser:$sPassword");
+            curl_setopt($this->oCurl, CURLOPT_USERPWD, "$sUser:$sPassword");
         }
 
         $this->handShake();
     }
 
-    function __destruct()
+    public function __destruct()
     {
         $this->disconnect();
     }
 
-    function handShake()
+    public function handShake()
     {
-        $msgHandshake = array();
+        $msgHandshake = [];
         $msgHandshake['channel'] = '/meta/handshake';
         $msgHandshake['version'] = "1.0";
         $msgHandshake['minimumVersion'] = "0.9";
@@ -70,8 +70,9 @@ class Bayeux
 
         $data = curl_exec($this->oCurl);
 
-        if(curl_errno($this->oCurl))
-          die("Error: " . curl_error($this->oCurl));
+        if (curl_errno($this->oCurl)) {
+            die("Error: " . curl_error($this->oCurl));
+        }
 
         $oReturn = json_decode($data);
 
@@ -81,8 +82,7 @@ class Bayeux
 
         $bSuccessful = ($oReturn->successful) ? true : false;
 
-        if($bSuccessful)
-        {
+        if ($bSuccessful) {
             $this->clientId = $oReturn->clientId;
 
             $this->connect();
@@ -101,9 +101,9 @@ class Bayeux
         $data = curl_exec($this->oCurl);
     }
 
-    function disconnect()
+    public function disconnect()
     {
-        $msgHandshake = array();
+        $msgHandshake = [];
         $msgHandshake['channel'] = '/meta/disconnect';
         $msgHandshake['id'] = $this->nNextId++;
         $msgHandshake['clientId'] = $this->clientId;
@@ -115,10 +115,11 @@ class Bayeux
 
     public function publish($sChannel, $oData)
     {
-        if(!$sChannel || !$oData)
-          return;
+        if (!$sChannel || !$oData) {
+            return;
+        }
 
-        $aMsg = array();
+        $aMsg = [];
 
         $aMsg['channel'] = $sChannel;
         $aMsg['id'] = $this->nNextId++;

@@ -54,10 +54,10 @@ class KeepalivechannelAction extends Action
      *
      * @param array $args misc. arguments
      *
-     * @return boolean true
+     * @return bool true
      * @throws ClientException
      */
-    function prepare(array $args = [])
+    public function prepare(array $args = []): bool
     {
         parent::prepare($args);
 
@@ -88,7 +88,7 @@ class KeepalivechannelAction extends Action
      *
      * @return void
      */
-    function handle()
+    public function handle(): void
     {
         $this->channel->touch();
 
@@ -104,9 +104,9 @@ class KeepalivechannelAction extends Action
      *
      * @param array $args other arguments
      *
-     * @return boolean is read only action?
+     * @return bool is read only action?
      */
-    function isReadOnly($args)
+    public function isReadOnly($args): bool
     {
         return false;
     }

@@ -4,7 +4,7 @@ FriendFeed's "real time" news.
 
 It requires a meteor server.
 
-   http://meteorserver.org/
+   https://github.com/visitsb/meteorserver/
 
 Note that the controller interface needs to be accessible by the Web server, and
 the subscriber interface needs to be accessible by your Web users. You MUST
@@ -13,7 +13,7 @@ push any message to your subscribers. Not good!
 
 You can enable the plugin with this line in config.php:
 
-addPlugin('Meteor', array('webserver' => 'meteor server address'));
+addPlugin('Meteor', ['webserver' => 'meteor server address']);
 
 Available parameters:
 * webserver: Web server address. Defaults to site server.
