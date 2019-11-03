@@ -1,35 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Superclass for plugins that do "real time" updates of timelines using Ajax
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Plugin
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @copyright 2009 StatusNet, Inc.
- * @copyright 2014 Free Software Foundation, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2009-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Superclass for plugin to do realtime updates
@@ -37,13 +33,12 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * Based on experience with the Comet and Meteor plugins,
  * this superclass extracts out some of the common functionality
  *
- * Currently depends on Favorite plugin.
+ * Currently depends on the Favorite module.
  *
  * @category Plugin
- * @package  StatusNet
+ * @package  GNUsocial
  * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @license  https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class RealtimePlugin extends Plugin
 {
@@ -53,15 +48,17 @@ class RealtimePlugin extends Plugin
      * When it's time to initialize the plugin, calculate and
      * pass the URLs we need.
      */
-    function onInitializePlugin()
+    public function onInitializePlugin()
     {
         // FIXME: need to find a better way to pass this pattern in
-        $this->showurl = common_local_url('shownotice',
-                                            array('notice' => '0000000000'));
+        $this->showurl = common_local_url(
+            'shownotice',
+            ['notice' => '0000000000']
+        );
         return true;
     }
 
-    function onCheckSchema()
+    public function onCheckSchema()
     {
         $schema = Schema::get();
         $schema->ensureTable('realtime_channel', Realtime_channel::schemaDef());
@@ -72,20 +69,25 @@ class RealtimePlugin extends Plugin
      * Hook for RouterInitialized event.
      *
      * @param URLMapper $m path-to-action mapper
-     * @return boolean hook return
+     * @return bool hook return
+     * @throws Exception
      */
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('main/channel/:channelkey/keepalive',
-                    ['action' => 'keepalivechannel'],
-                    ['channelkey' => '[a-z0-9]{32}']);
-        $m->connect('main/channel/:channelkey/close',
-                    ['action' => 'closechannel'],
-                    ['channelkey' => '[a-z0-9]{32}']);
+        $m->connect(
+            'main/channel/:channelkey/keepalive',
+            ['action' => 'keepalivechannel'],
+            ['channelkey' => '[a-z0-9]{32}']
+        );
+        $m->connect(
+            'main/channel/:channelkey/close',
+            ['action' => 'closechannel'],
+            ['channelkey' => '[a-z0-9]{32}']
+        );
         return true;
     }
 
-    function onEndShowScripts($action)
+    public function onEndShowScripts(Action $action)
     {
         $channel = $this->_getChannel($action);
 
@@ -93,7 +95,7 @@ class RealtimePlugin extends Plugin
             return true;
         }
 
-        $timeline = $this->_pathToChannel(array($channel->channel_key));
+        $timeline = $this->_pathToChannel([$channel->channel_key]);
 
         // If there's not a timeline on this page,
         // just return true
@@ -125,11 +127,10 @@ class RealtimePlugin extends Plugin
 
         if ($action->boolean('realtime')) {
             $realtimeUI = ' RealtimeUpdate.initPopupWindow();';
-        }
-        else {
+        } else {
             $pluginPath = common_path('plugins/Realtime/');
-            $keepalive = common_local_url('keepalivechannel', array('channelkey' => $channel->channel_key));
-            $close = common_local_url('closechannel', array('channelkey' => $channel->channel_key));
+            $keepalive = common_local_url('keepalivechannel', ['channelkey' => $channel->channel_key]);
+            $close = common_local_url('closechannel', ['channelkey' => $channel->channel_key]);
             $realtimeUI = ' RealtimeUpdate.initActions('.json_encode($url).', '.json_encode($timeline).', '.json_encode($pluginPath).', '.json_encode($keepalive).', '.json_encode($close).'); ';
         }
 
@@ -144,15 +145,17 @@ class RealtimePlugin extends Plugin
 
     public function onEndShowStylesheets(Action $action)
     {
-        $urlpath = self::staticPath(str_replace('Plugin','',__CLASS__),
-                                    'css/realtimeupdate.css');
+        $urlpath = self::staticPath(
+            str_replace('Plugin', '', __CLASS__),
+            'css/realtimeupdate.css'
+        );
         $action->cssLink($urlpath, null, 'screen, projection, tv');
         return true;
     }
 
     public function onHandleQueuedNotice(Notice $notice)
     {
-        $paths = array();
+        $paths = [];
 
         // Add to the author's timeline
 
@@ -165,7 +168,7 @@ class RealtimePlugin extends Plugin
 
         try {
             $user = $profile->getUser();
-            $paths[] = array('showstream', $user->nickname, null);
+            $paths[] = ['showstream', $user->nickname, null];
         } catch (NoSuchUserException $e) {
             // We really should handle the remote profile views too
             $user = null;
@@ -176,7 +179,7 @@ class RealtimePlugin extends Plugin
         $is_local = intval($notice->is_local);
         if ($is_local === Notice::LOCAL_PUBLIC ||
                 ($is_local === Notice::REMOTE && !common_config('public', 'localonly'))) {
-            $paths[] = array('public', null, null);
+            $paths[] = ['public', null, null];
         }
 
         // Add to the tags timeline
@@ -185,7 +188,7 @@ class RealtimePlugin extends Plugin
 
         if (!empty($tags)) {
             foreach ($tags as $tag) {
-                $paths[] = array('tag', $tag, null);
+                $paths[] = ['tag', $tag, null];
             }
         }
 
@@ -196,7 +199,7 @@ class RealtimePlugin extends Plugin
 
         foreach (array_keys($ni) as $user_id) {
             $user = User::getKV('id', $user_id);
-            $paths[] = array('all', $user->nickname, null);
+            $paths[] = ['all', $user->getNickname(), null];
         }
 
         // Add to the replies timeline
@@ -208,7 +211,7 @@ class RealtimePlugin extends Plugin
             while ($reply->fetch()) {
                 $user = User::getKV('id', $reply->profile_id);
                 if (!empty($user)) {
-                    $paths[] = array('replies', $user->nickname, null);
+                    $paths[] = ['replies', $user->getNickname(), null];
                 }
             }
         }
@@ -222,12 +225,11 @@ class RealtimePlugin extends Plugin
         if ($gi->find()) {
             while ($gi->fetch()) {
                 $ug = User_group::getKV('id', $gi->group_id);
-                $paths[] = array('showgroup', $ug->nickname, null);
+                $paths[] = ['showgroup', $ug->getNickname(), null];
             }
         }
 
         if (count($paths) > 0) {
-
             $json = $this->noticeAsJson($notice);
 
             $this->_connect();
@@ -236,13 +238,14 @@ class RealtimePlugin extends Plugin
             // new queue item for each path
 
             foreach ($paths as $path) {
-
                 list($action, $arg1, $arg2) = $path;
 
                 $channels = Realtime_channel::getAllChannels($action, $arg1, $arg2);
-                $this->log(LOG_INFO, sprintf(_("%d candidate channels for notice %d"),
-                                             count($channels), 
-                                             $notice->id));
+                $this->log(LOG_INFO, sprintf(
+                    _("%d candidate channels for notice %d"),
+                    count($channels),
+                    $notice->id
+                ));
 
                 foreach ($channels as $channel) {
 
@@ -255,14 +258,18 @@ class RealtimePlugin extends Plugin
                         $profile = Profile::getKV('id', $channel->user_id);
                     }
                     if ($notice->inScope($profile)) {
-                        $this->log(LOG_INFO, 
-                                   sprintf(_("Delivering notice %d to channel (%s, %s, %s) for user '%s'"),
-                                           $notice->id,
-                                           $channel->action,
-                                           $channel->arg1,
-                                           $channel->arg2,
-                                           ($profile) ? ($profile->nickname) : "<public>"));
-                        $timeline = $this->_pathToChannel(array($channel->channel_key));
+                        $this->log(
+                            LOG_INFO,
+                            sprintf(
+                                _m("Delivering notice %d to channel (%s, %s, %s) for user '%s'"),
+                                $notice->id,
+                                $channel->action,
+                                $channel->arg1,
+                                $channel->arg2,
+                                ($profile ? $profile->getNickname() : '<public>')
+                            )
+                        );
+                        $timeline = $this->_pathToChannel([$channel->channel_key]);
                         $this->_publish($timeline, $json);
                     }
                 }
@@ -274,18 +281,23 @@ class RealtimePlugin extends Plugin
         return true;
     }
 
-    function onStartShowBody($action)
+    public function onStartShowBody(Action $action)
     {
         $realtime = $action->boolean('realtime');
         if (!$realtime) {
             return true;
         }
 
-        $action->elementStart('body',
-                              (common_current_user()) ? array('id' => $action->trimmed('action'),
-                                                              'class' => 'user_in realtime-popup')
-                              : array('id' => $action->trimmed('action'),
-                                      'class'=> 'realtime-popup'));
+        $action->elementStart(
+            'body',
+            (common_current_user() ? [
+                'id' => $action->trimmed('action'),
+                'class' => 'user_in realtime-popup',
+            ] : [
+                'id' => $action->trimmed('action'),
+                'class'=> 'realtime-popup',
+            ])
+        );
 
         // XXX hack to deal with JS that tries to get the
         // root url from page output
@@ -294,14 +306,17 @@ class RealtimePlugin extends Plugin
 
         if (common_config('singleuser', 'enabled')) {
             $user = User::singleUser();
-            $url = common_local_url('showstream', array('nickname' => $user->nickname));
+            $url = common_local_url('showstream', ['nickname' => $user->nickname]);
         } else {
             $url = common_local_url('public');
         }
 
-        $action->element('a', array('class' => 'url',
-                                    'href' => $url),
-                         '');
+        $action->element(
+            'a',
+            ['class' => 'url',
+             'href'  => $url],
+            ''
+        );
 
         $action->elementEnd('address');
 
@@ -311,7 +326,7 @@ class RealtimePlugin extends Plugin
         return false; // No default processing
     }
 
-    function noticeAsJson(Notice $notice)
+    public function noticeAsJson(Notice $notice)
     {
         // FIXME: this code should be abstracted to a neutral third
         // party, like Notice::asJson(). I'm not sure of the ethics
@@ -347,7 +362,7 @@ class RealtimePlugin extends Plugin
         return $arr;
     }
 
-    function getNoticeTags(Notice $notice)
+    public function getNoticeTags(Notice $notice)
     {
         $tags = null;
 
@@ -355,7 +370,7 @@ class RealtimePlugin extends Plugin
         $nt->notice_id = $notice->id;
 
         if ($nt->find()) {
-            $tags = array();
+            $tags = [];
             while ($nt->fetch()) {
                 $tags[] = $nt->tag;
             }
@@ -367,11 +382,13 @@ class RealtimePlugin extends Plugin
         return $tags;
     }
 
-    function _getScripts()
+    public function _getScripts(): array
     {
-        $urlpath = self::staticPath(str_replace('Plugin','',__CLASS__),
-                                    'js/realtimeupdate.js');
-        return array($urlpath);
+        $urlpath = self::staticPath(
+            str_replace('Plugin', '', __CLASS__),
+            'js/realtimeupdate.js'
+        );
+        return [$urlpath];
     }
 
     /**
@@ -380,9 +397,10 @@ class RealtimePlugin extends Plugin
      * @param Action $action
      * @param array $messages
      *
-     * @return boolean hook return value
+     * @return bool hook return value
+     * @throws Exception
      */
-    function onEndScriptMessages($action, &$messages)
+    public function onEndScriptMessages(Action $action, array &$messages)
     {
         // TRANS: Text label for realtime view "play" button, usually replaced by an icon.
         $messages['realtime_play'] = _m('BUTTON', 'Play');
@@ -400,40 +418,40 @@ class RealtimePlugin extends Plugin
         return true;
     }
 
-    function _updateInitialize($timeline, $user_id)
+    public function _updateInitialize($timeline, int $user_id)
     {
         return "RealtimeUpdate.init($user_id, \"$this->showurl\"); ";
     }
 
-    function _connect()
+    public function _connect()
     {
     }
 
-    function _publish($timeline, $json)
+    public function _publish($timeline, $json)
     {
     }
 
-    function _disconnect()
+    public function _disconnect()
     {
     }
 
-    function _pathToChannel($path)
+    public function _pathToChannel(array $path): string
     {
         return '';
     }
 
 
-    function _getTimeline($action)
+    public function _getTimeline(Action $action)
     {
         $channel = $this->_getChannel($action);
         if (empty($channel)) {
             return null;
         }
 
-        return $this->_pathToChannel(array($channel->channel_key));
+        return $this->_pathToChannel([$channel->channel_key]);
     }
 
-    function _getChannel($action)
+    public function _getChannel(Action $action)
     {
         $timeline = null;
         $arg1     = null;
@@ -478,15 +496,17 @@ class RealtimePlugin extends Plugin
 
         $user_id = (!empty($user)) ? $user->id : null;
 
-        $channel = Realtime_channel::getChannel($user_id,
-                                                $action_name,
-                                                $arg1,
-                                                $arg2);
+        $channel = Realtime_channel::getChannel(
+            $user_id,
+            $action_name,
+            $arg1,
+            $arg2
+        );
 
         return $channel;
     }
 
-    function onStartReadWriteTables(&$alwaysRW, &$rwdb)
+    public function onStartReadWriteTables(&$alwaysRW, &$rwdb)
     {
         $alwaysRW[] = 'realtime_channel';
         return true;

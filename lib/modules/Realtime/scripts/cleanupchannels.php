@@ -20,7 +20,7 @@
  *
  * @package   Realtime
  * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @copyright 2011 StatusNet, Inc.
+ * @copyright 2011-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
@@ -28,7 +28,7 @@ define('INSTALLDIR', dirname(__DIR__, 3));
 define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'u';
-$longoptions = array('universe');
+$longoptions = ['universe'];
 
 $helptext = <<<END_OF_CLEANUPCHANNELS_HELP
 cleanupchannels.php [options]

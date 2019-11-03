@@ -31,7 +31,7 @@ if (!defined('GNUSOCIAL') && !defined('STATUSNET')) {
     exit(1);
 }
 
-require_once INSTALLDIR.'/plugins/Realtime/RealtimePlugin.php';
+require_once INSTALLDIR . DIRECTORY_SEPARATOR . 'lib/modules/Realtime/RealtimePlugin.php';
 
 /**
  * Plugin to do realtime updates using Comet
@@ -52,8 +52,12 @@ class CometPlugin extends RealtimePlugin
     public $prefix   = null;
     protected $bay   = null;
 
-    function __construct($server=null, $username=null, $password=null, $prefix=null)
-    {
+    public function __construct(
+        ?string $server = null,
+        ?string $username = null,
+        ?string $password = null,
+        ?string $prefix = null
+    ) {
         $this->server   = $server;
         $this->username = $username;
         $this->password = $password;
@@ -62,11 +66,11 @@ class CometPlugin extends RealtimePlugin
         parent::__construct();
     }
 
-    function _getScripts()
+    public function _getScripts(): array
     {
         $scripts = parent::_getScripts();
 
-        $ours = array('js/jquery.comet.js', 'js/cometupdate.js');
+        $ours = ['js/jquery.comet.js', 'js/cometupdate.js'];
 
         foreach ($ours as $script) {
             $scripts[] = $this->path($script);
@@ -75,30 +79,30 @@ class CometPlugin extends RealtimePlugin
         return $scripts;
     }
 
-    function _updateInitialize($timeline, $user_id)
+    public function _updateInitialize($timeline, int $user_id)
     {
         $script = parent::_updateInitialize($timeline, $user_id);
         return $script." CometUpdate.init(\"$this->server\", \"$timeline\", $user_id, \"$this->replyurl\", \"$this->favorurl\", \"$this->deleteurl\");";
     }
 
-    function _connect()
+    public function _connect(): void
     {
-        require_once INSTALLDIR.'/plugins/Comet/extlib/Bayeux/Bayeux.class.php';
+        require_once __DIR__. DIRECTORY_SEPARATOR . 'extlib/Bayeux/Bayeux.class.php';
         // Bayeux? Comet? Huh? These terms confuse me
         $this->bay = new Bayeux($this->server, $this->user, $this->password);
     }
 
-    function _publish($timeline, $json)
+    public function _publish($timeline, $json): void
     {
         $this->bay->publish($timeline, $json);
     }
 
-    function _disconnect()
+    public function _disconnect(): void
     {
         unset($this->bay);
     }
 
-    function _pathToChannel($path)
+    public function _pathToChannel(array $path): string
     {
         if (!empty($this->prefix)) {
             array_unshift($path, $this->prefix);
@@ -108,14 +112,16 @@ class CometPlugin extends RealtimePlugin
 
     public function onPluginVersion(array &$versions): bool
     {
-        $versions[] = array('name' => 'Comet',
-                            'version' => self::PLUGIN_VERSION,
-                            'author' => 'Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Comet',
-                            'rawdescription' =>
-                            // TRANS: Plugin description message. Bayeux is a protocol for transporting asynchronous messages
-                            // TRANS: and Comet is a web application model.
-                            _m('Plugin to make updates using Comet and Bayeux.'));
+        $versions[] = [
+            'name' => 'Comet',
+            'version' => self::PLUGIN_VERSION,
+            'author' => 'Evan Prodromou',
+            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Comet',
+            'rawdescription' =>
+            // TRANS: Plugin description message. Bayeux is a protocol for transporting asynchronous messages
+            // TRANS: and Comet is a web application model.
+            _m('Plugin to make updates using Comet and Bayeux.')
+        ];
         return true;
     }
 }

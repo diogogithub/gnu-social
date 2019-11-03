@@ -46,6 +46,8 @@ const ACTIVITYPUB_HTTP_CLIENT_HEADERS = [
 ];
 
 /**
+ * Adds ActivityPub support to GNU social when enabled
+ *
  * @category  Plugin
  * @package   GNUsocial
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
