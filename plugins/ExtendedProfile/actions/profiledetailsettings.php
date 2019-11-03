@@ -35,20 +35,6 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         return _m('Extended profile settings');
     }
 
-    public function showStylesheets()
-    {
-        parent::showStylesheets();
-        $this->cssLink('plugins/ExtendedProfile/css/profiledetail.css');
-        return true;
-    }
-
-    public function showScripts()
-    {
-        parent::showScripts();
-        $this->script('plugins/ExtendedProfile/js/profiledetail.js');
-        return true;
-    }
-
     protected function doPost()
     {
         if ($this->arg('save')) {
@@ -75,26 +61,18 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
 
         $this->saveStandardProfileDetails();
 
-        $simpleFieldNames = array('title', 'spouse', 'kids', 'manager');
-        $dateFieldNames = array('birthday');
+        $simpleFieldNames = ['title', 'spouse', 'kids', 'manager'];
+        $dateFieldNames = ['birthday'];
 
         foreach ($simpleFieldNames as $name) {
             $value = $this->trimmed('extprofile-' . $name);
-            if (!empty($value)) {
-                $this->saveField($name, $value);
-            }
+            $this->saveField($name, $value);
         }
 
         foreach ($dateFieldNames as $name) {
             $value = $this->trimmed('extprofile-' . $name);
-            $dateVal = $this->parseDate($name, $value);
-            $this->saveField(
-                $name,
-                null,
-                null,
-                null,
-                $dateVal
-            );
+            $date_val = $this->parseDate($name, $value);
+            $this->saveField($name, null, null, null, $date_val);
         }
 
         $this->savePhoneNumbers();
@@ -140,6 +118,7 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
 
     public function savePhoneNumbers()
     {
+        common_debug('save phone numbers');
         $phones = $this->findPhoneNumbers();
         $this->removeAll('phone');
         $i = 0;
@@ -164,17 +143,17 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         // 'extprofile-phone-1-rel' => 'mobile',
 
         $phones = $this->sliceParams('phone', 2);
-        $phoneArray = array();
+        $phone_array = [];
 
         foreach ($phones as $phone) {
             list($number, $rel) = array_values($phone);
-            $phoneArray[] = array(
+            $phone_array[] = [
                 'value' => $number,
                 'rel' => $rel
-            );
+            ];
         }
 
-        return $phoneArray;
+        return $phone_array;
     }
 
     public function findIms()
@@ -189,10 +168,10 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
 
         foreach ($ims as $im) {
             list($id, $rel) = array_values($im);
-            $imArray[] = array(
+            $imArray[] = [
                 'value' => $id,
                 'rel' => $rel
-            );
+            ];
         }
 
         return $imArray;
@@ -200,6 +179,7 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
 
     public function saveIms()
     {
+        common_debug('save ims');
         $ims = $this->findIms();
         $this->removeAll('im');
         $i = 0;
@@ -237,6 +217,7 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
 
     public function saveWebsites()
     {
+        common_debug('save websites');
         $sites = $this->findWebsites();
         $this->removeAll('website');
         $i = 0;
@@ -272,11 +253,11 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
         $expArray = array();
 
         foreach ($experiences as $exp) {
-            if (sizeof($experiences) == 4) {
-                list($company, $current, $end, $start) = array_values($exp);
+            if (count($exp) === 4) {
+                [$company, $current, $end, $start] = array_values($exp);
             } else {
                 $end = null;
-                list($company, $current, $start) = array_values($exp);
+                [$company, $current, $start] = array_values($exp);
             }
             if (!empty($company)) {
                 $expArray[] = array(
@@ -372,7 +353,7 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
 
     public function saveEducations()
     {
-        common_debug('save education');
+        common_debug('save educations');
         $edus = $this->findEducations();
         common_debug(var_export($edus, true));
 
@@ -469,36 +450,35 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
      */
     public function saveField(string $name, ?string $value, ?string $rel = null, ?int $index = null, ?string $date = null)
     {
+        common_debug('save ' . $name);
         $detail = new Profile_detail();
 
         $detail->profile_id = $this->scoped->getID();
         $detail->field_name = $name;
         $detail->value_index = $index;
 
-        $result = $detail->find(true);
+        if ($detail->find(true)) {
+            // Found an existing Profile Detail, let's update it!
+            $orig = clone($detail);
 
-        if (!$result instanceof Profile_detail) {
-            $detail->value_index = $index;
+            $detail->field_value = $value ?? $detail->sqlValue('NULL');
+            $detail->rel = $rel ?? $detail->sqlValue('NULL');
+            $detail->date = $date ?? $detail->sqlValue('NULL');
+
+            if (!$detail->update($orig)) {
+                common_log_db_error($detail, 'UPDATE', __FILE__);
+                // TRANS: Server error displayed when a field could not be saved in the database.
+                throw new ServerException(_m('Could not save profile details.'));
+            }
+        } elseif (!empty($rel) || !empty($value) || !empty($date)) {
+            // It's the first time, let's insert, if there is anything to insert.
             $detail->rel = $rel;
             $detail->field_value = $value;
             $detail->date = $date;
             $detail->created = common_sql_now();
-            $result = $detail->insert();
-            if ($result === false) {
+
+            if (!$detail->insert()) {
                 common_log_db_error($detail, 'INSERT', __FILE__);
-                // TRANS: Server error displayed when a field could not be saved in the database.
-                throw new ServerException(_m('Could not save profile details.'));
-            }
-        } else {
-            $orig = clone($detail);
-
-            $detail->field_value = $value;
-            $detail->rel = $rel;
-            $detail->date = $date;
-
-            $result = $detail->update($orig);
-            if ($result === false) {
-                common_log_db_error($detail, 'UPDATE', __FILE__);
                 // TRANS: Server error displayed when a field could not be saved in the database.
                 throw new ServerException(_m('Could not save profile details.'));
             }
@@ -593,6 +573,7 @@ class ProfileDetailSettingsAction extends ProfileSettingsAction
 
     private function saveCustomFields($action)
     {
+        common_debug('save custom fields');
         $fields = GNUsocialProfileExtensionField::allFields();
         $user = common_current_user();
         $profile = $user->getProfile();
