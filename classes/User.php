@@ -102,6 +102,7 @@ class User extends Managed_DataObject
                 'user_carrier_fkey' => array('sms_carrier', array('carrier' => 'id')),
             ),
             'indexes' => array(
+                'user_created_idx' => array('created'),
                 'user_smsemail_idx' => array('smsemail'),
             ),
         );
