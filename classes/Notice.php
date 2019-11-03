@@ -107,6 +107,7 @@ class Notice extends Managed_DataObject
             'indexes' => array(
                 'notice_created_id_is_local_idx' => array('created', 'id', 'is_local'),
                 'notice_profile_id_idx' => array('profile_id', 'created', 'id'),
+                'notice_is_local_created_profile_id_idx' => array('is_local', 'created', 'profile_id'),
                 'notice_repeat_of_created_id_idx' => array('repeat_of', 'created', 'id'),
                 'notice_conversation_created_id_idx' => array('conversation', 'created', 'id'),
                 'notice_object_type_idx' => array('object_type'),
