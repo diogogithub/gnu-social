@@ -75,7 +75,7 @@ class QueuedXMPP extends XMPP
      * @param string $msg
      * @param null $timeout
      */
-    public function send($msg, $timeout = null)
+    public function send(string $msg, ?int $timeout = null)
     {
         @$this->plugin->enqueueOutgoingRaw($msg);
     }
@@ -89,37 +89,37 @@ class QueuedXMPP extends XMPP
      * @param bool $sendinit
      * @throws Exception
      */
-    public function connect($timeout = 30, $persistent = false, $sendinit = true)
+    public function connect(bool $persistent = false, bool $send_init = true, int $timeout = 30): void
     {
         // No i18n needed. Test message.
         throw new Exception('Cannot connect to server from fake XMPP.');
     }
 
-    public function disconnect()
+    public function disconnect(): void
     {
         // No i18n needed. Test message.
         throw new Exception('Cannot connect to server from fake XMPP.');
     }
 
-    public function process()
+    public function process(): void
     {
         // No i18n needed. Test message.
         throw new Exception('Cannot read stream from fake XMPP.');
     }
 
-    public function processUntil($event, $timeout = -1)
+    public function processUntil($event, int $timeout = -1): array
     {
         // No i18n needed. Test message.
         throw new Exception('Cannot read stream from fake XMPP.');
     }
 
-    public function read()
+    public function read(): bool
     {
         // No i18n needed. Test message.
         throw new Exception('Cannot read stream from fake XMPP.');
     }
 
-    public function readyToProcess()
+    public function readyToProcess(): bool
     {
         // No i18n needed. Test message.
         throw new Exception('Cannot read stream from fake XMPP.');
