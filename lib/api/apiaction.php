@@ -1,26 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Base API action
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  API
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Craig Andrews <candrews@integralblue.com>
  * @author    Dan Moore <dan@moore.cx>
  * @author    Evan Prodromou <evan@status.net>
@@ -29,8 +27,7 @@
  * @author    Zach Copley <zach@status.net>
  * @copyright 2009-2010 StatusNet, Inc.
  * @copyright 2009 Free Software Foundation, Inc http://www.fsf.org
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 /* External API usage documentation. Please update when you change how the API works. */
@@ -94,9 +91,7 @@
 
 */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 class ApiValidationException extends Exception
 {
@@ -105,16 +100,15 @@ class ApiValidationException extends Exception
 /**
  * Contains most of the Twitter-compatible API output functions.
  *
- * @category API
- * @package  StatusNet
- * @author   Craig Andrews <candrews@integralblue.com>
- * @author   Dan Moore <dan@moore.cx>
- * @author   Evan Prodromou <evan@status.net>
- * @author   Jeffery To <jeffery.to@gmail.com>
- * @author   Toby Inkster <mail@tobyinkster.co.uk>
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  API
+ * @package   GNUsocial
+ * @author    Craig Andrews <candrews@integralblue.com>
+ * @author    Dan Moore <dan@moore.cx>
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Jeffery To <jeffery.to@gmail.com>
+ * @author    Toby Inkster <mail@tobyinkster.co.uk>
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ApiAction extends Action
 {
@@ -1132,7 +1126,8 @@ class ApiAction extends Action
         $twitter_list = [];
         $twitter_list['id'] = $list->id;
         $twitter_list['name'] = $list->tag;
-        $twitter_list['full_name'] = '@' . $profile->nickname . '/' . $list->tag;;
+        $twitter_list['full_name'] = '@' . $profile->nickname . '/' . $list->tag;
+        ;
         $twitter_list['slug'] = $list->tag;
         $twitter_list['description'] = $list->description;
         $twitter_list['subscriber_count'] = $list->subscriberCount();
@@ -1459,9 +1454,11 @@ class ApiAction extends Action
             } elseif ($this->arg('screen_name')) {
                 $nickname = common_canonical_nickname($this->arg('screen_name'));
                 return User::getKV('nickname', $nickname);
-            } else {
+            } elseif ($this->scoped instanceof Profile) {
                 // Fall back to trying the currently authenticated user
                 return $this->scoped->getUser();
+            } else {
+                throw new ClientException(_('No such user.'));
             }
         }
 
