@@ -19,7 +19,7 @@ define('INSTALLDIR', dirname(__DIR__));
 define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'e::ay';
-$longoptions = array('email=', 'all', 'yes');
+$longoptions = ['email=', 'all', 'yes'];
 
 $self = basename($_SERVER['PHP_SELF']);
 
@@ -41,17 +41,26 @@ Options:
 
 END_OF_HELP;
 
-require_once INSTALLDIR.'/scripts/commandline.inc';
+require_once INSTALLDIR . '/scripts/commandline.inc';
 
 $all = false;
 $ca = null;
 
 if (have_option('e', 'email')) {
     $email = get_option_value('e', 'email');
+    if (is_null($email)) {
+        echo "You must provide an email.\n";
+        exit(1);
+    }
     try {
         $ca = Confirm_address::getByAddress($email, 'email');
     } catch (NoResultException $e) {
-        print sprintf("Can't find %s address %s in %s table.\n", $e->obj->address_type, $e->obj->address, $e->obj->tableName());
+        echo sprintf(
+            "Can't find %s address %s in %s table.\n",
+            $e->obj->address_type,
+            $e->obj->address,
+            $e->obj->tableName()
+        );
         exit(1);
     }
 } elseif (have_option('a', 'all')) {
@@ -59,24 +68,24 @@ if (have_option('e', 'email')) {
     $ca = new Confirm_address();
     $ca->address_type = 'email';
     if (!$ca->find()) {
-        print "confirm_address table contains no lingering email addresses\n";
-        exit(0);
+        echo "confirm_address table contains no lingering email addresses\n";
+        exit();
     }
 } else {
-    print "You must provide an email (or --all).\n";
+    echo "You must provide an email (or --all).\n";
     exit(1);
 }
 
 if (!have_option('y', 'yes')) {
-    print "About to resend confirm_address email to {$ca->N} recipients. Are you sure? [y/N] ";
+    echo "About to resend confirm_address email to {$ca->N} recipients. Are you sure? [y/N] ";
     $response = fgets(STDIN);
-    if (strtolower(trim($response)) != 'y') {
-        print "Aborting.\n";
-        exit(0);
+    if (strcasecmp(trim($response), 'y') != 0) {
+        echo "Aborting.\n";
+        exit();
     }
 }
 
-function mailConfirmAddress(Confirm_address $ca)
+function mail_confirm_address(Confirm_address $ca): void
 {
     try {
         $user = User::getByID($ca->user_id);
@@ -89,24 +98,25 @@ function mailConfirmAddress(Confirm_address $ca)
             throw new AlreadyFulfilledException('User already has identical confirmed email address.');
         }
     } catch (AlreadyFulfilledException $e) {
-        print "\n User already had verified email: "._ve($ca->address);
+        echo "\n User already had verified email: " . _ve($ca->address);
         $ca->delete();
     } catch (Exception $e) {
-        print "\n Failed to get user with ID "._ve($user_id).', deleting confirm_address entry: '._ve($e->getMessage());
+        echo "\n Failed to get user with ID " . _ve($user_id)
+           . ', deleting confirm_address entry: ' . _ve($e->getMessage());
         $ca->delete();
         return;
     }
-    mail_confirm_address($user, $ca->code, $user->getNickname(), $ca->address);
+    $ca->sendConfirmation();
 }
 
 require_once INSTALLDIR . '/lib/util/mail.php';
 
 if (!$all) {
-    mailConfirmAddress($ca);
+    mail_confirm_address($ca);
 } else {
     while ($ca->fetch()) {
-        mailConfirmAddress($ca);
+        mail_confirm_address($ca);
     }
 }
 
-print "\nDONE.\n";
+echo "\nDONE.\n";
