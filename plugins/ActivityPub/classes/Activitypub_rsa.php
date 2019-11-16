@@ -112,7 +112,8 @@ class Activitypub_rsa extends Managed_DataObject
                 $this->store_keys();
                 $apRSA->public_key = $this->public_key;
             } else {
-                // This should never happen, but try to recover!
+                // ASSERT: This should never happen, but try to recover!
+                common_log(LOG_ERR, "Activitypub_rsa: An impossible thing has happened... Please let the devs know that it entered in line 116 at Activitypub_rsa.php");
                 if ($fetch) {
                     $res = Activitypub_explorer::get_remote_user_activity(ActivityPubPlugin::actor_uri($profile));
                     Activitypub_rsa::update_public_key($profile, $res['publicKey']['publicKeyPem']);
@@ -144,11 +145,11 @@ class Activitypub_rsa extends Managed_DataObject
     /**
      * Generates a pair of RSA keys.
      *
-     * @param string $private_key in/out
-     * @param string $public_key in/out
+     * @param string $private_key out
+     * @param string $public_key out
      * @author PHP Manual Contributed Notes <dirt@awoms.com>
      */
-    public static function generate_keys(string &$private_key, string &$public_key): void
+    public static function generate_keys(?string &$private_key, ?string &$public_key): void
     {
         $config = [
             'digest_alg' => 'sha512',
