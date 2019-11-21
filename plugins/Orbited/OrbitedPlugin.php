@@ -157,7 +157,7 @@ class OrbitedPlugin extends RealtimePlugin
         $versions[] = array('name' => 'Orbited',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Orbited',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/Orbited',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Plugin to make updates using Orbited and STOMP.'));

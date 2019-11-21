@@ -139,7 +139,7 @@ class ImageMagickPlugin extends Plugin
         $versions[] = array('name' => 'ImageMagick',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'http://gnu.io/social',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Use ImageMagick for some more image support.'));

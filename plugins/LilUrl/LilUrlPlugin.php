@@ -64,7 +64,7 @@ class LilUrlPlugin extends UrlShortenerPlugin
         $versions[] = array('name' => sprintf('LilUrl (%s)', $this->shortenerName),
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/LilUrl',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/LilUrl',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             // TRANS: %1$s is the service URL.

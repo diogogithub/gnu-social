@@ -148,7 +148,7 @@ class LdapAuthenticationPlugin extends AuthenticationPlugin
         $versions[] = array('name' => 'LDAP Authentication',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/LdapAuthentication',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/LdapAuthentication',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('The LDAP Authentication plugin allows for StatusNet to handle authentication through LDAP.'));

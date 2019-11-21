@@ -110,7 +110,7 @@ ENDOFPIWIK;
         $versions[] = array('name' => 'PiwikAnalytics',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Tobias Diekershoff, Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Piwik',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/Piwik',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Use <a href="http://piwik.org/">Piwik</a> Open Source web analytics software.'));

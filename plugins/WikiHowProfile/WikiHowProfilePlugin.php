@@ -56,7 +56,7 @@ class WikiHowProfilePlugin extends Plugin
         $versions[] = array('name' => 'WikiHow avatar fetcher',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Sample',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/Sample',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Fetches avatar and other profile information for WikiHow users when setting up an account via OpenID.'));

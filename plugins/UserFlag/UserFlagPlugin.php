@@ -231,7 +231,7 @@ class UserFlagPlugin extends Plugin
      */
     public function onPluginVersion(array &$versions): bool
     {
-        $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/UserFlag';
+        $url = GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/UserFlag';
 
         $versions[] = array('name' => 'UserFlag',
             'version' => self::PLUGIN_VERSION,

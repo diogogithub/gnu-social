@@ -273,7 +273,7 @@ class AnonymousFavePlugin extends Plugin
      */
     public function onPluginVersion(array &$versions): bool
     {
-        $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/AnonymousFave';
+        $url = GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/AnonymousFave';
 
         $versions[] = array('name' => 'AnonymousFave',
             'version' => ANONYMOUS_FAVE_PLUGIN_VERSION,

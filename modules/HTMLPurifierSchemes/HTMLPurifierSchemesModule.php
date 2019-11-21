@@ -32,7 +32,7 @@ class HTMLPurifierSchemesModule extends Module
         $versions[] = array('name' => 'HTMLPurifier Schemes',
                             'version' => self::MODULE_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'https://gnu.io/social',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             'rawdescription' =>
                             // TRANS: Module description.
                             _m('Additional URI schemes for HTMLPurifier.'));

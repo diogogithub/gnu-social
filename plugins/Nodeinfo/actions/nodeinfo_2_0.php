@@ -384,8 +384,8 @@ class Nodeinfo_2_0Action extends Action
         $metadata = [
             'nodeName' => common_config('site', 'name'),
             'software' => [
-                'homepage' => 'https://gnu.social/',
-                'repository' => 'https://notabug.org/diogo/gnu-social',
+                'homepage' => GNUSOCIAL_ENGINE_URL,
+                'repository' => GNUSOCIAL_ENGINE_REPO_URL,
             ],
             'uploadLimit' => common_get_preferred_php_upload_limit(),
             'postFormats' => [

@@ -246,7 +246,7 @@ class DirectionDetectorPlugin extends Plugin {
      * plugin details
      */
     public function onPluginVersion(array &$versions): bool{
-        $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/DirectionDetector';
+        $url = GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/DirectionDetector';
 
         $versions[] = array(
             'name' => 'Direction detector',

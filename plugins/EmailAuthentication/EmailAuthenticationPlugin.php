@@ -56,7 +56,7 @@ class EmailAuthenticationPlugin extends Plugin
         $versions[] = array('name' => 'Email Authentication',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/EmailAuthentication',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/EmailAuthentication',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('The Email Authentication plugin allows users to login using their email address.'));

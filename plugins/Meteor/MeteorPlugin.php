@@ -180,7 +180,7 @@ class MeteorPlugin extends RealtimePlugin
             'name' => 'Meteor',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Evan Prodromou',
-            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Meteor',
+            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/Meteor',
             'rawdescription' =>
             // TRANS: Plugin description.
                 _m('Plugin to do "real time" updates using Meteor.')

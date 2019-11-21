@@ -151,7 +151,7 @@ class BitlyUrlPlugin extends UrlShortenerPlugin
         $versions[] = array('name' => sprintf('BitlyUrl (%s)', $this->shortenerName),
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews, Brion Vibber',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/BitlyUrl',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/BitlyUrl',
                             'rawdescription' =>
                             // TRANS: Plugin description. %1$s is the URL shortening service base URL (for example "bit.ly").
                             sprintf(_m('Uses <a href="http://%1$s/">%1$s</a> URL-shortener service.'),

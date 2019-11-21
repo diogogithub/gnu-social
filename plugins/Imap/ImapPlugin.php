@@ -83,7 +83,7 @@ class ImapPlugin extends Plugin
         $versions[] = array('name' => 'IMAP',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/IMAP',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/IMAP',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('The IMAP plugin allows for StatusNet to check a POP or IMAP mailbox for incoming mail containing user posts.'));

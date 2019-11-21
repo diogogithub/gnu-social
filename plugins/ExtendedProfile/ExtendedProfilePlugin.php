@@ -41,7 +41,7 @@ class ExtendedProfilePlugin extends Plugin
             'name' => 'ExtendedProfile',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Brion Vibber, Samantha Doherty, Zach Copley, Max Shinn, Diogo Cordeiro',
-            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/ExtendedProfile',
+            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/ExtendedProfile',
             // TRANS: Module description.
             'rawdescription' => _m('UI extensions for additional profile fields.')
         ];

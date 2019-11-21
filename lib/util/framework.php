@@ -31,7 +31,8 @@
 defined('GNUSOCIAL') || die();
 
 define('GNUSOCIAL_ENGINE', 'GNU social');
-define('GNUSOCIAL_ENGINE_URL', 'https://www.gnu.org/software/social/');
+define('GNUSOCIAL_ENGINE_URL', 'https://gnusocial.network/'); // Change to https://gnu.io/social/
+define('GNUSOCIAL_ENGINE_REPO_URL', 'https://notabug.org/diogo/gnu-social/'); // Change to https://git.gnu.io/gnu/gnu-social
 
 define('GNUSOCIAL_BASE_VERSION', '2.0.0');
 define('GNUSOCIAL_LIFECYCLE', 'dev'); // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'

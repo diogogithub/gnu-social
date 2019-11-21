@@ -44,7 +44,7 @@ class ConversationTreePlugin extends Plugin
             'name' => 'ConversationTree',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Evan Prodromou, Mikael Nordfeldth',
-            'homepage' => 'http://gnu.io/',
+            'homepage' => GNUSOCIAL_ENGINE_URL,
             'rawdescription' =>
             // TRANS: Module description.
                 _m('Enables conversation tree view.')

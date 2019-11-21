@@ -34,7 +34,7 @@ defined('GNUSOCIAL') || die();
  */
 class NodeinfoPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const PLUGIN_VERSION = '2.0.1';
 
     public function onRouterInitialized($m): bool
     {

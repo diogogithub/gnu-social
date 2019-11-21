@@ -74,7 +74,7 @@ class AntiBrutePlugin extends Plugin {
         $versions[] = array('name' => 'AntiBrute',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'http://gnu.io/',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             'description' =>
                             // TRANS: Plugin description.
                             _m('Anti bruteforce method(s).'));

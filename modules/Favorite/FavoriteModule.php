@@ -631,7 +631,7 @@ class FavoriteModule extends ActivityVerbHandlerModule
         $versions[] = array('name' => 'Favorite',
                             'version' => self::MODULE_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'http://gnu.io/',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Favorites (likes) using ActivityStreams.'));

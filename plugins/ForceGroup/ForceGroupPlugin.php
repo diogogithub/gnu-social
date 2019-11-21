@@ -126,7 +126,7 @@ class ForceGroupPlugin extends Plugin
      */
     public function onPluginVersion(array &$versions): bool
     {
-        $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/ForceGroup';
+        $url = GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/ForceGroup';
 
         $versions[] = array('name' => 'ForceGroup',
             'version' => self::PLUGIN_VERSION,

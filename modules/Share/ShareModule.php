@@ -373,7 +373,7 @@ class ShareModule extends ActivityVerbHandlerModule
         $versions[] = array('name' => 'Share verb',
                             'version' => self::MODULE_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'https://gnu.io/',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Shares (repeats) using ActivityStreams.'));

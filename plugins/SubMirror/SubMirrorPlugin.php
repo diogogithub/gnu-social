@@ -64,7 +64,7 @@ class SubMirrorPlugin extends Plugin
         $versions[] = array('name' => 'SubMirror',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/SubMirror',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/SubMirror',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Pull feeds into your timeline!'));

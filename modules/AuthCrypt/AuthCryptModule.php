@@ -179,7 +179,7 @@ class AuthCryptModule extends AuthenticationModule
         $versions[] = array('name' => 'AuthCrypt',
                             'version' => self::MODULE_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/AuthCrypt',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/AuthCrypt',
                             'rawdescription' =>
                             // TRANS: Module description.
                             _m('Authentication and password hashing with crypt()'));

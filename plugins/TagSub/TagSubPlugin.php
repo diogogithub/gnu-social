@@ -96,7 +96,7 @@ class TagSubPlugin extends Plugin
         $versions[] = ['name' => 'TagSub',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Brion Vibber',
-            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/TagSub',
+            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/TagSub',
             'rawdescription' =>
             // TRANS: Plugin description.
                 _m('Plugin to allow following all messages with a given tag.')];

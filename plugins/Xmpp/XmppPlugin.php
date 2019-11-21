@@ -436,7 +436,7 @@ class XmppPlugin extends ImPlugin
         $versions[] = array('name' => 'XMPP',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Craig Andrews, Evan Prodromou',
-            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/XMPP',
+            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/XMPP',
             'rawdescription' =>
             // TRANS: Plugin description.
                 _m('The XMPP plugin allows users to send and receive notices over the XMPP/Jabber network.'));

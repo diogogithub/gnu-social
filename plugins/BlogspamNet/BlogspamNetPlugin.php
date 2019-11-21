@@ -153,7 +153,7 @@ class BlogspamNetPlugin extends Plugin
         $versions[] = array('name' => 'BlogspamNet',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou, Brion Vibber',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/BlogspamNet',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/BlogspamNet',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Plugin to check submitted notices with blogspam.net.'));

@@ -36,7 +36,7 @@ class LinkPreviewPlugin extends Plugin
         $versions[] = array('name' => 'LinkPreview',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/LinkPreview',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/LinkPreview',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('UI extension for previewing thumbnails from links.'));

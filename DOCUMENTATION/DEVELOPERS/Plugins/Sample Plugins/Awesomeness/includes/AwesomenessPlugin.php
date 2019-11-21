@@ -36,7 +36,7 @@ class AwesomenessPlugin extends Plugin
             'name' => 'Awesomeness',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Jeroen De Dauw',
-            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Awesomeness',
+            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/Awesomeness',
             // TRANS: Plugin description for a sample plugin.
             'rawdescription' => _m('The Awesomeness plugin adds additional awesomeness ' .
                 'to a GNU social installation.')

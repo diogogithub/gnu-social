@@ -66,7 +66,7 @@ class SimpleCaptchaPlugin extends Plugin
         $versions[] = array('name' => 'Simple Captcha',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'https://gnu.io/social',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('A simple captcha to get rid of spambots.'));

@@ -197,7 +197,7 @@ class DomainStatusNetworkPlugin extends Plugin
         $versions[] = array('name' => 'DomainStatusNetwork',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/DomainStatusNetwork',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/DomainStatusNetwork',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('A plugin that maps a single status_network to an email domain.'));

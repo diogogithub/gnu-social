@@ -344,7 +344,7 @@ class ActivityModule extends Module
         $versions[] = array('name' => 'Activity',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Activity',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/Activity',
                             'rawdescription' =>
                             // TRANS: Module description.
                             _m('Emits notices when social activities happen.'));

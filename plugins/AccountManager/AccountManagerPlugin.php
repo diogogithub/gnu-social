@@ -94,7 +94,7 @@ class AccountManagerPlugin extends Plugin
         $versions[] = array('name' => 'AccountManager',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/AccountManager',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/AccountManager',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('The Account Manager plugin implements the Account Manager specification.'));

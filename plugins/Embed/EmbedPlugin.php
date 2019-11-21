@@ -681,7 +681,7 @@ class EmbedPlugin extends Plugin
         $versions[] = ['name' => 'Embed',
                        'version' => self::PLUGIN_VERSION,
                        'author' => 'Mikael Nordfeldth',
-                       'homepage' => 'http://gnu.io/social/',
+                       'homepage' => GNUSOCIAL_ENGINE_URL,
                        'description' =>
                        // TRANS: Plugin description.
                        _m('Plugin for using and representing oEmbed, OpenGraph and other data.')];

@@ -99,7 +99,7 @@ class SlicedFavoritesPlugin extends Plugin
      */
     public function onPluginVersion(array &$versions): bool
     {
-        $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/SlicedFavorites';
+        $url = GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/SlicedFavorites';
 
         $versions[] = array('name' => 'SlicedFavorites',
             'version' => self::PLUGIN_VERSION,

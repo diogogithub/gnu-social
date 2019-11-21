@@ -59,7 +59,7 @@ class LRDDPlugin extends Plugin
         $versions[] = array('name' => 'LRDD',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'http://www.gnu.org/software/social/',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             // TRANS: Plugin description.
                             'rawdescription' => _m('Implements LRDD support for GNU Social.'));
 

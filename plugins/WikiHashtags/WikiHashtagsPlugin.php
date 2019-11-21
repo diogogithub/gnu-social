@@ -109,7 +109,7 @@ class WikiHashtagsPlugin extends Plugin
         $versions[] = array('name' => 'WikiHashtags',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/WikiHashtags',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/WikiHashtags',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Gets hashtag descriptions from <a href="http://hashtags.wikia.com/">WikiHashtags</a>.'));

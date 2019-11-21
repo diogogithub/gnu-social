@@ -39,7 +39,7 @@ class OpportunisticQMPlugin extends Plugin {
         $versions[] = array('name'        => 'OpportunisticQM',
                             'version'     => self::PLUGIN_VERSION,
                             'author'      => 'Mikael Nordfeldth',
-                            'homepage'    => 'http://www.gnu.org/software/social/',
+                            'homepage'    => GNUSOCIAL_ENGINE_URL,
                             'description' =>
                             // TRANS: Plugin description.
                             _m('Opportunistic queue manager plugin for background processing.'));

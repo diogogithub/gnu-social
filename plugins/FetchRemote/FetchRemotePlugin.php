@@ -112,7 +112,7 @@ class FetchRemotePlugin extends Plugin
         $versions[] = array('name' => 'FetchRemote',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'http://www.gnu.org/software/social/',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             // TRANS: Plugin description.
                             'rawdescription' => _m('Retrieves remote notices (and serves local) via WebFinger'));
 
