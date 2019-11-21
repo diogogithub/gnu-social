@@ -52,7 +52,7 @@ class CronishPlugin extends Plugin {
         $versions[] = array('name' => 'Cronish',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'http://www.gnu.org/software/social/',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             'description' =>
                             // TRANS: Plugin description.
                             _m('Cronish plugin that executes events on a near-minutely/hour/day/week basis.'));

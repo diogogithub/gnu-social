@@ -164,7 +164,7 @@ class SubscriptionThrottlePlugin extends Plugin
         $versions[] = array('name' => 'SubscriptionThrottle',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/SubscriptionThrottle',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/SubscriptionThrottle',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Configurable limits for subscriptions and group memberships.'));

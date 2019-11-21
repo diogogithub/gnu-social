@@ -104,7 +104,7 @@ class EventPlugin extends ActivityVerbHandlerPlugin
         $versions[] = array('name' => 'Event',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Event',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/Event',
                             'description' =>
                             // TRANS: Plugin description.
                             _m('Event invitations and RSVPs.'));

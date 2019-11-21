@@ -78,7 +78,7 @@ final class oEmbedTest extends TestCase
         return [
             ['https://notabug.org/', 'link'],
             ['http://www.youtube.com/watch?v=eUgLR232Cnw', 'video'],
-            ['https://gnu.io/', 'link'],
+            [GNUSOCIAL_ENGINE_URL, 'link'],
             ['https://www.gnu.org/graphics/heckert_gnu.transp.small.png', 'photo'],
             ['http://vimeo.com/9283184', 'video'],
             ['http://leuksman.com/log/2010/10/29/statusnet-0-9-6-release/', 'none'],

@@ -41,7 +41,7 @@ class SQLStatsPlugin extends Plugin
         $versions[] = array('name' => 'SQLStats',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/SQLStats',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/SQLStats',
                             'rawdescription' =>
                             // TRANS: Plugin decription.
                             _m('Debug tool to watch for poorly indexed DB queries.'));

@@ -77,7 +77,7 @@ class TagCloudPlugin extends Plugin {
             'name' => 'TagCloud',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Mikael Nordfeldth',
-            'homepage' => 'https://gnu.io/social',
+            'homepage' => GNUSOCIAL_ENGINE_URL,
             'description' =>
             // TRANS: Module description.
             _m('Adds tag clouds to stream pages')

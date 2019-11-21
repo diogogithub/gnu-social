@@ -83,7 +83,7 @@ class DiasporaPlugin extends Plugin
         $versions[] = array('name' => 'Diaspora',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'https://gnu.io/social',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             // TRANS: Plugin description.
                             'rawdescription' => _m('Follow people across social networks that implement '.
                                'the <a href="https://diasporafoundation.org/">Diaspora</a> federation protocol.'));

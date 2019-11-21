@@ -214,7 +214,7 @@ class StoreRemoteMediaPlugin extends Plugin
         $versions[] = array('name' => 'StoreRemoteMedia',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'https://gnu.io/',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             'description' =>
                             // TRANS: Plugin description.
                             _m('Plugin for downloading remotely attached files to local server.'));

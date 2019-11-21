@@ -167,7 +167,7 @@ class Atom10Feed extends XMLStringer
 
         $this->element(
             'generator', array(
-                'uri'     => 'https://gnu.io/social',
+                'uri'     => GNUSOCIAL_ENGINE_URL,
                 'version' => GNUSOCIAL_VERSION
             ),
             'GNU social'

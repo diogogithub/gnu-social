@@ -56,7 +56,7 @@ class OpenExternalLinkTargetPlugin extends Plugin
         $versions[] = array('name' => 'OpenExternalLinkTarget',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Sarven Capadisli',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/OpenExternalLinkTarget',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/OpenExternalLinkTarget',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Opens external links (i.e. with rel=external) on a new window or tab.'));

@@ -236,7 +236,7 @@ class SamplePlugin extends Plugin
             'name' => 'Sample',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Brion Vibber, Evan Prodromou',
-            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Sample',
+            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/Sample',
             'rawdescription' =>
             // TRANS: Plugin description.
                 _m('A sample plugin to show basics of development for new hackers.')

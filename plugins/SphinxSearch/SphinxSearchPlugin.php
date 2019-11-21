@@ -109,7 +109,7 @@ class SphinxSearchPlugin extends Plugin
      */
     public function onPluginVersion(array &$versions): bool
     {
-        $url = 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/SphinxSearch';
+        $url = GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/SphinxSearch';
 
         $versions[] = array('name' => 'SphinxSearch',
             'version' => self::PLUGIN_VERSION,

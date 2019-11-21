@@ -239,7 +239,7 @@ class DirectoryPlugin extends Plugin
             'name' => 'Directory',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Zach Copley',
-            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Directory',
+            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/Directory',
             // TRANS: Plugin description.
             'rawdescription' => _m('Add a user directory.')
         );

@@ -126,7 +126,7 @@ class PollPlugin extends MicroAppPlugin
         $versions[] = array('name' => 'Poll',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Brion Vibber',
-            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Poll',
+            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/Poll',
             'rawdescription' =>
             // TRANS: Plugin description.
                 _m('Simple extension for supporting basic polls.'));

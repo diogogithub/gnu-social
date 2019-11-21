@@ -34,7 +34,7 @@ class ModHelperPlugin extends Plugin
         $versions[] = array('name' => 'ModHelper',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Brion Vibber',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/ModHelper',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/ModHelper',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Lets users who have been manually marked as "modhelper"s silence accounts.'));

@@ -77,7 +77,7 @@ class MentionURLPlugin extends Plugin
         $versions[] = array('name' => 'MentionURL',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Stephen Paul Weber',
-                            'homepage' => 'http://gnu.io/',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             'description' =>
                             // TRANS: Plugin description.
                             _m('Plugin to allow mentioning arbitrary URLs.'));

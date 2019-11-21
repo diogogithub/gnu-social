@@ -80,7 +80,7 @@ class OfflineBackupPlugin extends Plugin
             'name' => 'OfflineBackup',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Evan Prodromou',
-            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/OfflineBackup',
+            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/OfflineBackup',
             'rawdescription' =>
             // TRANS: Module description.
                 _m('Backup user data in offline queue and email when ready.')

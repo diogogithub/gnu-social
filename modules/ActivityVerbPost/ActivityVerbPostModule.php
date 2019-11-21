@@ -132,7 +132,7 @@ class ActivityVerbPostModule extends ActivityVerbHandlerModule
         $versions[] = array('name' => 'Post verb',
                             'version' => self::MODULE_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'https://gnu.io/',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             'rawdescription' =>
                             // TRANS: Module description.
                             _m('Post handling with ActivityStreams.'));

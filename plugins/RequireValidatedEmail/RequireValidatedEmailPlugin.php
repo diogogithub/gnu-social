@@ -215,7 +215,7 @@ class RequireValidatedEmailPlugin extends Plugin
                 'Evan Prodromou, '.
                 'Brion Vibber',
                 'homepage' =>
-                'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/RequireValidatedEmail',
+                GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/RequireValidatedEmail',
                 'rawdescription' =>
                 // TRANS: Plugin description.
                 _m('Disables posting without a validated email address.'));

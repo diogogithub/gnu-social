@@ -61,7 +61,7 @@ class ClientSideShortenPlugin extends Plugin
         $versions[] = array('name' => 'Shorten',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Craig Andrews',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/ClientSideShorten',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/ClientSideShorten',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('ClientSideShorten causes the web interface\'s notice form to automatically shorten URLs as they entered, and before the notice is submitted.'));

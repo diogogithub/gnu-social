@@ -225,7 +225,7 @@ class WebFingerPlugin extends Plugin
         $versions[] = array('name' => 'WebFinger',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Mikael Nordfeldth',
-                            'homepage' => 'http://www.gnu.org/software/social/',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             // TRANS: Plugin description.
                             'rawdescription' => _m('Adds WebFinger lookup to GNU Social'));
 

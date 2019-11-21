@@ -170,7 +170,7 @@ class MapstractionPlugin extends Plugin
         $versions[] = array('name' => 'Mapstraction',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou',
-                            'homepage' => 'https://git.gnu.io/gnu/gnu-social/tree/master/plugins/Mapstraction',
+                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/Mapstraction',
                             'rawdescription' =>
                             // TRANS: Plugin description.
                             _m('Show maps of users\' and friends\' notices '.

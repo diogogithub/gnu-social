@@ -183,7 +183,7 @@ class BookmarkPlugin extends MicroAppPlugin
         $versions[] = array('name' => 'Bookmark',
                             'version' => self::PLUGIN_VERSION,
                             'author' => 'Evan Prodromou, Stephane Berube, Jean Baptiste Favre, Mikael Nordfeldth',
-                            'homepage' => 'https://gnu.io/social',
+                            'homepage' => GNUSOCIAL_ENGINE_URL,
                             'description' =>
                             // TRANS: Plugin description.
                             _m('Plugin for posting bookmarks. ') .
