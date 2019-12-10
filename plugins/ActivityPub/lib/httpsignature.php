@@ -21,7 +21,17 @@
 
 class HttpSignature
 {
-    public static function sign($user, $url, $body = false, $addlHeaders = [])
+    /**
+     * Sign a message with an Actor
+     *
+     * @param Profile $user Actor signing
+     * @param string $url Inbox url
+     * @param string|bool $body Data to sign (optional)
+     * @param array $addlHeaders Additional headers (optional)
+     * @return array Headers to be used in curl
+     * @throws Exception Attempted to sign something that belongs to an Actor we don't own
+     */
+    public static function sign(Profile $user, string $url, $body = false, array $addlHeaders = []): array
     {
         $digest = false;
         if ($body) {
@@ -32,6 +42,7 @@ class HttpSignature
         $stringToSign = self::_headersToSigningString($headers);
         $signedHeaders = implode(' ', array_map('strtolower', array_keys($headers)));
         $actor_private_key = new Activitypub_rsa();
+        // Intentionally unhandled exception, we want this to explode if that happens as it would be a bug
         $actor_private_key = $actor_private_key->get_private_key($user);
         $key = openssl_pkey_get_private($actor_private_key);
         openssl_sign($stringToSign, $signature, $key, OPENSSL_ALGO_SHA256);
@@ -43,7 +54,11 @@ class HttpSignature
         return self::_headersToCurlArray($headers);
     }
 
-    private static function _digest($body)
+    /**
+     * @param mixed $body
+     * @return string
+     */
+    private static function _digest($body): string
     {
         if (is_array($body)) {
             $body = json_encode($body);
@@ -51,7 +66,13 @@ class HttpSignature
         return base64_encode(hash('sha256', $body, true));
     }
 
-    protected static function _headersToSign($url, $digest = false)
+    /**
+     * @param string $url
+     * @param mixed $digest
+     * @return array
+     * @throws Exception
+     */
+    protected static function _headersToSign(string $url, $digest = false): array
     {
         $date = new DateTime('UTC');
 
@@ -60,7 +81,7 @@ class HttpSignature
             'Date' => $date->format('D, d M Y H:i:s \G\M\T'),
             'Host' => parse_url($url, PHP_URL_HOST),
             'Accept' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams", application/activity+json, application/json',
-            'User-Agent'   => 'GNU social ActivityPub Plugin - https://gnu.io/social',
+            'User-Agent'   => 'GNU social ActivityPub Plugin - '.GNUSOCIAL_ENGINE_URL,
             'Content-Type' => 'application/activity+json'
         ];
 
@@ -71,21 +92,33 @@ class HttpSignature
         return $headers;
     }
 
-    private static function _headersToSigningString($headers)
+    /**
+     * @param array $headers
+     * @return string
+     */
+    private static function _headersToSigningString(array $headers): string
     {
         return implode("\n", array_map(function ($k, $v) {
             return strtolower($k) . ': ' . $v;
         }, array_keys($headers), $headers));
     }
 
-    private static function _headersToCurlArray($headers)
+    /**
+     * @param array $headers
+     * @return array
+     */
+    private static function _headersToCurlArray(array $headers): array
     {
         return array_map(function ($k, $v) {
             return "$k: $v";
         }, array_keys($headers), $headers);
     }
 
-    public static function parseSignatureHeader($signature)
+    /**
+     * @param string $signature
+     * @return array
+     */
+    public static function parseSignatureHeader(string $signature): array
     {
         $parts = explode(',', $signature);
         $signatureData = [];
@@ -117,7 +150,15 @@ class HttpSignature
         return $signatureData;
     }
 
-    public static function verify($publicKey, $signatureData, $inputHeaders, $path, $body)
+    /**
+     * @param $publicKey
+     * @param $signatureData
+     * @param $inputHeaders
+     * @param $path
+     * @param $body
+     * @return array
+     */
+    public static function verify($publicKey, $signatureData, $inputHeaders, $path, $body): array
     {
         $digest = 'SHA-256=' . base64_encode(hash('sha256', $body, true));
         $headersToSign = [];
