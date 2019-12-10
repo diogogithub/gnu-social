@@ -86,7 +86,7 @@ class Activitypub_profile extends Managed_DataObject
      */
     public static function profile_to_array($profile)
     {
-        $uri = ActivityPubPlugin::actor_uri($profile);
+        $uri = $profile->getUri();
         $id = $profile->getID();
         $rsa = new Activitypub_rsa();
         $public_key = $rsa->ensure_public_key($profile);
@@ -589,20 +589,16 @@ class Activitypub_profile extends Managed_DataObject
         }
 
         $subs = Subscription::getSubscriberIDs($profile->id, $offset, $limit);
-        try {
-            $profiles = [];
+        $profiles = [];
 
-            $users = User::multiGet('id', $subs);
-            foreach ($users->fetchAll() as $user) {
-                $profiles[$user->id] = $user->getProfile();
-            }
+        $users = User::multiGet('id', $subs);
+        foreach ($users->fetchAll() as $user) {
+            $profiles[$user->id] = $user->getProfile();
+        }
 
-            $ap_profiles = Activitypub_profile::multiGet('profile_id', $subs);
-            foreach ($ap_profiles->fetchAll() as $ap) {
-                $profiles[$ap->getID()] = $ap->local_profile();
-            }
-        } catch (NoResultException $e) {
-            return $e->obj;
+        $ap_profiles = Activitypub_profile::multiGet('profile_id', $subs);
+        foreach ($ap_profiles->fetchAll() as $ap) {
+            $profiles[$ap->getID()] = $ap->local_profile();
         }
 
         if ($cache) {

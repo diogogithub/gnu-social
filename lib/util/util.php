@@ -2330,7 +2330,8 @@ function common_profile_uri($profile)
             $user = User::getKV('id', $profile->id);
             if ($user instanceof User) {
                 $uri = $user->getUri();
-            }
+            } // FIXME: might be a remote profile, by this function name, I would guess it would be fine to call this
+              // On the other hand, there's Profile->getUri
             Event::handle('EndCommonProfileURI', [$profile, &$uri]);
         }
     }

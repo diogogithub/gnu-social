@@ -85,13 +85,13 @@ class Activitypub_follow
         if (!Subscription::exists($actor_profile, $object_profile)) {
             Subscription::start($actor_profile, $object_profile);
             Activitypub_profile::subscribeCacheUpdate($actor_profile, $object_profile);
-            common_debug('ActivityPubPlugin: Accepted Follow request from '.ActivityPubPlugin::actor_uri($actor_profile).' to '.$object);
+            common_debug('ActivityPubPlugin: Accepted Follow request from '.$actor_profile->getUri().' to '.$object);
         } else {
-            common_debug('ActivityPubPlugin: Received a repeated Follow request from '.ActivityPubPlugin::actor_uri($actor_profile).' to '.$object);
+            common_debug('ActivityPubPlugin: Received a repeated Follow request from '.$actor_profile->getUri().' to '.$object);
         }
 
         // Notify remote instance that we have accepted their request
-        common_debug('ActivityPubPlugin: Notifying remote instance that we have accepted their Follow request request from '.ActivityPubPlugin::actor_uri($actor_profile).' to '.$object);
+        common_debug('ActivityPubPlugin: Notifying remote instance that we have accepted their Follow request request from '.$actor_profile->getUri().' to '.$object);
         $postman = new Activitypub_postman($object_profile, [$actor_aprofile]);
         $postman->accept_follow($id);
     }

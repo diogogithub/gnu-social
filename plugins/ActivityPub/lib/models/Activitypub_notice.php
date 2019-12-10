@@ -85,7 +85,7 @@ class Activitypub_notice
             'type' => 'Note',
             'published' => str_replace(' ', 'T', $notice->getCreated()) . 'Z',
             'url' => self::getUrl($notice),
-            'attributedTo' => ActivityPubPlugin::actor_uri($profile),
+            'attributedTo' => $profile->getUri(),
             'to' => $to,
             'cc' => $cc,
             'conversation' => $notice->getConversationUrl(),
@@ -205,7 +205,7 @@ class Activitypub_notice
 
         foreach ($mentions_profiles as $mp) {
             if (!$mp->hasBlocked($actor_profile)) {
-                $act->context->attention[ActivityPubPlugin::actor_uri($mp)] = 'http://activitystrea.ms/schema/1.0/person';
+                $act->context->attention[$mp->getUri()] = 'http://activitystrea.ms/schema/1.0/person';
             }
         }
 

@@ -60,29 +60,22 @@ class ActivityPubPlugin extends Plugin
     /**
      * Returns a Actor's URI from its local $profile
      * Works both for local and remote users.
+     * This is a discovery event but it seems more logical to have it separated.
+     * This ensures that Profile->getUri() will always return the intended for a remote AP profile.
      *
      * @param Profile $profile Actor's local profile
-     * @return string Actor's URI
-     * @throws Exception
+     * @param string &$uri I/O Actor's URI
      * @author Diogo Cordeiro <diogo@fc.up.pt>
+     * @return bool event hook
      */
-    public static function actor_uri($profile)
+    public function onStartGetProfileUri(Profile $profile, &$uri): bool
     {
-        return common_profile_uri($profile);
-    }
-
-    /**
-     * Returns a Actor's URL from its local $profile
-     * Works both for local and remote users.
-     *
-     * @param Profile $profile Actor's local profile
-     * @return string Actor's URL
-     * @throws Exception
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     */
-    public static function actor_url($profile)
-    {
-        return ActivityPubPlugin::actor_uri($profile)."/";
+        $aprofile = Activitypub_profile::getKV('profile_id', $profile->id);
+        if ($aprofile instanceof Activitypub_profile) {
+            $uri = $aprofile->getUri();
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -621,7 +614,7 @@ class ActivityPubPlugin extends Plugin
         if ($object->isPerson()) {
             $link = new XML_XRD_Element_Link(
                 'self',
-                ActivityPubPlugin::actor_uri($object->getProfile()),
+                $object->getProfile()->getUri(),
                 'application/activity+json'
             );
             $xrd->links[] = clone($link);
@@ -742,25 +735,6 @@ class ActivityPubPlugin extends Plugin
     /********************************************************
      *                   Discovery Events                   *
      ********************************************************/
-
-    /**
-     * Profile URI for remote profiles.
-     *
-     * @author GNU social
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param Profile $profile
-     * @param string $uri in/out
-     * @return mixed hook return code
-     */
-    public function onStartGetProfileUri(Profile $profile, &$uri)
-    {
-        $aprofile = Activitypub_profile::getKV('profile_id', $profile->id);
-        if ($aprofile instanceof Activitypub_profile) {
-            $uri = $aprofile->getUri();
-            return false;
-        }
-        return true;
-    }
 
     /**
      * Profile from URI.

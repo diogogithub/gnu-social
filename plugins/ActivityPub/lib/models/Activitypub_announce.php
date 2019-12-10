@@ -46,7 +46,7 @@ class Activitypub_announce
      */
     public static function announce_to_array(Profile $actor, Notice $notice): array
     {
-        $actor_uri = ActivityPubPlugin::actor_uri($actor);
+        $actor_uri = $actor->getUri();
         $notice_url = Activitypub_notice::getUrl($notice);
 
         $to = [common_local_url('apActorFollowers', ['id' => $actor->getID()])];

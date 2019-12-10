@@ -115,7 +115,7 @@ class Activitypub_rsa extends Managed_DataObject
                 // ASSERT: This should never happen, but try to recover!
                 common_log(LOG_ERR, "Activitypub_rsa: An impossible thing has happened... Please let the devs know that it entered in line 116 at Activitypub_rsa.php");
                 if ($fetch) {
-                    $res = Activitypub_explorer::get_remote_user_activity(ActivityPubPlugin::actor_uri($profile));
+                    $res = Activitypub_explorer::get_remote_user_activity($profile->getUri());
                     Activitypub_rsa::update_public_key($profile, $res['publicKey']['publicKeyPem']);
                     return self::ensure_public_key($profile, false);
                 } else {
