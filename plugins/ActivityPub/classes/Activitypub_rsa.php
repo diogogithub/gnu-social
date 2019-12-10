@@ -70,16 +70,15 @@ class Activitypub_rsa extends Managed_DataObject
      * Private key getter
      *
      * @param Profile $profile
-     * @return string
-     * @throws ServerException
-     * @throws Exception
+     * @return string The private key
+     * @throws Exception Throws exception if tries to fetch a private key of an actor we don't own
      */
     public function get_private_key(Profile $profile): string
     {
         $this->profile_id = $profile->getID();
         $apRSA = self::getKV('profile_id', $this->profile_id);
         if (!$apRSA instanceof Activitypub_rsa) {
-            // No existing key pair for this profile
+            // Nonexistent key pair for this profile
             if ($profile->isLocal()) {
                 self::generate_keys($this->private_key, $this->public_key);
                 $this->store_keys();
@@ -95,7 +94,7 @@ class Activitypub_rsa extends Managed_DataObject
      * Guarantees a Public Key for a given profile.
      *
      * @param Profile $profile
-     * @param bool $fetch
+     * @param bool $fetch=true Should attempt to fetch keys from a remote profile?
      * @return string The public key
      * @throws ServerException It should never occur, but if so, we break everything!
      * @throws Exception
