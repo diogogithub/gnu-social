@@ -63,7 +63,7 @@ class Activitypub_message
             'id'            => common_local_url('showmessage', ['message' => $message->getID()]),
             'type'          => 'Note',
             'published'     => str_replace(' ', 'T', $message->created).'Z',
-            'attributedTo'  => ActivityPubPlugin::actor_uri($from),
+            'attributedTo'  => $from->getUri(),
             'to'            => $to,
             'cc'            => [],
             'content'       => $message->getRendered(),

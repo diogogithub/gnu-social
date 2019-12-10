@@ -122,7 +122,7 @@ class apActorFollowersAction extends ManagedAction
 
             /* Get followers' URLs */
             foreach ($sub as $s) {
-                $subs[] = ActivityPubPlugin::actor_uri($s);
+                $subs[] = $s->getUri();
             }
         } catch (NoResultException $e) {
             // Just let the exception go on its merry way
