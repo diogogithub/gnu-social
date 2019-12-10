@@ -17,4 +17,3 @@ config-*.php
 good-config.php
 *.mo
 /vendor/
-plugins/OStatus/.ostatus_version.txt
