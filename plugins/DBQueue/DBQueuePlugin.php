@@ -27,7 +27,7 @@ defined('GNUSOCIAL') || die();
 
 class DBQueuePlugin extends Plugin
 {
-    const PLUGIN_VERSION = '0.0.1';
+    const PLUGIN_VERSION = '0.1.0';
 
     public function onStartNewQueueManager(?QueueManager &$qm)
     {
@@ -38,12 +38,15 @@ class DBQueuePlugin extends Plugin
 
     public function onPluginVersion(array &$versions): bool
     {
-        $versions[] = array('name' => 'DBQueue',
-                            'version' => self::PLUGIN_VERSION,
-                            'author' => 'Miguel Dantas',
-                            'description' =>
-                            // TRANS: Plugin description.
-                            _m('Plugin using the database as a backend for GNU social queues'));
+        $versions[] = [
+            'name' => 'DBQueue',
+            'version' => self::PLUGIN_VERSION,
+            'author' => 'Miguel Dantas',
+            'homepage'    => GNUSOCIAL_ENGINE_URL,
+            'description' =>
+            // TRANS: Plugin description.
+            _m('Plugin using the database as a backend for GNU social queues')
+        ];
         return true;
     }
 };

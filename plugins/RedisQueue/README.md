@@ -4,9 +4,9 @@ that uses Redis as it's backing storage.
 Installation
 ============
 
-This plugin is replaces other queue manager plugins, such as UnQueue,
-which enabled by default and which should, but is not required to be
-disabled.
+This plugin replaces other queue manager plugins, such as UnQueue and DBQueue.
+You don't have to disable them but it is recommended to only use a QueueManager
+at a time.
 
 addPlugin('RedisQueue', ['server' => 'your-redis-instance-and-port']);
 
