@@ -34,7 +34,7 @@ use Predis\PredisException;
 
 class RedisCachePlugin extends Plugin
 {
-    const PLUGIN_VERSION = '0.0.1';
+    const PLUGIN_VERSION = '0.1.0';
 
     // settings which can be set in config.php with addPlugin('Embed', ['param'=>'value', ...]);
     public $server = null;
@@ -133,13 +133,15 @@ class RedisCachePlugin extends Plugin
 
     public function onPluginVersion(array &$versions): bool
     {
-        $versions[] = array('name' => 'RedisCache',
-                            'version' => self::VERSION,
-                            'author' => 'chimo',
-                            'homepage' => 'https://github.com/chimo/gs-rediscache',
-                            'description' =>
-                            // TRANS: Plugin description.
-                            _m('Plugin implementing Redis as a backend for GNU social caching'));
+        $versions[] = [
+            'name' => 'RedisCache',
+            'version' => self::VERSION,
+            'author' => 'Stéphane Bérubé (chimo)',
+            'homepage' => 'https://github.com/chimo/gs-rediscache',
+            'description' =>
+            // TRANS: Plugin description.
+            _m('Plugin implementing Redis as a backend for GNU social caching')
+        ];
         return true;
     }
 }

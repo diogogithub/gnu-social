@@ -27,7 +27,7 @@ defined('GNUSOCIAL') || die();
 
 class RedisQueuePlugin extends Plugin
 {
-    const PLUGIN_VERSION = '0.0.1';
+    const PLUGIN_VERSION = '0.1.0';
 
     // settings which can be set in config.php with addPlugin('RedisQueue', ['param'=>'value', ...]);
     public $server = null;
@@ -40,12 +40,15 @@ class RedisQueuePlugin extends Plugin
 
     public function onPluginVersion(array &$versions): bool
     {
-        $versions[] = array('name' => 'RedisQueue',
-                            'version' => self::PLUGIN_VERSION,
-                            'author' => 'Miguel Dantas',
-                            'description' =>
-                            // TRANS: Plugin description.
-                            _m('Plugin implementing Redis as a backend for GNU social queues'));
+        $versions[] = [
+            'name' => 'RedisQueue',
+            'version' => self::PLUGIN_VERSION,
+            'author' => 'Miguel Dantas',
+            'homepage'    => GNUSOCIAL_ENGINE_URL,
+            'description' =>
+            // TRANS: Plugin description.
+            _m('Plugin implementing Redis as a backend for GNU social queues')
+        ];
         return true;
     }
 };

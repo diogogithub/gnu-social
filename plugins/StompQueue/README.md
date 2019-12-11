@@ -8,7 +8,7 @@ This plugin is replaces other queue manager plugins, such as UnQueue,
 which enabled by default and which should, but is not required to be
 disabled.
 
-addPlugin('StompQueue', ['servers' => ['your-redis-instance-and-port'],
+addPlugin('StompQueue', ['servers' => ['your-stomp-instance-and-port'],
                          'vhost' => 'your-vhost',
                          'username' => 'your-username',
                          'password' => 'your-password']);

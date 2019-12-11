@@ -37,12 +37,14 @@ class UnQueuePlugin extends Plugin
 
     public function onPluginVersion(array &$versions): bool
     {
-        $versions[] = array('name' => 'UnQueue',
-                            'version' => self::PLUGIN_VERSION,
-                            'author' => 'Miguel Dantas',
-                            'description' =>
-                            // TRANS: Plugin description.
-                            _m('Plugin using the database as a backend for GNU social queues'));
+        $versions[] = ['name' => 'UnQueue',
+            'version' => self::PLUGIN_VERSION,
+            'author' => 'Miguel Dantas',
+            'homepage'    => GNUSOCIAL_ENGINE_URL,
+            'description' =>
+            // TRANS: Plugin description.
+            _m('Plugin using the database as a backend for GNU social queues')
+        ];
         return true;
     }
 };

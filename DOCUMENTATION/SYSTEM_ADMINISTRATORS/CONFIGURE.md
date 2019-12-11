@@ -228,7 +228,7 @@ sending out SMS email or XMPP messages, for off-line processing. See
 
 * `enabled` (boolean, default false): Whether to uses queues.
 
-* `daemon` (boolean, default false): Wather to use queuedaemon. False means
+* `daemon` (boolean, default false): Whether to use queuedaemon. False means
     you'll use OpportunisticQM plugin.
 
 * `subsystem` (enum["db", "stomp"], default 'db'): Which kind of queueserver to

@@ -4,9 +4,7 @@ that uses the database as it's backing storage.
 Installation
 ============
 
-This plugin is replaces other queue manager plugins, such as UnQueue,
-which enabled by default and which should, but is not required to be
-disabled.
+This plugin is enabled by default and replaces other queue manager plugins, such as UnQueue.
 
 addPlugin('DBQueue');
 
