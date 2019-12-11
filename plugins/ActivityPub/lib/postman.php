@@ -416,9 +416,10 @@ class Activitypub_postman
     /**
      * Clean list of inboxes to deliver messages
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param bool $actorFollowers whether to include the actor's follower collection
      * @return array To Inbox URLs
+     * @throws Exception
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function to_inbox(bool $actorFollowers = true): array
     {
@@ -439,7 +440,7 @@ class Activitypub_postman
         foreach ($this->to as $to_profile) {
             $i = $to_profile->get_inbox();
             // Prevent delivering to self
-            if ($i == [common_local_url('apInbox')]) {
+            if ($i == common_local_url('apInbox')) {
                 continue;
             }
             $to_inboxes[] = $i;
