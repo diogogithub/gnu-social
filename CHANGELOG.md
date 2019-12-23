@@ -16,11 +16,11 @@ Load and Storage:
 - Improved memcached support
 
 Federation:
-- Add ActivityPub support
+- Added ActivityPub support
 - RemoteFollow: Remote follow ActivityPub and OStatus remote actors via the click of a button
 - ActorLists: Allow to create collections of Actors and to interact with them - supports both OStatus and ActivityPub
 - The Free Network: Automagically migrate internal remote profiles between Free Network protocols
-- Enable the search box to import remote notices and profiles
+- Enabled the search box to import remote notices and profiles
 - Improvements on Nodeinfo (and new route)
 
 General:

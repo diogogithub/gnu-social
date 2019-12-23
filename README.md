@@ -121,9 +121,11 @@ In the current phase of development it is probably
 recommended to use git as a means to stay up to date
 with the source code. You can choose between these
 branches:
-* 1.20.x    "oldstable", few updates, well tested coded
-* master    "stable", usually working well
-* nightly   "testing", most updates, not always working as expected
+* 1.20.x    "oldstable", few updates, well tested coded ( **recommended** )
+* master    "stable", usually working well (should be safe)
+* nightly   "testing", most updates, not always working as expected (can be dangerous)
+
+**IMPORTANT: We force push to the nightly branch, the nightly branch is intended for GNU social developers only.**
 
 To keep it up-to-date, use `git pull`. Watch for conflicts!
 

@@ -1,24 +1,15 @@
 # TODO
 
-Load and Storage:
-- Upgrade STOMP queue
-- Port PEAR DB_DataObject to PDO_DataObject
+Hi! Thank you for your interest in contributing, please refer to
+[DOCUMENTATION/DEVELOPERS](https://notabug.org/diogo/gnu-social/src/nightly/DOCUMENTATION/DEVELOPERS)
+to learn how you can contribute.
 
-Network:
-- Port PEAR HTTP to Guzzle
-- Port PEAR Mail to PHPSendMail
-- Add OAuth2 support (deprecate OAuth1?)
+Our roadmap is available in the following Kanban board:
+[Kanban Board](https://kanban.diogo.site/?controller=BoardViewController&action=readonly&token=03795efb8138c4e7661a900c234c0df1bc3fc03cdfcda8619cd5d0e666de).
 
-General:
-- Fix failling unit tests
-- Improve Cronish
-  - Run session garbage collection
-  - Cleanup Email Registration
-- Refactoring of confirmation codes
-- Refactoring of Exceptions
+There are more pending tasks/ideas to implement in this
+[repo's issues](https://notabug.org/diogo/gnu-social/issues).
 
-Modules:
-- Introduce new metadata for plugins (category and thumb)
-- Add plugin management tool as a install step
-- Allow to install remote plugins and suggest popular trusted ones
-- Replace SimpleCaptcha by FacileCaptcha once the latter is ready
+So consider the issue tracker to be the full backlog, in the kanban board it's just what the
+[development team](https://notabug.org/diogo/gnu-social/src/nightly/CREDITS.md)
+is working on.
