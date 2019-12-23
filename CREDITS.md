@@ -46,7 +46,7 @@ Additional Contributors
 * Blaine Cook
 * Henry Story
 * Melvin Carvalho
-* chimo
+* Stéphane Bérubé
 * Akio
 * Maiyannah Bishop
 * Bob Mottram
@@ -55,7 +55,6 @@ Additional Contributors
 * Moonman
 * Normandy
 * Verius
-* Alexei Sorokin
 * Daniel Supernault
 
 Credits for StatusNet
