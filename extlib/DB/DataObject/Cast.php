@@ -105,7 +105,7 @@ class DB_DataObject_Cast
      * @access   public
      */
 
-    public function blob($value)
+    public static function blob($value)
     {
         $r = new DB_DataObject_Cast;
         $r->type = 'blob';
@@ -125,7 +125,7 @@ class DB_DataObject_Cast
      * @access   public
      */
 
-    public function string($value)
+    public static function string($value)
     {
         $r = new DB_DataObject_Cast;
         $r->type = 'string';
@@ -144,7 +144,7 @@ class DB_DataObject_Cast
      * @access   public
      */
 
-    public function sql($value)
+    public static function sql($value)
     {
         $r = new DB_DataObject_Cast;
         $r->type = 'sql';
@@ -170,7 +170,7 @@ class DB_DataObject_Cast
      * @author   therion 5 at hotmail
      */
 
-    public function dateTime()
+    public static function dateTime()
     {
         $args = func_get_args();
         switch (count($args)) {
@@ -234,7 +234,7 @@ class DB_DataObject_Cast
      * @access   public
      */
 
-    public function date()
+    public static function date()
     {
         $args = func_get_args();
         switch (count($args)) {
@@ -295,7 +295,7 @@ class DB_DataObject_Cast
      * @access   public
      * @author   therion 5 at hotmail
      */
-    public function time()
+    public static function time()
     {
         $args = func_get_args();
         switch (count($args)) {
