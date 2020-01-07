@@ -1,4 +1,19 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * GNU social queue-manager-on-visit class
  *
@@ -10,10 +25,12 @@
  * @category  Cron
  * @package   GNUsocial
  * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @copyright 2013 Free Software Foundation, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @copyright 2013 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+defined('GNUSOCIAL') || die();
+
 class OpportunisticQueueManager extends QueueManager
 {
     protected $qmkey = false;
@@ -21,7 +38,7 @@ class OpportunisticQueueManager extends QueueManager
     protected $max_execution_margin = null; // margin to PHP's max_execution_time
     protected $max_queue_items = null;
 
-    protected $started_at = null;
+    protected $start_cpu_time = null;
     protected $handled_items = 0;
 
     protected $verbosity = null;
@@ -29,7 +46,8 @@ class OpportunisticQueueManager extends QueueManager
     // typically just used for the /main/cron action, only used if php.ini max_execution_time is 0
     const MAXEXECTIME = 20;
 
-    public function __construct(array $args = []) {
+    public function __construct(array $args = [])
+    {
         foreach (get_class_vars(get_class($this)) as $key=>$val) {
             if (array_key_exists($key, $args)) {
                 $this->$key = $args[$key];
@@ -37,15 +55,15 @@ class OpportunisticQueueManager extends QueueManager
         }
         $this->verifyKey();
 
-        if ($this->started_at === null) {
-            $this->started_at = time();
+        if (is_null($this->start_cpu_time)) {
+            $this->start_cpu_time = hrtime(true);
         }
 
-        if ($this->max_execution_time === null) {
+        if (is_null($this->max_execution_time)) {
             $this->max_execution_time = ini_get('max_execution_time') ?: self::MAXEXECTIME;
         }
 
-        if ($this->max_execution_margin === null) {
+        if (is_null($this->max_execution_margin)) {
             // think PHP's max exec time, minus this value to have time for timeouts etc.
             $this->max_execution_margin = common_config('http', 'connect_timeout') + 1;
         }
@@ -69,7 +87,7 @@ class OpportunisticQueueManager extends QueueManager
 
     public function canContinue()
     {
-        $time_passed = time() - $this->started_at;
+        $time_passed = (hrtime(true) - $this->start_cpu_time) / 1000000000;
 
         // Only continue if limit values are sane
         if ($time_passed <= 0 && (!is_null($this->max_queue_items) && $this->max_queue_items <= 0)) {
@@ -121,9 +139,10 @@ class OpportunisticQueueManager extends QueueManager
                          'handling limit without being out of work.');
             return true;
         } elseif ($this->verbosity > 1) {
+            $time_passed = (hrtime(true) - $this->start_cpu_time) / 1000000000;
             common_debug('Opportunistic queue manager did not have time to start ' .
-                         'on this action (max: ' . $this->max_execution_time .
-                         ' exceeded: ' . abs(time() - $this->started_at) . ').');
+                         "on this action (max: {$this->max_execution_time}" .
+                         " exceeded: {$time_passed}).");
         }
 
         return false;

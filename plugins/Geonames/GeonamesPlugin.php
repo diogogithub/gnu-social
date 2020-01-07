@@ -1,50 +1,44 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
- * Plugin to convert string locations to Geonames IDs and vice versa
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Plugin to convert string locations to Geonames IDs and vice versa.
  *
  * @category  Action
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
- * Plugin to convert string locations to Geonames IDs and vice versa
+ * Plugin to convert string locations to Geonames IDs and vice versa.
  *
  * This handles most of the events that Location class emits. It uses
  * the geonames.org Web service to convert names like 'Montreal, Quebec, Canada'
  * into IDs and lat/lon pairs.
  *
- * @category Plugin
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @seeAlso  Location
+ * @seeAlso   Location
  */
 class GeonamesPlugin extends Plugin
 {
@@ -61,7 +55,7 @@ class GeonamesPlugin extends Plugin
     public $cachePrefix = null; // Optional shared memcache prefix override
                                 // to share lookups between local instances.
 
-    protected $lastTimeout = null; // timestamp of last web service timeout
+    protected $lastTimeout = null; // CPU time of last web service timeout
 
     /**
      * convert a name into a Location object
@@ -72,10 +66,12 @@ class GeonamesPlugin extends Plugin
      *
      * @return boolean whether to continue (results in $location)
      */
-    function onLocationFromName($name, $language, &$location)
+    public function onLocationFromName($name, $language, &$location)
     {
-        $loc = $this->getCache(array('name' => $name,
-                                     'language' => $language));
+        $loc = $this->getCache([
+            'name'     => $name,
+            'language' => $language,
+        ]);
 
         if ($loc !== false) {
             $location = $loc;
@@ -83,11 +79,15 @@ class GeonamesPlugin extends Plugin
         }
 
         try {
-            $geonames = $this->getGeonames('search',
-                                           array('maxRows' => 1,
-                                                 'q' => $name,
-                                                 'lang' => $language,
-                                                 'type' => 'xml'));
+            $geonames = $this->getGeonames(
+                'search',
+                [
+                    'maxRows' => 1,
+                    'q'       => $name,
+                    'lang'    => $language,
+                    'type'    => 'xml',
+                ]
+            );
         } catch (Exception $e) {
             $this->log(LOG_WARNING, "Error for $name: " . $e->getMessage());
             return true;
@@ -95,9 +95,13 @@ class GeonamesPlugin extends Plugin
 
         if (count($geonames) == 0) {
             // no results
-            $this->setCache(array('name' => $name,
-                                  'language' => $language),
-                            null);
+            $this->setCache(
+                [
+                    'name'     => $name,
+                    'language' => $language,
+                ],
+                null
+            );
             return true;
         }
 
@@ -111,9 +115,13 @@ class GeonamesPlugin extends Plugin
         $location->location_id      = (string)$n->geonameId;
         $location->location_ns      = self::LOCATION_NS;
 
-        $this->setCache(array('name' => $name,
-                              'language' => $language),
-                        $location);
+        $this->setCache(
+            [
+                'name'     => $name,
+                'language' => $language,
+            ],
+            $location
+        );
 
         // handled, don't continue processing!
         return false;
@@ -129,7 +137,7 @@ class GeonamesPlugin extends Plugin
      *
      * @return boolean whether to continue (results in $location)
      */
-    function onLocationFromId($id, $ns, $language, &$location)
+    public function onLocationFromId($id, $ns, $language, &$location)
     {
         if ($ns != self::LOCATION_NS) {
             // It's not one of our IDs... keep processing
@@ -144,9 +152,13 @@ class GeonamesPlugin extends Plugin
         }
 
         try {
-            $geonames = $this->getGeonames('hierarchy',
-                                           array('geonameId' => $id,
-                                                 'lang' => $language));
+            $geonames = $this->getGeonames(
+                'hierarchy',
+                [
+                    'geonameId' => $id,
+                    'lang'      => $language,
+                ]
+            );
         } catch (Exception $e) {
             $this->log(LOG_WARNING, "Error for ID $id: " . $e->getMessage());
             return false;
@@ -175,8 +187,10 @@ class GeonamesPlugin extends Plugin
 
         $location->names[$language] = implode(', ', array_reverse($parts));
 
-        $this->setCache(array('id' => (string)$last->geonameId),
-                        $location);
+        $this->setCache(
+            ['id' => (string) $last->geonameId],
+            $location
+        );
 
         // We're responsible for this namespace; nobody else
         // can resolve it
@@ -197,15 +211,14 @@ class GeonamesPlugin extends Plugin
      *
      * @return boolean whether to continue (results in $location)
      */
-    function onLocationFromLatLon($lat, $lon, $language, &$location)
+    public function onLocationFromLatLon($lat, $lon, $language, &$location)
     {
         // Make sure they're canonical
 
         $lat = $this->canonical($lat);
         $lon = $this->canonical($lon);
 
-        $loc = $this->getCache(array('lat' => $lat,
-                                     'lon' => $lon));
+        $loc = $this->getCache(['lat' => $lat, 'lon' => $lon]);
 
         if ($loc !== false) {
             $location = $loc;
@@ -213,10 +226,14 @@ class GeonamesPlugin extends Plugin
         }
 
         try {
-          $geonames = $this->getGeonames('findNearbyPlaceName',
-                                         array('lat' => $lat,
-                                               'lng' => $lon,
-                                               'lang' => $language));
+            $geonames = $this->getGeonames(
+              'findNearbyPlaceName',
+              [
+                  'lat'  => $lat,
+                  'lng'  => $lon,
+                  'lang' => $language,
+              ]
+          );
         } catch (Exception $e) {
             $this->log(LOG_WARNING, "Error for coords $lat, $lon: " . $e->getMessage());
             return true;
@@ -224,9 +241,10 @@ class GeonamesPlugin extends Plugin
 
         if (count($geonames) == 0) {
             // no results
-            $this->setCache(array('lat' => $lat,
-                                  'lon' => $lon),
-                            null);
+            $this->setCache(
+                ['lat' => $lat, 'lon' => $lon],
+                null
+            );
             return true;
         }
 
@@ -253,9 +271,10 @@ class GeonamesPlugin extends Plugin
 
         $location->names[$language] = implode(', ', $parts);
 
-        $this->setCache(array('lat' => $lat,
-                              'lon' => $lon),
-                        $location);
+        $this->setCache(
+            ['lat' => $lat, 'lon' => $lon],
+            $location
+        );
 
         // Success! We handled it, so no further processing
 
@@ -274,7 +293,7 @@ class GeonamesPlugin extends Plugin
      *
      * @return boolean whether to continue
      */
-    function onLocationNameLanguage($location, $language, &$name)
+    public function onLocationNameLanguage($location, $language, &$name)
     {
         if ($location->location_ns != self::LOCATION_NS) {
             // It's not one of our IDs... keep processing
@@ -292,18 +311,26 @@ class GeonamesPlugin extends Plugin
         }
 
         try {
-            $geonames = $this->getGeonames('hierarchy',
-                                           array('geonameId' => $id,
-                                                 'lang' => $language));
+            $geonames = $this->getGeonames(
+                'hierarchy',
+                [
+                    'geonameId' => $id,
+                    'lang'      => $language,
+                ]
+            );
         } catch (Exception $e) {
             $this->log(LOG_WARNING, "Error for ID $id: " . $e->getMessage());
             return false;
         }
 
         if (count($geonames) == 0) {
-            $this->setCache(array('id' => $id,
-                                  'language' => $language),
-                            null);
+            $this->setCache(
+                [
+                    'id'       => $id,
+                    'language' => $language,
+                ],
+                null
+            );
             return false;
         }
 
@@ -323,9 +350,13 @@ class GeonamesPlugin extends Plugin
 
         if (count($parts)) {
             $name = implode(', ', array_reverse($parts));
-            $this->setCache(array('id' => $id,
-                                  'language' => $language),
-                            $name);
+            $this->setCache(
+                [
+                    'id'       => $id,
+                    'language' => $language,
+                ],
+                $name
+            );
         }
 
         return false;
@@ -341,7 +372,7 @@ class GeonamesPlugin extends Plugin
      *
      * @return boolean whether to continue
      */
-    function onLocationUrl($location, &$url)
+    public function onLocationUrl($location, &$url)
     {
         if ($location->location_ns != self::LOCATION_NS) {
             // It's not one of our IDs... keep processing
@@ -364,7 +395,7 @@ class GeonamesPlugin extends Plugin
      *
      * @return boolean whether to continue
      */
-    function onLocationRdfUrl($location, &$url)
+    public function onLocationRdfUrl($location, &$url)
     {
         if ($location->location_ns != self::LOCATION_NS) {
             // It's not one of our IDs... keep processing
@@ -377,7 +408,7 @@ class GeonamesPlugin extends Plugin
         return false;
     }
 
-    function getCache($attrs)
+    public function getCache($attrs)
     {
         $c = Cache::instance();
 
@@ -392,7 +423,7 @@ class GeonamesPlugin extends Plugin
         return $value;
     }
 
-    function setCache($attrs, $loc)
+    public function setCache($attrs, $loc)
     {
         $c = Cache::instance();
 
@@ -407,7 +438,7 @@ class GeonamesPlugin extends Plugin
         return $result;
     }
 
-    function cacheKey($attrs)
+    public function cacheKey($attrs)
     {
         $key = 'geonames:' .
                implode(',', array_keys($attrs)) . ':'.
@@ -419,7 +450,7 @@ class GeonamesPlugin extends Plugin
         }
     }
 
-    function wsUrl($method, $params)
+    public function wsUrl($method, $params)
     {
         if (!empty($this->username)) {
             $params['username'] = $this->username;
@@ -431,12 +462,13 @@ class GeonamesPlugin extends Plugin
 
         $str = http_build_query($params, null, '&');
 
-        return 'http://'.$this->host.'/'.$method.'?'.$str;
+        return "http://{$this->host}/{$method}?{$str}";
     }
 
-    function getGeonames($method, $params)
+    public function getGeonames($method, $params)
     {
-        if ($this->lastTimeout && (time() - $this->lastTimeout < $this->timeoutWindow)) {
+        if (!is_null($this->lastTimeout)
+            && (hrtime(true) - $this->lastTimeout < $this->timeoutWindow * 1000000000)) {
             // TRANS: Exception thrown when a geo names service is not used because of a recent timeout.
             throw new Exception(_m('Skipping due to recent web service timeout.'));
         }
@@ -449,14 +481,14 @@ class GeonamesPlugin extends Plugin
             $result = $client->get($this->wsUrl($method, $params));
         } catch (Exception $e) {
             common_log(LOG_ERR, __METHOD__ . ": " . $e->getMessage());
-            $this->lastTimeout = time();
+            $this->lastTimeout = hrtime(true);
             throw $e;
         }
 
         if (!$result->isOk()) {
             // TRANS: Exception thrown when a geo names service does not return an expected response.
             // TRANS: %s is an HTTP error code.
-            throw new Exception(sprintf(_m('HTTP error code %s.'),$result->getStatus()));
+            throw new Exception(sprintf(_m('HTTP error code %s.'), $result->getStatus()));
         }
 
         $body = $result->getBody();
@@ -481,7 +513,7 @@ class GeonamesPlugin extends Plugin
         if (isset($document->status)) {
             // TRANS: Exception thrown when a geo names service return a specific error number and error text.
             // TRANS: %1$s is an error code, %2$s is an error message.
-            throw new Exception(sprintf(_m('Error #%1$s ("%2$s").'),$document->status['value'],$document->status['message']));
+            throw new Exception(sprintf(_m('Error #%1$s ("%2$s").'), $document->status['value'], $document->status['message']));
         }
 
         // Array of elements, >0 elements
@@ -502,7 +534,7 @@ class GeonamesPlugin extends Plugin
         return true;
     }
 
-    function canonical($coord)
+    public function canonical($coord)
     {
         $coord = rtrim($coord, "0");
         $coord = rtrim($coord, ".");

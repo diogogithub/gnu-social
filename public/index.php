@@ -48,7 +48,8 @@
  */
 
 $_startTime = microtime(true);
-$_perfCounters = array();
+$_startCpuTime = hrtime(true);
+$_perfCounters = [];
 
 // We provide all our dependencies through our own autoload.
 // This will probably be configurable for distributing with
@@ -72,7 +73,7 @@ function getPath($req)
         && array_key_exists('p', $req)
     ) {
         $p = $req['p'];
-    } else if (array_key_exists('PATH_INFO', $_SERVER)) {
+    } elseif (array_key_exists('PATH_INFO', $_SERVER)) {
         $path = $_SERVER['PATH_INFO'];
         $script = $_SERVER['SCRIPT_NAME'];
         if (substr($path, 0, mb_strlen($script)) == $script) {
@@ -99,7 +100,6 @@ function getPath($req)
 function handleError($error)
 {
     try {
-
         if ($error->getCode() == DB_DATAOBJECT_ERROR_NODATA) {
             return;
         }
@@ -152,7 +152,6 @@ function handleError($error)
             $erraction = new ServerErrorAction($error->getMessage(), 500, $error);
         }
         $erraction->showPage();
-
     } catch (Exception $e) {
         // TRANS: Error message.
         echo _('An error occurred.');
@@ -182,12 +181,18 @@ require_once INSTALLDIR . '/lib/util/common.php';
 function formatBacktraceLine($n, $line)
 {
     $out = "#$n ";
-    if (isset($line['class'])) $out .= $line['class'];
-    if (isset($line['type'])) $out .= $line['type'];
-    if (isset($line['function'])) $out .= $line['function'];
+    if (array_key_exists('class', $line)) {
+        $out .= $line['class'];
+    }
+    if (array_key_exists('type', $line)) {
+        $out .= $line['type'];
+    }
+    if (array_key_exists('function', $line)) {
+        $out .= $line['function'];
+    }
     $out .= '(';
-    if (isset($line['args'])) {
-        $args = array();
+    if (array_key_exists('args', $line)) {
+        $args = [];
         foreach ($line['args'] as $arg) {
             // debug_print_backtrace seems to use var_export
             // but this gets *very* verbose!
@@ -197,8 +202,12 @@ function formatBacktraceLine($n, $line)
     }
     $out .= ')';
     $out .= ' called at [';
-    if (isset($line['file'])) $out .= $line['file'];
-    if (isset($line['line'])) $out .= ':' . $line['line'];
+    if (array_key_exists('file', $line)) {
+        $out .= $line['file'];
+    }
+    if (array_key_exists('line', $line)) {
+        $out .= ':' . $line['line'];
+    }
     $out .= ']';
     return $out;
 }

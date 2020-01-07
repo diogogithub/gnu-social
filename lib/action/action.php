@@ -600,11 +600,11 @@ class Action extends HTMLOutputter // lawsuit
 
     public function endHTML()
     {
-        global $_startTime;
+        global $_startCpuTime;
 
-        if (isset($_startTime)) {
-            $endTime = microtime(true);
-            $diff = round(($endTime - $_startTime) * 1000);
+        if (isset($_startCpuTime)) {
+            $end_cpu_time = hrtime(true);
+            $diff = round(($end_cpu_time - $_startCpuTime) / 1000000);
             $this->raw("<!-- ${diff}ms -->");
         }
 
