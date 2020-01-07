@@ -279,10 +279,8 @@ class MediaFile
         $ret = preg_match('/^(.*-)?([^-]+)-[^-]+$/', $encoded_filename, $matches);
         if ($ret === false) {
             return false;
-        } elseif ($ret === 0) {
+        } elseif ($ret === 0 || !ctype_xdigit($matches[2])) {
             return null; // No match
-        } elseif (strlen($matches[2]) % 2 !== 0) {
-            return null; // An odd length won't do for hex2bin
         } else {
             $filename = hex2bin($matches[2]);
 
