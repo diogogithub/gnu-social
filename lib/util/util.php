@@ -2331,7 +2331,7 @@ function common_profile_uri($profile)
             if ($user instanceof User) {
                 $uri = $user->getUri();
             } // FIXME: might be a remote profile, by this function name, I would guess it would be fine to call this
-              // On the other hand, there's Profile->getUri
+            // On the other hand, there's Profile->getUri
             Event::handle('EndCommonProfileURI', [$profile, &$uri]);
         }
     }
@@ -2606,11 +2606,11 @@ function common_perf_counter($key, $val=null)
 function common_log_perf_counters()
 {
     if (common_config('site', 'logperf')) {
-        global $_startTime, $_perfCounters;
+        global $_startCpuTime, $_perfCounters;
 
-        if (isset($_startTime)) {
-            $endTime = microtime(true);
-            $diff = round(($endTime - $_startTime) * 1000);
+        if (isset($_startCpuTime)) {
+            $end_cpu_time = hrtime(true);
+            $diff = round(($end_cpu_time - $_startCpuTime) / 1000000);
             common_log(LOG_DEBUG, "PERF runtime: ${diff}ms");
         }
         $counters = $_perfCounters;

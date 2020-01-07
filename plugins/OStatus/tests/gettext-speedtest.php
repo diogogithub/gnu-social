@@ -25,55 +25,55 @@ _bindtextdomain("statusnet", INSTALLDIR . '/locale');
 _bindtextdomain("FeedSub", INSTALLDIR . '/plugins/FeedSub/locale');
 
 $times = 10000;
-$delta = array();
+$delta = [];
 
-$start = microtime(true);
-for($i = 0; $i < $times; $i++) {
-    $result = _("Send");
+$start = hrtime(true);
+for ($i = 0; $i < $times; ++$i) {
+    $result = _('Send');
 }
-$delta["_"] = array((microtime(true) - $start) / $times, $result);
+$delta['_'] = [(hrtime(true) - $start) / $times, $result];
 
-$start = microtime(true);
-for($i = 0; $i < $times; $i++) {
-    $result = __("Send");
+$start = hrtime(true);
+for ($i = 0; $i < $times; ++$i) {
+    $result = __('Send');
 }
-$delta["__"] = array((microtime(true) - $start) / $times, $result);
+$delta['__'] = [(hrtime(true) - $start) / $times, $result];
 
-$start = microtime(true);
-for($i = 0; $i < $times; $i++) {
-    $result = dgettext("FeedSub", "Feeds");
+$start = hrtime(true);
+for ($i = 0; $i < $times; ++$i) {
+    $result = dgettext('FeedSub', 'Feeds');
 }
-$delta["dgettext"] = array((microtime(true) - $start) / $times, $result);
+$delta['dgettext'] = [(hrtime(true) - $start) / $times, $result];
 
-$start = microtime(true);
-for($i = 0; $i < $times; $i++) {
-    $result = _dgettext("FeedSub", "Feeds");
+$start = hrtime(true);
+for ($i = 0; $i < $times; ++$i) {
+    $result = _dgettext('FeedSub', 'Feeds');
 }
-$delta["_dgettext"] = array((microtime(true) - $start) / $times, $result);
+$delta['_dgettext'] = [(hrtime(true) - $start) / $times, $result];
 
 
-$start = microtime(true);
-for($i = 0; $i < $times; $i++) {
+$start = hrtime(true);
+for ($i = 0; $i < $times; ++$i) {
     // TRANS: String in the gettext speed test script. Unimportant.
-    $result = _m("Feeds");
+    $result = _m('Feeds');
 }
-$delta["_m"] = array((microtime(true) - $start) / $times, $result);
+$delta['_m'] = [(hrtime(true) - $start) / $times, $result];
 
 
-$start = microtime(true);
-for($i = 0; $i < $times; $i++) {
-    $result = fake("Feeds");
+$start = hrtime(true);
+for ($i = 0; $i < $times; ++$i) {
+    $result = fake('Feeds');
 }
-$delta["fake"] = array((microtime(true) - $start) / $times, $result);
+$delta['fake'] = [(hrtime(true) - $start) / $times, $result];
 
 foreach ($delta as $func => $bits) {
-    list($time, $result) = $bits;
-    $ms = $time * 1000.0;
+    [$time, $result] = $bits;
+    $ms = $time / 1000000;
     printf("%10s %2.4fms %s\n", $func, $ms, $result);
 }
 
 
-function fake($str) {
+function fake(string $str)
+{
     return $str;
 }
-

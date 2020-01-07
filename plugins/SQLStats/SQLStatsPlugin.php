@@ -1,31 +1,36 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
+ * Check DB queries for filesorts and such and log em.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @package   SQLStatsPlugin
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Check DB queries for filesorts and such and log em.
  *
- * @package SQLStatsPlugin
- * @maintainer Evan Prodromou <evan@status.net>
+ * @package   SQLStatsPlugin
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class SQLStatsPlugin extends Plugin
 {
@@ -49,33 +54,35 @@ class SQLStatsPlugin extends Plugin
         return true;
     }
 
-    function onStartDBQuery($obj, $query, &$result)
+    public function onStartDBQuery($obj, $query, &$result)
     {
-        $this->queryStart = microtime(true);
+        $this->queryStart = hrtime(true);
         return true;
     }
 
-    function onEndDBQuery($obj, $query, &$result)
+    public function onEndDBQuery($obj, $query, &$result)
     {
-        $endTime = microtime(true);
-        $this->queryTimes[] = round(($endTime - $this->queryStart) * 1000);
+        $endTime = hrtime(true);
+        $this->queryTimes[] = round(($endTime - $this->queryStart) / 1000000);
         $this->queries[] = trim(preg_replace('/\s/', ' ', $query));
         $this->queryStart = 0;
 
         return true;
     }
 
-    function cleanup()
+    public function cleanup()
     {
         if (count($this->queryTimes) == 0) {
             $this->log(LOG_INFO, sprintf('0 queries this hit.'));
         } else {
-            $this->log(LOG_INFO, sprintf('%d queries this hit (total = %d, avg = %d, max = %d, min = %d)',
-                                         count($this->queryTimes),
-                                         array_sum($this->queryTimes),
-                                         array_sum($this->queryTimes)/count($this->queryTimes),
-                                         max($this->queryTimes),
-                                         min($this->queryTimes)));
+            $this->log(LOG_INFO, sprintf(
+                '%d queries this hit (total = %d, avg = %d, max = %d, min = %d)',
+                count($this->queryTimes),
+                array_sum($this->queryTimes),
+                array_sum($this->queryTimes) / count($this->queryTimes),
+                max($this->queryTimes),
+                min($this->queryTimes)
+            ));
         }
 
         $verbose = common_config('sqlstats', 'verbose');

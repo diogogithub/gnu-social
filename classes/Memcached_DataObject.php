@@ -665,7 +665,7 @@ class Memcached_DataObject extends Safe_DataObject
             $string = $this->annotateQuery($string);
         }
 
-        $start = microtime(true);
+        $start = hrtime(true);
         $fail = false;
         $result = null;
         if (Event::handle('StartDBQuery', array($this, $string, &$result))) {
@@ -677,7 +677,7 @@ class Memcached_DataObject extends Safe_DataObject
             }
             Event::handle('EndDBQuery', array($this, $string, &$result));
         }
-        $delta = microtime(true) - $start;
+        $delta = (hrtime(true) - $start) / 1000000000;
 
         $limit = common_config('db', 'log_slow_queries');
         if (($limit > 0 && $delta >= $limit) || common_config('db', 'log_queries')) {
@@ -978,7 +978,7 @@ class Memcached_DataObject extends Safe_DataObject
                     $vstr = '';
                     break;
                 }
-                // fallthrough
+                // no break
             case 'blob':
             case 'string':
             case 'datetime':

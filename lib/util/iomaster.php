@@ -1,31 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * I/O manager to wrap around socket-reading and polling queue & connection managers.
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  QueueManager
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Brion Vibber <brion@status.net>
  * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+defined('GNUSOCIAL') || die();
 
 abstract class IoMaster
 {
@@ -68,7 +67,7 @@ abstract class IoMaster
      *
      * Switching site configurations is an acceptable side effect.
      */
-    abstract function initManagers();
+    abstract public function initManagers();
 
     /**
      * Instantiate an i/o manager class for the current site.
@@ -88,7 +87,7 @@ abstract class IoMaster
             if ($this->multiSite) {
                 throw new Exception("$class can't run with --all; aborting.");
             }
-        } else if ($caps == IoManager::INSTANCE_PER_PROCESS) {
+        } elseif ($caps == IoManager::INSTANCE_PER_PROCESS) {
             $manager->addSite();
         }
 
@@ -105,7 +104,7 @@ abstract class IoMaster
      * Between events or timeouts, pass control back to idle() method
      * to allow for any additional background processing.
      */
-    function service()
+    public function service()
     {
         $this->logState('init');
         $this->start();
@@ -137,7 +136,7 @@ abstract class IoMaster
 
                 if ($ready === false) {
                     common_log(LOG_ERR, "Error selecting on sockets");
-                } else if ($ready > 0) {
+                } elseif ($ready > 0) {
                     foreach ($read as $socket) {
                         $index = array_search($socket, $sockets, true);
                         if ($index !== false) {
@@ -188,7 +187,7 @@ abstract class IoMaster
                 } else {
                     $this->requestShutdown();
                 }
-            } else if (common_config('queue', 'debug_memory')) {
+            } elseif (common_config('queue', 'debug_memory')) {
                 $fmt = number_format($usage);
                 common_log(LOG_DEBUG, "Memory usage $fmt");
             }
@@ -199,7 +198,7 @@ abstract class IoMaster
      * Return fully-parsed soft memory limit in bytes.
      * @return intval 0 or -1 if not set
      */
-    function softMemoryLimit()
+    public function softMemoryLimit()
     {
         $softLimit = trim(common_config('queue', 'softlimit'));
         if (substr($softLimit, -1) == '%') {
@@ -230,7 +229,7 @@ abstract class IoMaster
                       'g' => 1024*1024*1024);
         if (empty($mem)) {
             return 0;
-        } else if (is_numeric($mem)) {
+        } elseif (is_numeric($mem)) {
             return intval($mem);
         } else {
             $mult = substr($mem, -1);
@@ -242,7 +241,7 @@ abstract class IoMaster
         }
     }
 
-    function start()
+    public function start()
     {
         foreach ($this->managers as $index => $manager) {
             $manager->start($this);
@@ -255,7 +254,7 @@ abstract class IoMaster
         }
     }
 
-    function finish()
+    public function finish()
     {
         foreach ($this->managers as $manager) {
             $manager->finish();
@@ -266,7 +265,7 @@ abstract class IoMaster
     /**
      * Called during the idle portion of the runloop to see which handlers
      */
-    function poll()
+    public function poll()
     {
         foreach ($this->managers as $index => $manager) {
             $interval = $manager->pollInterval();
@@ -277,7 +276,7 @@ abstract class IoMaster
 
             if (isset($this->pollTimeouts[$index])) {
                 $timeout = $this->pollTimeouts[$index];
-                if (time() - $this->lastPoll[$index] < $timeout) {
+                if (hrtime(true) - $this->lastPoll[$index] < $timeout * 1000000000) {
                     // Not time to poll yet.
                     continue;
                 }
@@ -286,7 +285,7 @@ abstract class IoMaster
             }
             $hit = $manager->poll();
 
-            $this->lastPoll[$index] = time();
+            $this->lastPoll[$index] = hrtime(true);
             if ($hit) {
                 // Do the next poll quickly, there may be more input!
                 $this->pollTimeouts[$index] = 0;
@@ -306,7 +305,7 @@ abstract class IoMaster
      * Called after each handled item or empty polling cycle.
      * This is a good time to e.g. service your XMPP connection.
      */
-    function idle()
+    public function idle()
     {
         foreach ($this->managers as $manager) {
             $manager->idle();
@@ -355,6 +354,4 @@ abstract class IoMaster
         $this->shutdown = true;
         $this->respawn = true;
     }
-
 }
-
