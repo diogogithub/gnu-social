@@ -571,7 +571,15 @@ abstract class ActivityHandlerModule extends Module
 
     protected function openNoticeListItemElement(NoticeListItem $nli)
     {
+        // Build up the attributes
+        $attrs = [];
+
+        // -> The id
         $id = (empty($nli->repeat)) ? $nli->notice->id : $nli->repeat->id;
+        $id_decl = "notice-{$id}";
+        $attrs['id'] = $id_decl;
+
+        // -> The class
         $class = 'h-entry notice ' . $this->tag();
         if ($nli->notice->scope != 0 && $nli->notice->scope != 1) {
             $class .= ' limited-scope';
@@ -581,10 +589,14 @@ abstract class ActivityHandlerModule extends Module
         } catch (Exception $e) {
             // either source or what we filtered out was a zero-length string
         }
-        $nli->out->elementStart(
-            'li',
-            ['class' => $class, 'id' => 'notice-' . $id]
-        );
+        $attrs['class'] = $class;
+
+        // -> Robots
+        if (!$nli->notice->isLocal()) {
+            $attrs['data-nosnippet'] = 'true';
+        }
+
+        $nli->out->elementStart('li', $attrs);
     }
 
     protected function closeNoticeListItemElement(NoticeListItem $nli)

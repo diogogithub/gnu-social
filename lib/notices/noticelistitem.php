@@ -232,7 +232,16 @@ class NoticeListItem extends Widget
     public function showStart()
     {
         if (Event::handle('StartOpenNoticeListItemElement', [$this])) {
+            // Build up the attributes
+            $attrs = [];
+
+            // -> The id
             $id = (empty($this->repeat)) ? $this->notice->id : $this->repeat->id;
+            $id_prefix = (strlen($this->id_prefix) ? $this->id_prefix . '-' : '');
+            $id_decl = "${id_prefix}notice-${id}";
+            $attrs['id'] = $id_decl;
+
+            // -> The class
             $class = 'h-entry notice';
             if ($this->notice->scope != 0 && $this->notice->scope != 1) {
                 $class .= ' limited-scope';
@@ -242,14 +251,14 @@ class NoticeListItem extends Widget
             } catch (Exception $e) {
                 // either source or what we filtered out was a zero-length string
             }
-            $id_prefix = (strlen($this->id_prefix) ? $this->id_prefix . '-' : '');
-            $this->out->elementStart(
-                $this->item_tag,
-                [
-                    'class' => $class,
-                    'id'    => "${id_prefix}notice-${id}",
-                ]
-            );
+            $attrs['class'] = $class;
+
+            // -> Robots
+            if (!$this->notice->isLocal()) {
+                $attrs['data-nosnippet'] = 'true';
+            }
+
+            $this->out->elementStart($this->item_tag, $attrs);
             Event::handle('EndOpenNoticeListItemElement', [$this]);
         }
     }
@@ -309,7 +318,7 @@ class NoticeListItem extends Widget
                 $this->out->element('a', $addr, $text);
                 $this->out->elementEnd('li');
             }
-            $this->out->elementEnd('ul', 'addressees');
+            $this->out->elementEnd('ul');
         }
     }
 
