@@ -1,9 +1,23 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
- * widget for displaying a single notice
+ * Widget for displaying a single notice.
  *
  * This widget has the core smarts for showing a single notice: what to display,
  * where, and under which circumstances. Its key method is show(); this is a recipe
@@ -11,25 +25,24 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * ProfileNoticeListItem subclass, for example, overrides showAuthor() to skip
  * author info (since that's implicit by the data in the page).
  *
- * @category UI
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
- * @see      NoticeList
- * @see      ProfileNoticeListItem
+ * @category  UI
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ * @see       NoticeList
+ * @see       ProfileNoticeListItem
  */
 class ThreadedNoticeListItem extends NoticeListItem
 {
     protected $userProfile = null;
 
-    function __construct(Notice $notice, Action $out=null, $profile=null)
+    public function __construct(Notice $notice, Action $out = null, $profile = null)
     {
         parent::__construct($notice, $out);
         $this->userProfile = $profile;
     }
 
-    function initialItems()
+    public function initialItems()
     {
         return 3;
     }
@@ -41,17 +54,17 @@ class ThreadedNoticeListItem extends NoticeListItem
      *
      * @return void
      */
-    function showEnd()
+    public function showEnd()
     {
         $max = $this->initialItems();
         if (!$this->repeat instanceof Notice) {
             $stream = new ConversationNoticeStream($this->notice->conversation, $this->userProfile);
             $notice = $stream->getNotices(0, $max + 2);
-            $notices = array();
+            $notices = [];
             $cnt = 0;
             $moreCutoff = null;
             while ($notice->fetch()) {
-                if (Event::handle('StartAddNoticeReply', array($this, $this->notice, $notice))) {
+                if (Event::handle('StartAddNoticeReply', [$this, $this->notice, $notice])) {
                     // Don't list repeats as separate notices in a conversation
                     if (!empty($notice->repeat_of)) {
                         continue;
@@ -69,11 +82,11 @@ class ThreadedNoticeListItem extends NoticeListItem
                     $cnt++;
                     if ($cnt > $max) {
                         // boo-yah
-                        $moreCutoff = clone($notice);
+                        $moreCutoff = clone $notice;
                         break;
                     }
-                    $notices[] = clone($notice); // *grumble* inefficient as hell
-                    Event::handle('EndAddNoticeReply', array($this, $this->notice, $notice));
+                    $notices[] = clone $notice; // *grumble* inefficient as hell
+                    Event::handle('EndAddNoticeReply', [$this, $this->notice, $notice]);
                 }
             }
 
@@ -87,7 +100,7 @@ class ThreadedNoticeListItem extends NoticeListItem
                     Event::handle('EndShowThreadedNoticeTailItems', array($this, $this->notice, &$threadActive));
                 }
 
-                if (count($notices)>0) {
+                if (count($notices) > 0) {
                     if ($moreCutoff) {
                         $item = new ThreadedNoticeListMoreItem($moreCutoff, $this->out, count($notices));
                         $item->show();

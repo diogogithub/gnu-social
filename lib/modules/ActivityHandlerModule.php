@@ -1,23 +1,27 @@
 <?php
-/*
- * GNU Social - a federating social network
- * Copyright (C) 2014, Free Software Foundation, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @copyright 2014 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Superclass for plugins which add Activity types and such
@@ -25,20 +29,19 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * @category  Activity
  * @package   GNUsocial
  * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @copyright 2014 Free Software Foundation, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://gnu.io/social
+ * @copyright 2014 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 abstract class ActivityHandlerModule extends Module
 {
-    /** 
+    /**
      * Returns a key string which represents this activity in HTML classes,
-     * ids etc, as when offering selection of what type of post to make. 
-     * In MicroAppPlugin, this is paired with the user-visible localizable appTitle(). 
+     * ids etc, as when offering selection of what type of post to make.
+     * In MicroAppPlugin, this is paired with the user-visible localizable appTitle().
      *
      * @return string (compatible with HTML classes)
-     */ 
-    abstract function tag();
+     */
+    abstract public function tag();
 
     /**
      * Return a list of ActivityStreams object type IRIs
@@ -51,7 +54,7 @@ abstract class ActivityHandlerModule extends Module
      *
      * @return array of strings
      */
-    abstract function types();
+    abstract public function types();
 
     /**
      * Return a list of ActivityStreams verb IRIs which
@@ -64,7 +67,8 @@ abstract class ActivityHandlerModule extends Module
      *
      * @return array of strings
      */
-    public function verbs() {
+    public function verbs()
+    {
         return array(ActivityVerb::POST);
     }
 
@@ -80,7 +84,8 @@ abstract class ActivityHandlerModule extends Module
      * @param Activity $activity
      * @return boolean
      */
-    function isMyActivity(Activity $act) {
+    public function isMyActivity(Activity $act)
+    {
         return (count($act->objects) == 1
             && ($act->objects[0] instanceof ActivityObject)
             && $this->isMyVerb($act->verb)
@@ -98,18 +103,21 @@ abstract class ActivityHandlerModule extends Module
      * @param Notice $notice
      * @return boolean
      */
-    function isMyNotice(Notice $notice) {
+    public function isMyNotice(Notice $notice)
+    {
         return $this->isMyVerb($notice->verb) && $this->isMyType($notice->object_type);
     }
 
-    function isMyVerb($verb) {
+    public function isMyVerb($verb)
+    {
         $verb = $verb ?: ActivityVerb::POST;    // post is the default verb
         return ActivityUtils::compareVerbs($verb, $this->verbs());
     }
 
-    function isMyType($type) {
+    public function isMyType($type)
+    {
         // Third argument to compareTypes is true, to allow for notices with empty object_type for example (verb-only)
-        return count($this->types())===0 || ActivityUtils::compareTypes($type, $this->types());
+        return count($this->types()) === 0 || ActivityUtils::compareTypes($type, $this->types());
     }
 
     /**
@@ -123,11 +131,11 @@ abstract class ActivityHandlerModule extends Module
      *
      * @param Activity $activity
      * @param Profile $actor
-     * @param array $options=array()
+     * @param array $options = []
      *
      * @return Notice the resulting notice
      */
-    public function saveNoticeFromActivity(Activity $activity, Profile $actor, array $options=array())
+    public function saveNoticeFromActivity(Activity $activity, Profile $actor, array $options = [])
     {
         // Any plugin which has not implemented saveObjectFromActivity _must_
         // override this function until they are migrated (this function will
@@ -141,33 +149,33 @@ abstract class ActivityHandlerModule extends Module
     }
 
     /**
-    * Given a parsed ActivityStreams activity, your plugin gets
-    * to figure out itself how to store the additional data into
-    * the database, besides the base data stored by the core.
-    *
-    * This will handle just about all events where an activity
-    * object gets saved, whether it is via AtomPub, OStatus
-    * (WebSub and Salmon transports), or ActivityStreams-based
-    * backup/restore of account data.
-    *
-    * You should be able to accept as input the output from an
-    * asActivity() call on the stored object. Where applicable,
-    * try to use existing ActivityStreams structures and object
-    * types, and be liberal in accepting input from what might
-    * be other compatible apps.
-    *
-    * All micro-app classes must override this method.
-    *
-    * @fixme are there any standard options?
-    *
-    * @param Activity $activity
-    * @param Notice   $stored       The notice in our database for this certain object
-    * @param array $options=array()
-    *
-    * @return object    If the verb handling plugin creates an object, it can be returned here (otherwise true)
-    * @throws exception On any error.
-    */
-    protected function saveObjectFromActivity(Activity $activity, Notice $stored, array $options=array())
+     * Given a parsed ActivityStreams activity, your plugin gets
+     * to figure out itself how to store the additional data into
+     * the database, besides the base data stored by the core.
+     *
+     * This will handle just about all events where an activity
+     * object gets saved, whether it is via AtomPub, OStatus
+     * (WebSub and Salmon transports), or ActivityStreams-based
+     * backup/restore of account data.
+     *
+     * You should be able to accept as input the output from an
+     * asActivity() call on the stored object. Where applicable,
+     * try to use existing ActivityStreams structures and object
+     * types, and be liberal in accepting input from what might
+     * be other compatible apps.
+     *
+     * All micro-app classes must override this method.
+     *
+     * @fixme are there any standard options?
+     *
+     * @param Activity $activity
+     * @param Notice $stored The notice in our database for this certain object
+     * @param array $options = []
+     *
+     * @return object    If the verb handling plugin creates an object, it can be returned here (otherwise true)
+     * @throws exception On any error.
+     */
+    protected function saveObjectFromActivity(Activity $activity, Notice $stored, array $options = [])
     {
         throw new ServerException('This function should be abstract when all plugins have migrated to saveObjectFromActivity');
     }
@@ -176,7 +184,8 @@ abstract class ActivityHandlerModule extends Module
      * This usually gets called from Notice::saveActivity after a Notice object has been created,
      * so it contains a proper id and a uri for the object to be saved.
      */
-    public function onStoreActivityObject(Activity $act, Notice $stored, array $options, &$object) {
+    public function onStoreActivityObject(Activity $act, Notice $stored, array $options, &$object)
+    {
         // $this->oldSaveNew is there during a migration period of plugins, to start using
         // Notice::saveActivity instead of Notice::saveNew
         if (!$this->isMyActivity($act) || isset($this->oldSaveNew)) {
@@ -208,7 +217,7 @@ abstract class ActivityHandlerModule extends Module
      *
      * @return ActivityObject
      */
-    abstract function activityObjectFromNotice(Notice $notice);
+    abstract public function activityObjectFromNotice(Notice $notice);
 
     /**
      * When a notice is deleted, you'll be called here for a chance
@@ -218,7 +227,7 @@ abstract class ActivityHandlerModule extends Module
      *
      * @param Notice $notice
      */
-    abstract function deleteRelated(Notice $notice);
+    abstract public function deleteRelated(Notice $notice);
 
     protected function notifyMentioned(Notice $stored, array &$mentioned_ids)
     {
@@ -242,7 +251,7 @@ abstract class ActivityHandlerModule extends Module
      * @param ActivityObject $obj
      * @param XMLOutputter $out to add elements at end of object
      */
-    function activityObjectOutputAtom(ActivityObject $obj, XMLOutputter $out)
+    public function activityObjectOutputAtom(ActivityObject $obj, XMLOutputter $out)
     {
         // default is a no-op
     }
@@ -293,8 +302,8 @@ abstract class ActivityHandlerModule extends Module
     }
 
     /**
-     * @param Notice $stored            The notice being distributed
-     * @param array  &$mentioned_ids    List of profiles (from $stored->getReplies())
+     * @param Notice $stored The notice being distributed
+     * @param array  &$mentioned_ids List of profiles (from $stored->getReplies())
      */
     public function onStartNotifyMentioned(Notice $stored, array &$mentioned_ids)
     {
@@ -308,12 +317,12 @@ abstract class ActivityHandlerModule extends Module
     /**
      * Render a notice as one of our objects
      *
-     * @param Notice         $notice  Notice to render
+     * @param Notice $notice Notice to render
      * @param ActivityObject &$object Empty object to fill
      *
      * @return boolean hook value
      */
-    function onStartActivityObjectFromNotice(Notice $notice, &$object)
+    public function onStartActivityObjectFromNotice(Notice $notice, &$object)
     {
         if (!$this->isMyNotice($notice)) {
             return true;
@@ -326,12 +335,12 @@ abstract class ActivityHandlerModule extends Module
     /**
      * Handle a posted object from WebSub
      *
-     * @param Activity        $activity activity to handle
-     * @param Profile         $actor Profile for the feed
+     * @param Activity $activity activity to handle
+     * @param Profile $actor Profile for the feed
      *
      * @return boolean hook value
      */
-    function onStartHandleFeedEntryWithProfile(Activity $activity, Profile $profile, &$notice)
+    public function onStartHandleFeedEntryWithProfile(Activity $activity, Profile $profile, &$notice)
     {
         if (!$this->isMyActivity($activity)) {
             return true;
@@ -342,11 +351,13 @@ abstract class ActivityHandlerModule extends Module
 
         $object = $activity->objects[0];
 
-        $options = array('uri' => $object->id,
-                         'url' => $object->link,
-                         'self' => $object->selfLink,
-                         'is_local' => Notice::REMOTE,
-                         'source' => 'ostatus');
+        $options = [
+            'uri'      => $object->id,
+            'url'      => $object->link,
+            'self'     => $object->selfLink,
+            'is_local' => Notice::REMOTE,
+            'source'   => 'ostatus',
+        ];
 
         if (!isset($this->oldSaveNew)) {
             $notice = Notice::saveActivity($activity, $profile, $options);
@@ -361,12 +372,12 @@ abstract class ActivityHandlerModule extends Module
      * Handle a posted object from Salmon
      *
      * @param Activity $activity activity to handle
-     * @param mixed    $target   user or group targeted
+     * @param mixed $target user or group targeted
      *
      * @return boolean hook value
      */
 
-    function onStartHandleSalmonTarget(Activity $activity, $target)
+    public function onStartHandleSalmonTarget(Activity $activity, $target)
     {
         if (!$this->isMyActivity($activity)) {
             return true;
@@ -377,7 +388,7 @@ abstract class ActivityHandlerModule extends Module
             return true;
         }
 
-        $this->log(LOG_INFO, get_called_class()." checking {$activity->id} as a valid Salmon slap.");
+        $this->log(LOG_INFO, get_called_class() . " checking {$activity->id} as a valid Salmon slap.");
 
         if ($target instanceof User_group || $target->isGroup()) {
             $uri = $target->getUri();
@@ -399,7 +410,7 @@ abstract class ActivityHandlerModule extends Module
                 $original = Notice::getKV('uri', $activity->context->replyToID);
             }
             if ((!$original instanceof Notice || $original->profile_id != $target->id)
-                    && !array_key_exists($target->getUri(), $activity->context->attention)) {
+                && !array_key_exists($target->getUri(), $activity->context->attention)) {
                 // @todo FIXME: Please document (i18n).
                 // TRANS: Client exception when ...
                 throw new ClientException(_('Object not posted to this user.'));
@@ -419,11 +430,13 @@ abstract class ActivityHandlerModule extends Module
             $object = $activity;
         }
 
-        $options = array('uri' => $object->id,
-                         'url' => $object->link,
-                         'self' => $object->selfLink,
-                         'is_local' => Notice::REMOTE,
-                         'source' => 'ostatus');
+        $options = [
+            'uri'      => $object->id,
+            'url'      => $object->link,
+            'self'     => $object->selfLink,
+            'is_local' => Notice::REMOTE,
+            'source'   => 'ostatus',
+        ];
 
         $notice = $this->saveNoticeFromActivity($activity, $actor, $options);
 
@@ -433,13 +446,13 @@ abstract class ActivityHandlerModule extends Module
     /**
      * Handle object posted via AtomPub
      *
-     * @param Activity  $activity Activity that was posted
-     * @param Profile   $scoped   Profile of user posting
-     * @param Notice   &$notice   Resulting notice
+     * @param Activity $activity Activity that was posted
+     * @param Profile $scoped Profile of user posting
+     * @param Notice   &$notice Resulting notice
      *
      * @return boolean hook value
      */
-    public function onStartAtomPubNewActivity(Activity $activity, Profile $scoped, Notice &$notice=null)
+    public function onStartAtomPubNewActivity(Activity $activity, Profile $scoped, Notice &$notice = null)
     {
         if (!$this->isMyActivity($activity)) {
             return true;
@@ -455,15 +468,15 @@ abstract class ActivityHandlerModule extends Module
     /**
      * Handle object imported from a backup file
      *
-     * @param User           $user     User to import for
-     * @param ActivityObject $author   Original author per import file
-     * @param Activity       $activity Activity to import
-     * @param boolean        $trusted  Is this a trusted user?
-     * @param boolean        &$done    Is this done (success or unrecoverable error)
+     * @param User $user User to import for
+     * @param ActivityObject $author Original author per import file
+     * @param Activity $activity Activity to import
+     * @param boolean $trusted Is this a trusted user?
+     * @param boolean        &$done Is this done (success or unrecoverable error)
      *
      * @return boolean hook value
      */
-    function onStartImportActivity($user, $author, Activity $activity, $trusted, &$done)
+    public function onStartImportActivity($user, $author, Activity $activity, $trusted, &$done)
     {
         if (!$this->isMyActivity($activity)) {
             return true;
@@ -471,15 +484,19 @@ abstract class ActivityHandlerModule extends Module
 
         $obj = $activity->objects[0];
 
-        $options = array('uri' => $object->id,
-                         'url' => $object->link,
-                         'self' => $object->selfLink,
-                         'source' => 'restore');
+        $options = [
+            'uri'    => $object->id,
+            'url'    => $object->link,
+            'self'   => $object->selfLink,
+            'source' => 'restore',
+        ];
 
         // $user->getProfile() is a Profile
-        $saved = $this->saveNoticeFromActivity($activity,
-                                               $user->getProfile(),
-                                               $options);
+        $saved = $this->saveNoticeFromActivity(
+            $activity,
+            $user->getProfile(),
+            $options
+        );
 
         if (!empty($saved)) {
             $done = true;
@@ -500,7 +517,7 @@ abstract class ActivityHandlerModule extends Module
      * @param XMLOutputter $out to add elements at end of object
      * @return boolean hook return value
      */
-    function onEndActivityObjectOutputAtom(ActivityObject $obj, XMLOutputter $out)
+    public function onEndActivityObjectOutputAtom(ActivityObject $obj, XMLOutputter $out)
     {
         if (in_array($obj->type, $this->types())) {
             $this->activityObjectOutputAtom($obj, $out);
@@ -520,7 +537,7 @@ abstract class ActivityHandlerModule extends Module
      * @param array &$out JSON-targeted array which can be modified
      * @return boolean hook return value
      */
-    function onEndActivityObjectOutputJson(ActivityObject $obj, array &$out)
+    public function onEndActivityObjectOutputJson(ActivityObject $obj, array &$out)
     {
         if (in_array($obj->type, $this->types())) {
             $this->activityObjectOutputJson($obj, $out);
@@ -529,26 +546,26 @@ abstract class ActivityHandlerModule extends Module
     }
 
     public function onStartOpenNoticeListItemElement(NoticeListItem $nli)
-    {   
+    {
         if (!$this->isMyNotice($nli->notice)) {
             return true;
         }
 
         $this->openNoticeListItemElement($nli);
 
-        Event::handle('EndOpenNoticeListItemElement', array($nli));
+        Event::handle('EndOpenNoticeListItemElement', [$nli]);
         return false;
     }
 
     public function onStartCloseNoticeListItemElement(NoticeListItem $nli)
-    {   
+    {
         if (!$this->isMyNotice($nli->notice)) {
             return true;
         }
 
         $this->closeNoticeListItemElement($nli);
 
-        Event::handle('EndCloseNoticeListItemElement', array($nli));
+        Event::handle('EndCloseNoticeListItemElement', [$nli]);
         return false;
     }
 
@@ -560,12 +577,14 @@ abstract class ActivityHandlerModule extends Module
             $class .= ' limited-scope';
         }
         try {
-            $class .= ' notice-source-'.common_to_alphanumeric($nli->notice->source);
+            $class .= ' notice-source-' . common_to_alphanumeric($nli->notice->source);
         } catch (Exception $e) {
             // either source or what we filtered out was a zero-length string
         }
-        $nli->out->elementStart('li', array('class' => $class,
-                                            'id' => 'notice-' . $id));
+        $nli->out->elementStart(
+            'li',
+            ['class' => $class, 'id' => 'notice-' . $id]
+        );
     }
 
     protected function closeNoticeListItemElement(NoticeListItem $nli)
@@ -576,7 +595,7 @@ abstract class ActivityHandlerModule extends Module
 
     // FIXME: This is overriden in MicroAppPlugin but shouldn't have to be
     public function onStartShowNoticeItem(NoticeListItem $nli)
-    {   
+    {
         if (!$this->isMyNotice($nli->notice)) {
             return true;
         }
@@ -584,7 +603,7 @@ abstract class ActivityHandlerModule extends Module
         try {
             $this->showNoticeListItem($nli);
         } catch (Exception $e) {
-            common_log(LOG_ERR, 'Error showing notice '.$nli->getNotice()->getID().': ' . $e->getMessage());
+            common_log(LOG_ERR, 'Error showing notice ' . $nli->getNotice()->getID() . ': ' . $e->getMessage());
             $nli->out->element('p', 'error', sprintf(_('Error showing notice: %s'), $e->getMessage()));
         }
 
@@ -619,7 +638,7 @@ abstract class ActivityHandlerModule extends Module
         $nli->showContent();
     }
 
-    public function onStartShowNoticeContent(Notice $stored, HTMLOutputter $out, Profile $scoped=null)
+    public function onStartShowNoticeContent(Notice $stored, HTMLOutputter $out, Profile $scoped = null)
     {
         if (!$this->isMyNotice($stored)) {
             return true;
@@ -633,7 +652,7 @@ abstract class ActivityHandlerModule extends Module
         return false;
     }
 
-    protected function showNoticeContent(Notice $stored, HTMLOutputter $out, Profile $scoped=null)
+    protected function showNoticeContent(Notice $stored, HTMLOutputter $out, Profile $scoped = null)
     {
         $out->text($stored->getContent());
     }

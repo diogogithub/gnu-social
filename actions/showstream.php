@@ -1,34 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * User profile page
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Personal
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
- * @copyright 2008-2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2009 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * User profile page
@@ -58,7 +55,7 @@ class ShowstreamAction extends NoticestreamAction
         return $stream;
     }
 
-    function title()
+    public function title()
     {
         $base = $this->target->getFancyName();
         if (!empty($this->tag)) {
@@ -77,9 +74,11 @@ class ShowstreamAction extends NoticestreamAction
             } else {
                 // TRANS: Extended page title showing tagged notices in one user's timeline.
                 // TRANS: %1$s is the username, %2$d is the page number.
-                return sprintf(_('Notices by %1$s, page %2$d'),
-                               $base,
-                               $this->page);
+                return sprintf(
+                    _('Notices by %1$s, page %2$d'),
+                    $base,
+                    $this->page
+                );
             }
         }
     }
@@ -89,79 +88,120 @@ class ShowstreamAction extends NoticestreamAction
         $this->showNotices();
     }
 
-    function showProfileBlock()
+    public function showProfileBlock()
     {
         $block = new AccountProfileBlock($this, $this->target);
         $block->show();
     }
 
-    function showPageNoticeBlock()
+    public function showPageNoticeBlock()
     {
         return;
     }
 
-    function getFeeds()
+    public function getFeeds()
     {
         if (!empty($this->tag)) {
-            return array(new Feed(Feed::RSS1,
-                                  common_local_url('userrss',
-                                                   array('nickname' => $this->target->getNickname(),
-                                                         'tag' => $this->tag)),
-                                  // TRANS: Title for link to notice feed.
-                                  // TRANS: %1$s is a user nickname, %2$s is a hashtag.
-                                  sprintf(_('Notice feed for %1$s tagged %2$s (RSS 1.0)'),
-                                          $this->target->getNickname(), $this->tag)));
+            return [new Feed(
+                Feed::RSS1,
+                common_local_url(
+                    'userrss',
+                    [
+                        'nickname' => $this->target->getNickname(),
+                        'tag'      => $this->tag,
+                    ]
+                ),
+                // TRANS: Title for link to notice feed.
+                // TRANS: %1$s is a user nickname, %2$s is a hashtag.
+                sprintf(
+                    _('Notice feed for %1$s tagged %2$s (RSS 1.0)'),
+                    $this->target->getNickname(),
+                    $this->tag
+                )
+            )];
         }
 
         if (!$this->target->isLocal()) {
             // remote profiles at least have Atom, but we can't guarantee anything else
-            return array(
-                     new Feed(Feed::ATOM,
-                              $this->target->getAtomFeed(),
-                              // TRANS: Title for link to notice feed.
-                              // TRANS: %s is a user nickname.
-                              sprintf(_('Notice feed for %s (Atom)'),
-                                      $this->target->getNickname()))
-                     );
+            return [new Feed(
+                Feed::ATOM,
+                $this->target->getAtomFeed(),
+                // TRANS: Title for link to notice feed.
+                // TRANS: %s is a user nickname.
+                sprintf(
+                    _('Notice feed for %s (Atom)'),
+                    $this->target->getNickname()
+                )
+            )];
         }
 
-        return array(new Feed(Feed::JSON,
-                              common_local_url('ApiTimelineUser',
-                                               array(
-                                                    'id' => $this->target->getID(),
-                                                    'format' => 'as')),
-                              // TRANS: Title for link to notice feed.
-                              // TRANS: %s is a user nickname.
-                              sprintf(_('Notice feed for %s (Activity Streams JSON)'),
-                                      $this->target->getNickname())),
-                     new Feed(Feed::RSS1,
-                              common_local_url('userrss',
-                                               array('nickname' => $this->target->getNickname())),
-                              // TRANS: Title for link to notice feed.
-                              // TRANS: %s is a user nickname.
-                              sprintf(_('Notice feed for %s (RSS 1.0)'),
-                                      $this->target->getNickname())),
-                     new Feed(Feed::RSS2,
-                              common_local_url('ApiTimelineUser',
-                                               array(
-                                                    'id' => $this->target->getID(),
-                                                    'format' => 'rss')),
-                              // TRANS: Title for link to notice feed.
-                              // TRANS: %s is a user nickname.
-                              sprintf(_('Notice feed for %s (RSS 2.0)'),
-                                      $this->target->getNickname())),
-                     new Feed(Feed::ATOM,
-                              $this->target->getAtomFeed(),
-                              // TRANS: Title for link to notice feed.
-                              // TRANS: %s is a user nickname.
-                              sprintf(_('Notice feed for %s (Atom)'),
-                                      $this->target->getNickname())),
-                     new Feed(Feed::FOAF,
-                              common_local_url('foaf', array('nickname' =>
-                                                             $this->target->getNickname())),
-                              // TRANS: Title for link to notice feed. FOAF stands for Friend of a Friend.
-                              // TRANS: More information at http://www.foaf-project.org. %s is a user nickname.
-                              sprintf(_('FOAF for %s'), $this->target->getNickname())));
+        return [
+            new Feed(
+                Feed::JSON,
+                common_local_url(
+                    'ApiTimelineUser',
+                    [
+                        'id'     => $this->target->getID(),
+                        'format' => 'as',
+                    ]
+                ),
+                // TRANS: Title for link to notice feed.
+                // TRANS: %s is a user nickname.
+                sprintf(
+                    _('Notice feed for %s (Activity Streams JSON)'),
+                    $this->target->getNickname()
+                )
+            ),
+            new Feed(
+                Feed::RSS1,
+                common_local_url(
+                    'userrss',
+                    ['nickname' => $this->target->getNickname()]
+                ),
+                // TRANS: Title for link to notice feed.
+                // TRANS: %s is a user nickname.
+                sprintf(
+                    _('Notice feed for %s (RSS 1.0)'),
+                    $this->target->getNickname()
+                )
+            ),
+            new Feed(
+                Feed::RSS2,
+                common_local_url(
+                    'ApiTimelineUser',
+                    [
+                        'id'     => $this->target->getID(),
+                        'format' => 'rss',
+                    ]
+                ),
+                // TRANS: Title for link to notice feed.
+                // TRANS: %s is a user nickname.
+                sprintf(
+                    _('Notice feed for %s (RSS 2.0)'),
+                    $this->target->getNickname()
+                )
+            ),
+            new Feed(
+                Feed::ATOM,
+                $this->target->getAtomFeed(),
+                // TRANS: Title for link to notice feed.
+                // TRANS: %s is a user nickname.
+                sprintf(
+                    _('Notice feed for %s (Atom)'),
+                    $this->target->getNickname()
+                )
+            ),
+            new Feed(
+                Feed::FOAF,
+                common_local_url(
+                    'foaf',
+                    ['nickname' => $this->target->getNickname()]
+                ),
+                // TRANS: Title for link to notice feed. FOAF stands for Friend of a Friend.
+                // TRANS: More information at http://www.foaf-project.org. %s is a user nickname.
+                sprintf(_('FOAF for %s'), $this->target->getNickname())
+            )
+        ];
     }
 
     public function extraHeaders()
@@ -170,33 +210,50 @@ class ShowstreamAction extends NoticestreamAction
         // Publish all the rel="me" in the HTTP headers on our main profile page
         if (get_class($this) == 'ShowstreamAction') {
             foreach ($this->target->getRelMes() as $relMe) {
-                header('Link: <'.htmlspecialchars($relMe['href']).'>; rel="me"', false);
+                header('Link: <' . htmlspecialchars($relMe['href']) . '>; rel="me"', false);
             }
         }
     }
 
-    function extraHead()
+    public function extraHead()
     {
         if ($this->target->bio) {
-            $this->element('meta', array('name' => 'description',
-                                         'content' => $this->target->getDescription()));
+            $this->element(
+                'meta',
+                [
+                    'name'    => 'description',
+                    'content' => $this->target->getDescription(),
+                ]
+            );
         }
 
-        $rsd = common_local_url('rsd',
-                                array('nickname' => $this->target->getNickname()));
+        $rsd = common_local_url(
+            'rsd',
+            ['nickname' => $this->target->getNickname()]
+        );
 
         // RSD, http://tales.phrasewise.com/rfc/rsd
-        $this->element('link', array('rel' => 'EditURI',
-                                     'type' => 'application/rsd+xml',
-                                     'href' => $rsd));
+        $this->element(
+            'link',
+            [
+                'rel'  => 'EditURI',
+                'type' => 'application/rsd+xml',
+                'href' => $rsd,
+            ]
+        );
 
         if ($this->page != 1) {
-            $this->element('link', array('rel' => 'canonical',
-                                         'href' => $this->target->getUrl()));
+            $this->element(
+                'link',
+                [
+                    'rel' => 'canonical',
+                    'href' => $this->target->getUrl(),
+                ]
+            );
         }
     }
 
-    function showEmptyListMessage()
+    public function showEmptyListMessage()
     {
         // TRANS: First sentence of empty list message for a timeline. $1%s is a user nickname.
         $message = sprintf(_('This is the timeline for %1$s, but %1$s hasn\'t posted anything yet.'), $this->target->getNickname()) . ' ';
@@ -210,8 +267,7 @@ class ShowstreamAction extends NoticestreamAction
                 // TRANS: This message contains a Markdown link. Keep "](" together.
                 $message .= sprintf(_('You can try to nudge %1$s or [post something to them](%%%%action.newnotice%%%%?status_textarea=%2$s).'), $this->target->getNickname(), '@' . $this->target->getNickname());
             }
-        }
-        else {
+        } else {
             // TRANS: Second sentence of empty message for anonymous users. %s is a user nickname.
             // TRANS: This message contains a Markdown link. Keep "](" together.
             $message .= sprintf(_('Why not [register an account](%%%%action.register%%%%) and then nudge %s or post a notice to them.'), $this->target->getNickname());
@@ -222,7 +278,7 @@ class ShowstreamAction extends NoticestreamAction
         $this->elementEnd('div');
     }
 
-    function showNotices()
+    public function showNotices()
     {
         $pnl = new PrimaryNoticeList($this->notice, $this);
         $cnt = $pnl->show();
@@ -232,41 +288,51 @@ class ShowstreamAction extends NoticestreamAction
 
         // either nickname or id will be used, depending on which action (showstream, userbyid...)
         $args = array('nickname' => $this->target->getNickname(), 'id' => $this->target->getID());
-        if (!empty($this->tag))
-        {
+        if (!empty($this->tag)) {
             $args['tag'] = $this->tag;
         }
-        $this->pagination($this->page>1, $cnt>NOTICES_PER_PAGE, $this->page,
-                          $this->getActionName(), $args);
+        $this->pagination(
+            $this->page > 1,
+            $cnt > NOTICES_PER_PAGE,
+            $this->page,
+            $this->getActionName(),
+            $args
+        );
     }
 
-    function showAnonymousMessage()
+    public function showAnonymousMessage()
     {
-        if (!(common_config('site','closed') || common_config('site','inviteonly'))) {
+        if (!(common_config('site', 'closed') || common_config('site', 'inviteonly'))) {
             // TRANS: Announcement for anonymous users showing a timeline if site registrations are open.
             // TRANS: This message contains a Markdown link. Keep "](" together.
-            $m = sprintf(_('**%s** has an account on %%%%site.name%%%%, a [micro-blogging](http://en.wikipedia.org/wiki/Micro-blogging) service ' .
-                           'based on the Free Software [StatusNet](http://status.net/) tool. ' .
-                           '[Join now](%%%%action.register%%%%) to follow **%s**\'s notices and many more! ([Read more](%%%%doc.help%%%%))'),
-                         $this->target->getNickname(), $this->target->getNickname());
+            $m = sprintf(
+                _('**%s** has an account on %%%%site.name%%%%, a [micro-blogging](http://en.wikipedia.org/wiki/Micro-blogging) service ' .
+                  'based on the Free Software [StatusNet](http://status.net/) tool. ' .
+                  '[Join now](%%%%action.register%%%%) to follow **%s**\'s notices and many more! ([Read more](%%%%doc.help%%%%))'),
+                $this->target->getNickname(),
+                $this->target->getNickname()
+            );
         } else {
             // TRANS: Announcement for anonymous users showing a timeline if site registrations are closed or invite only.
             // TRANS: This message contains a Markdown link. Keep "](" together.
-            $m = sprintf(_('**%s** has an account on %%%%site.name%%%%, a [micro-blogging](http://en.wikipedia.org/wiki/Micro-blogging) service ' .
-                           'based on the Free Software [StatusNet](http://status.net/) tool.'),
-                         $this->target->getNickname(), $this->target->getNickname());
+            $m = sprintf(
+                _('**%s** has an account on %%%%site.name%%%%, a [micro-blogging](http://en.wikipedia.org/wiki/Micro-blogging) service ' .
+                  'based on the Free Software [StatusNet](http://status.net/) tool.'),
+                $this->target->getNickname(),
+                $this->target->getNickname()
+            );
         }
         $this->elementStart('div', array('id' => 'anon_notice'));
         $this->raw(common_markup_to_html($m));
         $this->elementEnd('div');
     }
 
-    function noticeFormOptions()
+    public function noticeFormOptions()
     {
         $options = parent::noticeFormOptions();
 
         if (!$this->scoped instanceof Profile || !$this->scoped->sameAs($this->target)) {
-            $options['to_profile'] =  $this->target;
+            $options['to_profile'] = $this->target;
         }
 
         return $options;
