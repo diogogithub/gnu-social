@@ -1,34 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
  * An item in a notice list
  *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Widget
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * widget for displaying a single notice
@@ -39,24 +35,23 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * ProfileNoticeListItem subclass, for example, overrides showAuthor() to skip
  * author info (since that's implicit by the data in the page).
  *
- * @category UI
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
- * @see      NoticeList
- * @see      ProfileNoticeListItem
+ * @category  UI
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ * @see       NoticeList
+ * @see       ProfileNoticeListItem
  */
 class NoticeListItem extends Widget
 {
     /** The notice this item will show. */
-    var $notice = null;
+    public $notice = null;
 
     /** The notice that was repeated. */
-    var $repeat = null;
+    public $repeat = null;
 
     /** The profile of the author of the notice, extracted once for convenience. */
-    var $profile = null;
+    public $profile = null;
 
     protected $addressees = true;
     protected $attachments = true;
@@ -72,8 +67,10 @@ class NoticeListItem extends Widget
      * Also initializes the profile attribute.
      *
      * @param Notice $notice The notice we'll display
+     * @param Action|null $out
+     * @param array $prefs
      */
-    function __construct(Notice $notice, Action $out=null, array $prefs=array())
+    public function __construct(Notice $notice, Action $out = null, array $prefs = [])
     {
         parent::__construct($out);
         if (!empty($notice->repeat_of)) {
@@ -85,25 +82,25 @@ class NoticeListItem extends Widget
                 $this->repeat = $notice;
             }
         } else {
-            $this->notice  = $notice;
+            $this->notice = $notice;
         }
 
         $this->profile = $this->notice->getProfile();
-        
+
         // integer preferences
-        foreach(array('maxchars') as $key) {
+        foreach (['maxchars'] as $key) {
             if (array_key_exists($key, $prefs)) {
                 $this->$key = (int)$prefs[$key];
             }
         }
         // boolean preferences
-        foreach(array('addressees', 'attachments', 'options') as $key) {
+        foreach (['addressees', 'attachments', 'options'] as $key) {
             if (array_key_exists($key, $prefs)) {
                 $this->$key = (bool)$prefs[$key];
             }
         }
         // string preferences
-        foreach(array('id_prefix', 'item_tag') as $key) {
+        foreach (['id_prefix', 'item_tag'] as $key) {
             if (array_key_exists($key, $prefs)) {
                 $this->$key = $prefs[$key];
             }
@@ -118,12 +115,12 @@ class NoticeListItem extends Widget
      *
      * @return void
      */
-    function show()
+    public function show()
     {
         if (empty($this->notice)) {
             common_log(LOG_WARNING, "Trying to show missing notice; skipping.");
             return;
-        } else if (empty($this->profile)) {
+        } elseif (empty($this->profile)) {
             common_log(LOG_WARNING, "Trying to show missing profile (" . $this->notice->profile_id . "); skipping.");
             return;
         }
@@ -136,7 +133,7 @@ class NoticeListItem extends Widget
         $this->showEnd();
     }
 
-    function showNotice()
+    public function showNotice()
     {
         if (Event::handle('StartShowNoticeItemNotice', array($this))) {
             $this->showNoticeHeaders();
@@ -146,9 +143,9 @@ class NoticeListItem extends Widget
         }
     }
 
-    function showNoticeHeaders()
+    public function showNoticeHeaders()
     {
-        $this->elementStart('section', array('class'=>'notice-headers'));
+        $this->elementStart('section', ['class' => 'notice-headers']);
         $this->showNoticeTitle();
         $this->showAuthor();
 
@@ -161,33 +158,44 @@ class NoticeListItem extends Widget
             } catch (InvalidUrlException $e) {
                 // parent had an invalid URL so we can't show it
             }
-            if ($this->addressees) { $this->showAddressees(); }
+            if ($this->addressees) {
+                $this->showAddressees();
+            }
             $this->elementEnd('div');
         }
         $this->elementEnd('section');
     }
 
-    function showNoticeFooter()
+    public function showNoticeFooter()
     {
         $this->elementStart('footer');
         $this->showNoticeInfo();
-        if ($this->options) { $this->showNoticeOptions(); }
-        if ($this->attachments) { $this->showNoticeAttachments(); }
+        if ($this->options) {
+            $this->showNoticeOptions();
+        }
+        if ($this->attachments) {
+            $this->showNoticeAttachments();
+        }
         $this->elementEnd('footer');
     }
 
-    function showNoticeTitle()
+    public function showNoticeTitle()
     {
         if (Event::handle('StartShowNoticeTitle', array($this))) {
             $nameClass = $this->notice->getTitle(false) ? 'p-name ' : '';
-            $this->element('a', array('href' => $this->notice->getUri(),
-                                      'class' => $nameClass . 'u-uid'),
-                           $this->notice->getTitle());
+            $this->element(
+                'a',
+                [
+                    'href'  => $this->notice->getUri(),
+                    'class' => $nameClass . 'u-uid',
+                ],
+                $this->notice->getTitle()
+            );
             Event::handle('EndShowNoticeTitle', array($this));
         }
     }
 
-    function showNoticeInfo()
+    public function showNoticeInfo()
     {
         if (Event::handle('StartShowNoticeInfo', array($this))) {
             $this->showContextLink();
@@ -199,7 +207,7 @@ class NoticeListItem extends Widget
         }
     }
 
-    function showNoticeOptions()
+    public function showNoticeOptions()
     {
         if (Event::handle('StartShowNoticeOptions', array($this))) {
             $user = common_current_user();
@@ -221,23 +229,28 @@ class NoticeListItem extends Widget
      *
      * @return void
      */
-    function showStart()
+    public function showStart()
     {
-        if (Event::handle('StartOpenNoticeListItemElement', array($this))) {
+        if (Event::handle('StartOpenNoticeListItemElement', [$this])) {
             $id = (empty($this->repeat)) ? $this->notice->id : $this->repeat->id;
             $class = 'h-entry notice';
             if ($this->notice->scope != 0 && $this->notice->scope != 1) {
                 $class .= ' limited-scope';
             }
             try {
-                $class .= ' notice-source-'.common_to_alphanumeric($this->notice->source);
+                $class .= ' notice-source-' . common_to_alphanumeric($this->notice->source);
             } catch (Exception $e) {
                 // either source or what we filtered out was a zero-length string
             }
             $id_prefix = (strlen($this->id_prefix) ? $this->id_prefix . '-' : '');
-            $this->out->elementStart($this->item_tag, array('class' => $class,
-                                                 'id' => "${id_prefix}notice-${id}"));
-            Event::handle('EndOpenNoticeListItemElement', array($this));
+            $this->out->elementStart(
+                $this->item_tag,
+                [
+                    'class' => $class,
+                    'id'    => "${id_prefix}notice-${id}",
+                ]
+            );
+            Event::handle('EndOpenNoticeListItemElement', [$this]);
         }
     }
 
@@ -249,12 +262,16 @@ class NoticeListItem extends Widget
      * @return void
      */
 
-    function showAuthor()
+    public function showAuthor()
     {
-        $attrs = array('href' => $this->profile->getUrl(),
-                       'class' => 'h-card',
-                       'title' => $this->profile->getHtmlTitle());
-        if(empty($this->repeat)) { $attrs['class'] .= ' p-author'; }
+        $attrs = [
+            'href'  => $this->profile->getUrl(),
+            'class' => 'h-card',
+            'title' => $this->profile->getHtmlTitle(),
+        ];
+        if (empty($this->repeat)) {
+            $attrs['class'] .= ' p-author';
+        }
 
         if (Event::handle('StartShowNoticeItemAuthor', array($this->profile, $this->out, &$attrs))) {
             $this->out->elementStart('a', $attrs);
@@ -265,7 +282,7 @@ class NoticeListItem extends Widget
         }
     }
 
-    function showParent()
+    public function showParent()
     {
         $this->out->element(
             'a',
@@ -278,7 +295,7 @@ class NoticeListItem extends Widget
         );
     }
 
-    function showAddressees()
+    public function showAddressees()
     {
         $pa = $this->getProfileAddressees();
 
@@ -296,9 +313,11 @@ class NoticeListItem extends Widget
         }
     }
 
-    function getProfileAddressees()
+    public function getProfileAddressees()
     {
-        if($this->pa) { return $this->pa; }
+        if ($this->pa) {
+            return $this->pa;
+        }
         $this->pa = array();
 
         $attentions = $this->getAttentionProfiles();
@@ -311,16 +330,18 @@ class NoticeListItem extends Widget
                 $class = 'account';
                 $profileurl = common_local_url('userbyid', array('id' => $attn->getID()));
             }
-            $this->pa[] = array('href' => $profileurl,
-                                'title' => $attn->getHtmlTitle(),
-                                'class' => "addressee {$class} p-name u-url",
-                                'text' => $attn->getStreamName());
+            $this->pa[] = [
+                'href'  => $profileurl,
+                'title' => $attn->getHtmlTitle(),
+                'class' => "addressee {$class} p-name u-url",
+                'text'  => $attn->getStreamName(),
+            ];
         }
 
         return $this->pa;
     }
 
-    function getAttentionProfiles()
+    public function getAttentionProfiles()
     {
         return $this->notice->getAttentionProfiles();
     }
@@ -332,11 +353,13 @@ class NoticeListItem extends Widget
      *
      * @return void
      */
-    function showNickname()
+    public function showNickname()
     {
-        $this->out->raw('<span class="p-name">' .
-                        htmlspecialchars($this->profile->getNickname()) .
-                        '</span>');
+        $this->out->raw(
+            '<span class="p-name">' .
+            htmlspecialchars($this->profile->getNickname()) .
+            '</span>'
+        );
     }
 
     /**
@@ -348,7 +371,7 @@ class NoticeListItem extends Widget
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         // FIXME: URL, image, video, audio
         $nameClass = $this->notice->getTitle(false) ? '' : 'p-name ';
@@ -364,7 +387,8 @@ class NoticeListItem extends Widget
         $this->out->elementEnd('article');
     }
 
-    function showNoticeAttachments() {
+    public function showNoticeAttachments()
+    {
         if (common_config('attachments', 'show_thumbs')) {
             $al = new InlineAttachmentList($this->notice, $this->out);
             $al->show();
@@ -378,12 +402,17 @@ class NoticeListItem extends Widget
      *
      * @return void
      */
-    function showNoticeLink()
+    public function showNoticeLink()
     {
-        $this->out->element('time', array('class' => 'dt-published',
-                                          'datetime' => common_date_iso8601($this->notice->created),
-                                          'title' => common_exact_date($this->notice->created)),
-                            common_date_string($this->notice->created));
+        $this->out->element(
+            'time',
+            [
+                'class' => 'dt-published',
+                'datetime' => common_date_iso8601($this->notice->created),
+                'title' => common_exact_date($this->notice->created),
+            ],
+            common_date_string($this->notice->created)
+        );
     }
 
     /**
@@ -395,7 +424,7 @@ class NoticeListItem extends Widget
      *
      * @return void
      */
-    function showNoticeLocation()
+    public function showNoticeLocation()
     {
         try {
             $location = Notice_location::locFromStored($this->notice);
@@ -409,7 +438,7 @@ class NoticeListItem extends Widget
 
         $lat = $location->lat;
         $lon = $location->lon;
-        $latlon = (!empty($lat) && !empty($lon)) ? $lat.';'.$lon : '';
+        $latlon = (!empty($lat) && !empty($lon)) ? $lat . ';' . $lon : '';
 
         if (empty($name)) {
             $latdms = $this->decimalDegreesToDMS(abs($lat));
@@ -429,11 +458,18 @@ class NoticeListItem extends Widget
                 // TRANS: %5$s is longitude degrees, %6$s is longitude minutes,
                 // TRANS: %7$s is longitude seconds, %8$s is E (east) or W (west) depending on longitude,
                 _('%1$u°%2$u\'%3$u"%4$s %5$u°%6$u\'%7$u"%8$s'),
-                $latdms['deg'],$latdms['min'], $latdms['sec'],($lat>0? $north:$south),
-                $londms['deg'],$londms['min'], $londms['sec'],($lon>0? $east:$west));
+                $latdms['deg'],
+                $latdms['min'],
+                $latdms['sec'],
+                ($lat > 0 ? $north : $south),
+                $londms['deg'],
+                $londms['min'],
+                $londms['sec'],
+                ($lon > 0 ? $east : $west)
+            );
         }
 
-        $url  = $location->getUrl();
+        $url = $location->getUrl();
 
         $this->out->text(' ');
         $this->out->elementStart('span', array('class' => 'location'));
@@ -441,16 +477,25 @@ class NoticeListItem extends Widget
         $this->out->text(_('at'));
         $this->out->text(' ');
         if (empty($url)) {
-            $this->out->element('abbr', array('class' => 'geo',
-                                              'title' => $latlon),
-                                $name);
+            $this->out->element(
+                'abbr',
+                [
+                    'class' => 'geo',
+                    'title' => $latlon,
+                ],
+                $name
+            );
         } else {
             $xstr = new XMLStringer(false);
-            $xstr->elementStart('a', array('href' => $url,
-                                           'rel' => 'external'));
-            $xstr->element('abbr', array('class' => 'geo',
-                                         'title' => $latlon),
-                           $name);
+            $xstr->elementStart(
+                'a',
+                ['href' => $url, 'rel' => 'external']
+            );
+            $xstr->element(
+                'abbr',
+                ['class' => 'geo', 'title' => $latlon],
+                $name
+            );
             $xstr->elementEnd('a');
             $this->out->raw($xstr->getString());
         }
@@ -461,16 +506,16 @@ class NoticeListItem extends Widget
      * @param number $dec decimal degrees
      * @return array split into 'deg', 'min', and 'sec'
      */
-    function decimalDegreesToDMS($dec)
+    public function decimalDegreesToDMS($dec)
     {
         $deg = intval($dec);
         $tempma = abs($dec) - abs($deg);
 
         $tempma = $tempma * 3600;
         $min = floor($tempma / 60);
-        $sec = $tempma - ($min*60);
+        $sec = $tempma - ($min * 60);
 
-        return array("deg"=>$deg,"min"=>$min,"sec"=>$sec);
+        return ['deg' => $deg, 'min' => $min, 'sec' => $sec];
     }
 
     /**
@@ -480,17 +525,18 @@ class NoticeListItem extends Widget
      * or one of other other channels.
      *
      * @return void
+     * @throws Exception
      */
-    function showNoticeSource()
+    public function showNoticeSource()
     {
         $ns = $this->notice->getSource();
 
         if (!$ns instanceof Notice_source) {
-            return false;
+            return;
         }
 
         // TRANS: A possible notice source (web interface).
-        $source_name = (empty($ns->name)) ? ($ns->code ? _($ns->code) : _m('SOURCE','web')) : _($ns->name);
+        $source_name = (empty($ns->name)) ? ($ns->code ? _($ns->code) : _m('SOURCE', 'web')) : _($ns->name);
         $this->out->text(' ');
         $this->out->elementStart('span', 'source');
         // @todo FIXME: probably i18n issue. If "from" is followed by text, that should be a parameter to "from" (from %s).
@@ -498,13 +544,13 @@ class NoticeListItem extends Widget
         $this->out->text(_('from'));
         $this->out->text(' ');
 
-        $name  = $source_name;
-        $url   = $ns->url;
+        $name = $source_name;
+        $url = $ns->url;
         $title = null;
 
         if (Event::handle('StartNoticeSourceLink', array($this->notice, &$name, &$url, &$title))) {
             $name = $source_name;
-            $url  = $ns->url;
+            $url = $ns->url;
         }
         Event::handle('EndNoticeSourceLink', array($this->notice, &$name, &$url, &$title));
 
@@ -538,7 +584,7 @@ class NoticeListItem extends Widget
      *
      * @return void
      */
-    function showPermalink()
+    public function showPermalink()
     {
         $class = 'permalink u-url';
         if (!$this->notice->isLocal()) {
@@ -546,11 +592,15 @@ class NoticeListItem extends Widget
         }
 
         try {
-            if($this->repeat) {
-                $this->out->element('a',
-                            array('href' => $this->repeat->getUrl(),
-                                  'class' => 'u-url'),
-                            '');
+            if ($this->repeat) {
+                $this->out->element(
+                    'a',
+                    [
+                        'href'  => $this->repeat->getUrl(),
+                        'class' => 'u-url',
+                    ],
+                    ''
+                );
                 $class = str_replace('u-url', 'u-repost-of', $class);
             }
         } catch (InvalidUrlException $e) {
@@ -558,11 +608,15 @@ class NoticeListItem extends Widget
         }
 
         try {
-            $this->out->element('a',
-                        array('href' => $this->notice->getUrl(true),
-                              'class' => $class),
-                        // TRANS: Addition in notice list item for single-notice view.
-                        _('permalink'));
+            $this->out->element(
+                'a',
+                [
+                    'href'  => $this->notice->getUrl(true),
+                    'class' => $class,
+                ],
+                // TRANS: Addition in notice list item for single-notice view.
+                _('permalink')
+            );
         } catch (InvalidUrlException $e) {
             // no permalink available
         }
@@ -571,13 +625,18 @@ class NoticeListItem extends Widget
     /**
      * Show link to conversation view.
      */
-    function showContextLink()
+    public function showContextLink()
     {
-        $this->out->element('a', array('rel' => 'bookmark',
-                                            'class' => 'timestamp',
-                                            'href' => Conversation::getUrlFromNotice($this->notice)),
-                            // TRANS: A link to the conversation view of a notice, on the local server.
-                            _('In conversation'));
+        $this->out->element(
+            'a',
+            [
+                'rel'   => 'bookmark',
+                'class' => 'timestamp',
+                'href'  => Conversation::getUrlFromNotice($this->notice),
+            ],
+            // TRANS: A link to the conversation view of a notice, on the local server.
+            _('In conversation')
+        );
     }
 
     /**
@@ -588,16 +647,26 @@ class NoticeListItem extends Widget
      *
      * @return void
      */
-    function showReplyLink()
+    public function showReplyLink()
     {
         if (common_logged_in()) {
             $this->out->text(' ');
-            $reply_url = common_local_url('newnotice',
-                                          array('replyto' => $this->profile->getNickname(), 'inreplyto' => $this->notice->id));
-            $this->out->elementStart('a', array('href' => $reply_url,
-                                                'class' => 'notice_reply',
-                                                // TRANS: Link title in notice list item to reply to a notice.
-                                                'title' => _('Reply to this notice.')));
+            $reply_url = common_local_url(
+                'newnotice',
+                [
+                    'replyto'   => $this->profile->getNickname(),
+                    'inreplyto' => $this->notice->id,
+                ]
+            );
+            $this->out->elementStart(
+                'a',
+                [
+                    'href' => $reply_url,
+                    'class' => 'notice_reply',
+                    // TRANS: Link title in notice list item to reply to a notice.
+                    'title' => _('Reply to this notice.'),
+                ]
+            );
             // TRANS: Link text in notice list item to reply to a notice.
             $this->out->text(_('Reply'));
             $this->out->text(' ');
@@ -610,8 +679,9 @@ class NoticeListItem extends Widget
      * if the user is the author, let them delete the notice
      *
      * @return void
+     * @throws Exception
      */
-    function showDeleteLink()
+    public function showDeleteLink()
     {
         $user = common_current_user();
 
@@ -621,14 +691,21 @@ class NoticeListItem extends Widget
             !$this->notice->isVerb([ActivityVerb::DELETE]) &&
             ($todel->profile_id == $user->id || $user->hasRight(Right::DELETEOTHERSNOTICE))) {
             $this->out->text(' ');
-            $deleteurl = common_local_url('deletenotice',
-                                          array('notice' => $todel->id));
-            $this->out->element('a', array('href' => $deleteurl,
-                                           'class' => 'notice_delete popup',
-                                           // TRANS: Link title in notice list item to delete a notice.
-                                           'title' => _('Delete this notice from the timeline.')),
-                                           // TRANS: Link text in notice list item to delete a notice.
-                                           _('Delete'));
+            $deleteurl = common_local_url(
+                'deletenotice',
+                ['notice' => $todel->id]
+            );
+            $this->out->element(
+                'a',
+                [
+                    'href'  => $deleteurl,
+                    'class' => 'notice_delete popup',
+                    // TRANS: Link title in notice list item to delete a notice.
+                    'title' => _m('Delete this notice from the timeline.'),
+                ],
+                // TRANS: Link text in notice list item to delete a notice.
+                _m('Delete')
+            );
         }
     }
 
@@ -639,11 +716,11 @@ class NoticeListItem extends Widget
      *
      * @return void
      */
-    function showEnd()
+    public function showEnd()
     {
-        if (Event::handle('StartCloseNoticeListItemElement', array($this))) {
+        if (Event::handle('StartCloseNoticeListItemElement', [$this])) {
             $this->out->elementEnd('li');
-            Event::handle('EndCloseNoticeListItemElement', array($this));
+            Event::handle('EndCloseNoticeListItemElement', [$this]);
         }
     }
 
@@ -655,7 +732,7 @@ class NoticeListItem extends Widget
      * @return Notice The notice we're showing
      */
 
-    function getNotice()
+    public function getNotice()
     {
         return $this->notice;
     }
