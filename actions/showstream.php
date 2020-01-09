@@ -217,6 +217,16 @@ class ShowstreamAction extends NoticestreamAction
 
     public function extraHead()
     {
+        if (!$this->target->isLocal()) {
+            $this->element(
+                'meta',
+                [
+                    'name'    => 'robots',
+                    'content' => 'noindex',
+                ]
+            );
+        }
+
         if ($this->target->bio) {
             $this->element(
                 'meta',
