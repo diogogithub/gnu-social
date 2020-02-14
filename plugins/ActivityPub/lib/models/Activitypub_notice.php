@@ -187,7 +187,7 @@ class Activitypub_notice
         $mentions = [];
         if (isset($object['tag']) && is_array($object['tag'])) {
             foreach ($object['tag'] as $tag) {
-                if ($tag['type'] == 'Mention') {
+                if (array_key_exists('type', $tag) && $tag['type'] == 'Mention') {
                     $mentions[] = $tag['href'];
                 }
             }
