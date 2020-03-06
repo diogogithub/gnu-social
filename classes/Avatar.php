@@ -187,7 +187,7 @@ class Avatar extends Managed_DataObject
 
     public static function url($filename)
     {
-        $path = common_config('avatar', 'path');
+        $path = common_config('avatar', 'url_base');
 
         if ($path[strlen($path)-1] != '/') {
             $path .= '/';

@@ -1040,6 +1040,10 @@ class Router
                             ['nickname' => Nickname::DISPLAY_FMT]);
             }
 
+            $m->connect('avatar/:file',
+                        ['action' => 'avatar'],
+                        ['file' => '.*']);
+
             $m->connect(':nickname/avatar',
                         ['action' => 'avatarbynickname'],
                         ['nickname' => Nickname::DISPLAY_FMT]);
