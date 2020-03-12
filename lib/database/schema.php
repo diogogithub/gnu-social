@@ -167,7 +167,7 @@ class Schema
         // Wrap the CREATE TABLE around the main body chunks...
         $statements = [];
         $statements[] = $this->startCreateTable($name, $def) . "\n" .
-            implode($sql, ",\n") . "\n" .
+            implode(",\n", $sql) . "\n" .
             $this->endCreateTable($name, $def);
 
         // Multi-value indexes are advisory and for best portability
