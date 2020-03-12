@@ -40,6 +40,7 @@ server {
     }
 
 # PHP
+# FIXME: Change "php7.X" to your version of fpm
     location ~ ^/(index|install)\.php(/.*)?$ {
     #location ^~ /index.php {
         include fastcgi_params;
