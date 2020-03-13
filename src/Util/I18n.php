@@ -27,11 +27,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-defined('GNUSOCIAL') || die();
-
-private Translator $translator;
-public function setTranslator($trans): void { $translator = $trans; }
-
+namespace App\Util;
 
 // Locale category constants are usually predefined, but may not be
 // on some systems such as Win32.
@@ -45,6 +41,45 @@ $LC_CATEGORIES = ['LC_CTYPE',
 foreach ($LC_CATEGORIES as $key => $name) {
     if (!defined($name)) {
         define($name, $key);
+    }
+}
+
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+use App\Util\Common;
+
+abstract class I18n {
+
+    public static ?TranslatorInterface $translator = null;
+    public static function setTranslator($trans): void { self::$translator = $trans; }
+
+    /**
+     * Looks for which plugin we've been called from to set the gettext domain;
+     * if not in a plugin subdirectory, we'll use the default 'gnusocial'.
+     *
+     * @param array $backtrace debug_backtrace() output
+     * @return string
+     * @private
+     */
+    public static function _mdomain(array $backtrace): string
+    {
+        /*
+          0 =>
+          array
+          'file' => string '/var/www/mublog/plugins/FeedSub/FeedSubPlugin.php' (length=49)
+          'line' => int 77
+          'function' => string '_m' (length=2)
+          'args' =>
+          array
+          0 => &string 'Feeds' (length=5)
+        */
+        static $cached;
+        $path = $backtrace[0]['file'];
+        if (!isset($cached[$path])) {
+            $path = common::normalizePath($path);
+            $cached[$path] = common::pluginFromPath($path);
+        }
+        return $cached[$path] ?? "";
     }
 }
 
@@ -68,65 +103,37 @@ foreach ($LC_CATEGORIES as $key => $name) {
  * @return string
  * @throws Exception
  */
-public function _m(string $msg /*, ...*/): string
+function _m(string $msg /*, ...*/): string
 {
-    $domain = _mdomain(debug_backtrace());
+    $domain = I18n::_mdomain(debug_backtrace());
     $args = func_get_args();
-    list($context, $msg_single, $msg_plural, $n) = $args;
     switch (count($args)) {
-        case 1:
-            // Empty parameters
-            return $translator->trans($msg, [], $domain);
-        case 2:
-            // ASCII 4 is EOT, used to separate context from string
-            return $translator->trans($context . '\004' . $msg_single, [], $domain);
-        case 3:
-            // '|' separates the singular from the plural version
-            $msg_single = $args[0];
-            $msg_plural = $args[1];
-            $n = $args[2];
-            return $translator->trans($msg_single . '|' . $msg_plural, ['%d' => $n], $domain);
-        case 4:
-            // Combine both
-            return $translator->trans($context . '\004' . $msg_single . '|' . $msg_plural,
-                                      ['%d' => $n], $domain);
-        default:
-            throw new Exception("Bad parameter count to _m()");
+    case 1:
+        // Empty parameters
+        return I18n::$translator->trans($msg, [], $domain);
+    case 2:
+        $context = $args[0];
+        $msg_single = $args[1];
+        // ASCII 4 is EOT, used to separate context from string
+        return I18n::$translator->trans($context . '\004' . $msg_single, [], $domain);
+    case 3:
+        // '|' separates the singular from the plural version
+        $msg_single = $args[0];
+        $msg_plural = $args[1];
+        $n = $args[2];
+        return I18n::$translator->trans($msg_single . '|' . $msg_plural, ['%d' => $n], $domain);
+    case 4:
+        // Combine both
+        $context = $args[0];
+        $msg_single = $args[1];
+        $msg_plural = $args[2];
+        $n = $args[3];
+        return I18n::$translator->trans($context . '\004' . $msg_single . '|' . $msg_plural,
+                                        ['%d' => $n], $domain);
+    default:
+        throw new Exception("Bad parameter count to _m()");
     }
 }
-
-/**
- * Looks for which plugin we've been called from to set the gettext domain;
- * if not in a plugin subdirectory, we'll use the default 'gnusocial'.
- *
- * Note: we can't return null for default domain since most of the PHP gettext
- * wrapper functions turn null into "" before passing to the backend library.
- *
- * @param array $backtrace debug_backtrace() output
- * @return string
- * @private
- */
-private function _mdomain(array $backtrace): string
-{
-    /*
-      0 =>
-        array
-          'file' => string '/var/www/mublog/plugins/FeedSub/FeedSubPlugin.php' (length=49)
-          'line' => int 77
-          'function' => string '_m' (length=2)
-          'args' =>
-            array
-              0 => &string 'Feeds' (length=5)
-    */
-    static $cached;
-    $path = $backtrace[0]['file'];
-    if (!isset($cached[$path])) {
-        $path = common::normalizePath($path);
-        $cached[$path] = common::pluginFromPath($path);
-    }
-    return $cached[$path];
-}
-
 
 /**
  * Content negotiation for language codes
@@ -134,25 +141,24 @@ private function _mdomain(array $backtrace): string
  * @param string $http_accept_lang_header HTTP Accept-Language header
  * @return string language code for best language match, false otherwise
  */
-
 function client_preferred_language(string $http_accept_lang_header): string
 {
     $client_langs = [];
-    $all_languages = common_config('site', 'languages');
+    $all_languages = Common::config('site', 'languages');
 
     preg_match_all('"(((\S\S)-?(\S\S)?)(;q=([0-9.]+))?)\s*(,\s*|$)"',
-        strtolower($http_accept_lang_header), $http_langs);
+                   strtolower($http_accept_lang_header), $http_langs);
 
     for ($i = 0; $i < count($http_langs); ++$i) {
         if (!empty($http_langs[2][$i])) {
             // if no q default to 1.0
             $client_langs[$http_langs[2][$i]] =
-                ($http_langs[6][$i] ? (float)$http_langs[6][$i] : 1.0 - ($i * 0.01));
+                                              ($http_langs[6][$i] ? (float)$http_langs[6][$i] : 1.0 - ($i * 0.01));
         }
         if (!empty($http_langs[3][$i]) && empty($client_langs[$http_langs[3][$i]])) {
             // if a catchall default 0.01 lower
             $client_langs[$http_langs[3][$i]] =
-                ($http_langs[6][$i] ? (float)$http_langs[6][$i] - 0.01 : 0.99);
+                                              ($http_langs[6][$i] ? (float)$http_langs[6][$i] - 0.01 : 0.99);
         }
     }
     // sort in descending q
@@ -193,19 +199,15 @@ function get_nice_language_list(): array
 
 function is_rtl(string $lang_value): bool
 {
-        foreach (common_config('site', 'languages') as $code => $info) {
-                if ($lang_value == $info['lang']) {
-                        return $info['direction'] == 'rtl';
-                }
+    foreach (common_config('site', 'languages') as $code => $info) {
+        if ($lang_value == $info['lang']) {
+            return $info['direction'] == 'rtl';
         }
+    }
 }
 
 /**
  * Get a list of all languages that are enabled in the default config
- *
- * This should ONLY be called when setting up the default config in common.php.
- * Any other attempt to get a list of languages should instead call
- * common_config('site','languages')
  *
  * @return array mapping of language codes to language info
  */
