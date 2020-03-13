@@ -16,8 +16,13 @@
 
 namespace App\Util;
 
-class Common
+abstract class Common
 {
+    public static function config(string $section, string $field)
+    {
+
+    }
+
     public static function normalizePath(string $path): string
     {
         if (DIRECTORY_SEPARATOR !== '/') {

@@ -51,25 +51,31 @@
 
 namespace App\Util;
 
+use Psr\Log\LoggerInterface;
 use Psr\Container\ContainerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Psr\Log\LoggerInterface;
 
 use App\Util\Log;
 use App\Util\GSEvent;
+use App\Util\I18n;
 
 class GNUsocial implements EventSubscriberInterface
 {
     protected ContainerInterface $container;
     protected LoggerInterface $logger;
+    protected TranslatorInterface $translator;
 
-    public function __construct(ContainerInterface $container, LoggerInterface $logger)
+    public function __construct(ContainerInterface $container,
+                                LoggerInterface $logger,
+                                TranslatorInterface $translator)
     {
         $this->container = $container;
-        $this->logger= $logger;
+        $this->logger = $logger;
+        $this->translator = $translator;
     }
 
     public function onKernelRequest(RequestEvent $event,
@@ -91,19 +97,21 @@ class GNUsocial implements EventSubscriberInterface
             define('GNUSOCIAL_LIFECYCLE', 'dev');
             define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
             define('GNUSOCIAL_CODENAME', 'Big bang');
+
+            /* Work internally in UTC */
+            date_default_timezone_set('UTC');
+
+            /* Work internally with UTF-8 */
+            mb_internal_encoding('UTF-8');
+
+            Log::setLogger($this->logger);
+            GSEvent::setDispatcher($event_dispatcher);
+            I18n::setTranslator($this->translator);
         }
 
-        /* Work internally in UTC */
-        date_default_timezone_set('UTC');
-
-        /* Work internally with UTF-8 */
-        mb_internal_encoding('UTF-8');
-
-        Log::setLogger($this->logger);
-        GSEvent::setDispatcher($event_dispatcher);
 
         GSEvent::addHandler('test', function ($x) {
-            Log::info("Logging from an event " . var_export($x, true));
+            Log::info(_m("Logging from an event " . var_export($x, true)));
         });
 
         return $event;
