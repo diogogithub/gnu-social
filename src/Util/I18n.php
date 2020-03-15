@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -19,6 +20,7 @@
  *
  * @category  I18n
  * @package   GNU social
+ *
  * @author    Matthew Gregg <matthew.gregg@gmail.com>
  * @author    Ciaran Gultnieks <ciaran@ciarang.com>
  * @author    Evan Prodromou <evan@status.net>
@@ -31,33 +33,38 @@ namespace App\Util;
 
 // Locale category constants are usually predefined, but may not be
 // on some systems such as Win32.
-$LC_CATEGORIES = ['LC_CTYPE',
-                  'LC_NUMERIC',
-                  'LC_TIME',
-                  'LC_COLLATE',
-                  'LC_MONETARY',
-                  'LC_MESSAGES',
-                  'LC_ALL'];
+$LC_CATEGORIES = [
+    'LC_CTYPE',
+    'LC_NUMERIC',
+    'LC_TIME',
+    'LC_COLLATE',
+    'LC_MONETARY',
+    'LC_MESSAGES',
+    'LC_ALL',
+];
 foreach ($LC_CATEGORIES as $key => $name) {
-    if (!defined($name)) {
+    if (!\defined($name)) {
         define($name, $key);
     }
 }
 
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-use App\Util\Common;
-
-abstract class I18n {
-
+abstract class I18n
+{
     public static ?TranslatorInterface $translator = null;
-    public static function setTranslator($trans): void { self::$translator = $trans; }
+
+    public static function setTranslator($trans): void
+    {
+        self::$translator = $trans;
+    }
 
     /**
      * Looks for which plugin we've been called from to set the gettext domain;
      * if not in a plugin subdirectory, we'll use the default 'gnusocial'.
      *
      * @param array $backtrace debug_backtrace() output
+     *
      * @return string
      * @private
      */
@@ -76,10 +83,10 @@ abstract class I18n {
         static $cached;
         $path = $backtrace[0]['file'];
         if (!isset($cached[$path])) {
-            $path = common::normalizePath($path);
+            $path          = common::normalizePath($path);
             $cached[$path] = common::pluginFromPath($path);
         }
-        return $cached[$path] ?? "";
+        return $cached[$path] ?? '';
     }
 }
 
@@ -100,19 +107,21 @@ abstract class I18n {
  *
  * @param string $msg
  * @param extra params as described above
- * @return string
+ *
  * @throws Exception
+ *
+ * @return string
  */
 function _m(string $msg /*, ...*/): string
 {
-    $domain = I18n::_mdomain(debug_backtrace());
-    $args = func_get_args();
-    switch (count($args)) {
+    $domain = I18n::_mdomain(\debug_backtrace());
+    $args   = func_get_args();
+    switch (\count($args)) {
     case 1:
         // Empty parameters
         return I18n::$translator->trans($msg, [], $domain);
     case 2:
-        $context = $args[0];
+        $context    = $args[0];
         $msg_single = $args[1];
         // ASCII 4 is EOT, used to separate context from string
         return I18n::$translator->trans($context . '\004' . $msg_single, [], $domain);
@@ -120,18 +129,18 @@ function _m(string $msg /*, ...*/): string
         // '|' separates the singular from the plural version
         $msg_single = $args[0];
         $msg_plural = $args[1];
-        $n = $args[2];
+        $n          = $args[2];
         return I18n::$translator->trans($msg_single . '|' . $msg_plural, ['%d' => $n], $domain);
     case 4:
         // Combine both
-        $context = $args[0];
+        $context    = $args[0];
         $msg_single = $args[1];
         $msg_plural = $args[2];
-        $n = $args[3];
+        $n          = $args[3];
         return I18n::$translator->trans($context . '\004' . $msg_single . '|' . $msg_plural,
                                         ['%d' => $n], $domain);
     default:
-        throw new Exception("Bad parameter count to _m()");
+        throw new Exception('Bad parameter count to _m()');
     }
 }
 
@@ -139,11 +148,12 @@ function _m(string $msg /*, ...*/): string
  * Content negotiation for language codes
  *
  * @param string $http_accept_lang_header HTTP Accept-Language header
+ *
  * @return string language code for best language match, false otherwise
  */
 function client_preferred_language(string $http_accept_lang_header): string
 {
-    $client_langs = [];
+    $client_langs  = [];
     $all_languages = Common::config('site', 'languages');
 
     preg_match_all('"(((\S\S)-?(\S\S)?)(;q=([0-9.]+))?)\s*(,\s*|$)"',
@@ -152,13 +162,11 @@ function client_preferred_language(string $http_accept_lang_header): string
     for ($i = 0; $i < count($http_langs); ++$i) {
         if (!empty($http_langs[2][$i])) {
             // if no q default to 1.0
-            $client_langs[$http_langs[2][$i]] =
-                                              ($http_langs[6][$i] ? (float)$http_langs[6][$i] : 1.0 - ($i * 0.01));
+            $client_langs[$http_langs[2][$i]] = ($http_langs[6][$i] ? (float) $http_langs[6][$i] : 1.0 - ($i * 0.01));
         }
         if (!empty($http_langs[3][$i]) && empty($client_langs[$http_langs[3][$i]])) {
             // if a catchall default 0.01 lower
-            $client_langs[$http_langs[3][$i]] =
-                                              ($http_langs[6][$i] ? (float)$http_langs[6][$i] - 0.01 : 0.99);
+            $client_langs[$http_langs[3][$i]] = ($http_langs[6][$i] ? (float) $http_langs[6][$i] - 0.01 : 0.99);
         }
     }
     // sort in descending q
@@ -166,7 +174,7 @@ function client_preferred_language(string $http_accept_lang_header): string
 
     foreach ($client_langs as $lang => $q) {
         if (isset($all_languages[$lang])) {
-            return ($all_languages[$lang]['lang']);
+            return $all_languages[$lang]['lang'];
         }
     }
     return false;
@@ -177,10 +185,9 @@ function client_preferred_language(string $http_accept_lang_header): string
  *
  * @return array map of available languages by code to language name.
  */
-
 function get_nice_language_list(): array
 {
-    $nice_lang = [];
+    $nice_lang     = [];
     $all_languages = common_config('site', 'languages');
 
     foreach ($all_languages as $lang) {
@@ -194,9 +201,8 @@ function get_nice_language_list(): array
  *
  * @param string $lang language code of the language to check
  *
- * @return boolean true if language is rtl
+ * @return bool true if language is rtl
  */
-
 function is_rtl(string $lang_value): bool
 {
     foreach (common_config('site', 'languages') as $code => $info) {

@@ -33,6 +33,7 @@
         "symfony/yaml": "5.0.*"
     },
     "require-dev": {
+        "friendsofphp/php-cs-fixer": "^2.16",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.14",
         "symfony/profiler-pack": "*",
@@ -69,7 +70,8 @@
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         },
         "post-install-cmd": [
-            "@auto-scripts"
+            "@auto-scripts",
+            "cp bin/pre-commit .git/hooks"
         ],
         "post-update-cmd": [
             "@auto-scripts"

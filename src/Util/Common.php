@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -20,12 +21,11 @@ abstract class Common
 {
     public static function config(string $section, string $field)
     {
-
     }
 
     public static function normalizePath(string $path): string
     {
-        if (DIRECTORY_SEPARATOR !== '/') {
+        if (\DIRECTORY_SEPARATOR !== '/') {
             $path = strtr($path, DIRECTORY_SEPARATOR, '/');
         }
         return $path;
@@ -36,18 +36,18 @@ abstract class Common
         $plug = strpos($path, '/plugins/');
         if ($plug === false) {
             return null;
-        } else {
-            $cut = $plug + strlen('/plugins/');
-            $cut2 = strpos($path, '/', $cut);
-            if ($cut2) {
-                $final = substr($path, $cut, $cut2 - $cut);
-            } else {
-                // We might be running directly from the plugins dir?
-                // If so, there's no place to store locale info.
-                Log::error("The GNU social install dir seems to contain a piece named plugin");
-                return false;
-            }
         }
+        $cut  = $plug + strlen('/plugins/');
+        $cut2 = strpos($path, '/', $cut);
+        if ($cut2) {
+            $final = substr($path, $cut, $cut2 - $cut);
+        } else {
+            // We might be running directly from the plugins dir?
+            // If so, there's no place to store locale info.
+            Log::error('The GNU social install dir seems to contain a piece named plugin');
+            return false;
+        }
+
         return $final;
     }
 }

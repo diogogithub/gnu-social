@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -19,15 +20,8 @@ namespace App\Util;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
-abstract class GSEvent {
-
-    private static EventDispatcherInterface $dispatcher;
-
-    public static function setDispatcher(EventDispatcherInterface $dis): void
-    {
-        self::$dispatcher = $dis;
-    }
-
+abstract class GSEvent
+{
     /**
      * Constants to be returned from event handlers, for increased clarity
      *
@@ -35,8 +29,15 @@ abstract class GSEvent {
      * bool next - Allow the other handlers to process the event
      */
     public const stop = false;
+
     public const next = true;
 
+    private static EventDispatcherInterface $dispatcher;
+
+    public static function setDispatcher(EventDispatcherInterface $dis): void
+    {
+        self::$dispatcher = $dis;
+    }
 
     /**
      * Add an event handler
@@ -60,7 +61,7 @@ abstract class GSEvent {
      *
      * @return void
      */
-    public static function addHandler(string $name, callable $handler, int $priority=0): void
+    public static function addHandler(string $name, callable $handler, int $priority = 0): void
     {
         self::$dispatcher->addListener(
             $name,
@@ -70,10 +71,10 @@ abstract class GSEvent {
                     && call_user_func_array($handler, $event->getArguments()) == self::stop) {
                     $event->stopPropagation();
                     return $event;
-                } else {
-                    // Symfony style of events
-                    call_user_func($handler, $event, $event_name, $dispatcher);
                 }
+                // Symfony style of events
+                call_user_func($handler, $event, $event_name, $dispatcher);
+
                 return null;
             },
             $priority
@@ -94,7 +95,7 @@ abstract class GSEvent {
      * @param array  $args Arguments for handlers
      *
      * @return bool flag saying whether to continue processing, based
-     *                 on results of handlers.
+     *              on results of handlers.
      */
     public static function handle(string $name, array $args = []): bool
     {
@@ -109,17 +110,17 @@ abstract class GSEvent {
      * Look to see if there's any handler for a given event, or narrow
      * by providing the name of a specific plugin class.
      *
-     * @param string $name Name of the event to look for
+     * @param string $name   Name of the event to look for
      * @param string $plugin Optional name of the plugin class to look for
      *
      * @return bool flag saying whether such a handler exists
      */
-    public static function hasHandler(string $name, ?string $plugin=null): bool
+    public static function hasHandler(string $name, ?string $plugin = null): bool
     {
         $listeners = self::$dispatcher->getListeners($name);
         if (isset($plugin)) {
             foreach ($listeners as $handler) {
-                if (get_class($handler[0]) == $plugin) {
+                if (\get_class($handler[0]) == $plugin) {
                     return true;
                 }
             }
@@ -133,6 +134,7 @@ abstract class GSEvent {
      * Get the array of handlers for $name
      *
      * @param string $name Name of event
+     *
      * @return array
      * @return array
      */

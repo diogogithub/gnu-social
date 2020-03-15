@@ -1,8 +1,8 @@
 <?php
 
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
-
 use App\Controller\NetworkPublic;
+
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 return function (RoutingConfigurator $routes) {
     $routes->add('network.public', '/main/all')
