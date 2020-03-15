@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -19,6 +20,7 @@
  *
  * @package   GNUsocial
  * @category  Framework
+ *
  * @author    Brenda Wallace <shiny@cpan.org>
  * @author    Brion Vibber <brion@pobox.com>
  * @author    Brion Vibber <brion@status.net>
@@ -51,38 +53,30 @@
 
 namespace App\Util;
 
-use Psr\Log\LoggerInterface;
 use Psr\Container\ContainerInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-
-use App\Util\Log;
-use App\Util\GSEvent;
-use App\Util\I18n;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GNUsocial implements EventSubscriberInterface
 {
     protected ContainerInterface $container;
+
     protected LoggerInterface $logger;
+
     protected TranslatorInterface $translator;
 
     public function __construct(ContainerInterface $container,
                                 LoggerInterface $logger,
                                 TranslatorInterface $translator)
     {
-        $this->container = $container;
-        $this->logger = $logger;
+        $this->container  = $container;
+        $this->logger     = $logger;
         $this->translator = $translator;
-    }
 
-    public function onKernelRequest(RequestEvent $event,
-                                    string $event_name,
-                                    $event_dispatcher): RequestEvent
-    {
-        if (!defined('INSTALLDIR')) {
+        if (!\defined('INSTALLDIR')) {
             define('INSTALLDIR', dirname(__DIR__));
             define('SRCDIR', INSTALLDIR . '/src');
             define('PUBLICDIR', INSTALLDIR . '/public');
@@ -98,29 +92,28 @@ class GNUsocial implements EventSubscriberInterface
             define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
             define('GNUSOCIAL_CODENAME', 'Big bang');
 
-            /* Work internally in UTC */
+            // Work internally in UTC
             date_default_timezone_set('UTC');
 
-            /* Work internally with UTF-8 */
+            // Work internally with UTF-8
             mb_internal_encoding('UTF-8');
+        }
+    }
 
+    public function onKernelRequest(RequestEvent $event,
+                                    string $event_name,
+                                    $event_dispatcher): RequestEvent
+    {
+        if (!\defined('INSTALLDIR')) {
             Log::setLogger($this->logger);
             GSEvent::setDispatcher($event_dispatcher);
             I18n::setTranslator($this->translator);
         }
-
-
-        GSEvent::addHandler('test', function ($x) {
-            Log::info(_m("Logging from an event " . var_export($x, true)));
-        });
-
         return $event;
     }
 
     public static function getSubscribedEvents()
     {
-        return array(
-            KernelEvents::REQUEST => 'onKernelRequest'
-        );
+        return [KernelEvents::REQUEST => 'onKernelRequest'];
     }
 }

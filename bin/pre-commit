@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# get the list of changed files
+staged_files=$(git diff --cached --name-only)
+
+# build command to fix files
+cmd="$(git rev-parse --show-toplevel)/vendor/bin/php-cs-fixer"
+
+echo "Running php-cs-fixer on edited files"
+
+for staged in ${staged_files}; do
+    # work only with existing files
+    if [[ -f ${staged} && ${staged} == *.php ]]; then
+        # use php-cs-fixer and get flag of correction
+        "${cmd}" -q fix "${staged}"
+
+        # if php-cs-fixer fix works, it returns 0
+        if [[ $? -eq 0 ]]; then
+            git add "${staged}" # execute git add directly
+        fi
+    fi
+done
+
+exit 0 # do commit
