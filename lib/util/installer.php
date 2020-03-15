@@ -454,6 +454,7 @@ abstract class Installer
             "\$config['site']['server'] = {$vals['server']};\n" .
             "\$config['site']['path'] = {$vals['path']}; \n\n" .
             "\$config['site']['ssl'] = {$vals['ssl']}; \n\n" .
+            ($this->ssl === 'proxy' ? "\$config['site']['sslproxy'] = true;\n\n" : '') .
 
             // checks if fancy URLs are enabled
             ($this->fancy ? "\$config['site']['fancy'] = true;\n\n" : '') .
