@@ -206,6 +206,7 @@ class WebInstaller extends Installer
                         <label for="ssl">Server SSL</label>
                         <input type="radio" name="ssl" id="ssl-always" value="always" {$ssl['always']}> enable<br>
                         <input type="radio" name="ssl" id="ssl-never" value="never" {$ssl['never']}> disable<br>
+                        <input type="radio" name="ssl" id="ssl-proxy" value="proxy"> proxied<br>
                         <p class="form_guide" id="ssl-form_guide">Enabling SSL (https://) requires extra webserver configuration and certificate generation not offered by this installation.</p>
                     </li>
                 </ul>
@@ -357,7 +358,7 @@ STR;
             $fail = true;
         }
 
-        if (!in_array($this->ssl, ['never', 'always'])) {
+        if (!in_array($this->ssl, ['never', 'always', 'proxy'])) {
             $this->updateStatus("Bad value for server SSL enabling.");
             $fail = true;
         }

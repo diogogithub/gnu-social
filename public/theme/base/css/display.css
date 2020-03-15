@@ -1405,6 +1405,10 @@ form label.submit {
     margin-left:0;
 }
 
+.form_settings label[for=ssl] {
+    margin-top:23px;
+}
+
 .form_settings label {
     margin-top:2px;
     width: 25%;
