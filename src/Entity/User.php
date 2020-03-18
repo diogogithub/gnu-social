@@ -7,53 +7,29 @@ class User
     // AUTOCODE BEGIN
 
     private int $id;
-
     private ?string $nickname;
-
     private ?string $password;
-
     private ?string $email;
-
     private ?string $incomingemail;
-
     private ?bool $emailnotifysub;
-
     private ?int $emailnotifyfav;
-
     private ?bool $emailnotifynudge;
-
     private ?bool $emailnotifymsg;
-
     private ?bool $emailnotifyattn;
-
     private ?string $language;
-
     private ?string $timezone;
-
     private ?bool $emailpost;
-
     private ?string $sms;
-
     private ?int $carrier;
-
     private ?bool $smsnotify;
-
     private ?bool $smsreplies;
-
     private ?string $smsemail;
-
     private ?string $uri;
-
     private ?bool $autosubscribe;
-
     private ?int $subscribe_policy;
-
     private ?string $urlshorteningservice;
-
     private ?bool $private_stream;
-
     private DateTime $created;
-
     private DateTime $modified;
 
     public function setId(int $id): self
@@ -61,7 +37,6 @@ class User
         $this->id = $id;
         return $this;
     }
-
     public function getId(): int
     {
         return $this->id;
@@ -72,7 +47,6 @@ class User
         $this->nickname = $nickname;
         return $this;
     }
-
     public function getNickname(): ?string
     {
         return $this->nickname;
@@ -83,7 +57,6 @@ class User
         $this->password = $password;
         return $this;
     }
-
     public function getPassword(): ?string
     {
         return $this->password;
@@ -94,7 +67,6 @@ class User
         $this->email = $email;
         return $this;
     }
-
     public function getEmail(): ?string
     {
         return $this->email;
@@ -105,7 +77,6 @@ class User
         $this->incomingemail = $incomingemail;
         return $this;
     }
-
     public function getIncomingemail(): ?string
     {
         return $this->incomingemail;
@@ -116,7 +87,6 @@ class User
         $this->emailnotifysub = $emailnotifysub;
         return $this;
     }
-
     public function getEmailnotifysub(): ?bool
     {
         return $this->emailnotifysub;
@@ -127,7 +97,6 @@ class User
         $this->emailnotifyfav = $emailnotifyfav;
         return $this;
     }
-
     public function getEmailnotifyfav(): ?int
     {
         return $this->emailnotifyfav;
@@ -138,7 +107,6 @@ class User
         $this->emailnotifynudge = $emailnotifynudge;
         return $this;
     }
-
     public function getEmailnotifynudge(): ?bool
     {
         return $this->emailnotifynudge;
@@ -149,7 +117,6 @@ class User
         $this->emailnotifymsg = $emailnotifymsg;
         return $this;
     }
-
     public function getEmailnotifymsg(): ?bool
     {
         return $this->emailnotifymsg;
@@ -160,7 +127,6 @@ class User
         $this->emailnotifyattn = $emailnotifyattn;
         return $this;
     }
-
     public function getEmailnotifyattn(): ?bool
     {
         return $this->emailnotifyattn;
@@ -171,7 +137,6 @@ class User
         $this->language = $language;
         return $this;
     }
-
     public function getLanguage(): ?string
     {
         return $this->language;
@@ -182,7 +147,6 @@ class User
         $this->timezone = $timezone;
         return $this;
     }
-
     public function getTimezone(): ?string
     {
         return $this->timezone;
@@ -193,7 +157,6 @@ class User
         $this->emailpost = $emailpost;
         return $this;
     }
-
     public function getEmailpost(): ?bool
     {
         return $this->emailpost;
@@ -204,7 +167,6 @@ class User
         $this->sms = $sms;
         return $this;
     }
-
     public function getSms(): ?string
     {
         return $this->sms;
@@ -215,7 +177,6 @@ class User
         $this->carrier = $carrier;
         return $this;
     }
-
     public function getCarrier(): ?int
     {
         return $this->carrier;
@@ -226,7 +187,6 @@ class User
         $this->smsnotify = $smsnotify;
         return $this;
     }
-
     public function getSmsnotify(): ?bool
     {
         return $this->smsnotify;
@@ -237,7 +197,6 @@ class User
         $this->smsreplies = $smsreplies;
         return $this;
     }
-
     public function getSmsreplies(): ?bool
     {
         return $this->smsreplies;
@@ -248,7 +207,6 @@ class User
         $this->smsemail = $smsemail;
         return $this;
     }
-
     public function getSmsemail(): ?string
     {
         return $this->smsemail;
@@ -259,7 +217,6 @@ class User
         $this->uri = $uri;
         return $this;
     }
-
     public function getUri(): ?string
     {
         return $this->uri;
@@ -270,7 +227,6 @@ class User
         $this->autosubscribe = $autosubscribe;
         return $this;
     }
-
     public function getAutosubscribe(): ?bool
     {
         return $this->autosubscribe;
@@ -281,7 +237,6 @@ class User
         $this->subscribe_policy = $subscribe_policy;
         return $this;
     }
-
     public function getSubscribePolicy(): ?int
     {
         return $this->subscribe_policy;
@@ -292,7 +247,6 @@ class User
         $this->urlshorteningservice = $urlshorteningservice;
         return $this;
     }
-
     public function getUrlshorteningservice(): ?string
     {
         return $this->urlshorteningservice;
@@ -303,7 +257,6 @@ class User
         $this->private_stream = $private_stream;
         return $this;
     }
-
     public function getPrivateStream(): ?bool
     {
         return $this->private_stream;
@@ -314,7 +267,6 @@ class User
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTime
     {
         return $this->created;
@@ -325,7 +277,6 @@ class User
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTime
     {
         return $this->modified;

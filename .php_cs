@@ -13,7 +13,10 @@ return PhpCsFixer\Config::create()
         // PHP arrays should be declared using the configured syntax.
         'array_syntax' => ['syntax' => 'short'],
         // Binary operators should be surrounded by space as configured.
-        'binary_operator_spaces' => ['default' => 'align_single_space_minimal'],
+        'binary_operator_spaces' => [
+            'default'   => 'align_single_space_minimal',
+            'operators' => ['??' => 'align'],
+        ],
         // There MUST be one blank line after the namespace declaration.
         'blank_line_after_namespace' => true,
         // Each element of an array must be indented exactly once.
@@ -21,11 +24,13 @@ return PhpCsFixer\Config::create()
         // Ensure there is no code on the same line as the PHP open tag and it is followed by a blank line.
         'blank_line_after_opening_tag' => true,
         // The body of each structure MUST be enclosed by braces. Braces should be properly placed. Body of braces should be properly indented.
-        'braces' => ['allow_single_line_closure' => true, 'position_after_functions_and_oop_constructs' => 'next'],
+        'braces' => ['allow_single_line_closure' => true, 'position_after_functions_and_oop_constructs' => 'next',
+            // 'allow_single_line_functions' => true, // Awaiting PR merge...
+        ],
         // A single space or none should be between cast and variable.
         'cast_spaces' => true,
         // Class, trait and interface elements must be separated with one blank line.
-        'class_attributes_separation' => true,
+        'class_attributes_separation' => false,
         // Whitespace around the keywords of a class, trait or interfaces definition should be one space.
         'class_definition' => ['single_item_single_line' => true, 'single_line' => true],
         // Using `isset($var) &&` multiple times should be done in one call.
@@ -145,7 +150,7 @@ return PhpCsFixer\Config::create()
         // In function arguments there must not be arguments with default values before non-default ones.
         'no_unreachable_default_argument_value' => true,
         // Variables must be set `null` instead of using `(unset)` casting.
-        'no_unset_cast' => true,
+        'no_unset_cast' => false,
         // Properties should be set to `null` instead of using `unset`.
         'no_unset_on_property' => true,
         // Unused `use` statements must be removed.
@@ -205,7 +210,7 @@ return PhpCsFixer\Config::create()
         // Annotations in PHPDoc should be grouped together so that annotations of the same type immediately follow each other, and annotations of a different type are separated by a single blank line.
         'phpdoc_separation' => true,
         // Single line `@var` PHPDoc should have proper spacing.
-        'phpdoc_single_line_var_spacing' => true,
+        'phpdoc_single_line_var_spacing' => false,
         // Removes extra blank lines after summary and after description in PHPDoc.
         'phpdoc_trim_consecutive_blank_line_separation' => true,
         // The correct case must be used for standard PHP types in PHPDoc.
@@ -266,5 +271,6 @@ return PhpCsFixer\Config::create()
     ->setFinder(PhpCsFixer\Finder::create()
         ->exclude('vendor')
         ->exclude('var')
+        ->exclude('src/Entity')
         ->in(__DIR__)
     );
