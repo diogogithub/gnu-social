@@ -4,7 +4,334 @@ namespace App\Entity;
 
 class User
 {
-    public $id;
+    // AUTOCODE BEGIN
+
+    private int $id;
+
+    private ?string $nickname;
+
+    private ?string $password;
+
+    private ?string $email;
+
+    private ?string $incomingemail;
+
+    private ?bool $emailnotifysub;
+
+    private ?int $emailnotifyfav;
+
+    private ?bool $emailnotifynudge;
+
+    private ?bool $emailnotifymsg;
+
+    private ?bool $emailnotifyattn;
+
+    private ?string $language;
+
+    private ?string $timezone;
+
+    private ?bool $emailpost;
+
+    private ?string $sms;
+
+    private ?int $carrier;
+
+    private ?bool $smsnotify;
+
+    private ?bool $smsreplies;
+
+    private ?string $smsemail;
+
+    private ?string $uri;
+
+    private ?bool $autosubscribe;
+
+    private ?int $subscribe_policy;
+
+    private ?string $urlshorteningservice;
+
+    private ?bool $private_stream;
+
+    private DateTime $created;
+
+    private DateTime $modified;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setNickname(?string $nickname): self
+    {
+        $this->nickname = $nickname;
+        return $this;
+    }
+
+    public function getNickname(): ?string
+    {
+        return $this->nickname;
+    }
+
+    public function setPassword(?string $password): self
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->password;
+    }
+
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email;
+        return $this;
+    }
+
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setIncomingemail(?string $incomingemail): self
+    {
+        $this->incomingemail = $incomingemail;
+        return $this;
+    }
+
+    public function getIncomingemail(): ?string
+    {
+        return $this->incomingemail;
+    }
+
+    public function setEmailnotifysub(?bool $emailnotifysub): self
+    {
+        $this->emailnotifysub = $emailnotifysub;
+        return $this;
+    }
+
+    public function getEmailnotifysub(): ?bool
+    {
+        return $this->emailnotifysub;
+    }
+
+    public function setEmailnotifyfav(?int $emailnotifyfav): self
+    {
+        $this->emailnotifyfav = $emailnotifyfav;
+        return $this;
+    }
+
+    public function getEmailnotifyfav(): ?int
+    {
+        return $this->emailnotifyfav;
+    }
+
+    public function setEmailnotifynudge(?bool $emailnotifynudge): self
+    {
+        $this->emailnotifynudge = $emailnotifynudge;
+        return $this;
+    }
+
+    public function getEmailnotifynudge(): ?bool
+    {
+        return $this->emailnotifynudge;
+    }
+
+    public function setEmailnotifymsg(?bool $emailnotifymsg): self
+    {
+        $this->emailnotifymsg = $emailnotifymsg;
+        return $this;
+    }
+
+    public function getEmailnotifymsg(): ?bool
+    {
+        return $this->emailnotifymsg;
+    }
+
+    public function setEmailnotifyattn(?bool $emailnotifyattn): self
+    {
+        $this->emailnotifyattn = $emailnotifyattn;
+        return $this;
+    }
+
+    public function getEmailnotifyattn(): ?bool
+    {
+        return $this->emailnotifyattn;
+    }
+
+    public function setLanguage(?string $language): self
+    {
+        $this->language = $language;
+        return $this;
+    }
+
+    public function getLanguage(): ?string
+    {
+        return $this->language;
+    }
+
+    public function setTimezone(?string $timezone): self
+    {
+        $this->timezone = $timezone;
+        return $this;
+    }
+
+    public function getTimezone(): ?string
+    {
+        return $this->timezone;
+    }
+
+    public function setEmailpost(?bool $emailpost): self
+    {
+        $this->emailpost = $emailpost;
+        return $this;
+    }
+
+    public function getEmailpost(): ?bool
+    {
+        return $this->emailpost;
+    }
+
+    public function setSms(?string $sms): self
+    {
+        $this->sms = $sms;
+        return $this;
+    }
+
+    public function getSms(): ?string
+    {
+        return $this->sms;
+    }
+
+    public function setCarrier(?int $carrier): self
+    {
+        $this->carrier = $carrier;
+        return $this;
+    }
+
+    public function getCarrier(): ?int
+    {
+        return $this->carrier;
+    }
+
+    public function setSmsnotify(?bool $smsnotify): self
+    {
+        $this->smsnotify = $smsnotify;
+        return $this;
+    }
+
+    public function getSmsnotify(): ?bool
+    {
+        return $this->smsnotify;
+    }
+
+    public function setSmsreplies(?bool $smsreplies): self
+    {
+        $this->smsreplies = $smsreplies;
+        return $this;
+    }
+
+    public function getSmsreplies(): ?bool
+    {
+        return $this->smsreplies;
+    }
+
+    public function setSmsemail(?string $smsemail): self
+    {
+        $this->smsemail = $smsemail;
+        return $this;
+    }
+
+    public function getSmsemail(): ?string
+    {
+        return $this->smsemail;
+    }
+
+    public function setUri(?string $uri): self
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+
+    public function getUri(): ?string
+    {
+        return $this->uri;
+    }
+
+    public function setAutosubscribe(?bool $autosubscribe): self
+    {
+        $this->autosubscribe = $autosubscribe;
+        return $this;
+    }
+
+    public function getAutosubscribe(): ?bool
+    {
+        return $this->autosubscribe;
+    }
+
+    public function setSubscribePolicy(?int $subscribe_policy): self
+    {
+        $this->subscribe_policy = $subscribe_policy;
+        return $this;
+    }
+
+    public function getSubscribePolicy(): ?int
+    {
+        return $this->subscribe_policy;
+    }
+
+    public function setUrlshorteningservice(?string $urlshorteningservice): self
+    {
+        $this->urlshorteningservice = $urlshorteningservice;
+        return $this;
+    }
+
+    public function getUrlshorteningservice(): ?string
+    {
+        return $this->urlshorteningservice;
+    }
+
+    public function setPrivateStream(?bool $private_stream): self
+    {
+        $this->private_stream = $private_stream;
+        return $this;
+    }
+
+    public function getPrivateStream(): ?bool
+    {
+        return $this->private_stream;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
+    // AUTOCODE END
 
     public static function schemaDef()
     {

@@ -1,0 +1,67 @@
+#!/usr/bin/php
+
+<?php
+
+use Symfony\Component\Yaml\Yaml;
+
+define('ROOT', dirname(__DIR__));
+
+require ROOT . '/vendor/autoload.php';
+
+const types = [
+    'blob'     => '',
+    'bool'     => 'bool',
+    'char'     => 'string',
+    'datetime' => 'DateTime',
+    'html'     => 'string',
+    'int'      => 'int',
+    'numeric'  => 'float',
+    'serial'   => 'int',
+    'text'     => 'string',
+    'varchar'  => 'string',
+];
+
+$path = Yaml::parseFile(ROOT . '/config/services.yaml')['services']['app.util.schemadef_driver']['arguments'][0];
+$path = str_replace('%kernel.project_dir%', ROOT, $path);
+
+$files = glob($path . '/*.php');
+
+foreach ($files as $file) {
+    require_once $file;
+    $classes = array_filter(get_declared_classes(),
+                            function ($class) {
+                                return method_exists($class, 'schemaDef');
+                            });
+
+    $class        = $classes[array_keys($classes)[0]];
+    $no_ns_class  = preg_replace('/.*?\\\\/', '', $class);
+    $schema       = $class::schemaDef();
+    $fields       = array_keys($schema['fields']);
+    $fields_code  = [];
+    $methods_code = [];
+    foreach ($fields as $field) {
+        $nullable       = !@$schema['fields'][$field]['not null'] ? '?' : '';
+        $type           = $nullable . types[$schema['fields'][$field]['type']];
+        $method_name    = str_replace(' ', '', ucwords(str_replace('_', ' ', $field)));
+        $fields_code[]  = "    private {$type} \${$field};";
+        $methods_code[] = "    public function set{$method_name}({$type} \${$field}): {$no_ns_class} " .
+                        "{ \$this->{$field} = \${$field}; return \$this; }" . "\n" .
+                        "    public function get{$method_name}(): {$type} " .
+                        "{ return \$this->{$field}; }" . "\n";
+    }
+    $begin = '// AUTOCODE BEGIN';
+    $end   = '// AUTOCODE END';
+    $code  = "\n\n" . '    ' . $begin . "\n\n" .
+           implode("\n", $fields_code) .
+           "\n\n" .
+           implode("\n", $methods_code) . "\n" .
+           '    ' . $end . "\n";
+
+    $begin = preg_replace('/\\//', '\\/', preg_replace('/ /', '\\ ', $begin));
+    $end   = preg_replace('/\\//', '\\/', preg_replace('/ /', '\\ ', $end));
+
+    $in_file  = file_get_contents($file);
+    $out_file = preg_replace("/\\s*{$begin}[^\\/]*{$end}/m", $code, $in_file);
+
+    file_put_contents($file, $out_file);
+}
