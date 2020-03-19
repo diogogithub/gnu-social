@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * Register a new ORM driver to allow use to use the old schemaDef format
  */
-class SchemaDefCompilerPass implements CompilerPassInterface
+class SchemaDefPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
@@ -17,7 +17,5 @@ class SchemaDefCompilerPass implements CompilerPassInterface
                   ->addMethodCall('addDriver',
                                   [new Reference('app.util.schemadef_driver'), 'App\\Entity']
                   );
-
-        $container->setParameter('doctrine.orm.metadata.schemadef.class', App\Util\SchemaDefDriver::class);
     }
 }
