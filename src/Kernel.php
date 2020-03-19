@@ -2,14 +2,13 @@
 
 namespace App;
 
-use App\DependencyInjection\Compiler\SchemaDefCompilerPass;
+use App\DependencyInjection\Compiler\SchemaDefPass;
 use const PHP_VERSION_ID;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
-
 use Symfony\Component\Routing\RouteCollectionBuilder;
 
 class Kernel extends BaseKernel
@@ -59,6 +58,6 @@ class Kernel extends BaseKernel
     {
         parent::build($container);
 
-        $container->addCompilerPass(new SchemaDefCompilerPass($container));
+        $container->addCompilerPass(new SchemaDefPass($container));
     }
 }
