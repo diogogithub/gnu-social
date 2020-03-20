@@ -61,10 +61,13 @@ abstract class GSEvent
      *
      * @return void
      */
-    public static function addHandler(string $name, callable $handler, int $priority = 0): void
+    public static function addHandler(string $name,
+                                      callable $handler,
+                                      int $priority = 0,
+                                      string $ns = 'GNUsocial/'): void
     {
         self::$dispatcher->addListener(
-            $name,
+            $ns . $name,
             function ($event, $event_name, $dispatcher) use ($handler) {
                 // Old style of events (preferred)
                 if ($event instanceof GenericEvent) {
@@ -94,14 +97,15 @@ abstract class GSEvent
      *
      * @param string $name Name of the event that's happening
      * @param array  $args Arguments for handlers
+     * @param string $ns   Namspace for the event
      *
      * @return bool flag saying whether to continue processing, based
      *              on results of handlers.
      */
-    public static function handle(string $name, array $args = []): bool
+    public static function handle(string $name, array $args = [], string $ns = 'GNUsocial/'): bool
     {
         return !(self::$dispatcher->dispatch(
-            new GenericEvent($name, $args),
+            new GenericEvent($ns . $name, $args),
             $name)->isPropagationStopped());
     }
 
