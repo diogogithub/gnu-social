@@ -55,6 +55,8 @@ namespace App\Util;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -75,20 +77,35 @@ class GNUsocial implements EventSubscriberInterface
         $this->translator = $translator;
     }
 
-    public function onKernelRequest(RequestEvent $event,
-                                    string $event_name,
-                                    $event_dispatcher): RequestEvent
+    public function register(EventDispatcherInterface $event_dispatcher): void
     {
         Log::setLogger($this->logger);
         GSEvent::setDispatcher($event_dispatcher);
         I18n::setTranslator($this->translator);
         ExtensionManager::loadExtensions();
+    }
 
+    public function onKernelRequest(RequestEvent $event,
+                                    string $event_name,
+                                    EventDispatcherInterface $event_dispatcher): RequestEvent
+    {
+        $this->register($event_dispatcher);
+        return $event;
+    }
+
+    public function onCommand(ConsoleCommandEvent $event,
+                              string $event_name,
+                              EventDispatcherInterface $event_dispatcher): ConsoleCommandEvent
+    {
+        $this->register($event_dispatcher);
         return $event;
     }
 
     public static function getSubscribedEvents()
     {
-        return [KernelEvents::REQUEST => 'onKernelRequest'];
+        return [
+            KernelEvents::REQUEST => 'onKernelRequest',
+            'console.command'     => 'onCommand',
+        ];
     }
 }
