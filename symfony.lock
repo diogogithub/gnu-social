@@ -120,6 +120,9 @@
     "laminas/laminas-zendframework-bridge": {
         "version": "1.0.1"
     },
+    "lstrojny/functional-php": {
+        "version": "1.11.0"
+    },
     "monolog/monolog": {
         "version": "2.0.2"
     },

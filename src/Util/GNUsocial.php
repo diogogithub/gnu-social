@@ -63,9 +63,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class GNUsocial implements EventSubscriberInterface
 {
     protected ContainerInterface $container;
-
     protected LoggerInterface $logger;
-
     protected TranslatorInterface $translator;
 
     public function __construct(ContainerInterface $container,
@@ -75,40 +73,17 @@ class GNUsocial implements EventSubscriberInterface
         $this->container  = $container;
         $this->logger     = $logger;
         $this->translator = $translator;
-
-        if (!\defined('INSTALLDIR')) {
-            define('INSTALLDIR', dirname(__DIR__));
-            define('SRCDIR', INSTALLDIR . '/src');
-            define('PUBLICDIR', INSTALLDIR . '/public');
-            define('GNUSOCIAL_ENGINE', 'GNU social');
-            // MERGE Change to https://gnu.io/social/
-            define('GNUSOCIAL_ENGINE_URL', 'https://gnusocial.network/');
-            // MERGE Change to https://git.gnu.io/gnu/gnu-social
-            define('GNUSOCIAL_ENGINE_REPO_URL', 'https://notabug.org/diogo/gnu-social/');
-            // Current base version, major.minor.patch
-            define('GNUSOCIAL_BASE_VERSION', '3.0.0');
-            // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'
-            define('GNUSOCIAL_LIFECYCLE', 'dev');
-            define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
-            define('GNUSOCIAL_CODENAME', 'Big bang');
-
-            // Work internally in UTC
-            date_default_timezone_set('UTC');
-
-            // Work internally with UTF-8
-            mb_internal_encoding('UTF-8');
-        }
     }
 
     public function onKernelRequest(RequestEvent $event,
                                     string $event_name,
                                     $event_dispatcher): RequestEvent
     {
-        if (!\defined('INSTALLDIR')) {
-            Log::setLogger($this->logger);
-            GSEvent::setDispatcher($event_dispatcher);
-            I18n::setTranslator($this->translator);
-        }
+        Log::setLogger($this->logger);
+        GSEvent::setDispatcher($event_dispatcher);
+        I18n::setTranslator($this->translator);
+        ExtensionManager::loadExtensions();
+
         return $event;
     }
 
