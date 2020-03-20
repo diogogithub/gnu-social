@@ -66,10 +66,11 @@ abstract class GSEvent
         self::$dispatcher->addListener(
             $name,
             function ($event, $event_name, $dispatcher) use ($handler) {
-                if ($event instanceof GenericEvent
-                    // Old style of events (preferred)
-                    && call_user_func_array($handler, $event->getArguments()) == self::stop) {
-                    $event->stopPropagation();
+                // Old style of events (preferred)
+                if ($event instanceof GenericEvent) {
+                    if (call_user_func_array($handler, $event->getArguments()) == self::stop) {
+                        $event->stopPropagation();
+                    }
                     return $event;
                 }
                 // Symfony style of events

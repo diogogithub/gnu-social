@@ -17,6 +17,9 @@
 
 namespace App\Util;
 
+use Functional as F;
+use Symfony\Component\Config\Definition\Exception\Exception;
+
 abstract class Common
 {
     public static function config(string $section, string $field)
@@ -44,10 +47,40 @@ abstract class Common
         } else {
             // We might be running directly from the plugins dir?
             // If so, there's no place to store locale info.
-            Log::error('The GNU social install dir seems to contain a piece named plugin');
-            return false;
+            throw new Exception('The GNU social install dir seems to contain a piece named plugin');
         }
-
         return $final;
+    }
+
+    public static function swapArgs($call, $arg)
+    {
+        return function ($v) use ($call, $arg) { return self::$call($v, $arg); };
+    }
+
+    public static function startsWith($haystack, string $needle): bool
+    {
+        if (is_string($haystack)) {
+            $length = strlen($needle);
+            return substr($haystack, 0, $length) === $needle;
+        }
+        return F\every($haystack,
+                       function ($haystack) use ($needle) {
+                           return self::startsWith($haystack, $needle);
+                       });
+    }
+
+    public static function endsWith($haystack, string $needle)
+    {
+        if (is_string($haystack)) {
+            $length = strlen($needle);
+            if ($length == 0) {
+                return true;
+            }
+            return substr($haystack, -$length) === $needle;
+        }
+        return F\every($haystack,
+                       function ($haystack) use ($needle) {
+                           return self::endsWith($haystack, $needle);
+                       });
     }
 }
