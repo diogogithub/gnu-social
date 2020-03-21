@@ -6,60 +6,63 @@ StatusNet and Free Social. Apologies for any
 oversight; please let mail@diogo.site know if
 anyone's been overlooked in error.
 
+Current team
+------------
+* Alexei Sorokin
+* Diogo Cordeiro
+* Eliseu Amaro
+* Hugo Sales
+
 V2 team
 -------
 * Diogo Cordeiro
 * Alexei Sorokin
 * Bruno Casteleiro
 
-Credits for GNU social v1
-------------------------
-Leads
-* Mikael Nordfeldth
-* Matt Lee
-
 Additional Contributors
-* Ciaran Gultnieks
-* Michael Landers
-* Ori Avtalion
-* Garret Buell
-* Mike Cochrane
-* Matthew Gregg
-* Sean Murphy
-* Leslie Michael Orchard
-* Eric Helgeson
-* Ken Sedgwick
-* Brian Hendrickson
-* Tobias Diekershoff
-* Dan Moore
-* Fil
-* Jeff Mitchell
-* Brenda Wallace
-* Jeffery To
-* Federico Marani
-* mEDI
-* Brett Taylor
-* Brigitte Schuster
-* Craig Andrews
-* Donald Robertson
-* Deb Nicholson
-* Ian Denhart
-* Steven DuBois
-* Blaine Cook
-* Henry Story
-* Melvin Carvalho
-* Stéphane Bérubé (chimo)
+-----------------------
 * Akio
-* Maiyannah Bishop
+* Blaine Cook
 * Bob Mottram
-* David Yip
-* Neil E Hodges
-* Moonman
-* Normandy
-* Verius
-* Diogo Peralta Cordeiro
+* Brenda Wallace
+* Brett Taylor
+* Brian Hendrickson
+* Brigitte Schuster
+* Ciaran Gultnieks
+* Craig Andrews
 * Daniel Supernault
+* Dan Moore
+* David Yip
+* Deb Nicholson
+* Donald Robertson
+* Eric Helgeson
+* Federico Marani
+* Fil
+* Garret Buell
+* Henry Story
+* Ian Denhart
+* Jeffery To
+* Jeff Mitchell
+* Ken Sedgwick
+* Leslie Michael Orchard
+* Maiyannah Bishop
+* Matthew Gregg
+* Matt Lee
+* mEDI
+* Melvin Carvalho
+* Michael Landers
 * Miguel Dantas
+* Mikael Nordfeldth
+* Mike Cochrane
+* Moonman
+* Neil E Hodges
+* Normandy
+* Ori Avtalion
+* Sean Murphy
+* Stéphane Bérubé
+* Steven DuBois
+* Tobias Diekershoff
+* Verius
 
 Credits for StatusNet
 --------------
@@ -68,24 +71,24 @@ Leads
 * Zach Copley
 
 Team
-* Earle Martin
-* Marie-Claude Doyon
-* Sarven Capadisli
-* Robin Millette
-* Brion Vibber
-* James Walker
-* Samantha Doherty
-* Florian Biree
-* Erik Stambaugh
-* 'drry'
-* Gina Haeussge
-* Tryggvi Björgvinsson
 * Adrian Lang
-* Ori Avtalion
-* Meitar Moscovitz
-* Ken Sheppardson
-* Simon Waters, Surevine
+* Brion Vibber
+* 'drry'
+* Earle Martin
+* Erik Stambaugh
+* Florian Biree
+* Gina Haeussge
+* James Walker
 * Joshua Judson Rosen (rozzin)
+* Ken Sheppardson
+* Marie-Claude Doyon
+* Meitar Moscovitz
+* Ori Avtalion
+* Robin Millette
+* Samantha Doherty
+* Sarven Capadisli
+* Simon Waters, Surevine
+* Tryggvi Björgvinsson
 
 Translators
 -----------
