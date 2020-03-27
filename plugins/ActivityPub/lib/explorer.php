@@ -39,7 +39,6 @@ defined('GNUSOCIAL') || die();
 class Activitypub_explorer
 {
     private $discovered_actor_profiles = [];
-    private $temp_res; // global variable to hold a temporary http response
 
     /**
      * Shortcut function to get a single profile from its URL.
@@ -118,26 +117,26 @@ class Activitypub_explorer
     }
 
     /**
-     * This ensures that we are using a valid ActivityPub URI
+     * Fetch all the aliases for some actor
      *
-     * @param string $url
-     * @return bool success state (related to the response)
-     * @throws Exception (If the HTTP request fails)
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     * @param string $url actor's url
+     * @return array aliases
+     * @throws Exception (If the Discovery's HTTP requests fail)
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    private function ensure_proper_remote_uri($url)
+    private function grab_aliases(string $url): array
     {
-        $client = new HTTPClient();
-        $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
-        $res = json_decode($response->getBody(), true);
-        if (self::validate_remote_response($res)) {
-            $this->temp_res = $res;
-            return true;
-        } else {
-            common_debug('ActivityPub Explorer: Invalid potential remote actor while ensuring URI: ' . $url . '. He returned the following: ' . json_encode($res, JSON_UNESCAPED_SLASHES));
+        $disco = new Discovery();
+        $xrd = $disco->lookup($url);
+
+        $all_ids = array_merge([$xrd->subject], $xrd->aliases);
+
+        if (!in_array($url, $all_ids)) {
+            common_debug('grab_aliases: The URI we got was not listed itself when doing discovery on it');
+            return [];
         }
 
-        return false;
+        return $all_ids;
     }
 
     /**
@@ -155,44 +154,65 @@ class Activitypub_explorer
     {
         if ($online) {
             common_debug('ActivityPub Explorer: Searching locally for ' . $uri . ' with online resources.');
+            $all_ids = $this->grab_aliases($uri);
         } else {
             common_debug('ActivityPub Explorer: Searching locally for ' . $uri . ' offline.');
-        }
-        // Ensure proper remote URI
-        // If an exception occurs here it's better to just leave everything
-        // break than to continue processing
-        if ($online && $this->ensure_proper_remote_uri($uri)) {
-            $uri = $this->temp_res["id"];
+            $all_ids = [$uri];
         }
 
-        // Try standard ActivityPub route
-        // Is this a known filthy little mudblood?
-        $aprofile = self::get_aprofile_by_url($uri);
-        if ($aprofile instanceof Activitypub_profile) {
-            // Assert: This AProfile has a Profile, no try catch.
-            $profile = $aprofile->local_profile();
-            common_debug('ActivityPub Explorer: Found a local Aprofile for ' . $uri);
-            // We found something!
-            $this->discovered_actor_profiles[] = $profile;
-            unset($this->temp_res); // IMPORTANT to avoid _dangerous_ noise in the Explorer system
-            return true;
-        } else {
-            common_debug('ActivityPub Explorer: Unable to find a local Aprofile for ' . $uri . ' - looking for a Profile instead.');
-            // Well, maybe it is a pure blood?
-            // Iff, we are in the same instance:
-            $ACTIVITYPUB_BASE_ACTOR_URI = common_local_url('userbyid', ['id' => null], null, null, false, true); // @FIXME: Could this be too hardcoded?
-            $ACTIVITYPUB_BASE_ACTOR_URI_length = strlen($ACTIVITYPUB_BASE_ACTOR_URI);
-            if (substr($uri, 0, $ACTIVITYPUB_BASE_ACTOR_URI_length) === $ACTIVITYPUB_BASE_ACTOR_URI) {
-                try {
-                    $profile = Profile::getByID((int)substr($uri, $ACTIVITYPUB_BASE_ACTOR_URI_length));
-                    common_debug('ActivityPub Explorer: Found a Profile for ' . $uri);
-                    // We found something!
-                    $this->discovered_actor_profiles[] = $profile;
-                    unset($this->temp_res); // IMPORTANT to avoid _dangerous_ noise in the Explorer system
-                    return true;
-                } catch (Exception $e) {
-                    // Let the exception go on its merry way.
-                    common_debug('ActivityPub Explorer: Unable to find a Profile for ' . $uri);
+        if (empty($all_ids)) {
+            common_debug('AcvitityPub Explorer: Unable to find a local profile for ' . $uri);
+            return false;
+        }
+
+        foreach ($all_ids as $alias) {
+            // Try standard ActivityPub route
+            // Is this a known filthy little mudblood?
+            $aprofile = self::get_aprofile_by_url($alias);
+            if ($aprofile instanceof Activitypub_profile) {
+                common_debug('ActivityPub Explorer: Found a local Aprofile for ' . $alias);
+
+                // double check to confirm this alias as a legitimate one
+                if ($online) {
+                    common_debug('ActivityPub Explorer: Double-checking ' . $alias . ' to confirm it as a legitimate alias');
+
+                    $disco = new Discovery();
+                    $xrd = $disco->lookup($aprofile->getUri());
+                    $doublecheck_aliases = array_merge(array($xrd->subject), $xrd->aliases);
+
+                    if (in_array($uri, $doublecheck_aliases)) {
+                        // the original URI is present, we're sure now!
+                        // update aprofile's URI and proceed
+                        common_debug('ActivityPub Explorer: ' . $alias . ' is a legitimate alias');
+                        $aprofile->updateUri($uri);
+                    } else {
+                        common_debug('ActivityPub Explorer: ' . $alias . ' is not an alias we can trust');
+                        continue;
+                    }
+                }
+
+                // Assert: This AProfile has a Profile, no try catch.
+                $profile = $aprofile->local_profile();
+                // We found something!
+                $this->discovered_actor_profiles[] = $profile;
+                return true;
+            } else {
+                common_debug('ActivityPub Explorer: Unable to find a local Aprofile for ' . $alias . ' - looking for a Profile instead.');
+                // Well, maybe it is a pure blood?
+                // Iff, we are in the same instance:
+                $ACTIVITYPUB_BASE_ACTOR_URI = common_local_url('userbyid', ['id' => null], null, null, false, true); // @FIXME: Could this be too hardcoded?
+                $ACTIVITYPUB_BASE_ACTOR_URI_length = strlen($ACTIVITYPUB_BASE_ACTOR_URI);
+                if (substr($alias, 0, $ACTIVITYPUB_BASE_ACTOR_URI_length) === $ACTIVITYPUB_BASE_ACTOR_URI) {
+                    try {
+                        $profile = Profile::getByID((int)substr($alias, $ACTIVITYPUB_BASE_ACTOR_URI_length));
+                        common_debug('ActivityPub Explorer: Found a Profile for ' . $alias);
+                        // We found something!
+                        $this->discovered_actor_profiles[] = $profile;
+                        return true;
+                    } catch (Exception $e) {
+                        // Let the exception go on its merry way.
+                        common_debug('ActivityPub Explorer: Unable to find a Profile for ' . $alias);
+                    }
                 }
             }
         }
@@ -221,14 +241,10 @@ class Activitypub_explorer
     private function grab_remote_user($url)
     {
         common_debug('ActivityPub Explorer: Trying to grab a remote actor for ' . $url);
-        if (!isset($this->temp_res)) {
-            $client = new HTTPClient();
-            $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
-            $res = json_decode($response->getBody(), true);
-        } else {
-            $res = $this->temp_res;
-            unset($this->temp_res);
-        }
+        $client = new HTTPClient();
+        $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
+        $res = json_decode($response->getBody(), true);
+
         if (isset($res['type']) && $res['type'] === 'OrderedCollection' && isset($res['first'])) { // It's a potential collection of actors!!!
             common_debug('ActivityPub Explorer: Found a collection of actors for ' . $url);
             $this->travel_collection($res['first']);

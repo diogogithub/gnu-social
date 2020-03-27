@@ -496,6 +496,21 @@ class Activitypub_profile extends Managed_DataObject
     }
 
     /**
+     * Update remote user profile URI in local instance
+     *
+     * @param string $uri
+     * @return void
+     * @throws Exception (if the update fails)
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public function updateUri(string $uri)
+    {
+        $orig = clone($this);
+        $this->uri = $uri;
+        $this->updateWithKeys($orig);
+    }
+
+    /**
      * Getter for the number of subscribers of a
      * given local profile
      *
