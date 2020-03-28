@@ -1,0 +1,10 @@
+#!/bin/bash
+
+case $# in
+    0) echo "No filename given" && exit 1 ;;
+    1) file=$1 ;;
+    2) file=$2; branch=$1 ;;
+    *) echo "Too many arguments given" && exit 2 ;;
+esac
+
+git log --pretty=email --patch-with-stat --reverse --full-index --binary $branch -- $file  | git am --committer-date-is-author-date
