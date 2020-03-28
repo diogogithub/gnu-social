@@ -4,6 +4,7 @@ namespace App\Util;
 
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\StaticPHPDriver;
+use Functional as F;
 
 class SchemaDefDriver extends StaticPHPDriver
 {
@@ -49,27 +50,45 @@ class SchemaDefDriver extends StaticPHPDriver
 
         foreach ($schema['fields'] as $name => $opts) {
             // Convert old to new types
-            $type = $name === 'date'
-                  // Old date fields were stored as int, store as datetime/timestamp
-                  ? 'datetime'
-                  // For ints, prepend the size (smallint)
-                  // The size fields doesn't exist otherwise, suppress error
-                  : self::types[(@$opts['size']) . $opts['type']];
+            $type = // $name === 'date'
+                  // // Old date fields were stored as int, store as datetime/timestamp
+                  // ? 'datetime'
+                  // // For ints, prepend the size (smallint)
+                  // // The size field doesn't exist otherwise
+                  // :
+                  self::types[($opts['size'] ?? '') . $opts['type']];
+
+            $unique = null;
+            foreach ($schema['unique keys'] as $key => $uniq_arr) {
+                if (in_array($name, $uniq_arr)) {
+                    $unique = $key;
+                    break;
+                }
+            }
+
             $field = [
-                'id'        => in_array($name, $schema['primary key']),
+                // boolean, optional
+                'id' => in_array($name, $schema['primary key']),
+                // string
                 'fieldName' => $name,
-                'type'      => $type,
-                'unique'    => in_array([$name], $schema['unique keys']) || @$opts['unique'],
-                // String length, ignored if not a string, suppress error
-                'length'   => @$opts['length'],
-                'nullable' => (@!$opts['not null']),
-                // Numeric precision and scale, ignored if not a number, suppress errors
-                'precision' => @$opts['precision'],
-                'scale'     => @$opts['scale'],
-                'options'   => [
+                // string
+                'type' => $type,
+                // stringn, optional
+                'unique' => $unique,
+                // String length, ignored if not a string
+                // int, optional
+                'length' => $opts['length'] ?? null,
+                // boolean, optional
+                'nullable' => !($opts['not null'] ?? false),
+                // Numeric precision and scale, ignored if not a number
+                // integer, optional
+                'precision' => $opts['precision'] ?? null,
+                // integer, optional
+                'scale'   => $opts['scale'] ?? null,
+                'options' => [
                     'comment'  => $opts['description'],
-                    'default'  => @$opts['default'],
-                    'unsigned' => @$opts['unsigned'],
+                    'default'  => $opts['default'] ?? null,
+                    'unsigned' => $opts['unsigned'] ?? null,
                     // 'fixed'     => bool, unused
                     // 'collation' => string, unused
                     // 'check', unused
@@ -77,12 +96,11 @@ class SchemaDefDriver extends StaticPHPDriver
                 // 'columnDefinition', unused
             ];
             // The optional feilds from earlier were populated with null, remove them
-            $field            = array_filter($field, function ($v) { return !is_null($v); });
-            $field['options'] = array_filter($field['options'], function ($v) { return !is_null($v); });
+            $field            = array_filter($field,            F\not('is_null'));
+            $field['options'] = array_filter($field['options'], F\not('is_null'));
 
             $metadata->mapField($field);
         }
-
         // TODO foreign keys
     }
 
