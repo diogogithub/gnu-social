@@ -152,7 +152,7 @@ class Activitypub_profile extends Managed_DataObject
         $profile->created = $this->created = $this->modified = common_sql_now();
 
         $fields = [
-            'uri' => 'profileurl',
+            'profileurl' => 'profileurl',
             'nickname' => 'nickname',
             'fullname' => 'fullname',
             'bio' => 'bio'
@@ -454,17 +454,18 @@ class Activitypub_profile extends Managed_DataObject
         // ActivityPub Profile
         $aprofile->uri = $res['id'];
         $aprofile->nickname = $res['preferredUsername'];
-        $aprofile->fullname = isset($res['name']) ? $res['name'] : null;
+        $aprofile->fullname = $res['name'] ?? null;
         $aprofile->bio = isset($res['summary']) ? substr(strip_tags($res['summary']), 0, 1000) : null;
         $aprofile->inboxuri = $res['inbox'];
-        $aprofile->sharedInboxuri = isset($res['endpoints']['sharedInbox']) ? $res['endpoints']['sharedInbox'] : $res['inbox'];
+        $aprofile->sharedInboxuri = $res['endpoints']['sharedInbox'] ?? $res['inbox'];
+        $aprofile->profileurl = $res['url'] ?? $aprofile->uri;
 
         $profile = $aprofile->local_profile();
 
         $profile->modified = $aprofile->modified = common_sql_now();
 
         $fields = [
-            'uri' => 'profileurl',
+            'profileurl' => 'profileurl',
             'nickname' => 'nickname',
             'fullname' => 'fullname',
             'bio' => 'bio'
