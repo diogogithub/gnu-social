@@ -1,8 +1,0 @@
-RemoteFollowConnectProfile: when the plugin is "one url away" from redirecting to the remote follower instance; federation plugins must find and retrieve the url for redirection
-- User $target local user to be followed
-- string $profile remote follower's ID
-- string|null &$url url for redirection
-
-RemoteFollowPullProfile: when the plugin needs to pull the remote profile from its uri; federation plugins must pull, store and retrieve the profile's local object
-- string $uri the remote profile's uri
-- null|Profile &$profile pulled profile
