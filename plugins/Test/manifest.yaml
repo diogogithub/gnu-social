@@ -1,0 +1,15 @@
+info:
+  name: 'Example'
+  version: '0.1'
+  author: 'Hugo Sales'
+  homepage: '{project_url}'
+  description: |
+    Test plugin
+    Description can use multiple lines
+
+permissions:
+  database:
+    - 'table1': 'r'
+    - 'table2': 'rw'
+  filesystem:
+    - 'folder': 'rw'
