@@ -260,10 +260,11 @@ class Activitypub_explorer
         $aprofile = new Activitypub_profile;
         $aprofile->uri = $res['id'];
         $aprofile->nickname = $res['preferredUsername'];
-        $aprofile->fullname = isset($res['name']) ? $res['name'] : null;
+        $aprofile->fullname = $res['name'] ?? null;
         $aprofile->bio = isset($res['summary']) ? substr(strip_tags($res['summary']), 0, 1000) : null;
         $aprofile->inboxuri = $res['inbox'];
-        $aprofile->sharedInboxuri = isset($res['endpoints']['sharedInbox']) ? $res['endpoints']['sharedInbox'] : $res['inbox'];
+        $aprofile->sharedInboxuri = $res['endpoints']['sharedInbox'] ?? $res['inbox'];
+        $aprofile->profileurl = $res['url'] ?? $aprofile->uri;
 
         $aprofile->do_insert();
         $profile = $aprofile->local_profile();
