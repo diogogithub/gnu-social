@@ -18,13 +18,13 @@
  */
 
 /**
- * Extension loader code, one of the main features of GNU social
+ * Module and plugin loader code, one of the main features of GNU social
  *
  * Loads plugins from `plugins/enabled`, instances them
  * and hooks its events
  *
  * @package   GNUsocial
- * @category  Extensions
+ * @category  Modules
  *
  * @author    Hugo Sales <hugo@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
@@ -36,21 +36,21 @@ namespace App\Util;
 use App\Util\GSEvent as Event;
 use Functional as F;
 
-abstract class ExtensionManager
+abstract class ModulesManager
 {
-    public static array $extensions = [];
+    public static array $modules = [];
 
-    public static function loadExtensions()
+    public static function loadModules()
     {
-        $plugins_paths = glob(INSTALLDIR . '/plugins/enabled/*');
+        $plugins_paths = glob(INSTALLDIR . '/plugins/*');
 
         foreach ($plugins_paths as $plugin_path) {
             $class_name = basename($plugin_path);
             $qualified  = 'Plugin\\' . $class_name . '\\' . $class_name;
 
             require_once $plugin_path . '/' . $class_name . '.php';
-            $class              = new $qualified;
-            self::$extensions[] = $class;
+            $class           = new $qualified;
+            self::$modules[] = $class;
 
             // Register event handlers
             $methods = get_class_methods($class);

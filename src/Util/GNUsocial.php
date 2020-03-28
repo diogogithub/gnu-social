@@ -68,14 +68,14 @@ class GNUsocial implements EventSubscriberInterface
     }
 
     /**
-     * Store these services to be accessed statically and load extensions
+     * Store these services to be accessed statically and load modules
      */
     public function register(EventDispatcherInterface $event_dispatcher): void
     {
         Log::setLogger($this->logger);
         GSEvent::setDispatcher($event_dispatcher);
         I18n::setTranslator($this->translator);
-        ExtensionManager::loadExtensions();
+        ModulesManager::loadModules();
     }
 
     /**
