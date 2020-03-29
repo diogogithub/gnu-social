@@ -20,7 +20,7 @@
 namespace App\Entity;
 
 /**
- * Entity for attentions
+ * Entity for Profile Tag
  *
  * @category  DB
  * @package   GNUsocial
@@ -33,7 +33,7 @@ namespace App\Entity;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Attention
+class ProfileTag
 {
     // AUTOCODE BEGIN
 
@@ -42,23 +42,23 @@ class Attention
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'attention',
-            'description' => 'Notice attentions to profiles (that are not a mention and not result of a subscription)',
-            'fields'      => [
-                'notice_id'  => ['type' => 'int', 'not null' => true, 'description' => 'notice_id to give attention'],
-                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'profile_id for feed receiver'],
-                'reason'     => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of profile_id'],
-                'created'    => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+            'name' => 'profile_tag',
+
+            'fields' => [
+                'tagger'   => ['type' => 'int', 'not null' => true, 'description' => 'user making the tag'],
+                'tagged'   => ['type' => 'int', 'not null' => true, 'description' => 'profile tagged'],
+                'tag'      => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'],
+                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date the tag was added'],
             ],
-            'primary key'  => ['notice_id', 'profile_id'],
+            'primary key'  => ['tagger', 'tagged', 'tag'],
             'foreign keys' => [
-                'attention_notice_id_fkey'  => ['notice', ['notice_id' => 'id']],
-                'attention_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'profile_tag_tagger_fkey' => ['profile', ['tagger' => 'id']],
+                'profile_tag_tagged_fkey' => ['profile', ['tagged' => 'id']],
             ],
             'indexes' => [
-                'attention_notice_id_idx'  => ['notice_id'],
-                'attention_profile_id_idx' => ['profile_id'],
+                'profile_tag_modified_idx'   => ['modified'],
+                'profile_tag_tagger_tag_idx' => ['tagger', 'tag'],
+                'profile_tag_tagged_idx'     => ['tagged'],
             ],
         ];
     }

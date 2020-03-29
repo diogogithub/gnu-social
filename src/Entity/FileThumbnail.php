@@ -20,7 +20,7 @@
 namespace App\Entity;
 
 /**
- * Entity for attentions
+ * Entity for File thumbnails
  *
  * @category  DB
  * @package   GNUsocial
@@ -33,7 +33,7 @@ namespace App\Entity;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Attention
+class FileThumbnail
 {
     // AUTOCODE BEGIN
 
@@ -42,23 +42,23 @@ class Attention
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'attention',
-            'description' => 'Notice attentions to profiles (that are not a mention and not result of a subscription)',
-            'fields'      => [
-                'notice_id'  => ['type' => 'int', 'not null' => true, 'description' => 'notice_id to give attention'],
-                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'profile_id for feed receiver'],
-                'reason'     => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of profile_id'],
-                'created'    => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+            'name'   => 'file_thumbnail',
+            'fields' => [
+                'file_id'  => ['type' => 'int', 'not null' => true, 'description' => 'thumbnail for what URL/file'],
+                'urlhash'  => ['type' => 'varchar', 'length' => 64, 'description' => 'sha256 of url field if non-empty'],
+                'url'      => ['type' => 'text', 'description' => 'URL of thumbnail'],
+                'filename' => ['type' => 'text', 'description' => 'if stored locally, filename is put here'],
+                'width'    => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
+                'height'   => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
+                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['notice_id', 'profile_id'],
+            'primary key' => ['file_id', 'width', 'height'],
+            'indexes'     => [
+                'file_thumbnail_file_id_idx' => ['file_id'],
+                'file_thumbnail_urlhash_idx' => ['urlhash'],
+            ],
             'foreign keys' => [
-                'attention_notice_id_fkey'  => ['notice', ['notice_id' => 'id']],
-                'attention_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
-            ],
-            'indexes' => [
-                'attention_notice_id_idx'  => ['notice_id'],
-                'attention_profile_id_idx' => ['profile_id'],
+                'file_thumbnail_file_id_fkey' => ['file', ['file_id' => 'id']],
             ],
         ];
     }

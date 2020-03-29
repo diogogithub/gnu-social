@@ -20,7 +20,7 @@
 namespace App\Entity;
 
 /**
- * Entity for attentions
+ * Entity that Keeps a list of unavailable status network names
  *
  * @category  DB
  * @package   GNUsocial
@@ -33,7 +33,7 @@ namespace App\Entity;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Attention
+class UnavailableStatusNetwork
 {
     // AUTOCODE BEGIN
 
@@ -42,24 +42,16 @@ class Attention
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'attention',
-            'description' => 'Notice attentions to profiles (that are not a mention and not result of a subscription)',
+            'name'        => 'unavailable_status_network',
+            'description' => 'An unavailable status network nickname',
             'fields'      => [
-                'notice_id'  => ['type' => 'int', 'not null' => true, 'description' => 'notice_id to give attention'],
-                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'profile_id for feed receiver'],
-                'reason'     => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of profile_id'],
-                'created'    => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'nickname' => ['type' => 'varchar',
+                    'length'          => 64,
+                    'not null'        => true, 'description' => 'nickname not to use', ],
+                'created' => ['type'  => 'datetime',
+                    'not null'        => true, 'default' => '0000-00-00 00:00:00', ],
             ],
-            'primary key'  => ['notice_id', 'profile_id'],
-            'foreign keys' => [
-                'attention_notice_id_fkey'  => ['notice', ['notice_id' => 'id']],
-                'attention_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
-            ],
-            'indexes' => [
-                'attention_notice_id_idx'  => ['notice_id'],
-                'attention_profile_id_idx' => ['profile_id'],
-            ],
+            'primary key' => ['nickname'],
         ];
     }
 }

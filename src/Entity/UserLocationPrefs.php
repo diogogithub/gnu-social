@@ -20,20 +20,18 @@
 namespace App\Entity;
 
 /**
- * Entity for OAuth consumer
+ * Entity for user location preferences
  *
  * @category  DB
  * @package   GNUsocial
  *
- * @author    Zach Copley <zach@status.net>
- * @copyright 2010 StatusNet Inc.
- * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2009 StatusNet Inc.
  * @author    Hugo Sales <hugo@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Consumer
+class UserLocationPrefs
 {
     // AUTOCODE BEGIN
 
@@ -42,16 +40,17 @@ class Consumer
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'consumer',
-            'description' => 'OAuth consumer record',
-            'fields'      => [
-                'consumer_key'    => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'unique identifier, root URL'],
-                'consumer_secret' => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'secret value'],
-                'seed'            => ['type' => 'char', 'length' => 32, 'not null' => true, 'description' => 'seed for new tokens by this consumer'],
-                'created'         => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'        => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+            'name'   => 'user_location_prefs',
+            'fields' => [
+                'user_id'        => ['type' => 'int', 'not null' => true, 'description' => 'user who has the preference'],
+                'share_location' => ['type' => 'bool', 'default' => true, 'description' => 'Whether to share location data'],
+                'created'        => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'modified'       => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['consumer_key'],
+            'primary key'  => ['user_id'],
+            'foreign keys' => [
+                'user_location_prefs_user_id_fkey' => ['user', ['user_id' => 'id']],
+            ],
         ];
     }
 }

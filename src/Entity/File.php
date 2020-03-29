@@ -1,35 +1,41 @@
 <?php
-// This file is part of GNU social - https://www.gnu.org/software/social
-//
-// GNU social is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// GNU social is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the GNU Affero General Public License
-// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
+/* {{{ License
+ * This file is part of GNU social - https://www.gnu.org/software/social
+ *
+ * GNU social is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GNU social is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+ }}} */
+
+namespace App\Entity;
 
 /**
- * @category  Files
+ * Entity for uploaded files
+ *
+ * @category  DB
  * @package   GNUsocial
+ *
+ * @author    Zach Copley <zach@status.net>
+ * @copyright 2010 StatusNet Inc.
  * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @author    Miguel Dantas <biodantas@gmail.com>
- * @copyright 2008-2009, 2019 Free Software Foundation http://fsf.org
+ * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@fc.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
-defined('GNUSOCIAL') || die();
-
-/**
- * Table Definition for file
- */
-class File extends Managed_DataObject
+class File
 {
+<<<<<<< HEAD
     public $__table = 'file';                            // table name
     public $id;                              // int(4)  primary_key not_null
     public $urlhash;                         // varchar(64)  unique_key
@@ -882,132 +888,38 @@ class File extends Managed_DataObject
             'File_redirection',
             'File_thumbnail',
             'File_to_post'
+=======
+    // AUTOCODE BEGIN
+
+    // AUTOCODE END
+
+    public static function schemaDef(): array
+    {
+        return [
+            'name'   => 'file',
+            'fields' => [
+                'id'        => ['type' => 'serial', 'not null' => true],
+                'urlhash'   => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'sha256 of destination URL (url field)'],
+                'url'       => ['type' => 'text', 'description' => 'destination URL after following possible redirections'],
+                'filehash'  => ['type' => 'varchar', 'length' => 64, 'not null' => false, 'description' => 'sha256 of the file contents, only for locally stored files of course'],
+                'mimetype'  => ['type' => 'varchar', 'length' => 50, 'description' => 'mime type of resource'],
+                'size'      => ['type' => 'int', 'description' => 'size of resource when available'],
+                'title'     => ['type' => 'text', 'description' => 'title of resource when available'],
+                'date'      => ['type' => 'int', 'description' => 'date of resource according to http query'],
+                'protected' => ['type' => 'int', 'description' => 'true when URL is private (needs login)'],
+                'filename'  => ['type' => 'text', 'description' => 'if file is stored locally (too) this is the filename'],
+                'width'     => ['type' => 'int', 'description' => 'width in pixels, if it can be described as such and data is available'],
+                'height'    => ['type' => 'int', 'description' => 'height in pixels, if it can be described as such and data is available'],
+                'modified'  => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+            ],
+            'primary key' => ['id'],
+            'unique keys' => [
+                'file_urlhash_key' => ['urlhash'],
+            ],
+            'indexes' => [
+                'file_filehash_idx' => ['filehash'],
+            ],
+>>>>>>> ecc5139ce5 ([DATABASE] Extracted schemaDef method from old files and refactored onto new files)
         ];
-        Event::handle('FileDeleteRelated', [$this, &$related]);
-
-        foreach ($related as $cls) {
-            $inst = new $cls();
-            $inst->file_id = $this->id;
-            if ($inst->find()) {
-                while ($inst->fetch()) {
-                    $inst->delete();
-                }
-            }
-        }
-
-        // And finally remove the entry from the database
-        return parent::delete($useWhere);
-    }
-
-    public function getTitle()
-    {
-        $title = $this->title ?: MediaFile::getDisplayName($this);
-
-        return $title ?: null;
-    }
-
-    public function setTitle($title)
-    {
-        $orig = clone($this);
-        $this->title = mb_strlen($title) > 0 ? $title : null;
-        return $this->update($orig);
-    }
-
-    public static function hashurl($url)
-    {
-        if (empty($url)) {
-            throw new Exception('No URL provided to hash algorithm.');
-        }
-        return hash(self::URLHASH_ALG, $url);
-    }
-
-    public static function beforeSchemaUpdate()
-    {
-        $table = strtolower(get_called_class());
-        $schema = Schema::get();
-        $schemadef = $schema->getTableDef($table);
-
-        // 2015-02-19 We have to upgrade our table definitions to have the urlhash field populated
-        if (isset($schemadef['fields']['urlhash']) && isset($schemadef['unique keys']['file_urlhash_key'])) {
-            // We already have the urlhash field, so no need to migrate it.
-            return;
-        }
-        echo "\nFound old $table table, upgrading it to contain 'urlhash' field...";
-
-        $file = new File();
-        $file->query(sprintf(
-            'SELECT id, LEFT(url, 191) AS shortenedurl, COUNT(*) FROM %1$s ' .
-            'WHERE LENGTH(url) > 191 GROUP BY id, shortenedurl HAVING COUNT(*) > 1',
-            common_database_tablename($table)
-        ));
-        print "\nFound {$file->N} URLs with too long entries in file table\n";
-        while ($file->fetch()) {
-            // We've got a URL that is too long for our future file table
-            // so we'll cut it. We could save the original URL, but there is
-            // no guarantee it is complete anyway since the previous max was 255 chars.
-            $dupfile = new File();
-            // First we find file entries that would be duplicates of this when shortened
-            // ... and we'll just throw the dupes out the window for now! It's already so borken.
-            $dupfile->query(sprintf('SELECT * FROM file WHERE LEFT(url, 191) = %1$s', $dupfile->_quote($file->shortenedurl)));
-            // Leave one of the URLs in the database by using ->find(true) (fetches first entry)
-            if ($dupfile->find(true)) {
-                print "\nShortening url entry for $table id: {$file->id} [";
-                $orig = clone($dupfile);
-                $origurl = $dupfile->url;   // save for logging purposes
-                $dupfile->url = $file->shortenedurl;    // make sure it's only 191 chars from now on
-                $dupfile->update($orig);
-                print "\nDeleting duplicate entries of too long URL on $table id: {$file->id} [";
-                // only start deleting with this fetch.
-                while ($dupfile->fetch()) {
-                    common_log(LOG_INFO, sprintf('Deleting duplicate File entry of %1$d: %2$d (original URL: %3$s collides with these first 191 characters: %4$s', $dupfile->id, $file->id, $origurl, $file->shortenedurl));
-                    print ".";
-                    $dupfile->delete();
-                }
-                print "]\n";
-            } else {
-                print "\nWarning! URL suddenly disappeared from database: {$file->url}\n";
-            }
-        }
-        echo "...and now all the non-duplicates which are longer than 191 characters...\n";
-        $file->query('UPDATE file SET url = LEFT(url, 191) WHERE LENGTH(url) > 191');
-
-        echo "\n...now running hacky pre-schemaupdate change for $table:";
-        // We have to create a urlhash that is _not_ the primary key,
-        // transfer data and THEN run checkSchema
-        $schemadef['fields']['urlhash'] = array(
-                                              'type' => 'varchar',
-                                              'length' => 64,
-                                              'not null' => false,  // this is because when adding column, all entries will _be_ NULL!
-                                              'description' => 'sha256 of destination URL (url field)',
-                                            );
-        $schemadef['fields']['url'] = array(
-                                              'type' => 'text',
-                                              'description' => 'destination URL after following possible redirections',
-                                            );
-        unset($schemadef['unique keys']);
-        $schema->ensureTable($table, $schemadef);
-        echo "DONE.\n";
-
-        $classname = ucfirst($table);
-        $tablefix = new $classname;
-        // urlhash is hash('sha256', $url) in the File table
-        echo "Updating urlhash fields in $table table...";
-        switch (common_config('db', 'type')) {
-            case 'pgsql':
-                $url_sha256 = 'encode(sha256(CAST("url" AS bytea)), \'hex\')';
-                break;
-            case 'mysql':
-                $url_sha256 = 'sha2(`url`, 256)';
-                break;
-            default:
-                throw new ServerException('Unknown DB type selected.');
-        }
-        $tablefix->query(sprintf(
-            'UPDATE %1$s SET urlhash = %2$s, modified = CURRENT_TIMESTAMP;',
-            $tablefix->escapedTableName(),
-            $url_sha256
-        ));
-        echo "DONE.\n";
-        echo "Resuming core schema upgrade...";
     }
 }

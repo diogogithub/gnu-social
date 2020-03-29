@@ -20,7 +20,7 @@
 namespace App\Entity;
 
 /**
- * Entity for attentions
+ * Entity for Subscription queue
  *
  * @category  DB
  * @package   GNUsocial
@@ -33,7 +33,7 @@ namespace App\Entity;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Attention
+class SubscriptionQueue
 {
     // AUTOCODE BEGIN
 
@@ -42,23 +42,21 @@ class Attention
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'attention',
-            'description' => 'Notice attentions to profiles (that are not a mention and not result of a subscription)',
+            'name'        => 'subscription_queue',
+            'description' => 'Holder for subscription requests awaiting moderation.',
             'fields'      => [
-                'notice_id'  => ['type' => 'int', 'not null' => true, 'description' => 'notice_id to give attention'],
-                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'profile_id for feed receiver'],
-                'reason'     => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of profile_id'],
+                'subscriber' => ['type' => 'int', 'not null' => true, 'description' => 'remote or local profile making the request'],
+                'subscribed' => ['type' => 'int', 'not null' => true, 'description' => 'remote or local profile being subscribed to'],
                 'created'    => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['notice_id', 'profile_id'],
+            'primary key' => ['subscriber', 'subscribed'],
+            'indexes'     => [
+                'subscription_queue_subscriber_created_idx' => ['subscriber', 'created'],
+                'subscription_queue_subscribed_created_idx' => ['subscribed', 'created'],
+            ],
             'foreign keys' => [
-                'attention_notice_id_fkey'  => ['notice', ['notice_id' => 'id']],
-                'attention_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
-            ],
-            'indexes' => [
-                'attention_notice_id_idx'  => ['notice_id'],
-                'attention_profile_id_idx' => ['profile_id'],
+                'subscription_queue_subscriber_fkey' => ['profile', ['subscriber' => 'id']],
+                'subscription_queue_subscribed_fkey' => ['profile', ['subscribed' => 'id']],
             ],
         ];
     }
