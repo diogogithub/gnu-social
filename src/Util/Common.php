@@ -107,4 +107,28 @@ abstract class Common
                            return self::endsWith($haystack, $needle);
                        });
     }
+
+    /**
+     * Call $func with only abs($count) arguments, taken either from the
+     * left or right depending on the sign
+     */
+    public static function arity(callable $func, int $count): callable
+    {
+        return function (...$args) use ($func, $count) {
+            if ($count > 0) {
+                return call_user_func_array($func, F\take_left($args, $count));
+            }
+            return call_user_func_array($func, F\take_right($args, -$count));
+        };
+    }
+
+    public static function toSnakeCase(string $str): string
+    {
+        return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $str));
+    }
+
+    public static function toCamelCase(string $str): string
+    {
+        return implode('', F\map(preg_split('/[\b_]/', $str), self::arity('ucfirst', 1)));
+    }
 }
