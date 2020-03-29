@@ -1,0 +1,111 @@
+#!/bin/php
+
+<?php
+
+define('INSTALLDIR', dirname(__DIR__));
+
+require INSTALLDIR . '/vendor/autoload.php';
+
+use App\Util\Common;
+
+error_reporting(E_ALL | E_STRICT);
+
+$delete = array_merge(glob(INSTALLDIR . '/src/Entity/*DataObject.php'),
+                      glob(INSTALLDIR . '/src/Entity/Status_network*'));
+
+foreach ($delete as $d) {
+    system("git rm {$d}");
+}
+
+$files = glob(INSTALLDIR . '/src/Entity/*.php');
+
+class CatchAll
+{
+    const foo = null;
+    public function foo()
+    {
+    }
+}
+
+$classes = [];
+
+foreach ($files as $f) {
+    system('sed -ri "' . implode('; ', [
+        's/(extends )?((DB|GS|Safe|Managed|Memcached)' .
+        '_DataObject|CachingNoticeStream)/\1CatchAll/g',
+        's/(CatchAll::)[A-Za-z_0-9]*/\1foo/g',
+        's/.*(exit|die).*//g',
+        's/require[^sd ].*//g',
+    ]) . '" ' . $f);
+    require $f;
+    $cls       = get_declared_classes();
+    $classes[] = end($cls);
+}
+
+$license_header = '
+/* {{{ License
+ * This file is part of GNU social - https://www.gnu.org/software/social
+ *
+ * GNU social is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * GNU social is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+ */
+';
+
+foreach ($classes as $cls) {
+    $ref = new ReflectionClass($cls);
+
+    $class_name    = Common::toCamelCase($cls);
+    $file          = $ref->getFileName();
+    $class_comment = $ref->getDocComment();
+    $table_name    = $ref->getDefaultProperties()['__table'];
+    $sd            = $ref->getMethod('schemaDef');
+    $start         = $sd->getStartLine();
+    $end           = $sd->getEndLine();
+    $command       = "sed -rn '" . implode('; ',
+    [
+        "s%(return array\\()%\\1\\
+            \"name\" => \"{$table_name}\",%",
+        's%schemaDef\(\)%schemaDef(): array%',
+        "{$start},{$end}p",
+    ]) . "' {$file}";
+
+    // echo $command . "\n";
+
+    $schemaDef = [];
+    exec($command, $schemaDef);
+    $schemaDef = implode("\n", $schemaDef);
+
+    $class = "<?php
+
+{$license_header}
+
+namespace App\\Entity;
+
+{$class_comment}
+
+class {$class_name}
+{
+    // AUTOCODE BEGIN
+
+    // AUTOCODE END
+
+{$schemaDef}
+
+}";
+    $new_file = dirname($file) . '/' . $class_name . '.php';
+    file_put_contents($file, $class);
+    if ($file !== $new_file) {
+        system("git mv {$file} {$new_file}");
+    }
+    system("git add {$new_file}");
+}
