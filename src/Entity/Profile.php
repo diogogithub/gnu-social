@@ -20,7 +20,7 @@
 namespace App\Entity;
 
 /**
- * Entity for Notice's location
+ * Entity for user profiles
  *
  * @category  DB
  * @package   GNUsocial
@@ -33,7 +33,7 @@ namespace App\Entity;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class NoticeLocation
+class Profile
 {
     // AUTOCODE BEGIN
 
@@ -41,23 +41,35 @@ class NoticeLocation
 
     public static function schemaDef(): array
     {
-        return [
-            'name'   => 'notice_location',
-            'fields' => [
-                'notice_id'   => ['type' => 'int', 'not null' => true, 'description' => 'notice that is the reply'],
+        $def = [
+            'description' => 'local and remote users have profiles',
+            'fields'      => [
+                'id'          => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
+                'nickname'    => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username', 'collate' => 'utf8mb4_general_ci'],
+                'fullname'    => ['type' => 'text', 'description' => 'display name', 'collate' => 'utf8mb4_general_ci'],
+                'profileurl'  => ['type' => 'text', 'description' => 'URL, cached so we dont regenerate'],
+                'homepage'    => ['type' => 'text', 'description' => 'identifying URL', 'collate' => 'utf8mb4_general_ci'],
+                'bio'         => ['type' => 'text', 'description' => 'descriptive biography', 'collate' => 'utf8mb4_general_ci'],
+                'location'    => ['type' => 'text', 'description' => 'physical location', 'collate' => 'utf8mb4_general_ci'],
                 'lat'         => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
                 'lon'         => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
                 'location_id' => ['type' => 'int', 'description' => 'location id if possible'],
                 'location_ns' => ['type' => 'int', 'description' => 'namespace for location'],
+                'created'     => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
                 'modified'    => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['notice_id'],
-            'foreign keys' => [
-                'notice_location_notice_id_fkey' => ['notice', ['notice_id' => 'id']],
-            ],
-            'indexes' => [
-                'notice_location_location_id_idx' => ['location_id'],
+            'primary key' => ['id'],
+            'indexes'     => [
+                'profile_nickname_idx' => ['nickname'],
             ],
         ];
+
+        // Add a fulltext index
+
+        if (common_config('search', 'type') == 'fulltext') {
+            $def['fulltext indexes'] = ['nickname' => ['nickname', 'fullname', 'location', 'bio', 'homepage']];
+        }
+
+        return $def;
     }
 }
