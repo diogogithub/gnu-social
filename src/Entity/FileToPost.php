@@ -20,7 +20,7 @@
 namespace App\Entity;
 
 /**
- * Entity for attentions
+ * Entity for relating a file to a post
  *
  * @category  DB
  * @package   GNUsocial
@@ -33,7 +33,7 @@ namespace App\Entity;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Attention
+class FileToPost
 {
     // AUTOCODE BEGIN
 
@@ -42,23 +42,20 @@ class Attention
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'attention',
-            'description' => 'Notice attentions to profiles (that are not a mention and not result of a subscription)',
-            'fields'      => [
-                'notice_id'  => ['type' => 'int', 'not null' => true, 'description' => 'notice_id to give attention'],
-                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'profile_id for feed receiver'],
-                'reason'     => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of profile_id'],
-                'created'    => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+            'name'   => 'file_to_post',
+            'fields' => [
+                'file_id'  => ['type' => 'int', 'not null' => true, 'description' => 'id of URL/file'],
+                'post_id'  => ['type' => 'int', 'not null' => true, 'description' => 'id of the notice it belongs to'],
+                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['notice_id', 'profile_id'],
+            'primary key'  => ['file_id', 'post_id'],
             'foreign keys' => [
-                'attention_notice_id_fkey'  => ['notice', ['notice_id' => 'id']],
-                'attention_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'file_to_post_file_id_fkey' => ['file', ['file_id' => 'id']],
+                'file_to_post_post_id_fkey' => ['notice', ['post_id' => 'id']],
             ],
             'indexes' => [
-                'attention_notice_id_idx'  => ['notice_id'],
-                'attention_profile_id_idx' => ['profile_id'],
+                'file_id_idx' => ['file_id'],
+                'post_id_idx' => ['post_id'],
             ],
         ];
     }

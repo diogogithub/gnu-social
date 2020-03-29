@@ -20,18 +20,20 @@
 namespace App\Entity;
 
 /**
- * Data class for Conversations
+ * Entity for Separate table for storing UI preferences
  *
- * @category  Data
+ * @category  DB
  * @package   GNUsocial
  *
+ * @deprecated
+ *
  * @author    Zach Copley <zach@status.net>
- * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2010 StatusNet Inc.
- * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@fc.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Conversation
+class OldSchoolPrefs
 {
     // AUTOCODE BEGIN
 
@@ -40,17 +42,24 @@ class Conversation
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'conversation',
+            'name'   => 'old_school_prefs',
             'fields' => [
-                'id'       => ['type' => 'serial', 'not null' => true, 'description' => 'Unique identifier, (again) unrelated to notice id since 2016-01-06'],
-                'uri'      => ['type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'URI of the conversation'],
-                'url'      => ['type' => 'varchar', 'length' => 191, 'description' => 'Resolvable URL, preferrably remote (local can be generated on the fly)'],
+                'user_id'          => ['type' => 'int', 'not null' => true, 'description' => 'user who has the preference'],
+                'stream_mode_only' => ['type'  => 'bool',
+                    'default'                  => true,
+                    'description'              => 'No conversation streams', ],
+                'conversation_tree' => ['type' => 'bool',
+                    'default'                  => true,
+                    'description'              => 'Hierarchical tree view for conversations', ],
+                'stream_nicknames' => ['type'  => 'bool',
+                    'default'                  => true,
+                    'description'              => 'Show nicknames for authors and addressees in streams', ],
                 'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['id'],
-            'unique keys' => [
-                'conversation_uri_key' => ['uri'],
+            'primary key'  => ['user_id'],
+            'foreign keys' => [
+                'old_school_prefs_user_id_fkey' => ['user', ['user_id' => 'id']],
             ],
         ];
     }

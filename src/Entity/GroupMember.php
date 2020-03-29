@@ -20,7 +20,7 @@
 namespace App\Entity;
 
 /**
- * Entity for attentions
+ * Entity for a Group Member
  *
  * @category  DB
  * @package   GNUsocial
@@ -33,7 +33,7 @@ namespace App\Entity;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Attention
+class GroupMember
 {
     // AUTOCODE BEGIN
 
@@ -42,23 +42,29 @@ class Attention
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'attention',
-            'description' => 'Notice attentions to profiles (that are not a mention and not result of a subscription)',
-            'fields'      => [
-                'notice_id'  => ['type' => 'int', 'not null' => true, 'description' => 'notice_id to give attention'],
-                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'profile_id for feed receiver'],
-                'reason'     => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of profile_id'],
+            'name'   => 'group_member',
+            'fields' => [
+                'group_id'   => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to user_group'],
+                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'],
+                'is_admin'   => ['type' => 'bool', 'default' => false, 'description' => 'is this user an admin?'],
+                'uri'        => ['type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'],
                 'created'    => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
                 'modified'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['notice_id', 'profile_id'],
+            'primary key' => ['group_id', 'profile_id'],
+            'unique keys' => [
+                'group_member_uri_key' => ['uri'],
+            ],
             'foreign keys' => [
-                'attention_notice_id_fkey'  => ['notice', ['notice_id' => 'id']],
-                'attention_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'group_member_group_id_fkey'   => ['user_group', ['group_id' => 'id']],
+                'group_member_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
             ],
             'indexes' => [
-                'attention_notice_id_idx'  => ['notice_id'],
-                'attention_profile_id_idx' => ['profile_id'],
+                // @fixme probably we want a (profile_id, created) index here?
+                'group_member_profile_id_idx'         => ['profile_id'],
+                'group_member_created_idx'            => ['created'],
+                'group_member_profile_id_created_idx' => ['profile_id', 'created'],
+                'group_member_group_id_created_idx'   => ['group_id', 'created'],
             ],
         ];
     }
