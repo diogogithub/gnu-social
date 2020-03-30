@@ -12,7 +12,7 @@ const types = [
     'blob'     => '',
     'bool'     => 'bool',
     'char'     => 'string',
-    'datetime' => 'DateTime',
+    'datetime' => '\DateTimeInterface',
     'html'     => 'string',
     'int'      => 'int',
     'numeric'  => 'float',
@@ -28,9 +28,10 @@ $files = glob($path . '/*.php');
 
 foreach ($files as $file) {
     require_once $file;
-    $declared = get_declared_classes();
 
-    $class        = end($declared);
+    $declared = get_declared_classes();
+    $class    = end($declared);
+
     $no_ns_class  = preg_replace('/.*?\\\\/', '', $class);
     $schema       = $class::schemaDef();
     $fields       = array_keys($schema['fields']);
