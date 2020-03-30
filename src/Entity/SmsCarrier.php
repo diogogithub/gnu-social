@@ -37,6 +37,62 @@ class SmsCarrier
 {
     // {{{ Autocode
 
+    private int $id;
+    private ?string $name;
+    private string $email_pattern;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setName(?string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setEmailPattern(string $email_pattern): self
+    {
+        $this->email_pattern = $email_pattern;
+        return $this;
+    }
+    public function getEmailPattern(): string
+    {
+        return $this->email_pattern;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

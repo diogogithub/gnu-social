@@ -37,6 +37,62 @@ class QueueItem
 {
     // {{{ Autocode
 
+    private int $id;
+    private $frame;
+    private string $transport;
+    private DateTime $created;
+    private ?DateTime $claimed;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setFrame($frame): self
+    {
+        $this->frame = $frame;
+        return $this;
+    }
+    public function getFrame()
+    {
+        return $this->frame;
+    }
+
+    public function setTransport(string $transport): self
+    {
+        $this->transport = $transport;
+        return $this;
+    }
+    public function getTransport(): string
+    {
+        return $this->transport;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setClaimed(?DateTime $claimed): self
+    {
+        $this->claimed = $claimed;
+        return $this;
+    }
+    public function getClaimed(): ?DateTime
+    {
+        return $this->claimed;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

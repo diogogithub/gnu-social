@@ -37,6 +37,73 @@ class ForeignUser
 {
     // {{{ Autocode
 
+    private int $id;
+    private int $service;
+    private string $uri;
+    private ?string $nickname;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setService(int $service): self
+    {
+        $this->service = $service;
+        return $this;
+    }
+    public function getService(): int
+    {
+        return $this->service;
+    }
+
+    public function setUri(string $uri): self
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+    public function getUri(): string
+    {
+        return $this->uri;
+    }
+
+    public function setNickname(?string $nickname): self
+    {
+        $this->nickname = $nickname;
+        return $this;
+    }
+    public function getNickname(): ?string
+    {
+        return $this->nickname;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

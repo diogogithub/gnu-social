@@ -37,6 +37,73 @@ class Invitation
 {
     // {{{ Autocode
 
+    private string $code;
+    private int $user_id;
+    private string $address;
+    private string $address_type;
+    private DateTime $created;
+    private ?int $registered_user_id;
+
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
+        return $this;
+    }
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    public function setUserId(int $user_id): self
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function setAddress(string $address): self
+    {
+        $this->address = $address;
+        return $this;
+    }
+    public function getAddress(): string
+    {
+        return $this->address;
+    }
+
+    public function setAddressType(string $address_type): self
+    {
+        $this->address_type = $address_type;
+        return $this;
+    }
+    public function getAddressType(): string
+    {
+        return $this->address_type;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setRegisteredUserId(?int $registered_user_id): self
+    {
+        $this->registered_user_id = $registered_user_id;
+        return $this;
+    }
+    public function getRegisteredUserId(): ?int
+    {
+        return $this->registered_user_id;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

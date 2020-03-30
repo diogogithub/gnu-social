@@ -37,6 +37,150 @@ class File
 {
     // {{{ Autocode
 
+    private int $id;
+    private string $urlhash;
+    private ?string $url;
+    private ?string $filehash;
+    private ?string $mimetype;
+    private ?int $size;
+    private ?string $title;
+    private ?int $date;
+    private ?int $protected;
+    private ?string $filename;
+    private ?int $width;
+    private ?int $height;
+    private DateTime $modified;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setUrlhash(string $urlhash): self
+    {
+        $this->urlhash = $urlhash;
+        return $this;
+    }
+    public function getUrlhash(): string
+    {
+        return $this->urlhash;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setFilehash(?string $filehash): self
+    {
+        $this->filehash = $filehash;
+        return $this;
+    }
+    public function getFilehash(): ?string
+    {
+        return $this->filehash;
+    }
+
+    public function setMimetype(?string $mimetype): self
+    {
+        $this->mimetype = $mimetype;
+        return $this;
+    }
+    public function getMimetype(): ?string
+    {
+        return $this->mimetype;
+    }
+
+    public function setSize(?int $size): self
+    {
+        $this->size = $size;
+        return $this;
+    }
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
+    public function setTitle(?string $title): self
+    {
+        $this->title = $title;
+        return $this;
+    }
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setDate(?int $date): self
+    {
+        $this->date = $date;
+        return $this;
+    }
+    public function getDate(): ?int
+    {
+        return $this->date;
+    }
+
+    public function setProtected(?int $protected): self
+    {
+        $this->protected = $protected;
+        return $this;
+    }
+    public function getProtected(): ?int
+    {
+        return $this->protected;
+    }
+
+    public function setFilename(?string $filename): self
+    {
+        $this->filename = $filename;
+        return $this;
+    }
+    public function getFilename(): ?string
+    {
+        return $this->filename;
+    }
+
+    public function setWidth(?int $width): self
+    {
+        $this->width = $width;
+        return $this;
+    }
+    public function getWidth(): ?int
+    {
+        return $this->width;
+    }
+
+    public function setHeight(?int $height): self
+    {
+        $this->height = $height;
+        return $this;
+    }
+    public function getHeight(): ?int
+    {
+        return $this->height;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

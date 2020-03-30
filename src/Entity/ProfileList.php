@@ -37,6 +37,128 @@ class ProfileList
 {
     // {{{ Autocode
 
+    private int $id;
+    private int $tagger;
+    private string $tag;
+    private ?string $description;
+    private ?bool $private;
+    private DateTime $created;
+    private DateTime $modified;
+    private ?string $uri;
+    private ?string $mainpage;
+    private ?int $tagged_count;
+    private ?int $subscriber_count;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setTagger(int $tagger): self
+    {
+        $this->tagger = $tagger;
+        return $this;
+    }
+    public function getTagger(): int
+    {
+        return $this->tagger;
+    }
+
+    public function setTag(string $tag): self
+    {
+        $this->tag = $tag;
+        return $this;
+    }
+    public function getTag(): string
+    {
+        return $this->tag;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setPrivate(?bool $private): self
+    {
+        $this->private = $private;
+        return $this;
+    }
+    public function getPrivate(): ?bool
+    {
+        return $this->private;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
+    public function setUri(?string $uri): self
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+    public function getUri(): ?string
+    {
+        return $this->uri;
+    }
+
+    public function setMainpage(?string $mainpage): self
+    {
+        $this->mainpage = $mainpage;
+        return $this;
+    }
+    public function getMainpage(): ?string
+    {
+        return $this->mainpage;
+    }
+
+    public function setTaggedCount(?int $tagged_count): self
+    {
+        $this->tagged_count = $tagged_count;
+        return $this;
+    }
+    public function getTaggedCount(): ?int
+    {
+        return $this->tagged_count;
+    }
+
+    public function setSubscriberCount(?int $subscriber_count): self
+    {
+        $this->subscriber_count = $subscriber_count;
+        return $this;
+    }
+    public function getSubscriberCount(): ?int
+    {
+        return $this->subscriber_count;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

@@ -37,6 +37,73 @@ class Nonce
 {
     // {{{ Autocode
 
+    private string $consumer_key;
+    private ?string $tok;
+    private string $nonce;
+    private DateTime $ts;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setConsumerKey(string $consumer_key): self
+    {
+        $this->consumer_key = $consumer_key;
+        return $this;
+    }
+    public function getConsumerKey(): string
+    {
+        return $this->consumer_key;
+    }
+
+    public function setTok(?string $tok): self
+    {
+        $this->tok = $tok;
+        return $this;
+    }
+    public function getTok(): ?string
+    {
+        return $this->tok;
+    }
+
+    public function setNonce(string $nonce): self
+    {
+        $this->nonce = $nonce;
+        return $this;
+    }
+    public function getNonce(): string
+    {
+        return $this->nonce;
+    }
+
+    public function setTs(DateTime $ts): self
+    {
+        $this->ts = $ts;
+        return $this;
+    }
+    public function getTs(): DateTime
+    {
+        return $this->ts;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

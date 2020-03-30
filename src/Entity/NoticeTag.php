@@ -37,6 +37,40 @@ class NoticeTag
 {
     // {{{ Autocode
 
+    private string $tag;
+    private int $notice_id;
+    private DateTime $created;
+
+    public function setTag(string $tag): self
+    {
+        $this->tag = $tag;
+        return $this;
+    }
+    public function getTag(): string
+    {
+        return $this->tag;
+    }
+
+    public function setNoticeId(int $notice_id): self
+    {
+        $this->notice_id = $notice_id;
+        return $this;
+    }
+    public function getNoticeId(): int
+    {
+        return $this->notice_id;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

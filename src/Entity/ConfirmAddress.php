@@ -37,6 +37,95 @@ class ConfirmAddress
 {
     // {{{ Autocode
 
+    private string $code;
+    private ?int $user_id;
+    private string $address;
+    private ?string $address_extra;
+    private string $address_type;
+    private ?DateTime $claimed;
+    private ?DateTime $sent;
+    private DateTime $modified;
+
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
+        return $this;
+    }
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    public function setUserId(?int $user_id): self
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+    public function getUserId(): ?int
+    {
+        return $this->user_id;
+    }
+
+    public function setAddress(string $address): self
+    {
+        $this->address = $address;
+        return $this;
+    }
+    public function getAddress(): string
+    {
+        return $this->address;
+    }
+
+    public function setAddressExtra(?string $address_extra): self
+    {
+        $this->address_extra = $address_extra;
+        return $this;
+    }
+    public function getAddressExtra(): ?string
+    {
+        return $this->address_extra;
+    }
+
+    public function setAddressType(string $address_type): self
+    {
+        $this->address_type = $address_type;
+        return $this;
+    }
+    public function getAddressType(): string
+    {
+        return $this->address_type;
+    }
+
+    public function setClaimed(?DateTime $claimed): self
+    {
+        $this->claimed = $claimed;
+        return $this;
+    }
+    public function getClaimed(): ?DateTime
+    {
+        return $this->claimed;
+    }
+
+    public function setSent(?DateTime $sent): self
+    {
+        $this->sent = $sent;
+        return $this;
+    }
+    public function getSent(): ?DateTime
+    {
+        return $this->sent;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

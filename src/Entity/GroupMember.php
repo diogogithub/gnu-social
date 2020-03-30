@@ -37,6 +37,73 @@ class GroupMember
 {
     // {{{ Autocode
 
+    private int $group_id;
+    private int $profile_id;
+    private ?bool $is_admin;
+    private ?string $uri;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setGroupId(int $group_id): self
+    {
+        $this->group_id = $group_id;
+        return $this;
+    }
+    public function getGroupId(): int
+    {
+        return $this->group_id;
+    }
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setIsAdmin(?bool $is_admin): self
+    {
+        $this->is_admin = $is_admin;
+        return $this;
+    }
+    public function getIsAdmin(): ?bool
+    {
+        return $this->is_admin;
+    }
+
+    public function setUri(?string $uri): self
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+    public function getUri(): ?string
+    {
+        return $this->uri;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

@@ -37,6 +37,62 @@ class Consumer
 {
     // {{{ Autocode
 
+    private string $consumer_key;
+    private string $consumer_secret;
+    private string $seed;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setConsumerKey(string $consumer_key): self
+    {
+        $this->consumer_key = $consumer_key;
+        return $this;
+    }
+    public function getConsumerKey(): string
+    {
+        return $this->consumer_key;
+    }
+
+    public function setConsumerSecret(string $consumer_secret): self
+    {
+        $this->consumer_secret = $consumer_secret;
+        return $this;
+    }
+    public function getConsumerSecret(): string
+    {
+        return $this->consumer_secret;
+    }
+
+    public function setSeed(string $seed): self
+    {
+        $this->seed = $seed;
+        return $this;
+    }
+    public function getSeed(): string
+    {
+        return $this->seed;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

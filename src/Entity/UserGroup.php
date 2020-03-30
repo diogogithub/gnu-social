@@ -37,6 +37,194 @@ class UserGroup
 {
     // {{{ Autocode
 
+    private int $id;
+    private int $profile_id;
+    private ?string $nickname;
+    private ?string $fullname;
+    private ?string $homepage;
+    private ?string $description;
+    private ?string $location;
+    private ?string $original_logo;
+    private ?string $homepage_logo;
+    private ?string $stream_logo;
+    private ?string $mini_logo;
+    private DateTime $created;
+    private DateTime $modified;
+    private ?string $uri;
+    private ?string $mainpage;
+    private ?int $join_policy;
+    private ?int $force_scope;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setNickname(?string $nickname): self
+    {
+        $this->nickname = $nickname;
+        return $this;
+    }
+    public function getNickname(): ?string
+    {
+        return $this->nickname;
+    }
+
+    public function setFullname(?string $fullname): self
+    {
+        $this->fullname = $fullname;
+        return $this;
+    }
+    public function getFullname(): ?string
+    {
+        return $this->fullname;
+    }
+
+    public function setHomepage(?string $homepage): self
+    {
+        $this->homepage = $homepage;
+        return $this;
+    }
+    public function getHomepage(): ?string
+    {
+        return $this->homepage;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setLocation(?string $location): self
+    {
+        $this->location = $location;
+        return $this;
+    }
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    public function setOriginalLogo(?string $original_logo): self
+    {
+        $this->original_logo = $original_logo;
+        return $this;
+    }
+    public function getOriginalLogo(): ?string
+    {
+        return $this->original_logo;
+    }
+
+    public function setHomepageLogo(?string $homepage_logo): self
+    {
+        $this->homepage_logo = $homepage_logo;
+        return $this;
+    }
+    public function getHomepageLogo(): ?string
+    {
+        return $this->homepage_logo;
+    }
+
+    public function setStreamLogo(?string $stream_logo): self
+    {
+        $this->stream_logo = $stream_logo;
+        return $this;
+    }
+    public function getStreamLogo(): ?string
+    {
+        return $this->stream_logo;
+    }
+
+    public function setMiniLogo(?string $mini_logo): self
+    {
+        $this->mini_logo = $mini_logo;
+        return $this;
+    }
+    public function getMiniLogo(): ?string
+    {
+        return $this->mini_logo;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
+    public function setUri(?string $uri): self
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+    public function getUri(): ?string
+    {
+        return $this->uri;
+    }
+
+    public function setMainpage(?string $mainpage): self
+    {
+        $this->mainpage = $mainpage;
+        return $this;
+    }
+    public function getMainpage(): ?string
+    {
+        return $this->mainpage;
+    }
+
+    public function setJoinPolicy(?int $join_policy): self
+    {
+        $this->join_policy = $join_policy;
+        return $this;
+    }
+    public function getJoinPolicy(): ?int
+    {
+        return $this->join_policy;
+    }
+
+    public function setForceScope(?int $force_scope): self
+    {
+        $this->force_scope = $force_scope;
+        return $this;
+    }
+    public function getForceScope(): ?int
+    {
+        return $this->force_scope;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

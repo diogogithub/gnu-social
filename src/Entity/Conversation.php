@@ -35,6 +35,62 @@ class Conversation
 {
     // {{{ Autocode
 
+    private int $id;
+    private string $uri;
+    private ?string $url;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setUri(string $uri): self
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+    public function getUri(): string
+    {
+        return $this->uri;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

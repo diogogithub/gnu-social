@@ -37,6 +37,73 @@ class NoticeSource
 {
     // {{{ Autocode
 
+    private string $code;
+    private string $name;
+    private string $url;
+    private int $notice_id;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
+        return $this;
+    }
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setUrl(string $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setNoticeId(int $notice_id): self
+    {
+        $this->notice_id = $notice_id;
+        return $this;
+    }
+    public function getNoticeId(): int
+    {
+        return $this->notice_id;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

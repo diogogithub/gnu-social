@@ -37,6 +37,51 @@ class Reply
 {
     // {{{ Autocode
 
+    private int $notice_id;
+    private int $profile_id;
+    private DateTime $modified;
+    private ?int $replied_id;
+
+    public function setNoticeId(int $notice_id): self
+    {
+        $this->notice_id = $notice_id;
+        return $this;
+    }
+    public function getNoticeId(): int
+    {
+        return $this->notice_id;
+    }
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
+    public function setRepliedId(?int $replied_id): self
+    {
+        $this->replied_id = $replied_id;
+        return $this;
+    }
+    public function getRepliedId(): ?int
+    {
+        return $this->replied_id;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

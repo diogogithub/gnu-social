@@ -37,6 +37,51 @@ class ProfileTag
 {
     // {{{ Autocode
 
+    private int $tagger;
+    private int $tagged;
+    private string $tag;
+    private DateTime $modified;
+
+    public function setTagger(int $tagger): self
+    {
+        $this->tagger = $tagger;
+        return $this;
+    }
+    public function getTagger(): int
+    {
+        return $this->tagger;
+    }
+
+    public function setTagged(int $tagged): self
+    {
+        $this->tagged = $tagged;
+        return $this;
+    }
+    public function getTagged(): int
+    {
+        return $this->tagged;
+    }
+
+    public function setTag(string $tag): self
+    {
+        $this->tag = $tag;
+        return $this;
+    }
+    public function getTag(): string
+    {
+        return $this->tag;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

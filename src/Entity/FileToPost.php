@@ -37,6 +37,40 @@ class FileToPost
 {
     // {{{ Autocode
 
+    private int $file_id;
+    private int $post_id;
+    private DateTime $modified;
+
+    public function setFileId(int $file_id): self
+    {
+        $this->file_id = $file_id;
+        return $this;
+    }
+    public function getFileId(): int
+    {
+        return $this->file_id;
+    }
+
+    public function setPostId(int $post_id): self
+    {
+        $this->post_id = $post_id;
+        return $this;
+    }
+    public function getPostId(): int
+    {
+        return $this->post_id;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

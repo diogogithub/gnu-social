@@ -37,6 +37,40 @@ class GroupJoinQueue
 {
     // {{{ Autocode
 
+    private int $profile_id;
+    private int $group_id;
+    private DateTime $created;
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setGroupId(int $group_id): self
+    {
+        $this->group_id = $group_id;
+        return $this;
+    }
+    public function getGroupId(): int
+    {
+        return $this->group_id;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

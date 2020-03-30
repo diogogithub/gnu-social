@@ -37,6 +37,106 @@ class Token
 {
     // {{{ Autocode
 
+    private string $consumer_key;
+    private string $tok;
+    private string $secret;
+    private int $type;
+    private ?int $state;
+    private ?string $verifier;
+    private ?string $verified_callback;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setConsumerKey(string $consumer_key): self
+    {
+        $this->consumer_key = $consumer_key;
+        return $this;
+    }
+    public function getConsumerKey(): string
+    {
+        return $this->consumer_key;
+    }
+
+    public function setTok(string $tok): self
+    {
+        $this->tok = $tok;
+        return $this;
+    }
+    public function getTok(): string
+    {
+        return $this->tok;
+    }
+
+    public function setSecret(string $secret): self
+    {
+        $this->secret = $secret;
+        return $this;
+    }
+    public function getSecret(): string
+    {
+        return $this->secret;
+    }
+
+    public function setType(int $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
+    public function getType(): int
+    {
+        return $this->type;
+    }
+
+    public function setState(?int $state): self
+    {
+        $this->state = $state;
+        return $this;
+    }
+    public function getState(): ?int
+    {
+        return $this->state;
+    }
+
+    public function setVerifier(?string $verifier): self
+    {
+        $this->verifier = $verifier;
+        return $this;
+    }
+    public function getVerifier(): ?string
+    {
+        return $this->verifier;
+    }
+
+    public function setVerifiedCallback(?string $verified_callback): self
+    {
+        $this->verified_callback = $verified_callback;
+        return $this;
+    }
+    public function getVerifiedCallback(): ?string
+    {
+        return $this->verified_callback;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

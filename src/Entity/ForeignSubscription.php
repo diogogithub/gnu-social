@@ -37,6 +37,51 @@ class ForeignSubscription
 {
     // {{{ Autocode
 
+    private int $service;
+    private int $subscriber;
+    private int $subscribed;
+    private DateTime $created;
+
+    public function setService(int $service): self
+    {
+        $this->service = $service;
+        return $this;
+    }
+    public function getService(): int
+    {
+        return $this->service;
+    }
+
+    public function setSubscriber(int $subscriber): self
+    {
+        $this->subscriber = $subscriber;
+        return $this;
+    }
+    public function getSubscriber(): int
+    {
+        return $this->subscriber;
+    }
+
+    public function setSubscribed(int $subscribed): self
+    {
+        $this->subscribed = $subscribed;
+        return $this;
+    }
+    public function getSubscribed(): int
+    {
+        return $this->subscribed;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

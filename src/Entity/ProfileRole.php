@@ -37,6 +37,40 @@ class ProfileRole
 {
     // {{{ Autocode
 
+    private int $profile_id;
+    private string $role;
+    private DateTime $created;
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setRole(string $role): self
+    {
+        $this->role = $role;
+        return $this;
+    }
+    public function getRole(): string
+    {
+        return $this->role;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

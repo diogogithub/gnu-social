@@ -37,6 +37,161 @@ class OauthApplication
 {
     // {{{ Autocode
 
+    private int $id;
+    private int $owner;
+    private string $consumer_key;
+    private string $name;
+    private ?string $description;
+    private string $icon;
+    private ?string $source_url;
+    private ?string $organization;
+    private ?string $homepage;
+    private ?string $callback_url;
+    private ?int $type;
+    private ?int $access_type;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setOwner(int $owner): self
+    {
+        $this->owner = $owner;
+        return $this;
+    }
+    public function getOwner(): int
+    {
+        return $this->owner;
+    }
+
+    public function setConsumerKey(string $consumer_key): self
+    {
+        $this->consumer_key = $consumer_key;
+        return $this;
+    }
+    public function getConsumerKey(): string
+    {
+        return $this->consumer_key;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setIcon(string $icon): self
+    {
+        $this->icon = $icon;
+        return $this;
+    }
+    public function getIcon(): string
+    {
+        return $this->icon;
+    }
+
+    public function setSourceUrl(?string $source_url): self
+    {
+        $this->source_url = $source_url;
+        return $this;
+    }
+    public function getSourceUrl(): ?string
+    {
+        return $this->source_url;
+    }
+
+    public function setOrganization(?string $organization): self
+    {
+        $this->organization = $organization;
+        return $this;
+    }
+    public function getOrganization(): ?string
+    {
+        return $this->organization;
+    }
+
+    public function setHomepage(?string $homepage): self
+    {
+        $this->homepage = $homepage;
+        return $this;
+    }
+    public function getHomepage(): ?string
+    {
+        return $this->homepage;
+    }
+
+    public function setCallbackUrl(?string $callback_url): self
+    {
+        $this->callback_url = $callback_url;
+        return $this;
+    }
+    public function getCallbackUrl(): ?string
+    {
+        return $this->callback_url;
+    }
+
+    public function setType(?int $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
+    public function getType(): ?int
+    {
+        return $this->type;
+    }
+
+    public function setAccessType(?int $access_type): self
+    {
+        $this->access_type = $access_type;
+        return $this;
+    }
+    public function getAccessType(): ?int
+    {
+        return $this->access_type;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

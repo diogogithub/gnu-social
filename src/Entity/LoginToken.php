@@ -37,6 +37,51 @@ class LoginToken
 {
     // {{{ Autocode
 
+    private int $user_id;
+    private string $token;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setUserId(int $user_id): self
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function setToken(string $token): self
+    {
+        $this->token = $token;
+        return $this;
+    }
+    public function getToken(): string
+    {
+        return $this->token;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

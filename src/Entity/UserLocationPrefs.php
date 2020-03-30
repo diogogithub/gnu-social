@@ -35,6 +35,51 @@ class UserLocationPrefs
 {
     // {{{ Autocode
 
+    private int $user_id;
+    private ?bool $share_location;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setUserId(int $user_id): self
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function setShareLocation(?bool $share_location): self
+    {
+        $this->share_location = $share_location;
+        return $this;
+    }
+    public function getShareLocation(): ?bool
+    {
+        return $this->share_location;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

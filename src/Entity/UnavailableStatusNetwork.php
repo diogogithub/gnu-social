@@ -37,6 +37,29 @@ class UnavailableStatusNetwork
 {
     // {{{ Autocode
 
+    private string $nickname;
+    private DateTime $created;
+
+    public function setNickname(string $nickname): self
+    {
+        $this->nickname = $nickname;
+        return $this;
+    }
+    public function getNickname(): string
+    {
+        return $this->nickname;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

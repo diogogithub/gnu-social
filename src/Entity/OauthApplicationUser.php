@@ -37,6 +37,73 @@ class OauthApplicationUser
 {
     // {{{ Autocode
 
+    private int $profile_id;
+    private int $application_id;
+    private ?int $access_type;
+    private ?string $token;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setApplicationId(int $application_id): self
+    {
+        $this->application_id = $application_id;
+        return $this;
+    }
+    public function getApplicationId(): int
+    {
+        return $this->application_id;
+    }
+
+    public function setAccessType(?int $access_type): self
+    {
+        $this->access_type = $access_type;
+        return $this;
+    }
+    public function getAccessType(): ?int
+    {
+        return $this->access_type;
+    }
+
+    public function setToken(?string $token): self
+    {
+        $this->token = $token;
+        return $this;
+    }
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

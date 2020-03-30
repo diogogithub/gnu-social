@@ -37,6 +37,40 @@ class SchemaVersion
 {
     // {{{ Autocode
 
+    private string $table_name;
+    private string $checksum;
+    private DateTime $modified;
+
+    public function setTableName(string $table_name): self
+    {
+        $this->table_name = $table_name;
+        return $this;
+    }
+    public function getTableName(): string
+    {
+        return $this->table_name;
+    }
+
+    public function setChecksum(string $checksum): self
+    {
+        $this->checksum = $checksum;
+        return $this;
+    }
+    public function getChecksum(): string
+    {
+        return $this->checksum;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

@@ -37,6 +37,51 @@ class LocalGroup
 {
     // {{{ Autocode
 
+    private int $group_id;
+    private ?string $nickname;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setGroupId(int $group_id): self
+    {
+        $this->group_id = $group_id;
+        return $this;
+    }
+    public function getGroupId(): int
+    {
+        return $this->group_id;
+    }
+
+    public function setNickname(?string $nickname): self
+    {
+        $this->nickname = $nickname;
+        return $this;
+    }
+    public function getNickname(): ?string
+    {
+        return $this->nickname;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

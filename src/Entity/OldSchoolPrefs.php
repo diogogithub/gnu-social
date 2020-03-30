@@ -37,6 +37,73 @@ class OldSchoolPrefs
 {
     // {{{ Autocode
 
+    private int $user_id;
+    private ?bool $stream_mode_only;
+    private ?bool $conversation_tree;
+    private ?bool $stream_nicknames;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setUserId(int $user_id): self
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function setStreamModeOnly(?bool $stream_mode_only): self
+    {
+        $this->stream_mode_only = $stream_mode_only;
+        return $this;
+    }
+    public function getStreamModeOnly(): ?bool
+    {
+        return $this->stream_mode_only;
+    }
+
+    public function setConversationTree(?bool $conversation_tree): self
+    {
+        $this->conversation_tree = $conversation_tree;
+        return $this;
+    }
+    public function getConversationTree(): ?bool
+    {
+        return $this->conversation_tree;
+    }
+
+    public function setStreamNicknames(?bool $stream_nicknames): self
+    {
+        $this->stream_nicknames = $stream_nicknames;
+        return $this;
+    }
+    public function getStreamNicknames(): ?bool
+    {
+        return $this->stream_nicknames;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

@@ -37,6 +37,40 @@ class GroupAlias
 {
     // {{{ Autocode
 
+    private string $alias;
+    private int $group_id;
+    private DateTime $modified;
+
+    public function setAlias(string $alias): self
+    {
+        $this->alias = $alias;
+        return $this;
+    }
+    public function getAlias(): string
+    {
+        return $this->alias;
+    }
+
+    public function setGroupId(int $group_id): self
+    {
+        $this->group_id = $group_id;
+        return $this;
+    }
+    public function getGroupId(): int
+    {
+        return $this->group_id;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

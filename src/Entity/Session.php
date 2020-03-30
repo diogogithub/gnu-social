@@ -39,6 +39,51 @@ class Session
 {
     // {{{ Autocode
 
+    private string $id;
+    private ?string $session_data;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setId(string $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function setSessionData(?string $session_data): self
+    {
+        $this->session_data = $session_data;
+        return $this;
+    }
+    public function getSessionData(): ?string
+    {
+        return $this->session_data;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array
