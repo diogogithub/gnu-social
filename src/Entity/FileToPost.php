@@ -39,7 +39,7 @@ class FileToPost
 
     private int $file_id;
     private int $post_id;
-    private DateTime $modified;
+    private \DateTimeInterface $modified;
 
     public function setFileId(int $file_id): self
     {
@@ -61,12 +61,12 @@ class FileToPost
         return $this->post_id;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

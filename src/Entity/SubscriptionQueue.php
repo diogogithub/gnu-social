@@ -39,7 +39,7 @@ class SubscriptionQueue
 
     private int $subscriber;
     private int $subscribed;
-    private DateTime $created;
+    private \DateTimeInterface $created;
 
     public function setSubscriber(int $subscriber): self
     {
@@ -61,12 +61,12 @@ class SubscriptionQueue
         return $this->subscribed;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }

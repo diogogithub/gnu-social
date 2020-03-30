@@ -39,7 +39,7 @@ class NoticeTag
 
     private string $tag;
     private int $notice_id;
-    private DateTime $created;
+    private \DateTimeInterface $created;
 
     public function setTag(string $tag): self
     {
@@ -61,12 +61,12 @@ class NoticeTag
         return $this->notice_id;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }

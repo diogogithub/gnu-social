@@ -41,7 +41,7 @@ class Invitation
     private int $user_id;
     private string $address;
     private string $address_type;
-    private DateTime $created;
+    private \DateTimeInterface $created;
     private ?int $registered_user_id;
 
     public function setCode(string $code): self
@@ -84,12 +84,12 @@ class Invitation
         return $this->address_type;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }

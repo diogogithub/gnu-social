@@ -48,8 +48,8 @@ class UserGroup
     private ?string $homepage_logo;
     private ?string $stream_logo;
     private ?string $mini_logo;
-    private DateTime $created;
-    private DateTime $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
     private ?string $uri;
     private ?string $mainpage;
     private ?int $join_policy;
@@ -165,22 +165,22 @@ class UserGroup
         return $this->mini_logo;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

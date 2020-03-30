@@ -39,7 +39,7 @@ class RememberMe
 
     private string $code;
     private int $user_id;
-    private DateTime $modified;
+    private \DateTimeInterface $modified;
 
     public function setCode(string $code): self
     {
@@ -61,12 +61,12 @@ class RememberMe
         return $this->user_id;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

@@ -44,10 +44,10 @@ class ForeignLink
     private int $noticesync;
     private int $friendsync;
     private int $profilesync;
-    private ?DateTime $last_noticesync;
-    private ?DateTime $last_friendsync;
-    private DateTime $created;
-    private DateTime $modified;
+    private ?\DateTimeInterface $last_noticesync;
+    private ?\DateTimeInterface $last_friendsync;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setUserId(int $user_id): self
     {
@@ -119,42 +119,42 @@ class ForeignLink
         return $this->profilesync;
     }
 
-    public function setLastNoticesync(?DateTime $last_noticesync): self
+    public function setLastNoticesync(?\DateTimeInterface $last_noticesync): self
     {
         $this->last_noticesync = $last_noticesync;
         return $this;
     }
-    public function getLastNoticesync(): ?DateTime
+    public function getLastNoticesync(): ?\DateTimeInterface
     {
         return $this->last_noticesync;
     }
 
-    public function setLastFriendsync(?DateTime $last_friendsync): self
+    public function setLastFriendsync(?\DateTimeInterface $last_friendsync): self
     {
         $this->last_friendsync = $last_friendsync;
         return $this;
     }
-    public function getLastFriendsync(): ?DateTime
+    public function getLastFriendsync(): ?\DateTimeInterface
     {
         return $this->last_friendsync;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

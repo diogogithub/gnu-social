@@ -40,8 +40,8 @@ class Attention
     private int $notice_id;
     private int $profile_id;
     private ?string $reason;
-    private DateTime $created;
-    private DateTime $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setNoticeId(int $notice_id): self
     {
@@ -73,22 +73,22 @@ class Attention
         return $this->reason;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }
