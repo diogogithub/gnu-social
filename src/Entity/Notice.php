@@ -219,6 +219,7 @@ class Notice
     public static function schemaDef(): array
     {
         $def = [
+            'name'   => 'notice',
             'fields' => [
                 'id'           => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
                 'profile_id'   => ['type' => 'int', 'not null' => true, 'description' => 'who made the update'],

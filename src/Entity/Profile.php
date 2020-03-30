@@ -186,6 +186,7 @@ class Profile
     public static function schemaDef(): array
     {
         $def = [
+            'name'        => 'profile',
             'description' => 'local and remote users have profiles',
             'fields'      => [
                 'id'          => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
