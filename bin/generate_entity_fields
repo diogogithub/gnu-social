@@ -28,12 +28,9 @@ $files = glob($path . '/*.php');
 
 foreach ($files as $file) {
     require_once $file;
-    $classes = array_filter(get_declared_classes(),
-                            function ($class) {
-                                return method_exists($class, 'schemaDef');
-                            });
+    $declared = get_declared_classes();
 
-    $class        = $classes[array_keys($classes)[0]];
+    $class        = end($declared);
     $no_ns_class  = preg_replace('/.*?\\\\/', '', $class);
     $schema       = $class::schemaDef();
     $fields       = array_keys($schema['fields']);
@@ -41,24 +38,35 @@ foreach ($files as $file) {
     $methods_code = [];
     foreach ($fields as $field) {
         $nullable       = !@$schema['fields'][$field]['not null'] ? '?' : '';
-        $type           = $nullable . types[$schema['fields'][$field]['type']];
+        $type           = types[$schema['fields'][$field]['type']];
+        $type           = $type !== '' ? $nullable . $type : $type;
         $method_name    = str_replace(' ', '', ucwords(str_replace('_', ' ', $field)));
         $fields_code[]  = "    private {$type} \${$field};";
-        $methods_code[] = "    public function set{$method_name}({$type} \${$field}): {$no_ns_class} " .
+        $methods_code[] = "    public function set{$method_name}({$type} \${$field}): self " .
                         "{ \$this->{$field} = \${$field}; return \$this; }" . "\n" .
-                        "    public function get{$method_name}(): {$type} " .
+                        "    public function get{$method_name}()" . ($type !== '' ? ': ' . $type : '') .
                         "{ return \$this->{$field}; }" . "\n";
     }
-    $begin = '// AUTOCODE BEGIN';
-    $end   = '// AUTOCODE END';
-    $code  = "\n\n" . '    ' . $begin . "\n\n" .
-           implode("\n", $fields_code) .
-           "\n\n" .
-           implode("\n", $methods_code) . "\n" .
-           '    ' . $end . "\n";
 
-    $begin = preg_replace('/\\//', '\\/', preg_replace('/ /', '\\ ', $begin));
-    $end   = preg_replace('/\\//', '\\/', preg_replace('/ /', '\\ ', $end));
+    $fields_code  = implode("\n", $fields_code);
+    $methods_code = implode("\n", $methods_code) . "\n";
+
+    $begin = '// {{{ Autocode';
+    $end   = '// }}} Autocode';
+    $code  = "
+    {$begin}
+
+{$fields_code}
+
+{$methods_code}
+
+    {$end}
+";
+
+    foreach (['/\\//' => '\\/', '/ /' => '\\ '] as $from => $to) {
+        $begin = preg_replace($from, $to, $begin);
+        $end   = preg_replace($from, $to, $end);
+    }
 
     $in_file  = file_get_contents($file);
     $out_file = preg_replace("/\\s*{$begin}[^\\/]*{$end}/m", $code, $in_file);
