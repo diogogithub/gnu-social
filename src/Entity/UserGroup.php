@@ -35,9 +35,9 @@ namespace App\Entity;
  */
 class UserGroup
 {
-    // AUTOCODE BEGIN
+    // {{{ Autocode
 
-    // AUTOCODE END
+    // }}} Autocode
 
     public static function schemaDef(): array
     {
