@@ -79,8 +79,6 @@ class SchemaDefDriver extends StaticPHPDriver
             'options'                      => ['comment' => $schema['description'] ?? ''],
         ]);
 
-        echo "{$class_name}\n";
-
         foreach ($schema['fields'] as $name => $opts) {
             // TODO
             // Convert old to new types

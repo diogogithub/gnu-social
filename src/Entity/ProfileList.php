@@ -166,15 +166,13 @@ class ProfileList
         return [
             'name'   => 'profile_list',
             'fields' => [
-                'id'          => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
-                'tagger'      => ['type' => 'int', 'not null' => true, 'description' => 'user making the tag'],
-                'tag'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'people tag'],
-                'description' => ['type' => 'text', 'description' => 'description of the people tag'],
-                'private'     => ['type' => 'bool', 'default' => false, 'description' => 'is this tag private'],
-
-                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the tag was added'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date the tag was modified'],
-
+                'id'               => ['type' => 'int', 'not null' => true, 'description' => 'unique identifier'],
+                'tagger'           => ['type' => 'int', 'not null' => true, 'description' => 'user making the tag'],
+                'tag'              => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'people tag'],
+                'description'      => ['type' => 'text', 'description' => 'description of the people tag'],
+                'private'          => ['type' => 'bool', 'default' => false, 'description' => 'is this tag private'],
+                'created'          => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the tag was added'],
+                'modified'         => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date the tag was modified'],
                 'uri'              => ['type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'],
                 'mainpage'         => ['type' => 'varchar', 'length' => 191, 'description' => 'page to link to'],
                 'tagged_count'     => ['type' => 'int', 'default' => 0, 'description' => 'number of people tagged with this tag by this user'],
