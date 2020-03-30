@@ -40,9 +40,9 @@ class Nonce
     private string $consumer_key;
     private ?string $tok;
     private string $nonce;
-    private DateTime $ts;
-    private DateTime $created;
-    private DateTime $modified;
+    private \DateTimeInterface $ts;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setConsumerKey(string $consumer_key): self
     {
@@ -74,32 +74,32 @@ class Nonce
         return $this->nonce;
     }
 
-    public function setTs(DateTime $ts): self
+    public function setTs(\DateTimeInterface $ts): self
     {
         $this->ts = $ts;
         return $this;
     }
-    public function getTs(): DateTime
+    public function getTs(): \DateTimeInterface
     {
         return $this->ts;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

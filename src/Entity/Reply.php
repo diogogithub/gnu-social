@@ -39,7 +39,7 @@ class Reply
 
     private int $notice_id;
     private int $profile_id;
-    private DateTime $modified;
+    private \DateTimeInterface $modified;
     private ?int $replied_id;
 
     public function setNoticeId(int $notice_id): self
@@ -62,12 +62,12 @@ class Reply
         return $this->profile_id;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

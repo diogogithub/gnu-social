@@ -42,7 +42,7 @@ class NoticeLocation
     private ?float $lon;
     private ?int $location_id;
     private ?int $location_ns;
-    private DateTime $modified;
+    private \DateTimeInterface $modified;
 
     public function setNoticeId(int $notice_id): self
     {
@@ -94,12 +94,12 @@ class NoticeLocation
         return $this->location_ns;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

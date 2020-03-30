@@ -42,9 +42,9 @@ class ConfirmAddress
     private string $address;
     private ?string $address_extra;
     private string $address_type;
-    private ?DateTime $claimed;
-    private ?DateTime $sent;
-    private DateTime $modified;
+    private ?\DateTimeInterface $claimed;
+    private ?\DateTimeInterface $sent;
+    private \DateTimeInterface $modified;
 
     public function setCode(string $code): self
     {
@@ -96,32 +96,32 @@ class ConfirmAddress
         return $this->address_type;
     }
 
-    public function setClaimed(?DateTime $claimed): self
+    public function setClaimed(?\DateTimeInterface $claimed): self
     {
         $this->claimed = $claimed;
         return $this;
     }
-    public function getClaimed(): ?DateTime
+    public function getClaimed(): ?\DateTimeInterface
     {
         return $this->claimed;
     }
 
-    public function setSent(?DateTime $sent): self
+    public function setSent(?\DateTimeInterface $sent): self
     {
         $this->sent = $sent;
         return $this;
     }
-    public function getSent(): ?DateTime
+    public function getSent(): ?\DateTimeInterface
     {
         return $this->sent;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

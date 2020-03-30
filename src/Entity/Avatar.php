@@ -43,8 +43,8 @@ class Avatar
     private int $height;
     private string $mediatype;
     private ?string $filename;
-    private DateTime $created;
-    private DateTime $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setProfileId(int $profile_id): self
     {
@@ -106,22 +106,22 @@ class Avatar
         return $this->filename;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

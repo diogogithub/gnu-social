@@ -41,8 +41,8 @@ class UserUrlshortenerPrefs
     private ?string $urlshorteningservice;
     private int $maxurllength;
     private int $maxnoticelength;
-    private DateTime $created;
-    private DateTime $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setUserId(int $user_id): self
     {
@@ -84,22 +84,22 @@ class UserUrlshortenerPrefs
         return $this->maxnoticelength;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

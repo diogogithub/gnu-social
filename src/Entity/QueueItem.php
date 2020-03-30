@@ -40,8 +40,8 @@ class QueueItem
     private int $id;
     private $frame;
     private string $transport;
-    private DateTime $created;
-    private ?DateTime $claimed;
+    private \DateTimeInterface $created;
+    private ?\DateTimeInterface $claimed;
 
     public function setId(int $id): self
     {
@@ -73,22 +73,22 @@ class QueueItem
         return $this->transport;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setClaimed(?DateTime $claimed): self
+    public function setClaimed(?\DateTimeInterface $claimed): self
     {
         $this->claimed = $claimed;
         return $this;
     }
-    public function getClaimed(): ?DateTime
+    public function getClaimed(): ?\DateTimeInterface
     {
         return $this->claimed;
     }

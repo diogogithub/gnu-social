@@ -42,7 +42,7 @@ class FileRedirection
     private ?int $file_id;
     private ?int $redirections;
     private ?int $httpcode;
-    private DateTime $modified;
+    private \DateTimeInterface $modified;
 
     public function setUrlhash(string $urlhash): self
     {
@@ -94,12 +94,12 @@ class FileRedirection
         return $this->httpcode;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

@@ -39,7 +39,7 @@ class ProfileRole
 
     private int $profile_id;
     private string $role;
-    private DateTime $created;
+    private \DateTimeInterface $created;
 
     public function setProfileId(int $profile_id): self
     {
@@ -61,12 +61,12 @@ class ProfileRole
         return $this->role;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }

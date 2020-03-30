@@ -40,7 +40,7 @@ class ForeignSubscription
     private int $service;
     private int $subscriber;
     private int $subscribed;
-    private DateTime $created;
+    private \DateTimeInterface $created;
 
     public function setService(int $service): self
     {
@@ -72,12 +72,12 @@ class ForeignSubscription
         return $this->subscribed;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }

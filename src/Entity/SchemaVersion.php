@@ -39,7 +39,7 @@ class SchemaVersion
 
     private string $table_name;
     private string $checksum;
-    private DateTime $modified;
+    private \DateTimeInterface $modified;
 
     public function setTableName(string $table_name): self
     {
@@ -61,12 +61,12 @@ class SchemaVersion
         return $this->checksum;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

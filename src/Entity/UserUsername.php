@@ -40,8 +40,8 @@ class UserUsername
     private string $provider_name;
     private string $username;
     private int $user_id;
-    private DateTime $created;
-    private DateTime $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setProviderName(string $provider_name): self
     {
@@ -73,22 +73,22 @@ class UserUsername
         return $this->user_id;
     }
 
-    public function setCreated(DateTime $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): DateTime
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }

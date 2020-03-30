@@ -40,7 +40,7 @@ class GroupBlock
     private int $group_id;
     private int $blocked;
     private int $blocker;
-    private DateTime $modified;
+    private \DateTimeInterface $modified;
 
     public function setGroupId(int $group_id): self
     {
@@ -72,12 +72,12 @@ class GroupBlock
         return $this->blocker;
     }
 
-    public function setModified(DateTime $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): DateTime
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }
