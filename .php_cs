@@ -22,7 +22,7 @@ return PhpCsFixer\Config::create()
         // Each element of an array must be indented exactly once.
         'array_indentation' => true,
         // Ensure there is no code on the same line as the PHP open tag and it is followed by a blank line.
-        'blank_line_after_opening_tag' => true,
+        'blank_line_after_opening_tag' => false,
         // The body of each structure MUST be enclosed by braces. Braces should be properly placed. Body of braces should be properly indented.
         'braces' => ['allow_single_line_closure' => true, 'position_after_functions_and_oop_constructs' => 'next',
             // 'allow_single_line_functions' => true, // Awaiting PR merge...
@@ -134,7 +134,7 @@ return PhpCsFixer\Config::create()
         // There MUST NOT be a space after the opening parenthesis. There MUST NOT be a space before the closing parenthesis.
         'no_spaces_inside_parenthesis' => true,
         // Replaces superfluous `elseif` with `if`.
-        'no_superfluous_elseif' => true,
+        'no_superfluous_elseif' => false,
         // Remove trailing commas in list function calls.
         'no_trailing_comma_in_list_call' => true,
         // PHP single-line arrays should not have trailing comma.
@@ -156,7 +156,7 @@ return PhpCsFixer\Config::create()
         // Unused `use` statements must be removed.
         'no_unused_imports' => true,
         // There should not be useless `else` cases.
-        'no_useless_else' => true,
+        'no_useless_else' => false,
         // There should not be an empty `return` statement at the end of a function.
         'no_useless_return' => true,
         // In array declaration, there MUST NOT be a whitespace before each comma.
@@ -172,7 +172,7 @@ return PhpCsFixer\Config::create()
         // Ordering `use` statements.
         'ordered_imports' => true,
         // Orders the elements of classes/interfaces/traits.
-        'ordered_class_elements' => true,
+        'ordered_class_elements' => false,
         // PHPUnit assertion method calls like `->assertSame(true, $foo)` should be written with dedicated method like `->assertTrue($foo)`.
         'php_unit_construct' => true,
         // PHPUnit annotations should be a FQCNs including a root namespace.
