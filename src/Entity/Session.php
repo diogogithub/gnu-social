@@ -89,6 +89,7 @@ class Session
     public static function schemaDef(): array
     {
         return [
+            'name'   => 'session',
             'fields' => [
                 'id'           => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'session ID'],
                 'session_data' => ['type' => 'text', 'description' => 'session data'],
