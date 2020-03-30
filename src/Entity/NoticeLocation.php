@@ -37,6 +37,73 @@ class NoticeLocation
 {
     // {{{ Autocode
 
+    private int $notice_id;
+    private ?float $lat;
+    private ?float $lon;
+    private ?int $location_id;
+    private ?int $location_ns;
+    private DateTime $modified;
+
+    public function setNoticeId(int $notice_id): self
+    {
+        $this->notice_id = $notice_id;
+        return $this;
+    }
+    public function getNoticeId(): int
+    {
+        return $this->notice_id;
+    }
+
+    public function setLat(?float $lat): self
+    {
+        $this->lat = $lat;
+        return $this;
+    }
+    public function getLat(): ?float
+    {
+        return $this->lat;
+    }
+
+    public function setLon(?float $lon): self
+    {
+        $this->lon = $lon;
+        return $this;
+    }
+    public function getLon(): ?float
+    {
+        return $this->lon;
+    }
+
+    public function setLocationId(?int $location_id): self
+    {
+        $this->location_id = $location_id;
+        return $this;
+    }
+    public function getLocationId(): ?int
+    {
+        return $this->location_id;
+    }
+
+    public function setLocationNs(?int $location_ns): self
+    {
+        $this->location_ns = $location_ns;
+        return $this;
+    }
+    public function getLocationNs(): ?int
+    {
+        return $this->location_ns;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

@@ -37,6 +37,95 @@ class Avatar
 {
     // {{{ Autocode
 
+    private int $profile_id;
+    private ?bool $original;
+    private int $width;
+    private int $height;
+    private string $mediatype;
+    private ?string $filename;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setOriginal(?bool $original): self
+    {
+        $this->original = $original;
+        return $this;
+    }
+    public function getOriginal(): ?bool
+    {
+        return $this->original;
+    }
+
+    public function setWidth(int $width): self
+    {
+        $this->width = $width;
+        return $this;
+    }
+    public function getWidth(): int
+    {
+        return $this->width;
+    }
+
+    public function setHeight(int $height): self
+    {
+        $this->height = $height;
+        return $this;
+    }
+    public function getHeight(): int
+    {
+        return $this->height;
+    }
+
+    public function setMediatype(string $mediatype): self
+    {
+        $this->mediatype = $mediatype;
+        return $this;
+    }
+    public function getMediatype(): string
+    {
+        return $this->mediatype;
+    }
+
+    public function setFilename(?string $filename): self
+    {
+        $this->filename = $filename;
+        return $this;
+    }
+    public function getFilename(): ?string
+    {
+        return $this->filename;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

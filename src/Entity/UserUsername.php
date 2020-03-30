@@ -37,6 +37,62 @@ class UserUsername
 {
     // {{{ Autocode
 
+    private string $provider_name;
+    private string $username;
+    private int $user_id;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setProviderName(string $provider_name): self
+    {
+        $this->provider_name = $provider_name;
+        return $this;
+    }
+    public function getProviderName(): string
+    {
+        return $this->provider_name;
+    }
+
+    public function setUsername(string $username): self
+    {
+        $this->username = $username;
+        return $this;
+    }
+    public function getUsername(): string
+    {
+        return $this->username;
+    }
+
+    public function setUserId(int $user_id): self
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

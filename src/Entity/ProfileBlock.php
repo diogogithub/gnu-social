@@ -37,6 +37,40 @@ class ProfileBlock
 {
     // {{{ Autocode
 
+    private int $blocker;
+    private int $blocked;
+    private DateTime $modified;
+
+    public function setBlocker(int $blocker): self
+    {
+        $this->blocker = $blocker;
+        return $this;
+    }
+    public function getBlocker(): int
+    {
+        return $this->blocker;
+    }
+
+    public function setBlocked(int $blocked): self
+    {
+        $this->blocked = $blocked;
+        return $this;
+    }
+    public function getBlocked(): int
+    {
+        return $this->blocked;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

@@ -37,6 +37,62 @@ class Attention
 {
     // {{{ Autocode
 
+    private int $notice_id;
+    private int $profile_id;
+    private ?string $reason;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setNoticeId(int $notice_id): self
+    {
+        $this->notice_id = $notice_id;
+        return $this;
+    }
+    public function getNoticeId(): int
+    {
+        return $this->notice_id;
+    }
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setReason(?string $reason): self
+    {
+        $this->reason = $reason;
+        return $this;
+    }
+    public function getReason(): ?string
+    {
+        return $this->reason;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

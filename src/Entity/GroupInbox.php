@@ -37,6 +37,40 @@ class GroupInbox
 {
     // {{{ Autocode
 
+    private int $group_id;
+    private int $notice_id;
+    private DateTime $created;
+
+    public function setGroupId(int $group_id): self
+    {
+        $this->group_id = $group_id;
+        return $this;
+    }
+    public function getGroupId(): int
+    {
+        return $this->group_id;
+    }
+
+    public function setNoticeId(int $notice_id): self
+    {
+        $this->notice_id = $notice_id;
+        return $this;
+    }
+    public function getNoticeId(): int
+    {
+        return $this->notice_id;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

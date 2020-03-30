@@ -35,6 +35,95 @@ class UserImPrefs
 {
     // {{{ Autocode
 
+    private int $user_id;
+    private string $screenname;
+    private string $transport;
+    private bool $notify;
+    private bool $replies;
+    private bool $updatefrompresence;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setUserId(int $user_id): self
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function setScreenname(string $screenname): self
+    {
+        $this->screenname = $screenname;
+        return $this;
+    }
+    public function getScreenname(): string
+    {
+        return $this->screenname;
+    }
+
+    public function setTransport(string $transport): self
+    {
+        $this->transport = $transport;
+        return $this;
+    }
+    public function getTransport(): string
+    {
+        return $this->transport;
+    }
+
+    public function setNotify(bool $notify): self
+    {
+        $this->notify = $notify;
+        return $this;
+    }
+    public function getNotify(): bool
+    {
+        return $this->notify;
+    }
+
+    public function setReplies(bool $replies): self
+    {
+        $this->replies = $replies;
+        return $this;
+    }
+    public function getReplies(): bool
+    {
+        return $this->replies;
+    }
+
+    public function setUpdatefrompresence(bool $updatefrompresence): self
+    {
+        $this->updatefrompresence = $updatefrompresence;
+        return $this;
+    }
+    public function getUpdatefrompresence(): bool
+    {
+        return $this->updatefrompresence;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

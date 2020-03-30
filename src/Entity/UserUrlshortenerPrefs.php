@@ -37,6 +37,73 @@ class UserUrlshortenerPrefs
 {
     // {{{ Autocode
 
+    private int $user_id;
+    private ?string $urlshorteningservice;
+    private int $maxurllength;
+    private int $maxnoticelength;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setUserId(int $user_id): self
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function setUrlshorteningservice(?string $urlshorteningservice): self
+    {
+        $this->urlshorteningservice = $urlshorteningservice;
+        return $this;
+    }
+    public function getUrlshorteningservice(): ?string
+    {
+        return $this->urlshorteningservice;
+    }
+
+    public function setMaxurllength(int $maxurllength): self
+    {
+        $this->maxurllength = $maxurllength;
+        return $this;
+    }
+    public function getMaxurllength(): int
+    {
+        return $this->maxurllength;
+    }
+
+    public function setMaxnoticelength(int $maxnoticelength): self
+    {
+        $this->maxnoticelength = $maxnoticelength;
+        return $this;
+    }
+    public function getMaxnoticelength(): int
+    {
+        return $this->maxnoticelength;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

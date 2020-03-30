@@ -37,6 +37,73 @@ class ProfilePrefs
 {
     // {{{ Autocode
 
+    private int $profile_id;
+    private string $namespace;
+    private string $topic;
+    private $data;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setNamespace(string $namespace): self
+    {
+        $this->namespace = $namespace;
+        return $this;
+    }
+    public function getNamespace(): string
+    {
+        return $this->namespace;
+    }
+
+    public function setTopic(string $topic): self
+    {
+        $this->topic = $topic;
+        return $this;
+    }
+    public function getTopic(): string
+    {
+        return $this->topic;
+    }
+
+    public function setData($data): self
+    {
+        $this->data = $data;
+        return $this;
+    }
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

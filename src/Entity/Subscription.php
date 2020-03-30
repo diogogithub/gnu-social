@@ -37,6 +37,106 @@ class Subscription
 {
     // {{{ Autocode
 
+    private int $subscriber;
+    private int $subscribed;
+    private ?bool $jabber;
+    private ?bool $sms;
+    private ?string $token;
+    private ?string $secret;
+    private ?string $uri;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setSubscriber(int $subscriber): self
+    {
+        $this->subscriber = $subscriber;
+        return $this;
+    }
+    public function getSubscriber(): int
+    {
+        return $this->subscriber;
+    }
+
+    public function setSubscribed(int $subscribed): self
+    {
+        $this->subscribed = $subscribed;
+        return $this;
+    }
+    public function getSubscribed(): int
+    {
+        return $this->subscribed;
+    }
+
+    public function setJabber(?bool $jabber): self
+    {
+        $this->jabber = $jabber;
+        return $this;
+    }
+    public function getJabber(): ?bool
+    {
+        return $this->jabber;
+    }
+
+    public function setSms(?bool $sms): self
+    {
+        $this->sms = $sms;
+        return $this;
+    }
+    public function getSms(): ?bool
+    {
+        return $this->sms;
+    }
+
+    public function setToken(?string $token): self
+    {
+        $this->token = $token;
+        return $this;
+    }
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setSecret(?string $secret): self
+    {
+        $this->secret = $secret;
+        return $this;
+    }
+    public function getSecret(): ?string
+    {
+        return $this->secret;
+    }
+
+    public function setUri(?string $uri): self
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+    public function getUri(): ?string
+    {
+        return $this->uri;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

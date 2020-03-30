@@ -37,6 +37,40 @@ class RememberMe
 {
     // {{{ Autocode
 
+    private string $code;
+    private int $user_id;
+    private DateTime $modified;
+
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
+        return $this;
+    }
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    public function setUserId(int $user_id): self
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

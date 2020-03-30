@@ -37,6 +37,40 @@ class Config
 {
     // {{{ Autocode
 
+    private string $section;
+    private string $setting;
+    private ?string $value;
+
+    public function setSection(string $section): self
+    {
+        $this->section = $section;
+        return $this;
+    }
+    public function getSection(): string
+    {
+        return $this->section;
+    }
+
+    public function setSetting(string $setting): self
+    {
+        $this->setting = $setting;
+        return $this;
+    }
+    public function getSetting(): string
+    {
+        return $this->setting;
+    }
+
+    public function setValue(?string $value): self
+    {
+        $this->value = $value;
+        return $this;
+    }
+    public function getValue(): ?string
+    {
+        return $this->value;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

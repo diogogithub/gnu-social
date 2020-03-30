@@ -37,6 +37,84 @@ class FileThumbnail
 {
     // {{{ Autocode
 
+    private int $file_id;
+    private ?string $urlhash;
+    private ?string $url;
+    private ?string $filename;
+    private int $width;
+    private int $height;
+    private DateTime $modified;
+
+    public function setFileId(int $file_id): self
+    {
+        $this->file_id = $file_id;
+        return $this;
+    }
+    public function getFileId(): int
+    {
+        return $this->file_id;
+    }
+
+    public function setUrlhash(?string $urlhash): self
+    {
+        $this->urlhash = $urlhash;
+        return $this;
+    }
+    public function getUrlhash(): ?string
+    {
+        return $this->urlhash;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setFilename(?string $filename): self
+    {
+        $this->filename = $filename;
+        return $this;
+    }
+    public function getFilename(): ?string
+    {
+        return $this->filename;
+    }
+
+    public function setWidth(int $width): self
+    {
+        $this->width = $width;
+        return $this;
+    }
+    public function getWidth(): int
+    {
+        return $this->width;
+    }
+
+    public function setHeight(int $height): self
+    {
+        $this->height = $height;
+        return $this;
+    }
+    public function getHeight(): int
+    {
+        return $this->height;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

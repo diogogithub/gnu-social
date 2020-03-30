@@ -37,6 +37,128 @@ class ForeignLink
 {
     // {{{ Autocode
 
+    private int $user_id;
+    private int $foreign_id;
+    private int $service;
+    private ?string $credentials;
+    private int $noticesync;
+    private int $friendsync;
+    private int $profilesync;
+    private ?DateTime $last_noticesync;
+    private ?DateTime $last_friendsync;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setUserId(int $user_id): self
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function setForeignId(int $foreign_id): self
+    {
+        $this->foreign_id = $foreign_id;
+        return $this;
+    }
+    public function getForeignId(): int
+    {
+        return $this->foreign_id;
+    }
+
+    public function setService(int $service): self
+    {
+        $this->service = $service;
+        return $this;
+    }
+    public function getService(): int
+    {
+        return $this->service;
+    }
+
+    public function setCredentials(?string $credentials): self
+    {
+        $this->credentials = $credentials;
+        return $this;
+    }
+    public function getCredentials(): ?string
+    {
+        return $this->credentials;
+    }
+
+    public function setNoticesync(int $noticesync): self
+    {
+        $this->noticesync = $noticesync;
+        return $this;
+    }
+    public function getNoticesync(): int
+    {
+        return $this->noticesync;
+    }
+
+    public function setFriendsync(int $friendsync): self
+    {
+        $this->friendsync = $friendsync;
+        return $this;
+    }
+    public function getFriendsync(): int
+    {
+        return $this->friendsync;
+    }
+
+    public function setProfilesync(int $profilesync): self
+    {
+        $this->profilesync = $profilesync;
+        return $this;
+    }
+    public function getProfilesync(): int
+    {
+        return $this->profilesync;
+    }
+
+    public function setLastNoticesync(?DateTime $last_noticesync): self
+    {
+        $this->last_noticesync = $last_noticesync;
+        return $this;
+    }
+    public function getLastNoticesync(): ?DateTime
+    {
+        return $this->last_noticesync;
+    }
+
+    public function setLastFriendsync(?DateTime $last_friendsync): self
+    {
+        $this->last_friendsync = $last_friendsync;
+        return $this;
+    }
+    public function getLastFriendsync(): ?DateTime
+    {
+        return $this->last_friendsync;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

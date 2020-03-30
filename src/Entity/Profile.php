@@ -37,6 +37,150 @@ class Profile
 {
     // {{{ Autocode
 
+    private int $id;
+    private string $nickname;
+    private ?string $fullname;
+    private ?string $profileurl;
+    private ?string $homepage;
+    private ?string $bio;
+    private ?string $location;
+    private ?float $lat;
+    private ?float $lon;
+    private ?int $location_id;
+    private ?int $location_ns;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setNickname(string $nickname): self
+    {
+        $this->nickname = $nickname;
+        return $this;
+    }
+    public function getNickname(): string
+    {
+        return $this->nickname;
+    }
+
+    public function setFullname(?string $fullname): self
+    {
+        $this->fullname = $fullname;
+        return $this;
+    }
+    public function getFullname(): ?string
+    {
+        return $this->fullname;
+    }
+
+    public function setProfileurl(?string $profileurl): self
+    {
+        $this->profileurl = $profileurl;
+        return $this;
+    }
+    public function getProfileurl(): ?string
+    {
+        return $this->profileurl;
+    }
+
+    public function setHomepage(?string $homepage): self
+    {
+        $this->homepage = $homepage;
+        return $this;
+    }
+    public function getHomepage(): ?string
+    {
+        return $this->homepage;
+    }
+
+    public function setBio(?string $bio): self
+    {
+        $this->bio = $bio;
+        return $this;
+    }
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+
+    public function setLocation(?string $location): self
+    {
+        $this->location = $location;
+        return $this;
+    }
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    public function setLat(?float $lat): self
+    {
+        $this->lat = $lat;
+        return $this;
+    }
+    public function getLat(): ?float
+    {
+        return $this->lat;
+    }
+
+    public function setLon(?float $lon): self
+    {
+        $this->lon = $lon;
+        return $this;
+    }
+    public function getLon(): ?float
+    {
+        return $this->lon;
+    }
+
+    public function setLocationId(?int $location_id): self
+    {
+        $this->location_id = $location_id;
+        return $this;
+    }
+    public function getLocationId(): ?int
+    {
+        return $this->location_id;
+    }
+
+    public function setLocationNs(?int $location_ns): self
+    {
+        $this->location_ns = $location_ns;
+        return $this;
+    }
+    public function getLocationNs(): ?int
+    {
+        return $this->location_ns;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

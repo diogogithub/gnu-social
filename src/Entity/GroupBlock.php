@@ -37,6 +37,51 @@ class GroupBlock
 {
     // {{{ Autocode
 
+    private int $group_id;
+    private int $blocked;
+    private int $blocker;
+    private DateTime $modified;
+
+    public function setGroupId(int $group_id): self
+    {
+        $this->group_id = $group_id;
+        return $this;
+    }
+    public function getGroupId(): int
+    {
+        return $this->group_id;
+    }
+
+    public function setBlocked(int $blocked): self
+    {
+        $this->blocked = $blocked;
+        return $this;
+    }
+    public function getBlocked(): int
+    {
+        return $this->blocked;
+    }
+
+    public function setBlocker(int $blocker): self
+    {
+        $this->blocker = $blocker;
+        return $this;
+    }
+    public function getBlocker(): int
+    {
+        return $this->blocker;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

@@ -37,6 +37,51 @@ class ProfileTagSubscription
 {
     // {{{ Autocode
 
+    private int $profile_tag_id;
+    private int $profile_id;
+    private DateTime $created;
+    private DateTime $modified;
+
+    public function setProfileTagId(int $profile_tag_id): self
+    {
+        $this->profile_tag_id = $profile_tag_id;
+        return $this;
+    }
+    public function getProfileTagId(): int
+    {
+        return $this->profile_tag_id;
+    }
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array

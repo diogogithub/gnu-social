@@ -37,6 +37,183 @@ class Notice
 {
     // {{{ Autocode
 
+    private int $id;
+    private int $profile_id;
+    private ?string $uri;
+    private ?string $content;
+    private ?string $rendered;
+    private ?string $url;
+    private DateTime $created;
+    private DateTime $modified;
+    private ?int $reply_to;
+    private ?int $is_local;
+    private ?string $source;
+    private ?int $conversation;
+    private ?int $repeat_of;
+    private ?string $object_type;
+    private ?string $verb;
+    private ?int $scope;
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setUri(?string $uri): self
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+    public function getUri(): ?string
+    {
+        return $this->uri;
+    }
+
+    public function setContent(?string $content): self
+    {
+        $this->content = $content;
+        return $this;
+    }
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function setRendered(?string $rendered): self
+    {
+        $this->rendered = $rendered;
+        return $this;
+    }
+    public function getRendered(): ?string
+    {
+        return $this->rendered;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setCreated(DateTime $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTime $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTime
+    {
+        return $this->modified;
+    }
+
+    public function setReplyTo(?int $reply_to): self
+    {
+        $this->reply_to = $reply_to;
+        return $this;
+    }
+    public function getReplyTo(): ?int
+    {
+        return $this->reply_to;
+    }
+
+    public function setIsLocal(?int $is_local): self
+    {
+        $this->is_local = $is_local;
+        return $this;
+    }
+    public function getIsLocal(): ?int
+    {
+        return $this->is_local;
+    }
+
+    public function setSource(?string $source): self
+    {
+        $this->source = $source;
+        return $this;
+    }
+    public function getSource(): ?string
+    {
+        return $this->source;
+    }
+
+    public function setConversation(?int $conversation): self
+    {
+        $this->conversation = $conversation;
+        return $this;
+    }
+    public function getConversation(): ?int
+    {
+        return $this->conversation;
+    }
+
+    public function setRepeatOf(?int $repeat_of): self
+    {
+        $this->repeat_of = $repeat_of;
+        return $this;
+    }
+    public function getRepeatOf(): ?int
+    {
+        return $this->repeat_of;
+    }
+
+    public function setObjectType(?string $object_type): self
+    {
+        $this->object_type = $object_type;
+        return $this;
+    }
+    public function getObjectType(): ?string
+    {
+        return $this->object_type;
+    }
+
+    public function setVerb(?string $verb): self
+    {
+        $this->verb = $verb;
+        return $this;
+    }
+    public function getVerb(): ?string
+    {
+        return $this->verb;
+    }
+
+    public function setScope(?int $scope): self
+    {
+        $this->scope = $scope;
+        return $this;
+    }
+    public function getScope(): ?int
+    {
+        return $this->scope;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array
