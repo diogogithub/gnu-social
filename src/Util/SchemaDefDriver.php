@@ -41,7 +41,9 @@ class SchemaDefDriver extends StaticPHPDriver
      */
     private const types = [
         'varchar'  => 'string',
+        'char'     => 'string', // char is a fixed witdh varchar
         'int'      => 'integer',
+        'serial'   => 'integer',
         'tinyint'  => 'smallint', // no portable tinyint
         'bigint'   => 'bigint',
         'bool'     => 'boolean',
@@ -62,22 +64,25 @@ class SchemaDefDriver extends StaticPHPDriver
     ];
 
     /**
-     * Fill in the database $metadata for $className
+     * Fill in the database $metadata for $class_name
      *
-     * @param string        $className
+     * @param string        $class_name
      * @param ClassMetadata $metadata
      */
-    public function loadMetadataForClass($className, ClassMetadata $metadata)
+    public function loadMetadataForClass($class_name, ClassMetadata $metadata)
     {
-        $schema = $className::schemaDef();
+        $schema = $class_name::schemaDef();
 
         $metadata->setPrimaryTable(['name' => $schema['name'],
-            'indexes'                      => self::kv_to_name_col($schema['indexes']),
-            'uniqueConstraints'            => self::kv_to_name_col($schema['unique keys']),
+            'indexes'                      => self::kv_to_name_col($schema['indexes'] ?? []),
+            'uniqueConstraints'            => self::kv_to_name_col($schema['unique keys'] ?? []),
             'options'                      => ['comment' => $schema['description'] ?? ''],
         ]);
 
+        echo "{$class_name}\n";
+
         foreach ($schema['fields'] as $name => $opts) {
+            // TODO
             // Convert old to new types
             $type = // $name === 'date'
                   // // Old date fields were stored as int, store as datetime/timestamp
@@ -88,7 +93,7 @@ class SchemaDefDriver extends StaticPHPDriver
                   self::types[($opts['size'] ?? '') . $opts['type']];
 
             $unique = null;
-            foreach ($schema['unique keys'] as $key => $uniq_arr) {
+            foreach ($schema['unique keys'] ?? [] as $key => $uniq_arr) {
                 if (in_array($name, $uniq_arr)) {
                     $unique = $key;
                     break;
@@ -115,10 +120,11 @@ class SchemaDefDriver extends StaticPHPDriver
                 // integer, optional
                 'scale'   => $opts['scale'] ?? null,
                 'options' => [
-                    'comment'  => $opts['description'],
-                    'default'  => $opts['default'] ?? null,
-                    'unsigned' => $opts['unsigned'] ?? null,
-                    // 'fixed'     => bool, unused
+                    'comment'  => $opts['description'] ?? null,
+                    'default'  => $opts['default']     ?? null,
+                    'unsigned' => $opts['unsigned']    ?? null,
+                    // bool, optional
+                    'fixed' => $opts['type'] === 'char',
                     // 'collation' => string, unused
                     // 'check', unused
                 ],
@@ -129,6 +135,9 @@ class SchemaDefDriver extends StaticPHPDriver
             $field['options'] = array_filter($field['options'], F\not('is_null'));
 
             $metadata->mapField($field);
+            if ($opts['type'] === 'serial') {
+                $metadata->setIdGeneratorType($metadata::GENERATOR_TYPE_AUTO);
+            }
         }
         // TODO foreign keys
     }
@@ -138,11 +147,11 @@ class SchemaDefDriver extends StaticPHPDriver
      * we care about classes that have the method `schemaDef`,
      * instead of `loadMetadata`.
      *
-     * @param string $className
+     * @param string $class_name
      */
-    public function isTransient($className)
+    public function isTransient($class_name)
     {
-        return !method_exists($className, 'schemaDef');
+        return !method_exists($class_name, 'schemaDef');
     }
 
     /**
