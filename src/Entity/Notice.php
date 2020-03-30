@@ -85,9 +85,10 @@ class Notice
             ],
         ];
 
-        if (common_config('search', 'type') == 'fulltext') {
-            $def['fulltext indexes'] = ['content' => ['content']];
-        }
+        // TODO
+        // if (common_config('search', 'type') == 'fulltext') {
+        //     $def['fulltext indexes'] = ['content' => ['content']];
+        // }
 
         return $def;
     }

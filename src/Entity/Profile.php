@@ -64,11 +64,10 @@ class Profile
             ],
         ];
 
-        // Add a fulltext index
-
-        if (common_config('search', 'type') == 'fulltext') {
-            $def['fulltext indexes'] = ['nickname' => ['nickname', 'fullname', 'location', 'bio', 'homepage']];
-        }
+        // TODO
+        // if (common_config('search', 'type') == 'fulltext') {
+        //     $def['fulltext indexes'] = ['nickname' => ['nickname', 'fullname', 'location', 'bio', 'homepage']];
+        // }
 
         return $def;
     }
