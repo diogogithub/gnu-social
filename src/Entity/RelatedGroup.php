@@ -35,9 +35,9 @@ namespace App\Entity;
  */
 class RelatedGroup
 {
-    // AUTOCODE BEGIN
+    // {{{ Autocode
 
-    // AUTOCODE END
+    // }}} Autocode
 
     public static function schemaDef(): array
     {

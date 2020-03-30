@@ -33,9 +33,9 @@ namespace App\Entity;
  */
 class UserImPrefs
 {
-    // AUTOCODE BEGIN
+    // {{{ Autocode
 
-    // AUTOCODE END
+    // }}} Autocode
 
     public static function schemaDef(): array
     {
