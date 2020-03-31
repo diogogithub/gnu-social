@@ -250,14 +250,11 @@ class SalmonAction extends Action
             //
             // Example: We have stored http://example.com/user/1 but this URI says https://example.com/user/1
             common_debug('No local Profile object found for a magicsigned activity author URI: '.$e->object_uri);
-            $disco = new Discovery();
-            $xrd = $disco->lookup($e->object_uri);
+            $all_ids = LRDDPlugin::grab_profile_aliases($e->object_uri);
+
             // Step 1: We got a bunch of discovery data for https://example.com/user/1 which includes
             //         aliases https://example.com/user and hopefully our original http://example.com/user/1 too
-            $all_ids = array_merge(array($xrd->subject), $xrd->aliases);
-
-            if (!in_array($e->object_uri, $all_ids)) {
-                common_debug('The activity author URI we got was not listed itself when doing discovery on it.');
+            if (is_null($all_ids)) {
                 throw $e;
             }
 
