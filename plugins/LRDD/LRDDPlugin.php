@@ -65,4 +65,27 @@ class LRDDPlugin extends Plugin
 
         return true;
     }
+
+    /**
+     * Fetch all the aliases of some remote profile
+     *
+     * @param string $uri profile's URI
+     * @return array|null aliases
+     * @throws Exception (If the Discovery's HTTP requests fail)
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function grab_profile_aliases(string $uri): ?array
+    {
+        $disco = new Discovery();
+        $xrd = $disco->lookup($uri);
+
+        $all_ids = array_merge([$xrd->subject], $xrd->aliases);
+
+        if (!in_array($uri, $all_ids)) {
+            $this->log(LOG_INFO, 'The original URI was not listed itself when doing discovery on it!');
+            return null;
+        }
+
+        return $all_ids;
+    }
 }
