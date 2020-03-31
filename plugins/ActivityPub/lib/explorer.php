@@ -117,29 +117,6 @@ class Activitypub_explorer
     }
 
     /**
-     * Fetch all the aliases for some actor
-     *
-     * @param string $url actor's url
-     * @return array aliases
-     * @throws Exception (If the Discovery's HTTP requests fail)
-     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
-     */
-    private function grab_aliases(string $url): array
-    {
-        $disco = new Discovery();
-        $xrd = $disco->lookup($url);
-
-        $all_ids = array_merge([$xrd->subject], $xrd->aliases);
-
-        if (!in_array($url, $all_ids)) {
-            common_debug('grab_aliases: The URI we got was not listed itself when doing discovery on it');
-            return [];
-        }
-
-        return $all_ids;
-    }
-
-    /**
      * Get a local user profile from its URL and joins it on
      * $this->discovered_actor_profiles
      *
@@ -154,13 +131,13 @@ class Activitypub_explorer
     {
         if ($online) {
             common_debug('ActivityPub Explorer: Searching locally for ' . $uri . ' with online resources.');
-            $all_ids = $this->grab_aliases($uri);
+            $all_ids = LRDDPlugin::grab_profile_aliases($uri);
         } else {
             common_debug('ActivityPub Explorer: Searching locally for ' . $uri . ' offline.');
             $all_ids = [$uri];
         }
 
-        if (empty($all_ids)) {
+        if (is_null($all_ids)) {
             common_debug('AcvitityPub Explorer: Unable to find a local profile for ' . $uri);
             return false;
         }
