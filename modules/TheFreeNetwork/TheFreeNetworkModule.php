@@ -42,17 +42,72 @@ class TheFreeNetworkModule extends Module
     const MODULE_VERSION = '0.1.0alpha0';
 
     private $free_network = []; // name of the profile classes of the active federation protocols
+    private $lrdd = false;      // whether LRDD plugin is active or not
 
     /**
      * Called when all plugins have been initialized
-     * We'll populate the $free_network array here
+     * We'll populate our variables here
      *
-     * @return boolean hook value
+     * @return bool hook value
      */
-    public function onInitializePlugin()
+    public function onInitializePlugin(): bool
     {
+        // $free_network array
         Event::handle('StartTFNCensus', [&$this->free_network]);
+
+        // $lrdd flag
+        $this->lrdd = PluginList::isPluginActive("LRDD");
+        $this->log(LOG_INFO, 'LRDD IS ' . ($this->lrdd ? 'ON' : 'OFF'));
+
         return true;
+    }
+
+    /**
+     * A new remote profile is being added, check if we
+     * already have someone with the same URI.
+     *
+     * @param string $uri
+     * @param string $class profile class that triggered this event
+     * @param int|null &$profile_id Profile:id associated with the remote entity found
+     * @return bool hook flag
+     */
+    public function onStartTFNLookup(string $uri, string $class, int &$profile_id = null): bool
+    {
+        $profile_id = $this->lookup($uri, $class);
+
+        if ($profile_id == null && $this->lrdd) {
+            // Force lookup with online resources
+            // TODO: Add settings to control whether we do this or not
+            $profile_id = $this->lookup($uri, $class, true);
+        }
+
+        return ($profile_id == null);
+    }
+
+    /**
+     * A new remote profile was sucessfully added, delete
+     * other remotes associated with the same Profile entity.
+     *
+     * @param string $class profile class that triggered this event
+     * @param int $profile_id Profile:id associated with the new remote profile
+     * @return bool hook flag
+     */
+    public function onEndTFNLookup(string $class, int $profile_id): bool
+    {
+        foreach ($this->free_network as $cls) {
+            if ($cls != $class) {
+                $profile = $cls::getKV('profile_id', $profile_id);
+                if ($profile instanceof $cls) {
+                    $this->log(LOG_INFO, 'Deleting remote ' . $cls . ' associated with Profile:' . $profile_id);
+                    $i = new $cls();
+                    $i->profile_id = $profile_id;
+                    $i->delete();
+                    break;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -72,5 +127,48 @@ class TheFreeNetworkModule extends Module
             'rawdescription' => '"Automagically" migrate internal remote profiles between different federation protocols'
         ];
         return true;
+    }
+
+    /**
+     * Search remote profile tables to find someone by URI.
+     * When set to search online, it will grab the remote
+     * entity's aliases and search with each one.
+     * The table associated with the class that triggered
+     * this lookup process will be discarded in the search.
+     *
+     * @param string $uri
+     * @param string $class
+     * @param bool $online
+     * @return int|null Profile:id associated with the remote entity found
+     */
+    private function lookup(string $uri, string $class, bool $online = false): ?int
+    {
+        if ($online) {
+            $this->log(LOG_INFO, 'Searching with online resources for a remote profile with URI: ' . $uri);
+            $all_ids = LRDDPlugin::grab_profile_aliases($uri);
+        } else {
+            $this->log(LOG_INFO, 'Searching for a remote profile with URI: ' . $uri);
+            $all_ids = [$uri];
+        }
+
+        if ($all_ids == null) {
+            $this->log(LOG_INFO, 'Unable to find a remote profile with URI: ' . $uri);
+            return null;
+        }
+
+        foreach ($this->free_network as $cls) {
+            if ($cls != $class) {
+                foreach ($all_ids as $alias) {
+                    $profile = $cls::getKV('uri', $alias);
+                    if ($profile instanceof $cls) {
+                        $this->log(LOG_INFO, 'Found a remote ' . $cls . ' associated with Profile:' . $profile->getID());
+                        return $profile->getID();
+                    }
+                }
+            }
+        }
+
+        $this->log(LOG_INFO, 'Unable to find a remote profile with URI: ' . $uri);
+        return null;
     }
 }
