@@ -147,33 +147,42 @@ class Activitypub_profile extends Managed_DataObject
      */
     public function do_insert()
     {
-        $profile = new Profile();
+        // Does any other protocol have this remote entity we're about to add ?
+        if (!Event::handle('StartTFNLookup', [$this->uri, get_class($this), &$profile_id])) {
+            // Yes! Avoid creating a new profile
+            $this->profile_id = $profile_id;
+            $this->created = $this->modified = common_sql_now();
 
-        $profile->created = $this->created = $this->modified = common_sql_now();
+            if ($this->insert() === false) {
+                $this->query('ROLLBACK');
+                throw new ServerException('Cannot save ActivityPub profile.');
+            }
 
-        $fields = [
-            'profileurl' => 'profileurl',
-            'nickname' => 'nickname',
-            'fullname' => 'fullname',
-            'bio' => 'bio'
-        ];
+            // Update existing profile with received data
+            $profile = Profile::getKV('id', $profile_id);
+            self::update_local_profile($profile, $this);
 
-        foreach ($fields as $af => $pf) {
-            $profile->$pf = $this->$af;
-        }
+            // Ask TFN to handle profile duplication
+            Event::handle('EndTFNLookup', [get_class($this), $profile_id]);
+        } else {
+            // No, create both a new profile and remote profile
+            $profile = new Profile();
+            $profile->created = $this->created = $this->modified = common_sql_now();
+            self::update_local_profile($profile, $this);
 
-        $this->profile_id = $profile->insert();
-        if ($this->profile_id === false) {
-            $profile->query('ROLLBACK');
-            throw new ServerException('Profile insertion failed.');
-        }
+            $this->profile_id = $profile->insert();
+            if ($this->profile_id === false) {
+                $profile->query('ROLLBACK');
+                throw new ServerException('Profile insertion failed.');
+            }
 
-        $ok = $this->insert();
+            $ok = $this->insert();
 
-        if ($ok === false) {
-            $profile->query('ROLLBACK');
-            $this->query('ROLLBACK');
-            throw new ServerException('Cannot save ActivityPub profile.');
+            if ($ok === false) {
+                $profile->query('ROLLBACK');
+                $this->query('ROLLBACK');
+                throw new ServerException('Cannot save ActivityPub profile.');
+            }
         }
     }
 
@@ -440,6 +449,37 @@ class Activitypub_profile extends Managed_DataObject
     }
 
     /**
+     * Update local profile with info from some AP profile
+     *
+     * @param Profile $profile
+     * @param Activitypub_profile $aprofile
+     * @return void
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     */
+    public static function update_local_profile(Profile $profile, Activitypub_profile $aprofile): void
+    {
+        $fields = [
+            'profileurl' => 'profileurl',
+            'nickname' => 'nickname',
+            'fullname' => 'fullname',
+            'bio' => 'bio'
+        ];
+
+        $orig = clone($profile);
+
+        foreach ($fields as $af => $pf) {
+            $profile->$pf = $aprofile->$af;
+        }
+
+        if ($profile->id) {
+            common_debug('Updating local Profile:' . $profile->id . ' from remote ActivityPub profile');
+            $profile->modified = common_sql_now();
+            $profile->update($orig);
+        }
+    }
+
+    /**
      * Update remote user profile in local instance
      * Depends on do_update
      *
@@ -459,24 +499,12 @@ class Activitypub_profile extends Managed_DataObject
         $aprofile->inboxuri = $res['inbox'];
         $aprofile->sharedInboxuri = $res['endpoints']['sharedInbox'] ?? $res['inbox'];
         $aprofile->profileurl = $res['url'] ?? $aprofile->uri;
+        $aprofile->modified = common_sql_now();
 
         $profile = $aprofile->local_profile();
 
-        $profile->modified = $aprofile->modified = common_sql_now();
-
-        $fields = [
-            'profileurl' => 'profileurl',
-            'nickname' => 'nickname',
-            'fullname' => 'fullname',
-            'bio' => 'bio'
-        ];
-
-        foreach ($fields as $af => $pf) {
-            $profile->$pf = $aprofile->$af;
-        }
-
         // Profile
-        $profile->update();
+        self::update_local_profile($profile, $aprofile);
         $aprofile->update();
 
         // Public Key
