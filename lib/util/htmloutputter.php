@@ -1,36 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Low-level generator for HTML
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * @package   GNUsocial
  * @category  Output
- * @package   StatusNet
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
- * @copyright 2008 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2008-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
-if (!defined('GNUSOCIAL')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 // Can include XHTML options but these are too fragile in practice.
 define('PAGE_TYPE_PREFS', 'text/html');
@@ -43,21 +38,17 @@ define('PAGE_TYPE_PREFS', 'text/html');
  * been created kind of haphazardly, not with an eye to making a general
  * HTML-creation class.
  *
- * @category Output
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Sarven Capadisli <csarven@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
- *
  * @see      Action
  * @see      XMLOutputter
+ *
+ * @copyright 2008-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class HTMLOutputter extends XMLOutputter
+class htmloutputter extends XMLOutputter
 {
     protected $DTD = ['doctype' => 'html',
-        'spec' => '-//W3C//DTD XHTML 1.0 Strict//EN',
-        'uri' => 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd'];
+        'spec'                  => '-//W3C//DTD XHTML 1.0 Strict//EN',
+        'uri'                   => 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd', ];
 
     /**
      * Constructor
@@ -65,9 +56,10 @@ class HTMLOutputter extends XMLOutputter
      * Just wraps the XMLOutputter constructor.
      *
      * @param string $output URI to output to, default = stdout
-     * @param boolean $indent Whether to indent output, default true
+     * @param bool|null   $indent Whether to indent output, if null it defaults to true
+     *
+     * @throws ServerException
      */
-
     public function __construct($output = 'php://output', $indent = null)
     {
         parent::__construct($output, $indent);
@@ -80,15 +72,16 @@ class HTMLOutputter extends XMLOutputter
      *
      * Attempts to do content negotiation for language, also.
      *
-     * @param string $type MIME type to use; default is to do negotation.
+     * @param null|string $type MIME type to use; default is to do negotation.
+     *
+     * @throws ClientException
+     * @throws ServerException
      *
      * @return void
-     * @throws ClientException
-     * @todo extract content negotiation code to an HTTP module or class.
      *
+     * @todo extract content negotiation code to an HTTP module or class.
      */
-
-    public function startHTML($type = null)
+    public function startHTML(?string $type = null): void
     {
         if (!$type) {
             $httpaccept = isset($_SERVER['HTTP_ACCEPT']) ?
@@ -118,7 +111,7 @@ class HTMLOutputter extends XMLOutputter
         }
 
         $this->extraHeaders();
-        if (preg_match("/.*\/.*xml/", $type)) {
+        if (preg_match('/.*\\/.*xml/', $type)) {
             // Required for XML documents
             $this->startXML();
         }
@@ -128,9 +121,9 @@ class HTMLOutputter extends XMLOutputter
         $language = $this->getLanguage();
 
         $attrs = [
-            'xmlns' => 'http://www.w3.org/1999/xhtml',
+            'xmlns'    => 'http://www.w3.org/1999/xhtml',
             'xml:lang' => $language,
-            'lang' => $language
+            'lang'     => $language,
         ];
 
         if (Event::handle('StartHtmlElement', [$this, &$attrs])) {
@@ -149,7 +142,10 @@ class HTMLOutputter extends XMLOutputter
         // Needs to be overloaded
     }
 
-    protected function writeDTD()
+    /**
+     * @return void
+     */
+    protected function writeDTD(): void
     {
         $this->xw->writeDTD(
             $this->DTD['doctype'],
@@ -158,13 +154,21 @@ class HTMLOutputter extends XMLOutputter
         );
     }
 
+    /**
+     * @return mixed (array|bool|string)
+     */
     public function getLanguage()
     {
         // FIXME: correct language for interface
         return common_language();
     }
 
-    public function setDTD($doctype, $spec, $uri)
+    /**
+     * @param $doctype
+     * @param $spec
+     * @param $uri
+     */
+    public function setDTD($doctype, $spec, $uri): void
     {
         $this->DTD = ['doctype' => $doctype, 'spec' => $spec, 'uri' => $uri];
     }
@@ -174,7 +178,7 @@ class HTMLOutputter extends XMLOutputter
      *
      * @return void
      */
-    public function endHTML()
+    public function endHTML(): void
     {
         $this->elementEnd('html');
         $this->endXML();
@@ -190,27 +194,34 @@ class HTMLOutputter extends XMLOutputter
      *
      * If $attrs['type'] does not exist it will be set to 'text'.
      *
-     * @param string $id element ID, must be unique on page
-     * @param string $label text of label for the element
-     * @param string $value value of the element, default null
-     * @param string $instructions instructions for valid input
-     * @param string $name name of the element; if null, the id will be used
-     * @param bool   $required HTML5 required attribute (exclude when false)
-     * @param array  $attrs Initial attributes manually set in an array (overwritten by previous options)
+     * @param string      $id           element ID, must be unique on page
+     * @param null|string      $label        text of label for the element
+     * @param null|string $value        value of the element, default null
+     * @param null|string $instructions instructions for valid input
+     * @param null|string $name         name of the element; if null, the id will be used
+     * @param bool        $required     HTML5 required attribute (exclude when false)
+     * @param array       $attrs        Initial attributes manually set in an array (overwritten by previous options)
      *
      * @return void
+     *
      * @todo add a $maxLength parameter
      * @todo add a $size parameter
      *
      */
-
-    public function input($id, $label, $value = null, $instructions = null, $name = null, $required = false, array $attrs = [])
-    {
+    public function input(
+        string $id,
+        ?string $label,
+        ?string $value = null,
+        ?string $instructions = null,
+        ?string $name = null,
+        bool $required = false,
+        array $attrs = []
+    ): void {
         $this->element('label', ['for' => $id], $label);
         if (!array_key_exists('type', $attrs)) {
             $attrs['type'] = 'text';
         }
-        $attrs['id'] = $id;
+        $attrs['id']   = $id;
         $attrs['name'] = is_null($name) ? $id : $name;
         if (array_key_exists('placeholder', $attrs) && (is_null($attrs['placeholder']) || $attrs['placeholder'] === '')) {
             // If placeholder is type-aware equal to '' or null, unset it as we apparently don't want a placeholder value
@@ -238,31 +249,29 @@ class HTMLOutputter extends XMLOutputter
      * Note that the value is default 'true' (the string), which can
      * be used by Action::boolean()
      *
-     * @param string $id element ID, must be unique on page
-     * @param string $label text of label for the element
-     * @param bool   $checked if the box is checked, default false
-     * @param string $instructions instructions for valid input
-     * @param string $value value of the checkbox, default 'true'
-     * @param bool   $disabled show the checkbox disabled, default false
+     * @param string      $id           element ID, must be unique on page
+     * @param null|string      $label        text of label for the element
+     * @param bool        $checked      if the box is checked, default false
+     * @param null|string $instructions instructions for valid input
+     * @param string      $value        value of the checkbox, default 'true'
+     * @param bool        $disabled     show the checkbox disabled, default false
      *
      * @return void
      *
      * @todo add a $name parameter
      */
-
     public function checkbox(
-        $id,
-        $label,
-        $checked = false,
-        $instructions = null,
-        $value = 'true',
-        $disabled = false
-    )
-    {
+        string $id,
+        ?string $label,
+        bool $checked = false,
+        ?string $instructions = null,
+        string $value = 'true',
+        bool $disabled = false
+    ): void {
         $attrs = ['name' => $id,
-            'type' => 'checkbox',
-            'class' => 'checkbox',
-            'id' => $id];
+            'type'       => 'checkbox',
+            'class'      => 'checkbox',
+            'id'         => $id, ];
         if ($value) {
             $attrs['value'] = $value;
         }
@@ -276,8 +285,8 @@ class HTMLOutputter extends XMLOutputter
         $this->text(' ');
         $this->element(
             'label',
-            ['class' => 'checkbox',
-                'for' => $id],
+            ['class'  => 'checkbox',
+                'for' => $id, ],
             $label
         );
         $this->text(' ');
@@ -293,27 +302,25 @@ class HTMLOutputter extends XMLOutputter
      * the key is the option value attribute and the value is the option
      * text. (Careful on the overuse of 'value' here.)
      *
-     * @param string $id element ID, must be unique on page
-     * @param string $label text of label for the element
-     * @param array $content options array, value => text
-     * @param string $instructions instructions for valid input
-     * @param bool $blank_select whether to have a blank entry, default false
-     * @param string $selected selected value, default null
+     * @param string      $id           element ID, must be unique on page
+     * @param null|string      $label        text of label for the element
+     * @param array       $content      options array, value => text
+     * @param null|string $instructions instructions for valid input
+     * @param bool        $blank_select whether to have a blank entry, default false
+     * @param null|string $selected     selected value, default null
      *
      * @return void
      *
      * @todo add a $name parameter
      */
-
     public function dropdown(
-        $id,
-        $label,
-        $content,
-        $instructions = null,
-        $blank_select = false,
-        $selected = null
-    )
-    {
+        string $id,
+        ?string $label,
+        array $content,
+        ?string $instructions = null,
+        bool $blank_select = false,
+        ?string $selected = null
+    ): void {
         $this->element('label', ['for' => $id], $label);
         $this->elementStart('select', ['id' => $id, 'name' => $id]);
         if ($blank_select) {
@@ -323,8 +330,8 @@ class HTMLOutputter extends XMLOutputter
             if ($value == $selected) {
                 $this->element(
                     'option',
-                    ['value' => $value,
-                        'selected' => 'selected'],
+                    ['value'       => $value,
+                        'selected' => 'selected', ],
                     $option
                 );
             } else {
@@ -342,40 +349,38 @@ class HTMLOutputter extends XMLOutputter
      *
      * $id is re-used as name
      *
-     * @param string $id element ID, must be unique on page
-     * @param string $value hidden element value, default null
-     * @param string $name name, if different than ID
+     * @param string      $id    element ID, must be unique on page
+     * @param null|string $value hidden element value, default null
+     * @param null|string $name  name, if different than ID
      *
      * @return void
      */
-
-    public function hidden($id, $value, $name = null)
+    public function hidden(string $id, ?string $value = null, ?string $name = null)
     {
         $this->element('input', ['name' => $name ?: $id,
-            'type' => 'hidden',
-            'id' => $id,
-            'value' => $value]);
+            'type'                      => 'hidden',
+            'id'                        => $id,
+            'value'                     => $value, ]);
     }
 
     /**
      * output an HTML password input and associated elements
      *
-     * @param string $id element ID, must be unique on page
-     * @param string $label text of label for the element
-     * @param string $instructions instructions for valid input
+     * @param string      $id           element ID, must be unique on page
+     * @param null|string      $label        text of label for the element
+     * @param null|string $instructions instructions for valid input
      *
      * @return void
      *
      * @todo add a $name parameter
      */
-
-    public function password($id, $label, $instructions = null)
+    public function password(string $id, ?string $label, ?string $instructions = null): void
     {
         $this->element('label', ['for' => $id], $label);
         $attrs = ['name' => $id,
-            'type' => 'password',
-            'class' => 'password',
-            'id' => $id];
+            'type'       => 'password',
+            'class'      => 'password',
+            'id'         => $id, ];
         $this->element('input', $attrs);
         if ($instructions) {
             $this->element('p', 'form_guide', $instructions);
@@ -385,36 +390,42 @@ class HTMLOutputter extends XMLOutputter
     /**
      * output an HTML submit input and associated elements
      *
-     * @param string $id element ID, must be unique on page
-     * @param string $label text of the button
-     * @param string $cls class of the button, default 'submit'
-     * @param string $name name, if different than ID
-     * @param string $title title text for the submit button
+     * @param string      $id    element ID, must be unique on page
+     * @param null|string      $label text of the button
+     * @param string      $cls   class of the button, default 'submit'
+     * @param null|string $name  name, if different than ID
+     * @param null|string $title title text for the submit button
      *
      * @return void
      *
      * @todo add a $name parameter
      */
-
-    public function submit($id, $label, $cls = 'submit', $name = null, $title = null)
-    {
+    public function submit(
+        string $id,
+        ?string $label,
+        string $cls = 'submit',
+        ?string $name = null,
+        ?string $title = null
+    ): void {
         $this->element('input', ['type' => 'submit',
-            'id' => $id,
-            'name' => $name ?: $id,
-            'class' => $cls,
-            'value' => $label,
-            'title' => $title]);
+            'id'                        => $id,
+            'name'                      => $name ?: $id,
+            'class'                     => $cls,
+            'value'                     => $label,
+            'title'                     => $title, ]);
     }
 
     /**
      * output a script (almost always javascript) tag
      *
-     * @param string $src relative or absolute script path
+     * @param string $src  relative or absolute script path
      * @param string $type 'type' attribute value of the tag
+     *
+     * @throws ServerException
      *
      * @return void
      */
-    public function script($src, $type = 'text/javascript')
+    public function script(string $src, string $type = 'text/javascript'): void
     {
         if (Event::handle('StartScriptElement', [$this, &$src, &$type])) {
             $url = parse_url($src);
@@ -430,8 +441,7 @@ class HTMLOutputter extends XMLOutputter
                         $server = common_config('javascript', 'sslserver');
 
                         if (empty($server)) {
-                            if (is_string(common_config('site', 'sslserver')) &&
-                                mb_strlen(common_config('site', 'sslserver')) > 0) {
+                            if (is_string(common_config('site', 'sslserver')) && mb_strlen(common_config('site', 'sslserver')) > 0) {
                                 $server = common_config('site', 'sslserver');
                             } elseif (common_config('site', 'server')) {
                                 $server = common_config('site', 'server');
@@ -475,8 +485,8 @@ class HTMLOutputter extends XMLOutputter
 
             $this->element(
                 'script',
-                ['type' => $type,
-                    'src' => $src],
+                ['type'   => $type,
+                    'src' => $src, ],
                 ' '
             );
 
@@ -487,13 +497,15 @@ class HTMLOutputter extends XMLOutputter
     /**
      * output a css link
      *
-     * @param string $src relative path within the theme directory, or an absolute path
-     * @param string $theme 'theme' that contains the stylesheet
-     * @param string media         'media' attribute of the tag
+     * @param string      $src   relative path within the theme directory, or an absolute path
+     * @param string      $theme 'theme' that contains the stylesheet
+     * @param null|string $media
+     *
+     * @throws ServerException
      *
      * @return void
      */
-    public function cssLink($src, $theme = null, $media = null)
+    public function cssLink(string $src, ?string $theme = null, ?string $media = null): void
     {
         if (Event::handle('StartCssLinkElement', [$this, &$src, &$theme, &$media])) {
             $url = parse_url($src);
@@ -506,9 +518,9 @@ class HTMLOutputter extends XMLOutputter
                 $src .= '?version=' . GNUSOCIAL_VERSION;
             }
             $this->element('link', ['rel' => 'stylesheet',
-                'type' => 'text/css',
-                'href' => $src,
-                'media' => $media]);
+                'type'                    => 'text/css',
+                'href'                    => $src,
+                'media'                   => $media, ]);
             Event::handle('EndCssLinkElement', [$this, $src, $theme, $media]);
         }
     }
@@ -517,14 +529,13 @@ class HTMLOutputter extends XMLOutputter
      * output a style (almost always css) tag with inline
      * code.
      *
-     * @param string $code code to put in the style tag
-     * @param string $type 'type' attribute value of the tag
-     * @param string $media 'media' attribute value of the tag
+     * @param string      $code  code to put in the style tag
+     * @param string      $type  'type' attribute value of the tag
+     * @param null|string $media 'media' attribute value of the tag
      *
      * @return void
      */
-
-    public function style($code, $type = 'text/css', $media = null)
+    public function style(string $code, string $type = 'text/css', ?string $media = null)
     {
         if (Event::handle('StartStyleElement', [$this, &$code, &$type, &$media])) {
             $this->elementStart('style', ['type' => $type, 'media' => $media]);
@@ -537,34 +548,32 @@ class HTMLOutputter extends XMLOutputter
     /**
      * output an HTML textarea and associated elements
      *
-     * @param string $id element ID, must be unique on page
-     * @param string $label text of label for the element
-     * @param string $content content of the textarea, default none
-     * @param string $instructions instructions for valid input
-     * @param string $name name of textarea; if null, $id will be used
-     * @param int $cols number of columns
-     * @param int $rows number of rows
-     * @param bool $required HTML5 required attribute (exclude when false)
+     * @param string      $id           element ID, must be unique on page
+     * @param null|string      $label        text of label for the element
+     * @param null|string $content      content of the textarea, default none
+     * @param null|string $instructions instructions for valid input
+     * @param null|string $name         name of textarea; if null, $id will be used
+     * @param null|int    $cols         number of columns
+     * @param null|int    $rows         number of rows
+     * @param bool        $required     HTML5 required attribute (exclude when false)
      *
      * @return void
      */
-
     public function textarea(
-        $id,
-        $label,
-        $content = null,
-        $instructions = null,
-        $name = null,
-        $cols = null,
-        $rows = null,
-        $required = false
-    )
-    {
+        string $id,
+        ?string $label,
+        ?string $content = null,
+        ?string $instructions = null,
+        ?string $name = null,
+        ?int $cols = null,
+        ?int $rows = null,
+        bool $required = false
+    ): void {
         $this->element('label', ['for' => $id], $label);
         $attrs = [
             'rows' => 3,
             'cols' => 40,
-            'id' => $id
+            'id'   => $id,
         ];
         $attrs['name'] = is_null($name) ? $id : $name;
 
@@ -597,7 +606,7 @@ class HTMLOutputter extends XMLOutputter
      * @return void
      *
      */
-    public function autofocus($id)
+    public function autofocus(string $id): void
     {
         $this->inlineScript(
             ' $(document).ready(function() {' .
@@ -616,8 +625,7 @@ class HTMLOutputter extends XMLOutputter
      *
      * @return void
      */
-
-    public function inlineScript($code, $type = 'text/javascript')
+    public function inlineScript(string $code, string $type = 'text/javascript'): void
     {
         if (Event::handle('StartInlineScriptElement', [$this, &$code, &$type])) {
             $this->elementStart('script', ['type' => $type]);

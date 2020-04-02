@@ -1,36 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Low-level generator for XML
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
+ * @package   GNUsocial
  * @category  Output
- * @package   StatusNet
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
- * @copyright 2008 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2008-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Low-level generator for XML
@@ -39,33 +34,30 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  * advantage is the element() method, which simplifies outputting
  * an element.
  *
- * @category Output
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Sarven Capadisli <csarven@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
  * @see      Action
  * @see      HTMLOutputter
+ *
+ * @copyright 2008-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class XMLOutputter
+class xmloutputter
 {
     /**
      * Wrapped XMLWriter object, which does most of the heavy lifting
      * for output.
      */
-
-    public $xw = null;
+    public $xw;
 
     /**
      * Constructor
      *
      * Initializes the wrapped XMLWriter.
      *
-     * @param string $output URL for outputting, if null it defaults to stdout ('php://output')
-     * @param boolean $indent Whether to indent output, default true
+     * @param null|string $output URL for outputting, if null it defaults to stdout ('php://output')
+     * @param null|bool   $indent Whether to indent output, if null it defaults to true
+     *
+     * @throws ServerException
      */
-
     public function __construct($output = null, $indent = null)
     {
         if (is_null($output)) {
@@ -82,17 +74,16 @@ class XMLOutputter
     /**
      * Start a new XML document
      *
-     * @param string $doc document element
+     * @param string $doc    document element
      * @param string $public public identifier
      * @param string $system system identifier
      *
      * @return void
      */
-
-    public function startXML($doc = null, $public = null, $system = null)
+    public function startXML(?string $doc = null, ?string $public = null, ?string $system = null): void
     {
         $this->xw->startDocument('1.0', 'UTF-8');
-        if ($doc) {
+        if (!is_null($doc)) {
             $this->xw->writeDTD($doc, $public, $system);
         }
     }
@@ -105,8 +96,7 @@ class XMLOutputter
      *
      * @return void
      */
-
-    public function endXML()
+    public function endXML(): void
     {
         $this->xw->endDocument();
         $this->xw->flush();
@@ -127,18 +117,17 @@ class XMLOutputter
      * If $attrs is a string instead of an array, it will be treated
      * as the class attribute of the element.
      *
-     * @param string $tag Element type or tagname
-     * @param array|string|null $attrs Array of element attributes, as key-value pairs
-     * @param string|null $content string content of the element
+     * @param string            $tag     Element type or tagname
+     * @param null|array|string $attrs   Array of element attributes, as key-value pairs
+     * @param null|string       $content string content of the element
      *
      * @return void
      */
-
-    public function element(string $tag, $attrs = null, $content = null)
+    public function element(string $tag, $attrs = null, ?string $content = null): void
     {
         $this->elementStart($tag, $attrs);
         if (!is_null($content)) {
-            $this->xw->text(strval($content));
+            $this->xw->text($content);
         }
         $this->elementEnd($tag);
     }
@@ -152,13 +141,12 @@ class XMLOutputter
      * If $attrs is a string instead of an array, it will be treated
      * as the class attribute of the element.
      *
-     * @param string $tag Element type or tagname
-     * @param array|string|null $attrs Attributes
+     * @param string            $tag   Element type or tagname
+     * @param null|array|string $attrs Attributes
      *
      * @return void
      */
-
-    public function elementStart(string $tag, $attrs = null)
+    public function elementStart(string $tag, $attrs = null): void
     {
         $this->xw->startElement($tag);
         if (is_array($attrs)) {
@@ -185,12 +173,11 @@ class XMLOutputter
      *
      * @return void
      */
-
-    public function elementEnd(string $tag)
+    public function elementEnd(string $tag): void
     {
         static $empty_tag = ['base', 'meta', 'link', 'hr',
-                             'br', 'param', 'img', 'area',
-                             'input', 'col', 'source'];
+            'br', 'param', 'img', 'area',
+            'input', 'col', 'source', ];
         // XXX: check namespace
         if (in_array($tag, $empty_tag)) {
             $this->xw->endElement();
@@ -199,7 +186,15 @@ class XMLOutputter
         }
     }
 
-    public function elementNS(array $ns, $tag, $attrs = null, $content = null)
+    /**
+     * @param array             $ns
+     * @param string            $tag
+     * @param null|array|string $attrs
+     * @param null|string       $content
+     *
+     * @return void
+     */
+    public function elementNS(array $ns, string $tag, $attrs = null, ?string $content = null): void
     {
         $this->elementStartNS($ns, $tag, $attrs);
         if (!is_null($content)) {
@@ -208,7 +203,14 @@ class XMLOutputter
         $this->elementEnd($tag);
     }
 
-    public function elementStartNS(array $ns, $tag, $attrs = null)
+    /**
+     * @param array             $ns
+     * @param string            $tag
+     * @param null|array|string $attrs
+     *
+     * @return void
+     */
+    public function elementStartNS(array $ns, string $tag, $attrs = null): void
     {
         reset($ns); // array pointer to 0
         $uri = key($ns);
@@ -232,8 +234,7 @@ class XMLOutputter
      *
      * @return void
      */
-
-    public function text($txt)
+    public function text(string $txt): void
     {
         $this->xw->text($txt);
     }
@@ -248,8 +249,7 @@ class XMLOutputter
      *
      * @return void
      */
-
-    public function raw($xml)
+    public function raw(string $xml): void
     {
         $this->xw->writeRaw($xml);
     }
@@ -261,8 +261,7 @@ class XMLOutputter
      *
      * @return void
      */
-
-    public function comment($txt)
+    public function comment(string $txt): void
     {
         $this->xw->writeComment($txt);
     }
@@ -272,8 +271,7 @@ class XMLOutputter
      *
      * @return void
      */
-
-    public function flush()
+    public function flush(): void
     {
         $this->xw->flush();
     }

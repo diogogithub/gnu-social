@@ -19,12 +19,12 @@
  *
  * @category  Action
  * @package   GNUsocial
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
  * @copyright 2008 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -37,12 +37,13 @@ defined('GNUSOCIAL') || die();
  * model classes to read and write to the database; and doing ouput.
  *
  * @category  Output
+ *
  * @copyright 2008 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
  * @see       HTMLOutputter
  */
-class Action extends HTMLOutputter // lawsuit
+class action extends HTMLOutputter // lawsuit
 {
     // This should be protected/private in the future
     public $args = [];
@@ -57,12 +58,12 @@ class Action extends HTMLOutputter // lawsuit
     protected $canPost = false;     // can this action handle POST method?
 
     // The currently scoped profile (normally Profile::current; from $this->auth_user for API)
-    protected $scoped = null;
+    protected $scoped;
 
     // Related to front-end user representation
-    protected $format = null;
-    protected $error = null;
-    protected $msg = null;
+    protected $format;
+    protected $error;
+    protected $msg;
 
     /**
      * Constructor
@@ -70,7 +71,9 @@ class Action extends HTMLOutputter // lawsuit
      * Just wraps the HTMLOutputter constructor.
      *
      * @param string $output URI to output to, default = stdout
-     * @param boolean $indent Whether to indent output, default true
+     * @param ?bool  $indent Whether to indent output, if null it defaults to true
+     *
+     * @throws ServerException
      *
      * @see XMLOutputter::__construct
      * @see HTMLOutputter::__construct
@@ -80,21 +83,37 @@ class Action extends HTMLOutputter // lawsuit
         parent::__construct($output, $indent);
     }
 
+    /**
+     * @param array $args
+     * @param string $output
+     * @param null|bool $indent
+     *
+     * @return mixed
+     */
     public static function run(array $args = [], $output = 'php://output', $indent = null)
     {
         $class = get_called_class();
         $action = new $class($output, $indent);
-        set_exception_handler(array($action, 'handleError'));
+        set_exception_handler([$action, 'handleError']);
         $action->execute($args);
         return $action;
     }
 
-    public function getInfo()
+    /**
+     * @return null|string
+     */
+    public function getInfo(): ?string
     {
         return $this->msg;
     }
 
-    public function handleError($e)
+    /**
+     * @param mixed $e
+     *
+     * @throws ClientException
+     * @throws ServerException
+     */
+    public function handleError($e): void
     {
         if ($e instanceof ClientException) {
             $this->clientError($e->getMessage(), $e->getCode());
@@ -110,13 +129,15 @@ class Action extends HTMLOutputter // lawsuit
      * Client error
      *
      * @param string $msg error message to display
-     * @param integer $code http error code, 400 by default
-     * @param string $format error format (json, xml, text) for ApiAction
+     * @param int $code http error code, 400 by default
+     * @param null|string $format error format (json, xml, text) for ApiAction
      *
      * @return void
-     * @throws ClientException always
+     * @throws ServerException
+     *
+     * @throws ClientException
      */
-    public function clientError($msg, $code = 400, $format = null)
+    public function clientError(string $msg, int $code = 400, ?string $format = null): void
     {
         // $format is currently only relevant for an ApiAction anyway
         if ($format === null) {
@@ -146,8 +167,8 @@ class Action extends HTMLOutputter // lawsuit
                     header("HTTP/1.1 {$code} {$status_string}");
                 }
                 $this->initDocument('json');
-                $error_array = array('error' => $msg, 'request' => $_SERVER['REQUEST_URI']);
-                print(json_encode($error_array));
+                $error_array = ['error' => $msg, 'request' => $_SERVER['REQUEST_URI']];
+                echo json_encode($error_array);
                 $this->endDocument('json');
                 break;
             case 'text':
@@ -163,7 +184,13 @@ class Action extends HTMLOutputter // lawsuit
         exit((int)$code);
     }
 
-    public function execute(array $args = [])
+    /**
+     * @param array $args
+     *
+     * @throws ClientException
+     * @throws ServerException
+     */
+    public function execute(array $args = []): void
     {
         // checkMirror stuff
         if (common_config('db', 'mirror') && $this->isReadOnly($args)) {
@@ -180,7 +207,7 @@ class Action extends HTMLOutputter // lawsuit
             common_config_set('db', 'database', $mirror);
         }
 
-        if (Event::handle('StartActionExecute', array($this, &$args))) {
+        if (Event::handle('StartActionExecute', [$this, &$args])) {
             $prepared = $this->prepare($args);
             if ($prepared) {
                 $this->handle();
@@ -189,7 +216,7 @@ class Action extends HTMLOutputter // lawsuit
             }
 
             $this->flush();
-            Event::handle('EndActionExecute', array($this));
+            Event::handle('EndActionExecute', [$this]);
         }
     }
 
@@ -200,7 +227,7 @@ class Action extends HTMLOutputter // lawsuit
      *
      * @param array $args other arguments
      *
-     * @return boolean is read only action?
+     * @return bool is read only action?
      */
     public function isReadOnly($args)
     {
@@ -212,7 +239,9 @@ class Action extends HTMLOutputter // lawsuit
      *
      * @param array $args misc. arguments
      *
-     * @return boolean true
+     * @return bool true
+     * @throws ServerException
+     *
      * @throws ClientException
      */
     protected function prepare(array $args = [])
@@ -254,15 +283,12 @@ class Action extends HTMLOutputter // lawsuit
     /**
      * Check if the current request is a POST
      *
-     * @return boolean true if POST; otherwise false.
+     * @return bool true if POST; otherwise false.
      */
-
-    public function isPost()
+    public function isPost(): bool
     {
-        return ($_SERVER['REQUEST_METHOD'] == 'POST');
+        return $_SERVER['REQUEST_METHOD'] == 'POST';
     }
-
-    // Must be run _after_ prepare
 
     /**
      * Returns trimmed query argument or default value if not found
@@ -270,9 +296,9 @@ class Action extends HTMLOutputter // lawsuit
      * @param string $key requested argument
      * @param string $def default value to return if $key is not provided
      *
-     * @return boolean is read only action?
+     * @return mixed is read only action?
      */
-    public function trimmed($key, $def = null)
+    public function trimmed(string $key, string $def = null)
     {
         $arg = $this->arg($key, $def);
         return is_string($arg) ? trim($arg) : $arg;
@@ -284,49 +310,51 @@ class Action extends HTMLOutputter // lawsuit
      * @param string $key requested argument
      * @param string $def default value to return if $key is not provided
      *
-     * @return boolean is read only action?
+     * @return bool|null is read only action?
      */
     public function arg($key, $def = null)
     {
         if (array_key_exists($key, $this->args)) {
             return $this->args[$key];
-        } else {
-            return $def;
         }
+        return $def;
     }
 
     /**
      * Boolean understands english (yes, no, true, false)
      *
      * @param string $key query key we're interested in
-     * @param string $def default value
+     * @param bool $def default value
      *
-     * @return boolean interprets yes/no strings as boolean
+     * @return bool interprets yes/no strings as boolean
      */
-    public function boolean($key, $def = false)
+    public function boolean($key, $def = false): bool
     {
         $arg = strtolower($this->trimmed($key));
 
         if (is_null($arg)) {
             return $def;
-        } elseif (in_array($arg, array('true', 'yes', '1', 'on'))) {
-            return true;
-        } elseif (in_array($arg, array('false', 'no', '0'))) {
-            return false;
-        } else {
-            return $def;
         }
+        if (in_array($arg, ['true', 'yes', '1', 'on'])) {
+            return true;
+        }
+        if (in_array($arg, ['false', 'no', '0'])) {
+            return false;
+        }
+        return $def;
     }
 
     /**
      * If not logged in, take appropriate action (redir or exception)
      *
-     * @param boolean $redir Redirect to login if not logged in
+     * @param bool $redir Redirect to login if not logged in
      *
-     * @return boolean true if logged in (never returns if not)
+     * @return bool true if logged in (never returns if not)
+     * @throws ServerException
+     *
      * @throws ClientException
      */
-    public function checkLogin($redir = true)
+    public function checkLogin(bool $redir = true): bool
     {
         if (common_logged_in()) {
             return true;
@@ -341,7 +369,10 @@ class Action extends HTMLOutputter // lawsuit
         $this->clientError(_('Not logged in.'), 403);
     }
 
-    public function updateScopedProfile()
+    /**
+     * @return null|Profile
+     */
+    public function updateScopedProfile(): ?Profile
     {
         $this->scoped = Profile::current();
         return $this->scoped;
@@ -349,6 +380,8 @@ class Action extends HTMLOutputter // lawsuit
 
     /**
      * Handler method
+     *
+     * @return void
      */
     protected function handle()
     {
@@ -365,8 +398,8 @@ class Action extends HTMLOutputter // lawsuit
             header('Last-Modified: ' . date(DATE_RFC1123, $lm));
             if ($this->isCacheable()) {
                 header('Expires: ' . gmdate('D, d M Y H:i:s', 0) . ' GMT');
-                header("Cache-Control: private, must-revalidate, max-age=0");
-                header("Pragma:");
+                header('Cache-Control: private, must-revalidate, max-age=0');
+                header('Pragma:');
             }
         }
 
@@ -401,7 +434,7 @@ class Action extends HTMLOutputter // lawsuit
      *
      * MAY override
      *
-     * @return string last modified http header
+     * @return null|string last modified http header
      */
     public function lastModified()
     {
@@ -415,7 +448,7 @@ class Action extends HTMLOutputter // lawsuit
      *
      * MAY override
      *
-     * @return string etag http header
+     * @return null|string etag http header
      */
     public function etag()
     {
@@ -427,22 +460,22 @@ class Action extends HTMLOutputter // lawsuit
      *
      * If the action returns a last-modified
      *
-     * @return boolean is read only action?
+     * @return bool is read only action?
      */
-    public function isCacheable()
+    public function isCacheable(): bool
     {
         return true;
     }
 
     /**
-     * Has etag? (private)
+     * Has etag? (private)
      *
      * @param string $etag etag http header
      * @param string $if_none_match ifNoneMatch http header
      *
-     * @return boolean
+     * @return bool
      */
-    public function _hasEtag($etag, $if_none_match)
+    public function _hasEtag(string $etag, string $if_none_match): bool
     {
         $etags = explode(',', $if_none_match);
         return in_array($etag, $etags) || in_array('*', $etags);
@@ -452,12 +485,15 @@ class Action extends HTMLOutputter // lawsuit
      * Server error
      *
      * @param string $msg error message to display
-     * @param integer $code http error code, 500 by default
+     * @param int $code http error code, 500 by default
+     * @param null|string $format
      *
-     * @param string $format
      * @return void
+     * @throws ServerException
+     *
+     * @throws ClientException
      */
-    public function serverError($msg, $code = 500, $format = null)
+    public function serverError(string $msg, int $code = 500, ?string $format = null): void
     {
         if ($format === null) {
             $format = $this->format;
@@ -486,8 +522,8 @@ class Action extends HTMLOutputter // lawsuit
                     header("HTTP/1.1 {$code} {$status_string}");
                 }
                 $this->initDocument('json');
-                $error_array = array('error' => $msg, 'request' => $_SERVER['REQUEST_URI']);
-                print(json_encode($error_array));
+                $error_array = ['error' => $msg, 'request' => $_SERVER['REQUEST_URI']];
+                echo json_encode($error_array);
                 $this->endDocument('json');
                 break;
             default:
@@ -499,12 +535,20 @@ class Action extends HTMLOutputter // lawsuit
         exit((int)$code);
     }
 
-    public function getScoped()
+    /**
+     * @return null|Profile
+     */
+    public function getScoped(): ?Profile
     {
         return ($this->scoped instanceof Profile) ? $this->scoped : null;
     }
 
-    public function isAction(array $names)
+    /**
+     * @param array $names
+     *
+     * @return bool
+     */
+    public function isAction(array $names): bool
     {
         foreach ($names as $class) {
             // PHP is case insensitive, and we have stuff like ApiUpperCaseAction,
@@ -521,9 +565,10 @@ class Action extends HTMLOutputter // lawsuit
      * Show page, a template method.
      *
      * @return void
-     * @throws ClientException
      * @throws ReflectionException
      * @throws ServerException
+     *
+     * @throws ClientException
      */
     public function showPage()
     {
@@ -531,26 +576,32 @@ class Action extends HTMLOutputter // lawsuit
             self::showAjax();
             return;
         }
-        if (Event::handle('StartShowHTML', array($this))) {
+        if (Event::handle('StartShowHTML', [$this])) {
             $this->startHTML();
             $this->flush();
-            Event::handle('EndShowHTML', array($this));
+            Event::handle('EndShowHTML', [$this]);
         }
-        if (Event::handle('StartShowHead', array($this))) {
+        if (Event::handle('StartShowHead', [$this])) {
             $this->showHead();
             $this->flush();
-            Event::handle('EndShowHead', array($this));
+            Event::handle('EndShowHead', [$this]);
         }
-        if (Event::handle('StartShowBody', array($this))) {
+        if (Event::handle('StartShowBody', [$this])) {
             $this->showBody();
-            Event::handle('EndShowBody', array($this));
+            Event::handle('EndShowBody', [$this]);
         }
-        if (Event::handle('StartEndHTML', array($this))) {
+        if (Event::handle('StartEndHTML', [$this])) {
             $this->endHTML();
-            Event::handle('EndEndHTML', array($this));
+            Event::handle('EndEndHTML', [$this]);
         }
     }
 
+    /**
+     * @return void
+     * @throws ServerException
+     *
+     * @throws ClientException
+     */
     public function showAjax()
     {
         $this->startHTML('text/xml;charset=utf-8');
@@ -560,7 +611,7 @@ class Action extends HTMLOutputter // lawsuit
         $this->elementEnd('head');
         $this->elementStart('body');
         if ($this->getError()) {
-            $this->element('p', array('id' => 'error'), $this->getError());
+            $this->element('p', ['id' => 'error'], $this->getError());
         } else {
             $this->showContent();
         }
@@ -575,14 +626,16 @@ class Action extends HTMLOutputter // lawsuit
      *
      * @return string page title
      */
-
     public function title()
     {
         // TRANS: Page title for a page without a title set.
-        return _('Untitled page');
+        return _m('Untitled page');
     }
 
-    public function getError()
+    /**
+     * @return null|string
+     */
+    public function getError(): ?string
     {
         return $this->error;
     }
@@ -598,14 +651,14 @@ class Action extends HTMLOutputter // lawsuit
     {
     }
 
-    public function endHTML()
+    public function endHTML(): void
     {
         global $_startCpuTime;
 
         if (isset($_startCpuTime)) {
             $end_cpu_time = hrtime(true);
             $diff = round(($end_cpu_time - $_startCpuTime) / 1000000);
-            $this->raw("<!-- ${diff}ms -->");
+            $this->raw("<!-- {$diff}ms -->");
         }
 
         parent::endHTML();
@@ -615,15 +668,16 @@ class Action extends HTMLOutputter // lawsuit
      * Show head, a template method.
      *
      * @return void
+     * @throws ServerException
      */
     public function showHead()
     {
         // XXX: attributes (profile?)
         $this->elementStart('head');
-        if (Event::handle('StartShowHeadElements', array($this))) {
-            if (Event::handle('StartShowHeadTitle', array($this))) {
+        if (Event::handle('StartShowHeadElements', [$this])) {
+            if (Event::handle('StartShowHeadTitle', [$this])) {
                 $this->showTitle();
-                Event::handle('EndShowHeadTitle', array($this));
+                Event::handle('EndShowHeadTitle', [$this]);
             }
             $this->showShortcutIcon();
             $this->showStylesheets();
@@ -631,7 +685,7 @@ class Action extends HTMLOutputter // lawsuit
             $this->showFeeds();
             $this->showDescription();
             $this->extraHead();
-            Event::handle('EndShowHeadElements', array($this));
+            Event::handle('EndShowHeadElements', [$this]);
         }
         $this->elementEnd('head');
     }
@@ -640,6 +694,8 @@ class Action extends HTMLOutputter // lawsuit
      * Show title, a template method.
      *
      * @return void
+     * @throws ServerException
+     *
      */
     public function showTitle()
     {
@@ -659,25 +715,27 @@ class Action extends HTMLOutputter // lawsuit
      * Show themed shortcut icon
      *
      * @return void
+     * @throws ServerException
+     *
      */
     public function showShortcutIcon()
     {
         if (is_readable(INSTALLDIR . '/theme/' . common_config('site', 'theme') . '/favicon.ico')) {
-            $this->element('link', array('rel' => 'shortcut icon',
-                'href' => Theme::path('favicon.ico')));
+            $this->element('link', ['rel' => 'shortcut icon',
+                'href' => Theme::path('favicon.ico'),]);
         } else {
             // favicon.ico should be HTTPS if the rest of the page is
-            $this->element('link', array('rel' => 'shortcut icon',
-                'href' => common_path('favicon.ico', GNUsocial::isHTTPS())));
+            $this->element('link', ['rel' => 'shortcut icon',
+                'href' => common_path('favicon.ico', GNUsocial::isHTTPS()),]);
         }
 
         if (common_config('site', 'mobile')) {
             if (is_readable(INSTALLDIR . '/theme/' . common_config('site', 'theme') . '/apple-touch-icon.png')) {
-                $this->element('link', array('rel' => 'apple-touch-icon',
-                    'href' => Theme::path('apple-touch-icon.png')));
+                $this->element('link', ['rel' => 'apple-touch-icon',
+                    'href' => Theme::path('apple-touch-icon.png'),]);
             } else {
-                $this->element('link', array('rel' => 'apple-touch-icon',
-                    'href' => common_path('apple-touch-icon.png')));
+                $this->element('link', ['rel' => 'apple-touch-icon',
+                    'href' => common_path('apple-touch-icon.png'),]);
             }
         }
     }
@@ -686,39 +744,47 @@ class Action extends HTMLOutputter // lawsuit
      * Show stylesheets
      *
      * @return void
+     * @throws ServerException
+     *
      */
     public function showStylesheets()
     {
-        if (Event::handle('StartShowStyles', array($this))) {
+        if (Event::handle('StartShowStyles', [$this])) {
 
             // Use old name for StatusNet for compatibility on events
 
-            if (Event::handle('StartShowStylesheets', array($this))) {
+            if (Event::handle('StartShowStylesheets', [$this])) {
                 $this->primaryCssLink(null, 'screen, projection, tv, print');
-                Event::handle('EndShowStylesheets', array($this));
+                Event::handle('EndShowStylesheets', [$this]);
             }
 
             $this->cssLink('js/extlib/jquery-ui/css/smoothness/jquery-ui.css');
 
-            if (Event::handle('StartShowUAStyles', array($this))) {
-                Event::handle('EndShowUAStyles', array($this));
+            if (Event::handle('StartShowUAStyles', [$this])) {
+                Event::handle('EndShowUAStyles', [$this]);
             }
 
-            Event::handle('EndShowStyles', array($this));
+            Event::handle('EndShowStyles', [$this]);
 
             if (common_config('custom_css', 'enabled')) {
                 $css = common_config('custom_css', 'css');
-                if (Event::handle('StartShowCustomCss', array($this, &$css))) {
+                if (Event::handle('StartShowCustomCss', [$this, &$css])) {
                     if (trim($css) != '') {
                         $this->style($css);
                     }
-                    Event::handle('EndShowCustomCss', array($this));
+                    Event::handle('EndShowCustomCss', [$this]);
                 }
             }
         }
     }
 
-    public function primaryCssLink($mainTheme = null, $media = null)
+    /**
+     * @param null|string $mainTheme
+     * @param null|string $media
+     *
+     * @throws ServerException
+     */
+    public function primaryCssLink(?string $mainTheme = null, ?string $media = null): void
     {
         $theme = new Theme($mainTheme);
 
@@ -747,16 +813,18 @@ class Action extends HTMLOutputter // lawsuit
      * Show OpenSearch headers
      *
      * @return void
+     * @throws ServerException
+     *
      */
     public function showOpenSearch()
     {
-        $this->element('link', array('rel' => 'search',
+        $this->element('link', ['rel' => 'search',
             'type' => 'application/opensearchdescription+xml',
-            'href' => common_local_url('opensearch', array('type' => 'people')),
-            'title' => common_config('site', 'name') . ' People Search'));
-        $this->element('link', array('rel' => 'search', 'type' => 'application/opensearchdescription+xml',
-            'href' => common_local_url('opensearch', array('type' => 'notice')),
-            'title' => common_config('site', 'name') . ' Notice Search'));
+            'href' => common_local_url('opensearch', ['type' => 'people']),
+            'title' => common_config('site', 'name') . ' People Search',]);
+        $this->element('link', ['rel' => 'search', 'type' => 'application/opensearchdescription+xml',
+            'href' => common_local_url('opensearch', ['type' => 'notice']),
+            'title' => common_config('site', 'name') . ' Notice Search',]);
     }
 
     /**
@@ -769,10 +837,10 @@ class Action extends HTMLOutputter // lawsuit
     public function showFeeds()
     {
         foreach ($this->getFeeds() as $feed) {
-            $this->element('link', array('rel' => $feed->rel(),
+            $this->element('link', ['rel' => $feed->rel(),
                 'href' => $feed->url,
                 'type' => $feed->mimeType(),
-                'title' => $feed->title));
+                'title' => $feed->title,]);
         }
     }
 
@@ -818,34 +886,39 @@ class Action extends HTMLOutputter // lawsuit
      * Calls template methods
      *
      * @return void
-     * @throws ServerException
      * @throws ReflectionException
+     *
+     * @throws ServerException
      */
     public function showBody()
     {
-        $params = array('id' => $this->getActionName());
+        $params = ['id' => $this->getActionName()];
         if ($this->scoped instanceof Profile) {
             $params['class'] = 'user_in';
         }
         $this->elementStart('body', $params);
-        $this->elementStart('div', array('id' => 'wrap'));
-        if (Event::handle('StartShowHeader', array($this))) {
+        $this->elementStart('div', ['id' => 'wrap']);
+        if (Event::handle('StartShowHeader', [$this])) {
             $this->showHeader();
             $this->flush();
-            Event::handle('EndShowHeader', array($this));
+            Event::handle('EndShowHeader', [$this]);
         }
         $this->showCore();
         $this->flush();
-        if (Event::handle('StartShowFooter', array($this))) {
+        if (Event::handle('StartShowFooter', [$this])) {
             $this->showFooter();
             $this->flush();
-            Event::handle('EndShowFooter', array($this));
+            Event::handle('EndShowFooter', [$this]);
         }
         $this->elementEnd('div');
         $this->showScripts();
         $this->elementEnd('body');
     }
 
+    /**
+     * Must be run _after_ prepare
+     * @return mixed (string, bool)
+     */
     public function getActionName()
     {
         return $this->action;
@@ -858,16 +931,17 @@ class Action extends HTMLOutputter // lawsuit
      *
      * @return void
      * @throws ServerException
+     *
      */
     public function showHeader()
     {
-        $this->elementStart('div', array('id' => 'header'));
+        $this->elementStart('div', ['id' => 'header']);
         $this->showLogo();
         $this->showPrimaryNav();
-        if (Event::handle('StartShowSiteNotice', array($this))) {
+        if (Event::handle('StartShowSiteNotice', [$this])) {
             $this->showSiteNotice();
 
-            Event::handle('EndShowSiteNotice', array($this));
+            Event::handle('EndShowSiteNotice', [$this]);
         }
 
         $this->elementEnd('div');
@@ -878,26 +952,27 @@ class Action extends HTMLOutputter // lawsuit
      *
      * @return void
      * @throws ServerException
+     *
      */
     public function showLogo()
     {
-        $this->elementStart('address', array('id' => 'site_contact', 'class' => 'h-card'));
-        if (Event::handle('StartAddressData', array($this))) {
+        $this->elementStart('address', ['id' => 'site_contact', 'class' => 'h-card']);
+        if (Event::handle('StartAddressData', [$this])) {
             if (common_config('singleuser', 'enabled')) {
                 $user = User::singleUser();
                 $url = common_local_url(
                     'showstream',
-                    array('nickname' => $user->nickname)
+                    ['nickname' => $user->nickname]
                 );
             } elseif (common_logged_in()) {
                 $cur = common_current_user();
-                $url = common_local_url('all', array('nickname' => $cur->nickname));
+                $url = common_local_url('all', ['nickname' => $cur->nickname]);
             } else {
                 $url = common_local_url('public');
             }
 
-            $this->elementStart('a', array('class' => 'home bookmark',
-                'href' => $url));
+            $this->elementStart('a', ['class' => 'home bookmark',
+                'href' => $url,]);
 
             if (GNUsocial::isHTTPS()) {
                 $logoUrl = common_config('site', 'ssllogo');
@@ -926,14 +1001,14 @@ class Action extends HTMLOutputter // lawsuit
             }
 
             if (!empty($logoUrl)) {
-                $this->element('img', array('class' => 'logo u-photo p-name',
+                $this->element('img', ['class' => 'logo u-photo p-name',
                     'src' => $logoUrl,
-                    'alt' => common_config('site', 'name')));
+                    'alt' => common_config('site', 'name'),]);
             }
 
             $this->elementEnd('a');
 
-            Event::handle('EndAddressData', array($this));
+            Event::handle('EndAddressData', [$this]);
         }
         $this->elementEnd('address');
     }
@@ -942,10 +1017,12 @@ class Action extends HTMLOutputter // lawsuit
      * Show primary navigation.
      *
      * @return void
+     * @throws ServerException
+     *
      */
     public function showPrimaryNav()
     {
-        $this->elementStart('div', array('id' => 'site_nav_global_primary'));
+        $this->elementStart('div', ['id' => 'site_nav_global_primary']);
 
         $user = common_current_user();
 
@@ -963,14 +1040,16 @@ class Action extends HTMLOutputter // lawsuit
      * Show site notice.
      *
      * @return void
+     * @throws ServerException
+     *
      */
     public function showSiteNotice()
     {
         // Revist. Should probably do an hAtom pattern here
         $text = common_config('site', 'notice');
         if ($text) {
-            $this->elementStart('div', array('id' => 'site_notice',
-                'class' => 'system_notice'));
+            $this->elementStart('div', ['id' => 'site_notice',
+                'class' => 'system_notice',]);
             $this->raw($text);
             $this->elementEnd('div');
         }
@@ -983,27 +1062,28 @@ class Action extends HTMLOutputter // lawsuit
      *
      * @return void
      * @throws ReflectionException
+     * @throws UserNoProfileException
      */
     public function showCore()
     {
-        $this->elementStart('div', array('id' => 'core'));
-        $this->elementStart('div', array('id' => 'aside_primary_wrapper'));
-        $this->elementStart('div', array('id' => 'content_wrapper'));
-        $this->elementStart('div', array('id' => 'site_nav_local_views_wrapper'));
-        if (Event::handle('StartShowLocalNavBlock', array($this))) {
+        $this->elementStart('div', ['id' => 'core']);
+        $this->elementStart('div', ['id' => 'aside_primary_wrapper']);
+        $this->elementStart('div', ['id' => 'content_wrapper']);
+        $this->elementStart('div', ['id' => 'site_nav_local_views_wrapper']);
+        if (Event::handle('StartShowLocalNavBlock', [$this])) {
             $this->showLocalNavBlock();
             $this->flush();
-            Event::handle('EndShowLocalNavBlock', array($this));
+            Event::handle('EndShowLocalNavBlock', [$this]);
         }
-        if (Event::handle('StartShowContentBlock', array($this))) {
+        if (Event::handle('StartShowContentBlock', [$this])) {
             $this->showContentBlock();
             $this->flush();
-            Event::handle('EndShowContentBlock', array($this));
+            Event::handle('EndShowContentBlock', [$this]);
         }
-        if (Event::handle('StartShowAside', array($this))) {
+        if (Event::handle('StartShowAside', [$this])) {
             $this->showAside();
             $this->flush();
-            Event::handle('EndShowAside', array($this));
+            Event::handle('EndShowAside', [$this]);
         }
         $this->elementEnd('div');
         $this->elementEnd('div');
@@ -1020,7 +1100,7 @@ class Action extends HTMLOutputter // lawsuit
     {
         // Need to have this ID for CSS; I'm too lazy to add it to
         // all menus
-        $this->elementStart('div', array('id' => 'site_nav_local_views'));
+        $this->elementStart('div', ['id' => 'site_nav_local_views']);
         // Cheat cheat cheat!
         $this->showLocalNav();
         $this->elementEnd('div');
@@ -1044,22 +1124,23 @@ class Action extends HTMLOutputter // lawsuit
      *
      * @return void
      * @throws ReflectionException
+     * @throws UserNoProfileException
      */
     public function showContentBlock()
     {
-        $this->elementStart('div', array('id' => 'content'));
+        $this->elementStart('div', ['id' => 'content']);
         if (common_logged_in()) {
-            if (Event::handle('StartShowNoticeForm', array($this))) {
+            if (Event::handle('StartShowNoticeForm', [$this])) {
                 $this->showNoticeForm();
-                Event::handle('EndShowNoticeForm', array($this));
+                Event::handle('EndShowNoticeForm', [$this]);
             }
         }
-        if (Event::handle('StartShowPageTitle', array($this))) {
+        if (Event::handle('StartShowPageTitle', [$this])) {
             $this->showPageTitle();
-            Event::handle('EndShowPageTitle', array($this));
+            Event::handle('EndShowPageTitle', [$this]);
         }
         $this->showPageNoticeBlock();
-        $this->elementStart('div', array('id' => 'content_inner'));
+        $this->elementStart('div', ['id' => 'content_inner']);
         // show the actual content (forms, lists, whatever)
         $this->showContent();
         $this->elementEnd('div');
@@ -1072,25 +1153,27 @@ class Action extends HTMLOutputter // lawsuit
      * MAY overload if no notice form needed... or direct message box????
      *
      * @return void
+     * @throws UserNoProfileException
+     *
      */
     public function showNoticeForm()
     {
         // TRANS: Tab on the notice form.
-        $tabs = array('status' => array('title' => _m('TAB', 'Status'),
-            'href' => common_local_url('newnotice')));
+        $tabs = ['status' => ['title' => _m('TAB', 'Status'),
+            'href' => common_local_url('newnotice'),]];
 
         $this->elementStart('div', 'input_forms');
 
-        $this->element('label', array('for' => 'input_form_nav'), _m('TAB', 'Share your:'));
+        $this->element('label', ['for' => 'input_form_nav'], _m('TAB', 'Share your:'));
 
-        if (Event::handle('StartShowEntryForms', array(&$tabs))) {
-            $this->elementStart('ul', array('class' => 'nav',
-                'id' => 'input_form_nav'));
+        if (Event::handle('StartShowEntryForms', [&$tabs])) {
+            $this->elementStart('ul', ['class' => 'nav',
+                'id' => 'input_form_nav',]);
 
             foreach ($tabs as $tag => $data) {
                 $tag = htmlspecialchars($tag);
-                $attrs = array('id' => 'input_form_nav_' . $tag,
-                    'class' => 'input_form_nav_tab');
+                $attrs = ['id' => 'input_form_nav_' . $tag,
+                    'class' => 'input_form_nav_tab',];
 
                 if ($tag == 'status') {
                     $attrs['class'] .= ' current';
@@ -1099,8 +1182,8 @@ class Action extends HTMLOutputter // lawsuit
 
                 $this->element(
                     'a',
-                    array('onclick' => 'return SN.U.switchInputFormTab("' . $tag . '");',
-                        'href' => $data['href']),
+                    ['onclick' => 'return SN.U.switchInputFormTab("' . $tag . '");',
+                        'href' => $data['href'],],
                     $data['title']
                 );
                 $this->elementEnd('li');
@@ -1109,8 +1192,8 @@ class Action extends HTMLOutputter // lawsuit
             $this->elementEnd('ul');
 
             foreach ($tabs as $tag => $data) {
-                $attrs = array('class' => 'input_form',
-                    'id' => 'input_form_' . $tag);
+                $attrs = ['class' => 'input_form',
+                    'id' => 'input_form_' . $tag,];
                 if ($tag == 'status') {
                     $attrs['class'] .= ' current';
                 }
@@ -1119,12 +1202,12 @@ class Action extends HTMLOutputter // lawsuit
 
                 $form = null;
 
-                if (Event::handle('StartMakeEntryForm', array($tag, $this, &$form))) {
+                if (Event::handle('StartMakeEntryForm', [$tag, $this, &$form])) {
                     if ($tag == 'status') {
                         $options = $this->noticeFormOptions();
                         $form = new NoticeForm($this, $options);
                     }
-                    Event::handle('EndMakeEntryForm', array($tag, $this, $form));
+                    Event::handle('EndMakeEntryForm', [$tag, $this, $form]);
                 }
 
                 if (!empty($form)) {
@@ -1138,6 +1221,9 @@ class Action extends HTMLOutputter // lawsuit
         $this->elementEnd('div');
     }
 
+    /**
+     * @return array
+     */
     public function noticeFormOptions()
     {
         return [];
@@ -1164,6 +1250,7 @@ class Action extends HTMLOutputter // lawsuit
      *
      * @return void
      * @throws ReflectionException
+     *
      */
     public function showPageNoticeBlock()
     {
@@ -1171,11 +1258,11 @@ class Action extends HTMLOutputter // lawsuit
         $dclass = $rmethod->getDeclaringClass()->getName();
 
         if ($dclass != 'Action' || Event::hasHandler('StartShowPageNotice')) {
-            $this->elementStart('div', array('id' => 'page_notice',
-                'class' => 'system_notice'));
-            if (Event::handle('StartShowPageNotice', array($this))) {
+            $this->elementStart('div', ['id' => 'page_notice',
+                'class' => 'system_notice',]);
+            if (Event::handle('StartShowPageNotice', [$this])) {
                 $this->showPageNotice();
-                Event::handle('EndShowPageNotice', array($this));
+                Event::handle('EndShowPageNotice', [$this]);
             }
             $this->elementEnd('div');
         }
@@ -1197,23 +1284,24 @@ class Action extends HTMLOutputter // lawsuit
      *
      * @return void
      * @throws ReflectionException
+     *
      */
     public function showAside()
     {
-        $this->elementStart('div', array('id' => 'aside_primary',
-            'class' => 'aside'));
+        $this->elementStart('div', ['id' => 'aside_primary',
+            'class' => 'aside',]);
         $this->showProfileBlock();
-        if (Event::handle('StartShowObjectNavBlock', array($this))) {
+        if (Event::handle('StartShowObjectNavBlock', [$this])) {
             $this->showObjectNavBlock();
-            Event::handle('EndShowObjectNavBlock', array($this));
+            Event::handle('EndShowObjectNavBlock', [$this]);
         }
-        if (Event::handle('StartShowSections', array($this))) {
+        if (Event::handle('StartShowSections', [$this])) {
             $this->showSections();
-            Event::handle('EndShowSections', array($this));
+            Event::handle('EndShowSections', [$this]);
         }
-        if (Event::handle('StartShowExportData', array($this))) {
+        if (Event::handle('StartShowExportData', [$this])) {
             $this->showExportData();
-            Event::handle('EndShowExportData', array($this));
+            Event::handle('EndShowExportData', [$this]);
         }
         $this->elementEnd('div');
     }
@@ -1223,6 +1311,7 @@ class Action extends HTMLOutputter // lawsuit
      *
      * @return void
      * @throws Exception
+     *
      */
     public function showProfileBlock()
     {
@@ -1240,6 +1329,7 @@ class Action extends HTMLOutputter // lawsuit
      *
      * @return void
      * @throws ReflectionException
+     *
      */
     public function showObjectNavBlock()
     {
@@ -1249,8 +1339,8 @@ class Action extends HTMLOutputter // lawsuit
         if ($dclass != 'Action') {
             // Need to have this ID for CSS; I'm too lazy to add it to
             // all menus
-            $this->elementStart('div', array('id' => 'site_nav_object',
-                'class' => 'section'));
+            $this->elementStart('div', ['id' => 'site_nav_object',
+                'class' => 'section',]);
             $this->showObjectNav();
             $this->elementEnd('div');
         }
@@ -1265,7 +1355,7 @@ class Action extends HTMLOutputter // lawsuit
      */
     public function showObjectNav()
     {
-        /* Nothing here. */
+        // Nothing here.
     }
 
     /**
@@ -1298,14 +1388,15 @@ class Action extends HTMLOutputter // lawsuit
      * Show footer.
      *
      * @return void
+     * @throws ServerException
      */
     public function showFooter()
     {
-        $this->elementStart('div', array('id' => 'footer'));
-        if (Event::handle('StartShowInsideFooter', array($this))) {
+        $this->elementStart('div', ['id' => 'footer']);
+        if (Event::handle('StartShowInsideFooter', [$this])) {
             $this->showSecondaryNav();
             $this->showLicenses();
-            Event::handle('EndShowInsideFooter', array($this));
+            Event::handle('EndShowInsideFooter', [$this]);
         }
         $this->elementEnd('div');
     }
@@ -1325,6 +1416,7 @@ class Action extends HTMLOutputter // lawsuit
      * Show licenses.
      *
      * @return void
+     * @throws ServerException
      */
     public function showLicenses()
     {
@@ -1336,6 +1428,8 @@ class Action extends HTMLOutputter // lawsuit
      * Show GNU social license.
      *
      * @return void
+     * @throws ServerException
+     *
      */
     public function showGNUsocialLicense()
     {
@@ -1364,10 +1458,12 @@ class Action extends HTMLOutputter // lawsuit
      * Show content license.
      *
      * @return void
+     * @throws ServerException
+     *
      */
     public function showContentLicense()
     {
-        if (Event::handle('StartShowContentLicense', array($this))) {
+        if (Event::handle('StartShowContentLicense', [$this])) {
             switch (common_config('license', 'type')) {
                 case 'private':
                     // TRANS: Content license displayed when license is set to 'private'.
@@ -1412,11 +1508,11 @@ class Action extends HTMLOutputter // lawsuit
                         $url = $image;
                     }
 
-                    $this->element('img', array('id' => 'license_cc',
+                    $this->element('img', ['id' => 'license_cc',
                         'src' => $url,
                         'alt' => common_config('license', 'title'),
                         'width' => '80',
-                        'height' => '15'));
+                        'height' => '15',]);
                     $this->text(' ');
                     // TRANS: license message in footer.
                     // TRANS: %1$s is the site name, %2$s is a link to the license URL, with a licence name set in configuration.
@@ -1435,7 +1531,7 @@ class Action extends HTMLOutputter // lawsuit
                     break;
             }
 
-            Event::handle('EndShowContentLicense', array($this));
+            Event::handle('EndShowContentLicense', [$this]);
         }
     }
 
@@ -1443,19 +1539,21 @@ class Action extends HTMLOutputter // lawsuit
      * Show javascript headers
      *
      * @return void
+     * @throws ServerException
+     *
      */
     public function showScripts()
     {
-        if (Event::handle('StartShowScripts', array($this))) {
-            if (Event::handle('StartShowJQueryScripts', array($this))) {
+        if (Event::handle('StartShowScripts', [$this])) {
+            if (Event::handle('StartShowJQueryScripts', [$this])) {
                 $this->script('extlib/jquery.js');
                 $this->script('extlib/jquery.form.js');
                 $this->script('extlib/jquery-ui/jquery-ui.js');
                 $this->script('extlib/jquery.cookie.js');
 
-                Event::handle('EndShowJQueryScripts', array($this));
+                Event::handle('EndShowJQueryScripts', [$this]);
             }
-            if (Event::handle('StartShowStatusNetScripts', array($this))) {
+            if (Event::handle('StartShowStatusNetScripts', [$this])) {
                 $this->script('util.js');
                 $this->script('xbImportNode.js');
 
@@ -1472,9 +1570,9 @@ class Action extends HTMLOutputter // lawsuit
                 if (common_config('javascript', 'bustframes')) {
                     $this->inlineScript('if (window.top !== window.self) { document.write = ""; window.top.location = window.self.location; setTimeout(function () { document.body.innerHTML = ""; }, 1); window.self.onload = function () { document.body.innerHTML = ""; }; }');
                 }
-                Event::handle('EndShowStatusNetScripts', array($this));
+                Event::handle('EndShowStatusNetScripts', [$this]);
             }
-            Event::handle('EndShowScripts', array($this));
+            Event::handle('EndShowScripts', [$this]);
         }
     }
 
@@ -1484,12 +1582,16 @@ class Action extends HTMLOutputter // lawsuit
      * Plugins can add to what's exported by hooking the StartScriptMessages or EndScriptMessages
      * events and appending to the array. Try to avoid adding strings that won't be used, as
      * they'll be added to HTML output.
+     *
+     * @return array
+     * @throws Exception
+     *
      */
     public function showScriptMessages()
     {
         $messages = [];
 
-        if (Event::handle('StartScriptMessages', array($this, &$messages))) {
+        if (Event::handle('StartScriptMessages', [$this, &$messages])) {
             // Common messages needed for timeline views etc...
 
             // TRANS: Localized tooltip for '...' expansion button on overlong remote messages.
@@ -1498,7 +1600,7 @@ class Action extends HTMLOutputter // lawsuit
 
             $messages = array_merge($messages, $this->getScriptMessages());
 
-            Event::handle('EndScriptMessages', array($this, &$messages));
+            Event::handle('EndScriptMessages', [$this, &$messages]);
         }
 
         if (!empty($messages)) {
@@ -1525,20 +1627,25 @@ class Action extends HTMLOutputter // lawsuit
      * Plugins can add to what's exported on any action by hooking the StartScriptMessages or
      * EndScriptMessages events and appending to the array. Try to avoid adding strings that won't
      * be used, as they'll be added to HTML output.
+     *
+     * @return array
      */
-    public function getScriptMessages()
+    public function getScriptMessages(): array
     {
         return [];
     }
 
+    /**
+     * @return array
+     */
     protected function showScriptVariables()
     {
         $vars = [];
 
-        if (Event::handle('StartScriptVariables', array($this, &$vars))) {
+        if (Event::handle('StartScriptVariables', [$this, &$vars])) {
             $vars['urlNewNotice'] = common_local_url('newnotice');
             $vars['xhrTimeout'] = ini_get('max_execution_time') * 1000;   // milliseconds
-            Event::handle('EndScriptVariables', array($this, &$vars));
+            Event::handle('EndScriptVariables', [$this, &$vars]);
         }
 
         $this->inlineScript('SN.V = ' . json_encode($vars) . ';');
@@ -1562,15 +1669,15 @@ class Action extends HTMLOutputter // lawsuit
      * Integer value of an argument
      *
      * @param string $key query key we're interested in
-     * @param string $defValue optional default value (default null)
-     * @param string $maxValue optional max value (default null)
-     * @param string $minValue optional min value (default null)
+     * @param null|string $defValue optional default value (default null)
+     * @param null|string $maxValue optional max value (default null)
+     * @param null|string $minValue optional min value (default null)
      *
-     * @return integer integer value
+     * @return null|int integer value
      */
-    public function int($key, $defValue = null, $maxValue = null, $minValue = null)
+    public function int(string $key, ?string $defValue = null, ?string $maxValue = null, ?string $minValue = null): ?int
     {
-        $arg = intval($this->arg($key));
+        $arg = (int)($this->arg($key));
 
         if (!is_numeric($this->arg($key)) || $arg != $this->arg($key)) {
             return $defValue;
@@ -1591,33 +1698,23 @@ class Action extends HTMLOutputter // lawsuit
      * Returns the current URL
      *
      * @return string current URL
+     * @throws ServerException
+     *
      */
-    public function selfUrl()
+    public function selfUrl(): string
     {
         list($action, $args) = $this->returnToArgs();
         return common_local_url($action, $args);
     }
 
     /**
-     * Generate pagination links
-     *
-     * @param boolean $have_before is there something before?
-     * @param boolean $have_after is there something after?
-     * @param integer $page current page
-     * @param string $action current action
-     * @param array $args rest of query arguments
-     *
-     * @return void
-     */
-    // XXX: The messages in this pagination method only tailor to navigating
-    //      notices. In other lists, "Previous"/"Next" type navigation is
-    //      desirable, but not available.
-    /**
      * Returns arguments sufficient for re-constructing URL
      *
      * @return array two elements: action, other args
+     * @throws ServerException
+     *
      */
-    public function returnToArgs()
+    public function returnToArgs(): array
     {
         $action = $this->getActionName();
         $args = $this->args;
@@ -1631,21 +1728,23 @@ class Action extends HTMLOutputter // lawsuit
         foreach (array_keys($_COOKIE) as $cookie) {
             unset($args[$cookie]);
         }
-        return array($action, $args);
+        return [$action, $args];
     }
 
     /**
      * Generate a menu item
      *
      * @param string $url menu URL
-     * @param string $text menu name
+     * @param null|string $text menu name
      * @param string $title title attribute, null by default
-     * @param boolean $is_selected current menu item, false by default
-     * @param string $id element id, null by default
+     * @param bool $is_selected current menu item, false by default
+     * @param null|string $id element id, null by default
+     * @param null|mixed $class
      *
      * @return void
      */
-    public function menuItem($url, $text, $title = null, $is_selected = false, $id = null, $class = null)
+    public function menuItem(string $url, $text, ?string $title = null, bool $is_selected = false,
+                             ?string $id = null, $class = null): void
     {
         // Added @id to li for some control.
         // XXX: We might want to move this to htmloutputter.php
@@ -1676,30 +1775,34 @@ class Action extends HTMLOutputter // lawsuit
     }
 
     /**
-     * Check the session token.
+     * Generate pagination links
      *
-     * Checks that the current form has the correct session token,
-     * and throw an exception if it does not.
+     * @param bool $have_before is there something before?
+     * @param bool $have_after is there something after?
+     * @param int $page current page
+     * @param string $action current action
+     * @param null|array $args rest of query arguments
+     *
+     * XXX: The messages in this pagination method only tailor to navigating
+     * notices. In other lists, "Previous"/"Next" type navigation is
+     * desirable, but not available.
      *
      * @return void
      */
-    // XXX: Finding this type of check with the same message about 50 times.
-    //      Possible to refactor?
-
-    public function pagination($have_before, $have_after, $page, $action, $args = null)
+    public function pagination(bool $have_before, bool $have_after, int $page, string $action, ?array $args = null): void
     {
         // Does a little before-after block for next/prev page
         if ($have_before || $have_after) {
-            $this->elementStart('ul', array('class' => 'nav',
-                'id' => 'pagination'));
+            $this->elementStart('ul', ['class' => 'nav',
+                'id' => 'pagination',]);
         }
         if ($have_before) {
-            $pargs = array('page' => $page - 1);
-            $this->elementStart('li', array('class' => 'nav_prev'));
+            $pargs = ['page' => $page - 1];
+            $this->elementStart('li', ['class' => 'nav_prev']);
             $this->element(
                 'a',
-                array('href' => common_local_url($action, $args, $pargs),
-                    'rel' => 'prev'),
+                ['href' => common_local_url($action, $args, $pargs),
+                    'rel' => 'prev',],
                 // TRANS: Pagination message to go to a page displaying information more in the
                 // TRANS: present than the currently displayed information.
                 _('After')
@@ -1707,12 +1810,12 @@ class Action extends HTMLOutputter // lawsuit
             $this->elementEnd('li');
         }
         if ($have_after) {
-            $pargs = array('page' => $page + 1);
-            $this->elementStart('li', array('class' => 'nav_next'));
+            $pargs = ['page' => $page + 1];
+            $this->elementStart('li', ['class' => 'nav_next']);
             $this->element(
                 'a',
-                array('href' => common_local_url($action, $args, $pargs),
-                    'rel' => 'next'),
+                ['href' => common_local_url($action, $args, $pargs),
+                    'rel' => 'next',],
                 // TRANS: Pagination message to go to a page displaying information more in the
                 // TRANS: past than the currently displayed information.
                 _('Before')
@@ -1724,14 +1827,23 @@ class Action extends HTMLOutputter // lawsuit
         }
     }
 
-
-    public function checkSessionToken()
+    /**
+     * Check the session token.
+     *
+     * Checks that the current form has the correct session token,
+     * and throw an exception if it does not.
+     *
+     * @return void
+     * @throws ServerException
+     * @throws ClientException
+     */
+    public function checkSessionToken(): void
     {
         // CSRF protection
         $token = $this->trimmed('token');
         if (empty($token) || $token != common_session_token()) {
             // TRANS: Client error text when there is a problem with the session token.
-            $this->clientError(_('There was a problem with your session token.'));
+            $this->clientError(_m('There was a problem with your session token.'));
         }
     }
 }

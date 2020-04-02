@@ -194,7 +194,7 @@ class ApiAction extends Action
      *
      * @return void
      */
-    public function element(string $tag, $attrs = null, $content = null)
+    public function element(string $tag, $attrs = null, ?string $content = null): void
     {
         if (is_bool($content)) {
             $content = ($content ? "true" : "false");
