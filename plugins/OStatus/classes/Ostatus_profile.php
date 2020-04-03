@@ -1206,15 +1206,40 @@ class Ostatus_profile extends Managed_DataObject
         $oprofile->created    = common_sql_now();
         $oprofile->modified   = common_sql_now();
 
-        if ($object->type == ActivityObject::PERSON) {
-            $profile = new Profile();
-            $profile->created = common_sql_now();
-            self::updateProfile($profile, $object, $hints);
+        $tfn = false;
 
-            $oprofile->profile_id = $profile->insert();
-            if ($oprofile->profile_id === false) {
-                // TRANS: Server exception.
-                throw new ServerException(_m('Cannot save local profile.'));
+        if ($object->type == ActivityObject::PERSON) {
+
+            // Does any other protocol have this remote entity we're about to add ?
+            if (!Event::handle('StartTFNLookup', [$oprofile->uri, get_called_class(), &$profile_id])) {
+                $tfn = true; // been here!
+
+                // Yes! Avoid creating a new profile
+                $oprofile->profile_id = $profile_id;
+
+                if ($profile->insert() === false) {
+                    // TRANS: Server exception.
+                    throw new ServerException(_m('Cannot save OStatus profile.'));
+                }
+
+                // Update existing profile with received data
+                $profile = Profile::getKV('id', $profile_id);
+                $profile->modified = common_sql_now();
+                self::updateProfile($profile, $object, $hints);
+
+                // Ask TFN to handle profile duplication
+                Event::handle('EndTFNLookup', [get_called_class(), $profile_id]);
+            } else {
+                // No, create both a new profile and remote profile
+                $profile = new Profile();
+                $profile->created = common_sql_now();
+                self::updateProfile($profile, $object, $hints);
+
+                $oprofile->profile_id = $profile->insert();
+                if ($oprofile->profile_id === false) {
+                    // TRANS: Server exception.
+                    throw new ServerException(_m('Cannot save local profile.'));
+                }
             }
         } else if ($object->type == ActivityObject::GROUP) {
             $profile = new Profile();
@@ -1270,11 +1295,13 @@ class Ostatus_profile extends Managed_DataObject
             }
         }
 
-        $ok = $oprofile->insert();
+        if (!$tfn) {
+            $ok = $oprofile->insert();
 
-        if ($ok === false) {
-            // TRANS: Server exception.
-            throw new ServerException(_m('Cannot save OStatus profile.'));
+            if ($ok === false) {
+                // TRANS: Server exception.
+                throw new ServerException(_m('Cannot save OStatus profile.'));
+            }
         }
 
         $avatar = self::getActivityObjectAvatar($object, $hints);
