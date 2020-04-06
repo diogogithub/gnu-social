@@ -1,33 +1,34 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * GNU social - a federating social network
- *
  * Abstraction for an image file
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  Image
  * @package   GNUsocial
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @author    Zach Copley <zach@status.net>
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @author    Miguel Dantas <biodantasgs@gmail.com>
  * @copyright 2008, 2019 Free Software Foundation http://fsf.org
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      https://www.gnu.org/software/social/
+ *
+ * @see       https://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 use Intervention\Image\ImageManagerStatic as Image;
@@ -42,7 +43,8 @@ use Intervention\Image\ImageManagerStatic as Image;
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  * @author   Evan Prodromou <evan@status.net>
  * @author   Zach Copley <zach@status.net>
- * @link      https://www.gnu.org/software/social/
+ *
+ * @see      https://www.gnu.org/software/social/
  */
 class ImageFile extends MediaFile
 {
@@ -62,16 +64,15 @@ class ImageFile extends MediaFile
         $this->filepath = $filepath;
         $this->filename = basename($filepath);
 
-        $img = Image::make($this->filepath);
+        $img            = Image::make($this->filepath);
         $this->mimetype = $img->mime();
 
-        $cmp = function($obj, $type) {
+        $cmp = function ($obj, $type) {
             if ($obj->mimetype == image_type_to_mime_type($type)) {
                 $obj->type = $type;
                 return true;
-            } else {
-                return false;
             }
+            return false;
         };
         if (!(($cmp($this, IMAGETYPE_GIF)  && function_exists('imagecreatefromgif'))  ||
               ($cmp($this, IMAGETYPE_JPEG) && function_exists('imagecreatefromjpeg')) ||
@@ -84,8 +85,8 @@ class ImageFile extends MediaFile
             throw new UnsupportedMediaException(_m('Unsupported image format.'), $this->filepath);
         }
 
-        $this->width    = $img->width();
-        $this->height   = $img->height();
+        $this->width  = $img->width();
+        $this->height = $img->height();
 
         parent::__construct(
             $filepath,
@@ -98,7 +99,7 @@ class ImageFile extends MediaFile
             // Orientation value to rotate thumbnails properly
             $exif = @$img->exif();
             if (is_array($exif) && isset($exif['Orientation'])) {
-                switch (intval($exif['Orientation'])) {
+                switch ((int) ($exif['Orientation'])) {
                 case 1: // top is top
                     $this->rotate = 0;
                     break;
@@ -118,7 +119,7 @@ class ImageFile extends MediaFile
             $this->animated = $this->isAnimatedGif();
         }
 
-        Event::handle('FillImageFileMetadata', array($this));
+        Event::handle('FillImageFileMetadata', [$this]);
 
         $img->destroy();
         ini_set('memory_limit', $old_limit); // Restore the old memory limit
@@ -132,8 +133,8 @@ class ImageFile extends MediaFile
     public static function fromFileObject(File $file)
     {
         $imgPath = null;
-        $media = common_get_mime_media($file->mimetype);
-        if (Event::handle('CreateFileImageThumbnailSource', array($file, &$imgPath, $media))) {
+        $media   = common_get_mime_media($file->mimetype);
+        if (Event::handle('CreateFileImageThumbnailSource', [$file, &$imgPath, $media])) {
             if (empty($file->filename) && !file_exists($imgPath)) {
                 throw new FileNotFoundException($imgPath);
             }
@@ -145,9 +146,10 @@ class ImageFile extends MediaFile
             }
 
             // And we'll only consider it an image if it has such a media type
-            if($media !== 'image') {
+            if ($media !== 'image') {
                 throw new UnsupportedMediaException(_m('Unsupported media format.'), $file->getPath());
-            } else if (!empty($file->filename)) {
+            }
+            if (!empty($file->filename)) {
                 $imgPath = $file->getPath();
             }
         }
@@ -157,13 +159,13 @@ class ImageFile extends MediaFile
         }
 
         try {
-            $image = new ImageFile($file->getID(), $imgPath);
+            $image = new self($file->getID(), $imgPath);
         } catch (Exception $e) {
             // Avoid deleting the original
             try {
                 if (strlen($imgPath) > 0 && $imgPath !== $file->getPath()) {
-                    common_debug(__METHOD__.': Deleting temporary file that was created as image file' .
-                                 'thumbnail source: '._ve($imgPath));
+                    common_debug(__METHOD__ . ': Deleting temporary file that was created as image file' .
+                                 'thumbnail source: ' . _ve($imgPath));
                     @unlink($imgPath);
                 }
             } catch (FileNotFoundException $e) {
@@ -198,17 +200,20 @@ class ImageFile extends MediaFile
      *
      * Uses MediaFile's `fromUpload` to do the majority of the work and reencodes the image,
      * to mitigate injection attacks.
-     * @param string $param
-     * @param Profile|null $scoped
-     * @return ImageFile|MediaFile
+     *
+     * @param string       $param
+     * @param null|Profile $scoped
+     *
      * @throws ClientException
      * @throws NoResultException
      * @throws NoUploadedMediaException
      * @throws ServerException
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
+     *
+     * @return ImageFile|MediaFile
      */
-    public static function fromUpload(string $param='upload', Profile $scoped = null)
+    public static function fromUpload(string $param = 'upload', Profile $scoped = null)
     {
         return parent::fromUpload($param, $scoped);
     }
@@ -239,16 +244,18 @@ class ImageFile extends MediaFile
      * returned ImageFile object to read metadata (width, height etc.)
      *
      * @param string $outpath
-     * @return ImageFile the image stored at target path
+     *
      * @throws ClientException
      * @throws NoResultException
      * @throws ServerException
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
+     *
+     * @return ImageFile the image stored at target path
      */
     public function copyTo($outpath)
     {
-        return new ImageFile(null, $this->resizeTo($outpath));
+        return new self(null, $this->resizeTo($outpath));
     }
 
     /**
@@ -259,8 +266,10 @@ class ImageFile extends MediaFile
      * @return string full local filesystem filename
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
+     *
+     * @return string full local filesystem filename
      */
-    public function resizeTo($outpath, array $box=array())
+    public function resizeTo($outpath, array $box = [])
     {
         $box['width']  = isset($box['width'])  ? intval($box['width'])  : $this->width;
         $box['height'] = isset($box['height']) ? intval($box['height']) : $this->height;
@@ -298,7 +307,10 @@ class ImageFile extends MediaFile
             }
         }
 
-        if (Event::handle('StartResizeImageFile', array($this, $outpath, $box))) {
+        $this->height = $box['h'];
+        $this->width  = $box['w'];
+
+        if (Event::handle('StartResizeImageFile', [$this, $outpath, $box])) {
             $outpath = $this->resizeToFile($outpath, $box);
         }
 
@@ -321,11 +333,13 @@ class ImageFile extends MediaFile
      * Increases the 'memory_limit' to the one in the 'attachments' section in the config, to
      * enable the handling of bigger images, which can cause a peak of memory consumption, while
      * encoding
+     *
      * @param $outpath
      * @param array $box
+     *
      * @throws Exception
      */
-    protected function resizeToFile(string $outpath, array $box) : string
+    protected function resizeToFile(string $outpath, array $box): string
     {
         $old_limit = ini_set('memory_limit', common_config('attachments', 'memory_limit'));
 
@@ -382,7 +396,7 @@ class ImageFile extends MediaFile
         @unlink($this->filepath);
     }
 
-    public function scaleToFit($maxWidth=null, $maxHeight=null, $crop=null)
+    public function scaleToFit($maxWidth = null, $maxHeight = null, $crop = null)
     {
         return self::getScalingValues(
             $this->width,
@@ -406,23 +420,26 @@ class ImageFile extends MediaFile
      * @param $maxH     int Resulting max height
      * @param $crop     int Crop to the size (not preserving aspect ratio)
      * @param int $rotate
-     * @return array
+     *
      * @throws ServerException
+     *
+     * @return array
      */
     public static function getScalingValues(
         $width,
         $height,
-        $maxW=null,
-        $maxH=null,
-        $crop=null,
-        $rotate=0
+        $maxW = null,
+        $maxH = null,
+        $crop = null,
+        $rotate = 0
     ) {
         $maxW = $maxW ?: common_config('thumbnail', 'width');
         $maxH = $maxH ?: common_config('thumbnail', 'height');
 
         if ($maxW < 1 || ($maxH !== null && $maxH < 1)) {
             throw new ServerException('Bad parameters for ImageFile::getScalingValues');
-        } elseif ($maxH === null) {
+        }
+        if ($maxH === null) {
             // if maxH is null, we set maxH to equal maxW and enable crop
             $maxH = $maxW;
             $crop = true;
@@ -430,8 +447,8 @@ class ImageFile extends MediaFile
 
         // Because GD doesn't understand EXIF orientation etc.
         if (abs($rotate) == 90) {
-            $tmp = $width;
-            $width = $height;
+            $tmp    = $width;
+            $width  = $height;
             $height = $tmp;
         }
 
@@ -444,7 +461,7 @@ class ImageFile extends MediaFile
 
         if ($crop) {
             $s_ar = $width / $height;
-            $t_ar = $maxW / $maxH;
+            $t_ar = $maxW  / $maxH;
 
             $rw = $maxW;
             $rh = $maxH;
@@ -508,7 +525,7 @@ class ImageFile extends MediaFile
         return $count >= 1; // number of animated frames apart from the original image
     }
 
-    public function getFileThumbnail($width, $height, $crop, $upscale=false)
+    public function getFileThumbnail($width, $height, $crop, $upscale = false)
     {
         if (!$this->fileRecord instanceof File) {
             throw new ServerException('No File object attached to this ImageFile object.');
@@ -535,7 +552,7 @@ class ImageFile extends MediaFile
 
         if ($height === null) {
             $height = $width;
-            $crop = true;
+            $crop   = true;
         }
 
         // Get proper aspect ratio width and height before lookup
@@ -544,17 +561,20 @@ class ImageFile extends MediaFile
         // which we don't want to do because we like original, untouched data!
         list($width, $height, $x, $y, $w, $h) = $this->scaleToFit($width, $height, $crop);
 
-        $thumb = File_thumbnail::pkeyGet(array(
-                                            'file_id'=> $this->fileRecord->getID(),
-                                            'width'  => $width,
-                                            'height' => $height,
-                                         ));
+        $thumb = File_thumbnail::pkeyGet([
+            'file_id' => $this->fileRecord->getID(),
+            'width'   => $width,
+            'height'  => $height,
+        ]);
+
         if ($thumb instanceof File_thumbnail) {
+            $this->height = $height;
+            $this->width  = $width;
             return $thumb;
         }
 
         $type = $this->preferredType();
-        $ext = image_type_to_extension($type, true);
+        $ext  = image_type_to_extension($type, true);
         // Decoding returns null if the file is in the old format
         $filename = MediaFile::decodeFilename(basename($this->filepath));
         // Encoding null makes the file use 'untitled', and also replaces the extension
@@ -562,9 +582,9 @@ class ImageFile extends MediaFile
 
         // The boundary box for our resizing
         $box = [
-            'width'=>$width, 'height'=>$height,
-            'x'=>$x,         'y'=>$y,
-            'w'=>$w,         'h'=>$h
+            'width' => $width, 'height' => $height,
+            'x'     => $x,         'y'  => $y,
+            'w'     => $w,         'h'  => $h,
         ];
 
         $outpath = File_thumbnail::path(
@@ -576,7 +596,7 @@ class ImageFile extends MediaFile
                 || $box['w'] < 1 || $box['x'] >= $this->width
                 || $box['h'] < 1 || $box['y'] >= $this->height) {
             // Fail on bad width parameter. If this occurs, it's due to algorithm in ImageFile->scaleToFit
-            common_debug("Boundary box parameters for resize of {$this->filepath} : ".var_export($box, true));
+            common_debug("Boundary box parameters for resize of {$this->filepath} : " . var_export($box, true));
             throw new ServerException('Bad thumbnail size parameters.');
         }
 
@@ -586,6 +606,9 @@ class ImageFile extends MediaFile
             $width,
             $height
         ));
+
+        $this->height = $box['height'];
+        $this->width  = $box['width'];
 
         // Perform resize and store into file
         $outpath = $this->resizeTo($outpath, $box);
