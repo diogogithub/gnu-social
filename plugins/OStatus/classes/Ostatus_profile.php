@@ -1217,7 +1217,7 @@ class Ostatus_profile extends Managed_DataObject
                 // Yes! Avoid creating a new profile
                 $oprofile->profile_id = $profile_id;
 
-                if ($profile->insert() === false) {
+                if ($oprofile->insert() === false) {
                     // TRANS: Server exception.
                     throw new ServerException(_m('Cannot save OStatus profile.'));
                 }
