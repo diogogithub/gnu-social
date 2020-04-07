@@ -111,6 +111,8 @@ class AttachmentListItem extends Widget
             $this->out->element('a', $this->linkAttr(), $this->title());
             $this->out->elementEnd('label');
 
+            $this->out->element('br');
+
             if (!empty($enclosure->mimetype)) {
                 // First, prepare a thumbnail if it exists.
                 $thumb = null;
