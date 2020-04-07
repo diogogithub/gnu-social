@@ -221,18 +221,6 @@ class ActivityPubPlugin extends Plugin
     }
 
     /**
-     * Subscribe AP's profile class to the TFN module
-     * 
-     * @param array $federation
-     * @return bool event hook return
-     */
-    public function onStartTFNCensus(array &$federation): bool
-    {
-        $federation[] = 'Activitypub_profile';
-        return true;
-    }
-
-    /**
      * Set up queue handlers for required interactions
      *
      * @param QueueManager $qm
@@ -387,7 +375,7 @@ class ActivityPubPlugin extends Plugin
         if ($profile->isLocal()) {
             return true;
         }
-        
+
         $aprofile = Activitypub_profile::getKV('profile_id', $profile->getID());
         if (!$aprofile instanceof Activitypub_profile) {
             // Not a remote ActivityPub_profile! Maybe some other network
