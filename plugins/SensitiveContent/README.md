@@ -1,27 +1,21 @@
-# "Sensitive" Content Plugin for GNU Social
+# "Sensitive" Content Plugin for GNU social
 
 ## About
 
-WARNING: THIS IS ALPHA CODE, IT IS PRERELEASE AND SHOULD ONLY BE INSTALLED TO
-HELP TEST OR YOU ARE WILLING TO TAKE RISKS.
-
-Create user option to allow a user to hide #NSFW-hashtagged notices behind a
+Adds a setting to allow a user to hide #NSFW-hashtagged notices behind a
 blocker image until clicked.
 
-Works for both vanilla GNUSocial and with the Qvitter plugin.
+Works for both vanilla GNU social and with the Qvitter plugin.
 
-## Install
+## Settings
 
-- Move the project directory to ${GNU_SOCIAL}/plugins
-- Add addPlugin('SensitiveContent'); to your config.php
+If you want to customize the blocker image, add a line to your config.php:
 
-if you want to customize the blocker image, add a line to your config.php:
-
-  $config['site']['sensitivecontent']['blockerimage'] = "/path/to/image.jpg";
+    addPlugin('SensitiveContent', ['blockerimage' => '/path/to/image.jpg']);
 
 if you want to activate the nsfw overlay for non-logged-in visitors add:
 
-  $config['site']['sensitivecontent']['hideforvisitors'] = true;
+    addPlugin('SensitiveContent', ['hideforvisitors' => true]);
 
 ## Usage
 
@@ -35,7 +29,7 @@ be hidden, it will not apply to notices retroactively unless you clear your brow
 
 ## License
 
-GNU Affero License
+GNU AGPL v3 or later
 
 ## Thanks
 
