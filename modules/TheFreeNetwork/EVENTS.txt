@@ -1,6 +1,3 @@
-StartTFNCensus: when all plugins have been initialized; federation plugins must populate this event's array with their profile class name
-@param array $free_network
-
 StartTFNLookup: tries to locate a duplicated remote profile by URI; federation plugins must trigger this event before profile insertion
 @param string $uri URI of the remote profile to be inserted
 @param string $class profile class of the federation protocol that triggered the event

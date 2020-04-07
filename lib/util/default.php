@@ -337,7 +337,9 @@ $default =
                 'Favorite' => [],
                 'HTMLPurifierSchemes' => [],
                 'Share' => [],
-                'TheFreeNetwork' => [],
+                'TheFreeNetwork' => [
+                    'protocols' => ['ActivityPub' => 'Activitypub_profile', 'OStatus' => 'Ostatus_profile']
+                ],
             ],
             'default' => [
                 'AccountManager' => [],
