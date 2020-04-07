@@ -41,23 +41,27 @@ class TheFreeNetworkModule extends Module
 {
     const MODULE_VERSION = '0.1.0alpha0';
 
-    private $free_network = []; // name of the profile classes of the active federation protocols
-    private $lrdd = false;      // whether LRDD plugin is active or not
+    public $protocols = null; // protocols TFN should handle
+
+    private $lrdd = false; // whether LRDD plugin is active or not
 
     /**
-     * Called when all plugins have been initialized
-     * We'll populate our variables here
+     * Initialize TFN
      *
      * @return bool hook value
      */
     public function onInitializePlugin(): bool
     {
-        // $free_network array
-        Event::handle('StartTFNCensus', [&$this->free_network]);
+        // some protocol plugins can be unactivated,
+        // require needed classes
+        $plugin_dir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'plugins';
+
+        foreach ($this->protocols as $protocol => $class) {
+            require_once $plugin_dir . DIRECTORY_SEPARATOR . $protocol . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . $class . '.php';
+        }
 
         // $lrdd flag
         $this->lrdd = PluginList::isPluginActive("LRDD");
-        $this->log(LOG_INFO, 'LRDD IS ' . ($this->lrdd ? 'ON' : 'OFF'));
 
         return true;
     }
@@ -75,13 +79,14 @@ class TheFreeNetworkModule extends Module
     {
         $profile_id = $this->lookup($uri, $class);
 
-        if ($profile_id == null && $this->lrdd) {
+        $perf = common_config('performance', 'high');
+
+        if (is_null($profile_id) && !$perf && $this->lrdd) {
             // Force lookup with online resources
-            // TODO: Add settings to control whether we do this or not
             $profile_id = $this->lookup($uri, $class, true);
         }
 
-        return ($profile_id == null);
+        return is_null($profile_id);
     }
 
     /**
@@ -94,7 +99,7 @@ class TheFreeNetworkModule extends Module
      */
     public function onEndTFNLookup(string $class, int $profile_id): bool
     {
-        foreach ($this->free_network as $cls) {
+        foreach ($this->protocols as $p => $cls) {
             if ($cls != $class) {
                 $profile = $cls::getKV('profile_id', $profile_id);
                 if ($profile instanceof $cls) {
@@ -156,7 +161,7 @@ class TheFreeNetworkModule extends Module
             return null;
         }
 
-        foreach ($this->free_network as $cls) {
+        foreach ($this->protocols as $p => $cls) {
             if ($cls != $class) {
                 foreach ($all_ids as $alias) {
                     $profile = $cls::getKV('uri', $alias);
