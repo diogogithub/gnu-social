@@ -148,11 +148,12 @@ html .tagcontainer > footer > .attachments > .inline-attachment > .attachment-wr
 
 html[data-hidesensitive='true'] .tagcontainer.data-tag-nsfw > footer > .attachments > .inline-attachment > .attachment-wrapper > .sensitive-blocker {
 display: block;
-width: 100%;
-height: 100%;
+/* hugh, two magic numbers below, sorry :( */
+width: 98%;
+height: 90%;
 position: absolute;
-z-index: 100;
-/*background-color: #d4baba;*/
+/* z-index: 100; */
+/* background-color: #d4baba; */
 background-color: black;
 background-image: url({$blocker});
 background-repeat: no-repeat;
@@ -179,17 +180,17 @@ EOB;
         } catch (Exception $e) {
             $thumbnail = null;
         }
-        $thumb_width_css = $thumbnail ? $thumbnail->width . 'px' : '100%';
-        $thumb_height_css = $thumbnail ? $thumbnail->height . 'px' : '100%';
+        // $thumb_width_css = $thumbnail ? $thumbnail->width . 'px' : '100%';
+        // $thumb_height_css = $thumbnail ? $thumbnail->height . 'px' : '100%';
 
         $out->elementStart('div', [
             'class' => 'attachment-wrapper',
-            'style' => "height: {$thumb_height_css}; width: {$thumb_width_css};",
+            /* 'style' => "height: {$thumb_height_css}; width: {$thumb_width_css};", */
         ]); // needs height of thumb
         $out->elementStart('div', [
             'class' => $classes,
             'onclick' => 'toggleSpoiler(event)',
-            'style' => "height: {$thumb_height_css}; width: {$thumb_width_css};",
+            /* 'style' => "height: {$thumb_height_css}; width: {$thumb_width_css};", */
         ]);
         $out->raw('&nbsp;');
         $out->elementEnd('div');
