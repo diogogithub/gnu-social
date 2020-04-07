@@ -14,8 +14,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Adds a setting to allow a user to hide #NSFW-hashtagged notices behind a
+ * blocker image until clicked.
+ *
+ * @package   GNUsocial
+ * @author    MoonMan
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
+
 defined('GNUSOCIAL') || die();
 
+/**
+ * Class SensitiveContentSettingsAction
+ * Handles the settings action for this plugin
+ *
+ * @package   GNUsocial
+ * @author    MoonMan
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class SensitiveContentSettingsAction extends SettingsAction
 {
     public function title()
@@ -36,8 +55,8 @@ class SensitiveContentSettingsAction extends SettingsAction
             'form',
             [
                 'method' => 'post',
-                'id'     => 'sensitivecontent',
-                'class'  => 'form_settings',
+                'id' => 'sensitivecontent',
+                'class' => 'form_settings',
                 'action' => common_local_url('sensitivecontentsettings'),
             ]
         );
@@ -51,10 +70,9 @@ class SensitiveContentSettingsAction extends SettingsAction
             'hidesensitive',
             _('Hide attachments in posts hashtagged #NSFW'),
             ($this->arg('hidesensitive') ?
-            $this->boolean('hidesensitive') : $this->scoped->getPref('MoonMan', 'hide_sensitive', 0))
+                $this->boolean('hidesensitive') : $this->scoped->getPref('MoonMan', 'hide_sensitive', 0))
         );
         $this->elementEnd('li');
-
 
         $this->elementEnd('ul');
         $this->submit('save', _m('BUTTON', 'Save'));
@@ -67,6 +85,6 @@ class SensitiveContentSettingsAction extends SettingsAction
     {
         $hidesensitive = $this->boolean('hidesensitive') ? '1' : '0';
         $this->scoped->setPref('MoonMan', 'hide_sensitive', $hidesensitive);
-        return _('Settings saved.');
+        return _m('Settings saved.');
     }
 }
