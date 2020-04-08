@@ -1,0 +1,102 @@
+#!/bin/php
+
+<?php
+
+define('INSTALL_DIR', dirname(__DIR__));
+
+require INSTALL_DIR . '/vendor/autoload.php';
+
+use App\Util\Common;
+use App\Util\HTML as H;
+use Functional as F;
+
+$template = '
+\documentclass{article}
+
+\paperheight=120cm
+\paperwidth=100cm
+
+\usepackage[pdf]{graphviz}
+
+\title{GNU social database diagram}
+\author{Hugo Sales}
+\date{\today}
+
+\begin{document}
+
+  \maketitle
+
+  \neatograph{database}{
+    node [shape=plaintext]
+
+%tables%
+
+%edges%
+
+  }
+\end{document}
+';
+
+$files = glob(INSTALL_DIR . '/src/Entity/*.php');
+
+$tables = [];
+$edges  = [];
+foreach ($files as $file) {
+    require_once $file;
+
+    $declared = get_declared_classes();
+    $class    = end($declared);
+    $schema   = $class::schemaDef();
+    $table    = $schema['name'];
+    $fields   = [['name' => $table, 'type' => '']];
+    foreach ($schema['fields'] as $name => $opts) {
+        $fields[] = [
+            'name' => $name,
+            'type' => ": {$opts['type']}" . ($opts['type'] == 'varchar' ? "({$opts['length']})" : ''),
+        ];
+    }
+
+    if (isset($schema['foreign keys'])) {
+        foreach ($schema['foreign keys'] as $name => $map) {
+            // Patern matching like above would be nice
+            list($foreign_table,
+                 $keys)  = $map;
+            $local_key   = array_keys($keys)[0];
+            $foreign_key = $keys[$local_key];
+            $edges[]     = "{$table}:{$local_key} -- {$foreign_table}:{$foreign_key}";
+        }
+    }
+
+    $cell = function ($field) {
+        $def = $field['name'] . $field['type'];
+        return ['tr' => ['td' => ['attrs' => ['port' => $field['name']], $def]]];
+    };
+    $html = ['table' => array_merge(
+              ['attrs' => ['border' => '0', 'cellborder' => '1', 'cellspacing' => '0']],
+              F\map($fields, $cell)),
+    ];
+
+    $tables[] = Common::indent("{$table} [label=<\n" . Common::indent(H::html($html)) . "\n>]");
+}
+
+$outfile = INSTALL_DIR . '/DOCUMENTATION/database/diagram.tex';
+
+$replace = [
+    '/%tables%/' => Common::indent(implode("\n", $tables)),
+    '/%edges%/'  => Common::indent(implode("\n", $edges)),
+    // '/_/'        => '\textunderscore ',
+];
+
+$out = $template;
+foreach ($replace as $from => $to) {
+    $out = preg_replace($from, $to, $out);
+}
+
+file_put_contents($outfile, $out);
+
+$path = dirname(__DIR__) . '/DOCUMENTATION/database';
+
+system("cd {$path} && pdflatex diagram.tex > /dev/null");
+system("neato -Goverlap=false -Gsplines=true -Tpdf {$path}/database.dot -o {$path}/database.pdf");
+
+echo "Generated database diagram. See {$path}/database.pdf\n";
