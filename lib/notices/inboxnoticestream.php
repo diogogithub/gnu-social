@@ -92,12 +92,20 @@ class RawInboxNoticeStream extends FullNoticeStream
         // Reply:: is a table of mentions
         // Subscription:: is a table of subscriptions (every user is subscribed to themselves)
         $notice->_join .= sprintf(
-            "\n" . 'NATURAL INNER JOIN (' .
-            '(SELECT id FROM notice WHERE profile_id IN (SELECT subscribed FROM subscription WHERE subscriber = %1$d)) ' .
-            'UNION (SELECT notice_id AS id FROM reply WHERE profile_id = %1$d) ' .
-            'UNION (SELECT notice_id AS id FROM attention WHERE profile_id = %1$d) ' .
-            'UNION (SELECT notice_id AS id FROM group_inbox WHERE group_id IN (SELECT group_id FROM group_member WHERE profile_id = %1$d))' .
-            ') AS t1',
+            "\n" . <<<'END'
+            INNER JOIN (
+              (SELECT id FROM notice
+                WHERE profile_id
+                IN (SELECT subscribed FROM subscription WHERE subscriber = %1$d))
+              UNION
+              (SELECT notice_id AS id FROM reply WHERE profile_id = %1$d)
+              UNION
+              (SELECT notice_id AS id FROM attention WHERE profile_id = %1$d)
+              UNION
+              (SELECT notice_id AS id FROM group_inbox INNER JOIN group_member USING (group_id)
+                WHERE group_member.profile_id = %1$d)
+            ) AS t1 USING (id)
+            END,
             $this->target->getID()
         );
 
