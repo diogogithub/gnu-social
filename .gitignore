@@ -21,3 +21,6 @@
 ###< friendsofphp/php-cs-fixer ###
 
 /file
+
+DOCUMENTATION/database/*
+!DOCUMENTATION/database/diagram.pdf
