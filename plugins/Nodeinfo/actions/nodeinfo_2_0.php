@@ -327,17 +327,19 @@ class Nodeinfo_2_0Action extends Action
     public function getActiveUsers(int $days): int
     {
         $userTable = common_database_tablename('user');
-        $query = "
-         SELECT COUNT(DISTINCT profile_id) AS active_users_count
-         FROM (
-            SELECT profile_id FROM notice
-               WHERE notice.created >= (CURRENT_TIMESTAMP - INTERVAL '{$days}' DAY) AND notice.is_local = 1
-            UNION ALL
-            SELECT user_id FROM fave INNER JOIN {$userTable} ON fave.user_id = {$userTable}.id
-               WHERE fave.created >= (CURRENT_TIMESTAMP - INTERVAL '{$days}' DAY)
-            UNION ALL
-            SELECT id FROM {$userTable} WHERE {$userTable}.created >= (CURRENT_TIMESTAMP - INTERVAL '{$days}' DAY)
-         ) AS source";
+        $query = <<<END
+            SELECT COUNT(DISTINCT profile_id) AS active_users_count
+              FROM (
+                SELECT profile_id FROM notice
+                  WHERE notice.created >= CURRENT_DATE - INTERVAL '{$days}' DAY AND notice.is_local = 1
+                UNION ALL
+                SELECT user_id FROM fave INNER JOIN {$userTable} ON fave.user_id = {$userTable}.id
+                  WHERE fave.created >= CURRENT_DATE - INTERVAL '{$days}' DAY
+                UNION ALL
+                SELECT id FROM {$userTable} WHERE {$userTable}.created >= CURRENT_DATE - INTERVAL '{$days}' DAY
+              ) AS source
+              WHERE profile_id NOT IN (SELECT profile_id FROM profile_role WHERE role = 'silenced')
+            END;
 
         $activeUsersCount = new DB_DataObject();
         $activeUsersCount->query($query);
