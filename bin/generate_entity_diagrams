@@ -11,30 +11,13 @@ use App\Util\HTML as H;
 use Functional as F;
 
 $template = '
-\documentclass{article}
-
-\paperheight=120cm
-\paperwidth=100cm
-
-\usepackage[pdf]{graphviz}
-
-\title{GNU social database diagram}
-\author{Hugo Sales}
-\date{\today}
-
-\begin{document}
-
-  \maketitle
-
-  \neatograph{database}{
-    node [shape=plaintext]
+graph database {
 
 %tables%
 
 %edges%
 
-  }
-\end{document}
+}
 ';
 
 $files = glob(INSTALL_DIR . '/src/Entity/*.php');
@@ -76,10 +59,8 @@ foreach ($files as $file) {
               F\map($fields, $cell)),
     ];
 
-    $tables[] = Common::indent("{$table} [label=<\n" . Common::indent(H::html($html)) . "\n>]");
+    $tables[] = Common::indent("{$table} [shape=none, label=<\n" . Common::indent(H::html($html)) . "\n>]");
 }
-
-$outfile = INSTALL_DIR . '/DOCUMENTATION/database/diagram.tex';
 
 $replace = [
     '/%tables%/' => Common::indent(implode("\n", $tables)),
@@ -92,11 +73,11 @@ foreach ($replace as $from => $to) {
     $out = preg_replace($from, $to, $out);
 }
 
-file_put_contents($outfile, $out);
-
 $path = dirname(__DIR__) . '/DOCUMENTATION/database';
 
-system("cd {$path} && pdflatex diagram.tex > /dev/null");
+$outfile = $path . '/database.dot';
+file_put_contents($outfile, $out);
+
 system("neato -Goverlap=false -Gsplines=true -Tpdf {$path}/database.dot -o {$path}/database.pdf");
 
 echo "Generated database diagram. See {$path}/database.pdf\n";
