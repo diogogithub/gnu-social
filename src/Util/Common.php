@@ -131,4 +131,23 @@ abstract class Common
     {
         return implode('', F\map(preg_split('/[\b_]/', $str), self::arity('ucfirst', 1)));
     }
+
+    /**
+     * Indent $in, a string or array, $level levels
+     *
+     * @param array|string $in
+     */
+    public static function indent($in, int $level = 1, int $count = 2): string
+    {
+        if (is_string($in)) {
+            return self::indent(explode("\n", $in), $level, $count);
+        } elseif (is_array($in)) {
+            $indent = str_repeat(' ', $count * $level);
+            return implode("\n", F\map(F\select($in,
+                                                self::arity(function ($s) { return $s != ''; }, 1)),
+                                       function ($val) use ($indent) {
+                                           return F\concat($indent . $val);
+                                       }));
+        }
+    }
 }
