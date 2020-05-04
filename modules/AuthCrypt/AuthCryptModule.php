@@ -85,7 +85,7 @@ class AuthCryptModule extends AuthenticationModule
         $salt  = '';
 
         for ($i=0; $i<$len; $i++) {
-            $salt .= $chars{mt_rand(0, strlen($chars)-1)};
+            $salt .= $chars[mt_rand(0, strlen($chars)-1)];
         }
 
         return $salt;
