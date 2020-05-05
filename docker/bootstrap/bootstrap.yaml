@@ -1,0 +1,14 @@
+version: "3.3"
+
+services:
+  bootstrap:
+    build: .
+    volumes:
+      - ../certbot/www:/var/www/certbot
+      - ../certbot/files:/etc/letsencrypt
+      - ./bootstrap.sh:/bootstrap.sh
+    ports:
+      - 80:80
+    env_file:
+      - bootstrap.env
+    entrypoint: /bootstrap.sh

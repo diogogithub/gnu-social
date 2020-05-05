@@ -3,35 +3,67 @@ version: '3.3'
 services:
   nginx:
     image: nginx:latest
+    depends_on:
+      - php
     restart: always
     tty: false
     ports:
       - 80:80
       - 443:443
     volumes:
-      - .:/var/www/gnusocial
-      - ./nginx.conf:/etc/nginx/conf.d/gnusocial.conf
+      - ./public:/var/www/social/public
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/social.conf
+    command: /bin/sh -c 'sed -ri "s/%hostname%/$domain/" /etc/nginx/conf.d/social.conf
+                         while :; do sleep 6h & wait $${!};
+                             nginx -s reload;
+                         done &
+                         nginx -g "daemon off;"'
+
+  certbot:
+    image: certbot/certbot
+    depends_on:
+      - nginx
+    # Check for certificate renewal every 12h as
+    # recomnended by Let's Encryot
+    entrypoint: /bin/sh -c 'trap exit TERM;
+                            while :; do
+                                certbot renew > /dev/null;
+                                sleep 12h & wait $${!};
+                            done'
+    volumes:
+      - ./docker/certbot/www:/var/www/certbot
+      - ./docker/certbot/files:/etc/letsencrypt
 
   php:
     build: docker/php
+    depends_on:
+      - db
     restart: always
     tty: true
     ports:
       - 9000:9000
     volumes:
-      - .:/var/www/gnusocial
+      # Entrypoint
+      - ./docker/php/entrypoint.sh:/entrypoint.sh
+      - ./docker/db/wait_for_db.sh:/wait_for_db.sh
+      - ./docker/social/install.sh:/var/entrypoint.d/social_install.sh
+      # Main files
+      - .:/var/www/social
+    env_files:
+      - ./docker/social/social.env
+      - ./docker/db/db.env
+    command: /entrypoint.sh
 
-  postgres:
+  db:
     image: postgres:alpine
     restart: always
     tty: false
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=foobar
-      - POSTGRES_DB=social
       - PGDATA=/var/lib/postgresql/data
+    env_file:
+      - ./docker/db/db.env
     volumes:
       - database:/var/lib/postgresql/data
 
