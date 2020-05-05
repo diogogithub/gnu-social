@@ -337,6 +337,7 @@ class Profile extends Managed_DataObject
             $gm = new Group_member();
 
             $gm->profile_id = $this->id;
+            $gm->orderBy('created DESC');
 
             if ($gm->find()) {
                 while ($gm->fetch()) {
