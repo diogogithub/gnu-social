@@ -1,15 +1,14 @@
 #!/bin/sh
 
-case $SOCIAL_DBMS in
+case $DBMS in
     "mariadb")
-        CMD=mysqladmin ping --silent -hdb -uroot -p${MYSQL_ROOT_PASSWORD}
+        CMD="mysqladmin ping --silent -hdb -uroot -p${MYSQL_ROOT_PASSWORD}"
         ;;
     "postgres")
-        CMD=su postgres && pg_isready -hdb -q
+        CMD="pg_isready -hdb -q"
         ;;
     *)
         exit 1
-
 esac
 
 while ! $CMD;

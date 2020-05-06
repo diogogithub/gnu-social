@@ -1,6 +1,7 @@
 FROM php:fpm-alpine
 
-RUN apk update && apk add gettext-dev icu-dev zlib-dev libpng-dev gmp-dev postgresql-dev composer > /dev/null
+RUN apk update && apk add gettext-dev icu-dev zlib-dev libpng-dev gmp-dev \
+        postgresql-dev postgresql-client composer > /dev/null
 
 ARG exts=" bcmath exif gd gettext gmp intl mysqli opcache pdo_mysql"
 
