@@ -19,4 +19,4 @@ good-config.php
 /vendor/
 
 docker/certbot
-
+docker/*/*.env
