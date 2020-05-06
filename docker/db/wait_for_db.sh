@@ -5,7 +5,7 @@ case $DBMS in
         CMD="mysqladmin ping --silent -hdb -uroot -p${MYSQL_ROOT_PASSWORD}"
         ;;
     "postgres")
-        CMD="pg_isready -hdb -q"
+        CMD="pg_isready -hdb -q -Upostgres"
         ;;
     *)
         exit 1
