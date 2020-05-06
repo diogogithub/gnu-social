@@ -1,0 +1,21 @@
+#!/bin/sh
+
+read -p "Domain root: " domain_root
+read -p "Subdomain (can be empty): " sub_domain
+read -p "Email: " email
+
+if [ -z $sub_domain ]; then
+    domain="${domain_root}"
+else
+    domain="${sub_domain}.${domain_root}"
+fi
+
+mkdir -p ./docker/bootstrap
+
+cat > ./docker/bootstrap/bootstrap.env <<EOF
+email=${email}
+domain=${domain}
+domain_root=${domain_root}
+EOF
+
+docker-compose -f docker/bootstrap/bootstrap.yaml up

@@ -1,0 +1,53 @@
+#!/bin/sh
+
+. ./docker/bootstrap/bootstrap.env
+
+read -p "DBMS (postgres|mariadb): " dbms
+read -p "DB root password: " db_root_password
+read -p "Social database name: " db
+read -p "Database user: " user
+read -p "Database password: " password
+read -p "Sitename: " sitename
+read -p "Admin nickname: " admin_nick
+read -p "Admin password: " admin_password
+read -p "Site profile (public|private|community|singleuser): " profile
+
+mkdir -p ./docker/db
+
+
+if [ ${dbms} = 'mariadb' ]; then
+    read -p "DB root password: " db_root_password
+    cat > ./docker/db/db.env <<EOF
+DBMS=${dbms}
+MYSQL_ROOT_PASSWORD=${db_root_password}
+EOF
+
+    database_url="DATABASE_URL=mysql://${user}:${password}@db:3306/${db}"
+
+else
+    cat > ./docker/db/db.env <<EOF
+DBMS=${dbms}
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=${db_root_password}
+EOF
+
+    database_url="DATABASE_URL=postgresql://${user}:${password}@db:5432/${db}"
+
+fi
+
+echo $database_url > .env.local
+
+mkdir -p ./docker/social
+
+cat > ./docker/social/social.env <<EOF
+SOCIAL_DBMS=${dbms}
+SOCIAL_DB=${db}
+SOCIAL_USER=${user}
+SOCIAL_PASSWORD=${password}
+SOCIAL_DOMAIN=${domain}
+SOCIAL_SITENAME=${sitename}
+SOCIAL_ADMIN_NICK=${admin_nick}
+SOCIAL_ADMIN_PASSWORD=${admin_password}
+SOCIAL_ADMIN_EMAIL=${email}
+SOCIAL_SITE_PROFILE=${profile}
+EOF
