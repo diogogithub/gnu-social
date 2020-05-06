@@ -11,3 +11,5 @@ RUN apk add --virtual .phpize-deps $PHPIZE_DEPS \
         && apk del .phpize-deps > /dev/null
 
 RUN docker-php-ext-install ${exts}
+
+WORKDIR /var/www/social
