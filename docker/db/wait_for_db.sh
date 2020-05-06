@@ -1,11 +1,11 @@
 #!/bin/sh
 
 case $DBMS in
-    "mariadb")
-        CMD="mysqladmin ping --silent -hdb -uroot -p${MYSQL_ROOT_PASSWORD}"
-        ;;
     "postgres")
         CMD="pg_isready -hdb -q -Upostgres"
+        ;;
+    "mariadb")
+        CMD="mysqladmin ping --silent -hdb -uroot -p${MYSQL_ROOT_PASSWORD}"
         ;;
     *)
         exit 1
