@@ -1,6 +1,11 @@
 #!/bin/sh
 
-if [ ! -e /var/www/social/config.php ]; then
+PGPASSWORD="${POSTGRES_PASSWORD}" psql -ltq -Upostgres -hdb | \
+    cut -d '|' -f1 | grep -wq "${SOCIAL_DB}"
+
+if [ ! $? ]; then
+
+    echo ${SOCIAL_DB}
 
     echo -e "Installing GNU social\nInstalling composer dependencies"
 
@@ -8,13 +13,10 @@ if [ ! -e /var/www/social/config.php ]; then
 
     composer install
 
-    chmod g+w -R /var/www/social
-    chown -R :www-data /var/www/social
+    chmod g+w -R .
+    chown -R :www-data .
 
-    php /var/www/social/scripts/install_cli.php --server="${SOCIAL_DOMAIN}" --sitename="${SOCIAL_SITENAME}" \
-        --host=db --fancy=yes --database="${SOCIAL_DB}" \
-        --username="${SOCIAL_USER}" --password="${SOCIAL_PASSWORD}" \
-        --admin-nick="${SOCIAL_ADMIN_NICK}" --admin-pass="${SOCIAL_ADMIN_PASSWORD}" || exit 1
+    php bin/console doctrine:database:create || exit 1
 
     echo "GNU social is installed"
 fi
