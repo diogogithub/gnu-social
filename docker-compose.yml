@@ -6,7 +6,7 @@ services:
     depends_on:
       - php
     restart: always
-    tty: false
+    # tty: false
     ports:
       - 80:80
       - 443:443
