@@ -69,17 +69,13 @@ instructions of your proxy provider.
 If you're not using a proxy, you can use the
 `bin/bootstrap_certificates` script to generate and install
 certificates signed by Let's Encrypt. To do this, you should add the
-server's IP (even if it's dynamic) as an `A` DNS record with your DNS
-provider (normally, your domain registrar). The `A` record doesn't
+server's IP, if it's static, as an `A` DNS record with your DNS
+provider (normally, your domain registrar); the `A` record doesn't
 need to be at the root of your domain, meaning it's name can be a
-subdomain. Then, run the aforementioned script and fill in the
-details; this requires `docker` and `docker-compose` and will create
-the requested certificate.
-
-After doing the above, if you don't have a static IP, go to your DNS
-manager, delete the `A` record you created in the previous step and
-create a `CNAME` record pointing from the domain you want to use the
-domain you registered with the GnuDIP host.
+subdomain. For dynamic IPs, create a `CNAME` record pointing to the
+hostname you created with the GnuDIP host, above. A `CNAME` cannot be
+created for a domain root, so you must use a subdomain. Then, run the
+aforementioned script and fill in the details.
 
 Without TLS/SSL
 ----
