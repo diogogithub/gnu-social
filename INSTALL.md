@@ -1,28 +1,126 @@
+
+GNU social
+=====
+
+GNU social is a federated social network.
+
 TABLE OF CONTENTS
 =================
-* Prerequisites
+* Installation with docker
+  + Prerequisites
+  + With TLS/SSL
+  + Without TLS/SSL
+  + Configuration
+  + Installing/running
+  
+* Installation without docker
+  + Prerequisites
     - PHP modules
     - Better performance
-* Installation
+  + Installation
     - Getting it up and running
     - Fancy URLs
     - Themes
     - Private
-* Extra features
+  + Extra features
     - Sphinx
     - SMS
     - Translation
     - Queues and daemons
-* After installation
+  + After installation
     - Backups
     - Upgrading
-* Additional configuration
+  + Additional configuration
+
+Installation with docker
+================
+
+Installation can be done in multiple ways, but the simplest is using
+`docker` and `docker-compose`. The compose file currently includes all
+the necessary services for running the app. Running the database and
+webserver outside of `docker` containers is currently not supported,
+unless the app is installed without `docker`.
 
 Prerequisites
-=============
+-----
 
-PHP modules
+In order to host your GNU social instance, you'll need a domain, a
+server with a constant IP and `docker` and `docker-compose` installed
+on your system.
+
+Alternatively, for local hosting or development, behind a NAT, use a
+dynamic DNS solutions. I recommend you go to
+https://gnudip.datasystems24.net or another GnuDIP host and register.
+Then clone https://notabug.org/someonewithpc/gnudip.git, inspect and
+run the `./install.sh` script. This allows you to have a domain that
+dynamically points to your IP address.
+
+With TLS/SSL
+----
+
+Next, if you want to setup SSL (which you should in most cases,
+exceptions being wanting to use the Thor network), you'll need a
+certificate. There are multiple approaches to achieve this, among
+which are using a proxy server capable of either proxying an HTTP
+connection to HTTPS or an HTTPS connection to HTTPS, or creating a
+certificate signed by Let's Encrypt. For the former, follow the
+instructions of your proxy provider.
+
+If you're not using a proxy, you can use the
+`bin/bootstrap_certificates` script to generate and install
+certificates signed by Let's Encrypt. To do this, you should add the
+server's IP (even if it's dynamic) as an `A` DNS record with your DNS
+provider (normally, your domain registrar). The `A` record doesn't
+need to be at the root of your domain, meaning it's name can be a
+subdomain. Then, run the aforementioned script and fill in the
+details; this requires `docker` and `docker-compose` and will create
+the requested certificate.
+
+After doing the above, if you don't have a static IP, go to your DNS
+manager, delete the `A` record you created in the previous step and
+create a `CNAME` record pointing from the domain you want to use the
+domain you registered with the GnuDIP host.
+
+Without TLS/SSL
+----
+
+Edit the `docker-compose.yaml` file and comment the `certbot` service
+to disable it. In the future, this will be handled by the
+`bin/configure` script.
+
+Configuration
+----
+
+Run the `bin/configure` script and enter the information as asked.
+This will generate all the required `.env` files used by
+`docker-compose` to configure the application.
+
+Installation/Running
+-----
+
+Simply run `docker-compose up` from the root of the project (the
+folder where the `.git` folder is). In this form, the application can
+be stopped by pressing `C-c` (`CTRL` + `C`); pressing it again will
+force the containers to stop immediately. However, this form will show
+you all logs, but in most cases, you won't want to see those all the
+time. For that, run `docker-compose up -d` from the same directory;
+The application can then be stopped with `docker-compose down`.
+
+
+
+
+------------------------------------------------------------------------
+
+
+
+
+Installation without docker
+================
+
+Prerequisites
 -----------
+
+### PHP modules
 
 The following software packages are *required* for this software to
 run correctly.
@@ -53,8 +151,7 @@ functional setup of GNU social:
 
 NOTE: Some distros require manual enabling in the relevant php.ini for some modules.
 
-Better performance
-------------------
+### Better performance
 
 For some functionality, you will also need the following extensions:
 
@@ -75,10 +172,9 @@ a PHP cache/accelerator. Most distributions come with "opcache" support.
 Enable it in your php.ini where it is documented together with its settings.
 
 Installation
-============
+--------------
 
-Getting it up and running
--------------------------
+### Getting it up and running
 
 Installing the basic GNU Social web component is relatively easy,
 especially if you've previously installed PHP/MariaDB packages.
@@ -161,8 +257,7 @@ especially if you've previously installed PHP/MariaDB packages.
    and see the "Public Timeline", which will probably be empty. You can
    now register new user, post some notices, edit your profile, etc.
 
-Fancy URLs
-----------
+### Fancy URLs
 
 By default, GNU Social will use URLs that include the main PHP program's
 name in them. For example, a user's home profile might be found at either
@@ -202,8 +297,7 @@ like:
 
     https://social.example.net/main/register
 
-Themes
-------
+### Themes
 
 As of right now, your ability change the theme is limited to CSS
 stylesheets and some image files; you can't change the HTML output,
@@ -227,8 +321,7 @@ listing on profile pages.
 You may want to start by copying the files from the default theme to
 your own directory.
 
-Private
--------
+### Private
 
 A GNU social node can be configured as "private", which means it will not
 federate with other nodes in the network. It is not a recommended method
@@ -260,10 +353,9 @@ Access to file attachments can also be restricted to logged-in users only:
        $config['attachments']['dir'] = '/var/www/gnusocial-files';
 
 Extra features
-==============
+---------
 
-Sphinx
-------
+### Sphinx
 
 To use a Sphinx server to search users and notices, you'll need to
 enable the SphinxSearch plugin. Add to your config.php:
@@ -276,8 +368,7 @@ php on the client side, which itself depends on the sphinx development files.
 
 See plugins/SphinxSearch/README for more details and server setup.
 
-SMS
----
+### SMS
 
 StatusNet supports a cheap-and-dirty system for sending update messages
 to mobile phones and for receiving updates from the mobile. Instead of
@@ -325,8 +416,7 @@ For this to work, there *must* be a domain or sub-domain for which all
 
        $config['mail']['domain'] = 'yourdomain.example.net';
 
-Translations
-------------
+### Translations
 
 For info on helping with translations, see the platform currently in use
 for translations: https://www.transifex.com/projects/p/gnu-social/
@@ -341,8 +431,7 @@ tracking the git repo, you will need to install at least 'gettext' on
 your system and then run:
     $ make translations
 
-Queues and daemons
-------------------
+### Queues and daemons
 
 Some activities that StatusNet needs to do, like broadcast OStatus, SMS,
 XMPP messages and TwitterBridge operations, can be 'queued' and done by
@@ -353,7 +442,7 @@ Two mechanisms are available to achieve offline operations:
 * New embedded OpportunisticQM plugin, which is enabled by default
 * Legacy queuedaemon script, which can be enabled via config file.
 
-### OpportunisticQM plugin
+#### OpportunisticQM plugin
 
 This plugin is enabled by default. It tries its best to do background
 jobs during regular HTTP requests, like API or HTML pages calls.
@@ -373,7 +462,7 @@ In other case, you really should consider enabling the queuedaemon for
 performance reasons. Background daemons are necessary anyway if you wish
 to use the Instant Messaging features such as communicating via XMPP.
 
-### queuedaemon
+#### queuedaemon
 
 If you want to use legacy queuedaemon, you must be able to run
 long-running offline processes, either on your main Web server or on
@@ -438,24 +527,22 @@ home-grown DB-based queue solution. This is strongly recommended for
 best response time, especially when using XMPP.
 
 After installation
-==================
+----------
 
-Backups
--------
+### Backups
 
 There is no built-in system for doing backups in GNU social. You can make
 backups of a working StatusNet system by backing up the database and
 the Web directory. To backup the database use mysqldump <https://mariadb.com/kb/en/mariadb/mysqldump/>
 and to backup the Web directory, try tar.
 
-Upgrading
----------
+### Upgrading
 
 Upgrading is strongly recommended to stay up to date with security fixes
 and new features. For instructions on how to upgrade GNU social code,
 please see the UPGRADE file.
 
-Additional configuration
-------------------------
+### Additional configuration
 
 Please refer to DOCUMENTATION/SYSTEM_ADMINISTRATORS/CONFIGURE for information.
+----
