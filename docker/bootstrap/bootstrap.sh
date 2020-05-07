@@ -35,15 +35,15 @@ if [ ! -e "${lets_path}/live//options-ssl-nginx.conf" ] \
     echo "### Requesting Let's Encrypt certificate for $root_domain ..."
     # Format domain_args with the cartesian product of `root_domain` and `subdomains`
 
-    email_arg="--email $email"
-    domain_arg="-d $domain"
+    email_arg="--email ${email}"
+    domain_arg=$([ "${domain_root}" = "${domain}" ] && printf "-d ${domain_root}" || printf "-d ${domain_root} -d ${domain}")
 
     # Ask Let's Encrypt to create certificates, if challenge passed
     certbot certonly --webroot -w /var/www/certbot \
-            $email_arg \
-            $domain_arg \
+            ${email_arg} \
+            ${domain_arg} \
             --non-interactive \
-            --rsa-key-size $rsa_key_size \
+            --rsa-key-size ${rsa_key_size} \
             --agree-tos \
             --force-renewal
 
