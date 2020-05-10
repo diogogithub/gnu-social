@@ -1,21 +1,34 @@
 #!/bin/sh
 
-read -p "Domain root: " domain_root
-read -p "Subdomain (can be empty): " sub_domain
-read -p "Email: " email
+printf "Domain root: "
+read -r domain_root
+printf "Subdomain (can be empty): "
+read -r sub_domain
+printf "Email: "
+read -r email
+printf "Use certificate signed by Let's Encrypt (Y/n): "
+read -r signed
 
-if [ -z $sub_domain ]; then
-    domain="${domain_root}"
+[ "${signed}" = "${signed#[Yy]}" ]
+signed=$?
+
+if [ -z "$sub_domain" ]
+then
+  domain="${domain_root}"
 else
-    domain="${sub_domain}.${domain_root}"
+  domain="${sub_domain}.${domain_root}"
 fi
 
 mkdir -p ./docker/bootstrap
 
 cat > ./docker/bootstrap/bootstrap.env <<EOF
+#!/bin/sh
 email=${email}
 domain=${domain}
 domain_root=${domain_root}
+signed=${signed}
 EOF
+
+chmod +x ./docker/bootstrap/bootstrap.env
 
 docker-compose -f docker/bootstrap/bootstrap.yaml up

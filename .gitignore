@@ -27,3 +27,6 @@ DOCUMENTATION/database/*
 
 docker/certbot
 docker/*/*.env
+
+# V2
+config.php
