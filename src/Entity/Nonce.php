@@ -4,7 +4,7 @@
 // This file is part of GNU social - https://www.gnu.org/software/soci
 //
 // GNU social is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as publ
+// it under the terms of the GNU Affero General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
@@ -13,11 +13,13 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 //
-// You should have received a copy of the GNU Affero General Public Li
+// You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
 namespace App\Entity;
+
+use DateTimeInterface;
 
 /**
  * Entity for nonce
@@ -40,9 +42,9 @@ class Nonce
     private string $consumer_key;
     private ?string $tok;
     private string $nonce;
-    private \DateTimeInterface $ts;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $ts;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setConsumerKey(string $consumer_key): self
     {
@@ -74,32 +76,32 @@ class Nonce
         return $this->nonce;
     }
 
-    public function setTs(\DateTimeInterface $ts): self
+    public function setTs(DateTimeInterface $ts): self
     {
         $this->ts = $ts;
         return $this;
     }
-    public function getTs(): \DateTimeInterface
+    public function getTs(): DateTimeInterface
     {
         return $this->ts;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }

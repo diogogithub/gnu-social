@@ -4,7 +4,7 @@
 // This file is part of GNU social - https://www.gnu.org/software/soci
 //
 // GNU social is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as publ
+// it under the terms of the GNU Affero General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
@@ -13,11 +13,13 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 //
-// You should have received a copy of the GNU Affero General Public Li
+// You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
 namespace App\Entity;
+
+use DateTimeInterface;
 
 /**
  * Data class for Conversations
@@ -38,8 +40,8 @@ class Conversation
     private int $id;
     private string $uri;
     private ?string $url;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -71,22 +73,22 @@ class Conversation
         return $this->url;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
@@ -100,7 +102,7 @@ class Conversation
             'fields' => [
                 'id'       => ['type' => 'serial', 'not null' => true, 'description' => 'Unique identifier, (again) unrelated to notice id since 2016-01-06'],
                 'uri'      => ['type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'URI of the conversation'],
-                'url'      => ['type' => 'varchar', 'length' => 191, 'description' => 'Resolvable URL, preferrably remote (local can be generated on the fly)'],
+                'url'      => ['type' => 'varchar', 'length' => 191, 'description' => 'Resolvable URL, preferably remote (local can be generated on the fly)'],
                 'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

@@ -4,7 +4,7 @@
 // This file is part of GNU social - https://www.gnu.org/software/soci
 //
 // GNU social is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as publ
+// it under the terms of the GNU Affero General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
@@ -13,11 +13,13 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 //
-// You should have received a copy of the GNU Affero General Public Li
+// You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
 namespace App\Entity;
+
+use DateTimeInterface;
 
 /**
  * Entity for a Queue Item
@@ -40,8 +42,8 @@ class QueueItem
     private int $id;
     private $frame;
     private string $transport;
-    private \DateTimeInterface $created;
-    private ?\DateTimeInterface $claimed;
+    private DateTimeInterface $created;
+    private ?DateTimeInterface $claimed;
 
     public function setId(int $id): self
     {
@@ -73,22 +75,22 @@ class QueueItem
         return $this->transport;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setClaimed(?\DateTimeInterface $claimed): self
+    public function setClaimed(?DateTimeInterface $claimed): self
     {
         $this->claimed = $claimed;
         return $this;
     }
-    public function getClaimed(): ?\DateTimeInterface
+    public function getClaimed(): ?DateTimeInterface
     {
         return $this->claimed;
     }

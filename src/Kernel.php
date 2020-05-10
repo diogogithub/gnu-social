@@ -115,6 +115,6 @@ class Kernel extends BaseKernel
     {
         parent::build($container);
 
-        $container->addCompilerPass(new SchemaDefPass($container));
+        $container->addCompilerPass(new SchemaDefPass());
     }
 }

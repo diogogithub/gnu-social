@@ -45,8 +45,8 @@ Prerequisites
 -----
 
 In order to host your GNU social instance, you'll need a domain, a
-server with a constant IP and `docker` and `docker-compose` installed
-on your system.
+server with a constant IP and both `docker` and `docker-compose` 
+installed on your system.
 
 Alternatively, for local hosting or development, behind a NAT, use a
 dynamic DNS solutions. I recommend you go to
@@ -59,7 +59,7 @@ With TLS/SSL
 ----
 
 Next, if you want to setup SSL (which you should in most cases,
-exceptions being wanting to use the Thor network), you'll need a
+exceptions being wanting to use the Tor network), you'll need a
 certificate. There are multiple approaches to achieve this, among
 which are using a proxy server capable of either proxying an HTTP
 connection to HTTPS or an HTTPS connection to HTTPS, or creating a

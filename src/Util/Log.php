@@ -44,44 +44,66 @@ class Log
 
     /**
      * Simple static wrappers around Monolog's functions
+     * @param string $msg
      */
     public static function emergency(string $msg): void
     {
         self::$logger->emergency($msg);
     }
 
+    /**
+     * @param string $msg
+     */
     public static function alert(string $msg): void
     {
         self::$logger->alert($msg);
     }
 
+    /**
+     * @param string $msg
+     */
     public static function critical(string $msg): void
     {
         self::$logger->critical($msg);
     }
 
+    /**
+     * @param string $msg
+     */
     public static function error(string $msg): void
     {
         self::$logger->error($msg);
     }
 
+    /**
+     * @param string $msg
+     */
     public static function warning(string $msg): void
     {
         self::$logger->warning($msg);
     }
 
+    /**
+     * @param string $msg
+     */
     public static function notice(string $msg): void
     {
         self::$logger->notice($msg);
     }
 
+    /**
+     * @param string $msg
+     */
     public static function info(string $msg): void
     {
         self::$logger->info($msg);
     }
 
+    /**
+     * @param string $msg
+     */
     public static function debug(string $msg): void
     {
-        $logger->debug($msg);
+        self::$logger->debug($msg);
     }
 }

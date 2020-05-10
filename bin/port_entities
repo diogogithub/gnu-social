@@ -64,7 +64,7 @@ $license_header = '
 foreach ($classes as $cls) {
     $ref = new ReflectionClass($cls);
 
-    $class_name    = Common::toCamelCase($cls);
+    $class_name    = Common::snakeCaseToCamelCase($cls);
     $file          = $ref->getFileName();
     $class_comment = $ref->getDocComment();
     $table_name    = $ref->getDefaultProperties()['__table'];

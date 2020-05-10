@@ -30,12 +30,13 @@
 
 namespace App\Routes;
 
+use App\Controller\NetworkPublic;
 use App\Util\RouteLoader;
 
 abstract class Main
 {
     public static function load(RouteLoader $r): void
     {
-        $r->connect('main_all', '/main/all', \App\Controller\NetworkPublic::class);
+        $r->connect('main_all', '/main/all', NetworkPublic::class);
     }
 }

@@ -4,7 +4,7 @@
 // This file is part of GNU social - https://www.gnu.org/software/soci
 //
 // GNU social is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as publ
+// it under the terms of the GNU Affero General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
@@ -13,11 +13,13 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 //
-// You should have received a copy of the GNU Affero General Public Li
+// You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
 namespace App\Entity;
+
+use DateTimeInterface;
 
 /**
  * Entity for user's foreign profile
@@ -44,10 +46,10 @@ class ForeignLink
     private int $noticesync;
     private int $friendsync;
     private int $profilesync;
-    private ?\DateTimeInterface $last_noticesync;
-    private ?\DateTimeInterface $last_friendsync;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private ?DateTimeInterface $last_noticesync;
+    private ?DateTimeInterface $last_friendsync;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setUserId(int $user_id): self
     {
@@ -119,42 +121,42 @@ class ForeignLink
         return $this->profilesync;
     }
 
-    public function setLastNoticesync(?\DateTimeInterface $last_noticesync): self
+    public function setLastNoticesync(?DateTimeInterface $last_noticesync): self
     {
         $this->last_noticesync = $last_noticesync;
         return $this;
     }
-    public function getLastNoticesync(): ?\DateTimeInterface
+    public function getLastNoticesync(): ?DateTimeInterface
     {
         return $this->last_noticesync;
     }
 
-    public function setLastFriendsync(?\DateTimeInterface $last_friendsync): self
+    public function setLastFriendsync(?DateTimeInterface $last_friendsync): self
     {
         $this->last_friendsync = $last_friendsync;
         return $this;
     }
-    public function getLastFriendsync(): ?\DateTimeInterface
+    public function getLastFriendsync(): ?DateTimeInterface
     {
         return $this->last_friendsync;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
