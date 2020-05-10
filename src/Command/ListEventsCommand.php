@@ -31,6 +31,7 @@
 namespace App\Command;
 
 use Functional as F;
+use ReflectionFunction;
 use Symfony\Bundle\FrameworkBundle\Command\EventDispatcherDebugCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -72,7 +73,7 @@ class ListEventsCommand extends EventDispatcherDebugCommand
         foreach ($listeners as $event => $listener) {
             echo 'Event \'' . $event . "\\' handled by:\n";
             foreach ($listener as $c) {
-                $r = new \ReflectionFunction($c);
+                $r = new ReflectionFunction($c);
                 echo '    ' . get_class($r->getStaticVariables()['handler'][0]) . "\n";
             }
         }

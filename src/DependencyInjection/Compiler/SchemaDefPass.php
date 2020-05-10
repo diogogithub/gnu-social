@@ -18,7 +18,7 @@
  */
 
 /**
- * Compiler pass which triggers Symgony to tell Doctrine to
+ * Compiler pass which triggers Symfony to tell Doctrine to
  * use out `SchemaDef` metadata driver
  *
  * @package  GNUsocial

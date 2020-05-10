@@ -43,10 +43,12 @@ class RouteLoader extends Loader
     /**
      * Route loading entry point, called from `config/routes.php`
      *
-     * Must comform to symfony's interface, but the $resource is unused
+     * Must conform to symfony's interface, but the $resource is unused
      * and $type must not be null
      *
      * @param mixed $resource
+     * @param string|null $type
+     * @return RouteCollection
      */
     public function load($resource, string $type = null): RouteCollection
     {
@@ -65,8 +67,11 @@ class RouteLoader extends Loader
     /**
      * Connect a route to a controller
      *
-     * @param mixed  $target  Some kind of callable, typically [object, method]
-     * @param ?array $options Possible keys are ['condition', 'defaults', 'format',
+     * @param string $id
+     * @param string $uri_path
+     * @param mixed $target Some kind of callable, typically [object, method]
+     * @param array|null $param_reqs
+     * @param array|null $options Possible keys are ['condition', 'defaults', 'format',
      *                        'fragment', 'http-methods', 'locale', 'methods', 'schemes']
      *                        'http-methods' and 'methods' are aliases
      */
@@ -112,6 +117,8 @@ class RouteLoader extends Loader
      * `config/routes.php`
      *
      * @param mixed $resource Unused
+     * @param string|null $type
+     * @return bool
      */
     public function supports($resource, string $type = null)
     {

@@ -57,6 +57,9 @@ class GNUsocial implements EventSubscriberInterface
 
     /**
      * Symfony dependency injection gives us access to these services
+     * @param ContainerInterface $container
+     * @param LoggerInterface $logger
+     * @param TranslatorInterface $translator
      */
     public function __construct(ContainerInterface $container,
                                 LoggerInterface $logger,
@@ -69,6 +72,7 @@ class GNUsocial implements EventSubscriberInterface
 
     /**
      * Store these services to be accessed statically and load modules
+     * @param EventDispatcherInterface $event_dispatcher
      */
     public function register(EventDispatcherInterface $event_dispatcher): void
     {
@@ -81,6 +85,10 @@ class GNUsocial implements EventSubscriberInterface
     /**
      * Event very early on in the Symfony HTTP lifecycle, but after everyting is registered
      * where we get access to the event dispatcher
+     * @param RequestEvent $event
+     * @param string $event_name
+     * @param EventDispatcherInterface $event_dispatcher
+     * @return RequestEvent
      */
     public function onKernelRequest(RequestEvent $event,
                                     string $event_name,
@@ -92,6 +100,10 @@ class GNUsocial implements EventSubscriberInterface
 
     /**
      * Event after everything is initialized when using the `bin/console` command
+     * @param ConsoleCommandEvent $event
+     * @param string $event_name
+     * @param EventDispatcherInterface $event_dispatcher
+     * @return ConsoleCommandEvent
      */
     public function onCommand(ConsoleCommandEvent $event,
                               string $event_name,

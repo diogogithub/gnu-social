@@ -9,6 +9,6 @@ class TestController extends AbstractController
 {
     public function __invoke()
     {
-        return new Response('<div style="background: #333; text: #999"> Test controller </div>');
+        return new Response('<div style="background: #333; text-color: #999"> Test controller </div>');
     }
 }

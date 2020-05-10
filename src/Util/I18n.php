@@ -46,11 +46,12 @@ $LC_CATEGORIES = [
     'LC_ALL',
 ];
 foreach ($LC_CATEGORIES as $key => $name) {
-    if (!\defined($name)) {
+    if (!defined($name)) {
         define($name, $key);
     }
 }
 
+use InvalidArgumentException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class I18n
@@ -105,21 +106,21 @@ abstract class I18n
  *
  * _m($msg)                   -- simple message
  * _m($ctx, $msg)             -- message with context
- * _m($msg1, $msg2, $n)       -- message that cann be singular or plural
+ * _m($msg1, $msg2, $n)       -- message that can be singular or plural
  * _m($ctx, $msg1, $msg2, $n) -- combination of the previous two
  *
  * @param string $msg
  * @param extra params as described above
  *
- * @throws Exception
+ * @throws InvalidArgumentException
  *
  * @return string
  */
 function _m(string $msg /*, ...*/): string
 {
-    $domain = I18n::_mdomain(\debug_backtrace());
+    $domain = I18n::_mdomain(debug_backtrace());
     $args   = func_get_args();
-    switch (\count($args)) {
+    switch (count($args)) {
     case 1:
         // Empty parameters
         return I18n::$translator->trans($msg, [], $domain);
@@ -143,7 +144,7 @@ function _m(string $msg /*, ...*/): string
         return I18n::$translator->trans($context . '\004' . $msg_single . '|' . $msg_plural,
                                         ['%d' => $n], $domain);
     default:
-        throw new Exception('Bad parameter count to _m()');
+        throw new InvalidArgumentException('Bad parameter count to _m()');
     }
 }
 
@@ -191,7 +192,7 @@ function client_preferred_language(string $http_accept_lang_header): string
 function get_nice_language_list(): array
 {
     $nice_lang     = [];
-    $all_languages = common_config('site', 'languages');
+    $all_languages = Common::config('site', 'languages');
 
     foreach ($all_languages as $lang) {
         $nice_lang[$lang['lang']] = $lang['name'];
@@ -202,17 +203,18 @@ function get_nice_language_list(): array
 /**
  * Check whether a language is right-to-left
  *
- * @param string $lang language code of the language to check
+ * @param string $lang_value language code of the language to check
  *
  * @return bool true if language is rtl
  */
 function is_rtl(string $lang_value): bool
 {
-    foreach (common_config('site', 'languages') as $code => $info) {
+    foreach (Common::config('site', 'languages') as $code => $info) {
         if ($lang_value == $info['lang']) {
             return $info['direction'] == 'rtl';
         }
     }
+    throw new InvalidArgumentException('is_rtl function received an invalid lang to test. Lang was: '.$lang_value);
 }
 
 /**

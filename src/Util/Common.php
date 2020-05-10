@@ -31,20 +31,33 @@
 namespace App\Util;
 
 use Functional as F;
+use InvalidArgumentException;
 use Symfony\Component\Config\Definition\Exception\Exception;
+use const DIRECTORY_SEPARATOR;
 
 abstract class Common
 {
+    /**
+     * Access sysadmin's configuration preferences for GNU social
+     *
+     * @param string $section
+     * @param string $field
+     * @return mixed
+     */
     public static function config(string $section, string $field)
     {
+        // TODO: implement it x)
+        return [];
     }
 
     /**
      * Normalize path by converting \ to /
+     * @param string $path
+     * @return string
      */
     public static function normalizePath(string $path): string
     {
-        if (\DIRECTORY_SEPARATOR !== '/') {
+        if (DIRECTORY_SEPARATOR !== '/') {
             $path = strtr($path, DIRECTORY_SEPARATOR, '/');
         }
         return $path;
@@ -52,6 +65,8 @@ abstract class Common
 
     /**
      * Get plugin name from it's path, or null if not a plugin
+     * @param string $path
+     * @return string|null
      */
     public static function pluginFromPath(string $path): ?string
     {
@@ -75,6 +90,8 @@ abstract class Common
      * Check whether $haystack starts with $needle
      *
      * @param array|string $haystack if array, check that all strings start with $needle
+     * @param string $needle
+     * @return bool
      */
     public static function startsWith($haystack, string $needle): bool
     {
@@ -92,6 +109,8 @@ abstract class Common
      * Check whether $haystack ends with $needle
      *
      * @param array|string $haystack if array, check that all strings end with $needle
+     * @param string $needle
+     * @return bool
      */
     public static function endsWith($haystack, string $needle)
     {
@@ -111,6 +130,9 @@ abstract class Common
     /**
      * Call $func with only abs($count) arguments, taken either from the
      * left or right depending on the sign
+     * @param callable $func
+     * @param int $count
+     * @return callable
      */
     public static function arity(callable $func, int $count): callable
     {
@@ -122,12 +144,20 @@ abstract class Common
         };
     }
 
-    public static function toSnakeCase(string $str): string
+    /**
+     * @param string $str
+     * @return string
+     */
+    public static function camelCaseToSnakeCase(string $str): string
     {
         return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $str));
     }
 
-    public static function toCamelCase(string $str): string
+    /**
+     * @param string $str
+     * @return string
+     */
+    public static function snakeCaseToCamelCase(string $str): string
     {
         return implode('', F\map(preg_split('/[\b_]/', $str), self::arity('ucfirst', 1)));
     }
@@ -136,6 +166,9 @@ abstract class Common
      * Indent $in, a string or array, $level levels
      *
      * @param array|string $in
+     * @param int $level
+     * @param int $count
+     * @return string
      */
     public static function indent($in, int $level = 1, int $count = 2): string
     {
@@ -149,5 +182,6 @@ abstract class Common
                                            return F\concat($indent . $val);
                                        }));
         }
+        throw new InvalidArgumentException('Common:indent first parameter must be either an array or a string. Input was: '.$in);
     }
 }

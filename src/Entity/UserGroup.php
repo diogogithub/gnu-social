@@ -4,7 +4,7 @@
 // This file is part of GNU social - https://www.gnu.org/software/soci
 //
 // GNU social is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as publ
+// it under the terms of the GNU Affero General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
@@ -13,11 +13,13 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 //
-// You should have received a copy of the GNU Affero General Public Li
+// You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
 namespace App\Entity;
+
+use DateTimeInterface;
 
 /**
  * Entity for groups a user is in
@@ -48,8 +50,8 @@ class UserGroup
     private ?string $homepage_logo;
     private ?string $stream_logo;
     private ?string $mini_logo;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
     private ?string $uri;
     private ?string $mainpage;
     private ?int $join_policy;
@@ -165,22 +167,22 @@ class UserGroup
         return $this->mini_logo;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }

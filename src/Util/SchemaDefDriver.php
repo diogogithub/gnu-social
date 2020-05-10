@@ -146,6 +146,7 @@ class SchemaDefDriver extends StaticPHPDriver
      * instead of `loadMetadata`.
      *
      * @param string $class_name
+     * @return bool
      */
     public function isTransient($class_name)
     {
@@ -154,6 +155,8 @@ class SchemaDefDriver extends StaticPHPDriver
 
     /**
      * Convert [$key => $val] to ['name' => $key, 'columns' => $val]
+     * @param array $arr
+     * @return array
      */
     private static function kv_to_name_col(array $arr): array
     {
