@@ -48,6 +48,7 @@ class SubscriptionQueue
         $this->subscriber = $subscriber;
         return $this;
     }
+
     public function getSubscriber(): int
     {
         return $this->subscriber;
@@ -58,6 +59,7 @@ class SubscriptionQueue
         $this->subscribed = $subscribed;
         return $this;
     }
+
     public function getSubscribed(): int
     {
         return $this->subscribed;
@@ -68,6 +70,7 @@ class SubscriptionQueue
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

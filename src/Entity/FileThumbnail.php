@@ -52,6 +52,7 @@ class FileThumbnail
         $this->file_id = $file_id;
         return $this;
     }
+
     public function getFileId(): int
     {
         return $this->file_id;
@@ -62,6 +63,7 @@ class FileThumbnail
         $this->urlhash = $urlhash;
         return $this;
     }
+
     public function getUrlhash(): ?string
     {
         return $this->urlhash;
@@ -72,6 +74,7 @@ class FileThumbnail
         $this->url = $url;
         return $this;
     }
+
     public function getUrl(): ?string
     {
         return $this->url;
@@ -82,6 +85,7 @@ class FileThumbnail
         $this->filename = $filename;
         return $this;
     }
+
     public function getFilename(): ?string
     {
         return $this->filename;
@@ -92,6 +96,7 @@ class FileThumbnail
         $this->width = $width;
         return $this;
     }
+
     public function getWidth(): int
     {
         return $this->width;
@@ -102,6 +107,7 @@ class FileThumbnail
         $this->height = $height;
         return $this;
     }
+
     public function getHeight(): int
     {
         return $this->height;
@@ -112,6 +118,7 @@ class FileThumbnail
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

@@ -50,6 +50,7 @@ class QueueItem
         $this->id = $id;
         return $this;
     }
+
     public function getId(): int
     {
         return $this->id;
@@ -60,6 +61,7 @@ class QueueItem
         $this->frame = $frame;
         return $this;
     }
+
     public function getFrame()
     {
         return $this->frame;
@@ -70,6 +72,7 @@ class QueueItem
         $this->transport = $transport;
         return $this;
     }
+
     public function getTransport(): string
     {
         return $this->transport;
@@ -80,6 +83,7 @@ class QueueItem
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -90,6 +94,7 @@ class QueueItem
         $this->claimed = $claimed;
         return $this;
     }
+
     public function getClaimed(): ?DateTimeInterface
     {
         return $this->claimed;

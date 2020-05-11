@@ -56,6 +56,7 @@ class ProfileList
         $this->id = $id;
         return $this;
     }
+
     public function getId(): int
     {
         return $this->id;
@@ -66,6 +67,7 @@ class ProfileList
         $this->tagger = $tagger;
         return $this;
     }
+
     public function getTagger(): int
     {
         return $this->tagger;
@@ -76,6 +78,7 @@ class ProfileList
         $this->tag = $tag;
         return $this;
     }
+
     public function getTag(): string
     {
         return $this->tag;
@@ -86,6 +89,7 @@ class ProfileList
         $this->description = $description;
         return $this;
     }
+
     public function getDescription(): ?string
     {
         return $this->description;
@@ -96,6 +100,7 @@ class ProfileList
         $this->private = $private;
         return $this;
     }
+
     public function getPrivate(): ?bool
     {
         return $this->private;
@@ -106,6 +111,7 @@ class ProfileList
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -116,6 +122,7 @@ class ProfileList
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
@@ -126,6 +133,7 @@ class ProfileList
         $this->uri = $uri;
         return $this;
     }
+
     public function getUri(): ?string
     {
         return $this->uri;
@@ -136,6 +144,7 @@ class ProfileList
         $this->mainpage = $mainpage;
         return $this;
     }
+
     public function getMainpage(): ?string
     {
         return $this->mainpage;
@@ -146,6 +155,7 @@ class ProfileList
         $this->tagged_count = $tagged_count;
         return $this;
     }
+
     public function getTaggedCount(): ?int
     {
         return $this->tagged_count;
@@ -156,6 +166,7 @@ class ProfileList
         $this->subscriber_count = $subscriber_count;
         return $this;
     }
+
     public function getSubscriberCount(): ?int
     {
         return $this->subscriber_count;

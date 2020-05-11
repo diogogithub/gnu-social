@@ -53,6 +53,7 @@ class Avatar
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -63,6 +64,7 @@ class Avatar
         $this->original = $original;
         return $this;
     }
+
     public function getOriginal(): ?bool
     {
         return $this->original;
@@ -73,6 +75,7 @@ class Avatar
         $this->width = $width;
         return $this;
     }
+
     public function getWidth(): int
     {
         return $this->width;
@@ -83,6 +86,7 @@ class Avatar
         $this->height = $height;
         return $this;
     }
+
     public function getHeight(): int
     {
         return $this->height;
@@ -93,6 +97,7 @@ class Avatar
         $this->mediatype = $mediatype;
         return $this;
     }
+
     public function getMediatype(): string
     {
         return $this->mediatype;
@@ -103,6 +108,7 @@ class Avatar
         $this->filename = $filename;
         return $this;
     }
+
     public function getFilename(): ?string
     {
         return $this->filename;
@@ -113,6 +119,7 @@ class Avatar
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -123,6 +130,7 @@ class Avatar
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

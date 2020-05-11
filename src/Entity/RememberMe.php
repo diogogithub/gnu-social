@@ -48,6 +48,7 @@ class RememberMe
         $this->code = $code;
         return $this;
     }
+
     public function getCode(): string
     {
         return $this->code;
@@ -58,6 +59,7 @@ class RememberMe
         $this->user_id = $user_id;
         return $this;
     }
+
     public function getUserId(): int
     {
         return $this->user_id;
@@ -68,6 +70,7 @@ class RememberMe
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

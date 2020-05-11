@@ -50,6 +50,7 @@ class Attention
         $this->notice_id = $notice_id;
         return $this;
     }
+
     public function getNoticeId(): int
     {
         return $this->notice_id;
@@ -60,6 +61,7 @@ class Attention
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -70,6 +72,7 @@ class Attention
         $this->reason = $reason;
         return $this;
     }
+
     public function getReason(): ?string
     {
         return $this->reason;
@@ -80,6 +83,7 @@ class Attention
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -90,6 +94,7 @@ class Attention
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

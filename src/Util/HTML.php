@@ -32,9 +32,10 @@ abstract class HTML
     /**
      * Creates an HTML tag without attributes
      *
-     * @param string $tag
+     * @param string       $tag
      * @param array|string $content
-     * @param bool $empty_tag
+     * @param bool         $empty_tag
+     *
      * @return array
      */
     private static function tag(string $tag, $content = '', bool $empty_tag = false): array
@@ -45,10 +46,11 @@ abstract class HTML
     /**
      * Create tag, possibly with attributes and indentation
      *
-     * @param string $tag
-     * @param array|string $attrs - element attributes
-     * @param array|string $content - what goes inside the tag
-     * @param bool $empty_tag
+     * @param string       $tag
+     * @param array|string $attrs     - element attributes
+     * @param array|string $content   - what goes inside the tag
+     * @param bool         $empty_tag
+     *
      * @return array
      */
     private static function attr_tag(string $tag, $attrs, $content = '', bool $empty_tag = false): array
@@ -66,15 +68,19 @@ abstract class HTML
      * Attribute with given optional value
      *
      * @param array $attrs
+     *
      * @return string
      */
     private static function attr(array $attrs): string
     {
-        return ' ' . implode(' ', F\map($attrs, function ($val, $key, $_) { return "{$key} = '{$val}'"; }));
+        return ' ' . implode(' ', F\map($attrs, function ($val, $key, $_) {
+            return "{$key} = '{$val}'";
+        }));
     }
 
     /**
      * @param $html
+     *
      * @return string
      */
     public static function html($html): string

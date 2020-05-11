@@ -54,6 +54,7 @@ class Token
         $this->consumer_key = $consumer_key;
         return $this;
     }
+
     public function getConsumerKey(): string
     {
         return $this->consumer_key;
@@ -64,6 +65,7 @@ class Token
         $this->tok = $tok;
         return $this;
     }
+
     public function getTok(): string
     {
         return $this->tok;
@@ -74,6 +76,7 @@ class Token
         $this->secret = $secret;
         return $this;
     }
+
     public function getSecret(): string
     {
         return $this->secret;
@@ -84,6 +87,7 @@ class Token
         $this->type = $type;
         return $this;
     }
+
     public function getType(): int
     {
         return $this->type;
@@ -94,6 +98,7 @@ class Token
         $this->state = $state;
         return $this;
     }
+
     public function getState(): ?int
     {
         return $this->state;
@@ -104,6 +109,7 @@ class Token
         $this->verifier = $verifier;
         return $this;
     }
+
     public function getVerifier(): ?string
     {
         return $this->verifier;
@@ -114,6 +120,7 @@ class Token
         $this->verified_callback = $verified_callback;
         return $this;
     }
+
     public function getVerifiedCallback(): ?string
     {
         return $this->verified_callback;
@@ -124,6 +131,7 @@ class Token
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -134,6 +142,7 @@ class Token
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

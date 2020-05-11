@@ -46,8 +46,9 @@ class RouteLoader extends Loader
      * Must conform to symfony's interface, but the $resource is unused
      * and $type must not be null
      *
-     * @param mixed $resource
-     * @param string|null $type
+     * @param mixed       $resource
+     * @param null|string $type
+     *
      * @return RouteCollection
      */
     public function load($resource, string $type = null): RouteCollection
@@ -67,47 +68,47 @@ class RouteLoader extends Loader
     /**
      * Connect a route to a controller
      *
-     * @param string $id
-     * @param string $uri_path
-     * @param mixed $target Some kind of callable, typically [object, method]
-     * @param array|null $param_reqs
-     * @param array|null $options Possible keys are ['condition', 'defaults', 'format',
-     *                        'fragment', 'http-methods', 'locale', 'methods', 'schemes']
-     *                        'http-methods' and 'methods' are aliases
+     * @param string     $id
+     * @param string     $uri_path
+     * @param mixed      $target     Some kind of callable, typically [object, method]
+     * @param null|array $param_reqs
+     * @param null|array $options    Possible keys are ['condition', 'defaults', 'format',
+     *                               'fragment', 'http-methods', 'locale', 'methods', 'schemes']
+     *                               'http-methods' and 'methods' are aliases
      */
     public function connect(string $id, string $uri_path, $target, ?array $param_reqs = [], ?array $options = [])
     {
         $this->rc->add($id,
-                       new Route(
-                           // path -- URI path
-                           $uri_path,
-                           // defaults = []     -- param default values,
-                           // and special configuration options
-                           array_merge(
-                               [
-                                   '_controller' => is_array($target) ? $target : [$target, '__invoke'],
-                                   '_format'     => $options['format']   ?? 'html',
-                                   '_fragment'   => $options['fragment'] ?? '',
-                                   '_locale'     => $options['locale']   ?? '',
-                               ],
-                               $options['defaults'] ?? []),
-                           // requirements = [] -- param => regex
-                           $param_reqs,
-                           // options = []      -- possible keys: compiler_class:, utf8
-                           // No need for a special compiler class for now,
-                           // Enforce UTF8
-                           ['utf8' => true],
-                           // host = ''         -- hostname (subdomain, for instance) to match,
-                           // we don't want this
-                           '',
-                           // schemes = []      -- URI schemes (https, ftp and such)
-                           $options['schemes'] ?? [],
-                           // methods = []      -- HTTP methods
-                           $options['http-methods'] ?? $options['methods'] ?? [],
-                           // condition = ''    -- Symfony condition expression,
-                           // see https://symfony.com/doc/current/routing.html#matching-expressions
-                           $options['condition'] ?? ''
-                       )
+            new Route(
+            // path -- URI path
+                $uri_path,
+                // defaults = []     -- param default values,
+                // and special configuration options
+                array_merge(
+                    [
+                        '_controller' => is_array($target) ? $target : [$target, '__invoke'],
+                        '_format'     => $options['format'] ?? 'html',
+                        '_fragment'   => $options['fragment'] ?? '',
+                        '_locale'     => $options['locale'] ?? '',
+                    ],
+                    $options['defaults'] ?? []),
+                // requirements = [] -- param => regex
+                $param_reqs,
+                // options = []      -- possible keys: compiler_class:, utf8
+                // No need for a special compiler class for now,
+                // Enforce UTF8
+                ['utf8' => true],
+                // host = ''         -- hostname (subdomain, for instance) to match,
+                // we don't want this
+                '',
+                // schemes = []      -- URI schemes (https, ftp and such)
+                $options['schemes'] ?? [],
+                // methods = []      -- HTTP methods
+                $options['http-methods'] ?? $options['methods'] ?? [],
+                // condition = ''    -- Symfony condition expression,
+                // see https://symfony.com/doc/current/routing.html#matching-expressions
+                $options['condition'] ?? ''
+            )
         );
     }
 
@@ -116,8 +117,9 @@ class RouteLoader extends Loader
      * Passed the arguments from the `RoutingConfigurator::import` call from
      * `config/routes.php`
      *
-     * @param mixed $resource Unused
-     * @param string|null $type
+     * @param mixed       $resource Unused
+     * @param null|string $type
+     *
      * @return bool
      */
     public function supports($resource, string $type = null)

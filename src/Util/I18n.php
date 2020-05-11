@@ -115,36 +115,37 @@ abstract class I18n
  * @throws InvalidArgumentException
  *
  * @return string
+ *
  */
 function _m(string $msg /*, ...*/): string
 {
     $domain = I18n::_mdomain(debug_backtrace());
     $args   = func_get_args();
     switch (count($args)) {
-    case 1:
-        // Empty parameters
-        return I18n::$translator->trans($msg, [], $domain);
-    case 2:
-        $context    = $args[0];
-        $msg_single = $args[1];
-        // ASCII 4 is EOT, used to separate context from string
-        return I18n::$translator->trans($context . '\004' . $msg_single, [], $domain);
-    case 3:
-        // '|' separates the singular from the plural version
-        $msg_single = $args[0];
-        $msg_plural = $args[1];
-        $n          = $args[2];
-        return I18n::$translator->trans($msg_single . '|' . $msg_plural, ['%d' => $n], $domain);
-    case 4:
-        // Combine both
-        $context    = $args[0];
-        $msg_single = $args[1];
-        $msg_plural = $args[2];
-        $n          = $args[3];
-        return I18n::$translator->trans($context . '\004' . $msg_single . '|' . $msg_plural,
-                                        ['%d' => $n], $domain);
-    default:
-        throw new InvalidArgumentException('Bad parameter count to _m()');
+        case 1:
+            // Empty parameters
+            return I18n::$translator->trans($msg, [], $domain);
+        case 2:
+            $context    = $args[0];
+            $msg_single = $args[1];
+            // ASCII 4 is EOT, used to separate context from string
+            return I18n::$translator->trans($context . '\004' . $msg_single, [], $domain);
+        case 3:
+            // '|' separates the singular from the plural version
+            $msg_single = $args[0];
+            $msg_plural = $args[1];
+            $n          = $args[2];
+            return I18n::$translator->trans($msg_single . '|' . $msg_plural, ['%d' => $n], $domain);
+        case 4:
+            // Combine both
+            $context    = $args[0];
+            $msg_single = $args[1];
+            $msg_plural = $args[2];
+            $n          = $args[3];
+            return I18n::$translator->trans($context . '\004' . $msg_single . '|' . $msg_plural,
+                ['%d' => $n], $domain);
+        default:
+            throw new InvalidArgumentException('Bad parameter count to _m()');
     }
 }
 
@@ -161,7 +162,7 @@ function client_preferred_language(string $http_accept_lang_header): string
     $all_languages = Common::config('site', 'languages');
 
     preg_match_all('"(((\S\S)-?(\S\S)?)(;q=([0-9.]+))?)\s*(,\s*|$)"',
-                   strtolower($http_accept_lang_header), $http_langs);
+        strtolower($http_accept_lang_header), $http_langs);
 
     for ($i = 0; $i < count($http_langs); ++$i) {
         if (!empty($http_langs[2][$i])) {
@@ -214,7 +215,7 @@ function is_rtl(string $lang_value): bool
             return $info['direction'] == 'rtl';
         }
     }
-    throw new InvalidArgumentException('is_rtl function received an invalid lang to test. Lang was: '.$lang_value);
+    throw new InvalidArgumentException('is_rtl function received an invalid lang to test. Lang was: ' . $lang_value);
 }
 
 /**

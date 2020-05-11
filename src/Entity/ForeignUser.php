@@ -51,6 +51,7 @@ class ForeignUser
         $this->id = $id;
         return $this;
     }
+
     public function getId(): int
     {
         return $this->id;
@@ -61,6 +62,7 @@ class ForeignUser
         $this->service = $service;
         return $this;
     }
+
     public function getService(): int
     {
         return $this->service;
@@ -71,6 +73,7 @@ class ForeignUser
         $this->uri = $uri;
         return $this;
     }
+
     public function getUri(): string
     {
         return $this->uri;
@@ -81,6 +84,7 @@ class ForeignUser
         $this->nickname = $nickname;
         return $this;
     }
+
     public function getNickname(): ?string
     {
         return $this->nickname;
@@ -91,6 +95,7 @@ class ForeignUser
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -101,6 +106,7 @@ class ForeignUser
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

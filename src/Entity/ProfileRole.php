@@ -48,6 +48,7 @@ class ProfileRole
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -58,6 +59,7 @@ class ProfileRole
         $this->role = $role;
         return $this;
     }
+
     public function getRole(): string
     {
         return $this->role;
@@ -68,6 +70,7 @@ class ProfileRole
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

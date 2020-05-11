@@ -48,6 +48,7 @@ class GroupInbox
         $this->group_id = $group_id;
         return $this;
     }
+
     public function getGroupId(): int
     {
         return $this->group_id;
@@ -58,6 +59,7 @@ class GroupInbox
         $this->notice_id = $notice_id;
         return $this;
     }
+
     public function getNoticeId(): int
     {
         return $this->notice_id;
@@ -68,6 +70,7 @@ class GroupInbox
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

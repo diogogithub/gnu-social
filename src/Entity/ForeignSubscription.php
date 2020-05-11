@@ -49,6 +49,7 @@ class ForeignSubscription
         $this->service = $service;
         return $this;
     }
+
     public function getService(): int
     {
         return $this->service;
@@ -59,6 +60,7 @@ class ForeignSubscription
         $this->subscriber = $subscriber;
         return $this;
     }
+
     public function getSubscriber(): int
     {
         return $this->subscriber;
@@ -69,6 +71,7 @@ class ForeignSubscription
         $this->subscribed = $subscribed;
         return $this;
     }
+
     public function getSubscribed(): int
     {
         return $this->subscribed;
@@ -79,6 +82,7 @@ class ForeignSubscription
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

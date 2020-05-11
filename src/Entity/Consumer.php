@@ -50,6 +50,7 @@ class Consumer
         $this->consumer_key = $consumer_key;
         return $this;
     }
+
     public function getConsumerKey(): string
     {
         return $this->consumer_key;
@@ -60,6 +61,7 @@ class Consumer
         $this->consumer_secret = $consumer_secret;
         return $this;
     }
+
     public function getConsumerSecret(): string
     {
         return $this->consumer_secret;
@@ -70,6 +72,7 @@ class Consumer
         $this->seed = $seed;
         return $this;
     }
+
     public function getSeed(): string
     {
         return $this->seed;
@@ -80,6 +83,7 @@ class Consumer
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -90,6 +94,7 @@ class Consumer
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

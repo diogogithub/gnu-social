@@ -51,6 +51,7 @@ class NoticeLocation
         $this->notice_id = $notice_id;
         return $this;
     }
+
     public function getNoticeId(): int
     {
         return $this->notice_id;
@@ -61,6 +62,7 @@ class NoticeLocation
         $this->lat = $lat;
         return $this;
     }
+
     public function getLat(): ?float
     {
         return $this->lat;
@@ -71,6 +73,7 @@ class NoticeLocation
         $this->lon = $lon;
         return $this;
     }
+
     public function getLon(): ?float
     {
         return $this->lon;
@@ -81,6 +84,7 @@ class NoticeLocation
         $this->location_id = $location_id;
         return $this;
     }
+
     public function getLocationId(): ?int
     {
         return $this->location_id;
@@ -91,6 +95,7 @@ class NoticeLocation
         $this->location_ns = $location_ns;
         return $this;
     }
+
     public function getLocationNs(): ?int
     {
         return $this->location_ns;
@@ -101,6 +106,7 @@ class NoticeLocation
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

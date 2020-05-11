@@ -59,6 +59,7 @@ class OauthApplication
         $this->id = $id;
         return $this;
     }
+
     public function getId(): int
     {
         return $this->id;
@@ -69,6 +70,7 @@ class OauthApplication
         $this->owner = $owner;
         return $this;
     }
+
     public function getOwner(): int
     {
         return $this->owner;
@@ -79,6 +81,7 @@ class OauthApplication
         $this->consumer_key = $consumer_key;
         return $this;
     }
+
     public function getConsumerKey(): string
     {
         return $this->consumer_key;
@@ -89,6 +92,7 @@ class OauthApplication
         $this->name = $name;
         return $this;
     }
+
     public function getName(): string
     {
         return $this->name;
@@ -99,6 +103,7 @@ class OauthApplication
         $this->description = $description;
         return $this;
     }
+
     public function getDescription(): ?string
     {
         return $this->description;
@@ -109,6 +114,7 @@ class OauthApplication
         $this->icon = $icon;
         return $this;
     }
+
     public function getIcon(): string
     {
         return $this->icon;
@@ -119,6 +125,7 @@ class OauthApplication
         $this->source_url = $source_url;
         return $this;
     }
+
     public function getSourceUrl(): ?string
     {
         return $this->source_url;
@@ -129,6 +136,7 @@ class OauthApplication
         $this->organization = $organization;
         return $this;
     }
+
     public function getOrganization(): ?string
     {
         return $this->organization;
@@ -139,6 +147,7 @@ class OauthApplication
         $this->homepage = $homepage;
         return $this;
     }
+
     public function getHomepage(): ?string
     {
         return $this->homepage;
@@ -149,6 +158,7 @@ class OauthApplication
         $this->callback_url = $callback_url;
         return $this;
     }
+
     public function getCallbackUrl(): ?string
     {
         return $this->callback_url;
@@ -159,6 +169,7 @@ class OauthApplication
         $this->type = $type;
         return $this;
     }
+
     public function getType(): ?int
     {
         return $this->type;
@@ -169,6 +180,7 @@ class OauthApplication
         $this->access_type = $access_type;
         return $this;
     }
+
     public function getAccessType(): ?int
     {
         return $this->access_type;
@@ -179,6 +191,7 @@ class OauthApplication
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -189,6 +202,7 @@ class OauthApplication
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

@@ -47,6 +47,7 @@ class UnavailableStatusNetwork
         $this->nickname = $nickname;
         return $this;
     }
+
     public function getNickname(): string
     {
         return $this->nickname;
@@ -57,6 +58,7 @@ class UnavailableStatusNetwork
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

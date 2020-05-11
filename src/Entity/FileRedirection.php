@@ -51,6 +51,7 @@ class FileRedirection
         $this->urlhash = $urlhash;
         return $this;
     }
+
     public function getUrlhash(): string
     {
         return $this->urlhash;
@@ -61,6 +62,7 @@ class FileRedirection
         $this->url = $url;
         return $this;
     }
+
     public function getUrl(): ?string
     {
         return $this->url;
@@ -71,6 +73,7 @@ class FileRedirection
         $this->file_id = $file_id;
         return $this;
     }
+
     public function getFileId(): ?int
     {
         return $this->file_id;
@@ -81,6 +84,7 @@ class FileRedirection
         $this->redirections = $redirections;
         return $this;
     }
+
     public function getRedirections(): ?int
     {
         return $this->redirections;
@@ -91,6 +95,7 @@ class FileRedirection
         $this->httpcode = $httpcode;
         return $this;
     }
+
     public function getHttpcode(): ?int
     {
         return $this->httpcode;
@@ -101,6 +106,7 @@ class FileRedirection
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

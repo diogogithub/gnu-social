@@ -53,6 +53,7 @@ class NoticePrefs
         $this->notice_id = $notice_id;
         return $this;
     }
+
     public function getNoticeId(): int
     {
         return $this->notice_id;
@@ -63,6 +64,7 @@ class NoticePrefs
         $this->namespace = $namespace;
         return $this;
     }
+
     public function getNamespace(): string
     {
         return $this->namespace;
@@ -73,6 +75,7 @@ class NoticePrefs
         $this->topic = $topic;
         return $this;
     }
+
     public function getTopic(): string
     {
         return $this->topic;
@@ -83,6 +86,7 @@ class NoticePrefs
         $this->data = $data;
         return $this;
     }
+
     public function getData()
     {
         return $this->data;
@@ -93,6 +97,7 @@ class NoticePrefs
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -103,6 +108,7 @@ class NoticePrefs
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
