@@ -30,7 +30,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Util;
+namespace App\Core;
 
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;

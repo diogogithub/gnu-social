@@ -32,7 +32,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Util;
+namespace App\Core;
 
 // Locale category constants are usually predefined, but may not be
 // on some systems such as Win32.

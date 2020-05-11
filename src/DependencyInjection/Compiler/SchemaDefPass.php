@@ -44,7 +44,7 @@ class SchemaDefPass implements CompilerPassInterface
     {
         $container->findDefinition('doctrine.orm.default_metadata_driver')
                   ->addMethodCall('addDriver',
-                                  [new Reference('app.util.schemadef_driver'), 'App\\Entity']
+                                  [new Reference('app.core.schemadef_driver'), 'App\\Entity']
                   );
     }
 }
