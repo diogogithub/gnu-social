@@ -1,6 +1,7 @@
 <?php
+
 // {{{ License
-// This file is part of GNU social - https://www.gnu.org/software/soci
+// This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -16,10 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Util;
-
-use Functional as F;
-
 /**
  * HTML Abstraction
  *
@@ -27,6 +24,11 @@ use Functional as F;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+namespace App\Util;
+
+use Functional as F;
+
 abstract class HTML
 {
     /**

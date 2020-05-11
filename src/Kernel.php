@@ -31,6 +31,7 @@
 namespace App;
 
 use App\DependencyInjection\Compiler\SchemaDefPass;
+
 use const PHP_VERSION_ID;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;

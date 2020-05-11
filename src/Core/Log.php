@@ -29,7 +29,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Util;
+namespace App\Core;
 
 use Psr\Log\LoggerInterface;
 
@@ -44,6 +44,7 @@ class Log
 
     /**
      * Simple static wrappers around Monolog's functions
+     *
      * @param string $msg
      */
     public static function emergency(string $msg): void

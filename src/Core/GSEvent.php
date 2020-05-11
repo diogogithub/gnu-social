@@ -29,7 +29,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Util;
+namespace App\Core;
 
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -43,7 +43,6 @@ abstract class GSEvent
      * bool next - Allow the other handlers to process the event
      */
     public const stop = false;
-
     public const next = true;
 
     private static EventDispatcherInterface $dispatcher;

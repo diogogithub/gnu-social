@@ -31,10 +31,10 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Util;
+namespace App\Core;
 
-use App\Util\GSEvent as Event;
 use Functional as F;
+use GSEvent as Event;
 
 abstract class ModulesManager
 {
@@ -54,7 +54,7 @@ abstract class ModulesManager
 
             // Register event handlers
             $methods = get_class_methods($class);
-            $events  = F\select($methods, F\partial_right('App\Util\Common::startsWith', 'on'));
+            $events  = F\select($methods, F\partial_right('App\Util\Formatting::startsWith', 'on'));
             F\map($events,
                 function (string $m) use ($class) {
                     Event::addHandler(substr($m, 2), [$class, $m]);

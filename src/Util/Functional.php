@@ -18,7 +18,7 @@
 // }}}
 
 /**
- * Common utility functions
+ * Functional utilities
  *
  * @package   GNUsocial
  * @category  Util
@@ -30,19 +30,26 @@
 
 namespace App\Util;
 
-abstract class Common
+use Functional as F;
+
+abstract class Functional
 {
     /**
-     * Access sysadmin's configuration preferences for GNU social
+     * Call $func with only abs($count) arguments, taken either from the
+     * left or right depending on the sign
      *
-     * @param string $section
-     * @param string $field
+     * @param callable $func
+     * @param int      $count
      *
-     * @return mixed
+     * @return callable
      */
-    public static function config(string $section, string $field)
+    public static function arity(callable $func, int $count): callable
     {
-        // TODO: implement it x)
-        return [];
+        return function (...$args) use ($func, $count) {
+            if ($count > 0) {
+                return call_user_func_array($func, F\take_left($args, $count));
+            }
+            return call_user_func_array($func, F\take_right($args, -$count));
+        };
     }
 }

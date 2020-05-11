@@ -30,7 +30,7 @@
 
 namespace App\Controller;
 
-use App\Util\GSEvent as Event;
+use App\Core\GSEvent as Event;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class NetworkPublic extends AbstractController

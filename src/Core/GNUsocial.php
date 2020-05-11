@@ -38,7 +38,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Util;
+namespace App\Core;
 
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
