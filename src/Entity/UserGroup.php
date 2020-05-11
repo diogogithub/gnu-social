@@ -62,6 +62,7 @@ class UserGroup
         $this->id = $id;
         return $this;
     }
+
     public function getId(): int
     {
         return $this->id;
@@ -72,6 +73,7 @@ class UserGroup
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -82,6 +84,7 @@ class UserGroup
         $this->nickname = $nickname;
         return $this;
     }
+
     public function getNickname(): ?string
     {
         return $this->nickname;
@@ -92,6 +95,7 @@ class UserGroup
         $this->fullname = $fullname;
         return $this;
     }
+
     public function getFullname(): ?string
     {
         return $this->fullname;
@@ -102,6 +106,7 @@ class UserGroup
         $this->homepage = $homepage;
         return $this;
     }
+
     public function getHomepage(): ?string
     {
         return $this->homepage;
@@ -112,6 +117,7 @@ class UserGroup
         $this->description = $description;
         return $this;
     }
+
     public function getDescription(): ?string
     {
         return $this->description;
@@ -122,6 +128,7 @@ class UserGroup
         $this->location = $location;
         return $this;
     }
+
     public function getLocation(): ?string
     {
         return $this->location;
@@ -132,6 +139,7 @@ class UserGroup
         $this->original_logo = $original_logo;
         return $this;
     }
+
     public function getOriginalLogo(): ?string
     {
         return $this->original_logo;
@@ -142,6 +150,7 @@ class UserGroup
         $this->homepage_logo = $homepage_logo;
         return $this;
     }
+
     public function getHomepageLogo(): ?string
     {
         return $this->homepage_logo;
@@ -152,6 +161,7 @@ class UserGroup
         $this->stream_logo = $stream_logo;
         return $this;
     }
+
     public function getStreamLogo(): ?string
     {
         return $this->stream_logo;
@@ -162,6 +172,7 @@ class UserGroup
         $this->mini_logo = $mini_logo;
         return $this;
     }
+
     public function getMiniLogo(): ?string
     {
         return $this->mini_logo;
@@ -172,6 +183,7 @@ class UserGroup
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -182,6 +194,7 @@ class UserGroup
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
@@ -192,6 +205,7 @@ class UserGroup
         $this->uri = $uri;
         return $this;
     }
+
     public function getUri(): ?string
     {
         return $this->uri;
@@ -202,6 +216,7 @@ class UserGroup
         $this->mainpage = $mainpage;
         return $this;
     }
+
     public function getMainpage(): ?string
     {
         return $this->mainpage;
@@ -212,6 +227,7 @@ class UserGroup
         $this->join_policy = $join_policy;
         return $this;
     }
+
     public function getJoinPolicy(): ?int
     {
         return $this->join_policy;
@@ -222,6 +238,7 @@ class UserGroup
         $this->force_scope = $force_scope;
         return $this;
     }
+
     public function getForceScope(): ?int
     {
         return $this->force_scope;

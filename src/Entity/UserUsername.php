@@ -50,6 +50,7 @@ class UserUsername
         $this->provider_name = $provider_name;
         return $this;
     }
+
     public function getProviderName(): string
     {
         return $this->provider_name;
@@ -60,6 +61,7 @@ class UserUsername
         $this->username = $username;
         return $this;
     }
+
     public function getUsername(): string
     {
         return $this->username;
@@ -70,6 +72,7 @@ class UserUsername
         $this->user_id = $user_id;
         return $this;
     }
+
     public function getUserId(): int
     {
         return $this->user_id;
@@ -80,6 +83,7 @@ class UserUsername
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -90,6 +94,7 @@ class UserUsername
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

@@ -48,6 +48,7 @@ class FileToPost
         $this->file_id = $file_id;
         return $this;
     }
+
     public function getFileId(): int
     {
         return $this->file_id;
@@ -58,6 +59,7 @@ class FileToPost
         $this->post_id = $post_id;
         return $this;
     }
+
     public function getPostId(): int
     {
         return $this->post_id;
@@ -68,6 +70,7 @@ class FileToPost
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

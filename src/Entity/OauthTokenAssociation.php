@@ -50,6 +50,7 @@ class OauthTokenAssociation
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -60,6 +61,7 @@ class OauthTokenAssociation
         $this->application_id = $application_id;
         return $this;
     }
+
     public function getApplicationId(): int
     {
         return $this->application_id;
@@ -70,6 +72,7 @@ class OauthTokenAssociation
         $this->token = $token;
         return $this;
     }
+
     public function getToken(): string
     {
         return $this->token;
@@ -80,6 +83,7 @@ class OauthTokenAssociation
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -90,6 +94,7 @@ class OauthTokenAssociation
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

@@ -51,6 +51,7 @@ class Nonce
         $this->consumer_key = $consumer_key;
         return $this;
     }
+
     public function getConsumerKey(): string
     {
         return $this->consumer_key;
@@ -61,6 +62,7 @@ class Nonce
         $this->tok = $tok;
         return $this;
     }
+
     public function getTok(): ?string
     {
         return $this->tok;
@@ -71,6 +73,7 @@ class Nonce
         $this->nonce = $nonce;
         return $this;
     }
+
     public function getNonce(): string
     {
         return $this->nonce;
@@ -81,6 +84,7 @@ class Nonce
         $this->ts = $ts;
         return $this;
     }
+
     public function getTs(): DateTimeInterface
     {
         return $this->ts;
@@ -91,6 +95,7 @@ class Nonce
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -101,6 +106,7 @@ class Nonce
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

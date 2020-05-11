@@ -58,6 +58,7 @@ class Profile
         $this->id = $id;
         return $this;
     }
+
     public function getId(): int
     {
         return $this->id;
@@ -68,6 +69,7 @@ class Profile
         $this->nickname = $nickname;
         return $this;
     }
+
     public function getNickname(): string
     {
         return $this->nickname;
@@ -78,6 +80,7 @@ class Profile
         $this->fullname = $fullname;
         return $this;
     }
+
     public function getFullname(): ?string
     {
         return $this->fullname;
@@ -88,6 +91,7 @@ class Profile
         $this->profileurl = $profileurl;
         return $this;
     }
+
     public function getProfileurl(): ?string
     {
         return $this->profileurl;
@@ -98,6 +102,7 @@ class Profile
         $this->homepage = $homepage;
         return $this;
     }
+
     public function getHomepage(): ?string
     {
         return $this->homepage;
@@ -108,6 +113,7 @@ class Profile
         $this->bio = $bio;
         return $this;
     }
+
     public function getBio(): ?string
     {
         return $this->bio;
@@ -118,6 +124,7 @@ class Profile
         $this->location = $location;
         return $this;
     }
+
     public function getLocation(): ?string
     {
         return $this->location;
@@ -128,6 +135,7 @@ class Profile
         $this->lat = $lat;
         return $this;
     }
+
     public function getLat(): ?float
     {
         return $this->lat;
@@ -138,6 +146,7 @@ class Profile
         $this->lon = $lon;
         return $this;
     }
+
     public function getLon(): ?float
     {
         return $this->lon;
@@ -148,6 +157,7 @@ class Profile
         $this->location_id = $location_id;
         return $this;
     }
+
     public function getLocationId(): ?int
     {
         return $this->location_id;
@@ -158,6 +168,7 @@ class Profile
         $this->location_ns = $location_ns;
         return $this;
     }
+
     public function getLocationNs(): ?int
     {
         return $this->location_ns;
@@ -168,6 +179,7 @@ class Profile
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -178,6 +190,7 @@ class Profile
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

@@ -49,6 +49,7 @@ class LoginToken
         $this->user_id = $user_id;
         return $this;
     }
+
     public function getUserId(): int
     {
         return $this->user_id;
@@ -59,6 +60,7 @@ class LoginToken
         $this->token = $token;
         return $this;
     }
+
     public function getToken(): string
     {
         return $this->token;
@@ -69,6 +71,7 @@ class LoginToken
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -79,6 +82,7 @@ class LoginToken
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

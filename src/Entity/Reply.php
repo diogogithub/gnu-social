@@ -49,6 +49,7 @@ class Reply
         $this->notice_id = $notice_id;
         return $this;
     }
+
     public function getNoticeId(): int
     {
         return $this->notice_id;
@@ -59,6 +60,7 @@ class Reply
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -69,6 +71,7 @@ class Reply
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
@@ -79,6 +82,7 @@ class Reply
         $this->replied_id = $replied_id;
         return $this;
     }
+
     public function getRepliedId(): ?int
     {
         return $this->replied_id;

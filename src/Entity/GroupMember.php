@@ -51,6 +51,7 @@ class GroupMember
         $this->group_id = $group_id;
         return $this;
     }
+
     public function getGroupId(): int
     {
         return $this->group_id;
@@ -61,6 +62,7 @@ class GroupMember
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -71,6 +73,7 @@ class GroupMember
         $this->is_admin = $is_admin;
         return $this;
     }
+
     public function getIsAdmin(): ?bool
     {
         return $this->is_admin;
@@ -81,6 +84,7 @@ class GroupMember
         $this->uri = $uri;
         return $this;
     }
+
     public function getUri(): ?string
     {
         return $this->uri;
@@ -91,6 +95,7 @@ class GroupMember
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -101,6 +106,7 @@ class GroupMember
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

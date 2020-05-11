@@ -58,6 +58,7 @@ class File
         $this->id = $id;
         return $this;
     }
+
     public function getId(): int
     {
         return $this->id;
@@ -68,6 +69,7 @@ class File
         $this->urlhash = $urlhash;
         return $this;
     }
+
     public function getUrlhash(): string
     {
         return $this->urlhash;
@@ -78,6 +80,7 @@ class File
         $this->url = $url;
         return $this;
     }
+
     public function getUrl(): ?string
     {
         return $this->url;
@@ -88,6 +91,7 @@ class File
         $this->filehash = $filehash;
         return $this;
     }
+
     public function getFilehash(): ?string
     {
         return $this->filehash;
@@ -98,6 +102,7 @@ class File
         $this->mimetype = $mimetype;
         return $this;
     }
+
     public function getMimetype(): ?string
     {
         return $this->mimetype;
@@ -108,6 +113,7 @@ class File
         $this->size = $size;
         return $this;
     }
+
     public function getSize(): ?int
     {
         return $this->size;
@@ -118,6 +124,7 @@ class File
         $this->title = $title;
         return $this;
     }
+
     public function getTitle(): ?string
     {
         return $this->title;
@@ -128,6 +135,7 @@ class File
         $this->date = $date;
         return $this;
     }
+
     public function getDate(): ?int
     {
         return $this->date;
@@ -138,6 +146,7 @@ class File
         $this->protected = $protected;
         return $this;
     }
+
     public function getProtected(): ?int
     {
         return $this->protected;
@@ -148,6 +157,7 @@ class File
         $this->filename = $filename;
         return $this;
     }
+
     public function getFilename(): ?string
     {
         return $this->filename;
@@ -158,6 +168,7 @@ class File
         $this->width = $width;
         return $this;
     }
+
     public function getWidth(): ?int
     {
         return $this->width;
@@ -168,6 +179,7 @@ class File
         $this->height = $height;
         return $this;
     }
+
     public function getHeight(): ?int
     {
         return $this->height;
@@ -178,6 +190,7 @@ class File
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

@@ -48,6 +48,7 @@ class SchemaVersion
         $this->table_name = $table_name;
         return $this;
     }
+
     public function getTableName(): string
     {
         return $this->table_name;
@@ -58,6 +59,7 @@ class SchemaVersion
         $this->checksum = $checksum;
         return $this;
     }
+
     public function getChecksum(): string
     {
         return $this->checksum;
@@ -68,6 +70,7 @@ class SchemaVersion
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

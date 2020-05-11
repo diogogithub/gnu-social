@@ -61,6 +61,7 @@ class Notice
         $this->id = $id;
         return $this;
     }
+
     public function getId(): int
     {
         return $this->id;
@@ -71,6 +72,7 @@ class Notice
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -81,6 +83,7 @@ class Notice
         $this->uri = $uri;
         return $this;
     }
+
     public function getUri(): ?string
     {
         return $this->uri;
@@ -91,6 +94,7 @@ class Notice
         $this->content = $content;
         return $this;
     }
+
     public function getContent(): ?string
     {
         return $this->content;
@@ -101,6 +105,7 @@ class Notice
         $this->rendered = $rendered;
         return $this;
     }
+
     public function getRendered(): ?string
     {
         return $this->rendered;
@@ -111,6 +116,7 @@ class Notice
         $this->url = $url;
         return $this;
     }
+
     public function getUrl(): ?string
     {
         return $this->url;
@@ -121,6 +127,7 @@ class Notice
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -131,6 +138,7 @@ class Notice
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
@@ -141,6 +149,7 @@ class Notice
         $this->reply_to = $reply_to;
         return $this;
     }
+
     public function getReplyTo(): ?int
     {
         return $this->reply_to;
@@ -151,6 +160,7 @@ class Notice
         $this->is_local = $is_local;
         return $this;
     }
+
     public function getIsLocal(): ?int
     {
         return $this->is_local;
@@ -161,6 +171,7 @@ class Notice
         $this->source = $source;
         return $this;
     }
+
     public function getSource(): ?string
     {
         return $this->source;
@@ -171,6 +182,7 @@ class Notice
         $this->conversation = $conversation;
         return $this;
     }
+
     public function getConversation(): ?int
     {
         return $this->conversation;
@@ -181,6 +193,7 @@ class Notice
         $this->repeat_of = $repeat_of;
         return $this;
     }
+
     public function getRepeatOf(): ?int
     {
         return $this->repeat_of;
@@ -191,6 +204,7 @@ class Notice
         $this->object_type = $object_type;
         return $this;
     }
+
     public function getObjectType(): ?string
     {
         return $this->object_type;
@@ -201,6 +215,7 @@ class Notice
         $this->verb = $verb;
         return $this;
     }
+
     public function getVerb(): ?string
     {
         return $this->verb;
@@ -211,6 +226,7 @@ class Notice
         $this->scope = $scope;
         return $this;
     }
+
     public function getScope(): ?int
     {
         return $this->scope;

@@ -55,6 +55,7 @@ class Subscription
         $this->subscriber = $subscriber;
         return $this;
     }
+
     public function getSubscriber(): int
     {
         return $this->subscriber;
@@ -65,6 +66,7 @@ class Subscription
         $this->subscribed = $subscribed;
         return $this;
     }
+
     public function getSubscribed(): int
     {
         return $this->subscribed;
@@ -75,6 +77,7 @@ class Subscription
         $this->jabber = $jabber;
         return $this;
     }
+
     public function getJabber(): ?bool
     {
         return $this->jabber;
@@ -85,6 +88,7 @@ class Subscription
         $this->sms = $sms;
         return $this;
     }
+
     public function getSms(): ?bool
     {
         return $this->sms;
@@ -95,6 +99,7 @@ class Subscription
         $this->token = $token;
         return $this;
     }
+
     public function getToken(): ?string
     {
         return $this->token;
@@ -105,6 +110,7 @@ class Subscription
         $this->secret = $secret;
         return $this;
     }
+
     public function getSecret(): ?string
     {
         return $this->secret;
@@ -115,6 +121,7 @@ class Subscription
         $this->uri = $uri;
         return $this;
     }
+
     public function getUri(): ?string
     {
         return $this->uri;
@@ -125,6 +132,7 @@ class Subscription
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -135,6 +143,7 @@ class Subscription
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

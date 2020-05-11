@@ -51,6 +51,7 @@ class OauthApplicationUser
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -61,6 +62,7 @@ class OauthApplicationUser
         $this->application_id = $application_id;
         return $this;
     }
+
     public function getApplicationId(): int
     {
         return $this->application_id;
@@ -71,6 +73,7 @@ class OauthApplicationUser
         $this->access_type = $access_type;
         return $this;
     }
+
     public function getAccessType(): ?int
     {
         return $this->access_type;
@@ -81,6 +84,7 @@ class OauthApplicationUser
         $this->token = $token;
         return $this;
     }
+
     public function getToken(): ?string
     {
         return $this->token;
@@ -91,6 +95,7 @@ class OauthApplicationUser
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -101,6 +106,7 @@ class OauthApplicationUser
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

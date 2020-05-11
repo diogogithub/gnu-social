@@ -51,6 +51,7 @@ class Session
         $this->id = $id;
         return $this;
     }
+
     public function getId(): string
     {
         return $this->id;
@@ -61,6 +62,7 @@ class Session
         $this->session_data = $session_data;
         return $this;
     }
+
     public function getSessionData(): ?string
     {
         return $this->session_data;
@@ -71,6 +73,7 @@ class Session
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -81,6 +84,7 @@ class Session
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

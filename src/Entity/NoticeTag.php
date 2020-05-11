@@ -48,6 +48,7 @@ class NoticeTag
         $this->tag = $tag;
         return $this;
     }
+
     public function getTag(): string
     {
         return $this->tag;
@@ -58,6 +59,7 @@ class NoticeTag
         $this->notice_id = $notice_id;
         return $this;
     }
+
     public function getNoticeId(): int
     {
         return $this->notice_id;
@@ -68,6 +70,7 @@ class NoticeTag
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

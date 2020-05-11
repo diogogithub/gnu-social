@@ -51,6 +51,7 @@ class OldSchoolPrefs
         $this->user_id = $user_id;
         return $this;
     }
+
     public function getUserId(): int
     {
         return $this->user_id;
@@ -61,6 +62,7 @@ class OldSchoolPrefs
         $this->stream_mode_only = $stream_mode_only;
         return $this;
     }
+
     public function getStreamModeOnly(): ?bool
     {
         return $this->stream_mode_only;
@@ -71,6 +73,7 @@ class OldSchoolPrefs
         $this->conversation_tree = $conversation_tree;
         return $this;
     }
+
     public function getConversationTree(): ?bool
     {
         return $this->conversation_tree;
@@ -81,6 +84,7 @@ class OldSchoolPrefs
         $this->stream_nicknames = $stream_nicknames;
         return $this;
     }
+
     public function getStreamNicknames(): ?bool
     {
         return $this->stream_nicknames;
@@ -91,6 +95,7 @@ class OldSchoolPrefs
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -101,6 +106,7 @@ class OldSchoolPrefs
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

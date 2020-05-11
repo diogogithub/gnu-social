@@ -51,6 +51,7 @@ class UserUrlshortenerPrefs
         $this->user_id = $user_id;
         return $this;
     }
+
     public function getUserId(): int
     {
         return $this->user_id;
@@ -61,6 +62,7 @@ class UserUrlshortenerPrefs
         $this->urlshorteningservice = $urlshorteningservice;
         return $this;
     }
+
     public function getUrlshorteningservice(): ?string
     {
         return $this->urlshorteningservice;
@@ -71,6 +73,7 @@ class UserUrlshortenerPrefs
         $this->maxurllength = $maxurllength;
         return $this;
     }
+
     public function getMaxurllength(): int
     {
         return $this->maxurllength;
@@ -81,6 +84,7 @@ class UserUrlshortenerPrefs
         $this->maxnoticelength = $maxnoticelength;
         return $this;
     }
+
     public function getMaxnoticelength(): int
     {
         return $this->maxnoticelength;
@@ -91,6 +95,7 @@ class UserUrlshortenerPrefs
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -101,6 +106,7 @@ class UserUrlshortenerPrefs
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

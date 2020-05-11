@@ -83,12 +83,12 @@ class SchemaDefDriver extends StaticPHPDriver
             // TODO
             // Convert old to new types
             $type = // $name === 'date'
-                  // // Old date fields were stored as int, store as datetime/timestamp
-                  // ? 'datetime'
-                  // // For ints, prepend the size (smallint)
-                  // // The size field doesn't exist otherwise
-                  // :
-                  self::types[($opts['size'] ?? '') . $opts['type']];
+                // // Old date fields were stored as int, store as datetime/timestamp
+                // ? 'datetime'
+                // // For ints, prepend the size (smallint)
+                // // The size field doesn't exist otherwise
+                // :
+                self::types[($opts['size'] ?? '') . $opts['type']];
 
             $unique = null;
             foreach ($schema['unique keys'] ?? [] as $key => $uniq_arr) {
@@ -119,8 +119,8 @@ class SchemaDefDriver extends StaticPHPDriver
                 'scale'   => $opts['scale'] ?? null,
                 'options' => [
                     'comment'  => $opts['description'] ?? null,
-                    'default'  => $opts['default']     ?? null,
-                    'unsigned' => $opts['unsigned']    ?? null,
+                    'default'  => $opts['default'] ?? null,
+                    'unsigned' => $opts['unsigned'] ?? null,
                     // bool, optional
                     'fixed' => $opts['type'] === 'char',
                     // 'collation' => string, unused
@@ -129,7 +129,7 @@ class SchemaDefDriver extends StaticPHPDriver
                 // 'columnDefinition', unused
             ];
             // The optional feilds from earlier were populated with null, remove them
-            $field            = array_filter($field,            F\not('is_null'));
+            $field            = array_filter($field, F\not('is_null'));
             $field['options'] = array_filter($field['options'], F\not('is_null'));
 
             $metadata->mapField($field);
@@ -146,6 +146,7 @@ class SchemaDefDriver extends StaticPHPDriver
      * instead of `loadMetadata`.
      *
      * @param string $class_name
+     *
      * @return bool
      */
     public function isTransient($class_name)
@@ -155,7 +156,9 @@ class SchemaDefDriver extends StaticPHPDriver
 
     /**
      * Convert [$key => $val] to ['name' => $key, 'columns' => $val]
+     *
      * @param array $arr
+     *
      * @return array
      */
     private static function kv_to_name_col(array $arr): array

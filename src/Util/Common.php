@@ -30,10 +30,10 @@
 
 namespace App\Util;
 
+use const DIRECTORY_SEPARATOR;
 use Functional as F;
 use InvalidArgumentException;
 use Symfony\Component\Config\Definition\Exception\Exception;
-use const DIRECTORY_SEPARATOR;
 
 abstract class Common
 {
@@ -42,6 +42,7 @@ abstract class Common
      *
      * @param string $section
      * @param string $field
+     *
      * @return mixed
      */
     public static function config(string $section, string $field)
@@ -52,7 +53,9 @@ abstract class Common
 
     /**
      * Normalize path by converting \ to /
+     *
      * @param string $path
+     *
      * @return string
      */
     public static function normalizePath(string $path): string
@@ -65,8 +68,10 @@ abstract class Common
 
     /**
      * Get plugin name from it's path, or null if not a plugin
+     *
      * @param string $path
-     * @return string|null
+     *
+     * @return null|string
      */
     public static function pluginFromPath(string $path): ?string
     {
@@ -90,7 +95,8 @@ abstract class Common
      * Check whether $haystack starts with $needle
      *
      * @param array|string $haystack if array, check that all strings start with $needle
-     * @param string $needle
+     * @param string       $needle
+     *
      * @return bool
      */
     public static function startsWith($haystack, string $needle): bool
@@ -100,16 +106,17 @@ abstract class Common
             return substr($haystack, 0, $length) === $needle;
         }
         return F\every($haystack,
-                       function ($haystack) use ($needle) {
-                           return self::startsWith($haystack, $needle);
-                       });
+            function ($haystack) use ($needle) {
+                return self::startsWith($haystack, $needle);
+            });
     }
 
     /**
      * Check whether $haystack ends with $needle
      *
      * @param array|string $haystack if array, check that all strings end with $needle
-     * @param string $needle
+     * @param string       $needle
+     *
      * @return bool
      */
     public static function endsWith($haystack, string $needle)
@@ -122,16 +129,18 @@ abstract class Common
             return substr($haystack, -$length) === $needle;
         }
         return F\every($haystack,
-                       function ($haystack) use ($needle) {
-                           return self::endsWith($haystack, $needle);
-                       });
+            function ($haystack) use ($needle) {
+                return self::endsWith($haystack, $needle);
+            });
     }
 
     /**
      * Call $func with only abs($count) arguments, taken either from the
      * left or right depending on the sign
+     *
      * @param callable $func
-     * @param int $count
+     * @param int      $count
+     *
      * @return callable
      */
     public static function arity(callable $func, int $count): callable
@@ -146,6 +155,7 @@ abstract class Common
 
     /**
      * @param string $str
+     *
      * @return string
      */
     public static function camelCaseToSnakeCase(string $str): string
@@ -155,6 +165,7 @@ abstract class Common
 
     /**
      * @param string $str
+     *
      * @return string
      */
     public static function snakeCaseToCamelCase(string $str): string
@@ -166,8 +177,9 @@ abstract class Common
      * Indent $in, a string or array, $level levels
      *
      * @param array|string $in
-     * @param int $level
-     * @param int $count
+     * @param int          $level
+     * @param int          $count
+     *
      * @return string
      */
     public static function indent($in, int $level = 1, int $count = 2): string
@@ -177,11 +189,13 @@ abstract class Common
         } elseif (is_array($in)) {
             $indent = str_repeat(' ', $count * $level);
             return implode("\n", F\map(F\select($in,
-                                                self::arity(function ($s) { return $s != ''; }, 1)),
-                                       function ($val) use ($indent) {
-                                           return F\concat($indent . $val);
-                                       }));
+                self::arity(function ($s) {
+                    return $s != '';
+                }, 1)),
+                function ($val) use ($indent) {
+                    return F\concat($indent . $val);
+                }));
         }
-        throw new InvalidArgumentException('Common:indent first parameter must be either an array or a string. Input was: '.$in);
+        throw new InvalidArgumentException('Common:indent first parameter must be either an array or a string. Input was: ' . $in);
     }
 }

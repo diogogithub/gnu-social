@@ -48,6 +48,7 @@ class Conversation
         $this->id = $id;
         return $this;
     }
+
     public function getId(): int
     {
         return $this->id;
@@ -58,6 +59,7 @@ class Conversation
         $this->uri = $uri;
         return $this;
     }
+
     public function getUri(): string
     {
         return $this->uri;
@@ -68,6 +70,7 @@ class Conversation
         $this->url = $url;
         return $this;
     }
+
     public function getUrl(): ?string
     {
         return $this->url;
@@ -78,6 +81,7 @@ class Conversation
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -88,6 +92,7 @@ class Conversation
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

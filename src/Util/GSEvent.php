@@ -69,11 +69,11 @@ abstract class GSEvent
      * Handlers can also abort processing by throwing an exception; these will
      * be caught by the closest code and displayed as errors.
      *
-     * @param string $name Name of the event
-     * @param callable $handler Code to run
-     * @param int $priority Higher runs first
+     * @param string   $name     Name of the event
+     * @param callable $handler  Code to run
+     * @param int      $priority Higher runs first
+     * @param string   $ns
      *
-     * @param string $ns
      * @return void
      */
     public static function addHandler(string $name,

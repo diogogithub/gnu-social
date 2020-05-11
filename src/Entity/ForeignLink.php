@@ -56,6 +56,7 @@ class ForeignLink
         $this->user_id = $user_id;
         return $this;
     }
+
     public function getUserId(): int
     {
         return $this->user_id;
@@ -66,6 +67,7 @@ class ForeignLink
         $this->foreign_id = $foreign_id;
         return $this;
     }
+
     public function getForeignId(): int
     {
         return $this->foreign_id;
@@ -76,6 +78,7 @@ class ForeignLink
         $this->service = $service;
         return $this;
     }
+
     public function getService(): int
     {
         return $this->service;
@@ -86,6 +89,7 @@ class ForeignLink
         $this->credentials = $credentials;
         return $this;
     }
+
     public function getCredentials(): ?string
     {
         return $this->credentials;
@@ -96,6 +100,7 @@ class ForeignLink
         $this->noticesync = $noticesync;
         return $this;
     }
+
     public function getNoticesync(): int
     {
         return $this->noticesync;
@@ -106,6 +111,7 @@ class ForeignLink
         $this->friendsync = $friendsync;
         return $this;
     }
+
     public function getFriendsync(): int
     {
         return $this->friendsync;
@@ -116,6 +122,7 @@ class ForeignLink
         $this->profilesync = $profilesync;
         return $this;
     }
+
     public function getProfilesync(): int
     {
         return $this->profilesync;
@@ -126,6 +133,7 @@ class ForeignLink
         $this->last_noticesync = $last_noticesync;
         return $this;
     }
+
     public function getLastNoticesync(): ?DateTimeInterface
     {
         return $this->last_noticesync;
@@ -136,6 +144,7 @@ class ForeignLink
         $this->last_friendsync = $last_friendsync;
         return $this;
     }
+
     public function getLastFriendsync(): ?DateTimeInterface
     {
         return $this->last_friendsync;
@@ -146,6 +155,7 @@ class ForeignLink
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -156,6 +166,7 @@ class ForeignLink
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

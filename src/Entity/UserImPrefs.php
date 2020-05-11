@@ -51,6 +51,7 @@ class UserImPrefs
         $this->user_id = $user_id;
         return $this;
     }
+
     public function getUserId(): int
     {
         return $this->user_id;
@@ -61,6 +62,7 @@ class UserImPrefs
         $this->screenname = $screenname;
         return $this;
     }
+
     public function getScreenname(): string
     {
         return $this->screenname;
@@ -71,6 +73,7 @@ class UserImPrefs
         $this->transport = $transport;
         return $this;
     }
+
     public function getTransport(): string
     {
         return $this->transport;
@@ -81,6 +84,7 @@ class UserImPrefs
         $this->notify = $notify;
         return $this;
     }
+
     public function getNotify(): bool
     {
         return $this->notify;
@@ -91,6 +95,7 @@ class UserImPrefs
         $this->replies = $replies;
         return $this;
     }
+
     public function getReplies(): bool
     {
         return $this->replies;
@@ -101,6 +106,7 @@ class UserImPrefs
         $this->updatefrompresence = $updatefrompresence;
         return $this;
     }
+
     public function getUpdatefrompresence(): bool
     {
         return $this->updatefrompresence;
@@ -111,6 +117,7 @@ class UserImPrefs
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -121,6 +128,7 @@ class UserImPrefs
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

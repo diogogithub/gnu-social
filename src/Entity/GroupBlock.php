@@ -49,6 +49,7 @@ class GroupBlock
         $this->group_id = $group_id;
         return $this;
     }
+
     public function getGroupId(): int
     {
         return $this->group_id;
@@ -59,6 +60,7 @@ class GroupBlock
         $this->blocked = $blocked;
         return $this;
     }
+
     public function getBlocked(): int
     {
         return $this->blocked;
@@ -69,6 +71,7 @@ class GroupBlock
         $this->blocker = $blocker;
         return $this;
     }
+
     public function getBlocker(): int
     {
         return $this->blocker;
@@ -79,6 +82,7 @@ class GroupBlock
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
