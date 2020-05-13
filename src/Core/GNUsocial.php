@@ -40,6 +40,7 @@
 
 namespace App\Core;
 
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
@@ -54,21 +55,20 @@ class GNUsocial implements EventSubscriberInterface
     protected ContainerInterface $container;
     protected LoggerInterface $logger;
     protected TranslatorInterface $translator;
+    protected EntityManagerInterface $entity_manager;
 
     /**
      * Symfony dependency injection gives us access to these services
-     *
-     * @param ContainerInterface  $container
-     * @param LoggerInterface     $logger
-     * @param TranslatorInterface $translator
      */
     public function __construct(ContainerInterface $container,
                                 LoggerInterface $logger,
-                                TranslatorInterface $translator)
+                                TranslatorInterface $translator,
+                                EntityManager $em)
     {
-        $this->container  = $container;
-        $this->logger     = $logger;
-        $this->translator = $translator;
+        $this->container      = $container;
+        $this->logger         = $logger;
+        $this->translator     = $translator;
+        $this->entity_manager = $em;
     }
 
     /**
@@ -81,6 +81,9 @@ class GNUsocial implements EventSubscriberInterface
         Log::setLogger($this->logger);
         GSEvent::setDispatcher($event_dispatcher);
         I18n::setTranslator($this->translator);
+        DB::setEntityManager($this->entity_manager);
+
+        DefaultSettings::setDefault();
         ModulesManager::loadModules();
     }
 
