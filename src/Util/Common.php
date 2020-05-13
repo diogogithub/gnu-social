@@ -30,6 +30,8 @@
 
 namespace App\Util;
 
+use App\Core\DB;
+
 abstract class Common
 {
     /**
@@ -40,9 +42,8 @@ abstract class Common
      *
      * @return mixed
      */
-    public static function config(string $section, string $field)
+    public static function config(string $section, string $setting)
     {
-        // TODO: implement it x)
-        return [];
+        return DB::find('\App\Entity\Config', [$section, $setting]);
     }
 }
