@@ -71,11 +71,11 @@ services:
     ports:
       - 5432:5432
     environment:
-      - PGDATA=/var/lib/postgresql/data
+      - PGDATA=/var/lib/postgres/data
     env_file:
       - ./docker/db/db.env
     volumes:
-      - database:/var/lib/postgresql/data
+      - database:/var/lib/postgres/data
 
 volumes:
   database:
