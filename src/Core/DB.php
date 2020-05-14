@@ -30,18 +30,18 @@
 
 namespace App\Core;
 
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 
 abstract class DB
 {
-    private static ?EntityManager $em;
-    public static function setEntityManager($m): void
+    private static ?EntityManagerInterface $em;
+    public static function setManager($m): void
     {
         self::$em = $m;
     }
 
-    public static function __call($method, array $args = [])
+    public static function __callStatic(string $name, array $args)
     {
-        $em->{$method}(...$args);
+        return self::$em->{$name}(...$args);
     }
 }

@@ -31,6 +31,7 @@
 namespace App\Controller;
 
 use App\Core\GSEvent as Event;
+use App\Util\Common;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class NetworkPublic extends AbstractController
@@ -38,6 +39,8 @@ class NetworkPublic extends AbstractController
     public function __invoke()
     {
         Event::handle('Test', ['foobar']);
+
+        Common::config('url', 'shortener');
 
         return $this->render('network/public.html.twig', []);
     }

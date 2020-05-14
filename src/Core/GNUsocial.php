@@ -63,7 +63,7 @@ class GNUsocial implements EventSubscriberInterface
     public function __construct(ContainerInterface $container,
                                 LoggerInterface $logger,
                                 TranslatorInterface $translator,
-                                EntityManager $em)
+                                EntityManagerInterface $em)
     {
         $this->container      = $container;
         $this->logger         = $logger;
@@ -81,9 +81,9 @@ class GNUsocial implements EventSubscriberInterface
         Log::setLogger($this->logger);
         GSEvent::setDispatcher($event_dispatcher);
         I18n::setTranslator($this->translator);
-        DB::setEntityManager($this->entity_manager);
+        DB::setManager($this->entity_manager);
 
-        DefaultSettings::setDefault();
+        DefaultSettings::setDefaults();
         ModulesManager::loadModules();
     }
 
