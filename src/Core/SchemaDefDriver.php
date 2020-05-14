@@ -82,13 +82,13 @@ class SchemaDefDriver extends StaticPHPDriver
         foreach ($schema['fields'] as $name => $opts) {
             // TODO
             // Convert old to new types
-            $type = // $name === 'date'
-                // // Old date fields were stored as int, store as datetime/timestamp
-                // ? 'datetime'
-                // // For ints, prepend the size (smallint)
-                // // The size field doesn't exist otherwise
-                // :
-                self::types[($opts['size'] ?? '') . $opts['type']];
+            $type = $name === 'date'
+                  // Old date fields were stored as int, store as datetime/timestamp
+                  ? 'datetime'
+                  // For ints, prepend the size (smallint)
+                  // The size field doesn't exist otherwise
+                  :
+                  self::types[($opts['size'] ?? '') . $opts['type']];
 
             $unique = null;
             foreach ($schema['unique keys'] ?? [] as $key => $uniq_arr) {
@@ -97,6 +97,9 @@ class SchemaDefDriver extends StaticPHPDriver
                     break;
                 }
             }
+
+            $default = (($opts['default'] ?? null) === '0000-00-00 00:00:00' && $_ENV['DBMS'] === 'postgres')
+                        ? '-infinity' : $opts['default'] ?? null;
 
             $field = [
                 // boolean, optional
@@ -119,7 +122,7 @@ class SchemaDefDriver extends StaticPHPDriver
                 'scale'   => $opts['scale'] ?? null,
                 'options' => [
                     'comment'  => $opts['description'] ?? null,
-                    'default'  => $opts['default'] ?? null,
+                    'default'  => $default,
                     'unsigned' => $opts['unsigned'] ?? null,
                     // bool, optional
                     'fixed' => $opts['type'] === 'char',
