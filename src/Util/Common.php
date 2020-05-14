@@ -44,6 +44,6 @@ abstract class Common
      */
     public static function config(string $section, string $setting)
     {
-        return DB::find('\App\Entity\Config', [$section, $setting]);
+        return DB::find('\App\Entity\Config', ['section' => $section, 'setting' => $setting]);
     }
 }
