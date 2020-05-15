@@ -7,6 +7,7 @@ services:
       - ../certbot/www:/var/www/certbot
       - ../certbot/files:/etc/letsencrypt
       - ./bootstrap.sh:/bootstrap.sh
+      - ./bootstrap.env:/bootstrap.env
     ports:
       - 80:80
     env_file:
