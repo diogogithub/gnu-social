@@ -36,14 +36,20 @@ abstract class Common
 {
     /**
      * Access sysadmin's configuration preferences for GNU social
-     *
-     * @param string $section
-     * @param string $field
-     *
-     * @return mixed
      */
     public static function config(string $section, string $setting)
     {
         return DB::find('\App\Entity\Config', ['section' => $section, 'setting' => $setting]);
+    }
+
+    /**
+     * Set sysadmin's configuration preferences for GNU social
+     */
+    public static function set_config(string $section, string $setting, mixed $value): void
+    {
+        $ojb = DB::getPatialReference('\App\Entity\Config', ['section' => $section, 'setting' => $setting]);
+        $obj->setValue(serialize($value));
+        DB::persist($obj);
+        DB::flush();
     }
 }
