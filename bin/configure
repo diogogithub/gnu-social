@@ -23,8 +23,8 @@ printf "Admin nickname: " && read -r admin_nick
 printf "Admin password: " && read -r admin_password
 
 while :; do
-    printf "Site profile (public|private|community|singleuser): " && read -r profile
-    [ $(echo "${profile}" | grep -E 'public|private|community|singleuser') ] && break
+    printf "Site profile (public|private|community|single_user): " && read -r profile
+    [ $(echo "${profile}" | grep -E 'public|private|community|single_user') ] && break
 done
 
 mkdir -p ./docker/db

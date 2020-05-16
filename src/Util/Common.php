@@ -52,4 +52,58 @@ abstract class Common
         DB::persist($obj);
         DB::flush();
     }
+
+    /**
+     * An internal helper function that converts a $size from php.ini for
+     * file size limit from the 'human-readable' shorthand into a int. If
+     * $size is empty (the value is not set in php.ini), returns a default
+     * value (5000000)
+     *
+     * @param string|bool $size
+     * @return int the php.ini upload limit in machine-readable format
+     */
+    public static function size_str_to_int($size): int
+    {
+        // `memory_limit` can be -1 and `post_max_size` can be 0
+        // for unlimited. Consistency.
+        if (empty($size) || $size === '-1' || $size === '0') {
+            $size = '3M';
+        }
+
+        $suffix = substr($size, -1);
+        $size   = (int) substr($size, 0, -1);
+        switch (strtoupper($suffix)) {
+        case 'P':
+            $size *= 1024;
+            // no break
+        case 'T':
+            $size *= 1024;
+            // no break
+        case 'G':
+            $size *= 1024;
+            // no break
+        case 'M':
+            $size *= 1024;
+            // no break
+        case 'K':
+            $size *= 1024;
+            break;
+        }
+        return $size;
+    }
+
+    /**
+     * Uses `size_str_to_int()` to find the smallest value for uploads in php.ini
+     *
+     * @return int
+     */
+    public static function get_preferred_php_upload_limit(): int
+    {
+        return min(
+            self::size_str_to_int(ini_get('post_max_size')),
+            self::size_str_to_int(ini_get('upload_max_filesize')),
+            self::size_str_to_int(ini_get('memory_limit'))
+        );
+    }
+
 }
