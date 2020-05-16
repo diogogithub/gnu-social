@@ -28,5 +28,7 @@ DOCUMENTATION/database/*
 docker/certbot
 docker/*/*.env
 
+docker-compose.yaml
+
 # V2
 config.php
