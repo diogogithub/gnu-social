@@ -76,6 +76,13 @@ class Config
 
     // }}} Autocode
 
+    public function __construct($sec, $set, $val)
+    {
+        $this->section = $sec;
+        $this->setting = $set;
+        $this->value   = $val;
+    }
+
     public static function schemaDef(): array
     {
         return [

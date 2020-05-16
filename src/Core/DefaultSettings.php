@@ -425,37 +425,37 @@ abstract class DefaultSettings
              'performance' => ['high'  => false], // disable some features for higher performance; default false
             ];
 
-        if ($_ENV['APP_DEBUG']) {
-            self::loadDefaults();
-        }
+        self::loadDefaults(!$_ENV['APP_DEBUG']);
     }
 
-    public static function loadDefaults(bool $optimize = false) {
-        $schemaManager = DB::getConnection()->getSchemaManager();
-        if (!$schemaManager->tablesExist(['config'])) {
-            if (!isset($_SERVER['TERM'])) {
-                throw new Exception("Table config doesn't exist, make sure the schema " .
-                                    "is correctly created with `bin/console doctrine:schema:create`");
-            } else {
-                return; // We seem to be running form the command line, probably running the above command
-            }
+    public static function loadDefaults(bool $optimize = false)
+    {
+        if (!isset($_ENV['HTTPS']) || !isset($_ENV['HTTP_HOST']) || $optimize) {
+            return;
         }
 
-        $repo = DB::getRepository('\App\Entity\Config');
-        if (!empty($repo)) {
-            $config = $repo->findAll();
-            if (!$optimize || count($config) < count(self::$defaults)) {
-                foreach (self::$defaults as $section => $def) {
-                    foreach ($def as $setting => $value) {
-                        if (!isset($config[$section][$setting])) {
-                            $config[$section][$setting]
-                                = DB::getReference('\App\Entity\Config', ['section' => $section, 'setting' => $setting]);
-                            DB::persist($config[$section][$setting]->setValue(serialize($value)));
-                        }
-                    }
-                }
-                DB::flush();
+        // So, since not all DBMSs support multi row inserts, doctrine doesn't implement it.
+        // The difference between this and the below version is that the one bellow does 221 queries in 30 to 50ms,
+        // this does 2 in 10 to 15 ms
+        // In debug mode, delete everything and reinsert, in case defaults changed
+        DB::getConnection()->executeQuery('delete from config;');
+        $sql = 'insert into config (section, setting, value) values';
+        foreach (self::$defaults as $section => $def) {
+            foreach ($def as $setting => $value) {
+                $v = serialize($value);
+                $sql .= " ('{$section}', '{$setting}', '{$v}'),";
             }
         }
+        $sql = preg_replace('/,$/', ';', $sql);
+        DB::getConnection()->executeQuery($sql);
+
+        // $repo = DB::getRepository('\App\Entity\Config');
+        // $repo->findAll();
+        // foreach (self::$defaults as $section => $def) {
+        //     foreach ($def as $setting => $value) {
+        //         DB::persist(new Config($section, $setting, serialize($value)));
+        //     }
+        // }
+        // DB::flush();
     }
 }
