@@ -271,6 +271,8 @@ return PhpCsFixer\Config::create()
     ->setFinder(PhpCsFixer\Finder::create()
         ->exclude('vendor')
         ->exclude('var')
+        ->exclude('docker')
         ->exclude('src/Entity')
+        ->notPath('src/Core/DefaultSettings.php')
         ->in(__DIR__)
     );

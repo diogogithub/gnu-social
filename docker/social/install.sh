@@ -3,11 +3,11 @@
 case "${DBMS}" in
     'postgres')
         PGPASSWORD="${POSTGRES_PASSWORD}" psql -ltq -Upostgres -hdb | \
-            cut -d '|' -f1 | grep -wq "${SOCIAL_DB}"
+            cut -d '|' -f1 | grep -Fwq "${SOCIAL_DB}"
         DB_EXISTS=$?
         ;;
     'mariadb')
-        mysqlcheck -cqs -uroot -p${MYSQL_ROOT_PASSWORD} -hdb social 2> /dev/null
+        mysqlcheck -cqs -uroot -p"${MYSQL_ROOT_PASSWORD}" -hdb social 2> /dev/null
         DB_EXISTS=$?
         exit 1
         ;;
@@ -16,11 +16,12 @@ case "${DBMS}" in
         exit 1
 esac
 
-if [ ! ${DB_EXISTS} ]; then
+if [ ${DB_EXISTS} -ne 0 ]; then
 
-    echo -e "Installing GNU social\nInstalling composer dependencies"
+    echo "Installing GNU social"
+    echo "Installing composer dependencies"
 
-    cd /var/www/social
+    cd /var/www/social || exit 1
 
     composer install
 
@@ -28,6 +29,9 @@ if [ ! ${DB_EXISTS} ]; then
     chown -R :www-data .
 
     php bin/console doctrine:database:create || exit 1
+    php bin/console doctrine:schema:create   || exit 1
 
     echo "GNU social is installed"
+else
+    echo "GNU social is already installed"
 fi

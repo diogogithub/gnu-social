@@ -28,7 +28,6 @@ then
       -keyout "${lets_path}/live/${domain_root}/privkey.pem" \
       -out "${lets_path}/live/${domain_root}/fullchain.pem" -subj "/CN=${domain_root}"
 
-    nginx -s reload
   else
     echo "### Creating dummy certificate for ${domain_root} ..."
     openssl req -x509 -nodes -newkey rsa:1024 -days 1 \

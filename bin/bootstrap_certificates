@@ -4,13 +4,16 @@ printf "Domain root: "
 read -r domain_root
 printf "Subdomain (can be empty): "
 read -r sub_domain
-printf "Email: "
-read -r email
-printf "Use certificate signed by Let's Encrypt (Y/n): "
 read -r signed
+printf "Use certificate signed by Let's Encrypt (Y/n): "
 
 [ "${signed}" = "${signed#[Yy]}" ]
 signed=$?
+
+if [ $signed ]; then
+    printf "Email: "
+    read -r email
+fi
 
 if [ -z "$sub_domain" ]
 then
