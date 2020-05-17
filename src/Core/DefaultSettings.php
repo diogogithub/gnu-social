@@ -31,6 +31,7 @@
 namespace App\Core;
 
 use App\Entity\Config;
+use App\Util\Common;
 use Symfony\Component\Config\Definition\Exception\Exception;
 
 abstract class DefaultSettings
@@ -40,14 +41,13 @@ abstract class DefaultSettings
     {
         self::$defaults =
             ['site' =>
-                 ['name'                 => $_ENV['SOCIAL_SITENAME'],
+                 ['name'                 => $_ENV['SOCIAL_SITENAME'] ?? 'Another social instance',
+                  'server'               => $_ENV['SOCIAL_DOMAIN'] ?? 'localhost',
                   'notice'               => null,  // site wide notice text
-                  'theme'                => 'neo-gnu',
+                  'theme'                => 'default',
                   'logo'                 => null,
-                  'fancy'                => true,
-                  'locale_path'          => INSTALLDIR . '/translations',
                   'language'             => 'en',
-                  'langdetect'           => true,
+                  'detect_language'      => true,
                   'languages'            => I18n::get_all_languages(),
                   'email'                => $_ENV['SERVER_ADMIN'] ?? $_ENV['SOCIAL_ADMIN_EMAIL'] ?? null,
                   'recovery_disclose'    => false, // Whether to not say that we found the email in the database, when asking for recovery
@@ -59,28 +59,26 @@ abstract class DefaultSettings
                   'private'              => false,
                   'ssl'                  => 'always',
                   'ssl_proxy'            => false, // set to true to force GNU social to think it is HTTPS (i.e. using reverse proxy to enable it)
-                  'ssl_proxy_server'     => null,
                   'duplicate_time_limit' => 60,    // default for same person saying the same thing
                   'text_limit'           => 1000,  // in chars; 0 == no limit
-                  'use_x_sendfile'       => false,
-                  'description_limit'    => null
+                  'x-static-delivery'    => null,
                  ],
              'security' => ['hash_algos' => ['sha1', 'sha256', 'sha512']],   // set to null for anything that hash_hmac() can handle (and is in hash_algos())
              'db' => ['mirror' => null],   // TODO implement
              'fix' =>
-                 ['fancyurls'   => true,   // makes sure aliases in WebFinger etc. are not f'd by index.php/ URLs
-                  'legacy_http' => false,  // set this to true if you have upgraded your site from http=>https
+                 ['fancy_urls'  => true,  // makes sure aliases in WebFinger etc. are not f'd by index.php/ URLs
+                  'http' => true,         // set this to true if you have upgraded your site from http=>https
                  ],
              'queue' =>
                  ['enabled'               => true,
                   'daemon'                => false, // Use queuedaemon. Default to false
                   'threads'               => null,  // an empty value here uses processor count to determine
                   'subsystem'             => false,  // default to database, or 'stomp'
-                  'basename'              => '/gnusocial/queue/',
+                  'basename'              => '/queue/gnusocial/',
                   'control_channel'       => '/topic/gnusocial/control', // broadcasts to all queue daemons
                   'monitor'               => null,  // URL to monitor ping endpoint (work in progress)
-                  'softlimit'             => '90%', // total size or % of memory_limit at which to restart queue threads gracefully
-                  'spawndelay'            => 1,     // Wait at least N seconds between (re)spawns of child processes to avoid slamming the queue server with subscription startup
+                  'soft_limit'            => '90%', // total size or % of memory_limit at which to restart queue threads gracefully
+                  'spawn_delay'           => 1,     // Wait at least N seconds between (re)spawns of child processes to avoid slamming the queue server with subscription startup
                   'debug_memory'          => false, // true to spit memory usage to log
                   'stomp_server'          => null,
                   'stomp_username'        => null,
@@ -92,92 +90,24 @@ abstract class DefaultSettings
                   'max_retries'           => 10,    // drop messages after N failed attempts to process (Stomp)
                   'dead_letter_dir'       => false, // set to directory to save dropped messages into (Stomp)
                  ],
-             'license' =>
-                 ['type'  => 'cc',  // can be 'cc', 'allrightsreserved', 'private'
-                  'owner' => null,  // can be name of content owner e.g. for enterprise
-                  'url'   => 'https://creativecommons.org/licenses/by/3.0/',
-                  'title' => 'Creative Commons Attribution 3.0',
-                  'image' => '/theme/licenses/cc_by_3.0_80x15.png',
-                 ],
-             'mail' =>
-                 ['backend'      => 'mail',
-                  'params'       => null,
-                  'domain_check' => true,
-                 ],
-             'nickname' =>
-                 ['blacklist' => [],
-                  'featured'  => [],
-                 ],
-             'profile' =>
-                 ['banned'               => [],
-                  'bio_text_limit'       => null,
-                  'allow_change_nick'    => false,
-                  'allow_private_stream' => false,  // whether to allow setting stream to private ("only followers can read")
-                  'backup'               => false,  // can cause DoS, so should be done via CLI
-                  'restore'              => false,
-                  'delete'               => false,
-                  'move'                 => false,
-                 ],
-             'image'  => ['jpegquality' => 85],
              'avatar' =>
                  ['server'      => null,
-                  'dir'         => INSTALLDIR . '/file/avatar/',
                   'url_base'    => '/avatar/',
                   'ssl'         => null,
-                  'max_px_size' => 300,
+                  'dir'         => INSTALLDIR . '/file/avatar/',
+                  'max_size_px' => 300,
                  ],
-             'foaf' => ['mbox_sha1sum' => false],
-             'public' =>
-                 ['local_only'       => false,
-                  'blacklist'        => [],
-                  'exclude_sources'  => [],
-                 ],
-             'theme_upload' => ['enabled' => extension_loaded('zip')],
-             'javascript'   =>
-                  ['server'     => null,
-                   'url_base'   => null,
-                   'ssl'        => null,
-                   'bustframes' => true,
+             'javascript' =>
+                  ['server'      => null,
+                   'url_base'    => '/js/',
+                   'ssl'         => null,
+                   'bust_frames' => true,
                   ],
-             'throttle' =>
-                 ['enabled'  => true, // whether to throttle posting dents
-                  'count'    => 20,    // number of allowed messages in timespan
-                  'timespan' => 600,   // timespan for throttling
-                 ],
-             'invite' => ['enabled' => true],
-             'tag' =>
-                 ['dropoff' => 864000.0,   // controls weighting based on age
-                  'cutoff'  => 86400 * 90, // only look at notices posted in last 90 days
-                 ],
-             'popular' =>
-                 ['dropoff' => 864000.0,   // controls weighting based on age
-                  'cutoff'  => 86400 * 90, // only look at notices favorited in last 90 days
-                 ],
-             'daemon' =>
-                 ['piddir' => sys_get_temp_dir(),
-                  'user'   => false,
-                  'group'  => false,
-                 ],
-             'email_post' => ['enabled' => false],
-             'sms'        => ['enabled' => false],
-             'ping'  =>
-                 ['notify'  => [],
-                  'timeout' => 2,
-                 ],
-             'new_users' =>
-                ['default_subscriptions' => null,
-                 'welcome_user'          => null,
-                ],
-             'linkify' => // "bare" below means "without schema", like domain.com vs. https://domain.com
-                 ['bare_domains' => false, // convert domain.com to <a href="http://domain.com/" ...>domain.com</a> ?
-                  'bare_ipv4'    => false, // convert IPv4 addresses to hyperlinks?
-                  'bare_ipv6'    => false, // convert IPv6 addresses to hyperlinks?
-                 ],
              'attachments' =>
-                 ['server'     => null,
-                  'dir'        => INSTALLDIR . '/file/',
-                  'url_base'   => '/file/',
-                  'ssl'        => null,
+                 ['server'    => null,
+                  'url_base'  => '/file/',
+                  'ssl'       => null,
+                  'dir'       => INSTALLDIR . '/file/uploads/',
                   'supported' =>
                       ['application/vnd.oasis.opendocument.chart'                 => 'odc',
                        'application/vnd.oasis.opendocument.formula'               => 'odf',
@@ -222,77 +152,144 @@ abstract class DefaultSettings
                   'show_thumbs'   => true,    // show thumbnails in notice lists for uploaded images, and photos and videos linked remotely that provide oEmbed info
                   'process_links' => true,    // check linked resources for embeddable photos and videos; this will hit referenced external web sites when processing new messages.
                   'ext_blacklist' => [],
+                  'filename'      => 'hash',
                   'memory_limit'  => '1024M', // PHP memory limit to use temporarily when handling images
                  ],
              'thumbnail' =>
-                 ['dir'          => INSTALLDIR . '/file/thumbnails/',  // falls back to File::path('thumb') (equivalent to ['attachments']['dir'] .  '/thumb/')
-                  'url_base'     => null,  // falls back to generating a URL with File::url('thumb/$filename') (equivalent to ['attachments']['path'] . '/thumb/')
-                  'server'       => null,  // Only used if ['thumbnail']['path'] is NOT empty, and then it falls back to ['site']['server'], schema is decided from GNUsocial::useHTTPS()
+                 ['server'       => null,
+                  'url_base'     => '/thumb/',
+                  'ssl'          => null,
+                  'dir'          => INSTALLDIR . '/file/thumbnails/',  // falls back to File::path('thumb') (equivalent to ['attachments']['dir'] .  '/thumb/')
                   'crop'         => false, // overridden to true if thumb height === null
-                  'max_px_size'  => 1000,  // thumbs with an edge larger than this will not be generated
+                  'max_size_px'  => 1000,  // thumbs with an edge larger than this will not be generated
                   'width'        => 450,
                   'height'       => 600,
                   'upscale'      => false,
                   'animated'     => false, // null="UseFileAsThumbnail", false="can use still frame". true="allow animated"
                  ],
+             'theme' =>
+                 ['server'   => null,
+                  'url_base' => '/theme/',
+                  'ssl'      => null,
+                  'dir'      => INSTALLDIR . '/public/theme/'
+                 ],
+             'plugins' =>
+                 ['server'      => null,
+                  'url_base'    => null,
+                  'ssl'         => null,
+                  'core'        => [],
+                  'default'     => [],
+                  'locale_path' => null, // Set to a path to use *instead of* each plugin's own locale subdirectories
+                 ],
+             'license' =>
+                 ['type'  => 'cc',            // can be 'cc', 'allrightsreserved', 'private'
+                  'owner' => null,  // can be name of content owner e.g. for enterprise
+                  'url'   => 'https://creativecommons.org/licenses/by/4.0/',
+                  'title' => 'Creative Commons Attribution 4.0',
+                  'image' => '/theme/licenses/cc_by_4.0.png',
+                 ],
+             'mail' =>
+                 ['backend'      => 'mail',
+                  'params'       => null,
+                  'domain_check' => true,
+                 ],
+             'nickname' =>
+                 ['blacklist' => ['doc', 'main', 'avatar', 'theme'],
+                  'featured'  => [],
+                 ],
+             'profile' =>
+                 ['banned'               => [],
+                  'bio_text_limit'       => null,
+                  'allow_nick_change'    => false,
+                  'allow_private_stream' => true,  // whether to allow setting stream to private ("only followers can read")
+                  'backup'               => false, // can cause DoS, so should be done via CLI
+                  'restore'              => false,
+                  'delete'               => false,
+                  'move'                 => false,
+                 ],
+             'image'  => ['jpegquality' => 85],
+             'theme_upload' =>
+                 ['enabled' => true,
+                  'formats' => ['zip', 'tar', 'gz', 'tar.gz']],
+             'foaf' => ['mbox_sha1sum' => false],
+             'public' =>
+                 ['local_only'       => false,
+                  'blacklist'        => [],
+                  'exclude_sources'  => [],
+                 ],
+             'throttle' =>
+                 ['enabled'  => true, // whether to throttle posting dents
+                  'count'    => 20,    // number of allowed messages in timespan
+                  'timespan' => 600,   // timespan for throttling
+                 ],
+             'invite' => ['enabled' => true],
+             'tag' =>
+                 ['dropoff' => 86400 * 10, // controls weighting based on age
+                  'cutoff'  => 86400 * 90, // only look at notices posted in last 90 days
+                 ],
+             'popular' =>
+                 ['dropoff' => 86400 * 10, // controls weighting based on age
+                  'cutoff'  => 86400 * 90, // only look at notices favorited in last 90 days
+                 ],
+             'daemon' =>
+                 ['piddir' => sys_get_temp_dir(),
+                  'user'   => false,
+                  'group'  => false,
+                 ],
+             'ping'  =>
+                 ['notify'  => [],
+                  'timeout' => 2,
+                 ],
+             'new_users' =>
+                ['default_subscriptions' => null,
+                 'welcome_user'          => null,
+                ],
+             'linkify' => // "bare" below means "without schema", like domain.com vs. https://domain.com
+                 ['bare_domains' => false, // convert domain.com to <a href="http://domain.com/" ...>domain.com</a> ?
+                  'linkify_ipv4' => false, // convert IPv4 addresses to hyperlinks?
+                  'linkify_ipv6' => false, // convert IPv6 addresses to hyperlinks?
+                 ],
              'group' =>
                  ['max_aliases'       => 3,
                   'description_limit' => null,
-                  'auto_add_tag'      => true,
                  ],
              'people_tag' =>
                  ['max_tags'          => 100,             // maximum number of tags a user can create.
                   'max_people'        => 500,             // maximum no. of people with the same tag by the same user
-                  'allow_tagging'     => ['all' => true], // equivalent to array('local' => true, 'remote' => true)
+                  'allow_tagging'     => ['local' => true, 'remote' => true], // equivalent to array()
                   'description_limit' => null,
                  ],
              'search' => ['type' => 'like'],
-             'html_filter' => // remove tags from user/remotely generated HTML if they are === true
-                 ['img'    => true,
-                  'video'  => true,
-                  'audio'  => true,
-                  'script' => true,
-                 ],
+             'html_filter' => ['tags' => ['img', 'video', 'audio', 'script']],
              'notice' =>
                  ['content_limit' => null,
                   'allow_private' => false, // whether to allow users to "check the padlock" to publish notices available for their subscribers.
-                  'default_scope' => null,  // null means 1 if site/private, 0 otherwise
-                  'hide_spam'     => true,  // Whether to hide silenced users from timelines
+                  'hide_banned'   => true,  // Whether to hide silenced users from timelines
                  ],
              'message'  => ['content_limit' => null],
-             'location' =>
-                 ['share'         => 'user', // whether to share location; 'always', 'user', 'never'
-                  'share_default' => false, ],
-             'plugins' =>
-                 ['core'        => [],
-                  'default'     => [],
-                  'locale_path' => false, // Set to a path to use *instead of* each plugin's own locale subdirectories
-                  'server'      => null,
-                  'url_base'    => null,
-                 ],
+             'location' => ['share'         => 'user'],
              'admin' => ['panels' => ['site', 'user', 'paths', 'access', 'sessions', 'sitenotice', 'license', 'plugins']],
              'single_user' =>
-                 ['enabled'  => $_ENV['SOCIAL_SITE_PROFILE'] == 'single_user',
+                 ['enabled'  => $_ENV['SOCIAL_SITE_PROFILE'] ?? '' == 'single_user',
                   'nickname' => null,
                  ],
              'robots_txt' =>
                  ['crawl_delay' => 0,
                   'disallow'    => ['main', 'settings', 'admin', 'search', 'message'],
                  ],
-             'api' => ['realm' => null],
              'nofollow' =>
                  ['subscribers' => true,
                   'members'     => true,
                   'peopletag'   => true,
                   'external'    => 'sometimes', // Options: 'sometimes', 'never', default = 'sometimes'
                  ],
-             'url' =>
-                 ['shortener'          => 'internal',
+             'url_shortener' =>
+                 ['service'            => 'internal',
                   'max_url_length'     => 100,
-                  'max_notice_length'  => -1,
+                  'max_notice_length'  => null,
                  ],
              'http' => // HTTP client settings when contacting other sites
-                ['connect_timeout'   => 5,
+                ['ssl_ca_file'       => '/docker/certbot/files/live/',
                  'timeout'           => (int) (ini_get('default_socket_timeout')),   // effectively should be this by default already, but this makes it more explicitly configurable for you users .)
                  'proxy_host'        => null,
                  'proxy_port'        => null,
@@ -300,9 +297,9 @@ abstract class DefaultSettings
                  'proxy_password'    => null,
                  'proxy_auth_scheme' => null,
                 ],
-             'router'      => ['cache' => true],  // whether to cache the router object. Defaults to true, turn off for devel
-             'discovery'   => ['cors'  => false], // Allow Cross-Origin Resource Sharing for service discovery (host-meta, XRD, etc.)
-             'performance' => ['high'  => false], // disable some features for higher performance; default false
+             'discovery'     => ['CORS'  => false], // Allow Cross-Origin Resource Sharing for service discovery (host-meta, XRD, etc.)
+             'performance'   => ['high'  => false], // disable some features for higher performance; default false
+             'login_command' => ['enabled' => false],
             ];
 
         self::loadDefaults(!$_ENV['APP_DEBUG']);
