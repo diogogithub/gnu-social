@@ -14,7 +14,9 @@ class AntiBrutePlugin extends Plugin {
     {
         // This probably needs some work. For example with IPv6 you can easily generate new IPs...
         $client_ip = common_client_ip();
-        $this->client_ip = $client_ip[0] ?: $client_ip[1];   // [0] is proxy, [1] should be the real IP
+        if (!empty($client_ip)) {
+            $this->client_ip = $client_ip[0] ?: $client_ip[1];   // [0] is proxy, [1] should be the real IP
+        }
     }
 
     public function onStartCheckPassword($nickname, $password, &$authenticatedUser)
