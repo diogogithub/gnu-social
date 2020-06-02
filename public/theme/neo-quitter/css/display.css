@@ -1426,6 +1426,7 @@ div.entry-content a.response:after {
 #nav_local_default li:first-child ul.nav li:nth-child(4) a:before, /* messages... */
 #nav_timeline_favorites a:before,
 #nav_timeline_public a:before,
+#nav_timeline_networkpublic a:before,
 #nav_groups a:before,
 #nav_recent-tags a:before,
 #nav_timeline_favorited a:before,
@@ -1479,6 +1480,14 @@ div.entry-content a.response:after {
 
 #nav_timeline_public a:before {
     content: "\f475";
+}
+
+#nav_timeline_networkpublic a::before {
+    content: '\f0e8';
+    font-family: "fa";
+    font-size: 14px;
+    margin-left: -18px;
+    margin-right: 4px;
 }
 
 #nav_groups a:before {
