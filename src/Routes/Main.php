@@ -31,7 +31,7 @@
 namespace App\Routes;
 
 use App\Controller as C;
-use App\Core\RouteLoader;
+use App\Core\Router\RouteLoader;
 
 abstract class Main
 {

@@ -17,7 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-
 /**
  * Dynamic router loader and URLMapper interface atop Symfony's router
  *
@@ -31,7 +30,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Core;
+namespace App\Core\Router;
 
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;

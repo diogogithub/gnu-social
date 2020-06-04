@@ -30,7 +30,7 @@
 
 namespace App\Util;
 
-use App\Core\DB;
+use App\Core\DB\DB;
 
 abstract class Common
 {
@@ -59,7 +59,8 @@ abstract class Common
      * $size is empty (the value is not set in php.ini), returns a default
      * value (5000000)
      *
-     * @param string|bool $size
+     * @param bool|string $size
+     *
      * @return int the php.ini upload limit in machine-readable format
      */
     public static function size_str_to_int($size): int
@@ -105,5 +106,4 @@ abstract class Common
             self::size_str_to_int(ini_get('memory_limit'))
         );
     }
-
 }

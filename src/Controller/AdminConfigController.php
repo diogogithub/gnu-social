@@ -32,7 +32,7 @@ namespace App\Controller;
 
 // use App\Core\GSEvent as Event;
 // use App\Util\Common;
-use App\Core\DefaultSettings;
+use App\Core\DB\DefaultSettings;
 use App\Core\I18n;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;

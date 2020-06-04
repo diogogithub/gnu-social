@@ -17,7 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-
 /**
  * Main GNU social entry point
  *
@@ -41,6 +40,9 @@
 
 namespace App\Core;
 
+use App\Core\DB\DB;
+use App\Core\DB\DefaultSettings;
+use App\Core\Router\Router;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -49,14 +51,16 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GNUsocial implements EventSubscriberInterface
 {
-    protected ContainerInterface $container;
-    protected LoggerInterface $logger;
-    protected TranslatorInterface $translator;
+    protected ContainerInterface     $container;
+    protected LoggerInterface        $logger;
+    protected TranslatorInterface    $translator;
     protected EntityManagerInterface $entity_manager;
+    protected RouterInterface        $router;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -64,12 +68,14 @@ class GNUsocial implements EventSubscriberInterface
     public function __construct(ContainerInterface $container,
                                 LoggerInterface $logger,
                                 TranslatorInterface $translator,
-                                EntityManagerInterface $em)
+                                EntityManagerInterface $em,
+                                RouterInterface $router)
     {
         $this->container      = $container;
         $this->logger         = $logger;
         $this->translator     = $translator;
         $this->entity_manager = $em;
+        $this->router         = $router;
     }
 
     /**
@@ -83,6 +89,7 @@ class GNUsocial implements EventSubscriberInterface
         GSEvent::setDispatcher($event_dispatcher);
         I18n::setTranslator($this->translator);
         DB::setManager($this->entity_manager);
+        Router::setRouter($this->router);
 
         DefaultSettings::setDefaults();
         ModulesManager::loadModules();
