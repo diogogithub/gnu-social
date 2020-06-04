@@ -32,7 +32,7 @@
 
 namespace App\Core\DB;
 
-use App\Core\I18n;
+use App\Core\I18n\I18nHelper;
 use App\Util\Common;
 
 abstract class DefaultSettings
@@ -47,7 +47,7 @@ abstract class DefaultSettings
             'logo'                           => null,
             'language'                       => 'en',
             'detect_language'                => true,
-            'languages'                      => I18n::get_all_languages(),
+            'languages'                      => I18nHelper::get_all_languages(),
             'email'                          => $_ENV['SERVER_ADMIN'] ?? $_ENV['SOCIAL_ADMIN_EMAIL'] ?? null,
             'recovery_disclose'              => false, // Whether to not say that we found the email in the database, when asking for recovery
             'timezone'                       => 'UTC',

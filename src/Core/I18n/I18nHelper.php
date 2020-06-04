@@ -18,44 +18,25 @@
 // }}}
 
 /**
- * Utility functions for i18n
+ * Dynamic router loader and URLMapper interface atop Symfony's router
  *
- * @category  I18n
- * @package   GNU social
+ * Converts a path into a set of parameters, and vice versa
  *
- * @author    Matthew Gregg <matthew.gregg@gmail.com>
- * @author    Ciaran Gultnieks <ciaran@ciarang.com>
- * @author    Evan Prodromou <evan@status.net>
- * @author    Diogo Cordeiro <diogo@fc.up.pt>
+ * @package   GNUsocial
+ * @category  URL
+ *
  * @author    Hugo Sales <hugo@fc.up.pt>
- * @copyright 2010, 2018-2020 Free Software Foundation, Inc http://www.fsf.org
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Core;
-
-// Locale category constants are usually predefined, but may not be
-// on some systems such as Win32.
-$LC_CATEGORIES = [
-    'LC_CTYPE',
-    'LC_NUMERIC',
-    'LC_TIME',
-    'LC_COLLATE',
-    'LC_MONETARY',
-    'LC_MESSAGES',
-    'LC_ALL',
-];
-foreach ($LC_CATEGORIES as $key => $name) {
-    if (!defined($name)) {
-        define($name, $key);
-    }
-}
+namespace App\Core\I18n;
 
 use App\Util\Formatting;
 use InvalidArgumentException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-abstract class I18n
+abstract class I18nHelper
 {
     public static ?TranslatorInterface $translator = null;
 
@@ -65,15 +46,12 @@ abstract class I18n
     }
 
     /**
-     * Looks for which plugin we've been called from to set the gettext domain;
-     * if not in a plugin subdirectory, we'll use the default 'gnusocial'.
-     *
-     * @param array $backtrace debug_backtrace() output
+     * Looks for which plugin we've been called from to get the gettext domain;
+     * if not in a plugin subdirectory, we'll use the default 'Core'.
      *
      * @return string
-     * @private
      */
-    public static function _mdomain(array $backtrace): string
+    public static function _mdomain(string $path): string
     {
         /*
           0 =>
@@ -86,7 +64,6 @@ abstract class I18n
           0 => &string 'Feeds' (length=5)
         */
         static $cached;
-        $path = $backtrace[0]['file'];
         if (!isset($cached[$path])) {
             $path          = Formatting::normalizePath($path);
             $cached[$path] = Formatting::pluginFromPath($path);
@@ -236,60 +213,5 @@ abstract class I18n
             'ur'        => ['q' => 1, 'lang' => 'ur_PK', 'name' => 'Urdu (Pakistan)', 'direction' => 'rtl'],
             'vi'        => ['q' => 0.8, 'lang' => 'vi', 'name' => 'Vietnamese', 'direction' => 'ltr'],
         ];
-    }
-
-    /**
-     * Wrapper for symfony translation with smart domain detection.
-     *
-     * If calling from a plugin, this function checks which plugin it was
-     * being called from and uses that as text domain, which will have
-     * been set up during plugin initialization.
-     *
-     * Also handles plurals and contexts depending on what parameters
-     * are passed to it:
-     *
-     * _m($msg)                   -- simple message
-     * _m($ctx, $msg)             -- message with context
-     * _m($msg1, $msg2, $n)       -- message that can be singular or plural
-     * _m($ctx, $msg1, $msg2, $n) -- combination of the previous two
-     *
-     * @param string $msg
-     * @param extra params as described above
-     *
-     * @throws InvalidArgumentException
-     *
-     * @return string
-     *
-     */
-    public static function _m(string $msg /*, ...*/): string
-    {
-        $domain = self::_mdomain(debug_backtrace());
-        $args   = func_get_args();
-        switch (count($args)) {
-        case 1:
-            // Empty parameters
-            return self::$translator->trans($msg, [], $domain);
-        case 2:
-            $context    = $args[0];
-            $msg_single = $args[1];
-            // ASCII 4 is EOT, used to separate context from string
-            return self::$translator->trans($context . '\004' . $msg_single, [], $domain);
-        case 3:
-            // '|' separates the singular from the plural version
-            $msg_single = $args[0];
-            $msg_plural = $args[1];
-            $n          = $args[2];
-            return self::$translator->trans($msg_single . '|' . $msg_plural, ['%d' => $n], $domain);
-        case 4:
-            // Combine both
-            $context    = $args[0];
-            $msg_single = $args[1];
-            $msg_plural = $args[2];
-            $n          = $args[3];
-            return self::$translator->trans($context . '\004' . $msg_single . '|' . $msg_plural,
-                                            ['%d' => $n], $domain);
-        default:
-            throw new InvalidArgumentException('Bad parameter count to _m()');
-        }
     }
 }
