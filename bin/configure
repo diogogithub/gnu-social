@@ -7,15 +7,23 @@ done
 
 cd "${git_dir}" || exit
 
-. ./docker/bootstrap/bootstrap.env
+if [ -e ./docker/bootstrap/bootstrap.env ]; then
+    . ./docker/bootstrap/bootstrap.env
+fi
 
+# TODO Add configuration
+cp docker-compose.yaml.in docker-compose.yaml
 
 while :; do
     printf "DBMS (postgres|mariadb): " && read -r dbms
-    [ $(echo "${dbms}" | grep -E 'postgres|mariadb') ] && break
+    echo "${dbms}" | grep -Eq 'postgres|mariadb' && break
 done
 
-printf "Social database name: " && read -r db
+while :; do
+    printf "Social database name: " && read -r db
+    echo "${db}" | grep -vEq 'postgres' && break
+done
+
 [ "${dbms}" = 'mariadb' ] && printf "Database user: " && read -r user
 printf "Database password: " && read -r password
 printf "Sitename: " && read -r sitename
@@ -24,7 +32,7 @@ printf "Admin password: " && read -r admin_password
 
 while :; do
     printf "Site profile (public|private|community|single_user): " && read -r profile
-    [ $(echo "${profile}" | grep -E 'public|private|community|single_user') ] && break
+    echo "${profile}" | grep -Eq 'public|private|community|single_user' && break
 done
 
 mkdir -p ./docker/db
