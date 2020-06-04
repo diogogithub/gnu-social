@@ -42,6 +42,7 @@ namespace App\Core;
 
 use App\Core\DB\DB;
 use App\Core\DB\DefaultSettings;
+use App\Core\I18n\I18nHelper;
 use App\Core\Router\Router;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Container\ContainerInterface;
@@ -87,7 +88,7 @@ class GNUsocial implements EventSubscriberInterface
     {
         Log::setLogger($this->logger);
         GSEvent::setDispatcher($event_dispatcher);
-        I18n::setTranslator($this->translator);
+        I18nHelper::setTranslator($this->translator);
         DB::setManager($this->entity_manager);
         Router::setRouter($this->router);
 

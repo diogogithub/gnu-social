@@ -33,7 +33,7 @@ namespace App\Controller;
 // use App\Core\GSEvent as Event;
 // use App\Util\Common;
 use App\Core\DB\DefaultSettings;
-use App\Core\I18n;
+use function App\Core\I18n\_m;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -48,14 +48,14 @@ class AdminConfigController extends AbstractController
         foreach (DefaultSettings::$defaults as $key => $inner) {
             $options[$key] = [];
             foreach (array_keys($inner) as $inner_key) {
-                $options[I18n::_m($key)][I18n::_m($inner_key)] = "{$key}:{$inner_key}";
+                $options[_m($key)][_m($inner_key)] = "{$key}:{$inner_key}";
             }
         }
 
-        $form = $this->createFormBuilder()
-                     ->add(I18n::_m('Setting'), ChoiceType::class, ['choices' => $options])
-                     ->add(I18n::_m('Value'),   TextType::class)
-                     ->add('save',    SubmitType::class, ['label' => I18n::_m('Set site setting')])
+        $form = $this->createFormBuilder(null, ['translation_domain' => false])
+                     ->add(_m('Setting'), ChoiceType::class, ['choices' => $options])
+                     ->add(_m('Value'),   TextType::class)
+                     ->add('save',    SubmitType::class, ['label' => _m('Set site setting')])
                      ->getForm();
 
         $form->handleRequest($request);
