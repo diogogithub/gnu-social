@@ -17,7 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-
 /**
  * Doctrine entity manager static wrapper
  *
@@ -29,7 +28,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Core;
+namespace App\Core\DB;
 
 use Doctrine\ORM\EntityManagerInterface;
 

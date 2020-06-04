@@ -23,12 +23,12 @@ services:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    App\Core\RouteLoader:
+    App\Core\Router\RouteLoader:
         tags: ['routing.loader']
 
 
     # Wrapper arround Doctrine's StaticPHP metadata driver
     app.core.schemadef_driver:
-        class: App\Core\SchemaDefDriver
+        class: App\Core\DB\SchemaDefDriver
         arguments: 
             - '%kernel.project_dir%/src/Entity'
