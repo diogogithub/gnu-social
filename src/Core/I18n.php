@@ -17,7 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-
 /**
  * Utility functions for i18n
  *
@@ -52,6 +51,7 @@ foreach ($LC_CATEGORIES as $key => $name) {
     }
 }
 
+use App\Util\Formatting;
 use InvalidArgumentException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -88,10 +88,10 @@ abstract class I18n
         static $cached;
         $path = $backtrace[0]['file'];
         if (!isset($cached[$path])) {
-            $path          = common::normalizePath($path);
-            $cached[$path] = common::pluginFromPath($path);
+            $path          = Formatting::normalizePath($path);
+            $cached[$path] = Formatting::pluginFromPath($path);
         }
-        return $cached[$path] ?? '';
+        return $cached[$path] ?? 'Core';
     }
 
     /**
