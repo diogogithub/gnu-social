@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Base page{% endblock %}</title>
+        <title>{% block title %}Admin Configuration page!{% endblock %}</title>
         {% block stylesheets %}{% endblock %}
         <style>
           body {
@@ -14,5 +14,7 @@
     <body>
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
+
+        {{ form(form) }}
     </body>
 </html>
