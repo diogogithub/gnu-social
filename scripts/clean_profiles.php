@@ -47,10 +47,11 @@ if (!have_option('y', 'yes')) {
 }
 
 print "Deleting";
+$user_table = common_database_tablename('user');
 $profile = new Profile();
 $profile->query('SELECT * FROM profile WHERE ' .
                 'NOT (SELECT COUNT(*) FROM notice WHERE profile_id=profile.id) ' .
-                'AND NOT (SELECT COUNT(*) FROM user WHERE user.id=profile.id) ' .
+                "AND NOT (SELECT COUNT(*) FROM {$user_table} WHERE user.id=profile.id) " .
                 'AND NOT (SELECT COUNT(*) FROM user_group WHERE user_group.profile_id=profile.id) ' .
                 'AND NOT (SELECT COUNT(*) FROM subscription WHERE subscriber=profile.id OR subscribed=profile.id) ');
 while ($profile->fetch()) {
