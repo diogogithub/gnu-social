@@ -47,7 +47,7 @@ abstract class I18nHelper
 
     /**
      * Looks for which plugin we've been called from to get the gettext domain;
-     * if not in a plugin subdirectory, we'll use the default 'Core'.
+     * if not in a plugin subdirectory, we'll use the default 'core'.
      *
      * @return string
      */
@@ -68,7 +68,7 @@ abstract class I18nHelper
             $path          = Formatting::normalizePath($path);
             $cached[$path] = Formatting::pluginFromPath($path);
         }
-        return $cached[$path] ?? 'Core';
+        return $cached[$path] ?? 'core';
     }
 
     /**
