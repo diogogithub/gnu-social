@@ -1,0 +1,521 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+
+msgid "Setting"
+msgstr "__Setting"
+
+msgid "Value"
+msgstr "__Value"
+
+msgid "Set site setting"
+msgstr "__Set site setting"
+
+msgid "site"
+msgstr "__site"
+
+msgid "name"
+msgstr "__name"
+
+msgid "server"
+msgstr "__server"
+
+msgid "notice"
+msgstr "__notice"
+
+msgid "theme"
+msgstr "__theme"
+
+msgid "logo"
+msgstr "__logo"
+
+msgid "language"
+msgstr "__language"
+
+msgid "detect_language"
+msgstr "__detect_language"
+
+msgid "languages"
+msgstr "__languages"
+
+msgid "email"
+msgstr "__email"
+
+msgid "recovery_disclose"
+msgstr "__recovery_disclose"
+
+msgid "timezone"
+msgstr "__timezone"
+
+msgid "brought_by"
+msgstr "__brought_by"
+
+msgid "brought_by_url"
+msgstr "__brought_by_url"
+
+msgid "closed"
+msgstr "__closed"
+
+msgid "invite_only"
+msgstr "__invite_only"
+
+msgid "private"
+msgstr "__private"
+
+msgid "ssl"
+msgstr "__ssl"
+
+msgid "ssl_proxy"
+msgstr "__ssl_proxy"
+
+msgid "duplicate_time_limit"
+msgstr "__duplicate_time_limit"
+
+msgid "text_limit"
+msgstr "__text_limit"
+
+msgid "x-static-delivery"
+msgstr "__x-static-delivery"
+
+msgid "security"
+msgstr "__security"
+
+msgid "hash_algos"
+msgstr "__hash_algos"
+
+msgid "db"
+msgstr "__db"
+
+msgid "mirror"
+msgstr "__mirror"
+
+msgid "fix"
+msgstr "__fix"
+
+msgid "fancy_urls"
+msgstr "__fancy_urls"
+
+msgid "http"
+msgstr "__http"
+
+msgid "queue"
+msgstr "__queue"
+
+msgid "enabled"
+msgstr "__enabled"
+
+msgid "daemon"
+msgstr "__daemon"
+
+msgid "threads"
+msgstr "__threads"
+
+msgid "subsystem"
+msgstr "__subsystem"
+
+msgid "basename"
+msgstr "__basename"
+
+msgid "control_channel"
+msgstr "__control_channel"
+
+msgid "monitor"
+msgstr "__monitor"
+
+msgid "soft_limit"
+msgstr "__soft_limit"
+
+msgid "spawn_delay"
+msgstr "__spawn_delay"
+
+msgid "debug_memory"
+msgstr "__debug_memory"
+
+msgid "stomp_server"
+msgstr "__stomp_server"
+
+msgid "stomp_username"
+msgstr "__stomp_username"
+
+msgid "stomp_password"
+msgstr "__stomp_password"
+
+msgid "stomp_persistent"
+msgstr "__stomp_persistent"
+
+msgid "stomp_transactions"
+msgstr "__stomp_transactions"
+
+msgid "stomp_acks"
+msgstr "__stomp_acks"
+
+msgid "stomp_manual_failover"
+msgstr "__stomp_manual_failover"
+
+msgid "max_retries"
+msgstr "__max_retries"
+
+msgid "dead_letter_dir"
+msgstr "__dead_letter_dir"
+
+msgid "avatar"
+msgstr "__avatar"
+
+msgid "url_base"
+msgstr "__url_base"
+
+msgid "dir"
+msgstr "__dir"
+
+msgid "max_size_px"
+msgstr "__max_size_px"
+
+msgid "javascript"
+msgstr "__javascript"
+
+msgid "bust_frames"
+msgstr "__bust_frames"
+
+msgid "attachments"
+msgstr "__attachments"
+
+msgid "supported"
+msgstr "__supported"
+
+msgid "file_quota"
+msgstr "__file_quota"
+
+msgid "user_quota"
+msgstr "__user_quota"
+
+msgid "monthly_quota"
+msgstr "__monthly_quota"
+
+msgid "uploads"
+msgstr "__uploads"
+
+msgid "show_html"
+msgstr "__show_html"
+
+msgid "show_thumbs"
+msgstr "__show_thumbs"
+
+msgid "process_links"
+msgstr "__process_links"
+
+msgid "ext_blacklist"
+msgstr "__ext_blacklist"
+
+msgid "filename"
+msgstr "__filename"
+
+msgid "memory_limit"
+msgstr "__memory_limit"
+
+msgid "thumbnail"
+msgstr "__thumbnail"
+
+msgid "crop"
+msgstr "__crop"
+
+msgid "width"
+msgstr "__width"
+
+msgid "height"
+msgstr "__height"
+
+msgid "upscale"
+msgstr "__upscale"
+
+msgid "animated"
+msgstr "__animated"
+
+msgid "plugins"
+msgstr "__plugins"
+
+msgid "core"
+msgstr "__core"
+
+msgid "default"
+msgstr "__default"
+
+msgid "locale_path"
+msgstr "__locale_path"
+
+msgid "license"
+msgstr "__license"
+
+msgid "type"
+msgstr "__type"
+
+msgid "owner"
+msgstr "__owner"
+
+msgid "url"
+msgstr "__url"
+
+msgid "title"
+msgstr "__title"
+
+msgid "image"
+msgstr "__image"
+
+msgid "mail"
+msgstr "__mail"
+
+msgid "backend"
+msgstr "__backend"
+
+msgid "params"
+msgstr "__params"
+
+msgid "domain_check"
+msgstr "__domain_check"
+
+msgid "nickname"
+msgstr "__nickname"
+
+msgid "blacklist"
+msgstr "__blacklist"
+
+msgid "featured"
+msgstr "__featured"
+
+msgid "profile"
+msgstr "__profile"
+
+msgid "banned"
+msgstr "__banned"
+
+msgid "bio_text_limit"
+msgstr "__bio_text_limit"
+
+msgid "allow_nick_change"
+msgstr "__allow_nick_change"
+
+msgid "allow_private_stream"
+msgstr "__allow_private_stream"
+
+msgid "backup"
+msgstr "__backup"
+
+msgid "restore"
+msgstr "__restore"
+
+msgid "delete"
+msgstr "__delete"
+
+msgid "move"
+msgstr "__move"
+
+msgid "jpegquality"
+msgstr "__jpegquality"
+
+msgid "theme_upload"
+msgstr "__theme_upload"
+
+msgid "formats"
+msgstr "__formats"
+
+msgid "foaf"
+msgstr "__foaf"
+
+msgid "mbox_sha1sum"
+msgstr "__mbox_sha1sum"
+
+msgid "public"
+msgstr "__public"
+
+msgid "local_only"
+msgstr "__local_only"
+
+msgid "exclude_sources"
+msgstr "__exclude_sources"
+
+msgid "throttle"
+msgstr "__throttle"
+
+msgid "count"
+msgstr "__count"
+
+msgid "timespan"
+msgstr "__timespan"
+
+msgid "invite"
+msgstr "__invite"
+
+msgid "tag"
+msgstr "__tag"
+
+msgid "dropoff"
+msgstr "__dropoff"
+
+msgid "cutoff"
+msgstr "__cutoff"
+
+msgid "popular"
+msgstr "__popular"
+
+msgid "piddir"
+msgstr "__piddir"
+
+msgid "user"
+msgstr "__user"
+
+msgid "group"
+msgstr "__group"
+
+msgid "ping"
+msgstr "__ping"
+
+msgid "notify"
+msgstr "__notify"
+
+msgid "timeout"
+msgstr "__timeout"
+
+msgid "new_users"
+msgstr "__new_users"
+
+msgid "default_subscriptions"
+msgstr "__default_subscriptions"
+
+msgid "welcome_user"
+msgstr "__welcome_user"
+
+msgid "linkify"
+msgstr "__linkify"
+
+msgid "bare_domains"
+msgstr "__bare_domains"
+
+msgid "linkify_ipv4"
+msgstr "__linkify_ipv4"
+
+msgid "linkify_ipv6"
+msgstr "__linkify_ipv6"
+
+msgid "max_aliases"
+msgstr "__max_aliases"
+
+msgid "description_limit"
+msgstr "__description_limit"
+
+msgid "people_tag"
+msgstr "__people_tag"
+
+msgid "max_tags"
+msgstr "__max_tags"
+
+msgid "max_people"
+msgstr "__max_people"
+
+msgid "allow_tagging"
+msgstr "__allow_tagging"
+
+msgid "search"
+msgstr "__search"
+
+msgid "html_filter"
+msgstr "__html_filter"
+
+msgid "tags"
+msgstr "__tags"
+
+msgid "content_limit"
+msgstr "__content_limit"
+
+msgid "allow_private"
+msgstr "__allow_private"
+
+msgid "hide_banned"
+msgstr "__hide_banned"
+
+msgid "message"
+msgstr "__message"
+
+msgid "location"
+msgstr "__location"
+
+msgid "share"
+msgstr "__share"
+
+msgid "admin"
+msgstr "__admin"
+
+msgid "panels"
+msgstr "__panels"
+
+msgid "single_user"
+msgstr "__single_user"
+
+msgid "robots_txt"
+msgstr "__robots_txt"
+
+msgid "crawl_delay"
+msgstr "__crawl_delay"
+
+msgid "disallow"
+msgstr "__disallow"
+
+msgid "nofollow"
+msgstr "__nofollow"
+
+msgid "subscribers"
+msgstr "__subscribers"
+
+msgid "members"
+msgstr "__members"
+
+msgid "peopletag"
+msgstr "__peopletag"
+
+msgid "external"
+msgstr "__external"
+
+msgid "url_shortener"
+msgstr "__url_shortener"
+
+msgid "service"
+msgstr "__service"
+
+msgid "max_url_length"
+msgstr "__max_url_length"
+
+msgid "max_notice_length"
+msgstr "__max_notice_length"
+
+msgid "ssl_ca_file"
+msgstr "__ssl_ca_file"
+
+msgid "proxy_host"
+msgstr "__proxy_host"
+
+msgid "proxy_port"
+msgstr "__proxy_port"
+
+msgid "proxy_user"
+msgstr "__proxy_user"
+
+msgid "proxy_password"
+msgstr "__proxy_password"
+
+msgid "proxy_auth_scheme"
+msgstr "__proxy_auth_scheme"
+
+msgid "discovery"
+msgstr "__discovery"
+
+msgid "CORS"
+msgstr "__CORS"
+
+msgid "performance"
+msgstr "__performance"
+
+msgid "high"
+msgstr "__high"
+
+msgid "login_command"
+msgstr "__login_command"
