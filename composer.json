@@ -75,7 +75,7 @@
         },
         "post-install-cmd": [
             "@auto-scripts",
-            "cp bin/pre-commit .git/hooks"
+            "cp -n bin/pre-commit .git/hooks"
         ],
         "post-update-cmd": [
             "@auto-scripts"
