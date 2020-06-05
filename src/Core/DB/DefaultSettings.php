@@ -32,6 +32,7 @@
 
 namespace App\Core\DB;
 
+use function App\Core\I18n\_m;
 use App\Core\I18n\I18nHelper;
 use App\Util\Common;
 
@@ -303,5 +304,19 @@ abstract class DefaultSettings
             $sql = preg_replace('/,$/', ';', $sql);
             DB::getConnection()->executeQuery($sql);
         }
+    }
+
+    public static function _m_dynamic(): array
+    {
+        self::setDefaults();
+        $m           = [];
+        $m['domain'] = 'core';
+        foreach (self::$defaults as $key => $inner) {
+            $m[] = _m($key);
+            foreach (array_keys($inner) as $inner_key) {
+                $m[] = _m($inner_key);
+            }
+        }
+        return $m;
     }
 }

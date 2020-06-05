@@ -34,6 +34,7 @@
 
 namespace App\Core\I18n;
 
+use App\Util\Formatting;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Translation\Extractor\AbstractFileExtractor;
 use Symfony\Component\Translation\Extractor\ExtractorInterface;
@@ -51,19 +52,26 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
      * @var array
      */
     protected $sequences = [
+        // [
+        //     '_m',
+        //     '(',
+        //     self::MESSAGE_TOKEN,
+        //     ',',
+        //     self::METHOD_ARGUMENTS_TOKEN,
+        //     ',',
+        //     self::DOMAIN_TOKEN,
+        // ],
         [
             '_m',
             '(',
             self::MESSAGE_TOKEN,
-            ',',
-            self::METHOD_ARGUMENTS_TOKEN,
-            ',',
-            self::DOMAIN_TOKEN,
         ],
         [
-            '_m',
-            '(',
-            self::MESSAGE_TOKEN,
+            // Special case: when we have calls to _m with a dynamic
+            // value, we need to handle them seperately
+            'function',
+            '_m_dynamic',
+            self::M_DYNAMIC,
         ],
     ];
 
@@ -72,6 +80,7 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
     const MESSAGE_TOKEN          = 300;
     const METHOD_ARGUMENTS_TOKEN = 1000;
     const DOMAIN_TOKEN           = 1001;
+    const M_DYNAMIC              = 1002;
 
     /**
      * Prefix for new found message.
@@ -258,22 +267,51 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
                         if ('' !== $domainToken) {
                             $domain = $domainToken;
                         }
-
                         break;
+                    } elseif (self::M_DYNAMIC === $item) {
+                        // Special case
+                        self::storeDynamic($catalog, $filename);
                     } else {
                         break;
                     }
                 }
 
                 if ($message) {
-                    $catalog->set($message, $this->prefix . $message, $domain);
-                    $metadata              = $catalog->getMetadata($message, $domain) ?? [];
-                    $normalizedFilename    = preg_replace('{[\\\\/]+}', '/', $filename);
-                    $metadata['sources'][] = $normalizedFilename . ':' . $tokens[$key][2];
-                    $catalog->setMetadata($message, $metadata, $domain);
+                    self::store($catalog, $message, $domain, $filename, $tokens[$key][2]); // Line no.
                     break;
                 }
             }
+        }
+    }
+
+    private function store(MessageCatalogue $mc, string $message,
+                           string $domain, string $filename, ?int $line_no = null)
+    {
+        $mc->set($message, $this->prefix . $message, $domain);
+        $metadata              = $mc->getMetadata($message, $domain) ?? [];
+        $metadata['sources'][] = Formatting::normalizePath($filename) . (!empty($line_no) ? ":{$line_no}" : '');
+        $mc->setMetadata($message, $metadata, $domain);
+    }
+
+    private function storeDynamic(MessageCatalogue $mc, string $filename)
+    {
+        require_once $filename;
+        $class   = preg_replace('/.*\/([A-Za-z]*)\.php/', '\1', $filename);
+        $classes = get_declared_classes();
+
+        // Find FQCN of $class
+        foreach ($classes as $c) {
+            if (strstr($c, $class) !== false) {
+                $class = $c;
+                break;
+            }
+        }
+
+        $messages = $class::_m_dynamic();
+        $domain   = $messages['domain'];
+        unset($messages['domain']);
+        foreach ($messages as $m) {
+            self::store($mc, $m, $domain, $filename);
         }
     }
 }
