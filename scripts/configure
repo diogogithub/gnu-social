@@ -1,22 +1,44 @@
 #!/bin/sh
 
-. ./docker/bootstrap/bootstrap.env
+git_dir=$PWD
+while [ ! -d .git ]; do
+    git_dir=$(dirname "${git_dir}")
+done
 
-read -p "DBMS (postgres|mariadb): " dbms
-read -p "DB root password: " db_root_password
-read -p "Social database name: " db
-read -p "Database user: " user
-read -p "Database password: " password
-read -p "Sitename: " sitename
-read -p "Admin nickname: " admin_nick
-read -p "Admin password: " admin_password
-read -p "Site profile (public|private|community|singleuser): " profile
+cd "${git_dir}" || exit
+
+if [ -e ./docker/bootstrap/bootstrap.env ]; then
+    . ./docker/bootstrap/bootstrap.env
+fi
+
+# TODO Add configuration
+cp docker-compose.yaml.in docker-compose.yaml
+
+while :; do
+    printf "DBMS (postgres|mariadb): " && read -r dbms
+    echo "${dbms}" | grep -Eq 'postgres|mariadb' && break
+done
+
+while :; do
+    printf "Social database name: " && read -r db
+    echo "${db}" | grep -vEq 'postgres' && break
+done
+
+[ "${dbms}" = 'mariadb' ] && printf "Database user: " && read -r user
+printf "Database password: " && read -r password
+printf "Sitename: " && read -r sitename
+printf "Admin nickname: " && read -r admin_nick
+printf "Admin password: " && read -r admin_password
+
+while :; do
+    printf "Site profile (public|private|community|single_user): " && read -r profile
+    echo "${profile}" | grep -Eq 'public|private|community|single_user' && break
+done
 
 mkdir -p ./docker/db
 
-
-if [ ${dbms} = 'mariadb' ]; then
-    read -p "DB root password: " db_root_password
+if [ "${dbms}" = 'mariadb' ]; then
+    printf "DB root password: " && read -r db_root_password
     cat > ./docker/db/db.env <<EOF
 DBMS=${dbms}
 MYSQL_ROOT_PASSWORD=${db_root_password}
@@ -28,14 +50,15 @@ else
     cat > ./docker/db/db.env <<EOF
 DBMS=${dbms}
 POSTGRES_USER=postgres
-POSTGRES_PASSWORD=${db_root_password}
+POSTGRES_PASSWORD=${password}
 EOF
 
+    user='postgres'
     database_url="DATABASE_URL=postgresql://${user}:${password}@db:5432/${db}"
 
 fi
 
-echo $database_url > .env.local
+echo "${database_url}" > .env.local
 
 mkdir -p ./docker/social
 
