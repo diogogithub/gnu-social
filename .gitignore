@@ -20,7 +20,11 @@
 /.php_cs.cache
 ###< friendsofphp/php-cs-fixer ###
 
-/file
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
+
 
 DOCUMENTATION/database/*
 !DOCUMENTATION/database/database.pdf
@@ -32,3 +36,4 @@ docker-compose.yaml
 
 # V2
 config.php
+/file
