@@ -88,28 +88,33 @@ function _m(string $msg /*, ...*/): string
     $args   = func_get_args();
     switch (count($args)) {
     case 1:
-        // Empty parameters
+        // Empty parameters, simple message
         return I18nHelper::$translator->trans($msg, [], $domain);
-    case 2:
-        $context    = $args[0];
-        $msg_single = $args[1];
-        // ASCII 4 is EOT, used to separate context from string
-        return I18nHelper::$translator->trans($context . '\004' . $msg_single, [], $domain);
     case 3:
-        // '|' separates the singular from the plural version
-        $msg_single = $args[0];
-        $msg_plural = $args[1];
-        $n          = $args[2];
-        return I18nHelper::$translator->trans($msg_single . '|' . $msg_plural, ['%d' => $n], $domain);
-    case 4:
-        // Combine both
-        $context    = $args[0];
-        $msg_single = $args[1];
-        $msg_plural = $args[2];
-        $n          = $args[3];
-        return I18nHelper::$translator->trans($context . '\004' . $msg_single . '|' . $msg_plural,
-                                              ['%d' => $n], $domain);
+        if (is_int($args[2])) {
+            throw new Exception('Calling `_m()` with an explicit number is deprecated, ' .
+                                'use an explicit parameter');
+        }
+        // Falthrough
+        // no break
+    case 2:
+        if (is_string($args[0]) && !is_array($args[1])) {
+            // ASCII 4 is EOT, used to separate context from string
+            $context = array_shift($args) . '\004';
+        }
+
+        if (is_array($args[0])) {
+            $args[0] = I18nHelper::formatICU($args[0], $args[1]);
+        }
+
+        if (is_string($args[0])) {
+            $msg    = $args[0];
+            $params = $args[1] ?? [];
+            return I18nHelper::$translator->trans($context ?? '' . $msg, $params, $domain);
+        }
+        // Fallthrough
+        // no break
     default:
-        throw new InvalidArgumentException('Bad parameter count to _m()');
+        throw new InvalidArgumentException('Bad parameters to `_m()`');
     }
 }

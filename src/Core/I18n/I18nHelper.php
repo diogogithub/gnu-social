@@ -214,4 +214,41 @@ abstract class I18nHelper
             'vi'        => ['q' => 0.8, 'lang' => 'vi', 'name' => 'Vietnamese', 'direction' => 'ltr'],
         ];
     }
+
+    public static function formatICU(array $messages, array $params): string
+    {
+        $msg = '';
+        foreach ($params as $var => $val) {
+            if (is_int($var)) {
+                $pref = '=';
+                $op   = 'plural';
+            } elseif (is_string($var)) {
+                $pref = '';
+                $op   = 'select,';
+            } else {
+                throw new Exception('Invalid key type. (int|string) only');
+            }
+
+            $res = "{{$var}, {$op} ";
+            $i   = 1;
+            $cnt = count($messages);
+            foreach ($messages as $val => $m) {
+                if (is_array($m)) {
+                    array_shift($params);
+                    $res .= "{$pref}{$val} {" . self::formatICU($m, $params) . '} ';
+                } elseif (is_string($m)) {
+                    if ($i !== $cnt) {
+                        $res .= "{$pref}{$val} {{$m}} ";
+                    } else {
+                        $res .= "other {{$m}}}";
+                    }
+                } else {
+                    throw new Exception('Invalid message array');
+                }
+                ++$i;
+            }
+            $msg .= $res;
+        }
+        return $msg;
+    }
 }
