@@ -1,44 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Clear all flags for a profile
  *
- * PHP version 5
- *
- * @category Action
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @category  Action
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Action to clear flags for a profile
  *
- * @category Action
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @category  Action
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ClearflagAction extends ProfileFormAction
 {
@@ -49,7 +43,7 @@ class ClearflagAction extends ProfileFormAction
      *
      * @return boolean success flag
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         if (!parent::prepare($args)) {
             return false;
@@ -73,7 +67,7 @@ class ClearflagAction extends ProfileFormAction
      *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->handlePost();
@@ -90,7 +84,7 @@ class ClearflagAction extends ProfileFormAction
      *
      * @return void
      */
-    function handlePost()
+    public function handlePost()
     {
         $ufp = new User_flag_profile();
 
@@ -102,8 +96,10 @@ class ClearflagAction extends ProfileFormAction
         if ($result == false) {
             // TRANS: Server exception given when flags could not be cleared.
             // TRANS: %s is a profile nickname.
-            $msg = sprintf(_m('Could not clear flags for profile "%s".'),
-                           $this->profile->nickname);
+            $msg = sprintf(
+                _m('Could not clear flags for profile "%s".'),
+                $this->profile->nickname
+            );
             throw new ServerException($msg);
         }
 
@@ -119,7 +115,7 @@ class ClearflagAction extends ProfileFormAction
      *
      * @return void
      */
-    function ajaxResults()
+    public function ajaxResults()
     {
         $this->startHTML('text/xml;charset=utf-8');
         $this->elementStart('head');

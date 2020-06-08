@@ -1,38 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
  * When a new user registers, all existing users follow them automatically.
  *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Community
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    // This check helps protect against security problems;
-    // your code file can't be executed directly from the web.
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Plugin to make all users follow each other at registration
@@ -40,11 +32,10 @@ if (!defined('STATUSNET')) {
  * Users can unfollow afterwards if they want.
  *
  * @category  Sample
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class FollowEveryonePlugin extends Plugin
 {
@@ -64,7 +55,7 @@ class FollowEveryonePlugin extends Plugin
     public function onEndUserRegister(Profile $profile)
     {
         $otherUser = new User();
-        $otherUser->whereAdd('id != ' . $profile->id);
+        $otherUser->whereAdd('id <> ' . $profile->id);
 
         if ($otherUser->find()) {
             while ($otherUser->fetch()) {
@@ -110,7 +101,7 @@ class FollowEveryonePlugin extends Plugin
      *
      * @return boolean hook value; true means continue processing, false means stop.
      */
-    function onCheckSchema()
+    public function onCheckSchema()
     {
         $schema = Schema::get();
 
@@ -127,16 +118,17 @@ class FollowEveryonePlugin extends Plugin
      *
      * @return boolean hook value
      */
-    function onEndProfileFormData($action)
+    public function onEndProfileFormData($action)
     {
         $user = common_current_user();
 
         $action->elementStart('li');
         // TRANS: Checkbox label in form for profile settings.
-        $action->checkbox('followeveryone', _m('Follow everyone'),
-                          ($action->arg('followeveryone')) ?
-                          $action->arg('followeveryone') :
-                          User_followeveryone_prefs::followEveryone($user->id));
+        $action->checkbox(
+            'followeveryone',
+            _m('Follow everyone'),
+            ($action->arg('followeveryone') ?? User_followeveryone_prefs::followEveryone($user->id))
+        );
         $action->elementEnd('li');
 
         return true;
@@ -149,12 +141,14 @@ class FollowEveryonePlugin extends Plugin
      *
      * @return boolean hook value
      */
-    function onEndProfileSaveForm($action)
+    public function onEndProfileSaveForm($action)
     {
         $user = common_current_user();
 
-        User_followeveryone_prefs::savePref($user->id,
-                                            $action->boolean('followeveryone'));
+        User_followeveryone_prefs::savePref(
+            $user->id,
+            $action->boolean('followeveryone')
+        );
 
         return true;
     }
