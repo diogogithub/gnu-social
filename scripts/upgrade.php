@@ -65,7 +65,6 @@ function main()
         fixupUserBadNulls();
         fixupGroupURI();
         if ($iterate_files) {
-            printfnq("Running file iterations:\n");
             printfnq("* "); fixupFileGeometry();
             printfnq("* "); deleteLocalFileThumbnailsWithoutFilename();
             printfnq("* "); deleteMissingLocalFileThumbnails();
@@ -305,7 +304,7 @@ function initGroupProfileId()
             $profile->created    = $group->created;
             $profile->modified   = $group->modified;
 
-            $profile->query('BEGIN');
+            $profile->query('START TRANSACTION');
             $id = $profile->insert();
             if (empty($id)) {
                 $profile->query('ROLLBACK');

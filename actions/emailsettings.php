@@ -302,7 +302,7 @@ class EmailsettingsAction extends SettingsAction
             $emailpost        = $this->boolean('emailpost');
 
             $user = $this->scoped->getUser();
-            $user->query('BEGIN');
+            $user->query('START TRANSACTION');
             $original = clone($user);
 
             $user->emailnotifysub   = $emailnotifysub;

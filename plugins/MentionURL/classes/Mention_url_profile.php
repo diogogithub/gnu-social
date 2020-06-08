@@ -1,20 +1,20 @@
 <?php
-/*
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
- */
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Table Definition for mention_url_profile
@@ -40,54 +40,59 @@ class Mention_url_profile extends Managed_DataObject
         );
     }
 
-    public static function fromUrl($url, $depth=0) {
+    public static function fromUrl($url, $depth = 0)
+    {
         common_debug('MentionURL: trying to find a profile for ' . $url);
 
         $url = preg_replace('#https?://#', 'https://', $url);
         try {
             $profile = Profile::fromUri($url);
-        } catch(UnknownUriException $ex) {}
+        } catch (UnknownUriException $ex) {}
 
-        if(!($profile instanceof Profile)) {
+        if (!($profile instanceof Profile)) {
             $profile = self::findProfileByProfileURL($url);
         }
 
         $url = str_replace('https://', 'http://', $url);
-        if(!($profile instanceof Profile)) {
+        if (!($profile instanceof Profile)) {
             try {
                 $profile = Profile::fromUri($url);
-            } catch(UnknownUriException $ex) {}
+            } catch (UnknownUriException $ex) {}
         }
 
-        if(!($profile instanceof Profile)) {
+        if (!($profile instanceof Profile)) {
             $profile = self::findProfileByProfileURL($url);
         }
 
-        if(!($profile instanceof Profile)) {
+        if (!($profile instanceof Profile)) {
             $hcard = mention_url_representative_hcard($url);
-            if(!$hcard) return null;
+            if (!$hcard) {
+                return null;
+            }
 
             $mention_profile = new Mention_url_profile();
-            $mention_profile->query('BEGIN');
+            $mention_profile->query('START TRANSACTION');
 
             $profile = new Profile();
             $profile->profileurl = $hcard['url'][0];
             $profile->fullname = $hcard['name'][0];
             preg_match('/\/([^\/]+)\/*$/', $profile->profileurl, $matches);
-            if(!$hcard['nickname']) $hcard['nickname'] = array($matches[1]);
+            if (!$hcard['nickname']) {
+                $hcard['nickname'] = [$matches[1]];
+            }
             $profile->nickname = $hcard['nickname'][0];
             $profile->created = common_sql_now();
 
             $mention_profile->profile_id = $profile->insert();
-            if(!$mention_profile->profile_id) {
+            if (!$mention_profile->profile_id) {
                 $mention_profile->query('ROLLBACK');
                 return null;
             }
 
             $mention_profile->profileurl = $profile->profileurl;
-            if(!$mention_profile->insert()) {
+            if (!$mention_profile->insert()) {
                 $mention_profile->query('ROLLBACK');
-                if($depth > 0) {
+                if ($depth > 0) {
                     return null;
                 } else {
                     return self::fromUrl($url, $depth+1);
@@ -100,9 +105,10 @@ class Mention_url_profile extends Managed_DataObject
         return $profile;
     }
 
-    protected static function findProfileByProfileURL($url) {
+    protected static function findProfileByProfileURL($url)
+    {
         $profile = Profile::getKV('profileurl', $url);
-        if($profile instanceof Profile) {
+        if ($profile instanceof Profile) {
             $mention_profile = new Mention_url_profile();
             $mention_profile->profile_id = $profile->id;
             $mention_profile->profileurl = $profile->profileurl;
@@ -112,7 +118,8 @@ class Mention_url_profile extends Managed_DataObject
         return $profile;
     }
 
-    public function getProfile() {
+    public function getProfile()
+    {
         return Profile::getKV('id', $this->profile_id);
     }
 }

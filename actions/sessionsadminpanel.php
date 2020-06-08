@@ -1,44 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Sessions administration panel
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Admin site sessions
  *
- * @category Admin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Admin
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class SessionsadminpanelAction extends AdminPanelAction
 {
@@ -47,10 +41,10 @@ class SessionsadminpanelAction extends AdminPanelAction
      *
      * @return string page title
      */
-    function title()
+    public function title()
     {
         // TRANS: Title for the sessions administration panel.
-        return _m('TITLE','Sessions');
+        return _m('TITLE', 'Sessions');
     }
 
     /**
@@ -58,7 +52,7 @@ class SessionsadminpanelAction extends AdminPanelAction
      *
      * @return string instructions
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Instructions for the sessions administration panel.
         return _('Session settings for this StatusNet site');
@@ -69,7 +63,7 @@ class SessionsadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function showForm()
+    public function showForm()
     {
         $form = new SessionsAdminPanelForm($this);
         $form->show();
@@ -81,7 +75,7 @@ class SessionsadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function saveSettings()
+    public function saveSettings()
     {
         static $booleans = array('sessions' => array('handle', 'debug'));
 
@@ -101,7 +95,7 @@ class SessionsadminpanelAction extends AdminPanelAction
 
         $config = new Config();
 
-        $config->query('BEGIN');
+        $config->query('START TRANSACTION');
 
         foreach ($booleans as $section => $parts) {
             foreach ($parts as $setting) {
@@ -114,7 +108,7 @@ class SessionsadminpanelAction extends AdminPanelAction
         return;
     }
 
-    function validate(&$values)
+    public function validate(&$values)
     {
         // stub
     }
@@ -128,7 +122,7 @@ class SessionsAdminPanelForm extends AdminForm
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'sessionsadminpanel';
     }
@@ -138,7 +132,7 @@ class SessionsAdminPanelForm extends AdminForm
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_settings';
     }
@@ -148,7 +142,7 @@ class SessionsAdminPanelForm extends AdminForm
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('sessionsadminpanel');
     }
@@ -158,31 +152,37 @@ class SessionsAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formData()
+    public function formData()
     {
         $this->out->elementStart('fieldset', array('id' => 'settings_user_sessions'));
         // TRANS: Fieldset legend on the sessions administration panel.
-        $this->out->element('legend', null, _m('LEGEND','Sessions'));
+        $this->out->element('legend', null, _m('LEGEND', 'Sessions'));
 
         $this->out->elementStart('ul', 'form_data');
 
         $this->li();
         // TRANS: Checkbox title on the sessions administration panel.
         // TRANS: Indicates if StatusNet should handle session administration.
-        $this->out->checkbox('handle', _('Handle sessions'),
-                              (bool) $this->value('handle', 'sessions'),
-                              // TRANS: Checkbox title on the sessions administration panel.
-                              // TRANS: Indicates if StatusNet should handle session administration.
-                              _('Handle sessions ourselves.'));
+        $this->out->checkbox(
+            'handle',
+            _('Handle sessions'),
+            (bool) $this->value('handle', 'sessions'),
+            // TRANS: Checkbox title on the sessions administration panel.
+            // TRANS: Indicates if StatusNet should handle session administration.
+            _('Handle sessions ourselves.')
+        );
         $this->unli();
 
         $this->li();
         // TRANS: Checkbox label on the sessions administration panel.
         // TRANS: Indicates if StatusNet should write session debugging output.
-        $this->out->checkbox('debug', _('Session debugging'),
-                              (bool) $this->value('debug', 'sessions'),
-                              // TRANS: Checkbox title on the sessions administration panel.
-                              _('Enable debugging output for sessions.'));
+        $this->out->checkbox(
+            'debug',
+            _('Session debugging'),
+            (bool) $this->value('debug', 'sessions'),
+            // TRANS: Checkbox title on the sessions administration panel.
+            _('Enable debugging output for sessions.')
+        );
         $this->unli();
 
         $this->out->elementEnd('ul');
@@ -195,14 +195,16 @@ class SessionsAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
-        $this->out->submit('submit',
-                           // TRANS: Submit button text on the sessions administration panel.
-                           _m('BUTTON','Save'),
-                           'submit',
-                           null,
-                           // TRANS: Title for submit button on the sessions administration panel.
-                           _('Save session settings'));
+        $this->out->submit(
+            'submit',
+            // TRANS: Submit button text on the sessions administration panel.
+            _m('BUTTON', 'Save'),
+            'submit',
+            null,
+            // TRANS: Title for submit button on the sessions administration panel.
+            _('Save session settings')
+        );
     }
 }

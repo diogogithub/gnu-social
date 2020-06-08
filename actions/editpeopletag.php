@@ -1,50 +1,46 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Edit an existing group
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Group
- * @package   StatusNet
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @package   GNUsocial
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Add a new group
  *
  * This is the form for adding a new group
  *
- * @category Group
- * @package  StatusNet
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Group
+ * @package   GNUsocial
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 class EditpeopletagAction extends Action
 {
-    var $msg, $confirm, $confirm_args=array();
+    public $msg;
+    public $confirm;
+    public $confirm_args = [];
 
-    function title()
+    public function title()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && $this->boolean('delete')) {
             // TRANS: Title for edit list page after deleting a tag.
@@ -60,7 +56,7 @@ class EditpeopletagAction extends Action
      * Prepare to run
      */
 
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -135,7 +131,7 @@ class EditpeopletagAction extends Action
      *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -145,21 +141,30 @@ class EditpeopletagAction extends Action
         }
     }
 
-    function showConfirm($msg=null, $fwd=null)
+    public function showConfirm($msg = null, $fwd = null)
     {
         $this->confirm = $msg;
         $this->confirm_args = $fwd;
         $this->showPage();
     }
 
-    function showConfirmForm()
+    public function showConfirmForm()
     {
-        $this->elementStart('form', array('id' => 'form_peopletag_edit_confirm',
-                                          'class' => 'form_settings',
-                                          'method' => 'post',
-                                          'action' => common_local_url('editpeopletag',
-                                              array('tagger' => $this->tagger->nickname,
-                                                    'tag' => $this->peopletag->tag))));
+        $this->elementStart(
+            'form',
+            [
+                'id'     => 'form_peopletag_edit_confirm',
+                'class'  => 'form_settings',
+                'method' => 'post',
+                'action' => common_local_url(
+                    'editpeopletag',
+                    [
+                        'tagger' => $this->tagger->nickname,
+                        'tag'    => $this->peopletag->tag,
+                    ]
+                ),
+            ]
+        );
         $this->elementStart('fieldset');
         $this->hidden('token', common_session_token());
         $this->hidden('id', $this->arg('id'));
@@ -168,31 +173,35 @@ class EditpeopletagAction extends Action
             $this->hidden($key, $val);
         }
 
-        $this->submit('form_action-no',
-                      _m('BUTTON','No'),
-                      'submit form_action-primary',
-                      'cancel');
-        $this->submit('form_action-yes',
-                      _m('BUTTON','Yes'),
-                      'submit form_action-secondary',
-                      'confirm');
+        $this->submit(
+            'form_action-no',
+            _m('BUTTON', 'No'),
+            'submit form_action-primary',
+            'cancel'
+        );
+        $this->submit(
+            'form_action-yes',
+            _m('BUTTON', 'Yes'),
+            'submit form_action-secondary',
+            'confirm'
+        );
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
     }
 
-    function showForm($msg=null)
+    public function showForm($msg = null)
     {
         $this->msg = $msg;
         $this->showPage();
     }
 
-    function showObjectNav()
+    public function showObjectNav()
     {
         $nav = new PeopletagGroupNav($this, $this->peopletag);
         $nav->show();
     }
 
-    function showContent()
+    public function showContent()
     {
         if ($this->confirm) {
             $this->showConfirmForm();
@@ -205,26 +214,29 @@ class EditpeopletagAction extends Action
         $form->showProfileList();
     }
 
-    function showPageNotice()
+    public function showPageNotice()
     {
         if ($this->msg) {
             $this->element('p', 'error', $this->msg);
-        } else if ($this->confirm) {
+        } elseif ($this->confirm) {
             $this->element('p', 'instructions', $this->confirm);
         } else {
-            $this->element('p', 'instructions',
-                           // TRANS: Form instruction for edit list form.
-                           _('Use this form to edit the list.'));
+            $this->element(
+                'p',
+                'instructions',
+                // TRANS: Form instruction for edit list form.
+                _('Use this form to edit the list.')
+            );
         }
     }
 
-    function showScripts()
+    public function showScripts()
     {
         parent::showScripts();
         $this->autofocus('tag');
     }
 
-    function trySave()
+    public function trySave()
     {
         $tag         = common_canonical_tag($this->trimmed('tag'));
         $description = $this->trimmed('description');
@@ -247,25 +259,26 @@ class EditpeopletagAction extends Action
                                  'all its subscription and membership records. ' .
                                  'Do you still want to continue?'), array('delete' => 1));
             return;
-        } else if (common_valid_tag($tag)) {
+        } elseif (common_valid_tag($tag)) {
             // TRANS: Form validation error displayed if a given tag is invalid.
             $this->showForm(_('Invalid tag.'));
             return;
-        } else if ($tag != $this->peopletag->tag && $this->tagExists($tag)) {
+        } elseif ($tag != $this->peopletag->tag && $this->tagExists($tag)) {
             // TRANS: Form validation error displayed if a given tag is already present.
             // TRANS: %s is the already present tag.
             $this->showForm(sprintf(_('You already have a tag named %s.'), $tag));
             return;
-        } else if (Profile_list::descriptionTooLong($description)) {
+        } elseif (Profile_list::descriptionTooLong($description)) {
             $this->showForm(sprintf(
-                    // TRANS: Client error shown when providing too long a description when editing a list.
-                    // TRANS: %d is the maximum number of allowed characters.
-                    _m('Description is too long (maximum %d character).',
-                      'Description is too long (maximum %d characters).',
-                      Profile_list::maxDescription()),
-                    Profile_list::maxDescription()));
+                // TRANS: Client error shown when providing too long a description when editing a list.
+                // TRANS: %d is the maximum number of allowed characters.
+                _m('Description is too long (maximum %d character).',
+                   'Description is too long (maximum %d characters).',
+                   Profile_list::maxDescription()),
+                Profile_list::maxDescription()
+            ));
             return;
-        } else if ($set_private && !$confirm && !$cancel) {
+        } elseif ($set_private && !$confirm && !$cancel) {
             $fwd = array('tag' => $tag,
                          'description' => $description,
                          'private' => (int) $private);
@@ -285,7 +298,7 @@ class EditpeopletagAction extends Action
             common_redirect(common_local_url('all', array('nickname' => $this->tagger->getNickname())), 303);
         }
 
-        $this->peopletag->query('BEGIN');
+        $this->peopletag->query('START TRANSACTION');
 
         $orig = clone($this->peopletag);
 
@@ -310,17 +323,23 @@ class EditpeopletagAction extends Action
         }
 
         if ($tag != $orig->tag) {
-            common_redirect(common_local_url('editpeopletag',
-                                             array('tagger' => $this->tagger->nickname,
-                                                   'tag'    => $tag)),
-                            303);
+            common_redirect(
+                common_local_url(
+                    'editpeopletag',
+                    [
+                        'tagger' => $this->tagger->nickname,
+                        'tag'    => $tag,
+                    ]
+                ),
+                303
+            );
         } else {
             // TRANS: Edit list form success message.
             $this->showForm(_('Options saved.'));
         }
     }
 
-    function tagExists($tag)
+    public function tagExists($tag)
     {
         $args = array('tagger' => $this->tagger->id, 'tag' => $tag);
         $ptag = Profile_list::pkeyGet($args);

@@ -1,25 +1,29 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for group_block
  *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
 
@@ -55,20 +59,22 @@ class Group_block extends Managed_DataObject
         );
     }
 
-    static function isBlocked($group, $profile)
+    public static function isBlocked($group, $profile)
     {
-        $block = Group_block::pkeyGet(array('group_id' => $group->id,
-                                            'blocked' => $profile->id));
+        $block = Group_block::pkeyGet([
+            'group_id' => $group->id,
+            'blocked'  => $profile->id,
+        ]);
         return !empty($block);
     }
 
-    static function blockProfile($group, $profile, $blocker)
+    public static function blockProfile($group, $profile, $blocker)
     {
         // Insert the block
 
         $block = new Group_block();
 
-        $block->query('BEGIN');
+        $block->query('START TRANSACTION');
 
         $block->group_id = $group->id;
         $block->blocked  = $profile->id;
@@ -103,7 +109,7 @@ class Group_block extends Managed_DataObject
         return $block;
     }
 
-    static function unblockProfile($group, $profile)
+    public static function unblockProfile($group, $profile)
     {
         $block = Group_block::pkeyGet(array('group_id' => $group->id,
                                             'blocked' => $profile->id));

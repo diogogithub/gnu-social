@@ -197,7 +197,7 @@ class Profile_tag extends Managed_DataObject
             }
 
             $plist = new Profile_list();
-            $plist->query('BEGIN');
+            $plist->query('START TRANSACTION');
 
             $profile_list = Profile_list::ensureTag($tagger, $tag, $desc, $private);
 

@@ -1,49 +1,42 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * User administration panel
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- *
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Zach Copley <zach@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
  * @copyright 2008-2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Administer user settings
  *
- * @category Admin
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Zach Copley <zach@status.net>
- * @author   Sarven Capadisli <csarven@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Admin
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Zach Copley <zach@status.net>
+ * @author    Sarven Capadisli <csarven@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class UseradminpanelAction extends AdminPanelAction
 {
@@ -52,7 +45,7 @@ class UseradminpanelAction extends AdminPanelAction
      *
      * @return string page title
      */
-    function title()
+    public function title()
     {
         // TRANS: User admin panel title.
         return _m('TITLE', 'User');
@@ -63,7 +56,7 @@ class UseradminpanelAction extends AdminPanelAction
      *
      * @return string instructions
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Instruction for user admin panel.
         return _('User settings for this StatusNet site');
@@ -74,7 +67,7 @@ class UseradminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function showForm()
+    public function showForm()
     {
         $form = new UserAdminPanelForm($this);
         $form->show();
@@ -86,7 +79,7 @@ class UseradminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function saveSettings()
+    public function saveSettings()
     {
         static $settings = array(
                 'profile' => array('biolimit'),
@@ -119,7 +112,7 @@ class UseradminpanelAction extends AdminPanelAction
 
         $config = new Config();
 
-        $config->query('BEGIN');
+        $config->query('START TRANSACTION');
 
         foreach ($settings as $section => $parts) {
             foreach ($parts as $setting) {
@@ -138,7 +131,7 @@ class UseradminpanelAction extends AdminPanelAction
         return;
     }
 
-    function validate(&$values)
+    public function validate(&$values)
     {
         // Validate biolimit
 
@@ -180,7 +173,7 @@ class UserAdminPanelForm extends AdminForm
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'useradminpanel';
     }
@@ -190,7 +183,7 @@ class UserAdminPanelForm extends AdminForm
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_settings';
     }
@@ -200,7 +193,7 @@ class UserAdminPanelForm extends AdminForm
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('useradminpanel');
     }
@@ -210,19 +203,22 @@ class UserAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formData()
+    public function formData()
     {
         $this->out->elementStart('fieldset', array('id' => 'settings_user-profile'));
         // TRANS: Fieldset legend in user administration panel.
-        $this->out->element('legend', null, _m('LEGEND','Profile'));
+        $this->out->element('legend', null, _m('LEGEND', 'Profile'));
         $this->out->elementStart('ul', 'form_data');
 
         $this->li();
         // TRANS: Field label in user admin panel for setting the character limit for the bio field.
-        $this->input('biolimit', _('Bio Limit'),
-                     // TRANS: Tooltip in user admin panel for setting the character limit for the bio field.
-                     _('Maximum length of a profile bio in characters.'),
-                     'profile');
+        $this->input(
+            'biolimit',
+            _('Bio Limit'),
+            // TRANS: Tooltip in user admin panel for setting the character limit for the bio field.
+            _('Maximum length of a profile bio in characters.'),
+            'profile'
+        );
         $this->unli();
 
         $this->out->elementEnd('ul');
@@ -235,18 +231,24 @@ class UserAdminPanelForm extends AdminForm
 
         $this->li();
         // TRANS: Field label in user admin panel for setting new user welcome text.
-        $this->input('welcome', _('New user welcome'),
-                     // TRANS: Tooltip in user admin panel for setting new user welcome text.
-                     _('Welcome text for new users (maximum 255 characters).'),
-                     'newuser');
+        $this->input(
+            'welcome',
+            _('New user welcome'),
+            // TRANS: Tooltip in user admin panel for setting new user welcome text.
+            _('Welcome text for new users (maximum 255 characters).'),
+            'newuser'
+        );
         $this->unli();
 
         $this->li();
         // TRANS: Field label in user admin panel for setting default subscription for new users.
-        $this->input('default', _('Default subscription'),
-                     // TRANS: Tooltip in user admin panel for setting default subscription for new users.
-                     _('Automatically subscribe new users to this user.'),
-                     'newuser');
+        $this->input(
+            'default',
+            _('Default subscription'),
+            // TRANS: Tooltip in user admin panel for setting default subscription for new users.
+            _('Automatically subscribe new users to this user.'),
+            'newuser'
+        );
         $this->unli();
 
         $this->out->elementEnd('ul');
@@ -261,10 +263,13 @@ class UserAdminPanelForm extends AdminForm
         $this->li();
 
         // TRANS: Field label for checkbox in user admin panel for allowing users to invite friend using site e-mail.
-        $this->out->checkbox('invite-enabled', _('Invitations enabled'),
-                              (bool) $this->value('enabled', 'invite'),
-                              // TRANS: Tooltip for checkbox in user admin panel for allowing users to invite friend using site e-mail.
-                              _('Whether to allow users to invite new users.'));
+        $this->out->checkbox(
+            'invite-enabled',
+            _('Invitations enabled'),
+            (bool) $this->value('enabled', 'invite'),
+            // TRANS: Tooltip for checkbox in user admin panel for allowing users to invite friend using site e-mail.
+            _('Whether to allow users to invite new users.')
+        );
         $this->unli();
 
         $this->out->elementEnd('ul');
@@ -283,7 +288,7 @@ class UserAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function input($setting, $title, $instructions, $section='site')
+    public function input($setting, $title, $instructions, $section='site')
     {
         $this->out->input("$section-$setting", $title, $this->value($setting, $section), $instructions);
     }
@@ -293,14 +298,16 @@ class UserAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
-        $this->out->submit('submit',
-                           // TRANS: Button text to save user settings in user admin panel.
-                           _m('BUTTON','Save'),
-                           'submit',
-                           null,
-                           // TRANS: Button title to save user settings in user admin panel.
-                           _('Save user settings.'));
+        $this->out->submit(
+            'submit',
+            // TRANS: Button text to save user settings in user admin panel.
+            _m('BUTTON', 'Save'),
+            'submit',
+            null,
+            // TRANS: Button title to save user settings in user admin panel.
+            _('Save user settings.')
+        );
     }
 }

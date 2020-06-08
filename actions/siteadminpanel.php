@@ -1,48 +1,42 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Site administration panel
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Zach Copley <zach@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
  * @copyright 2008-2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Administer site settings
  *
- * @category Admin
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Zach Copley <zach@status.net>
- * @author   Sarven Capadisli <csarven@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Admin
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Zach Copley <zach@status.net>
+ * @author    Sarven Capadisli <csarven@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class SiteadminpanelAction extends AdminPanelAction
 {
@@ -51,10 +45,10 @@ class SiteadminpanelAction extends AdminPanelAction
      *
      * @return string page title
      */
-    function title()
+    public function title()
     {
         // TRANS: Title for site administration panel.
-        return _m('TITLE','Site');
+        return _m('TITLE', 'Site');
     }
 
     /**
@@ -62,7 +56,7 @@ class SiteadminpanelAction extends AdminPanelAction
      *
      * @return string instructions
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Instructions for site administration panel.
         return _m('Basic settings for this StatusNet site');
@@ -73,7 +67,7 @@ class SiteadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function showForm()
+    public function showForm()
     {
         $form = new SiteAdminPanelForm($this);
         $form->show();
@@ -85,7 +79,7 @@ class SiteadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function saveSettings()
+    public function saveSettings()
     {
         static $settings = array(
             'site' => array(
@@ -119,7 +113,7 @@ class SiteadminpanelAction extends AdminPanelAction
 
         $config = new Config();
 
-        $config->query('BEGIN');
+        $config->query('START TRANSACTION');
 
         foreach ($settings as $section => $parts) {
             foreach ($parts as $setting) {
@@ -132,7 +126,7 @@ class SiteadminpanelAction extends AdminPanelAction
         return;
     }
 
-    function validate(&$values)
+    public function validate(&$values)
     {
         // Validate site name
 
@@ -208,7 +202,7 @@ class SiteAdminPanelForm extends AdminForm
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'form_site_admin_panel';
     }
@@ -218,7 +212,7 @@ class SiteAdminPanelForm extends AdminForm
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_settings';
     }
@@ -228,7 +222,7 @@ class SiteAdminPanelForm extends AdminForm
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('siteadminpanel');
     }
@@ -238,37 +232,49 @@ class SiteAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formData()
+    public function formData()
     {
         $this->out->elementStart('fieldset', array('id' => 'settings_admin_general'));
         // TRANS: Fieldset legend on site settings panel.
-        $this->out->element('legend', null, _m('LEGEND','General'));
+        $this->out->element('legend', null, _m('LEGEND', 'General'));
         $this->out->elementStart('ul', 'form_data');
         $this->li();
         // TRANS: Field label on site settings panel.
-        $this->input('name', _m('LABEL','Site name'),
-                     // TRANS: Field title on site settings panel.
-                     _m('The name of your site, like "Yourcompany Microblog".'));
+        $this->input(
+            'name',
+            _m('LABEL', 'Site name'),
+            // TRANS: Field title on site settings panel.
+            _m('The name of your site, like "Yourcompany Microblog".')
+        );
         $this->unli();
 
         $this->li();
         // TRANS: Field label on site settings panel.
-        $this->input('broughtby', _m('Brought by'),
-                     // TRANS: Field title on site settings panel.
-                     _m('Text used for credits link in footer of each page.'));
+        $this->input(
+            'broughtby',
+            _m('Brought by'),
+            // TRANS: Field title on site settings panel.
+            _m('Text used for credits link in footer of each page.')
+        );
         $this->unli();
 
         $this->li();
         // TRANS: Field label on site settings panel.
-        $this->input('broughtbyurl', _m('Brought by URL'),
-                     // TRANS: Field title on site settings panel.
-                     _m('URL used for credits link in footer of each page.'));
+        $this->input(
+            'broughtbyurl',
+            _m('Brought by URL'),
+            // TRANS: Field title on site settings panel.
+            _m('URL used for credits link in footer of each page.')
+        );
         $this->unli();
         $this->li();
         // TRANS: Field label on site settings panel.
-        $this->input('email', _m('Email'),
-                     // TRANS: Field title on site settings panel.
-                     _m('Contact email address for your site.'));
+        $this->input(
+            'email',
+            _m('Email'),
+            // TRANS: Field title on site settings panel.
+            _m('Contact email address for your site.')
+        );
         $this->unli();
         $this->out->elementEnd('ul');
         $this->out->elementEnd('fieldset');
@@ -277,7 +283,7 @@ class SiteAdminPanelForm extends AdminForm
 
         $this->out->elementStart('fieldset', array('id' => 'settings_admin_local'));
         // TRANS: Fieldset legend on site settings panel.
-        $this->out->element('legend', null, _m('LEGEND','Local'));
+        $this->out->element('legend', null, _m('LEGEND', 'Local'));
         $this->out->elementStart('ul', 'form_data');
         $timezones = [];
 
@@ -289,20 +295,28 @@ class SiteAdminPanelForm extends AdminForm
 
         $this->li();
         // TRANS: Dropdown label on site settings panel.
-        $this->out->dropdown('timezone', _m('Default timezone'),
-                             // TRANS: Dropdown title on site settings panel.
-                             $timezones, _m('Default timezone for the site; usually UTC.'),
-                             true, $this->value('timezone'));
+        $this->out->dropdown(
+            'timezone',
+            _m('Default timezone'),
+            // TRANS: Dropdown title on site settings panel.
+            $timezones,
+            _m('Default timezone for the site; usually UTC.'),
+            true,
+            $this->value('timezone')
+        );
         $this->unli();
 
         $this->li();
-        $this->out->dropdown('language',
-                             // TRANS: Dropdown label on site settings panel.
-                             _m('Default language'),
-                             get_nice_language_list(),
-                             // TRANS: Dropdown title on site settings panel.
-                             _m('The site language when autodetection from browser settings is not available.'),
-                             false, $this->value('language'));
+        $this->out->dropdown(
+            'language',
+            // TRANS: Dropdown label on site settings panel.
+            _m('Default language'),
+            get_nice_language_list(),
+            // TRANS: Dropdown title on site settings panel.
+            _m('The site language when autodetection from browser settings is not available.'),
+            false,
+            $this->value('language')
+        );
         $this->unli();
 
         $this->out->elementEnd('ul');
@@ -310,28 +324,32 @@ class SiteAdminPanelForm extends AdminForm
 
         $this->out->elementStart('fieldset', array('id' => 'settings_admin_limits'));
         // TRANS: Fieldset legend on site settings panel.
-        $this->out->element('legend', null, _m('LEGEND','Limits'));
+        $this->out->element('legend', null, _m('LEGEND', 'Limits'));
         $this->out->elementStart('ul', 'form_data');
         $this->li();
-        $this->input('textlimit',
-                     // TRANS: Field label on site settings panel.
-                     _m('Text limit'),
-                     // TRANS: Field title on site settings panel.
-                     _m('Maximum number of characters for notices.'));
+        $this->input(
+            'textlimit',
+            // TRANS: Field label on site settings panel.
+            _m('Text limit'),
+            // TRANS: Field title on site settings panel.
+            _m('Maximum number of characters for notices.')
+        );
         $this->unli();
 
         $this->li();
-        $this->input('dupelimit',
-                     // TRANS: Field label on site settings panel.
-                     _m('Dupe limit'),
-                     // TRANS: Field title on site settings panel.
-                     _m('How long users must wait (in seconds) to post the same thing again.'));
+        $this->input(
+            'dupelimit',
+            // TRANS: Field label on site settings panel.
+            _m('Dupe limit'),
+            // TRANS: Field title on site settings panel.
+            _m('How long users must wait (in seconds) to post the same thing again.')
+        );
         $this->unli();
         $this->out->elementEnd('ul');
         $this->out->elementEnd('fieldset');
     }
 
-    function showLogo()
+    public function showLogo()
     {
         $this->out->elementStart('fieldset', ['id' => 'settings_site_logo']);
         // TRANS: Fieldset legend for form to change logo.
@@ -340,19 +358,23 @@ class SiteAdminPanelForm extends AdminForm
         $this->out->elementStart('ul', 'form_data');
 
         $this->li();
-        $this->input('logo',
-                     // TRANS: Field label for GNU social site logo.
-                     _m('Site logo'),
-                     // TRANS: Title for field label for GNU social site logo.
-                     'Logo for the site (full URL).');
+        $this->input(
+            'logo',
+            // TRANS: Field label for GNU social site logo.
+            _m('Site logo'),
+            // TRANS: Title for field label for GNU social site logo.
+            'Logo for the site (full URL).'
+        );
         $this->unli();
 
         $this->li();
-        $this->input('ssllogo',
-                     // TRANS: Field label for SSL GNU social site logo.
-                     _m('SSL logo'),
-                     // TRANS: Title for field label for SSL GNU social site logo.
-                     'Logo to show on SSL pages (full URL).');
+        $this->input(
+            'ssllogo',
+            // TRANS: Field label for SSL GNU social site logo.
+            _m('SSL logo'),
+            // TRANS: Title for field label for SSL GNU social site logo.
+            'Logo to show on SSL pages (full URL).'
+        );
         $this->unli();
 
         $this->out->elementEnd('ul');
@@ -365,14 +387,16 @@ class SiteAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
-        $this->out->submit('submit',
-                           // TRANS: Button text for saving site settings.
-                           _m('BUTTON','Save'),
-                           'submit',
-                           null,
-                           // TRANS: Button title for saving site settings.
-                           _m('Save the site settings.'));
+        $this->out->submit(
+            'submit',
+            // TRANS: Button text for saving site settings.
+            _m('BUTTON', 'Save'),
+            'submit',
+            null,
+            // TRANS: Button title for saving site settings.
+            _m('Save the site settings.')
+        );
     }
 }

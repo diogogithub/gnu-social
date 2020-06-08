@@ -1,42 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Site access administration panel
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Administer site access settings
  *
- * @category Admin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Admin
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class AccessadminpanelAction extends AdminPanelAction
 {
@@ -45,7 +41,7 @@ class AccessadminpanelAction extends AdminPanelAction
      *
      * @return string page title
      */
-    function title()
+    public function title()
     {
         // TRANS: Page title for Access admin panel that allows configuring site access.
         return _('Access');
@@ -56,7 +52,7 @@ class AccessadminpanelAction extends AdminPanelAction
      *
      * @return string instructions
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Page notice.
         return _('Site access settings');
@@ -67,7 +63,7 @@ class AccessadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function showForm()
+    public function showForm()
     {
         $form = new AccessAdminPanelForm($this);
         $form->show();
@@ -79,7 +75,7 @@ class AccessadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function saveSettings()
+    public function saveSettings()
     {
         static $booleans = array('site' => array('private', 'inviteonly', 'closed'),
                                  'public' => array('localonly'));
@@ -92,7 +88,7 @@ class AccessadminpanelAction extends AdminPanelAction
 
         $config = new Config();
 
-        $config->query('BEGIN');
+        $config->query('START TRANSACTION');
 
         foreach ($booleans as $section => $parts) {
             foreach ($parts as $setting) {
@@ -113,7 +109,7 @@ class AccessAdminPanelForm extends AdminForm
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'form_site_admin_panel';
     }
@@ -123,7 +119,7 @@ class AccessAdminPanelForm extends AdminForm
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_settings';
     }
@@ -133,7 +129,7 @@ class AccessAdminPanelForm extends AdminForm
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('accessadminpanel');
     }
@@ -143,7 +139,7 @@ class AccessAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formData()
+    public function formData()
     {
         $this->out->elementStart('fieldset', array('id' => 'settings_admin_account_access'));
         // TRANS: Form legend for registration form.
@@ -154,18 +150,24 @@ class AccessAdminPanelForm extends AdminForm
         // TRANS: Checkbox instructions for admin setting "Invite only".
         $instructions = _('Make registration invitation only.');
         // TRANS: Checkbox label for configuring site as invite only.
-        $this->out->checkbox('inviteonly', _('Invite only'),
-                             (bool) $this->value('inviteonly'),
-                             $instructions);
+        $this->out->checkbox(
+            'inviteonly',
+            _('Invite only'),
+            (bool) $this->value('inviteonly'),
+            $instructions
+        );
         $this->unli();
 
         $this->li();
         // TRANS: Checkbox instructions for admin setting "Closed" (no new registrations).
         $instructions = _('Disable new registrations.');
         // TRANS: Checkbox label for disabling new user registrations.
-        $this->out->checkbox('closed', _('Closed'),
-                             (bool) $this->value('closed'),
-                             $instructions);
+        $this->out->checkbox(
+            'closed',
+            _('Closed'),
+            (bool) $this->value('closed'),
+            $instructions
+        );
         $this->unli();
 
         $this->out->elementEnd('ul');
@@ -173,26 +175,32 @@ class AccessAdminPanelForm extends AdminForm
 
 
         // Public access settings (login requirements for feeds etc.)
-	    $this->out->elementStart('fieldset', array('id' => 'settings_admin_public_access'));
-	    // TRANS: Form legend for registration form.
+        $this->out->elementStart('fieldset', ['id' => 'settings_admin_public_access']);
+        // TRANS: Form legend for registration form.
         $this->out->element('legend', null, _('Feed access'));
         $this->out->elementStart('ul', 'form_data');
         $this->li();
         // TRANS: Checkbox instructions for admin setting "Private".
         $instructions = _('Prohibit anonymous users (not logged in) from viewing site?');
         // TRANS: Checkbox label for prohibiting anonymous users from viewing site.
-        $this->out->checkbox('private', _m('LABEL', 'Private'),
-                             (bool) $this->value('private'),
-                             $instructions);
+        $this->out->checkbox(
+            'private',
+            _m('LABEL', 'Private'),
+            (bool) $this->value('private'),
+            $instructions
+        );
         $this->unli();
 
         $this->li();
         // TRANS: Description of the full network notice stream views..
         $instructions = _('The full network view includes (public) remote notices which may be unrelated to local conversations.');
         // TRANS: Checkbox label for hiding remote network posts if they have not been interacted with locally.
-        $this->out->checkbox('localonly', _('Restrict full network view to accounts'),
-                             (bool) $this->value('localonly', 'public'),
-                             $instructions);
+        $this->out->checkbox(
+            'localonly',
+            _('Restrict full network view to accounts'),
+            (bool) $this->value('localonly', 'public'),
+            $instructions
+        );
         $this->unli();
 
         $this->out->elementEnd('ul');
@@ -204,7 +212,7 @@ class AccessAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
         // TRANS: Button title to save access settings in site admin panel.
         $title = _('Save access settings.');

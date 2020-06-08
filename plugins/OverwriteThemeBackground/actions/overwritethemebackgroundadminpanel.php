@@ -59,7 +59,7 @@ class OverwriteThemeBackgroundAdminPanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function showForm()
+    public function showForm()
     {
         $form = new OverwriteThemeBackgroundAdminPanelForm($this);
         $form->show();
@@ -71,7 +71,7 @@ class OverwriteThemeBackgroundAdminPanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function saveSettings()
+    public function saveSettings()
     {
         static $settings = [
             'overwritethemebackground' => [
@@ -100,7 +100,7 @@ class OverwriteThemeBackgroundAdminPanelAction extends AdminPanelAction
 
         $config = new Config();
 
-        $config->query('BEGIN');
+        $config->query('START TRANSACTION');
 
         foreach ($settings as $section => $parts) {
             foreach ($parts as $setting) {
@@ -119,7 +119,7 @@ class OverwriteThemeBackgroundAdminPanelAction extends AdminPanelAction
      * @param $values
      * @throws ClientException
      */
-    function validate(&$values)
+    public function validate(&$values)
     {
         // Validate background
         if (!empty($values['overwritethemebackground']['background-image']) &&
@@ -149,7 +149,7 @@ class OverwriteThemeBackgroundAdminPanelForm extends AdminForm
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'form_site_admin_panel';
     }
@@ -159,7 +159,7 @@ class OverwriteThemeBackgroundAdminPanelForm extends AdminForm
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_settings';
     }
@@ -169,7 +169,7 @@ class OverwriteThemeBackgroundAdminPanelForm extends AdminForm
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('overwritethemebackgroundAdminPanel');
     }
@@ -179,7 +179,7 @@ class OverwriteThemeBackgroundAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formData()
+    public function formData()
     {
         $this->out->elementStart('fieldset', ['id' => 'settings_site_background']);
         // TRANS: Fieldset legend for form to change background.
@@ -189,52 +189,68 @@ class OverwriteThemeBackgroundAdminPanelForm extends AdminForm
         /* Background colour */
 
         $this->li();
-        $this->input('background-color',
+        $this->input(
+            'background-color',
             // TRANS: Field label for GNU social site background.
             _m('Site background color'),
             // TRANS: Title for field label for GNU social site background.
             'Background color for the site (hexadecimal with #).',
-            'overwritethemebackground');
+            'overwritethemebackground'
+        );
         $this->unli();
 
         /* Background image */
 
         $this->li();
-        $this->input('background-image',
+        $this->input(
+            'background-image',
             // TRANS: Field label for GNU social site background.
             _m('Site background'),
             // TRANS: Title for field label for GNU social site background.
             'Background for the site (full URL).',
-            'overwritethemebackground');
+            'overwritethemebackground'
+        );
         $this->unli();
 
         $this->li();
-        $this->input('sslbackground-image',
+        $this->input(
+            'sslbackground-image',
             // TRANS: Field label for SSL GNU social site background.
             _m('SSL background'),
             // TRANS: Title for field label for SSL GNU social site background.
             'Background to show on SSL pages (full URL).',
-            'overwritethemebackground');
+            'overwritethemebackground'
+        );
         $this->unli();
 
         /* Background repeat */
 
         $this->li();
         // TRANS: Dropdown label on site settings panel.
-        $this->out->dropdown('background-repeat', _m('Background repeat'),
+        $this->out->dropdown(
+            'background-repeat',
+            _m('Background repeat'),
             // TRANS: Dropdown title on site settings panel.
-            ['Repeat horizontally and vertically', 'Repeat Horizontally', 'Repeat Vertically', 'Don\'t repeat'], _m('repeat horizontally and/or vertically'),
-            false, common_config('overwritethemebackground', 'background-repeat') ?? 'repeat');
+            ['Repeat horizontally and vertically', 'Repeat Horizontally', 'Repeat Vertically', 'Don\'t repeat'],
+            _m('repeat horizontally and/or vertically'),
+            false,
+            common_config('overwritethemebackground', 'background-repeat') ?? 'repeat'
+        );
         $this->unli();
 
         /* Background attachment */
 
         $this->li();
         // TRANS: Dropdown label on site settings panel.
-        $this->out->dropdown('background-attachment', _m('Background attachment'),
+        $this->out->dropdown(
+            'background-attachment',
+            _m('Background attachment'),
             // TRANS: Dropdown title on site settings panel.
-            ['Scroll with page', 'Stay fixed'], _m('Whether the background image should scroll or be fixed (will not scroll with the rest of the page)'),
-            false, common_config('overwritethemebackground', 'background-attachment') ?? 'scroll');
+            ['Scroll with page', 'Stay fixed'],
+            _m('Whether the background image should scroll or be fixed (will not scroll with the rest of the page)'),
+            false,
+            common_config('overwritethemebackground', 'background-attachment') ?? 'scroll'
+        );
         $this->unli();
 
         /* Background position */
@@ -253,10 +269,15 @@ class OverwriteThemeBackgroundAdminPanelForm extends AdminForm
         ];
         $this->li();
         // TRANS: Dropdown label on site settings panel.
-        $this->out->dropdown('background-position', _m('Background position'),
+        $this->out->dropdown(
+            'background-position',
+            _m('Background position'),
             // TRANS: Dropdown title on site settings panel.
-            $background_position_options, _m('Sets the starting position of a background image'),
-            false, common_config('overwritethemebackground', 'background-attachment') ?? 'initial');
+            $background_position_options,
+            _m('Sets the starting position of a background image'),
+            false,
+            common_config('overwritethemebackground', 'background-attachment') ?? 'initial'
+        );
         $this->unli();
 
         $this->out->elementEnd('ul');
@@ -268,14 +289,16 @@ class OverwriteThemeBackgroundAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
-        $this->out->submit('submit',
+        $this->out->submit(
+            'submit',
             // TRANS: Button text for saving site settings.
             _m('BUTTON', 'Save'),
             'submit',
             null,
             // TRANS: Button title for saving site settings.
-            _m('Save the site settings.'));
+            _m('Save the site settings.')
+        );
     }
 }

@@ -1,44 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Update a group's profile
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  API
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * API analog to the group edit page
  *
- * @category API
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  API
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ApiGroupProfileUpdateAction extends ApiAuthAction
 {
@@ -100,20 +94,21 @@ class ApiGroupProfileUpdateAction extends ApiAuthAction
             $this->clientError(_('You must be an admin to edit the group.'), 403);
         }
 
-        $this->group->query('BEGIN');
+        $this->group->query('START TRANSACTION');
 
         $orig = clone($this->group);
 
         try {
-
             if (common_config('profile', 'changenick') == true && $this->group->nickname !== $this->nickname) {
                 try {
                     $this->group->nickname = Nickname::normalize($this->nickname, true);
                 } catch (NicknameException $e) {
                     throw new ApiValidationException($e->getMessage());
                 }
-                $this->group->mainpage = common_local_url('showgroup',
-                                            array('nickname' => $this->group->nickname));
+                $this->group->mainpage = common_local_url(
+                    'showgroup',
+                    ['nickname' => $this->group->nickname]
+                );
             }
 
             if (!empty($this->fullname)) {
@@ -135,7 +130,6 @@ class ApiGroupProfileUpdateAction extends ApiAuthAction
                 $this->validateLocation();
                 $this->group->location = $this->location;
             }
-
         } catch (ApiValidationException $ave) {
             $this->clientError($ave->getMessage(), 400);
         }
@@ -167,7 +161,7 @@ class ApiGroupProfileUpdateAction extends ApiAuthAction
 
         $this->group->query('COMMIT');
 
-        switch($this->format) {
+        switch ($this->format) {
         case 'xml':
             $this->showSingleXmlGroup($this->group);
             break;
@@ -180,7 +174,7 @@ class ApiGroupProfileUpdateAction extends ApiAuthAction
         }
     }
 
-    function validateHomepage()
+    public function validateHomepage()
     {
         if (!is_null($this->homepage)
                 && (strlen($this->homepage) > 0)
@@ -192,7 +186,7 @@ class ApiGroupProfileUpdateAction extends ApiAuthAction
         }
     }
 
-    function validateFullname()
+    public function validateFullname()
     {
         if (!is_null($this->fullname) && mb_strlen($this->fullname) > 255) {
             throw new ApiValidationException(
@@ -202,19 +196,21 @@ class ApiGroupProfileUpdateAction extends ApiAuthAction
         }
     }
 
-    function validateDescription()
+    public function validateDescription()
     {
         if (User_group::descriptionTooLong($this->description)) {
             // TRANS: API validation exception thrown when description does not validate.
             // TRANS: %d is the maximum description length and used for plural.
-            throw new ApiValidationException(sprintf(_m('Description is too long (maximum %d character).',
-                                                        'Description is too long (maximum %d characters).',
-                                                        User_group::maxDescription()),
-                                                     User_group::maxDescription()));
+            throw new ApiValidationException(sprintf(
+                _m('Description is too long (maximum %d character).',
+                   'Description is too long (maximum %d characters).',
+                   User_group::maxDescription()),
+                User_group::maxDescription()
+            ));
         }
     }
 
-    function validateLocation()
+    public function validateLocation()
     {
         if (!is_null($this->location) && mb_strlen($this->location) > 255) {
             throw new ApiValidationException(
@@ -224,11 +220,13 @@ class ApiGroupProfileUpdateAction extends ApiAuthAction
         }
     }
 
-    function validateAliases()
+    public function validateAliases()
     {
         try {
-            $aliases = array_map(array('Nickname', 'normalize'),
-                            array_unique(preg_split('/[\s,]+/', $this->aliasstring)));
+            $aliases = array_map(
+                ['Nickname', 'normalize'],
+                array_unique(preg_split('/[\s,]+/', $this->aliasstring))
+            );
         } catch (NicknameException $e) {
             throw new ApiValidationException(sprintf('Error processing aliases: %s', $e->getMessage()));
         }
@@ -236,10 +234,12 @@ class ApiGroupProfileUpdateAction extends ApiAuthAction
         if (count($aliases) > common_config('group', 'maxaliases')) {
             // TRANS: API validation exception thrown when aliases do not validate.
             // TRANS: %d is the maximum number of aliases and used for plural.
-            throw new ApiValidationException(sprintf(_m('Too many aliases! Maximum %d allowed.',
-                                                        'Too many aliases! Maximum %d allowed.',
-                                                        common_config('group', 'maxaliases')),
-                                                     common_config('group', 'maxaliases')));
+            throw new ApiValidationException(sprintf(
+                _m('Too many aliases! Maximum %d allowed.',
+                   'Too many aliases! Maximum %d allowed.',
+                   common_config('group', 'maxaliases')),
+                common_config('group', 'maxaliases')
+            ));
         }
 
         return $aliases;

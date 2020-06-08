@@ -1,46 +1,42 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Miscellaneous settings
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Robin Millette <millette@status.net>
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2008-2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Miscellaneous settings actions
  *
  * Currently this just manages URL shortening.
  *
- * @category Settings
- * @package  StatusNet
- * @author   Robin Millette <millette@status.net>
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Settings
+ * @package   GNUsocial
+ * @author    Robin Millette <millette@status.net>
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class UrlsettingsAction extends SettingsAction
 {
@@ -49,7 +45,7 @@ class UrlsettingsAction extends SettingsAction
      *
      * @return string Title of the page
      */
-    function title()
+    public function title()
     {
         // TRANS: Title of URL settings tab in profile settings.
         return _('URL settings');
@@ -60,13 +56,13 @@ class UrlsettingsAction extends SettingsAction
      *
      * @return instructions for use
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Instructions for tab "Other" in user profile settings.
         return _('Manage various other options.');
     }
 
-    function showScripts()
+    public function showScripts()
     {
         parent::showScripts();
         $this->autofocus('urlshorteningservice');
@@ -79,7 +75,7 @@ class UrlsettingsAction extends SettingsAction
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         $user = $this->scoped->getUser();
 
@@ -98,8 +94,7 @@ class UrlsettingsAction extends SettingsAction
 
         $services = array();
 
-        foreach ($shorteners as $name => $value)
-        {
+        foreach ($shorteners as $name => $value) {
             $services[$name] = $name;
             if ($value['freeService']) {
                 // TRANS: Used as a suffix for free URL shorteners in a dropdown list in the tab "Other" of a
@@ -121,33 +116,40 @@ class UrlsettingsAction extends SettingsAction
 
             $this->elementStart('li');
             // TRANS: Label for dropdown with URL shortener services.
-            $this->dropdown('urlshorteningservice', _('Shorten URLs with'),
-                            // TRANS: Tooltip for for dropdown with URL shortener services.
-                            $services, _('Automatic shortening service to use.'),
-                            false, $user->urlshorteningservice);
+            $this->dropdown(
+                'urlshorteningservice',
+                _('Shorten URLs with'),
+                // TRANS: Tooltip for for dropdown with URL shortener services.
+                $services,
+                _('Automatic shortening service to use.'),
+                false,
+                $user->urlshorteningservice
+            );
             $this->elementEnd('li');
         }
         $this->elementStart('li');
-        $this->input('maxurllength',
-                     // TRANS: Field label in URL settings in profile.
-                     _('URL longer than'),
-                     (!is_null($this->arg('maxurllength'))) ?
-                     $this->arg('maxurllength') : User_urlshortener_prefs::maxUrlLength($user),
-                     // TRANS: Field title in URL settings in profile.
-                     _('URLs longer than this will be shortened, -1 means never shorten because a URL is long.'));
+        $this->input(
+            'maxurllength',
+            // TRANS: Field label in URL settings in profile.
+            _('URL longer than'),
+            ($this->arg('maxurllength') ?? User_urlshortener_prefs::maxUrlLength($user)),
+            // TRANS: Field title in URL settings in profile.
+            _('URLs longer than this will be shortened, -1 means never shorten because a URL is long.')
+        );
         $this->elementEnd('li');
         $this->elementStart('li');
-        $this->input('maxnoticelength',
-                     // TRANS: Field label in URL settings in profile.
-                     _('Text longer than'),
-                     (!is_null($this->arg('maxnoticelength'))) ?
-                     $this->arg('maxnoticelength') : User_urlshortener_prefs::maxNoticeLength($user),
-                     // TRANS: Field title in URL settings in profile.
-                     _('URLs in notices longer than this will always be shortened, -1 means only shorten if the full post exceeds maximum length.'));
+        $this->input(
+            'maxnoticelength',
+            // TRANS: Field label in URL settings in profile.
+            _('Text longer than'),
+            ($this->arg('maxnoticelength') ?? User_urlshortener_prefs::maxNoticeLength($user)),
+            // TRANS: Field title in URL settings in profile.
+            _('URLs in notices longer than this will always be shortened, -1 means only shorten if the full post exceeds maximum length.')
+        );
         $this->elementEnd('li');
         $this->elementEnd('ul');
         // TRANS: Button text for saving "Other settings" in profile.
-        $this->submit('save', _m('BUTTON','Save'));
+        $this->submit('save', _m('BUTTON', 'Save'));
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
     }
@@ -177,7 +179,7 @@ class UrlsettingsAction extends SettingsAction
 
         $user = $this->scoped->getUser();
 
-        $user->query('BEGIN');
+        $user->query('START TRANSACTION');
 
         $original = clone($user);
 

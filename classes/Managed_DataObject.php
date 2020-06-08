@@ -546,7 +546,7 @@ abstract class Managed_DataObject extends Memcached_DataObject
         $this->onUpdateKeys($orig);
 
         // do it in a transaction
-        $this->query('BEGIN');
+        $this->query('START TRANSACTION');
 
         $parts = [];
         foreach ($this->keys() as $k) {

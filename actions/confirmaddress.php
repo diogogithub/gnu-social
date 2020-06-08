@@ -1,33 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Confirm an address
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Confirm
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2008-2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Confirm an address
@@ -36,11 +33,10 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * a confirmation code to make sure the owner of that address approves. This class
  * accepts those codes.
  *
- * @category Confirm
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Confirm
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ConfirmaddressAction extends ManagedAction
 {
@@ -88,7 +84,7 @@ class ConfirmaddressAction extends ManagedAction
 
         $cur = $this->scoped->getUser();
 
-        $cur->query('BEGIN');
+        $cur->query('START TRANSACTION');
         if (in_array($type, array('email', 'sms'))) {
             common_debug("Confirming {$type} address for user {$this->scoped->getID()}");
             if ($cur->$type == $confirm->address) {
@@ -114,14 +110,12 @@ class ConfirmaddressAction extends ManagedAction
             if ($type == 'email') {
                 $cur->emailChanged();
             }
-
         } else {
-
             $user_im_prefs = new User_im_prefs();
             $user_im_prefs->transport = $confirm->address_type;
             $user_im_prefs->user_id = $cur->id;
             if ($user_im_prefs->find() && $user_im_prefs->fetch()) {
-                if($user_im_prefs->screenname == $confirm->address){
+                if ($user_im_prefs->screenname === $confirm->address) {
                     // Already verified, so delete the confirm_address entry
                     $confirm->delete();
                     // TRANS: Client error for an already confirmed IM address.
@@ -135,7 +129,7 @@ class ConfirmaddressAction extends ManagedAction
                     // TRANS: Server error displayed when updating IM preferences fails.
                     throw new ServerException(_('Could not update user IM preferences.'));
                 }
-            }else{
+            } else {
                 $user_im_prefs = new User_im_prefs();
                 $user_im_prefs->screenname = $confirm->address;
                 $user_im_prefs->transport = $confirm->address_type;
@@ -149,7 +143,6 @@ class ConfirmaddressAction extends ManagedAction
                     throw new ServerException(_('Could not insert user IM preferences.'));
                 }
             }
-
         }
 
         $confirm->delete();
@@ -162,7 +155,7 @@ class ConfirmaddressAction extends ManagedAction
      *
      * @return string title
      */
-    function title()
+    public function title()
     {
         // TRANS: Title for the contact address confirmation action.
         return _('Confirm address');
@@ -173,13 +166,17 @@ class ConfirmaddressAction extends ManagedAction
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
-        $this->element('p', null,
-                       // TRANS: Success message for the contact address confirmation action.
-                       // TRANS: %s can be 'email', 'jabber', or 'sms'.
-                       sprintf(_('The address "%s" has been '.
-                                 'confirmed for your account.'),
-                               $this->address));
+        $this->element(
+            'p',
+            null,
+            // TRANS: Success message for the contact address confirmation action.
+            // TRANS: %s can be 'email', 'jabber', or 'sms'.
+            sprintf(
+                _('The address "%s" has been confirmed for your account.'),
+                $this->address
+            )
+        );
     }
 }
