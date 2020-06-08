@@ -362,7 +362,8 @@ function initNoticeReshare()
 
     $notice = new Notice();
     $notice->whereAdd('repeat_of is not null');
-    $notice->whereAdd('(verb != "'.ActivityVerb::SHARE.'" OR object_type != "'.ActivityObject::ACTIVITY.'")');
+    $notice->whereAdd('(verb <> "' . ActivityVerb::SHARE
+                      . '" OR object_type <> "' . ActivityObject::ACTIVITY . '")');
 
     if ($notice->find()) {
         while ($notice->fetch()) {
@@ -580,7 +581,7 @@ function deleteMissingLocalFileThumbnails()
     printfnq("Removing all local File_thumbnail entries without existing files...");
 
     $thumbs = new File_thumbnail();
-    $thumbs->whereAdd("filename IS NOT NULL AND filename != ''");
+    $thumbs->whereAdd("filename IS NOT NULL AND filename <> ''");
     // Checking if there were any File_thumbnail entries without filename
     if ($thumbs->find()) {
         while ($thumbs->fetch()) {
@@ -603,7 +604,7 @@ function setFilehashOnLocalFiles()
     printfnq('Ensuring all local files have the filehash field set...');
 
     $file = new File();
-    $file->whereAdd("filename IS NOT NULL AND filename != ''"); // local files
+    $file->whereAdd("filename IS NOT NULL AND filename <> ''"); // local files
     $file->whereAdd('filehash IS NULL', 'AND');     // without filehash value
 
     if ($file->find()) {

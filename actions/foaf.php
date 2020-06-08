@@ -1,23 +1,25 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 define('LISTENER', 1);
 define('LISTENEE', -1);
@@ -26,7 +28,7 @@ define('BOTH', 0);
 // @todo XXX: Documentation missing.
 class FoafAction extends ManagedAction
 {
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }
@@ -45,9 +47,13 @@ class FoafAction extends ManagedAction
         // Permanent redirect on non-canonical nickname
 
         if ($nickname_arg != $this->nickname) {
-            common_redirect(common_local_url('foaf',
-                                             array('nickname' => $this->nickname)),
-                            301);
+            common_redirect(
+                common_local_url(
+                    'foaf',
+                    ['nickname' => $this->nickname]
+                ),
+                301
+            );
         }
 
         $this->user = User::getKV('nickname', $this->nickname);
@@ -152,22 +158,27 @@ class FoafAction extends ManagedAction
             // No avatar for this user!
         }
 
-        $person = $this->showMicrobloggingAccount($this->profile,
-                                     common_root_url(), $this->user->getUri(),
-                                     /*$fetchSubscriptions*/true,
-                                     /*$isSubscriber*/false);
+        $person = $this->showMicrobloggingAccount(
+            $this->profile,
+            common_root_url(),
+            $this->user->getUri(),
+            // $fetchSubscriptions
+            true,
+            // $isSubscriber
+            false
+        );
 
         // Get people who subscribe to user
 
         $sub = new Subscription();
         $sub->subscribed = $this->profile->id;
-        $sub->whereAdd('subscriber != subscribed');
+        $sub->whereAdd('subscriber <> subscribed');
 
         if ($sub->find()) {
             while ($sub->fetch()) {
                 $profile = Profile::getKV('id', $sub->subscriber);
                 if (!$profile instanceof Profile) {
-                    common_debug('Got a bad subscription: '.print_r($sub,true));
+                    common_debug('Got a bad subscription: ' . print_r($sub, true));
                     continue;
                 }
                 $other_uri = $profile->getUri();
@@ -206,11 +217,15 @@ class FoafAction extends ManagedAction
             if ($type == BOTH) {
                 $this->element('knows', array('rdf:resource' => $this->user->getUri()));
             }
-            $this->showMicrobloggingAccount($profile,
-                                   ($local == 'local') ? common_root_url() : null,
-                                   $uri,
-                                   /*$fetchSubscriptions*/false,
-                                   /*$isSubscriber*/($type == LISTENER || $type == BOTH));
+            $this->showMicrobloggingAccount(
+                $profile,
+                ($local === 'local') ? common_root_url() : null,
+                $uri,
+                // $fetchSubscriptions
+                false,
+                // $isSubscriber
+                ($type == LISTENER || $type == BOTH)
+            );
             if ($foaf_url) {
                 $this->element('rdfs:seeAlso', array('rdf:resource' => $foaf_url));
             }
@@ -227,7 +242,7 @@ class FoafAction extends ManagedAction
         $this->endXML();
     }
 
-    function showPpd($foaf_url, $person_uri)
+    public function showPpd($foaf_url, $person_uri)
     {
         $this->elementStart('PersonalProfileDocument', array('rdf:about' => $foaf_url));
         $this->element('maker', array('rdf:resource' => $person_uri));
@@ -248,7 +263,7 @@ class FoafAction extends ManagedAction
      * @return array if $fetchSubscribers is set, return a list of info on those
      *               subscriptions.
      */
-    function showMicrobloggingAccount($profile, $service=null, $useruri=null, $fetchSubscriptions=false, $isSubscriber=false)
+    public function showMicrobloggingAccount($profile, $service = null, $useruri = null, $fetchSubscriptions = false, $isSubscriber = false)
     {
         $attr = array();
         if ($useruri) {
@@ -274,13 +289,13 @@ class FoafAction extends ManagedAction
             // Get people user is subscribed to
             $sub = new Subscription();
             $sub->subscriber = $profile->id;
-            $sub->whereAdd('subscriber != subscribed');
+            $sub->whereAdd('subscriber <> subscribed');
 
             if ($sub->find()) {
                 while ($sub->fetch()) {
                     $profile = Profile::getKV('id', $sub->subscribed);
                     if (empty($profile)) {
-                        common_debug('Got a bad subscription: '.print_r($sub,true));
+                        common_debug('Got a bad subscription: ' . print_r($sub, true));
                         continue;
                     }
                     $other_uri = $profile->getUri();
@@ -294,7 +309,7 @@ class FoafAction extends ManagedAction
             }
 
             unset($sub);
-        } else if ($isSubscriber) {
+        } elseif ($isSubscriber) {
             // Just declare that they follow the user whose FOAF we're showing.
             $this->element('sioc:follows', array('rdf:resource' => $this->user->getUri() . '#acct'));
         }

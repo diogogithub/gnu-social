@@ -1,19 +1,33 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 class RawBookmarksNoticeStream extends NoticeStream
 {
     protected $user_id;
     protected $own;
 
-    function __construct($user_id, $own)
+    public function __construct($user_id, $own)
     {
         $this->user_id = $user_id;
         $this->own     = $own;
     }
 
-    function getNoticeIds($offset, $limit, $since_id, $max_id)
+    public function getNoticeIds($offset, $limit, $since_id, $max_id)
     {
         $notice = new Notice();
         $qry = null;
@@ -21,7 +35,7 @@ class RawBookmarksNoticeStream extends NoticeStream
         $qry =  'SELECT notice.* FROM notice ';
         $qry .= 'INNER JOIN bookmark ON bookmark.uri = notice.uri ';
         $qry .= 'WHERE bookmark.profile_id = ' . $this->user_id . ' ';
-        $qry .= 'AND notice.is_local != ' . Notice::GATEWAY . ' ';
+        $qry .= 'AND notice.is_local <> ' . Notice::GATEWAY . ' ';
 
         if ($since_id != 0) {
             $qry .= 'AND notice.id > ' . $since_id . ' ';
@@ -62,7 +76,7 @@ class RawBookmarksNoticeStream extends NoticeStream
 
 class BookmarksNoticeStream extends ScopingNoticeStream
 {
-    function __construct($user_id, $own, Profile $scoped=null)
+    public function __construct($user_id, $own, Profile $scoped = null)
     {
         $stream = new RawBookmarksNoticeStream($user_id, $own);
 

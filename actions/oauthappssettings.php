@@ -1,42 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * List the OAuth applications that a user has registered with this instance
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2008-2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Show a user's registered OAuth applications
  *
- * @category Settings
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Settings
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
  * @see      SettingsAction
  */
@@ -56,7 +52,7 @@ class OauthappssettingsAction extends SettingsAction
      * @return string Title of the page
      */
 
-    function title()
+    public function title()
     {
         // TRANS: Page title for OAuth applications
         return _('OAuth applications');
@@ -68,20 +64,20 @@ class OauthappssettingsAction extends SettingsAction
      * @return instructions for use
      */
 
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Page instructions for OAuth applications
         return _('Applications you have registered');
     }
 
-    function showContent()
+    public function showContent()
     {
         $offset = ($this->page - 1) * APPS_PER_PAGE;
         $limit  =  APPS_PER_PAGE + 1;
 
         $application = new Oauth_application();
         $application->owner = $this->scoped->getID();
-        $application->whereAdd("name != 'anonymous'");
+        $application->whereAdd("name <> 'anonymous'");
         $application->limit($offset, $limit);
         $application->orderBy('created DESC');
         $application->find();
@@ -96,13 +92,16 @@ class OauthappssettingsAction extends SettingsAction
             }
         }
 
-        $this->elementStart('p', array('id' => 'application_register'));
-        $this->element('a',
-            array('href' => common_local_url('newapplication'),
-                  'class' => 'more'
-            ),
+        $this->elementStart('p', ['id' => 'application_register']);
+        $this->element(
+            'a',
+            [
+                'href'  => common_local_url('newapplication'),
+                'class' => 'more',
+            ],
             // TRANS: Link description to add a new OAuth application.
-            'Register a new application');
+            'Register a new application'
+        );
         $this->elementEnd('p');
 
         $this->pagination(
@@ -113,7 +112,7 @@ class OauthappssettingsAction extends SettingsAction
         );
     }
 
-    function showEmptyListMessage()
+    public function showEmptyListMessage()
     {
         // TRANS: Empty list message on page with OAuth applications. Markup allowed
         $message = sprintf(_('You have not registered any applications yet.'));

@@ -1,32 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Plugin for sending and importing Twitter statuses
  *
  * @category  Plugin
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @author    Julien C <chaumond@gmail.com>
- * @copyright 2009-2010 Control Yourself, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2009-2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 require_once __DIR__ . '/twitter.php';
 
@@ -37,13 +36,11 @@ require_once __DIR__ . '/twitter.php';
  *
  * Depends on Favorite plugin.
  *
- * @category Plugin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @author   Julien C <chaumond@gmail.com>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
- * @link     http://twitter.com/
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @author    Julien C <chaumond@gmail.com>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class TwitterBridgePlugin extends Plugin
 {
@@ -53,7 +50,7 @@ class TwitterBridgePlugin extends Plugin
     /**
      * Initializer for the plugin.
      */
-    function initialize()
+    public function initialize()
     {
         // Allow the key and secret to be passed in
         // Control panel will override
@@ -83,7 +80,7 @@ class TwitterBridgePlugin extends Plugin
      *
      * @return boolean result
      */
-    static function hasKeys()
+    public static function hasKeys()
     {
         $ckey    = common_config('twitter', 'consumer_key');
         $csecret = common_config('twitter', 'consumer_secret');
@@ -114,14 +111,20 @@ class TwitterBridgePlugin extends Plugin
         $m->connect('panel/twitter', ['action' => 'twitteradminpanel']);
 
         if (self::hasKeys()) {
-            $m->connect('twitter/authorization',
-                        ['action' => 'twitterauthorization']);
-            $m->connect('settings/twitter',
-                        ['action' => 'twittersettings']);
+            $m->connect(
+                'twitter/authorization',
+                ['action' => 'twitterauthorization']
+            );
+            $m->connect(
+                'settings/twitter',
+                ['action' => 'twittersettings']
+            );
 
             if (common_config('twitter', 'signin')) {
-                $m->connect('main/twitterlogin',
-                            ['action' => 'twitterlogin']);
+                $m->connect(
+                    'main/twitterlogin',
+                    ['action' => 'twitterlogin']
+                );
             }
         }
 
@@ -135,7 +138,7 @@ class TwitterBridgePlugin extends Plugin
      *
      * @return void
      */
-    function onEndLoginGroupNav($action)
+    public function onEndLoginGroupNav($action)
     {
         $action_name = $action->trimmed('action');
 
@@ -143,7 +146,7 @@ class TwitterBridgePlugin extends Plugin
             $action->menuItem(
                 common_local_url('twitterlogin'),
                 // TRANS: Menu item in login navigation.
-                _m('MENU','Twitter'),
+                _m('MENU', 'Twitter'),
                 // TRANS: Title for menu item in login navigation.
                 _m('Login or register using Twitter.'),
                 'twitterlogin' === $action_name
@@ -160,7 +163,7 @@ class TwitterBridgePlugin extends Plugin
      *
      * @return boolean hook return
      */
-    function onEndConnectSettingsNav($action)
+    public function onEndConnectSettingsNav($action)
     {
         if (self::hasKeys()) {
             $action_name = $action->trimmed('action');
@@ -168,7 +171,7 @@ class TwitterBridgePlugin extends Plugin
             $action->menuItem(
                 common_local_url('twittersettings'),
                 // TRANS: Menu item in connection settings navigation.
-                _m('MENU','Twitter'),
+                _m('MENU', 'Twitter'),
                 // TRANS: Title for menu item in connection settings navigation.
                 _m('Twitter integration options'),
                 $action_name === 'twittersettings'
@@ -185,7 +188,7 @@ class TwitterBridgePlugin extends Plugin
      *
      * @return boolean hook return
      */
-    function onStartEnqueueNotice($notice, &$transports)
+    public function onStartEnqueueNotice($notice, &$transports)
     {
         if (self::hasKeys() && $notice->isLocal() && $notice->inScope(null)) {
             // Avoid a possible loop
@@ -203,7 +206,7 @@ class TwitterBridgePlugin extends Plugin
      *
      * @return boolean hook return
      */
-    function onGetValidDaemons(&$daemons)
+    public function onGetValidDaemons(&$daemons)
     {
         if (self::hasKeys()) {
             array_push(
@@ -216,7 +219,7 @@ class TwitterBridgePlugin extends Plugin
                     $daemons,
                     INSTALLDIR
                     . '/plugins/TwitterBridge/daemons/twitterstatusfetcher.php'
-                    );
+                );
             }
         }
 
@@ -230,7 +233,7 @@ class TwitterBridgePlugin extends Plugin
      *
      * @return boolean hook return
      */
-    function onEndInitializeQueueManager($manager)
+    public function onEndInitializeQueueManager($manager)
     {
         if (self::hasKeys()) {
             // Outgoing notices -> twitter
@@ -245,7 +248,7 @@ class TwitterBridgePlugin extends Plugin
     /**
      * If the plugin's installed, this should be accessible to admins
      */
-    function onAdminPanelCheck($name, &$isOK)
+    public function onAdminPanelCheck($name, &$isOK)
     {
         if ($name == 'twitter') {
             $isOK = true;
@@ -262,10 +265,9 @@ class TwitterBridgePlugin extends Plugin
      * @return boolean hook value
      */
 
-    function onEndAdminPanelNav($nav)
+    public function onEndAdminPanelNav($nav)
     {
         if (AdminPanelAction::canAdmin('twitter')) {
-
             $action_name = $nav->action->trimmed('action');
 
             $nav->out->menuItem(
@@ -297,7 +299,8 @@ class TwitterBridgePlugin extends Plugin
             'author' => 'Zach Copley, Julien C, Jean Baptiste Favre',
             'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/TwitterBridge',
             // TRANS: Plugin description.
-            'rawdescription' => _m('The Twitter "bridge" plugin allows integration ' .
+            'rawdescription' => _m(
+                'The Twitter "bridge" plugin allows integration ' .
                 'of a StatusNet instance with ' .
                 '<a href="http://twitter.com/">Twitter</a>.'
             )
@@ -312,7 +315,7 @@ class TwitterBridgePlugin extends Plugin
      *
      * @return boolean hook value;
      */
-    function onTwitterBridgeAdminImportControl()
+    public function onTwitterBridgeAdminImportControl()
     {
         return (bool)$this->adminImportControl;
     }
@@ -327,7 +330,7 @@ class TwitterBridgePlugin extends Plugin
      *
      * @return boolean hook value; true means continue processing, false means stop.
      */
-    function onCheckSchema()
+    public function onCheckSchema()
     {
         $schema = Schema::get();
 
@@ -350,12 +353,11 @@ class TwitterBridgePlugin extends Plugin
      *
      * @return boolean hook value
      */
-    function onStartDeleteOwnNotice(User $user, Notice $notice)
+    public function onStartDeleteOwnNotice(User $user, Notice $notice)
     {
         $n2s = Notice_to_status::getKV('notice_id', $notice->id);
 
         if ($n2s instanceof Notice_to_status) {
-
             try {
                 $flink = Foreign_link::getByUserID($notice->profile_id, TWITTER_SERVICE); // twitter service
             } catch (NoResultException $e) {
@@ -388,7 +390,7 @@ class TwitterBridgePlugin extends Plugin
      * @param Notice $notice being favored
      * @return hook return value
      */
-    function onEndFavorNotice(Profile $profile, Notice $notice)
+    public function onEndFavorNotice(Profile $profile, Notice $notice)
     {
         try {
             $flink = Foreign_link::getByUserID($profile->getID(), TWITTER_SERVICE); // twitter service
@@ -427,7 +429,7 @@ class TwitterBridgePlugin extends Plugin
      *
      * @return hook return value
      */
-    function onEndDisfavorNotice(Profile $profile, Notice $notice)
+    public function onEndDisfavorNotice(Profile $profile, Notice $notice)
     {
         try {
             $flink = Foreign_link::getByUserID($profile->getID(), TWITTER_SERVICE); // twitter service
@@ -458,7 +460,7 @@ class TwitterBridgePlugin extends Plugin
         return true;
     }
 
-    function onStartGetProfileUri($profile, &$uri)
+    public function onStartGetProfileUri($profile, &$uri)
     {
         if (preg_match('!^https?://twitter.com/!', $profile->profileurl)) {
             $uri = $profile->profileurl;
@@ -476,7 +478,7 @@ class TwitterBridgePlugin extends Plugin
      * @return boolean hook value (true)
      */
 
-    function onOtherAccountProfiles($profile, &$links)
+    public function onOtherAccountProfiles($profile, &$links)
     {
         $fuser = null;
 
@@ -496,7 +498,8 @@ class TwitterBridgePlugin extends Plugin
 
     public function onEndShowHeadElements(Action $action)
     {
-        if($action instanceof ShowNoticeAction) { // Showing a notice
+        // Showing a notice
+        if ($action instanceof ShowNoticeAction) {
             $notice = Notice::getKV('id', $action->arg('notice'));
 
             try {
@@ -507,7 +510,7 @@ class TwitterBridgePlugin extends Plugin
             }
 
             $statusId = twitter_status_id($notice);
-            if($notice instanceof Notice && $notice->isLocal() && $statusId) {
+            if ($notice instanceof Notice && $notice->isLocal() && $statusId) {
                 $tweetUrl = 'https://twitter.com/' . $fuser->nickname . '/status/' . $statusId;
                 $action->element('link', array('rel' => 'syndication', 'href' => $tweetUrl));
             }
@@ -529,24 +532,48 @@ class TwitterBridgePlugin extends Plugin
             case 'image/jpg':
             case 'image/png':
             case 'image/gif':
-                $action->element('meta', array('name'    => 'twitter:card',
-                                             'content' => 'photo'),
-                                       null);
-                $action->element('meta', array('name'    => 'twitter:url',
-                                             'content' => common_local_url('attachment',
-                                                              array('attachment' => $action->attachment->id))),
-                                       null );
-                $action->element('meta', array('name'    => 'twitter:image',
-                                             'content' => $action->attachment->url));
-                $action->element('meta', array('name'    => 'twitter:title',
-                                             'content' => $action->attachment->title));
+                $action->element(
+                    'meta',
+                    [
+                        'name'    => 'twitter:card',
+                        'content' => 'photo',
+                    ],
+                    null
+                );
+                $action->element(
+                    'meta',
+                    [
+                        'name'    => 'twitter:url',
+                        'content' => common_local_url(
+                            'attachment',
+                            ['attachment' => $action->attachment->id]
+                        )
+                    ],
+                    null
+                );
+                $action->element(
+                    'meta',
+                    [
+                        'name'    => 'twitter:image',
+                        'content' => $action->attachment->url,
+                    ]
+                );
+                $action->element(
+                    'meta',
+                    [
+                        'name'    => 'twitter:title',
+                        'content' => $action->attachment->title,
+                    ]
+                );
 
                 $ns = new AttachmentNoticeSection($action);
                 $notices = $ns->getNotices();
                 $noticeArray = $notices->fetchAll();
 
                 // Should not have more than 1 notice for this attachment.
-                if( count($noticeArray) != 1 ) { break; }
+                if (count($noticeArray) != 1) {
+                    break;
+                }
                 $post = $noticeArray[0];
 
                 try {
@@ -572,20 +599,20 @@ class TwitterBridgePlugin extends Plugin
      */
     public function onEndUpgrade()
     {
-    	printfnq("Ensuring all Twitter notices have an object_type...");
-    	
-    	$notice = new Notice();
-    	$notice->whereAdd("source='twitter'");
-    	$notice->whereAdd('object_type IS NULL');
-    	
-    	if ($notice->find()) {
-    		while ($notice->fetch()) {
-    			$orig = Notice::getKV('id', $notice->id);
-    			$notice->object_type = ActivityObject::NOTE;
-    			$notice->update($orig);
-    		}
-    	}
-    	
-    	printfnq("DONE.\n");
+        printfnq('Ensuring all Twitter notices have an object_type...');
+
+        $notice = new Notice();
+        $notice->whereAdd("source = 'twitter'");
+        $notice->whereAdd('object_type IS NULL');
+
+        if ($notice->find()) {
+            while ($notice->fetch()) {
+                $orig = Notice::getKV('id', $notice->id);
+                $notice->object_type = ActivityObject::NOTE;
+                $notice->update($orig);
+            }
+        }
+
+        printfnq("DONE.\n");
     }
 }
