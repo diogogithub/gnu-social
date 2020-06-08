@@ -45,7 +45,6 @@ use App\Core\DB\DefaultSettings;
 use App\Core\I18n\I18nHelper;
 use App\Core\Router\Router;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -57,7 +56,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GNUsocial implements EventSubscriberInterface
 {
-    protected ContainerInterface     $container;
     protected LoggerInterface        $logger;
     protected TranslatorInterface    $translator;
     protected EntityManagerInterface $entity_manager;
@@ -66,13 +64,11 @@ class GNUsocial implements EventSubscriberInterface
     /**
      * Symfony dependency injection gives us access to these services
      */
-    public function __construct(ContainerInterface $container,
-                                LoggerInterface $logger,
+    public function __construct(LoggerInterface $logger,
                                 TranslatorInterface $translator,
                                 EntityManagerInterface $em,
                                 RouterInterface $router)
     {
-        $this->container      = $container;
         $this->logger         = $logger;
         $this->translator     = $translator;
         $this->entity_manager = $em;
