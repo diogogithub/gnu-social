@@ -262,7 +262,7 @@ class TwitterImport
         }
 
         $profile = new Profile();
-        $profile->query("BEGIN");
+        $profile->query('START TRANSACTION');
         $profile->nickname   = $twuser->screen_name;
         $profile->fullname   = $twuser->name;
         $profile->homepage   = $twuser->url;

@@ -639,7 +639,7 @@ class User_group extends Managed_DataObject
         $group->mainpage    = $profile->profileurl;
         $group->created     = $profile->created;
 
-        $profile->query('BEGIN');
+        $profile->query('START TRANSACTION');
         $id = $profile->insert();
         if ($id === false) {
             $profile->query('ROLLBACK');

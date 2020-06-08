@@ -1,49 +1,45 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Register a new OAuth Application
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Applications
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2008-2011 StatusNet, Inc.
- * @copyright 2013 Free Software Foundation, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2013 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Add a new application
  *
  * This is the form for adding a new application
  *
- * @category Application
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Application
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class NewApplicationAction extends SettingsAction
 {
-    function title()
+    public function title()
     {
         // TRANS: This is the title of the form for adding a new application.
         return _('New application');
@@ -87,7 +83,7 @@ class NewApplicationAction extends SettingsAction
         if (empty($name)) {
             // TRANS: Validation error shown when not providing a name in the "New application" form.
             $this->clientError(_('Name is required.'));
-        } else if ($this->nameExists($name)) {
+        } elseif ($this->nameExists($name)) {
             // TRANS: Validation error shown when providing a name for an application that already exists in the "New application" form.
             $this->clientError(_('Name already in use. Try another one.'));
         } elseif (mb_strlen($name) > 255) {
@@ -103,7 +99,8 @@ class NewApplicationAction extends SettingsAction
                 _m('Description is too long (maximum %d character).',
                    'Description is too long (maximum %d characters).',
                    Oauth_application::maxDesc()),
-                Oauth_application::maxDesc()));
+                Oauth_application::maxDesc()
+            ));
         } elseif (empty($source_url)) {
             // TRANS: Validation error shown when not providing a source URL in the "New application" form.
             $this->clientError(_('Source URL is required.'));
@@ -135,7 +132,7 @@ class NewApplicationAction extends SettingsAction
 
         $app = new Oauth_application();
 
-        $app->query('BEGIN');
+        $app->query('START TRANSACTION');
 
         $app->name         = $name;
         $app->owner        = $this->scoped->getID();
@@ -205,7 +202,7 @@ class NewApplicationAction extends SettingsAction
      *
      * @return boolean true if the name already exists
      */
-    function nameExists($name)
+    public function nameExists($name)
     {
         $app = Oauth_application::getKV('name', $name);
         return !empty($app);

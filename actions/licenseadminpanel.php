@@ -1,44 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * License administration panel
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * License settings
  *
- * @category Admin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Admin
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class LicenseadminpanelAction extends AdminPanelAction
 {
@@ -48,7 +42,7 @@ class LicenseadminpanelAction extends AdminPanelAction
      * @return string page title
      */
 
-    function title()
+    public function title()
     {
         // TRANS: User admin panel title
         return _m('TITLE', 'License');
@@ -59,7 +53,7 @@ class LicenseadminpanelAction extends AdminPanelAction
      *
      * @return string instructions
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Form instructions for the site license admin panel.
         return _('License for this StatusNet site');
@@ -70,7 +64,7 @@ class LicenseadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function showForm()
+    public function showForm()
     {
         $form = new LicenseAdminPanelForm($this);
         $form->show();
@@ -82,7 +76,7 @@ class LicenseadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function saveSettings()
+    public function saveSettings()
     {
         static $settings = array(
             'license' => array('type', 'owner', 'url', 'title', 'image')
@@ -104,7 +98,7 @@ class LicenseadminpanelAction extends AdminPanelAction
 
         $config = new Config();
 
-        $config->query('BEGIN');
+        $config->query('START TRANSACTION');
 
         foreach ($settings as $section => $parts) {
             foreach ($parts as $setting) {
@@ -124,7 +118,7 @@ class LicenseadminpanelAction extends AdminPanelAction
      *
      * @return nothing
      */
-    function validate(&$values)
+    public function validate(&$values)
     {
         // Validate license type (shouldn't have to do it, but just in case)
 
@@ -195,7 +189,7 @@ class LicenseAdminPanelForm extends AdminForm
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'licenseadminpanel';
     }
@@ -205,7 +199,7 @@ class LicenseAdminPanelForm extends AdminForm
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_settings';
     }
@@ -216,7 +210,7 @@ class LicenseAdminPanelForm extends AdminForm
      * @return string URL of the action
      */
 
-    function action()
+    public function action()
     {
         return common_local_url('licenseadminpanel');
     }
@@ -227,10 +221,11 @@ class LicenseAdminPanelForm extends AdminForm
      * @return void
      */
 
-    function formData()
+    public function formData()
     {
         $this->out->elementStart(
-            'fieldset', array('id' => 'settings_license-selection')
+            'fieldset',
+            ['id' => 'settings_license-selection']
         );
         // TRANS: Form legend in the license admin panel.
         $this->out->element('legend', null, _('License selection'));
@@ -307,7 +302,8 @@ class LicenseAdminPanelForm extends AdminForm
         $this->li();
         $this->input(
             // TRANS: Field label in the license admin panel.
-            'image', _('License Image URL'),
+            'image',
+            _('License Image URL'),
             // TRANS: Field title in the license admin panel.
             _('URL for an image to display with the license.'),
             'license'
@@ -323,12 +319,12 @@ class LicenseAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
         $this->out->submit(
             'submit',
             // TRANS: Button text in the license admin panel.
-            _m('BUTTON','Save'),
+            _m('BUTTON', 'Save'),
             'submit',
             null,
             // TRANS: Button title in the license admin panel.

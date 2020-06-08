@@ -275,7 +275,7 @@ class User extends Managed_DataObject
         $user->created = common_sql_now();
 
         if (Event::handle('StartUserRegister', array($profile))) {
-            $profile->query('BEGIN');
+            $profile->query('START TRANSACTION');
 
             $id = $profile->insert();
             if ($id === false) {
@@ -504,9 +504,7 @@ class User extends Managed_DataObject
 
         $block = new Profile_block();
 
-        // Begin a transaction
-
-        $block->query('BEGIN');
+        $block->query('START TRANSACTION');
 
         $block->blocker = $this->id;
         $block->blocked = $other->id;
@@ -842,7 +840,7 @@ class User extends Managed_DataObject
     {
         $qry =
           'SELECT u.* ' .
-          'FROM oauth_application_user u, oauth_application a ' .
+          'FROM oauth_application_user AS u, oauth_application AS a ' .
           'WHERE u.profile_id = %d ' .
           'AND a.id = u.application_id ' .
           'AND u.access_type > 0 ' .

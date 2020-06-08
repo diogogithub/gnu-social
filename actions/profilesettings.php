@@ -345,7 +345,7 @@ class ProfilesettingsAction extends SettingsAction
             }
 
             $user = $this->scoped->getUser();
-            $user->query('BEGIN');
+            $user->query('START TRANSACTION');
 
             // Only allow setting private_stream if site policy allows it
             // (or user already _has_ a private stream, then you can unset it)

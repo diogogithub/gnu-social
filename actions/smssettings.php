@@ -32,7 +32,7 @@ defined('GNUSOCIAL') || die();
  * @copyright 2008-2009 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      SettingsAction
+ * @see       SettingsAction
  */
 class SmssettingsAction extends SettingsAction
 {
@@ -279,7 +279,7 @@ class SmssettingsAction extends SettingsAction
     {
         $user = $this->scoped->getUser();
 
-        $user->query('BEGIN');
+        $user->query('START TRANSACTION');
 
         $original = clone($user);
 

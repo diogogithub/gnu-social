@@ -1,28 +1,34 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009-2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @package   GNUsocial
+ * @author    Brion Vibber <brion@status.net>
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @copyright 2009-2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
- * @package OStatusPlugin
- * @author Brion Vibber <brion@status.net>
- * @maintainer Mikael Nordfeldth <mmn@hethane.se>
+ * @package   OStatusPlugin
+ * @author    Brion Vibber <brion@status.net>
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class Ostatus_profile extends Managed_DataObject
 {
@@ -46,7 +52,7 @@ class Ostatus_profile extends Managed_DataObject
      *
      * @return array array of column definitions
      */
-    static function schemaDef()
+    public static function schemaDef()
     {
         return array(
             'fields' => array(
@@ -96,7 +102,7 @@ class Ostatus_profile extends Managed_DataObject
         return FeedSub::getByUri($this->feeduri);
     }
 
-    static function fromProfile(Profile $profile)
+    public static function fromProfile(Profile $profile)
     {
         $oprofile = Ostatus_profile::getKV('profile_id', $profile->getID());
         if (!$oprofile instanceof Ostatus_profile) {
@@ -156,11 +162,11 @@ class Ostatus_profile extends Managed_DataObject
      *
      * @return ActivityObject
      */
-    function asActivityObject()
+    public function asActivityObject()
     {
         if ($this->isGroup()) {
             return ActivityObject::fromGroup($this->localGroup());
-        } else if ($this->isPeopletag()) {
+        } elseif ($this->isPeopletag()) {
             return ActivityObject::fromPeopletag($this->localPeopletag());
         } else {
             return $this->localProfile()->asActivityObject();
@@ -178,12 +184,12 @@ class Ostatus_profile extends Managed_DataObject
      * @param string $element one of 'actor', 'subject', 'object', 'target'
      * @return string
      */
-    function asActivityNoun($element)
+    public function asActivityNoun($element)
     {
         if ($this->isGroup()) {
             $noun = ActivityObject::fromGroup($this->localGroup());
             return $noun->asString('activity:' . $element);
-        } else if ($this->isPeopletag()) {
+        } elseif ($this->isPeopletag()) {
             $noun = ActivityObject::fromPeopletag($this->localPeopletag());
             return $noun->asString('activity:' . $element);
         } else {
@@ -195,13 +201,13 @@ class Ostatus_profile extends Managed_DataObject
     /**
      * @return boolean true if this is a remote group
      */
-    function isGroup()
+    public function isGroup()
     {
         if ($this->profile_id || $this->peopletag_id && !$this->group_id) {
             return false;
-        } else if ($this->group_id && !$this->profile_id && !$this->peopletag_id) {
+        } elseif ($this->group_id && !$this->profile_id && !$this->peopletag_id) {
             return true;
-        } else if ($this->group_id && ($this->profile_id || $this->peopletag_id)) {
+        } elseif ($this->group_id && ($this->profile_id || $this->peopletag_id)) {
             // TRANS: Server exception. %s is a URI
             throw new ServerException(sprintf(_m('Invalid ostatus_profile state: Two or more IDs set for %s.'), $this->getUri()));
         } else {
@@ -218,13 +224,13 @@ class Ostatus_profile extends Managed_DataObject
     /**
      * @return boolean true if this is a remote peopletag
      */
-    function isPeopletag()
+    public function isPeopletag()
     {
         if ($this->profile_id || $this->group_id && !$this->peopletag_id) {
             return false;
-        } else if ($this->peopletag_id && !$this->profile_id && !$this->group_id) {
+        } elseif ($this->peopletag_id && !$this->profile_id && !$this->group_id) {
             return true;
-        } else if ($this->peopletag_id && ($this->profile_id || $this->group_id)) {
+        } elseif ($this->peopletag_id && ($this->profile_id || $this->group_id)) {
             // TRANS: Server exception. %s is a URI
             throw new ServerException(sprintf(_m('Invalid ostatus_profile state: Two or more IDs set for %s.'), $this->getUri()));
         } else {
@@ -260,7 +266,8 @@ class Ostatus_profile extends Managed_DataObject
      * @return boolean true if subscription is removed, false if there are still subscribers to the feed
      * @throws Exception of various kinds on failure.
      */
-    public function unsubscribe() {
+    public function unsubscribe()
+    {
         return $this->garbageCollect();
     }
 
@@ -296,7 +303,7 @@ class Ostatus_profile extends Managed_DataObject
         if ($this->isGroup()) {
             $members = $this->localGroup()->getMembers(0, 1);
             $count = $members->N;
-        } else if ($this->isPeopletag()) {
+        } elseif ($this->isPeopletag()) {
             $subscribers = $this->localPeopletag()->getSubscribers(0, 1);
             $count = $subscribers->N;
         } else {
@@ -334,10 +341,12 @@ class Ostatus_profile extends Managed_DataObject
             return false;
         }
         $text = 'update';
-        $id = TagURI::mint('%s:%s:%s',
-                           $verb,
-                           $actor->getURI(),
-                           common_date_iso8601(time()));
+        $id = TagURI::mint(
+            '%s:%s:%s',
+            $verb,
+            $actor->getURI(),
+            common_date_iso8601(time())
+        );
 
         // @todo FIXME: Consolidate all these NS settings somewhere.
         $attributes = array('xmlns' => Activity::ATOM,
@@ -421,9 +430,9 @@ class Ostatus_profile extends Managed_DataObject
         $preamble = '<?xml version="1.0" encoding="UTF-8" ?' . ">\n";
         if (is_string($entry)) {
             return $entry;
-        } else if ($entry instanceof Activity) {
+        } elseif ($entry instanceof Activity) {
             return $preamble . $entry->asString(true);
-        } else if ($entry instanceof Notice) {
+        } elseif ($entry instanceof Notice) {
             return $preamble . $entry->asAtomEntry(true, true);
         } else {
             // TRANS: Server exception.
@@ -431,11 +440,11 @@ class Ostatus_profile extends Managed_DataObject
         }
     }
 
-    function getBestName()
+    public function getBestName()
     {
         if ($this->isGroup()) {
             return $this->localGroup()->getBestName();
-        } else if ($this->isPeopletag()) {
+        } elseif ($this->isPeopletag()) {
             return $this->localPeopletag()->getBestName();
         } else {
             return $this->localProfile()->getBestName();
@@ -456,7 +465,8 @@ class Ostatus_profile extends Managed_DataObject
 
         if ($feed->localName == 'feed' && $feed->namespaceURI == Activity::ATOM) {
             $this->processAtomFeed($feed, $source);
-        } else if ($feed->localName == 'rss') { // @todo FIXME: Check namespace.
+        } elseif ($feed->localName == 'rss') {
+            // @todo FIXME: Check namespace.
             $this->processRssFeed($feed, $source);
         } else {
             // TRANS: Exception.
@@ -482,7 +492,7 @@ class Ostatus_profile extends Managed_DataObject
         if ($channels->length == 0) {
             // TRANS: Exception.
             throw new Exception(_m('RSS feed without a channel.'));
-        } else if ($channels->length > 1) {
+        } elseif ($channels->length > 1) {
             common_log(LOG_WARNING, __METHOD__ . ": more than one channel in an RSS feed");
         }
 
@@ -532,7 +542,6 @@ class Ostatus_profile extends Managed_DataObject
 
         if (Event::handle('StartHandleFeedEntryWithProfile', array($activity, $this->localProfile(), &$notice)) &&
             Event::handle('StartHandleFeedEntry', array($activity))) {
-
             common_log(LOG_INFO, "Ignoring activity with unrecognized verb $activity->verb");
 
             Event::handle('EndHandleFeedEntry', array($activity));
@@ -569,7 +578,7 @@ class Ostatus_profile extends Managed_DataObject
      * @param array in/out &$attention_uris set of URIs, will be pruned on output
      * @return array of group IDs
      */
-    static public function filterAttention(Profile $sender, array $attention)
+    public static function filterAttention(Profile $sender, array $attention)
     {
         common_log(LOG_DEBUG, "Original reply recipients: " . implode(', ', array_keys($attention)));
         $groups = array();
@@ -617,7 +626,6 @@ class Ostatus_profile extends Managed_DataObject
                 // Neither a recognizable local nor remote user!
                 common_log(LOG_DEBUG, "Skipping reply to unrecognized profile $recipient: " . $e->getMessage());
             }
-
         }
         common_log(LOG_DEBUG, "Local reply recipients: " . implode(', ', $replies));
         common_log(LOG_DEBUG, "Local group recipients: " . implode(', ', $groups));
@@ -653,7 +661,7 @@ class Ostatus_profile extends Managed_DataObject
 
         if (!$response->isOk()) {
             // TRANS: Exception. %s is a profile URL.
-            throw new Exception(sprintf(_m('Could not reach profile page %s.'),$profile_url));
+            throw new Exception(sprintf(_m('Could not reach profile page %s.'), $profile_url));
         }
 
         // Check if we have a non-canonical URL
@@ -661,7 +669,6 @@ class Ostatus_profile extends Managed_DataObject
         $finalUrl = $response->getEffectiveUrl();
 
         if ($finalUrl != $profile_url) {
-
             $hints['profileurl'] = $finalUrl;
 
             $oprofile = self::getFromProfileURL($finalUrl);
@@ -673,8 +680,13 @@ class Ostatus_profile extends Managed_DataObject
 
         if (in_array(
             preg_replace('/\s*;.*$/', '', $response->getHeader('Content-Type')),
-            array('application/rss+xml', 'application/atom+xml', 'application/xml', 'text/xml'))
-        ) {
+            [
+                'application/rss+xml',
+                'application/atom+xml',
+                'application/xml',
+                'text/xml',
+            ]
+        )) {
             $hints['feedurl'] = $response->getEffectiveUrl();
         } else {
             // Try to get some hCard data
@@ -718,7 +730,7 @@ class Ostatus_profile extends Managed_DataObject
         }
 
         // TRANS: Exception. %s is a URL.
-        throw new Exception(sprintf(_m('Could not find a feed URL for profile page %s.'),$finalUrl));
+        throw new Exception(sprintf(_m('Could not find a feed URL for profile page %s.'), $finalUrl));
     }
 
     /**
@@ -729,7 +741,7 @@ class Ostatus_profile extends Managed_DataObject
      * @return mixed Ostatus_profile or null
      * @throws OStatusShadowException for local profiles
      */
-    static function getFromProfileURL($profile_url)
+    public static function getFromProfileURL($profile_url)
     {
         $profile = Profile::getKV('profileurl', $profile_url);
         if (!$profile instanceof Profile) {
@@ -756,7 +768,7 @@ class Ostatus_profile extends Managed_DataObject
         return null;
     }
 
-    static function getFromProfile(Profile $profile)
+    public static function getFromProfile(Profile $profile)
     {
         $oprofile = new Ostatus_profile();
         $oprofile->profile_id = $profile->id;
@@ -804,7 +816,7 @@ class Ostatus_profile extends Managed_DataObject
 
         if ($feedEl->tagName == 'feed') {
             return self::ensureAtomFeed($feedEl, $hints);
-        } else if ($feedEl->tagName == 'channel') {
+        } elseif ($feedEl->tagName == 'channel') {
             return self::ensureRssChannel($feedEl, $hints);
         } else {
             throw new FeedSubBadXmlException($feeduri);
@@ -877,7 +889,9 @@ class Ostatus_profile extends Managed_DataObject
         // with different <author> or <dc:creator> elements, and... I dunno.
         // Do something about that.
 
-        if(empty($obj)) { $obj = ActivityObject::fromRssChannel($feedEl); }
+        if (empty($obj)) {
+            $obj = ActivityObject::fromRssChannel($feedEl);
+        }
 
         return self::ensureActivityObjectProfile($obj, $hints);
     }
@@ -927,10 +941,12 @@ class Ostatus_profile extends Managed_DataObject
                 $id = $this->profile_id;
             }
             $imagefile = new ImageFile(null, $temp_filename);
-            $filename = Avatar::filename($id,
-                                         image_type_to_extension($imagefile->type),
-                                         null,
-                                         common_timestamp());
+            $filename = Avatar::filename(
+                $id,
+                image_type_to_extension($imagefile->type),
+                null,
+                common_timestamp()
+            );
             rename($temp_filename, Avatar::path($filename));
         } catch (Exception $e) {
             unlink($temp_filename);
@@ -960,7 +976,7 @@ class Ostatus_profile extends Managed_DataObject
      * @param array $hints
      * @return mixed URL string or false
      */
-    public static function getActivityObjectAvatar(ActivityObject $object, array $hints=array())
+    public static function getActivityObjectAvatar(ActivityObject $object, array $hints = [])
     {
         if ($object->avatarLinks) {
             $best = false;
@@ -976,7 +992,7 @@ class Ostatus_profile extends Managed_DataObject
                 }
             }
             return $best->url;
-        } else if (array_key_exists('avatar', $hints)) {
+        } elseif (array_key_exists('avatar', $hints)) {
             return $hints['avatar'];
         }
         return false;
@@ -1241,9 +1257,9 @@ class Ostatus_profile extends Managed_DataObject
                     throw new ServerException(_m('Cannot save local profile.'));
                 }
             }
-        } else if ($object->type == ActivityObject::GROUP) {
+        } elseif ($object->type == ActivityObject::GROUP) {
             $profile = new Profile();
-            $profile->query('BEGIN');
+            $profile->query('START TRANSACTION');
 
             $group = new User_group();
             $group->uri = $homeuri;
@@ -1282,7 +1298,7 @@ class Ostatus_profile extends Managed_DataObject
             }
 
             $profile->query('COMMIT');
-        } else if ($object->type == ActivityObject::_LIST) {
+        } elseif ($object->type == ActivityObject::_LIST) {
             $ptag = new Profile_list();
             $ptag->uri = $homeuri;
             $ptag->created = common_sql_now();
@@ -1337,7 +1353,7 @@ class Ostatus_profile extends Managed_DataObject
         if ($this->isGroup()) {
             $group = $this->localGroup();
             self::updateGroup($group, $object, $hints);
-        } else if ($this->isPeopletag()) {
+        } elseif ($this->isPeopletag()) {
             $ptag = $this->localPeopletag();
             self::updatePeopletag($ptag, $object, $hints);
         } else {
@@ -1373,15 +1389,15 @@ class Ostatus_profile extends Managed_DataObject
 
         if (!empty($object->title)) {
             $profile->fullname = $object->title;
-        } else if (array_key_exists('fullname', $hints)) {
+        } elseif (array_key_exists('fullname', $hints)) {
             $profile->fullname = $hints['fullname'];
         }
 
         if (!empty($object->link)) {
             $profile->profileurl = $object->link;
-        } else if (array_key_exists('profileurl', $hints)) {
+        } elseif (array_key_exists('profileurl', $hints)) {
             $profile->profileurl = $hints['profileurl'];
-        } else if (common_valid_http_url($object->id)) {
+        } elseif (common_valid_http_url($object->id)) {
             $profile->profileurl = $object->id;
         }
 
@@ -1430,7 +1446,7 @@ class Ostatus_profile extends Managed_DataObject
 
         if (!empty($object->link)) {
             $group->mainpage = $object->link;
-        } else if (array_key_exists('profileurl', $hints)) {
+        } elseif (array_key_exists('profileurl', $hints)) {
             $group->mainpage = $hints['profileurl'];
         }
 
@@ -1446,14 +1462,15 @@ class Ostatus_profile extends Managed_DataObject
         }
     }
 
-    protected static function updatePeopletag($tag, ActivityObject $object, array $hints=array()) {
+    protected static function updatePeopletag($tag, ActivityObject $object, array $hints=array())
+    {
         $orig = clone($tag);
 
         $tag->tag = $object->title;
 
         if (!empty($object->link)) {
             $tag->mainpage = $object->link;
-        } else if (array_key_exists('profileurl', $hints)) {
+        } elseif (array_key_exists('profileurl', $hints)) {
             $tag->mainpage = $hints['profileurl'];
         }
 
@@ -1492,7 +1509,7 @@ class Ostatus_profile extends Managed_DataObject
         if (!empty($object->poco) &&
             isset($object->poco->address->formatted)) {
             $location = $object->poco->address->formatted;
-        } else if (array_key_exists('location', $hints)) {
+        } elseif (array_key_exists('location', $hints)) {
             $location = $hints['location'];
         }
 
@@ -1513,7 +1530,7 @@ class Ostatus_profile extends Managed_DataObject
 
         if (!empty($object->poco)) {
             $note = $object->poco->note;
-        } else if (array_key_exists('bio', $hints)) {
+        } elseif (array_key_exists('bio', $hints)) {
             $note = $hints['bio'];
         }
 
@@ -1550,7 +1567,7 @@ class Ostatus_profile extends Managed_DataObject
         // Try the profile url (like foo.example.com or example.com/user/foo)
         if (!empty($object->link)) {
             $profileUrl = $object->link;
-        } else if (!empty($hints['profileurl'])) {
+        } elseif (!empty($hints['profileurl'])) {
             $profileUrl = $hints['profileurl'];
         }
 
@@ -1659,8 +1676,10 @@ class Ostatus_profile extends Managed_DataObject
             throw new Exception(_m('Not a valid webfinger address.'));
         }
 
-        $hints = array_merge(array('webfinger' => $addr),
-                             DiscoveryHints::fromXRD($xrd));
+        $hints = array_merge(
+            ['webfinger' => $addr],
+            DiscoveryHints::fromXRD($xrd)
+        );
 
         // If there's an Hcard, let's grab its info
         if (array_key_exists('hcard', $hints)) {
@@ -1735,7 +1754,7 @@ class Ostatus_profile extends Managed_DataObject
             if ($profile_id === false) {
                 common_log_db_error($profile, 'INSERT', __FILE__);
                 // TRANS: Exception. %s is a webfinger address.
-                throw new Exception(sprintf(_m('Could not save profile for "%s".'),$addr));
+                throw new Exception(sprintf(_m('Could not save profile for "%s".'), $addr));
             }
 
             $oprofile = new Ostatus_profile();
@@ -1755,7 +1774,7 @@ class Ostatus_profile extends Managed_DataObject
                 $profile->delete();
                 common_log_db_error($oprofile, 'INSERT', __FILE__);
                 // TRANS: Exception. %s is a webfinger address.
-                throw new Exception(sprintf(_m('Could not save OStatus profile for "%s".'),$addr));
+                throw new Exception(sprintf(_m('Could not save OStatus profile for "%s".'), $addr));
             }
 
             self::cacheSet(sprintf('ostatus_profile:webfinger:%s', $addr), $oprofile->getUri());
@@ -1763,7 +1782,7 @@ class Ostatus_profile extends Managed_DataObject
         }
 
         // TRANS: Exception. %s is a webfinger address.
-        throw new Exception(sprintf(_m('Could not find a valid profile for "%s".'),$addr));
+        throw new Exception(sprintf(_m('Could not find a valid profile for "%s".'), $addr));
     }
 
     /**
@@ -1774,20 +1793,26 @@ class Ostatus_profile extends Managed_DataObject
      * @param string $rendered HTML fragment for HTML page's body
      * @return File
      */
-    function saveHTMLFile($title, $rendered)
+    public function saveHTMLFile($title, $rendered)
     {
-        $final = sprintf("<!DOCTYPE html>\n" .
-                         '<html><head>' .
-                         '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">' .
-                         '<title>%s</title>' .
-                         '</head>' .
-                         '<body>%s</body></html>',
-                         htmlspecialchars($title),
-                         $rendered);
+        $final = sprintf(
+            <<<'END'
+            <!DOCTYPE html>
+            <html><head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <title>%s</title>
+            </head>
+            <body>%s</body></html>
+            END,
+            htmlspecialchars($title),
+            $rendered
+        );
 
-        $filename = File::filename($this->localProfile(),
-                                   'ostatus', // ignored?
-                                   'text/html');
+        $filename = File::filename(
+            $this->localProfile(),
+            'ostatus', // ignored?
+            'text/html'
+        );
 
         $filepath = File::path($filename);
         $fileurl = File::url($filename);
@@ -1814,7 +1839,7 @@ class Ostatus_profile extends Managed_DataObject
         return $file;
     }
 
-    static function ensureProfileURI($uri)
+    public static function ensureProfileURI($uri)
     {
         $oprofile = null;
 
@@ -1842,13 +1867,15 @@ class Ostatus_profile extends Managed_DataObject
             default:
                 // TRANS: Server exception.
                 // TRANS: %1$s is a protocol, %2$s is a URI.
-                throw new ServerException(sprintf(_m('Unrecognized URI protocol for profile: %1$s (%2$s).'),
-                                                  $protocol,
-                                                  $uri));
+                throw new ServerException(sprintf(
+                    _m('Unrecognized URI protocol for profile: %1$s (%2$s).'),
+                    $protocol,
+                    $uri
+                ));
             }
         } else {
             // TRANS: Server exception. %s is a URI.
-            throw new ServerException(sprintf(_m('No URI protocol for profile: %s.'),$uri));
+            throw new ServerException(sprintf(_m('No URI protocol for profile: %s.'), $uri));
         }
 
         return $oprofile;
@@ -1861,9 +1888,11 @@ class Ostatus_profile extends Managed_DataObject
             $oprofile = self::ensureActorProfile($activity);
             if ($oprofile->isGroup() || $oprofile->isPeopletag()) {
                 // Groups can't post notices in StatusNet.
-                common_log(LOG_WARNING,
-                    "OStatus: skipping post with group listed ".
-                    "as author: " . $oprofile->getUri() . " in feed from " . $this->getUri());
+                common_log(
+                    LOG_WARNING,
+                    'OStatus: skipping post with group listed as author: '
+                    . "{$oprofile->getUri()} in feed from {$this->getUri()}"
+                );
                 throw new ServerException('Activity author is a non-actor');
             }
         } else {
@@ -1871,9 +1900,10 @@ class Ostatus_profile extends Managed_DataObject
 
             if (empty($actor)) {
                 // OK here! assume the default
-            } else if ($actor->id == $this->getUri() || $actor->link == $this->getUri()) {
+            } elseif ($actor->id == $this->getUri()
+                      || $actor->link == $this->getUri()) {
                 $this->updateFromActivityObject($actor);
-            } else if ($actor->id) {
+            } elseif ($actor->id) {
                 // We have an ActivityStreams actor with an explicit ID that doesn't match the feed owner.
                 // This isn't what we expect from mainline OStatus person feeds!
                 // Group feeds go down another path, with different validation...

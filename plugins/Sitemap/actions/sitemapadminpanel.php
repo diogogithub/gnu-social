@@ -1,44 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Sitemap administration panel
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Sitemap
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Administer sitemap settings
  *
- * @category Sitemap
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Sitemap
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class SitemapadminpanelAction extends AdminPanelAction
 {
@@ -47,7 +41,7 @@ class SitemapadminpanelAction extends AdminPanelAction
      *
      * @return string page title
      */
-    function title()
+    public function title()
     {
         // TRANS: Title for sitemap.
         return _m('Sitemap');
@@ -58,7 +52,7 @@ class SitemapadminpanelAction extends AdminPanelAction
      *
      * @return string instructions
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Instructions for sitemap.
         return _m('Sitemap settings for this StatusNet site');
@@ -69,7 +63,7 @@ class SitemapadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function showForm()
+    public function showForm()
     {
         $form = new SitemapAdminPanelForm($this);
         $form->show();
@@ -81,7 +75,7 @@ class SitemapadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function saveSettings()
+    public function saveSettings()
     {
         static $settings = array('sitemap' => array('yahookey', 'bingkey'));
 
@@ -100,7 +94,7 @@ class SitemapadminpanelAction extends AdminPanelAction
 
         $config = new Config();
 
-        $config->query('BEGIN');
+        $config->query('START TRANSACTION');
 
         foreach ($settings as $section => $parts) {
             foreach ($parts as $setting) {
@@ -113,7 +107,7 @@ class SitemapadminpanelAction extends AdminPanelAction
         return;
     }
 
-    function validate(&$values)
+    public function validate(&$values)
     {
     }
 }
@@ -128,7 +122,7 @@ class SitemapAdminPanelForm extends AdminForm
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'form_sitemap_admin_panel';
     }
@@ -138,7 +132,7 @@ class SitemapAdminPanelForm extends AdminForm
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_sitemap';
     }
@@ -148,7 +142,7 @@ class SitemapAdminPanelForm extends AdminForm
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('sitemapadminpanel');
     }
@@ -158,24 +152,28 @@ class SitemapAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formData()
+    public function formData()
     {
         $this->out->elementStart('ul', 'form_data');
         $this->li();
-        $this->input('yahookey',
-                     // TRANS: Field label.
-                     _m('Yahoo key'),
-                     // TRANS: Title for field label.
-                     _m('Yahoo! Site Explorer verification key.'),
-                     'sitemap');
+        $this->input(
+            'yahookey',
+            // TRANS: Field label.
+            _m('Yahoo key'),
+            // TRANS: Title for field label.
+            _m('Yahoo! Site Explorer verification key.'),
+            'sitemap'
+        );
         $this->unli();
         $this->li();
-        $this->input('bingkey',
-                     // TRANS: Field label.
-                     _m('Bing key'),
-                     // TRANS: Title for field label.
-                     _m('Bing Webmaster Tools verification key.'),
-                     'sitemap');
+        $this->input(
+            'bingkey',
+            // TRANS: Field label.
+            _m('Bing key'),
+            // TRANS: Title for field label.
+            _m('Bing Webmaster Tools verification key.'),
+            'sitemap'
+        );
         $this->unli();
         $this->out->elementEnd('ul');
     }
@@ -185,14 +183,16 @@ class SitemapAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
-        $this->out->submit('submit',
-                           // TRANS: Submit button text to save sitemap settings.
-                           _m('BUTTON','Save'),
-                           'submit',
-                           null,
-                           // TRANS: Submit button title to save sitemap settings.
-                           _m('Save sitemap settings.'));
+        $this->out->submit(
+            'submit',
+            // TRANS: Submit button text to save sitemap settings.
+            _m('BUTTON', 'Save'),
+            'submit',
+            null,
+            // TRANS: Submit button title to save sitemap settings.
+            _m('Save sitemap settings.')
+        );
     }
 }

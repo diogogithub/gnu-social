@@ -386,7 +386,7 @@ function common_rememberme($user=null)
 
     // Wrap the insert in some good ol' fashioned transaction code
 
-    $rm->query('BEGIN');
+    $rm->query('START TRANSACTION');
 
     $result = $rm->insert();
 

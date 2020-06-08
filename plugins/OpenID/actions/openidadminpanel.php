@@ -1,44 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * OpenID bridge administration panel
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Administer global OpenID settings
  *
- * @category Admin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Admin
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class OpenidadminpanelAction extends AdminPanelAction
 {
@@ -47,10 +41,10 @@ class OpenidadminpanelAction extends AdminPanelAction
      *
      * @return string page title
      */
-    function title()
+    public function title()
     {
         // TRANS: Title for OpenID bridge administration page.
-        return _m('TITLE','OpenID Settings');
+        return _m('TITLE', 'OpenID Settings');
     }
 
     /**
@@ -58,7 +52,7 @@ class OpenidadminpanelAction extends AdminPanelAction
      *
      * @return string instructions
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Page instructions.
         return _m('OpenID settings');
@@ -69,7 +63,7 @@ class OpenidadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function showForm()
+    public function showForm()
     {
         $form = new OpenIDAdminPanelForm($this);
         $form->show();
@@ -81,7 +75,7 @@ class OpenidadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function saveSettings()
+    public function saveSettings()
     {
         static $settings = array(
             'openid' => array('trusted_provider', 'required_team')
@@ -116,7 +110,7 @@ class OpenidadminpanelAction extends AdminPanelAction
 
         $config = new Config();
 
-        $config->query('BEGIN');
+        $config->query('START TRANSACTION');
 
         foreach ($settings as $section => $parts) {
             foreach ($parts as $setting) {
@@ -135,7 +129,7 @@ class OpenidadminpanelAction extends AdminPanelAction
         return;
     }
 
-    function validate(&$values)
+    public function validate(&$values)
     {
         // Validate consumer key and secret (can't be too long)
 
@@ -162,7 +156,7 @@ class OpenIDAdminPanelForm extends AdminForm
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'openidadminpanel';
     }
@@ -172,7 +166,7 @@ class OpenIDAdminPanelForm extends AdminForm
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_settings';
     }
@@ -182,7 +176,7 @@ class OpenIDAdminPanelForm extends AdminForm
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('openidadminpanel');
     }
@@ -196,19 +190,22 @@ class OpenIDAdminPanelForm extends AdminForm
      *       Make sure that the acting administrator has a valid OpenID matching,
      *       or more carefully warn folks.
      */
-    function formData()
+    public function formData()
     {
         $this->out->elementStart(
             'fieldset',
             array('id' => 'settings_openid')
         );
         // TRANS: Fieldset legend.
-        $this->out->element('legend', null, _m('LEGEND','Trusted provider'));
-        $this->out->element('p', 'form_guide',
+        $this->out->element('legend', null, _m('LEGEND', 'Trusted provider'));
+        $this->out->element(
+            'p',
+            'form_guide',
             // TRANS: Form guide.
             _m('By default, users are allowed to authenticate with any OpenID provider. ' .
                'If you are using your own OpenID service for shared sign-in, ' .
-               'you can restrict access to only your own users here.'));
+               'you can restrict access to only your own users here.')
+        );
         $this->out->elementStart('ul', 'form_data');
 
         $this->li();
@@ -225,7 +222,8 @@ class OpenIDAdminPanelForm extends AdminForm
         $this->li();
         $this->out->checkbox(
             // TRANS: Checkbox label.
-            'append_username', _m('Append a username to base URL'),
+            'append_username',
+            _m('Append a username to base URL'),
             (bool) $this->value('append_username', 'openid'),
             // TRANS: Checkbox title.
             _m('Login form will show the base URL and prompt for a username to add at the end. Use when OpenID provider URL should be the profile page for individual users.'),
@@ -252,7 +250,7 @@ class OpenIDAdminPanelForm extends AdminForm
             array('id' => 'settings_openid-options')
         );
         // TRANS: Fieldset legend.
-        $this->out->element('legend', null, _m('LEGEND','Options'));
+        $this->out->element('legend', null, _m('LEGEND', 'Options'));
 
         $this->out->elementStart('ul', 'form_data');
 
@@ -260,7 +258,8 @@ class OpenIDAdminPanelForm extends AdminForm
 
         $this->out->checkbox(
             // TRANS: Checkbox label.
-            'openidonly', _m('Enable OpenID-only mode'),
+            'openidonly',
+            _m('Enable OpenID-only mode'),
             (bool) $this->value('openidonly', 'site'),
             // TRANS: Checkbox title.
             _m('Require all users to login via OpenID. Warning: disables password authentication for all users!'),
@@ -278,11 +277,16 @@ class OpenIDAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
         // TRANS: Button text to save OpenID settings.
-        $this->out->submit('submit', _m('BUTTON','Save'), 'submit', null,
-                           // TRANS: Button title to save OpenID settings.
-                           _m('Save OpenID settings.'));
+        $this->out->submit(
+            'submit',
+            _m('BUTTON', 'Save'),
+            'submit',
+            null,
+            // TRANS: Button title to save OpenID settings.
+            _m('Save OpenID settings.')
+        );
     }
 }

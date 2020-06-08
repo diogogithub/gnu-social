@@ -1,60 +1,54 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Show an OAuth application
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  Application
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2008-2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Show an OAuth application
  *
- * @category Application
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Application
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ShowApplicationAction extends Action
 {
     /**
      * Application to show
      */
-    var $application = null;
+    public $application = null;
 
     /**
      * User who owns the app
      */
-    var $owner = null;
+    public $owner = null;
 
-    var $msg = null;
+    public $msg = null;
 
-    var $success = null;
+    public $success = null;
 
     /**
      * Load attributes based on database arguments
@@ -65,7 +59,7 @@ class ShowApplicationAction extends Action
      *
      * @return success flag
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -101,7 +95,7 @@ class ShowApplicationAction extends Action
      *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
 
@@ -127,21 +121,21 @@ class ShowApplicationAction extends Action
      *
      * @return string title of the page
      */
-    function title()
+    public function title()
     {
         if (!empty($this->application->name)) {
             return 'Application: ' . $this->application->name;
         }
     }
 
-    function showPageNotice()
+    public function showPageNotice()
     {
         if (!empty($this->msg)) {
             $this->element('div', ($this->success) ? 'success' : 'error', $this->msg);
         }
     }
 
-    function showContent()
+    public function showContent()
     {
         $cur = common_current_user();
 
@@ -151,21 +145,38 @@ class ShowApplicationAction extends Action
         // TRANS: Header on the OAuth application page.
         $this->element('h2', null, _('Application profile'));
         if (!empty($this->application->icon)) {
-            $this->element('img', array('src' => $this->application->icon,
-                                        'class' => 'u-photo logo entity_depiction'));
+            $this->element(
+                'img',
+                [
+                    'src'   => $this->application->icon,
+                    'class' => 'u-photo logo entity_depiction',
+                ]
+            );
         }
 
-        $this->element('a', array('href' =>  $this->application->source_url,
-                                  'class' => 'u-url p-name entity_fn'),
-                            $this->application->name);
+        $this->element(
+            'a',
+            [
+                'href' =>  $this->application->source_url,
+                'class' => 'u-url p-name entity_fn',
+            ],
+            $this->application->name
+        );
 
-        $this->element('a', array('href' =>  $this->application->homepage,
-                                  'class' => 'u-url entity_org'),
-                            $this->application->organization);
+        $this->element(
+            'a',
+            [
+                'href'  => $this->application->homepage,
+                'class' => 'u-url entity_org',
+            ],
+            $this->application->organization
+        );
 
-        $this->element('div',
-                       'note entity_note',
-                       $this->application->description);
+        $this->element(
+            'div',
+            'note entity_note',
+            $this->application->description
+        );
 
         $this->elementStart('div', 'entity_statistics');
         $defaultAccess = ($this->application->access_type & Oauth_application::$writeAccess)
@@ -183,10 +194,10 @@ class ShowApplicationAction extends Action
             _m('Created by %1$s - %2$s access by default - %3$d user',
                'Created by %1$s - %2$s access by default - %3$d users',
                $userCnt),
-              $profile->getBestName(),
-              $defaultAccess,
-              $userCnt
-            ));
+            $profile->getBestName(),
+            $defaultAccess,
+            $userCnt
+        ));
         $this->elementEnd('div');
 
         $this->elementEnd('div');
@@ -196,47 +207,70 @@ class ShowApplicationAction extends Action
         $this->element('h2', null, _('Application actions'));
         $this->elementStart('ul');
         $this->elementStart('li', 'entity_edit');
-        $this->element('a',
-                       array('href' => common_local_url('editapplication',
-                                                        array('id' => $this->application->id))),
-                       // TRANS: Link text to edit application on the OAuth application page.
-                       _m('EDITAPP','Edit'));
+        $this->element(
+            'a',
+            [
+                'href' => common_local_url(
+                    'editapplication',
+                    ['id' => $this->application->id]
+                )
+            ],
+            // TRANS: Link text to edit application on the OAuth application page.
+            _m('EDITAPP', 'Edit')
+        );
         $this->elementEnd('li');
 
         $this->elementStart('li', 'entity_reset_keysecret');
-        $this->elementStart('form', array(
-            'id' => 'form_reset_key',
-            'class' => 'form_reset_key',
-            'method' => 'POST',
-            'action' => common_local_url('showapplication',
-                                         array('id' => $this->application->id))));
+        $this->elementStart(
+            'form',
+            [
+                'id'     => 'form_reset_key',
+                'class'  => 'form_reset_key',
+                'method' => 'POST',
+                'action' => common_local_url(
+                    'showapplication',
+                    ['id' => $this->application->id]
+                ),
+            ]
+        );
         $this->elementStart('fieldset');
         $this->hidden('token', common_session_token());
 
-        $this->element('input', array('type' => 'submit',
-                                      'id' => 'reset',
-                                      'name' => 'reset',
-                                      'class' => 'submit',
-                                      // TRANS: Button text on the OAuth application page.
-                                      // TRANS: Resets the OAuth consumer key and secret.
-                                      'value' => _('Reset key & secret'),
-                                      'onClick' => 'return confirmReset()'));
+        $this->element(
+            'input',
+            [
+                'type'    => 'submit',
+                'id'      => 'reset',
+                'name'    => 'reset',
+                'class'   => 'submit',
+                // TRANS: Button text on the OAuth application page.
+                // TRANS: Resets the OAuth consumer key and secret.
+                'value'   => _('Reset key & secret'),
+                'onClick' => 'return confirmReset()',
+            ]
+        );
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
         $this->elementEnd('li');
 
         $this->elementStart('li', 'entity_delete');
-        $this->elementStart('form', array(
-                                          'id' => 'form_delete_application',
-                                          'class' => 'form_delete_application',
-                                          'method' => 'POST',
-                                          'action' => common_local_url('deleteapplication',
-                                                                       array('id' => $this->application->id))));
+        $this->elementStart(
+            'form',
+            [
+                'id' => 'form_delete_application',
+                'class' => 'form_delete_application',
+                'method' => 'POST',
+                'action' => common_local_url(
+                    'deleteapplication',
+                    ['id' => $this->application->id]
+                ),
+            ]
+        );
 
         $this->elementStart('fieldset');
         $this->hidden('token', common_session_token());
         // TRANS: Submit button text the OAuth application page to delete an application.
-        $this->submit('delete', _m('BUTTON','Delete'));
+        $this->submit('delete', _m('BUTTON', 'Delete'));
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
         $this->elementEnd('li');
@@ -266,16 +300,23 @@ class ShowApplicationAction extends Action
         $this->element('dd', null, common_local_url('ApiOAuthAuthorize'));
         $this->elementEnd('dl');
 
-        $this->element('p', 'note',
+        $this->element(
+            'p',
+            'note',
             // TRANS: Note on the OAuth application page about signature support.
-            _('Note: HMAC-SHA1 signatures are supported. The plaintext signature method is not supported.'));
+            _('Note: HMAC-SHA1 signatures are supported. The plaintext signature method is not supported.')
+        );
         $this->elementEnd('div');
 
         $this->elementStart('p', array('id' => 'application_action'));
-        $this->element('a',
-            array('href' => common_local_url('oauthappssettings'),
-                  'class' => 'more'),
-                  'View your applications');
+        $this->element(
+            'a',
+            [
+                'href'  => common_local_url('oauthappssettings'),
+                'class' => 'more',
+            ],
+            'View your applications'
+        );
         $this->elementEnd('p');
     }
 
@@ -284,7 +325,7 @@ class ShowApplicationAction extends Action
      *
      * @return void
      */
-    function showScripts()
+    public function showScripts()
     {
         parent::showScripts();
 
@@ -305,9 +346,9 @@ class ShowApplicationAction extends Action
      * XXX: Should this be moved to its own page with a confirm?
      *
      */
-    function resetKey()
+    public function resetKey()
     {
-        $this->application->query('BEGIN');
+        $this->application->query('START TRANSACTION');
 
         $oauser = new Oauth_application_user();
         $oauser->application_id = $this->application->id;

@@ -1,44 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Admin panel for plugin to use bit.ly URL shortening services.
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Settings
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Brion Vibber <brion@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Administer global bit.ly URL shortener settings
  *
- * @category Admin
- * @package  StatusNet
- * @author   Brion Vibber <brion@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Admin
+ * @package   GNUsocial
+ * @author    Brion Vibber <brion@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class BitlyadminpanelAction extends AdminPanelAction
 {
@@ -47,7 +41,7 @@ class BitlyadminpanelAction extends AdminPanelAction
      *
      * @return string page title
      */
-    function title()
+    public function title()
     {
         // TRANS: Title of administration panel.
         return _m('bit.ly URL shortening');
@@ -58,7 +52,7 @@ class BitlyadminpanelAction extends AdminPanelAction
      *
      * @return string instructions
      */
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Instructions for administration panel.
         // TRANS: This message contains Markdown links in the form [decsription](link).
@@ -73,7 +67,7 @@ class BitlyadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function showForm()
+    public function showForm()
     {
         $form = new BitlyAdminPanelForm($this);
         $form->show();
@@ -85,7 +79,7 @@ class BitlyadminpanelAction extends AdminPanelAction
      *
      * @return void
      */
-    function saveSettings()
+    public function saveSettings()
     {
         static $settings = array(
             'bitly' => array('default_login', 'default_apikey')
@@ -108,7 +102,7 @@ class BitlyadminpanelAction extends AdminPanelAction
 
         $config = new Config();
 
-        $config->query('BEGIN');
+        $config->query('START TRANSACTION');
 
         foreach ($settings as $section => $parts) {
             foreach ($parts as $setting) {
@@ -121,7 +115,7 @@ class BitlyadminpanelAction extends AdminPanelAction
         return;
     }
 
-    function validate(&$values)
+    public function validate(&$values)
     {
         // Validate consumer key and secret (can't be too long)
 
@@ -148,7 +142,7 @@ class BitlyAdminPanelForm extends AdminForm
      *
      * @return int ID of the form
      */
-    function id()
+    public function id()
     {
         return 'bitlyadminpanel';
     }
@@ -158,7 +152,7 @@ class BitlyAdminPanelForm extends AdminForm
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_settings';
     }
@@ -168,7 +162,7 @@ class BitlyAdminPanelForm extends AdminForm
      *
      * @return string URL of the action
      */
-    function action()
+    public function action()
     {
         return common_local_url('bitlyadminpanel');
     }
@@ -178,27 +172,33 @@ class BitlyAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formData()
+    public function formData()
     {
         $this->out->elementStart(
             'fieldset',
             array('id' => 'settings_bitly')
         );
         // TRANS: Fieldset legend in administration panel for bit.ly username and API key.
-        $this->out->element('legend', null, _m('LEGEND','Credentials'));
+        $this->out->element('legend', null, _m('LEGEND', 'Credentials'));
 
         // Do we have global defaults to fall back on?
         $login = $apiKey = false;
         Event::handle('BitlyDefaultCredentials', array(&$login, &$apiKey));
         $haveGlobalDefaults = ($login && $apiKey);
         if ($login && $apiKey) {
-            $this->out->element('p', 'form_guide',
+            $this->out->element(
+                'p',
+                'form_guide',
                 // TRANS: Form guide in administration panel for bit.ly URL shortening.
-                _m('Leave these empty to use global default credentials.'));
+                _m('Leave these empty to use global default credentials.')
+            );
         } else {
-            $this->out->element('p', 'form_guide',
+            $this->out->element(
+                'p',
+                'form_guide',
                 // TRANS: Form guide in administration panel for bit.ly URL shortening.
-                _m('If you leave these empty, bit.ly will be unavailable to users.'));
+                _m('If you leave these empty, bit.ly will be unavailable to users.')
+            );
         }
         $this->out->elementStart('ul', 'form_data');
 
@@ -231,14 +231,16 @@ class BitlyAdminPanelForm extends AdminForm
      *
      * @return void
      */
-    function formActions()
+    public function formActions()
     {
-        $this->out->submit('submit',
-                           // TRANS: Button text to save setting in administration panel for bit.ly URL shortening.
-                           _m('BUTTON','Save'),
-                           'submit',
-                           null,
-                           // TRANS: Button title to save setting in administration panel for bit.ly URL shortening.
-                           _m('Save bit.ly settings'));
+        $this->out->submit(
+            'submit',
+            // TRANS: Button text to save setting in administration panel for bit.ly URL shortening.
+            _m('BUTTON', 'Save'),
+            'submit',
+            null,
+            // TRANS: Button title to save setting in administration panel for bit.ly URL shortening.
+            _m('Save bit.ly settings')
+        );
     }
 }

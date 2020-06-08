@@ -104,7 +104,7 @@ class FinishsynchopenidAction extends Action
 
             // start a transaction
 
-            $cur->query('BEGIN');
+            $cur->query('START TRANSACTION');
 
             if (Event::handle('StartOpenIDUpdateUser', [$cur, $canonical, &$sreg])) {
                 if (!oid_update_user($cur, $sreg)) {

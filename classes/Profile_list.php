@@ -609,7 +609,7 @@ class Profile_list extends Managed_DataObject
 
         $ptag = new Profile_list();
 
-        $ptag->query('BEGIN');
+        $ptag->query('START TRANSACTION');
 
         if (empty($tagger)) {
             // TRANS: Server exception saving new tag without having a tagger specified.
