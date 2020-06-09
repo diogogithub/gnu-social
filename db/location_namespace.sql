@@ -1,5 +1,5 @@
-insert into location_namespace
-    (id, description, created)
-values
-    (1, 'Geonames', now()),
-    (2, 'Where on Earth', now());
+INSERT INTO location_namespace
+  (id, description, created)
+VALUES
+  (1, 'Geonames', CURRENT_TIMESTAMP),
+  (2, 'Where on Earth', CURRENT_TIMESTAMP);

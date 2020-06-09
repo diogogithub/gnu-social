@@ -89,11 +89,11 @@ class ClearflagAction extends ProfileFormAction
         $ufp = new User_flag_profile();
 
         $result = $ufp->query('UPDATE user_flag_profile ' .
-                              'SET cleared = now() ' .
-                              'WHERE cleared is null ' .
+                              'SET cleared = CURRENT_TIMESTAMP ' .
+                              'WHERE cleared IS NULL ' .
                               'AND profile_id = ' . $this->profile->id);
 
-        if ($result == false) {
+        if ($result === false) {
             // TRANS: Server exception given when flags could not be cleared.
             // TRANS: %s is a profile nickname.
             $msg = sprintf(

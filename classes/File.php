@@ -283,7 +283,8 @@ class File extends Managed_DataObject
                 )
             );
         }
-        $query .= ' AND EXTRACT(month FROM file.modified) = EXTRACT(month FROM now()) AND EXTRACT(year FROM file.modified) = EXTRACT(year FROM now())';
+        $query .= ' AND EXTRACT(MONTH FROM file.modified) = EXTRACT(MONTH FROM CURRENT_DATE)'
+                . ' AND EXTRACT(YEAR  FROM file.modified) = EXTRACT(YEAR  FROM CURRENT_DATE)';
         $file->query($query);
         $file->fetch();
         $total = $file->total + $fileSize;
@@ -748,7 +749,7 @@ class File extends Managed_DataObject
         if ($file instanceof File) {
             throw new ServerException('URL already exists in DB');
         }
-        $sql = 'UPDATE %1$s SET urlhash=%2$s, url=%3$s WHERE urlhash=%4$s;';
+        $sql = 'UPDATE %1$s SET urlhash = %2$s, url = %3$s WHERE urlhash = %4$s;';
         $result = $this->query(sprintf(
             $sql,
             $this->tableName(),
