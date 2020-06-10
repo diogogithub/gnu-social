@@ -557,9 +557,15 @@ class Activitypub_profile extends Managed_DataObject
         $user_table = common_database_tablename('user');
         $sub = new Subscription();
         $sub->subscribed = $profile->id;
+        $sub->_join .= "\n" . <<<END
+            INNER JOIN (
+              SELECT id AS subscriber FROM {$user_table}
+              UNION ALL
+              SELECT profile_id FROM activitypub_profile
+            ) AS t1 USING (subscriber)
+            END;
         $sub->whereAdd('subscriber <> subscribed');
-        $sub->whereAdd("subscriber IN (SELECT id FROM {$user_table} UNION SELECT profile_id AS id FROM activitypub_profile)");
-        $cnt = $sub->count('distinct subscriber');
+        $cnt = $sub->count('DISTINCT subscriber');
 
         self::cacheSet(sprintf('activitypub_profile:subscriberCount:%d', $profile->id), $cnt);
 
@@ -585,9 +591,15 @@ class Activitypub_profile extends Managed_DataObject
         $user_table = common_database_tablename('user');
         $sub = new Subscription();
         $sub->subscriber = $profile->id;
+        $sub->_join .= "\n" . <<<END
+            INNER JOIN (
+              SELECT id AS subscribed FROM {$user_table}
+              UNION ALL
+              SELECT profile_id FROM activitypub_profile
+            ) AS t1 USING (subscribed)
+            END;
         $sub->whereAdd('subscriber <> subscribed');
-        $sub->whereAdd("subscribed IN (SELECT id FROM {$user_table} UNION SELECT profile_id AS id FROM activitypub_profile)");
-        $cnt = $sub->count('distinct subscribed');
+        $cnt = $sub->count('DISTINCT subscribed');
 
         self::cacheSet(sprintf('activitypub_profile:subscriptionCount:%d', $profile->id), $cnt);
 
