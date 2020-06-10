@@ -107,13 +107,14 @@ class GalleryAction extends ProfileAction
     public function getTags($lst, $usr)
     {
         $profile_tag = new Notice_tag();
-        $profile_tag->query('SELECT DISTINCT(tag) ' .
-                            'FROM profile_tag, subscription ' .
-                            'WHERE tagger = ' . $this->target->id . ' ' .
-                            'AND ' . $usr . ' = ' . $this->target->id . ' ' .
-                            'AND ' . $lst . ' = tagged ' .
-                            'AND tagger <> tagged');
-        $tags = array();
+        $profile_tag->query(
+            <<<END
+            SELECT DISTINCT tag FROM profile_tag INNER JOIN subscription
+            ON tagger = {$usr} AND {$lst} = tagged
+            WHERE tagger = {$this->target->id} AND tagger <> tagged;
+            END
+        );
+        $tags = [];
         while ($profile_tag->fetch()) {
             $tags[] = $profile_tag->tag;
         }

@@ -1647,14 +1647,16 @@ function common_sql_date($datetime)
  */
 function common_sql_weight($column, $dropoff)
 {
-    if (common_config('db', 'type') == 'pgsql') {
-        // PostgreSQL doesn't support timestampdiff function.
-        // @fixme will this use the right time zone?
-        // @fixme does this handle cross-year subtraction correctly?
-        return "sum(exp(-extract(epoch from (now() - $column)) / $dropoff))";
+    if (common_config('db', 'type') !== 'mysql') {
+        $expr = sprintf(
+            '(((EXTRACT(DAY %1$s) * 24 + EXTRACT(HOUR %1$s)) * 60 + '
+            . 'EXTRACT(MINUTE %1$s)) * 60 + EXTRACT(SECOND %1$s))',
+            "FROM ({$column} - CURRENT_TIMESTAMP)"
+        );
     } else {
-        return "sum(exp(timestampdiff(second, utc_timestamp(), $column) / $dropoff))";
+        $expr = "timestampdiff(SECOND, CURRENT_TIMESTAMP, {$column})";
     }
+    return "SUM(EXP({$expr} / {$dropoff}))";
 }
 
 function common_redirect($url, $code=307)

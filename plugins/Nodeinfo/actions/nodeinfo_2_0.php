@@ -338,7 +338,8 @@ class Nodeinfo_2_0Action extends Action
                 UNION ALL
                 SELECT id FROM {$userTable} WHERE {$userTable}.created >= CURRENT_DATE - INTERVAL '{$days}' DAY
               ) AS source
-              WHERE profile_id NOT IN (SELECT profile_id FROM profile_role WHERE role = 'silenced')
+              LEFT JOIN profile_role USING (profile_id)
+              WHERE profile_role.profile_id IS NULL OR profile_role.role <> 'silenced';
             END;
 
         $activeUsersCount = new DB_DataObject();

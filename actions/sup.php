@@ -65,17 +65,17 @@ class SupAction extends Action
 
         $divider = common_sql_date(time() - $seconds);
 
-        $notice->query('SELECT profile_id, max(id) AS max_id ' .
-                       'FROM ( ' .
-                       'SELECT profile_id, id FROM notice ' .
-                       "WHERE created > TIMESTAMP '" . $divider . "' " .
-                       ') AS latest ' .
-                       'GROUP BY profile_id');
+        $notice->selectAdd();
+        $notice->selectAdd('profile_id, MAX(id) AS max_id');
+        $notice->whereAdd("created > TIMESTAMP '{$divider}'");
+        $notice->groupBy('profile_id');
 
-        $updates = array();
+        $updates = [];
 
-        while ($notice->fetch()) {
-            $updates[] = array($notice->profile_id, $notice->max_id);
+        if ($notice->find()) {
+            while ($notice->fetch()) {
+                $updates[] = [$notice->profile_id, $notice->max_id];
+            }
         }
 
         return $updates;

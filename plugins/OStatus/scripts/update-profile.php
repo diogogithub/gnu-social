@@ -102,14 +102,18 @@ if ($feedurl != $oprofile->feeduri || $salmonuri != $oprofile->salmonuri) {
     print "\n";
     print "Updating...\n";
     // @fixme update keys :P
-    #$orig = clone($oprofile);
-    #$oprofile->feeduri = $feedurl;
-    #$oprofile->salmonuri = $salmonuri;
-    #$ok = $oprofile->update($orig);
-    $ok = $oprofile->query('UPDATE ostatus_profile SET ' .
-        'feeduri=\'' . $oprofile->escape($feedurl) . '\',' .
-        'salmonuri=\'' . $oprofile->escape($salmonuri) . '\' ' .
-        'WHERE uri=\'' . $oprofile->escape($uri) . '\'');
+    //$orig = clone($oprofile);
+    //$oprofile->feeduri = $feedurl;
+    //$oprofile->salmonuri = $salmonuri;
+    //$ok = $oprofile->update($orig);
+    $ok = $oprofile->query(
+        <<<END
+        UPDATE ostatus_profile
+        SET feeduri   = '{$oprofile->escape($feedurl)}',
+            salmonuri = '{$oprofile->escape($salmonuri)}'
+        WHERE uri = '{$oprofile->escape($uri)}'
+        END
+    );
 
     if (!$ok) {
         print "Failed to update profile record...\n";
