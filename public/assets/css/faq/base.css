@@ -1,0 +1,132 @@
+/* GENERAL ----------------------------*/
+      body, html
+      {
+            background-image: linear-gradient(to right bottom, #485563, #404c59, #38434f, #313a45, #29323c);
+            height: 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            color: #F6F6F6;
+            font-family: 'Open Sans', sans-serif;
+      }
+
+      ul
+      {
+            text-decoration: none;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+      }
+
+      .drop-down ul li
+      {
+            position: relative;
+      }
+
+      .drop-down ul li ul a
+      {
+            line-height: 1.8em;
+      }
+
+      .drop-down ul li ul
+      {
+            display: none;
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.20);
+            padding: 0.8em 1.5em 1.5em 0.8em;
+            border-radius: 4px;
+      }
+
+      .drop-down ul li:hover ul
+      {
+            display: block;
+      }
+
+      .drop-down ul li ul a:hover
+      {
+            opacity: 0.6;
+            transition: all 0.5s ease;
+      }
+
+      #hover-effect:hover
+      {
+            opacity: 0.6;
+            transition: all 0.5s ease;
+      }
+
+      a:link
+      {
+            text-decoration: none;
+            outline: 0;
+            color: #F6F6F6;
+      }
+      a:visited
+      {
+            outline: 0;
+            color: #F6F6F6;
+      }
+/*-------------------------------------*/
+
+/* HEADER -----------------------------*/
+      #header
+      {
+            margin-top: 2em;
+            margin-left: 20%;
+            margin-right: 20%;
+            display: flex;
+            justify-content: space-between;
+      }
+
+      .flex-items
+      {
+            margin: 2em;
+      }
+
+      /* MENU -------------------------------*/
+            #menu
+            {
+                  order: 1;
+            }
+
+            #menu-png
+            {
+                  height: 2em;
+            }
+      /*-------------------------------------*/
+
+      /* INSTANCE ---------------------------*/
+            #instance
+            {
+                  order: 2;
+            }
+
+            #align-mid
+            {
+                  
+            }
+
+            #logo
+            {
+                  height: 2em;
+            }
+
+            #down-arrow
+            {
+                  height: 1em;
+            }
+      /*-------------------------------------*/
+
+      /* SEARCH -----------------------------*/
+            #search
+            {
+                  order: 3;
+            }
+
+            #search-png
+            {
+                  height: 2em;
+            }
+      /*-------------------------------------*/
+
+/*-------------------------------------*/
+
