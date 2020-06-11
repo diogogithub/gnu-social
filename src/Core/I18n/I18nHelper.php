@@ -47,7 +47,7 @@ abstract class I18nHelper
 
     /**
      * Looks for which plugin we've been called from to get the gettext domain;
-     * if not in a plugin subdirectory, we'll use the default 'core'.
+     * if not in a plugin subdirectory, we'll use the default 'core+intl-icu'.
      *
      * @return string
      */
@@ -68,7 +68,7 @@ abstract class I18nHelper
             $path          = Formatting::normalizePath($path);
             $cached[$path] = Formatting::pluginFromPath($path);
         }
-        return $cached[$path] ?? 'core';
+        return $cached[$path] ?? 'core+intl-icu';
     }
 
     /**
@@ -219,17 +219,17 @@ abstract class I18nHelper
     {
         $msg = '';
         foreach ($params as $var => $val) {
-            if (is_int($var)) {
+            if (is_int($val)) {
                 $pref = '=';
                 $op   = 'plural';
             } elseif (is_string($var)) {
                 $pref = '';
-                $op   = 'select,';
+                $op   = 'select';
             } else {
                 throw new Exception('Invalid key type. (int|string) only');
             }
 
-            $res = "{{$var}, {$op} ";
+            $res = "{{$var}, {$op}, ";
             $i   = 1;
             $cnt = count($messages);
             foreach ($messages as $val => $m) {
