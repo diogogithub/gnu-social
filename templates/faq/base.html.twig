@@ -1,20 +1,52 @@
 <!DOCTYPE html>
 <html>
       <head>
-            <meta charset="UTF-8">
+            <meta charset='UTF-8'>
             <title>{% block title %}{% endblock %}</title>
             {% block stylesheets %}
-
+                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base.css') }}">
+                  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&display=swap" rel="stylesheet"> 
             {% endblock %}
       </head>
       <body>
-            <div class="container">
-                  {% block header %}
-                        
-                  {% endblock %}
+                  {% block body %}
+                        <div id='header'>
+                              <nav class='drop-down flex-item' id='menu'>
+                                    <ul>
+                                          <li>
+                                                <a href="#" class='hover-effect'>
+                                                      <img id='menu-png' src="{{ asset('assets/images/menu.png') }}"/>
+                                                </a>
+                                                      <ul>
+                                                            <li><a>Bookmarks</a></li>
+                                                            <li><a>Messages</a></li>
+                                                            <li><a>Settings</a></li>
+                                                            <li><a>Logout</a></li>
+                                                      </ul> 
+                                          </li>
+                                    </ul>
+                              </nav>
 
-                  {% block body %}{% endblock %}
+                              <nav class='drop-down flex-item' id='instance'>
+                                    <ul>
+                                          <li>
+                                                <a href="#" class='hover-effect align-mid'>
+                                                            <img id='logo' src="{{ asset('assets/images/logo.png') }}"/>
+                                                                  <span> GNUsocial </span>
+                                                            <img id='down-arrow' src="{{ asset('assets/images/drop.png') }}"/>
+                                                </a>
+                                                      <ul>
+                                                            <li><a>Main Page</a></li>
+                                                      </ul> 
+                                          </li>
+                                    </ul>
+                              </nav>
+
+                              <div class='flex-item' id='search'>
+                                    <img id='search-png' src="{{ asset('assets/images/search.png') }}"/>
+                              </div>      
+                        </div>
+                  {% endblock %}
                   {% block javascripts %}{% endblock %}
-            </div>
       </body>
 </html>
