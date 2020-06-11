@@ -34,6 +34,8 @@
 
 namespace App\Core\I18n;
 
+use Symfony\Component\Translation\Exception\InvalidArgumentException;
+
 // Locale category constants are usually predefined, but may not be
 // on some systems such as Win32.
 $LC_CATEGORIES = [
@@ -68,13 +70,10 @@ abstract class I18n
  * Also handles plurals and contexts depending on what parameters
  * are passed to it:
  *
- * _m($msg)                   -- simple message
- * _m($ctx, $msg)             -- message with context
- * _m($msg1, $msg2, $n)       -- message that can be singular or plural
- * _m($ctx, $msg1, $msg2, $n) -- combination of the previous two
- *
- * @param string $msg
- * @param extra params as described above
+ *    _m(string $msg)                                      -- simple message
+ *    _m(string $ctx, string $msg)                         -- message with context
+ *    _m(string|string[] $msg, array $params)              -- message
+ *    _m(string $ctx, string|string[] $msg, array $params) -- combination of the previous two
  *
  * @throws InvalidArgumentException
  *
@@ -82,14 +81,14 @@ abstract class I18n
  *
  * @todo add parameters
  */
-function _m(string $msg /*, ...*/): string
+function _m(): string
 {
     $domain = I18nHelper::_mdomain(debug_backtrace()[0]['file']);
     $args   = func_get_args();
     switch (count($args)) {
     case 1:
         // Empty parameters, simple message
-        return I18nHelper::$translator->trans($msg, [], $domain);
+        return I18nHelper::$translator->trans($args[0], [], $domain);
     case 3:
         if (is_int($args[2])) {
             throw new Exception('Calling `_m()` with an explicit number is deprecated, ' .
@@ -98,9 +97,14 @@ function _m(string $msg /*, ...*/): string
         // Falthrough
         // no break
     case 2:
-        if (is_string($args[0]) && !is_array($args[1])) {
-            // ASCII 4 is EOT, used to separate context from string
-            $context = array_shift($args) . '\004';
+        if (is_string($args[0])) {
+            if (!is_array($args[1])) {
+                // ASCII 4 is EOT, used to separate context from string
+                $context = array_shift($args) . '\004';
+            } else {
+                throw new InvalidArgumentException('Bad parameters to `_m()`. '
+                                                   . 'Seemingly called with a context and multiple messages');
+            }
         }
 
         if (is_array($args[0])) {
