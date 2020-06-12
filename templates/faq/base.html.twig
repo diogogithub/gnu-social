@@ -1,52 +1,62 @@
-<!DOCTYPE html>
-<html>
-      <head>
-            <meta charset='UTF-8'>
-            <title>{% block title %}{% endblock %}</title>
-            {% block stylesheets %}
-                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base.css') }}">
-                  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital@0;1&display=swap" rel="stylesheet"> 
-            {% endblock %}
-      </head>
-      <body>
-                  {% block body %}
-                        <div id='header'>
-                              <nav class='drop-down flex-item' id='menu'>
-                                    <ul>
-                                          <li>
-                                                <a href="#" class='hover-effect'>
-                                                      <img id='menu-png' src="{{ asset('assets/images/menu.png') }}"/>
-                                                </a>
-                                                      <ul>
-                                                            <li><a>Bookmarks</a></li>
-                                                            <li><a>Messages</a></li>
-                                                            <li><a>Settings</a></li>
-                                                            <li><a>Logout</a></li>
-                                                      </ul> 
-                                          </li>
-                                    </ul>
-                              </nav>
+{% extends 'base.html.twig' %}
 
-                              <nav class='drop-down flex-item' id='instance'>
-                                    <ul>
-                                          <li>
-                                                <a href="#" class='hover-effect align-mid'>
-                                                            <img id='logo' src="{{ asset('assets/images/logo.png') }}"/>
-                                                                  <span> GNUsocial </span>
-                                                            <img id='down-arrow' src="{{ asset('assets/images/drop.png') }}"/>
-                                                </a>
-                                                      <ul>
-                                                            <li><a>Main Page</a></li>
-                                                      </ul> 
-                                          </li>
-                                    </ul>
-                              </nav>
+{% block meta %}{% endblock %}
 
-                              <div class='flex-item' id='search'>
-                                    <img id='search-png' src="{{ asset('assets/images/search.png') }}"/>
-                              </div>      
-                        </div>
-                  {% endblock %}
-                  {% block javascripts %}{% endblock %}
-      </body>
-</html>
+{% block title %}{% endblock %}
+
+{% block stylesheets %}
+      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base.css') }}">   
+{% endblock %}
+
+{% block body %}  
+      <div id='header'>
+            <nav class='drop-down' id='menu'>
+                  <ul>
+                        <li>
+                              <a href="#" class='hover-effect'>
+                                    <svg class="icon icon-menu"><use xlink:href="#icon-menu"></use></svg>
+                              </a>
+                                    <ul>
+                                          <li><a>Bookmarks</a></li>
+                                          <li><a>Messages</a></li>
+                                          <li><a>Settings</a></li>
+                                          <li><a>Logout</a></li>
+                                    </ul> 
+                        </li>
+                  </ul>
+            </nav>
+            <nav class='drop-down' id='instance'>
+                  <ul>
+                        <li>
+                              <a href="#" class='hover-effect'>
+                                          <svg class="icon icon-logo"><use xlink:href="#icon-logo"></use></svg>
+                                                <b id='instance-name'>GNU social</b>
+                                          <svg class="icon icon-drop"><use xlink:href="#icon-drop"></use></svg>
+                              </a>
+                                    <ul>
+                                          <li><a>Main Page</a></li>
+                                    </ul> 
+                        </li>
+                  </ul>
+            </nav>
+            <div class='flex-item' id='search'>
+                  <svg class="icon icon-search"><use xlink:href="#icon-search"></use></svg>
+            </div>
+            <div id='profile'>
+                  <div id='nick'>
+                        <svg class="icon icon-avatar"><use xlink:href="#icon-avatar"></use></svg>
+                        <b id='name'>someone</b>
+                  </div>
+                  <div id='tags'>
+                        <i>coffee addict</i>
+                        <i>lazy</i>
+                  </div>
+                  <div id='stats'>
+                        <b>1337</b> Followers
+                        <b>42</b> Following
+                  </div>
+            </div>     
+      </div>
+{% endblock %}
+
+{% block javascripts %}{% endblock %}
