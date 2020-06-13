@@ -31,11 +31,71 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
 
 class FaqHome extends AbstractController
 {
-    public function __invoke()
+    /**
+     * @Route("/doc/faq", name="doc_faq")
+     */
+    public function home()
     {
-        return $this->render('faq/home.html.twig', []);
+        return $this->render('faq/home.html.twig');
+    }
+
+    /**
+     * @Route("/doc/help", name="doc_help")
+     */
+    public function help()
+    {
+        return $this->render('faq/help.html.twig');
+    }
+
+    /**
+     * @Route("/doc/about", name="doc_about")
+     */
+    public function about()
+    {
+        return $this->render('faq/about.html.twig');
+    }
+
+    /**
+     * @Route("/doc/contact", name="doc_contact")
+     */
+    public function contact()
+    {
+        return $this->render('faq/contact.html.twig');
+    }
+
+    /**
+     * @Route("/doc/tags", name="doc_tags")
+     */
+    public function tags()
+    {
+        return $this->render('faq/tags.html.twig');
+    }
+
+    /**
+     * @Route("/doc/groups", name="doc_groups")
+     */
+    public function groups()
+    {
+        return $this->render('faq/groups.html.twig');
+    }
+
+    /**
+     * @Route("/doc/api", name="doc_api")
+     */
+    public function api()
+    {
+        return $this->render('faq/api.html.twig');
+    }
+
+    /**
+     * @Route("/doc/openid", name="doc_openid")
+     */
+    public function openid()
+    {
+        return $this->render('faq/openid.html.twig');
     }
 }

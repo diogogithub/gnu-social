@@ -5,7 +5,8 @@
 {% block title %}{% endblock %}
 
 {% block stylesheets %}
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base.css') }}">   
+      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base.css') }}" media="screen and (min-width: 777px)">
+      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base_small.css') }}" media="screen and (max-width: 777px)">   
 {% endblock %}
 
 {% block body %}  
@@ -42,18 +43,25 @@
             <div class='flex-item' id='search'>
                   <svg class="icon icon-search"><use xlink:href="#icon-search"></use></svg>
             </div>
+            
             <div id='profile'>
-                  <div id='nick'>
-                        <svg class="icon icon-avatar"><use xlink:href="#icon-avatar"></use></svg>
-                        <b id='name'>someone</b>
-                  </div>
-                  <div id='tags'>
-                        <i>coffee addict</i>
-                        <i>lazy</i>
+                  <svg class="icon icon-avatar"><use xlink:href="#icon-avatar"></use></svg>
+                  <div id='info'>
+                        <div id='nick'>
+                              <b id='name'>someone</b>
+                        </div>
+                        <div id='tags'>
+                              <i>coffee addict</i>
+                              <i>lazy</i>
+                        </div>
                   </div>
                   <div id='stats'>
-                        <b>1337</b> Followers
-                        <b>42</b> Following
+                        <div id='followers'>
+                              <b>1337</b> Followers
+                        </div>
+                        <div id='following'>
+                              <b>42</b> Following
+                        </div>
                   </div>
             </div>     
       </div>
