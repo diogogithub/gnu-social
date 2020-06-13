@@ -5,6 +5,7 @@
 {% block title %}{% endblock %}
 
 {% block stylesheets %}
+<<<<<<< HEAD
       {{ parent() }}
       <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/faq.css') }}" media="screen and (min-width: 1300px)">
       <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/faq_mid.css') }}" media="screen and (max-width: 1300px)">
@@ -12,5 +13,68 @@
 {% endblock %}
 
 {% block header %}{{ parent() }}{% endblock %}
+=======
+      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base.css') }}" media="screen and (min-width: 777px)">
+      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base_small.css') }}" media="screen and (max-width: 777px)">   
+{% endblock %}
+
+{% block body %}  
+      <div id='header'>
+            <nav class='drop-down' id='menu'>
+                  <ul>
+                        <li>
+                              <a href="#" class='hover-effect'>
+                                    <svg class="icon icon-menu"><use xlink:href="#icon-menu"></use></svg>
+                              </a>
+                                    <ul>
+                                          <li><a>Bookmarks</a></li>
+                                          <li><a>Messages</a></li>
+                                          <li><a>Settings</a></li>
+                                          <li><a>Logout</a></li>
+                                    </ul> 
+                        </li>
+                  </ul>
+            </nav>
+            <nav class='drop-down' id='instance'>
+                  <ul>
+                        <li>
+                              <a href="#" class='hover-effect'>
+                                          <svg class="icon icon-logo"><use xlink:href="#icon-logo"></use></svg>
+                                                <b id='instance-name'>GNU social</b>
+                                          <svg class="icon icon-drop"><use xlink:href="#icon-drop"></use></svg>
+                              </a>
+                                    <ul>
+                                          <li><a>Main Page</a></li>
+                                    </ul> 
+                        </li>
+                  </ul>
+            </nav>
+            <div class='flex-item' id='search'>
+                  <svg class="icon icon-search"><use xlink:href="#icon-search"></use></svg>
+            </div>
+            
+            <div id='profile'>
+                  <svg class="icon icon-avatar"><use xlink:href="#icon-avatar"></use></svg>
+                  <div id='info'>
+                        <div id='nick'>
+                              <b id='name'>someone</b>
+                        </div>
+                        <div id='tags'>
+                              <i>coffee addict</i>
+                              <i>lazy</i>
+                        </div>
+                  </div>
+                  <div id='stats'>
+                        <div id='followers'>
+                              <b>1337</b> Followers
+                        </div>
+                        <div id='following'>
+                              <b>42</b> Following
+                        </div>
+                  </div>
+            </div>     
+      </div>
+{% endblock %}
+>>>>>>> 2ed0d2b706... [UI] FAQ sub pages and routing added, small screen css work started.
 
 {% block javascripts %}{% endblock %}
