@@ -1,19 +1,19 @@
 {% extends 'faq/base.html.twig' %}
 
-{% block title %}FAQ{% endblock %}
+{% block title %}Help{% endblock %}
 
 {% block body %}
       {{ parent() }}
       <nav class='faq-nav'>
             <ul>
                   <li>
-                        <a href="{{ path('doc_faq') }}" class='hover-effect active'>FAQ</a>
+                        <a href="{{ path('doc_faq') }}" class='hover-effect'>FAQ</a>
                   </li>
                   <li>
                         <a href="{{ path('doc_help') }}" class='hover-effect'>Help</a>
                   </li>
                   <li>
-                        <a href="{{ path('doc_about') }}" class='hover-effect'>About</a>
+                        <a href="{{ path('doc_about') }}" class='hover-effect active'>About</a>
                   </li>
                   <li>
                         <a href="{{ path('doc_contact') }}" class='hover-effect'>Contact</a>
@@ -35,12 +35,11 @@
 
       <div class="content">
             {% apply markdown_to_html %}
-                  ## What is this site?
-                  This is a social network, running the GNU social software.
+                  ## About
 
-                  You can use it to make connections between friends, family and colleagues -- writing short notices about yourself, where you are, and what you're doing, and those notices will be sent to all your contacts.
+                  GNU social is a social network based on the Free Software [GNU social](https://git.gnu.io/gnu/gnu-social) tool.
 
-                  In the future, we'll be adding support for photo, video and file sharing, as well as events, better contact management and mobile devices.
+                  If you [register](https://loadaverage.org/main/register) for an account, you can post small (0 chars or less) text notices about yourself, where you are, what you're doing, or practically anything you want. You can also subscribe to the notices of your friends, or other people you're interested in, and follow them on the Web or in an [RSS](https://en.wikipedia.org/wiki/RSS) feed.
             {% endapply %}
       </div>
 {% endblock %}
