@@ -1,49 +1,18 @@
-{% extends 'faq/base.html.twig' %}
+{% extends 'faq/home.html.twig' %}
 
 {% block title %}Help{% endblock %}
 
 {% block body %}
-      {{ parent() }}
-      <nav class='faq-nav'>
-            <ul>
-                  <li>
-                        <a href="{{ path('doc_faq') }}" class='hover-effect'>FAQ</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('doc_help') }}" class='hover-effect'>Help</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('doc_about') }}" class='hover-effect'>About</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('doc_contact') }}" class='hover-effect'>Contact</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('doc_tags') }}" class='hover-effect'>Tags</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('doc_groups') }}" class='hover-effect'>Groups</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('doc_api') }}" class='hover-effect active'>API</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('doc_openid') }}" class='hover-effect'>OpenID</a>
-                  </li>
-            </ul>
-      </nav>
-
       <div class="content">
+            {% block markdown %}
             {% apply markdown_to_html %}
-                  ## API
-                  GNU social provides APIs that applications can use to interact with it:
+            ## What is this site?
+            This is a social network, running the GNU social software.
 
-                  -   [AtomPub](https://loadaverage.org/doc/atompub)
-                  -   [Twitter-compatible API](https://loadaverage.org/doc/twitterapi)
+            You can use it to make connections between friends, family and colleagues -- writing short notices about yourself, where you are, and what you're doing, and those notices will be sent to all your contacts.
 
-                  ### API discovery
-
-                  The base URLs for the APIs can be obtained using [Really Simple Discovery](https://en.wikipedia.org/wiki/Really_Simple_Discovery).
+            In the future, we'll be adding support for photo, video and file sharing, as well as events, better contact management and mobile devices.
             {% endapply %}
+            {% endblock %}
       </div>
 {% endblock %}
