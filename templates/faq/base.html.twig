@@ -1,15 +1,16 @@
 {% extends 'base.html.twig' %}
 
-{% block meta %}{% endblock %}
+{% block meta %}{{ parent() }}{% endblock %}
 
 {% block title %}{% endblock %}
 
 {% block stylesheets %}
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base.css') }}" media="screen and (min-width: 777px)">
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base_small.css') }}" media="screen and (max-width: 777px)">   
+      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base.css') }}" media="screen and (min-width: 1300px)">
+      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base_mid.css') }}" media="screen and (max-width: 1300px)">
+      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/base_small.css') }}" media="screen and (max-width: 600px)">
 {% endblock %}
 
-{% block body %}  
+{% block header %}  
       <div id='header'>
             <nav class='drop-down' id='menu'>
                   <ul>
@@ -17,12 +18,12 @@
                               <a href="#" class='hover-effect'>
                                     <svg class="icon icon-menu"><use xlink:href="#icon-menu"></use></svg>
                               </a>
-                                    <ul>
-                                          <li><a>Bookmarks</a></li>
-                                          <li><a>Messages</a></li>
-                                          <li><a>Settings</a></li>
-                                          <li><a>Logout</a></li>
-                                    </ul> 
+                              <ul>
+                                    <li><a>Bookmarks</a></li>
+                                    <li><a>Messages</a></li>
+                                    <li><a>Settings</a></li>
+                                    <li><a>Logout</a></li>
+                              </ul> 
                         </li>
                   </ul>
             </nav>

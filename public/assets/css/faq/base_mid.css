@@ -7,7 +7,7 @@ body, html
       background-size: cover;
       color: #F6F6F6;
       font-family: 'Open Sans', sans-serif;
-      font-size: 1.250em;
+      font-size: 1.2em;
       margin: 0;
       padding: 0;
 }
@@ -62,7 +62,7 @@ a:visited
 }
 ul li ul a
 {
-      font-size: 0.65em;
+      font-size: 0.7em;
 }
 b
 {
@@ -86,8 +86,9 @@ b
       flex-wrap: wrap;
       order: 1;
       width: 100%;
-      margin-left: 20%;
-      margin-right: 20%;
+      margin-left: 10%;
+      margin-right: 10%;
+      align-items: center;
 
       background-color: rgba(0, 0, 0, 0.40);;
       padding: 1em 1em;
@@ -117,8 +118,8 @@ b
 {
       display: inline-block;
       vertical-align: middle;
-      width: 1.25em;
-      height: 1.25em;
+      width: 1em;
+      height: 1em;
       stroke-width: 0;
       stroke: currentColor;
       fill: currentColor;
@@ -158,17 +159,23 @@ b
       order: 4;
       width: 100%;
       margin-top: 2em;
-      font-size: 0.7em;
+      font-size: 0.8em;
       align-items: center;
 }
 .icon-avatar
 {
+      order: 1;
       margin-right: 1em;
-      width: 3em;
-      height: 3em;
+      width: 4em;
+      height: 4em;
       stroke-width: 0;
       stroke: currentColor;
       fill: currentColor;
+}
+#info
+{
+      order: 2;
+      margin-right: auto;
 }      
 #nick
 {
@@ -188,14 +195,21 @@ b
 }    
 #stats
 {     
-      margin-left: auto;
       order: 3;
       display: flex;
-      justify-content: flex-end;
-}     
-#stats b:last-child
+      margin-left: auto;
+      flex-flow: column;
+}
+#followers
 {
-      margin-left: 1em;
+      order: 1;
+      width: 100%;
+}
+#following
+{
+      order: 2;
+      width: 100%;
+      text-align: right;
 }
 /*-------------------------------------*/
 /*-------------------------------------*/
@@ -207,11 +221,11 @@ b
       flex-wrap: wrap;
       order: 2;
       width: 100%;
-      margin-left: 20%;
-      margin-right: 20%;
+      margin-left: 10%;
+      margin-right: 10%;
       background-color: #00000080;
       padding: 1em 1em;
-      font-size: 0.7em;
+      font-size: 0.8em;
       box-shadow: 0px 0px 60px -20px rgba(41,50,60,1);
 }
 .faq-nav ul 
@@ -220,8 +234,8 @@ b
       align-items: stretch;
       justify-content: space-between;
       width: 100%;
-      margin-left: 10%;
-      margin-right: 10%;
+      margin-left: 1%;
+      margin-right: 1%;
       padding: 0;
 }
 .faq-nav li 
@@ -254,12 +268,12 @@ b
       width: 100%;
       margin-top: 1em;
       margin-bottom: 1em;
-      margin-left: 20%;
-      margin-right: 20%;
+      margin-left: 10%;
+      margin-right: 10%;
       background-color: rgba(0, 0, 0, 0.40);
       padding: 0 1em 1em 1em;
       border-radius: 1em;
-      font-size: 0.65em;
+      font-size: 0.7em;
       box-shadow: 0px 0px 60px -20px rgba(41,50,60,1);
 }
 .content ul
