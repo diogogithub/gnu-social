@@ -94,10 +94,6 @@ b
       box-shadow: 0px 0px 60px -20px rgba(41,50,60,1);
 }
 /* MENU -------------------------------*/
-#menu
-{
-      order: 1;
-}
 .icon-menu
 {
       display: inline-block;
@@ -218,7 +214,7 @@ b
 {
       display: flex;
       align-items: stretch;
-      justify-content: space-between;
+      justify-content: space-evenly;
       width: 100%;
       margin-left: 10%;
       margin-right: 10%;

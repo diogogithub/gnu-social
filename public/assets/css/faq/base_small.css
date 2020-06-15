@@ -232,7 +232,7 @@ b
 {
       display: flex;
       align-items: stretch;
-      justify-content: space-between;
+      justify-content: space-evenly;
       width: 100%;
       margin-left: 0;
       margin-right: 0;

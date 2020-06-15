@@ -11,12 +11,6 @@
                         <a href="{{ path('doc_faq') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'doc_faq' %}active{% endif %}'>FAQ</a>
                   </li>
                   <li>
-                        <a href="{{ path('doc_help') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'doc_help' %}active{% endif %}'>Help</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('doc_about') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'doc_about' %}active{% endif %}'>About</a>
-                  </li>
-                  <li>
                         <a href="{{ path('doc_contact') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'doc_contact' %}active{% endif %}'>Contact</a>
                   </li>
                   <li>
@@ -24,9 +18,6 @@
                   </li>
                   <li>
                         <a href="{{ path('doc_groups') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'doc_groups' %}active{% endif %}'>Groups</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('doc_api') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'doc_api' %}active{% endif %}'>API</a>
                   </li>
                   <li>
                         <a href="{{ path('doc_openid') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'doc_openid' %}active{% endif %}'>OpenID</a>
@@ -44,6 +35,15 @@
             You can use it to make connections between friends, family and colleagues -- writing short notices about yourself, where you are, and what you're doing, and those notices will be sent to all your contacts.
 
             In the future, we'll be adding support for photo, video and file sharing, as well as events, better contact management and mobile devices.
+
+            ## Help
+            GNU social is a **social service**. Users can post short status messages which are shared to their friends and colleagues on the service and (optionally) onto the Web.
+
+            You can also share other types of data, like bookmarks, event invitations, polls, and questions.
+
+            If you'd like to try it out, first register a new account. Then, on the public timeline, enter your message into the textbox at the top of the page, and click "Send". It will go out on the public timeline and to anyone who is subscribed to your notices.
+
+            To subscribe to other people's notifications, go to their profile page and click the "subscribe" button. They'll get a notice that you're now subscribed to their notifications.
             {% endapply %}
             {% endblock %}
       </div>
