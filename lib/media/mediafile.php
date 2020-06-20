@@ -1,33 +1,33 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * GNU social - a federating social network
- *
  * Abstraction for media files
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  Media
  * @package   GNUsocial
+ *
  * @author    Robin Millette <robin@millette.info>
  * @author    Miguel Dantas <biodantas@gmail.com>
  * @author    Zach Copley <zach@status.net>
  * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @copyright 2008-2009, 2019 Free Software Foundation http://fsf.org
+ * @author    Diogo Cordeiro <diogo@fc.up.pt>
+ * @copyright 2008-2009, 2019-2020 Free Software Foundation http://fsf.org
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      https://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -35,21 +35,22 @@ defined('GNUSOCIAL') || die();
  */
 class MediaFile
 {
-    public $id            = null;
-    public $filepath      = null;
-    public $filename      = null;
-    public $fileRecord    = null;
-    public $fileurl       = null;
-    public $short_fileurl = null;
-    public $mimetype      = null;
+    public $id;
+    public $filepath;
+    public $filename;
+    public $fileRecord;
+    public $fileurl;
+    public $short_fileurl;
+    public $mimetype;
 
     /**
      * @param string $filepath The path of the file this media refers to. Required
      * @param string $mimetype The mimetype of the file. Required
-     * @param $filehash        The hash of the file, if known. Optional
-     * @param int|null $id     The DB id of the file. Int if known, null if not.
-     *                         If null, it searches for it. If -1, it skips all DB
-     *                         interactions (useful for temporary objects)
+     * @param string $filehash The hash of the file, if known. Optional
+     * @param null|int $id The DB id of the file. Int if known, null if not.
+     *                     If null, it searches for it. If -1, it skips all DB
+     *                     interactions (useful for temporary objects)
+     *
      * @throws ClientException
      * @throws NoResultException
      * @throws ServerException
@@ -60,7 +61,7 @@ class MediaFile
         $this->filename = basename($this->filepath);
         $this->mimetype = $mimetype;
         $this->filehash = self::getHashOfFile($this->filepath, $filehash);
-        $this->id       = $id;
+        $this->id = $id;
 
         // If id is -1, it means we're dealing with a temporary object and don't want to store it in the DB,
         // or add redirects
@@ -80,7 +81,7 @@ class MediaFile
 
             $this->fileurl = common_local_url(
                 'attachment',
-                array('attachment' => $this->fileRecord->id)
+                ['attachment' => $this->fileRecord->id]
             );
 
             $this->short_fileurl = common_shorten_url($this->fileurl);
@@ -125,14 +126,17 @@ class MediaFile
      * Calculate the hash of a file.
      *
      * This won't work for files >2GiB because PHP uses only 32bit.
+     *
      * @param string $filepath
-     * @param string|null $filehash
+     * @param null|string $filehash
+     *
      * @return string
      * @throws ServerException
+     *
      */
     public static function getHashOfFile(string $filepath, $filehash = null)
     {
-        assert(!empty($filepath), __METHOD__ . ": filepath cannot be null");
+        assert(!empty($filepath), __METHOD__ . ': filepath cannot be null');
         if ($filehash === null) {
             // Calculate if we have an older upload method somewhere (Qvitter) that
             // doesn't do this before calling new MediaFile on its local files...
@@ -148,8 +152,9 @@ class MediaFile
      * Retrieve or insert as a file in the DB
      *
      * @return object File
-     * @throws ClientException
      * @throws ServerException
+     *
+     * @throws ClientException
      */
     protected function storeFile()
     {
@@ -161,25 +166,25 @@ class MediaFile
             // Well, let's just continue below.
         }
 
-        $fileurl = common_local_url('attachment_view', array('filehash' => $this->filehash));
+        $fileurl = common_local_url('attachment_view', ['filehash' => $this->filehash]);
 
         $file = new File;
 
         $file->filename = $this->filename;
-        $file->urlhash  = File::hashurl($fileurl);
-        $file->url      = $fileurl;
+        $file->urlhash = File::hashurl($fileurl);
+        $file->url = $fileurl;
         $file->filehash = $this->filehash;
-        $file->size     = filesize($this->filepath);
+        $file->size = filesize($this->filepath);
         if ($file->size === false) {
             throw new ServerException('Could not read file to get its size');
         }
-        $file->date     = time();
+        $file->date = time();
         $file->mimetype = $this->mimetype;
 
         $file_id = $file->insert();
 
-        if ($file_id===false) {
-            common_log_db_error($file, "INSERT", __FILE__);
+        if ($file_id === false) {
+            common_log_db_error($file, 'INSERT', __FILE__);
             // TRANS: Client exception thrown when a database error was thrown during a file upload operation.
             throw new ClientException(_m('There was a database error while saving your file. Please try again.'));
         }
@@ -187,7 +192,7 @@ class MediaFile
         // Set file geometrical properties if available
         try {
             $image = ImageFile::fromFileObject($file);
-            $orig = clone($file);
+            $orig = clone $file;
             $file->width = $image->width;
             $file->height = $image->height;
             $file->update($orig);
@@ -215,11 +220,11 @@ class MediaFile
     {
         $value = self::maxFileSizeInt();
         if ($value > 1024 * 1024) {
-            $value = $value/(1024*1024);
+            $value = $value / (1024 * 1024);
             // TRANS: Number of megabytes. %d is the number.
             return sprintf(_m('%dMB', '%dMB', $value), $value);
         } elseif ($value > 1024) {
-            $value = $value/1024;
+            $value = $value / 1024;
             // TRANS: Number of kilobytes. %d is the number.
             return sprintf(_m('%dkB', '%dkB', $value), $value);
         } else {
@@ -231,7 +236,7 @@ class MediaFile
     /**
      * The maximum allowed file size, as an int
      */
-    public static function maxFileSizeInt() : int
+    public static function maxFileSizeInt(): int
     {
         return common_config('attachments', 'file_quota');
     }
@@ -239,9 +244,13 @@ class MediaFile
     /**
      * Encodes a file name and a file hash in the new file format, which is used to avoid
      * having an extension in the file, removing trust in extensions, while keeping the original name
+     *
+     * @param mixed $original_name
+     * @param null|mixed $ext
+     *
      * @throws ClientException
      */
-    public static function encodeFilename($original_name, string $filehash, $ext = null) : string
+    public static function encodeFilename($original_name, string $filehash, $ext = null): string
     {
         if (empty($original_name)) {
             $original_name = _m('Untitled attachment');
@@ -249,9 +258,9 @@ class MediaFile
 
         // If we're given an extension explicitly, use it, otherwise...
         $ext = $ext ?:
-             // get a replacement extension if configured, returns false if it's blocked,
-             // null if no extension
-             File::getSafeExtension($original_name);
+            // get a replacement extension if configured, returns false if it's blocked,
+            // null if no extension
+            File::getSafeExtension($original_name);
         if ($ext === false) {
             throw new ClientException(_m('Blacklisted file extension.'));
         }
@@ -268,6 +277,7 @@ class MediaFile
 
     /**
      * Decode the new filename format
+     *
      * @return false | null | string on failure, no match (old format) or original file name, respectively
      */
     public static function decodeFilename(string $encoded_filename)
@@ -319,19 +329,21 @@ class MediaFile
      * format ("{$hash}.{$ext}")
      *
      * @param string $param Form name
-     * @param Profile|null $scoped
+     * @param null|Profile $scoped
+     *
      * @return ImageFile|MediaFile
-     * @throws ClientException
      * @throws NoResultException
      * @throws NoUploadedMediaException
      * @throws ServerException
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
+     *
+     * @throws ClientException
      */
-    public static function fromUpload(string $param='media', Profile $scoped=null)
+    public static function fromUpload(string $param = 'media', Profile $scoped = null)
     {
         // The existence of the "error" element means PHP has processed it properly even if it was ok.
-        if (!(isset($_FILES[$param]) && isset($_FILES[$param]['error']))) {
+        if (!(isset($_FILES[$param], $_FILES[$param]['error']))) {
             throw new NoUploadedMediaException($param);
         }
 
@@ -363,7 +375,7 @@ class MediaFile
                 // TRANS: Client exception thrown when a file upload operation has been stopped by an extension.
                 throw new ClientException(_m('File upload stopped by extension.'));
             default:
-                common_log(LOG_ERR, __METHOD__ . ": Unknown upload error " . $_FILES[$param]['error']);
+                common_log(LOG_ERR, __METHOD__ . ': Unknown upload error ' . $_FILES[$param]['error']);
                 // TRANS: Client exception thrown when a file upload operation has failed with an unknown reason.
                 throw new ClientException(_m('System error uploading file.'));
         }
@@ -417,10 +429,10 @@ class MediaFile
                 return new ImageFile(null, $filepath);
             }
         }
-        return new MediaFile($filepath, $mimetype, $filehash);
+        return new self($filepath, $mimetype, $filehash);
     }
 
-    public static function fromFilehandle($fh, Profile $scoped=null)
+    public static function fromFilehandle($fh, Profile $scoped = null)
     {
         $stream = stream_get_meta_data($fh);
         // So far we're only handling filehandles originating from tmpfile(),
@@ -449,7 +461,7 @@ class MediaFile
                 throw new ClientException(_m('File could not be moved to destination directory.'));
             }
             if (!chmod($e->path, 0664)) {
-                common_log(LOG_ERR, 'Could not chmod uploaded file: '._ve($e->path));
+                common_log(LOG_ERR, 'Could not chmod uploaded file: ' . _ve($e->path));
             }
 
             $filename = basename($file->getPath());
@@ -467,14 +479,14 @@ class MediaFile
             $result = copy($stream['uri'], $filepath) && chmod($filepath, 0664);
 
             if (!$result) {
-                common_log(LOG_ERR, 'File could not be moved (or chmodded) from '._ve($stream['uri']) . ' to ' . _ve($filepath));
+                common_log(LOG_ERR, 'File could not be moved (or chmodded) from ' . _ve($stream['uri']) . ' to ' . _ve($filepath));
                 // TRANS: Client exception thrown when a file upload operation fails because the file could
                 // TRANS: not be moved from the temporary folder to the permanent file location.
                 throw new ClientException(_m('File could not be moved to destination directory.'));
             }
         }
 
-        return new MediaFile($filename, $mimetype, $filehash);
+        return new self($filename, $mimetype, $filehash);
     }
 
     /**
@@ -482,14 +494,16 @@ class MediaFile
      *
      * @param string $filepath filesystem path as string (file must exist)
      * @param bool $originalFilename (optional) for extension-based detection
+     *
      * @return string
      *
-     * @throws ClientException if type is known, but not supported for local uploads
-     * @throws ServerException
      * @fixme this seems to tie a front-end error message in, kinda confusing
      *
+     * @throws ServerException
+     *
+     * @throws ClientException if type is known, but not supported for local uploads
      */
-    public static function getUploadedMimeType(string $filepath, $originalFilename=false)
+    public static function getUploadedMimeType(string $filepath, $originalFilename = false)
     {
         // We only accept filenames to existing files
 
@@ -534,7 +548,7 @@ class MediaFile
          *    due to security concerns, hence the function_usable() checks
          */
         if (DIRECTORY_SEPARATOR !== '\\') {
-            $cmd = 'file --brief --mime '.escapeshellarg($filepath).' 2>&1';
+            $cmd = 'file --brief --mime ' . escapeshellarg($filepath) . ' 2>&1';
             if (empty($mimetype) && function_exists('exec')) {
                 /* This might look confusing, as $mime is being populated with all of the output
                  * when set in the second parameter. However, we only need the last line, which is
@@ -581,13 +595,13 @@ class MediaFile
 
         // Unclear types are such that we can't really tell by the auto
         // detect what they are (.bin, .exe etc. are just "octet-stream")
-        $unclearTypes = array('application/octet-stream',
-                              'application/vnd.ms-office',
-                              'application/zip',
-                              'text/plain',
-                              'text/html',  // Ironically, Wikimedia Commons' SVG_logo.svg is identified as text/html
-                              // TODO: for XML we could do better content-based sniffing too
-                              'text/xml');
+        $unclearTypes = ['application/octet-stream',
+            'application/vnd.ms-office',
+            'application/zip',
+            'text/plain',
+            'text/html',  // Ironically, Wikimedia Commons' SVG_logo.svg is identified as text/html
+            // TODO: for XML we could do better content-based sniffing too
+            'text/xml',];
 
         $supported = common_config('attachments', 'supported');
 
@@ -618,7 +632,7 @@ class MediaFile
             // TRANS: %1$s is the file type that was denied, %2$s is the application part of
             // TRANS: the MIME type that was denied.
             $hint = sprintf(_m('"%1$s" is not a supported file type on this server. ' .
-            'Try using another %2$s format.'), $mimetype, $media);
+                'Try using another %2$s format.'), $mimetype, $media);
         } else {
             // TRANS: Client exception thrown trying to upload a forbidden MIME type.
             // TRANS: %s is the file type that was denied.
@@ -630,10 +644,12 @@ class MediaFile
     /**
      * Title for a file, to display in the interface (if there's no better title) and
      * for download filenames
+     *
      * @param $file File object
      * @returns string
      */
-    public static function getDisplayName(File $file) : string {
+    public static function getDisplayName(File $file): string
+    {
         if (empty($file->filename)) {
             return _m('Untitled attachment');
         }
@@ -644,7 +660,7 @@ class MediaFile
         // If there was an error in the match, something's wrong with some piece
         // of code (could be a file with utf8 chars in the name)
         $log_error_msg = "Invalid file name for File with id={$file->id} " .
-                       "({$file->filename}). Some plugin probably did something wrong.";
+            "({$file->filename}). Some plugin probably did something wrong.";
         if ($filename === false) {
             common_log(LOG_ERR, $log_error_msg);
         } elseif ($filename === null) {
