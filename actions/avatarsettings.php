@@ -359,7 +359,7 @@ class AvatarsettingsAction extends SettingsAction
             'x' => $dest_x, 'y' => $dest_y,
             'w' => $dest_w, 'h' => $dest_h,];
 
-        $imagefile = new ImageFile(null, $filedata['filepath']);
+        $imagefile = new ImageFile(-1, $filedata['filepath']);
         $filename = Avatar::filename(
             $this->scoped->getID(),
             image_type_to_extension($imagefile->preferredType()),
