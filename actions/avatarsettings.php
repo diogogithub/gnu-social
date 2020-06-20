@@ -112,6 +112,11 @@ class AvatarsettingsAction extends SettingsAction
 
     public function showUploadForm()
     {
+        // If we detect that the user didn't finish setting a new avatar, remove the temporary file.
+        if (isset($_SESSION['FILEDATA'])) {
+            @unlink($_SESSION['FILEDATA']['filepath']);
+            unset($_SESSION['FILEDATA']);
+        }
         $this->elementStart('form', ['enctype' => 'multipart/form-data',
             'method' => 'post',
             'id' => 'form_settings_avatar',
