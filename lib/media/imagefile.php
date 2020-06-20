@@ -55,7 +55,21 @@ class ImageFile extends MediaFile
     public $animated; // Animated image? (has more than 1 frame). null means untested
     public $mimetype; // The _ImageFile_ mimetype, _not_ the originating File object
 
-    public function __construct($id, string $filepath)
+    /**
+     * ImageFile constructor.
+     *
+     * @param int|null $id The DB id of the file. Int if known, null if not.
+     *                     If null, it searches for it. If -1, it skips all DB
+     *                     interactions (useful for temporary objects)
+     * @param string $filepath The path of the file this media refers to. Required
+     * @param string|null $filehash The hash of the file, if known. Optional
+     *
+     * @throws ClientException
+     * @throws NoResultException
+     * @throws ServerException
+     * @throws UnsupportedMediaException
+     */
+    public function __construct(?int $id = null, string $filepath, ?string $filehash = null)
     {
         $old_limit = ini_set('memory_limit', common_config('attachments', 'memory_limit'));
 
@@ -74,7 +88,14 @@ class ImageFile extends MediaFile
             }
             return false;
         };
-        if (!(($cmp($this, IMAGETYPE_GIF) && function_exists('imagecreatefromgif')) || ($cmp($this, IMAGETYPE_JPEG) && function_exists('imagecreatefromjpeg')) || ($cmp($this, IMAGETYPE_BMP) && function_exists('imagecreatefrombmp')) || ($cmp($this, IMAGETYPE_WBMP) && function_exists('imagecreatefromwbmp')) || ($cmp($this, IMAGETYPE_XBM) && function_exists('imagecreatefromxbm')) || ($cmp($this, IMAGETYPE_PNG) && function_exists('imagecreatefrompng')))) {
+        if (!(($cmp($this, IMAGETYPE_GIF)  && function_exists('imagecreatefromgif'))   ||
+              ($cmp($this, IMAGETYPE_JPEG) && function_exists('imagecreatefromjpeg')) ||
+              ($cmp($this, IMAGETYPE_BMP)  && function_exists('imagecreatefrombmp'))   ||
+              ($cmp($this, IMAGETYPE_WBMP) && function_exists('imagecreatefromwbmp')) ||
+              ($cmp($this, IMAGETYPE_XBM)  && function_exists('imagecreatefromxbm'))   ||
+              ($cmp($this, IMAGETYPE_PNG)  && function_exists('imagecreatefrompng'))
+             )
+        ) {
             common_debug("Mimetype '{$this->mimetype}' was not recognized as a supported format");
             // TRANS: Exception thrown when trying to upload an unsupported image file format.
             throw new UnsupportedMediaException(_m('Unsupported image format.'), $this->filepath);
@@ -86,7 +107,7 @@ class ImageFile extends MediaFile
         parent::__construct(
             $filepath,
             $this->mimetype,
-            null /* filehash, MediaFile will calculate it */,
+            $filehash,
             $id
         );
 
@@ -123,7 +144,11 @@ class ImageFile extends MediaFile
     /**
      * Create a thumbnail from a file object
      *
+     * @param File $file
      * @return ImageFile
+     * @throws FileNotFoundException
+     * @throws UnsupportedMediaException
+     * @throws UseFileAsThumbnailException
      */
     public static function fromFileObject(File $file)
     {

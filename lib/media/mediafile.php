@@ -44,10 +44,12 @@ class MediaFile
     public $mimetype;
 
     /**
+     * MediaFile constructor.
+     *
      * @param string $filepath The path of the file this media refers to. Required
      * @param string $mimetype The mimetype of the file. Required
-     * @param string $filehash The hash of the file, if known. Optional
-     * @param null|int $id The DB id of the file. Int if known, null if not.
+     * @param string|null $filehash The hash of the file, if known. Optional
+     * @param int|null $id The DB id of the file. Int if known, null if not.
      *                     If null, it searches for it. If -1, it skips all DB
      *                     interactions (useful for temporary objects)
      *
@@ -55,7 +57,7 @@ class MediaFile
      * @throws NoResultException
      * @throws ServerException
      */
-    public function __construct(string $filepath, string $mimetype, $filehash = null, $id = null)
+    public function __construct(string $filepath, string $mimetype, ?string $filehash = null, ?int $id = null)
     {
         $this->filepath = $filepath;
         $this->filename = basename($this->filepath);
