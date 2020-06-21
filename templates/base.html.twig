@@ -1,26 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
-<<<<<<< HEAD
-        <meta charset="UTF-8">
-        <title>{% block title %}Base page{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
-        <style>
-          body {
-              background-color: #333;
-              color: #ddd;
-          }
-        </style>
-=======
         {% block meta %}
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1">
         {% endblock %}
         <title>{% block title %}{% endblock %}</title>
         {% block stylesheets %}
-            <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans&display=swap" rel="stylesheet"> 
+            <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans&display=swap" rel="stylesheet">
+            <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}" media="screen and (min-width: 1300px)">
+            <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_mid.css') }}" media="screen and (max-width: 1300px)">
+            <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_small.css') }}" media="screen and (max-width: 600px)">
         {% endblock %}
->>>>>>> 75f0d589f1... [UI] Header completed, FAQ almost done.
     </head>
     <body>
         {% block icons %}
