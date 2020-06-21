@@ -1,9 +1,4 @@
 {% extends 'base.html.twig' %}
-
-{% block meta %}{{ parent() }}{% endblock %}
-
-{% block title %}{% endblock %}
-
 {% block stylesheets %}
       {{ parent() }}
       <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/faq.css') }}" media="screen and (min-width: 1300px)">
@@ -11,6 +6,8 @@
       <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/faq_small.css') }}" media="screen and (max-width: 600px)">
 {% endblock %}
 
-{% block header %}{{ parent() }}{% endblock %}
-
-{% block javascripts %}{% endblock %}
+{% block body %}
+      <div class="content">
+            {{ form(form) }}
+      </div>
+{% endblock %}
