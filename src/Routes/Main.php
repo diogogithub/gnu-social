@@ -30,31 +30,22 @@
 
 namespace App\Routes;
 
-<<<<<<< HEAD
 use App\Controller as C;
-use App\Core\Router\RouteLoader;
-=======
 use App\Controller\NetworkPublic;
-use App\Core\RouteLoader;
+use App\Core\Router\RouteLoader;
 use Symfony\Bundle\FrameworkBundle\Controller\TemplateController;
->>>>>>> 5734468448... [UI] Better use of icons, fixing static pages routing.
 
 abstract class Main
 {
     public static function load(RouteLoader $r): void
     {
-<<<<<<< HEAD
-        $r->connect('main_all', '/main/all', C\NetworkPublic::class);
-        $r->connect('config_admin', '/config/admin', C\AdminConfigController::class);
-=======
         $r->connect('main_all', '/main/all', NetworkPublic::class);
 
-        // FAQ pages, still need to make sure no path traversal attacks or sql and stuff
-        $r->connect('doc_faq', '/doc/faq', TemplateController::class, [], ['defaults' => ['template' => 'faq/home.html.twig']]);
-        $r->connect('doc_contact', '/doc/contact', TemplateController::class, [], ['defaults' => ['template' => 'faq/contact.html.twig']]);
-        $r->connect('doc_tags', '/doc/tags', TemplateController::class, [], ['defaults' => ['template' => 'faq/tags.html.twig']]);
-        $r->connect('doc_groups', '/doc/groups', TemplateController::class, [], ['defaults' => ['template' => 'faq/groups.html.twig']]);
-        $r->connect('doc_openid', '/doc/openid', TemplateController::class, [], ['defaults' => ['template' => 'faq/openid.html.twig']]);
->>>>>>> 5734468448... [UI] Better use of icons, fixing static pages routing.
+        // FAQ static pages
+        foreach (['faq', 'contact', 'tags', 'groups', 'openid'] as $s) {
+            $r->connect('doc_' . $s, 'doc/' . $s, TemplateController::class, [], ['defaults' => ['template' => 'faq/' . $s . '.html.twig']]);
+        }
+
+        $r->connect('settings_profile', '/settings/profile', C\UserAdminPanel::class);
     }
 }
