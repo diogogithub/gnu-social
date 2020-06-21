@@ -68,10 +68,10 @@ class RouteLoader extends Loader
     /**
      * Connect a route to a controller
      *
-     * @param string     $id
-     * @param string     $uri_path
+     * @param string     $id         Route unique id, used to generate urls, for instance
+     * @param string     $uri_path   Path, possibly with {param}s
      * @param mixed      $target     Some kind of callable, typically [object, method]
-     * @param null|array $param_reqs
+     * @param null|array $param_reqs Array of {param} => regex
      * @param null|array $options    Possible keys are ['condition', 'defaults', 'format',
      *                               'fragment', 'http-methods', 'locale', 'methods', 'schemes']
      *                               'http-methods' and 'methods' are aliases
@@ -89,7 +89,8 @@ class RouteLoader extends Loader
                         '_controller' => is_array($target) ? $target : [$target, '__invoke'],
                         '_format'     => $options['format'] ?? 'html',
                         '_fragment'   => $options['fragment'] ?? '',
-                        '_locale'     => $options['locale'] ?? '',
+                        '_locale'     => $options['locale'] ?? 'en',
+                        'template'    => $options['template'] ?? 'en',
                     ],
                     $options['defaults'] ?? []),
                 // requirements = [] -- param => regex
