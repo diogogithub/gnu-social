@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 /**
@@ -46,12 +48,9 @@ class RouteLoader extends Loader
      * Must conform to symfony's interface, but the $resource is unused
      * and $type must not be null
      *
-     * @param mixed       $resource
-     * @param null|string $type
-     *
-     * @return RouteCollection
+     * @param mixed $resource
      */
-    public function load($resource, string $type = null): RouteCollection
+    public function load($resource, ?string $type = null): RouteCollection
     {
         $this->rc = new RouteCollection();
 
@@ -70,7 +69,7 @@ class RouteLoader extends Loader
      *
      * @param string     $id         Route unique id, used to generate urls, for instance
      * @param string     $uri_path   Path, possibly with {param}s
-     * @param mixed      $target     Some kind of callable, typically [object, method]
+     * @param mixed      $target     Some kind of callable, typically class with `__invoke` or [object, method]
      * @param null|array $param_reqs Array of {param} => regex
      * @param null|array $options    Possible keys are ['condition', 'defaults', 'format',
      *                               'fragment', 'http-methods', 'locale', 'methods', 'schemes']
@@ -80,7 +79,7 @@ class RouteLoader extends Loader
     {
         $this->rc->add($id,
             new Route(
-            // path -- URI path
+                // path -- URI path
                 $uri_path,
                 // defaults = []     -- param default values,
                 // and special configuration options
@@ -118,12 +117,9 @@ class RouteLoader extends Loader
      * Passed the arguments from the `RoutingConfigurator::import` call from
      * `config/routes.php`
      *
-     * @param mixed       $resource Unused
-     * @param null|string $type
-     *
-     * @return bool
+     * @param mixed $resource
      */
-    public function supports($resource, string $type = null)
+    public function supports($resource, ?string $type = null): bool
     {
         return 'GNUsocial' === $type;
     }
