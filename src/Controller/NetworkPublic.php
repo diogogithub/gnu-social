@@ -17,7 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-
 /**
  * Handle network public feed
  *
@@ -31,7 +30,7 @@
 
 namespace App\Controller;
 
-use App\Core\GSEvent as Event;
+use App\Core\Event;
 use App\Util\Common;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
