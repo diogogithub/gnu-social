@@ -49,6 +49,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
@@ -60,6 +61,7 @@ class GNUsocial implements EventSubscriberInterface
     protected TranslatorInterface    $translator;
     protected EntityManagerInterface $entity_manager;
     protected RouterInterface        $router;
+    protected FormFactoryInterface   $form_factory;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -67,12 +69,14 @@ class GNUsocial implements EventSubscriberInterface
     public function __construct(LoggerInterface $logger,
                                 TranslatorInterface $translator,
                                 EntityManagerInterface $em,
-                                RouterInterface $router)
+                                RouterInterface $router,
+                                FormFactoryInterface $ff)
     {
         $this->logger         = $logger;
         $this->translator     = $translator;
         $this->entity_manager = $em;
         $this->router         = $router;
+        $this->form_factory   = $ff;
     }
 
     /**
@@ -87,6 +91,7 @@ class GNUsocial implements EventSubscriberInterface
         I18nHelper::setTranslator($this->translator);
         DB::setManager($this->entity_manager);
         Router::setRouter($this->router);
+        Form::setFactory($this->form_factory);
 
         DefaultSettings::setDefaults();
         ModulesManager::loadModules();
