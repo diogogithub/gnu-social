@@ -57,13 +57,11 @@ abstract class Common
      * An internal helper function that converts a $size from php.ini for
      * file size limit from the 'human-readable' shorthand into a int. If
      * $size is empty (the value is not set in php.ini), returns a default
-     * value (5000000)
-     *
-     * @param bool|string $size
+     * value (3M)
      *
      * @return int the php.ini upload limit in machine-readable format
      */
-    public static function size_str_to_int($size): int
+    public static function size_str_to_int(string $size): int
     {
         // `memory_limit` can be -1 and `post_max_size` can be 0
         // for unlimited. Consistency.
