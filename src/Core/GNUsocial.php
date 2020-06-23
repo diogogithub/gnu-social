@@ -87,7 +87,7 @@ class GNUsocial implements EventSubscriberInterface
     public function register(EventDispatcherInterface $event_dispatcher): void
     {
         Log::setLogger($this->logger);
-        GSEvent::setDispatcher($event_dispatcher);
+        Event::setDispatcher($event_dispatcher);
         I18nHelper::setTranslator($this->translator);
         DB::setManager($this->entity_manager);
         Router::setRouter($this->router);

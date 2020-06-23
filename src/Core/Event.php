@@ -17,7 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-
 /**
  * GNU social's event handler wrapper around Symfony's,
  * keeping our old interface, which is more convenient and just as powerful
@@ -35,7 +34,7 @@ namespace App\Core;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
-abstract class GSEvent
+abstract class Event
 {
     /**
      * Constants to be returned from event handlers, for increased clarity

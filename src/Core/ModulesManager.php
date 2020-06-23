@@ -17,7 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-
 /**
  * Module and plugin loader code, one of the main features of GNU social
  *
@@ -35,7 +34,6 @@
 namespace App\Core;
 
 use Functional as F;
-use GSEvent as Event;
 
 abstract class ModulesManager
 {
