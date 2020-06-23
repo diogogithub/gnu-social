@@ -16,5 +16,10 @@
         {% block javascripts %}{% endblock %}
 
         {{ form(form) }}
+
+        {% if old_value is defined and default is defined %}
+             Old value: {{ old_value }} <br>
+             Default value: {{ default }}
+        {% endif %}
     </body>
 </html>
