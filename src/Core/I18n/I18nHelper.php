@@ -217,38 +217,38 @@ abstract class I18nHelper
 
     public static function formatICU(array $messages, array $params): string
     {
-        $msg = '';
-        foreach ($params as $var => $val) {
-            if (is_int($val)) {
+        $res = '';
+        foreach (array_slice($params, 0, 1, true) as $var => $type) {
+            if (is_int($type)) {
                 $pref = '=';
                 $op   = 'plural';
-            } elseif (is_string($var)) {
+            } elseif (is_string($type)) {
                 $pref = '';
                 $op   = 'select';
             } else {
-                throw new Exception('Invalid key type. (int|string) only');
+                throw new Exception('Invalid variable type. (int|string) only');
             }
 
-            $res = "{{$var}, {$op}, ";
-            $i   = 1;
-            $cnt = count($messages);
+            $res = "{$var}, {$op}, ";
+            $i   = 0;
+            $cnt = count($messages) - 1;
             foreach ($messages as $val => $m) {
+                if ($i !== $cnt) {
+                    $res .= "{$pref}{$val}";
+                } else {
+                    $res .= 'other';
+                }
+
                 if (is_array($m)) {
-                    array_shift($params);
-                    $res .= "{$pref}{$val} {" . self::formatICU($m, $params) . '} ';
+                    $res .= ' {' . self::formatICU($m, array_slice($params, 1, null, true)) . '} ';
                 } elseif (is_string($m)) {
-                    if ($i !== $cnt) {
-                        $res .= "{$pref}{$val} {{$m}} ";
-                    } else {
-                        $res .= "other {{$m}}}";
-                    }
+                    $res .= " {{$m}} ";
                 } else {
                     throw new Exception('Invalid message array');
                 }
                 ++$i;
             }
-            $msg .= $res;
         }
-        return $msg;
+        return "{{$res}}";
     }
 }
