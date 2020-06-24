@@ -53,34 +53,46 @@ class DirectMessagePlugin extends Plugin
     public function onRouterInitialized(URLMapper $m)
     {
         // web front-end actions
-        $m->connect('message/new',
-                    ['action' => 'newmessage']);
-        $m->connect('message/new?to=:to',
-                    ['action' => 'newmessage'],
-                    ['to'     => '[0-9]+']);
+        $m->connect(
+            'message/new',
+            ['action' => 'newmessage']
+        );
+        $m->connect(
+            'message/new?to=:to',
+            ['action' => 'newmessage'],
+            ['to'     => '[0-9]+']
+        );
 
-        $m->connect('message/:message',
-                    ['action'  => 'showmessage'],
-                    ['message' => '[0-9]+']);
+        $m->connect(
+            'message/:message',
+            ['action'  => 'showmessage'],
+            ['message' => '[0-9]+']
+        );
 
         // direct messages
-        $m->connect('api/direct_messages.:format',
-                    ['action' => 'ApiDirectMessage'],
-                    ['format' => '(xml|json|rss|atom)']);
-        $m->connect('api/direct_messages/sent.:format',
-                    ['action' => 'ApiDirectMessage',
+        $m->connect(
+            'api/direct_messages.:format',
+            ['action' => 'ApiDirectMessage'],
+            ['format' => '(xml|json|rss|atom)']
+        );
+        $m->connect(
+            'api/direct_messages/sent.:format',
+            ['action' => 'ApiDirectMessage',
                      'sent'   => true],
-                    ['format' => '(xml|json|rss|atom)']);
-        $m->connect('api/direct_messages/new.:format',
-                    ['action' => 'ApiDirectMessageNew'],
-                    ['format' => '(xml|json)']);
+            ['format' => '(xml|json|rss|atom)']
+        );
+        $m->connect(
+            'api/direct_messages/new.:format',
+            ['action' => 'ApiDirectMessageNew'],
+            ['format' => '(xml|json)']
+        );
 
         return true;
     }
 
     /**
      * Are we allowed to perform a certain command over the API?
-     * 
+     *
      * @param Command $cmd
      * @param bool &$supported
      * @return bool hook value
@@ -97,7 +109,7 @@ class DirectMessagePlugin extends Plugin
      * @param string  $cmd     Command being run
      * @param string  $arg     Rest of the message (including address)
      * @param User    $user    User sending the message
-     * @param Command|bool &$result The resulting command object to be run.
+     * @param MessageCommand|bool &$result The resulting command object to be run.
      * @return bool hook value
      */
     public function onStartInterpretCommand(string $cmd, ?string $arg, User $user, &$result) : bool
@@ -118,29 +130,31 @@ class DirectMessagePlugin extends Plugin
 
     /**
      * Show Message button in someone's left-side navigation menu
-     * 
+     *
      * @param Menu $menu
      * @param Profile $target
      * @param Profile $scoped
      * @return void
+     * @throws ServerException
      */
     public function onEndPersonalGroupNav(Menu $menu, Profile $target, Profile $scoped = null)
     {
         if ($scoped instanceof Profile && $scoped->id == $target->id
                 && !common_config('singleuser', 'enabled')) {
-
-            $menu->out->menuItem(common_local_url('inbox', ['nickname' => $target->getNickname()]),
+            $menu->out->menuItem(
+                common_local_url('inbox', ['nickname' => $target->getNickname()]),
                                  // TRANS: Menu item in personal group navigation menu.
-                                 _m('MENU','Messages'),
+                                 _m('MENU', 'Messages'),
                                  // TRANS: Menu item title in personal group navigation menu.
                                  _('Your incoming messages'),
-                                 $scoped->id === $target->id && $menu->actionName =='inbox');
+                $scoped->id === $target->id && $menu->actionName =='inbox'
+            );
         }
     }
 
     /**
      * Show Message button in someone's profile page
-     * 
+     *
      * @param HTMLOutputter $out
      * @param Profile $profile
      * @return bool hook flag
@@ -159,12 +173,14 @@ class DirectMessagePlugin extends Plugin
 
         if (!$profile->hasBlocked($scoped)) {
             $out->elementStart('li', 'entity_send-a-message');
-            $out->element('a',
-                        ['href' => common_local_url('newmessage', ['to' => $profile->getID()]),
+            $out->element(
+                'a',
+                ['href' => common_local_url('newmessage', ['to' => $profile->getID()]),
                         // TRANS: Link title for link on user profile.
                         'title' => _('Send a direct message to this user.')],
                         // TRANS: Link text for link on user profile.
-                        _m('BUTTON','Message'));
+                        _m('BUTTON', 'Message')
+            );
             $out->elementEnd('li');
         }
         
@@ -197,10 +213,12 @@ class DirectMessagePlugin extends Plugin
                 $msg = Message::getKV('id', $message->id);
                 $act = $msg->asActivity();
 
-                Notice::saveActivity($act,
-                                     $msg->getFrom(),
-                                     ['source' => 'web',
-                                      'scope'  => NOTICE::MESSAGE_SCOPE]);
+                Notice::saveActivity(
+                    $act,
+                    $msg->getFrom(),
+                    ['source' => 'web',
+                                      'scope'  => NOTICE::MESSAGE_SCOPE]
+                );
             }
         }
 
