@@ -71,12 +71,16 @@ final class NicknameTest extends TestCase
                 } else {
                     $stuff = var_export($exception, true);
                 }
-                $this->assertTrue($exception && $exception instanceof $expectedException,
+                $this->assertTrue(
+                    $exception && $exception instanceof $expectedException,
                     "invalid input '$input' expected to fail with $expectedException, " .
-                    "got $stuff");
+                    "got $stuff"
+                );
             } else {
-                $this->assertTrue($normalized == false,
-                    "invalid input '$input' expected to fail");
+                $this->assertTrue(
+                    $normalized == false,
+                    "invalid input '$input' expected to fail"
+                );
             }
         } else {
             $msg = "normalized input nickname '$input' expected to normalize to '$expected', got ";
@@ -113,12 +117,12 @@ final class NicknameTest extends TestCase
         } else {
             $text = "@{$input} awesome! :)";
             $matches = common_find_mentions_raw($text);
-            $this->assertEquals(1, count($matches));
+            $this->assertCount(1, $matches);
             $this->assertEquals($expected, Nickname::normalize($matches[0][0]));
         }
     }
 
-    static public function provider()
+    public static function provider()
     {
         return array(
             array('evan', 'evan'),

@@ -31,16 +31,17 @@ if (!defined('STATUSNET')) { // Compatibility
 
 use GNUsocial;
 use PHPUnit\Framework\TestCase;
+use PluginList;
 use XmppPlugin;
 
 require_once INSTALLDIR . '/lib/util/common.php';
-require_once INSTALLDIR . '/plugins/Xmpp/XmppModule.php';
+require_once INSTALLDIR . '/plugins/Xmpp/XmppPlugin.php';
 
 final class XmppValidateTest extends TestCase
 {
     public function setUp(): void
     {
-        if (!array_key_exists('Xmpp', GNUsocial::getActiveModules())) {
+        if (!PluginList::isPluginActive('Xmpp')) {
             $this->markTestSkipped('XmppPlugin is not enabled.');
         }
     }

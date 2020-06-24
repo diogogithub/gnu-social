@@ -31,6 +31,7 @@ if (!defined('STATUSNET')) { // Compatibility
 
 use CommandInterpreter;
 use PHPUnit\Framework\TestCase;
+use User;
 
 require_once INSTALLDIR . '/lib/util/common.php';
 
@@ -47,7 +48,7 @@ final class CommandInterpreterTest extends TestCase
     {
         $inter = new CommandInterpreter();
 
-        $cmd = $inter->handle_command(null, $input);
+        $cmd = $inter->handle_command(User::getById(1), $input);
 
         $type = $cmd ? get_class($cmd) : null;
         $this->assertEquals(strtolower($expectedType), strtolower($type), $comment);
