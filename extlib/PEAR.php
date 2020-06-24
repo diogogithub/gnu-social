@@ -83,6 +83,7 @@ $GLOBALS['_PEAR_error_handler_stack']    = array();
  */
 class PEAR
 {
+    function getVersion(){} // This is an ugly patch for a crazy bug
     /**
      * Whether to enable internal debug messages.
      *
