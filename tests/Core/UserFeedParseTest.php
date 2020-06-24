@@ -36,71 +36,69 @@ use PHPUnit\Framework\TestCase;
 
 require_once INSTALLDIR . '/lib/util/common.php';
 
-final class UserFeedParseTests extends TestCase
+final class UserFeedParseTest extends TestCase
 {
     public function testFeed1()
     {
         global $_testfeed1;
         $dom = new DOMDocument();
         $dom->loadXML($_testfeed1);
-        $this->assertFalse(empty($dom));
+        static::assertFalse(empty($dom));
 
         $entries = $dom->getElementsByTagName('entry');
 
         $entry1 = $entries->item(0);
-        $this->assertFalse(empty($entry1));
+        static::assertFalse(empty($entry1));
 
         $feedEl = $dom->getElementsByTagName('feed')->item(0);
-        $this->assertFalse(empty($feedEl));
+        static::assertFalse(empty($feedEl));
 
         // Test actor (from activity:subject)
 
         $act1 = new Activity($entry1, $feedEl);
-        $this->assertFalse(empty($act1));
-        $this->assertFalse(empty($act1->actor));
-        $this->assertEquals($act1->actor->type, ActivityObject::PERSON);
-        $this->assertEquals($act1->actor->title, 'Zach Copley');
-        $this->assertEquals($act1->actor->id, 'http://localhost/statusnet/user/1');
-        $this->assertEquals($act1->actor->link, 'http://localhost/statusnet/zach');
+        static::assertFalse(empty($act1));
+        static::assertFalse(empty($act1->actor));
+        static::assertSame($act1->actor->type, ActivityObject::PERSON);
+        static::assertSame($act1->actor->title, 'Zach Copley');
+        static::assertSame($act1->actor->id, 'http://localhost/statusnet/user/1');
+        static::assertSame($act1->actor->link, 'http://localhost/statusnet/zach');
 
         $avatars = $act1->actor->avatarLinks;
 
-        $this->assertEquals(
+        static::assertSame(
             $avatars[0]->url,
             'http://localhost/statusnet/theme/default/default-avatar-profile.png'
         );
 
-        $this->assertEquals(
+        static::assertSame(
             $avatars[1]->url,
             'http://localhost/statusnet/theme/default/default-avatar-stream.png'
         );
 
-        $this->assertEquals(
+        static::assertSame(
             $avatars[2]->url,
             'http://localhost/statusnet/theme/default/default-avatar-mini.png'
         );
 
-        $this->assertEquals($act1->actor->displayName, 'Zach Copley');
+        static::assertSame($act1->actor->displayName, 'Zach Copley');
 
         $poco = $act1->actor->poco;
-        $this->assertEquals($poco->preferredUsername, 'zach');
-        $this->assertEquals($poco->address->formatted, 'El Cerrito, CA');
-        $this->assertEquals($poco->urls[0]->type, 'homepage');
-        $this->assertEquals($poco->urls[0]->value, 'http://zach.copley.name');
-        $this->assertEquals($poco->urls[0]->primary, true);
-        $this->assertEquals($poco->note, 'Zach Hack Attack');
+        static::assertSame($poco->preferredUsername, 'zach');
+        static::assertSame($poco->address->formatted, 'El Cerrito, CA');
+        static::assertSame($poco->urls[0]->type, 'homepage');
+        static::assertSame($poco->urls[0]->value, 'http://zach.copley.name');
+        static::assertSame($poco->urls[0]->primary, true);
+        static::assertSame($poco->note, 'Zach Hack Attack');
 
         // test the post
 
         //var_export($act1);
-        $this->assertEquals($act1->objects[0]->type, 'http://activitystrea.ms/schema/1.0/note');
-        $this->assertEquals($act1->objects[0]->title, 'And now for something completely insane...');
+        static::assertSame($act1->objects[0]->type, 'http://activitystrea.ms/schema/1.0/note');
+        static::assertSame($act1->objects[0]->title, 'And now for something completely insane...');
 
-        $this->assertEquals($act1->objects[0]->content, 'And now for something completely insane...');
-        $this->assertEquals($act1->objects[0]->id, 'http://localhost/statusnet/notice/3');
-
+        static::assertSame($act1->objects[0]->content, 'And now for something completely insane...');
+        static::assertSame($act1->objects[0]->id, 'http://localhost/statusnet/notice/3');
     }
-
 }
 
 $_testfeed1 = <<<TESTFEED1

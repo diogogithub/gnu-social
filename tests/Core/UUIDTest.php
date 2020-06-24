@@ -39,23 +39,24 @@ final class UUIDTest extends TestCase
     public function testGenerate()
     {
         $result = UUID::gen();
-        $this->assertRegExp('/^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/',
-            $result);
+        static::assertRegExp(
+            '/^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/',
+            $result
+        );
         // Check version number
-        $this->assertEquals(0x4000, hexdec(substr($result, 14, 4)) & 0xF000);
-        $this->assertEquals(0x8000, hexdec(substr($result, 19, 4)) & 0xC000);
+        static::assertSame(0x4000, hexdec(substr($result, 14, 4)) & 0xF000);
+        static::assertSame(0x8000, hexdec(substr($result, 19, 4)) & 0xC000);
     }
 
     public function testUnique()
     {
         $reps = 100;
-        $ids = array();
+        $ids = [];
 
-        for ($i = 0; $i < $reps; $i++) {
+        for ($i = 0; $i < $reps; ++$i) {
             $ids[] = UUID::gen();
         }
 
-        $this->assertEquals(count($ids), count(array_unique($ids)), "UUIDs must be unique");
+        static::assertSame(count($ids), count(array_unique($ids)), 'UUIDs must be unique');
     }
 }
-

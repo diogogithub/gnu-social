@@ -40,23 +40,25 @@ final class TagURITest extends TestCase
 {
     /**
      * @dataProvider provider
+     *
      * @param $format
      * @param $args
      * @param $uri
      */
     public function testProduction($format, $args, $uri)
     {
-        $minted = call_user_func_array(array('TagURI', 'mint'),
-            array_merge(array($format), $args));
+        $minted = call_user_func_array(
+            ['TagURI', 'mint'],
+            array_merge([$format], $args)
+        );
 
-        $this->assertEquals($uri, $minted);
+        static::assertSame($uri, $minted);
     }
 
-    static public function provider()
+    public static function provider()
     {
-        return array(array('favorite:%d:%d',
-            array(1, 3),
-            'tag:example.net,' . date('Y-m-d') . ':apps:statusnet:favorite:1:3'));
+        return [['favorite:%d:%d',
+            [1, 3],
+            'tag:example.net,' . date('Y-m-d') . ':apps:statusnet:favorite:1:3',]];
     }
 }
-

@@ -42,86 +42,85 @@ addPlugin('Geonames');
 
 final class LocationTest extends TestCase
 {
-
     /**
      * @dataProvider locationNames
+     *
      * @param $name
      * @param $language
      * @param $location
      */
-
     public function testLocationFromName($name, $language, $location)
     {
         $result = Location::fromName($name, $language);
-        $this->assertEquals($result, $location);
+        static::assertSame($result, $location);
     }
 
-    static public function locationNames()
+    public static function locationNames()
     {
-        return array(array('Montreal', 'en', null),
-            array('San Francisco, CA', 'en', null),
-            array('Paris, France', 'en', null),
-            array('Paris, Texas', 'en', null));
+        return [['Montreal', 'en', null],
+            ['San Francisco, CA', 'en', null],
+            ['Paris, France', 'en', null],
+            ['Paris, Texas', 'en', null],];
     }
 
     /**
      * @dataProvider locationIds
+     *
      * @param $id
      * @param $ns
      * @param $language
      * @param $location
      */
-
     public function testLocationFromId($id, $ns, $language, $location)
     {
         $result = Location::fromId($id, $ns, $language);
-        $this->assertEquals($result, $location);
+        static::assertSame($result, $location);
     }
 
-    static public function locationIds()
+    public static function locationIds()
     {
-        return array(array(6077243, GeonamesPlugin::LOCATION_NS, 'en', null),
-            array(5391959, GeonamesPlugin::LOCATION_NS, 'en', null));
+        return [[6077243, GeonamesPlugin::LOCATION_NS, 'en', null],
+            [5391959, GeonamesPlugin::LOCATION_NS, 'en', null],];
     }
 
     /**
      * @dataProvider locationLatLons
+     *
      * @param $lat
      * @param $lon
      * @param $language
      * @param $location
      */
-
     public function testLocationFromLatLon($lat, $lon, $language, $location)
     {
         $result = Location::fromLatLon($lat, $lon, $language);
-        $this->assertEquals($location, $result->location_id);
+        static::assertSame($location, $result->location_id);
     }
 
-    static public function locationLatLons()
+    public static function locationLatLons()
     {
-        return array(array(37.77493, -122.41942, 'en', null),
-            array(45.509, -73.588, 'en', null));
+        return [[37.77493, -122.41942, 'en', null],
+            [45.509, -73.588, 'en', null],];
     }
 
     /**
      * @dataProvider nameOfLocation
+     *
      * @param $location
      * @param $language
      * @param $name
      */
-
     public function testLocationGetName($location, $language, $name)
     {
         $result = empty($location) ? null : $location->getName($language);
-        $this->assertEquals($name, $result);
+        static::assertSame($name, $result);
     }
 
-    static public function nameOfLocation()
+    public static function nameOfLocation()
     {
         $loc = Location::fromName('Montreal', 'en');
-        return array(array($loc, 'en', null), //'Montreal'),
-            array($loc, 'fr', null));//'Montréal'));
+        return [[$loc, 'en', null], //'Montreal'),
+            [$loc, 'fr', null],]; //'Montréal'));
     }
 }
 

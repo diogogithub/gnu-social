@@ -18,25 +18,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../..'));
+define('INSTALLDIR', realpath(__DIR__ . '/../..'));
 
 require_once INSTALLDIR . '/scripts/commandline.inc';
 require_once INSTALLDIR . '/extlib/OAuth.php';
 
-$ini = parse_ini_file("oauth.ini");
+$ini = parse_ini_file('oauth.ini');
 
 // Check to make sure we have everything we need from the ini file
-foreach(array('consumer_key', 'consumer_secret', 'apiroot', 'request_token_url') as $inikey) {
+foreach (['consumer_key', 'consumer_secret', 'apiroot', 'request_token_url'] as $inikey) {
     if (empty($ini[$inikey])) {
-        print "You forgot to specify a $inikey in your oauth.ini file.\n";
+        echo "You forgot to specify a {$inikey} in your oauth.ini file.\n";
         exit(1);
     }
 }
 
 $consumer = new OAuthConsumer($ini['consumer_key'], $ini['consumer_secret']);
 $endpoint = $ini['apiroot'] . $ini['request_token_url'];
-$parsed   = parse_url($endpoint);
-$params   = array();
+$parsed = parse_url($endpoint);
+$params = [];
 
 parse_str($parsed['query'], $params);
 $params['oauth_callback'] = 'oob'; // out-of-band
@@ -47,57 +47,56 @@ try {
     $req = OAuthRequest::from_consumer_and_token(
         $consumer,
         null,
-        "POST",
+        'POST',
         $endpoint,
         $params
     );
-    $req->sign_request($hmac_method, $consumer, NULL);
+    $req->sign_request($hmac_method, $consumer, null);
     $r = httpRequest($endpoint, $req->to_postdata());
 } catch (Exception $e) {
     // oh noez
-    print $e->getMessage();
-    print "\nOAuth Request:\n";
+    echo $e->getMessage();
+    echo "\nOAuth Request:\n";
     var_dump($req);
     exit(1);
 }
 
-$body       = $r->getBody();
-$tokenStuff = array();
+$body = $r->getBody();
+$tokenStuff = [];
 
 parse_str($body, $tokenStuff);
 
-$tok       = $tokenStuff['oauth_token'];
+$tok = $tokenStuff['oauth_token'];
 $confirmed = $tokenStuff['oauth_callback_confirmed'];
 
 if (empty($tokenStuff['oauth_token'])
     || empty($tokenStuff['oauth_token_secret'])
     || empty($confirmed)
-    || $confirmed != 'true')
-{
-    print "Error! HTTP response body: $body\n";
+    || $confirmed != 'true') {
+    echo "Error! HTTP response body: {$body}\n";
     exit(1);
 }
 
 $authurl = $ini['apiroot'] . $ini['authorize_url'] . '?oauth_token=' . $tok;
 
-print "Request Token\n";
-print '   - oauth_token        = ' . $tokenStuff['oauth_token'] . "\n";
-print '   - oauth_token_secret = ' . $tokenStuff['oauth_token_secret'] . "\n";
-print "Authorize URL\n    $authurl\n\n";
-print "Now paste the Authorize URL into your browser and authorize your temporary credentials.\n";
+echo "Request Token\n";
+echo '   - oauth_token        = ' . $tokenStuff['oauth_token'] . "\n";
+echo '   - oauth_token_secret = ' . $tokenStuff['oauth_token_secret'] . "\n";
+echo "Authorize URL\n    {$authurl}\n\n";
+echo "Now paste the Authorize URL into your browser and authorize your temporary credentials.\n";
 
 function httpRequest($endpoint, $poststr)
 {
     $request = HTTPClient::start();
 
     $request->setConfig(
-        array(
+        [
             'follow_redirects' => true,
-	    'connect_timeout' => 120,
-	    'timeout' => 120,
-	    'ssl_verify_peer' => false,
-	    'ssl_verify_host' => false
-        )
+            'connect_timeout' => 120,
+            'timeout' => 120,
+            'ssl_verify_peer' => false,
+            'ssl_verify_host' => false,
+        ]
     );
 
     // Turn signed request query string back into an array

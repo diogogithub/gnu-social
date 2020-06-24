@@ -37,9 +37,9 @@ require_once INSTALLDIR . '/lib/util/common.php';
 
 final class UserRightsTest extends TestCase
 {
-    protected $user = null;
+    protected $user;
 
-    function setUp(): void
+    protected function setUp(): void
     {
         $user = User::getKV('nickname', 'userrightstestuser');
         if ($user) {
@@ -48,13 +48,13 @@ final class UserRightsTest extends TestCase
             $user->delete();
             $profile->delete();
         }
-        $this->user = User::register(array('nickname' => 'userrightstestuser'));
+        $this->user = User::register(['nickname' => 'userrightstestuser']);
         if (!$this->user) {
             throw new Exception("Couldn't register userrightstestuser");
         }
     }
 
-    function tearDown(): void
+    protected function tearDown(): void
     {
         if ($this->user) {
             $profile = $this->user->getProfile();
@@ -63,35 +63,35 @@ final class UserRightsTest extends TestCase
         }
     }
 
-    function testInvalidRole()
+    public function testInvalidRole()
     {
-        $this->assertFalse($this->user->hasRole('invalidrole'));
+        static::assertFalse($this->user->hasRole('invalidrole'));
     }
 
-    function standardRoles()
+    public function standardRoles()
     {
-        return array(array('admin'),
-            array('moderator'));
-    }
-
-    /**
-     * @dataProvider standardRoles
-     * @param $role
-     */
-
-    function testUngrantedRole($role)
-    {
-        $this->assertFalse($this->user->hasRole($role));
+        return [['admin'],
+            ['moderator'],];
     }
 
     /**
      * @dataProvider standardRoles
+     *
      * @param $role
      */
+    public function testUngrantedRole($role)
+    {
+        static::assertFalse($this->user->hasRole($role));
+    }
 
-    function testGrantedRole($role)
+    /**
+     * @dataProvider standardRoles
+     *
+     * @param $role
+     */
+    public function testGrantedRole($role)
     {
         $this->user->grantRole($role);
-        $this->assertTrue($this->user->hasRole($role));
+        static::assertTrue($this->user->hasRole($role));
     }
 }

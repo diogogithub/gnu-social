@@ -35,14 +35,16 @@ use User;
 
 require_once INSTALLDIR . '/lib/util/common.php';
 
-final class CommandInterpreterTest extends TestCase
+final class CommandInterperterTest extends TestCase
 {
-
     /**
      * @dataProvider commandInterpreterCases
+     *
      * @param $input
      * @param $expectedType
      * @param string $comment
+     * @throws \EmptyPkeyValueException
+     * @throws \ServerException
      */
     public function testCommandInterpreter($input, $expectedType, $comment = '')
     {
@@ -51,148 +53,147 @@ final class CommandInterpreterTest extends TestCase
         $cmd = $inter->handle_command(User::getById(1), $input);
 
         $type = $cmd ? get_class($cmd) : null;
-        $this->assertEquals(strtolower($expectedType), strtolower($type), $comment);
+        static::assertSame(strtolower($expectedType), strtolower($type), $comment);
     }
 
-    static public function commandInterpreterCases()
+    public static function commandInterpreterCases()
     {
-        $sets = array(
-            array('help', 'HelpCommand'),
-            array('help me bro', null, 'help does not accept multiple params'),
-            array('HeLP', 'HelpCommand', 'case check'),
-            array('HeLP Me BRO!', null, 'case & non-params check'),
+        $sets = [
+            ['help', 'HelpCommand'],
+            ['help me bro', null, 'help does not accept multiple params'],
+            ['HeLP', 'HelpCommand', 'case check'],
+            ['HeLP Me BRO!', null, 'case & non-params check'],
 
-            array('login', 'LoginCommand'),
-            array('login to savings!', null, 'login does not accept params'),
+            ['login', 'LoginCommand'],
+            ['login to savings!', null, 'login does not accept params'],
 
-            array('lose', null, 'lose must have at least 1 parameter'),
-            array('lose foobar', 'LoseCommand', 'lose requires 1 parameter'),
-            array('lose        foobar', 'LoseCommand', 'check for space norm'),
-            array('lose more weight', null, 'lose does not accept multiple params'),
+            ['lose', null, 'lose must have at least 1 parameter'],
+            ['lose foobar', 'LoseCommand', 'lose requires 1 parameter'],
+            ['lose        foobar', 'LoseCommand', 'check for space norm'],
+            ['lose more weight', null, 'lose does not accept multiple params'],
 
-            array('subscribers', 'SubscribersCommand'),
-            array('subscribers foo', null, 'subscribers does not take params'),
+            ['subscribers', 'SubscribersCommand'],
+            ['subscribers foo', null, 'subscribers does not take params'],
 
-            array('subscriptions', 'SubscriptionsCommand'),
-            array('subscriptions foo', null, 'subscriptions does not take params'),
+            ['subscriptions', 'SubscriptionsCommand'],
+            ['subscriptions foo', null, 'subscriptions does not take params'],
 
-            array('groups', 'GroupsCommand'),
-            array('groups foo', null, 'groups does not take params'),
+            ['groups', 'GroupsCommand'],
+            ['groups foo', null, 'groups does not take params'],
 
-            array('off', 'OffCommand', 'off accepts 0 or 1 params'),
-            array('off foo', 'OffCommand', 'off accepts 0 or 1 params'),
-            array('off foo bar', null, 'off accepts 0 or 1 params'),
+            ['off', 'OffCommand', 'off accepts 0 or 1 params'],
+            ['off foo', 'OffCommand', 'off accepts 0 or 1 params'],
+            ['off foo bar', null, 'off accepts 0 or 1 params'],
 
-            array('stop', 'OffCommand', 'stop accepts 0 params'),
-            array('stop foo', null, 'stop accepts 0 params'),
+            ['stop', 'OffCommand', 'stop accepts 0 params'],
+            ['stop foo', null, 'stop accepts 0 params'],
 
-            array('quit', 'OffCommand', 'quit accepts 0 params'),
-            array('quit foo', null, 'quit accepts 0 params'),
+            ['quit', 'OffCommand', 'quit accepts 0 params'],
+            ['quit foo', null, 'quit accepts 0 params'],
 
-            array('on', 'OnCommand', 'on accepts 0 or 1 params'),
-            array('on foo', 'OnCommand', 'on accepts 0 or 1 params'),
-            array('on foo bar', null, 'on accepts 0 or 1 params'),
+            ['on', 'OnCommand', 'on accepts 0 or 1 params'],
+            ['on foo', 'OnCommand', 'on accepts 0 or 1 params'],
+            ['on foo bar', null, 'on accepts 0 or 1 params'],
 
-            array('join', null),
-            array('join foo', 'JoinCommand'),
-            array('join foo bar', null),
+            ['join', null],
+            ['join foo', 'JoinCommand'],
+            ['join foo bar', null],
 
-            array('drop', null),
-            array('drop foo', 'DropCommand'),
-            array('drop foo bar', null),
+            ['drop', null],
+            ['drop foo', 'DropCommand'],
+            ['drop foo bar', null],
 
-            array('follow', null),
-            array('follow foo', 'SubCommand'),
-            array('follow foo bar', null),
+            ['follow', null],
+            ['follow foo', 'SubCommand'],
+            ['follow foo bar', null],
 
-            array('sub', null),
-            array('sub foo', 'SubCommand'),
-            array('sub foo bar', null),
+            ['sub', null],
+            ['sub foo', 'SubCommand'],
+            ['sub foo bar', null],
 
-            array('leave', null),
-            array('leave foo', 'UnsubCommand'),
-            array('leave foo bar', null),
+            ['leave', null],
+            ['leave foo', 'UnsubCommand'],
+            ['leave foo bar', null],
 
-            array('unsub', null),
-            array('unsub foo', 'UnsubCommand'),
-            array('unsub foo bar', null),
+            ['unsub', null],
+            ['unsub foo', 'UnsubCommand'],
+            ['unsub foo bar', null],
 
-            array('leave', null),
-            array('leave foo', 'UnsubCommand'),
-            array('leave foo bar', null),
+            ['leave', null],
+            ['leave foo', 'UnsubCommand'],
+            ['leave foo bar', null],
 
-            array('d', null),
-            array('d foo', null),
-            array('d foo bar', 'MessageCommand'),
+            ['d', null],
+            ['d foo', null],
+            ['d foo bar', 'MessageCommand'],
 
-            array('dm', null),
-            array('dm foo', null),
-            array('dm foo bar', 'MessageCommand'),
+            ['dm', null],
+            ['dm foo', null],
+            ['dm foo bar', 'MessageCommand'],
 
-            array('r', null),
-            array('r foo', null),
-            array('r foo bar', 'ReplyCommand'),
+            ['r', null],
+            ['r foo', null],
+            ['r foo bar', 'ReplyCommand'],
 
-            array('reply', null),
-            array('reply foo', null),
-            array('reply foo bar', 'ReplyCommand'),
+            ['reply', null],
+            ['reply foo', null],
+            ['reply foo bar', 'ReplyCommand'],
 
-            array('repeat', null),
-            array('repeat foo', 'RepeatCommand'),
-            array('repeat foo bar', null),
+            ['repeat', null],
+            ['repeat foo', 'RepeatCommand'],
+            ['repeat foo bar', null],
 
-            array('rp', null),
-            array('rp foo', 'RepeatCommand'),
-            array('rp foo bar', null),
+            ['rp', null],
+            ['rp foo', 'RepeatCommand'],
+            ['rp foo bar', null],
 
-            array('rt', null),
-            array('rt foo', 'RepeatCommand'),
-            array('rt foo bar', null),
+            ['rt', null],
+            ['rt foo', 'RepeatCommand'],
+            ['rt foo bar', null],
 
-            array('rd', null),
-            array('rd foo', 'RepeatCommand'),
-            array('rd foo bar', null),
+            ['rd', null],
+            ['rd foo', 'RepeatCommand'],
+            ['rd foo bar', null],
 
-            array('whois', null),
-            array('whois foo', 'WhoisCommand'),
-            array('whois foo bar', null),
+            ['whois', null],
+            ['whois foo', 'WhoisCommand'],
+            ['whois foo bar', null],
 
             /*            array('fav', null),
                         array('fav foo', 'FavCommand'),
                         array('fav foo bar', null),*/
 
-            array('nudge', null),
-            array('nudge foo', 'NudgeCommand'),
-            array('nudge foo bar', null),
+            ['nudge', null],
+            ['nudge foo', 'NudgeCommand'],
+            ['nudge foo bar', null],
 
-            array('stats', 'StatsCommand'),
-            array('stats foo', null),
+            ['stats', 'StatsCommand'],
+            ['stats foo', null],
 
-            array('invite', null),
-            array('invite foo', 'InviteCommand'),
-            array('invite foo bar', null),
+            ['invite', null],
+            ['invite foo', 'InviteCommand'],
+            ['invite foo bar', null],
 
-            array('track', null),
-            array('track foo', 'SearchSubTrackCommand'),
-            array('track off', 'SearchSubTrackOffCommand'),
-            array('track foo bar', null),
-            array('track off foo', null),
+            ['track', null],
+            ['track foo', 'SearchSubTrackCommand'],
+            ['track off', 'SearchSubTrackOffCommand'],
+            ['track foo bar', null],
+            ['track off foo', null],
 
-            array('untrack', null),
-            array('untrack foo', 'SearchSubUntrackCommand'),
-            array('untrack all', 'SearchSubTrackOffCommand'),
-            array('untrack foo bar', null),
-            array('untrack all foo', null),
+            ['untrack', null],
+            ['untrack foo', 'SearchSubUntrackCommand'],
+            ['untrack all', 'SearchSubTrackOffCommand'],
+            ['untrack foo bar', null],
+            ['untrack all foo', null],
 
-            array('tracking', 'SearchSubTrackingCommand'),
-            array('tracking foo', null),
+            ['tracking', 'SearchSubTrackingCommand'],
+            ['tracking foo', null],
 
-            array('tracks', 'SearchSubTrackingCommand'),
-            array('tracks foo', null),
+            ['tracks', 'SearchSubTrackingCommand'],
+            ['tracks foo', null],
 
-        );
+        ];
         return $sets;
     }
-
 }
 
