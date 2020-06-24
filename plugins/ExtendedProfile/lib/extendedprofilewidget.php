@@ -179,7 +179,7 @@ class ExtendedProfileWidget extends Form
     protected function showIm($name, $field)
     {
         $this->out->elementStart('div', array('class' => 'im-display'));
-        $this->out->text($field['value']);
+        $this->out->text($field['value'] ?? '');
         if (!empty($field['rel'])) {
             // TRANS: Value between parentheses (phone number, website, or IM address).
             $outtext = sprintf(_m('(%s)'), $field['rel']);
