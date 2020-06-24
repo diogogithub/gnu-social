@@ -274,7 +274,7 @@ abstract class DefaultSettings
             'login_command' => ['enabled' => false],
         ];
 
-        self::loadDefaults(!$_ENV['APP_DEBUG']);
+        self::loadDefaults($_ENV['APP_ENV'] == 'prod');
     }
 
     public static function loadDefaults(bool $optimize = false)
@@ -283,9 +283,9 @@ abstract class DefaultSettings
             return;
         }
 
-        // In debug mode, delete everything and reinsert, in case
+        // In dev mode, delete everything and reinsert, in case
         // defaults changed
-        if ($_ENV['APP_DEBUG']) {
+        if ($_ENV['APP_ENV'] === 'dev' && !isset($_ENV['SOCIAL_NO_RELOAD_DEFAULTS'])) {
             DB::getConnection()->executeQuery('delete from config;');
         }
 
