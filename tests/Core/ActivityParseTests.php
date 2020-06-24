@@ -40,7 +40,6 @@ require_once INSTALLDIR . '/lib/util/common.php';
 
 final class ActivityParseTests extends TestCase
 {
-
     public function testMastodonRetweet()
     {
         global $_mastodon_retweet;
@@ -50,11 +49,11 @@ final class ActivityParseTests extends TestCase
         $entries = $feed->getElementsByTagName('entry');
         $entry = $entries->item(0);
         $act = new Activity($entry, $feed);
-        $this->assertFalse(empty($act));
-        $this->assertFalse(empty($act->objects[0]));
+        static::assertFalse(empty($act));
+        static::assertFalse(empty($act->objects[0]));
 
         $object = $act->objects[0];
-        $this->assertEquals($object->verb, ActivityVerb::POST);
+        static::assertSame($object->verb, ActivityVerb::POST);
     }
 
     public function testGSReweet()
@@ -66,11 +65,11 @@ final class ActivityParseTests extends TestCase
         $entries = $feed->getElementsByTagName('entry');
         $entry = $entries->item(0);
         $act = new Activity($entry, $feed);
-        $this->assertFalse(empty($act));
-        $this->assertFalse(empty($act->objects[0]));
+        static::assertFalse(empty($act));
+        static::assertFalse(empty($act->objects[0]));
 
         $object = $act->objects[0];
-        $this->assertEquals($object->verb, ActivityVerb::POST);
+        static::assertSame($object->verb, ActivityVerb::POST);
     }
 
     public function testExample1()
@@ -80,16 +79,16 @@ final class ActivityParseTests extends TestCase
         $dom->loadXML($_example1);
         $act = new Activity($dom->documentElement);
 
-        $this->assertFalse(empty($act));
+        static::assertFalse(empty($act));
 
-        $this->assertEquals(1243860840, $act->time);
-        $this->assertEquals(ActivityVerb::POST, $act->verb);
+        static::assertSame(1243860840, $act->time);
+        static::assertSame(ActivityVerb::POST, $act->verb);
 
-        $this->assertFalse(empty($act->objects[0]));
-        $this->assertEquals('Punctuation Changeset', $act->objects[0]->title);
-        $this->assertEquals('http://versioncentral.example.org/activity/changeset', $act->objects[0]->type);
-        $this->assertEquals('Fixing punctuation because it makes it more readable.', $act->objects[0]->summary);
-        $this->assertEquals('tag:versioncentral.example.org,2009:/change/1643245', $act->objects[0]->id);
+        static::assertFalse(empty($act->objects[0]));
+        static::assertSame('Punctuation Changeset', $act->objects[0]->title);
+        static::assertSame('http://versioncentral.example.org/activity/changeset', $act->objects[0]->type);
+        static::assertSame('Fixing punctuation because it makes it more readable.', $act->objects[0]->summary);
+        static::assertSame('tag:versioncentral.example.org,2009:/change/1643245', $act->objects[0]->id);
     }
 
     public function testExample2()
@@ -99,10 +98,10 @@ final class ActivityParseTests extends TestCase
         $dom->loadXML($_example2);
         $act = new Activity($dom->documentElement);
 
-        $this->assertFalse(empty($act));
+        static::assertFalse(empty($act));
         // Did we handle <content type="html"> correctly with a typical payload?
-        $this->assertEquals("<p>Geraldine posted a Photo on PhotoPanic</p>\n     " .
-            "<img src=\"/geraldine/photo1.jpg\">", trim($act->content));
+        static::assertSame("<p>Geraldine posted a Photo on PhotoPanic</p>\n     " .
+            '<img src="/geraldine/photo1.jpg">', trim($act->content));
     }
 
     public function testExample3()
@@ -119,30 +118,30 @@ final class ActivityParseTests extends TestCase
 
         $act = new Activity($entry, $feed);
 
-        $this->assertFalse(empty($act));
-        $this->assertEquals(1071340202, $act->time);
-        $this->assertEquals('http://example.org/2003/12/13/atom03.html', $act->link);
+        static::assertFalse(empty($act));
+        static::assertSame(1071340202, $act->time);
+        static::assertSame('http://example.org/2003/12/13/atom03.html', $act->link);
 
-        $this->assertEquals($act->verb, ActivityVerb::POST);
+        static::assertSame($act->verb, ActivityVerb::POST);
 
-        $this->assertFalse(empty($act->actor));
-        $this->assertEquals(ActivityObject::PERSON, $act->actor->type);
-        $this->assertEquals('John Doe', $act->actor->title);
-        $this->assertEquals('mailto:johndoe@example.com', $act->actor->id);
+        static::assertFalse(empty($act->actor));
+        static::assertSame(ActivityObject::PERSON, $act->actor->type);
+        static::assertSame('John Doe', $act->actor->title);
+        static::assertSame('mailto:johndoe@example.com', $act->actor->id);
 
-        $this->assertFalse(empty($act->objects[0]));
-        $this->assertEquals(ActivityObject::NOTE, $act->objects[0]->type);
-        $this->assertEquals('urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a', $act->objects[0]->id);
-        $this->assertEquals('Atom-Powered Robots Run Amok', $act->objects[0]->title);
-        $this->assertEquals('Some text.', $act->objects[0]->summary);
-        $this->assertEquals('http://example.org/2003/12/13/atom03.html', $act->objects[0]->link);
+        static::assertFalse(empty($act->objects[0]));
+        static::assertSame(ActivityObject::NOTE, $act->objects[0]->type);
+        static::assertSame('urn:uuid:1225c695-cfb8-4ebb-aaaa-80da344efa6a', $act->objects[0]->id);
+        static::assertSame('Atom-Powered Robots Run Amok', $act->objects[0]->title);
+        static::assertSame('Some text.', $act->objects[0]->summary);
+        static::assertSame('http://example.org/2003/12/13/atom03.html', $act->objects[0]->link);
 
-        $this->assertFalse(empty($act->context));
+        static::assertFalse(empty($act->context));
 
-        $this->assertTrue(empty($act->target));
+        static::assertTrue(empty($act->target));
 
-        $this->assertEquals($act->entry, $entry);
-        $this->assertEquals($act->feed, $feed);
+        static::assertSame($act->entry, $entry);
+        static::assertSame($act->feed, $feed);
     }
 
     public function testExample4()
@@ -155,21 +154,23 @@ final class ActivityParseTests extends TestCase
 
         $act = new Activity($entry);
 
-        $this->assertFalse(empty($act));
-        $this->assertEquals(1266547958, $act->time);
-        $this->assertEquals('http://example.net/notice/14', $act->link);
+        static::assertFalse(empty($act));
+        static::assertSame(1266547958, $act->time);
+        static::assertSame('http://example.net/notice/14', $act->link);
 
-        $this->assertFalse(empty($act->context));
-        $this->assertEquals('http://example.net/notice/12', $act->context->replyToID);
-        $this->assertEquals('http://example.net/notice/12', $act->context->replyToUrl);
-        $this->assertEquals('http://example.net/conversation/11', $act->context->conversation);
-        $this->assertEquals(array('http://example.net/user/1'), array_keys($act->context->attention));
+        static::assertFalse(empty($act->context));
+        static::assertSame('http://example.net/notice/12', $act->context->replyToID);
+        static::assertSame('http://example.net/notice/12', $act->context->replyToUrl);
+        static::assertSame('http://example.net/conversation/11', $act->context->conversation);
+        static::assertSame(['http://example.net/user/1'], array_keys($act->context->attention));
 
-        $this->assertFalse(empty($act->objects[0]));
-        $this->assertEquals($act->objects[0]->content,
-            '@<span class="vcard"><a href="http://example.net/user/1" class="url"><span class="fn nickname">evan</span></a></span> now is the time for all good men to come to the aid of their country. #<span class="tag"><a href="http://example.net/tag/thetime" rel="tag">thetime</a></span>');
+        static::assertFalse(empty($act->objects[0]));
+        static::assertSame(
+            $act->objects[0]->content,
+            '@<span class="vcard"><a href="http://example.net/user/1" class="url"><span class="fn nickname">evan</span></a></span> now is the time for all good men to come to the aid of their country. #<span class="tag"><a href="http://example.net/tag/thetime" rel="tag">thetime</a></span>'
+        );
 
-        $this->assertFalse(empty($act->actor));
+        static::assertFalse(empty($act->actor));
     }
 
     public function testExample5()
@@ -188,32 +189,32 @@ final class ActivityParseTests extends TestCase
         $act = new Activity($entry, $feed);
 
         // Post
-        $this->assertEquals($act->verb, ActivityVerb::POST);
-        $this->assertFalse(empty($act->context));
+        static::assertSame($act->verb, ActivityVerb::POST);
+        static::assertFalse(empty($act->context));
 
         // Actor w/Portable Contacts stuff
-        $this->assertFalse(empty($act->actor));
-        $this->assertEquals($act->actor->type, ActivityObject::PERSON);
-        $this->assertEquals($act->actor->title, 'Test User');
-        $this->assertEquals($act->actor->id, 'http://example.net/mysite/user/3');
-        $this->assertEquals($act->actor->link, 'http://example.net/mysite/testuser');
+        static::assertFalse(empty($act->actor));
+        static::assertSame($act->actor->type, ActivityObject::PERSON);
+        static::assertSame($act->actor->title, 'Test User');
+        static::assertSame($act->actor->id, 'http://example.net/mysite/user/3');
+        static::assertSame($act->actor->link, 'http://example.net/mysite/testuser');
 
         $avatars = $act->actor->avatarLinks;
 
-        $this->assertEquals(
+        static::assertSame(
             $avatars[0]->url,
             'http://example.net/mysite/avatar/3-96-20100224004207.jpeg'
         );
 
-        $this->assertEquals($act->actor->displayName, 'Test User');
+        static::assertSame($act->actor->displayName, 'Test User');
 
         $poco = $act->actor->poco;
-        $this->assertEquals($poco->preferredUsername, 'testuser');
-        $this->assertEquals($poco->address->formatted, 'San Francisco, CA');
-        $this->assertEquals($poco->urls[0]->type, 'homepage');
-        $this->assertEquals($poco->urls[0]->value, 'http://example.com/blog.html');
-        $this->assertEquals($poco->urls[0]->primary, 'true');
-        $this->assertEquals($act->actor->geopoint, '37.7749295 -122.4194155');
+        static::assertSame($poco->preferredUsername, 'testuser');
+        static::assertSame($poco->address->formatted, 'San Francisco, CA');
+        static::assertSame($poco->urls[0]->type, 'homepage');
+        static::assertSame($poco->urls[0]->value, 'http://example.com/blog.html');
+        static::assertSame($poco->urls[0]->primary, 'true');
+        static::assertSame($act->actor->geopoint, '37.7749295 -122.4194155');
     }
 
     public function testExample6()
@@ -235,17 +236,17 @@ final class ActivityParseTests extends TestCase
 
         $act = new Activity($item, $channel);
 
-        $this->assertEquals($act->verb, ActivityVerb::POST);
+        static::assertSame($act->verb, ActivityVerb::POST);
 
-        $this->assertEquals($act->id, 'http://en.blog.wordpress.com/?p=3857');
-        $this->assertEquals($act->link, 'http://en.blog.wordpress.com/2010/03/03/rub-a-dub-dub-in-the-pubsubhubbub/');
-        $this->assertEquals($act->title, 'Rub-a-Dub-Dub in the PubSubHubbub');
-        $this->assertEquals($act->time, 1267634892);
+        static::assertSame($act->id, 'http://en.blog.wordpress.com/?p=3857');
+        static::assertSame($act->link, 'http://en.blog.wordpress.com/2010/03/03/rub-a-dub-dub-in-the-pubsubhubbub/');
+        static::assertSame($act->title, 'Rub-a-Dub-Dub in the PubSubHubbub');
+        static::assertSame($act->time, 1267634892);
 
         $actor = $act->actor;
 
-        $this->assertFalse(empty($actor));
-        $this->assertEquals($actor->title, "Joseph Scott");
+        static::assertFalse(empty($actor));
+        static::assertSame($actor->title, 'Joseph Scott');
     }
 
     public function testExample7()
@@ -267,31 +268,33 @@ final class ActivityParseTests extends TestCase
 
         $act = new Activity($item, $channel);
 
-        $this->assertEquals(ActivityVerb::POST, $act->verb);
-        $this->assertEquals('http://evanpro.posterous.com/checking-out-captain-bones', $act->link);
-        $this->assertEquals('http://evanpro.posterous.com/checking-out-captain-bones', $act->id);
-        $this->assertEquals('Checking out captain bones', $act->title);
-        $this->assertEquals(1269095551, $act->time);
+        static::assertSame(ActivityVerb::POST, $act->verb);
+        static::assertSame('http://evanpro.posterous.com/checking-out-captain-bones', $act->link);
+        static::assertSame('http://evanpro.posterous.com/checking-out-captain-bones', $act->id);
+        static::assertSame('Checking out captain bones', $act->title);
+        static::assertSame(1269095551, $act->time);
 
         $actor = $act->actor;
 
-        $this->assertEquals(ActivityObject::PERSON, $actor->type);
-        $this->assertEquals('http://posterous.com/people/3sDslhaepotz', $actor->id);
-        $this->assertEquals('Evan Prodromou', $actor->title);
-        $this->assertNull($actor->summary);
-        $this->assertNull($actor->content);
-        $this->assertEquals('http://posterous.com/people/3sDslhaepotz', $actor->link);
-        $this->assertNull($actor->source);
-        $this->assertTrue(is_array($actor->avatarLinks));
-        $this->assertEquals(1, count($actor->avatarLinks));
-        $this->assertEquals('http://files.posterous.com/user_profile_pics/480326/2009-08-05-142447.jpg',
-            $actor->avatarLinks[0]->url);
-        $this->assertNotNull($actor->poco);
-        $this->assertEquals('evanpro', $actor->poco->preferredUsername);
-        $this->assertEquals('Evan Prodromou', $actor->poco->displayName);
-        $this->assertNull($actor->poco->note);
-        $this->assertNull($actor->poco->address);
-        $this->assertEquals(0, count($actor->poco->urls));
+        static::assertSame(ActivityObject::PERSON, $actor->type);
+        static::assertSame('http://posterous.com/people/3sDslhaepotz', $actor->id);
+        static::assertSame('Evan Prodromou', $actor->title);
+        static::assertNull($actor->summary);
+        static::assertNull($actor->content);
+        static::assertSame('http://posterous.com/people/3sDslhaepotz', $actor->link);
+        static::assertNull($actor->source);
+        static::assertTrue(is_array($actor->avatarLinks));
+        static::assertSame(1, count($actor->avatarLinks));
+        static::assertSame(
+            'http://files.posterous.com/user_profile_pics/480326/2009-08-05-142447.jpg',
+            $actor->avatarLinks[0]->url
+        );
+        static::assertNotNull($actor->poco);
+        static::assertSame('evanpro', $actor->poco->preferredUsername);
+        static::assertSame('Evan Prodromou', $actor->poco->displayName);
+        static::assertNull($actor->poco->note);
+        static::assertNull($actor->poco->address);
+        static::assertSame(0, count($actor->poco->urls));
     }
 
     // Media test - cliqset
@@ -309,145 +312,144 @@ final class ActivityParseTests extends TestCase
 
         $act = new Activity($entry, $feed);
 
-        $this->assertFalse(empty($act));
-        $this->assertEquals($act->time, 1269221753);
-        $this->assertEquals($act->verb, ActivityVerb::POST);
-        $this->assertEquals($act->summary, 'zcopley posted 5 photos on Flickr');
+        static::assertFalse(empty($act));
+        static::assertSame($act->time, 1269221753);
+        static::assertSame($act->verb, ActivityVerb::POST);
+        static::assertSame($act->summary, 'zcopley posted 5 photos on Flickr');
 
-        $this->assertFalse(empty($act->objects));
-        $this->assertEquals(sizeof($act->objects), 5);
+        static::assertFalse(empty($act->objects));
+        static::assertSame(sizeof($act->objects), 5);
 
-        $this->assertEquals($act->objects[0]->type, ActivityObject::PHOTO);
-        $this->assertEquals($act->objects[0]->title, 'IMG_1368');
-        $this->assertNull($act->objects[0]->description);
-        $this->assertEquals(
+        static::assertSame($act->objects[0]->type, ActivityObject::PHOTO);
+        static::assertSame($act->objects[0]->title, 'IMG_1368');
+        static::assertNull($act->objects[0]->description);
+        static::assertSame(
             $act->objects[0]->thumbnail,
             'http://media.cliqset.com/6f6fbee9d7dfbffc73b6ef626275eb5f_thumb.jpg'
         );
-        $this->assertEquals(
+        static::assertSame(
             $act->objects[0]->link,
             'http://www.flickr.com/photos/zcopley/4452933806/'
         );
 
-        $this->assertEquals($act->objects[1]->type, ActivityObject::PHOTO);
-        $this->assertEquals($act->objects[1]->title, 'IMG_1365');
-        $this->assertNull($act->objects[1]->description);
-        $this->assertEquals(
+        static::assertSame($act->objects[1]->type, ActivityObject::PHOTO);
+        static::assertSame($act->objects[1]->title, 'IMG_1365');
+        static::assertNull($act->objects[1]->description);
+        static::assertSame(
             $act->objects[1]->thumbnail,
             'http://media.cliqset.com/b8f3932cd0bba1b27f7c8b3ef986915e_thumb.jpg'
         );
-        $this->assertEquals(
+        static::assertSame(
             $act->objects[1]->link,
             'http://www.flickr.com/photos/zcopley/4442630390/'
         );
 
-        $this->assertEquals($act->objects[2]->type, ActivityObject::PHOTO);
-        $this->assertEquals($act->objects[2]->title, 'Classic');
-        $this->assertEquals(
+        static::assertSame($act->objects[2]->type, ActivityObject::PHOTO);
+        static::assertSame($act->objects[2]->title, 'Classic');
+        static::assertSame(
             $act->objects[2]->description,
             '-Powered by pikchur.com/n0u'
         );
-        $this->assertEquals(
+        static::assertSame(
             $act->objects[2]->thumbnail,
             'http://media.cliqset.com/fc54c15f850b7a9a8efa644087a48c91_thumb.jpg'
         );
-        $this->assertEquals(
+        static::assertSame(
             $act->objects[2]->link,
             'http://www.flickr.com/photos/zcopley/4430754103/'
         );
 
-        $this->assertEquals($act->objects[3]->type, ActivityObject::PHOTO);
-        $this->assertEquals($act->objects[3]->title, 'IMG_1363');
-        $this->assertNull($act->objects[3]->description);
+        static::assertSame($act->objects[3]->type, ActivityObject::PHOTO);
+        static::assertSame($act->objects[3]->title, 'IMG_1363');
+        static::assertNull($act->objects[3]->description);
 
-        $this->assertEquals(
+        static::assertSame(
             $act->objects[3]->thumbnail,
             'http://media.cliqset.com/4b1d307c9217e2114391a8b229d612cb_thumb.jpg'
         );
-        $this->assertEquals(
+        static::assertSame(
             $act->objects[3]->link,
             'http://www.flickr.com/photos/zcopley/4416969717/'
         );
 
-        $this->assertEquals($act->objects[4]->type, ActivityObject::PHOTO);
-        $this->assertEquals($act->objects[4]->title, 'IMG_1361');
-        $this->assertNull($act->objects[4]->description);
+        static::assertSame($act->objects[4]->type, ActivityObject::PHOTO);
+        static::assertSame($act->objects[4]->title, 'IMG_1361');
+        static::assertNull($act->objects[4]->description);
 
-        $this->assertEquals(
+        static::assertSame(
             $act->objects[4]->thumbnail,
             'http://media.cliqset.com/23d9b4b96b286e0347d36052f22f6e60_thumb.jpg'
         );
-        $this->assertEquals(
+        static::assertSame(
             $act->objects[4]->link,
             'http://www.flickr.com/photos/zcopley/4417734232/'
         );
-
     }
 
     public function testAtomContent()
     {
-        $tests = array(array("<content>Some regular plain text.</content>",
-            "Some regular plain text."),
-            array("<content>&lt;b&gt;this is not HTML&lt;/b&gt;</content>",
-                "&lt;b&gt;this is not HTML&lt;/b&gt;"),
-            array("<content type='html'>Some regular plain HTML.</content>",
-                "Some regular plain HTML."),
-            array("<content type='html'>&lt;b&gt;this is too HTML&lt;/b&gt;</content>",
-                "<b>this is too HTML</b>"),
-            array("<content type='html'>&amp;lt;b&amp;gt;but this is not HTML!&amp;lt;/b&amp;gt;</content>",
-                "&lt;b&gt;but this is not HTML!&lt;/b&gt;"),
-            array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>Some regular plain XHTML.</div></content>",
-                "Some regular plain XHTML."),
-            array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'><b>This is some XHTML!</b></div></content>",
-                "<b>This is some XHTML!</b>"),
-            array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>&lt;b&gt;This is not some XHTML!&lt;/b&gt;</div></content>",
-                "&lt;b&gt;This is not some XHTML!&lt;/b&gt;"),
-            array("<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>&amp;lt;b&amp;gt;This is not some XHTML either!&amp;lt;/b&amp;gt;</div></content>",
-                "&amp;lt;b&amp;gt;This is not some XHTML either!&amp;lt;/b&amp;gt;"));
+        $tests = [['<content>Some regular plain text.</content>',
+            'Some regular plain text.',],
+            ['<content>&lt;b&gt;this is not HTML&lt;/b&gt;</content>',
+                '&lt;b&gt;this is not HTML&lt;/b&gt;',],
+            ["<content type='html'>Some regular plain HTML.</content>",
+                'Some regular plain HTML.',],
+            ["<content type='html'>&lt;b&gt;this is too HTML&lt;/b&gt;</content>",
+                '<b>this is too HTML</b>',],
+            ["<content type='html'>&amp;lt;b&amp;gt;but this is not HTML!&amp;lt;/b&amp;gt;</content>",
+                '&lt;b&gt;but this is not HTML!&lt;/b&gt;',],
+            ["<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>Some regular plain XHTML.</div></content>",
+                'Some regular plain XHTML.',],
+            ["<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'><b>This is some XHTML!</b></div></content>",
+                '<b>This is some XHTML!</b>',],
+            ["<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>&lt;b&gt;This is not some XHTML!&lt;/b&gt;</div></content>",
+                '&lt;b&gt;This is not some XHTML!&lt;/b&gt;',],
+            ["<content type='xhtml'><div xmlns='http://www.w3.org/1999/xhtml'>&amp;lt;b&amp;gt;This is not some XHTML either!&amp;lt;/b&amp;gt;</div></content>",
+                '&amp;lt;b&amp;gt;This is not some XHTML either!&amp;lt;/b&amp;gt;',],];
         foreach ($tests as $data) {
             list($source, $output) = $data;
             $xml = "<entry xmlns='http://www.w3.org/2005/Atom'>" .
-                "<id>http://example.com/fakeid</id>" .
-                "<author><name>Test</name></author>" .
-                "<title>Atom content tests</title>" .
+                '<id>http://example.com/fakeid</id>' .
+                '<author><name>Test</name></author>' .
+                '<title>Atom content tests</title>' .
                 $source .
-                "</entry>";
+                '</entry>';
             $dom = new DOMDocument();
             $dom->loadXML($xml);
             $act = new Activity($dom->documentElement);
 
-            $this->assertFalse(empty($act));
-            $this->assertEquals($output, trim($act->content));
+            static::assertFalse(empty($act));
+            static::assertSame($output, trim($act->content));
         }
     }
 
     public function testRssContent()
     {
-        $tests = array(array("<content:encoded>Some regular plain HTML.</content:encoded>",
-            "Some regular plain HTML."),
-            array("<content:encoded>Some &lt;b&gt;exciting bold HTML&lt;/b&gt;</content:encoded>",
-                "Some <b>exciting bold HTML</b>"),
-            array("<content:encoded>Some &amp;lt;b&amp;gt;escaped non-HTML.&amp;lt;/b&amp;gt;</content:encoded>",
-                "Some &lt;b&gt;escaped non-HTML.&lt;/b&gt;"),
-            array("<description>Some plain text.</description>",
-                "Some plain text."),
-            array("<description>Some &lt;b&gt;non-HTML text&lt;/b&gt;</description>",
-                "Some &lt;b&gt;non-HTML text&lt;/b&gt;"),
-            array("<description>Some &amp;lt;b&amp;gt;double-escaped text&amp;lt;/b&amp;gt;</description>",
-                "Some &amp;lt;b&amp;gt;double-escaped text&amp;lt;/b&amp;gt;"));
+        $tests = [['<content:encoded>Some regular plain HTML.</content:encoded>',
+            'Some regular plain HTML.',],
+            ['<content:encoded>Some &lt;b&gt;exciting bold HTML&lt;/b&gt;</content:encoded>',
+                'Some <b>exciting bold HTML</b>',],
+            ['<content:encoded>Some &amp;lt;b&amp;gt;escaped non-HTML.&amp;lt;/b&amp;gt;</content:encoded>',
+                'Some &lt;b&gt;escaped non-HTML.&lt;/b&gt;',],
+            ['<description>Some plain text.</description>',
+                'Some plain text.',],
+            ['<description>Some &lt;b&gt;non-HTML text&lt;/b&gt;</description>',
+                'Some &lt;b&gt;non-HTML text&lt;/b&gt;',],
+            ['<description>Some &amp;lt;b&amp;gt;double-escaped text&amp;lt;/b&amp;gt;</description>',
+                'Some &amp;lt;b&amp;gt;double-escaped text&amp;lt;/b&amp;gt;',],];
         foreach ($tests as $data) {
             list($source, $output) = $data;
             $xml = "<item xmlns:content='http://purl.org/rss/1.0/modules/content/'>" .
-                "<guid>http://example.com/fakeid</guid>" .
-                "<title>RSS content tests</title>" .
+                '<guid>http://example.com/fakeid</guid>' .
+                '<title>RSS content tests</title>' .
                 $source .
-                "</item>";
+                '</item>';
             $dom = new DOMDocument();
             $dom->loadXML($xml);
             $act = new Activity($dom->documentElement);
 
-            $this->assertFalse(empty($act));
-            $this->assertEquals($output, trim($act->content));
+            static::assertFalse(empty($act));
+            static::assertSame($output, trim($act->content));
         }
     }
 
@@ -466,13 +468,13 @@ final class ActivityParseTests extends TestCase
         // Reading just the entry alone should pick up its own <author>
         // as the actor.
         $act = new Activity($entry);
-        $this->assertEquals($act->actor->id, $expected);
+        static::assertSame($act->actor->id, $expected);
 
         // Reading the entry in feed context used to be buggy, picking up
         // the feed's <activity:subject> which referred to the group.
         // It should now be returning the expected author entry...
         $act = new Activity($entry, $feed);
-        $this->assertEquals($act->actor->id, $expected);
+        static::assertSame($act->actor->id, $expected);
     }
 
     public function testBookmarkRelated()
@@ -488,13 +490,13 @@ final class ActivityParseTests extends TestCase
 
         $links = ActivityUtils::getLinks($entry, 'related');
 
-        $this->assertFalse(empty($links));
-        $this->assertTrue(is_array($links));
-        $this->assertEquals(count($links), 1);
+        static::assertFalse(empty($links));
+        static::assertTrue(is_array($links));
+        static::assertSame(count($links), 1);
 
         $url = $links[0]->getAttribute('href');
 
-        $this->assertEquals($url, $expected);
+        static::assertSame($url, $expected);
     }
 }
 

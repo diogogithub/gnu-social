@@ -16,14 +16,14 @@
  *
  *  You should have received a copy of the GNU Affero General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
- **/
+ */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../..'));
+define('INSTALLDIR', realpath(__DIR__ . '/../..'));
 
 require_once INSTALLDIR . '/extlib/OAuth.php';
 
 $shortoptions = 't:s:u:';
-$longoptions = array('oauth_token=', 'oauth_token_secret=', 'update=');
+$longoptions = ['oauth_token=', 'oauth_token_secret=', 'update='];
 
 $helptext = <<<END_OF_VERIFY_HELP
     oauth_post_notice.php [options]
@@ -36,9 +36,9 @@ $helptext = <<<END_OF_VERIFY_HELP
 
 END_OF_VERIFY_HELP;
 
-$token        = null;
+$token = null;
 $token_secret = null;
-$update       = null;
+$update = null;
 
 require_once INSTALLDIR . '/scripts/commandline.inc';
 
@@ -55,21 +55,21 @@ if (have_option('u', 'update')) {
 }
 
 if (empty($token)) {
-    print "Please specify an access token.\n";
+    echo "Please specify an access token.\n";
     exit(1);
 }
 
 if (empty($token_secret)) {
-    print "Please specify an access token secret.\n";
+    echo "Please specify an access token secret.\n";
     exit(1);
 }
 
 if (empty($update)) {
-    print "You forgot to update your status!\n";
+    echo "You forgot to update your status!\n";
     exit(1);
 }
 
-$ini      = parse_ini_file("oauth.ini");
+$ini = parse_ini_file('oauth.ini');
 $consumer = new OAuthConsumer($ini['consumer_key'], $ini['consumer_secret']);
 $endpoint = $ini['apiroot'] . '/statuses/update.xml';
 
@@ -83,7 +83,6 @@ $params['status'] = $update;
 $hmac_method = new OAuthSignatureMethod_HMAC_SHA1();
 
 try {
-
     $oauthReq = OAuthRequest::from_consumer_and_token(
         $consumer,
         $atok,
@@ -96,10 +95,9 @@ try {
 
     $httpReq = httpRequest($endpoint, $oauthReq->to_postdata());
 
-    print $httpReq->getBody();
-
+    echo $httpReq->getBody();
 } catch (Exception $e) {
-    print "Error! . $e->getMessage() . 'HTTP reponse body: " . $httpReq->getBody();
+    echo "Error! . {$e->getMessage}() . 'HTTP reponse body: " . $httpReq->getBody();
     exit(1);
 }
 
@@ -108,13 +106,13 @@ function httpRequest($endpoint, $poststr)
     $request = HTTPClient::start();
 
     $request->setConfig(
-        array(
+        [
             'follow_redirects' => true,
-	    'connect_timeout' => 120,
-	    'timeout' => 120,
-	    'ssl_verify_peer' => false,
-	    'ssl_verify_host' => false
-        )
+            'connect_timeout' => 120,
+            'timeout' => 120,
+            'ssl_verify_peer' => false,
+            'ssl_verify_host' => false,
+        ]
     );
 
     // Turn signed request query string back into an array

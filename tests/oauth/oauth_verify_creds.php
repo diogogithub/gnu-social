@@ -18,12 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-define('INSTALLDIR', realpath(dirname(__FILE__) . '/../..'));
+define('INSTALLDIR', realpath(__DIR__ . '/../..'));
 
 require_once INSTALLDIR . '/extlib/OAuth.php';
 
 $shortoptions = 't:s:';
-$longoptions = array('oauth_token=', 'oauth_token_secret=');
+$longoptions = ['oauth_token=', 'oauth_token_secret='];
 
 $helptext = <<<END_OF_VERIFY_HELP
   oauth_verify_creds.php [options]
@@ -34,7 +34,7 @@ $helptext = <<<END_OF_VERIFY_HELP
 
 END_OF_VERIFY_HELP;
 
-$token        = null;
+$token = null;
 $token_secret = null;
 
 require_once INSTALLDIR . '/scripts/commandline.inc';
@@ -48,32 +48,31 @@ if (have_option('s', 'oauth_token_secret')) {
 }
 
 if (empty($token)) {
-    print "Please specify an access token (--help for help).\n";
+    echo "Please specify an access token (--help for help).\n";
     exit(1);
 }
 
 if (empty($token_secret)) {
-    print "Please specify an access token secret (--help for help).\n";
+    echo "Please specify an access token secret (--help for help).\n";
     exit(1);
 }
 
-$ini      = parse_ini_file("oauth.ini");
+$ini = parse_ini_file('oauth.ini');
 $consumer = new OAuthConsumer($ini['consumer_key'], $ini['consumer_secret']);
 $endpoint = $ini['apiroot'] . '/account/verify_credentials.xml';
 
-$atok   = new OAuthToken($token, $token_secret);
+$atok = new OAuthToken($token, $token_secret);
 $parsed = parse_url($endpoint);
 
 parse_str($parsed['query'], $params);
 
 try {
-
     $hmac_method = new OAuthSignatureMethod_HMAC_SHA1();
 
     $oauthReq = OAuthRequest::from_consumer_and_token(
         $consumer,
         $atok,
-        "GET",
+        'GET',
         $endpoint,
         $params
     );
@@ -81,26 +80,25 @@ try {
     $oauthReq->sign_request($hmac_method, $consumer, $atok);
 
     $httpReq = httpRequest($oauthReq->to_url());
-
 } catch (Exception $e) {
-    print "Error! HTTP response body: " . $httpReq->getBody();
+    echo 'Error! HTTP response body: ' . $httpReq->getBody();
     exit(1);
 }
 
-print $httpReq->getBody();
+echo $httpReq->getBody();
 
 function httpRequest($url)
 {
     $request = HTTPClient::start();
 
     $request->setConfig(
-        array(
+        [
             'follow_redirects' => true,
-	    'connect_timeout' => 120,
-	    'timeout' => 120,
-	    'ssl_verify_peer' => false,
-	    'ssl_verify_host' => false
-        )
+            'connect_timeout' => 120,
+            'timeout' => 120,
+            'ssl_verify_peer' => false,
+            'ssl_verify_host' => false,
+        ]
     );
 
     return $request->get($url);
