@@ -10,7 +10,7 @@
             <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans&display=swap" rel="stylesheet">
             <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}" media="screen and (min-width: 1300px)">
             <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_mid.css') }}" media="screen and (max-width: 1300px)">
-            <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_small.css') }}" media="screen and (max-width: 600px)">
+            <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_small.css') }}" media="screen and (max-width: 750px)">
         {% endblock %}
     </head>
     <body>
@@ -51,58 +51,58 @@
         <div id='container'>
         {% block header %}
             <div id='header'>
-                <nav class='drop-down' id='menu'>
-                    <ul>
+                <div id='top'>
+                    <nav class='drop-down' id='menu'>
+                        <ul>
                             <li>
                                 <a href="#" class='hover-effect'>
-                                        <svg class="icon icon-menu"><use xlink:href="#icon-menu"></use></svg>
+                                    <svg class="icon icon-menu"><use xlink:href="#icon-menu"></use></svg>
                                 </a>
                                 <ul>
-                                        <li><a>Bookmarks</a></li>
-                                        <li><a>Messages</a></li>
-                                        <li><a>Settings</a></li>
-                                        <li><a>Logout</a></li>
+                                    <li><a>Main Page</a></li>
+                                    <li><a>Social</a></li>
+                                    <li><a>Bookmarks</a></li>
+                                    <li><a>Messages</a></li>
+                                    <li><a>Settings</a></li>
+                                    <li><a>Logout</a></li>
                                 </ul> 
                             </li>
-                    </ul>
-                </nav>
-                <nav class='drop-down' id='instance'>
-                    <ul>
-                            <li>
-                                <a href="#" class='hover-effect'>
-                                            <svg class="icon icon-logo"><use xlink:href="#icon-logo"></use></svg>
-                                                    <b id='instance-name'>GNU social</b>
-                                            <svg class="icon icon-drop"><use xlink:href="#icon-drop"></use></svg>
-                                </a>
-                                        <ul>
-                                            <li><a>Main Page</a></li>
-                                        </ul> 
-                            </li>
-                    </ul>
-                </nav>
-                <div class='flex-item' id='search'>
-                    <svg class="icon icon-search"><use xlink:href="#icon-search"></use></svg>
+                        </ul>
+                    </nav>
+                    <nav id='instance'>
+                        <a href="#" class='hover-effect'>
+                            <svg class="icon icon-logo"><use xlink:href="#icon-logo"></use></svg>
+                            <b>GNU social</b>
+                        </a>
+                    </nav>
+                    <div id='search'>
+                        <svg class="icon icon-search"><use xlink:href="#icon-search"></use></svg>
+                    </div>
                 </div>
-                
+
+                <div id='cover'>
+                    <img id="cover-img" src="{{ asset('assets/bitmap.png') }}">
+                    <svg id="avatar"><use xlink:href="#icon-avatar"></use></svg>
+                </div>
+
                 <div id='profile'>
-                    <svg class="icon icon-avatar"><use xlink:href="#icon-avatar"></use></svg>
                     <div id='info'>
-                            <div id='nick'>
-                                <b id='name'>someone</b>
-                            </div>
-                            <div id='tags'>
-                                <i>coffee addict</i>
-                                <i>lazy</i>
-                            </div>
+                        <div id='nick'>
+                            <b id='name'>someone</b>
+                        </div>
+                        <div id='tags'>
+                            <i>coffee addict</i>
+                            <i>lazy</i>
+                        </div>
                     </div>
                     <div id='stats'>
-                            <div id='followers'>
-                                <b>1337</b> Followers
-                            </div>
-                            <div id='following'>
-                                <b>42</b> Following
-                            </div>
-                    </div>
+                        <div id='followers'>
+                            <b>1337</b> Followers
+                        </div>
+                        <div id='following'>
+                            <b>42</b> Following
+                        </div> 
+                    </div>   
                 </div>     
             </div>
         {% endblock %}

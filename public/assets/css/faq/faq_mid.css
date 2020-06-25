@@ -6,8 +6,8 @@
     flex-wrap: wrap;
     order: 2;
     width: 100%;
-    margin-left: 10%;
-    margin-right: 10%;
+    margin-left: 5%;
+    margin-right: 5%;
     background-color: #00000080;
     padding: 1em 1em;
     font-size: 0.8em;
@@ -19,8 +19,8 @@
     align-items: stretch;
     justify-content: space-evenly;
     width: 100%;
-    margin-left: 10%;
-    margin-right: 10%;
+    margin-left: 5%;
+    margin-right: 5%;
     padding: 0;
 }
 
@@ -53,8 +53,8 @@
     width: 100%;
     margin-top: 1em;
     margin-bottom: 1em;
-    margin-left: 10%;
-    margin-right: 10%;
+    margin-left: 5%;
+    margin-right: 5%;
     background-color: rgba(0, 0, 0, 0.40);
     padding: 0 1em 1em 1em;
     border-radius: 1em;

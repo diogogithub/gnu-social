@@ -21,17 +21,17 @@ ul {
 
 .drop-down ul li {
     position: relative;
+    z-index: 2;
 }
 
 .drop-down ul li ul a {
-    line-height: 0.8em;
+    line-height: 1.1em;
 }
 
 .drop-down ul li ul {
     display: none;
     position: absolute;
     background-color: #F6F6F6;
-    ;
     padding: 0.4em 0.8em 0.8em 0.8em;
     border-radius: 0.5em;
     color: #29323c;
@@ -63,7 +63,7 @@ a:visited {
 }
 
 ul li ul a {
-    font-size: 0.7em;
+    font-size: 0.8em;
 }
 
 b {
@@ -89,21 +89,24 @@ b {
     width: 100%;
     margin-left: 0;
     margin-right: 0;
-    align-items: center;
-
     background-color: rgba(0, 0, 0, 0.40);
-    ;
-    padding: 1em 1em;
     box-shadow: 0px 0px 60px -20px rgba(41, 50, 60, 1);
 }
 
-/* MENU -------------------------------*/
-#menu {
+#top {
+    display: flex;
+    justify-content: space-between;
+    vertical-align: top;
+    flex-wrap: wrap;
     order: 1;
+    width: 100%;
+    padding: 1em 1em 0.6em 1em;
 }
 
+/* MENU -------------------------------*/
 .icon-menu {
     display: inline-block;
+    vertical-align: top;
     width: 1em;
     height: 1em;
     stroke-width: 0;
@@ -117,21 +120,17 @@ b {
     order: 2;
 }
 
-.icon-logo {
-    display: inline-block;
-    vertical-align: middle;
-    width: 1em;
-    height: 1em;
-    stroke-width: 0;
-    stroke: currentColor;
-    fill: currentColor;
+#instance b {
+    margin: 0;
+    padding: 0;
+    vertical-align: top;
 }
 
-.icon-drop {
+.icon-logo {
     display: inline-block;
-    vertical-align: middle;
-    width: 0.5em;
-    height: 0.5em;
+    vertical-align: top;
+    width: 1em;
+    height: 1em;
     stroke-width: 0;
     stroke: currentColor;
     fill: currentColor;
@@ -145,7 +144,7 @@ b {
 
 .icon-search {
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: top;
     width: 1em;
     height: 1em;
     stroke-width: 0;
@@ -155,41 +154,59 @@ b {
 
 /*-------------------------------------*/
 /* PROFILE ----------------------------*/
+#cover {
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    order: 3;
+    width: 100%;
+}
+
+#cover-img {
+    width: 100%;
+    height: auto;
+}
+
+#avatar {
+    z-index: 1;
+    position: absolute;
+    width: 2em;
+    height: 2em;
+    margin-left: 1em;
+}
+
 #profile {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-start;
-    order: 4;
     width: 100%;
-    margin-top: 2em;
-    font-size: 0.7em;
+    padding: 0.8em 1em 0.8em 1em;
+    order: 4;
+    font-size: 0.75em;
     align-items: center;
 }
 
-.icon-avatar {
-    order: 1;
-    margin-right: 1em;
-    width: 4em;
-    height: 4em;
-    stroke-width: 0;
-    stroke: currentColor;
-    fill: currentColor;
-}
-
 #info {
-    order: 2;
+    order: 1;
     margin-right: auto;
+    display: flex;
+    flex-flow: column;
 }
 
 #nick {
     order: 1;
-    display: flex;
-    align-items: center;
-    margin-right: 1em;
+    width: 100%;
 }
 
 #tags {
     order: 2;
+    width: 100%;
     color: #91B9D0;
+
+}
+
+#tags i {
+    margin-left: 0;
 }
 
 #tags i:last-child {
@@ -197,7 +214,7 @@ b {
 }
 
 #stats {
-    order: 3;
+    order: 2;
     display: flex;
     margin-left: auto;
     flex-flow: column;
@@ -206,6 +223,7 @@ b {
 #followers {
     order: 1;
     width: 100%;
+    text-align: right;
 }
 
 #following {
