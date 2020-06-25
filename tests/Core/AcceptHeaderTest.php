@@ -14,19 +14,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * ActivityPub implementation for GNU social
- *
- * @package   GNUsocial
- * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
- */
+namespace Tests\Unit;
 
-require 'AcceptHeader.php';
+use AcceptHeader;
+use PHPUnit\Framework\TestCase;
 
-class ContainerTest extends \PHPUnit_Framework_TestCase
+if (!defined('INSTALLDIR')) {
+    define('INSTALLDIR', dirname(dirname(__DIR__)));
+}
+if (!defined('PUBLICDIR')) {
+    define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
+}
+if (!defined('GNUSOCIAL')) {
+    define('GNUSOCIAL', true);
+}
+if (!defined('STATUSNET')) { // Compatibility
+    define('STATUSNET', true);
+}
+
+require_once INSTALLDIR . '/lib/util/common.php';
+
+final class AcceptHeaderTest extends TestCase
 {
     public function testHeader1()
     {
