@@ -24,10 +24,13 @@
       <nav class='set-nav2'>
             <ul>
                   <li>
-                        <a href="{{ path('settings_profile') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_profile' %}active{% endif %}'>Profile</a>
+                        <a href="{{ path('account_email') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'account_email' %}active{% endif %}'>Email</a>
                   </li>
                   <li>
-                        <a href="{{ path('settings_avatar') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_avatar' %}active{% endif %}'>Avatar</a>
+                        <a href="{{ path('account_pass') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'account_pass' %}active{% endif %}'>Password</a>
+                  </li>
+                  <li>
+                        <a href="{{ path('account_bak') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'account_bak' %}active{% endif %}'>Backup and Restore</a>
                   </li>
             </ul>
       </nav>

@@ -18,40 +18,25 @@
 // }}}
 
 /**
- * Define social's main routes
+ * Define FAQ's main routes
  *
  * @package  GNUsocial
  * @category Router
  *
- * @author    Hugo Sales <hugo@fc.up.pt>
+ * @author    Eliseu Amaro <eliseu@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 namespace App\Routes;
 
-use App\Controller as C;
-use App\Controller\NetworkPublic;
-use App\Core\Router\RouteLoader;
-use Symfony\Bundle\FrameworkBundle\Controller\TemplateController;
+use App\Controller\FaqHome;
+use App\Core\RouteLoader;
 
-abstract class Main
+abstract class Faq
 {
     public static function load(RouteLoader $r): void
     {
-        $r->connect('main_all', '/main/all', NetworkPublic::class);
-
-        // FAQ static pages
-        foreach (['faq', 'contact', 'tags', 'groups', 'openid'] as $s) {
-            $r->connect('doc_' . $s, 'doc/' . $s, TemplateController::class, [], ['defaults' => ['template' => 'faq/' . $s . '.html.twig']]);
-        }
-
-        foreach (['profile', 'avatar'] as $s) {
-            $r->connect('settings_' . $s, 'settings/' . $s, C\UserAdminPanel::class);
-        }
-
-        foreach (['email', 'pass', 'bak'] as $s) {
-            $r->connect('account_' . $s, 'settings/account/' . $s, C\UserAdminPanel::class);
-        }
+        $r->connect('doc_faq', '/doc/faq', FaqHome::class);
     }
 }
