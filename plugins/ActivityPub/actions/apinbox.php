@@ -90,16 +90,16 @@ class apInboxAction extends ManagedAction
 
         common_debug('ActivityPub Inbox: HTTP Signature: Validation will now start!');
 
-        $headers = $this->get_all_headers();
+        $headers = getallheaders();
         common_debug('ActivityPub Inbox: Request Headers: ' . print_r($headers, true));
 
-        if (!isset($headers['signature'])) {
+        if (!isset($headers['Signature'])) {
             common_debug('ActivityPub Inbox: HTTP Signature: Missing Signature header.');
             ActivityPubReturn::error('Missing Signature header.', 400);
         }
 
         // Extract the signature properties
-        $signatureData = HTTPSignature::parseSignatureHeader($headers['signature']);
+        $signatureData = HTTPSignature::parseSignatureHeader($headers['Signature']);
         common_debug('ActivityPub Inbox: HTTP Signature Data: ' . print_r($signatureData, true));
         if (isset($signatureData['error'])) {
             common_debug('ActivityPub Inbox: HTTP Signature: ' . json_encode($signatureData, true));
@@ -140,27 +140,5 @@ class apInboxAction extends ManagedAction
         } catch (Exception $e) {
             ActivityPubReturn::error($e->getMessage());
         }
-    }
-
-    /**
-     * Get all HTTP header key/values as an associative array for the current request.
-     *
-     * @return array [string] The HTTP header key/value pairs.
-     * @author PHP Manual Contributed Notes <joyview@gmail.com>
-     */
-    private function get_all_headers()
-    {
-        // If we're running on an Apache2 webserver
-        if (function_exists('getallheaders')) {
-            return getallheaders();
-        }
-        // Otherwise, do it manually.
-        $headers = [];
-        foreach ($_SERVER as $name => $value) {
-            if (substr($name, 0, 5) == 'HTTP_') {
-                $headers[strtolower(str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5))))))] = $value;
-            }
-        }
-        return $headers;
     }
 }
