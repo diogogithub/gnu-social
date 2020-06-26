@@ -1,0 +1,112 @@
+/*-------------------------------------*/
+/* PAGES ------------------------------*/
+.set-nav {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    order: 2;
+    width: 100%;
+    margin-left: 5%;
+    margin-right: 5%;
+    background-color: #00000080;
+    padding: 1em 1em;
+    font-size: 0.8em;
+    box-shadow: 0px 0px 60px -20px rgba(41, 50, 60, 1);
+}
+
+.set-nav ul {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-evenly;
+    width: 100%;
+    margin-left: 5%;
+    margin-right: 5%;
+    padding: 0;
+}
+
+.set-nav li {
+    display: block;
+    flex: 0 1 auto;
+    list-style-type: none;
+}
+
+.active {
+    color: #F6F6F6 !important;
+    font-weight: 700;
+}
+
+.set-nav a {
+    color: #91B9D0;
+}
+
+.set-nav a:hover {
+    color: #F6F6F6;
+    transition: all 0.8s ease;
+
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+.set-nav2 {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    order: 2;
+    width: 100%;
+    margin-left: 5%;
+    margin-right: 5%;
+    margin-top: 1em;
+    background-color: #00000080;
+    border-top-left-radius: 1em;
+    border-top-right-radius: 1em;
+    padding: 1em 1em;
+    font-size: 0.8em;
+    box-shadow: 0px 0px 60px -20px rgba(41, 50, 60, 1);
+}
+
+.set-nav2 ul {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-evenly;
+    width: 100%;
+    margin-left: 10%;
+    margin-right: 10%;
+    padding: 0;
+}
+
+.set-nav2 li {
+    display: block;
+    flex: 0 1 auto;
+    list-style-type: none;
+}
+
+.set-nav2 a {
+    color: #91B9D0;
+}
+
+.set-nav2 a:hover {
+    color: #F6F6F6;
+    transition: all 0.8s ease;
+
+}
+
+/* CONTENT ----------------------------*/
+.content {
+    order: 3;
+    width: 100%;
+    margin-bottom: 1em;
+    margin-left: 5%;
+    margin-right: 5%;
+    background-color: rgba(0, 0, 0, 0.30);
+    padding: 1em 1em 1em 1em;
+    border-bottom-left-radius: 1em;
+    border-bottom-right-radius: 1em;
+    font-size: 0.8em;
+    box-shadow: 0px 0px 60px -20px rgba(41, 50, 60, 1);
+}
+
+.content ul {
+    margin: 0;
+    padding-left: 2em;
+    list-style: disc;
+}
