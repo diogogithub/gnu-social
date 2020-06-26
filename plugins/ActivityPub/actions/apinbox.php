@@ -150,6 +150,11 @@ class apInboxAction extends ManagedAction
      */
     private function get_all_headers()
     {
+        // If we're running on an Apache2 webserver
+        if (function_exists('getallheaders')) {
+            return getallheaders();
+        }
+        // Otherwise, do it manually.
         $headers = [];
         foreach ($_SERVER as $name => $value) {
             if (substr($name, 0, 5) == 'HTTP_') {
