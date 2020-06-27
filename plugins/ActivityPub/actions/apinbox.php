@@ -106,7 +106,7 @@ class apInboxAction extends ManagedAction
             ActivityPubReturn::error(json_encode($signatureData, true), 400);
         }
 
-        list($verified, $headers) = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
+        list($verified, /*$headers*/) = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
 
         // If the signature fails verification the first time, update profile as it might have changed public key
         if ($verified !== 1) {
