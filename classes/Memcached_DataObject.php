@@ -87,7 +87,7 @@ class Memcached_DataObject extends Safe_DataObject
         }
 
         if ($skipNulls) {
-            foreach ($keyVals as $key=>$val) {
+            foreach ($keyVals as $key => $val) {
                 if (is_null($val)) {
                     unset($keyVals[$key]);
                 }
@@ -97,30 +97,52 @@ class Memcached_DataObject extends Safe_DataObject
         $obj->whereAddIn($keyCol, $keyVals, $colType);
 
         // Since we're inputting straight to a query: format and escape
-        foreach ($keyVals as $key=>$val) {
+        foreach ($keyVals as $key => $val) {
             settype($val, $colType);
             $keyVals[$key] = $obj->escape($val);
         }
 
-        switch (common_config('db', 'type')) {
-            case 'pgsql':
-                // "position" will make sure we keep the desired order
-                $obj->orderBy(sprintf(
-                    "position(',' || CAST(%s AS text) || ',' IN ',%s,')",
-                    $keyCol,
-                    implode(',', $keyVals)
-                ));
+        // Check if values are ordered, makes sorting in SQL easier
+        $prev_val = reset($keyVals);
+        $order_asc = $order_desc = true;
+        foreach ($keyVals as $val) {
+            if ($val < $prev_val) {
+                $order_asc = false;
+            }
+            if ($val > $prev_val) {
+                $order_desc = false;
+            }
+            if ($order_asc === false && $order_desc === false) {
                 break;
-            case 'mysql':
-                // "find_in_set" will make sure we keep the desired order
-                $obj->orderBy(sprintf(
-                    "find_in_set(%s, '%s')",
-                    $keyCol,
-                    implode(',', $keyVals)
-                ));
-                break;
-            default:
-                throw new ServerException('Unknown DB type selected.');
+            }
+            $prev_val = $val;
+        }
+
+        if ($order_asc) {
+            $obj->orderBy($keyCol);
+        } elseif ($order_desc) {
+            $obj->orderBy("{$keyCol} DESC");
+        } else {
+            switch (common_config('db', 'type')) {
+                case 'pgsql':
+                    // "position" will make sure we keep the desired order
+                    $obj->orderBy(sprintf(
+                        "position(',' || CAST(%s AS text) || ',' IN ',%s,')",
+                        $keyCol,
+                        implode(',', $keyVals)
+                    ));
+                    break;
+                case 'mysql':
+                    // "find_in_set" will make sure we keep the desired order
+                    $obj->orderBy(sprintf(
+                        "find_in_set(%s, '%s')",
+                        $keyCol,
+                        implode(',', $keyVals)
+                    ));
+                    break;
+                default:
+                    throw new ServerException('Unknown DB type selected.');
+            }
         }
 
         $obj->find();
