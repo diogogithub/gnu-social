@@ -413,7 +413,7 @@ class File extends Managed_DataObject
 
     /**
      * Validation for as-saved base filenames
-     * @param $filename
+     * @param mixed $filename
      * @return false|int
      */
     public static function validFilename($filename)
@@ -421,7 +421,12 @@ class File extends Managed_DataObject
         return preg_match('/^[A-Za-z0-9._-]+$/', $filename);
     }
 
-    public static function tryFilename($filename)
+    /**
+     * @param mixed $filename
+     * @return string
+     * @throws InvalidFilenameException
+     */
+    public static function tryFilename($filename): string
     {
         if (!self::validFilename($filename)) {
             throw new InvalidFilenameException($filename);
@@ -431,16 +436,22 @@ class File extends Managed_DataObject
     }
 
     /**
-     * @param $filename
+     * Construct a path
+     *
+     * @param mixed $filename Will be tested by tryFilename
+     * @param string|null $dir Attachments directory by default
+     * @param bool $test_filename
      * @return string
      * @throws InvalidFilenameException
      * @throws ServerException
      */
-    public static function path($filename)
+    public static function path($filename, ?string $dir = null, bool $test_filename = true)
     {
-        self::tryFilename($filename);
+        if ($test_filename) {
+            self::tryFilename($filename);
+        }
 
-        $dir = common_config('attachments', 'dir');
+        $dir = $dir ?? common_config('attachments', 'dir');
 
         if (!in_array($dir[mb_strlen($dir)-1], ['/', '\\'])) {
             $dir .= DIRECTORY_SEPARATOR;
