@@ -203,35 +203,4 @@ class AttachmentAction extends ManagedAction
         }
     }
 
-    /**
-     * Include $filepath in the response, for viewing and downloading.
-     * If provided, $filesize is used to size the HTTP request,
-     * otherwise it's value is calculated
-     * @throws ServerException
-     */
-    public function sendFile(): void
-    {
-        if (is_string(common_config('site', 'x-static-delivery'))) {
-            $tmp = explode(INSTALLDIR, $this->filepath);
-            $relative_path = end($tmp);
-            common_debug("Using Static Delivery with header: '" .
-                         common_config('site', 'x-static-delivery') . ": {$relative_path}'");
-            header(common_config('site', 'x-static-delivery') . ": {$relative_path}");
-        } else {
-            if (empty($this->filesize)) {
-                $this->filesize = filesize($this->filepath);
-            }
-            header("Content-Length: {$this->filesize}");
-            // header('Cache-Control: private, no-transform, no-store, must-revalidate');
-
-            $ret = @readfile($this->filepath);
-
-            if ($ret === false) {
-                common_log(LOG_ERR, "Couldn't read file at {$this->filepath}.");
-            } elseif ($ret !== $this->filesize) {
-                common_log(LOG_ERR, "The lengths of the file as recorded on the DB (or on disk) for the file " .
-                           "{$this->filepath} differ from what was sent to the user ({$this->filesize} vs {$ret}).");
-            }
-        }
-    }
 }

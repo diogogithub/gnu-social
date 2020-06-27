@@ -60,9 +60,13 @@ class AvatarAction extends Action
         if (is_string($srv = common_config('avatar', 'server')) && $srv != '') {
             common_redirect(Avatar::url($this->filename), 302);
         } else {
-            $attachment           = new AttachmentAction(); // kludge...
-            $attachment->filepath = common_config('avatar', 'dir') . $this->filename;
-            $attachment->sendFile();
+            $filepath = common_config('avatar', 'dir') . $this->filename;
+            $info = @getimagesize($filepath);
+            if ($info !== false) {
+                common_send_file($filepath, $info['mime'], $this->filename, 'inline');
+            } else {
+                throw new UnsupportedMediaException(_m("Avatar is not an image."));
+            }
         }
         return true;
     }

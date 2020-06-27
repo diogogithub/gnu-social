@@ -67,12 +67,6 @@ class Attachment_thumbnailAction extends AttachmentAction
         // script execution, and we don't want to have any more errors until then, so don't reset it
         @ini_set('display_errors', 0);
 
-        header("Content-Description: File Transfer");
-        header("Content-Type: {$this->mimetype}");
-        header("Content-Disposition: inline; filename=\"{$this->filename}\"");
-        header('Expires: 0');
-        header('Content-Transfer-Encoding: binary');
-
-        parent::sendFile();
+        common_send_file($this->filepath, $this->mimetype, $this->filename, 'inline');
     }
 }
