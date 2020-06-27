@@ -160,6 +160,8 @@ class HttpSignature
      */
     public static function verify($publicKey, $signatureData, $inputHeaders, $path, $body): array
     {
+        // We need this because the used Request headers fields specified by Signature are in lower case.
+        $headersContent = array_change_key_case($inputHeaders, CASE_LOWER);
         $digest = 'SHA-256=' . base64_encode(hash('sha256', $body, true));
         $headersToSign = [];
         foreach (explode(' ', $signatureData['headers']) as $h) {
@@ -167,8 +169,8 @@ class HttpSignature
                 $headersToSign[$h] = 'post ' . $path;
             } elseif ($h == 'digest') {
                 $headersToSign[$h] = $digest;
-            } elseif (isset($inputHeaders[$h][0])) {
-                $headersToSign[$h] = $inputHeaders[$h];
+            } elseif (isset($headersContent[$h][0])) {
+                $headersToSign[$h] = $headersContent[$h];
             }
         }
         $signingString = self::_headersToSigningString($headersToSign);
