@@ -32,16 +32,7 @@ class Attachment_viewAction extends AttachmentAction
         // script execution, and we don't want to have any more errors until then, so don't reset it
         @ini_set('display_errors', 0);
 
-        header("Content-Description: File Transfer");
-        header("Content-Type: {$this->mimetype}");
-        if (in_array(common_get_mime_media($this->mimetype), ['image', 'video'])) {
-            header("Content-Disposition: inline; filename=\"{$this->filename}\"");
-        } else {
-            header("Content-Disposition: attachment; filename=\"{$this->filename}\"");
-        }
-        header('Expires: 0');
-        header('Content-Transfer-Encoding: binary');
-
-        parent::sendFile();
+        $disposition = in_array(common_get_mime_media($this->mimetype), ['image', 'video']) ? 'inline' : 'attachment';
+        common_send_file($this->filepath, $this->mimetype, $this->filename, $disposition);
     }
 }

@@ -2723,6 +2723,47 @@ function common_get_preferred_php_upload_limit(): int
     );
 }
 
+/**
+ * Include $filepath in the response, for viewing and downloading.
+ *
+ * @throws ServerException
+ */
+function common_send_file(string $filepath, string $mimetype, string $filename, string $disposition = 'inline'): void
+{
+    if (is_string(common_config('site', 'x-static-delivery'))) {
+        $tmp = explode(INSTALLDIR, $filepath);
+        $relative_path = end($tmp);
+        common_debug("Using Static Delivery with header: '" .
+                     common_config('site', 'x-static-delivery') . ": {$relative_path}'");
+        header(common_config('site', 'x-static-delivery') . ": {$relative_path}");
+    } else {
+        header("Content-Description: File Transfer");
+        header("Content-Type: {$mimetype}");
+        header("Content-Disposition: {$disposition}; filename=\"{$filename}\"");
+        header('Expires: 0');
+        header('Content-Transfer-Encoding: binary');
+
+        $filesize = filesize($filepath);
+
+        if (file_exists($filepath)) {
+            http_response_code(200);
+            header("Content-Length: {$filesize}");
+            // header('Cache-Control: private, no-transform, no-store, must-revalidate');
+
+            $ret = @readfile($filepath);
+
+        } elseif ($ret === false) {
+            http_response_code(404);
+            common_log(LOG_ERR, "Couldn't read file at {$filepath}.");
+        } elseif ($ret !== $filesize) {
+            http_response_code(500);
+            common_log(LOG_ERR, "The lengths of the file as recorded on the DB (or on disk) for the file " .
+                       "{$filepath} differ from what was sent to the user ({$filesize} vs {$ret}).");
+        }
+    }
+
+}
+
 function html_sprintf()
 {
     $args = func_get_args();
