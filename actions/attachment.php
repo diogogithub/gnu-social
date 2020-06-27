@@ -173,7 +173,7 @@ class AttachmentAction extends ManagedAction
      * @return string etag http header
      * @throws ServerException
      */
-    public function etag(): string
+    public function etag(): ?string
     {
         if (common_config('site', 'use_x_sendfile')) {
             return null;
@@ -202,5 +202,4 @@ class AttachmentAction extends ManagedAction
             return null;
         }
     }
-
 }

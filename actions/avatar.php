@@ -15,19 +15,17 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Retrieve user avatar by nickname action class.
+ * Retrieve user avatar by filename action class.
  *
  * @category Action
  * @package  GNUsocial
  *
  * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
  */
-if (!defined('GNUSOCIAL')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die;
 
 /**
- * Retrieve user avatar by nickname action class.
+ * Retrieve user avatar by filename action class.
  *
  * @category Action
  * @package  GNUsocial
@@ -42,14 +40,21 @@ if (!defined('GNUSOCIAL')) {
  */
 class AvatarAction extends Action
 {
-    public $filename;
+    public $filename = null;
+    public $filepath = null;
+    public $mimetype = null;
+
     protected function prepare(array $args = [])
     {
         parent::prepare($args);
-        if (empty($this->filename = $this->trimmed('file'))) {
+        $this->filename = File::tryFilename($this->trimmed('file'));
+        $this->filepath = File::path($this->filename, common_config('avatar', 'dir'), false);
+        if (!file_exists($this->filepath)) {
             // TRANS: Client error displayed trying to get a non-existing avatar.
             $this->clientError(_m('No such avatar.'), 404);
         }
+        $this->mimetype = (new ImageFile(-1, $this->filepath))->mimetype;
+
         return true;
     }
 
@@ -57,17 +62,6 @@ class AvatarAction extends Action
     {
         parent::handle();
 
-        if (is_string($srv = common_config('avatar', 'server')) && $srv != '') {
-            common_redirect(Avatar::url($this->filename), 302);
-        } else {
-            $filepath = common_config('avatar', 'dir') . $this->filename;
-            $info = @getimagesize($filepath);
-            if ($info !== false) {
-                common_send_file($filepath, $info['mime'], $this->filename, 'inline');
-            } else {
-                throw new UnsupportedMediaException(_m("Avatar is not an image."));
-            }
-        }
-        return true;
+        common_send_file($this->filepath, $this->mimetype, $this->filename, 'inline');
     }
 }
