@@ -32,12 +32,9 @@ namespace App\Controller;
 
 // use App\Core\Event;
 // use App\Util\Common;
-use App\Core\DB\DB;
-use App\Core\DB\DefaultSettings;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
@@ -46,41 +43,13 @@ class UserAdminPanel extends AbstractController
 {
     public function __invoke(Request $request)
     {
-        $defaults = DefaultSettings::$defaults;
-        $options  = [];
-        foreach ($defaults as $key => $inner) {
-            $options[$key] = [];
-            foreach (array_keys($inner) as $inner_key) {
-                $options[_m($key)][_m($inner_key)] = "{$key}:{$inner_key}";
-            }
-        }
-
-        $form = Form::create([[_m('Setting'), ChoiceType::class, ['choices' => $options]],
-            [_m('Value'),   TextType::class],
-            ['save',        SubmitType::class, ['label' => _m('Set site setting')]], ]);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted()) {
-            $data = $form->getData();
-            if ($form->isValid() && array_key_exists(_m('Setting'), $data)) {
-                list($section, $setting) = explode(':', $data[_m('Setting')]);
-                $value                   = $data[_m('Value')];
-                $default                 = $defaults[$section][$setting];
-                if (gettype($default) === gettype($value)) {
-                    $conf      = DB::find('\App\Entity\Config', ['section' => $section, 'setting' => $setting]);
-                    $old_value = $conf->getValue();
-                    $conf->setValue(serialize($value));
-                    DB::flush();
-                }
-                return $this->render('config/admin.html.twig', [
-                    'form'      => $form->createView(),
-                    'old_value' => unserialize($old_value),
-                    'default'   => $default,
-                ]);
-            } else {
-                // Display error
-            }
-        }
+        $form = Form::create([
+            [_m('Nickname'),   TextType::class],
+            [_m('FullName'),   TextType::class],
+            [_m('Homepage'),   TextType::class],
+            [_m('Bio'),   TextType::class],
+            [_m('Location'),   TextType::class],
+            ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
 
         foreach (['profile', 'avatar'] as $s) {
             return $this->render('settings/' . $s . '.html.twig', [
