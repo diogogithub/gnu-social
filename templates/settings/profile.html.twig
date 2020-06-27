@@ -34,7 +34,24 @@
 {% endblock %}
 
 {% block body %}
-      <div class="content">
-            {{ form(form) }}
+      <div class='content'>
+            <div id='nickname'>
+                  <div class='label'> {{ form_label(form.Nickname) }} </div> {{ form_widget(form.Nickname) }}
+            </div>
+            <div id='name'>
+                  <div class='label'> {{ form_label(form.FullName) }} </div> {{ form_widget(form.FullName) }}
+            </div>
+            <div id='homepage'>
+                  <div class='label'> {{ form_label(form.Homepage) }} </div> {{ form_widget(form.Homepage) }}
+            </div>
+            <div id='bio'>
+                  <div class='label'> {{ form_label(form.Bio) }} </div> {{ form_widget(form.Bio) }}
+            </div>
+            <div id='location'>
+                  <div class='label'> {{ form_label(form.Location) }} </div> {{ form_widget(form.Location) }}
+            </div>
+            <div id='save'>
+                  {{ form_widget(form.save) }}
+            </div>
       </div>
 {% endblock %}
