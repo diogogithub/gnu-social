@@ -13,14 +13,13 @@
                         <a href="{{ path('settings_profile') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_' %}active{% endif %}'>Settings</a>
                   </li>
                   <li>
-                        <a href="{{ path('account_email') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'account_' %}active{% endif %}'>Account</a>
+                        <a href="{{ path('account_settings') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'account_settings' %}active{% endif %}'>Account</a>
                   </li>
                   <li>
                         <a href="{{ path('doc_tags') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'doc_tags' %}active{% endif %}'>Misc</a>
                   </li>
             </ul>
       </nav>
-
       <nav class='set-nav2'>
             <ul>
                   <li>
@@ -30,11 +29,29 @@
                         <a href="{{ path('settings_avatar') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_avatar' %}active{% endif %}'>Avatar</a>
                   </li>
             </ul>
+            <hr>
       </nav>
 {% endblock %}
 
 {% block body %}
-      <div class="content">
-            {{ form(form) }}
+      <div class='content'>
+            <div id='nickname'>
+                  <div class='label'> {{ form_label(prof.Nickname) }} </div> {{ form_widget(prof.Nickname) }}
+            </div>
+            <div id='name'>
+                  <div class='label'> {{ form_label(prof.FullName) }} </div> {{ form_widget(prof.FullName) }}
+            </div>
+            <div id='homepage'>
+                  <div class='label'> {{ form_label(prof.Homepage) }} </div> {{ form_widget(prof.Homepage) }}
+            </div>
+            <div id='bio'>
+                  <div class='label'> {{ form_label(prof.Bio) }} </div> {{ form_widget(prof.Bio) }}
+            </div>
+            <div id='location'>
+                  <div class='label'> {{ form_label(prof.Location) }} </div> {{ form_widget(prof.Location) }}
+            </div>
+            <div id='save'>
+                  {{ form_widget(prof.save) }}
+            </div>
       </div>
 {% endblock %}

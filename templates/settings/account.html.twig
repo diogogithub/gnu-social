@@ -13,24 +13,10 @@
                         <a href="{{ path('settings_profile') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_' %}active{% endif %}'>Settings</a>
                   </li>
                   <li>
-                        <a href="{{ path('account_email') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'account_' %}active{% endif %}'>Account</a>
+                        <a href="{{ path('account_settings') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'account_settings' %}active{% endif %}'>Account</a>
                   </li>
                   <li>
                         <a href="{{ path('doc_tags') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'doc_tags' %}active{% endif %}'>Misc</a>
-                  </li>
-            </ul>
-      </nav>
-
-      <nav class='set-nav2'>
-            <ul>
-                  <li>
-                        <a href="{{ path('account_email') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'account_email' %}active{% endif %}'>Email</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('account_pass') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'account_pass' %}active{% endif %}'>Password</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('account_bak') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'account_bak' %}active{% endif %}'>Backup and Restore</a>
                   </li>
             </ul>
       </nav>
