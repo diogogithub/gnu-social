@@ -20,13 +20,11 @@
  * @category  Data
  * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2010, StatusNet, Inc.
+ * @copyright 2010 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 defined('GNUSOCIAL') || die();
-
-require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
 
 /**
  * Data class for counting users by date
@@ -34,10 +32,10 @@ require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
  * We make a separate sitemap for each user registered by date.
  * To save ourselves some processing effort, we cache this data
  *
- * @copyright 2010, StatusNet, Inc.
+ * @copyright 2010 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      DB_DataObject
+ * @see       DB_DataObject
  */
 class Sitemap_user_count extends Managed_DataObject
 {
@@ -45,8 +43,8 @@ class Sitemap_user_count extends Managed_DataObject
 
     public $registration_date;               // date primary_key not_null
     public $user_count;                      // int(4)
-    public $created;                         // datetime()   not_null
-    public $modified;                        // datetime   not_null default_0000-00-00%2000%3A00%3A00
+    public $created;                         // datetime()
+    public $modified;                        // timestamp()  not_null
 
     public static function schemaDef()
     {
@@ -54,7 +52,7 @@ class Sitemap_user_count extends Managed_DataObject
             'fields' => array(
                 'registration_date' => array('type' => 'date', 'not null' => true, 'description' => 'record date'),
                 'user_count' => array('type' => 'int', 'not null' => true, 'description' => 'the user count of the recorded date'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
                 'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('registration_date'),

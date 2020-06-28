@@ -1,25 +1,25 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @copyright 2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 class User_urlshortener_prefs extends Managed_DataObject
 {
@@ -31,8 +31,8 @@ class User_urlshortener_prefs extends Managed_DataObject
     public $urlshorteningservice;            // varchar(50)   default_ur1.ca
     public $maxurllength;                    // int(4)   not_null
     public $maxnoticelength;                 // int(4)   not_null
-    public $created;                         // datetime()  not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()
+    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -45,8 +45,8 @@ class User_urlshortener_prefs extends Managed_DataObject
                 'urlshorteningservice' => array('type' => 'varchar', 'length' => 50, 'default' => 'internal', 'description' => 'service to use for auto-shortening URLs'),
                 'maxurllength' => array('type' => 'int', 'not null' => true, 'description' => 'urls greater than this length will be shortened, 0 = always, null = never'),
                 'maxnoticelength' => array('type' => 'int', 'not null' => true, 'description' => 'notices with content greater than this value will have all urls shortened, 0 = always, -1 = only if notice text is longer than max allowed'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('user_id'),
             'foreign keys' => array(
@@ -55,7 +55,7 @@ class User_urlshortener_prefs extends Managed_DataObject
         );
     }
 
-    static function maxUrlLength($user)
+    public static function maxUrlLength($user)
     {
         $def = common_config('url', 'maxurllength');
 
@@ -68,7 +68,7 @@ class User_urlshortener_prefs extends Managed_DataObject
         }
     }
 
-    static function maxNoticeLength($user)
+    public static function maxNoticeLength($user)
     {
         $def = common_config('url', 'maxnoticelength');
 
@@ -90,7 +90,7 @@ class User_urlshortener_prefs extends Managed_DataObject
         }
     }
 
-    static function urlShorteningService($user)
+    public static function urlShorteningService($user)
     {
         $def = common_config('url', 'shortener');
 
@@ -107,7 +107,7 @@ class User_urlshortener_prefs extends Managed_DataObject
         }
     }
 
-    static function getPrefs($user)
+    public static function getPrefs($user)
     {
         if (empty($user)) {
             return null;

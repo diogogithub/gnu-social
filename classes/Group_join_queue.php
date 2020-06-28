@@ -14,12 +14,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('GNUSOCIAL') || die();
-
 /**
  * Table Definition for request_queue
  */
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+
+defined('GNUSOCIAL') || die();
 
 class Group_join_queue extends Managed_DataObject
 {
@@ -41,7 +40,7 @@ class Group_join_queue extends Managed_DataObject
             'fields' => array(
                 'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'remote or local profile making the request'),
                 'group_id' => array('type' => 'int', 'not null' => true, 'description' => 'remote or local group to join, if any'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
             ),
             'primary key' => array('profile_id', 'group_id'),
             'indexes' => array(

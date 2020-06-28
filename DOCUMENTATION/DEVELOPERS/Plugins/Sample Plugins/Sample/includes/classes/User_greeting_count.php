@@ -17,7 +17,7 @@
 /**
  * Data class for counting greetings
  *
- * @package   GNU social
+ * @package   GNUsocial
  * @author    Brion Vibber <brionv@status.net>
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
@@ -36,20 +36,20 @@ defined('GNUSOCIAL') || die();
  * and other bits of good functionality to StatusNet-specific data classes.
  *
  * @category  Action
- * @package   GNU social
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      DB_DataObject
+ * @see       DB_DataObject
  */
 class User_greeting_count extends Managed_DataObject
 {
     public $__table = 'user_greeting_count'; // table name
-    public $user_id;                         // int(4)  primary_key not_null
+    public $user_id;                         // int(4)      primary_key not_null
     public $greeting_count;                  // int(4)
-    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()
+    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     public static function schemaDef()
     {
@@ -57,8 +57,8 @@ class User_greeting_count extends Managed_DataObject
             'fields' => [
                 'user_id' => ['type' => 'int', 'not null' => true, 'description' => 'user id'],
                 'greeting_count' => ['type' => 'int', 'not null' => true, 'description' => 'the greeting count'],
-                'created' => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'created' => ['type' => 'datetime', 'description' => 'date this record was created'],
+                'modified' => ['type' => 'timestamp', 'not null' => true,  'description' => 'date this record was modified'],
             ],
             'primary key' => ['user_id'],
             'foreign keys' => [

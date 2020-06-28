@@ -18,7 +18,7 @@
  * Allows administrators to define additional profile fields for the users of a GNU social installation.
  *
  * @category  Widget
- * @package   GNU social
+ * @package   GNUsocial
  * @author    Max Shinn <trombonechamp@gmail.com>
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2011-2019 Free Software Foundation, Inc http://www.fsf.org
@@ -35,8 +35,8 @@ class GNUsocialProfileExtensionField extends Managed_DataObject
     public $title;       // varchar(191)   not 255 because utf8mb4 takes more space
     public $description; // text
     public $type;        // varchar(191)   not 255 because utf8mb4 takes more space
-    public $created;     // datetime()   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;    // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;     // datetime()
+    public $modified;    // timestamp()    not_null default_CURRENT_TIMESTAMP
 
     public static function schemaDef(): array
     {
@@ -47,8 +47,8 @@ class GNUsocialProfileExtensionField extends Managed_DataObject
                 'title' => ['type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'field title'],
                 'description' => ['type' => 'text', 'not null' => true, 'description' => 'field description'],
                 'type' => ['type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'field type'],
-                'created' => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'created' => ['type' => 'datetime', 'description' => 'date this record was created'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'indexes' => [

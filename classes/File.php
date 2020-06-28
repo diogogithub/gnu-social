@@ -43,7 +43,7 @@ class File extends Managed_DataObject
     public $filename;                        // text()
     public $width;                           // int(4)
     public $height;                          // int(4)
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     const URLHASH_ALG = 'sha256';
     const FILEHASH_ALG = 'sha256';
@@ -64,7 +64,7 @@ class File extends Managed_DataObject
                 'filename' => array('type' => 'text', 'description' => 'if file is stored locally (too) this is the filename'),
                 'width' => array('type' => 'int', 'description' => 'width in pixels, if it can be described as such and data is available'),
                 'height' => array('type' => 'int', 'description' => 'height in pixels, if it can be described as such and data is available'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('id'),
             'unique keys' => array(

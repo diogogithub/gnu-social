@@ -1,10 +1,24 @@
 <?php
-
-if (!defined('GNUSOCIAL')) { exit(1); }
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Table Definition for subscription_queue
  */
+
+defined('GNUSOCIAL') || die();
 
 class Subscription_queue extends Managed_DataObject
 {
@@ -20,7 +34,7 @@ class Subscription_queue extends Managed_DataObject
             'fields' => array(
                 'subscriber' => array('type' => 'int', 'not null' => true, 'description' => 'remote or local profile making the request'),
                 'subscribed' => array('type' => 'int', 'not null' => true, 'description' => 'remote or local profile being subscribed to'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
             ),
             'primary key' => array('subscriber', 'subscribed'),
             'indexes' => array(
@@ -47,14 +61,14 @@ class Subscription_queue extends Managed_DataObject
         return $rq;
     }
 
-    static function exists(Profile $subscriber, Profile $other)
+    public static function exists(Profile $subscriber, Profile $other)
     {
         $sub = Subscription_queue::pkeyGet(array('subscriber' => $subscriber->getID(),
                                                  'subscribed' => $other->getID()));
         return ($sub instanceof Subscription_queue);
     }
 
-    static function getSubQueue(Profile $subscriber, Profile $other)
+    public static function getSubQueue(Profile $subscriber, Profile $other)
     {
         // This is essentially a pkeyGet but we have an object to return in NoResultException
         $sub = new Subscription_queue();

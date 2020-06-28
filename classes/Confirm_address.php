@@ -1,7 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for confirm_address
  */
+
+defined('GNUSOCIAL') || die();
 
 class Confirm_address extends Managed_DataObject
 {
@@ -13,7 +30,7 @@ class Confirm_address extends Managed_DataObject
     public $address_type;                    // varchar(8)   not_null
     public $claimed;                         // datetime()
     public $sent;                            // datetime()
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     public static function schemaDef()
     {
@@ -26,7 +43,7 @@ class Confirm_address extends Managed_DataObject
                 'address_type' => array('type' => 'varchar', 'length' => 8, 'not null' => true, 'description' => 'address type ("email", "xmpp", "sms")'),
                 'claimed' => array('type' => 'datetime', 'description' => 'date this was claimed for queueing'),
                 'sent' => array('type' => 'datetime', 'description' => 'date this was sent for queueing'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('code'),
             'foreign keys' => array(
@@ -35,7 +52,7 @@ class Confirm_address extends Managed_DataObject
         );
     }
 
-    static function getByAddress($address, $addressType)
+    public static function getByAddress($address, $addressType)
     {
         $ca = new Confirm_address();
 
@@ -49,7 +66,7 @@ class Confirm_address extends Managed_DataObject
         return $ca;
     }
 
-    static function saveNew($user, $address, $addressType, $extra=null)
+    public static function saveNew($user, $address, $addressType, $extra = null)
     {
         $ca = new Confirm_address();
 
@@ -99,16 +116,16 @@ class Confirm_address extends Managed_DataObject
      *  sitename    Name we sign the email with (defaults to sitename, but can be any string)
      *  url         The confirmation address URL.
      */
-    public function sendConfirmation(array $args=array())
+    public function sendConfirmation(array $args = [])
     {
         common_debug('Sending confirmation URL for user '._ve($this->user_id).' using '._ve($this->address_type));
 
         $defaults = [
-                     'headers'  => array(),
-                     'nickname' => $this->getProfile()->getNickname(),
-                     'sitename' => common_config('site', 'name'),
-                     'url'      => $this->getUrl(),
-                    ];
+            'headers'  => [],
+            'nickname' => $this->getProfile()->getNickname(),
+            'sitename' => common_config('site', 'name'),
+            'url'      => $this->getUrl(),
+        ];
         foreach (array_keys($defaults) as $key) {
             if (!isset($args[$key])) {
                 $args[$key] = $defaults[$key];
@@ -124,7 +141,7 @@ class Confirm_address extends Managed_DataObject
         }
     }
 
-    public function sendEmailConfirmation(array $args=array())
+    public function sendEmailConfirmation(array $args = [])
     {
         // TRANS: Subject for address confirmation email.
         $subject = _('Email address confirmation');
@@ -132,21 +149,23 @@ class Confirm_address extends Managed_DataObject
         // TRANS: Body for address confirmation email.
         // TRANS: %1$s is the addressed user's nickname, %2$s is the StatusNet sitename,
         // TRANS: %3$s is the URL to confirm at.
-        $body = sprintf(_("Hey, %1\$s.\n\n".
-                          "Someone just entered this email address on %2\$s.\n\n" .
-                          "If it was you, and you want to confirm your entry, ".
-                          "use the URL below:\n\n\t%3\$s\n\n" .
-                          "If not, just ignore this message.\n\n".
-                          "Thanks for your time, \n%2\$s\n"),
-                        $args['nickname'],
-                        $args['sitename'],
-                        $args['url']);
+        $body = sprintf(
+            _("Hey, %1\$s.\n\n" .
+              "Someone just entered this email address on %2\$s.\n\n" .
+              "If it was you, and you want to confirm your entry, ".
+              "use the URL below:\n\n\t%3\$s\n\n" .
+              "If not, just ignore this message.\n\n".
+              "Thanks for your time, \n%2\$s\n"),
+            $args['nickname'],
+            $args['sitename'],
+            $args['url']
+        );
 
         require_once INSTALLDIR . '/lib/util/mail.php';
         return mail_to_user($this->getProfile()->getUser(), $subject, $body, $args['headers'], $this->getAddress());
     }
 
-    public function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
         $result = parent::delete($useWhere);
 

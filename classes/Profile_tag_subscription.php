@@ -1,8 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for profile_tag_subscription
  */
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+
+defined('GNUSOCIAL') || die();
 
 class Profile_tag_subscription extends Managed_DataObject
 {
@@ -12,8 +28,8 @@ class Profile_tag_subscription extends Managed_DataObject
     public $__table = 'profile_tag_subscription';                     // table name
     public $profile_tag_id;                         // int(4)  not_null
     public $profile_id;                             // int(4)  not_null
-    public $created;                                // datetime()   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                               // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;                                // datetime()
+    public $modified;                               // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -25,8 +41,8 @@ class Profile_tag_subscription extends Managed_DataObject
                 'profile_tag_id' => array('type' => 'int', 'not null' => true, 'description' => 'foreign key to profile_tag'),
                 'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'),
 
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('profile_tag_id', 'profile_id'),
             'foreign keys' => array(
@@ -41,7 +57,7 @@ class Profile_tag_subscription extends Managed_DataObject
         );
     }
 
-    static function add($peopletag, $profile)
+    public static function add($peopletag, $profile)
     {
         if ($peopletag->private) {
             return false;
@@ -51,7 +67,7 @@ class Profile_tag_subscription extends Managed_DataObject
             $args = array('profile_tag_id' => $peopletag->id,
                           'profile_id' => $profile->id);
             $existing = Profile_tag_subscription::pkeyGet($args);
-            if(!empty($existing)) {
+            if (!empty($existing)) {
                 return $existing;
             }
 
@@ -76,7 +92,7 @@ class Profile_tag_subscription extends Managed_DataObject
         }
     }
 
-    static function remove($peopletag, $profile)
+    public static function remove($peopletag, $profile)
     {
         $sub = Profile_tag_subscription::pkeyGet(array('profile_tag_id' => $peopletag->id,
                                               'profile_id' => $profile->id));
@@ -103,12 +119,13 @@ class Profile_tag_subscription extends Managed_DataObject
     }
 
     // called if a tag gets deleted / made private
-    static function cleanup($profile_list) {
+    public static function cleanup($profile_list)
+    {
         $subs = new self();
         $subs->profile_tag_id = $profile_list->id;
         $subs->find();
 
-        while($subs->fetch()) {
+        while ($subs->fetch()) {
             $profile = Profile::getKV('id', $subs->profile_id);
             Event::handle('StartUnsubscribePeopletag', array($profile_list, $profile));
             // Delete anyway
@@ -117,22 +134,26 @@ class Profile_tag_subscription extends Managed_DataObject
         }
     }
 
-    function insert()
+    public function insert()
     {
         $result = parent::insert();
         if ($result) {
-            self::blow('profile_list:subscriber_count:%d', 
-                       $this->profile_tag_id);
+            self::blow(
+                'profile_list:subscriber_count:%d',
+                $this->profile_tag_id
+            );
         }
         return $result;
     }
 
-    function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
         $result = parent::delete($useWhere);
         if ($result !== false) {
-            self::blow('profile_list:subscriber_count:%d', 
-                       $this->profile_tag_id);
+            self::blow(
+                'profile_list:subscriber_count:%d',
+                $this->profile_tag_id
+            );
         }
         return $result;
     }

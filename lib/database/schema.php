@@ -999,6 +999,23 @@ class Schema
     public function filterDef(string $tableName, array $tableDef)
     {
         foreach ($tableDef['fields'] as $name => &$col) {
+            switch ($col['type']) {
+                case 'timestamp':
+                    $col['type'] = 'datetime';
+                    if (!array_key_exists('default', $col)) {
+                        $col['default'] = 'CURRENT_TIMESTAMP';
+                        // FIXME: PostgreSQL support.
+                        $col['auto_update_timestamp'] = true;
+                    }
+                    // no break
+                case 'datetime':
+                    // Replace archaic MariaDB-specific "zero dates" with NULL
+                    if (($col['default'] ?? null) === '0000-00-00 00:00:00') {
+                        $col['default'] = null;
+                        $col['not null'] = false;
+                    }
+                    break;
+            }
             if (array_key_exists('default', $col) && is_null($col['default'])) {
                 unset($col['default']);
             }

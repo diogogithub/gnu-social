@@ -1,7 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for fave
  */
+
+defined('GNUSOCIAL') || die();
 
 class Fave extends Managed_DataObject
 {
@@ -19,7 +36,7 @@ class Fave extends Managed_DataObject
                 'notice_id' => array('type' => 'int', 'not null' => true, 'description' => 'notice that is the favorite'),
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'user who likes this notice'),
                 'uri' => array('type' => 'varchar', 'length' => 191, 'description' => 'universally unique identifier, usually a tag URI'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
                 'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('notice_id', 'user_id'),
@@ -47,7 +64,8 @@ class Fave extends Managed_DataObject
      * @return Fave record on success
      * @throws Exception on failure
      */
-    static function addNew(Profile $actor, Notice $target) {
+    public static function addNew(Profile $actor, Notice $target)
+    {
         if (self::existsForProfile($target, $actor)) {
             // TRANS: Client error displayed when trying to mark a notice as favorite that already is a favorite.
             throw new AlreadyFulfilledException(_('You have already favorited this!'));
@@ -61,9 +79,12 @@ class Fave extends Managed_DataObject
         $act->title   = _("Favor");
         // TRANS: Message that is the "content" of a favorite (%1$s is the actor's nickname, %2$ is the favorited
         //        notice's nickname and %3$s is the content of the favorited notice.)
-        $act->content = sprintf(_('%1$s favorited something by %2$s: %3$s'),
-                                $actor->getNickname(), $target->getProfile()->getNickname(),
-                                $target->getRendered());
+        $act->content = sprintf(
+            _('%1$s favorited something by %2$s: %3$s'),
+            $actor->getNickname(),
+            $target->getProfile()->getNickname(),
+            $target->getRendered()
+        );
         $act->actor   = $actor->asActivityObject();
         $act->target  = $target->asActivityObject();
         $act->objects = array(clone($act->target));
@@ -79,7 +100,7 @@ class Fave extends Managed_DataObject
         return $stored;
     }
 
-    static function removeEntry(Profile $actor, Notice $target)
+    public static function removeEntry(Profile $actor, Notice $target)
     {
         $fave            = new Fave();
         $fave->user_id   = $actor->getID();
@@ -121,14 +142,12 @@ class Fave extends Managed_DataObject
             $notice  = $this->getTarget();
 
             if (Event::handle('StartDisfavorNotice', array($profile, $notice, &$result))) {
-
                 $result = parent::delete($useWhere);
 
                 if ($result !== false) {
                     Event::handle('EndDisfavorNotice', array($profile, $notice));
                 }
             }
-
         } catch (NoResultException $e) {
             // In case there's some inconsistency where the profile or notice was deleted without losing the fave db entry
             common_log(LOG_INFO, '"'.get_class($e->obj).'" with id=='.var_export($e->obj->id, true).' object not found when deleting favorite, ignoring...');
@@ -152,27 +171,41 @@ class Fave extends Managed_DataObject
         return $result;
     }
 
-    // FIXME: Instead of $own, send the scoped Profile so we can pass it along directly to FaveNoticeStream
-    // and preferrably we should get a Profile instead of $user_id
-    static function stream($user_id, $offset=0, $limit=NOTICES_PER_PAGE, $own=false, $since_id=0, $max_id=0)
-    {
+    // FIXME: Instead of $own, send the scoped Profile so we can pass it along
+    // directly to FaveNoticeStream and preferrably we should get a Profile
+    // instead of $user_id
+    public static function stream(
+        $user_id,
+        $offset   = 0,
+        $limit    = NOTICES_PER_PAGE,
+        $own      = false,
+        $since_id = 0,
+        $max_id   = 0
+    ) {
         $target = Profile::getByID($user_id);
         $stream = new FaveNoticeStream($target, ($own ? $target : null));
 
         return $stream->getNotices($offset, $limit, $since_id, $max_id);
     }
 
-    // FIXME: Instead of $own, send the scoped Profile so we can pass it along directly to FaveNoticeStream
-    // and preferrably we should get a Profile instead of $user_id
-    function idStream($user_id, $offset=0, $limit=NOTICES_PER_PAGE, $own=false, $since_id=0, $max_id=0)
-    {
+    // FIXME: Instead of $own, send the scoped Profile so we can pass it along
+    // directly to FaveNoticeStream and preferrably we should get a Profile
+    // instead of $user_id
+    public function idStream(
+        $user_id,
+        $offset   = 0,
+        $limit    = NOTICES_PER_PAGE,
+        $own      = false,
+        $since_id = 0,
+        $max_id   = 0
+    ) {
         $target = Profile::getByID($user_id);
         $stream = new FaveNoticeStream($target, ($own ? $target : null));
 
         return $stream->getNoticeIds($offset, $limit, $since_id, $max_id);
     }
 
-    function asActivity()
+    public function asActivity()
     {
         $target = $this->getTarget();
         $actor  = $this->getActor();
@@ -190,9 +223,12 @@ class Fave extends Managed_DataObject
         $act->title   = _("Favor");
         // TRANS: Message that is the "content" of a favorite (%1$s is the actor's nickname, %2$ is the favorited
         //        notice's nickname and %3$s is the content of the favorited notice.)
-        $act->content = sprintf(_('%1$s favorited something by %2$s: %3$s'),
-                                $actor->getNickname(), $target->getProfile()->getNickname(),
-                                $target->getRendered());
+        $act->content = sprintf(
+            _('%1$s favorited something by %2$s: %3$s'),
+            $actor->getNickname(),
+            $target->getProfile()->getNickname(),
+            $target->getRendered()
+        );
         $act->context = new ActivityContext();
         $act->context->replyToID = $target->getUri();
         try {
@@ -205,9 +241,13 @@ class Fave extends Managed_DataObject
         $act->target    = $target->asActivityObject();
         $act->objects   = array(clone($act->target));
 
-        $url = common_local_url('AtomPubShowFavorite',
-                                          array('profile' => $actor->id,
-                                                'notice'  => $target->id));
+        $url = common_local_url(
+            'AtomPubShowFavorite',
+            [
+                'profile' => $actor->id,
+                'notice'  => $target->id,
+            ]
+        );
 
         $act->selfLink = $url;
         $act->editLink = $url;
@@ -215,7 +255,7 @@ class Fave extends Managed_DataObject
         return $act;
     }
 
-    static function existsForProfile($notice, Profile $scoped)
+    public static function existsForProfile($notice, Profile $scoped)
     {
         $fave = self::pkeyGet(array('user_id'=>$scoped->id, 'notice_id'=>$notice->id));
 
@@ -235,7 +275,7 @@ class Fave extends Managed_DataObject
      * @todo integrate with Fave::stream()
      */
 
-    static function byProfile($profileId, $offset, $limit)
+    public static function byProfile($profileId, $offset, $limit)
     {
         $fav = new Fave();
 
@@ -250,7 +290,7 @@ class Fave extends Managed_DataObject
         return $fav;
     }
 
-    static function countByProfile(Profile $profile)
+    public static function countByProfile(Profile $profile)
     {
         $c = Cache::instance();
         if (!empty($c)) {
@@ -271,7 +311,7 @@ class Fave extends Managed_DataObject
         return $cnt;
     }
 
-    static protected $_faves = array();
+    protected static $_faves = [];
 
     /**
      * All faves of this notice
@@ -280,7 +320,7 @@ class Fave extends Managed_DataObject
      *
      * @return array Array of Fave objects
      */
-    static public function byNotice($notice)
+    public static function byNotice($notice)
     {
         if (!isset(self::$_faves[$notice->id])) {
             self::fillFaves(array($notice->id));
@@ -288,13 +328,13 @@ class Fave extends Managed_DataObject
         return self::$_faves[$notice->id];
     }
 
-    static public function fillFaves(array $notice_ids)
+    public static function fillFaves(array $notice_ids)
     {
         $faveMap = Fave::listGet('notice_id', $notice_ids);
         self::$_faves = array_replace(self::$_faves, $faveMap);
     }
 
-    static public function blowCacheForProfileId($profile_id)
+    public static function blowCacheForProfileId($profile_id)
     {
         $cache = Cache::instance();
         if ($cache) {
@@ -307,7 +347,7 @@ class Fave extends Managed_DataObject
             $cache->delete(Cache::key('fave:count_by_profile:'.$profile_id));
         }
     }
-    static public function blowCacheForNoticeId($notice_id)
+    public static function blowCacheForNoticeId($notice_id)
     {
         $cache = Cache::instance();
         if ($cache) {
@@ -317,7 +357,7 @@ class Fave extends Managed_DataObject
 
     // Remember that we want the _activity_ notice here, not faves applied
     // to the supplied Notice (as with byNotice)!
-    static public function fromStored(Notice $stored)
+    public static function fromStored(Notice $stored)
     {
         $class = get_called_class();
         $object = new $class;
@@ -336,12 +376,12 @@ class Fave extends Managed_DataObject
      *
      * @throws NoResultException when it can't find what it's looking for.
      */
-    static public function getTargetFromStored(Notice $stored)
+    public static function getTargetFromStored(Notice $stored)
     {
         return self::fromStored($stored)->getTarget();
     }
 
-    static public function getObjectType()
+    public static function getObjectType()
     {
         return ActivityObject::ACTIVITY;
     }
@@ -364,7 +404,7 @@ class Fave extends Managed_DataObject
      * @param ActivityObject $actobj The _favored_ notice (which we're "in-reply-to")
      * @param Notice         $stored The _activity_ notice, i.e. the favor itself.
      */
-    static public function parseActivityObject(ActivityObject $actobj, Notice $stored)
+    public static function parseActivityObject(ActivityObject $actobj, Notice $stored)
     {
         // throws exception if nothing was found, but it could also be a non-Notice...
         // FIXME: This should only test _one_ URI (and not the links etc.) though a function like this could be useful in other cases
@@ -384,8 +424,11 @@ class Fave extends Managed_DataObject
         return $object;
     }
 
-    static public function extendActivity(Notice $stored, Activity $act, Profile $scoped=null)
-    {
+    public static function extendActivity(
+        Notice   $stored,
+        Activity $act,
+        Profile  $scoped = null
+    ) {
         $target = self::getTargetFromStored($stored);
 
         // The following logic was copied from StatusNet's Activity plugin
@@ -402,7 +445,7 @@ class Fave extends Managed_DataObject
         $act->title = ActivityUtils::verbToTitle($act->verb);
     }
 
-    static function saveActivityObject(ActivityObject $actobj, Notice $stored)
+    public static function saveActivityObject(ActivityObject $actobj, Notice $stored)
     {
         $object = self::parseActivityObject($actobj, $stored);
         $object->insert();  // exception throwing in Fave's case!

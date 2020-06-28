@@ -14,13 +14,12 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('GNUSOCIAL') || die();
-
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
-
 /**
  * Table Definition for oauth_application_user
  */
+
+defined('GNUSOCIAL') || die();
+
 class Oauth_application_user extends Managed_DataObject
 {
     ###START_AUTOCODE
@@ -31,8 +30,8 @@ class Oauth_application_user extends Managed_DataObject
     public $application_id;                  // int(4)  primary_key not_null
     public $access_type;                     // tinyint(1)
     public $token;                           // varchar(191)   not 255 because utf8mb4 takes more space
-    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()
+    public $modified;                        // timestamp()    not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -45,8 +44,8 @@ class Oauth_application_user extends Managed_DataObject
                 'application_id' => array('type' => 'int', 'not null' => true, 'description' => 'id of the application'),
                 'access_type' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'access type, bit 1 = read, bit 2 = write'),
                 'token' => array('type' => 'varchar', 'length' => 191, 'description' => 'request or access token'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('profile_id', 'application_id'),
             'foreign keys' => array(

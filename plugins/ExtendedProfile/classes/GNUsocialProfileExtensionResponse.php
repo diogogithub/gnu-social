@@ -18,7 +18,7 @@
  * Allows administrators to define additional profile fields for the users of a GNU social installation.
  *
  * @category  Widget
- * @package   GNU social
+ * @package   GNUsocial
  * @author    Max Shinn <trombonechamp@gmail.com>
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2011-2019 Free Software Foundation, Inc http://www.fsf.org
@@ -34,8 +34,8 @@ class GNUsocialProfileExtensionResponse extends Managed_DataObject
     public $extension_id; // int(11)
     public $profile_id;   // int(11)
     public $value;        // text
-    public $created;      // datetime()   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;     // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;      // datetime()
+    public $modified;     // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     public static function schemaDef(): array
     {
@@ -45,8 +45,8 @@ class GNUsocialProfileExtensionResponse extends Managed_DataObject
                 'extension_id' => ['type' => 'int', 'not null' => true, 'description' => 'The extension field ID'],
                 'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'Profile id that made the response'],
                 'value' => ['type' => 'text', 'not null' => true, 'description' => 'response entry'],
-                'created' => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'created' => ['type' => 'datetime', 'description' => 'date this record was created'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             // Syntax: foreign_key_name => [remote_table, local_key => remote_key]]
