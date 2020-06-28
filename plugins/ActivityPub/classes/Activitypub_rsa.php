@@ -61,7 +61,7 @@ class Activitypub_rsa extends Managed_DataObject
             ],
             'primary key' => ['profile_id'],
             'foreign keys' => [
-                'activitypub_profile_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'activitypub_rsa_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
             ],
         ];
     }
@@ -182,7 +182,7 @@ class Activitypub_rsa extends Managed_DataObject
         $apRSA = new Activitypub_rsa();
         $apRSA->profile_id = $profile->getID();
         $apRSA->public_key = $public_key;
-        $apRSA->modified = common_sql_now();
+        $apRSA->created = common_sql_now();
         if (!$apRSA->update()) {
             $apRSA->insert();
         }

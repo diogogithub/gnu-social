@@ -83,39 +83,53 @@ class MysqlSchema extends Schema
             $name = $row['COLUMN_NAME'];
             $field = [];
 
-            // warning -- 'unsigned' attr on numbers isn't given in DATA_TYPE and friends.
-            // It is stuck in on COLUMN_TYPE though (eg 'bigint(20) unsigned')
-            $field['type'] = $type = $row['DATA_TYPE'];
+            $type = $field['type'] = $row['DATA_TYPE'];
 
-            if ($type == 'char' || $type == 'varchar') {
-                if ($row['CHARACTER_MAXIMUM_LENGTH'] !== null) {
-                    $field['length'] = intval($row['CHARACTER_MAXIMUM_LENGTH']);
-                }
+            switch ($type) {
+                case 'char':
+                case 'varchar':
+                    if (!is_null($row['CHARACTER_MAXIMUM_LENGTH'])) {
+                        $field['length'] = (int) $row['CHARACTER_MAXIMUM_LENGTH'];
+                    }
+                    break;
+                case 'decimal':
+                    // Other int types may report these values, but they're irrelevant.
+                    // Just ignore them!
+                    if (!is_null($row['NUMERIC_PRECISION'])) {
+                        $field['precision'] = (int) $row['NUMERIC_PRECISION'];
+                    }
+                    if (!is_null($row['NUMERIC_SCALE'])) {
+                        $field['scale'] = (int) $row['NUMERIC_SCALE'];
+                    }
+                    break;
+                case 'enum':
+                    $enum = preg_replace("/^enum\('(.+)'\)$/", '\1', $row['COLUMN_TYPE']);
+                    $field['enum'] = explode("','", $enum);
+                    break;
             }
-            if ($type == 'decimal') {
-                // Other int types may report these values, but they're irrelevant.
-                // Just ignore them!
-                if ($row['NUMERIC_PRECISION'] !== null) {
-                    $field['precision'] = intval($row['NUMERIC_PRECISION']);
-                }
-                if ($row['NUMERIC_SCALE'] !== null) {
-                    $field['scale'] = intval($row['NUMERIC_SCALE']);
-                }
-            }
+
+
             if ($row['IS_NULLABLE'] == 'NO') {
                 $field['not null'] = true;
             }
-            if ($row['COLUMN_DEFAULT'] !== null) {
-                // Hack for timestamp columns
-                if ($row['COLUMN_DEFAULT'] === 'current_timestamp()') {
-                    // skip timestamp columns as they get a CURRENT_TIMESTAMP default implicitly
+            $col_default = $row['COLUMN_DEFAULT'];
+            if (!is_null($col_default) && $col_default !== 'NULL') {
+                if ($this->isNumericType($field)) {
+                    $field['default'] = (int) $col_default;
+                } elseif ($col_default === 'CURRENT_TIMESTAMP'
+                          || $col_default === 'current_timestamp()') {
+                    // A hack for "datetime" fields
+                    // Skip "timestamp" as they get a CURRENT_TIMESTAMP default implicitly
                     if ($type !== 'timestamp') {
                         $field['default'] = 'CURRENT_TIMESTAMP';
                     }
-                } elseif ($this->isNumericType($type)) {
-                    $field['default'] = intval($row['COLUMN_DEFAULT']);
                 } else {
-                    $field['default'] = $row['COLUMN_DEFAULT'];
+                    $match = "/^'(.*)'$/";
+                    if (preg_match($match, $col_default)) {
+                        $field['default'] = preg_replace($match, '\1', $col_default);
+                    } else {
+                        $field['default'] = $col_default;
+                    }
                 }
             }
             if ($row['COLUMN_KEY'] !== null) {
@@ -135,11 +149,11 @@ class MysqlSchema extends Schema
                 // ^ ...... how to specify?
             }
 
-            /* @fixme check against defaults?
-            if ($row['CHARACTER_SET_NAME'] !== null) {
-                $def['charset'] = $row['CHARACTER_SET_NAME'];
-                $def['collate'] = $row['COLLATION_NAME'];
-            }*/
+            $table_props = $this->getTableProperties($table, ['TABLE_COLLATION']);
+            $collate = $row['COLLATION_NAME'];
+            if (!empty($collate) && $collate !== $table_props['TABLE_COLLATION']) {
+                $field['collate'] = $collate;
+            }
 
             $def['fields'][$name] = $field;
         }
@@ -389,7 +403,7 @@ class MysqlSchema extends Schema
     public function appendAlterExtras(array &$phrase, $tableName, array $def)
     {
         // Check for table properties: make sure we're using a sane
-        // engine type and charset/collation.
+        // engine type and collation.
         // @fixme make the default engine configurable?
         $oldProps = $this->getTableProperties($tableName, ['ENGINE', 'TABLE_COLLATION']);
         $engine = $this->preferredEngine($def);
@@ -403,12 +417,24 @@ class MysqlSchema extends Schema
         }
     }
 
+    private function isNumericType(array $cd): bool
+    {
+        $ints = array_map(
+            function ($s) {
+                return $s . 'int';
+            },
+            ['tiny', 'small', 'medium', 'big']
+        );
+        $ints = array_merge($ints, ['int', 'numeric', 'serial']);
+        return in_array(strtolower($cd['type']), $ints);
+    }
+
     /**
      * Is this column a string type?
      * @param array $cd
      * @return bool
      */
-    private function _isString(array $cd)
+    private function isStringType(array $cd): bool
     {
         $strings = ['char', 'varchar', 'text'];
         return in_array(strtolower($cd['type']), $strings);
@@ -448,7 +474,6 @@ class MysqlSchema extends Schema
     {
         $map = [
             'integer' => 'int',
-            'bool'    => 'tinyint',
             'numeric' => 'decimal',
         ];
 
@@ -476,15 +501,13 @@ class MysqlSchema extends Schema
     public function typeAndSize(string $name, array $column)
     {
         if ($column['type'] === 'enum') {
+            $vals = [];
             foreach ($column['enum'] as &$val) {
-                $vals[] = "'" . $val . "'";
+                $vals[] = "'{$val}'";
             }
             return 'enum(' . implode(',', $vals) . ')';
-        } elseif ($this->_isString($column)) {
+        } elseif ($this->isStringType($column)) {
             $col = parent::typeAndSize($name, $column);
-            if (!empty($column['charset'])) {
-                $col .= ' CHARSET ' . $column['charset'];
-            }
             if (!empty($column['collate'])) {
                 $col .= ' COLLATE ' . $column['collate'];
             }
@@ -501,16 +524,39 @@ class MysqlSchema extends Schema
      * This lets us strip out unsupported things like comments, foreign keys,
      * or type variants that we wouldn't get back from getTableDef().
      *
+     * @param string $tableName
      * @param array $tableDef
      * @return array
      */
-    public function filterDef(array $tableDef)
+    public function filterDef(string $tableName, array $tableDef)
     {
-        $version = $this->conn->getVersion();
+        $tableDef = parent::filterDef($tableName, $tableDef);
+
+        // Get existing table collation if the table exists.
+        // To know if collation that's been set is unique for the table.
+        try {
+            $table_props = $this->getTableProperties($tableName, ['TABLE_COLLATION']);
+            $table_collate = $table_props['TABLE_COLLATION'];
+        } catch (SchemaTableMissingException $e) {
+            $table_collate = null;
+        }
+
         foreach ($tableDef['fields'] as $name => &$col) {
-            if ($col['type'] == 'serial') {
-                $col['type'] = 'int';
-                $col['auto_increment'] = true;
+            switch ($col['type']) {
+                case 'serial':
+                    $col['type'] = 'int';
+                    $col['auto_increment'] = true;
+                    break;
+                case 'bool':
+                    $col['type'] = 'int';
+                    $col['size'] = 'tiny';
+                    $col['default'] = (int) $col['default'];
+                    break;
+            }
+
+            if (!empty($col['collate'])
+                && $col['collate'] === $table_collate) {
+                unset($col['collate']);
             }
 
             $col['type'] = $this->mapType($col);

@@ -110,8 +110,8 @@ class PgsqlSchema extends Schema
             }
             if ($row['column_default'] !== null) {
                 $field['default'] = $row['column_default'];
-                if ($this->isNumericType($type)) {
-                    $field['default'] = intval($field['default']);
+                if ($this->isNumericType($field)) {
+                    $field['default'] = (int) $field['default'];
                 }
             }
 
@@ -266,6 +266,12 @@ class PgsqlSchema extends Schema
         return $out;
     }
 
+    private function isNumericType(array $cd): bool
+    {
+        $ints = ['int', 'numeric', 'serial'];
+        return in_array(strtolower($cd['type']), $ints);
+    }
+
     /**
      * Return the proper SQL for creating or
      * altering a column.
@@ -395,11 +401,14 @@ class PgsqlSchema extends Schema
      * This lets us strip out unsupported things like comments, foreign keys,
      * or type variants that we wouldn't get back from getTableDef().
      *
+     * @param string $tableName
      * @param array $tableDef
      * @return array
      */
-    public function filterDef(array $tableDef)
+    public function filterDef(string $tableName, array $tableDef)
     {
+        $tableDef = parent::filterDef($tableName, $tableDef);
+
         foreach ($tableDef['fields'] as $name => &$col) {
             // No convenient support for field descriptions
             unset($col['description']);
@@ -409,20 +418,17 @@ class PgsqlSchema extends Schema
                     $col['type'] = 'int';
                     $col['auto_increment'] = true;
                     break;
+                case 'timestamp':
+                    // FIXME: ON UPDATE CURRENT_TIMESTAMP
+                    if (!array_key_exists('default', $col)) {
+                        $col['default'] = 'CURRENT_TIMESTAMP';
+                    }
+                    // no break
                 case 'datetime':
-                    // Replace archaic MySQL-specific zero-dates with NULL
+                    // Replace archaic MySQL-specific zero dates with NULL
                     if (($col['default'] ?? null) === '0000-00-00 00:00:00') {
                         $col['default'] = null;
                         $col['not null'] = false;
-                    }
-                    break;
-                case 'timestamp':
-                    // In MariaDB: If the column does not permit NULL values,
-                    // assigning NULL (or not referencing the column at all
-                    // when inserting) will set the column to CURRENT_TIMESTAMP
-                    // FIXME: ON UPDATE CURRENT_TIMESTAMP
-                    if ($col['not null'] && !isset($col['default'])) {
-                        $col['default'] = 'CURRENT_TIMESTAMP';
                     }
                     break;
             }
