@@ -1,8 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for invitation
  */
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+
+defined('GNUSOCIAL') || die();
 
 class Invitation extends Managed_DataObject
 {
@@ -15,12 +31,12 @@ class Invitation extends Managed_DataObject
     public $address;                         // varchar(191)  multiple_key not_null   not 255 because utf8mb4 takes more space
     public $address_type;                    // varchar(8)  multiple_key not_null
     public $registered_user_id;              // int(4)   not_null
-    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $created;                         // datetime()
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
 
-    function convert($user)
+    public function convert($user)
     {
         $orig = clone($this);
         $this->registered_user_id = $user->id;
@@ -36,7 +52,7 @@ class Invitation extends Managed_DataObject
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'who sent the invitation'),
                 'address' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'invitation sent to'),
                 'address_type' => array('type' => 'varchar', 'length' => 8, 'not null' => true, 'description' => 'address type ("email", "xmpp", "sms")'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
                 'registered_user_id' => array('type' => 'int', 'not null' => false, 'description' => 'if the invitation is converted, who the new user is'),
             ),
             'primary key' => array('code'),

@@ -63,8 +63,8 @@ class Ostatus_profile extends Managed_DataObject
                 'feeduri' => array('type' => 'varchar', 'length' => 191),
                 'salmonuri' => array('type' => 'varchar', 'length' => 191),
                 'avatar' => array('type' => 'text'),
-                'created' => array('type' => 'datetime', 'not null' => true),
-                'modified' => array('type' => 'datetime', 'not null' => true),
+                'created' => array('type' => 'datetime'),
+                'modified' => array('type' => 'timestamp', 'not null' => true),
             ),
             'primary key' => array('uri'),
             'unique keys' => array(

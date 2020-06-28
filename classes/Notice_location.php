@@ -1,7 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for notice_location
  */
+
+defined('GNUSOCIAL') || die();
 
 class Notice_location extends Managed_DataObject
 {
@@ -11,7 +28,7 @@ class Notice_location extends Managed_DataObject
     public $lon;                             // decimal(10,7)
     public $location_id;                     // int(4)
     public $location_ns;                     // int(4)
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     public static function schemaDef()
     {
@@ -22,7 +39,7 @@ class Notice_location extends Managed_DataObject
                 'lon' => array('type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'),
                 'location_id' => array('type' => 'int', 'description' => 'location id if possible'),
                 'location_ns' => array('type' => 'int', 'description' => 'namespace for location'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('notice_id'),
             'foreign keys' => array(
@@ -32,9 +49,9 @@ class Notice_location extends Managed_DataObject
                 'notice_location_location_id_idx' => array('location_id'),
             ),
         );
-    }    
+    }
 
-    static function locFromStored(Notice $stored)
+    public static function locFromStored(Notice $stored)
     {
         $loc = new Notice_location();
         $loc->notice_id = $stored->getID();
@@ -44,7 +61,7 @@ class Notice_location extends Managed_DataObject
         return $loc->asLocation();
     }
 
-    static function fromLocation(Location $location)
+    public static function fromLocation(Location $location)
     {
         $notloc = new Notice_location();
         $notloc->lat = $location->lat;

@@ -413,24 +413,9 @@ class PgsqlSchema extends Schema
             // No convenient support for field descriptions
             unset($col['description']);
 
-            switch ($col['type']) {
-                case 'serial':
-                    $col['type'] = 'int';
-                    $col['auto_increment'] = true;
-                    break;
-                case 'timestamp':
-                    // FIXME: ON UPDATE CURRENT_TIMESTAMP
-                    if (!array_key_exists('default', $col)) {
-                        $col['default'] = 'CURRENT_TIMESTAMP';
-                    }
-                    // no break
-                case 'datetime':
-                    // Replace archaic MySQL-specific zero dates with NULL
-                    if (($col['default'] ?? null) === '0000-00-00 00:00:00') {
-                        $col['default'] = null;
-                        $col['not null'] = false;
-                    }
-                    break;
+            if ($col['type'] === 'serial') {
+                $col['type'] = 'int';
+                $col['auto_increment'] = true;
             }
 
             $col['type'] = $this->mapType($col);

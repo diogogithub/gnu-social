@@ -1,7 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for local_group
  */
+
+defined('GNUSOCIAL') || die();
 
 class Local_group extends Managed_DataObject
 {
@@ -11,8 +28,8 @@ class Local_group extends Managed_DataObject
     public $__table = 'local_group';                     // table name
     public $group_id;                        // int(4)  primary_key not_null
     public $nickname;                        // varchar(64)  unique_key
-    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()
+    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -24,8 +41,8 @@ class Local_group extends Managed_DataObject
             'fields' => array(
                 'group_id' => array('type' => 'int', 'not null' => true, 'description' => 'group represented'),
                 'nickname' => array('type' => 'varchar', 'length' => 64, 'description' => 'group represented'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('group_id'),
             'foreign keys' => array(
@@ -54,7 +71,7 @@ class Local_group extends Managed_DataObject
         return $group;
     }
 
-    function setNickname($nickname)
+    public function setNickname($nickname)
     {
         $this->decache();
         $qry = 'UPDATE local_group set nickname = "'.$this->escape($nickname).'" where group_id = ' . $this->group_id;

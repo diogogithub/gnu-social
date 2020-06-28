@@ -1,23 +1,25 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+defined('GNUSOCIAL') || die();
 
 class Notice_tag extends Managed_DataObject
 {
@@ -27,7 +29,7 @@ class Notice_tag extends Managed_DataObject
     public $__table = 'notice_tag';                      // table name
     public $tag;                             // varchar(64)  primary_key not_null
     public $notice_id;                       // int(4)  primary_key not_null
-    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $created;                         // datetime()
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -39,7 +41,7 @@ class Notice_tag extends Managed_DataObject
             'fields' => array(
                 'tag' => array('type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'),
                 'notice_id' => array('type' => 'int', 'not null' => true, 'description' => 'notice tagged'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
             ),
             'primary key' => array('tag', 'notice_id'),
             'foreign keys' => array(
@@ -52,16 +54,21 @@ class Notice_tag extends Managed_DataObject
             ),
         );
     }
-    
-    static function getStream($tag, $offset=0, $limit=20, $sinceId=0, $maxId=0)
-    {
+
+    public static function getStream(
+        $tag,
+        $offset  = 0,
+        $limit   = 20,
+        $sinceId = 0,
+        $maxId   = 0
+    ) {
         // FIXME: Get the Profile::current value some other way
         // to avoid confusino between queue processing and session.
         $stream = new TagNoticeStream($tag, Profile::current());
         return $stream;
     }
 
-    function blowCache($blowLast=false)
+    public function blowCache($blowLast = false)
     {
         self::blow('notice_tag:notice_ids:%s', Cache::keyize($this->tag));
         if ($blowLast) {
@@ -69,18 +76,22 @@ class Notice_tag extends Managed_DataObject
         }
     }
 
-	static function url($tag)
-	{
-		if (common_config('singleuser', 'enabled')) {
-			// regular TagAction isn't set up in 1user mode
-			$nickname = User::singleUserNickname();
-			$url = common_local_url('showstream',
-									array('nickname' => $nickname,
-										  'tag' => $tag));
-		} else {
-			$url = common_local_url('tag', array('tag' => $tag));
-		}
+    public static function url($tag)
+    {
+        if (common_config('singleuser', 'enabled')) {
+            // Regular TagAction isn't set up in 1user mode
+            $nickname = User::singleUserNickname();
+            $url = common_local_url(
+                'showstream',
+                [
+                    'nickname' => $nickname,
+                    'tag'      => $tag,
+                ]
+            );
+        } else {
+            $url = common_local_url('tag', ['tag' => $tag]);
+        }
 
-		return $url;
-	}
+        return $url;
+    }
 }

@@ -1,27 +1,27 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.     If not, see <http://www.gnu.org/licenses/>.
- */
-
-if (!defined('GNUSOCIAL')) { exit(1); }
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Table Definition for file_to_post
+ *
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+defined('GNUSOCIAL') || die();
 
 class File_to_post extends Managed_DataObject
 {
@@ -31,7 +31,7 @@ class File_to_post extends Managed_DataObject
     public $__table = 'file_to_post';                    // table name
     public $file_id;                         // int(4)  primary_key not_null
     public $post_id;                         // int(4)  primary_key not_null
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -42,7 +42,7 @@ class File_to_post extends Managed_DataObject
             'fields' => array(
                 'file_id' => array('type' => 'int', 'not null' => true, 'description' => 'id of URL/file'),
                 'post_id' => array('type' => 'int', 'not null' => true, 'description' => 'id of the notice it belongs to'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('file_id', 'post_id'),
             'foreign keys' => array(
@@ -56,7 +56,8 @@ class File_to_post extends Managed_DataObject
         );
     }
 
-    static function processNew(File $file, Notice $notice) {
+    public static function processNew(File $file, Notice $notice)
+    {
         static $seen = array();
 
         $file_id = $file->getID();
@@ -82,7 +83,7 @@ class File_to_post extends Managed_DataObject
         }
     }
 
-    static function getNoticeIDsByFile(File $file)
+    public static function getNoticeIDsByFile(File $file)
     {
         $f2p = new File_to_post();
 
@@ -100,7 +101,7 @@ class File_to_post extends Managed_DataObject
         return $f2p->fetchAll('post_id');
     }
 
-    function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
         try {
             $f = File::getByID($this->file_id);

@@ -1,7 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for schema_version
  */
+
+defined('GNUSOCIAL') || die();
 
 class Schema_version extends Managed_DataObject
 {
@@ -11,7 +28,7 @@ class Schema_version extends Managed_DataObject
     public $__table = 'schema_version';      // table name
     public $table_name;                      // varchar(64)  primary_key not_null
     public $checksum;                        // varchar(64)  not_null
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -23,7 +40,7 @@ class Schema_version extends Managed_DataObject
             'fields' => array(
                 'table_name' => array('type' => 'varchar', 'length' => '64', 'not null' => true, 'description' => 'Table name'),
                 'checksum' => array('type' => 'varchar', 'length' => '64', 'not null' => true, 'description' => 'Checksum of schema array; a mismatch indicates we should check the table more thoroughly.'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('table_name'),
         );

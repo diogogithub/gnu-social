@@ -1,65 +1,57 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Data class for remembering notice-to-status mappings
  *
- * PHP version 5
- *
- * @category Data
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * @category  Data
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
-
-require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
+defined('GNUSOCIAL') || die();
 
 /**
  * Data class for mapping notices to statuses
  *
- * Notices flow back and forth between Twitter and StatusNet. We use this
- * table to remember which StatusNet notice corresponds to which Twitter
+ * Notices flow back and forth between Twitter and GNU social. We use this
+ * table to remember which GNU social notice corresponds to which Twitter
  * status.
  *
  * Note that notice_id is unique only within a single database; if you
  * want to share this data for some reason, get the notice's URI and use
  * that instead, since it's universally unique.
  *
- * @category Action
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @category  Action
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      DB_DataObject
+ * @see       DB_DataObject
  */
-
 class Notice_to_status extends Managed_DataObject
 {
     public $__table = 'notice_to_status'; // table name
     public $notice_id;                    // int(4)  primary_key not_null
     public $status_id;                    // bigint not_null
-    public $created;                      // datetime()   not_null
-    public $modified;                     // datetime   not_null default_0000-00-00%2000%3A00%3A00
+    public $created;                      // datetime()
+    public $modified;                     // timestamp()  not_null
 
     public static function schemaDef()
     {
@@ -67,7 +59,7 @@ class Notice_to_status extends Managed_DataObject
             'fields' => array(
                 'notice_id' => array('type' => 'int', 'not null' => true, 'description' => 'local notice id'),
                 'status_id' => array('type' => 'int', 'size' => 'big', 'not null' => true, 'description' => 'twitter status id'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
                 'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('notice_id'),
@@ -89,7 +81,7 @@ class Notice_to_status extends Managed_DataObject
      *
      * @return Notice_to_status new object for this value
      */
-    static function saveNew($notice_id, $status_id)
+    public static function saveNew($notice_id, $status_id)
     {
         if (empty($notice_id)) {
             throw new Exception("Invalid notice_id $notice_id");

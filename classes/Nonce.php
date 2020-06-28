@@ -1,8 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for nonce
  */
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+
+defined('GNUSOCIAL') || die();
 
 class Nonce extends Managed_DataObject
 {
@@ -14,8 +30,8 @@ class Nonce extends Managed_DataObject
     public $tok;                             // char(32)
     public $nonce;                           // char(32)  primary_key not_null
     public $ts;                              // datetime()  primary_key not_null
-    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()
+    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -29,7 +45,7 @@ class Nonce extends Managed_DataObject
      * @return   array
      * @access   public
      */
-    function links()
+    public function links()
     {
         return array('consumer_key,token' => 'token:consumer_key,token');
     }
@@ -43,8 +59,8 @@ class Nonce extends Managed_DataObject
                 'tok' => array('type' => 'char', 'length' => 32, 'description' => 'buggy old value, ignored'),
                 'nonce' => array('type' => 'char', 'length' => 32, 'not null' => true, 'description' => 'nonce'),
                 'ts' => array('type' => 'datetime', 'not null' => true, 'description' => 'timestamp sent'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('consumer_key', 'ts', 'nonce'),
         );

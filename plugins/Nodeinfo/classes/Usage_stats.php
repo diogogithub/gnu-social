@@ -36,7 +36,7 @@ class Usage_stats extends Managed_DataObject
     public $__table = 'usage_stats';         // table name
     public $type;                            // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
     public $count;                           // int(4)
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
 
     /**
      * Table Definition for usage_stats
@@ -50,7 +50,7 @@ class Usage_stats extends Managed_DataObject
             'fields' => [
                 'type' => ['type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'Type of countable entity'],
                 'count' => ['type' => 'int', 'size' => 'int', 'default' => 0, 'description' => 'Number of entities of this type'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key' => ['type'],
             'indexes' => [

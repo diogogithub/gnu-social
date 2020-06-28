@@ -47,8 +47,8 @@ class Activitypub_profile extends Managed_DataObject
     public $homepage;                        // text()
     public $bio;                             // text()  multiple_key
     public $location;                        // text()
-    public $created;                         // datetime()   not_null default_CURRENT_TIMESTAMP
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()
+    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     /**
      * Return table definition for Schema setup and DB_DataObject usage.
@@ -64,8 +64,8 @@ class Activitypub_profile extends Managed_DataObject
                 'profile_id' => ['type' => 'int', 'not null' => true],
                 'inboxuri' => ['type' => 'text', 'not null' => true],
                 'sharedInboxuri' => ['type' => 'text'],
-                'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'created' => ['type' => 'datetime', 'description' => 'date this record was created'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key' => ['profile_id'],
             'foreign keys' => [

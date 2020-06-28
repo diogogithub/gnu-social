@@ -24,7 +24,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+defined('GNUSOCIAL') || die();
 
 class User_location_prefs extends Managed_DataObject
 {
@@ -34,8 +34,8 @@ class User_location_prefs extends Managed_DataObject
     public $__table = 'user_location_prefs';             // table name
     public $user_id;                         // int(4)  primary_key not_null
     public $share_location;                  // bool    default_true
-    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()
+    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -46,8 +46,8 @@ class User_location_prefs extends Managed_DataObject
             'fields' => array(
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'user who has the preference'),
                 'share_location' => array('type' => 'bool', 'default' => true, 'description' => 'Whether to share location data'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('user_id'),
             'foreign keys' => array(

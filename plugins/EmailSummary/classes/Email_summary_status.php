@@ -20,13 +20,11 @@
  * @category  Data
  * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2010, StatusNet, Inc.
+ * @copyright 2010 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 defined('GNUSOCIAL') || die();
-
-require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
 
 /**
  * Data class for email summaries
@@ -34,7 +32,7 @@ require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
  * Email summary information for users
  *
  * @category  Action
- * @copyright 2010, StatusNet, Inc.
+ * @copyright 2010 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
  * @see       DB_DataObject
@@ -55,7 +53,7 @@ class Email_summary_status extends Managed_DataObject
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'user id'),
                 'send_summary' => array('type' => 'bool', 'default' => true, 'not null' => true, 'description' => 'whether to send a summary or not'),
                 'last_summary_id' => array('type' => 'int', 'description' => 'last summary id'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
                 'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('user_id'),

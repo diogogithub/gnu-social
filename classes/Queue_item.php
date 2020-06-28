@@ -1,8 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for queue_item
  */
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+
+defined('GNUSOCIAL') || die();
 
 class Queue_item extends Managed_DataObject
 {
@@ -13,7 +29,7 @@ class Queue_item extends Managed_DataObject
     public $id;                              // int(4)  primary_key not_null
     public $frame;                           // blob not_null
     public $transport;                       // varchar(32)
-    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $created;                         // datetime()
     public $claimed;                         // datetime()
 
     /* the code above is auto generated do not remove the tag below */
@@ -26,7 +42,7 @@ class Queue_item extends Managed_DataObject
                 'id' => array('type' => 'serial', 'not null' => true, 'description' => 'unique identifier'),
                 'frame' => array('type' => 'blob', 'not null' => true, 'description' => 'data: object reference or opaque string'),
                 'transport' => array('type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'queue for what? "email", "xmpp", "sms", "irc", ...'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
                 'claimed' => array('type' => 'datetime', 'description' => 'date this item was claimed'),
             ),
             'primary key' => array('id'),
@@ -40,8 +56,8 @@ class Queue_item extends Managed_DataObject
      * @param mixed $transports name of a single queue or array of queues to pull from
      *                          If not specified, checks all queues in the system.
      */
-    static function top($transports=null, array $ignored_transports=array()) {
-
+    public static function top($transports = null, array $ignored_transports = [])
+    {
         $qi = new Queue_item();
         if ($transports) {
             if (is_array($transports)) {
@@ -86,7 +102,7 @@ class Queue_item extends Managed_DataObject
     /**
      * Release a claimed item.
      */
-    function releaseClaim()
+    public function releaseClaim()
     {
         // DB_DataObject doesn't let us save nulls right now
         $sql = sprintf("UPDATE queue_item SET claimed=NULL WHERE id=%d", $this->getID());

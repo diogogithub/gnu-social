@@ -20,13 +20,11 @@
  * @category  Data
  * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2010, StatusNet, Inc.
+ * @copyright 2010 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 defined('GNUSOCIAL') || die();
-
-require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
 
 /**
  * Data class for counting notices by date
@@ -38,10 +36,10 @@ require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
  * of notices posted on that day. Since, after the end of the day,
  * this number doesn't change, it's a good candidate for persistent caching.
  *
- * @copyright 2010, StatusNet, Inc.
+ * @copyright 2010 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      DB_DataObject
+ * @see       DB_DataObject
  */
 class Sitemap_notice_count extends Managed_DataObject
 {
@@ -49,8 +47,8 @@ class Sitemap_notice_count extends Managed_DataObject
 
     public $notice_date;                       // date primary_key not_null
     public $notice_count;                      // int(4)
-    public $created;                           // datetime()   not_null
-    public $modified;                          // datetime   not_null default_0000-00-00%2000%3A00%3A00
+    public $created;                           // datetime()
+    public $modified;                          // timestamp()  not_null
 
     public static function schemaDef()
     {
@@ -58,7 +56,7 @@ class Sitemap_notice_count extends Managed_DataObject
             'fields' => array(
                 'notice_date' => array('type' => 'date', 'not null' => true, 'description' => 'record date'),
                 'notice_count' => array('type' => 'int', 'not null' => true, 'description' => 'the notice count'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
                 'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('notice_date'),

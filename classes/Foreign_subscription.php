@@ -1,8 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for foreign_subscription
  */
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+
+defined('GNUSOCIAL') || die();
 
 class Foreign_subscription extends Managed_DataObject
 {
@@ -13,7 +29,7 @@ class Foreign_subscription extends Managed_DataObject
     public $service;                         // int(4)  primary_key not_null
     public $subscriber;                      // int(4)  primary_key not_null
     public $subscribed;                      // int(4)  primary_key not_null
-    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
+    public $created;                         // datetime()
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -26,7 +42,7 @@ class Foreign_subscription extends Managed_DataObject
                 'service' => array('type' => 'int', 'not null' => true, 'description' => 'service where relationship happens'),
                 'subscriber' => array('type' => 'int', 'size' => 'big', 'not null' => true, 'description' => 'subscriber on foreign service'),
                 'subscribed' => array('type' => 'int', 'size' => 'big', 'not null' => true, 'description' => 'subscribed user'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
             ),
             'primary key' => array('service', 'subscriber', 'subscribed'),
             'foreign keys' => array(

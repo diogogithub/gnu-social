@@ -1,8 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for oauth_application
  */
-require_once INSTALLDIR.'/classes/Memcached_DataObject.php';
+
+defined('GNUSOCIAL') || die();
 
 class Oauth_application extends Managed_DataObject
 {
@@ -22,8 +38,8 @@ class Oauth_application extends Managed_DataObject
     public $callback_url;                    // varchar(191)   not_null   not 255 because utf8mb4 takes more space
     public $type;                            // tinyint(1)
     public $access_type;                     // tinyint(1)
-    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()
+    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
 
     /* the code above is auto generated do not remove the tag below */
     ###END_AUTOCODE
@@ -35,12 +51,12 @@ class Oauth_application extends Managed_DataObject
     public static $browser = 1;
     public static $desktop = 2;
 
-    function getConsumer()
+    public function getConsumer()
     {
         return Consumer::getKV('consumer_key', $this->consumer_key);
     }
 
-    static function maxDesc()
+    public static function maxDesc()
     {
         // This used to default to textlimit or allow unlimited descriptions,
         // but this isn't part of a notice and the field's limited to 191 chars
@@ -57,13 +73,13 @@ class Oauth_application extends Managed_DataObject
         }
     }
 
-    static function descriptionTooLong($desc)
+    public static function descriptionTooLong($desc)
     {
         $desclimit = self::maxDesc();
         return ($desclimit > 0 && !empty($desc) && (mb_strlen($desc) > $desclimit));
     }
 
-    function setAccessFlags($read, $write)
+    public function setAccessFlags($read, $write)
     {
         if ($read) {
             $this->access_type |= self::$readAccess;
@@ -78,7 +94,7 @@ class Oauth_application extends Managed_DataObject
         }
     }
 
-    function setOriginal($filename)
+    public function setOriginal($filename)
     {
         $imagefile = new ImageFile(null, Avatar::path($filename));
 
@@ -91,7 +107,7 @@ class Oauth_application extends Managed_DataObject
         return $this->update($orig);
     }
 
-    static function getByConsumerKey($key)
+    public static function getByConsumerKey($key)
     {
         if (empty($key)) {
             return null;
@@ -113,11 +129,9 @@ class Oauth_application extends Managed_DataObject
      *
      * @return void
      */
-    function uploadLogo()
+    public function uploadLogo()
     {
-        if ($_FILES['app_icon']['error'] ==
-            UPLOAD_ERR_OK) {
-
+        if ($_FILES['app_icon']['error'] == UPLOAD_ERR_OK) {
             try {
                 $imagefile = ImageFile::fromUpload('app_icon');
             } catch (Exception $e) {
@@ -126,10 +140,12 @@ class Oauth_application extends Managed_DataObject
                 return;
             }
 
-            $filename = Avatar::filename($this->id,
-                                         image_type_to_extension($imagefile->type),
-                                         null,
-                                         'oauth-app-icon-'.common_timestamp());
+            $filename = Avatar::filename(
+                $this->id,
+                image_type_to_extension($imagefile->type),
+                null,
+                'oauth-app-icon-' . common_timestamp()
+            );
 
             $filepath = Avatar::path($filename);
 
@@ -139,9 +155,9 @@ class Oauth_application extends Managed_DataObject
         }
     }
 
-    function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
-        $this->_deleteAppUsers();
+        $this->deleteAppUsers();
 
         $consumer = $this->getConsumer();
         $consumer->delete();
@@ -149,7 +165,7 @@ class Oauth_application extends Managed_DataObject
         return parent::delete($useWhere);
     }
 
-    function _deleteAppUsers()
+    private function deleteAppUsers()
     {
         $oauser = new Oauth_application_user();
         $oauser->application_id = $this->id;
@@ -173,8 +189,8 @@ class Oauth_application extends Managed_DataObject
                 'callback_url' => array('type' => 'varchar', 'length' => 191, 'description' => 'url to redirect to after authentication'),
                 'type' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'type of app, 1 = browser, 2 = desktop'),
                 'access_type' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'default access type, bit 1 = read, bit 2 = write'),
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
+                'modified' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('id'),
             'unique keys' => array(

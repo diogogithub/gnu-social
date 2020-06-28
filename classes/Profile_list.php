@@ -32,8 +32,8 @@ class Profile_list extends Managed_DataObject
     public $tag;                             // varchar(64)
     public $description;                     // text
     public $private;                         // bool    default_false
-    public $created;                         // datetime()   not_null default_0000-00-00%2000%3A00%3A00
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $created;                         // datetime()
+    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
     public $uri;                             // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
     public $mainpage;                        // varchar(191)   not 255 because utf8mb4 takes more space
     public $tagged_count;                    // smallint
@@ -49,8 +49,8 @@ class Profile_list extends Managed_DataObject
                 'description' => array('type' => 'text', 'description' => 'description of the people tag'),
                 'private' => array('type' => 'bool', 'default' => false, 'description' => 'is this tag private'),
 
-                'created' => array('type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the tag was added'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date the tag was modified'),
+                'created' => array('type' => 'datetime', 'description' => 'date the tag was added'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date the tag was modified'),
 
                 'uri' => array('type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'),
                 'mainpage' => array('type' => 'varchar', 'length' => 191, 'description' => 'page to link to'),

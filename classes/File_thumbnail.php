@@ -33,7 +33,7 @@ class File_thumbnail extends Managed_DataObject
     public $filename;                        // text
     public $width;                           // int(4)  primary_key
     public $height;                          // int(4)  primary_key
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // timestamp() not_null default_CURRENT_TIMESTAMP
 
     const URLHASH_ALG = 'sha256';
 
@@ -47,7 +47,7 @@ class File_thumbnail extends Managed_DataObject
                 'filename' => array('type' => 'text', 'description' => 'if stored locally, filename is put here'),
                 'width' => array('type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'),
                 'height' => array('type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('file_id', 'width', 'height'),
             'indexes' => array(
