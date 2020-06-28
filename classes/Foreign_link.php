@@ -30,7 +30,7 @@ class Foreign_link extends Managed_DataObject
         return array(
             'fields' => array(
                 'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'link to user on this system, if exists'),
-                'foreign_id' => array('type' => 'int', 'size' => 'big', 'unsigned' => true, 'not null' => true, 'description' => 'link to user on foreign service, if exists'),
+                'foreign_id' => array('type' => 'int', 'size' => 'big', 'not null' => true, 'description' => 'link to user on foreign service, if exists'),
                 'service' => array('type' => 'int', 'not null' => true, 'description' => 'foreign key to service'),
                 'credentials' => array('type' => 'varchar', 'length' => 191, 'description' => 'authc credentials, typically a password'),
                 'noticesync' => array('type' => 'int', 'size' => 'tiny', 'not null' => true, 'default' => 1, 'description' => 'notice synchronization, bit 1 = sync outgoing, bit 2 = sync incoming, bit 3 = filter local replies'),
@@ -53,7 +53,7 @@ class Foreign_link extends Managed_DataObject
         );
     }
 
-    static function getByUserID($user_id, $service)
+    public static function getByUserID($user_id, $service)
     {
         if (empty($user_id) || empty($service)) {
             throw new ServerException('Empty user_id or service for Foreign_link::getByUserID');
@@ -71,7 +71,7 @@ class Foreign_link extends Managed_DataObject
         return $flink;
     }
 
-    static function getByForeignID($foreign_id, $service)
+    public static function getByForeignID($foreign_id, $service)
     {
         if (empty($foreign_id) || empty($service)) {
             throw new ServerException('Empty foreign_id or service for Foreign_link::getByForeignID');
@@ -89,7 +89,7 @@ class Foreign_link extends Managed_DataObject
         return $flink;
     }
 
-    function set_flags($noticesend, $noticerecv, $replysync, $repeatsync, $friendsync)
+    public function set_flags($noticesend, $noticerecv, $replysync, $repeatsync, $friendsync)
     {
         if ($noticesend) {
             $this->noticesync |= FOREIGN_NOTICE_SEND;
@@ -125,7 +125,7 @@ class Foreign_link extends Managed_DataObject
     }
 
     // Convenience methods
-    function getForeignUser()
+    public function getForeignUser()
     {
         $fuser = new Foreign_user();
         $fuser->service = $this->service;
@@ -140,29 +140,30 @@ class Foreign_link extends Managed_DataObject
         return $fuser;
     }
 
-    function getUser()
+    public function getUser()
     {
         return Profile::getByID($this->user_id)->getUser();
     }
 
-    function getProfile()
+    public function getProfile()
     {
         return Profile::getByID($this->user_id);
     }
 
     // Make sure we only ever delete one record at a time
-    function safeDelete()
+    public function safeDelete()
     {
         if (!empty($this->user_id)
             && !empty($this->foreign_id)
-            && !empty($this->service))
-        {
+            && !empty($this->service)) {
             return $this->delete();
         } else {
-            common_debug(LOG_WARNING,
+            common_debug(
+                LOG_WARNING,
                 'Foreign_link::safeDelete() tried to delete a '
                 . 'Foreign_link without a fully specified compound key: '
-                . var_export($this, true));
+                . var_export($this, true)
+            );
             return false;
         }
     }

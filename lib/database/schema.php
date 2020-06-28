@@ -139,7 +139,7 @@ class Schema
     public function buildCreateTable($name, $def)
     {
         $def = $this->validateDef($name, $def);
-        $def = $this->filterDef($def);
+        $def = $this->filterDef($name, $def);
         $sql = [];
 
         foreach ($def['fields'] as $col => $colDef) {
@@ -572,10 +572,10 @@ class Schema
         // Filter the DB-independent table definition to match the current
         // database engine's features and limitations.
         $def = $this->validateDef($tableName, $def);
-        $def = $this->filterDef($def);
+        $def = $this->filterDef($tableName, $def);
 
         $statements = [];
-        $fields = $this->diffArrays($old, $def, 'fields', [$this, 'columnsEqual']);
+        $fields = $this->diffArrays($old, $def, 'fields');
         $uniques = $this->diffArrays($old, $def, 'unique keys');
         $indexes = $this->diffArrays($old, $def, 'indexes');
         $foreign = $this->diffArrays($old, $def, 'foreign keys');
@@ -814,20 +814,6 @@ class Schema
     }
 
     /**
-     * Check if two column definitions are equivalent.
-     * The default implementation checks _everything_ but in many cases
-     * you may be able to discard a bunch of equivalencies.
-     *
-     * @param array $a
-     * @param array $b
-     * @return bool
-     */
-    public function columnsEqual(array $a, array $b)
-    {
-        return !array_diff_assoc($a, $b) && !array_diff_assoc($b, $a);
-    }
-
-    /**
      * Returns the array of names from an array of
      * ColumnDef objects.
      *
@@ -886,9 +872,11 @@ class Schema
         if (isset($cd['default'])) {
             $line[] = 'default';
             $line[] = $this->quoteDefaultValue($cd);
-        } elseif (!empty($cd['not null'])) {
-            // Can't have both not null AND default!
-            $line[] = 'not null';
+        }
+        if (!empty($cd['not null'])) {
+            $line[] = 'NOT NULL';
+        } else {
+            $line[] = 'NULL';
         }
 
         return implode(' ', $line);
@@ -1004,11 +992,21 @@ class Schema
      * This lets us strip out unsupported things like comments, foreign keys,
      * or type variants that we wouldn't get back from getTableDef().
      *
+     * @param string $tableName
      * @param array $tableDef
      * @return array
      */
-    public function filterDef(array $tableDef)
+    public function filterDef(string $tableName, array $tableDef)
     {
+        foreach ($tableDef['fields'] as $name => &$col) {
+            if (array_key_exists('default', $col) && is_null($col['default'])) {
+                unset($col['default']);
+            }
+            if (array_key_exists('not null', $col) && $col['not null'] !== true) {
+                unset($col['not null']);
+            }
+        }
+
         return $tableDef;
     }
 
@@ -1035,13 +1033,6 @@ class Schema
         }
 
         return $def;
-    }
-
-    public function isNumericType($type)
-    {
-        $type = strtolower($type);
-        $known = ['int', 'serial', 'numeric'];
-        return in_array($type, $known);
     }
 
     /**
