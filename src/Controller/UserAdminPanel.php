@@ -43,7 +43,7 @@ class UserAdminPanel extends AbstractController
 {
     public function __invoke(Request $request)
     {
-        $form = Form::create([
+        $prof = Form::create([
             [_m('Nickname'),   TextType::class],
             [_m('FullName'),   TextType::class],
             [_m('Homepage'),   TextType::class],
@@ -51,16 +51,31 @@ class UserAdminPanel extends AbstractController
             [_m('Location'),   TextType::class],
             ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
 
-        foreach (['profile', 'avatar'] as $s) {
-            return $this->render('settings/' . $s . '.html.twig', [
-                'form' => $form->createView(),
-            ]);
+        $prof->handleRequest($request);
+        if ($prof->isSubmitted()) {
+            $data = $prof->getData();
+            if ($prof->isValid() && array_key_exists(_m('Setting'), $data)) {
+                list($section, $setting) = explode(':', $data[_m('Setting')]);
+                $value                   = $data[_m('Value')];
+                $default                 = $defaults[$section][$setting];
+                if (gettype($default) === gettype($value)) {
+                    $conf      = DB::find('\App\Entity\Config', ['section' => $section, 'setting' => $setting]);
+                    $old_value = $conf->getValue();
+                    $conf->setValue(serialize($value));
+                    DB::flush();
+                }
+                return $this->render('config/admin.html.twig', [
+                    'prof'      => $prof->createView(),
+                    'old_value' => unserialize($old_value),
+                    'default'   => $default,
+                ]);
+            } else {
+                // Display error
+            }
         }
 
-        foreach (['email', 'pass', 'bak'] as $s) {
-            return $this->render('settings/account' . $s . '.html.twig', [
-                'form' => $form->createView(),
-            ]);
-        }
+        return $this->render('settings/profile.html.twig', [
+            'prof' => $prof->createView(),
+        ]);
     }
 }
