@@ -143,19 +143,15 @@ class Avatar
         return [
             'name'   => 'avatar',
             'fields' => [
-                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'],
-                'original'   => ['type' => 'bool', 'default' => false, 'description' => 'uploaded by user or generated?'],
-                'width'      => ['type' => 'int', 'not null' => true, 'description' => 'image width'],
-                'height'     => ['type' => 'int', 'not null' => true, 'description' => 'image height'],
-                'mediatype'  => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'file type'],
-                'filename'   => ['type' => 'varchar', 'length' => 191, 'description' => 'local filename, if local'],
-                'created'    => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'profile_id'  => ['type' => 'int', 'not null' => true,  'description' => 'foreign key to profile table'],
+                'is_original' => ['type' => 'bool', 'default' => false, 'description' => 'uploaded by user or generated?'],
+                'width'       => ['type' => 'int', 'not null' => true,  'description' => 'image width'],
+                'height'      => ['type' => 'int', 'not null' => true,  'description' => 'image height'],
+                'mediatype'   => ['type' => 'varchar', 'length' => 32,  'not null' => true, 'description' => 'file type'],
+                'created'     => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['profile_id', 'width', 'height'],
-            'unique keys' => [
-                //                'avatar_filename_key' => array('filename'),
-            ],
+            'primary key'  => ['profile_id', 'width', 'height'],
             'foreign keys' => [
                 'avatar_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
             ],

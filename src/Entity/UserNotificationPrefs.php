@@ -33,7 +33,7 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class UserImPrefs
+class UserNotificationPrefs
 {
     // {{{ Autocode
 
@@ -139,23 +139,33 @@ class UserImPrefs
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'user_im_prefs',
+            'name'   => 'user_notification_prefs',
             'fields' => [
-                'user_id'            => ['type' => 'int', 'not null' => true, 'description' => 'user'],
-                'screenname'         => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'screenname on this service'],
-                'transport'          => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'transport (ex xmpp, aim)'],
-                'notify'             => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Notify when a new notice is sent'],
-                'replies'            => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Send replies from people not subscribed to'],
-                'updatefrompresence' => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Update from presence.'],
-                'created'            => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'           => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'user_id'               => ['type' => 'int', 'not null' => true],
+                'service_name'          => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'name on this service'],
+                'transport'             => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'transport (ex xmpp, aim)'],
+                'profile_id'            => ['type' => 'int',  'default' => null, 'description' => 'If not null, settings are specific only to a given profiles'],
+                'posts_by_followed'     => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Notify when a new notice by someone we follow is made'],
+                'mention'               => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Notify when mentioned by someone we do not follow'],
+                'follow'                => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Notify someone follows us'],
+                'favorite'              => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Notify someone favorites a notice by us'],
+                'nudge'                 => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Notify someone nudges us'],
+                'dm'                    => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Notify someone sends us a direct message'],
+                'post_on_status_change' => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Post a notice when our status in service changes'],
+                'enable_posting'        => ['type' => 'bool', 'default' => true,  'description' => 'Enable posting from this service'],
+                'created'               => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'modified'              => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key' => ['user_id', 'transport'],
             'unique keys' => [
-                'transport_screenname_key' => ['transport', 'screenname'],
+                'transport_service_key' => ['transport', 'service_name'],
             ],
             'foreign keys' => [
-                'user_im_prefs_user_id_fkey' => ['user', ['user_id' => 'id']],
+                'user_notification_prefs_user_id_fkey' => ['user', ['user_id' => 'id']],
+                'user_notification_prefs_profile'      => ['profile', ['profile_id' => 'id']],
+            ],
+            'indexes' => [
+                'user_notification_prefs_user_profile_idx' => ['user_id', 'profile_id'],
             ],
         ];
     }

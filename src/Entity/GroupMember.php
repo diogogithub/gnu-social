@@ -119,23 +119,22 @@ class GroupMember
         return [
             'name'   => 'group_member',
             'fields' => [
-                'group_id'   => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to user_group'],
-                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'],
+                'group_id'   => ['type' => 'int', 'not null' => true,  'description' => 'foreign key to group table'],
+                'profile_id' => ['type' => 'int', 'not null' => true,  'description' => 'foreign key to profile table'],
                 'is_admin'   => ['type' => 'bool', 'default' => false, 'description' => 'is this user an admin?'],
                 'uri'        => ['type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'],
-                'created'    => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'created'    => ['type' => 'datetime', 'not null' => true,  'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key' => ['group_id', 'profile_id'],
             'unique keys' => [
                 'group_member_uri_key' => ['uri'],
             ],
             'foreign keys' => [
-                'group_member_group_id_fkey'   => ['user_group', ['group_id' => 'id']],
+                'group_member_group_id_fkey'   => ['group', ['group_id' => 'id']],
                 'group_member_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
             ],
             'indexes' => [
-                // @fixme probably we want a (profile_id, created) index here?
                 'group_member_profile_id_idx'         => ['profile_id'],
                 'group_member_created_idx'            => ['created'],
                 'group_member_profile_id_created_idx' => ['profile_id', 'created'],

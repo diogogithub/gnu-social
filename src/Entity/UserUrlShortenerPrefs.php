@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for Foreign Users
+ * Entity for user's url shortener preferences
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,59 +35,59 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ForeignUser
+class UserUrlShortenerPrefs
 {
     // {{{ Autocode
 
-    private int $id;
-    private int $service;
-    private string $uri;
-    private ?string $nickname;
+    private int $user_id;
+    private ?string $urlshorteningservice;
+    private int $maxurllength;
+    private int $maxnoticelength;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
-    public function setId(int $id): self
+    public function setUserId(int $user_id): self
     {
-        $this->id = $id;
+        $this->user_id = $user_id;
         return $this;
     }
 
-    public function getId(): int
+    public function getUserId(): int
     {
-        return $this->id;
+        return $this->user_id;
     }
 
-    public function setService(int $service): self
+    public function setUrlshorteningservice(?string $urlshorteningservice): self
     {
-        $this->service = $service;
+        $this->urlshorteningservice = $urlshorteningservice;
         return $this;
     }
 
-    public function getService(): int
+    public function getUrlshorteningservice(): ?string
     {
-        return $this->service;
+        return $this->urlshorteningservice;
     }
 
-    public function setUri(string $uri): self
+    public function setMaxurllength(int $maxurllength): self
     {
-        $this->uri = $uri;
+        $this->maxurllength = $maxurllength;
         return $this;
     }
 
-    public function getUri(): string
+    public function getMaxurllength(): int
     {
-        return $this->uri;
+        return $this->maxurllength;
     }
 
-    public function setNickname(?string $nickname): self
+    public function setMaxnoticelength(int $maxnoticelength): self
     {
-        $this->nickname = $nickname;
+        $this->maxnoticelength = $maxnoticelength;
         return $this;
     }
 
-    public function getNickname(): ?string
+    public function getMaxnoticelength(): int
     {
-        return $this->nickname;
+        return $this->maxnoticelength;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -117,21 +117,18 @@ class ForeignUser
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'foreign_user',
+            'name'   => 'user_url_shortener_prefs',
             'fields' => [
-                'id'       => ['type' => 'int', 'size' => 'big', 'not null' => true, 'description' => 'unique numeric key on foreign service'],
-                'service'  => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to service'],
-                'uri'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'identifying URI'],
-                'nickname' => ['type' => 'varchar', 'length' => 191, 'description' => 'nickname on foreign service'],
-                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'user_id'                => ['type' => 'int', 'not null' => true, 'description' => 'user'],
+                'url_shortening_service' => ['type' => 'varchar', 'length' => 50, 'default' => 'internal', 'description' => 'service to use for auto-shortening URLs'],
+                'max_url_length'         => ['type' => 'int', 'not null' => true, 'description' => 'urls greater than this length will be shortened, 0 = always, -1 = never'],
+                'max_notice_length'      => ['type' => 'int', 'not null' => true, 'description' => 'notices with content greater than this value will have all urls shortened, 0 = always, -1 = only if notice text is longer than max allowed'],
+                'created'                => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'modified'               => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['id', 'service'],
+            'primary key'  => ['user_id'],
             'foreign keys' => [
-                'foreign_user_service_fkey' => ['foreign_service', ['service' => 'id']],
-            ],
-            'unique keys' => [
-                'foreign_user_uri_key' => ['uri'],
+                'user_urlshortener_prefs_user_id_fkey' => ['user', ['user_id' => 'id']],
             ],
         ];
     }

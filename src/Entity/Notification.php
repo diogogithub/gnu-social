@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for nonce
+ * Entity for attentions
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,59 +35,47 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Nonce
+class Notification
 {
     // {{{ Autocode
 
-    private string $consumer_key;
-    private ?string $tok;
-    private string $nonce;
-    private DateTimeInterface $ts;
+    private int $notice_id;
+    private int $profile_id;
+    private ?string $reason;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
-    public function setConsumerKey(string $consumer_key): self
+    public function setNoticeId(int $notice_id): self
     {
-        $this->consumer_key = $consumer_key;
+        $this->notice_id = $notice_id;
         return $this;
     }
 
-    public function getConsumerKey(): string
+    public function getNoticeId(): int
     {
-        return $this->consumer_key;
+        return $this->notice_id;
     }
 
-    public function setTok(?string $tok): self
+    public function setProfileId(int $profile_id): self
     {
-        $this->tok = $tok;
+        $this->profile_id = $profile_id;
         return $this;
     }
 
-    public function getTok(): ?string
+    public function getProfileId(): int
     {
-        return $this->tok;
+        return $this->profile_id;
     }
 
-    public function setNonce(string $nonce): self
+    public function setReason(?string $reason): self
     {
-        $this->nonce = $nonce;
+        $this->reason = $reason;
         return $this;
     }
 
-    public function getNonce(): string
+    public function getReason(): ?string
     {
-        return $this->nonce;
-    }
-
-    public function setTs(DateTimeInterface $ts): self
-    {
-        $this->ts = $ts;
-        return $this;
-    }
-
-    public function getTs(): DateTimeInterface
-    {
-        return $this->ts;
+        return $this->reason;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -117,17 +105,24 @@ class Nonce
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'nonce',
-            'description' => 'OAuth nonce record',
+            'name'        => 'notification',
+            'description' => 'Activity notification for profiles (that are not a mention and not result of a subscription)',
             'fields'      => [
-                'consumer_key' => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'unique identifier, root URL'],
-                'tok'          => ['type' => 'char', 'length' => 32, 'description' => 'buggy old value, ignored'],
-                'nonce'        => ['type' => 'char', 'length' => 32, 'not null' => true, 'description' => 'nonce'],
-                'ts'           => ['type' => 'datetime', 'not null' => true, 'description' => 'timestamp sent'],
-                'created'      => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'     => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'notice_id'  => ['type' => 'int', 'not null' => true,  'description' => 'notice_id to give attention'],
+                'profile_id' => ['type' => 'int', 'not null' => true,  'description' => 'profile_id for feed receiver'],
+                'reason'     => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of profile_id'],
+                'created'    => ['type' => 'datetime', 'not null' => true,  'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['consumer_key', 'ts', 'nonce'],
+            'primary key'  => ['notice_id', 'profile_id'],
+            'foreign keys' => [
+                'attention_notice_id_fkey'  => ['notice', ['notice_id' => 'id']],
+                'attention_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+            ],
+            'indexes' => [
+                'attention_notice_id_idx'  => ['notice_id'],
+                'attention_profile_id_idx' => ['profile_id'],
+            ],
         ];
     }
 }

@@ -82,21 +82,21 @@ class GroupInbox
     {
         return [
             'name'        => 'group_inbox',
-            'description' => 'Many-many table listing notices posted to a given group, or which groups a given notice was posted to.',
+            'description' => 'Many-many table listing activities posted to a given group, or which groups a given activity was posted to',
             'fields'      => [
-                'group_id'  => ['type' => 'int', 'not null' => true, 'description' => 'group receiving the message'],
-                'notice_id' => ['type' => 'int', 'not null' => true, 'description' => 'notice received'],
-                'created'   => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the notice was created'],
+                'group_id'    => ['type' => 'int', 'not null' => true, 'description' => 'group receiving the message'],
+                'activity_id' => ['type' => 'int', 'not null' => true, 'description' => 'activity received'],
+                'created'     => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the activity was created'],
             ],
-            'primary key'  => ['group_id', 'notice_id'],
+            'primary key'  => ['group_id', 'activity_id'],
             'foreign keys' => [
-                'group_inbox_group_id_fkey'  => ['user_group', ['group_id' => 'id']],
-                'group_inbox_notice_id_fkey' => ['notice', ['notice_id' => 'id']],
+                'group_inbox_group_id_fkey'    => ['group', ['group_id' => 'id']],
+                'group_inbox_activity_id_fkey' => ['activity', ['activity_id' => 'id']],
             ],
             'indexes' => [
-                'group_inbox_created_idx'                    => ['created'],
-                'group_inbox_notice_id_idx'                  => ['notice_id'],
-                'group_inbox_group_id_created_notice_id_idx' => ['group_id', 'created', 'notice_id'],
+                'group_inbox_activity_id_idx'                  => ['activity_id'],
+                'group_inbox_group_id_created_activity_id_idx' => ['group_id', 'created', 'activity_id'],
+                'group_inbox_created_idx'                      => ['created'],
             ],
         ];
     }

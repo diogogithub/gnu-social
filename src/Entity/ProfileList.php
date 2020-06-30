@@ -177,19 +177,20 @@ class ProfileList
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'profile_list',
-            'fields' => [
-                'id'               => ['type' => 'int', 'not null' => true, 'description' => 'unique identifier'],
-                'tagger'           => ['type' => 'int', 'not null' => true, 'description' => 'user making the tag'],
-                'tag'              => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'people tag'],
-                'description'      => ['type' => 'text', 'description' => 'description of the people tag'],
-                'private'          => ['type' => 'bool', 'default' => false, 'description' => 'is this tag private'],
-                'created'          => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the tag was added'],
-                'modified'         => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date the tag was modified'],
-                'uri'              => ['type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'],
-                'mainpage'         => ['type' => 'varchar', 'length' => 191, 'description' => 'page to link to'],
-                'tagged_count'     => ['type' => 'int', 'default' => 0, 'description' => 'number of people tagged with this tag by this user'],
-                'subscriber_count' => ['type' => 'int', 'default' => 0, 'description' => 'number of subscribers to this tag'],
+            'name'        => 'profile_list',
+            'description' => 'a profile can have lists of profiles, to separate their timeline',
+            'fields'      => [
+                'id'             => ['type' => 'int', 'not null' => true, 'description' => 'unique identifier'],
+                'tagger'         => ['type' => 'int', 'not null' => true, 'description' => 'user making the tag'],
+                'tag'            => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'people tag'],
+                'description'    => ['type' => 'text', 'description' => 'description of the people tag'],
+                'private'        => ['type' => 'bool', 'default' => false, 'description' => 'is this tag private'],
+                'uri'            => ['type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'],
+                'mainpage'       => ['type' => 'varchar', 'length' => 191, 'description' => 'page to link to'],
+                'tagged_count'   => ['type' => 'int', 'default' => 0, 'description' => 'number of people tagged with this tag by this user'],
+                'follower_count' => ['type' => 'int', 'default' => 0, 'description' => 'number of followers to this tag'],
+                'created'        => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the tag was added'],
+                'modified'       => ['type' => 'timestamp', 'not null' => true, 'description' => 'date the tag was modified'],
             ],
             'primary key' => ['tagger', 'tag'],
             'unique keys' => [
@@ -199,11 +200,11 @@ class ProfileList
                 'profile_list_tagger_fkey' => ['profile', ['tagger' => 'id']],
             ],
             'indexes' => [
-                'profile_list_modified_idx'         => ['modified'],
-                'profile_list_tag_idx'              => ['tag'],
-                'profile_list_tagger_tag_idx'       => ['tagger', 'tag'],
-                'profile_list_tagged_count_idx'     => ['tagged_count'],
-                'profile_list_subscriber_count_idx' => ['subscriber_count'],
+                'profile_list_modified_idx'       => ['modified'],
+                'profile_list_tag_idx'            => ['tag'],
+                'profile_list_tagger_tag_idx'     => ['tagger', 'tag'],
+                'profile_list_tagged_count_idx'   => ['tagged_count'],
+                'profile_list_follower_count_idx' => ['follower_count'],
             ],
         ];
     }

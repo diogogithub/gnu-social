@@ -90,8 +90,8 @@ class RelatedGroup
             ],
             'primary key'  => ['group_id', 'related_group_id'],
             'foreign keys' => [
-                'related_group_group_id_fkey'         => ['user_group', ['group_id' => 'id']],
-                'related_group_related_group_id_fkey' => ['user_group', ['related_group_id' => 'id']],
+                'related_group_group_id_fkey'         => ['group', ['group_id' => 'id']],
+                'related_group_related_group_id_fkey' => ['group', ['related_group_id' => 'id']],
             ],
         ];
     }

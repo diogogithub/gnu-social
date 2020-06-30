@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for association between OAuth and internal token
+ * Entity for Profile Tag Subscription
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,15 +35,25 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class OauthTokenAssociation
+class ProfileTagFollow
 {
     // {{{ Autocode
 
+    private int $profile_tag_id;
     private int $profile_id;
-    private int $application_id;
-    private string $token;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
+
+    public function setProfileTagId(int $profile_tag_id): self
+    {
+        $this->profile_tag_id = $profile_tag_id;
+        return $this;
+    }
+
+    public function getProfileTagId(): int
+    {
+        return $this->profile_tag_id;
+    }
 
     public function setProfileId(int $profile_id): self
     {
@@ -54,28 +64,6 @@ class OauthTokenAssociation
     public function getProfileId(): int
     {
         return $this->profile_id;
-    }
-
-    public function setApplicationId(int $application_id): self
-    {
-        $this->application_id = $application_id;
-        return $this;
-    }
-
-    public function getApplicationId(): int
-    {
-        return $this->application_id;
-    }
-
-    public function setToken(string $token): self
-    {
-        $this->token = $token;
-        return $this;
-    }
-
-    public function getToken(): string
-    {
-        return $this->token;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -105,19 +93,22 @@ class OauthTokenAssociation
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'oauth_token_association',
-            'description' => 'Associate an application ID and profile ID with an OAuth token',
-            'fields'      => [
-                'profile_id'     => ['type' => 'int', 'not null' => true, 'description' => 'associated user'],
-                'application_id' => ['type' => 'int', 'not null' => true, 'description' => 'the application'],
-                'token'          => ['type' => 'varchar', 'length' => '191', 'not null' => true, 'description' => 'token used for this association'],
+            'name'   => 'profile_tag_follow',
+            'fields' => [
+                'profile_tag_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to profile_tag'],
+                'profile_id'     => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'],
                 'created'        => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
                 'modified'       => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['profile_id', 'application_id', 'token'],
+            'primary key'  => ['profile_tag_id', 'profile_id'],
             'foreign keys' => [
-                'oauth_token_association_profile_fkey'     => ['profile', ['profile_id' => 'id']],
-                'oauth_token_association_application_fkey' => ['oauth_application', ['application_id' => 'id']],
+                'profile_tag_follow_profile_list_id_fkey' => ['profile_list', ['profile_tag_id' => 'id']],
+                'profile_tag_follow_profile_id_fkey'      => ['profile', ['profile_id' => 'id']],
+            ],
+            'indexes' => [
+                // @fixme probably we want a (profile_id, created) index here?
+                'profile_tag_follow_profile_id_idx' => ['profile_id'],
+                'profile_tag_follow_created_idx'    => ['created'],
             ],
         ];
     }

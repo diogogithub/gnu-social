@@ -95,7 +95,7 @@ class GroupJoinQueue
             ],
             'foreign keys' => [
                 'group_join_queue_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
-                'group_join_queue_group_id_fkey'   => ['user_group', ['group_id' => 'id']],
+                'group_join_queue_group_id_fkey'   => ['group', ['group_id' => 'id']],
             ],
         ];
     }

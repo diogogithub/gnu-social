@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for Login tokens
+ * Entity that Keeps a list of unavailable status network names
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,35 +35,22 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class LoginToken
+class ReservedNickname
 {
     // {{{ Autocode
 
-    private int $user_id;
-    private string $token;
+    private string $nickname;
     private DateTimeInterface $created;
-    private DateTimeInterface $modified;
 
-    public function setUserId(int $user_id): self
+    public function setNickname(string $nickname): self
     {
-        $this->user_id = $user_id;
+        $this->nickname = $nickname;
         return $this;
     }
 
-    public function getUserId(): int
+    public function getNickname(): string
     {
-        return $this->user_id;
-    }
-
-    public function setToken(string $token): self
-    {
-        $this->token = $token;
-        return $this;
-    }
-
-    public function getToken(): string
-    {
-        return $this->token;
+        return $this->nickname;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -77,33 +64,18 @@ class LoginToken
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
-    {
-        $this->modified = $modified;
-        return $this;
-    }
-
-    public function getModified(): DateTimeInterface
-    {
-        return $this->modified;
-    }
-
     // }}} Autocode
 
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'login_token',
-            'fields' => [
-                'user_id'  => ['type' => 'int', 'not null' => true, 'description' => 'user owning this token'],
-                'token'    => ['type' => 'char', 'length' => 32, 'not null' => true, 'description' => 'token useable for logging in'],
-                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+            'name'        => 'reserved_nickname',
+            'description' => 'A reserved nickname',
+            'fields'      => [
+                'nickname' => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname not to use'],
+                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00'],
             ],
-            'primary key'  => ['user_id'],
-            'foreign keys' => [
-                'login_token_user_id_fkey' => ['user', ['user_id' => 'id']],
-            ],
+            'primary key' => ['nickname'],
         ];
     }
 }

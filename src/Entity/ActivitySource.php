@@ -1,10 +1,10 @@
 <?php
 
 // {{{ License
-// This file is part of GNU social - https://www.gnu.org/software/soci
+// This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as publ
+// it under the terms of the GNU Affero General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
@@ -13,7 +13,7 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 //
-// You should have received a copy of the GNU Affero General Public Li
+// You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for local groups
+ * Entity for Notices sources
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,35 +35,59 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class LocalGroup
+class ActivitySource
 {
     // {{{ Autocode
 
-    private int $group_id;
-    private ?string $nickname;
+    private string $code;
+    private string $name;
+    private string $url;
+    private int $notice_id;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
-    public function setGroupId(int $group_id): self
+    public function setCode(string $code): self
     {
-        $this->group_id = $group_id;
+        $this->code = $code;
         return $this;
     }
 
-    public function getGroupId(): int
+    public function getCode(): string
     {
-        return $this->group_id;
+        return $this->code;
     }
 
-    public function setNickname(?string $nickname): self
+    public function setName(string $name): self
     {
-        $this->nickname = $nickname;
+        $this->name = $name;
         return $this;
     }
 
-    public function getNickname(): ?string
+    public function getName(): string
     {
-        return $this->nickname;
+        return $this->name;
+    }
+
+    public function setUrl(string $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
+    }
+
+    public function setNoticeId(int $notice_id): self
+    {
+        $this->notice_id = $notice_id;
+        return $this;
+    }
+
+    public function getNoticeId(): int
+    {
+        return $this->notice_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -93,21 +117,15 @@ class LocalGroup
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'local_group',
-            'description' => 'Record for a user group on the local site, with some additional info not in user_group',
-            'fields'      => [
-                'group_id' => ['type' => 'int', 'not null' => true, 'description' => 'group represented'],
-                'nickname' => ['type' => 'varchar', 'length' => 64, 'description' => 'group represented'],
+            'name'   => 'activity_source',
+            'fields' => [
+                'code'     => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'code identifier'],
+                'name'     => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'name of the source'],
+                'url'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'url to link to'],
                 'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['group_id'],
-            'foreign keys' => [
-                'local_group_group_id_fkey' => ['user_group', ['group_id' => 'id']],
-            ],
-            'unique keys' => [
-                'local_group_nickname_key' => ['nickname'],
-            ],
+            'primary key' => ['code'],
         ];
     }
 }

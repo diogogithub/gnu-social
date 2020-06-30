@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for Notice preferences
+ * Entity for Notice's location
  *
  * @category  DB
  * @package   GNUsocial
@@ -31,21 +31,19 @@ use DateTimeInterface;
  * @copyright 2010 StatusNet Inc.
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
- * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @license   2018 Free Software Foundation, Inc http://www.fsf.org
  * @author    Hugo Sales <hugo@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class NoticePrefs
+class ActivityLocation
 {
     // {{{ Autocode
 
     private int $notice_id;
-    private string $namespace;
-    private string $topic;
-    private $data;
-    private DateTimeInterface $created;
+    private ?float $lat;
+    private ?float $lon;
+    private ?int $location_id;
+    private ?int $location_ns;
     private DateTimeInterface $modified;
 
     public function setNoticeId(int $notice_id): self
@@ -59,48 +57,48 @@ class NoticePrefs
         return $this->notice_id;
     }
 
-    public function setNamespace(string $namespace): self
+    public function setLat(?float $lat): self
     {
-        $this->namespace = $namespace;
+        $this->lat = $lat;
         return $this;
     }
 
-    public function getNamespace(): string
+    public function getLat(): ?float
     {
-        return $this->namespace;
+        return $this->lat;
     }
 
-    public function setTopic(string $topic): self
+    public function setLon(?float $lon): self
     {
-        $this->topic = $topic;
+        $this->lon = $lon;
         return $this;
     }
 
-    public function getTopic(): string
+    public function getLon(): ?float
     {
-        return $this->topic;
+        return $this->lon;
     }
 
-    public function setData($data): self
+    public function setLocationId(?int $location_id): self
     {
-        $this->data = $data;
+        $this->location_id = $location_id;
         return $this;
     }
 
-    public function getData()
+    public function getLocationId(): ?int
     {
-        return $this->data;
+        return $this->location_id;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setLocationNs(?int $location_ns): self
     {
-        $this->created = $created;
+        $this->location_ns = $location_ns;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getLocationNs(): ?int
     {
-        return $this->created;
+        return $this->location_ns;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -119,21 +117,21 @@ class NoticePrefs
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'notice_prefs',
+            'name'   => 'activity_location',
             'fields' => [
-                'notice_id' => ['type' => 'int', 'not null' => true, 'description' => 'user'],
-                'namespace' => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'namespace, like pluginname or category'],
-                'topic'     => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'preference key, i.e. description, age...'],
-                'data'      => ['type' => 'blob', 'description' => 'topic data, may be anything'],
-                'created'   => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'  => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'activity_id'      => ['type' => 'int', 'not null' => true, 'description' => 'activity this refers to'],
+                'lat'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
+                'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
+                'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
+                'location_service' => ['type' => 'int', 'size' => 'tiny', 'description' => 'service used to retrieve location information'],
+                'modified'         => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['notice_id', 'namespace', 'topic'],
+            'primary key'  => ['activity_id'],
             'foreign keys' => [
-                'notice_prefs_notice_id_fkey' => ['notice', ['notice_id' => 'id']],
+                'activity_location_activity_id_fkey' => ['activity', ['activity_id' => 'id']],
             ],
             'indexes' => [
-                'notice_prefs_notice_id_idx' => ['notice_id'],
+                'activity_location_location_id_idx' => ['location_id'],
             ],
         ];
     }

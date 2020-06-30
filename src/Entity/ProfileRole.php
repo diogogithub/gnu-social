@@ -85,7 +85,7 @@ class ProfileRole
             'fields' => [
                 'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'account having the role'],
                 'role'       => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'string representing the role'],
-                'created'    => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the role was granted'],
+                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key'  => ['profile_id', 'role'],
             'foreign keys' => [

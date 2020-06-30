@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for location namespace
+ * Entity for Notice Tag
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,35 +35,34 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class LocationNamespace
+class ActivityTag
 {
     // {{{ Autocode
 
-    private int $id;
-    private ?string $description;
+    private string $tag;
+    private int $notice_id;
     private DateTimeInterface $created;
-    private DateTimeInterface $modified;
 
-    public function setId(int $id): self
+    public function setTag(string $tag): self
     {
-        $this->id = $id;
+        $this->tag = $tag;
         return $this;
     }
 
-    public function getId(): int
+    public function getTag(): string
     {
-        return $this->id;
+        return $this->tag;
     }
 
-    public function setDescription(?string $description): self
+    public function setNoticeId(int $notice_id): self
     {
-        $this->description = $description;
+        $this->notice_id = $notice_id;
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getNoticeId(): int
     {
-        return $this->description;
+        return $this->notice_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -77,30 +76,27 @@ class LocationNamespace
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
-    {
-        $this->modified = $modified;
-        return $this;
-    }
-
-    public function getModified(): DateTimeInterface
-    {
-        return $this->modified;
-    }
-
     // }}} Autocode
 
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'location_namespace',
-            'fields' => [
-                'id'          => ['type' => 'int', 'not null' => true, 'description' => 'identity for this namespace'],
-                'description' => ['type' => 'varchar', 'length' => 191, 'description' => 'description of the namespace'],
-                'created'     => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the record was created'],
-                'modified'    => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+            'name'        => 'activity_tag',
+            'description' => 'Hash tags',
+            'fields'      => [
+                'tag'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this activity'],
+                'activity_id' => ['type' => 'int', 'not null' => true, 'description' => 'activity tagged'],
+                'created'     => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
             ],
-            'primary key' => ['id'],
+            'primary key'  => ['tag', 'activity_id'],
+            'foreign keys' => [
+                'activity_tag_activity_id_fkey' => ['activity', ['activity_id' => 'id']],
+            ],
+            'indexes' => [
+                'activity_tag_created_idx'                 => ['created'],
+                'activity_tag_activity_id_idx'             => ['activity_id'],
+                'activity_tag_tag_created_activity_id_idx' => ['tag', 'created', 'activity_id'],
+            ],
         ];
     }
 }

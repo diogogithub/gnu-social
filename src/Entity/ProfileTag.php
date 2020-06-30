@@ -93,8 +93,7 @@ class ProfileTag
     public static function schemaDef(): array
     {
         return [
-            'name' => 'profile_tag',
-
+            'name'   => 'profile_tag',
             'fields' => [
                 'tagger'   => ['type' => 'int', 'not null' => true, 'description' => 'user making the tag'],
                 'tagged'   => ['type' => 'int', 'not null' => true, 'description' => 'profile tagged'],

@@ -95,16 +95,16 @@ class GroupBlock
         return [
             'name'   => 'group_block',
             'fields' => [
-                'group_id' => ['type' => 'int', 'not null' => true, 'description' => 'group profile is blocked from'],
-                'blocked'  => ['type' => 'int', 'not null' => true, 'description' => 'profile that is blocked'],
-                'blocker'  => ['type' => 'int', 'not null' => true, 'description' => 'user making the block'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date of blocking'],
+                'group_id'        => ['type' => 'int', 'not null' => true, 'description' => 'group profile is blocked from'],
+                'blocked_profile' => ['type' => 'int', 'not null' => true, 'description' => 'profile that is blocked'],
+                'blocker_user'    => ['type' => 'int', 'not null' => true, 'description' => 'user making the block'],
+                'modified'        => ['type' => 'timestamp', 'not null' => true, 'description' => 'date of blocking'],
             ],
-            'primary key'  => ['group_id', 'blocked'],
+            'primary key'  => ['group_id', 'blocked_profile'],
             'foreign keys' => [
-                'group_block_group_id_fkey' => ['user_group', ['group_id' => 'id']],
-                'group_block_blocked_fkey'  => ['profile', ['blocked' => 'id']],
-                'group_block_blocker_fkey'  => ['user', ['blocker' => 'id']],
+                'group_block_group_id_fkey' => ['group', ['group_id' => 'id']],
+                'group_block_blocked_fkey'  => ['profile', ['blocked_profile' => 'id']],
+                'group_block_blocker_fkey'  => ['user', ['blocker_user' => 'id']],
             ],
         ];
     }

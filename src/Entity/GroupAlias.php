@@ -84,12 +84,12 @@ class GroupAlias
             'name'   => 'group_alias',
             'fields' => [
                 'alias'    => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'additional nickname for the group'],
-                'group_id' => ['type' => 'int', 'not null' => true, 'description' => 'group profile is blocked from'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date alias was created'],
+                'group_id' => ['type' => 'int', 'not null' => true, 'description' => 'group id which this is an alias of'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date alias was created'],
             ],
             'primary key'  => ['alias'],
             'foreign keys' => [
-                'group_alias_group_id_fkey' => ['user_group', ['group_id' => 'id']],
+                'group_alias_group_id_fkey' => ['group', ['group_id' => 'id']],
             ],
             'indexes' => [
                 'group_alias_group_id_idx' => ['group_id'],

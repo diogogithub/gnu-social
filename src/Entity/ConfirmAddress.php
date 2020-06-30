@@ -143,14 +143,14 @@ class ConfirmAddress
         return [
             'name'   => 'confirm_address',
             'fields' => [
-                'code'          => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'good random code'],
-                'user_id'       => ['type' => 'int', 'default' => 0, 'description' => 'user who requested confirmation'],
-                'address'       => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'address (email, xmpp, SMS, etc.)'],
-                'address_extra' => ['type' => 'varchar', 'length' => 191, 'description' => 'carrier ID, for SMS'],
-                'address_type'  => ['type' => 'varchar', 'length' => 8, 'not null' => true, 'description' => 'address type ("email", "xmpp", "sms")'],
+                'code'          => ['type' => 'varchar',  'length' => 32, 'not null' => true, 'description' => 'good random code'],
+                'user_id'       => ['type' => 'int',      'default' => 0, 'description' => 'user who requested confirmation'],
+                'address'       => ['type' => 'varchar',  'length' => 191, 'not null' => true, 'description' => 'address (email, xmpp, SMS, etc.)'],
+                'address_extra' => ['type' => 'varchar',  'length' => 191, 'description' => 'carrier ID, for SMS'],
+                'address_type'  => ['type' => 'varchar',  'length' => 8, 'not null' => true, 'description' => 'address type ("email", "xmpp", "sms")'],
                 'claimed'       => ['type' => 'datetime', 'description' => 'date this was claimed for queueing'],
                 'sent'          => ['type' => 'datetime', 'description' => 'date this was sent for queueing'],
-                'modified'      => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['code'],
             'foreign keys' => [

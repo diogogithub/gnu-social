@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for user remember me
+ * Entity for relating a file to a post
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,34 +35,34 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class RememberMe
+class FileToActivity
 {
     // {{{ Autocode
 
-    private string $code;
-    private int $user_id;
+    private int $file_id;
+    private int $post_id;
     private DateTimeInterface $modified;
 
-    public function setCode(string $code): self
+    public function setFileId(int $file_id): self
     {
-        $this->code = $code;
+        $this->file_id = $file_id;
         return $this;
     }
 
-    public function getCode(): string
+    public function getFileId(): int
     {
-        return $this->code;
+        return $this->file_id;
     }
 
-    public function setUserId(int $user_id): self
+    public function setPostId(int $post_id): self
     {
-        $this->user_id = $user_id;
+        $this->post_id = $post_id;
         return $this;
     }
 
-    public function getUserId(): int
+    public function getPostId(): int
     {
-        return $this->user_id;
+        return $this->post_id;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -81,15 +81,20 @@ class RememberMe
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'remember_me',
+            'name'   => 'file_to_activity',
             'fields' => [
-                'code'     => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'good random code'],
-                'user_id'  => ['type' => 'int', 'not null' => true, 'description' => 'user who is logged in'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'file_id'     => ['type' => 'int', 'not null' => true,       'description' => 'id of file'],
+                'activity_id' => ['type' => 'int', 'not null' => true,       'description' => 'id of the activity it belongs to'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['code'],
+            'primary key'  => ['file_id', 'activity_id'],
             'foreign keys' => [
-                'remember_me_user_id_fkey' => ['user', ['user_id' => 'id']],
+                'file_to_activity_file_id_fkey'     => ['file', ['file_id' => 'id']],
+                'file_to_activity_activity_id_fkey' => ['notice', ['activity_id' => 'id']],
+            ],
+            'indexes' => [
+                'file_id_idx'     => ['file_id'],
+                'activity_id_idx' => ['activity_id'],
             ],
         ];
     }
