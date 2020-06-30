@@ -60,7 +60,7 @@ class PublicNoticeStream extends ModeratedNoticeStream
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-class RawPublicNoticeStream extends FullNoticeStream
+class RawPublicNoticeStream extends NoticeStream
 {
     public function getNoticeIds($offset, $limit, $since_id, $max_id)
     {
