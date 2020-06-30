@@ -111,7 +111,7 @@ class SmsCarrier
                 'name'          => ['type' => 'varchar', 'length' => 64, 'description' => 'name of the carrier'],
                 'email_pattern' => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'sprintf pattern for making an email address from a phone number'],
                 'created'       => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'      => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'unique keys' => [

@@ -35,7 +35,7 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class UserGroup
+class Group
 {
     // {{{ Autocode
 
@@ -249,41 +249,38 @@ class UserGroup
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'user_group',
+            'name'   => 'group',
             'fields' => [
-                'id'         => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
-                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'],
-
-                'nickname'    => ['type' => 'varchar', 'length' => 64, 'description' => 'nickname for addressing'],
-                'fullname'    => ['type' => 'varchar', 'length' => 191, 'description' => 'display name'],
-                'homepage'    => ['type' => 'varchar', 'length' => 191, 'description' => 'URL, cached so we dont regenerate'],
-                'description' => ['type' => 'text', 'description' => 'group description'],
-                'location'    => ['type' => 'varchar', 'length' => 191, 'description' => 'related physical location, if any'],
-
-                'original_logo' => ['type' => 'varchar', 'length' => 191, 'description' => 'original size logo'],
-                'homepage_logo' => ['type' => 'varchar', 'length' => 191, 'description' => 'homepage (profile) size logo'],
-                'stream_logo'   => ['type' => 'varchar', 'length' => 191, 'description' => 'stream-sized logo'],
-                'mini_logo'     => ['type' => 'varchar', 'length' => 191, 'description' => 'mini logo'],
-
-                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
-
-                'uri'         => ['type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'],
-                'mainpage'    => ['type' => 'varchar', 'length' => 191, 'description' => 'page for group info to link to'],
-                'join_policy' => ['type' => 'int', 'size' => 'tiny', 'description' => '0=open; 1=requires admin approval'],
-                'force_scope' => ['type' => 'int', 'size' => 'tiny', 'description' => '0=never,1=sometimes,-1=always'],
+                'id'            => ['type' => 'serial',   'not null' => true],
+                'profile_id'    => ['type' => 'int',      'not null' => true, 'description' => 'foreign key to profile table'],
+                'nickname'      => ['type' => 'varchar',  'length' => 64, 'description' => 'nickname for addressing'],
+                'fullname'      => ['type' => 'varchar',  'length' => 191, 'description' => 'display name'],
+                'homepage'      => ['type' => 'varchar',  'length' => 191, 'description' => 'URL, cached so we dont regenerate'],
+                'description'   => ['type' => 'text',     'description' => 'group description'],
+                'is_local'      => ['type' => 'bool',     'description' => 'whether this group was created in this instance'],
+                'location'      => ['type' => 'varchar',  'length' => 191, 'description' => 'related physical location, if any'],
+                'original_logo' => ['type' => 'varchar',  'length' => 191, 'description' => 'original size logo'],
+                'homepage_logo' => ['type' => 'varchar',  'length' => 191, 'description' => 'homepage (profile) size logo'],
+                'stream_logo'   => ['type' => 'varchar',  'length' => 191, 'description' => 'stream-sized logo'],
+                'mini_logo'     => ['type' => 'varchar',  'length' => 191, 'description' => 'mini logo'],
+                'created'       => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'uri'           => ['type' => 'varchar',  'length' => 191, 'description' => 'universal identifier'],
+                'mainpage'      => ['type' => 'varchar',  'length' => 191, 'description' => 'page for group info to link to'],
+                'join_policy'   => ['type' => 'int', 'size' => 'tiny', 'description' => '0=open; 1=requires admin approval'],
+                'force_scope'   => ['type' => 'int', 'size' => 'tiny', 'description' => '0=never,1=sometimes,-1=always'],
             ],
             'primary key' => ['id'],
             'unique keys' => [
-                'user_group_uri_key' => ['uri'],
-                // when it's safe and everyone's run upgrade.php                'user_profile_id_key' => array('profile_id'),
+                'user_group_uri_key'  => ['uri'],
+                'user_profile_id_key' => ['profile_id'],
             ],
             'foreign keys' => [
                 'user_group_id_fkey' => ['profile', ['profile_id' => 'id']],
             ],
             'indexes' => [
                 'user_group_nickname_idx'   => ['nickname'],
-                'user_group_profile_id_idx' => ['profile_id'], //make this unique in future
+                'user_group_profile_id_idx' => ['profile_id'],
             ],
         ];
     }

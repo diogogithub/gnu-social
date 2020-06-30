@@ -85,13 +85,13 @@ class ProfileBlock
             'fields' => [
                 'blocker'  => ['type' => 'int', 'not null' => true, 'description' => 'user making the block'],
                 'blocked'  => ['type' => 'int', 'not null' => true, 'description' => 'profile that is blocked'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date of blocking'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date of blocking'],
             ],
+            'primary key'  => ['blocker', 'blocked'],
             'foreign keys' => [
                 'profile_block_blocker_fkey' => ['user', ['blocker' => 'id']],
                 'profile_block_blocked_fkey' => ['profile', ['blocked' => 'id']],
             ],
-            'primary key' => ['blocker', 'blocked'],
         ];
     }
 }

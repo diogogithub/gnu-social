@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for Notice Tag
+ * Entity for Subscription queue
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,34 +35,34 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class NoticeTag
+class FollowQueue
 {
     // {{{ Autocode
 
-    private string $tag;
-    private int $notice_id;
+    private int $subscriber;
+    private int $subscribed;
     private DateTimeInterface $created;
 
-    public function setTag(string $tag): self
+    public function setSubscriber(int $subscriber): self
     {
-        $this->tag = $tag;
+        $this->subscriber = $subscriber;
         return $this;
     }
 
-    public function getTag(): string
+    public function getSubscriber(): int
     {
-        return $this->tag;
+        return $this->subscriber;
     }
 
-    public function setNoticeId(int $notice_id): self
+    public function setSubscribed(int $subscribed): self
     {
-        $this->notice_id = $notice_id;
+        $this->subscribed = $subscribed;
         return $this;
     }
 
-    public function getNoticeId(): int
+    public function getSubscribed(): int
     {
-        return $this->notice_id;
+        return $this->subscribed;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -81,21 +81,21 @@ class NoticeTag
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'notice_tag',
-            'description' => 'Hash tags',
+            'name'        => 'Follow_queue',
+            'description' => 'Holder for Follow requests awaiting moderation.',
             'fields'      => [
-                'tag'       => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'],
-                'notice_id' => ['type' => 'int', 'not null' => true, 'description' => 'notice tagged'],
-                'created'   => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'follower' => ['type' => 'int', 'not null' => true, 'description' => 'remote or local profile making the request'],
+                'followed' => ['type' => 'int', 'not null' => true, 'description' => 'remote or local profile being followed to'],
+                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
             ],
-            'primary key'  => ['tag', 'notice_id'],
+            'primary key' => ['follower', 'followed'],
+            'indexes'     => [
+                'Follow_queue_follower_created_idx' => ['follower', 'created'],
+                'Follow_queue_followed_created_idx' => ['followed', 'created'],
+            ],
             'foreign keys' => [
-                'notice_tag_notice_id_fkey' => ['notice', ['notice_id' => 'id']],
-            ],
-            'indexes' => [
-                'notice_tag_created_idx'               => ['created'],
-                'notice_tag_notice_id_idx'             => ['notice_id'],
-                'notice_tag_tag_created_notice_id_idx' => ['tag', 'created', 'notice_id'],
+                'Follow_queue_follower_fkey' => ['profile', ['follower' => 'id']],
+                'Follow_queue_followed_fkey' => ['profile', ['followed' => 'id']],
             ],
         ];
     }

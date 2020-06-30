@@ -131,21 +131,17 @@ class FileThumbnail
         return [
             'name'   => 'file_thumbnail',
             'fields' => [
-                'file_id'  => ['type' => 'int', 'not null' => true, 'description' => 'thumbnail for what URL/file'],
-                'urlhash'  => ['type' => 'varchar', 'length' => 64, 'description' => 'sha256 of url field if non-empty'],
-                'url'      => ['type' => 'text', 'description' => 'URL of thumbnail'],
-                'filename' => ['type' => 'text', 'description' => 'if stored locally, filename is put here'],
+                'file_id'  => ['type' => 'int', 'not null' => true, 'description' => 'thumbnail for what file'],
                 'width'    => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
                 'height'   => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['file_id', 'width', 'height'],
-            'indexes'     => [
-                'file_thumbnail_file_id_idx' => ['file_id'],
-                'file_thumbnail_urlhash_idx' => ['urlhash'],
-            ],
+            'primary key'  => ['file_id', 'width', 'height'],
             'foreign keys' => [
                 'file_thumbnail_file_id_fkey' => ['file', ['file_id' => 'id']],
+            ],
+            'indexes' => [
+                'file_thumbnail_file_id_idx' => ['file_id'],
             ],
         ];
     }

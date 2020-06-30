@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity that Keeps a list of unavailable status network names
+ * Entity for location namespace
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,22 +35,35 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class UnavailableStatusNetwork
+class LocationService
 {
     // {{{ Autocode
 
-    private string $nickname;
+    private int $id;
+    private ?string $description;
     private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
-    public function setNickname(string $nickname): self
+    public function setId(int $id): self
     {
-        $this->nickname = $nickname;
+        $this->id = $id;
         return $this;
     }
 
-    public function getNickname(): string
+    public function getId(): int
     {
-        return $this->nickname;
+        return $this->id;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -64,21 +77,30 @@ class UnavailableStatusNetwork
         return $this->created;
     }
 
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'unavailable_status_network',
-            'description' => 'An unavailable status network nickname',
-            'fields'      => [
-                'nickname' => ['type' => 'varchar',
-                    'length'          => 64,
-                    'not null'        => true, 'description' => 'nickname not to use', ],
-                'created' => ['type'  => 'datetime',
-                    'not null'        => true, 'default' => '0000-00-00 00:00:00', ],
+            'name'   => 'location_service',
+            'fields' => [
+                'id'          => ['type' => 'int', 'size' => 'tiny', 'not null' => true, 'description' => 'identifier for the location service'],
+                'description' => ['type' => 'varchar', 'length' => 191, 'description' => 'description of the service'],
+                'created'     => ['type' => 'datetime', 'not null' => true,  'default' => '0000-00-00 00:00:00', 'description' => 'date the record was created'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['nickname'],
+            'primary key' => ['id'],
         ];
     }
 }

@@ -105,11 +105,11 @@ class Conversation
         return [
             'name'   => 'conversation',
             'fields' => [
-                'id'       => ['type' => 'serial', 'not null' => true, 'description' => 'Unique identifier, (again) unrelated to notice id since 2016-01-06'],
-                'uri'      => ['type' => 'varchar', 'not null' => true, 'length' => 191, 'description' => 'URI of the conversation'],
-                'url'      => ['type' => 'varchar', 'length' => 191, 'description' => 'Resolvable URL, preferably remote (local can be generated on the fly)'],
+                'id'       => ['type' => 'serial',   'not null' => true, 'description' => 'Unique identifier, (again) unrelated to notice id since 2016-01-06'],
+                'uri'      => ['type' => 'varchar',  'not null' => true, 'length' => 191, 'description' => 'URI of the conversation'],
+                'url'      => ['type' => 'varchar',  'length' => 191,  'description' => 'Resolvable URL, preferably remote (local can be generated on the fly)'],
                 'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'unique keys' => [

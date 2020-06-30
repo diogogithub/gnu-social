@@ -110,7 +110,7 @@ class QueueItem
                 'id'        => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
                 'frame'     => ['type' => 'blob', 'not null' => true, 'description' => 'data: object reference or opaque string'],
                 'transport' => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'queue for what? "email", "xmpp", "sms", "irc", ...'],
-                'created'   => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'created'   => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'claimed'   => ['type' => 'datetime', 'description' => 'date this item was claimed'],
             ],
             'primary key' => ['id'],

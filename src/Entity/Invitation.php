@@ -117,7 +117,7 @@ class Invitation
     public static function schemaDef(): array
     {
         return [
-            'name' => 'invitation',
+            'name'   => 'invitation',
             'fields' => [
                 'code'               => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'random code for an invitation'],
                 'user_id'            => ['type' => 'int', 'not null' => true, 'description' => 'who sent the invitation'],

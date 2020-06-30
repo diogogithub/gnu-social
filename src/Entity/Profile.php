@@ -204,19 +204,18 @@ class Profile
             'name'        => 'profile',
             'description' => 'local and remote users have profiles',
             'fields'      => [
-                'id'          => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
-                'nickname'    => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username', 'collate' => 'utf8mb4_general_ci'],
-                'fullname'    => ['type' => 'text', 'description' => 'display name', 'collate' => 'utf8mb4_general_ci'],
-                'profileurl'  => ['type' => 'text', 'description' => 'URL, cached so we dont regenerate'],
-                'homepage'    => ['type' => 'text', 'description' => 'identifying URL', 'collate' => 'utf8mb4_general_ci'],
-                'bio'         => ['type' => 'text', 'description' => 'descriptive biography', 'collate' => 'utf8mb4_general_ci'],
-                'location'    => ['type' => 'text', 'description' => 'physical location', 'collate' => 'utf8mb4_general_ci'],
-                'lat'         => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
-                'lon'         => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
-                'location_id' => ['type' => 'int', 'description' => 'location id if possible'],
-                'location_ns' => ['type' => 'int', 'description' => 'namespace for location'],
-                'created'     => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'    => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'               => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
+                'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
+                'fullname'         => ['type' => 'text', 'description' => 'display name'],
+                'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
+                'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
+                'location'         => ['type' => 'text', 'description' => 'physical location'],
+                'lat'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
+                'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
+                'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
+                'location_service' => ['type' => 'int', 'description' => 'service used to obtain location id'],
+                'created'          => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'modified'         => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'indexes'     => [
@@ -224,10 +223,9 @@ class Profile
             ],
         ];
 
-        // TODO
-        // if (common_config('search', 'type') == 'fulltext') {
-        //     $def['fulltext indexes'] = ['nickname' => ['nickname', 'fullname', 'location', 'bio', 'homepage']];
-        // }
+        if (common_config('search', 'type') == 'fulltext') {
+            $def['fulltext indexes'] = ['nickname' => ['nickname', 'fullname', 'location', 'bio', 'homepage']];
+        }
 
         return $def;
     }
