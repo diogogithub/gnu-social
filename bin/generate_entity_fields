@@ -9,24 +9,26 @@ define('ROOT', dirname(__DIR__));
 require ROOT . '/vendor/autoload.php';
 
 const types = [
-    'blob'     => '',
-    'bool'     => 'bool',
-    'char'     => 'string',
-    'datetime' => '\DateTimeInterface',
-    'html'     => 'string',
-    'int'      => 'int',
-    'numeric'  => 'float',
-    'serial'   => 'int',
-    'text'     => 'string',
-    'varchar'  => 'string',
+    'blob'      => '',
+    'bool'      => 'bool',
+    'char'      => 'string',
+    'datetime'  => '\DateTimeInterface',
+    'timestamp' => '\DateTimeInterface',
+    'html'      => 'string',
+    'int'       => 'int',
+    'numeric'   => 'float',
+    'serial'    => 'int',
+    'text'      => 'string',
+    'varchar'   => 'string',
 ];
 
-$path = Yaml::parseFile(ROOT . '/config/services.yaml')['services']['app.util.schemadef_driver']['arguments'][0];
+$path = Yaml::parseFile(ROOT . '/config/services.yaml')['services']['app.core.schemadef_driver']['arguments'][0];
 $path = str_replace('%kernel.project_dir%', ROOT, $path);
 
 $files = glob($path . '/*.php');
 
 foreach ($files as $file) {
+
     require_once $file;
 
     $declared = get_declared_classes();
@@ -45,7 +47,7 @@ foreach ($files as $file) {
         $fields_code[]  = "    private {$type} \${$field};";
         $methods_code[] = "    public function set{$method_name}({$type} \${$field}): self " .
                         "{ \$this->{$field} = \${$field}; return \$this; }" . "\n" .
-                        "    public function get{$method_name}()" . ($type !== '' ? ': ' . $type : '') .
+                        "    public function get{$method_name}()" . ($type !== '' ? ": {$type} " : ' ') .
                         "{ return \$this->{$field}; }" . "\n";
     }
 
