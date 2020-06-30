@@ -41,14 +41,13 @@ class GroupJoinQueue
 
     private int $profile_id;
     private int $group_id;
-    private DateTimeInterface $created;
+    private \DateTimeInterface $created;
 
     public function setProfileId(int $profile_id): self
     {
         $this->profile_id = $profile_id;
         return $this;
     }
-
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -59,7 +58,6 @@ class GroupJoinQueue
         $this->group_id = $group_id;
         return $this;
     }
-
     public function getGroupId(): int
     {
         return $this->group_id;
@@ -70,7 +68,6 @@ class GroupJoinQueue
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

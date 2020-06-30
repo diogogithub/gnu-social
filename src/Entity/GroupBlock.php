@@ -40,41 +40,38 @@ class GroupBlock
     // {{{ Autocode
 
     private int $group_id;
-    private int $blocked;
-    private int $blocker;
-    private DateTimeInterface $modified;
+    private int $blocked_profile;
+    private int $blocker_user;
+    private \DateTimeInterface $modified;
 
     public function setGroupId(int $group_id): self
     {
         $this->group_id = $group_id;
         return $this;
     }
-
     public function getGroupId(): int
     {
         return $this->group_id;
     }
 
-    public function setBlocked(int $blocked): self
+    public function setBlockedProfile(int $blocked_profile): self
     {
-        $this->blocked = $blocked;
+        $this->blocked_profile = $blocked_profile;
         return $this;
     }
-
-    public function getBlocked(): int
+    public function getBlockedProfile(): int
     {
-        return $this->blocked;
+        return $this->blocked_profile;
     }
 
-    public function setBlocker(int $blocker): self
+    public function setBlockerUser(int $blocker_user): self
     {
-        $this->blocker = $blocker;
+        $this->blocker_user = $blocker_user;
         return $this;
     }
-
-    public function getBlocker(): int
+    public function getBlockerUser(): int
     {
-        return $this->blocker;
+        return $this->blocker_user;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -82,7 +79,6 @@ class GroupBlock
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

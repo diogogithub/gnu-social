@@ -40,55 +40,18 @@ class FileThumbnail
     // {{{ Autocode
 
     private int $file_id;
-    private ?string $urlhash;
-    private ?string $url;
-    private ?string $filename;
     private int $width;
     private int $height;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setFileId(int $file_id): self
     {
         $this->file_id = $file_id;
         return $this;
     }
-
     public function getFileId(): int
     {
         return $this->file_id;
-    }
-
-    public function setUrlhash(?string $urlhash): self
-    {
-        $this->urlhash = $urlhash;
-        return $this;
-    }
-
-    public function getUrlhash(): ?string
-    {
-        return $this->urlhash;
-    }
-
-    public function setUrl(?string $url): self
-    {
-        $this->url = $url;
-        return $this;
-    }
-
-    public function getUrl(): ?string
-    {
-        return $this->url;
-    }
-
-    public function setFilename(?string $filename): self
-    {
-        $this->filename = $filename;
-        return $this;
-    }
-
-    public function getFilename(): ?string
-    {
-        return $this->filename;
     }
 
     public function setWidth(int $width): self
@@ -96,7 +59,6 @@ class FileThumbnail
         $this->width = $width;
         return $this;
     }
-
     public function getWidth(): int
     {
         return $this->width;
@@ -107,7 +69,6 @@ class FileThumbnail
         $this->height = $height;
         return $this;
     }
-
     public function getHeight(): int
     {
         return $this->height;
@@ -118,7 +79,6 @@ class FileThumbnail
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

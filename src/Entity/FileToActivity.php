@@ -40,29 +40,27 @@ class FileToActivity
     // {{{ Autocode
 
     private int $file_id;
-    private int $post_id;
-    private DateTimeInterface $modified;
+    private int $activity_id;
+    private \DateTimeInterface $modified;
 
     public function setFileId(int $file_id): self
     {
         $this->file_id = $file_id;
         return $this;
     }
-
     public function getFileId(): int
     {
         return $this->file_id;
     }
 
-    public function setPostId(int $post_id): self
+    public function setActivityId(int $activity_id): self
     {
-        $this->post_id = $post_id;
+        $this->activity_id = $activity_id;
         return $this;
     }
-
-    public function getPostId(): int
+    public function getActivityId(): int
     {
-        return $this->post_id;
+        return $this->activity_id;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -70,7 +68,6 @@ class FileToActivity
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

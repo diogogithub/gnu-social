@@ -43,15 +43,14 @@ class ProfilePrefs
     private string $namespace;
     private string $topic;
     private $data;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setProfileId(int $profile_id): self
     {
         $this->profile_id = $profile_id;
         return $this;
     }
-
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -62,7 +61,6 @@ class ProfilePrefs
         $this->namespace = $namespace;
         return $this;
     }
-
     public function getNamespace(): string
     {
         return $this->namespace;
@@ -73,7 +71,6 @@ class ProfilePrefs
         $this->topic = $topic;
         return $this;
     }
-
     public function getTopic(): string
     {
         return $this->topic;
@@ -84,7 +81,6 @@ class ProfilePrefs
         $this->data = $data;
         return $this;
     }
-
     public function getData()
     {
         return $this->data;
@@ -95,7 +91,6 @@ class ProfilePrefs
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -106,7 +101,6 @@ class ProfilePrefs
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

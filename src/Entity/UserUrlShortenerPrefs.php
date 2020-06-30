@@ -40,54 +40,50 @@ class UserUrlShortenerPrefs
     // {{{ Autocode
 
     private int $user_id;
-    private ?string $urlshorteningservice;
-    private int $maxurllength;
-    private int $maxnoticelength;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private ?string $url_shortening_service;
+    private int $max_url_length;
+    private int $max_notice_length;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setUserId(int $user_id): self
     {
         $this->user_id = $user_id;
         return $this;
     }
-
     public function getUserId(): int
     {
         return $this->user_id;
     }
 
-    public function setUrlshorteningservice(?string $urlshorteningservice): self
+    public function setUrlShorteningService(?string $url_shortening_service): self
     {
-        $this->urlshorteningservice = $urlshorteningservice;
+        $this->url_shortening_service = $url_shortening_service;
         return $this;
     }
-
-    public function getUrlshorteningservice(): ?string
+    public function getUrlShorteningService(): ?string
     {
-        return $this->urlshorteningservice;
+        return $this->url_shortening_service;
     }
 
-    public function setMaxurllength(int $maxurllength): self
+    public function setMaxUrlLength(int $max_url_length): self
     {
-        $this->maxurllength = $maxurllength;
+        $this->max_url_length = $max_url_length;
         return $this;
     }
-
-    public function getMaxurllength(): int
+    public function getMaxUrlLength(): int
     {
-        return $this->maxurllength;
+        return $this->max_url_length;
     }
 
-    public function setMaxnoticelength(int $maxnoticelength): self
+    public function setMaxNoticeLength(int $max_notice_length): self
     {
-        $this->maxnoticelength = $maxnoticelength;
+        $this->max_notice_length = $max_notice_length;
         return $this;
     }
-
-    public function getMaxnoticelength(): int
+    public function getMaxNoticeLength(): int
     {
-        return $this->maxnoticelength;
+        return $this->max_notice_length;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -95,7 +91,6 @@ class UserUrlShortenerPrefs
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -106,7 +101,6 @@ class UserUrlShortenerPrefs
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

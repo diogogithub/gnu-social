@@ -41,14 +41,13 @@ class ProfileBlock
 
     private int $blocker;
     private int $blocked;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setBlocker(int $blocker): self
     {
         $this->blocker = $blocker;
         return $this;
     }
-
     public function getBlocker(): int
     {
         return $this->blocker;
@@ -59,7 +58,6 @@ class ProfileBlock
         $this->blocked = $blocked;
         return $this;
     }
-
     public function getBlocked(): int
     {
         return $this->blocked;
@@ -70,7 +68,6 @@ class ProfileBlock
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

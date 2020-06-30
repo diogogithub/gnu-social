@@ -40,34 +40,31 @@ class Avatar
     // {{{ Autocode
 
     private int $profile_id;
-    private ?bool $original;
+    private ?bool $is_original;
     private int $width;
     private int $height;
     private string $mediatype;
-    private ?string $filename;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setProfileId(int $profile_id): self
     {
         $this->profile_id = $profile_id;
         return $this;
     }
-
     public function getProfileId(): int
     {
         return $this->profile_id;
     }
 
-    public function setOriginal(?bool $original): self
+    public function setIsOriginal(?bool $is_original): self
     {
-        $this->original = $original;
+        $this->is_original = $is_original;
         return $this;
     }
-
-    public function getOriginal(): ?bool
+    public function getIsOriginal(): ?bool
     {
-        return $this->original;
+        return $this->is_original;
     }
 
     public function setWidth(int $width): self
@@ -75,7 +72,6 @@ class Avatar
         $this->width = $width;
         return $this;
     }
-
     public function getWidth(): int
     {
         return $this->width;
@@ -86,7 +82,6 @@ class Avatar
         $this->height = $height;
         return $this;
     }
-
     public function getHeight(): int
     {
         return $this->height;
@@ -97,21 +92,9 @@ class Avatar
         $this->mediatype = $mediatype;
         return $this;
     }
-
     public function getMediatype(): string
     {
         return $this->mediatype;
-    }
-
-    public function setFilename(?string $filename): self
-    {
-        $this->filename = $filename;
-        return $this;
-    }
-
-    public function getFilename(): ?string
-    {
-        return $this->filename;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -119,7 +102,6 @@ class Avatar
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -130,7 +112,6 @@ class Avatar
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
