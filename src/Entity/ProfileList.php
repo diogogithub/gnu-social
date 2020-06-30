@@ -44,19 +44,18 @@ class ProfileList
     private string $tag;
     private ?string $description;
     private ?bool $private;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
     private ?string $uri;
     private ?string $mainpage;
     private ?int $tagged_count;
-    private ?int $subscriber_count;
+    private ?int $follower_count;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
         $this->id = $id;
         return $this;
     }
-
     public function getId(): int
     {
         return $this->id;
@@ -67,7 +66,6 @@ class ProfileList
         $this->tagger = $tagger;
         return $this;
     }
-
     public function getTagger(): int
     {
         return $this->tagger;
@@ -78,7 +76,6 @@ class ProfileList
         $this->tag = $tag;
         return $this;
     }
-
     public function getTag(): string
     {
         return $this->tag;
@@ -89,7 +86,6 @@ class ProfileList
         $this->description = $description;
         return $this;
     }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -100,32 +96,9 @@ class ProfileList
         $this->private = $private;
         return $this;
     }
-
     public function getPrivate(): ?bool
     {
         return $this->private;
-    }
-
-    public function setCreated(DateTimeInterface $created): self
-    {
-        $this->created = $created;
-        return $this;
-    }
-
-    public function getCreated(): DateTimeInterface
-    {
-        return $this->created;
-    }
-
-    public function setModified(DateTimeInterface $modified): self
-    {
-        $this->modified = $modified;
-        return $this;
-    }
-
-    public function getModified(): DateTimeInterface
-    {
-        return $this->modified;
     }
 
     public function setUri(?string $uri): self
@@ -133,7 +106,6 @@ class ProfileList
         $this->uri = $uri;
         return $this;
     }
-
     public function getUri(): ?string
     {
         return $this->uri;
@@ -144,7 +116,6 @@ class ProfileList
         $this->mainpage = $mainpage;
         return $this;
     }
-
     public function getMainpage(): ?string
     {
         return $this->mainpage;
@@ -155,21 +126,39 @@ class ProfileList
         $this->tagged_count = $tagged_count;
         return $this;
     }
-
     public function getTaggedCount(): ?int
     {
         return $this->tagged_count;
     }
 
-    public function setSubscriberCount(?int $subscriber_count): self
+    public function setFollowerCount(?int $follower_count): self
     {
-        $this->subscriber_count = $subscriber_count;
+        $this->follower_count = $follower_count;
         return $this;
     }
-
-    public function getSubscriberCount(): ?int
+    public function getFollowerCount(): ?int
     {
-        return $this->subscriber_count;
+        return $this->follower_count;
+    }
+
+    public function setCreated(DateTimeInterface $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTimeInterface
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
     }
 
     // }}} Autocode

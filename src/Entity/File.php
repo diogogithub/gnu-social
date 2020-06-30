@@ -40,39 +40,27 @@ class File
     // {{{ Autocode
 
     private int $id;
-    private string $urlhash;
     private ?string $url;
-    private ?string $filehash;
+    private ?bool $is_url_protected;
+    private string $url_hash;
+    private ?string $file_hash;
     private ?string $mimetype;
     private ?int $size;
     private ?string $title;
-    private ?int $date;
-    private ?int $protected;
-    private ?string $filename;
+    private ?int $timestamp;
+    private ?bool $is_local;
     private ?int $width;
     private ?int $height;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
         $this->id = $id;
         return $this;
     }
-
     public function getId(): int
     {
         return $this->id;
-    }
-
-    public function setUrlhash(string $urlhash): self
-    {
-        $this->urlhash = $urlhash;
-        return $this;
-    }
-
-    public function getUrlhash(): string
-    {
-        return $this->urlhash;
     }
 
     public function setUrl(?string $url): self
@@ -80,21 +68,39 @@ class File
         $this->url = $url;
         return $this;
     }
-
     public function getUrl(): ?string
     {
         return $this->url;
     }
 
-    public function setFilehash(?string $filehash): self
+    public function setIsUrlProtected(?bool $is_url_protected): self
     {
-        $this->filehash = $filehash;
+        $this->is_url_protected = $is_url_protected;
         return $this;
     }
-
-    public function getFilehash(): ?string
+    public function getIsUrlProtected(): ?bool
     {
-        return $this->filehash;
+        return $this->is_url_protected;
+    }
+
+    public function setUrlHash(string $url_hash): self
+    {
+        $this->url_hash = $url_hash;
+        return $this;
+    }
+    public function getUrlHash(): string
+    {
+        return $this->url_hash;
+    }
+
+    public function setFileHash(?string $file_hash): self
+    {
+        $this->file_hash = $file_hash;
+        return $this;
+    }
+    public function getFileHash(): ?string
+    {
+        return $this->file_hash;
     }
 
     public function setMimetype(?string $mimetype): self
@@ -102,7 +108,6 @@ class File
         $this->mimetype = $mimetype;
         return $this;
     }
-
     public function getMimetype(): ?string
     {
         return $this->mimetype;
@@ -113,7 +118,6 @@ class File
         $this->size = $size;
         return $this;
     }
-
     public function getSize(): ?int
     {
         return $this->size;
@@ -124,43 +128,29 @@ class File
         $this->title = $title;
         return $this;
     }
-
     public function getTitle(): ?string
     {
         return $this->title;
     }
 
-    public function setDate(?int $date): self
+    public function setTimestamp(?int $timestamp): self
     {
-        $this->date = $date;
+        $this->timestamp = $timestamp;
         return $this;
     }
-
-    public function getDate(): ?int
+    public function getTimestamp(): ?int
     {
-        return $this->date;
+        return $this->timestamp;
     }
 
-    public function setProtected(?int $protected): self
+    public function setIsLocal(?bool $is_local): self
     {
-        $this->protected = $protected;
+        $this->is_local = $is_local;
         return $this;
     }
-
-    public function getProtected(): ?int
+    public function getIsLocal(): ?bool
     {
-        return $this->protected;
-    }
-
-    public function setFilename(?string $filename): self
-    {
-        $this->filename = $filename;
-        return $this;
-    }
-
-    public function getFilename(): ?string
-    {
-        return $this->filename;
+        return $this->is_local;
     }
 
     public function setWidth(?int $width): self
@@ -168,7 +158,6 @@ class File
         $this->width = $width;
         return $this;
     }
-
     public function getWidth(): ?int
     {
         return $this->width;
@@ -179,7 +168,6 @@ class File
         $this->height = $height;
         return $this;
     }
-
     public function getHeight(): ?int
     {
         return $this->height;
@@ -190,7 +178,6 @@ class File
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

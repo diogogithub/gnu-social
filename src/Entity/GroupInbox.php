@@ -40,29 +40,27 @@ class GroupInbox
     // {{{ Autocode
 
     private int $group_id;
-    private int $notice_id;
-    private DateTimeInterface $created;
+    private int $activity_id;
+    private \DateTimeInterface $created;
 
     public function setGroupId(int $group_id): self
     {
         $this->group_id = $group_id;
         return $this;
     }
-
     public function getGroupId(): int
     {
         return $this->group_id;
     }
 
-    public function setNoticeId(int $notice_id): self
+    public function setActivityId(int $activity_id): self
     {
-        $this->notice_id = $notice_id;
+        $this->activity_id = $activity_id;
         return $this;
     }
-
-    public function getNoticeId(): int
+    public function getActivityId(): int
     {
-        return $this->notice_id;
+        return $this->activity_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -70,7 +68,6 @@ class GroupInbox
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

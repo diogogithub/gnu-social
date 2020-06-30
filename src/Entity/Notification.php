@@ -42,15 +42,14 @@ class Notification
     private int $notice_id;
     private int $profile_id;
     private ?string $reason;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setNoticeId(int $notice_id): self
     {
         $this->notice_id = $notice_id;
         return $this;
     }
-
     public function getNoticeId(): int
     {
         return $this->notice_id;
@@ -61,7 +60,6 @@ class Notification
         $this->profile_id = $profile_id;
         return $this;
     }
-
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -72,7 +70,6 @@ class Notification
         $this->reason = $reason;
         return $this;
     }
-
     public function getReason(): ?string
     {
         return $this->reason;
@@ -83,7 +80,6 @@ class Notification
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -94,7 +90,6 @@ class Notification
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

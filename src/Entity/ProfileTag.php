@@ -42,14 +42,13 @@ class ProfileTag
     private int $tagger;
     private int $tagged;
     private string $tag;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setTagger(int $tagger): self
     {
         $this->tagger = $tagger;
         return $this;
     }
-
     public function getTagger(): int
     {
         return $this->tagger;
@@ -60,7 +59,6 @@ class ProfileTag
         $this->tagged = $tagged;
         return $this;
     }
-
     public function getTagged(): int
     {
         return $this->tagged;
@@ -71,7 +69,6 @@ class ProfileTag
         $this->tag = $tag;
         return $this;
     }
-
     public function getTag(): string
     {
         return $this->tag;
@@ -82,7 +79,6 @@ class ProfileTag
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

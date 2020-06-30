@@ -41,14 +41,13 @@ class RelatedGroup
 
     private int $group_id;
     private int $related_group_id;
-    private DateTimeInterface $created;
+    private \DateTimeInterface $created;
 
     public function setGroupId(int $group_id): self
     {
         $this->group_id = $group_id;
         return $this;
     }
-
     public function getGroupId(): int
     {
         return $this->group_id;
@@ -59,7 +58,6 @@ class RelatedGroup
         $this->related_group_id = $related_group_id;
         return $this;
     }
-
     public function getRelatedGroupId(): int
     {
         return $this->related_group_id;
@@ -70,7 +68,6 @@ class RelatedGroup
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

@@ -40,80 +40,30 @@ class Follow
     // {{{ Autocode
 >>>>>>> e63aa4d971 ([TOOLS] Change autocode tag to allow editor folding)
 
-    private int $subscriber;
-    private int $subscribed;
-    private ?bool $jabber;
-    private ?bool $sms;
-    private ?string $token;
-    private ?string $secret;
+    private int $follower;
+    private int $followed;
     private ?string $uri;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
-    public function setSubscriber(int $subscriber): self
+    public function setFollower(int $follower): self
     {
-        $this->subscriber = $subscriber;
+        $this->follower = $follower;
         return $this;
     }
-
-    public function getSubscriber(): int
+    public function getFollower(): int
     {
-        return $this->subscriber;
+        return $this->follower;
     }
 
-    public function setSubscribed(int $subscribed): self
+    public function setFollowed(int $followed): self
     {
-        $this->subscribed = $subscribed;
+        $this->followed = $followed;
         return $this;
     }
-
-    public function getSubscribed(): int
+    public function getFollowed(): int
     {
-        return $this->subscribed;
-    }
-
-    public function setJabber(?bool $jabber): self
-    {
-        $this->jabber = $jabber;
-        return $this;
-    }
-
-    public function getJabber(): ?bool
-    {
-        return $this->jabber;
-    }
-
-    public function setSms(?bool $sms): self
-    {
-        $this->sms = $sms;
-        return $this;
-    }
-
-    public function getSms(): ?bool
-    {
-        return $this->sms;
-    }
-
-    public function setToken(?string $token): self
-    {
-        $this->token = $token;
-        return $this;
-    }
-
-    public function getToken(): ?string
-    {
-        return $this->token;
-    }
-
-    public function setSecret(?string $secret): self
-    {
-        $this->secret = $secret;
-        return $this;
-    }
-
-    public function getSecret(): ?string
-    {
-        return $this->secret;
+        return $this->followed;
     }
 
     public function setUri(?string $uri): self
@@ -121,7 +71,6 @@ class Follow
         $this->uri = $uri;
         return $this;
     }
-
     public function getUri(): ?string
     {
         return $this->uri;
@@ -132,7 +81,6 @@ class Follow
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -143,7 +91,6 @@ class Follow
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

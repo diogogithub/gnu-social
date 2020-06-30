@@ -42,15 +42,14 @@ class SmsCarrier
     private int $id;
     private ?string $name;
     private string $email_pattern;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
         $this->id = $id;
         return $this;
     }
-
     public function getId(): int
     {
         return $this->id;
@@ -61,7 +60,6 @@ class SmsCarrier
         $this->name = $name;
         return $this;
     }
-
     public function getName(): ?string
     {
         return $this->name;
@@ -72,7 +70,6 @@ class SmsCarrier
         $this->email_pattern = $email_pattern;
         return $this;
     }
-
     public function getEmailPattern(): string
     {
         return $this->email_pattern;
@@ -83,7 +80,6 @@ class SmsCarrier
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -94,7 +90,6 @@ class SmsCarrier
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

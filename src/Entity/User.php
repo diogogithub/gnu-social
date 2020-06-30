@@ -42,35 +42,25 @@ class User
     private int $id;
     private ?string $nickname;
     private ?string $password;
-    private ?string $email;
-    private ?string $incomingemail;
-    private ?bool $emailnotifysub;
-    private ?int $emailnotifyfav;
-    private ?bool $emailnotifynudge;
-    private ?bool $emailnotifymsg;
-    private ?bool $emailnotifyattn;
+    private ?string $outgoing_email;
+    private ?string $incoming_email;
     private ?string $language;
     private ?string $timezone;
-    private ?bool $emailpost;
-    private ?string $sms;
-    private ?int $carrier;
-    private ?bool $smsnotify;
-    private ?bool $smsreplies;
-    private ?string $smsemail;
+    private ?string $sms_phone_number;
+    private ?int $sms_carrier;
+    private ?string $sms_email;
     private ?string $uri;
-    private ?bool $autosubscribe;
-    private ?int $subscribe_policy;
-    private ?string $urlshorteningservice;
-    private ?bool $private_stream;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private ?bool $auto_follow_back;
+    private ?int $follow_policy;
+    private ?bool $is_stream_private;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
         $this->id = $id;
         return $this;
     }
-
     public function getId(): int
     {
         return $this->id;
@@ -81,7 +71,6 @@ class User
         $this->nickname = $nickname;
         return $this;
     }
-
     public function getNickname(): ?string
     {
         return $this->nickname;
@@ -92,87 +81,29 @@ class User
         $this->password = $password;
         return $this;
     }
-
     public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setEmail(?string $email): self
+    public function setOutgoingEmail(?string $outgoing_email): self
     {
-        $this->email = $email;
+        $this->outgoing_email = $outgoing_email;
         return $this;
     }
-
-    public function getEmail(): ?string
+    public function getOutgoingEmail(): ?string
     {
-        return $this->email;
+        return $this->outgoing_email;
     }
 
-    public function setIncomingemail(?string $incomingemail): self
+    public function setIncomingEmail(?string $incoming_email): self
     {
-        $this->incomingemail = $incomingemail;
+        $this->incoming_email = $incoming_email;
         return $this;
     }
-
-    public function getIncomingemail(): ?string
+    public function getIncomingEmail(): ?string
     {
-        return $this->incomingemail;
-    }
-
-    public function setEmailnotifysub(?bool $emailnotifysub): self
-    {
-        $this->emailnotifysub = $emailnotifysub;
-        return $this;
-    }
-
-    public function getEmailnotifysub(): ?bool
-    {
-        return $this->emailnotifysub;
-    }
-
-    public function setEmailnotifyfav(?int $emailnotifyfav): self
-    {
-        $this->emailnotifyfav = $emailnotifyfav;
-        return $this;
-    }
-
-    public function getEmailnotifyfav(): ?int
-    {
-        return $this->emailnotifyfav;
-    }
-
-    public function setEmailnotifynudge(?bool $emailnotifynudge): self
-    {
-        $this->emailnotifynudge = $emailnotifynudge;
-        return $this;
-    }
-
-    public function getEmailnotifynudge(): ?bool
-    {
-        return $this->emailnotifynudge;
-    }
-
-    public function setEmailnotifymsg(?bool $emailnotifymsg): self
-    {
-        $this->emailnotifymsg = $emailnotifymsg;
-        return $this;
-    }
-
-    public function getEmailnotifymsg(): ?bool
-    {
-        return $this->emailnotifymsg;
-    }
-
-    public function setEmailnotifyattn(?bool $emailnotifyattn): self
-    {
-        $this->emailnotifyattn = $emailnotifyattn;
-        return $this;
-    }
-
-    public function getEmailnotifyattn(): ?bool
-    {
-        return $this->emailnotifyattn;
+        return $this->incoming_email;
     }
 
     public function setLanguage(?string $language): self
@@ -180,7 +111,6 @@ class User
         $this->language = $language;
         return $this;
     }
-
     public function getLanguage(): ?string
     {
         return $this->language;
@@ -191,76 +121,39 @@ class User
         $this->timezone = $timezone;
         return $this;
     }
-
     public function getTimezone(): ?string
     {
         return $this->timezone;
     }
 
-    public function setEmailpost(?bool $emailpost): self
+    public function setSmsPhoneNumber(?string $sms_phone_number): self
     {
-        $this->emailpost = $emailpost;
+        $this->sms_phone_number = $sms_phone_number;
         return $this;
     }
-
-    public function getEmailpost(): ?bool
+    public function getSmsPhoneNumber(): ?string
     {
-        return $this->emailpost;
+        return $this->sms_phone_number;
     }
 
-    public function setSms(?string $sms): self
+    public function setSmsCarrier(?int $sms_carrier): self
     {
-        $this->sms = $sms;
+        $this->sms_carrier = $sms_carrier;
         return $this;
     }
-
-    public function getSms(): ?string
+    public function getSmsCarrier(): ?int
     {
-        return $this->sms;
+        return $this->sms_carrier;
     }
 
-    public function setCarrier(?int $carrier): self
+    public function setSmsEmail(?string $sms_email): self
     {
-        $this->carrier = $carrier;
+        $this->sms_email = $sms_email;
         return $this;
     }
-
-    public function getCarrier(): ?int
+    public function getSmsEmail(): ?string
     {
-        return $this->carrier;
-    }
-
-    public function setSmsnotify(?bool $smsnotify): self
-    {
-        $this->smsnotify = $smsnotify;
-        return $this;
-    }
-
-    public function getSmsnotify(): ?bool
-    {
-        return $this->smsnotify;
-    }
-
-    public function setSmsreplies(?bool $smsreplies): self
-    {
-        $this->smsreplies = $smsreplies;
-        return $this;
-    }
-
-    public function getSmsreplies(): ?bool
-    {
-        return $this->smsreplies;
-    }
-
-    public function setSmsemail(?string $smsemail): self
-    {
-        $this->smsemail = $smsemail;
-        return $this;
-    }
-
-    public function getSmsemail(): ?string
-    {
-        return $this->smsemail;
+        return $this->sms_email;
     }
 
     public function setUri(?string $uri): self
@@ -268,54 +161,39 @@ class User
         $this->uri = $uri;
         return $this;
     }
-
     public function getUri(): ?string
     {
         return $this->uri;
     }
 
-    public function setAutosubscribe(?bool $autosubscribe): self
+    public function setAutoFollowBack(?bool $auto_follow_back): self
     {
-        $this->autosubscribe = $autosubscribe;
+        $this->auto_follow_back = $auto_follow_back;
         return $this;
     }
-
-    public function getAutosubscribe(): ?bool
+    public function getAutoFollowBack(): ?bool
     {
-        return $this->autosubscribe;
+        return $this->auto_follow_back;
     }
 
-    public function setSubscribePolicy(?int $subscribe_policy): self
+    public function setFollowPolicy(?int $follow_policy): self
     {
-        $this->subscribe_policy = $subscribe_policy;
+        $this->follow_policy = $follow_policy;
         return $this;
     }
-
-    public function getSubscribePolicy(): ?int
+    public function getFollowPolicy(): ?int
     {
-        return $this->subscribe_policy;
+        return $this->follow_policy;
     }
 
-    public function setUrlshorteningservice(?string $urlshorteningservice): self
+    public function setIsStreamPrivate(?bool $is_stream_private): self
     {
-        $this->urlshorteningservice = $urlshorteningservice;
+        $this->is_stream_private = $is_stream_private;
         return $this;
     }
-
-    public function getUrlshorteningservice(): ?string
+    public function getIsStreamPrivate(): ?bool
     {
-        return $this->urlshorteningservice;
-    }
-
-    public function setPrivateStream(?bool $private_stream): self
-    {
-        $this->private_stream = $private_stream;
-        return $this;
-    }
-
-    public function getPrivateStream(): ?bool
-    {
-        return $this->private_stream;
+        return $this->is_stream_private;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -323,7 +201,6 @@ class User
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -334,7 +211,6 @@ class User
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

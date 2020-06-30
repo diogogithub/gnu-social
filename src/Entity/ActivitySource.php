@@ -42,16 +42,14 @@ class ActivitySource
     private string $code;
     private string $name;
     private string $url;
-    private int $notice_id;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setCode(string $code): self
     {
         $this->code = $code;
         return $this;
     }
-
     public function getCode(): string
     {
         return $this->code;
@@ -62,7 +60,6 @@ class ActivitySource
         $this->name = $name;
         return $this;
     }
-
     public function getName(): string
     {
         return $this->name;
@@ -73,21 +70,9 @@ class ActivitySource
         $this->url = $url;
         return $this;
     }
-
     public function getUrl(): string
     {
         return $this->url;
-    }
-
-    public function setNoticeId(int $notice_id): self
-    {
-        $this->notice_id = $notice_id;
-        return $this;
-    }
-
-    public function getNoticeId(): int
-    {
-        return $this->notice_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -95,7 +80,6 @@ class ActivitySource
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -106,7 +90,6 @@ class ActivitySource
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

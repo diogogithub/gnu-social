@@ -39,22 +39,21 @@ class ActivityLocation
 {
     // {{{ Autocode
 
-    private int $notice_id;
+    private int $activity_id;
     private ?float $lat;
     private ?float $lon;
     private ?int $location_id;
-    private ?int $location_ns;
-    private DateTimeInterface $modified;
+    private ?int $location_service;
+    private \DateTimeInterface $modified;
 
-    public function setNoticeId(int $notice_id): self
+    public function setActivityId(int $activity_id): self
     {
-        $this->notice_id = $notice_id;
+        $this->activity_id = $activity_id;
         return $this;
     }
-
-    public function getNoticeId(): int
+    public function getActivityId(): int
     {
-        return $this->notice_id;
+        return $this->activity_id;
     }
 
     public function setLat(?float $lat): self
@@ -62,7 +61,6 @@ class ActivityLocation
         $this->lat = $lat;
         return $this;
     }
-
     public function getLat(): ?float
     {
         return $this->lat;
@@ -73,7 +71,6 @@ class ActivityLocation
         $this->lon = $lon;
         return $this;
     }
-
     public function getLon(): ?float
     {
         return $this->lon;
@@ -84,21 +81,19 @@ class ActivityLocation
         $this->location_id = $location_id;
         return $this;
     }
-
     public function getLocationId(): ?int
     {
         return $this->location_id;
     }
 
-    public function setLocationNs(?int $location_ns): self
+    public function setLocationService(?int $location_service): self
     {
-        $this->location_ns = $location_ns;
+        $this->location_service = $location_service;
         return $this;
     }
-
-    public function getLocationNs(): ?int
+    public function getLocationService(): ?int
     {
-        return $this->location_ns;
+        return $this->location_service;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -106,7 +101,6 @@ class ActivityLocation
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

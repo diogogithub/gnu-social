@@ -44,16 +44,15 @@ class ConfirmAddress
     private string $address;
     private ?string $address_extra;
     private string $address_type;
-    private ?DateTimeInterface $claimed;
-    private ?DateTimeInterface $sent;
-    private DateTimeInterface $modified;
+    private ?\DateTimeInterface $claimed;
+    private ?\DateTimeInterface $sent;
+    private \DateTimeInterface $modified;
 
     public function setCode(string $code): self
     {
         $this->code = $code;
         return $this;
     }
-
     public function getCode(): string
     {
         return $this->code;
@@ -64,7 +63,6 @@ class ConfirmAddress
         $this->user_id = $user_id;
         return $this;
     }
-
     public function getUserId(): ?int
     {
         return $this->user_id;
@@ -75,7 +73,6 @@ class ConfirmAddress
         $this->address = $address;
         return $this;
     }
-
     public function getAddress(): string
     {
         return $this->address;
@@ -86,7 +83,6 @@ class ConfirmAddress
         $this->address_extra = $address_extra;
         return $this;
     }
-
     public function getAddressExtra(): ?string
     {
         return $this->address_extra;
@@ -97,7 +93,6 @@ class ConfirmAddress
         $this->address_type = $address_type;
         return $this;
     }
-
     public function getAddressType(): string
     {
         return $this->address_type;
@@ -108,7 +103,6 @@ class ConfirmAddress
         $this->claimed = $claimed;
         return $this;
     }
-
     public function getClaimed(): ?DateTimeInterface
     {
         return $this->claimed;
@@ -119,7 +113,6 @@ class ConfirmAddress
         $this->sent = $sent;
         return $this;
     }
-
     public function getSent(): ?DateTimeInterface
     {
         return $this->sent;
@@ -130,7 +123,6 @@ class ConfirmAddress
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

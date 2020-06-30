@@ -42,23 +42,21 @@ class Profile
     private int $id;
     private string $nickname;
     private ?string $fullname;
-    private ?string $profileurl;
     private ?string $homepage;
     private ?string $bio;
     private ?string $location;
     private ?float $lat;
     private ?float $lon;
     private ?int $location_id;
-    private ?int $location_ns;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private ?int $location_service;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
         $this->id = $id;
         return $this;
     }
-
     public function getId(): int
     {
         return $this->id;
@@ -69,7 +67,6 @@ class Profile
         $this->nickname = $nickname;
         return $this;
     }
-
     public function getNickname(): string
     {
         return $this->nickname;
@@ -80,21 +77,9 @@ class Profile
         $this->fullname = $fullname;
         return $this;
     }
-
     public function getFullname(): ?string
     {
         return $this->fullname;
-    }
-
-    public function setProfileurl(?string $profileurl): self
-    {
-        $this->profileurl = $profileurl;
-        return $this;
-    }
-
-    public function getProfileurl(): ?string
-    {
-        return $this->profileurl;
     }
 
     public function setHomepage(?string $homepage): self
@@ -102,7 +87,6 @@ class Profile
         $this->homepage = $homepage;
         return $this;
     }
-
     public function getHomepage(): ?string
     {
         return $this->homepage;
@@ -113,7 +97,6 @@ class Profile
         $this->bio = $bio;
         return $this;
     }
-
     public function getBio(): ?string
     {
         return $this->bio;
@@ -124,7 +107,6 @@ class Profile
         $this->location = $location;
         return $this;
     }
-
     public function getLocation(): ?string
     {
         return $this->location;
@@ -135,7 +117,6 @@ class Profile
         $this->lat = $lat;
         return $this;
     }
-
     public function getLat(): ?float
     {
         return $this->lat;
@@ -146,7 +127,6 @@ class Profile
         $this->lon = $lon;
         return $this;
     }
-
     public function getLon(): ?float
     {
         return $this->lon;
@@ -157,21 +137,19 @@ class Profile
         $this->location_id = $location_id;
         return $this;
     }
-
     public function getLocationId(): ?int
     {
         return $this->location_id;
     }
 
-    public function setLocationNs(?int $location_ns): self
+    public function setLocationService(?int $location_service): self
     {
-        $this->location_ns = $location_ns;
+        $this->location_service = $location_service;
         return $this;
     }
-
-    public function getLocationNs(): ?int
+    public function getLocationService(): ?int
     {
-        return $this->location_ns;
+        return $this->location_service;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -179,7 +157,6 @@ class Profile
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -190,7 +167,6 @@ class Profile
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
@@ -223,7 +199,7 @@ class Profile
             ],
         ];
 
-        if (common_config('search', 'type') == 'fulltext') {
+        if (isset($_ENV['SOCIAL_DB_USE_FULLTEXT_SEARCH'])) {
             $def['fulltext indexes'] = ['nickname' => ['nickname', 'fullname', 'location', 'bio', 'homepage']];
         }
 

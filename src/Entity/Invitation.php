@@ -43,7 +43,7 @@ class Invitation
     private int $user_id;
     private string $address;
     private string $address_type;
-    private DateTimeInterface $created;
+    private \DateTimeInterface $created;
     private ?int $registered_user_id;
 
     public function setCode(string $code): self
@@ -51,7 +51,6 @@ class Invitation
         $this->code = $code;
         return $this;
     }
-
     public function getCode(): string
     {
         return $this->code;
@@ -62,7 +61,6 @@ class Invitation
         $this->user_id = $user_id;
         return $this;
     }
-
     public function getUserId(): int
     {
         return $this->user_id;
@@ -73,7 +71,6 @@ class Invitation
         $this->address = $address;
         return $this;
     }
-
     public function getAddress(): string
     {
         return $this->address;
@@ -84,7 +81,6 @@ class Invitation
         $this->address_type = $address_type;
         return $this;
     }
-
     public function getAddressType(): string
     {
         return $this->address_type;
@@ -95,7 +91,6 @@ class Invitation
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -106,7 +101,6 @@ class Invitation
         $this->registered_user_id = $registered_user_id;
         return $this;
     }
-
     public function getRegisteredUserId(): ?int
     {
         return $this->registered_user_id;

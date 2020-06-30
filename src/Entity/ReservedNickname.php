@@ -40,14 +40,13 @@ class ReservedNickname
     // {{{ Autocode
 
     private string $nickname;
-    private DateTimeInterface $created;
+    private \DateTimeInterface $created;
 
     public function setNickname(string $nickname): self
     {
         $this->nickname = $nickname;
         return $this;
     }
-
     public function getNickname(): string
     {
         return $this->nickname;
@@ -58,7 +57,6 @@ class ReservedNickname
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

@@ -39,30 +39,28 @@ class FollowQueue
 {
     // {{{ Autocode
 
-    private int $subscriber;
-    private int $subscribed;
-    private DateTimeInterface $created;
+    private int $follower;
+    private int $followed;
+    private \DateTimeInterface $created;
 
-    public function setSubscriber(int $subscriber): self
+    public function setFollower(int $follower): self
     {
-        $this->subscriber = $subscriber;
+        $this->follower = $follower;
         return $this;
     }
-
-    public function getSubscriber(): int
+    public function getFollower(): int
     {
-        return $this->subscriber;
+        return $this->follower;
     }
 
-    public function setSubscribed(int $subscribed): self
+    public function setFollowed(int $followed): self
     {
-        $this->subscribed = $subscribed;
+        $this->followed = $followed;
         return $this;
     }
-
-    public function getSubscribed(): int
+    public function getFollowed(): int
     {
-        return $this->subscribed;
+        return $this->followed;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -70,7 +68,6 @@ class FollowQueue
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

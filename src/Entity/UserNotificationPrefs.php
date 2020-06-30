@@ -38,34 +38,38 @@ class UserNotificationPrefs
     // {{{ Autocode
 
     private int $user_id;
-    private string $screenname;
+    private string $service_name;
     private string $transport;
-    private bool $notify;
-    private bool $replies;
-    private bool $updatefrompresence;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private ?int $profile_id;
+    private bool $posts_by_followed;
+    private bool $mention;
+    private bool $follow;
+    private bool $favorite;
+    private bool $nudge;
+    private bool $dm;
+    private bool $post_on_status_change;
+    private ?bool $enable_posting;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setUserId(int $user_id): self
     {
         $this->user_id = $user_id;
         return $this;
     }
-
     public function getUserId(): int
     {
         return $this->user_id;
     }
 
-    public function setScreenname(string $screenname): self
+    public function setServiceName(string $service_name): self
     {
-        $this->screenname = $screenname;
+        $this->service_name = $service_name;
         return $this;
     }
-
-    public function getScreenname(): string
+    public function getServiceName(): string
     {
-        return $this->screenname;
+        return $this->service_name;
     }
 
     public function setTransport(string $transport): self
@@ -73,43 +77,99 @@ class UserNotificationPrefs
         $this->transport = $transport;
         return $this;
     }
-
     public function getTransport(): string
     {
         return $this->transport;
     }
 
-    public function setNotify(bool $notify): self
+    public function setProfileId(?int $profile_id): self
     {
-        $this->notify = $notify;
+        $this->profile_id = $profile_id;
         return $this;
     }
-
-    public function getNotify(): bool
+    public function getProfileId(): ?int
     {
-        return $this->notify;
+        return $this->profile_id;
     }
 
-    public function setReplies(bool $replies): self
+    public function setPostsByFollowed(bool $posts_by_followed): self
     {
-        $this->replies = $replies;
+        $this->posts_by_followed = $posts_by_followed;
         return $this;
     }
-
-    public function getReplies(): bool
+    public function getPostsByFollowed(): bool
     {
-        return $this->replies;
+        return $this->posts_by_followed;
     }
 
-    public function setUpdatefrompresence(bool $updatefrompresence): self
+    public function setMention(bool $mention): self
     {
-        $this->updatefrompresence = $updatefrompresence;
+        $this->mention = $mention;
         return $this;
     }
-
-    public function getUpdatefrompresence(): bool
+    public function getMention(): bool
     {
-        return $this->updatefrompresence;
+        return $this->mention;
+    }
+
+    public function setFollow(bool $follow): self
+    {
+        $this->follow = $follow;
+        return $this;
+    }
+    public function getFollow(): bool
+    {
+        return $this->follow;
+    }
+
+    public function setFavorite(bool $favorite): self
+    {
+        $this->favorite = $favorite;
+        return $this;
+    }
+    public function getFavorite(): bool
+    {
+        return $this->favorite;
+    }
+
+    public function setNudge(bool $nudge): self
+    {
+        $this->nudge = $nudge;
+        return $this;
+    }
+    public function getNudge(): bool
+    {
+        return $this->nudge;
+    }
+
+    public function setDm(bool $dm): self
+    {
+        $this->dm = $dm;
+        return $this;
+    }
+    public function getDm(): bool
+    {
+        return $this->dm;
+    }
+
+    public function setPostOnStatusChange(bool $post_on_status_change): self
+    {
+        $this->post_on_status_change = $post_on_status_change;
+        return $this;
+    }
+    public function getPostOnStatusChange(): bool
+    {
+        return $this->post_on_status_change;
+    }
+
+    public function setEnablePosting(?bool $enable_posting): self
+    {
+        $this->enable_posting = $enable_posting;
+        return $this;
+    }
+    public function getEnablePosting(): ?bool
+    {
+        return $this->enable_posting;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -117,7 +177,6 @@ class UserNotificationPrefs
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -128,7 +187,6 @@ class UserNotificationPrefs
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

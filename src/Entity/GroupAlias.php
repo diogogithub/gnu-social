@@ -41,14 +41,13 @@ class GroupAlias
 
     private string $alias;
     private int $group_id;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setAlias(string $alias): self
     {
         $this->alias = $alias;
         return $this;
     }
-
     public function getAlias(): string
     {
         return $this->alias;
@@ -59,7 +58,6 @@ class GroupAlias
         $this->group_id = $group_id;
         return $this;
     }
-
     public function getGroupId(): int
     {
         return $this->group_id;
@@ -70,7 +68,6 @@ class GroupAlias
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

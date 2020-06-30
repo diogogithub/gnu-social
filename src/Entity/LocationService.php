@@ -41,15 +41,14 @@ class LocationService
 
     private int $id;
     private ?string $description;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
         $this->id = $id;
         return $this;
     }
-
     public function getId(): int
     {
         return $this->id;
@@ -60,7 +59,6 @@ class LocationService
         $this->description = $description;
         return $this;
     }
-
     public function getDescription(): ?string
     {
         return $this->description;
@@ -71,7 +69,6 @@ class LocationService
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -82,7 +79,6 @@ class LocationService
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

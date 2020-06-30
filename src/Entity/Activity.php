@@ -46,24 +46,22 @@ class Activity
     private ?string $uri;
     private ?string $content;
     private ?string $rendered;
-    private ?string $url;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
     private ?int $reply_to;
-    private ?int $is_local;
+    private ?bool $is_local;
     private ?string $source;
     private ?int $conversation;
     private ?int $repeat_of;
     private ?string $object_type;
     private ?string $verb;
     private ?int $scope;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
         $this->id = $id;
         return $this;
     }
-
     public function getId(): int
     {
         return $this->id;
@@ -74,7 +72,6 @@ class Activity
         $this->profile_id = $profile_id;
         return $this;
     }
-
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -85,7 +82,6 @@ class Activity
         $this->uri = $uri;
         return $this;
     }
-
     public function getUri(): ?string
     {
         return $this->uri;
@@ -96,7 +92,6 @@ class Activity
         $this->content = $content;
         return $this;
     }
-
     public function getContent(): ?string
     {
         return $this->content;
@@ -107,43 +102,9 @@ class Activity
         $this->rendered = $rendered;
         return $this;
     }
-
     public function getRendered(): ?string
     {
         return $this->rendered;
-    }
-
-    public function setUrl(?string $url): self
-    {
-        $this->url = $url;
-        return $this;
-    }
-
-    public function getUrl(): ?string
-    {
-        return $this->url;
-    }
-
-    public function setCreated(DateTimeInterface $created): self
-    {
-        $this->created = $created;
-        return $this;
-    }
-
-    public function getCreated(): DateTimeInterface
-    {
-        return $this->created;
-    }
-
-    public function setModified(DateTimeInterface $modified): self
-    {
-        $this->modified = $modified;
-        return $this;
-    }
-
-    public function getModified(): DateTimeInterface
-    {
-        return $this->modified;
     }
 
     public function setReplyTo(?int $reply_to): self
@@ -151,19 +112,17 @@ class Activity
         $this->reply_to = $reply_to;
         return $this;
     }
-
     public function getReplyTo(): ?int
     {
         return $this->reply_to;
     }
 
-    public function setIsLocal(?int $is_local): self
+    public function setIsLocal(?bool $is_local): self
     {
         $this->is_local = $is_local;
         return $this;
     }
-
-    public function getIsLocal(): ?int
+    public function getIsLocal(): ?bool
     {
         return $this->is_local;
     }
@@ -173,7 +132,6 @@ class Activity
         $this->source = $source;
         return $this;
     }
-
     public function getSource(): ?string
     {
         return $this->source;
@@ -184,7 +142,6 @@ class Activity
         $this->conversation = $conversation;
         return $this;
     }
-
     public function getConversation(): ?int
     {
         return $this->conversation;
@@ -195,7 +152,6 @@ class Activity
         $this->repeat_of = $repeat_of;
         return $this;
     }
-
     public function getRepeatOf(): ?int
     {
         return $this->repeat_of;
@@ -206,7 +162,6 @@ class Activity
         $this->object_type = $object_type;
         return $this;
     }
-
     public function getObjectType(): ?string
     {
         return $this->object_type;
@@ -217,7 +172,6 @@ class Activity
         $this->verb = $verb;
         return $this;
     }
-
     public function getVerb(): ?string
     {
         return $this->verb;
@@ -228,10 +182,29 @@ class Activity
         $this->scope = $scope;
         return $this;
     }
-
     public function getScope(): ?int
     {
         return $this->scope;
+    }
+
+    public function setCreated(DateTimeInterface $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTimeInterface
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
     }
 
     // }}} Autocode
@@ -281,7 +254,7 @@ class Activity
             ],
         ];
 
-        if (common_config('search', 'type') == 'fulltext') {
+        if (isset($_ENV['SOCIAL_DB_USE_FULLTEXT_SEARCH'])) {
             $def['fulltext indexes'] = ['content' => ['content']];
         }
 

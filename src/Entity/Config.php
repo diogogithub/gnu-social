@@ -46,7 +46,6 @@ class Config
         $this->section = $section;
         return $this;
     }
-
     public function getSection(): string
     {
         return $this->section;
@@ -57,7 +56,6 @@ class Config
         $this->setting = $setting;
         return $this;
     }
-
     public function getSetting(): string
     {
         return $this->setting;
@@ -68,20 +66,12 @@ class Config
         $this->value = $value;
         return $this;
     }
-
     public function getValue(): ?string
     {
         return $this->value;
     }
 
     // }}} Autocode
-
-    public function __construct($sec, $set, $val)
-    {
-        $this->section = $sec;
-        $this->setting = $set;
-        $this->value   = $val;
-    }
 
     public static function schemaDef(): array
     {
