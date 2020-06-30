@@ -24,6 +24,7 @@
  * @category Controller
  *
  * @author    Hugo Sales <hugo@fc.up.pt>
+ * @author    Eliseu Amaro <eliseu@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -52,27 +53,6 @@ class UserAdminPanel extends AbstractController
             ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
 
         $prof->handleRequest($request);
-        if ($prof->isSubmitted()) {
-            $data = $prof->getData();
-            if ($prof->isValid() && array_key_exists(_m('Setting'), $data)) {
-                list($section, $setting) = explode(':', $data[_m('Setting')]);
-                $value                   = $data[_m('Value')];
-                $default                 = $defaults[$section][$setting];
-                if (gettype($default) === gettype($value)) {
-                    $conf      = DB::find('\App\Entity\Config', ['section' => $section, 'setting' => $setting]);
-                    $old_value = $conf->getValue();
-                    $conf->setValue(serialize($value));
-                    DB::flush();
-                }
-                return $this->render('config/admin.html.twig', [
-                    'prof'      => $prof->createView(),
-                    'old_value' => unserialize($old_value),
-                    'default'   => $default,
-                ]);
-            } else {
-                // Display error
-            }
-        }
 
         return $this->render('settings/profile.html.twig', [
             'prof' => $prof->createView(),
