@@ -91,26 +91,24 @@ class RawInboxNoticeStream extends NoticeStream
         $notice->selectAdd('id');
         // Reply:: is a table of mentions
         // Subscription:: is a table of subscriptions (every user is subscribed to themselves)
-        $notice->_join .= sprintf(
-            "\n" . <<<'END'
+        $notice->_join .= "\n" . <<<'END'
             LEFT JOIN (
-              SELECT notice.id
+              SELECT notice.id, subscription.subscriber AS profile_id
                 FROM notice INNER JOIN subscription
                 ON notice.profile_id = subscription.subscribed
-                WHERE subscription.subscriber = %1$d
               UNION ALL
-              SELECT notice_id AS id FROM reply WHERE profile_id = %1$d
+              SELECT reply.id, notice.profile_id
+                FROM notice AS reply INNER JOIN notice ON reply.reply_to = notice.id
               UNION ALL
-              SELECT notice_id AS id FROM attention WHERE profile_id = %1$d
+              SELECT notice_id, profile_id FROM attention
               UNION ALL
-              SELECT notice_id AS id FROM group_inbox INNER JOIN group_member USING (group_id)
-                WHERE group_member.profile_id = %1$d
+              SELECT group_inbox.notice_id, group_member.profile_id
+                FROM group_inbox INNER JOIN group_member USING (group_id)
             ) AS t1 USING (id)
-            END,
-            $this->target->getID()
-        );
+            END;
 
         $notice->whereAdd('t1.id IS NOT NULL');
+        $notice->whereAdd('t1.profile_id = ' . $this->target->getID());
 
         $notice->whereAdd(sprintf(
             "notice.created > TIMESTAMP '%s'",
