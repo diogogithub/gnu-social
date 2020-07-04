@@ -32,6 +32,9 @@
 namespace App\Controller;
 
 use App\Core\Controller;
+// use App\Core\Event;
+// use App\Util\Common;
+use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -52,6 +55,19 @@ class UserAdminPanel extends Controller
         ]);
 
         $prof->handleRequest($request);
+        if ($prof->isSubmitted()) {
+            $data = $prof->getData();
+            if ($prof->isValid()) {
+                $profile = DB::find('\App\Entity\Profile', ['id' => 2]);
+                foreach (['Nickname', 'FullName', 'Homepage', 'Bio', 'Location'] as $key) {
+                    $method = "set{$key}";
+                    $profile->{$method}($data[_m($key)]);
+                }
+                DB::flush();
+            } else {
+                // Display error
+            }
+        }
 
         return [
             '_template' => 'settings/profile.html.twig',
