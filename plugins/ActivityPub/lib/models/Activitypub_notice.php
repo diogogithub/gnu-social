@@ -123,7 +123,7 @@ class Activitypub_notice
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function create_notice(array $object, Profile $actor_profile = null, bool $directMessage = false): Notice
+    public static function create_notice(array $object, Profile $actor_profile, bool $directMessage = false): Notice
     {
         $id = $object['id'];                                // int
         $url = isset($object['url']) ? $object['url'] : $id; // string
@@ -139,17 +139,6 @@ class Activitypub_notice
         }
         if (isset($object['longitude'])) {
             $settings['longitude'] = $object['longitude'];
-        }
-
-        // Ensure Actor Profile
-        if (is_null($actor_profile)) {
-            if (isset($object['attributedTo'])) {
-                $actor_profile = ActivityPub_explorer::get_profile_from_url($object['attributedTo']);
-            } elseif (isset($object['actor'])) {
-                $actor_profile = ActivityPub_explorer::get_profile_from_url($object['actor']);
-            } else {
-                throw new Exception("A notice can't be created without an actor.");
-            }
         }
 
         $act = new Activity();
