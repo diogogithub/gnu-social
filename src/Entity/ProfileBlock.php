@@ -85,7 +85,7 @@ class ProfileBlock
             'fields' => [
                 'blocker'  => ['type' => 'int', 'not null' => true, 'description' => 'user making the block'],
                 'blocked'  => ['type' => 'int', 'not null' => true, 'description' => 'profile that is blocked'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date of blocking'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['blocker', 'blocked'],
             'foreign keys' => [

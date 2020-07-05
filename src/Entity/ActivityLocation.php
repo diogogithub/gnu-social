@@ -124,7 +124,7 @@ class ActivityLocation
                 'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
                 'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
                 'location_service' => ['type' => 'int', 'size' => 'tiny', 'description' => 'service used to retrieve location information'],
-                'modified'         => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['activity_id'],
             'foreign keys' => [

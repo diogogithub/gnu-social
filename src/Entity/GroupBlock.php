@@ -98,7 +98,7 @@ class GroupBlock
                 'group_id'        => ['type' => 'int', 'not null' => true, 'description' => 'group profile is blocked from'],
                 'blocked_profile' => ['type' => 'int', 'not null' => true, 'description' => 'profile that is blocked'],
                 'blocker_user'    => ['type' => 'int', 'not null' => true, 'description' => 'user making the block'],
-                'modified'        => ['type' => 'timestamp', 'not null' => true, 'description' => 'date of blocking'],
+                'modified'        => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['group_id', 'blocked_profile'],
             'foreign keys' => [

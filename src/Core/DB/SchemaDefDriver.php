@@ -37,19 +37,20 @@ use Functional as F;
 class SchemaDefDriver extends StaticPHPDriver
 {
     /**
-     * PEAR DB type => Doctrine type
+     * V2 DB type => Doctrine type
      */
     private const types = [
-        'varchar'  => 'string',
-        'char'     => 'string', // char is a fixed witdh varchar
-        'int'      => 'integer',
-        'serial'   => 'integer',
-        'tinyint'  => 'smallint', // no portable tinyint
-        'bigint'   => 'bigint',
-        'bool'     => 'boolean',
-        'numeric'  => 'decimal',
-        'text'     => 'text',
-        'datetime' => 'datetime',
+        'varchar'   => 'string',
+        'char'      => 'string', // char is a fixed witdh varchar
+        'int'       => 'integer',
+        'serial'    => 'integer',
+        'tinyint'   => 'smallint', // no portable tinyint
+        'bigint'    => 'bigint',
+        'bool'      => 'boolean',
+        'numeric'   => 'decimal',
+        'text'      => 'text',
+        'datetime'  => 'datetime',
+        'timestamp' => 'datetime',
         // Unused in V2, but might start being used
         'date'        => 'date',
         'time'        => 'time',
@@ -98,8 +99,7 @@ class SchemaDefDriver extends StaticPHPDriver
                 }
             }
 
-            $default = (($opts['default'] ?? null) === '0000-00-00 00:00:00' && $_ENV['DBMS'] === 'postgres')
-                        ? '-infinity' : $opts['default'] ?? null;
+            $default = $opts['default'] ?? null;
 
             $field = [
                 // boolean, optional

@@ -214,8 +214,8 @@ class Profile
                 'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
                 'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
                 'location_service' => ['type' => 'int', 'description' => 'service used to obtain location id'],
-                'created'          => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'         => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'created'          => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'indexes'     => [

@@ -123,8 +123,8 @@ class Invitation
                 'user_id'            => ['type' => 'int', 'not null' => true, 'description' => 'who sent the invitation'],
                 'address'            => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'invitation sent to'],
                 'address_type'       => ['type' => 'varchar', 'length' => 8, 'not null' => true, 'description' => 'address type ("email", "xmpp", "sms")'],
-                'created'            => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
                 'registered_user_id' => ['type' => 'int', 'not null' => false, 'description' => 'if the invitation is converted, who the new user is'],
+                'created'            => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key'  => ['code'],
             'foreign keys' => [

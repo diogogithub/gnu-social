@@ -189,8 +189,8 @@ class ProfileList
                 'mainpage'       => ['type' => 'varchar', 'length' => 191, 'description' => 'page to link to'],
                 'tagged_count'   => ['type' => 'int', 'default' => 0, 'description' => 'number of people tagged with this tag by this user'],
                 'follower_count' => ['type' => 'int', 'default' => 0, 'description' => 'number of followers to this tag'],
-                'created'        => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date the tag was added'],
-                'modified'       => ['type' => 'timestamp', 'not null' => true, 'description' => 'date the tag was modified'],
+                'created'        => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'       => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['tagger', 'tag'],
             'unique keys' => [

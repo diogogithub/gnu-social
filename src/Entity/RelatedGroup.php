@@ -86,7 +86,7 @@ class RelatedGroup
             'fields' => [
                 'group_id'         => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to user_group'],
                 'related_group_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to user_group'],
-                'created'          => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'created'          => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key'  => ['group_id', 'related_group_id'],
             'foreign keys' => [

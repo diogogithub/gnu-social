@@ -98,7 +98,7 @@ class ProfileTag
                 'tagger'   => ['type' => 'int', 'not null' => true, 'description' => 'user making the tag'],
                 'tagged'   => ['type' => 'int', 'not null' => true, 'description' => 'profile tagged'],
                 'tag'      => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date the tag was added'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['tagger', 'tagged', 'tag'],
             'foreign keys' => [

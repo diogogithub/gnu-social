@@ -123,8 +123,8 @@ class GroupMember
                 'profile_id' => ['type' => 'int', 'not null' => true,  'description' => 'foreign key to profile table'],
                 'is_admin'   => ['type' => 'bool', 'default' => false, 'description' => 'is this user an admin?'],
                 'uri'        => ['type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'],
-                'created'    => ['type' => 'datetime', 'not null' => true,  'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['group_id', 'profile_id'],
             'unique keys' => [

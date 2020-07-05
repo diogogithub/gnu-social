@@ -215,7 +215,7 @@ class File
                 'is_local'         => ['type' => 'bool',     'description' => 'whether the file is stored locally'],
                 'width'            => ['type' => 'int',      'description' => 'width in pixels, if it can be described as such and data is available'],
                 'height'           => ['type' => 'int',      'description' => 'height in pixels, if it can be described as such and data is available'],
-                'modified'         => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'unique keys' => [
