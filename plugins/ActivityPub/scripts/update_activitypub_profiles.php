@@ -53,13 +53,7 @@ if (!$quiet) {
 
 if (have_option('u', 'uri')) {
     $uri = get_option_value('u', 'uri');
-    $discovery = new Activitypub_explorer();
-    $discovery = $discovery->lookup($uri);
-    if (empty($discovery)) {
-        echo "Bad URI\n";
-        exit(1);
-    }
-    $user = $discovery->lookup($uri)[0];
+    $user = Activitypub_profile::from_profile(Activitypub_explorer::get_profile_from_url($uri));
     try {
         $res = Activitypub_explorer::get_remote_user_activity($uri);
     } catch (Exception $e) {
@@ -67,8 +61,9 @@ if (have_option('u', 'uri')) {
         exit(1);
     }
     if (!$quiet) {
-        echo "Updated ".Activitypub_profile::update_profile($user, $res)->getBestName()."\n";
+        echo 'Updated '.Activitypub_profile::update_profile($user, $res)->getBestName()."\n";
     }
+    exit(0);
 } elseif (!have_option('a', 'all')) {
     show_help();
     exit(1);

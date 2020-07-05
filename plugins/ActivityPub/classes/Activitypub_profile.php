@@ -488,7 +488,7 @@ class Activitypub_profile extends Managed_DataObject
      * @throws NoProfileException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function update_profile($aprofile, $res)
+    public static function update_profile(Activitypub_profile $aprofile, array $res): Profile
     {
         if ($res === false) {
             $profile = $aprofile->local_profile();
