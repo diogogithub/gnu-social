@@ -909,56 +909,38 @@ class Ostatus_profile extends Managed_DataObject
             // If avatar URL differs: update. If URLs were identical but we're forced: update.
             if ($url == $this->avatar && !$force) {
                 // If there's no locally stored avatar, throw an exception and continue fetching below.
-                $avatar = Avatar::getUploaded($this->localProfile()) instanceof Avatar;
+                $avatar = Avatar::getUploaded($this->localProfile());
                 return $avatar;
             }
         } catch (NoAvatarException $e) {
             // No avatar available, let's fetch it.
         }
-
-        if (!common_valid_http_url($url)) {
-            // TRANS: Server exception. %s is a URL.
-            throw new ServerException(sprintf(_m('Invalid avatar URL %s.'), $url));
-        }
+        
+        // ImageFile throws exception if something goes wrong, which we'll let go on its merry way
+        $imagefile = ImageFile::fromURL($url);
 
         $self = $this->localProfile();
 
-        // @todo FIXME: This should be better encapsulated
-        // ripped from oauthstore.php (for old OMB client)
-        $temp_filename = tempnam(sys_get_temp_dir(), 'listener_avatar');
-        try {
-            $imgData = HTTPClient::quickGet($url);
-            // Make sure it's at least an image file. ImageFile can do the rest.
-            if (false === getimagesizefromstring($imgData)) {
-                throw new UnsupportedMediaException(_('Downloaded group avatar was not an image.'));
-            }
-            file_put_contents($temp_filename, $imgData);
-            unset($imgData);    // No need to carry this in memory.
+        $id = $self->getID();
 
-            if ($this->isGroup()) {
-                $id = $this->group_id;
-            } else {
-                $id = $this->profile_id;
-            }
-            $imagefile = new ImageFile(null, $temp_filename);
-            $filename = Avatar::filename(
-                $id,
-                image_type_to_extension($imagefile->type),
-                null,
-                common_timestamp()
-            );
-            rename($temp_filename, Avatar::path($filename));
-        } catch (Exception $e) {
-            unlink($temp_filename);
-            throw $e;
-        }
+        $type = $imagefile->preferredType();
+        $filename = Avatar::filename(
+            $id,
+            image_type_to_extension($type),
+            null,
+            'tmp' . common_timestamp()
+        );
+
+        $filepath = Avatar::path($filename);
+        /*$imagefile = */$imagefile->copyTo($filepath);
+
         // @todo FIXME: Hardcoded chmod is lame, but seems to be necessary to
         // keep from accidentally saving images from command-line (queues)
         // that can't be read from web server, which causes hard-to-notice
         // problems later on:
         //
         // http://status.net/open-source/issues/2663
-        chmod(Avatar::path($filename), 0644);
+        chmod($filepath, 0644);
 
         $self->setOriginal($filename);
 

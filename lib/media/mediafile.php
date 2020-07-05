@@ -247,10 +247,13 @@ class MediaFile
      * Encodes a file name and a file hash in the new file format, which is used to avoid
      * having an extension in the file, removing trust in extensions, while keeping the original name
      *
-     * @param mixed $original_name
-     * @param null|mixed $ext
+     * @param null|string $original_name
+     * @param string $filehash
+     * @param null|string|bool $ext from File::getSafeExtension
      *
+     * @return string
      * @throws ClientException
+     * @throws ServerException
      */
     public static function encodeFilename($original_name, string $filehash, $ext = null): string
     {
@@ -331,18 +334,17 @@ class MediaFile
      * format ("{$hash}.{$ext}")
      *
      * @param string $param Form name
-     * @param null|Profile $scoped
-     *
+     * @param Profile|null $scoped
      * @return ImageFile|MediaFile
+     * @throws ClientException
+     * @throws InvalidFilenameException
      * @throws NoResultException
      * @throws NoUploadedMediaException
      * @throws ServerException
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
-     *
-     * @throws ClientException
      */
-    public static function fromUpload(string $param = 'media', Profile $scoped = null)
+    public static function fromUpload(string $param = 'media', ?Profile $scoped = null)
     {
         // The existence of the "error" element means PHP has processed it properly even if it was ok.
         if (!(isset($_FILES[$param], $_FILES[$param]['error']))) {
@@ -432,6 +434,87 @@ class MediaFile
             }
         }
         return new self($filepath, $mimetype, $filehash);
+    }
+
+    /**
+     * Create a new MediaFile or ImageFile object from an url
+     *
+     * Tries to set the mimetype correctly, using the most secure method available and rejects the file otherwise.
+     * In case the url is an image, this function returns an new ImageFile (which extends MediaFile)
+     * The filename has the following format: bin2hex("{$original_name}.{$ext}")."-{$filehash}"
+     *
+     * @param string $url Remote media URL
+     * @param Profile|null $scoped
+     * @return ImageFile|MediaFile
+     * @throws ServerException
+     */
+    public static function fromUrl(string $url, ?Profile $scoped = null)
+    {
+        if (!common_valid_http_url($url)) {
+            // TRANS: Server exception. %s is a URL.
+            throw new ServerException(sprintf('Invalid remote media URL %s.', $url));
+        }
+
+        $temp_filename = tempnam(sys_get_temp_dir(), 'tmp' . common_timestamp());
+
+        try {
+            $fileData = HTTPClient::quickGet($url);
+            file_put_contents($temp_filename, $fileData);
+            unset($fileData);    // No need to carry this in memory.
+
+            $filehash = strtolower(self::getHashOfFile($temp_filename));
+
+            try {
+                $file = File::getByHash($filehash);
+                // If no exception is thrown the file exists locally, so we'll use that and just add redirections.
+                // but if the _actual_ locally stored file doesn't exist, getPath will throw FileNotFoundException
+                $filepath = $file->getPath();
+                $mimetype = $file->mimetype;
+            } catch (FileNotFoundException | NoResultException $e) {
+                // We have to save the downloaded as a new local file. This is the normal course of action.
+                if ($scoped instanceof Profile) {
+                    // Throws exception if additional size does not respect quota
+                    // This test is only needed, of course, if we're uploading something new.
+                    File::respectsQuota($scoped, filesize($temp_filename));
+                }
+
+                $mimetype = self::getUploadedMimeType($temp_filename);
+                $media = common_get_mime_media($mimetype);
+
+                $basename = basename($temp_filename);
+
+                if ($media == 'image') {
+                    // Use -1 for the id to avoid adding this temporary file to the DB
+                    $img = new ImageFile(-1, $temp_filename);
+                    // Validate the image by re-encoding it. Additionally normalizes old formats to PNG,
+                    // keeping JPEG and GIF untouched
+                    $outpath = $img->resizeTo($img->filepath);
+                    $ext = image_type_to_extension($img->preferredType(), false);
+                }
+                $filename = self::encodeFilename($basename, $filehash, isset($ext) ? $ext : File::getSafeExtension($basename));
+
+                $filepath = File::path($filename);
+
+                if ($media == 'image') {
+                    $result = rename($outpath, $filepath);
+                } else {
+                    $result = rename($temp_filename, $filepath);
+                }
+                if (!$result) {
+                    // TRANS: Client exception thrown when a file upload operation fails because the file could
+                    // TRANS: not be moved from the temporary folder to the permanent file location.
+                    throw new ServerException(_m('File could not be moved to destination directory.'));
+                }
+
+                if ($media == 'image') {
+                    return new ImageFile(null, $filepath);
+                }
+            }
+            return new self($filepath, $mimetype, $filehash);
+        } catch (Exception $e) {
+            unlink($temp_filename); // Garbage collect
+            throw $e;
+        }
     }
 
     public static function fromFilehandle($fh, Profile $scoped = null)

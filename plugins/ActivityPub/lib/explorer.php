@@ -282,72 +282,6 @@ class Activitypub_explorer
     }
 
     /**
-     * Download and update given avatar image
-     *
-     * @param Profile $profile
-     * @param string $url
-     * @return Avatar    The Avatar we have on disk.
-     * @throws Exception in various failure cases
-     * @author GNU social
-     */
-    public static function update_avatar(Profile $profile, $url)
-    {
-        common_debug('ActivityPub Explorer: Started grabbing remote avatar from: ' . $url);
-        if (!filter_var($url, FILTER_VALIDATE_URL)) {
-            // TRANS: Server exception. %s is a URL.
-            common_debug('ActivityPub Explorer: Failed because it is an invalid url: ' . $url);
-            throw new ServerException(sprintf('Invalid avatar URL %s.', $url));
-        }
-
-        // @todo FIXME: This should be better encapsulated
-        // ripped from oauthstore.php (for old OMB client)
-        $temp_filename = tempnam(sys_get_temp_dir(), 'listener_avatar');
-        try {
-            $imgData = HTTPClient::quickGet($url);
-            // Make sure it's at least an image file. ImageFile can do the rest.
-            if (false === getimagesizefromstring($imgData)) {
-                common_debug('ActivityPub Explorer: Failed because the downloaded avatar: ' . $url . 'is not a valid image.');
-                throw new UnsupportedMediaException('Downloaded avatar was not an image.');
-            }
-            file_put_contents($temp_filename, $imgData);
-            unset($imgData);    // No need to carry this in memory.
-            common_debug('ActivityPub Explorer: Stored dowloaded avatar in: ' . $temp_filename);
-
-            $id = $profile->getID();
-
-            $imagefile = new ImageFile(null, $temp_filename);
-            $filename = Avatar::filename(
-                $id,
-                image_type_to_extension($imagefile->type),
-                null,
-                common_timestamp()
-            );
-            rename($temp_filename, Avatar::path($filename));
-            common_debug('ActivityPub Explorer: Moved avatar from: ' . $temp_filename . ' to ' . $filename);
-        } catch (Exception $e) {
-            common_debug('ActivityPub Explorer: Something went wrong while processing the avatar from: ' . $url . ' details: ' . $e->getMessage());
-            unlink($temp_filename);
-            throw $e;
-        }
-        // @todo FIXME: Hardcoded chmod is lame, but seems to be necessary to
-        // keep from accidentally saving images from command-line (queues)
-        // that can't be read from web server, which causes hard-to-notice
-        // problems later on:
-        //
-        // http://status.net/open-source/issues/2663
-        chmod(Avatar::path($filename), 0644);
-
-        $profile->setOriginal($filename);
-
-        $orig = clone($profile);
-        $profile->avatar = $url;
-        $profile->update($orig);
-
-        common_debug('ActivityPub Explorer: Seted Avatar from: ' . $url . ' to profile.');
-        return Avatar::getUploaded($profile);
-    }
-
-    /**
      * Validates a remote response in order to determine whether this
      * response is a valid profile or not
      *
@@ -415,6 +349,47 @@ class Activitypub_explorer
         }
 
         return false;
+    }
+
+    /**
+     * Download and update given avatar image
+     * TODO: Avoid updating an avatar if its URL didn't change. (this is something OStatus already does)
+     * TODO: Should be in AProfile instead?
+     *
+     * @param Profile $profile
+     * @param string $url
+     * @return Avatar    The Avatar we have on disk. (seldom used)
+     * @throws Exception in various failure cases
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     */
+    public static function update_avatar(Profile $profile, string $url): Avatar
+    {
+        common_debug('ActivityPub Explorer: Started grabbing remote avatar from: ' . $url);
+        // ImageFile throws exception if something goes wrong, which we'll let go on its merry way
+        $imagefile = ImageFile::fromURL($url);
+
+        $id = $profile->getID();
+
+        $type = $imagefile->preferredType();
+        $filename = Avatar::filename(
+            $id,
+            image_type_to_extension($type),
+            null,
+            'tmp' . common_timestamp()
+        );
+
+        $filepath = Avatar::path($filename);
+        /*$imagefile = */$imagefile->copyTo($filepath);
+
+        common_debug('ActivityPub Explorer: Stored avatar in: ' . $filepath);
+
+        // XXX: Do we need this?
+        chmod($filepath, 0644);
+
+        $profile->setOriginal($filename);
+
+        common_debug('ActivityPub Explorer: Seted Avatar from: ' . $url . ' to profile.');
+        return Avatar::getUploaded($profile);
     }
 
     /**
