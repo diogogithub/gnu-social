@@ -33,7 +33,7 @@ class ActivityPubQueueHandler extends QueueHandler
 {
     /**
      * Getter of the queue transport name.
-     * 
+     *
      * @return string transport name
      */
     public function transport(): string
@@ -64,12 +64,8 @@ class ActivityPubQueueHandler extends QueueHandler
             return true;
         }
 
-        // Ignore activity/non-post/share-verb notices
-        $is_valid_verb = ($notice->verb == ActivityVerb::POST ||
-                          $notice->verb == ActivityVerb::SHARE);
-
-        if ($notice->source == 'activity' || !$is_valid_verb) {
-            common_log(LOG_ERR, "Ignoring distribution of notice:{$notice->id}: activity source or invalid Verb");
+        if ($notice->source == 'activity') {
+            common_log(LOG_ERR, "Ignoring distribution of notice:{$notice->id}: activity source");
             return true;
         }
         
@@ -77,7 +73,103 @@ class ActivityPubQueueHandler extends QueueHandler
             $notice->getAttentionProfiles()
         );
 
+        // Handling a Like?
+        if (ActivityUtils::compareVerbs($notice->verb, [ActivityVerb::FAVORITE])) {
+            return $this->onEndFavorNotice($profile, $notice, $other);
+        }
+
+        // Handling a Undo Like?
+        if (ActivityUtils::compareVerbs($notice->verb, [ActivityVerb::UNFAVORITE])) {
+            return $this->onEndDisfavorNotice($profile, $notice, $other);
+        }
+
+        // Handling a Delete Note?
+        if (ActivityUtils::compareVerbs($notice->verb, [ActivityVerb::DELETE])) {
+            return $this->onStartDeleteOwnNotice($profile, $notice, $other);
+        }
+
         // Handling a reply?
+        if ($notice->reply_to) {
+            return $this->handle_reply($profile, $notice, $other);
+        }
+
+        // Handling an Announce?
+        if ($notice->isRepeat()) {
+            return $this->handle_announce($profile, $notice, $other);
+        }
+
+        return true;
+    }
+
+    private function handle_reply($profile, $notice, $other)
+    {
+        try {
+            $parent_notice = $notice->getParent();
+
+            try {
+                $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
+            } catch (Exception $e) {
+                // Local user can be ignored
+            }
+
+            foreach ($parent_notice->getAttentionProfiles() as $mention) {
+                try {
+                    $other[] = Activitypub_profile::from_profile($mention);
+                } catch (Exception $e) {
+                    // Local user can be ignored
+                }
+            }
+        } catch (NoParentNoticeException $e) {
+            // This is not a reply to something (has no parent)
+        } catch (NoResultException $e) {
+            // Parent author's profile not found! Complain louder?
+            common_log(LOG_ERR, "Parent notice's author not found: ".$e->getMessage());
+        }
+
+        // That was it
+        $postman = new Activitypub_postman($profile, $other);
+        $postman->create_note($notice);
+        return true;
+    }
+
+    private function handle_announce($profile, $notice, $other)
+    {
+        $repeated_notice = Notice::getKV('id', $notice->repeat_of);
+        if ($repeated_notice instanceof Notice) {
+            $other = array_merge(
+                $other,
+                Activitypub_profile::from_profile_collection(
+                    $repeated_notice->getAttentionProfiles()
+                )
+            );
+
+            try {
+                $other[] = Activitypub_profile::from_profile($repeated_notice->getProfile());
+            } catch (Exception $e) {
+                // Local user can be ignored
+            }
+
+            // That was it
+            $postman = new Activitypub_postman($profile, $other);
+            $postman->announce($repeated_notice);
+        }
+
+        // either made the announce or found nothing to repeat
+        return true;
+    }
+
+    /**
+     * Notify remote users when their notices get favourited.
+     *
+     * @param Profile $profile of local user doing the faving
+     * @param Notice $notice Notice being favored
+     * @return bool return value
+     * @throws HTTP_Request2_Exception
+     * @throws InvalidUrlException
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     */
+    public function onEndFavorNotice(Profile $profile, Notice $notice, $other)
+    {
         if ($notice->reply_to) {
             try {
                 $parent_notice = $notice->getParent();
@@ -88,13 +180,12 @@ class ActivityPubQueueHandler extends QueueHandler
                     // Local user can be ignored
                 }
 
-                foreach ($parent_notice->getAttentionProfiles() as $mention) {
-                    try {
-                        $other[] = Activitypub_profile::from_profile($mention);
-                    } catch (Exception $e) {
-                        // Local user can be ignored
-                    }
-                }
+                $other = array_merge(
+                    $other,
+                    Activitypub_profile::from_profile_collection(
+                        $parent_notice->getAttentionProfiles()
+                    )
+                );
             } catch (NoParentNoticeException $e) {
                 // This is not a reply to something (has no parent)
             } catch (NoResultException $e) {
@@ -103,33 +194,103 @@ class ActivityPubQueueHandler extends QueueHandler
             }
         }
 
-        // Handling an Announce?
-        if ($notice->isRepeat()) {
-            $repeated_notice = Notice::getKV('id', $notice->repeat_of);
-            if ($repeated_notice instanceof Notice) {
-                $other = array_merge($other,
-                                     Activitypub_profile::from_profile_collection(
-                                         $repeated_notice->getAttentionProfiles()
-                                     ));
+        $postman = new Activitypub_postman($profile, $other);
+        $postman->like($notice);
+
+        return true;
+    }
+
+    /**
+     * Notify remote users when their notices get de-favourited.
+     *
+     * @param Profile $profile of local user doing the de-faving
+     * @param Notice $notice Notice being favored
+     * @return bool return value
+     * @throws HTTP_Request2_Exception
+     * @throws InvalidUrlException
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     */
+    public function onEndDisfavorNotice(Profile $profile, Notice $notice, $other)
+    {
+        if ($notice->reply_to) {
+            try {
+                $parent_notice = $notice->getParent();
 
                 try {
-                    $other[] = Activitypub_profile::from_profile($repeated_notice->getProfile());
+                    $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
                 } catch (Exception $e) {
                     // Local user can be ignored
                 }
 
-                // That was it
-                $postman = new Activitypub_postman($profile, $other);
-                $postman->announce($repeated_notice);
+                $other = array_merge(
+                    $other,
+                    Activitypub_profile::from_profile_collection(
+                        $parent_notice->getAttentionProfiles()
+                    )
+                );
+            } catch (NoParentNoticeException $e) {
+                // This is not a reply to something (has no parent)
+            } catch (NoResultException $e) {
+                // Parent author's profile not found! Complain louder?
+                common_log(LOG_ERR, "Parent notice's author not found: ".$e->getMessage());
             }
+        }
 
-            // either made the announce or found nothing to repeat
+        $postman = new Activitypub_postman($profile, $other);
+        $postman->undo_like($notice);
+
+        return true;
+    }
+
+    /**
+     * Notify remote users when their notices get deleted
+     *
+     * @param $user
+     * @param $notice
+     * @return boolean hook flag
+     * @throws HTTP_Request2_Exception
+     * @throws InvalidUrlException
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     */
+    public function onStartDeleteOwnNotice($profile, $notice, $other)
+    {
+        // Handle delete locally either because:
+        // 1. There's no undo-share logic yet
+        // 2. The deleting user has privileges to do so (locally)
+        if ($notice->isRepeat() || ($notice->getProfile()->getID() != $profile->getID())) {
             return true;
         }
 
-        // That was it
+        $other = Activitypub_profile::from_profile_collection(
+            $notice->getAttentionProfiles()
+        );
+
+        if ($notice->reply_to) {
+            try {
+                $parent_notice = $notice->getParent();
+
+                try {
+                    $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
+                } catch (Exception $e) {
+                    // Local user can be ignored
+                }
+
+                $other = array_merge(
+                    $other,
+                    Activitypub_profile::from_profile_collection(
+                        $parent_notice->getAttentionProfiles()
+                    )
+                );
+            } catch (NoParentNoticeException $e) {
+                // This is not a reply to something (has no parent)
+            } catch (NoResultException $e) {
+                // Parent author's profile not found! Complain louder?
+                common_log(LOG_ERR, "Parent notice's author not found: ".$e->getMessage());
+            }
+        }
+
         $postman = new Activitypub_postman($profile, $other);
-        $postman->create_note($notice);
+        $postman->delete_note($notice);
         return true;
     }
 }

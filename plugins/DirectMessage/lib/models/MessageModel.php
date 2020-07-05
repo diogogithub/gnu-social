@@ -38,7 +38,7 @@ class MessageModel
 {
     /**
      * Retrieve size-limit for messages content
-     * 
+     *
      * @return int size-limit
      */
     public static function maxContent(): int
@@ -53,7 +53,7 @@ class MessageModel
 
     /**
      * Is message-text too long?
-     * 
+     *
      * @param string $content message-text
      * @return bool true if too long, false otherwise
      */
@@ -65,7 +65,7 @@ class MessageModel
 
     /**
      * Return data object of messages received by some user.
-     * 
+     *
      * @param User $to receiver
      * @param int|null $page page limiter
      * @return Notice data object with stream for messages
@@ -95,7 +95,7 @@ class MessageModel
         $message->whereAdd('scope = ' . NOTICE::MESSAGE_SCOPE);
         $message->whereAddIn('id', $ids, 'int');
         $message->orderBy('created DESC, id DESC');
-        
+
         if (!is_null($page) && $page >= 0) {
             $page = ($page == 0) ? 1 : $page;
             $message->limit(($page - 1) * MESSAGES_PER_PAGE,
@@ -107,7 +107,7 @@ class MessageModel
 
     /**
      * Return data object of messages sent by some user.
-     * 
+     *
      * @param User $from sender
      * @param int|null $page page limiter
      * @return Notice data object with stream for messages
@@ -131,7 +131,7 @@ class MessageModel
 
     /**
      * Save a new message.
-     * 
+     *
      * @param Profile $from sender
      * @param string $content message-text
      * @param string $source message's source
