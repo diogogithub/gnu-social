@@ -431,14 +431,18 @@ class Activitypub_explorer
      * profile updating and shall not be used for anything else)
      *
      * @param string $url User's url
-     * @return array
+     * @return array|false If it is able to fetch, false if it's gone
      * @throws Exception Either network issues or unsupported Activity format
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function get_remote_user_activity($url)
+    public static function get_remote_user_activity(string $url)
     {
         $client = new HTTPClient();
         $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
+        // If it was deleted
+        if ($response->getStatus() == 410) {
+            return false;
+        }
         $res = json_decode($response->getBody(), true);
         if (Activitypub_explorer::validate_remote_response($res)) {
             common_debug('ActivityPub Explorer: Found a valid remote actor for ' . $url);

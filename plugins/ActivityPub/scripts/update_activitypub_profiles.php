@@ -97,7 +97,11 @@ while ($user->fetch()) {
         $res = Activitypub_explorer::get_remote_user_activity($user->uri);
         $updated_profile = Activitypub_profile::update_profile($user, $res);
         if (!$quiet) {
-            echo "Updated ".$updated_profile->getBestName()."\n";
+            echo 'Updated '.$updated_profile->getBestName()."\n";
+        }
+    } catch (NoProfileException $e) {
+        if (!$quiet) {
+            echo 'Deleted '.$user->uri."\n";
         }
     } catch (Exception $e) {
         // let it go
