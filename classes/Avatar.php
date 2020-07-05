@@ -164,8 +164,13 @@ class Avatar extends Managed_DataObject
 
     /**
      * Where should the avatar go for this user?
+     * @param int $id user id
+     * @param string $extension file extension
+     * @param int|null $size file size
+     * @param string|null $extra extra bit for the filename
+     * @return string
      */
-    public static function filename($id, $extension, $size = null, $extra = null)
+    public static function filename(int $id, string $extension, ?int $size = null, ?string $extra = null)
     {
         if ($size) {
             return $id . '-' . $size . (($extra) ? ('-' . $extra) : '') . $extension;

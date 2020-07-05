@@ -342,7 +342,7 @@ class File extends Managed_DataObject
 
     /**
      * @param string $filename
-     * @return string|bool Value from the 'extblacklist' array, in the config
+     * @return null|string|bool Value from the 'extblacklist' array, in the config
      * @throws ServerException
      */
     public static function getSafeExtension(string $filename)
