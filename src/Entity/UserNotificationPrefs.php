@@ -153,8 +153,8 @@ class UserNotificationPrefs
                 'dm'                    => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Notify someone sends us a direct message'],
                 'post_on_status_change' => ['type' => 'bool', 'not null' => true, 'default' => false, 'description' => 'Post a notice when our status in service changes'],
                 'enable_posting'        => ['type' => 'bool', 'default' => true,  'description' => 'Enable posting from this service'],
-                'created'               => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'              => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'created'               => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'              => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['user_id', 'transport'],
             'unique keys' => [

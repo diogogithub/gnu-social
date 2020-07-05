@@ -149,8 +149,8 @@ class ConfirmAddress
                 'address_extra' => ['type' => 'varchar',  'length' => 191, 'description' => 'carrier ID, for SMS'],
                 'address_type'  => ['type' => 'varchar',  'length' => 8, 'not null' => true, 'description' => 'address type ("email", "xmpp", "sms")'],
                 'claimed'       => ['type' => 'datetime', 'description' => 'date this was claimed for queueing'],
-                'sent'          => ['type' => 'datetime', 'description' => 'date this was sent for queueing'],
-                'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'sent'          => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this was sent for queueing'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['code'],
             'foreign keys' => [

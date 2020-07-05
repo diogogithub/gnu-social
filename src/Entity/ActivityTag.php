@@ -86,7 +86,7 @@ class ActivityTag
             'fields'      => [
                 'tag'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this activity'],
                 'activity_id' => ['type' => 'int', 'not null' => true, 'description' => 'activity tagged'],
-                'created'     => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'created'     => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key'  => ['tag', 'activity_id'],
             'foreign keys' => [

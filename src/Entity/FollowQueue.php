@@ -86,7 +86,7 @@ class FollowQueue
             'fields'      => [
                 'follower' => ['type' => 'int', 'not null' => true, 'description' => 'remote or local profile making the request'],
                 'followed' => ['type' => 'int', 'not null' => true, 'description' => 'remote or local profile being followed to'],
-                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key' => ['follower', 'followed'],
             'indexes'     => [

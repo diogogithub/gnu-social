@@ -86,7 +86,7 @@ class GroupJoinQueue
             'fields'      => [
                 'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'remote or local profile making the request'],
                 'group_id'   => ['type' => 'int', 'not null' => true, 'description' => 'remote or local group to join, if any'],
-                'created'    => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'created'    => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key' => ['profile_id', 'group_id'],
             'indexes'     => [

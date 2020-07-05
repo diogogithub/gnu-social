@@ -97,8 +97,8 @@ class LocationService
             'fields' => [
                 'id'          => ['type' => 'int', 'size' => 'tiny', 'not null' => true, 'description' => 'identifier for the location service'],
                 'description' => ['type' => 'varchar', 'length' => 191, 'description' => 'description of the service'],
-                'created'     => ['type' => 'datetime', 'not null' => true,  'default' => '0000-00-00 00:00:00', 'description' => 'date the record was created'],
-                'modified'    => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
         ];

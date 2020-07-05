@@ -134,7 +134,7 @@ class FileThumbnail
                 'file_id'  => ['type' => 'int', 'not null' => true, 'description' => 'thumbnail for what file'],
                 'width'    => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
                 'height'   => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['file_id', 'width', 'height'],
             'foreign keys' => [

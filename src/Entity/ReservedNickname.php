@@ -73,7 +73,7 @@ class ReservedNickname
             'description' => 'A reserved nickname',
             'fields'      => [
                 'nickname' => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname not to use'],
-                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00'],
+                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key' => ['nickname'],
         ];

@@ -85,7 +85,7 @@ class FileToActivity
             'fields' => [
                 'file_id'     => ['type' => 'int', 'not null' => true,       'description' => 'id of file'],
                 'activity_id' => ['type' => 'int', 'not null' => true,       'description' => 'id of the activity it belongs to'],
-                'modified'    => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['file_id', 'activity_id'],
             'foreign keys' => [

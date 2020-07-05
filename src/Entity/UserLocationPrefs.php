@@ -95,8 +95,8 @@ class UserLocationPrefs
             'fields' => [
                 'user_id'        => ['type' => 'int', 'not null' => true, 'description' => 'user who has the preference'],
                 'share_location' => ['type' => 'bool', 'default' => true, 'description' => 'Whether to share location data'],
-                'created'        => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified'       => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'created'        => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'       => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['user_id'],
             'foreign keys' => [

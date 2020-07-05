@@ -85,7 +85,7 @@ class GroupAlias
             'fields' => [
                 'alias'    => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'additional nickname for the group'],
                 'group_id' => ['type' => 'int', 'not null' => true, 'description' => 'group id which this is an alias of'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date alias was created'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['alias'],
             'foreign keys' => [
