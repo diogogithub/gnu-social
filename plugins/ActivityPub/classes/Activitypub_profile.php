@@ -148,7 +148,8 @@ class Activitypub_profile extends Managed_DataObject
     public function do_insert()
     {
         // Does any other protocol have this remote entity we're about to add ?
-        if (!Event::handle('StartTFNLookup', [$this->uri, get_class($this), &$profile_id])) {
+        Event::handle('StartTFNLookup', [$this->uri, get_class($this), &$profile_id]);
+        if (!is_null($profile_id)) {
             // Yes! Avoid creating a new profile
             $this->profile_id = $profile_id;
             $this->created = $this->modified = common_sql_now();

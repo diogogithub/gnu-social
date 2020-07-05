@@ -86,7 +86,7 @@ class TheFreeNetworkModule extends Module
             $profile_id = $this->lookup($uri, $class, true);
         }
 
-        return is_null($profile_id);
+        return false;
     }
 
     /**

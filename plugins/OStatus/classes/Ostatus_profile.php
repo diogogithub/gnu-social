@@ -1209,7 +1209,8 @@ class Ostatus_profile extends Managed_DataObject
         if ($object->type == ActivityObject::PERSON) {
 
             // Does any other protocol have this remote entity we're about to add ?
-            if (!Event::handle('StartTFNLookup', [$oprofile->uri, get_called_class(), &$profile_id])) {
+            Event::handle('StartTFNLookup', [$oprofile->uri, get_called_class(), &$profile_id]);
+            if (!is_null($profile_id)) {
                 $tfn = true; // been here!
 
                 // Yes! Avoid creating a new profile
