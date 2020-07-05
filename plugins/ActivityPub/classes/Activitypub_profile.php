@@ -189,11 +189,11 @@ class Activitypub_profile extends Managed_DataObject
     /**
      * Fetch the locally stored profile for this Activitypub_profile
      *
-     * @return get_called_class
+     * @return Profile
      * @throws NoProfileException if it was not found
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function local_profile()
+    public function local_profile(): Profile
     {
         $profile = Profile::getKV('id', $this->profile_id);
         if (!$profile instanceof Profile) {
@@ -481,16 +481,22 @@ class Activitypub_profile extends Managed_DataObject
 
     /**
      * Update remote user profile in local instance
-     * Depends on do_update
      *
      * @param Activitypub_profile $aprofile
-     * @param array $res remote response
+     * @param array|false $res remote response, if array it updates, if false it deletes
      * @return Profile remote Profile object
      * @throws NoProfileException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function update_profile($aprofile, $res)
     {
+        if ($res === false) {
+            $profile = $aprofile->local_profile();
+            $id = $profile->getID();
+            $profile->delete();
+            throw new NoProfileException($id, "410 Gone");
+        }
+
         // ActivityPub Profile
         $aprofile->uri = $res['id'];
         $aprofile->nickname = $res['preferredUsername'];

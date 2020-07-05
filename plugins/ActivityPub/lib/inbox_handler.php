@@ -232,64 +232,77 @@ class Activitypub_inbox_handler
      * @throws NoProfileException
      * @throws Exception
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_delete()
     {
         $object = $this->object;
-        if (is_array($object)) {
-            $object = $object['id'];
-        }
-
-        // profile deletion ?
-        if ($this->activity['actor'] == $object) {
-            $aprofile = Activitypub_profile::from_profile($this->actor);
-            $this->handle_delete_profile($aprofile);
-            return;
-        }
-
-        // note deletion ?
-        try {
-            $notice = ActivityPubPlugin::grab_notice_from_url($object, false);
-            if ($notice instanceof Notice) {
-                $this->handle_delete_note($notice);
+        if (is_string($object)) {
+            $client = new HTTPClient();
+            $response = $client->get($object, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
+            $gone = !$response->isOk();
+            if (!$gone) { // It's not gone, we're updating it.
+                $object = json_decode($response->getBody(), true);
+                switch ($object['type']) {
+                    case 'Person':
+                        try {
+                            // Update profile if we already have a copy of it
+                            $aprofile = Activitypub_profile::fromUri($object['id'], false);
+                            Activitypub_profile::update_profile($aprofile, $object);
+                        } catch (Exception $e) {
+                            // Import profile if we don't
+                            Activitypub_explorer::get_profile_from_url($object['id']);
+                        }
+                        break;
+                    case 'Tombstone':
+                        try {
+                            $notice = ActivityPubPlugin::grab_notice_from_url($object, false);
+                            if ($notice instanceof Notice) {
+                                $notice->delete();
+                            }
+                            return;
+                        } catch (Exception $e) {
+                            // either already deleted or not an object at all
+                            // nothing to do..
+                        }
+                        break;
+                    case 'Note':
+                        // XXX: We do not support updating a note's contents so, we'll ignore it for now...
+                    default:
+                        common_log(LOG_INFO, "Ignoring Delete activity, we do not understand for {$object['type']}.");
+                }
             }
+        } else {
+            // We don't know the type of the deleted object :(
+            // Nor if it's gone or not.
+            try {
+                $aprofile = Activitypub_profile::fromUri($object, false);
+                $res = Activitypub_explorer::get_remote_user_activity($object);
+                Activitypub_profile::update_profile($aprofile, $res);
+                return;
+            } catch (Exception $e) {
+                // Means this wasn't a profile
+            }
+
+            try {
+                $client = new HTTPClient();
+                $response = $client->get($object, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
+                // If it was deleted
+                if ($response->getStatus() == 410) {
+                    $notice = ActivityPubPlugin::grab_notice_from_url($object, false);
+                    if ($notice instanceof Notice) {
+                        $notice->delete();
+                    }
+                } else {
+                    // We can't update a note's contents so, we'll ignore it for now...
+                }
+                return;
+            } catch (Exception $e) {
+                // Means we didn't have this note already
+            }
+
             return;
-        } catch (Exception $e) {
-            // either already deleted or not an object at all
-            // nothing to do..
         }
-
-        common_log(LOG_INFO, "Ignoring Delete activity, nothing that we can/need to handle.");
-    }
-
-    /**
-     * Handles a Delete-Profile Activity.
-     *
-     * Note that the actual ap_profile is deleted during the ProfileDeleteRelated event,
-     * subscribed by ActivityPubPlugin.
-     *
-     * @param Activitypub_profile $aprofile remote user being deleted
-     * @return void
-     * @throws NoProfileException
-     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
-     */
-    private function handle_delete_profile(Activitypub_profile $aprofile): void
-    {
-        $profile = $aprofile->local_profile();
-        $profile->delete();
-    }
-
-    /**
-     * Handles a Delete-Note Activity.
-     *
-     * @param Notice $note remote note being deleted
-     * @return void
-     * @throws AuthorizationException
-     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
-     */
-    private function handle_delete_note(Notice $note): void
-    {
-        $note->deleteAs($this->actor);
     }
 
     /**
