@@ -1,4 +1,14 @@
 /* GENERAL ----------------------------*/
+:root {
+    --head-font: 'Montserrat', sans-serif;
+    --main-font: 'Open Sans', sans-serif;
+    --main-size: 1.1em;
+    --medium-size: 0.75em;
+    --small-size: 0.7em;
+    --unit-size: 1em;
+    --side-margin: 0%;
+}
+
 body,
 html {
     background-color: #29323c;
@@ -6,8 +16,8 @@ html {
     background-attachment: fixed;
     background-size: cover;
     color: #F6F6F6;
-    font-family: 'Open Sans', sans-serif;
-    font-size: 1.1em;
+    font-family: var(--main-font);
+    font-size: var(--main-size);
     margin: 0;
     padding: 0;
 }
@@ -25,7 +35,7 @@ ul {
 }
 
 .drop-down ul li ul a {
-    line-height: 1.4em;
+    line-height: 0.8em;
 }
 
 .drop-down ul li ul {
@@ -63,7 +73,7 @@ a:visited {
 }
 
 ul li ul a {
-    font-size: 0.8em;
+    font-size: var(--small-size);
 }
 
 b {
@@ -87,8 +97,8 @@ b {
     flex-wrap: wrap;
     order: 1;
     width: 100%;
-    margin-left: 0;
-    margin-right: 0;
+    margin-left: var(--side-margin);
+    margin-right: var(--side-margin);
     background-color: rgba(0, 0, 0, 0.40);
     box-shadow: 0px 0px 60px -20px rgba(41, 50, 60, 1);
 }
@@ -100,15 +110,15 @@ b {
     flex-wrap: wrap;
     order: 1;
     width: 100%;
-    padding: 1em 1em 0.6em 1em;
+    padding: var(--unit-size) var(--unit-size) var(--small-size) var(--unit-size);
 }
 
 /* MENU -------------------------------*/
 .icon-menu {
     display: inline-block;
     vertical-align: top;
-    width: 1em;
-    height: 1em;
+    width: var(--unit-size);
+    height: var(--unit-size);
     stroke-width: 0;
     stroke: currentColor;
     fill: currentColor;
@@ -129,8 +139,8 @@ b {
 .icon-logo {
     display: inline-block;
     vertical-align: top;
-    width: 1em;
-    height: 1em;
+    width: var(--unit-size);
+    height: var(--unit-size);
     stroke-width: 0;
     stroke: currentColor;
     fill: currentColor;
@@ -145,8 +155,8 @@ b {
 .icon-search {
     display: inline-block;
     vertical-align: top;
-    width: 1em;
-    height: 1em;
+    width: var(--unit-size);
+    height: var(--unit-size);
     stroke-width: 0;
     stroke: currentColor;
     fill: currentColor;
