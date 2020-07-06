@@ -107,7 +107,6 @@ class ProfileNoticeStream extends ScopingNoticeStream
 class RawProfileNoticeStream extends NoticeStream
 {
     protected $target;
-    protected $selectVerbs = array();   // select all verbs
 
     public function __construct(Profile $target)
     {
