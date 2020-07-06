@@ -24,7 +24,7 @@ class Confirm_address extends Managed_DataObject
 {
     public $__table = 'confirm_address';                 // table name
     public $code;                            // varchar(32)  primary_key not_null
-    public $user_id;                         // int(4)   not_null
+    public $user_id;                         // int()
     public $address;                         // varchar(191)   not_null   not 255 because utf8mb4 takes more space
     public $address_extra;                   // varchar(191)   not_null   not 255 because utf8mb4 takes more space
     public $address_type;                    // varchar(8)   not_null
@@ -37,7 +37,7 @@ class Confirm_address extends Managed_DataObject
         return array(
             'fields' => array(
                 'code' => array('type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'good random code'),
-                'user_id' => array('type' => 'int', 'default' => 0, 'description' => 'user who requested confirmation'),
+                'user_id' => array('type' => 'int', 'description' => 'user who requested confirmation'),
                 'address' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'address (email, xmpp, SMS, etc.)'),
                 'address_extra' => array('type' => 'varchar', 'length' => 191, 'description' => 'carrier ID, for SMS'),
                 'address_type' => array('type' => 'varchar', 'length' => 8, 'not null' => true, 'description' => 'address type ("email", "xmpp", "sms")'),
