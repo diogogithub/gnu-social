@@ -46,7 +46,15 @@ class InboxNoticeStream extends ScopingNoticeStream
      */
     public function __construct(Profile $target, Profile $scoped = null)
     {
-        parent::__construct(new CachingNoticeStream(new RawInboxNoticeStream($target), 'profileall:'.$target->getID()), $scoped);
+        parent::__construct(
+            new CachingNoticeStream(
+                new RawInboxNoticeStream($target),
+                'profileall:' . $target->getID(),
+                false,
+                true
+            ),
+            $scoped
+        );
     }
 }
 
