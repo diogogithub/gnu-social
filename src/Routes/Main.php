@@ -32,7 +32,6 @@
 namespace App\Routes;
 
 use App\Controller as C;
-use App\Controller\NetworkPublic;
 use App\Core\Router\RouteLoader;
 use Symfony\Bundle\FrameworkBundle\Controller\TemplateController;
 
@@ -40,7 +39,8 @@ abstract class Main
 {
     public static function load(RouteLoader $r): void
     {
-        $r->connect('main_all', '/main/all', NetworkPublic::class);
+        $r->connect('main_all', '/main/all', C\NetworkPublic::class);
+        $r->connect('config_admin', '/config/admin', C\AdminConfigController::class);
 
         // FAQ static pages
         foreach (['faq', 'contact', 'tags', 'groups', 'openid'] as $s) {
@@ -52,6 +52,6 @@ abstract class Main
             $r->connect('settings_' . $s, 'settings/' . $s, C\UserAdminPanel::class);
         }
 
-        $r->connect('account_settings', 'settings/account', C\UserAdminPanel::class);
+        $r->connect('settings_account', 'settings/account', C\UserAdminPanel::class);
     }
 }
