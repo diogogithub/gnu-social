@@ -36,7 +36,8 @@
         "symfony/validator": "5.1.*",
         "symfony/web-link": "5.1.*",
         "symfony/yaml": "5.1.*",
-        "twig/markdown-extra": "^3.0"
+        "twig/markdown-extra": "^3.0",
+        "wikimedia/composer-merge-plugin": "^1.4"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16",
@@ -93,6 +94,13 @@
         "symfony": {
             "allow-contrib": false,
             "require": "5.1.*"
+        },
+        "merge-plugin": {
+            "include": [
+                "composer.local.json"
+            ],
+            "replace": true,
+            "ignore-duplicates": false
         }
     }
 }
