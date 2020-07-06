@@ -45,19 +45,21 @@ abstract class ModulesManager
 
         foreach ($plugins_paths as $plugin_path) {
             $class_name = basename($plugin_path);
-            $qualified  = 'Plugin\\' . $class_name . '\\' . $class_name;
+            $fqcn       = "Plugin\\{$class_name}\\{$class_name}";
+            $file       = "{$plugin_path}/{$class_name}.php";
+            if (file_exists($file)) {
+                require_once $file;
+                $class           = new $fqcn;
+                self::$modules[] = $class;
 
-            require_once $plugin_path . '/' . $class_name . '.php';
-            $class           = new $qualified;
-            self::$modules[] = $class;
-
-            // Register event handlers
-            $methods = get_class_methods($class);
-            $events  = F\select($methods, F\partial_right('App\Util\Formatting::startsWith', 'on'));
-            F\map($events,
-                function (string $m) use ($class) {
-                    Event::addHandler(substr($m, 2), [$class, $m]);
-                });
+                // Register event handlers
+                $methods = get_class_methods($class);
+                $events  = F\select($methods, F\partial_right('App\Util\Formatting::startsWith', 'on'));
+                F\map($events,
+                      function (string $m) use ($class) {
+                          Event::addHandler(substr($m, 2), [$class, $m]);
+                      });
+            }
         }
     }
 }
