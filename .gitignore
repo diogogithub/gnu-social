@@ -33,6 +33,7 @@ docker/certbot
 docker/*/*.env
 
 docker-compose.yaml
+composer.local.json
 
 # V2
 config.php
