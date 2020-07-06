@@ -30,21 +30,19 @@
 
 namespace App\Controller;
 
-// use App\Core\Event;
-// use App\Util\Common;
+use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\DB\DefaultSettings;
 use App\Core\Form;
 use function App\Core\I18n\_m;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
-class AdminConfigController extends AbstractController
+class AdminConfigController extends Controller
 {
-    public function __invoke(Request $request)
+    public function handle(Request $request)
     {
         $defaults = DefaultSettings::$defaults;
         $options  = [];
@@ -78,12 +76,13 @@ class AdminConfigController extends AbstractController
                     'default'   => $default,
                 ]);
             } else {
-                // Display error
+                // TODO Display error
             }
         }
 
-        return $this->render('config/admin.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        return [
+            '_template' => 'config/admin.html.twig',
+            'form'      => $form->createView(),
+        ];
     }
 }

@@ -118,9 +118,7 @@ abstract class Event
      */
     public static function handle(string $name, array $args = [], string $ns = 'GNUsocial/'): bool
     {
-        return !(self::$dispatcher->dispatch(
-            new GenericEvent($ns . $name, $args),
-            $name)->isPropagationStopped());
+        return !(self::$dispatcher->dispatch(new GenericEvent($ns . $name, $args), $name)->isPropagationStopped());
     }
 
     /**

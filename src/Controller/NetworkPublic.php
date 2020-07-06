@@ -30,18 +30,23 @@
 
 namespace App\Controller;
 
+use App\Core\Controller;
 use App\Core\Event;
 use App\Util\Common;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class NetworkPublic extends AbstractController
+class NetworkPublic extends Controller
 {
-    public function __invoke()
+    public function onPost()
+    {
+        return ['_template' => 'network/public.html.twig'];
+    }
+
+    public function handle()
     {
         Event::handle('Test', ['foobar']);
 
         Common::config('url', 'shortener');
 
-        return $this->render('network/public.html.twig', []);
+        return ['_template' => 'network/public.html.twig'];
     }
 }
