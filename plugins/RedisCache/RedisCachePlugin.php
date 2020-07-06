@@ -1,30 +1,28 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * GNU social - a federating social network
- *
  * Plguin inplementing Redis based caching
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  Files
  * @package   GNUsocial
  * @author    Stéphane Bérubé <chimo@chromic.org>
  * @author    Miguel Dantas <biodantas@gmail.com>
- * @copyright 2018, 2019 Free Software Foundation http://fsf.org
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      https://www.gnu.org/software/social/
+ * @copyright 2018, 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 defined('GNUSOCIAL') || die();
@@ -40,10 +38,9 @@ class RedisCachePlugin extends Plugin
     public $server = null;
     public $defaultExpiry = 86400; // 24h
 
-
     protected $client = null;
 
-    function onInitializePlugin()
+    public function onInitializePlugin()
     {
         $this->_ensureConn();
 
@@ -57,12 +54,12 @@ class RedisCachePlugin extends Plugin
         }
     }
 
-    function onStartCacheGet(&$key, &$value)
+    public function onStartCacheGet($key, &$value)
     {
         try {
             $this->_ensureConn();
             $ret = $this->client->get($key);
-        } catch(PredisException $e) {
+        } catch (PredisException $e) {
             common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
             return true;
         }
@@ -78,9 +75,11 @@ class RedisCachePlugin extends Plugin
         return true;
     }
 
-    function onStartCacheSet(&$key, &$value, &$flag, &$expiry, &$success)
+    public function onStartCacheSet($key, $value, $flag, $expiry, &$success)
     {
-        if ($expiry === null) {
+        $success = false;
+
+        if (is_null($expiry)) {
             $expiry = $this->defaultExpiry;
         }
 
@@ -88,20 +87,22 @@ class RedisCachePlugin extends Plugin
             $this->_ensureConn();
 
             $ret = $this->client->setex($key, $expiry, serialize($value));
-        } catch(PredisException $e) {
+        } catch (PredisException $e) {
+            $ret = false;
             common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
-            return true;
         }
 
-        if (is_int($ret) || (!is_null($ret) && $ret->getPayload() === "OK")) {
-            $success = true;
-            return false;
+        if (is_bool($ret)
+            || is_numeric($ret)) {
+            $success = ($ret ? true : false);
+        } elseif (is_object($ret) && method_exists($ret, 'getPayload')) {
+            $success = ($ret->getPayload() === 'OK');
         }
 
-        return true;
+        return !$success;
     }
 
-    function onStartCacheDelete($key)
+    public function onStartCacheDelete($key)
     {
         if ($key === null) {
             return true;
@@ -110,7 +111,7 @@ class RedisCachePlugin extends Plugin
         try {
             $this->_ensureConn();
             $ret = $this->client->del($key);
-        } catch(PredisException $e) {
+        } catch (PredisException $e) {
             common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
         }
 
@@ -118,12 +119,12 @@ class RedisCachePlugin extends Plugin
         return isset($ret) && $ret === 1;
     }
 
-    function onStartCacheIncrement(&$key, &$step, &$value)
+    public function onStartCacheIncrement($key, $step, $value)
     {
         try {
             $this->_ensureConn();
             $this->client->incrby($key, $step);
-        } catch(PredisException $e) {
+        } catch (PredisException $e) {
             common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
             return true;
         }
@@ -135,7 +136,7 @@ class RedisCachePlugin extends Plugin
     {
         $versions[] = [
             'name' => 'RedisCache',
-            'version' => self::VERSION,
+            'version' => self::PLUGIN_VERSION,
             'author' => 'Stéphane Bérubé (chimo)',
             'homepage' => 'https://github.com/chimo/gs-rediscache',
             'description' =>
