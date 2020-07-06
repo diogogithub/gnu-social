@@ -17,7 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-
 /**
  * Command to search for event by pattern
  *
@@ -33,30 +32,39 @@ namespace App\Command;
 
 use Functional as F;
 use ReflectionFunction;
-use Symfony\Bundle\FrameworkBundle\Command\EventDispatcherDebugCommand;
+use Symfony\Bundle\FrameworkBundle\Console\Helper\DescriptorHelper;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-class ListEventsCommand extends EventDispatcherDebugCommand
+class ListEventsCommand extends Command
 {
     protected static $defaultName = 'app:events';
     private EventDispatcherInterface $dispatcher;
 
     public function __construct(EventDispatcherInterface $dispatcher)
     {
-        parent::__construct($dispatcher);
+        parent::__construct();
         $this->dispatcher = $dispatcher;
     }
 
     protected function configure()
     {
-        $this->setDefinition([new InputArgument('pattern',
-                                                InputArgument::OPTIONAL,
-                                                'An event pattern to look for')])
-             ->setDescription('Search for an event');
+        $this->setDefinition([new InputArgument('pattern', InputArgument::OPTIONAL, 'An event pattern to look for')])
+             ->setDescription('Search for an event')
+             ->setHelp(<<<'EOF'
+The <info>%command.name%</info> command displays GNU social event listeners:
+
+  <info>php %command.full_name%</info>
+
+To get specific listeners for an event, specify its name:
+
+  <info>php %command.full_name% kernel.request</info>
+EOF
+             );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -72,12 +80,17 @@ class ListEventsCommand extends EventDispatcherDebugCommand
                               });
 
         foreach ($listeners as $event => $listener) {
-            echo 'Event \'' . $event . "\\' handled by:\n";
+            echo "Event '{$event}' handled by:\n";
             foreach ($listener as $c) {
                 $r = new ReflectionFunction($c);
                 echo '    ' . get_class($r->getStaticVariables()['handler'][0]) . "\n";
             }
         }
+
+        $helper            = new DescriptorHelper();
+        $options['output'] = $io;
+        $helper->describe($io, null, $options);
+
         return 0;
     }
 }
