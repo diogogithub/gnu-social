@@ -31,8 +31,6 @@
 namespace App\Controller;
 
 use App\Core\Controller;
-use App\Core\Event;
-use App\Util\Common;
 
 class NetworkPublic extends Controller
 {
@@ -43,10 +41,9 @@ class NetworkPublic extends Controller
 
     public function handle()
     {
-        Event::handle('Test', ['foobar']);
-
-        Common::config('url', 'shortener');
-
-        return ['_template' => 'network/public.html.twig'];
+        return [
+            '_template' => 'network/public.html.twig',
+            'notices'   => ['some notice', 'some other notice', 'some other more diferent notice'],
+        ];
     }
 }

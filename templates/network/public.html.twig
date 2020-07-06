@@ -15,6 +15,12 @@
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
 
-        <h1>Imagine some notices here</h1>
+        {% if notices is defined %}
+          {% for notice in notices %}
+            <div> {{notice}} </div>
+          {% endfor %}
+        {% else %}
+          No notices here.
+        {% endif %}
     </body>
 </html>
