@@ -78,8 +78,8 @@ class RawTagNoticeStream extends NoticeStream
         $nt->selectAdd();
         $nt->selectAdd('notice_id');
 
-        Notice::addWhereSinceId($nt, $since_id, 'notice_id');
-        Notice::addWhereMaxId($nt, $max_id, 'notice_id');
+        Notice::addWhereSinceId($nt, $since_id, 'notice_id', 'notice_tag.created');
+        Notice::addWhereMaxId($nt, $max_id, 'notice_id', 'notice_tag.created');
 
         if (!empty($this->selectVerbs)) {
             $nt->joinAdd(array('notice_id', 'notice:id'));
