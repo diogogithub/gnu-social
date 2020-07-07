@@ -110,11 +110,27 @@ class ActivityPubPlugin extends Plugin
 
         if ($grab_online) {
             /* Online Grabbing */
-            $client    = new HTTPClient();
-            $response  = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
+            $client = new HTTPClient();
+            $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
             $object = json_decode($response->getBody(), true);
             if (Activitypub_notice::validate_note($object)) {
-                return Activitypub_notice::create_notice($object);
+                // Okay, we've found a valid note object!
+                // Now we need to find the Actor who authored it
+                // The right way would be to grab attributed to and check its outbox
+                // But that would be outright inefficient
+                // Hence, let's just compare the domain names...
+                if (isset($object['attributedTo'])) {
+                    $acclaimed_actor_profile = ActivityPub_explorer::get_profile_from_url($object['attributedTo']);
+                } elseif (isset($object['actor'])) {
+                    $acclaimed_actor_profile = ActivityPub_explorer::get_profile_from_url($object['actor']);
+                } else {
+                    throw new Exception("A notice can't be created without an actor.");
+                }
+                if (parse_url($acclaimed_actor_profile->getUri(), PHP_URL_HOST) == parse_url($object['id'], PHP_URL_HOST)) {
+                    return Activitypub_notice::create_notice($object, $acclaimed_actor_profile);
+                } else {
+                    throw new Exception("The acclaimed actor didn't create this note.");
+                }
             } else {
                 throw new Exception("Valid ActivityPub Notice object but unsupported by GNU social.");
             }
@@ -140,29 +156,37 @@ class ActivityPubPlugin extends Plugin
             'application/ld+json' => 3
         ];
 
-        $m->connect('user/:id',
-                    ['action' => 'apActorProfile'],
-                    ['id'     => '[0-9]+'],
-                    true,
-                    $acceptHeaders);
+        $m->connect(
+            'user/:id',
+            ['action' => 'apActorProfile'],
+            ['id'     => '[0-9]+'],
+            true,
+            $acceptHeaders
+        );
 
-        $m->connect(':nickname',
-                    ['action'   => 'apActorProfile'],
-                    ['nickname' => Nickname::DISPLAY_FMT],
-                    true,
-                    $acceptHeaders);
+        $m->connect(
+            ':nickname',
+            ['action'   => 'apActorProfile'],
+            ['nickname' => Nickname::DISPLAY_FMT],
+            true,
+            $acceptHeaders
+        );
 
-        $m->connect(':nickname/',
-                    ['action'   => 'apActorProfile'],
-                    ['nickname' => Nickname::DISPLAY_FMT],
-                    true,
-                    $acceptHeaders);
+        $m->connect(
+            ':nickname/',
+            ['action'   => 'apActorProfile'],
+            ['nickname' => Nickname::DISPLAY_FMT],
+            true,
+            $acceptHeaders
+        );
 
-        $m->connect('notice/:id',
-                    ['action' => 'apNotice'],
-                    ['id'     => '[0-9]+'],
-                    true,
-                    $acceptHeaders);
+        $m->connect(
+            'notice/:id',
+            ['action' => 'apNotice'],
+            ['id'     => '[0-9]+'],
+            true,
+            $acceptHeaders
+        );
 
         $m->connect(
             'user/:id/liked.json',
@@ -240,7 +264,7 @@ class ActivityPubPlugin extends Plugin
      * @param Array &$transports list of transports to queue for
      * @return bool event hook return
      */
-    public function onStartEnqueueNotice(Notice $notice, Array &$transports): bool
+    public function onStartEnqueueNotice(Notice $notice, array &$transports): bool
     {
         try {
             $id = $notice->getID();
@@ -264,7 +288,8 @@ class ActivityPubPlugin extends Plugin
      * @param Notice &$notice notice to be saved
      * @return bool event hook return
      */
-    public function onStartNoticeSave(Notice &$notice): bool {
+    public function onStartNoticeSave(Notice &$notice): bool
+    {
         if ($notice->reply_to) {
             try {
                 $parent = $notice->getParent();
@@ -273,8 +298,8 @@ class ActivityPubPlugin extends Plugin
                 // if we're replying unlisted/followers-only notices received by AP
                 // or replying to replies of such notices, then we make sure to set
                 // the correct type flag.
-                if ( ($parent->source === 'ActivityPub' && $is_local === Notice::GATEWAY) ||
-                     ($parent->source === 'web' && $is_local === Notice::LOCAL_NONPUBLIC) ) {
+                if (($parent->source === 'ActivityPub' && $is_local === Notice::GATEWAY) ||
+                     ($parent->source === 'web' && $is_local === Notice::LOCAL_NONPUBLIC)) {
                     $this->log(LOG_INFO, "Enforcing type flag LOCAL_NONPUBLIC for new notice");
                     $notice->is_local = Notice::LOCAL_NONPUBLIC;
                 }
@@ -293,7 +318,8 @@ class ActivityPubPlugin extends Plugin
      * @param array &$recipients
      * @return void
      */
-    public function onFillDirectMessageRecipients(User $current, array &$recipients): void {
+    public function onFillDirectMessageRecipients(User $current, array &$recipients): void
+    {
         try {
             $subs = Activitypub_profile::getSubscribed($current->getProfile());
             foreach ($subs as $sub) {
@@ -317,7 +343,8 @@ class ActivityPubPlugin extends Plugin
      * @param Profile $recipient
      * @return bool hook return value
      */
-    public function onDirectMessageProfilePageActions(Profile $recipient): bool {
+    public function onDirectMessageProfilePageActions(Profile $recipient): bool
+    {
         $to = Activitypub_profile::getKV('profile_id', $recipient->getID());
         if ($to instanceof Activitypub_profile) {
             return false; // we can validate this profile, signal it
@@ -551,7 +578,7 @@ class ActivityPubPlugin extends Plugin
             $text,
             $wmatches,
             PREG_OFFSET_CAPTURE
-                );
+        );
         if ($result === false) {
             common_log(LOG_ERR, __METHOD__ . ': Error parsing webfinger IDs from text (preg_last_error=='.preg_last_error().').');
             return [];
@@ -579,7 +606,7 @@ class ActivityPubPlugin extends Plugin
             $text,
             $wmatches,
             PREG_OFFSET_CAPTURE
-                );
+        );
         if ($result === false) {
             common_log(LOG_ERR, __METHOD__ . ': Error parsing profile URL mentions from text (preg_last_error=='.preg_last_error().').');
             return [];
@@ -779,7 +806,8 @@ class ActivityPubPlugin extends Plugin
      * @throws HTTP_Request2_Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function onStartSubscribe(Profile $profile, Profile $other) {
+    public function onStartSubscribe(Profile $profile, Profile $other)
+    {
         if (!$profile->isLocal()) {
             return true;
         }
@@ -839,7 +867,8 @@ class ActivityPubPlugin extends Plugin
      * @param Notice $message
      * @return void
      */
-    public function onSendDirectMessage(Notice $message): void {
+    public function onSendDirectMessage(Notice $message): void
+    {
         $from = $message->getProfile();
         if (!$from->isLocal()) {
             // nothing to do

@@ -125,9 +125,9 @@ class Activitypub_notice
      */
     public static function create_notice(array $object, Profile $actor_profile, bool $directMessage = false): Notice
     {
-        $id = $object['id'];                                // int
+        $id = $object['id'];                                 // int
         $url = isset($object['url']) ? $object['url'] : $id; // string
-        $content = $object['content'];                           // string
+        $content = $object['content'];                       // string
 
         // possible keys: ['inReplyTo', 'latitude', 'longitude']
         $settings = [];
