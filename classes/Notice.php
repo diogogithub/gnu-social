@@ -105,14 +105,14 @@ class Notice extends Managed_DataObject
                 'notice_repeat_of_fkey' => array('notice', array('repeat_of' => 'id')), # @fixme: what about repeats of deleted notices?
             ),
             'indexes' => array(
-                'notice_created_id_is_local_idx' => array('created', 'id', 'is_local'),
-                'notice_profile_id_idx' => array('profile_id', 'created', 'id'),
+                'notice_is_local_created_id_idx' => array('is_local', 'created', 'id'),
+                'notice_profile_id_created_id_idx' => array('profile_id', 'created', 'id'),
+                'notice_profile_id_verb_scope_created_id_idx' => array('profile_id', 'verb', 'scope', 'created', 'id'),
                 'notice_is_local_created_profile_id_idx' => array('is_local', 'created', 'profile_id'),
                 'notice_repeat_of_created_id_idx' => array('repeat_of', 'created', 'id'),
                 'notice_conversation_created_id_idx' => array('conversation', 'created', 'id'),
                 'notice_object_type_idx' => array('object_type'),
                 'notice_verb_idx' => array('verb'),
-                'notice_profile_id_verb_idx' => array('profile_id', 'verb'),
                 'notice_url_idx' => array('url'),   // Qvitter wants this
                 'notice_replyto_idx' => array('reply_to')
             )
