@@ -27,6 +27,7 @@
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+use App\CacheKernel;
 use App\Kernel;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,7 +49,13 @@ if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false
     Request::setTrustedHosts([$trustedHosts]);
 }
 
-$kernel   = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+$kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+
+// Wrap the default Kernel with the CacheKernel one in 'prod' environment
+if ('prod' === $kernel->getEnvironment() || isset($_ENV['SOCIAL_USE_CACHE_KERNEL'])) {
+    $kernel = new CacheKernel($kernel);
+}
+
 $request  = Request::createFromGlobals();
 $response = $kernel->handle($request);
 $response->send();
