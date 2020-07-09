@@ -6,7 +6,15 @@ server {
     server_name social.example.org;
 
 # redirect all traffic to HTTPS
-    rewrite ^ https://$host$request_uri? permanent;
+    return 301 https://$host$request_uri;
+}
+
+map $sent_http_content_type $gnusocial_expires_policy {
+    default                 off;
+    text/css                30d;
+    application/javascript  30d;
+    ~image/                 30d;
+    ~video/                 30d;
 }
 
 server {
@@ -31,12 +39,19 @@ server {
 # Index
     index index.php;
 
+# Enable browser caching for JS, CSS, images, audio, video
+    expires $gnusocial_expires_policy;
+
 # X-Accel/X-Sendfile. Still needs to be enabled in the config
-    location /file {
+    location ^~ /file {
         internal;
         # FIXME: Change "/path/to/gnusocial/root/" to the folder where
         # attachments are stored (normally the same as the site root)
         root /path/to/gnusocial/root/;
+
+# Enable compression for images, audio, video to save bandwidth
+#        gzip on;
+#        gzip_comp_level 4;
     }
 
 # PHP
@@ -68,6 +83,11 @@ server {
         try_files $uri $uri/ @index_handler;
     }
 
+# If avatars are located at /path/to/gnusocial/root/file (default)
+    location ^~ /avatar {
+        rewrite ^(.*)$ /file/$1 last;
+    }
+
 # Fancy URLs
     error_page 404 @index_handler;
     location @index_handler {
@@ -92,13 +112,4 @@ server {
 #    client_max_body_size 15M;
 #    client_body_buffer_size 128k;
 #    gzip_vary on;
-#
-#    location ~* \.(?:css|js|woff|svg|gif|png|webp|ttf|ico|jpe?g)$ {
-#        gzip on;
-#        gzip_comp_level 4;
-#        add_header Cache-Control "public";
-#        expires 30d;
-#        access_log off;
-#        log_not_found off;
-#    }
 }
