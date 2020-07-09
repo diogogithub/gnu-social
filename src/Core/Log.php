@@ -17,7 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-
 /**
  * GNU social's logger wrapper around Symfony's,
  * keeping our old static interface, which is more convenient and just as powerful
@@ -34,7 +33,7 @@ namespace App\Core;
 
 use Psr\Log\LoggerInterface;
 
-class Log
+abstract class Log
 {
     private static ?LoggerInterface $logger;
 
@@ -45,67 +44,9 @@ class Log
 
     /**
      * Simple static wrappers around Monolog's functions
-     *
-     * @param string $msg
      */
-    public static function emergency(string $msg): void
+    public static function __callStatic(string $name, array $args)
     {
-        self::$logger->emergency($msg);
-    }
-
-    /**
-     * @param string $msg
-     */
-    public static function alert(string $msg): void
-    {
-        self::$logger->alert($msg);
-    }
-
-    /**
-     * @param string $msg
-     */
-    public static function critical(string $msg): void
-    {
-        self::$logger->critical($msg);
-    }
-
-    /**
-     * @param string $msg
-     */
-    public static function error(string $msg): void
-    {
-        self::$logger->error($msg);
-    }
-
-    /**
-     * @param string $msg
-     */
-    public static function warning(string $msg): void
-    {
-        self::$logger->warning($msg);
-    }
-
-    /**
-     * @param string $msg
-     */
-    public static function notice(string $msg): void
-    {
-        self::$logger->notice($msg);
-    }
-
-    /**
-     * @param string $msg
-     */
-    public static function info(string $msg): void
-    {
-        self::$logger->info($msg);
-    }
-
-    /**
-     * @param string $msg
-     */
-    public static function debug(string $msg): void
-    {
-        self::$logger->debug($msg);
+        return self::$logger->{$name}(...$args);
     }
 }
