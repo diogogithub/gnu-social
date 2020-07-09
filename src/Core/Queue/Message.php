@@ -18,35 +18,19 @@
 // }}}
 
 /**
- * Handle network public feed
- *
- * @package  GNUsocial
- * @category Controller
- *
- * @author    Hugo Sales <hugo@fc.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ * Generic message wrapper
  */
 
-namespace App\Controller;
+namespace App\Core\Queue;
 
-use App\Core\Controller;
-use App\Core\Queue\Queue;
-
-class NetworkPublic extends Controller
+class Message
 {
-    public function onPost()
-    {
-        return ['_template' => 'network/public.html.twig'];
-    }
+    public $content;
+    public string $queue;
 
-    public function handle()
+    public function __construct($content, string $queue)
     {
-        Queue::enqueue('Yo, test', 'network_public');
-
-        return [
-            '_template' => 'network/public.html.twig',
-            'notices'   => ['some notice', 'some other notice', 'some other more diferent notice'],
-        ];
+        $this->queue   = $queue;
+        $this->content = $content;
     }
 }

@@ -43,6 +43,7 @@ namespace App\Core;
 use App\Core\DB\DB;
 use App\Core\DB\DefaultSettings;
 use App\Core\I18n\I18nHelper;
+use App\Core\Queue\Queue;
 use App\Core\Router\Router;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -52,6 +53,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -62,6 +64,7 @@ class GNUsocial implements EventSubscriberInterface
     protected EntityManagerInterface $entity_manager;
     protected RouterInterface        $router;
     protected FormFactoryInterface   $form_factory;
+    protected MessageBusInterface    $message_bus;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -70,13 +73,15 @@ class GNUsocial implements EventSubscriberInterface
                                 TranslatorInterface $translator,
                                 EntityManagerInterface $em,
                                 RouterInterface $router,
-                                FormFactoryInterface $ff)
+                                FormFactoryInterface $ff,
+                                MessageBusInterface $message_bus)
     {
         $this->logger         = $logger;
         $this->translator     = $translator;
         $this->entity_manager = $em;
         $this->router         = $router;
         $this->form_factory   = $ff;
+        $this->message_bus    = $message_bus;
     }
 
     /**
@@ -92,6 +97,7 @@ class GNUsocial implements EventSubscriberInterface
         DB::setManager($this->entity_manager);
         Router::setRouter($this->router);
         Form::setFactory($this->form_factory);
+        Queue::setMessageBus($this->message_bus);
 
         DefaultSettings::setDefaults();
         ModulesManager::loadModules();

@@ -18,35 +18,18 @@
 // }}}
 
 /**
- * Handle network public feed
- *
- * @package  GNUsocial
- * @category Controller
- *
- * @author    Hugo Sales <hugo@fc.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ * Generic handler, distributes work based o
  */
 
-namespace App\Controller;
+namespace App\Core\Queue;
 
-use App\Core\Controller;
-use App\Core\Queue\Queue;
+use App\Core\Event;
+use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-class NetworkPublic extends Controller
+class MessageHandler implements MessageHandlerInterface
 {
-    public function onPost()
+    public function __invoke(Message $message)
     {
-        return ['_template' => 'network/public.html.twig'];
-    }
-
-    public function handle()
-    {
-        Queue::enqueue('Yo, test', 'network_public');
-
-        return [
-            '_template' => 'network/public.html.twig',
-            'notices'   => ['some notice', 'some other notice', 'some other more diferent notice'],
-        ];
+        Event::handle($message->queue, [$message->content]);
     }
 }

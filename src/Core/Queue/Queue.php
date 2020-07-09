@@ -18,35 +18,41 @@
 // }}}
 
 /**
- * Handle network public feed
+ * Queue wrapper
  *
  * @package  GNUsocial
- * @category Controller
+ * @category Wrapper
  *
  * @author    Hugo Sales <hugo@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Controller;
+namespace App\Core\Queue;
 
-use App\Core\Controller;
-use App\Core\Queue\Queue;
+use Symfony\Component\Messenger\MessageBusInterface;
 
-class NetworkPublic extends Controller
+abstract class Queue
 {
-    public function onPost()
+    private static ?MessageBusInterface $message_bus;
+
+    public static function setMessageBus($mb): void
     {
-        return ['_template' => 'network/public.html.twig'];
+        self::$message_bus = $mb;
     }
 
-    public function handle()
+    /**
+     * Enqueue a $message in a configured trasnport, to be handled by the $queue handler
+     *
+     * @param object|string
+     * @param mixed $message
+     */
+    public static function enqueue($message, string $queue, bool $high = false, array $stamps = [])
     {
-        Queue::enqueue('Yo, test', 'network_public');
-
-        return [
-            '_template' => 'network/public.html.twig',
-            'notices'   => ['some notice', 'some other notice', 'some other more diferent notice'],
-        ];
+        if ($high) {
+            self::$message_bus->dispatch(new MessageHigh($message, $queue), $stamps);
+        } else {
+            self::$message_bus->dispatch(new MessageLow($message, $queue), $stamps);
+        }
     }
 }
