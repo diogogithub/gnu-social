@@ -1,0 +1,11 @@
+framework:
+    messenger:
+        failure_transport: failed
+        transports:
+            failed: 'doctrine://default?queue_name=failed'
+            high: '%env(MESSENGER_TRANSPORT_DSN_HIGH)%'
+            low: '%env(MESSENGER_TRANSPORT_DSN_LOW)%'
+
+        routing:
+            'App\Core\Queue\MessageHigh': high
+            'App\Core\Queue\MessageLow': low
