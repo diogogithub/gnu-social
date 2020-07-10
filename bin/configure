@@ -55,14 +55,14 @@ echo "${database_url}" > .env.local
 mkdir -p ./docker/social
 
 cat > ./docker/social/social.env <<EOF
-SOCIAL_DBMS=${dbms}
-SOCIAL_DB=${db}
-SOCIAL_USER=${user}
-SOCIAL_PASSWORD=${password}
-SOCIAL_DOMAIN=${domain}
-SOCIAL_SITENAME=${sitename}
-SOCIAL_ADMIN_NICK=${admin_nick}
-SOCIAL_ADMIN_PASSWORD=${admin_password}
-SOCIAL_ADMIN_EMAIL=${email}
-SOCIAL_SITE_PROFILE=${profile}
+SOCIAL_DBMS="${dbms}"
+SOCIAL_DB="${db}"
+SOCIAL_USER="${user}"
+SOCIAL_PASSWORD="${password}"
+SOCIAL_DOMAIN="${domain}"
+SOCIAL_SITENAME="${sitename}"
+SOCIAL_ADMIN_NICK="${admin_nick}"
+SOCIAL_ADMIN_PASSWORD="${admin_password}"
+SOCIAL_ADMIN_EMAIL="${email}"
+SOCIAL_SITE_PROFILE="${profile}"
 EOF
