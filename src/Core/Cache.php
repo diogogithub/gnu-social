@@ -56,18 +56,40 @@ abstract class Cache
         return self::$pool->get($key, $calculate, $beta);
     }
 
-    public static function delete(string $key)
+    public static function delete(string $key): bool
     {
         return self::$pool->delete($key);
     }
 
-    public static function getList(string $key, callable $calculate, int $max_count = 0, float $beta = 1.0)
+    public static function getList(string $key, callable $calculate, int $max_count = 64, float $beta = 1.0): SplFixedArray
+    {
+        $keys = self::getKeyList($key, $max_count, $beta);
+
+        $list = new SplFixedArray($keys->count());
+        foreach ($keys as $k) {
+            $list[] = self::get($k, $calculate, $beta);
+        }
+
+        return $list;
+    }
+
+    public static function deleteList(string $key, int $count = 0)
+    {
+        $keys = self::getKeyList($key, $max_count, $beta);
+        if (!F\every($keys, function ($k) { return self::delete($k); })) {
+            Log::warning("Some element of the list associated with {$key} was not deleted. There may be some memory leakage in the cache process");
+        }
+        return self::delete($key);
+    }
+
+    private static function getKeyList(string $key, int $max_count, float $beta): array
     {
         // Get the current keys associated with a list. If the cache
         // is not primed, the function is called and returns an empty
-        // list
-        $keys = self::get($key, function (ItemInterface $i) { return []; }, $beta);
-        if ($max_count == 0) {
-        }
+        // ring buffer
+        return self::get($key,
+                         function (ItemInterface $i) use ($max_count) {
+                             return new RingBuffer($max_count);
+                         }, $beta);
     }
 }
