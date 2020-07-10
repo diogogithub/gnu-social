@@ -57,7 +57,7 @@ abstract class DefaultSettings
                 'brought_by'           => null,
                 'brought_by_url'       => null,
                 'closed'               => false,
-                'register_type'        => 'public',
+                'register_type'        => $_ENV['SOCIAL_SITE_PROFILE'], // public, private, community, single-user
                 'nickname'             => $_ENV['SOCIAL_ADMIN_NICK'],
                 'ssl'                  => 'always',
                 'ssl_proxy'            => false, // set to true to force GNU social to think it is HTTPS (i.e. using reverse proxy to enable it)
