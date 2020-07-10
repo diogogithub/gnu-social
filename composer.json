@@ -10,6 +10,7 @@
         "alchemy/zippy": "v0.5.x-dev",
         "erusev/parsedown": "^1.7",
         "lstrojny/functional-php": "^1.11",
+        "php-ds/php-ds": "^1.2",
         "sensio/framework-extra-bundle": "^5.1",
         "symfony/asset": "5.1.*",
         "symfony/cache": "5.1.*",
