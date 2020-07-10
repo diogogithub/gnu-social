@@ -273,6 +273,6 @@ return PhpCsFixer\Config::create()
         ->exclude('var')
         ->exclude('docker')
         ->exclude('src/Entity')
-        ->notPath('src/Core/DefaultSettings.php')
+        ->notPath('src/Core/DB/DefaultSettings.php')
         ->in(__DIR__)
     );
