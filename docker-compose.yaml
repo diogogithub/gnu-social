@@ -16,7 +16,7 @@ services:
       - ./docker/nginx/domain.sh:/var/nginx/domain.sh
       # Certbot
       - ./docker/certbot/www:/var/www/certbot
-      - ./docker/certbot/files:/etc/letsencrypt
+      - ./docker/certbot/.files:/etc/letsencrypt
       # Social
       - ./public:/var/www/social/public
     env_file:
@@ -42,7 +42,7 @@ services:
                             done'
     volumes:
       - ./docker/certbot/www:/var/www/certbot
-      - ./docker/certbot/files:/etc/letsencrypt
+      - ./docker/certbot/.files:/etc/letsencrypt
 
   php:
     build: docker/php

@@ -5,7 +5,7 @@ services:
     build: .
     volumes:
       - ../certbot/www:/var/www/certbot
-      - ../certbot/files:/etc/letsencrypt
+      - ../certbot/.files:/etc/letsencrypt
       - ./bootstrap.sh:/bootstrap.sh
       - ./bootstrap.env:/bootstrap.env
     ports:
