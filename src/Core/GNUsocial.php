@@ -99,8 +99,8 @@ class GNUsocial implements EventSubscriberInterface
         Form::setFactory($this->form_factory);
         Queue::setMessageBus($this->message_bus);
 
-        Cache::setPool();
         DefaultSettings::setDefaults();
+        Cache::setupCache();
         ModulesManager::loadModules();
     }
 

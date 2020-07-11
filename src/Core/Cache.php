@@ -25,7 +25,7 @@ use Symfony\Component\Cache\Adapter\ChainAdapter;
 
 abstract class Cache
 {
-    protected static AbstractAdapter $pool;
+    protected static AbstractAdapter $pools;
     private static string $ENV_VAR = 'SOCIAL_CACHE_ADAPTER';
 
     /**
@@ -33,27 +33,58 @@ abstract class Cache
      * We may want multiple of these in the future, but for now it seems
      * unnecessary
      */
-    public static function setPool()
+    public static function setupCache()
     {
         if (!isset($_ENV[self::$ENV_VAR])) {
-            return;
+            die("A cache adapter is needed in the environment variable {$ENV_VAR}");
         }
 
-        $adapters = F\map(explode(':', strtolower($_ENV[self::$ENV_VAR])),
-                          function (string $a) {
-                              return 'Adapter\\' . ucfirst($a) . 'Adapter';
-                          });
+        $adapters = [];
+        foreach (explode(';', $_ENV[self::$ENV_VAR]) as $a) {
+            list($pool, $val) = explode('=', $a);
+            foreach (explode(',', $val) as $dsn) {
+                list($scheme, $rest) = explode('://', $dsn);
 
-        if (count($adapters) === 1) {
-            self::$pool = new $adapters[0];
-        } else {
-            self::$pool = new ChainAdapter($adapters);
+                switch ($scheme) {
+                case 'memcached':
+                    // memcached can have multiple servers
+                    $dsn               = F\map(explode(',', $rest), function ($h) use ($scheme) { return $scheme . $h; });
+                    $adapters[$pool][] = new Adapter\MemcachedAdapter($dsn);
+                    break;
+                case 'filesystem':
+                    $adapters[$pool][] = new Adapter\FilesystemAdapter($rest);
+                    break;
+                case 'redis':
+                    $adapters[$pool][] = new Adapter\RedisAdapter($dsn);
+                    break;
+                case 'apcu':
+                    $adapters[$pool][] = new Adapter\ApcuAdapter();
+                    break;
+                case 'opcache':
+                    $adapters[$pool][] = new Adapter\PhpArrayAdapter(stream_get_meta_data(tmpfile())['uri'], new FilesystemAdapter());
+                    break;
+                case 'doctrine':
+                    $adapters[$pool][] = new Adapter\PdoAdapter($dsn);
+                    break;
+                default:
+                    Log::error("Unknown or discouraged cache scheme '{$scheme}'");
+                    return;
+                }
+            }
+            if (count($adapters[$pool]) === 1) {
+                self::$pools[$pool] = array_pop($adapters[$pool]);
+            } else {
+                self::$pools[$pool] = new ChainAdapter($adapters);
+            }
         }
     }
 
-    public static function get(string $key, callable $calculate, float $beta = 1.0)
+    public static function get(string $key, callable $calculate, string $pool = 'default', float $beta = 1.0)
     {
-        return self::$pool->get($key, $calculate, $beta);
+        if (self::$pools[$pool] instanceof AbstractAdapter) {
+            return self::$pool->get($key, $calculate, $beta);
+        } else {
+        }
     }
 
     public static function delete(string $key): bool
