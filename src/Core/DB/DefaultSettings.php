@@ -41,10 +41,15 @@ abstract class DefaultSettings
     public static array $defaults;
     public static function setDefaults()
     {
+        $conf = DB::find('\App\Entity\Config', ['section' => 'site', 'setting' => 'defaults_modified']);
+        if ($conf != null && filemtime(__FILE__) < $conf->getValue()) {
+            // Don't bother modifying the table if this file is older
+            return;
+        }
+
         self::$defaults = [
             'site' => [
                 'name'                 => $_ENV['SOCIAL_SITENAME'] ?? 'Another social instance',
-                'server'               => $_ENV['SOCIAL_DOMAIN'],
                 'notice'               => null,  // site wide notice text
                 'theme'                => 'default',
                 'logo'                 => null,
@@ -64,6 +69,7 @@ abstract class DefaultSettings
                 'duplicate_time_limit' => 60,    // default for same person saying the same thing
                 'text_limit'           => 1000,  // in chars; 0 == no limit
                 'x_static_delivery'    => null,
+                'defaults_modified'    => time(),
             ],
             'security' => ['hash_algos' => ['sha1', 'sha256', 'sha512']],  // set to null for anything that hash_hmac() can handle (and is in hash_algos())
             'db'       => ['mirror' => null],                              // TODO implement
