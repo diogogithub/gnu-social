@@ -52,64 +52,31 @@
         {% block header %}
             <div id='header'>
                 <div id='top'>
-                    <nav class='drop-down' id='menu'>
-                        <ul>
-                            <li>
-                                <a href="#" class='hover-effect'>
-                                    <svg class="icon icon-menu"><use xlink:href="#icon-menu"></use></svg>
-                                </a>
-                                <ul>
-                                    <li><a>Main Page</a></li>
-                                    <li><a>Social</a></li>
-                                    <li><a>Bookmarks</a></li>
-                                    <li><a>Messages</a></li>
-                                    <li><a>Settings</a></li>
-                                    <li><a>Logout</a></li>
-                                </ul> 
-                            </li>
-                        </ul>
-                    </nav>
+                    <div>
+                        <label for="toggle" id='menu'>
+                            <svg class="icon icon-menu"><use xlink:href="#icon-menu"></use></svg>
+                        </label>
+                        <input type="checkbox" id="toggle" class='visually-hidden'>
+                        <div class='navbar'>
+                               <a href='#'>Bookmarks</a> 
+                               <a href='#'>Happenings</a> 
+                               <a href='#'>Messages</a>
+                        </div>
+                    </div>
                     <nav id='instance'>
-                        <a href="#" class='hover-effect'>
+                        <a href="#">
                             <svg class="icon icon-logo"><use xlink:href="#icon-logo"></use></svg>
                             <b>GNU social</b>
                         </a>
                     </nav>
-                    <div id='search'>
-                        <svg class="icon icon-search"><use xlink:href="#icon-search"></use></svg>
-                    </div>
+                    <svg id='search' class="icon icon-search"><use xlink:href="#icon-search"></use></svg>
                 </div>
-
-                <div id='cover'>
-                    <img id="cover-img" src="{{ asset('assets/bitmap.png') }}">
-                    <svg id="avatar"><use xlink:href="#icon-avatar"></use></svg>
-                </div>
-
-                <div id='profile'>
-                    <div id='info'>
-                        <div id='nick'>
-                            <b id='name'>someone</b>
-                        </div>
-                        <div id='tags'>
-                            <i>coffee addict</i>
-                            <i>lazy</i>
-                        </div>
-                    </div>
-                    <div id='stats'>
-                        <div id='followers'>
-                            <b>1337</b> Followers
-                        </div>
-                        <div id='following'>
-                            <b>42</b> Following
-                        </div> 
-                    </div>   
-                </div>     
             </div>
         {% endblock %}
         {% block nav %}{% endblock %} 
         {% block body %}{% endblock %}
         </div>
-        
+
         {% block javascripts %}{% endblock %}
     </body>
 </html>
