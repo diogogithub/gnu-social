@@ -6,7 +6,8 @@
     --medium-size: 0.8em;
     --small-size: 0.65em;
     --unit-size: 1em;
-    --side-margin: 20%;
+    --side-margin: 5em;
+    --nav-size: 12em;
 }
 
 body,
@@ -29,55 +30,28 @@ ul {
     list-style: none;
 }
 
-.drop-down ul li {
-    position: relative;
-    z-index: 2;
-}
-
-.drop-down ul li ul a {
-    line-height: 0.8em;
-}
-
-.drop-down ul li ul {
-    display: none;
-    position: absolute;
-    background-color: #F6F6F6;
-    padding: 0.4em 0.8em 0.8em 0.8em;
-    border-radius: 0.5em;
-    color: #29323c;
-}
-
-.drop-down ul li:hover ul {
-    display: block;
-}
-
-.drop-down ul li ul a:hover {
-    color: rgb(0, 0, 0);
-    transition: all 0.8s ease;
-}
-
-#hover-effect:hover {
-    color: #F6F6F6;
-    transition: all 0.8s ease;
+li {
+    margin: 0;
+    padding: 0;
 }
 
 a:link {
     text-decoration: none;
     outline: 0;
     color: #F6F6F6;
+    margin: 0;
+    padding: 0;
 }
 
 a:visited {
     outline: 0;
     color: #F6F6F6;
-}
-
-ul li ul a {
-    font-size: var(--small-size);
+    margin: 0;
+    padding: 0;
 }
 
 b {
-    font-family: 'Montserrat', sans-serif;
+    font-family: var(--head-font);
     font-weight: 800;
 }
 
@@ -92,31 +66,28 @@ b {
 /*-------------------------------------*/
 /* HEADER -----------------------------*/
 #header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    order: 1;
-    width: 100%;
-    margin-left: var(--side-margin);
-    margin-right: var(--side-margin);
-    background-color: rgba(0, 0, 0, 0.40);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #272E36;
     box-shadow: 0px 0px 60px -20px rgba(41, 50, 60, 1);
+    padding: var(--medium-size) var(--unit-size) var(--medium-size) var(--unit-size);
 }
 
 #top {
     display: flex;
     justify-content: space-between;
-    vertical-align: top;
     flex-wrap: wrap;
-    order: 1;
     width: 100%;
-    padding: var(--unit-size) var(--unit-size) var(--small-size) var(--unit-size);
+    align-items: center;
 }
 
 /* MENU -------------------------------*/
 .icon-menu {
+    margin: 0;
+    padding: 0;
     display: inline-block;
-    vertical-align: top;
     width: var(--unit-size);
     height: var(--unit-size);
     stroke-width: 0;
@@ -137,8 +108,9 @@ b {
 }
 
 .icon-logo {
+    margin: 0;
+    padding: 0;
     display: inline-block;
-    vertical-align: top;
     width: var(--unit-size);
     height: var(--unit-size);
     stroke-width: 0;
@@ -153,8 +125,9 @@ b {
 }
 
 .icon-search {
+    margin: 0;
+    padding: 0;
     display: inline-block;
-    vertical-align: top;
     width: var(--unit-size);
     height: var(--unit-size);
     stroke-width: 0;
@@ -162,64 +135,44 @@ b {
     fill: currentColor;
 }
 
-/*-------------------------------------*/
-/* PROFILE ----------------------------*/
-#cover {
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    order: 3;
-    width: 100%;
+
+.navbar {
+    width: var(--nav-size);
+    height: calc(100vh - (3 * var(--unit-size)));
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.40);
+    margin-top: calc(2 * var(--medium-size) + var(--main-size));
 }
 
-#cover-img {
-    width: 100%;
-    height: auto;
-}
-
-#avatar {
-    z-index: 1;
-    position: absolute;
-    width: 4em;
-    height: 4em;
-    margin-left: var(--unit-size);
-}
-
-#profile {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    width: 100%;
-    padding: var(--medium-size) var(--medium-size);
-    order: 4;
-    font-size: var(--medium-size);
-    align-items: center;
-}
-
-
-#info {
-    order: 1;
-    display: flex;
-    justify-content: flex-start;
-}
-
-#tags {
+.nav-item a {
     color: #91B9D0;
-}
-
-#tags i {
-    margin-left: var(--small-size);
-}
-
-#stats {
-    margin-left: auto;
-    order: 2;
-    display: flex;
-    justify-content: flex-end;
-}
-
-#stats b:last-child {
     margin-left: var(--unit-size);
+    font-size: var(--medium-size);
 }
 
-/*-------------------------------------*/
+.nav-item a:hover {
+    color: #F6F6F6;
+    transition: all 0.8s ease;
+}
+
+label {
+    display: block;
+    cursor: pointer
+}
+
+.navbar {
+    width: 100%;
+    display: none;
+}
+
+.navbar a {
+    display: block;
+}
+
+#toggle {
+    display: none;
+}
+
+#toggle:checked+.navbar {
+    display: block;
+}
