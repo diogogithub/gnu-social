@@ -1,82 +1,115 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        {% block meta %}
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
-        {% endblock %}
-        <title>{% block title %}{% endblock %}</title>
-        {% block stylesheets %}
-            <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans&display=swap" rel="stylesheet">
-            <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}" media="screen and (min-width: 1300px)">
-            <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_mid.css') }}" media="screen and (max-width: 1300px)">
-            <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_small.css') }}" media="screen and (max-width: 750px)">
-        {% endblock %}
-    </head>
-    <body>
-        {% block icons %}
-            <svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <defs>
-            <symbol id="icon-attach" viewBox="0 0 32 32">
-            {{ source('@public_path'~asset('assets/icons/attach.svg')) }}
-            </symbol>
-            <symbol id="icon-heart" viewBox="0 0 32 32">
-            {{ source('@public_path/assets/icons/heart.svg') }}
-            </symbol>
-            <symbol id="icon-logo" viewBox="0 0 32 32">
-            {{ source('@public_path/assets/icons/logo.svg') }}
-            </symbol>
-            <symbol id="icon-drop" viewBox="0 0 32 32">
-            {{ source('@public_path/assets/icons/drop.svg') }}
-            </symbol>
-            <symbol id="icon-reply" viewBox="0 0 32 32">
-            {{ source('@public_path/assets/icons/reply.svg') }}
-            </symbol>
-            <symbol id="icon-menu" viewBox="0 0 32 32">
-            {{ source('@public_path/assets/icons/menu.svg') }}
-            </symbol>
-            <symbol id="icon-recycle" viewBox="0 0 32 32">
-            {{ source('@public_path/assets/icons/recycle.svg') }}
-            </symbol>
-            <symbol id="icon-search" viewBox="0 0 32 32">
-            {{ source('@public_path/assets/icons/search.svg') }}
-            </symbol>
-            <symbol id="icon-avatar" viewBox="0 0 32 32">
-            {{ source('@public_path/assets/icons/avatar.svg') }}
-            </symbol>
-            </defs>
-            </svg>
-        {% endblock %}
+      <head>
+            {% block meta %}
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1">
+            {% endblock %}
+            <title>
+                  {% block title %}{% endblock %}
+            </title>
+            {% block stylesheets %}
+                  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans&display=swap" rel="stylesheet">
+                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}" media="screen and (min-width: 1300px)">
+                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_mid.css') }}" media="screen and (max-width: 1300px)">
+                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_small.css') }}" media="screen and (max-width: 750px)">
+            {% endblock %}
+      </head>
+      <body>
+            {% block icons %}
+                  <svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                        <defs>
+                              <symbol id="icon-attach" viewbox="0 0 32 32">
+                                    {{ source('@public_path'~asset('assets/icons/attach.svg')) }}
+                              </symbol>
+                              <symbol id="icon-heart" viewbox="0 0 32 32">
+                                    {{ source('@public_path/assets/icons/heart.svg') }}
+                              </symbol>
+                              <symbol id="icon-logo" viewbox="0 0 32 32">
+                                    {{ source('@public_path/assets/icons/logo.svg') }}
+                              </symbol>
+                              <symbol id="icon-drop" viewbox="0 0 32 32">
+                                    {{ source('@public_path/assets/icons/drop.svg') }}
+                              </symbol>
+                              <symbol id="icon-reply" viewbox="0 0 32 32">
+                                    {{ source('@public_path/assets/icons/reply.svg') }}
+                              </symbol>
+                              <symbol id="icon-menu" viewbox="0 0 32 32">
+                                    {{ source('@public_path/assets/icons/menu.svg') }}
+                              </symbol>
+                              <symbol id="icon-recycle" viewbox="0 0 32 32">
+                                    {{ source('@public_path/assets/icons/recycle.svg') }}
+                              </symbol>
+                              <symbol id="icon-search" viewbox="0 0 32 32">
+                                    {{ source('@public_path/assets/icons/search.svg') }}
+                              </symbol>
+                              <symbol id="icon-avatar" viewbox="0 0 32 32">
+                                    {{ source('@public_path/assets/icons/avatar.svg') }}
+                              </symbol>
+                        </defs>
+                  </svg>
+            {% endblock %}
+            <div class='wrapper'>
 
-        <div id='container'>
-        {% block header %}
-            <div id='header'>
-                <div id='top'>
-                    <div>
-                        <label for="toggle" id='menu'>
-                            <svg class="icon icon-menu"><use xlink:href="#icon-menu"></use></svg>
-                        </label>
-                        <input type="checkbox" id="toggle" class='visually-hidden'>
-                        <div class='navbar'>
-                               <a href='#'>Bookmarks</a> 
-                               <a href='#'>Happenings</a> 
-                               <a href='#'>Messages</a>
+                  {% block header %}
+                        <div id='header'>
+                              <div id='top'>
+                                    <div id='left-panel'>
+                                          <label for="toggle" id='menu'>
+                                                <svg class="icon icon-menu">
+                                                      <use xlink:href="#icon-menu"></use>
+                                                </svg>
+                                          </label>
+                                          <input type="checkbox" id="toggle">
+                                          <div class='navbar'>
+                                                <div class='profile'>
+                                                      <svg class="icon icon-avatar">
+                                                            <use xlink:href="#icon-avatar"></use>
+                                                      </svg>
+                                                      <div class="info">
+                                                            <b id="nick">someone</b>
+                                                            <div class="tags">
+                                                                  <i>coffee addict</i>
+                                                                  <i>lazy</i>
+                                                            </div>
+                                                            <div class="stats">
+                                                                  <span>
+                                                                        <b>1337</b>
+                                                                        Followers</span>
+                                                                  <span>
+                                                                        <b>42</b>
+                                                                        Following</span>
+                                                            </div>
+                                                      </div>
+                                                </div>
+                                                <a href='#'>Bookmarks</a>
+                                                <a href='#'>Happenings</a>
+                                                <a href='#'>Messages</a>
+                                                <a href='#'>Replies</a>
+                                                <a href='#'>Favourites</a>
+                                                <a href='#'>Reverse Favs</a>
+                                                <a href='#'>Settings</a>
+                                                <a href='#'>Logout</a>
+                                          </div>
+                                    </div>
+                                    <nav id='instance'>
+                                          <a href="#">
+                                                <svg class="icon icon-logo">
+                                                      <use xlink:href="#icon-logo"></use>
+                                                </svg>
+                                                <b>GNU social</b>
+                                          </a>
+                                    </nav>
+                                    <svg id='search' class="icon icon-search">
+                                          <use xlink:href="#icon-search"></use>
+                                    </svg>
+                              </div>
                         </div>
-                    </div>
-                    <nav id='instance'>
-                        <a href="#">
-                            <svg class="icon icon-logo"><use xlink:href="#icon-logo"></use></svg>
-                            <b>GNU social</b>
-                        </a>
-                    </nav>
-                    <svg id='search' class="icon icon-search"><use xlink:href="#icon-search"></use></svg>
-                </div>
-            </div>
-        {% endblock %}
-        {% block nav %}{% endblock %} 
-        {% block body %}{% endblock %}
-        </div>
+                  {% endblock %}
 
-        {% block javascripts %}{% endblock %}
-    </body>
+                  {% block nav %}{% endblock %}
+                  {% block body %}{% endblock %}
+            </div>
+            {% block javascripts %}{% endblock %}
+      </body>
 </html>
