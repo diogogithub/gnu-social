@@ -20,6 +20,7 @@ html {
       font-size: var(--main-size);
       margin: 0;
       padding: 0;
+      height: 100%;
 }
 
 ul {
@@ -68,7 +69,7 @@ b {
       left: 0;
       right: 0;
       background-color: #272E36;
-      box-shadow: 0px 0px 60px -20px rgba(41, 50, 60, 1);
+      box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
       padding: var(--medium-size) var(--unit-size) var(--medium-size) var(--unit-size);
 }
 
@@ -145,6 +146,10 @@ b {
       left: -15em;
       top: 0;
       transition: 0.3s ease;
+      display: block;
+      left: 0;
+      top: 0;
+      transition: 0.3s ease;
 }
 
 .navbar a {
@@ -183,7 +188,7 @@ label {
 .profile {
       display: flex;
       flex-wrap: wrap;
-      background-color: rgba(0, 0, 0, 0.40);
+      background-color: rgba(0, 0, 0, 0.20);
       padding: var(--unit-size);
       font-size: var(--small-size);
       margin-bottom: var(--unit-size);
@@ -201,23 +206,29 @@ label {
 .info {
       order: 2;
 }
+
 .info #nick {
       order: 1;
       margin-bottom: var(--small-size);
 }
+
 .info .tags {
       order: 2;
       margin-bottom: var(--small-size);
 }
+
 .info .stats {
       order: 3;
 }
+
 .info .tags i {
       color: #91B9D0;
 }
+
 .info .tags i:last-child {
       margin-left: var(--small-size);
 }
+
 .stats span:last-child {
       margin-left: var(--small-size);
 }
