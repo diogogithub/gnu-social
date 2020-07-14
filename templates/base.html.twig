@@ -49,67 +49,65 @@
                         </defs>
                   </svg>
             {% endblock %}
-            <div class='wrapper'>
 
-                  {% block header %}
-                        <div id='header'>
-                              <div id='top'>
-                                    <div id='left-panel'>
-                                          <label for="toggle" id='menu'>
-                                                <svg class="icon icon-menu">
-                                                      <use xlink:href="#icon-menu"></use>
+            {% block header %}
+                  <div id='header'>
+                        <div id='top'>
+                              <div id='left-panel'>
+                                    <label for="toggle" id='menu'>
+                                          <svg class="icon icon-menu">
+                                                <use xlink:href="#icon-menu"></use>
+                                          </svg>
+                                    </label>
+                                    <input type="checkbox" id="toggle">
+                                    <div class='navbar'>
+                                          <div class='profile'>
+                                                <svg class="icon icon-avatar">
+                                                      <use xlink:href="#icon-avatar"></use>
                                                 </svg>
-                                          </label>
-                                          <input type="checkbox" id="toggle">
-                                          <div class='navbar'>
-                                                <div class='profile'>
-                                                      <svg class="icon icon-avatar">
-                                                            <use xlink:href="#icon-avatar"></use>
-                                                      </svg>
-                                                      <div class="info">
-                                                            <b id="nick">someone</b>
-                                                            <div class="tags">
-                                                                  <i>coffee addict</i>
-                                                                  <i>lazy</i>
-                                                            </div>
-                                                            <div class="stats">
-                                                                  <span>
-                                                                        <b>1337</b>
-                                                                        Followers</span>
-                                                                  <span>
-                                                                        <b>42</b>
-                                                                        Following</span>
-                                                            </div>
+                                                <div class="info">
+                                                      <b id="nick">someone</b>
+                                                      <div class="tags">
+                                                            <i>coffee addict</i>
+                                                            <i>lazy</i>
+                                                      </div>
+                                                      <div class="stats">
+                                                            <span>
+                                                                  <b>1337</b>
+                                                                  Followers</span>
+                                                            <span>
+                                                                  <b>42</b>
+                                                                  Following</span>
                                                       </div>
                                                 </div>
-                                                <a href='#'>Bookmarks</a>
-                                                <a href='#'>Happenings</a>
-                                                <a href='#'>Messages</a>
-                                                <a href='#'>Replies</a>
-                                                <a href='#'>Favourites</a>
-                                                <a href='#'>Reverse Favs</a>
-                                                <a href='#'>Settings</a>
-                                                <a href='#'>Logout</a>
                                           </div>
+                                          <a href='#'>Bookmarks</a>
+                                          <a href='#'>Happenings</a>
+                                          <a href='#'>Messages</a>
+                                          <a href='#'>Replies</a>
+                                          <a href='#'>Favourites</a>
+                                          <a href='#'>Reverse Favs</a>
+                                          <a href='#'>Settings</a>
+                                          <a href='#'>Logout</a>
                                     </div>
-                                    <nav id='instance'>
-                                          <a href="#">
-                                                <svg class="icon icon-logo">
-                                                      <use xlink:href="#icon-logo"></use>
-                                                </svg>
-                                                <b>GNU social</b>
-                                          </a>
-                                    </nav>
-                                    <svg id='search' class="icon icon-search">
-                                          <use xlink:href="#icon-search"></use>
-                                    </svg>
                               </div>
+                              <nav id='instance'>
+                                    <a href="#">
+                                          <svg class="icon icon-logo">
+                                                <use xlink:href="#icon-logo"></use>
+                                          </svg>
+                                          <b>GNU social</b>
+                                    </a>
+                              </nav>
+                              <svg id='search' class="icon icon-search">
+                                    <use xlink:href="#icon-search"></use>
+                              </svg>
                         </div>
-                  {% endblock %}
+                  </div>
+            {% endblock %}
 
-                  {% block nav %}{% endblock %}
-                  {% block body %}{% endblock %}
-            </div>
+            {% block nav %}{% endblock %}
+            {% block body %}{% endblock %}
             {% block javascripts %}{% endblock %}
       </body>
 </html>
