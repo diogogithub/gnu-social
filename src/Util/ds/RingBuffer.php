@@ -22,7 +22,7 @@ namespace App\Util\ds;
 use Ds\Deque;
 use Functional as F;
 
-class RingBuffer implements \Serializable
+class RingBuffer implements \Serializable, \ArrayAccess
 {
     private int $capacity;
     private Deque $elements;
@@ -31,16 +31,6 @@ class RingBuffer implements \Serializable
     {
         $this->capacity = $c;
         $this->elements = new Deque();
-    }
-
-    public function serialize()
-    {
-        return serialize($this->capacity) . serialize($this->elements);
-    }
-
-    public function unserialize($data)
-    {
-        list($this->capacity, $this->elements) = F\map(explode(';', $data), F\ary('unserialize', 1));
     }
 
     public function add($e)
@@ -55,4 +45,47 @@ class RingBuffer implements \Serializable
     {
         return $this->elements->remove($index);
     }
+
+    public function get(int $index)
+    {
+        return $this->elements->get($index);
+    }
+
+    // ------ Serialization
+    public function serialize()
+    {
+        return serialize($this->capacity) . serialize($this->elements);
+    }
+
+    public function unserialize($data)
+    {
+        list($this->capacity, $this->elements) = F\map(explode(';', $data), F\ary('unserialize', 1));
+    }
+    // ------ End Serialization
+
+    // ------ Array interface
+    public function offsetSet($index, $value)
+    {
+        if (is_null($index)) {
+            $this->add($value);
+        } else {
+            $this->elements->set($index, $value);
+        }
+    }
+
+    public function offsetExists($index)
+    {
+        return is_int($index) && $index >= 0 && $index < $this->elements->count();
+    }
+
+    public function offsetUnset($index)
+    {
+        $this->elements->remove($index);
+    }
+
+    public function offsetGet($index)
+    {
+        return $this->offsetExists($index) ? $this->get($index) : null;
+    }
+    // ------ End Array interface
 }
