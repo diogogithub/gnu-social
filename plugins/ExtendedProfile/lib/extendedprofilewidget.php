@@ -553,7 +553,7 @@ class ExtendedProfileWidget extends Form
             case 'text':
             case 'textarea':
             case 'person':
-                $this->out->text($this->ext->getTextValue($name));
+                $this->out->text($this->ext->getTextValue($name) ?? '');
                 break;
             case 'custom-text':
             case 'custom-textarea':
