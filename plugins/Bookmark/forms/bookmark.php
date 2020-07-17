@@ -160,7 +160,7 @@ class BookmarkForm extends Form
         $this->out->input('bookmark-tags',
                           // TRANS: Field label on form for adding a new bookmark.
                           _m('LABEL','Tags'),
-                          $this->_tags,
+                          implode(',', $this->_tags),
                           // TRANS: Field title on form for adding a new bookmark.
                           _m('Comma- or space-separated list of tags.'),
                           'tags');
