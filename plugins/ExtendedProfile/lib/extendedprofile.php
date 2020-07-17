@@ -84,12 +84,12 @@ class ExtendedProfile
      * @param string $name name of the detail field to get the
      *                     value from
      *
-     * @return string the value
+     * @return string|null the value, null if none
      */
-    public function getTextValue($name)
+    public function getTextValue($name): ?string
     {
         $key = strtolower($name);
-        $profileFields = array('fullname', 'location', 'bio');
+        $profileFields = ['fullname', 'location', 'bio'];
 
         if (in_array($key, $profileFields)) {
             return $this->profile->$name;
