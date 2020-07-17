@@ -22,6 +22,9 @@
 namespace App\Core;
 
 use Functional as F;
+use Redis;
+use RedisCluster;
+use Symfony\Component\Cache\Adapter;
 use Symfony\Component\Cache\Adapter\ChainAdapter;
 
 abstract class Cache
@@ -56,20 +59,22 @@ abstract class Cache
                 case 'redis':
                     // Redis can have multiple servers, but we want to take proper advantage of
                     // redis, not just as a key value store, but using it's datastructures
-                    $dsns = F\map(explode(',', $rest),
-                                  function ($r) use ($partial_to_dsn) {
-                                      // May be a Unix socket
-                                      return $r[0] == '/' ? $r : $partial_to_dsn($r);
-                                  });
+                    $dsns = explode(',', $rest);
                     if (count($dsns) === 1) {
-                        $class = \Redis;
-                        $r     = new \Redis(array_pop($dsns));
+                        $class = Redis::class;
+                        $r     = new Redis();
+                        if ($rest[0] != '/' && strstr($rest, ':') != false) {
+                            list($host, $port) = explode(':', $rest);
+                            $r->pconnect($host, $port);
+                        } else {
+                            $r->pconnect($rest);
+                        }
                     } else {
-                        $class = \RedisCluster;
-                        $r     = new \RedisCluster($dsns);
+                        $class = RedisCluster::class; // true for persistent connection
+                        $r     = new RedisCluster(null, $dsns, null, null, true);
+                        // Distribute reads randomly
+                        $r->setOption($class::OPT_SLAVE_FAILOVER, $class::FAILOVER_DISTRIBUTE);
                     }
-                    // Distribute reads randomly
-                    $r->setOption($class::OPT_SLAVE_FAILOVER, $class::FAILOVER_DISTRIBUTE);
                     // Improved serializer
                     $r->setOption($class::OPT_SERIALIZER, $class::SERIALIZER_MSGPACK);
                     // Persistent connection
