@@ -180,6 +180,12 @@
             "config/packages/sensio_framework_extra.yaml"
         ]
     },
+    "someonewithpc/memcached-polyfill": {
+        "version": "1.0.0"
+    },
+    "someonewithpc/redis-polyfill": {
+        "version": "1.0.0"
+    },
     "symfony/amqp-messenger": {
         "version": "v5.1.2"
     },
