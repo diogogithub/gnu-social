@@ -12,6 +12,8 @@
         "lstrojny/functional-php": "^1.11",
         "php-ds/php-ds": "^1.2",
         "sensio/framework-extra-bundle": "^5.1",
+        "someonewithpc/memcached-polyfill": "^1.0",
+        "someonewithpc/redis-polyfill": "^1.0",
         "symfony/asset": "5.1.*",
         "symfony/cache": "5.1.*",
         "symfony/console": "5.1.*",
