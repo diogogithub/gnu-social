@@ -42,6 +42,12 @@ abstract class DB
 
     public static function __callStatic(string $name, array $args)
     {
+        foreach (['find', 'getReference', 'getPartialReference', 'getRepository'] as $m) {
+            if ($name == $m) {
+                $args[0] = '\App\Entity\\' . ucfirst($args[0]);
+            }
+        }
+
         return self::$em->{$name}(...$args);
     }
 }

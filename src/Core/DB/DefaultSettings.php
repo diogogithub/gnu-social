@@ -41,7 +41,7 @@ abstract class DefaultSettings
     public static array $defaults;
     public static function setDefaults()
     {
-        $conf = DB::find('\App\Entity\Config', ['section' => 'site', 'setting' => 'defaults_modified']);
+        $conf = DB::find('config', ['section' => 'site', 'setting' => 'defaults_modified']);
         if ($conf != null && filemtime(__FILE__) < $conf->getValue()) {
             // Don't bother modifying the table if this file is older
             return;
@@ -269,7 +269,7 @@ abstract class DefaultSettings
         // doesn't implement it. The difference between this and the
         // normal version is that that one does 221 queries in 30 to
         // 50ms, while this does 2 in 10 to 15 ms.
-        if (DB::getRepository('\App\Entity\Config')->count([]) == 0) {
+        if (DB::getRepository('config')->count([]) == 0) {
             $sql = 'insert into config (section, setting, value) values';
             foreach (self::$defaults as $section => $def) {
                 foreach ($def as $setting => $value) {
