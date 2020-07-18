@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 /**
@@ -65,7 +67,7 @@ class AdminConfigController extends Controller
                 $value                   = $data[_m('Value')];
                 $default                 = $defaults[$section][$setting];
                 if (gettype($default) === gettype($value)) {
-                    $conf      = DB::find('\App\Entity\Config', ['section' => $section, 'setting' => $setting]);
+                    $conf      = DB::find('config', ['section' => $section, 'setting' => $setting]);
                     $old_value = $conf->getValue();
                     $conf->setValue(serialize($value));
                     DB::flush();

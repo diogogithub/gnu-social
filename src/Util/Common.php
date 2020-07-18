@@ -39,7 +39,7 @@ abstract class Common
      */
     public static function config(string $section, string $setting)
     {
-        return DB::find('\App\Entity\Config', ['section' => $section, 'setting' => $setting]);
+        return DB::find('config', ['section' => $section, 'setting' => $setting]);
     }
 
     /**
@@ -47,7 +47,7 @@ abstract class Common
      */
     public static function set_config(string $section, string $setting, mixed $value): void
     {
-        $ojb = DB::getPatialReference('\App\Entity\Config', ['section' => $section, 'setting' => $setting]);
+        $ojb = DB::getPartialReference('config', ['section' => $section, 'setting' => $setting]);
         $obj->setValue(serialize($value));
         DB::persist($obj);
         DB::flush();
