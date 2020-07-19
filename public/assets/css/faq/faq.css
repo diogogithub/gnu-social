@@ -2,7 +2,6 @@
       display: flex;
       flex-wrap: wrap;
       margin-top: calc(2 * var(--unit-size) + var(--main-size) + 0.15em);
-      ;
       justify-content: center;
       align-items: center;
       margin-left: calc(var(--nav-size));
