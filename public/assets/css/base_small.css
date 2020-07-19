@@ -66,7 +66,7 @@ b {
       right: 0;
       background-color: #272E36;
       box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
-      padding: var(--medium-size) var(--unit-size) var(--medium-size) var(--unit-size);
+      padding: var(--medium-size);
 }
 
 #top {
