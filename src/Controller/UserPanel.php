@@ -31,28 +31,27 @@
 
 namespace App\Controller;
 
-use App\Core\Controller;
 // use App\Core\Event;
 // use App\Util\Common;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
-class UserAdminPanel extends Controller
+class UserPanel extends AbstractController
 {
-    public function handle(Request $request)
+    public function __invoke(Request $request)
     {
         $prof = Form::create([
             [_m('Nickname'),   TextType::class],
             [_m('FullName'),   TextType::class],
             [_m('Homepage'),   TextType::class],
-            [_m('Bio'),        TextType::class],
+            [_m('Bio'),   TextType::class],
             [_m('Location'),   TextType::class],
-            ['save', SubmitType::class, ['label' => _m('Save')]],
-        ]);
+            ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
 
         $prof->handleRequest($request);
         if ($prof->isSubmitted()) {
@@ -69,9 +68,8 @@ class UserAdminPanel extends Controller
             }
         }
 
-        return [
-            '_template' => 'settings/profile.html.twig',
-            'prof'      => $prof->createView(),
-        ];
+        return $this->render('settings/profile.html.twig', [
+            'prof' => $prof->createView(),
+        ]);
     }
 }

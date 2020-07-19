@@ -6,7 +6,10 @@
       <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings_small.css') }}" media="screen and (max-width: 750px)">
 {% endblock %}
 
+{% block title %}Profile Settings{% endblock %}
+
 {% block nav %}
+<div class='content'>
       <nav class='set-nav'>
             <ul>
                   <li>
@@ -29,12 +32,12 @@
                         <a href="{{ path('settings_avatar') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_avatar' %}active{% endif %}'>Avatar</a>
                   </li>
             </ul>
-            <hr>
       </nav>
+</div>
 {% endblock %}
 
 {% block body %}
-      <div class='content'>
+      <div class='form'>
             {{ form(prof) }}
       </div>
 {% endblock %}
