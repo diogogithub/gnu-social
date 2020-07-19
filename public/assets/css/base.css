@@ -39,13 +39,17 @@ a:link {
       text-decoration: none;
       outline: 0;
       color: #F6F6F6;
-      margin: 0;
-      padding: 0;
 }
 
 a:visited {
       outline: 0;
       color: #F6F6F6;
+      margin: 0;
+      padding: 0;
+}
+
+a {
+      display: inline-block;
       margin: 0;
       padding: 0;
 }
@@ -70,7 +74,7 @@ b {
       right: 0;
       background-color: #272E36;
       box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
-      padding: var(--medium-size) var(--unit-size) var(--medium-size) var(--unit-size);
+      padding: var(--unit-size);
 }
 
 #top {
@@ -94,6 +98,7 @@ b {
 
 #instance {
       order: 1;
+
 }
 
 #instance b {
@@ -119,14 +124,11 @@ b {
 
 #search {
       order: 3;
+      width: var(--unit-size);
+      height: var(--unit-size);
 }
 
 .icon-search {
-      margin: 0;
-      padding: 0;
-      display: inline-block;
-      width: var(--unit-size);
-      height: var(--unit-size);
       stroke-width: 0;
       stroke: currentColor;
       fill: currentColor;
@@ -139,7 +141,7 @@ b {
       height: calc(100vh - (3 * var(--unit-size)));
       position: fixed;
       background-color: rgba(0, 0, 0, 0.40);
-      margin-top: calc(2 * var(--medium-size) + var(--main-size) + 0.15em);
+      margin-top: calc(2 * var(--unit-size) + var(--main-size) + 0.15em);
 }
 
 .navbar {

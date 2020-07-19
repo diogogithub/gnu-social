@@ -66,7 +66,7 @@ b {
       right: 0;
       background-color: #272E36;
       box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
-      padding: var(--medium-size) var(--unit-size) var(--medium-size) var(--unit-size);
+      padding: var(--medium-size);
 }
 
 #top {
@@ -77,14 +77,45 @@ b {
 }
 
 .icon-menu {
-      margin: 0;
-      padding: 0;
-      display: inline-block;
+      position: relative;
+      display: flex;
+      align-items: center;
       width: var(--unit-size);
       height: var(--unit-size);
-      stroke-width: 0;
-      stroke: currentColor;
-      fill: currentColor;
+      cursor: pointer;
+      transition: all .5s ease-in-out;
+      background-color: #272E36;
+}
+.icon-menu label {
+      width: var(--unit-size);
+      height: 2px;
+      background: #F6F6F6;
+      transition: all .5s ease-in-out;
+      z-index: 1;
+}
+.icon-menu label::before,
+.icon-menu label::after {
+      content: '';
+      position: absolute;
+      width: var(--unit-size);
+      height: 2px;
+      background: #F6F6F6;
+      transition: all .5s ease-in-out;
+}
+.icon-menu label::before {
+      transform: translateY(-6px);
+}
+.icon-menu label::after {
+      transform: translateY(6px);
+}
+#toggle:checked+div label{
+      width: 0px;
+}
+#toggle:checked+div label::before {
+      transform: rotate(45deg);
+}
+#toggle:checked+div label::after {
+      transform: rotate(-45deg);
 }
 
 #instance {
@@ -170,10 +201,15 @@ label {
 }
 
 #toggle {
-      display: none;
+      position: absolute;
+      z-index: 2;
+      cursor: pointer;
+      width: var(--unit-size);
+      height: var(--unit-size);
+      opacity: 0;
 }
 
-#toggle:checked+.navbar {
+#toggle:checked~.navbar {
       display: block;
       left: 0;
       top: 0;
