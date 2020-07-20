@@ -38,6 +38,7 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -46,11 +47,12 @@ class UserPanel extends AbstractController
     public function __invoke(Request $request)
     {
         $prof = Form::create([
-            [_m('Nickname'),   TextType::class],
-            [_m('FullName'),   TextType::class],
-            [_m('Homepage'),   TextType::class],
-            [_m('Bio'),   TextType::class],
-            [_m('Location'),   TextType::class],
+            [_m('Nickname'),   TextType::class,   ['help' => '1-64 lowercase letters or numbers, no punctuation or spaces.']],
+            [_m('FullName'),   TextType::class,    ['help' => 'A full name is required, if empty it will be set to your nickname.']],
+            [_m('Homepage'),   TextType::class,    ['help' => 'URL of your homepage, blog, or profile on another site.']],
+            [_m('Bio'),   TextareaType::class,    ['help' => 'Describe yourself and your interests.']],
+            [_m('Location'),   TextType::class,    ['help' => 'Where you are, like "City, State (or Region), Country".']],
+            [_m('Tags'),   TextType::class,    ['help' => 'Tags for yourself (letters, numbers, -, ., and _), comma- or space- separated.']],
             ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
 
         $prof->handleRequest($request);
@@ -58,7 +60,7 @@ class UserPanel extends AbstractController
             $data = $prof->getData();
             if ($prof->isValid()) {
                 $profile = DB::find('\App\Entity\Profile', ['id' => 2]);
-                foreach (['Nickname', 'FullName', 'Homepage', 'Bio', 'Location'] as $key) {
+                foreach (['Nickname', 'FullName', 'Homepage', 'Bio', 'Location', 'Tags'] as $key) {
                     $method = "set{$key}";
                     $profile->{$method}($data[_m($key)]);
                 }

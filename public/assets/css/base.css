@@ -135,7 +135,7 @@ b {
       height: calc(100vh - (3 * var(--unit-size)));
       position: fixed;
       background-color: rgba(0, 0, 0, 0.40);
-      margin-top: calc(2 * var(--unit-size) + var(--main-size) + 0.15em);
+      margin-top: calc(2 * var(--unit-size) + var(--main-size));
 }
 
 .navbar {

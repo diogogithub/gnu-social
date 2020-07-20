@@ -6,6 +6,7 @@
       align-items: center;
       margin-left: 0;
       margin-right: 0;
+      margin-bottom: var(--unit-size);
 }
 
 .set-nav {
@@ -131,7 +132,6 @@ input[type=text] {
     color: #F6F6F6;
     border-radius: calc(var(--unit-size) * 0.5);
     font-size: var(--medium-size);
-    margin-bottom: var(--unit-size);
 }
 
 button[type=submit] {
@@ -145,4 +145,24 @@ button[type=submit] {
       font-family: 'Montserrat', sans-serif;
       font-size: var(--small-size);
       font-weight: 700;
+}
+
+#form_Bio {
+      margin-top: calc(var(--unit-size) * 0.5);
+      width: calc(100% - var(--unit-size));
+      background-color: rgba(0, 0, 0, 0.30);
+      border-style: none;
+      padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
+      color: #F6F6F6;
+      border-radius: calc(var(--unit-size) * 0.5);
+      font-size: var(--medium-size);
+      word-wrap: break-word;
+      resize: vertical;
+}
+
+.help-text {
+      font-size: var(--medium-size);
+      font-style: italic;
+      color: rgba(246, 246, 246, 0.8);
+      margin-bottom: var(--unit-size);
 }
