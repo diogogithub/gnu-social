@@ -6,7 +6,6 @@
       align-items: center;
       margin-left: 0;
       margin-right: 0;
-      height: 100%;
 }
 
 .set-nav {
@@ -55,7 +54,7 @@
       justify-content: space-between;
       flex-wrap: wrap;
       width: 100%;
-      background-color: #00000030;
+      background-color: #00000050;
       padding: var(--medium-size);
       margin-top: calc(2 * var(--unit-size));
       margin-left: var(--side-margin);
@@ -101,10 +100,11 @@
 
 .form {
       order: 3;
-      background-color: #00000040;
+      background-color: #00000050;
       padding: calc(2*var(--unit-size));
       font-size: var(--medium-size);
       height: 100%;
+      width: 100%;
       margin-left: var(--side-margin);
       margin-right: var(--side-margin);
       box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
@@ -115,7 +115,7 @@
 /* FORMS ------------------------------*/
 label {
     font-family: 'Montserrat', sans-serif;
-    font-weight: 800;
+    font-weight: 700;
 }
 
 label:nth-child() {
@@ -124,12 +124,25 @@ label:nth-child() {
 
 input[type=text] {
     margin-top: calc(var(--unit-size) * 0.5);
-    width: 100%;
+    width: calc(100% - var(--unit-size));
     background-color: rgba(0, 0, 0, 0.30);
     border-style: none;
-    padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
+    padding: calc(var(--unit-size) * 0.5);
     color: #F6F6F6;
     border-radius: calc(var(--unit-size) * 0.5);
     font-size: var(--medium-size);
     margin-bottom: var(--unit-size);
+}
+
+button[type=submit] {
+      background: rgba(0, 0, 0, 0.30);
+      padding: calc(var(--unit-size) * 0.8) calc(var(--unit-size) * 2);
+      color: #F6F6F6;
+      border-style: solid;
+      border-color: rgba(144, 185, 208, 0.65);
+      border-radius: var(--unit-size);
+      border-width: 2px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: var(--small-size);
+      font-weight: 700;
 }
