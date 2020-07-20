@@ -2,7 +2,7 @@
       --head-font: 'Montserrat', sans-serif;
       --main-font: 'Open Sans', sans-serif;
       --main-size: 1.2em;
-      --medium-size: 0.8em;
+      --medium-size: 0.85em;
       --small-size: 0.65em;
       --unit-size: 1em;
       --side-margin: 5em;
@@ -11,11 +11,10 @@
 
 body,
 html {
-      background: rgb(51,61,71);
-      background: -moz-linear-gradient(80deg, rgba(51,61,71,1) 0%, rgba(39,46,54,1) 90%);
-      background: -webkit-linear-gradient(80deg, rgba(51,61,71,1) 0%, rgba(39,46,54,1) 90%);
-      background: linear-gradient(80deg, rgba(51,61,71,1) 0%, rgba(39,46,54,1) 90%);
-      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#333d47",endColorstr="#272e36",GradientType=1);
+      background: #2E3945;
+      background: -moz-linear-gradient(80deg, #2E3945 0%, #61778C 100%);
+      background: -webkit-linear-gradient(80deg, #2E3945 0%, #61778C 100%);
+      background: linear-gradient(80deg, #2E3945 0%, #61778C 100%);
       background-attachment: fixed;
       background-size: cover;
       color: #F6F6F6;
