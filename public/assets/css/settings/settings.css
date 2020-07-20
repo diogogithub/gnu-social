@@ -1,7 +1,7 @@
 .content {
       display: flex;
       flex-wrap: wrap;
-      margin-top: calc(2 * var(--unit-size) + var(--main-size) + 0.15em);
+      margin-top: calc(2 * var(--unit-size) + var(--main-size));
       justify-content: center;
       align-items: center;
       margin-left: var(--nav-size);
