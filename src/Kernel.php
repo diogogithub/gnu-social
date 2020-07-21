@@ -64,6 +64,7 @@ class Kernel extends BaseKernel
             define('GNUSOCIAL_LIFECYCLE', 'dev');
             define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
             define('GNUSOCIAL_CODENAME', 'Big bang');
+            define('URL_REGEX_DOMAIN_NAME', '(?:(?!-)[A-Za-z0-9\-]{1,63}(?<!-)\.)+[A-Za-z]{2,10}');
 
             // Work internally in UTC
             date_default_timezone_set('UTC');
