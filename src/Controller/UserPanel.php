@@ -37,6 +37,7 @@ use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -44,7 +45,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class UserPanel extends AbstractController
 {
-    public function __invoke(Request $request)
+    public function profile(Request $request)
     {
         $prof = Form::create([
             [_m('Nickname'),   TextType::class,   ['help' => '1-64 lowercase letters or numbers, no punctuation or spaces.']],
@@ -72,6 +73,38 @@ class UserPanel extends AbstractController
 
         return $this->render('settings/profile.html.twig', [
             'prof' => $prof->createView(),
+        ]);
+    }
+
+    public function account(Request $request)
+    {
+        $acc = Form::create([
+            [_m('outgoing_email'),   TextType::class,   ['help' => 'Change your current email.', 'label_format' => 'Email']],
+            [_m('password'),   TextType::class,    ['help' => 'Change your current password.']],
+            [_m('emailnotifysub'),   CheckboxType::class,   ['help' => 'Send me notices of new subscriptions through email.', 'label_format' => 'Notify subscriptions']],
+            [_m('emailnotifymsg'),   CheckboxType::class,    ['help' => 'Send me email when someone sends me a private message.', 'label_format' => 'Notify private messages']],
+            [_m('emailnotifyattn'),   CheckboxType::class,   ['help' => 'Send me email when someone sends me an "@-reply".', 'label_format' => 'Notify replies']],
+            [_m('emailnotifynudge'),   CheckboxType::class,    ['help' => 'Allow friends to nudge me and send me an email.', 'label_format' => 'Allow nudges']],
+            [_m('emailnotifyfav'),   CheckboxType::class,    ['help' => 'Send me email when someone adds my notice as a favorite.', 'label_format' => 'Notify favorites']],
+            ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
+
+        $acc->handleRequest($request);
+        if ($acc->isSubmitted()) {
+            $data = $acc->getData();
+            if ($prof->isValid()) {
+                $user = DB::find('\App\Entity\User', ['id' => 2]);
+                foreach (['outgoing_email', 'password', 'emailnotifysub', 'emailnotifymsg', 'emailnotifyattn', 'emailnotifynudge', 'emailnotifyfav'] as $key) {
+                    $method = "set{$key}";
+                    $user->{$method}($data[_m($key)]);
+                }
+                DB::flush();
+            } else {
+                // Display error
+            }
+        }
+
+        return $this->render('settings/account.html.twig', [
+            'acc' => $acc->createView(),
         ]);
     }
 }

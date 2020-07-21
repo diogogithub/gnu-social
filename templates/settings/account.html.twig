@@ -6,24 +6,34 @@
       <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings_small.css') }}" media="screen and (max-width: 750px)">
 {% endblock %}
 
-{% block nav %}
+{% block title %}Account Settings{% endblock %}
+
+{% block header %}{{ parent() }}{% endblock %}
+
+{% block body %}
+
+<div class='content'>
       <nav class='set-nav'>
             <ul>
                   <li>
-                        <a href="{{ path('settings_profile') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_' %}active{% endif %}'>Settings</a>
+                        <a href="{{ path('settings_profile') }}" class='hover-effect {% if (app.request.attributes.get('_route') starts with 'settings_profile') or (app.request.attributes.get('_route') starts with 'settings_avatar')%}active{% endif %}'>Settings</a>
                   </li>
                   <li>
-                        <a href="{{ path('account_settings') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'account_settings' %}active{% endif %}'>Account</a>
+                        <a href="{{ path('settings_account') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_account' %}active{% endif %}'>Account</a>
                   </li>
                   <li>
                         <a href="{{ path('doc_tags') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'doc_tags' %}active{% endif %}'>Misc</a>
                   </li>
             </ul>
       </nav>
-{% endblock %}
 
-{% block body %}
-      <div class="content">
-            {{ form(form) }}
-      </div>
+{% block form %}
+
+<div class='form-single'>
+      {{ form(acc) }}
+</div>
+
+{% endblock %}
+</div>
+
 {% endblock %}

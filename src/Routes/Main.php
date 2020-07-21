@@ -49,9 +49,11 @@ abstract class Main
 
         // Settings pages
         foreach (['profile', 'avatar'] as $s) {
-            $r->connect('settings_' . $s, 'settings/' . $s, C\UserPanel::class);
+            $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'profile']);
         }
 
-        $r->connect('settings_account', 'settings/account', C\UserPanel::class);
+        foreach (['account'] as $s) {
+            $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'account']);
+        }
     }
 }

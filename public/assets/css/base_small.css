@@ -205,7 +205,7 @@ label {
       height: var(--unit-size);
       opacity: 0;
 }
-input[type=checkbox] {
+.left-panel input[type=checkbox] {
     transform: scale(2);
     -ms-transform: scale(2);
     -webkit-transform: scale(2);

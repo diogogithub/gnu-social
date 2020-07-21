@@ -86,7 +86,7 @@
                                           <a href='#'>Replies</a>
                                           <a href='#'>Favourites</a>
                                           <a href='#'>Reverse Favs</a>
-                                          <a href='#'>Settings</a>
+                                          <a href="{{ path('settings_profile') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_' %}active{% endif %}'>Settings</a>
                                           <a href='#'>Logout</a>
                                     </div>
                               </div>
