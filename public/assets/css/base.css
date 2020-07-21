@@ -69,7 +69,8 @@ b {
       right: 0;
       background-color: #272E36;
       box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
-      padding: var(--unit-size);
+      padding: var(--main-size);
+      height: var(--main-size);
 }
 
 #top {
@@ -98,7 +99,8 @@ b {
 #instance b {
       margin: 0;
       padding: 0;
-      vertical-align: top;
+      vertical-align: middle;
+      margin-left: calc(0.2 * var(--unit-size));
 }
 
 .icon-logo {
@@ -110,6 +112,7 @@ b {
       stroke-width: 0;
       stroke: currentColor;
       fill: currentColor;
+      vertical-align: middle;
 }
 
 #left-panel {
@@ -126,6 +129,7 @@ b {
       stroke-width: 0;
       stroke: currentColor;
       fill: currentColor;
+      align-self: center;
 }
 
 /*-------------------------------------*/
@@ -135,7 +139,7 @@ b {
       height: calc(100vh - (3 * var(--unit-size)));
       position: fixed;
       background-color: rgba(0, 0, 0, 0.40);
-      margin-top: calc(2 * var(--unit-size) + var(--main-size));
+      margin-top: calc(3 * var(--main-size));
 }
 
 .navbar {

@@ -65,7 +65,8 @@ b {
       right: 0;
       background-color: #272E36;
       box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
-      padding: var(--medium-size);
+      padding: var(--main-size);
+      height: var(--main-size);
 }
 
 #top {
@@ -73,24 +74,19 @@ b {
       justify-content: space-between;
       flex-wrap: wrap;
       width: 100%;
+      align-items: center;
 }
 
 .icon-menu {
       position: relative;
-      display: flex;
-      align-items: center;
       width: var(--unit-size);
       height: var(--unit-size);
-      cursor: pointer;
-      transition: all .5s ease-in-out;
-      background-color: #272E36;
 }
 .icon-menu label {
       width: var(--unit-size);
       height: 2px;
       background: #F6F6F6;
       transition: all .5s ease-in-out;
-      z-index: 1;
 }
 .icon-menu label::before,
 .icon-menu label::after {
@@ -124,7 +120,8 @@ b {
 #instance b {
       margin: 0;
       padding: 0;
-      vertical-align: top;
+      vertical-align: middle;
+      margin-left: calc(0.2 * var(--unit-size));
 }
 
 .icon-logo {
@@ -136,6 +133,7 @@ b {
       stroke-width: 0;
       stroke: currentColor;
       fill: currentColor;
+      vertical-align: middle;
 }
 
 #left-panel {
@@ -168,7 +166,7 @@ b {
       background: -webkit-linear-gradient(80deg, rgba(51,61,71,1) 0%, rgba(39,46,54,1) 90%);
       background: linear-gradient(80deg, rgba(51,61,71,1) 0%, rgba(39,46,54,1) 90%);
       filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#333d47",endColorstr="#272e36",GradientType=1);
-      margin-top: calc(2 * var(--medium-size) + var(--main-size) + 0.15em);
+      margin-top: calc(3 * var(--main-size));
 }
 
 .navbar {

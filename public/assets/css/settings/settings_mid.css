@@ -1,7 +1,7 @@
 .content {
       display: flex;
       flex-wrap: wrap;
-      margin-top: calc(2 * var(--medium-size) + var(--main-size));
+      margin-top: calc(3 * var(--main-size));
       justify-content: center;
       align-items: center;
       margin-left: 0;
@@ -114,16 +114,16 @@
 
 
 /* FORMS ------------------------------*/
-label {
+.form label {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
 }
 
-label:nth-child() {
+.form label:nth-child() {
     margin-top: var(--medium-size);
 }
 
-input[type=text] {
+.form input[type=text] {
     margin-top: calc(var(--unit-size) * 0.5);
     width: calc(100% - var(--unit-size));
     background-color: rgba(0, 0, 0, 0.30);
@@ -134,7 +134,7 @@ input[type=text] {
     font-size: var(--medium-size);
 }
 
-button[type=submit] {
+.form button[type=submit] {
       background: rgba(0, 0, 0, 0.30);
       padding: calc(var(--unit-size) * 0.8) calc(var(--unit-size) * 2);
       color: #F6F6F6;
