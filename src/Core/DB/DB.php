@@ -30,6 +30,9 @@
 
 namespace App\Core\DB;
 
+use App\Util\Formatting;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\EntityManagerInterface;
 
 abstract class DB
@@ -40,11 +43,55 @@ abstract class DB
         self::$em = $m;
     }
 
+    private static array $find_by_ops = ['or', 'and', 'eq', 'neq', 'lt', 'lte',
+            'gt', 'gte', 'is_null', 'in', 'not_in',
+            'contains', 'member_of', 'starts_with', 'ends_with', ];
+
+    private static function buildExpression(ExpressionBuilder $eb, array $criteria)
+    {
+        $expressions = [];
+        foreach ($criteria as $op => $exp) {
+            if ($op == 'or' || $op == 'and') {
+                $method = "{$op}X";
+                return $eb->{$method}(...self::buildExpression($eb, $exp));
+            } elseif ($op == 'is_null') {
+                $expressions[] = $eb->isNull($exp);
+            } else {
+                if (in_array($op, self::$find_by_ops)) {
+                    $method        = Formatting::snakeCaseToCamelCase($op);
+                    $expressions[] = $eb->{$method}(...$exp);
+                } else {
+                    $expressions[] = $eb->eq($op, $exp);
+                }
+            }
+        }
+
+        return $expressions;
+    }
+
+    public static function findBy(string $table, array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null)
+    {
+        $criteria = array_change_key_case($criteria);
+        $ops      = array_intersect(array_keys($criteria), self::$find_by_ops);
+        $repo     = self::__callStatic('getRepository', [$table]);
+        if (empty($ops)) {
+            return $repo->findBy($criteria, $orderBy, $limit, $offset);
+        } else {
+            $criteria = new Criteria(self::buildExpression(Criteria::expr(), $criteria), $orderBy, $offset, $limit);
+            return $repo->matching($criteria);
+        }
+    }
+
+    public static function findOneBy(string $table, array $criteria, ?array $orderBy = null, ?int $offset = null)
+    {
+        return self::findBy($table, $criteria, $orderBy, 1, $offset)->first();
+    }
+
     public static function __callStatic(string $name, array $args)
     {
         foreach (['find', 'getReference', 'getPartialReference', 'getRepository'] as $m) {
             if ($name == $m) {
-                $args[0] = '\App\Entity\\' . ucfirst($args[0]);
+                $args[0] = '\App\Entity\\' . ucfirst(Formatting::snakeCaseToCamelCase($args[0]));
             }
         }
 
