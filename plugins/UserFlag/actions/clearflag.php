@@ -19,11 +19,11 @@
  *
  * @category  Action
  * @package   GNUsocial
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +31,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Action
  * @package   GNUsocial
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -41,7 +42,7 @@ class ClearflagAction extends ProfileFormAction
      *
      * @param array $args $_REQUEST args
      *
-     * @return boolean success flag
+     * @return bool success flag
      */
     public function prepare(array $args = [])
     {

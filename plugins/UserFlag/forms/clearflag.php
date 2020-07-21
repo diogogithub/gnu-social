@@ -21,12 +21,13 @@
  *
  * @category  Form
  * @package   StatusNet
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ *
+ * @see      http://status.net/
  */
-
 if (!defined('STATUSNET')) {
     exit(1);
 }
@@ -38,9 +39,11 @@ require_once INSTALLDIR . '/lib/util/form.php';
  *
  * @category Form
  * @package  StatusNet
+ *
  * @author   Evan Prodromou <evan@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ *
+ * @see     http://status.net/
  */
 class ClearFlagForm extends ProfileActionForm
 {
@@ -50,7 +53,7 @@ class ClearFlagForm extends ProfileActionForm
      *
      * @return string class of the form
      */
-    function formClass()
+    public function formClass()
     {
         return 'form_user_clearflag';
     }
@@ -60,7 +63,7 @@ class ClearFlagForm extends ProfileActionForm
      *
      * @return string Name of the action, lowercased.
      */
-    function target()
+    public function target()
     {
         return 'clearflag';
     }
@@ -70,7 +73,7 @@ class ClearFlagForm extends ProfileActionForm
      *
      * @return string Title of the form, internationalized
      */
-    function title()
+    public function title()
     {
         // TRANS: Form title for action on a profile.
         return _m('Clear');
@@ -81,8 +84,7 @@ class ClearFlagForm extends ProfileActionForm
      *
      * @return string description of the form, internationalized
      */
-
-    function description()
+    public function description()
     {
         // TRANS: Form description for clearing flags from a profile.
         return _m('Clear all flags');
