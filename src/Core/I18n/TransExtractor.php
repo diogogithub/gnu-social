@@ -245,7 +245,7 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
         for ($key = 0; $key < $tokenIterator->count(); ++$key) {
             foreach ($this->sequences as $sequence) {
                 $message = '';
-                $domain  = I18nHelper::_mdomain($filename);
+                $domain  = I18n::_mdomain($filename);
                 $tokenIterator->seek($key);
 
                 foreach ($sequence as $sequenceKey => $item) {
