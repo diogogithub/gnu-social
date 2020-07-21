@@ -42,7 +42,7 @@ namespace App\Core;
 
 use App\Core\DB\DB;
 use App\Core\DB\DefaultSettings;
-use App\Core\I18n\I18nHelper;
+use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
 use Doctrine\ORM\EntityManagerInterface;
@@ -93,7 +93,7 @@ class GNUsocial implements EventSubscriberInterface
     {
         Log::setLogger($this->logger);
         Event::setDispatcher($event_dispatcher);
-        I18nHelper::setTranslator($this->translator);
+        I18n::setTranslator($this->translator);
         DB::setManager($this->entity_manager);
         Router::setRouter($this->router);
         Form::setFactory($this->form_factory);

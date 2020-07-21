@@ -33,7 +33,7 @@
 namespace App\Core\DB;
 
 use function App\Core\I18n\_m;
-use App\Core\I18n\I18nHelper;
+use App\Core\I18n\I18n;
 use App\Util\Common;
 
 abstract class DefaultSettings
@@ -55,7 +55,7 @@ abstract class DefaultSettings
                 'logo'                 => null,
                 'language'             => 'en',
                 'detect_language'      => true,
-                'languages'            => I18nHelper::get_all_languages(),
+                'languages'            => I18n::getAllLanguages(),
                 'email'                => $_ENV['SERVER_ADMIN'] ?? $_ENV['SOCIAL_ADMIN_EMAIL'] ?? null,
                 'recovery_disclose'    => false, // Whether to not say that we found the email in the database, when asking for recovery
                 'timezone'             => 'UTC',
@@ -126,9 +126,9 @@ abstract class DefaultSettings
                     'video/quicktime'                                          => 'mov',
                     'video/webm'                                               => 'webm',
                 ],
-                'file_quota'    => Common::get_preferred_php_upload_limit(),
-                'user_quota'    => Common::size_str_to_int('200M'),
-                'monthly_quota' => Common::size_str_to_int('20M'),
+                'file_quota'    => Common::getPreferredPhpUploadLimit(),
+                'user_quota'    => Common::sizeStrToInt('200M'),
+                'monthly_quota' => Common::sizeStrToInt('20M'),
                 'uploads'       => true,
                 'show_html'     => true,    // show (filtered) text/html attachments (and oEmbed HTML etc.). Doesn't affect AJAX calls.
                 'show_thumbs'   => true,    // show thumbnails in notice lists for uploaded images, and photos and videos linked remotely that provide oEmbed info
