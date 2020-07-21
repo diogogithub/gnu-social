@@ -1,4 +1,19 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Implementation of discovery using HTML <link> element
  *
@@ -6,11 +21,10 @@
  * <link> elements in the HTML response.
  *
  * @category  Discovery
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    James Walker <james@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class LRDDMethod_LinkHTML extends LRDDMethod
 {
@@ -38,10 +52,14 @@ class LRDDMethod_LinkHTML extends LRDDMethod
      */
     public function parse($html)
     {
-        $links = array();
+        $links = [];
 
         preg_match('/<head(\s[^>]*)?>(.*?)<\/head>/is', $html, $head_matches);
-        $head_html = $head_matches[2];
+
+        if (count($head_matches) != 3) {
+            return [];
+        }
+        [,, $head_html] = $head_matches;
 
         preg_match_all('/<link\s[^>]*>/i', $head_html, $link_matches);
 
@@ -51,23 +69,23 @@ class LRDDMethod_LinkHTML extends LRDDMethod
             $link_type = null;
 
             preg_match('/\srel=(("|\')([^\\2]*?)\\2|[^"\'\s]+)/i', $link_html, $rel_matches);
-            if ( isset($rel_matches[3]) ) {
+            if (count($rel_matches) > 3) {
                 $link_rel = $rel_matches[3];
-            } else if ( isset($rel_matches[1]) ) {
+            } elseif (count($rel_matches) > 1) {
                 $link_rel = $rel_matches[1];
             }
 
             preg_match('/\shref=(("|\')([^\\2]*?)\\2|[^"\'\s]+)/i', $link_html, $href_matches);
-            if ( isset($href_matches[3]) ) {
+            if (count($href_matches) > 3) {
                 $link_uri = $href_matches[3];
-            } else if ( isset($href_matches[1]) ) {
+            } elseif (count($href_matches) > 1) {
                 $link_uri = $href_matches[1];
             }
 
             preg_match('/\stype=(("|\')([^\\2]*?)\\2|[^"\'\s]+)/i', $link_html, $type_matches);
-            if ( isset($type_matches[3]) ) {
+            if (count($type_matches) > 3) {
                 $link_type = $type_matches[3];
-            } else if ( isset($type_matches[1]) ) {
+            } elseif (count($type_matches) > 1) {
                 $link_type = $type_matches[1];
             }
 
