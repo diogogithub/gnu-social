@@ -489,13 +489,17 @@ class Activitypub_profile extends Managed_DataObject
      * @throws NoProfileException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function update_profile(Activitypub_profile $aprofile, array $res): Profile
+    public static function update_profile(Activitypub_profile $aprofile, $res): Profile
     {
         if ($res === false) {
             $profile = $aprofile->local_profile();
             $id = $profile->getID();
             $profile->delete();
             throw new NoProfileException($id, "410 Gone");
+        }
+
+        if (!is_array($res)) {
+            throw new InvalidArgumentException('TypeError: Argument 2 passed to Activitypub_profile::update_profile() must be of the type array or bool(false).');
         }
 
         // ActivityPub Profile
