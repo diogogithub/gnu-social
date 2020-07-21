@@ -6,9 +6,11 @@
  *
  * @category Action
  * @package  StatusNet
+ *
  * @author   Evan Prodromou <evan@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ *
+ * @see     http://status.net/
  *
  * StatusNet - the distributed open-source microblogging tool
  * Copyright (C) 2009, StatusNet, Inc.
@@ -26,7 +28,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 if (!defined('STATUSNET')) {
     exit(1);
 }
@@ -36,23 +37,25 @@ if (!defined('STATUSNET')) {
  *
  * @category Action
  * @package  StatusNet
+ *
  * @author   Evan Prodromou <evan@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ *
+ * @see     http://status.net/
  */
 class AdminprofileflagAction extends Action
 {
-    var $page     = null;
-    var $profiles = null;
+    public $page;
+    public $profiles;
 
     /**
      * Take arguments for running
      *
      * @param array $args $_REQUEST args
      *
-     * @return boolean success flag
+     * @return bool success flag
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -77,7 +80,7 @@ class AdminprofileflagAction extends Action
             // Cookie theft is too easy; we require automatic
             // logins to re-authenticate before admining the site
             common_set_returnto($this->selfUrl());
-            if (Event::handle('RedirectToLogin', array($this, $user))) {
+            if (Event::handle('RedirectToLogin', [$this, $user])) {
                 common_redirect(common_local_url('login'), 303);
             }
         }
@@ -107,7 +110,7 @@ class AdminprofileflagAction extends Action
      *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
 
@@ -119,7 +122,7 @@ class AdminprofileflagAction extends Action
      *
      * @return string Title of the page
      */
-    function title()
+    public function title()
     {
         // TRANS: Title for page with a list of profiles that were flagged for review.
         return _m('Flagged profiles');
@@ -130,7 +133,7 @@ class AdminprofileflagAction extends Action
      *
      * @return void
      */
-    function showContent()
+    public function showContent()
     {
         $pl = new FlaggedProfileList($this->profiles, $this);
 
@@ -145,7 +148,7 @@ class AdminprofileflagAction extends Action
      *
      * @return Profile $profile Profile query results
      */
-    function getProfiles()
+    public function getProfiles()
     {
         $ufp = new User_flag_profile();
 
@@ -158,12 +161,12 @@ class AdminprofileflagAction extends Action
         $ufp->groupBy('profile_id');
         $ufp->orderBy('flag_count DESC, profile_id DESC');
 
-        $offset = ($this->page-1) * PROFILES_PER_PAGE;
+        $offset = ($this->page - 1) * PROFILES_PER_PAGE;
         $limit  = PROFILES_PER_PAGE + 1;
 
         $ufp->limit($offset, $limit);
 
-        $profiles = array();
+        $profiles = [];
 
         if ($ufp->find()) {
             while ($ufp->fetch()) {
@@ -187,9 +190,11 @@ class AdminprofileflagAction extends Action
  *
  * @category Widget
  * @package  StatusNet
+ *
  * @author   Evan Prodromou <evan@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ *
+ * @see     http://status.net/
  */
 class FlaggedProfileList extends ProfileList
 {
@@ -200,7 +205,7 @@ class FlaggedProfileList extends ProfileList
      *
      * @return ProfileListItem newly-created item
      */
-    function newListItem(Profile $profile)
+    public function newListItem(Profile $profile)
     {
         return new FlaggedProfileListItem($profile, $this->action);
     }
@@ -211,23 +216,25 @@ class FlaggedProfileList extends ProfileList
  *
  * @category Widget
  * @package  StatusNet
+ *
  * @author   Evan Prodromou <evan@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ *
+ * @see     http://status.net/
  */
 class FlaggedProfileListItem extends ProfileListItem
 {
     const MAX_FLAGGERS = 5;
 
-    var $user   = null;
-    var $r2args = null;
+    public $user;
+    public $r2args;
 
     /**
      * Overload parent's action list with our own moderation-oriented buttons
      *
      * @return void
      */
-    function showActions()
+    public function showActions()
     {
         $this->user = common_current_user();
 
@@ -236,7 +243,7 @@ class FlaggedProfileListItem extends ProfileListItem
         $this->r2args['action'] = $action;
 
         $this->startActions();
-        if (Event::handle('StartProfileListItemActionElements', array($this))) {
+        if (Event::handle('StartProfileListItemActionElements', [$this])) {
             $this->out->elementStart('li', 'entity_moderation');
             // TRANS: Header for moderation menu with action buttons for flagged profiles (like 'sandbox', 'silence', ...).
             $this->out->element('p', null, _m('Moderate'));
@@ -247,7 +254,7 @@ class FlaggedProfileListItem extends ProfileListItem
             $this->showClearButton();
             $this->out->elementEnd('ul');
             $this->out->elementEnd('li');
-            Event::handle('EndProfileListItemActionElements', array($this));
+            Event::handle('EndProfileListItemActionElements', [$this]);
         }
         $this->endActions();
     }
@@ -257,7 +264,7 @@ class FlaggedProfileListItem extends ProfileListItem
      *
      * @return void
      */
-    function showSandboxButton()
+    public function showSandboxButton()
     {
         if ($this->user->hasRight(Right::SANDBOXUSER)) {
             $this->out->elementStart('li', 'entity_sandbox');
@@ -277,7 +284,7 @@ class FlaggedProfileListItem extends ProfileListItem
      *
      * @return void
      */
-    function showSilenceButton()
+    public function showSilenceButton()
     {
         if ($this->user->hasRight(Right::SILENCEUSER)) {
             $this->out->elementStart('li', 'entity_silence');
@@ -297,9 +304,8 @@ class FlaggedProfileListItem extends ProfileListItem
      *
      * @return void
      */
-    function showDeleteButton()
+    public function showDeleteButton()
     {
-
         if ($this->user->hasRight(Right::DELETEUSER)) {
             $this->out->elementStart('li', 'entity_delete');
             $df = new DeleteUserForm($this->out, $this->profile, $this->r2args);
@@ -313,7 +319,7 @@ class FlaggedProfileListItem extends ProfileListItem
      *
      * @return void
      */
-    function showClearButton()
+    public function showClearButton()
     {
         if ($this->user->hasRight(UserFlagPlugin::CLEARFLAGS)) {
             $this->out->elementStart('li', 'entity_clear');
@@ -328,7 +334,7 @@ class FlaggedProfileListItem extends ProfileListItem
      *
      * @return void
      */
-    function endProfile()
+    public function endProfile()
     {
         $this->showFlaggersList();
         parent::endProfile();
@@ -339,9 +345,9 @@ class FlaggedProfileListItem extends ProfileListItem
      *
      * @return void
      */
-    function showFlaggersList()
+    public function showFlaggersList()
     {
-        $flaggers = array();
+        $flaggers = [];
 
         $ufp = new User_flag_profile();
 
@@ -354,7 +360,7 @@ class FlaggedProfileListItem extends ProfileListItem
             while ($ufp->fetch()) {
                 $user = User::getKV('id', $ufp->user_id);
                 if (!empty($user)) { // XXX: this would also be unusual
-                    $flaggers[] = clone($user);
+                    $flaggers[] = clone $user;
                 }
             }
         }
@@ -367,15 +373,14 @@ class FlaggedProfileListItem extends ProfileListItem
             $others   = $cnt - self::MAX_FLAGGERS;
         }
 
-        $lnks = array();
+        $lnks = [];
 
         foreach ($flaggers as $flagger) {
-
             $url = common_local_url('showstream',
-                                    array('nickname' => $flagger->nickname));
+                                    ['nickname' => $flagger->nickname]);
 
-            $lnks[] = XMLStringer::estring('a', array('href' => $url,
-                                                      'class' => 'flagger'),
+            $lnks[] = XMLStringer::estring('a', ['href' => $url,
+                'class'                                 => 'flagger', ],
                                            $flagger->nickname);
         }
 
@@ -392,7 +397,7 @@ class FlaggedProfileListItem extends ProfileListItem
                 $text .= sprintf(_m('Flagged by %s'), $flagging_users);
             }
 
-            $this->out->elementStart('p', array('class' => 'flaggers'));
+            $this->out->elementStart('p', ['class' => 'flaggers']);
             $this->out->raw($text);
             $this->out->elementEnd('p');
         }

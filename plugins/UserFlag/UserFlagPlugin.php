@@ -21,12 +21,13 @@
  *
  * @category  Plugin
  * @package   StatusNet
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ *
+ * @see      http://status.net/
  */
-
 if (!defined('STATUSNET')) {
     exit(1);
 }
@@ -36,9 +37,11 @@ if (!defined('STATUSNET')) {
  *
  * @category Plugin
  * @package  StatusNet
+ *
  * @author   Evan Prodromou <evan@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ *
+ * @see     http://status.net/
  */
 class UserFlagPlugin extends Plugin
 {
@@ -55,9 +58,9 @@ class UserFlagPlugin extends Plugin
      * Ensures that the user_flag_profile table exists
      * and has the right columns.
      *
-     * @return boolean hook return
+     * @return bool hook return
      */
-    function onCheckSchema()
+    public function onCheckSchema(): bool
     {
         $schema = Schema::get();
 
@@ -71,9 +74,9 @@ class UserFlagPlugin extends Plugin
      *
      * @param URLMapper $m URL mapper for this hit
      *
-     * @return boolean hook return
+     * @return bool hook return
      */
-    public function onRouterInitialized(URLMapper $m)
+    public function onRouterInitialized(URLMapper $m): bool
     {
         $m->connect('main/flag/profile', ['action' => 'flagprofile']);
         $m->connect('main/flag/clear', ['action' => 'clearflag']);
@@ -84,16 +87,19 @@ class UserFlagPlugin extends Plugin
     /**
      * Add a 'flag' button to profile page
      *
-     * @param Action  $action The action being called
+     * @param Action  $action  The action being called
      * @param Profile $profile Profile being shown
      *
-     * @return boolean hook result
+     * @return bool hook result
      */
-    function onEndProfilePageActionsElements($action, $profile)
+    public function onEndProfilePageActionsElements(Action $action, Profile $profile): bool
     {
-        $this->showFlagButton($action, $profile,
-                              array('action' => 'showstream',
-                                    'nickname' => $profile->nickname));
+        $this->showFlagButton(
+            $action,
+            $profile,
+            ['action'      => 'showstream',
+                'nickname' => $profile->nickname, ]
+        );
 
         return true;
     }
@@ -103,12 +109,12 @@ class UserFlagPlugin extends Plugin
      *
      * @param ProfileListItem $item item being shown
      *
-     * @return boolean hook result
+     * @return bool hook result
      */
-    function onEndProfileListItemActionElements($item)
+    public function onEndProfileListItemActionElements(ProfileListItem $item): bool
     {
         list($action, $args) = $item->action->returnToArgs();
-        $args['action'] = $action;
+        $args['action']      = $action;
         $this->showFlagButton($item->action, $item->profile, $args);
 
         return true;
@@ -118,16 +124,15 @@ class UserFlagPlugin extends Plugin
      * Actually output a flag button. If the target profile has already been
      * flagged by the current user, a null-action faux button is shown.
      *
-     * @param Action $action
+     * @param Action  $action
      * @param Profile $profile
-     * @param array $returnToArgs
+     * @param array   $returnToArgs
      */
-    protected function showFlagButton($action, $profile, $returnToArgs)
+    protected function showFlagButton(Action $action, Profile $profile, array $returnToArgs): array
     {
         $user = common_current_user();
 
         if (!empty($user) && ($user->id != $profile->id)) {
-
             $action->elementStart('li', 'entity_flag');
 
             if (User_flag_profile::exists($profile->id, $user->id)) {
@@ -149,13 +154,13 @@ class UserFlagPlugin extends Plugin
      * We define extra rights; this function checks to see if a
      * user has one of them.
      *
-     * @param User    $user    User being checked
-     * @param string  $right   Right we're checking
-     * @param boolean &$result out, result of the check
+     * @param User   $user    User being checked
+     * @param string $right   Right we're checking
+     * @param bool   &$result out, result of the check
      *
-     * @return boolean hook result
+     * @return bool hook result
      */
-    function onUserRightsCheck($user, $right, &$result)
+    public function onUserRightsCheck(User $user, string $right, bool &$result): bool
     {
         switch ($right) {
         case self::REVIEWFLAGS:
@@ -175,13 +180,14 @@ class UserFlagPlugin extends Plugin
      * @param User    $user    User doing the block
      * @param Profile $profile Profile being blocked
      *
-     * @return boolean hook result
+     * @return bool hook result
      */
-    function onEndBlockProfile($user, $profile)
+    public function onEndBlockProfile(User $user, Profile $profile): bool
     {
-        if ($this->flagOnBlock && !User_flag_profile::exists($profile->id,
-                                                             $user->id)) {
-
+        if ($this->flagOnBlock && !User_flag_profile::exists(
+            $profile->id,
+            $user->id
+        )) {
             User_flag_profile::create($user->id, $profile->id);
         }
         return true;
@@ -193,14 +199,14 @@ class UserFlagPlugin extends Plugin
      * This prevents breakage of the admin profile flag UI.
      *
      * @param Profile $profile
-     * @param array &$related list of related tables; entries
-     *              with matching profile_id will be deleted.
+     * @param array   &$related list of related tables; entries
+     *                          with matching profile_id will be deleted.
      *
-     * @return boolean hook result
+     * @return bool hook result
      */
-    function onProfileDeleteRelated($profile, &$related)
+    public function onProfileDeleteRelated(Profile $profile, array &$related): bool
     {
-        $related[] = 'user_flag_profile';
+        $related[] = 'User_flag_profile';
         return true;
     }
 
@@ -208,15 +214,15 @@ class UserFlagPlugin extends Plugin
      * Ensure that flag entries created by a user are deleted
      * when that user gets deleted.
      *
-     * @param User $user
+     * @param User  $user
      * @param array &$related list of related tables; entries
-     *              with matching user_id will be deleted.
+     *                        with matching user_id will be deleted.
      *
-     * @return boolean hook result
+     * @return bool hook result
      */
-    function onUserDeleteRelated($user, &$related)
+    public function onUserDeleteRelated(User $user, array &$related): bool
     {
-        $related[] = 'user_flag_profile';
+        $related[] = 'User_flag_profile';
         return true;
     }
 
@@ -227,19 +233,18 @@ class UserFlagPlugin extends Plugin
      *
      * @param array &$versions array of version data arrays; see EVENTS.txt
      *
-     * @return boolean hook value
+     * @return bool hook value
      */
     public function onPluginVersion(array &$versions): bool
     {
         $url = GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/UserFlag';
 
-        $versions[] = array('name' => 'UserFlag',
-            'version' => self::PLUGIN_VERSION,
-            'author' => 'Evan Prodromou',
-            'homepage' => $url,
-            'rawdescription' =>
-            // TRANS: Plugin description.
-            _m('This plugin allows flagging of profiles for review and reviewing flagged profiles.'));
+        $versions[] = ['name' => 'UserFlag',
+            'version'         => self::PLUGIN_VERSION,
+            'author'          => 'Evan Prodromou',
+            'homepage'        => $url,
+            'rawdescription'  => // TRANS: Plugin description.
+            _m('This plugin allows flagging of profiles for review and reviewing flagged profiles.'), ];
 
         return true;
     }

@@ -19,11 +19,11 @@
  *
  * @category  Data
  * @package   GNUsocial
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -33,14 +33,15 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Action
  * @package   GNUsocial
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class User_flag_profile extends Managed_DataObject
 {
-    ###START_AUTOCODE
-    /* the code below is auto generated do not remove the above tag */
+    //##START_AUTOCODE
+    // the code below is auto generated do not remove the above tag
 
     public $__table = 'user_flag_profile';               // table name
     public $profile_id;                      // int(11)  primary_key not_null
@@ -49,39 +50,39 @@ class User_flag_profile extends Managed_DataObject
     public $created;                         // datetime()
     public $modified;                        // timestamp()  not_null
 
-    /* the code above is auto generated do not remove the tag below */
-    ###END_AUTOCODE
+    // the code above is auto generated do not remove the tag below
+    //##END_AUTOCODE
 
     public static function schemaDef()
     {
-        return array(
-            'fields' => array(
-                'profile_id' => array('type' => 'int', 'not null' => true, 'description' => 'profile id flagged'),
-                'user_id' => array('type' => 'int', 'not null' => true, 'description' => 'user id of the actor'),
-                'cleared' => array('type' => 'datetime', 'description' => 'when flag was removed'),
-                'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
-                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
-            ),
-            'primary key' => array('profile_id', 'user_id'),
-            'indexes' => array(
-                'user_flag_profile_cleared_idx' => array('cleared'),
-                'user_flag_profile_created_idx' => array('created'),
-            ),
-        );
+        return [
+            'fields' => [
+                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'profile id flagged'],
+                'user_id'    => ['type' => 'int', 'not null' => true, 'description' => 'user id of the actor'],
+                'cleared'    => ['type' => 'datetime', 'description' => 'when flag was removed'],
+                'created'    => ['type' => 'datetime', 'description' => 'date this record was created'],
+                'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+            ],
+            'primary key' => ['profile_id', 'user_id'],
+            'indexes'     => [
+                'user_flag_profile_cleared_idx' => ['cleared'],
+                'user_flag_profile_created_idx' => ['created'],
+            ],
+        ];
     }
 
     /**
      * Check if a flag exists for given profile and user
      *
-     * @param integer $profile_id Profile to check for
-     * @param integer $user_id    User to check for
+     * @param int $profile_id Profile to check for
+     * @param int $user_id    User to check for
      *
-     * @return boolean true if exists, else false
+     * @return bool true if exists, else false
      */
     public static function exists($profile_id, $user_id)
     {
-        $ufp = User_flag_profile::pkeyGet(array('profile_id' => $profile_id,
-                                                'user_id' => $user_id));
+        $ufp = self::pkeyGet(['profile_id' => $profile_id,
+            'user_id'                      => $user_id, ]);
 
         return !empty($ufp);
     }
@@ -89,14 +90,14 @@ class User_flag_profile extends Managed_DataObject
     /**
      * Create a new flag
      *
-     * @param integer $user_id    ID of user who's flagging
-     * @param integer $profile_id ID of profile being flagged
+     * @param int $user_id    ID of user who's flagging
+     * @param int $profile_id ID of profile being flagged
      *
-     * @return boolean success flag
+     * @return bool success flag
      */
     public static function create($user_id, $profile_id)
     {
-        $ufp = new User_flag_profile();
+        $ufp = new self();
 
         $ufp->profile_id = $profile_id;
         $ufp->user_id    = $user_id;

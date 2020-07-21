@@ -6,9 +6,11 @@
  *
  * @category Action
  * @package  StatusNet
+ *
  * @author   Evan Prodromou <evan@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ *
+ * @see     http://status.net/
  *
  * StatusNet - the distributed open-source microblogging tool
  * Copyright (C) 2009, StatusNet, Inc.
@@ -26,7 +28,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 if (!defined('STATUSNET')) {
     exit(1);
 }
@@ -36,9 +37,11 @@ if (!defined('STATUSNET')) {
  *
  * @category Action
  * @package  StatusNet
+ *
  * @author   Evan Prodromou <evan@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ *
+ * @see     http://status.net/
  */
 class FlagprofileAction extends ProfileFormAction
 {
@@ -47,9 +50,9 @@ class FlagprofileAction extends ProfileFormAction
      *
      * @param array $args $_REQUEST args
      *
-     * @return boolean success flag
+     * @return bool success flag
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         if (!parent::prepare($args)) {
             return false;
@@ -73,7 +76,7 @@ class FlagprofileAction extends ProfileFormAction
      *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $this->handlePost();
@@ -88,7 +91,7 @@ class FlagprofileAction extends ProfileFormAction
      *
      * @return void
      */
-    function handlePost()
+    public function handlePost()
     {
         $user = common_current_user();
 
@@ -115,7 +118,7 @@ class FlagprofileAction extends ProfileFormAction
      *
      * @return void
      */
-    function ajaxResults()
+    public function ajaxResults()
     {
         $this->startHTML('text/xml;charset=utf-8');
         $this->elementStart('head');
