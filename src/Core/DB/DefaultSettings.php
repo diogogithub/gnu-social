@@ -167,8 +167,8 @@ abstract class DefaultSettings
                 'image' => '/theme/licenses/cc_by_4.0.png',
             ],
             'nickname' => [
-                'blacklist' => ['doc', 'main', 'avatar', 'theme'],
-                'featured'  => [],
+                'reserved' => ['doc', 'main', 'avatar', 'theme', 'settings', 'admin'],
+                'featured' => [],
             ],
             'profile' => [
                 'bio_text_limit'       => null,
