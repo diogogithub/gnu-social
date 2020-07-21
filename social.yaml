@@ -1,0 +1,3 @@
+parameters:
+    remember_me_httponly: true
+    remember_me_samesite: strict
