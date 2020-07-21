@@ -504,13 +504,13 @@ class Profile extends Managed_DataObject
 
         if (!is_null($scoped)) {
             $qry .= sprintf(
-                'AND ( profile_list.private = false ' .
+                'AND ( profile_list.private IS NOT TRUE ' .
                 'OR ( profile_list.tagger = %d AND ' .
-                'profile_list.private = TRUE ) )',
+                'profile_list.private IS TRUE ) )',
                 $scoped->getID()
             );
         } else {
-            $qry .= 'AND profile_list.private = FALSE ';
+            $qry .= 'AND profile_list.private IS NOT TRUE ';
         }
 
         if ($since > 0) {

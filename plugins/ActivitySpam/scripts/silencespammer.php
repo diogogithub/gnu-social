@@ -83,9 +83,14 @@ function silencespammer($filter, $user, $minimum, $percent)
 
     $ss = new Spam_score();
 
-    $ss->query(sprintf("SELECT count(*) as spam_count ".
-                       "FROM notice join spam_score on notice.id = spam_score.notice_id ".
-                       'WHERE notice.profile_id = %d AND spam_score.is_spam = TRUE', $profile->id));
+    $ss->query(sprintf(
+        <<<'END'
+        SELECT COUNT(*) AS spam_count
+          FROM notice INNER JOIN spam_score ON notice.id = spam_score.notice_id
+          WHERE notice.profile_id = %d AND spam_score.is_spam IS TRUE;
+        END,
+        $profile->getID()
+    ));
 
     while ($ss->fetch()) {
         $spam_count = $ss->spam_count;

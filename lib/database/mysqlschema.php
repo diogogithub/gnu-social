@@ -260,14 +260,20 @@ class MysqlSchema extends Schema
      */
     public function fetchIndexInfo(string $table): array
     {
-        $query = 'SELECT INDEX_NAME AS `key_name`, INDEX_TYPE AS `key_type`, COLUMN_NAME AS `col` ' .
-            'FROM INFORMATION_SCHEMA.STATISTICS ' .
-            'WHERE TABLE_SCHEMA = \'%s\' AND TABLE_NAME = \'%s\' AND NON_UNIQUE = TRUE ' .
-            'AND INDEX_NAME NOT IN (SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_NAME IS NOT NULL) ' .
-            'ORDER BY SEQ_IN_INDEX';
         $schema = $this->conn->dsn['database'];
-        $sql = sprintf($query, $schema, $table);
-        $data = $this->fetchQueryData($sql);
+        $data = $this->fetchQueryData(
+            <<<END
+            SELECT INDEX_NAME AS `key_name`, INDEX_TYPE AS `key_type`, COLUMN_NAME AS `col`
+              FROM INFORMATION_SCHEMA.STATISTICS
+              WHERE TABLE_SCHEMA = '{$schema}' AND TABLE_NAME = '{$table}'
+              AND NON_UNIQUE IS TRUE
+              AND INDEX_NAME NOT IN (
+                SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+                WHERE REFERENCED_TABLE_NAME IS NOT NULL
+              )
+              ORDER BY SEQ_IN_INDEX;
+            END
+        );
 
         $rows = [];
         foreach ($data as $row) {
