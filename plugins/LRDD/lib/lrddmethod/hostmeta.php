@@ -1,4 +1,19 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Implementation of discovery using host-meta file
  *
@@ -6,11 +21,10 @@
  * organization's host-meta file and trying to find a template for LRDD.
  *
  * @category  Discovery
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    James Walker <james@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class LRDDMethod_HostMeta extends LRDDMethod
 {
@@ -26,12 +40,14 @@ class LRDDMethod_HostMeta extends LRDDMethod
         $scheme = mb_strtolower(parse_url($uri, PHP_URL_SCHEME));
         switch ($scheme) {
         case 'acct':
-            if (!Discovery::isAcct($uri)) {
-                throw new Exception('Bad resource URI: '.$uri);
-            }
             // We can't use parse_url data for this, since the 'host'
             // entry is only set if the scheme has '://' after it.
-            list($user, $domain) = explode('@', parse_url($uri, PHP_URL_PATH));
+            $parts = explode('@', parse_url($uri, PHP_URL_PATH), 2);
+
+            if (!Discovery::isAcct($uri) || count($parts) != 2) {
+                throw new Exception('Bad resource URI: ' . $uri);
+            }
+            [, $domain] = $parts;
             break;
         case 'http':
         case 'https':
