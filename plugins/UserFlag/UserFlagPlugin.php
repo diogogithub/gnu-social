@@ -154,13 +154,13 @@ class UserFlagPlugin extends Plugin
      * We define extra rights; this function checks to see if a
      * user has one of them.
      *
-     * @param User   $user    User being checked
+     * @param Profile   $user    User being checked
      * @param string $right   Right we're checking
      * @param bool   &$result out, result of the check
      *
      * @return bool hook result
      */
-    public function onUserRightsCheck(User $user, string $right, bool &$result): bool
+    public function onUserRightsCheck(Profile $user, string $right, bool &$result): bool
     {
         switch ($right) {
         case self::REVIEWFLAGS:
