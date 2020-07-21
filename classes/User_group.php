@@ -299,8 +299,11 @@ class User_group extends Managed_DataObject
     public function getAdmins($offset = null, $limit = null)
     {
         $admins = new Profile();
-        $admins->joinAdd(array('id', 'group_member:profile_id'));
-        $admins->whereAdd('group_member.group_id = ' . $this->id . ' AND group_member.is_admin = true');
+        $admins->joinAdd(['id', 'group_member:profile_id']);
+        $admins->whereAdd(sprintf(
+            'group_member.group_id = %d AND group_member.is_admin IS TRUE',
+            $this->getID()
+        ));
         $admins->orderBy('group_member.modified ASC');
         $admins->limit($offset, $limit);
         $admins->find();

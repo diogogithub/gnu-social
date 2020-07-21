@@ -107,10 +107,10 @@ class SelftagAction extends Action
 
         $user = common_current_user();
         if (empty($user)) {
-            $qry .= 'AND profile_list.private = false ';
+            $qry .= 'AND profile_list.private IS NOT TRUE ';
         } else {
             $qry .= 'AND (profile_list.tagger = ' . $user->id .
-                    ' OR profile_list.private = false) ';
+                    ' OR profile_list.private IS NOT TRUE) ';
         }
 
         $qry .= 'ORDER BY profile_tag.modified DESC ' .

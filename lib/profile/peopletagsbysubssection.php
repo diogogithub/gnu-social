@@ -34,26 +34,28 @@ defined('GNUSOCIAL') || die();
  */
 class PeopletagsBySubsSection extends PeopletagSection
 {
-    function getPeopletags()
+    public function getPeopletags()
     {
         $limit = PEOPLETAGS_PER_SECTION;
 
-        $qry = 'SELECT profile_list.*, subscriber_count AS value ' .
-            'FROM profile_list WHERE profile_list.private = FALSE ' .
-            'ORDER BY value DESC ' .
-            'LIMIT ' . $limit;
+        $qry = <<<END
+            SELECT profile_list.*, subscriber_count AS value
+              FROM profile_list WHERE profile_list.private IS NOT TRUE
+              ORDER BY value DESC
+              LIMIT {$limit};
+            END;
 
         $peopletag = Memcached_DataObject::cachedQuery('Profile_list', $qry, 3600);
         return $peopletag;
     }
 
-    function title()
+    public function title()
     {
         // TRANS: Title for section contaning lists with the most subscribers.
         return _('Popular lists');
     }
 
-    function divId()
+    public function divId()
     {
         return 'top_peopletags_by_subs';
     }

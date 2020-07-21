@@ -201,12 +201,16 @@ class PgsqlSchema extends Schema
      */
     public function fetchIndexInfo(string $table): array
     {
-        $query = 'SELECT indexname AS key_name, indexdef AS key_def, pg_index.* ' .
-            'FROM pg_index INNER JOIN pg_indexes ON pg_index.indexrelid = CAST(pg_indexes.indexname AS regclass) ' .
-            'WHERE tablename = \'%s\' AND indisprimary = FALSE AND indisunique = FALSE ' .
-            'ORDER BY indrelid, indexrelid';
-        $sql = sprintf($query, $table);
-        return $this->fetchQueryData($sql);
+        return $this->fetchQueryData(
+            <<<END
+            SELECT indexname AS key_name, indexdef AS key_def, pg_index.*
+              FROM pg_index INNER JOIN pg_indexes
+              ON pg_index.indexrelid = CAST(pg_indexes.indexname AS regclass)
+              WHERE pg_indexes.tablename = '{$table}'
+              AND indisprimary IS FALSE AND indisunique IS FALSE
+              ORDER BY indrelid, indexrelid;
+            END
+        );
     }
 
     /**

@@ -1,39 +1,32 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Lists by a user
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * PHP version 5
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Personal
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Zach Copley <zach@status.net>
  * @author    Shashi Gowda <connect2shashi@gmail.com>
  * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 require_once INSTALLDIR . '/lib/profile/peopletaglist.php';
 // cache 3 pages
@@ -41,15 +34,15 @@ define('PEOPLETAG_CACHE_WINDOW', PEOPLETAGS_PER_PAGE*3 + 1);
 
 class PeopletagAction extends Action
 {
-    var $page = null;
-    var $tag = null;
+    public $page = null;
+    public $tag = null;
 
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }
 
-    function title()
+    public function title()
     {
         if ($this->page == 1) {
             // TRANS: Title for list page.
@@ -62,7 +55,7 @@ class PeopletagAction extends Action
         }
     }
 
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
         $this->page = ($this->arg('page')) ? ($this->arg('page')+0) : 1;
@@ -84,19 +77,19 @@ class PeopletagAction extends Action
         return true;
     }
 
-    function handle()
+    public function handle()
     {
         parent::handle();
         $this->showPage();
     }
 
-    function showLocalNav()
+    public function showLocalNav()
     {
         $nav = new PublicGroupNav($this);
         $nav->show();
     }
 
-    function showAnonymousMessage()
+    public function showAnonymousMessage()
     {
         $notice =
           // TRANS: Message for anonymous users on list page.
@@ -106,13 +99,13 @@ class PeopletagAction extends Action
             '(http://en.wikipedia.org/wiki/Micro-blogging) service ' .
             'based on the Free Software [StatusNet](http://status.net/) tool. ' .
             'You can then easily keep track of what they ' .
-            'are doing by subscribing to the list\'s timeline.' );
+            "are doing by subscribing to the list's timeline.");
         $this->elementStart('div', array('id' => 'anon_notice'));
         $this->raw(common_markup_to_html($notice));
         $this->elementEnd('div');
     }
 
-    function showContent()
+    public function showContent()
     {
         $offset = ($this->page-1) * PEOPLETAGS_PER_PAGE;
         $limit  = PEOPLETAGS_PER_PAGE + 1;
@@ -143,9 +136,15 @@ class PeopletagAction extends Action
                 $ptags->find();
             }
         } else {
-            $ptags->whereAdd('(profile_list.private = false OR (' .
-                             ' profile_list.tagger =' . $user->id .
-                             ' AND profile_list.private = true) )');
+            $ptags->whereAdd(sprintf(
+                <<<'END'
+                (
+                  (profile_list.tagger = %d AND profile_list.private IS TRUE)
+                  OR profile_list.private IS NOT TRUE
+                )
+                END,
+                $user->getID()
+            ));
 
             $ptags->orderBy('profile_list.modified DESC');
             $ptags->find();
@@ -154,11 +153,16 @@ class PeopletagAction extends Action
         $pl = new PeopletagList($ptags, $this);
         $cnt = $pl->show();
 
-        $this->pagination($this->page > 1, $cnt > PEOPLETAGS_PER_PAGE,
-                          $this->page, 'peopletag', array('tag' => $this->tag));
+        $this->pagination(
+            ($this->page > 1),
+            ($cnt > PEOPLETAGS_PER_PAGE),
+            $this->page,
+            'peopletag',
+            ['tag' => $this->tag]
+        );
     }
 
-    function showSections()
+    public function showSections()
     {
     }
 }
