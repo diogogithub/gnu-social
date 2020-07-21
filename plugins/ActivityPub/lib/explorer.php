@@ -52,7 +52,7 @@ class Activitypub_explorer
      * @throws ServerException Error storing remote actor
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function get_profile_from_url($url, $grab_online = true)
+    public static function get_profile_from_url(string $url, bool $grab_online = true): Profile
     {
         $discovery = new Activitypub_explorer();
         // Get valid Actor object
@@ -103,7 +103,7 @@ class Activitypub_explorer
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function _lookup(string $url, bool $grab_online = true)
+    private function _lookup(string $url, bool $grab_online = true): array
     {
         $grab_local = $this->grab_local_user($url);
 
@@ -127,7 +127,7 @@ class Activitypub_explorer
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function grab_local_user($uri, $online = false)
+    private function grab_local_user(string $uri, bool $online = false): bool
     {
         if ($online) {
             common_debug('ActivityPub Explorer: Searching locally for ' . $uri . ' with online resources.');
@@ -215,7 +215,7 @@ class Activitypub_explorer
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function grab_remote_user($url)
+    private function grab_remote_user(string $url): bool
     {
         common_debug('ActivityPub Explorer: Trying to grab a remote actor for ' . $url);
         $client = new HTTPClient();
@@ -247,7 +247,7 @@ class Activitypub_explorer
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function store_profile($res)
+    private function store_profile(array $res): Profile
     {
         // ActivityPub Profile
         $aprofile = new Activitypub_profile;
@@ -289,7 +289,7 @@ class Activitypub_explorer
      * @return bool success state
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function validate_remote_response($res)
+    public static function validate_remote_response(array $res): bool
     {
         if (!isset($res['id'], $res['preferredUsername'], $res['inbox'], $res['publicKey']['publicKeyPem'])) {
             return false;
@@ -308,7 +308,7 @@ class Activitypub_explorer
      * @return bool|Activitypub_profile false if fails | Aprofile object if successful
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function get_aprofile_by_url($v)
+    public static function get_aprofile_by_url(string $v)
     {
         $i = Managed_DataObject::getcached("Activitypub_profile", "uri", $v);
         if (empty($i)) { // false = cache miss
@@ -333,7 +333,7 @@ class Activitypub_explorer
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function get_actor_inboxes_uri($url)
+    public static function get_actor_inboxes_uri(string $url)
     {
         $client = new HTTPClient();
         $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
@@ -402,7 +402,7 @@ class Activitypub_explorer
      * @throws ServerException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private function travel_collection($url)
+    private function travel_collection(string $url): bool
     {
         $client = new HTTPClient();
         $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
