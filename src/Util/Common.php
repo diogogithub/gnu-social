@@ -31,6 +31,7 @@
 namespace App\Util;
 
 use App\Core\DB\DB;
+use App\Core\Router;
 
 abstract class Common
 {
@@ -45,12 +46,44 @@ abstract class Common
     /**
      * Set sysadmin's configuration preferences for GNU social
      */
-    public static function set_config(string $section, string $setting, mixed $value): void
+    public static function setConfig(string $section, string $setting, mixed $value): void
     {
         $ojb = DB::getPartialReference('config', ['section' => $section, 'setting' => $setting]);
         $obj->setValue(serialize($value));
         DB::persist($obj);
         DB::flush();
+    }
+
+    /**
+     * Is the given string identical to a system path or route?
+     * This could probably be put in some other class, but at
+     * at the moment, only Nickname requires this functionality.
+     */
+    public static function isSystemPath(string $str): bool
+    {
+        $paths = [];
+
+        // All directory and file names in site root should be blacklisted
+        $d = dir(PUBLICDIR);
+        while (false !== ($entry = $d->read())) {
+            $paths[$entry] = true;
+        }
+        $d->close();
+
+        // All top level names in the router should be blocked
+        $router = Router::get();
+        foreach ($router->m->getPaths() as $path) {
+            if (preg_match('/^([^\/\?]+)[\/\?]/', $path, $matches) && isset($matches[1])) {
+                $paths[$matches[1]] = true;
+            }
+        }
+
+        // FIXME: this assumes the 'path' is in the first-level directory, though common it's not certain
+        foreach (['avatar', 'attachments'] as $cat) {
+            $paths[basename(common_config($cat, 'path'))] = true;
+        }
+
+        return in_array($str, array_keys($paths));
     }
 
     /**
@@ -61,7 +94,7 @@ abstract class Common
      *
      * @return int the php.ini upload limit in machine-readable format
      */
-    public static function size_str_to_int(string $size): int
+    public static function sizeStrToInt(string $size): int
     {
         // `memory_limit` can be -1 and `post_max_size` can be 0
         // for unlimited. Consistency.
@@ -96,12 +129,12 @@ abstract class Common
      *
      * @return int
      */
-    public static function get_preferred_php_upload_limit(): int
+    public static function getPreferredPhpUploadLimit(): int
     {
         return min(
-            self::size_str_to_int(ini_get('post_max_size')),
-            self::size_str_to_int(ini_get('upload_max_filesize')),
-            self::size_str_to_int(ini_get('memory_limit'))
+            self::sizeStrToInt(ini_get('post_max_size')),
+            self::sizeStrToInt(ini_get('upload_max_filesize')),
+            self::sizeStrToInt(ini_get('memory_limit'))
         );
     }
 }
