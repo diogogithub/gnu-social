@@ -84,7 +84,7 @@ class Activitypub_profile extends Managed_DataObject
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function profile_to_array($profile)
+    public static function profile_to_array(Profile $profile): array
     {
         $uri = $profile->getUri();
         $id = $profile->getID();
@@ -145,7 +145,7 @@ class Activitypub_profile extends Managed_DataObject
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @access public
      */
-    public function do_insert()
+    public function do_insert(): void
     {
         // Does any other protocol have this remote entity we're about to add ?
         Event::handle('StartTFNLookup', [$this->uri, get_class($this), &$profile_id]);
@@ -241,6 +241,12 @@ class Activitypub_profile extends Managed_DataObject
         return $aprofile;
     }
 
+    /**
+     * Travels an array of Profile and returns an array of Activitypub_profile
+     *
+     * @param array of Profile $profiles
+     * @return array of Activitypub_profile
+     */
     public static function from_profile_collection(array $profiles): array
     {
         $ap_profiles = [];
@@ -268,7 +274,7 @@ class Activitypub_profile extends Managed_DataObject
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    private static function create_from_local_profile(Profile $profile)
+    private static function create_from_local_profile(Profile $profile): Activitypub_profile
     {
         $aprofile = new Activitypub_profile();
 
@@ -301,7 +307,7 @@ class Activitypub_profile extends Managed_DataObject
      * @return string Inbox URL
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function get_inbox()
+    public function get_inbox(): string
     {
         if (is_null($this->sharedInboxuri)) {
             return $this->inboxuri;
@@ -316,7 +322,7 @@ class Activitypub_profile extends Managed_DataObject
      * @return string URI
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function getUri()
+    public function getUri(): string
     {
         return $this->uri;
     }
@@ -327,7 +333,7 @@ class Activitypub_profile extends Managed_DataObject
      * @return string URL
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->getUri();
     }
@@ -338,7 +344,7 @@ class Activitypub_profile extends Managed_DataObject
      * @return int
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function getID()
+    public function getID(): int
     {
         return $this->profile_id;
     }
@@ -352,7 +358,7 @@ class Activitypub_profile extends Managed_DataObject
      * @throws Exception if it isn't possible to return an Activitypub_profile
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function fromUri($url, $grab_online = true)
+    public static function fromUri(string $url, bool $grab_online = true): Activitypub_profile
     {
         try {
             return self::from_profile(Activitypub_explorer::get_profile_from_url($url, $grab_online));
@@ -373,7 +379,7 @@ class Activitypub_profile extends Managed_DataObject
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @author GNU social
      */
-    public static function ensure_webfinger($addr)
+    public static function ensure_webfinger(string $addr): Activitypub_profile
     {
         // Normalize $addr, i.e. add 'acct:' if missing
         $addr = Discovery::normalize($addr);
@@ -542,7 +548,7 @@ class Activitypub_profile extends Managed_DataObject
      * @throws Exception (if the update fails)
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public function updateUri(string $uri)
+    public function updateUri(string $uri): void
     {
         $orig = clone($this);
         $this->uri = $uri;
@@ -617,7 +623,14 @@ class Activitypub_profile extends Managed_DataObject
         return $cnt;
     }
 
-    public static function updateSubscriberCount(Profile $profile, $adder)
+    /**
+     * Increment or decrement subscriber count
+     *
+     * @param Profile $profile
+     * @param $adder
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function updateSubscriberCount(Profile $profile, $adder): void
     {
         $cnt = self::cacheGet(sprintf('activitypub_profile:subscriberCount:%d', $profile->id));
 
@@ -626,7 +639,14 @@ class Activitypub_profile extends Managed_DataObject
         }
     }
 
-    public static function updateSubscriptionCount(Profile $profile, $adder)
+    /**
+     * Increment or decrement subscription count
+     *
+     * @param Profile $profile
+     * @param $adder
+     * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     */
+    public static function updateSubscriptionCount(Profile $profile, $adder): void
     {
         $cnt = self::cacheGet(sprintf('activitypub_profile:subscriptionCount:%d', $profile->id));
 
@@ -640,12 +660,14 @@ class Activitypub_profile extends Managed_DataObject
      * given local profile
      *
      * @param Profile $profile profile object
-     * @param int $offset index of the starting row to fetch from
-     * @param int $limit maximum number of rows allowed for fetching
+     * @param int $offset [optional] index of the starting row to fetch from
+     * @param int|null $limit [optional] maximum number of rows allowed for fetching. If it is omitted,
+     *                                  then the sequence will have everything
+     *                                  from offset up until the end.
      * @return array subscriber profile objects
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function getSubscribers(Profile $profile, $offset = 0, $limit = null): array
+    public static function getSubscribers(Profile $profile, int $offset = 0, ?int $limit = null): array
     {
         $cache = false;
         if ($offset + $limit <= Subscription::CACHE_WINDOW) {
@@ -683,11 +705,11 @@ class Activitypub_profile extends Managed_DataObject
      *
      * @param Profile $profile profile object
      * @param int $offset index of the starting row to fetch from
-     * @param int $limit maximum number of rows allowed for fetching
+     * @param int|null $limit maximum number of rows allowed for fetching
      * @return array subscribed profile objects
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function getSubscribed(Profile $profile, $offset = 0, $limit = null): array
+    public static function getSubscribed(Profile $profile, int $offset = 0, ?int $limit = null): array
     {
         $cache = false;
         if ($offset + $limit <= Subscription::CACHE_WINDOW) {
@@ -733,7 +755,7 @@ class Activitypub_profile extends Managed_DataObject
      * @throws Exception
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function subscribeCacheUpdate(Profile $actor, Profile $other)
+    public static function subscribeCacheUpdate(Profile $actor, Profile $other): void
     {
         self::blow('activitypub_profile:subscribedCollection:%d', $actor->getID());
         self::blow('activitypub_profile:subscriberCollection:%d', $other->id);
@@ -751,7 +773,7 @@ class Activitypub_profile extends Managed_DataObject
      * @throws Exception
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function unsubscribeCacheUpdate(Profile $actor, Profile $other)
+    public static function unsubscribeCacheUpdate(Profile $actor, Profile $other): void
     {
         self::blow('activitypub_profile:subscribedCollection:%d', $actor->getID());
         self::blow('activitypub_profile:subscriberCollection:%d', $other->id);
