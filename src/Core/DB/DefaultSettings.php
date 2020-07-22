@@ -65,9 +65,12 @@ abstract class DefaultSettings
                 'x_static_delivery'    => null,
                 'defaults_modified'    => time(),
             ],
-            'security' => ['hash_algos' => ['sha1', 'sha256', 'sha512']],  // set to null for anything that hash_hmac() can handle (and is in hash_algos())
-            'db'       => ['mirror' => null],                              // TODO implement
-            'cache'    => [
+            'security' => [
+                'algorithm' => 'bcrypt', // bcrypt, argon2i or argon2id
+                'options'   => ['cost' => 12], // for argon, ['memory_cost' => PASSWORD_ARGON2_DEFAULT_MEMORY_COST, 'time_cost' => PASSWORD_ARGON2_DEFAULT_TIME_COST, 'threads' => PASSWORD_ARGON2_DEFAULT_THREADS]
+            ],
+            'db'    => ['mirror' => null],     // TODO implement
+            'cache' => [
                 'notice_max_count' => 128,
             ],
             'avatar' => [
@@ -244,10 +247,18 @@ abstract class DefaultSettings
             'discovery' => ['CORS' => false], // Allow Cross-Origin Resource Sharing for service discovery (host-meta, XRD, etc.)
         ];
 
-        $modified = Common::config('site', 'defaults_modified');
-        if ($modified > filemtime(__FILE__)) {
-            // Don't bother modifying the table if this file is older
+        if (!DB::getConnection()->getSchemaManager()->tablesExist(['config'])) {
             return;
+        }
+
+        try {
+            $modified = Common::config('site', 'defaults_modified');
+            if ($modified > filemtime(__FILE__)) {
+                // Don't bother modifying the table if this file is older
+                return;
+            }
+        } catch (\Exception $e) {
+            // It seems the table wasn't initialized yet, carry on
         }
 
         self::loadDefaults($_ENV['APP_ENV'] == 'prod');
