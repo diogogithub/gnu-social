@@ -45,7 +45,7 @@ class ConfirmAddress
     private ?string $address_extra;
     private string $address_type;
     private ?\DateTimeInterface $claimed;
-    private ?\DateTimeInterface $sent;
+    private \DateTimeInterface $sent;
     private \DateTimeInterface $modified;
 
     public function setCode(string $code): self
@@ -108,12 +108,12 @@ class ConfirmAddress
         return $this->claimed;
     }
 
-    public function setSent(?DateTimeInterface $sent): self
+    public function setSent(DateTimeInterface $sent): self
     {
         $this->sent = $sent;
         return $this;
     }
-    public function getSent(): ?DateTimeInterface
+    public function getSent(): DateTimeInterface
     {
         return $this->sent;
     }

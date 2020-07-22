@@ -43,8 +43,8 @@ class Invitation
     private int $user_id;
     private string $address;
     private string $address_type;
-    private \DateTimeInterface $created;
     private ?int $registered_user_id;
+    private \DateTimeInterface $created;
 
     public function setCode(string $code): self
     {
@@ -86,16 +86,6 @@ class Invitation
         return $this->address_type;
     }
 
-    public function setCreated(DateTimeInterface $created): self
-    {
-        $this->created = $created;
-        return $this;
-    }
-    public function getCreated(): DateTimeInterface
-    {
-        return $this->created;
-    }
-
     public function setRegisteredUserId(?int $registered_user_id): self
     {
         $this->registered_user_id = $registered_user_id;
@@ -104,6 +94,16 @@ class Invitation
     public function getRegisteredUserId(): ?int
     {
         return $this->registered_user_id;
+    }
+
+    public function setCreated(DateTimeInterface $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTimeInterface
+    {
+        return $this->created;
     }
 
     // }}} Autocode

@@ -51,12 +51,12 @@ class Group
     private ?string $homepage_logo;
     private ?string $stream_logo;
     private ?string $mini_logo;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
     private ?string $uri;
     private ?string $mainpage;
     private ?int $join_policy;
     private ?int $force_scope;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -178,26 +178,6 @@ class Group
         return $this->mini_logo;
     }
 
-    public function setCreated(DateTimeInterface $created): self
-    {
-        $this->created = $created;
-        return $this;
-    }
-    public function getCreated(): DateTimeInterface
-    {
-        return $this->created;
-    }
-
-    public function setModified(DateTimeInterface $modified): self
-    {
-        $this->modified = $modified;
-        return $this;
-    }
-    public function getModified(): DateTimeInterface
-    {
-        return $this->modified;
-    }
-
     public function setUri(?string $uri): self
     {
         $this->uri = $uri;
@@ -236,6 +216,26 @@ class Group
     public function getForceScope(): ?int
     {
         return $this->force_scope;
+    }
+
+    public function setCreated(DateTimeInterface $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+    public function getCreated(): DateTimeInterface
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
     }
 
     // }}} Autocode
