@@ -68,7 +68,7 @@ class RemoteFollowSubAction extends Action
 
     /**
      * Handles the submission.
-     * 
+     *
      * @return void
      */
     protected function handle(): void
@@ -84,7 +84,7 @@ class RemoteFollowSubAction extends Action
     /**
      * Show the initial form, when we haven't yet been given a valid
      * remote profile.
-     * 
+     *
      * @return void
      */
     public function showInputForm(): void
@@ -100,16 +100,18 @@ class RemoteFollowSubAction extends Action
 
         $this->elementStart('ul', 'form_data');
         $this->elementStart('li');
-        $this->input('profile',
-                     // TRANS: Field label for a field that takes an user address.
-                     _m('Subscribe to'),
-                     $this->uri,
-                     // TRANS: Tooltip for field label "Subscribe to".
-                     _m('User\'s address, like nickname@example.com or http://example.net/nickname.'));
+        $this->input(
+            'profile',
+            // TRANS: Field label for a field that takes an user address.
+            _m('Subscribe to'),
+            $this->uri,
+            // TRANS: Tooltip for field label "Subscribe to".
+            _m('User\'s address, like nickname@example.com or http://example.net/nickname.')
+        );
         $this->elementEnd('li');
         $this->elementEnd('ul');
         // TRANS: Button text.
-        $this->submit('validate', _m('BUTTON','Continue'));
+        $this->submit('validate', _m('BUTTON', 'Continue'));
 
         $this->elementEnd('fieldset');
 
@@ -119,7 +121,7 @@ class RemoteFollowSubAction extends Action
     /**
      * Show the preview-and-confirm form. We've got a valid remote
      * profile and are ready to poke it!
-     * 
+     *
      * @return void
      */
     public function showPreviewForm(): void
@@ -138,13 +140,15 @@ class RemoteFollowSubAction extends Action
         $this->elementStart('fieldset');
         $this->hidden('token', common_session_token());
         $this->hidden('profile', $this->uri);
-        $this->submit('submit',
-                      // TRANS: Button text.
-                      _m('BUTTON','Confirm'),
-                      'submit',
-                      null,
-                      // TRANS: Tooltip for button "Confirm".
-                      _m('Subscribe to this user'));
+        $this->submit(
+            'submit',
+            // TRANS: Button text.
+            _m('BUTTON', 'Confirm'),
+            'submit',
+            null,
+            // TRANS: Tooltip for button "Confirm".
+            _m('Subscribe to this user')
+        );
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
         $this->elementEnd('li');
@@ -154,16 +158,18 @@ class RemoteFollowSubAction extends Action
 
     /**
      * Show a preview for a remote user's profile.
-     * 
+     *
      * @return bool true if we're ok to try subscribing, false otherwise
      */
     public function preview(): bool
     {
         if ($this->scoped->isSubscribed($this->profile)) {
-            $this->element('div',
-                           ['class' => 'error'],
-                           // TRANS: Extra paragraph in remote profile view when already subscribed.
-                           _m('You are already subscribed to this user.'));
+            $this->element(
+                'div',
+                ['class' => 'error'],
+                // TRANS: Extra paragraph in remote profile view when already subscribed.
+                _m('You are already subscribed to this user.')
+            );
             $ok = false;
         } else {
             $ok = true;
@@ -171,16 +177,18 @@ class RemoteFollowSubAction extends Action
 
         $avatarUrl = $this->profile->avatarUrl(AVATAR_PROFILE_SIZE);
 
-        $this->showEntity($this->profile,
-                          $this->profile->getUrl(),
-                          $avatarUrl,
-                          $this->profile->getDescription());
+        $this->showEntity(
+            $this->profile,
+            $this->profile->getUrl(),
+            $avatarUrl,
+            $this->profile->getDescription()
+        );
         return $ok;
     }
 
     /**
      * Show someone's profile.
-     * 
+     *
      * @return void
      */
     public function showEntity(Profile $entity, string $profile_url, string $avatar, ?string $note): void
@@ -209,9 +217,10 @@ class RemoteFollowSubAction extends Action
             $this->elementEnd('div');
         }
 
-        if (!is_null($location)) {
+        $location_name = (is_null($location) ? null : $location->getName());
+        if (!is_null($location_name)) {
             $this->elementStart('div', 'label entity_location');
-            $this->text($location);
+            $this->text($location_name);
             $this->elementEnd('div');
         }
 
@@ -232,7 +241,7 @@ class RemoteFollowSubAction extends Action
 
     /**
      * Redirect on successful remote follow
-     * 
+     *
      * @return void
      */
     public function success(): void
@@ -285,7 +294,7 @@ class RemoteFollowSubAction extends Action
 
     /**
      * Show the appropriate form based on our input state.
-     * 
+     *
      * @return void
      */
     public function showForm(?string $err = null): void
@@ -333,7 +342,7 @@ class RemoteFollowSubAction extends Action
 
     /**
      * Show page notice.
-     * 
+     *
      * @return void
      */
     public function showPageNotice(): void
@@ -370,10 +379,10 @@ class RemoteFollowSubAction extends Action
 
     /**
      * Return url for this action
-     * 
+     *
      * @return string
      */
-    function selfLink(): string
+    public function selfLink(): string
     {
         return common_local_url('RemoteFollowSub');
     }
