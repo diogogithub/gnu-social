@@ -40,7 +40,7 @@ abstract class Common
      */
     public static function config(string $section, string $setting)
     {
-        return DB::find('config', ['section' => $section, 'setting' => $setting]);
+        return unserialize(DB::find('config', ['section' => $section, 'setting' => $setting])->getValue());
     }
 
     /**
@@ -61,29 +61,32 @@ abstract class Common
      */
     public static function isSystemPath(string $str): bool
     {
-        $paths = [];
+        // TODO Implement
+        return false;
 
-        // All directory and file names in site root should be blacklisted
-        $d = dir(PUBLICDIR);
-        while (false !== ($entry = $d->read())) {
-            $paths[$entry] = true;
-        }
-        $d->close();
+        // $paths = [];
 
-        // All top level names in the router should be blocked
-        $router = Router::get();
-        foreach ($router->m->getPaths() as $path) {
-            if (preg_match('/^([^\/\?]+)[\/\?]/', $path, $matches) && isset($matches[1])) {
-                $paths[$matches[1]] = true;
-            }
-        }
+        // // All directory and file names in site root should be blacklisted
+        // $d = dir(PUBLICDIR);
+        // while (false !== ($entry = $d->read())) {
+        //     $paths[$entry] = true;
+        // }
+        // $d->close();
 
-        // FIXME: this assumes the 'path' is in the first-level directory, though common it's not certain
-        foreach (['avatar', 'attachments'] as $cat) {
-            $paths[basename(common_config($cat, 'path'))] = true;
-        }
+        // // All top level names in the router should be blocked
+        // $router = Router::get();
+        // foreach ($router->m->getPaths() as $path) {
+        //     if (preg_match('/^([^\/\?]+)[\/\?]/', $path, $matches) && isset($matches[1])) {
+        //         $paths[$matches[1]] = true;
+        //     }
+        // }
 
-        return in_array($str, array_keys($paths));
+        // // FIXME: this assumes the 'path' is in the first-level directory, though common it's not certain
+        // foreach (['avatar', 'attachments'] as $cat) {
+        //     $paths[basename(common_config($cat, 'path'))] = true;
+        // }
+
+        // return in_array($str, array_keys($paths));
     }
 
     /**
