@@ -31,22 +31,31 @@ namespace App\Core;
  */
 abstract class UserRoles
 {
-    const ADMIN     = 1;
-    const MODERATOR = 2;
-    const USER      = 4;
+    public const ADMIN     = 1;
+    public const MODERATOR = 2;
+    public const USER      = 4;
+    public const BOT       = 8;
+
+    public static $consts = null;
 
     public static function bitmapToStrings(int $r): array
     {
-        $roles  = [];
-        $consts = (new ReflectionClass(__CLASS__))->getConstants();
-        while ($r != 0) {
-            foreach ($consts as $c => $v) {
-                if ($r & $v !== 0) {
-                    $r &= ~$v;
-                    $roles[] = "ROLE_{$c}";
-                }
+        $roles = [];
+        if (self::$consts == null) {
+            self::$consts = (new \ReflectionClass(__CLASS__))->getConstants();
+        }
+
+        foreach (self::$consts as $c => $v) {
+            if (($r & $v) !== 0) {
+                $r -= $v;
+                $roles[] = "ROLE_{$c}";
             }
         }
+
+        if ($r != 0) {
+            Log::error('User roles bitmap to array failed');
+        }
+
         return $roles;
     }
 }
