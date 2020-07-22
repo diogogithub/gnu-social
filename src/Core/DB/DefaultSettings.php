@@ -41,12 +41,6 @@ abstract class DefaultSettings
     public static array $defaults;
     public static function setDefaults()
     {
-        $conf = DB::find('config', ['section' => 'site', 'setting' => 'defaults_modified']);
-        if ($conf != null && filemtime(__FILE__) < $conf->getValue()) {
-            // Don't bother modifying the table if this file is older
-            return;
-        }
-
         self::$defaults = [
             'site' => [
                 'name'                 => $_ENV['SOCIAL_SITENAME'] ?? 'Another social instance',
@@ -249,6 +243,12 @@ abstract class DefaultSettings
             ],
             'discovery' => ['CORS' => false], // Allow Cross-Origin Resource Sharing for service discovery (host-meta, XRD, etc.)
         ];
+
+        $modified = Common::config('site', 'defaults_modified');
+        if ($modified > filemtime(__FILE__)) {
+            // Don't bother modifying the table if this file is older
+            return;
+        }
 
         self::loadDefaults($_ENV['APP_ENV'] == 'prod');
     }
