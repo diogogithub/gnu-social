@@ -2724,12 +2724,20 @@ function common_get_preferred_php_upload_limit(): int
 }
 
 /**
- * Include $filepath in the response, for viewing and downloading.
+ * Send a file to the client.
  *
+ * @param string $filepath
+ * @param string $mimetype
+ * @param string $filename
+ * @param string $disposition
+ * @param int    $expires header browser cache expires in milliseconds (defaults to 30 days)
  * @throws ServerException
  */
-function common_send_file(string $filepath, string $mimetype, string $filename, string $disposition = 'inline'): void
+function common_send_file(string $filepath, string $mimetype, string $filename, string $disposition = 'inline', int $expires = 30 * 24 * 3600): void
 {
+    header("Content-Type: {$mimetype}");
+    header("Content-Disposition: {$disposition}; filename=\"{$filename}\"");
+    header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
     if (is_string(common_config('site', 'x-static-delivery'))) {
         $tmp = explode(INSTALLDIR, $filepath);
         $relative_path = end($tmp);
@@ -2738,9 +2746,6 @@ function common_send_file(string $filepath, string $mimetype, string $filename, 
         header(common_config('site', 'x-static-delivery') . ": {$relative_path}");
     } else {
         header("Content-Description: File Transfer");
-        header("Content-Type: {$mimetype}");
-        header("Content-Disposition: {$disposition}; filename=\"{$filename}\"");
-        header('Expires: 0');
         header('Content-Transfer-Encoding: binary');
 
         $filesize = filesize($filepath);
@@ -2752,16 +2757,19 @@ function common_send_file(string $filepath, string $mimetype, string $filename, 
 
             $ret = @readfile($filepath);
 
-        } elseif ($ret === false) {
+            if ($ret === false) {
+                http_response_code(404);
+                common_log(LOG_ERR, "Couldn't read file at {$filepath}.");
+            } elseif ($ret !== $filesize) {
+                http_response_code(500);
+                common_log(LOG_ERR, "The lengths of the file as recorded on the DB (or on disk) for the file " .
+                    "{$filepath} differ from what was sent to the user ({$filesize} vs {$ret}).");
+            }
+        } else {
             http_response_code(404);
-            common_log(LOG_ERR, "Couldn't read file at {$filepath}.");
-        } elseif ($ret !== $filesize) {
-            http_response_code(500);
-            common_log(LOG_ERR, "The lengths of the file as recorded on the DB (or on disk) for the file " .
-                       "{$filepath} differ from what was sent to the user ({$filesize} vs {$ret}).");
+            common_log(LOG_ERR, "File doesn't exist at {$filepath}.");
         }
     }
-
 }
 
 function html_sprintf()
