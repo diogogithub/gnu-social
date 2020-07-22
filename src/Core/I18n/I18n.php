@@ -309,16 +309,6 @@ function _m(): string
         // Falthrough
         // no break
     case 2:
-        if (is_string($args[0])) {
-            if (!is_array($args[1])) {
-                // ASCII 4 is EOT, used to separate context from string
-                $context = array_shift($args) . '\004';
-            } else {
-                throw new InvalidArgumentException('Bad parameters to `_m()`. '
-                                                   . 'Seemingly called with a context and multiple messages');
-            }
-        }
-
         if (is_array($args[0])) {
             $args[0] = I18n::formatICU($args[0], $args[1]);
         }
@@ -326,7 +316,7 @@ function _m(): string
         if (is_string($args[0])) {
             $msg    = $args[0];
             $params = $args[1] ?? [];
-            return I18n::$translator->trans($context ?? '' . $msg, $params, $domain);
+            return I18n::$translator->trans($msg, $params, $domain);
         }
         // Fallthrough
         // no break
