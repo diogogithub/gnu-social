@@ -59,29 +59,34 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GNUsocial implements EventSubscriberInterface
 {
-    protected LoggerInterface        $logger;
-    protected TranslatorInterface    $translator;
-    protected EntityManagerInterface $entity_manager;
-    protected RouterInterface        $router;
-    protected FormFactoryInterface   $form_factory;
-    protected MessageBusInterface    $message_bus;
+    protected LoggerInterface          $logger;
+    protected TranslatorInterface      $translator;
+    protected EntityManagerInterface   $entity_manager;
+    protected RouterInterface          $router;
+    protected FormFactoryInterface     $form_factory;
+    protected MessageBusInterface      $message_bus;
+    protected EventDispatcherInterface $event_dispatcher;
 
     /**
      * Symfony dependency injection gives us access to these services
      */
     public function __construct(LoggerInterface $logger,
-                                TranslatorInterface $translator,
+                                TranslatorInterface $trans,
                                 EntityManagerInterface $em,
                                 RouterInterface $router,
                                 FormFactoryInterface $ff,
-                                MessageBusInterface $message_bus)
+                                MessageBusInterface $mb,
+                                EventDispatcherInterface $ed)
     {
-        $this->logger         = $logger;
-        $this->translator     = $translator;
-        $this->entity_manager = $em;
-        $this->router         = $router;
-        $this->form_factory   = $ff;
-        $this->message_bus    = $message_bus;
+        $this->logger           = $logger;
+        $this->translator       = $trans;
+        $this->entity_manager   = $em;
+        $this->router           = $router;
+        $this->form_factory     = $ff;
+        $this->message_bus      = $mb;
+        $this->event_dispatcher = $ed;
+
+        $this->register();
     }
 
     /**
@@ -89,10 +94,10 @@ class GNUsocial implements EventSubscriberInterface
      *
      * @param EventDispatcherInterface $event_dispatcher
      */
-    public function register(EventDispatcherInterface $event_dispatcher): void
+    public function register(): void
     {
         Log::setLogger($this->logger);
-        Event::setDispatcher($event_dispatcher);
+        Event::setDispatcher($this->event_dispatcher);
         I18n::setTranslator($this->translator);
         DB::setManager($this->entity_manager);
         Router::setRouter($this->router);
@@ -115,10 +120,9 @@ class GNUsocial implements EventSubscriberInterface
      * @return RequestEvent
      */
     public function onKernelRequest(RequestEvent $event,
-                                    string $event_name,
-                                    EventDispatcherInterface $event_dispatcher): RequestEvent
+                                    string $event_name): RequestEvent
     {
-        $this->register($event_dispatcher);
+        $this->register();
         return $event;
     }
 
@@ -132,10 +136,9 @@ class GNUsocial implements EventSubscriberInterface
      * @return ConsoleCommandEvent
      */
     public function onCommand(ConsoleCommandEvent $event,
-                              string $event_name,
-                              EventDispatcherInterface $event_dispatcher): ConsoleCommandEvent
+                              string $event_name): ConsoleCommandEvent
     {
-        $this->register($event_dispatcher);
+        $this->register();
         return $event;
     }
 
