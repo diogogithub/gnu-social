@@ -48,12 +48,22 @@ abstract class Main
         }
 
         // Settings pages
-        foreach (['profile', 'avatar'] as $s) {
+        foreach (['profile', 'avatar', 'misc', 'account'] as $s) {
             $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'profile']);
-        }
-
-        foreach (['account'] as $s) {
-            $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'account']);
+            switch ($s) {
+                case 'profile':
+                    $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'profile']);
+                    break;
+                case 'avatar':
+                    $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'avatar']);
+                    break;
+                case 'misc':
+                    $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'misc']);
+                    break;
+                case 'account':
+                    $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'account']);
+                    break;
+            }
         }
     }
 }
