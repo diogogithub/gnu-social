@@ -19,6 +19,7 @@
 
 namespace App\Entity;
 
+use App\Core\UserRoles;
 use DateTimeInterface;
 
 /**
@@ -42,6 +43,7 @@ class Profile
     private int $id;
     private string $nickname;
     private ?string $fullname;
+    private ?int $roles;
     private ?string $homepage;
     private ?string $bio;
     private ?string $location;
@@ -80,6 +82,16 @@ class Profile
     public function getFullname(): ?string
     {
         return $this->fullname;
+    }
+
+    public function setRoles(?int $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
+    }
+    public function getRoles(): ?int
+    {
+        return $this->roles;
     }
 
     public function setHomepage(?string $homepage): self
@@ -183,6 +195,7 @@ class Profile
                 'id'               => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
                 'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
                 'fullname'         => ['type' => 'text', 'description' => 'display name'],
+                'roles'            => ['type' => 'int', 'noot null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this profile has'],
                 'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
                 'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
                 'location'         => ['type' => 'text', 'description' => 'physical location'],
