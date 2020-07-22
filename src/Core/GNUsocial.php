@@ -51,14 +51,18 @@ use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Http\Util\TargetPathTrait;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GNUsocial implements EventSubscriberInterface
 {
+    use TargetPathTrait;
+
     protected LoggerInterface          $logger;
     protected TranslatorInterface      $translator;
     protected EntityManagerInterface   $entity_manager;
@@ -66,6 +70,7 @@ class GNUsocial implements EventSubscriberInterface
     protected FormFactoryInterface     $form_factory;
     protected MessageBusInterface      $message_bus;
     protected EventDispatcherInterface $event_dispatcher;
+    protected SessionInterface         $session;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -76,7 +81,8 @@ class GNUsocial implements EventSubscriberInterface
                                 RouterInterface $router,
                                 FormFactoryInterface $ff,
                                 MessageBusInterface $mb,
-                                EventDispatcherInterface $ed)
+                                EventDispatcherInterface $ed,
+                                SessionInterface $s)
     {
         $this->logger           = $logger;
         $this->translator       = $trans;
@@ -85,6 +91,7 @@ class GNUsocial implements EventSubscriberInterface
         $this->form_factory     = $ff;
         $this->message_bus      = $mb;
         $this->event_dispatcher = $ed;
+        $this->session          = $s;
 
         $this->register();
     }
@@ -122,6 +129,12 @@ class GNUsocial implements EventSubscriberInterface
     public function onKernelRequest(RequestEvent $event,
                                     string $event_name): RequestEvent
     {
+        $request = $event->getRequest();
+        if (!(!$event->isMasterRequest() || $request->isXmlHttpRequest()
+             || 'login' === $request->attributes->get('_route'))) {
+            $this->saveTargetPath($this->session, 'main', $request->getUri());
+        }
+
         $this->register();
         return $event;
     }
