@@ -21,7 +21,6 @@ namespace App\Security;
 
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
-use App\Core\Log;
 use App\Entity\User;
 use App\Util\Nickname;
 use Doctrine\ORM\EntityManagerInterface;
@@ -95,10 +94,9 @@ class Authenticator extends AbstractFormLoginAuthenticator
 
         $nick = Nickname::normalize($credentials['nickname']);
         $user = DB::findOneBy('local_user', ['or' => ['nickname' => $nick, 'outgoing_email' => $nick]]);
-
         if (!$user) {
             throw new CustomUserMessageAuthenticationException(
-                _m('Either \'{nickname}\' doesn\'t match any registered nickname or email, or the supplied password is incorrect.', ['{nickname}' => $credentials['nickname']]));
+                _m('\'{nickname}\' doesn\'t match any registered nickname or email.', ['{nickname}' => $credentials['nickname']]));
         }
 
         return $user;
@@ -106,29 +104,11 @@ class Authenticator extends AbstractFormLoginAuthenticator
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        $password = $user->getPassword();
-        Log::error(print_r($user, true));
-        // crypt understands what the salt part of $user->password is
-        if ($password === crypt($credentials['password'], $user->password)) {
-            $this->changePassword($user->nickname, null, $password);
-            return $user;
+        if (!$user->checkPassword($credentials['password'])) {
+            throw new CustomUserMessageAuthenticationException(_m('Invalid login credentials.'));
+        } else {
+            return true;
         }
-
-        // If we check StatusNet hash, for backwards compatibility and migration
-        if ($this->statusnet && $user->password === md5($password . $user->id)) {
-            // and update password hash entry to crypt() compatible
-            if ($this->overwrite) {
-                $this->changePassword($user->nickname, null, $password);
-            }
-            return $user;
-        }
-
-        // Timing safe password verification on supported PHP versions
-        if (password_verify($password, $user->password)) {
-            return $user;
-        }
-
-        return false;
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
@@ -137,8 +117,7 @@ class Authenticator extends AbstractFormLoginAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        // For example : return new RedirectResponse($this->urlGenerator->generate('some_route'));
-        throw new \Exception('TODO: provide a valid redirect inside ' . __FILE__);
+        return new RedirectResponse($this->urlGenerator->generate('main_all'));
     }
 
     protected function getLoginUrl()

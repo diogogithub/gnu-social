@@ -42,7 +42,7 @@ abstract class Common
     {
         $c = DB::find('config', ['section' => $section, 'setting' => $setting]);
         if ($c === null) {
-            throw new Exception("The field section = {$section} and setting = {$setting} doesn't exist");
+            throw new \Exception("The field section = {$section} and setting = {$setting} doesn't exist");
         }
 
         return unserialize($c->getValue());

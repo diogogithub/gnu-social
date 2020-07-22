@@ -19,7 +19,9 @@
 
 namespace App\Entity;
 
+use App\Core\DB\DB;
 use App\Core\UserRoles;
+use App\Util\Common;
 use DateTimeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -306,5 +308,48 @@ class LocalUser implements UserInterface
      */
     public function eraseCredentials()
     {
+    }
+
+    public function checkPassword(string $new_password): bool
+    {
+        // Timing safe password verification on supported PHP versions
+        if (password_verify($new_password, $this->getPassword())) {
+            return true;
+        }
+
+        // Old format
+        // crypt understands what the salt part of $this->getPassword() is
+        if ($this->getPassword() === crypt($new_password, $this->getPassword())) {
+            $this->changePassword($new_password, true);
+            return true;
+        }
+
+        return false;
+    }
+
+    public function changePassword(string $new_password, bool $override = false): void
+    {
+        if ($override || $this->checkPassword($new_password)) {
+            $this->setPassword($this->hashPassword($new_password));
+            DB::flush();
+        }
+    }
+
+    public function hashPassword(string $password)
+    {
+        switch (Common::config('security', 'algorithm')) {
+        case 'bcrypt':
+            $algorithm = PASSWORD_BCRYPT;
+            break;
+        case 'argon2i':
+            $algorithm = PASSWORD_ARGON2I;
+            break;
+        case 'argon2id':
+            $algorithm = PASSWORD_ARGON2ID;
+            break;
+        }
+        $options = Common::config('security', 'options');
+
+        return password_hash($password, $algorithm, $options);
     }
 }
