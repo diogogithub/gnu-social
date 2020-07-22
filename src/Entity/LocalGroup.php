@@ -41,15 +41,14 @@ class LocalGroup
 
     private int $group_id;
     private ?string $nickname;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setGroupId(int $group_id): self
     {
         $this->group_id = $group_id;
         return $this;
     }
-
     public function getGroupId(): int
     {
         return $this->group_id;
@@ -60,7 +59,6 @@ class LocalGroup
         $this->nickname = $nickname;
         return $this;
     }
-
     public function getNickname(): ?string
     {
         return $this->nickname;
@@ -71,7 +69,6 @@ class LocalGroup
         $this->created = $created;
         return $this;
     }
-
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -82,7 +79,6 @@ class LocalGroup
         $this->modified = $modified;
         return $this;
     }
-
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
@@ -98,7 +94,7 @@ class LocalGroup
             'fields'      => [
                 'group_id' => ['type' => 'int', 'not null' => true, 'description' => 'group represented'],
                 'nickname' => ['type' => 'varchar', 'length' => 64, 'description' => 'group represented'],
-                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['group_id'],
