@@ -31,19 +31,16 @@
 namespace App\Controller;
 
 use App\Core\Controller;
-use App\Core\Queue\Queue;
 
 class NetworkPublic extends Controller
 {
     public function onPost()
     {
-        return ['_template' => 'network/public.html.twig'];
+        return ['notices' => ['some notice', 'some other notice', 'some other more diferent notice']];
     }
 
     public function handle()
     {
-        Queue::enqueue('Yo, test', 'network_public');
-
         return [
             '_template' => 'network/public.html.twig',
             'notices'   => ['some notice', 'some other notice', 'some other more diferent notice'],
