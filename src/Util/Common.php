@@ -40,7 +40,12 @@ abstract class Common
      */
     public static function config(string $section, string $setting)
     {
-        return unserialize(DB::find('config', ['section' => $section, 'setting' => $setting])->getValue());
+        $c = DB::find('config', ['section' => $section, 'setting' => $setting]);
+        if ($c === null) {
+            throw new Exception("The field section = {$section} and setting = {$setting} doesn't exist");
+        }
+
+        return unserialize($c->getValue());
     }
 
     /**
