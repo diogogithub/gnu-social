@@ -10,6 +10,20 @@ security:
             anonymous: true
             lazy: true
             provider: users_in_memory
+            guard:
+                authenticators:
+                    - App\Security\Authenticator
+            logout:
+                path: logout
+                # where to redirect after logout
+                target: main_all
+
+            remember_me:
+                secret: '%kernel.secret%'
+                secure: true
+                httponly: '%remember_me_httponly%'
+                samesite: '%remember_me_samesite%'
+                token_provider: 'Symfony\Bridge\Doctrine\Security\RememberMe\DoctrineTokenProvider'
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
@@ -20,5 +34,5 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/settings, roles: ROLE_USER }
