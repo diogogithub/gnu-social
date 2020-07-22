@@ -43,3 +43,5 @@ services:
 
     App\Core\Queue\MessageHandler:
       tags: [messenger.message_handler]
+
+    Symfony\Bridge\Doctrine\Security\RememberMe\DoctrineTokenProvider: ~

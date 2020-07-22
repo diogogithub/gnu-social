@@ -40,7 +40,10 @@ abstract class Main
     public static function load(RouteLoader $r): void
     {
         $r->connect('main_all', '/main/all', C\NetworkPublic::class);
-        $r->connect('config_admin', '/config/admin', C\AdminConfigController::class);
+        $r->connect('admin_config', '/admin/config', C\AdminConfigController::class);
+
+        $r->connect('login', '/login', [C\SecurityController::class, 'login']);
+        $r->connect('logout', '/logout', [C\SecurityController::class, 'logout']);
 
         // FAQ static pages
         foreach (['faq', 'contact', 'tags', 'groups', 'openid'] as $s) {
