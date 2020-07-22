@@ -38,6 +38,7 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -88,23 +89,33 @@ class UserPanel extends AbstractController
             [_m('emailnotifyfav'),   CheckboxType::class,    ['help' => 'Send me email when someone adds my notice as a favorite.', 'label_format' => 'Notify favorites']],
             ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
 
-        $acc->handleRequest($request);
-        if ($acc->isSubmitted()) {
-            $data = $acc->getData();
-            if ($prof->isValid()) {
-                $user = DB::find('\App\Entity\User', ['id' => 2]);
-                foreach (['outgoing_email', 'password', 'emailnotifysub', 'emailnotifymsg', 'emailnotifyattn', 'emailnotifynudge', 'emailnotifyfav'] as $key) {
-                    $method = "set{$key}";
-                    $user->{$method}($data[_m($key)]);
-                }
-                DB::flush();
-            } else {
-                // Display error
-            }
-        }
-
         return $this->render('settings/account.html.twig', [
             'acc' => $acc->createView(),
+        ]);
+    }
+
+    public function avatar(Request $request)
+    {
+        $avatar = Form::create([
+            [_m('avatar'),   FileType::class,   ['help' => 'You can upload your personal avatar. The maximum file size is 64MB.', 'label_format' => 'Avatar']],
+            ['save',        SubmitType::class, ['label' => _m('Submit')]], ]);
+
+        return $this->render('settings/avatar.html.twig', [
+            'avatar' => $avatar->createView(),
+        ]);
+    }
+
+    public function misc(Request $request)
+    {
+        $misc = Form::create([
+            [_m('transport'),   TextType::class,   ['help' => 'Address used to send and receive notices through IM.', 'label_format' => 'XMPP/Jabber']],
+            [_m('post_on_status_change'),   CheckboxType::class,   ['help' => 'Post a notice when my status changes.', 'label_format' => 'Status change']],
+            [_m('mention'),   CheckboxType::class,   ['help' => 'Send me replies from people I\'m not subscribed to.', 'label_format' => 'Mentions']],
+            [_m('posts_by_followed'),   CheckboxType::class,   ['help' => 'Send me notices.', 'label_format' => 'Notices']],
+            ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
+
+        return $this->render('settings/misc.html.twig', [
+            'misc' => $misc->createView(),
         ]);
     }
 }
