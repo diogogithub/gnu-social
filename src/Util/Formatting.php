@@ -31,7 +31,6 @@
 namespace App\Util;
 
 use const DIRECTORY_SEPARATOR;
-use Functional;
 use Functional as F;
 use InvalidArgumentException;
 use Symfony\Component\Config\Definition\Exception\Exception;
@@ -121,24 +120,14 @@ abstract class Formatting
             });
     }
 
-    /**
-     * @param string $str
-     *
-     * @return string
-     */
     public static function camelCaseToSnakeCase(string $str): string
     {
         return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $str));
     }
 
-    /**
-     * @param string $str
-     *
-     * @return string
-     */
     public static function snakeCaseToCamelCase(string $str): string
     {
-        return implode('', F\map(preg_split('/[\b_]/', $str), Functional::arity('ucfirst', 1)));
+        return implode('', F\map(preg_split('/[\b_]/', $str), F\ary('ucfirst', 1)));
     }
 
     /**
@@ -157,7 +146,7 @@ abstract class Formatting
         } elseif (is_array($in)) {
             $indent = str_repeat(' ', $count * $level);
             return implode("\n", F\map(F\select($in,
-                Functional::arity(function ($s) {
+                F\ary(function ($s) {
                     return $s != '';
                 }, 1)),
                 function ($val) use ($indent) {

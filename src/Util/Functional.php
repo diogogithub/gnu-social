@@ -30,26 +30,6 @@
 
 namespace App\Util;
 
-use Functional as F;
-
 abstract class Functional
 {
-    /**
-     * Call $func with only abs($count) arguments, taken either from the
-     * left or right depending on the sign
-     *
-     * @param callable $func
-     * @param int      $count
-     *
-     * @return callable
-     */
-    public static function arity(callable $func, int $count): callable
-    {
-        return function (...$args) use ($func, $count) {
-            if ($count > 0) {
-                return call_user_func_array($func, F\take_left($args, $count));
-            }
-            return call_user_func_array($func, F\take_right($args, -$count));
-        };
-    }
 }
