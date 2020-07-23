@@ -35,27 +35,30 @@ namespace App\Routes;
 
 use App\Controller as C;
 use App\Core\Router\RouteLoader;
+use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
 use Symfony\Bundle\FrameworkBundle\Controller\TemplateController;
 
 abstract class Main
 {
     public static function load(RouteLoader $r): void
     {
-        $r->connect('main_all', '/main/all', C\NetworkPublic::class);
-        $r->connect('admin_panel', '/panel/admin', C\AdminPanel::class);
-
         $r->connect('login', '/login', [C\Security::class, 'login']);
         $r->connect('logout', '/logout', [C\Security::class, 'logout']);
 
+        $r->connect('main_all', '/main/all', C\NetworkPublic::class);
+
+        $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
+        $r->connect('panel_site', '/panel/site', [C\AdminPanel::class, 'site']);
+
         // FAQ static pages
         foreach (['faq', 'contact', 'tags', 'groups', 'openid'] as $s) {
-            $r->connect('doc_' . $s, 'doc/' . $s, TemplateController::class, [], ['defaults' => ['template' => 'faq/' . $s . '.html.twig']]);
+            $r->connect('doc_' . $s, '/doc/' . $s, TemplateController::class, [], ['defaults' => ['template' => 'faq/' . $s . '.html.twig']]);
         }
 
         // Settings pages
-        $r->connect('settings', '/settings' . $s, [C\UserPanel::class, 'profile']);
+        $r->connect('settings', '/settings', RedirectController::class, [], ['defaults' => ['route' => 'settings_profile']]);
         foreach (['profile', 'avatar', 'misc', 'account'] as $s) {
-            $r->connect('settings_' . $s, '/settings' . $s, [C\UserPanel::class, $s]);
+            $r->connect('settings_' . $s, '/settings/' . $s, [C\UserPanel::class, $s]);
         }
     }
 }

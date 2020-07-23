@@ -3,12 +3,11 @@
 namespace App\Controller;
 
 use App\Core\Controller;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class Security extends Controller
 {
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(AuthenticationUtils $authenticationUtils)
     {
         if ($this->getUser()) {
             return $this->redirectToRoute('main_all');

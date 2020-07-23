@@ -44,7 +44,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AdminPanel extends Controller
 {
-    public function handle(Request $request)
+    public function site(Request $request)
     {
         $defaults = DefaultSettings::$defaults;
         $options  = [];

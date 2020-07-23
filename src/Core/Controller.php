@@ -33,35 +33,74 @@
 namespace App\Core;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Event\ViewEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 
-class Controller extends AbstractController
+class Controller extends AbstractController implements EventSubscriberInterface
 {
+    private array $vars;
+
     public function __invoke(Request $request)
     {
         $class  = get_called_class();
         $method = 'on' . ucfirst(strtolower($request->getMethod()));
-        $vars   = ['request' => $request];
-        Event::handle('StartTwigPopulateVars', [&$vars]);
         if (method_exists($class, $method)) {
-            $vars = array_merge_recursive($vars, $class::$method($request, $vars));
+            return $class::$method($request, $this->vars);
         } else {
-            $vars = array_merge_recursive($vars, $class::handle($request, $vars));
+            return $class::handle($request, $this->vars);
         }
-        Event::handle('EndTwigPopulateVars', [&$vars]);
-        $template = $vars['_template'];
-        unset($vars['_template'], $vars['request']);
+    }
+
+    public function onKernelController(ControllerEvent $event)
+    {
+        $controller = $event->getController();
+        $request    = $event->getRequest();
+
+        $this->vars = ['controler' => $controller, 'request' => $request];
+        Event::handle('StartTwigPopulateVars', [&$this->vars]);
+
+        return $event;
+    }
+
+    public function onKernelView(ViewEvent $event)
+    {
+        $request  = $event->getRequest();
+        $response = $event->getControllerResult();
+        if (!is_array($response)) {
+            return $event;
+        }
+
+        $this->vars = array_merge_recursive($this->vars, $response);
+        Event::handle('EndTwigPopulateVars', [&$this->vars]);
+
+        $template = $this->vars['_template'];
+        unset($this->vars['_template'], $this->vars['request']);
 
         // Respond in the the most preffered acceptable content type
         $format = $request->getFormat($request->getAcceptableContentTypes()[0]);
         switch ($format) {
         case 'html':
-            return $this->render($template, $vars);
+            $event->setResponse($this->render($template, $this->vars));
+            break;
         case 'json':
-            return new JsonResponse($vars);
+            $event->setResponse(new JsonResponse($this->vars));
+            // no break
         default:
             throw new BadRequestHttpException('Unsupported format', null, 406);
         }
+
+        return $event;
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [
+            KernelEvents::CONTROLLER => 'onKernelController',
+            KernelEvents::VIEW       => 'onKernelView',
+        ];
     }
 }
