@@ -1,0 +1,62 @@
+.content {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: calc(3 * var(--main-size));
+    justify-content: center;
+    align-items: center;
+    margin-left: var(--nav-size);
+    margin-right: 0;
+}
+
+form {
+    font-size: var(--medium-size);
+    background-color: #00000050;
+    padding: calc(2 * var(--unit-size)) calc(3 * var(--unit-size)) calc(3 * var(--unit-size));
+    border-radius: var(--unit-size);
+    margin-top: calc(2 * var(--unit-size));
+    margin-right: var(--side-margin);
+    margin-left: var(--side-margin);
+    box-shadow: 0 0 60px -20px rgba(0, 0, 0, 0.75);
+}
+h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: var(--main-size);
+    margin-bottom: var(--medium-size);
+}
+
+label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    width: 100%;
+}
+
+input[type=text],
+input[type=password]
+{
+    margin-top: calc(var(--unit-size) * 0.5);
+    background-color: rgba(0, 0, 0, 0.30);
+    color: #f6f6f6;
+    border-style: none;
+    padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
+    border-radius: calc(var(--unit-size) * 0.5);
+    font-size: var(--medium-size);
+}
+
+.pair {
+    float:left;
+    width: 100%;
+    margin-bottom: var(--medium-size);
+}
+.pair input {
+    display: block;
+}
+
+.checkbox label {
+    font-family: "Open Sans", sans-serif;
+    font-size: var(--medium-size);
+    font-weight: normal;
+}
+
+
+

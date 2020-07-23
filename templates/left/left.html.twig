@@ -1,0 +1,61 @@
+{% extends '/base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/left/left.css') }}" media="screen and (min-width: 1300px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/left/left_mid.css') }}" media="screen and (max-width: 1300px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/left/left_small.css') }}" media="screen and (max-width: 750px)">
+{% endblock %}
+
+{% block left %}
+    {% if app.user %}
+        <div id='left-panel'>
+            <input type="checkbox" id="toggle">
+            <div class="icon-menu">
+                <label for="toggle" id='menu'></label>
+            </div>
+            <div class='navbar'>
+                <div class='profile'>
+                    <svg class="icon icon-avatar">
+                        <use xlink:href="#icon-avatar"></use>
+                    </svg>
+                    <div class="info">
+                        <b id="nick">{{ app.user.username }}</b>
+                        <div class="tags">
+                            <i>coffee addict</i>
+                            <i>lazy</i>
+                        </div>
+                        <div class="stats">
+                            <span>
+                                <b>1337</b>
+                                Followers</span>
+                            <span>
+                                <b>42</b>
+                                Following</span>
+                        </div>
+                    </div>
+                </div>
+                <a href='#'>Bookmarks</a>
+                <a href='#'>Happenings</a>
+                <a href='#'>Messages</a>
+                <a href='#'>Replies</a>
+                <a href='#'>Favourites</a>
+                <a href='#'>Reverse Favs</a>
+                <a href="{{ path('settings_profile') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_' %}active{% endif %}'>Settings</a>
+                <a href='#'>Logout</a>
+            </div>
+        </div>
+    {% else %}
+        <div id='left-panel'>
+            <input type="checkbox" id="toggle">
+            <div class="icon-menu">
+                <label for="toggle" id='menu'></label>
+            </div>
+            <div class='navbar'>
+                <a href="{{ path('login') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'login' %}active{% endif %}'>Login</a>
+                <a href='#'>Register</a>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}

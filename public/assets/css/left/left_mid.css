@@ -1,0 +1,107 @@
+.navbar {
+      width: var(--nav-size);
+      height: calc(100vh - (3 * var(--unit-size)));
+      position: fixed;
+      background: rgb(51,61,71);
+      background: -moz-linear-gradient(80deg, rgba(51,61,71,1) 0%, rgba(39,46,54,1) 90%);
+      background: -webkit-linear-gradient(80deg, rgba(51,61,71,1) 0%, rgba(39,46,54,1) 90%);
+      background: linear-gradient(80deg, rgba(51,61,71,1) 0%, rgba(39,46,54,1) 90%);
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#333d47",endColorstr="#272e36",GradientType=1);
+      margin-top: calc(3 * var(--main-size));
+}
+
+.navbar {
+      left: -100%;
+      top:0;
+      transition: 0.3s ease;
+}
+
+.navbar a {
+      display: block;
+      color: #91B9D0;
+      margin-left: var(--unit-size);
+      margin-bottom: var(--small-size);
+      font-size: var(--medium-size);
+}
+
+.navbar a:nth-child(1) {
+      margin-top: var(--unit-size);
+}
+
+.navbar a:hover {
+      color: #F6F6F6;
+      transition: all 0.8s ease;
+}
+
+.icon-menu label {
+      display: block;
+      cursor: pointer
+}
+
+#toggle {
+      position: absolute;
+      z-index: 2;
+      cursor: pointer;
+      opacity: 0;
+}
+.left-panel input[type=checkbox] {
+    transform: scale(2);
+    -ms-transform: scale(2);
+    -webkit-transform: scale(2);
+    padding: 10px;
+}
+
+#toggle:checked~.navbar {
+      display: block;
+      left: 0;
+      top: 0;
+      transition: 0.3s ease;
+}
+
+.profile {
+      display: flex;
+      flex-wrap: wrap;
+      background-color: rgba(0, 0, 0, 0.20);
+      padding: var(--unit-size);
+      font-size: var(--small-size);
+      margin-bottom: var(--unit-size);
+      vertical-align: middle;
+}
+
+.icon-avatar {
+      order: 1;
+      height: calc(5 * var(--unit-size));
+      weight: auto;
+      width: 25%;
+      margin-right: var(--small-size);
+}
+
+.info {
+      order: 2;
+}
+
+.info #nick {
+      order: 1;
+      margin-bottom: var(--small-size);
+}
+
+.info .tags {
+      order: 2;
+      margin-bottom: var(--small-size);
+}
+
+.info .stats {
+      order: 3;
+}
+
+.info .tags i {
+      color: #91B9D0;
+}
+
+.info .tags i:last-child {
+      margin-left: var(--small-size);
+}
+
+.stats span:last-child {
+      margin-left: var(--small-size);
+}
