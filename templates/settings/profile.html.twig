@@ -12,31 +12,37 @@
 
 {% block body %}
 
-<div class='content'>
-      <nav class='set-nav'>
-            <ul>
-                  <li>
-                        <a href="{{ path('settings_profile') }}" class='hover-effect {% if (app.request.attributes.get('_route') starts with 'settings_profile') or (app.request.attributes.get('_route') starts with 'settings_avatar')%}active{% endif %}'>Settings</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('settings_account') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_account' %}active{% endif %}'>Account</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('settings_misc') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_misc' %}active{% endif %}'>Misc</a>
-                  </li>
-            </ul>
-      </nav>
-      <nav class='set-nav2'>
-            <ul>
-                  <li>
-                        <a href="{{ path('settings_profile') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_profile' %}active{% endif %}'>Profile</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('settings_avatar') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_avatar' %}active{% endif %}'>Avatar</a>
-                  </li>
-            </ul>
-      </nav>
+  <div class='content'>
+    <nav class='set-nav'>
+      <ul>
+        <li>
+          <a href="{{ path('settings_profile') }}" class='hover-effect {{ active('settings_profile', 'settings_avatar') }}'>Settings</a>
+        </li>
+        <li>
+          <a href="{{ path('settings_account') }}" class='hover-effect {{ active('settings_account') }}'>Account</a>
+        </li>
+        <li>
+          <a href="{{ path('settings_misc') }}" class='hover-effect {{ active('settings_misc') }}'>Misc</a>
+        </li>
+      </ul>
+    </nav>
+    <nav class='set-nav2'>
+      <ul>
+        {# {% for tab in tabs %} #}
+        {# {% endfor %} #}
+        
+        <li>
+          <a href="{{ path('settings_profile') }}" class='hover-effect {{ active('settings_profile') }}'>Profile</a>
+        </li>
+        <li>
+          <a href="{{ path('settings_avatar') }}" class='hover-effect {{ active('settings_avatar') }}'>Avatar</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
 {% block form %}
+
 <div class='form'>
       {{ form(prof) }}
 </div>
