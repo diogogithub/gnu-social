@@ -1,6 +1,7 @@
-{% extends 'base.html.twig' %}
+{% extends 'left/left.html.twig' %}
 
-{% block meta %}{{ parent() }}
+{% block meta %}
+      {{ parent() }}
 {% endblock %}
 
 {% block title %}{% endblock %}
@@ -12,7 +13,13 @@
       <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/faq/faq_small.css') }}" media="screen and (max-width: 750px)">
 {% endblock %}
 
-{% block header %}{{ parent() }}
+{% block header %}
+      {{ parent() }}
 {% endblock %}
+
+{% block left %}
+      {{ parent() }}
+{% endblock %}
+
 
 {% block javascripts %}{% endblock %}

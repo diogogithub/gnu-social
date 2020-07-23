@@ -54,42 +54,8 @@
             {% block header %}
                   <div id='header'>
                         <div id='top'>
-                              <div id='left-panel'>
-                                    <input type="checkbox" id="toggle">
-                                    <div class="icon-menu">
-                                          <label for="toggle" id='menu'></label>
-                                    </div>
-                                    <div class='navbar'>
-                                          <div class='profile'>
-                                                <svg class="icon icon-avatar">
-                                                      <use xlink:href="#icon-avatar"></use>
-                                                </svg>
-                                                <div class="info">
-                                                      <b id="nick">someone</b>
-                                                      <div class="tags">
-                                                            <i>coffee addict</i>
-                                                            <i>lazy</i>
-                                                      </div>
-                                                      <div class="stats">
-                                                            <span>
-                                                                  <b>1337</b>
-                                                                  Followers</span>
-                                                            <span>
-                                                                  <b>42</b>
-                                                                  Following</span>
-                                                      </div>
-                                                </div>
-                                          </div>
-                                          <a href='#'>Bookmarks</a>
-                                          <a href='#'>Happenings</a>
-                                          <a href='#'>Messages</a>
-                                          <a href='#'>Replies</a>
-                                          <a href='#'>Favourites</a>
-                                          <a href='#'>Reverse Favs</a>
-                                          <a href="{{ path('settings_profile') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_' %}active{% endif %}'>Settings</a>
-                                          <a href='#'>Logout</a>
-                                    </div>
-                              </div>
+                              {% block left %}
+                              {% endblock left %}
                               <nav id='instance'>
                                     <a href="#">
                                           <svg class="icon icon-logo">
@@ -102,7 +68,7 @@
                               </svg>
                         </div>
                   </div>
-            {% endblock %}
+            {% endblock header%}
 
             {% block nav %}{% endblock %}
             {% block body %}{% endblock %}
