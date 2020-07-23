@@ -660,6 +660,24 @@ class Schema
             $this->appendCreateFulltextIndex($statements, $tableName, $indexName, $colDef);
         }
 
+        /*
+         * Merges all consecutive ALTER TABLE's into one statement.
+         * This is necessary in MariaDB as foreign keys can disallow removal of
+         * an index if a replacement isn't provided instantly.
+         */
+        [$stmts_orig, $statements] = [$statements, []];
+        foreach ($stmts_orig as $stmt) {
+            $prev = array_slice($statements, -1)[0] ?? '';
+            $prefix = "ALTER TABLE {$this->quoteIdentifier($tableName)} ";
+            if (mb_substr($stmt, 0, mb_strlen($prefix)) === $prefix
+                && mb_substr($prev, 0, mb_strlen($prefix)) === $prefix) {
+                $statements[] = array_pop($statements) . ', '
+                              . mb_substr($stmt, mb_strlen($prefix));
+            } else {
+                $statements[] = $stmt;
+            }
+        }
+
         return $statements;
     }
 

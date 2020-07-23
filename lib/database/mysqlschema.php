@@ -334,6 +334,21 @@ class MysqlSchema extends Schema
     }
 
     /**
+     * Append an SQL statement with an index definition for an advisory
+     * index over one or more columns on a table.
+     *
+     * @param array $statements
+     * @param string $table
+     * @param string $name
+     * @param array $def
+     */
+    public function appendCreateIndex(array &$statements, $table, $name, array $def)
+    {
+        $statements[] = "ALTER TABLE {$this->quoteIdentifier($table)} "
+                      . "ADD INDEX {$name} {$this->buildIndexList($def)}";
+    }
+
+    /**
      * Close out a 'create table' SQL statement.
      *
      * @param string $name
@@ -456,7 +471,8 @@ class MysqlSchema extends Schema
      */
     public function appendDropIndex(array &$statements, $table, $name)
     {
-        $statements[] = "DROP INDEX {$name} ON {$this->quoteIdentifier($table)}";
+        $statements[] = "ALTER TABLE {$this->quoteIdentifier($table)} "
+                      . "DROP INDEX {$name}";
     }
 
     private function isNumericType(array $cd): bool
