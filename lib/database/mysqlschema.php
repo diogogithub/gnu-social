@@ -380,6 +380,25 @@ class MysqlSchema extends Schema
     }
 
     /**
+     * Append phrase(s) to an array of partial ALTER TABLE chunks in order
+     * to alter the given column from its old state to a new one.
+     *
+     * @param array $phrase
+     * @param string $columnName
+     * @param array $old previous column definition as found in DB
+     * @param array $cd current column definition
+     */
+    public function appendAlterModifyColumn(
+        array &$phrase,
+        string $columnName,
+        array  $old,
+        array  $cd
+    ): void {
+        $phrase[] = 'MODIFY COLUMN ' . $this->quoteIdentifier($columnName)
+                  . ' ' . $this->columnSql($columnName, $cd);
+    }
+
+    /**
      * MySQL doesn't take 'DROP CONSTRAINT', need to treat primary keys as
      * if they were indexes here, but can use 'PRIMARY KEY' special name.
      *
@@ -425,6 +444,19 @@ class MysqlSchema extends Schema
             $phrase[] = 'DEFAULT CHARACTER SET = utf8mb4';
             $phrase[] = 'DEFAULT COLLATE = utf8mb4_bin';
         }
+    }
+
+    /**
+     * Append an SQL statement to drop an index from a table.
+     * Note that in MariaDB index names are relation-specific.
+     *
+     * @param array $statements
+     * @param string $table
+     * @param string $name
+     */
+    public function appendDropIndex(array &$statements, $table, $name)
+    {
+        $statements[] = "DROP INDEX {$name} ON {$this->quoteIdentifier($table)}";
     }
 
     private function isNumericType(array $cd): bool
