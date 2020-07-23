@@ -221,6 +221,15 @@ class Activitypub_explorer
         $client = new HTTPClient();
         $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
         $res = json_decode($response->getBody(), true);
+        if ($response->getStatus() == 410) { // If it was deleted
+            return true; // Nothing to add.
+        } elseif (!$response->isOk()) { // If it is unavailable
+            return false; // Try to add at another time.
+        }
+        if (is_null($res)) {
+            common_debug('ActivityPub Explorer: Invalid JSON returned from given Actor URL: ' . $response->getBody());
+            return true; // Nothing to add.
+        }
 
         if (isset($res['type']) && $res['type'] === 'OrderedCollection' && isset($res['first'])) { // It's a potential collection of actors!!!
             common_debug('ActivityPub Explorer: Found a collection of actors for ' . $url);
@@ -232,6 +241,7 @@ class Activitypub_explorer
             return true;
         } else {
             common_debug('ActivityPub Explorer: Invalid potential remote actor while grabbing remotely: ' . $url . '. He returned the following: ' . json_encode($res, JSON_UNESCAPED_SLASHES));
+            return false;
         }
 
         return false;
@@ -328,19 +338,25 @@ class Activitypub_explorer
      * Given a valid actor profile url returns its inboxes
      *
      * @param string $url of Actor profile
-     * @return bool|array false if fails | array with inbox and shared inbox if successful
+     * @return bool|array false if fails to validate the answer | array with inbox and shared inbox if successful
      * @throws HTTP_Request2_Exception
-     * @throws Exception
+     * @throws Exception If an irregular error happens (status code, body format or GONE)
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function get_actor_inboxes_uri(string $url)
     {
         $client = new HTTPClient();
         $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
-        if (!$response->isOk()) {
-            throw new Exception('Invalid Actor URL.');
+        if ($response->getStatus() == 410) { // If it was deleted
+            throw new Exception('This actor is GONE.');
+        } elseif (!$response->isOk()) { // If it is unavailable
+            throw new Exception('Non Ok Status Code for given Actor URL.');
         }
         $res = json_decode($response->getBody(), true);
+        if (is_null($res)) { // If it is in an unexpected format
+            common_debug('ActivityPub Explorer: Invalid JSON returned from given Actor URL: ' . $response->getBody());
+            throw new Exception('Given Actor URL didn\'t return a valid JSON.');
+        }
         if (self::validate_remote_response($res)) {
             return [
                 'inbox' => $res['inbox'],
@@ -442,8 +458,14 @@ class Activitypub_explorer
         // If it was deleted
         if ($response->getStatus() == 410) {
             return false;
+        } elseif (!$response->isOk()) { // If it is unavailable
+            throw new Exception('Non Ok Status Code for given Actor URL.');
         }
         $res = json_decode($response->getBody(), true);
+        if (is_null($res)) {
+            common_debug('ActivityPub Explorer: Invalid JSON returned from given Actor URL: ' . $response->getBody());
+            throw new Exception('Given Actor URL didn\'t return a valid JSON.');
+        }
         if (Activitypub_explorer::validate_remote_response($res)) {
             common_debug('ActivityPub Explorer: Found a valid remote actor for ' . $url);
             return $res;

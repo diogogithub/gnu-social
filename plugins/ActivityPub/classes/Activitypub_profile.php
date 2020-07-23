@@ -280,8 +280,7 @@ class Activitypub_profile extends Managed_DataObject
 
         $url = $profile->getUri();
         $inboxes = Activitypub_explorer::get_actor_inboxes_uri($url);
-
-        if ($inboxes == null) {
+        if ($inboxes === false) {
             throw new Exception('This is not an ActivityPub user thus AProfile is politely refusing to proceed.');
         }
 
