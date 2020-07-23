@@ -89,7 +89,7 @@ class RouteLoader extends Loader
                         '_format'     => $options['format'] ?? 'html',
                         '_fragment'   => $options['fragment'] ?? '',
                         '_locale'     => $options['locale'] ?? 'en',
-                        'template'    => $options['template'] ?? 'en',
+                        'template'    => $options['template'] ?? '',
                     ],
                     $options['defaults'] ?? []),
                 // requirements = [] -- param => regex
