@@ -42,7 +42,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
-class AdminConfigController extends Controller
+class AdminPanel extends Controller
 {
     public function handle(Request $request)
     {
@@ -55,9 +55,11 @@ class AdminConfigController extends Controller
             }
         }
 
-        $form = Form::create([[_m('Setting'), ChoiceType::class, ['choices' => $options]],
+        $form = Form::create([
+            [_m('Setting'), ChoiceType::class, ['choices' => $options]],
             [_m('Value'),   TextType::class],
-            ['save',        SubmitType::class, ['label' => _m('Set site setting')]], ]);
+            ['save',        SubmitType::class, ['label' => _m('Set site setting')]],
+        ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
@@ -66,17 +68,19 @@ class AdminConfigController extends Controller
                 list($section, $setting) = explode(':', $data[_m('Setting')]);
                 $value                   = $data[_m('Value')];
                 $default                 = $defaults[$section][$setting];
+                // Sanity check
                 if (gettype($default) === gettype($value)) {
                     $conf      = DB::find('config', ['section' => $section, 'setting' => $setting]);
-                    $old_value = $conf->getValue();
+                    $old_value = unserialize($conf->getValue());
                     $conf->setValue(serialize($value));
                     DB::flush();
+                    return [
+                        '_template' => 'config/admin.html.twig',
+                        'form'      => $form->createView(),
+                        'old_value' => $old_value,
+                        'default'   => $default,
+                    ];
                 }
-                return $this->render('config/admin.html.twig', [
-                    'form'      => $form->createView(),
-                    'old_value' => unserialize($old_value),
-                    'default'   => $default,
-                ]);
             } else {
                 // TODO Display error
             }

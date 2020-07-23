@@ -31,8 +31,6 @@
 
 namespace App\Controller;
 
-// use App\Core\Event;
-// use App\Util\Common;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
@@ -72,9 +70,7 @@ class UserPanel extends AbstractController
             }
         }
 
-        return $this->render('settings/profile.html.twig', [
-            'prof' => $prof->createView(),
-        ]);
+        return ['_template' => 'settings/profile.html.twig', 'prof' => $prof->createView()];
     }
 
     public function account(Request $request)
@@ -89,9 +85,7 @@ class UserPanel extends AbstractController
             [_m('emailnotifyfav'),   CheckboxType::class,    ['help' => 'Send me email when someone adds my notice as a favorite.', 'label_format' => 'Notify favorites']],
             ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
 
-        return $this->render('settings/account.html.twig', [
-            'acc' => $acc->createView(),
-        ]);
+        return ['_template' => 'settings/account.html.twig', 'acc' => $acc->createView()];
     }
 
     public function avatar(Request $request)
@@ -100,9 +94,7 @@ class UserPanel extends AbstractController
             [_m('avatar'),   FileType::class,   ['help' => 'You can upload your personal avatar. The maximum file size is 64MB.', 'label_format' => 'Avatar']],
             ['save',        SubmitType::class, ['label' => _m('Submit')]], ]);
 
-        return $this->render('settings/avatar.html.twig', [
-            'avatar' => $avatar->createView(),
-        ]);
+        return ['_template' => 'settings/avatar.html.twig', 'avatar' => $avatar->createView()];
     }
 
     public function misc(Request $request)
@@ -114,8 +106,6 @@ class UserPanel extends AbstractController
             [_m('posts_by_followed'),   CheckboxType::class,   ['help' => 'Send me notices.', 'label_format' => 'Notices']],
             ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
 
-        return $this->render('settings/misc.html.twig', [
-            'misc' => $misc->createView(),
-        ]);
+        return ['_template' => 'settings/misc.html.twig', 'misc' => $misc->createView()];
     }
 }
