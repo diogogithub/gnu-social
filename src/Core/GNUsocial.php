@@ -58,6 +58,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Security as SSecurity;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -73,6 +74,7 @@ class GNUsocial implements EventSubscriberInterface
     protected MessageBusInterface      $message_bus;
     protected EventDispatcherInterface $event_dispatcher;
     protected SessionInterface         $session;
+    protected SSecurity                 $security;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -84,7 +86,8 @@ class GNUsocial implements EventSubscriberInterface
                                 FormFactoryInterface $ff,
                                 MessageBusInterface $mb,
                                 EventDispatcherInterface $ed,
-                                SessionInterface $s)
+                                SessionInterface $sess,
+                                SSecurity $sec)
     {
         $this->logger           = $logger;
         $this->translator       = $trans;
@@ -93,7 +96,8 @@ class GNUsocial implements EventSubscriberInterface
         $this->form_factory     = $ff;
         $this->message_bus      = $mb;
         $this->event_dispatcher = $ed;
-        $this->session          = $s;
+        $this->session          = $sess;
+        $this->security         = $sec;
 
         $this->register();
     }
@@ -112,6 +116,7 @@ class GNUsocial implements EventSubscriberInterface
         Router::setRouter($this->router);
         Form::setFactory($this->form_factory);
         Queue::setMessageBus($this->message_bus);
+        Security::setHelper($this->security);
 
         DefaultSettings::setDefaults();
         Cache::setupCache();

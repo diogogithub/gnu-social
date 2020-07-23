@@ -32,6 +32,8 @@ namespace App\Util;
 
 use App\Core\DB\DB;
 use App\Core\Router;
+use App\Core\Security;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 abstract class Common
 {
@@ -57,6 +59,11 @@ abstract class Common
         $obj->setValue(serialize($value));
         DB::persist($obj);
         DB::flush();
+    }
+
+    public static function user(): UserInterface
+    {
+        return Security::getUser();
     }
 
     /**
