@@ -82,7 +82,7 @@ class SchemaUpdater
     public function checksum(array $def)
     {
         $flat = serialize($def);
-        return sha1($flat);
+        return hash('sha3-256', $flat);
     }
 
     /**
