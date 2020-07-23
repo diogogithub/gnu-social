@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 /**
@@ -40,10 +42,10 @@ abstract class Main
     public static function load(RouteLoader $r): void
     {
         $r->connect('main_all', '/main/all', C\NetworkPublic::class);
-        $r->connect('admin_config', '/admin/config', C\AdminConfigController::class);
+        $r->connect('admin_config', '/admin/config', C\AdminPanel::class);
 
-        $r->connect('login', '/login', [C\SecurityController::class, 'login']);
-        $r->connect('logout', '/logout', [C\SecurityController::class, 'logout']);
+        $r->connect('login', '/login', [C\Security::class, 'login']);
+        $r->connect('logout', '/logout', [C\Security::class, 'logout']);
 
         // FAQ static pages
         foreach (['faq', 'contact', 'tags', 'groups', 'openid'] as $s) {
