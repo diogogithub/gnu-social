@@ -42,7 +42,7 @@ abstract class Main
     public static function load(RouteLoader $r): void
     {
         $r->connect('main_all', '/main/all', C\NetworkPublic::class);
-        $r->connect('admin_config', '/admin/config', C\AdminPanel::class);
+        $r->connect('admin_panel', '/panel/admin', C\AdminPanel::class);
 
         $r->connect('login', '/login', [C\Security::class, 'login']);
         $r->connect('logout', '/logout', [C\Security::class, 'logout']);
@@ -53,22 +53,9 @@ abstract class Main
         }
 
         // Settings pages
+        $r->connect('settings', '/settings' . $s, [C\UserPanel::class, 'profile']);
         foreach (['profile', 'avatar', 'misc', 'account'] as $s) {
-            $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'profile']);
-            switch ($s) {
-                case 'profile':
-                    $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'profile']);
-                    break;
-                case 'avatar':
-                    $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'avatar']);
-                    break;
-                case 'misc':
-                    $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'misc']);
-                    break;
-                case 'account':
-                    $r->connect('settings_' . $s, 'settings/' . $s, [C\UserPanel::class, 'account']);
-                    break;
-            }
+            $r->connect('settings_' . $s, '/settings' . $s, [C\UserPanel::class, $s]);
         }
     }
 }
