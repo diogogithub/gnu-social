@@ -316,55 +316,10 @@ class PgsqlSchema extends Schema
         return implode(' ', $line);
     }
 
-    /**
-     * Append phrase(s) to an array of partial ALTER TABLE chunks in order
-     * to alter the given column from its old state to a new one.
-     *
-     * @param array $phrase
-     * @param string $columnName
-     * @param array $old previous column definition as found in DB
-     * @param array $cd current column definition
-     */
-    public function appendAlterModifyColumn(array &$phrase, $columnName, array $old, array $cd)
-    {
-        $prefix = 'ALTER COLUMN ' . $this->quoteIdentifier($columnName) . ' ';
-
-        $oldType = $this->typeAndSize($columnName, $old);
-        $newType = $this->typeAndSize($columnName, $cd);
-        if ($oldType != $newType) {
-            $phrase[] = $prefix . 'TYPE ' . $newType;
-        }
-
-        if (!empty($old['not null']) && empty($cd['not null'])) {
-            $phrase[] = $prefix . 'DROP NOT NULL';
-        } elseif (empty($old['not null']) && !empty($cd['not null'])) {
-            $phrase[] = $prefix . 'SET NOT NULL';
-        }
-
-        if (isset($old['default']) && !isset($cd['default'])) {
-            $phrase[] = $prefix . 'DROP DEFAULT';
-        } elseif (!isset($old['default']) && isset($cd['default'])) {
-            $phrase[] = $prefix . 'SET DEFAULT ' . $this->quoteDefaultValue($cd);
-        }
-    }
-
     public function appendAlterDropPrimary(array &$phrase, string $tableName)
     {
         // name hack -- is this reliable?
         $phrase[] = 'DROP CONSTRAINT ' . $this->quoteIdentifier($tableName . '_pkey');
-    }
-
-    /**
-     * Append an SQL statement to drop an index from a table.
-     * Note that in PostgreSQL, index names are DB-unique.
-     *
-     * @param array $statements
-     * @param string $table
-     * @param string $name
-     */
-    public function appendDropIndex(array &$statements, $table, $name)
-    {
-        $statements[] = "DROP INDEX $name";
     }
 
     public function mapType($column)

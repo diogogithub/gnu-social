@@ -311,7 +311,7 @@ class Schema
      */
     public function appendDropIndex(array &$statements, $table, $name)
     {
-        $statements[] = "DROP INDEX $name ON " . $this->quoteIdentifier($table);
+        $statements[] = "DROP INDEX {$name}";
     }
 
     public function buildIndexList(array $def)
@@ -406,10 +406,10 @@ class Schema
     {
         global $_PEAR;
 
-        $res = $this->conn->query(
-            'ALTER TABLE ' . $this->quoteIdentifier($table) .
-            ' DROP INDEX ' . $name
-        );
+        $statements = [];
+        $this->appendDropIndex($statements, $table, $name);
+
+        $res = $this->conn->query(implode(";\n", $statements));
 
         if ($_PEAR->isError($res)) {
             PEAR_ErrorToPEAR_Exception($res);
@@ -448,6 +448,7 @@ class Schema
      * Modifies a column in the schema.
      *
      * The name must match an existing column and table.
+     * @fixme Relies on MODIFY COLUMN, which is specific to MariaDB/MySQL
      *
      * @param string $table name of the table
      * @param ColumnDef $columndef new definition of the column.
@@ -724,12 +725,32 @@ class Schema
      * @param array $old previous column definition as found in DB
      * @param array $cd current column definition
      */
-    public function appendAlterModifyColumn(array &$phrase, string $columnName, array $old, array $cd)
-    {
-        $phrase[] = 'MODIFY COLUMN ' .
-            $this->quoteIdentifier($columnName) .
-            ' ' .
-            $this->columnSql($columnName, $cd);
+    public function appendAlterModifyColumn(
+        array &$phrase,
+        string $columnName,
+        array  $old,
+        array  $cd
+    ): void {
+        $prefix = 'ALTER COLUMN ' . $this->quoteIdentifier($columnName);
+
+        // @fixme TYPE is a PostgreSQL extension
+        $oldType = $this->typeAndSize($columnName, $old);
+        $newType = $this->typeAndSize($columnName, $cd);
+        if ($oldType !== $newType) {
+            $phrase[] = $prefix . ' TYPE ' . $newType;
+        }
+
+        if (!($old['not null'] ?? false) && ($cd['not null'] ?? false)) {
+            $phrase[] = $prefix . ' SET NOT NULL';
+        } elseif (($old['not null'] ?? false) && !($cd['not null'] ?? false)) {
+            $phrase[] = $prefix . ' DROP NOT NULL';
+        }
+
+        if (!($old['default'] ?? false) && ($cd['default'] ?? false)) {
+            $phrase[] = $prefix . ' SET DEFAULT ' . $this->quoteDefaultValue($cd);
+        } elseif (($old['default'] ?? false) && !($cd['default'] ?? false)) {
+            $phrase[] = $prefix . ' DROP DEFAULT';
+        }
     }
 
     /**
