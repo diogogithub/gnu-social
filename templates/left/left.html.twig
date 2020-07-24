@@ -46,14 +46,11 @@
                     <a href='#'>Logout</a>
                 </div>
                 <div class="footer">
-                    <a href="#">Help</a>
-                    <a href="#">About</a>
-                    <a href="#">FAQ</a>
-                    <a href="#">TOS</a>
-                    <a href="#">Privacy</a>
-                    <a href="#">Source</a>
-                    <a href="#">Version</a>
-                    <a href="#">Contact</a>
+                    <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
+                    <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
+                    <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
+                    <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
+                    <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
                 </div>
             </div>
         </div>
