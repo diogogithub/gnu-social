@@ -52,8 +52,20 @@
                 <label for="toggle" id='menu'></label>
             </div>
             <div class='navbar'>
-                <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
-                <a href='#'>Register</a>
+                <div class="left-nav">
+                    <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
+                    <a href='#'>Register</a>
+                </div>
+                <div class="footer">
+                    <a href="#">Help</a>
+                    <a href="#">About</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">TOS</a>
+                    <a href="#">Privacy</a>
+                    <a href="#">Source</a>
+                    <a href="#">Version</a>
+                    <a href="#">Contact</a>
+                </div>
             </div>
         </div>
     {% endif %}
