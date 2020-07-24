@@ -747,13 +747,6 @@ class User_group extends Managed_DataObject
             return parent::delete($useWhere);
         }
 
-        try {
-            $profile = $this->getProfile();
-            $profile->delete();
-        } catch (GroupNoProfileException $unp) {
-            common_log(LOG_INFO, "Group {$this->nickname} has no profile; continuing deletion.");
-        }
-
         // Safe to delete in bulk for now
 
         $related = array('Group_inbox',
@@ -791,10 +784,22 @@ class User_group extends Managed_DataObject
             $local->delete();
         }
 
+        $result = parent::delete($useWhere);
+
+        try {
+            $profile = $this->getProfile();
+            $profile->delete();
+        } catch (GroupNoProfileException $unp) {
+            common_log(
+                LOG_INFO,
+                "Group {$this->nickname} has no profile; continuing deletion."
+            );
+        }
+
         // blow the cached ids
         self::blow('user_group:notice_ids:%d', $this->id);
 
-        return parent::delete($useWhere);
+        return $result;
     }
 
     public function update($dataObject=false)

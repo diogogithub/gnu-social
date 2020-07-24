@@ -978,6 +978,13 @@ class Profile extends Managed_DataObject
         $this->_deleteAttentions();
         Avatar::deleteFromProfile($this, true);
 
+        $this->grantRole(Profile_role::DELETED);
+
+        $localuser = User::getKV('id', $this->id);
+        if ($localuser instanceof User) {
+            $localuser->delete();
+        }
+
         // Warning: delete() will run on the batch objects,
         // not on individual objects.
         $related = [
@@ -991,13 +998,6 @@ class Profile extends Managed_DataObject
             $inst = new $cls();
             $inst->profile_id = $this->id;
             $inst->delete();
-        }
-
-        $this->grantRole(Profile_role::DELETED);
-
-        $localuser = User::getKV('id', $this->id);
-        if ($localuser instanceof User) {
-            $localuser->delete();
         }
 
         return parent::delete($useWhere);
