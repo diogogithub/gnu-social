@@ -1,0 +1,29 @@
+{% extends 'doc/base.html.twig' %}
+
+{% block title %}Version{% endblock %}
+{% block body %}
+      {{ parent() }}
+      <div class='content'>
+            <div class='markd'>
+                  {% block markdown %}
+                        {% apply markdown_to_html %}
+                              ## GNU social 3
+
+                              This site is powered by GNU social version 3, Copyright 2010 Free Software Foundation, Inc.
+
+                              ## Contributors
+
+                              See https://notabug.org/diogo/gnu-social/src/nightly/CREDITS.md for a full list of contributors.
+
+                              ##License
+
+                              GNU social is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+                              This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+                              You should have received a copy of the GNU Affero General Public License along with this program. If not, see https://www.gnu.org/licenses/agpl.html.
+                        {% endapply %}
+                  {% endblock %}
+            </div>
+      </div>
+{% endblock %}

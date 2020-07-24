@@ -9,6 +9,8 @@
 }
 .navbar .left-nav {
       flex: 1;
+}
+.navbar .left-nav a {
       margin-left: var(--unit-size);
 }
 .navbar .footer {
