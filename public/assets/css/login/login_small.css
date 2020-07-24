@@ -58,5 +58,8 @@ input[type=password]
     font-weight: normal;
 }
 
-
+.active {
+    color: #F6F6F6 !important;
+    font-weight: 700;
+}
 
