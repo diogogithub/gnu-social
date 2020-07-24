@@ -1,0 +1,24 @@
+{% extends 'doc/base.html.twig' %}
+
+{% block title %}Source{% endblock %}
+{% block body %}
+      {{ parent() }}
+      <div class='content'>
+            <div class='markd'>
+                  {% block markdown %}
+                        {% apply markdown_to_html %}
+                              ## Source
+
+                              This service uses a Free microblogging tool called GNU social. GNU social is available under the GNU Affero General Public License Version 3.0, a Free Software license for network services.
+
+                              You can get a copy of the software by following links from the GNU social main site¹. The version of the software that runs on this site is unmodified from that version. The site also depends on certain libraries and other software; these are all bundled in the GNU social repository² and release archive files.
+
+                              ## References
+
+                              - GNU social main site, https://gnu.io
+                              - GNU social repository, https://git.gnu.io/gnu/gnu-social
+                        {% endapply %}
+                  {% endblock %}
+            </div>
+      </div>
+{% endblock %}

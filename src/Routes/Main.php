@@ -56,7 +56,7 @@ abstract class Main
             $r->connect('doc_' . $s, '/doc/' . $s, TemplateController::class, [], ['defaults' => ['template' => 'doc/faq/' . $s . '.html.twig']]);
         }
 
-        foreach (['help', 'about', 'tos', 'privacy', 'source'] as $s) {
+        foreach (['privacy', 'tos', 'version', 'source'] as $s) {
             $r->connect('doc_' . $s, '/doc/' . $s, TemplateController::class, [], ['defaults' => ['template' => 'doc/' . $s . '.html.twig']]);
         }
 

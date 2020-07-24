@@ -15,34 +15,46 @@
                 <label for="toggle" id='menu'></label>
             </div>
             <div class='navbar'>
-                <div class='profile'>
-                    <svg class="icon icon-avatar">
-                        <use xlink:href="#icon-avatar"></use>
-                    </svg>
-                    <div class="info">
-                        <b id="nick">{{ app.user.username }}</b>
-                        <div class="tags">
-                            <i>coffee addict</i>
-                            <i>lazy</i>
-                        </div>
-                        <div class="stats">
-                            <span>
-                                <b>1337</b>
-                                Followers</span>
-                            <span>
-                                <b>42</b>
-                                Following</span>
+                <div class="left-nav">
+                    <div class='profile'>
+                        <svg class="icon icon-avatar">
+                            <use xlink:href="#icon-avatar"></use>
+                        </svg>
+                        <div class="info">
+                            <b id="nick">{{ app.user.username }}</b>
+                            <div class="tags">
+                                <i>coffee addict</i>
+                                <i>lazy</i>
+                            </div>
+                            <div class="stats">
+                                <span>
+                                    <b>1337</b>
+                                    Followers</span>
+                                <span>
+                                    <b>42</b>
+                                    Following</span>
+                            </div>
                         </div>
                     </div>
+                    <a href='#'>Bookmarks</a>
+                    <a href='#'>Happenings</a>
+                    <a href='#'>Messages</a>
+                    <a href='#'>Replies</a>
+                    <a href='#'>Favourites</a>
+                    <a href='#'>Reverse Favs</a>
+                    <a href="{{ path('settings_profile') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_' %}active{% endif %}'>Settings</a>
+                    <a href='#'>Logout</a>
                 </div>
-                <a href='#'>Bookmarks</a>
-                <a href='#'>Happenings</a>
-                <a href='#'>Messages</a>
-                <a href='#'>Replies</a>
-                <a href='#'>Favourites</a>
-                <a href='#'>Reverse Favs</a>
-                <a href="{{ path('settings_profile') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_' %}active{% endif %}'>Settings</a>
-                <a href='#'>Logout</a>
+                <div class="footer">
+                    <a href="#">Help</a>
+                    <a href="#">About</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">TOS</a>
+                    <a href="#">Privacy</a>
+                    <a href="#">Source</a>
+                    <a href="#">Version</a>
+                    <a href="#">Contact</a>
+                </div>
             </div>
         </div>
     {% else %}
@@ -57,14 +69,11 @@
                     <a href='#'>Register</a>
                 </div>
                 <div class="footer">
-                    <a href="#">Help</a>
-                    <a href="#">About</a>
-                    <a href="#">FAQ</a>
-                    <a href="#">TOS</a>
-                    <a href="#">Privacy</a>
-                    <a href="#">Source</a>
-                    <a href="#">Version</a>
-                    <a href="#">Contact</a>
+                    <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
+                    <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
+                    <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
+                    <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
+                    <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
                 </div>
             </div>
         </div>
