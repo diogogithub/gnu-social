@@ -1,4 +1,6 @@
 .navbar {
+      display: flex;
+      flex-direction: column;
       width: var(--nav-size);
       height: calc(100vh - (3 * var(--unit-size)));
       position: fixed;
@@ -9,26 +11,39 @@
       filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#333d47",endColorstr="#272e36",GradientType=1);
       margin-top: calc(3 * var(--main-size));
 }
-
+.navbar .left-nav {
+      flex: 1;
+      margin-left: var(--unit-size);
+}
+.navbar .footer {
+      display: flex;
+      flex-wrap: wrap;
+      flex-direction: row;
+      font-size: var(--medium-size);
+      padding: var(--unit-size);
+}
+.navbar .footer a {
+      margin-right: var(--unit-size);
+}
 .navbar {
       left: -100%;
       top:0;
       transition: 0.3s ease;
-      z-index: 2147483647;
 }
-
 .navbar a {
       display: block;
       color: #91B9D0;
-      margin-left: var(--unit-size);
-      margin-bottom: var(--small-size);
       font-size: var(--medium-size);
 }
-
-.navbar a:nth-child(1) {
+.navbar .left-nav a {
+      margin-bottom: var(--unit-size);
+}
+.navbar .left-nav a:last-child {
+      margin-bottom: 0;
+}
+.navbar .left-nav a:nth-child(1) {
       margin-top: var(--unit-size);
 }
-
 .navbar a:hover {
       color: #F6F6F6;
       transition: all 0.8s ease;
@@ -53,7 +68,7 @@
 }
 
 #toggle:checked~.navbar {
-      display: block;
+      display: flex;
       left: 0;
       top: 0;
       transition: 0.3s ease;
