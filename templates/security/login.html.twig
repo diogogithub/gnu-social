@@ -12,6 +12,7 @@
 {% block body %}
   <div class='content'>
     <form method="post">
+      <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
       {% if error %}
         <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
       {% endif %}
@@ -21,9 +22,6 @@
           You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
         </div>
       {% endif %}
-
-
-        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
       <div class='pair'>
         <label for="inputNickname">Nickname</label>
         <input type="text" value="{{ last_username }}" name="nickname" id="inputNickname" class="form-control" required autofocus>

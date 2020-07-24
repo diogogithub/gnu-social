@@ -52,7 +52,7 @@
                 <label for="toggle" id='menu'></label>
             </div>
             <div class='navbar'>
-                <a href="{{ path('login') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'login' %}active{% endif %}'>Login</a>
+                <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
                 <a href='#'>Register</a>
             </div>
         </div>

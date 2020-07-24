@@ -107,3 +107,7 @@ label {
 .stats span:last-child {
       margin-left: var(--small-size);
 }
+
+input {
+      filter: none;
+}

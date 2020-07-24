@@ -14,6 +14,7 @@
       left: -100%;
       top:0;
       transition: 0.3s ease;
+      z-index: 2147483647;
 }
 
 .navbar a {
@@ -35,7 +36,7 @@
 
 .icon-menu label {
       display: block;
-      cursor: pointer
+      cursor: pointer;
 }
 
 #toggle {
@@ -71,7 +72,6 @@
 .icon-avatar {
       order: 1;
       height: calc(5 * var(--unit-size));
-      weight: auto;
       width: 25%;
       margin-right: var(--small-size);
 }
