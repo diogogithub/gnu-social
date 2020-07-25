@@ -19,9 +19,11 @@
 
 namespace App\Entity;
 
+use App\Core\DB\DB;
 use App\Core\UserRoles;
 use DateTime;
 use DateTimeInterface;
+use Functional as F;
 
 /**
  * Entity for user profiles
@@ -227,5 +229,28 @@ class Profile
         }
 
         return $def;
+    }
+
+    public function getSelfTags(): array
+    {
+        return DB::findBy('profile_tag', ['tagger' => $this->id, 'tagged' => $this->id]);
+    }
+
+    public function setSelfTags(array $tags, array $pt_existing, bool $flush = true): void
+    {
+        $tag_existing  = F\map($pt_existing, function ($pt) { return $pt->getTag(); });
+        $tag_to_add    = array_diff($tags, $tag_existing);
+        $tag_to_remove = array_diff($tag_existing, $tags);
+        $pt_to_remove  = F\filter($pt_existing, function ($pt) use ($tag_to_remove) { return in_array($pt->getTag(), $tag_to_remove); });
+        foreach ($tag_to_add as $tag) {
+            $pt = new ProfileTag($this->id, $this->id, $tag);
+            DB::persist($pt);
+        }
+        foreach ($pt_to_remove as $pt) {
+            DB::remove($pt);
+        }
+        if ($flush) {
+            DB::flush();
+        }
     }
 }

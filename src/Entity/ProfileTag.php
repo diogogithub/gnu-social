@@ -19,6 +19,7 @@
 
 namespace App\Entity;
 
+use DateTime;
 use DateTimeInterface;
 
 /**
@@ -86,6 +87,14 @@ class ProfileTag
 
     // }}} Autocode
 
+    public function __construct(int $tagger, int $tagged, string $tag)
+    {
+        $this->tagger   = $tagger;
+        $this->tagged   = $tagged;
+        $this->tag      = preg_replace('/ /', '_', trim($tag));
+        $this->modified = new DateTime();
+    }
+
     public static function schemaDef(): array
     {
         return [
@@ -107,5 +116,10 @@ class ProfileTag
                 'profile_tag_tagged_idx'     => ['tagged'],
             ],
         ];
+    }
+
+    public function __toString()
+    {
+        return $this->tag;
     }
 }
