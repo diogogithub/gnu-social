@@ -10,6 +10,7 @@
         "alchemy/zippy": "v0.5.x-dev",
         "erusev/parsedown": "^1.7",
         "lstrojny/functional-php": "^1.11",
+        "odolbeau/phone-number-bundle": "^3.1",
         "php-ds/php-ds": "^1.2",
         "sensio/framework-extra-bundle": "^5.1",
         "someonewithpc/memcached-polyfill": "^1.0",
