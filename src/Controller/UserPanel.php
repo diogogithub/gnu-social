@@ -34,6 +34,8 @@ namespace App\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Util\Common;
+use App\Util\Formatting;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -46,23 +48,36 @@ class UserPanel extends AbstractController
 {
     public function profile(Request $request)
     {
-        $prof = Form::create([
-            [_m('Nickname'),   TextType::class,   ['help' => '1-64 lowercase letters or numbers, no punctuation or spaces.']],
-            [_m('FullName'),   TextType::class,    ['help' => 'A full name is required, if empty it will be set to your nickname.']],
-            [_m('Homepage'),   TextType::class,    ['help' => 'URL of your homepage, blog, or profile on another site.']],
-            [_m('Bio'),   TextareaType::class,    ['help' => 'Describe yourself and your interests.']],
-            [_m('Location'),   TextType::class,    ['help' => 'Where you are, like "City, State (or Region), Country".']],
-            [_m('Tags'),   TextType::class,    ['help' => 'Tags for yourself (letters, numbers, -, ., and _), comma- or space- separated.']],
-            ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
+        $user            = Common::user();
+        $profile         = $user->getProfile();
+        $profile_tags    = $profile->getSelfTags();
+        $form_definition = [
+            ['nickname',  TextType::class,     ['label' => _m('Nickname'),  'required' => true,  'data' => $profile->getNickname(), 'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
+            ['full_name', TextType::class,     ['label' => _m('Full Name'), 'required' => false, 'data' => $profile->getFullname(), 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
+            ['homepage',  TextType::class,     ['label' => _m('Homepage'),  'required' => false, 'data' => $profile->getHomepage(), 'help' => _m('URL of your homepage, blog, or profile on another site.')]],
+            ['bio',       TextareaType::class, ['label' => _m('Bio'),       'required' => false, 'data' => $profile->getBio(),      'help' => _m('Describe yourself and your interests.')]],
+            ['location',  TextType::class,     ['label' => _m('Location'),  'required' => false, 'data' => $profile->getLocation(), 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
+            ['self_tags', TextType::class,     ['label' => _m('Self Tags'), 'required' => false, 'data' => Formatting::toString($profile_tags, Formatting::SPLIT_BY_SPACE), 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.')]],
+            ['save',      SubmitType::class,   ['label' => _m('Save')]],
+        ];
 
-        $prof->handleRequest($request);
-        if ($prof->isSubmitted()) {
-            $data = $prof->getData();
-            if ($prof->isValid()) {
-                $profile = DB::find('\App\Entity\Profile', ['id' => 2]);
-                foreach (['Nickname', 'FullName', 'Homepage', 'Bio', 'Location', 'Tags'] as $key) {
-                    $method = "set{$key}";
-                    $profile->{$method}($data[_m($key)]);
+        $form = Form::create($form_definition);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+            if ($form->isValid()) {
+                $user->setNickname($data['nickname']);
+                foreach (['Nickname', 'FullName', 'Homepage', 'Bio', 'Location'] as $key) {
+                    $lkey = Formatting::camelCaseToSnakeCase($key);
+                    if (Form::isRequired($form_definition, $lkey) || isset($data[$lkey])) {
+                        $method = "set{$key}";
+                        $profile->{$method}($data[$lkey]);
+                    }
+                }
+                $tags = [];
+                if (isset($data['self_tags']) && Formatting::toArray($data['self_tags'], $tags)) {
+                    $profile->setSelfTags($tags, $profile_tags, false);
                 }
                 DB::flush();
             } else {
@@ -70,7 +85,7 @@ class UserPanel extends AbstractController
             }
         }
 
-        return ['_template' => 'settings/profile.html.twig', 'prof' => $prof->createView()];
+        return ['_template' => 'settings/profile.html.twig', 'prof' => $form->createView()];
     }
 
     public function account(Request $request)
