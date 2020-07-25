@@ -70,30 +70,26 @@ abstract class DB
         return $expressions;
     }
 
-    public static function findBy(string $table, array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null)
+    public static function findBy(string $table, array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array
     {
         $criteria = array_change_key_case($criteria);
         $ops      = array_intersect(array_keys($criteria), self::$find_by_ops);
-        $repo     = self::__callStatic('getRepository', [$table]);
+        $repo     = self::getRepository($table);
         if (empty($ops)) {
             return $repo->findBy($criteria, $orderBy, $limit, $offset);
         } else {
             $criteria = new Criteria(self::buildExpression(Criteria::expr(), $criteria), $orderBy, $offset, $limit);
-            return $repo->matching($criteria);
+            return $repo->matching($criteria)->toArray(); // Always work with array or it becomes really complicated
         }
     }
 
     public static function findOneBy(string $table, array $criteria, ?array $orderBy = null, ?int $offset = null)
     {
         $res = self::findBy($table, $criteria, $orderBy, 1, $offset);
-        if (is_array($res)) {
-            if (count($res)) {
-                return $res[0];
-            } else {
-                throw new Exception("No value in table {$table} matches the requested criteria");
-            }
+        if (count($res) == 1) {
+            return $res[0];
         } else {
-            return $res->first();
+            throw new Exception("No value in table {$table} matches the requested criteria");
         }
     }
 
