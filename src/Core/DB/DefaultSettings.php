@@ -51,6 +51,7 @@ abstract class DefaultSettings
                 'detect_language'      => true,
                 'languages'            => I18n::getAllLanguages(),
                 'email'                => $_ENV['SERVER_ADMIN'] ?? $_ENV['SOCIAL_ADMIN_EMAIL'] ?? null,
+                'use_email'            => false, // TODO
                 'recovery_disclose'    => false, // Whether to not say that we found the email in the database, when asking for recovery
                 'timezone'             => 'UTC',
                 'brought_by'           => null,

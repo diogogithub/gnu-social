@@ -47,7 +47,9 @@ use App\Core\DB\DefaultSettings;
 use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
+use App\Util\Common;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -74,7 +76,7 @@ class GNUsocial implements EventSubscriberInterface
     protected MessageBusInterface      $message_bus;
     protected EventDispatcherInterface $event_dispatcher;
     protected SessionInterface         $session;
-    protected SSecurity                 $security;
+    protected SSecurity                $security;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -119,6 +121,16 @@ class GNUsocial implements EventSubscriberInterface
         Security::setHelper($this->security);
 
         DefaultSettings::setDefaults();
+
+        // TODO use configuration properly
+        try {
+            if (Common::config('site', 'use_email')) {
+                Mailer::setMailer($this->containen->get('mailer'));
+            }
+        } catch (Exception $e) {
+            // Table doesn't exist yet
+        }
+
         Cache::setupCache();
         ModulesManager::loadModules();
     }
