@@ -38,16 +38,16 @@ class UserNotificationPrefs
     // {{{ Autocode
 
     private int $user_id;
-    private string $service_name;
     private string $transport;
-    private ?int $profile_id;
-    private bool $posts_by_followed;
-    private bool $mention;
-    private bool $follow;
-    private bool $favorite;
-    private bool $nudge;
-    private bool $dm;
-    private bool $post_on_status_change;
+    private ?int $target_profile_id;
+    private bool $notice_by_followed    = true;
+    private bool $mention               = true;
+    private bool $reply                 = true;
+    private bool $follow                = true;
+    private bool $favorite              = true;
+    private bool $nudge                 = false;
+    private bool $dm                    = true;
+    private bool $post_on_status_change = false;
     private ?bool $enable_posting;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
@@ -62,16 +62,6 @@ class UserNotificationPrefs
         return $this->user_id;
     }
 
-    public function setServiceName(string $service_name): self
-    {
-        $this->service_name = $service_name;
-        return $this;
-    }
-    public function getServiceName(): string
-    {
-        return $this->service_name;
-    }
-
     public function setTransport(string $transport): self
     {
         $this->transport = $transport;
@@ -82,24 +72,24 @@ class UserNotificationPrefs
         return $this->transport;
     }
 
-    public function setProfileId(?int $profile_id): self
+    public function setTargetProfileId(?int $target_profile_id): self
     {
-        $this->profile_id = $profile_id;
+        $this->target_profile_id = $target_profile_id;
         return $this;
     }
-    public function getProfileId(): ?int
+    public function getTargetProfileId(): ?int
     {
-        return $this->profile_id;
+        return $this->target_profile_id;
     }
 
-    public function setPostsByFollowed(bool $posts_by_followed): self
+    public function setNoticeByFollowed(bool $notice_by_followed): self
     {
-        $this->posts_by_followed = $posts_by_followed;
+        $this->notice_by_followed = $notice_by_followed;
         return $this;
     }
-    public function getPostsByFollowed(): bool
+    public function getNoticeByFollowed(): bool
     {
-        return $this->posts_by_followed;
+        return $this->notice_by_followed;
     }
 
     public function setMention(bool $mention): self
@@ -110,6 +100,16 @@ class UserNotificationPrefs
     public function getMention(): bool
     {
         return $this->mention;
+    }
+
+    public function setReply(bool $reply): self
+    {
+        $this->reply = $reply;
+        return $this;
+    }
+    public function getReply(): bool
+    {
+        return $this->reply;
     }
 
     public function setFollow(bool $follow): self
@@ -214,16 +214,13 @@ class UserNotificationPrefs
                 'created'               => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'              => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['user_id', 'transport'],
-            'unique keys' => [
-                'transport_service_key' => ['transport', 'service_name'],
-            ],
+            'primary key'  => ['user_id', 'transport'],
             'foreign keys' => [
-                'user_notification_prefs_user_id_fkey' => ['user', ['user_id' => 'id']],
-                'user_notification_prefs_profile'      => ['profile', ['profile_id' => 'id']],
+                'user_notification_prefs_user_id_fkey'   => ['user', ['user_id' => 'id']],
+                'user_notification_prefs_target_profile' => ['profile', ['target_profile_id' => 'id']],
             ],
             'indexes' => [
-                'user_notification_prefs_user_profile_idx' => ['user_id', 'profile_id'],
+                'user_notification_prefs_user_target_profile_idx' => ['user_id', 'target_profile_id'],
             ],
         ];
     }
