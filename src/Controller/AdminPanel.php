@@ -33,10 +33,11 @@
 namespace App\Controller;
 
 use App\Core\Controller;
-use App\Core\DB\DB;
 use App\Core\DB\DefaultSettings;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Util\Common;
+use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -56,29 +57,35 @@ class AdminPanel extends Controller
         }
 
         $form = Form::create([
-            [_m('Setting'), ChoiceType::class, ['choices' => $options]],
-            [_m('Value'),   TextType::class],
-            ['save',        SubmitType::class, ['label' => _m('Set site setting')]],
+            ['setting', ChoiceType::class, ['label' => _m('Setting'), 'choices' => $options]],
+            ['value',   TextType::class,   ['label' => _m('Value')]],
+            ['save',    SubmitType::class, ['label' => _m('Set site setting')]],
         ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             $data = $form->getData();
-            if ($form->isValid() && array_key_exists(_m('Setting'), $data)) {
-                list($section, $setting) = explode(':', $data[_m('Setting')]);
-                $value                   = $data[_m('Value')];
-                $default                 = $defaults[$section][$setting];
+            if ($form->isValid() && array_key_exists('setting', $data)) {
+                list($section, $setting) = explode(':', $data['setting']);
+                $value                   = $data['value'];
+                if (preg_match('/^[0-9]+$/', $value)) {
+                    $value = (int) $value;
+                } elseif (Formatting::toArray($value, $value)) {
+                    // empty
+                } elseif (preg_match('/true|false/i', $value)) {
+                    $value = ($value == 'true');
+                }
+
+                $default = $defaults[$section][$setting];
                 // Sanity check
                 if (gettype($default) === gettype($value)) {
-                    $conf      = DB::find('config', ['section' => $section, 'setting' => $setting]);
-                    $old_value = unserialize($conf->getValue());
-                    $conf->setValue(serialize($value));
-                    DB::flush();
+                    $old_value = Common::config($section, $setting);
+                    Common::setConfig($section, $setting, $value);
                     return [
                         '_template' => 'config/admin.html.twig',
                         'form'      => $form->createView(),
-                        'old_value' => $old_value,
-                        'default'   => $default,
+                        'old_value' => Formatting::toString($old_value),
+                        'default'   => Formatting::toString($default),
                     ];
                 }
             } else {
