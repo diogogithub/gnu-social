@@ -6,12 +6,14 @@ You can change these settings in `config.php` with `$config['AuthCryptModule'][{
 
 Default values in parenthesis.
 
-authoritative (false): Set this to true when _all_ passwords are hashed with crypt()
+authoritative (false): Set this to true when _all_ passwords are hashed with password_hash()
     (warning: this may disable all other password verification, also when changing passwords!)
+algorithm (PASSWORD_DEFAULT): A hashing algorithm to use, the default value is defined by PHP. See all supported strings at https://php.net/password-hash
+algorithm_options (['cost' => 12] if "algorithm" is bcrypt): Hashing algorithm options. See all supported values at https://php.net/password-hash
 statusnet (true): Do we check the password against legacy StatusNet md5 hash?
     (notice: will check password login against old-style hash and if 'overwrite' is enabled update using crypt())
-overwrite (true): Do we overwrite old style password hashes with crypt() hashes on password change?
-    (notice: to make use of stronger security or migrate to crypt() hashes, this must be true)
+overwrite (true): Do we overwrite password hashes on login if they used a different algorithm
+    (notice: to make use of stronger security or migrate obsolete hashes, this must be true)
 password_changeable (true): Enables or disables password changing.
     (notice: if combined with authoritative, it disables changing passwords and removes option from menu.)
 autoregistration: This setting is ignored. Password can never be valid without existing User.
