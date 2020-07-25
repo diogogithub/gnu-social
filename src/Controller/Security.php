@@ -115,7 +115,5 @@ class Security extends Controller
             '_template'         => 'security/register.html.twig',
             'registration_form' => $form->createView(),
         ];
-
-        return ['_template' => 'security/register.html.twig', 'form' => $form->createView()];
     }
 }
