@@ -156,16 +156,21 @@ abstract class Formatting
         throw new InvalidArgumentException('Formatting::indent\'s first parameter must be either an array or a string. Input was: ' . $in);
     }
 
+    const SPLIT_BY_SPACE = ' ';
+    const SPLIT_BY_COMMA = ', ';
+
     /**
      * Convert scalars, objects implementing __toString or arrays to strings
      *
      * @param mixed $value
      */
-    public static function toString($value): string
+    public static function toString($value, string $split_type = SPLIT_BY_COMMA): string
     {
-        return is_array($value)
-            ? '[' . implode(', ', F\map($value, function ($s) { return "'{$s}'"; })) . ']'
-            : (string) $value;
+        if (!is_array($value)) {
+            return (string) $value;
+        } else {
+            return implode($split_type, $value);
+        }
     }
 
     /**
@@ -173,11 +178,12 @@ abstract class Formatting
      *
      * @param mixed $output
      */
-    public static function toArray(string $input, &$output): bool
+    public static function toArray(string $input, &$output, string $split_type = SPLIT_BY_COMMA): bool
     {
         $matches = [];
-        if (preg_match('/^ *\[([^,]+(, ?[^,]+)*)\] *$/', $input, $matches)) {
-            $output = str_replace([' \'', '\'', ' "', '"'], '', explode(',', $matches[1]));
+        if (preg_match('/^ *\[?([^,]+(, ?[^,]+)*)\]? *$/', $input, $matches)) {
+            $output = str_replace([' \'', '\'', ' "', '"'], '', explode($split_type[0], $matches[1]));
+            $output = F\map($output, F\ary('trim', 1));
             return true;
         }
         return false;
