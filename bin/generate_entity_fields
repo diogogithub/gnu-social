@@ -44,7 +44,20 @@ foreach ($files as $file) {
         $type           = types[$schema['fields'][$field]['type']];
         $type           = $type !== '' ? $nullable . $type : $type;
         $method_name    = str_replace(' ', '', ucwords(str_replace('_', ' ', $field)));
-        $fields_code[]  = "    private {$type} \${$field};";
+        $default        = @$schema['fields'][$field]['default'];
+
+        if (isset($default) && $nullable != '?' && $type != '\DateTimeInterface') {
+            if (is_string($default)) {
+                $default = "'{$default}'";
+            } elseif ($type == 'bool') {
+                $default = $default ? 'true' : 'false';
+            }
+
+            $fields_code[]  = "    private {$type} \${$field} = {$default};";
+        } else {
+            $fields_code[]  = "    private {$type} \${$field};";
+        }
+
         $methods_code[] = "    public function set{$method_name}({$type} \${$field}): self " .
                         "{ \$this->{$field} = \${$field}; return \$this; }" . "\n" .
                         "    public function get{$method_name}()" . ($type !== '' ? ": {$type} " : ' ') .
