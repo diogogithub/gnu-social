@@ -52,4 +52,9 @@ abstract class Form
         }
         return $fb->getForm();
     }
+
+    public static function isRequired(array $form, string $field): bool
+    {
+        return $form[$field][2]['required'] ?? true;
+    }
 }
