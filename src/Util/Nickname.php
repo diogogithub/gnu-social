@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 namespace App\Util;
@@ -125,7 +127,7 @@ class Nickname
      * @throws NicknameTakenException
      * @throws NicknameTooLongException
      */
-    public static function normalize(string $nickname, bool $check_already_used = NO_CHECK_USED): string
+    public static function normalize(string $nickname, bool $check_already_used = self::NO_CHECK_USED): string
     {
         if (mb_strlen($nickname) > self::MAX_LEN) {
             // Display forms must also fit!
@@ -161,7 +163,7 @@ class Nickname
      *
      * @return bool True if nickname is valid. False if invalid (or taken if $check_already_used == true).
      */
-    public static function isValid(string $nickname, bool $check_already_used = CHECK_USED): bool
+    public static function isValid(string $nickname, bool $check_already_used = self::CHECK_USED): bool
     {
         try {
             self::normalize($nickname, $check_already_used);
