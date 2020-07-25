@@ -34,6 +34,7 @@ use App\Util\Formatting;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 
 abstract class DB
 {
@@ -44,8 +45,8 @@ abstract class DB
     }
 
     private static array $find_by_ops = ['or', 'and', 'eq', 'neq', 'lt', 'lte',
-            'gt', 'gte', 'is_null', 'in', 'not_in',
-            'contains', 'member_of', 'starts_with', 'ends_with', ];
+        'gt', 'gte', 'is_null', 'in', 'not_in',
+        'contains', 'member_of', 'starts_with', 'ends_with', ];
 
     private static function buildExpression(ExpressionBuilder $eb, array $criteria)
     {
@@ -84,7 +85,16 @@ abstract class DB
 
     public static function findOneBy(string $table, array $criteria, ?array $orderBy = null, ?int $offset = null)
     {
-        return self::findBy($table, $criteria, $orderBy, 1, $offset)->first();
+        $res = self::findBy($table, $criteria, $orderBy, 1, $offset);
+        if (is_array($res)) {
+            if (count($res)) {
+                return $res[0];
+            } else {
+                throw new Exception("No value in table {$table} matches the requested criteria");
+            }
+        } else {
+            return $res->first();
+        }
     }
 
     public static function __callStatic(string $name, array $args)
