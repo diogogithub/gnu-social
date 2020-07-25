@@ -1,66 +1,68 @@
 .content {
     display: flex;
     flex-wrap: wrap;
-    margin-top: calc(3 * var(--main-size));
     justify-content: center;
     align-items: center;
-    margin-left: var(--nav-size);
     margin-right: 0;
+    margin-bottom: var(--unit-size);
 }
-
 form {
     font-size: var(--medium-size);
-    background-color: #00000050;
-    padding: calc(2 * var(--unit-size)) calc(3 * var(--unit-size)) calc(3 * var(--unit-size));
+    background-color: #61778C30;
+    padding: calc(2 * var(--unit-size));
     border-radius: var(--unit-size);
-    margin-top: calc(2 * var(--unit-size));
-    margin-right: var(--side-margin);
-    margin-left: var(--side-margin);
+    margin-right: var(--small-size);
+    margin-left: var(--small-size);
     box-shadow: 0 0 60px -20px rgba(0, 0, 0, 0.75);
 }
-h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 800;
-    font-size: var(--main-size);
-    margin-bottom: var(--medium-size);
-}
-
 label {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     width: 100%;
 }
-
+button {
+    margin-top: var(--unit-size);
+}
 input[type=text],
-input[type=password]
+input[type=password],
+input[type=email]
 {
     margin-top: calc(var(--unit-size) * 0.5);
     background-color: rgba(0, 0, 0, 0.30);
     color: #f6f6f6;
     border-style: none;
-    padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
+    padding: calc(var(--unit-size) * 0.5);
     border-radius: calc(var(--unit-size) * 0.5);
     font-size: var(--medium-size);
+    margin-bottom: var(--unit-size);
+    width: calc(100% - var(--unit-size));
 }
-
-.pair {
-    float:left;
-    width: 100%;
-    margin-bottom: var(--medium-size);
-}
-.pair input {
-    display: block;
-}
-
 .checkbox label {
     font-family: "Open Sans", sans-serif;
     font-size: var(--medium-size);
     font-weight: normal;
 }
-
 .active {
     color: #F6F6F6 !important;
     font-weight: 700;
 }
+input {
+    filter: none;
+}
 
-
+@media only screen and (max-width: 1300px) {
+    .navbar:not(:checked)+.navbar {
+        left: -100%;
+        top: 0;
+        transition: 0.3s ease;
+        left: 0;
+        top: 0;
+        transition: 0.3s ease;
+    }
+    #toggle:checked+.navbar {
+        display: block;
+        left: 0;
+        top: 0;
+        transition: 0.3s ease;
+    }
+}

@@ -1,16 +1,39 @@
-{% extends 'base.html.twig' %}
+{% extends 'left/left.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/register/register.css') }}">
+{% endblock %}
 
 {% block title %}Register{% endblock %}
 
-{% block body %}
-    {% for flashError in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flashError }}</div>
-    {% endfor %}
+{% block left %}
+    <div id='left-panel'>
+        <input type="checkbox" checked id="toggle">
+        <div class="icon-menu">
+            <label for="toggle" id='menu'></label>
+        </div>
+        <div class='navbar'>
+            <div class="left-nav">
+                <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
+                <a href="{{ path('register') }}" class='hover-effect {{ active('register') }}'>Register</a>
+                <div class='content'>
+                    {% for flashError in app.flashes('verify_email_error') %}
+                        <div class="alert alert-danger" role="alert">{{ flashError }}</div>
+                    {% endfor %}
 
-    <h1>Register</h1>
-
-    <div style="position: relative; top: 10em; left: 20em;">
-    {{ form(registration_form) }}
+                    <div class="register-info">
+                        {{ form(registration_form) }}
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
+                <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
+                <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
+                <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
+                <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
+            </div>
+        </div>
     </div>
-
 {% endblock %}
