@@ -15,7 +15,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Module to use crypt() for user password hashes
+ * Module to use password_hash() for user password hashes
  *
  * @category  Module
  * @package   GNUsocial
@@ -27,16 +27,43 @@
 
 defined('GNUSOCIAL') || die;
 
+if (version_compare(PHP_VERSION, '7.4.0', '<')) {
+    function password_algos(): array
+    {
+        $algos = [PASSWORD_BCRYPT];
+        defined('PASSWORD_ARGON2I')  && $algos[] = PASSWORD_ARGON2I;
+        defined('PASSWORD_ARGON2ID') && $algos[] = PASSWORD_ARGON2ID;
+        return $algos;
+    }
+}
+
 class AuthCryptModule extends AuthenticationModule
 {
     const MODULE_VERSION = '2.0.0';
-    protected $statusnet = true;     // if true, also check StatusNet style password hash
+    protected $algorithm = PASSWORD_DEFAULT;
+    protected $algorithm_options = [];
     protected $overwrite = true;     // if true, password change means overwrite with crypt()
-    protected $argon     = false;    // Use Argon if supported.
+    protected $statusnet = true;     // if true, also check StatusNet-style password hash
 
     public $provider_name = 'crypt'; // not actually used
 
     // FUNCTIONALITY
+
+    public function onInitializePlugin()
+    {
+        if (!in_array($this->algorithm, password_algos())) {
+            common_log(
+                LOG_ERR,
+                "Unsupported password hashing algorithm: {$this->algorithm}"
+            );
+            $this->algorithm = PASSWORD_DEFAULT;
+        }
+        // Make "'cost' = 12" the default option, but only if bcrypt
+        if ($this->algorithm === PASSWORD_BCRYPT
+            && !array_key_exists('cost', $this->algorithm_options)) {
+            $this->algorithm_options['cost'] = 12;
+        }
+    }
 
     public function checkPassword($username, $password)
     {
@@ -47,30 +74,30 @@ class AuthCryptModule extends AuthenticationModule
             return false;
         }
 
-        // crypt understands what the salt part of $user->password is
-        if ($user->password === crypt($password, $user->password)) {
-            // and update password hash entry to password_hash() compatible
-            if ($this->overwrite) {
-                $this->changePassword($user->nickname, null, $password);
-            }
-            return $user;
-        }
+        $match = false;
 
-        // If we check StatusNet hash, for backwards compatibility and migration
-        if ($this->statusnet && $user->password === md5($password . $user->id)) {
-            // and update password hash entry to crypt() compatible
-            if ($this->overwrite) {
-                $this->changePassword($user->nickname, null, $password);
-            }
-            return $user;
-        }
-
-        // Timing safe password verification on supported PHP versions
         if (password_verify($password, $user->password)) {
-            return $user;
+            $match = true;
+        } elseif ($this->statusnet) {
+            // Check StatusNet hash, for backwards compatibility and migration
+            // Check size outside regex to take out entries of a differing size faster
+            if (strlen($user->password) === 32
+                && preg_match('/^[a-f0-9]$/D', $user->password)) {
+                $match = hash_equals(
+                    $user->password,
+                    hash('md5', $password . $user->id)
+                );
+            }
         }
 
-        return false;
+        // Update password hash entry if it doesn't match current settings
+        if ($this->overwrite
+            && $match
+            && password_needs_rehash($user->password, $this->algorithm, $this->algorithm_options)) {
+            $this->changePassword($user->nickname, null, $password);
+        }
+
+        return $match ? $user : false;
     }
 
     // $oldpassword is already verified when calling this function... shouldn't this be private?!
@@ -95,21 +122,7 @@ class AuthCryptModule extends AuthenticationModule
 
     public function hashPassword($password, ?Profile $profile = null)
     {
-        $algorithm = PASSWORD_DEFAULT;
-        $options = ['cost' => 12];
-
-        if ($this->argon) {
-            $algorithm = PASSWORD_ARGON2I;
-            $options = [
-                'memory_cost' => PASSWORD_ARGON2_DEFAULT_MEMORY_COST,
-                'time_cost' => PASSWORD_ARGON2_DEFAULT_TIME_COST,
-                'threads' => PASSWORD_ARGON2_DEFAULT_THREADS,
-            ];
-        }
-        // Use the modern password hashing algorithm
-        // http://php.net/manual/en/function.password-hash.php
-        // Uses PASSWORD_BCRYPT by default, with PASSWORD_ARGON2I being the next possible default in future versions
-        return password_hash($password, $algorithm, $options);
+        return password_hash($password, $this->algorithm, $this->algorithm_options);
     }
 
     // EVENTS

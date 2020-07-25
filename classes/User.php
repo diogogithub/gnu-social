@@ -31,7 +31,7 @@ class User extends Managed_DataObject
     public $__table = 'user';                            // table name
     public $id;                              // int(4)  primary_key not_null
     public $nickname;                        // varchar(64)  unique_key
-    public $password;                        // varchar(191)               not 255 because utf8mb4 takes more space
+    public $password;                        // text
     public $email;                           // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
     public $incomingemail;                   // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
     public $emailnotifysub;                  // bool          default_true
@@ -65,7 +65,7 @@ class User extends Managed_DataObject
             'fields' => array(
                 'id' => array('type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'),
                 'nickname' => array('type' => 'varchar', 'length' => 64, 'description' => 'nickname or username, duped in profile'),
-                'password' => array('type' => 'varchar', 'length' => 191, 'description' => 'salted password, can be null for OpenID users'),
+                'password' => array('type' => 'text', 'description' => 'salted password, can be null for OpenID users'),
                 'email' => array('type' => 'varchar', 'length' => 191, 'description' => 'email address for password recovery etc.'),
                 'incomingemail' => array('type' => 'varchar', 'length' => 191, 'description' => 'email address for post-by-email'),
                 'emailnotifysub' => array('type' => 'bool', 'default' => true, 'description' => 'Notify by email of subscriptions'),
