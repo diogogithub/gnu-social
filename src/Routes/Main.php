@@ -44,6 +44,7 @@ abstract class Main
     {
         $r->connect('login', '/login', [C\Security::class, 'login']);
         $r->connect('logout', '/logout', [C\Security::class, 'logout']);
+        $r->connect('register', '/register', [C\Security::class, 'register']);
 
         $r->connect('main_all', '/main/all', C\NetworkPublic::class);
 
