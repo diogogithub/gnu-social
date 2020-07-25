@@ -2,45 +2,60 @@
 
 {% block stylesheets %}
   {{ parent() }}
-  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/login/login.css') }}" media="screen and (min-width: 1300px)">
-  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/login/login_mid.css') }}" media="screen and (max-width: 1300px)">
-  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/login/login_small.css') }}" media="screen and (max-width: 750px)">
+  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/login/login.css') }}">
 {% endblock %}
 
 {% block title %}Log in!{% endblock %}
 
-{% block body %}
-  <div class='content'>
-    <form method="post">
-      <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-      {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-      {% endif %}
+{% block left %}
+  <div id='left-panel'>
+    <input type="checkbox" checked id="toggle">
+    <div class="icon-menu">
+      <label for="toggle" id='menu'></label>
+    </div>
+    <div class='navbar'>
+      <div class="left-nav">
+        <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
+        <div class='content'>
+          <form method="post">
+            {% if error %}
+              <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
 
-      {% if app.user %}
-        <div class="mb-3">
-          You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+            {% if app.user %}
+              <div class="mb-3">
+                You are logged in as {{ app.user.username }}, <a href="{{ path('app_logout') }}">Logout</a>
+              </div>
+            {% endif %}
+            <div class="register-info">
+              <label for="inputNickname">Nickname</label>
+              <input type="text" value="{{ last_username }}" name="nickname" id="inputNickname" class="form-control" required autofocus>
+              <label for="inputPassword">Password</label>
+              <input type="password" name="password" id="inputPassword" class="form-control" required>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div class="checkbox mb-3">
+              <label>
+                <input type="checkbox" name="_remember_me"> Remember me
+              </label>
+            </div>
+
+            <button class="btn btn-lg btn-primary" type="submit">
+              Sign in
+            </button>
+          </form>
         </div>
-      {% endif %}
-      <div class='pair'>
-        <label for="inputNickname">Nickname</label>
-        <input type="text" value="{{ last_username }}" name="nickname" id="inputNickname" class="form-control" required autofocus>
+        <a href="{{ path('register') }}" class='hover-effect {{ active('register') }}'>Register</a>
       </div>
-      <div class='pair' id='pass'>
-        <label for="inputPassword">Password</label>
-        <input type="password" name="password" id="inputPassword" class="form-control" required>
+      <div class="footer">
+        <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
+        <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
+        <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
+        <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
+        <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
       </div>
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-      <div class="checkbox mb-3">
-        <label>
-          <input type="checkbox" name="_remember_me"> Remember me
-        </label>
-      </div>
-
-      <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-      </button>
-    </form>
+    </div>
   </div>
-{% endblock body %}
+{% endblock %}
