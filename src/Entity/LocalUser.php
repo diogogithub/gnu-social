@@ -22,6 +22,7 @@ namespace App\Entity;
 use App\Core\DB\DB;
 use App\Core\UserRoles;
 use App\Util\Common;
+use DateTime;
 use DateTimeInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -43,11 +44,11 @@ class LocalUser implements UserInterface
 {
     // {{{ Autocode
 
-    private int $id;
     private ?string $nickname;
     private ?string $password;
     private ?string $outgoing_email;
     private ?string $incoming_email;
+    private ?bool $is_email_verified;
     private ?string $language;
     private ?string $timezone;
     private ?string $sms_phone_number;
@@ -59,16 +60,6 @@ class LocalUser implements UserInterface
     private ?bool $is_stream_private;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
-
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-        return $this;
-    }
-    public function getId(): int
-    {
-        return $this->id;
-    }
 
     public function setNickname(?string $nickname): self
     {
@@ -108,6 +99,16 @@ class LocalUser implements UserInterface
     public function getIncomingEmail(): ?string
     {
         return $this->incoming_email;
+    }
+
+    public function setIsEmailVerified(?bool $is_email_verified): self
+    {
+        $this->is_email_verified = $is_email_verified;
+        return $this;
+    }
+    public function getIsEmailVerified(): ?bool
+    {
+        return $this->is_email_verified;
     }
 
     public function setLanguage(?string $language): self
@@ -222,17 +223,28 @@ class LocalUser implements UserInterface
 
     // }}} Autocode
 
+    public function __construct(string $nickname, string $email, string $password)
+    {
+        $this->nickname       = $nickname;
+        $this->outgoing_email = $email;
+        $this->incoming_email = $email;
+        $this->changePassword($password, true);
+        // TODO auto update created and modified
+        $this->created  = new DateTime();
+        $this->modified = new DateTime();
+    }
+
     public static function schemaDef(): array
     {
         return [
             'name'        => 'local_user',
             'description' => 'local users',
             'fields'      => [
-                'id'                => ['type' => 'int', 'not null' => true,  'description' => 'foreign key to profile table'],
                 'nickname'          => ['type' => 'varchar', 'length' => 64,  'description' => 'nickname or username, duped in profile'],
                 'password'          => ['type' => 'varchar', 'length' => 191, 'description' => 'salted password, can be null for OpenID users'],
                 'outgoing_email'    => ['type' => 'varchar', 'length' => 191, 'description' => 'email address for password recovery, notifications, etc.'],
                 'incoming_email'    => ['type' => 'varchar', 'length' => 191, 'description' => 'email address for post-by-email'],
+                'is_email_verified' => ['type' => 'bool', 'default' => false, 'description' => 'Whether the user opened the comfirmation email'],
                 'language'          => ['type' => 'varchar', 'length' => 50,  'description' => 'preferred language'],
                 'timezone'          => ['type' => 'varchar', 'length' => 50,  'description' => 'timezone'],
                 'sms_phone_number'  => ['type' => 'varchar', 'length' => 64,  'description' => 'sms phone number'],
@@ -245,19 +257,19 @@ class LocalUser implements UserInterface
                 'created'           => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'          => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['id'],
+            'primary key' => ['nickname'],
             'unique keys' => [
-                'user_nickname_key'       => ['nickname'],
                 'user_outgoing_email_key' => ['outgoing_email'],
                 'user_incoming_email_key' => ['incoming_email'],
                 'user_sms_key'            => ['sms_phone_number'],
                 'user_uri_key'            => ['uri'],
             ],
             'foreign keys' => [
-                'user_id_fkey'      => ['profile', ['id' => 'id']],
-                'user_carrier_fkey' => ['sms_carrier', ['sms_carrier' => 'id']],
+                'user_nickname_fkey' => ['profile', ['nickname' => 'nickname']],
+                'user_carrier_fkey'  => ['sms_carrier', ['sms_carrier' => 'id']],
             ],
             'indexes' => [
+                'user_nickname_idx'  => ['nickname'],
                 'user_created_idx'   => ['created'],
                 'user_sms_email_idx' => ['sms_email'],
             ],
@@ -266,7 +278,7 @@ class LocalUser implements UserInterface
 
     public function getProfile()
     {
-        return DB::find('profile', ['id' => $this->id]);
+        return DB::findOneBy('profile', ['nickname' => $this->nickname]);
     }
 
     /**
@@ -280,8 +292,8 @@ class LocalUser implements UserInterface
     /**
      * Returns the password used to authenticate the user.
      *
-     * Already in the autocode
-     * public function getPassword() */
+     * Implemented in the auto code
+     */
 
     /**
      * Returns the salt that was originally used to encode the password.
