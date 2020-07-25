@@ -52,12 +52,17 @@ abstract class Common
 
     /**
      * Set sysadmin's configuration preferences for GNU social
+     *
+     * @param mixed $value
      */
-    public static function setConfig(string $section, string $setting, mixed $value): void
+    public static function setConfig(string $section, string $setting, $value): void
     {
-        $ojb = DB::getPartialReference('config', ['section' => $section, 'setting' => $setting]);
-        $obj->setValue(serialize($value));
-        DB::persist($obj);
+        $c = DB::getPartialReference('config', ['section' => $section, 'setting' => $setting]);
+        if ($c === null) {
+            throw new \Exception("The field section = {$section} and setting = {$setting} doesn't exist");
+        }
+
+        $c->setValue(serialize($value));
         DB::flush();
     }
 

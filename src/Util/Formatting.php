@@ -134,8 +134,8 @@ abstract class Formatting
      * Indent $in, a string or array, $level levels
      *
      * @param array|string $in
-     * @param int          $level
-     * @param int          $count
+     * @param int          $level How many levels of indentation
+     * @param int          $count How many spaces per indentation
      *
      * @return string
      */
@@ -154,5 +154,32 @@ abstract class Formatting
                 }));
         }
         throw new InvalidArgumentException('Formatting::indent\'s first parameter must be either an array or a string. Input was: ' . $in);
+    }
+
+    /**
+     * Convert scalars, objects implementing __toString or arrays to strings
+     *
+     * @param mixed $value
+     */
+    public static function toString($value): string
+    {
+        return is_array($value)
+            ? '[' . implode(', ', F\map($value, function ($s) { return "'{$s}'"; })) . ']'
+            : (string) $value;
+    }
+
+    /**
+     * Convert a user supplied string to array and return whether the conversion was successfull
+     *
+     * @param mixed $output
+     */
+    public static function toArray(string $input, &$output): bool
+    {
+        $matches = [];
+        if (preg_match('/^ *\[([^,]+(, ?[^,]+)*)\] *$/', $input, $matches)) {
+            $output = str_replace([' \'', '\'', ' "', '"'], '', explode(',', $matches[1]));
+            return true;
+        }
+        return false;
     }
 }
