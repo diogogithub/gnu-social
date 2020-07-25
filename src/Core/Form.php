@@ -46,7 +46,7 @@ abstract class Form
                                   string $type = 'Symfony\Component\Form\Extension\Core\Type\FormType',
                                   array $options = null): SymfForm
     {
-        $fb = self::$form_factory->createBuilder($type, $options ?: ['translation_domain' => false]);
+        $fb = self::$form_factory->createBuilder($type, array_merge($options ?? [], ['translation_domain' => false]));
         foreach ($form as $f) {
             $fb->add(...$f);
         }
