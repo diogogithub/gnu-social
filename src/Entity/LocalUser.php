@@ -24,6 +24,7 @@ use App\Core\UserRoles;
 use App\Util\Common;
 use DateTime;
 use DateTimeInterface;
+use Exception;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -324,18 +325,17 @@ class LocalUser implements UserInterface
 
     public function checkPassword(string $new_password): bool
     {
-        // Timing safe password verification on supported PHP versions
-        if (password_verify($new_password, $this->getPassword())) {
+        // Timing safe password verification
+        if (password_verify($new_password, $this->password)) {
+            // Update old formats
+            if (password_needs_rehash($this->password,
+                                         self::algoNameToConstant(Common::config('security', 'algorithm')),
+                                         Common::config('security', 'options'))
+            ) {
+                $this->changePassword($new_password, true);
+            }
             return true;
         }
-
-        // Old format
-        // crypt understands what the salt part of $this->getPassword() is
-        if ($this->getPassword() === crypt($new_password, $this->getPassword())) {
-            $this->changePassword($new_password, true);
-            return true;
-        }
-
         return false;
     }
 
@@ -349,19 +349,25 @@ class LocalUser implements UserInterface
 
     public function hashPassword(string $password)
     {
-        switch (Common::config('security', 'algorithm')) {
-        case 'bcrypt':
-            $algorithm = PASSWORD_BCRYPT;
-            break;
-        case 'argon2i':
-            $algorithm = PASSWORD_ARGON2I;
-            break;
-        case 'argon2id':
-            $algorithm = PASSWORD_ARGON2ID;
-            break;
-        }
-        $options = Common::config('security', 'options');
+        $algorithm = self::algoNameToConstant(Common::config('security', 'algorithm'));
+        $options   = Common::config('security', 'options');
 
         return password_hash($password, $algorithm, $options);
+    }
+
+    private static function algoNameToConstant(string $algo)
+    {
+        switch ($algo) {
+        case 'bcrypt':
+            return PASSWORD_BCRYPT;
+        case 'argon2i':
+            return PASSWORD_ARGON2I;
+        case 'argon2d':
+            return PASSWORD_ARGON2D;
+        case 'argon2id':
+            return PASSWORD_ARGON2ID;
+        default:
+            throw new Exception('Unsupported or unsafe hashing algorithm requested');
+        }
     }
 }
