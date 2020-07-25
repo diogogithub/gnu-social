@@ -20,6 +20,7 @@
 namespace App\Entity;
 
 use App\Core\UserRoles;
+use DateTime;
 use DateTimeInterface;
 
 /**
@@ -43,7 +44,7 @@ class Profile
     private int $id;
     private string $nickname;
     private ?string $fullname;
-    private ?int $roles;
+    private int $roles = 4;
     private ?string $homepage;
     private ?string $bio;
     private ?string $location;
@@ -84,12 +85,12 @@ class Profile
         return $this->fullname;
     }
 
-    public function setRoles(?int $roles): self
+    public function setRoles(int $roles): self
     {
         $this->roles = $roles;
         return $this;
     }
-    public function getRoles(): ?int
+    public function getRoles(): int
     {
         return $this->roles;
     }
@@ -186,6 +187,15 @@ class Profile
 
     // }}} Autocode
 
+    public function __construct(string $nickname)
+    {
+        $this->nickname = $nickname;
+
+        // TODO auto update created and modified
+        $this->created  = new DateTime();
+        $this->modified = new DateTime();
+    }
+
     public static function schemaDef(): array
     {
         $def = [
@@ -195,7 +205,7 @@ class Profile
                 'id'               => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
                 'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
                 'fullname'         => ['type' => 'text', 'description' => 'display name'],
-                'roles'            => ['type' => 'int', 'noot null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this profile has'],
+                'roles'            => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this profile has'],
                 'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
                 'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
                 'location'         => ['type' => 'text', 'description' => 'physical location'],
