@@ -19,6 +19,7 @@
 
 namespace App\Util;
 
+use App\Core\DB\DB;
 use Normalizer;
 
 /**
@@ -109,8 +110,11 @@ class Nickname
      */
     const BEFORE_MENTIONS = '(?:^|[\s\.\,\:\;\[\(]+)';
 
+    const CHECK_USED    = true;
+    const NO_CHECK_USED = false;
+
     /**
-     * Validate an input $nickname, and normalize it to its canonical form.
+     * Normalize an input $nickname, and normalize it to its canonical form.
      * The canonical form will be returned, or an exception thrown if invalid.
      *
      * @throws NicknameException              (base class)
@@ -121,7 +125,7 @@ class Nickname
      * @throws NicknameTakenException
      * @throws NicknameTooLongException
      */
-    public static function normalize(string $nickname, bool $check_already_used = false): string
+    public static function normalize(string $nickname, bool $check_already_used = NO_CHECK_USED): string
     {
         if (mb_strlen($nickname) > self::MAX_LEN) {
             // Display forms must also fit!
@@ -157,7 +161,7 @@ class Nickname
      *
      * @return bool True if nickname is valid. False if invalid (or taken if $check_already_used == true).
      */
-    public static function isValid(string $nickname, bool $check_already_used = false): bool
+    public static function isValid(string $nickname, bool $check_already_used = CHECK_USED): bool
     {
         try {
             self::normalize($nickname, $check_already_used);
@@ -195,18 +199,13 @@ class Nickname
      */
     public static function isTaken(string $nickname): ?Profile
     {
-        $found = DB::find('user', ['nickname' => $nickname]);
-        if ($found instanceof User) {
+        $found = DB::findBy('local_user', ['nickname' => $nickname]);
+        if ($found instanceof LocalUser) {
             return $found->getProfile();
         }
 
-        $found = DB::find('local_group', ['nickname' => $nickname]);
+        $found = DB::findBy('local_group', ['nickname' => $nickname]);
         if ($found instanceof Local_group) {
-            return $found->getProfile();
-        }
-
-        $found = DB::find('group_alias', ['nickname' => $nickname]);
-        if ($found instanceof Group_alias) {
             return $found->getProfile();
         }
 
