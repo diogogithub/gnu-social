@@ -23,7 +23,6 @@ use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Entity\User;
 use App\Util\Nickname;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -54,13 +53,11 @@ class Authenticator extends AbstractFormLoginAuthenticator
 
     public const LOGIN_ROUTE = 'login';
 
-    private $entityManager;
     private $urlGenerator;
     private $csrfTokenManager;
 
-    public function __construct(EntityManagerInterface $entityManager, UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager)
+    public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager)
     {
-        $this->entityManager    = $entityManager;
         $this->urlGenerator     = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
     }
