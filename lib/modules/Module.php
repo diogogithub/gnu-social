@@ -41,6 +41,11 @@ class Module
 {
     public function __construct()
     {
+        // Load Module settings
+        foreach (common_config(static::class) as $aname => $avalue) {
+            $this->$aname = $avalue;
+        }
+
         Event::addHandler('InitializeModule', [$this, 'initialize']);
         Event::addHandler('CleanupModule', [$this, 'cleanup']);
 
