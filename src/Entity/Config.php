@@ -37,8 +37,8 @@ class Config
 {
     // {{{ Autocode
 
-    private string $section;
-    private string $setting;
+    private string $section = '';
+    private string $setting = '';
     private ?string $value;
 
     public function setSection(string $section): self
