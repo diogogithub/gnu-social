@@ -101,7 +101,7 @@ class GNUsocial implements EventSubscriberInterface
         $this->session          = $sess;
         $this->security         = $sec;
 
-        $this->register();
+        $this->initialize();
     }
 
     /**
@@ -109,7 +109,7 @@ class GNUsocial implements EventSubscriberInterface
      *
      * @param EventDispatcherInterface $event_dispatcher
      */
-    public function register(): void
+    public function initialize(): void
     {
         Log::setLogger($this->logger);
         Event::setDispatcher($this->event_dispatcher);
@@ -151,11 +151,11 @@ class GNUsocial implements EventSubscriberInterface
         $request = $event->getRequest();
 
         // Save the target path, so we can redirect back after logging in
-        if (!(!$event->isMasterRequest() || $request->isXmlHttpRequest() || 'login' === $request->attributes->get('_route'))) {
-            $this->saveTargetPath($this->session, 'main', $request->getUri());
+        if (!(!$event->isMasterRequest() || $request->isXmlHttpRequest() || in_array($request->attributes->get('_route'), ['login', 'initialize']))) {
+            $this->saveTargetPath($this->session, 'main', $request->getBaseUrl());
         }
 
-        $this->register();
+        $this->initialize();
         return $event;
     }
 
@@ -171,7 +171,7 @@ class GNUsocial implements EventSubscriberInterface
     public function onCommand(ConsoleCommandEvent $event,
                               string $event_name): ConsoleCommandEvent
     {
-        $this->register();
+        $this->initialize();
         return $event;
     }
 
