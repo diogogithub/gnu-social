@@ -1,38 +1,56 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Store last poll time in db, then check if they should be renewed (if so, enqueue).
  * Can be called from a queue handler on a per-feed status to poll stuff.
  *
  * Used as internal feed polling mechanism (atom/rss)
  *
- * @category OStatus
- * @package  GNUsocial
- * @author   Mikael Nordfeldth <mmn@hethane.se>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://www.gnu.org/software/social/
+ * @category  OStatus
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @copyright 2015 Free Software Foundation http://fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
-class FeedPoll {
+class FeedPoll
+{
     const DEFAULT_INTERVAL = 5; // in minutes
 
     const QUEUE_CHECK = 'feedpoll-check';
 
     // TODO: Find some smart way to add feeds only once, so they don't get more than 1 feedpoll in the queue each
     //       probably through sub_start sub_end trickery.
-    public static function enqueueNewFeeds(array $args=array()) {
+    public static function enqueueNewFeeds(array $args = [])
+    {
         if (!isset($args['interval']) || !is_int($args['interval']) || $args['interval']<=0) {
             $args['interval'] = self::DEFAULT_INTERVAL;
         }
-
-        $args['interval'] *= 60;    // minutes to seconds
 
         $feedsub = new FeedSub();
         $feedsub->sub_state = 'nohub';
         // Find feeds that haven't been polled within the desired interval,
         // though perhaps we're abusing the "last_update" field here?
-        $feedsub->whereAdd(sprintf('last_update < "%s"', common_sql_date(time()-$args['interval'])));
+        $feedsub->whereAdd(sprintf(
+            "last_update < CURRENT_TIMESTAMP - INTERVAL '%d' MINUTE",
+            $args['interval']
+        ));
         $feedsub->find();
 
         $qm = QueueManager::get();
