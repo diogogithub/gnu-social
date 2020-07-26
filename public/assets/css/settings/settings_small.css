@@ -129,9 +129,10 @@
 
 /* FORMS ------------------------------*/
 label {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-    font-size: var(--medium-size);
+      display: inline-block;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      width: 100%;
 }
 
 label:nth-child() {
@@ -162,9 +163,10 @@ button[type=submit] {
       font-weight: 700;
 }
 
-#form_Bio {
+#form_bio {
       margin-top: calc(var(--unit-size) * 0.5);
       width: calc(100% - var(--unit-size));
+      height: calc(5 * var(--unit-size));
       background-color: rgba(0, 0, 0, 0.30);
       border-style: none;
       padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
@@ -173,6 +175,36 @@ button[type=submit] {
       font-size: var(--medium-size);
       word-wrap: break-word;
       resize: vertical;
+}
+
+#form_phone_number {
+      margin-top: calc(var(--unit-size) * 0.5);
+      width: calc(100% - var(--unit-size));
+      background-color: rgba(0, 0, 0, 0.30);
+      border-style: none;
+      padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
+      color: #F6F6F6;
+      border-radius: calc(var(--unit-size) * 0.5);
+      font-size: var(--medium-size);
+}
+
+#form_language{
+      margin-top: calc(var(--unit-size) * 0.5);
+      background-color: rgba(0, 0, 0, 0.30);
+      border-style: none;
+      padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
+      color: #F6F6F6;
+      border-radius: calc(var(--unit-size) * 0.5);
+      font-size: var(--medium-size);
+}
+select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url("../../icons/drop.svg");
+      background-size: var(--main-size);
+      background-position: center right;
+      background-repeat: no-repeat;
 }
 
 .help-text {

@@ -1,0 +1,9 @@
+.content {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: calc(3 * var(--main-size));
+    justify-content: center;
+    align-items: center;
+    margin-left: var(--nav-size);
+    margin-right: 0;
+}

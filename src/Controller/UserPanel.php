@@ -113,7 +113,7 @@ class UserPanel extends AbstractController
     public function avatar(Request $request)
     {
         $avatar = Form::create([
-            ['avatar',   FileType::class,   ['label' => _m('avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 10MB.')]],
+            ['avatar',   FileType::class,   ['label' => _m('Avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 10MB.')]],
             ['save',     SubmitType::class, ['label' => _m('Submit')]],
         ]);
 
