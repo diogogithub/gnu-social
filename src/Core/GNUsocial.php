@@ -151,7 +151,7 @@ class GNUsocial implements EventSubscriberInterface
         $request = $event->getRequest();
 
         // Save the target path, so we can redirect back after logging in
-        if (!(!$event->isMasterRequest() || $request->isXmlHttpRequest() || in_array($request->attributes->get('_route'), ['login', 'initialize']))) {
+        if (!(!$event->isMasterRequest() || $request->isXmlHttpRequest() || in_array($request->attributes->get('_route'), ['login', 'register', 'logout']))) {
             $this->saveTargetPath($this->session, 'main', $request->getBaseUrl());
         }
 
