@@ -113,8 +113,9 @@ class UserPanel extends AbstractController
     public function avatar(Request $request)
     {
         $avatar = Form::create([
-            [_m('avatar'),   FileType::class,   ['help' => 'You can upload your personal avatar. The maximum file size is 64MB.', 'label_format' => 'Avatar']],
-            ['save',        SubmitType::class, ['label' => _m('Submit')]], ]);
+            ['avatar',   FileType::class,   ['label' => _m('avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 10MB.')]],
+            ['save',     SubmitType::class, ['label' => _m('Submit')]],
+        ]);
 
         return ['_template' => 'settings/avatar.html.twig', 'avatar' => $avatar->createView()];
     }
