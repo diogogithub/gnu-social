@@ -16,7 +16,7 @@
       <nav class='set-nav'>
             <ul>
                   <li>
-                        <a href="{{ path('settings_profile') }}" class='hover-effect {% if (app.request.attributes.get('_route') starts with 'settings_profile') or (app.request.attributes.get('_route') starts with 'settings_avatar')%}active{% endif %}'>Settings</a>
+                        <a href="{{ path('settings_personal_info') }}" class='hover-effect {% if (app.request.attributes.get('_route') starts with 'settings_personal_info') or (app.request.attributes.get('_route') starts with 'settings_avatar')%}active{% endif %}'>Settings</a>
                   </li>
                   <li>
                         <a href="{{ path('settings_account') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_account' %}active{% endif %}'>Account</a>
