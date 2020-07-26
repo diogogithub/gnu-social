@@ -361,9 +361,12 @@ function initNoticeReshare()
     printfnq("Ensuring all reshares have the correct verb and object-type...");
 
     $notice = new Notice();
-    $notice->whereAdd('repeat_of is not null');
-    $notice->whereAdd('(verb <> "' . ActivityVerb::SHARE
-                      . '" OR object_type <> "' . ActivityObject::ACTIVITY . '")');
+    $notice->whereAdd('repeat_of IS NOT NULL');
+    $notice->whereAdd(sprintf(
+        '(verb <> %1$s OR object_type <> %2$s)',
+        $notice->_quote(ActivityVerb::SHARE),
+        $notice->_quote(ActivityObject::ACTIVITY)
+    ));
 
     if ($notice->find()) {
         while ($notice->fetch()) {
