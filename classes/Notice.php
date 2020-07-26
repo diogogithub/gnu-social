@@ -2452,7 +2452,7 @@ class Notice extends Managed_DataObject
         if ($replyNotice->find()) {
             while ($replyNotice->fetch()) {
                 $orig = clone($replyNotice);
-                $replyNotice->reply_to = null;
+                $replyNotice->reply_to = $replyNotice->sqlValue('NULL');
                 $replyNotice->update($orig);
             }
         }
@@ -2507,7 +2507,7 @@ class Notice extends Managed_DataObject
         if ($repeatNotice->find()) {
             while ($repeatNotice->fetch()) {
                 $orig = clone($repeatNotice);
-                $repeatNotice->repeat_of = null;
+                $repeatNotice->repeat_of = $repeatNotice->sqlValue('NULL');
                 $repeatNotice->update($orig);
             }
         }
