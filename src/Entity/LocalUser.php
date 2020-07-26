@@ -52,7 +52,7 @@ class LocalUser implements UserInterface
     private ?bool $is_email_verified;
     private ?string $language;
     private ?string $timezone;
-    private ?string $sms_phone_number;
+    private ?PhoneNumberType $phone_number;
     private ?int $sms_carrier;
     private ?string $sms_email;
     private ?string $uri;
@@ -132,14 +132,14 @@ class LocalUser implements UserInterface
         return $this->timezone;
     }
 
-    public function setSmsPhoneNumber(?string $sms_phone_number): self
+    public function setPhoneNumber(?PhoneNumberType $phone_number): self
     {
-        $this->sms_phone_number = $sms_phone_number;
+        $this->phone_number = $phone_number;
         return $this;
     }
-    public function getSmsPhoneNumber(): ?string
+    public function getPhoneNumber(): ?PhoneNumberType
     {
-        return $this->sms_phone_number;
+        return $this->phone_number;
     }
 
     public function setSmsCarrier(?int $sms_carrier): self
@@ -248,7 +248,7 @@ class LocalUser implements UserInterface
                 'is_email_verified' => ['type' => 'bool', 'default' => false, 'description' => 'Whether the user opened the comfirmation email'],
                 'language'          => ['type' => 'varchar', 'length' => 50,  'description' => 'preferred language'],
                 'timezone'          => ['type' => 'varchar', 'length' => 50,  'description' => 'timezone'],
-                'sms_phone_number'  => ['type' => 'varchar', 'length' => 64,  'description' => 'sms phone number'],
+                'phone_number'      => ['type' => 'phone_number', 'description' => 'phone number'],
                 'sms_carrier'       => ['type' => 'int', 'description' => 'foreign key to sms_carrier'],
                 'sms_email'         => ['type' => 'varchar', 'length' => 191, 'description' => 'built from sms and carrier (see sms_carrier)'],
                 'uri'               => ['type' => 'varchar', 'length' => 191, 'description' => 'universally unique identifier, usually a tag URI'],
@@ -262,7 +262,7 @@ class LocalUser implements UserInterface
             'unique keys' => [
                 'user_outgoing_email_key' => ['outgoing_email'],
                 'user_incoming_email_key' => ['incoming_email'],
-                'user_sms_key'            => ['sms_phone_number'],
+                'user_phone_number_key'   => ['phone_number'],
                 'user_uri_key'            => ['uri'],
             ],
             'foreign keys' => [

@@ -40,17 +40,18 @@ class SchemaDefDriver extends StaticPHPDriver
      * V2 DB type => Doctrine type
      */
     private const types = [
-        'varchar'   => 'string',
-        'char'      => 'string', // char is a fixed witdh varchar
-        'int'       => 'integer',
-        'serial'    => 'integer',
-        'tinyint'   => 'smallint', // no portable tinyint
-        'bigint'    => 'bigint',
-        'bool'      => 'boolean',
-        'numeric'   => 'decimal',
-        'text'      => 'text',
-        'datetime'  => 'datetime',
-        'timestamp' => 'datetime',
+        'varchar'      => 'string',
+        'char'         => 'string', // char is a fixed witdh varchar
+        'int'          => 'integer',
+        'serial'       => 'integer',
+        'tinyint'      => 'smallint', // no portable tinyint
+        'bigint'       => 'bigint',
+        'bool'         => 'boolean',
+        'numeric'      => 'decimal',
+        'text'         => 'text',
+        'datetime'     => 'datetime',
+        'timestamp'    => 'datetime',
+        'phone_number' => 'phone_number',
         // Unused in V2, but might start being used
         'date'        => 'date',
         'time'        => 'time',
