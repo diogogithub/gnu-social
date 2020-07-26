@@ -120,15 +120,15 @@ class UserPanel extends AbstractController
         return ['_template' => 'settings/avatar.html.twig', 'avatar' => $avatar->createView()];
     }
 
-    public function misc(Request $request)
+    public function notifications(Request $request)
     {
-        $misc = Form::create([
+        $notifications = Form::create([
             [_m('transport'),   TextType::class,   ['help' => 'Address used to send and receive notices through IM.', 'label_format' => 'XMPP/Jabber']],
             [_m('post_on_status_change'),   CheckboxType::class,   ['help' => 'Post a notice when my status changes.', 'label_format' => 'Status change']],
             [_m('mention'),   CheckboxType::class,   ['help' => 'Send me replies from people I\'m not subscribed to.', 'label_format' => 'Mentions']],
             [_m('posts_by_followed'),   CheckboxType::class,   ['help' => 'Send me notices.', 'label_format' => 'Notices']],
             ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
 
-        return ['_template' => 'settings/misc.html.twig', 'misc' => $misc->createView()];
+        return ['_template' => 'settings/notifications.html.twig', 'notifications' => $notifications->createView()];
     }
 }

@@ -1,26 +1,34 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
-        <style>
-          body {
-              background-color: #333;
-              color: #ddd;
-          }
-        </style>
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock %}
+{% extends 'left/left.html.twig' %}
 
+{% block meta %}
+    {{ parent() }}
+{% endblock %}
+
+{% block title %}Welcome!{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}">
+{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+{% endblock %}
+
+{% block left %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <div class="content">
         {% if notices is defined %}
-          {% for notice in notices %}
-            <div> {{notice}} </div>
-          {% endfor %}
+            {% for notice in notices %}
+                <div> {{notice}} </div>
+            {% endfor %}
         {% else %}
-          No notices here.
+            No notices here.
         {% endif %}
-    </body>
-</html>
+    </div>
+{% endblock %}
+
+{% block javascripts %}{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'left/left.html.twig' %}
+
+{% block meta %}
+    {{ parent() }}
+{% endblock %}
+
+{% block title %}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings.css') }}" media="screen and (min-width: 1300px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings_mid.css') }}" media="screen and (max-width: 1300px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings_small.css') }}" media="screen and (max-width: 750px)">
+{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    {% block left %}
+        {{ parent() }}
+    {% endblock %}
+
+    <div class="content">
+        {% block primary_nav %}
+            <nav class='set-nav'>
+                <ul>
+                    <li>
+                        <a href="{{ path('settings_personal_info') }}" class='hover-effect {{ active('settings_personal_info', 'settings_avatar') }}'>Profile</a>
+                    </li>
+                    <li>
+                        <a href="{{ path('settings_account') }}" class='hover-effect {{ active('settings_account') }}'>Account</a>
+                    </li>
+                    <li>
+                        <a href="{{ path('settings_notifications') }}" class='hover-effect {{ active('settings_notifications') }}'>Notifications</a>
+                    </li>
+                </ul>
+            </nav>
+        {% endblock primary_nav %}
+
+        {% block secundary_nav %}
+        {% endblock secundary_nav %}
+
+        {% block form %}
+        {% endblock form %}
+    </div>
+{% endblock body %}
+
+
+{% block javascripts %}{% endblock %}

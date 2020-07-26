@@ -1,45 +1,13 @@
-{% extends 'base.html.twig' %}
-{% block stylesheets %}
-      {{ parent() }}
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings.css') }}" media="screen and (min-width: 1300px)">
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings_mid.css') }}" media="screen and (max-width: 1300px)">
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings_small.css') }}" media="screen and (max-width: 750px)">
-{% endblock %}
+{% extends 'settings/profile.html.twig' %}
 
 {% block title %}Avatar Settings{% endblock %}
 
-{% block header %}{{ parent() }}{% endblock %}
-
 {% block body %}
+      {{ parent() }}
+{% endblock body %}
 
-      <div class='content'>
-            <nav class='set-nav'>
-                  <ul>
-                        <li>
-                              <a href="{{ path('settings_personal_info') }}" class='hover-effect {% if (app.request.attributes.get('_route') starts with 'settings_profile') or (app.request.attributes.get('_route') starts with 'settings_avatar')%}active{% endif %}'>Settings</a>
-                        </li>
-                        <li>
-                              <a href="{{ path('settings_account') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_account' %}active{% endif %}'>Account</a>
-                        </li>
-                        <li>
-                              <a href="{{ path('settings_misc') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_misc' %}active{% endif %}'>Misc</a>
-                        </li>
-                  </ul>
-            </nav>
-            <nav class='set-nav2'>
-                  <ul>
-                        <li>
-                              <a href="{{ path('settings_personal_info') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_profile' %}active{% endif %}'>Profile</a>
-                        </li>
-                        <li>
-                              <a href="{{ path('settings_avatar') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_avatar' %}active{% endif %}'>Avatar</a>
-                        </li>
-                  </ul>
-            </nav>
-            {% block form %}
-                  <div class='form'>
-                        {{ form(avatar) }}
-                  </div>
-            {% endblock %}
+{% block form %}
+      <div class='form'>
+            {{ form(avatar) }}
       </div>
-{% endblock %}
+{% endblock form %}
