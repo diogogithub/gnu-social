@@ -62,7 +62,7 @@ abstract class Main
 
         // Settings pages
         $r->connect('settings', '/settings', RedirectController::class, [], ['defaults' => ['route' => 'settings_personal_info']]);
-        foreach (['personal_info', 'avatar', 'misc', 'account'] as $s) {
+        foreach (['personal_info', 'avatar', 'notifications', 'account'] as $s) {
             $r->connect('settings_' . $s, '/settings/' . $s, [C\UserPanel::class, $s]);
         }
     }

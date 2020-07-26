@@ -1,39 +1,19 @@
-{% extends 'base.html.twig' %}
-{% block stylesheets %}
-      {{ parent() }}
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings.css') }}" media="screen and (min-width: 1300px)">
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings_mid.css') }}" media="screen and (max-width: 1300px)">
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings_small.css') }}" media="screen and (max-width: 750px)">
-{% endblock %}
+{% extends 'settings/base.html.twig' %}
 
-{% block title %}Account Settings{% endblock %}
-
-{% block header %}{{ parent() }}{% endblock %}
+{% block title %}Notification Settings{% endblock %}
 
 {% block body %}
 
-<div class='content'>
-      <nav class='set-nav'>
-            <ul>
-                  <li>
-                        <a href="{{ path('settings_personal_info') }}" class='hover-effect {% if (app.request.attributes.get('_route') starts with 'settings_personal_info') or (app.request.attributes.get('_route') starts with 'settings_avatar')%}active{% endif %}'>Settings</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('settings_account') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_account' %}active{% endif %}'>Account</a>
-                  </li>
-                  <li>
-                        <a href="{{ path('settings_misc') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_misc' %}active{% endif %}'>Misc</a>
-                  </li>
-            </ul>
-      </nav>
+      <div class='content'>
+            {% block primary_nav %}
+                  {{ parent() }}
+            {% endblock primary_nav %}
 
-{% block form %}
+            {% block form %}
+                  <div class='form-single'>
+                        {{ form(acc) }}
+                  </div>
+            {% endblock form %}
+      </div>
 
-<div class='form-single'>
-      {{ form(acc) }}
-</div>
-
-{% endblock %}
-</div>
-
-{% endblock %}
+{% endblock body %}

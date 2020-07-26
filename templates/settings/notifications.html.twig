@@ -1,0 +1,19 @@
+{% extends 'settings/base.html.twig' %}
+
+{% block title %}Notification Settings{% endblock %}
+
+{% block body %}
+
+    <div class='content'>
+        {% block primary_nav %}
+            {{ parent() }}
+        {% endblock primary_nav %}
+
+        {% block form %}
+            <div class='form-single'>
+                {{ form(notifications) }}
+            </div>
+        {% endblock form %}
+    </div>
+
+{% endblock body %}
