@@ -36,9 +36,11 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Formatting;
+use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\LanguageType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -46,7 +48,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class UserPanel extends AbstractController
 {
-    public function profile(Request $request)
+    public function personal_info(Request $request)
     {
         $user            = Common::user();
         $profile         = $user->getProfile();
@@ -90,15 +92,20 @@ class UserPanel extends AbstractController
 
     public function account(Request $request)
     {
+        $user    = Common::user();
+        $profile = $user->getProfile();
+
         $acc = Form::create([
-            [_m('outgoing_email'),   TextType::class,   ['help' => 'Change your current email.', 'label_format' => 'Email']],
-            [_m('password'),   TextType::class,    ['help' => 'Change your current password.']],
-            [_m('emailnotifysub'),   CheckboxType::class,   ['help' => 'Send me notices of new subscriptions through email.', 'label_format' => 'Notify subscriptions']],
-            [_m('emailnotifymsg'),   CheckboxType::class,    ['help' => 'Send me email when someone sends me a private message.', 'label_format' => 'Notify private messages']],
-            [_m('emailnotifyattn'),   CheckboxType::class,   ['help' => 'Send me email when someone sends me an "@-reply".', 'label_format' => 'Notify replies']],
-            [_m('emailnotifynudge'),   CheckboxType::class,    ['help' => 'Allow friends to nudge me and send me an email.', 'label_format' => 'Allow nudges']],
-            [_m('emailnotifyfav'),   CheckboxType::class,    ['help' => 'Send me email when someone adds my notice as a favorite.', 'label_format' => 'Notify favorites']],
-            ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
+            // ['email',           TextType::class,        ['label' => _m('Email'),           'help' => _m('Change your email')]],
+            // ['seperate_email',  CheckboxType::class,    ['label' => _m('Separate emails'), 'help' => _m('Use seperate incomming and outgoing emails')]],
+            ['outgoing_email',  TextType::class,        ['label' => _m('Outgoing email'), 'required' => true,  'data' => $user->getOutgoingEmail(), 'help' => _m('Change the email we use to contact you')]],
+            ['incomming_email', TextType::class,        ['label' => _m('Incoming email'), 'required' => true,  'data' => $user->getIncomingEmail(), 'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
+            ['password',        TextType::class,        ['label' => _m('Password'),       'required' => false, 'data' => null,                      'help' => _m('Change your password')]],
+            ['old_password',    TextType::class,        ['label' => _m('Old password'),   'required' => false, 'data' => null,                      'help' => _m('Enter your old password for verification')]],
+            ['language',        LanguageType::class,    ['label' => _m('Language'),       'required' => false, 'data' => $user->getLanguage(),      'help' => _m('Your preferred language')]],
+            ['phone_number',    PhoneNumberType::class, ['label' => _m('Phone number'),   'required' => false, 'data' => $user->getPhoneNumber(),   'help' => _m('Your phone number')]],
+            ['save',            SubmitType::class,      ['label' => _m('Save')]],
+        ]);
 
         return ['_template' => 'settings/account.html.twig', 'acc' => $acc->createView()];
     }
