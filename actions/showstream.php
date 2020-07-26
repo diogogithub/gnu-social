@@ -36,11 +36,10 @@ defined('GNUSOCIAL') || die();
  * It shows a stream of the user's posts, plus lots of profile info, links
  * to subscriptions and stuff, etc.
  *
- * @category Personal
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Personal
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ShowstreamAction extends NoticestreamAction
 {
@@ -217,7 +216,7 @@ class ShowstreamAction extends NoticestreamAction
 
     public function extraHead()
     {
-        if (!$this->target->isLocal()) {
+        if ($this->target->isSilenced() || !$this->target->isLocal()) {
             $this->element(
                 'meta',
                 [
