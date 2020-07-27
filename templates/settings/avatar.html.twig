@@ -2,6 +2,12 @@
 
 {% block title %}Avatar Settings{% endblock %}
 
+{% block stylesheets %}
+      {{ parent() }}
+      <link  href="{{ asset('assets/javascript/cropperjs/dist/cropper.css') }}" rel="stylesheet">
+      <script src="{{ asset('assets/javascript/cropperjs/dist/cropper.js') }}"></script>
+{% endblock %}
+
 {% block body %}
       {{ parent() }}
 {% endblock body %}
@@ -9,5 +15,8 @@
 {% block form %}
       <div class='form'>
             {{ form(avatar) }}
+            <div id="img-container">
+                  <img id="img-cropped">
+            </div>
       </div>
 {% endblock form %}

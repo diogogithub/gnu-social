@@ -48,6 +48,7 @@ use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\LanguageType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -99,9 +100,21 @@ class UserPanel extends AbstractController
     public function avatar(Request $request)
     {
         $avatar = Form::create([
-            ['avatar',   FileType::class,   ['label' => _m('Avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 10MB.')]],
+            ['avatar',   FileType::class,   ['label' => _m('Avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 2MB.')]],
+            ['hidden', HiddenType::class, []],
             ['save',     SubmitType::class, ['label' => _m('Submit')]],
         ]);
+
+        $avatar->handleRequest($request);
+
+        if ($avatar->isSubmitted() && $avatar->isValid()) {
+            $data              = $avatar->getData()['hidden'];
+            list($type, $data) = explode(';', $data);
+            list(, $data)      = explode(',', $data);
+            $data              = base64_decode($data);
+
+            file_put_contents('/tmp/image.png', $data);
+        }
 
         return ['_template' => 'settings/avatar.html.twig', 'avatar' => $avatar->createView()];
     }
