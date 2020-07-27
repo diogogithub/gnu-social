@@ -1,7 +1,7 @@
 GNU social Coding Style
 ===========================
 
-Please comply with [PSR-2](https://www.php-fig.org/psr/psr-2/) and the following standard when working on GNU social
+Please comply with [PSR-12](https://www.php-fig.org/psr/psr-12/) and the following standard when working on GNU social
 if you want your patches accepted and modules included in supported releases.
 
 If you see code which doesn't comply with the below, please fix it :)
@@ -118,7 +118,7 @@ Some short hands are evil:
 
 Naming conventions
 -------------------------------------------------------------------------------
-Respect PSR2 first.
+Respect PSR-12 first.
 
 - Classes use PascalCase (e.g. MyClass).
 - Functions/Methods use camelCase (e.g. myFunction).
@@ -145,11 +145,29 @@ Also, whereever possible, avoid ambiguous terms.  For example, don't use text
 as a term for a variable.  Call back to "contents" above.
 
 
+Arrays
+-------------------------------------------------------------------------------
+Even though PSR-12 doesn't specifically specify rules for array formatting, it
+is in the spirit of it to have every array element on a new line like is done
+for function and class method arguments and condition expressions, if there is
+more than one element.
+In this case, even the last element should end on a comma, to ease later
+element addition.
+
+    $foo = ['first' => 'unu'];
+    $bar = [
+        'first'  => 'once',
+        'second' => 'twice',
+        'third'  => 'thrice',
+    ];
+
+
 Comparisons
 -------------------------------------------------------------------------------
 Always use symbol based comparison operators (&&, ||) instead of text based
-operators (AND, OR) as they are evaluated in different orders and at different
-speeds.  This is will prevent any confusion or strange results.
+operators (and, or) in an "if" clause as they are evaluated in different order
+and at different speeds.
+This is will prevent any confusion or strange results.
 
 
 Use English

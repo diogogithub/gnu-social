@@ -6,7 +6,7 @@ email, or any other method with the owners of this repository before making a ch
 Please note we have a code of conduct, please follow it in all your interactions with the project.
 
 # Coding Style
-- We follow every [PSR-2](https://www.php-fig.org/psr/psr-2/) ...
+- We follow every [PSR-12](https://www.php-fig.org/psr/psr-12/) ...
 - ... except camelCase, that's too bad, we use snake_case
 
 ## Merge Request Process
