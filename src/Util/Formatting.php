@@ -158,13 +158,14 @@ abstract class Formatting
 
     const SPLIT_BY_SPACE = ' ';
     const SPLIT_BY_COMMA = ', ';
+    const SPLIT_BY_BOTH  = '/[, ]/';
 
     /**
      * Convert scalars, objects implementing __toString or arrays to strings
      *
      * @param mixed $value
      */
-    public static function toString($value, string $split_type = SPLIT_BY_COMMA): string
+    public static function toString($value, string $split_type = self::SPLIT_BY_COMMA): string
     {
         if (!is_array($value)) {
             return (string) $value;
@@ -178,11 +179,21 @@ abstract class Formatting
      *
      * @param mixed $output
      */
-    public static function toArray(string $input, &$output, string $split_type = SPLIT_BY_COMMA): bool
+    public static function toArray(string $input, &$output, string $split_type = self::SPLIT_BY_COMMA): bool
     {
         $matches = [];
         if (preg_match('/^ *\[?([^,]+(, ?[^,]+)*)\]? *$/', $input, $matches)) {
-            $output = str_replace([' \'', '\'', ' "', '"'], '', explode($split_type[0], $matches[1]));
+            switch ($split_type) {
+            case self::SPLIT_BY_BOTH:
+                $arr = preg_split($split_type, $matches[1], 0, PREG_SPLIT_NO_EMPTY);
+                break;
+            case self::SPLIT_BY_COMMA:
+                $arr = preg_split('/, ?/', $matches[1]);
+                break;
+            default:
+                $arr = explode($split_type[0], $matches[1]);
+            }
+            $output = str_replace([' \'', '\'', ' "', '"'], '', $arr);
             $output = F\map($output, F\ary('trim', 1));
             return true;
         }
