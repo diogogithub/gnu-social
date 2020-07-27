@@ -20,7 +20,7 @@ const types = [
     'serial'       => 'int',
     'text'         => 'string',
     'varchar'      => 'string',
-    'phone_number' => 'PhoneNumberType',
+    'phone_number' => 'PhoneNumber',
 ];
 
 $path = Yaml::parseFile(ROOT . '/config/services.yaml')['services']['app.core.schemadef_driver']['arguments'][0];

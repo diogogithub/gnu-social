@@ -25,6 +25,7 @@ use App\Util\Common;
 use DateTime;
 use DateTimeInterface;
 use Exception;
+use libphonenumber\PhoneNumber;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -52,7 +53,7 @@ class LocalUser implements UserInterface
     private ?bool $is_email_verified;
     private ?string $language;
     private ?string $timezone;
-    private ?PhoneNumberType $phone_number;
+    private ?PhoneNumber $phone_number;
     private ?int $sms_carrier;
     private ?string $sms_email;
     private ?string $uri;
@@ -132,12 +133,12 @@ class LocalUser implements UserInterface
         return $this->timezone;
     }
 
-    public function setPhoneNumber(?PhoneNumberType $phone_number): self
+    public function setPhoneNumber(?PhoneNumber $phone_number): self
     {
         $this->phone_number = $phone_number;
         return $this;
     }
-    public function getPhoneNumber(): ?PhoneNumberType
+    public function getPhoneNumber(): ?PhoneNumber
     {
         return $this->phone_number;
     }
@@ -329,8 +330,8 @@ class LocalUser implements UserInterface
         if (password_verify($new_password, $this->password)) {
             // Update old formats
             if (password_needs_rehash($this->password,
-                                         self::algoNameToConstant(Common::config('security', 'algorithm')),
-                                         Common::config('security', 'options'))
+                                      self::algoNameToConstant(Common::config('security', 'algorithm')),
+                                      Common::config('security', 'options'))
             ) {
                 $this->changePassword($new_password, true);
             }
