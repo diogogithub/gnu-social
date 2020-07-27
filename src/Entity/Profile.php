@@ -236,7 +236,7 @@ class Profile
         return DB::findBy('profile_tag', ['tagger' => $this->id, 'tagged' => $this->id]);
     }
 
-    public function setSelfTags(array $tags, array $pt_existing, bool $flush = true): void
+    public function setSelfTags(array $tags, array $pt_existing): void
     {
         $tag_existing  = F\map($pt_existing, function ($pt) { return $pt->getTag(); });
         $tag_to_add    = array_diff($tags, $tag_existing);
@@ -248,9 +248,6 @@ class Profile
         }
         foreach ($pt_to_remove as $pt) {
             DB::remove($pt);
-        }
-        if ($flush) {
-            DB::flush();
         }
     }
 }
