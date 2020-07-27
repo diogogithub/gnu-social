@@ -362,11 +362,14 @@ class LocalUser implements UserInterface
         case 'bcrypt':
             return PASSWORD_BCRYPT;
         case 'argon2i':
-            return PASSWORD_ARGON2I;
         case 'argon2d':
-            return PASSWORD_ARGON2D;
         case 'argon2id':
-            return PASSWORD_ARGON2ID;
+            $c = 'PASSWORD_' . strtoupper($algo);
+            if (defined($c)) {
+                return constant($c);
+            }
+            // fallthrough
+            // no break
         default:
             throw new Exception('Unsupported or unsafe hashing algorithm requested');
         }
