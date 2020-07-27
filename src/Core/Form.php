@@ -30,8 +30,12 @@
 
 namespace App\Core;
 
+use App\Core\DB\DB;
+use App\Util\Formatting;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Form as SymfForm;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 abstract class Form
 {
@@ -43,12 +47,33 @@ abstract class Form
     }
 
     public static function create(array $form,
+                                  ?object $target = null,
+                                  array $extra_data = [],
                                   string $type = 'Symfony\Component\Form\Extension\Core\Type\FormType',
-                                  array $options = null): SymfForm
+                                  array $builder_options = []): SymfForm
     {
-        $fb = self::$form_factory->createBuilder($type, array_merge($options ?? [], ['translation_domain' => false]));
-        foreach ($form as $f) {
-            $fb->add(...$f);
+        $fb = self::$form_factory->createBuilder($type, array_merge($builder_options, ['translation_domain' => false]));
+        foreach ($form as list($key, $class, $options)) {
+            if ($target != null && empty($options['data']) && (strstr($key, 'password') == false) && $class != SubmitType::class) {
+                if (isset($extra_data[$key])) {
+                    $options['data'] = $extra_data[$key];
+                } else {
+                    $method = 'get' . ucfirst(Formatting::snakeCaseToCamelCase($key));
+                    if (method_exists($target, $method)) {
+                        $options['data'] = $target->{$method}();
+                    }
+                }
+            }
+            unset($options['hide']);
+            if (isset($options['transformer'])) {
+                $transformer = $options['transformer'];
+                unset($options['transformer']);
+            }
+            $fb->add($key, $class, $options);
+            if (isset($transformer)) {
+                $fb->get($key)->addModelTransformer(new $transformer());
+                unset($transformer);
+            }
         }
         return $fb->getForm();
     }
@@ -56,5 +81,34 @@ abstract class Form
     public static function isRequired(array $form, string $field): bool
     {
         return $form[$field][2]['required'] ?? true;
+    }
+
+    public static function handle(array $form_definition, Request $request, object $target, array $extra_args = [], ?callable $extra_step = null, array $create_args = [])
+    {
+        $form = self::create($form_definition, $target, ...$create_args);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            if ($target == null) {
+                return $data;
+            }
+            unset($data['translation_domain'], $data['save']);
+            foreach ($data as $key => $val) {
+                $method = 'set' . ucfirst(Formatting::snakeCaseToCamelCase($key));
+                if (method_exists($target, $method)) {
+                    if (isset($extra_args[$key])) {
+                        $target->{$method}($val, $extra_args[$key]);
+                    } else {
+                        $target->{$method}($val);
+                    }
+                }
+            }
+            if (isset($extra_step)) {
+                $extra_step($data, $extra_args);
+            }
+            DB::flush();
+        }
+        return $form;
     }
 }
