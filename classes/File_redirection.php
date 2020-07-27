@@ -468,7 +468,7 @@ class File_redirection extends Managed_DataObject
                 throw new ServerException('Unknown DB type selected.');
         }
         $tablefix->query(sprintf(
-            'UPDATE %1$s SET urlhash = %2$s;',
+            'UPDATE %1$s SET urlhash = %2$s, modified = CURRENT_TIMESTAMP;',
             $tablefix->escapedTableName(),
             $url_sha256
         ));

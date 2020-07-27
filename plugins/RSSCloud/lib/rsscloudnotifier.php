@@ -1,45 +1,39 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Class to ping an rssCloud endpoint when a feed has been updated
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
-   *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Plugin
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('STATUSNET') || die();
 
 /**
  * Class for notifying cloud-enabled RSS aggregators that StatusNet
  * feeds have been updated.
  *
- * @category Plugin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class RSSCloudNotifier
 {
@@ -54,7 +48,7 @@ class RSSCloudNotifier
      *
      * @return boolean success
      */
-    function challenge($endpoint, $feed)
+    public function challenge($endpoint, $feed)
     {
         $code   = common_confirmation_code(128);
         $params = array('url' => $feed, 'challenge' => $code);
@@ -64,9 +58,11 @@ class RSSCloudNotifier
             $client   = new HTTPClient();
             $response = $client->get($url);
         } catch (Exception $e) {
-            common_log(LOG_INFO,
-                       'RSSCloud plugin - failure testing notify handler ' .
-                       $endpoint . ' - '  . $e->getMessage());
+            common_log(
+                LOG_INFO,
+                'RSSCloud plugin - failure testing notify handler '
+                . $endpoint . ' - ' . $e->getMessage()
+            );
             return false;
         }
 
@@ -110,7 +106,7 @@ class RSSCloudNotifier
      *
      * @return boolean success
      */
-    function postUpdate($endpoint, $feed)
+    public function postUpdate($endpoint, $feed)
     {
         $headers  = array();
         $postdata = array('url' => $feed);
@@ -147,7 +143,7 @@ class RSSCloudNotifier
      *
      * @return boolean success
      */
-    function notify($profile)
+    public function notify($profile)
     {
         $feed = common_path('api/statuses/user_timeline/') .
           $profile->id . '.rss';
@@ -180,18 +176,16 @@ class RSSCloudNotifier
      *
      * @return boolean success
      */
-    function handleFailure($cloudSub)
+    public function handleFailure($cloudSub)
     {
         $failCnt = $cloudSub->failures + 1;
 
         if ($failCnt == self::MAX_FAILURES) {
-
-            common_log(LOG_INFO,
-                       'Deleting RSSCloud subcription ' .
-                       '(max failure count reached), profile: ' .
-                       $cloudSub->subscribed .
-                       ' handler: ' .
-                       $cloudSub->url);
+            common_log(
+                LOG_INFO,
+                'Deleting RSSCloud subcription (max failure count reached), '
+                . "profile: {$cloudSub->subscribed} handler: {$cloudSub->url}"
+            );
 
             // XXX: WTF! ->delete() doesn't work. Clearly, there are some issues with
             // the DB_DataObject, or my understanding of it.  Have to drop into SQL.
@@ -216,18 +210,23 @@ class RSSCloudNotifier
 
             // XXX: ->update() not working either, gar!
 
-            $qry = 'UPDATE rsscloud_subscription' .
-              ' SET failures = ' . $failCnt .
-              ' WHERE subscribed = ' . $cloudSub->subscribed .
-              ' AND url = \'' . $cloudSub->url . '\'';
-
-            $result = $cloudSub->query($qry);
+            $result = $cloudSub->query(sprintf(
+                <<<'END'
+                UPDATE rsscloud_subscription
+                  SET failures = %1$d, modified = CURRENT_TIMESTAMP
+                  WHERE subscribed = %2$d AND url = %3$s
+                END,
+                $failCnt,
+                $cloudSub->subscribed,
+                $cloudSub->_quote($cloudSub->url)
+            ));
 
             if (!$result) {
                 common_log_db_error($cloudsub, 'UPDATE', __FILE__);
-                common_log(LOG_ERR,
-                           'Could not update failure ' .
-                           'count on RSSCloud subscription');
+                common_log(
+                    LOG_ERR,
+                    'Could not update failure count on RSSCloud subscription'
+                );
             }
         }
     }

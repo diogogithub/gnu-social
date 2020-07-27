@@ -760,9 +760,12 @@ class File extends Managed_DataObject
         if ($file instanceof File) {
             throw new ServerException('URL already exists in DB');
         }
-        $sql = 'UPDATE %1$s SET urlhash = %2$s, url = %3$s WHERE urlhash = %4$s;';
         $result = $this->query(sprintf(
-            $sql,
+            <<<'END'
+            UPDATE %1$s
+              SET urlhash = %2$s, url = %3$s, modified = CURRENT_TIMESTAMP
+              WHERE urlhash = %4$s;
+            END,
             $this->tableName(),
             $this->_quote((string)self::hashurl($url)),
             $this->_quote((string)$url),
@@ -939,7 +942,7 @@ class File extends Managed_DataObject
             }
         }
         echo "...and now all the non-duplicates which are longer than 191 characters...\n";
-        $file->query('UPDATE file SET url=LEFT(url, 191) WHERE LENGTH(url)>191');
+        $file->query('UPDATE file SET url = LEFT(url, 191) WHERE LENGTH(url) > 191');
 
         echo "\n...now running hacky pre-schemaupdate change for $table:";
         // We have to create a urlhash that is _not_ the primary key,
@@ -973,7 +976,7 @@ class File extends Managed_DataObject
                 throw new ServerException('Unknown DB type selected.');
         }
         $tablefix->query(sprintf(
-            'UPDATE %1$s SET urlhash = %2$s;',
+            'UPDATE %1$s SET urlhash = %2$s, modified = CURRENT_TIMESTAMP;',
             $tablefix->escapedTableName(),
             $url_sha256
         ));

@@ -131,9 +131,16 @@ function fixupUserBadNulls(): void
 
         if ($user->find()) {
             while ($user->fetch()) {
-                $sql = "UPDATE {$user->escapedTableName()} SET {$col} = NULL "
-                     . "WHERE id = {$user->id}";
-                $user->query($sql);
+                $user->query(sprintf(
+                    <<<'END'
+                    UPDATE %1$s
+                      SET %2$s = NULL, modified = CURRENT_TIMESTAMP
+                      WHERE id = %3$d
+                    END,
+                    $user->escapedTableName(),
+                    $col,
+                    $user->getID()
+                ));
             }
         }
     }
@@ -269,8 +276,12 @@ function fixupConversationURIs()
         while ($conv->fetch()) {
             $uri = common_local_url('conversation', ['id' => $conv->id]);
             $sql = sprintf(
-                'UPDATE conversation SET uri = \'%1$s\' WHERE id = %2$d;',
-                $conv->escape($uri),
+                <<<'END'
+                UPDATE conversation
+                  SET uri = %1$s, modified = CURRENT_TIMESTAMP
+                  WHERE id = %2$d;
+                END,
+                $conv->_quote($uri),
                 $conv->id
             );
             $conv->query($sql);
@@ -310,7 +321,15 @@ function initGroupProfileId()
                 $profile->query('ROLLBACK');
                 throw new Exception('Profile insertion failed, profileurl: '.$profile->profileurl);
             }
-            $group->query("UPDATE user_group SET profile_id={$id} WHERE id={$group->id}");
+            $group->query(sprintf(
+                <<<'END'
+                UPDATE user_group
+                  SET profile_id = %1$d, modified = CURRENT_TIMESTAMP
+                  WHERE id = %2$d
+                END,
+                $id,
+                $group->getID()
+            ));
             $profile->query('COMMIT');
 
             $profile->free();
@@ -400,18 +419,24 @@ function initSubscriptionURI()
     if ($sub->find()) {
         while ($sub->fetch()) {
             try {
+                $uri = Subscription::newUri(
+                    $sub->getSubscriber(),
+                    $sub->getSubscribed(),
+                    $sub->created
+                );
                 $sub->decache();
                 $sub->query(sprintf(
-                    'UPDATE subscription '.
-                    "SET uri = '%s' " .
-                    'WHERE subscriber = %d '.
-                      'AND subscribed = %d',
-                    $sub->escape(Subscription::newUri($sub->getSubscriber(), $sub->getSubscribed(), $sub->created)),
+                    <<<'END'
+                    UPDATE subscription
+                      SET uri = %1$s, modified = CURRENT_TIMESTAMP
+                      WHERE subscriber = %2$d AND subscribed = %3$d
+                    END,
+                    $sub->_quote($uri),
                     $sub->subscriber,
                     $sub->subscribed
                 ));
             } catch (Exception $e) {
-                common_log(LOG_ERR, "Error updated subscription URI: " . $e->getMessage());
+                common_log(LOG_ERR, 'Error updating subscription URI: ' . $e->getMessage());
             }
         }
     }
@@ -429,13 +454,19 @@ function initGroupMemberURI()
     if ($mem->find()) {
         while ($mem->fetch()) {
             try {
+                $uri = Group_member::newUri(
+                    Profile::getByID($mem->profile_id),
+                    User_group::getByID($mem->group_id),
+                    $mem->created
+                );
                 $mem->decache();
                 $mem->query(sprintf(
-                    'UPDATE group_member '.
-                    "SET uri = '%s' " .
-                    'WHERE profile_id = %d ' .
-                      'AND group_id = %d',
-                    Group_member::newUri(Profile::getByID($mem->profile_id), User_group::getByID($mem->group_id), $mem->created),
+                    <<<'END'
+                    UPDATE group_member
+                      SET uri = %s, modified = CURRENT_TIMESTAMP
+                      WHERE profile_id = %d AND group_id = %d
+                    END,
+                    $mem->_quote($uri),
                     $mem->profile_id,
                     $mem->group_id
                 ));
@@ -643,7 +674,7 @@ function fixupFileThumbnailUrlhash()
     $thumb = new File_thumbnail();
     $thumb->query(sprintf(
         'UPDATE %1$s ' .
-        'SET urlhash = %2$s ' .
+        'SET urlhash = %2$s, modified = CURRENT_TIMESTAMP ' .
         'WHERE url IS NOT NULL ' . // find all entries with a url value
         "AND url <> '' " .         // precaution against non-null empty strings
         'AND urlhash IS NULL',     // but don't touch those we've already calculated

@@ -74,15 +74,20 @@ class Local_group extends Managed_DataObject
     public function setNickname($nickname)
     {
         $this->decache();
+        $modified = common_sql_now();
         $result = $this->query(sprintf(
-            'UPDATE local_group SET nickname = %1$s WHERE group_id = %2$d;',
+            <<<'END'
+            UPDATE local_group SET nickname = %1$s, modified = %2$s
+              WHERE group_id = %3$d;
+            END,
             $this->_quote($nickname),
+            $this->_quote($modified),
             $this->group_id
         ));
 
         if ($result) {
             $this->nickname = $nickname;
-            $this->fixupTimestamps();
+            $this->modified = $modified;
             $this->encache();
         } else {
             common_log_db_error($local, 'UPDATE', __FILE__);

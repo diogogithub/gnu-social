@@ -3243,7 +3243,11 @@ class Notice extends Managed_DataObject
                         unset($notice);
                         $notice = new Notice();
                         $notice->query(sprintf(
-                            'UPDATE %1$s SET %2$s = NULL WHERE id IN (%3$s)',
+                            <<<'END'
+                            UPDATE %1$s
+                              SET %2$s = NULL, modified = CURRENT_TIMESTAMP
+                              WHERE id IN (%3$s)
+                            END,
                             $notice->escapedTableName(),
                             $field,
                             implode(',', $ids)

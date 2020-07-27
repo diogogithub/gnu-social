@@ -86,6 +86,7 @@ class Oauth_application_user extends Managed_DataObject
             return true;
         }
         $toupdate = implode(', ', $parts);
+        $toupdate .= ', modified = CURRENT_TIMESTAMP';
 
         $table = $this->tableName();
         $tableName = $this->escapedTableName();

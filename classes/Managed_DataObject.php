@@ -523,6 +523,25 @@ abstract class Managed_DataObject extends Memcached_DataObject
     }
 
     /**
+     * Set the attribute defined as "timestamp" to CURRENT_TIMESTAMP.
+     * This is hooked in update() and updateWithKeys() to update "modified".
+     *
+     * @access private
+     * @return void
+     */
+    private function updateAutoTimestamps(): void
+    {
+        $table = static::schemaDef();
+        foreach ($table['fields'] as $name => $col) {
+            if ($col['type'] === 'timestamp'
+                && !array_key_exists('default', $col)
+                && !isset($this->$name)) {
+                $this->$name = common_sql_now();
+            }
+        }
+    }
+
+    /**
      * update() won't write key columns, so we have to do it ourselves.
      * This also automatically calls "update" _before_ it sets the keys.
      * FIXME: This only works with single-column primary keys so far! Beware!
@@ -547,6 +566,10 @@ abstract class Managed_DataObject extends Memcached_DataObject
 
         // do it in a transaction
         $this->query('START TRANSACTION');
+
+        // ON UPDATE CURRENT_TIMESTAMP behaviour
+        // @fixme Should the value be reverted back if transaction failed?
+        $this->updateAutoTimestamps();
 
         $parts = [];
         foreach ($this->keys() as $k) {
@@ -664,12 +687,25 @@ abstract class Managed_DataObject extends Memcached_DataObject
     public function insert()
     {
         $this->onInsert();
-        return parent::insert();
+        $result = parent::insert();
+
+        // Make this object aware of the changed "modified" attribute.
+        // Sets it approximately to the same value as DEFAULT CURRENT_TIMESTAMP
+        // just did (@fixme).
+        if ($result) {
+            $this->updateAutoTimestamps();
+        }
+        return $result;
     }
 
-    public function update($dataObject=false)
+    public function update($dataObject = false)
     {
         $this->onUpdate($dataObject);
+
+        // ON UPDATE CURRENT_TIMESTAMP behaviour
+        // @fixme Should the value be reverted back if transaction failed?
+        $this->updateAutoTimestamps();
+
         return parent::update($dataObject);
     }
 }

@@ -104,10 +104,15 @@ if ($notice->N) {
             // but we're going to have to decache them individually anyway and
             // it doesn't hurt to make sure we don't hold up replication with
             // what might be a very slow single UPDATE.
-            $query = sprintf('UPDATE notice ' .
-                             'SET lat=NULL,lon=NULL,location_ns=NULL,location_id=NULL ' .
-                             'WHERE id=%d', $notice->id);
-            $ok = $update->query($query);
+            $ok = $update->query(sprintf(
+                <<<'END'
+                UPDATE notice
+                  SET lat = NULL, lon = NULL, location_ns = NULL, location_id = NULL
+                      modified = CURRENT_TIMESTAMP
+                  WHERE id = %d
+                END,
+                $notice->getID()
+            ));
             if ($ok) {
                 // And now we decache him manually, as query() doesn't know what we're doing...
                 $orig->decache();
