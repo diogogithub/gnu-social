@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 /**
@@ -31,11 +33,10 @@
 
 namespace App\Controller;
 
-use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Util\Common;
-use App\Util\Formatting;
+use App\Util\Form\ArrayTransformer;
 use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -52,62 +53,38 @@ class UserPanel extends AbstractController
     {
         $user            = Common::user();
         $profile         = $user->getProfile();
-        $profile_tags    = $profile->getSelfTags();
+        $extra           = ['self_tags' => $profile->getSelfTags()];
         $form_definition = [
-            ['nickname',  TextType::class,     ['label' => _m('Nickname'),  'required' => true,  'data' => $profile->getNickname(), 'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
-            ['full_name', TextType::class,     ['label' => _m('Full Name'), 'required' => false, 'data' => $profile->getFullname(), 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
-            ['homepage',  TextType::class,     ['label' => _m('Homepage'),  'required' => false, 'data' => $profile->getHomepage(), 'help' => _m('URL of your homepage, blog, or profile on another site.')]],
-            ['bio',       TextareaType::class, ['label' => _m('Bio'),       'required' => false, 'data' => $profile->getBio(),      'help' => _m('Describe yourself and your interests.')]],
-            ['location',  TextType::class,     ['label' => _m('Location'),  'required' => false, 'data' => $profile->getLocation(), 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
-            ['self_tags', TextType::class,     ['label' => _m('Self Tags'), 'required' => false, 'data' => Formatting::toString($profile_tags, Formatting::SPLIT_BY_SPACE), 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.')]],
+            ['nickname',  TextType::class,     ['label' => _m('Nickname'),  'required' => true,  'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
+            ['full_name', TextType::class,     ['label' => _m('Full Name'), 'required' => false, 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
+            ['homepage',  TextType::class,     ['label' => _m('Homepage'),  'required' => false, 'help' => _m('URL of your homepage, blog, or profile on another site.')]],
+            ['bio',       TextareaType::class, ['label' => _m('Bio'),       'required' => false, 'help' => _m('Describe yourself and your interests.')]],
+            ['location',  TextType::class,     ['label' => _m('Location'),  'required' => false, 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
+            ['self_tags', TextType::class,     ['label' => _m('Self Tags'), 'required' => false, 'transformer' => ArrayTransformer::class, 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.')]],
             ['save',      SubmitType::class,   ['label' => _m('Save')]],
         ];
-
-        $form = Form::create($form_definition);
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted()) {
-            $data = $form->getData();
-            if ($form->isValid()) {
-                $user->setNickname($data['nickname']);
-                foreach (['Nickname', 'FullName', 'Homepage', 'Bio', 'Location'] as $key) {
-                    $lkey = Formatting::camelCaseToSnakeCase($key);
-                    if (Form::isRequired($form_definition, $lkey) || isset($data[$lkey])) {
-                        $method = "set{$key}";
-                        $profile->{$method}($data[$lkey]);
-                    }
-                }
-                $tags = [];
-                if (isset($data['self_tags']) && Formatting::toArray($data['self_tags'], $tags)) {
-                    $profile->setSelfTags($tags, $profile_tags, false);
-                }
-                DB::flush();
-            } else {
-                // Display error
-            }
-        }
+        $extra_step = function ($data, $extra_args) use ($user) { $user->setNickname($data['nickname']); };
+        $form = Form::handle($form_definition, $request, $profile, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
 
         return ['_template' => 'settings/profile.html.twig', 'prof' => $form->createView()];
     }
 
     public function account(Request $request)
     {
-        $user    = Common::user();
-        $profile = $user->getProfile();
-
-        $acc = Form::create([
-            // ['email',           TextType::class,        ['label' => _m('Email'),           'help' => _m('Change your email')]],
-            // ['seperate_email',  CheckboxType::class,    ['label' => _m('Separate emails'), 'help' => _m('Use seperate incomming and outgoing emails')]],
-            ['outgoing_email',  TextType::class,        ['label' => _m('Outgoing email'), 'required' => true,  'data' => $user->getOutgoingEmail(), 'help' => _m('Change the email we use to contact you')]],
-            ['incomming_email', TextType::class,        ['label' => _m('Incoming email'), 'required' => true,  'data' => $user->getIncomingEmail(), 'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
-            ['password',        TextType::class,        ['label' => _m('Password'),       'required' => false, 'data' => null,                      'help' => _m('Change your password')]],
-            ['old_password',    TextType::class,        ['label' => _m('Old password'),   'required' => false, 'data' => null,                      'help' => _m('Enter your old password for verification')]],
-            ['language',        LanguageType::class,    ['label' => _m('Language'),       'required' => false, 'data' => $user->getLanguage(),      'help' => _m('Your preferred language')]],
-            ['phone_number',    PhoneNumberType::class, ['label' => _m('Phone number'),   'required' => false, 'data' => $user->getPhoneNumber(),   'help' => _m('Your phone number')]],
+        $user            = Common::user();
+        $form_definition = [
+            ['outgoing_email',  TextType::class,        ['label' => _m('Outgoing email'), 'required' => true,  'help' => _m('Change the email we use to contact you')]],
+            ['incoming_email',  TextType::class,        ['label' => _m('Incoming email'), 'required' => true,  'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
+            ['password',        TextType::class,        ['label' => _m('Password'),       'required' => false, 'help' => _m('Change your password'), 'attr' => ['placeholder' => '********']]],
+            ['old_password',    TextType::class,        ['label' => _m('Old password'),   'required' => false, 'help' => _m('Enter your old password for verification'), 'attr' => ['placeholder' => '********']]],
+            ['language',        LanguageType::class,    ['label' => _m('Language'),       'required' => false, 'help' => _m('Your preferred language')]],
+            ['phone_number',    PhoneNumberType::class, ['label' => _m('Phone number'),   'required' => false, 'help' => _m('Your phone number')]],
             ['save',            SubmitType::class,      ['label' => _m('Save')]],
-        ]);
+        ];
 
-        return ['_template' => 'settings/account.html.twig', 'acc' => $acc->createView()];
+        $form = Form::handle($form_definition, $request, $user);
+
+        return ['_template' => 'settings/account.html.twig', 'acc' => $form->createView()];
     }
 
     public function avatar(Request $request)
