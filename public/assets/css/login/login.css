@@ -3,7 +3,8 @@
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
-    margin-right: 0;
+    margin-right: var(--small-size);
+    margin-left: var(--small-size);
     margin-bottom: var(--unit-size);
 }
 form {
@@ -11,8 +12,6 @@ form {
     background-color: #61778C30;
     padding: calc(2 * var(--unit-size));
     border-radius: var(--unit-size);
-    margin-right: var(--small-size);
-    margin-left: var(--small-size);
     box-shadow: 0 0 60px -20px rgba(0, 0, 0, 0.75);
 }
 label {
@@ -50,19 +49,9 @@ input {
     filter: none;
 }
 
-@media only screen and (max-width: 1300px) {
-    .navbar:not(:checked)+.navbar {
-        left: -100%;
-        top: 0;
-        transition: 0.3s ease;
-        left: 0;
-        top: 0;
-        transition: 0.3s ease;
-    }
-    #toggle:checked+.navbar {
-        display: block;
-        left: 0;
-        top: 0;
-        transition: 0.3s ease;
-    }
+button {
+    background-color: #f6f6f6;
+    padding: var(--small-size);
+    border: none;
+    border-radius: var(--small-size);
 }
