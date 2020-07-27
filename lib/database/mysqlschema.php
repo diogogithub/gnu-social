@@ -145,12 +145,6 @@ class MysqlSchema extends Schema
                 if (preg_match('/(^|\s)auto_increment(\s|$)/i', $extra)) {
                     $field['auto_increment'] = true;
                 }
-                if (preg_match(
-                    '/(^|\s)on update CURRENT_TIMESTAMP(\(\))?(\s|$)/i',
-                    $extra
-                )) {
-                    $field['auto_update_timestamp'] = true;
-                }
             }
 
             $table_props = $this->getTableProperties($table, ['TABLE_COLLATION']);
@@ -518,10 +512,6 @@ class MysqlSchema extends Schema
         // This'll have been added from our transform of "serial" type
         if (!empty($cd['auto_increment'])) {
             $line[] = 'AUTO_INCREMENT';
-        }
-        // This'll have been added from our transform of "timestamp" type
-        if (!empty($cd['auto_update_timestamp'])) {
-            $line[] = 'ON UPDATE CURRENT_TIMESTAMP';
         }
 
         if (!empty($cd['description'])) {

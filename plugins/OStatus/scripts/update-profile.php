@@ -109,9 +109,10 @@ if ($feedurl != $oprofile->feeduri || $salmonuri != $oprofile->salmonuri) {
     $ok = $oprofile->query(
         <<<END
         UPDATE ostatus_profile
-        SET feeduri   = '{$oprofile->escape($feedurl)}',
-            salmonuri = '{$oprofile->escape($salmonuri)}'
-        WHERE uri = '{$oprofile->escape($uri)}'
+          SET feeduri   = {$oprofile->_quote($feedurl)},
+              salmonuri = {$oprofile->_quote($salmonuri)},
+              modified  = CURRENT_TIMESTAMP
+          WHERE uri = {$oprofile->_quote($uri)}
         END
     );
 

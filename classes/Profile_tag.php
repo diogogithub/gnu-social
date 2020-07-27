@@ -292,14 +292,16 @@ class Profile_tag extends Managed_DataObject
     public static function moveTag($orig, $new)
     {
         $tags = new Profile_tag();
-        $qry = "UPDATE profile_tag SET tag = '%s', tagger = '%s' " .
-               "WHERE tag = '%s' AND tagger = '%s'";
         $result = $tags->query(sprintf(
-            $qry,
-            $tags->escape($new->tag),
-            $tags->escape($new->tagger),
-            $tags->escape($orig->tag),
-            $tags->escape($orig->tagger)
+            <<<'END'
+            UPDATE profile_tag
+              SET tag = %1$s, tagger = %2$s, modified = CURRENT_TIMESTAMP
+              WHERE tag = %3$s AND tagger = %4$s
+            END,
+            $tags->_quote($new->tag),
+            $tags->_quote($new->tagger),
+            $tags->_quote($orig->tag),
+            $tags->_quote($orig->tagger)
         ));
 
         if ($result === false) {

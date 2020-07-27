@@ -443,7 +443,6 @@ class Memcached_DataObject extends Safe_DataObject
     {
         $result = parent::insert();
         if ($result) {
-            $this->fixupTimestamps();
             $this->encache(); // in case of cached negative lookups
         }
         return $result;
@@ -456,7 +455,6 @@ class Memcached_DataObject extends Safe_DataObject
         }
         $result = parent::update($dataObject);
         if ($result !== false) {
-            $this->fixupTimestamps();
             $this->encache();
         }
         return $result;
@@ -929,22 +927,6 @@ class Memcached_DataObject extends Safe_DataObject
         $cacheKey = Cache::key($keyPart);
 
         return $c->delete($cacheKey);
-    }
-
-    public function fixupTimestamps()
-    {
-        // Fake up timestamp columns
-        $columns = $this->table();
-        foreach ($columns as $name => $type) {
-            if ($type & DB_DATAOBJECT_MYSQLTIMESTAMP) {
-                $this->$name = common_sql_now();
-            }
-        }
-    }
-
-    public function debugDump()
-    {
-        common_debug("debugDump: " . common_log_objstring($this));
     }
 
     public function raiseError($message, $type = null, $behavior = null)

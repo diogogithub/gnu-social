@@ -116,10 +116,15 @@ while ($fn->fetch()) {
                 echo " (unchanged, but embedding lookup failed)\n";
             }
         } elseif (!$dry) {
-            $sql = "UPDATE file " .
-                 "SET mimetype=null, title=null,size=null,protected=null " .
-                 "WHERE id={$f->id}";
-            $f->query($sql);
+            $f->query(sprintf(
+                <<<'END'
+                UPDATE file
+                  SET mimetype = NULL, title = NULL, size = NULL,
+                      protected = NULL, modified = CURRENT_TIMESTAMP
+                  WHERE id = %d
+                END,
+                $f->getID()
+            ));
             $f->decache();
             if ($data instanceof File_embed) {
                 $fetch = true;
@@ -144,12 +149,18 @@ while ($fn->fetch()) {
             echo "Found broken file with ";
         }
 
-        echo "ID: {$f->id}, URL {$f->url}\n";
+        echo "ID: {$f->getID()}, URL {$f->url}\n";
         if (!$dry) {
             $fetch = true;
-            $sql = "UPDATE file SET title=null, size=null, protected=null " .
-                 "WHERE id={$f->id}";
-            $f->query($sql);
+            $f->query(sprintf(
+                <<<'END'
+                UPDATE file
+                  SET title = NULL, size = NULL,
+                      protected = NULL, modified = CURRENT_TIMESTAMP
+                  WHERE id = %d,
+                END,
+                $f->getID()
+            ));
             $f->decache();
 
             if ($data instanceof File_embed) {
@@ -159,7 +170,7 @@ while ($fn->fetch()) {
 
             if ($thumb instanceof File_thumbnail) {
                 // Delete all thumbnails, not just this one
-                $f->query("DELETE from file_thumbnail WHERE file_id = {$f->id}");
+                $f->query("DELETE FROM file_thumbnail WHERE file_id = {$f->getID()}");
                 $thumb->decache();
             }
         }

@@ -1043,7 +1043,6 @@ class Schema
                     $col['type'] = 'datetime';
                     if (!array_key_exists('default', $col)) {
                         $col['default'] = 'CURRENT_TIMESTAMP';
-                        // FIXME: PostgreSQL support.
                         $col['auto_update_timestamp'] = true;
                     }
                     // no break
