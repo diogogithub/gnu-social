@@ -139,19 +139,71 @@ class ApiDirectMessageAction extends ApiAuthAction
     }
 
     /**
-     * Get notices
+     * Get messages
      *
-     * @return array notices
+     * @return array
      */
-    public function getMessages()
+    public function getMessages(): array
     {
-        $message = new Message();
+        $message = $this->arg('sent')
+            ? $this->getOutboxMessages()
+            : $this->getInboxMessages();
 
-        if ($this->arg('sent')) {
-            $message->from_profile = $this->scoped->getID();
-        } else {
-            $message->to_profile = $this->scoped->getID();
+        $ret = [];
+
+        if (!is_null($message)) {
+            while ($message->fetch()) {
+                $ret[] = clone $message;
+            }
         }
+
+        return $ret;
+    }
+
+    /**
+     * Return data object of the messages received by some user.
+     *
+     * @return Notice data object
+     */
+    private function getInboxMessages()
+    {
+        // fetch all notice IDs related to the user
+        $attention = new Attention();
+        $attention->selectAdd('notice_id');
+        $attention->whereAdd('profile_id = ' . $this->scoped->getID());
+
+        $ids = $attention->find() ? $attention->fetchAll('notice_id') : [];
+
+        // get the messages
+        $message = new Notice();
+        $message->whereAdd('scope = ' . NOTICE::MESSAGE_SCOPE);
+
+        if (!empty($this->max_id)) {
+            $message->whereAdd('id <= ' . $this->max_id);
+        }
+
+        if (!empty($this->since_id)) {
+            $message->whereAdd('id > ' . $this->since_id);
+        }
+
+        $message->whereAddIn('id', $ids, 'int');
+        $message->orderBy('created DESC, id DESC');
+        $message->limit((($this->page - 1) * $this->count), $this->count);
+
+        return $message->find() ? $message : null;
+    }
+
+    /**
+     * Return data object of the messages sent by some user.
+     *
+     * @return Notice data object
+     */
+    private function getOutboxMessages()
+    {
+        $message = new Notice();
+
+        $message->profile_id = $this->scoped->getID();
+        $message->whereAdd('scope = ' . NOTICE::MESSAGE_SCOPE);
 
         if (!empty($this->max_id)) {
             $message->whereAdd('id <= ' . $this->max_id);
@@ -163,15 +215,8 @@ class ApiDirectMessageAction extends ApiAuthAction
 
         $message->orderBy('created DESC, id DESC');
         $message->limit((($this->page - 1) * $this->count), $this->count);
-        $message->find();
 
-        $messages = [];
-
-        while ($message->fetch()) {
-            $messages[] = clone($message);
-        }
-
-        return $messages;
+        return $message->find() ? $message : null;
     }
 
     /**
@@ -226,17 +271,15 @@ class ApiDirectMessageAction extends ApiAuthAction
         }
         $this->elementStart('direct_message', $attrs);
         foreach ($dm as $element => $value) {
-            switch ($element) {
-            case 'sender':
-            case 'recipient':
-                $this->showTwitterXmlUser($value, $element);
-                break;
-            case 'text':
+            if ($element === 'text') {
                 $this->element($element, null, common_xml_safe_str($value));
-                break;
-            default:
+            } elseif (
+                $element === 'sender'
+                || preg_match('/recipient$|recipient_[0-9]+/', $element) == 1
+            ) {
+                $this->showTwitterXmlUser($value, $element);
+            } else {
                 $this->element($element, null, $value);
-                break;
             }
         }
         $this->elementEnd('direct_message');
@@ -246,18 +289,34 @@ class ApiDirectMessageAction extends ApiAuthAction
     {
         $dmsg = [];
 
-        $from_profile = $message->getFrom();
-        $to_profile = $message->getTo();
+        $from = $message->getProfile();
+        $to   = $message->getAttentionProfiles();
 
         $dmsg['id'] = intval($message->id);
-        $dmsg['sender_id'] = intval($from_profile->id);
+        $dmsg['sender_id'] = (int) $from->id;
         $dmsg['text'] = trim($message->content);
-        $dmsg['recipient_id'] = intval($to_profile->id);
+
+        $dmsg['total_recipients'] = (int) count($to);
+        $dmsg['recipient_id'] = (int) $to[0]->id;
+
+        for ($i = 1; $i < count($to); ++$i) {
+            $dmsg['recipient_id_' . $i] = (int) $to[$i]->id;
+        }
+
         $dmsg['created_at'] = $this->dateTwitter($message->created);
-        $dmsg['sender_screen_name'] = $from_profile->nickname;
-        $dmsg['recipient_screen_name'] = $to_profile->nickname;
-        $dmsg['sender'] = $this->twitterUserArray($from_profile, false);
-        $dmsg['recipient'] = $this->twitterUserArray($to_profile, false);
+        $dmsg['sender_screen_name'] = $from->nickname;
+        $dmsg['recipient_screen_name'] = $to[0]->nickname;
+
+        for ($i = 1; $i < count($to); ++$i) {
+            $dmsg['recipient_screen_name_' . $i] = $to[$i]->nickname;
+        }
+
+        $dmsg['sender'] = $this->twitterUserArray($from);
+        $dmsg['recipient'] = $this->twitterUserArray($to[0]);
+
+        for ($i = 1; $i < count($to); ++$i) {
+            $dmsg['recipient_' . $i] = $this->twitterUserArray($to[$i]);
+        }
 
         return $dmsg;
     }
@@ -266,13 +325,11 @@ class ApiDirectMessageAction extends ApiAuthAction
     {
         $entry = [];
 
-        $from = $message->getFrom();
+        $from = $message->getProfile();
+        $to   = $message->getAttentionProfiles();
 
-        $entry['title'] = sprintf(
-            'Message from %1$s to %2$s',
-            $from->nickname,
-            $message->getTo()->nickname
-        );
+        $entry['title'] = 'Message from ' . $from->nickname . ' to ';
+        $entry['title'] .= (count($to) == 1) ? $to[0]->nickname : 'many';
 
         $entry['content'] = common_xml_safe_str($message->rendered);
         $entry['link'] = common_local_url(
