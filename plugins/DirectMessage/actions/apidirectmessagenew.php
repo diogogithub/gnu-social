@@ -1,56 +1,51 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * Direct messaging implementation for GNU social
  *
- * Send a direct message via the API
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  API
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Adrian Lang <mail@adrianlang.de>
  * @author    Evan Prodromou <evan@status.net>
  * @author    Robin Millette <robin@millette.info>
  * @author    Zach Copley <zach@status.net>
- * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2009, 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Creates a new direct message from the authenticating user to
- * the user specified by id.
+ * the user specified by id
  *
- * @category API
- * @package  StatusNet
+ * @category Plugin
+ * @package  GNUsocial
  * @author   Adrian Lang <mail@adrianlang.de>
  * @author   Evan Prodromou <evan@status.net>
  * @author   Robin Millette <robin@millette.info>
  * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @license  https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ApiDirectMessageNewAction extends ApiAuthAction
 {
     protected $needPost = true;
 
-    var $other   = null;    // Profile we're sending to
-    var $content = null;
+    public $other   = null; // Profile we're sending to
+    public $content = null;
 
     /**
      * Take arguments for running
@@ -59,7 +54,7 @@ class ApiDirectMessageNewAction extends ApiAuthAction
      *
      * @return boolean success flag
      */
-    protected function prepare(array $args=array())
+    protected function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -102,17 +97,18 @@ class ApiDirectMessageNewAction extends ApiAuthAction
                 // TRANS: %d is the maximum number of characters for a message.
                 $this->clientError(
                     sprintf(_m('That\'s too long. Maximum message size is %d character.', 'That\'s too long. Maximum message size is %d characters.', Message::maxContent()), Message::maxContent()),
-                    406);
+                    406
+                );
             }
         }
 
         if (!$this->other instanceof Profile) {
             // TRANS: Client error displayed if a recipient user could not be found (403).
             $this->clientError(_('Recipient user not found.'), 403);
-        } else if (!$this->scoped->mutuallySubscribed($this->other)) {
+        } elseif (!$this->scoped->mutuallySubscribed($this->other)) {
             // TRANS: Client error displayed trying to direct message another user who's not a friend (403).
             $this->clientError(_('Cannot send direct messages to users who aren\'t your friend.'), 403);
-        } else if ($this->scoped->getID() === $this->other->getID()) {
+        } elseif ($this->scoped->getID() === $this->other->getID()) {
 
             // Note: sending msgs to yourself is allowed by Twitter
 
