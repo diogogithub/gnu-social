@@ -72,24 +72,14 @@ class MessageModel
      */
     public static function inboxMessages(User $to, ?int $page = null)
     {
+        // fetch all notice IDs related to the user $to
         $attention = new Attention();
         $attention->selectAdd('notice_id');
         $attention->whereAdd('profile_id = ' . $to->getID());
 
         $ids = $attention->find() ? $attention->fetchAll('notice_id') : [];
 
-        $reply = new Reply();
-        $reply->selectAdd('notice_id');
-        $reply->whereAdd('profile_id = ' . $to->getID());
-
-        if ($reply->find()) {
-            $ids = array_unique(
-                array_merge($ids, $reply->fetchAll('notice_id'))
-            );
-        } else if (empty($ids)) {
-            return null;
-        }
-
+        // get the messages
         $message = new Notice();
 
         $message->whereAdd('scope = ' . NOTICE::MESSAGE_SCOPE);
