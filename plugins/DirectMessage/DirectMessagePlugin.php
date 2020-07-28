@@ -77,8 +77,10 @@ class DirectMessagePlugin extends Plugin
         );
         $m->connect(
             'api/direct_messages/sent.:format',
-            ['action' => 'ApiDirectMessage',
-                     'sent'   => true],
+            [
+                'action' => 'ApiDirectMessage',
+                'sent'   => true,
+            ],
             ['format' => '(xml|json|rss|atom)']
         );
         $m->connect(
@@ -183,7 +185,7 @@ class DirectMessagePlugin extends Plugin
             );
             $out->elementEnd('li');
         }
-        
+
         return true;
     }
 
@@ -216,8 +218,10 @@ class DirectMessagePlugin extends Plugin
                 Notice::saveActivity(
                     $act,
                     $msg->getFrom(),
-                    ['source' => 'web',
-                                      'scope'  => NOTICE::MESSAGE_SCOPE]
+                    [
+                        'source' => 'web',
+                        'scope'  => NOTICE::MESSAGE_SCOPE,
+                    ]
                 );
             }
         }

@@ -1,57 +1,52 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
+ * Direct messaging implementation for GNU social
  *
- * Show a the direct messages from or to a user
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * @category  API
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Adrian Lang <mail@adrianlang.de>
  * @author    Evan Prodromou <evan@status.net>
  * @author    Robin Millette <robin@millette.info>
  * @author    Zach Copley <zach@status.net>
- * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2009, 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Show a list of direct messages from or to the authenticating user
  *
- * @category API
- * @package  StatusNet
+ * @category Plugin
+ * @package  GNUsocial
  * @author   Adrian Lang <mail@adrianlang.de>
  * @author   Evan Prodromou <evan@status.net>
  * @author   Robin Millette <robin@millette.info>
  * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @license  https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ApiDirectMessageAction extends ApiAuthAction
 {
-    var $messages     = null;
-    var $title        = null;
-    var $subtitle     = null;
-    var $link         = null;
-    var $selfuri_base = null;
-    var $id           = null;
+    public $messages     = null;
+    public $title        = null;
+    public $subtitle     = null;
+    public $link         = null;
+    public $selfuri_base = null;
+    public $id           = null;
 
     /**
      * Take arguments for running
@@ -60,7 +55,7 @@ class ApiDirectMessageAction extends ApiAuthAction
      *
      * @return boolean success flag
      */
-    protected function prepare(array $args=array())
+    protected function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -69,7 +64,7 @@ class ApiDirectMessageAction extends ApiAuthAction
             $this->clientError(_('No such user.'), 404);
         }
 
-        $server   = common_root_url();
+        $server = common_root_url();
         $taguribase = TagURI::base();
 
         if ($this->arg('sent')) {
@@ -121,25 +116,25 @@ class ApiDirectMessageAction extends ApiAuthAction
      *
      * @return void
      */
-    function showMessages()
+    public function showMessages()
     {
-        switch($this->format) {
-        case 'xml':
-            $this->showXmlDirectMessages();
-            break;
-        case 'rss':
-            $this->showRssDirectMessages();
-            break;
-        case 'atom':
-            $this->showAtomDirectMessages();
-            break;
-        case 'json':
-            $this->showJsonDirectMessages();
-            break;
-        default:
-            // TRANS: Client error displayed when coming across a non-supported API method.
-            $this->clientError(_('API method not found.'), $code = 404);
-            break;
+        switch ($this->format) {
+            case 'xml':
+                $this->showXmlDirectMessages();
+                break;
+            case 'rss':
+                $this->showRssDirectMessages();
+                break;
+            case 'atom':
+                $this->showAtomDirectMessages();
+                break;
+            case 'json':
+                $this->showJsonDirectMessages();
+                break;
+            default:
+                // TRANS: Client error displayed when coming across a non-supported API method.
+                $this->clientError(_('API method not found.'), $code = 404);
+                break;
         }
     }
 
@@ -148,9 +143,9 @@ class ApiDirectMessageAction extends ApiAuthAction
      *
      * @return array notices
      */
-    function getMessages()
+    public function getMessages()
     {
-        $message  = new Message();
+        $message = new Message();
 
         if ($this->arg('sent')) {
             $message->from_profile = $this->scoped->getID();
@@ -170,7 +165,7 @@ class ApiDirectMessageAction extends ApiAuthAction
         $message->limit((($this->page - 1) * $this->count), $this->count);
         $message->find();
 
-        $messages = array();
+        $messages = [];
 
         while ($message->fetch()) {
             $messages[] = clone($message);
@@ -186,7 +181,7 @@ class ApiDirectMessageAction extends ApiAuthAction
      *
      * @return boolean true
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }
@@ -196,7 +191,7 @@ class ApiDirectMessageAction extends ApiAuthAction
      *
      * @return string datestamp of the latest notice in the stream
      */
-    function lastModified()
+    public function lastModified()
     {
         if (!empty($this->messages)) {
             return strtotime($this->messages[0]->created);
@@ -207,7 +202,7 @@ class ApiDirectMessageAction extends ApiAuthAction
 
     // BEGIN import from lib/apiaction.php
 
-    function showSingleXmlDirectMessage($message)
+    public function showSingleXmlDirectMessage($message)
     {
         $this->initDocument('xml');
         $dmsg = $this->directMessageArray($message);
@@ -215,7 +210,7 @@ class ApiDirectMessageAction extends ApiAuthAction
         $this->endDocument('xml');
     }
 
-    function showSingleJsonDirectMessage($message)
+    public function showSingleJsonDirectMessage($message)
     {
         $this->initDocument('json');
         $dmsg = $this->directMessageArray($message);
@@ -223,14 +218,14 @@ class ApiDirectMessageAction extends ApiAuthAction
         $this->endDocument('json');
     }
 
-    function showXmlDirectMessage($dm, $namespaces=false)
+    public function showXmlDirectMessage($dm, $namespaces = false)
     {
-        $attrs = array();
+        $attrs = [];
         if ($namespaces) {
             $attrs['xmlns:statusnet'] = 'http://status.net/schema/api/1/';
         }
         $this->elementStart('direct_message', $attrs);
-        foreach($dm as $element => $value) {
+        foreach ($dm as $element => $value) {
             switch ($element) {
             case 'sender':
             case 'recipient':
@@ -247,9 +242,9 @@ class ApiDirectMessageAction extends ApiAuthAction
         $this->elementEnd('direct_message');
     }
 
-    function directMessageArray($message)
+    public function directMessageArray($message)
     {
-        $dmsg = array();
+        $dmsg = [];
 
         $from_profile = $message->getFrom();
         $to_profile = $message->getTo();
@@ -267,17 +262,23 @@ class ApiDirectMessageAction extends ApiAuthAction
         return $dmsg;
     }
 
-    function rssDirectMessageArray($message)
+    public function rssDirectMessageArray($message)
     {
-        $entry = array();
+        $entry = [];
 
         $from = $message->getFrom();
 
-        $entry['title'] = sprintf('Message from %1$s to %2$s',
-            $from->nickname, $message->getTo()->nickname);
+        $entry['title'] = sprintf(
+            'Message from %1$s to %2$s',
+            $from->nickname,
+            $message->getTo()->nickname
+        );
 
         $entry['content'] = common_xml_safe_str($message->rendered);
-        $entry['link'] = common_local_url('showmessage', array('message' => $message->id));
+        $entry['link'] = common_local_url(
+            'showmessage',
+            ['message' => $message->id]
+        );
         $entry['published'] = common_date_iso8601($message->created);
 
         $taguribase = TagURI::base();
@@ -312,11 +313,13 @@ class ApiDirectMessageAction extends ApiAuthAction
      *
      * @return void
      */
-    function showXmlDirectMessages()
+    public function showXmlDirectMessages()
     {
         $this->initDocument('xml');
-        $this->elementStart('direct-messages', array('type' => 'array',
-                                                     'xmlns:statusnet' => 'http://status.net/schema/api/1/'));
+        $this->elementStart('direct-messages', [
+            'type'            => 'array',
+            'xmlns:statusnet' => 'http://status.net/schema/api/1/',
+        ]);
 
         foreach ($this->messages as $m) {
             $dm_array = $this->directMessageArray($m);
@@ -332,11 +335,11 @@ class ApiDirectMessageAction extends ApiAuthAction
      *
      * @return void
      */
-    function showJsonDirectMessages()
+    public function showJsonDirectMessages()
     {
         $this->initDocument('json');
 
-        $dmsgs = array();
+        $dmsgs = [];
 
         foreach ($this->messages as $m) {
             $dm_array = $this->directMessageArray($m);
@@ -352,7 +355,7 @@ class ApiDirectMessageAction extends ApiAuthAction
      *
      * @return void
      */
-    function showRssDirectMessages()
+    public function showRssDirectMessages()
     {
         $this->initDocument('rss');
 
@@ -364,11 +367,11 @@ class ApiDirectMessageAction extends ApiAuthAction
 
         $this->element(
             'atom:link',
-            array(
+            [
                 'type' => 'application/rss+xml',
                 'href' => $this->selfuri_base . '.rss',
-                'rel' => self
-                ),
+                'rel'  => self,
+            ],
             null
         );
         $this->element('ttl', null, '40');
@@ -386,7 +389,7 @@ class ApiDirectMessageAction extends ApiAuthAction
      *
      * @return void
      */
-    function showAtomDirectMessages()
+    public function showAtomDirectMessages()
     {
         $this->initDocument('atom');
 
@@ -396,16 +399,21 @@ class ApiDirectMessageAction extends ApiAuthAction
         $selfuri = common_root_url() . 'api/direct_messages.atom';
 
         $this->element(
-            'link', array(
-            'href' => $this->link,
-            'rel' => 'alternate',
-            'type' => 'text/html'),
+            'link',
+            [
+                'href' => $this->link,
+                'rel'  => 'alternate',
+                'type' => 'text/html',
+            ],
             null
         );
         $this->element(
-            'link', array(
-            'href' => $this->selfuri_base . '.atom', 'rel' => 'self',
-            'type' => 'application/atom+xml'),
+            'link',
+            [
+                'href' => $this->selfuri_base . '.atom',
+                'rel'  => 'self',
+                'type' => 'application/atom+xml',
+            ],
             null
         );
         $this->element('updated', null, common_date_iso8601('now'));
@@ -427,20 +435,20 @@ class ApiDirectMessageAction extends ApiAuthAction
      *
      * @return string etag
      */
-    function etag()
+    public function etag()
     {
         if (!empty($this->messages)) {
-
             $last = count($this->messages) - 1;
 
             return '"' . implode(
                 ':',
-                array($this->arg('action'),
-                      common_user_cache_hash($this->auth_user),
-                      common_language(),
-                      strtotime($this->messages[0]->created),
-                      strtotime($this->messages[$last]->created)
-                )
+                [
+                    $this->arg('action'),
+                    common_user_cache_hash($this->auth_user),
+                    common_language(),
+                    strtotime($this->messages[0]->created),
+                    strtotime($this->messages[$last]->created),
+                ]
             )
             . '"';
         }
