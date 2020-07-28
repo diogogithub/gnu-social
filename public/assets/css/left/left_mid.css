@@ -90,9 +90,8 @@
 .icon-avatar {
       order: 1;
       height: calc(5 * var(--unit-size));
-      width: 25%;
+      width: calc(5 * var(--unit-size));
       margin-right: var(--small-size);
-      clip-path: circle(2.5em at center);
 }
 
 .info {

@@ -1,9 +1,14 @@
 .content {
     display: flex;
     flex-wrap: wrap;
-    margin-top: calc(3 * var(--main-size));
+    margin-top: calc(5 * var(--main-size));
     justify-content: center;
     align-items: center;
     margin-left: var(--nav-size);
     margin-right: 0;
+}
+
+.content div {
+    width: 100%;
+    text-align: center;
 }
