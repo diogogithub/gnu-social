@@ -92,11 +92,11 @@ class ApiDirectMessageNewAction extends ApiAuthAction
             $this->clientError(_('No message text!'), 406);
         } else {
             $content_shortened = $this->auth_user->shortenLinks($this->content);
-            if (Message::contentTooLong($content_shortened)) {
+            if (MessageModel::contentTooLong($content_shortened)) {
                 // TRANS: Client error displayed when message content is too long.
                 // TRANS: %d is the maximum number of characters for a message.
                 $this->clientError(
-                    sprintf(_m('That\'s too long. Maximum message size is %d character.', 'That\'s too long. Maximum message size is %d characters.', Message::maxContent()), Message::maxContent()),
+                    sprintf(_m('That\'s too long. Maximum message size is %d character.', 'That\'s too long. Maximum message size is %d characters.', MessageModel::maxContent()), MessageModel::maxContent()),
                     406
                 );
             }
@@ -105,7 +105,10 @@ class ApiDirectMessageNewAction extends ApiAuthAction
         if (!$this->other instanceof Profile) {
             // TRANS: Client error displayed if a recipient user could not be found (403).
             $this->clientError(_('Recipient user not found.'), 403);
-        } elseif (!$this->scoped->mutuallySubscribed($this->other)) {
+        } elseif (
+            $this->other->isLocal()
+            && !$this->scoped->mutuallySubscribed($this->other)
+        ) {
             // TRANS: Client error displayed trying to direct message another user who's not a friend (403).
             $this->clientError(_('Cannot send direct messages to users who aren\'t your friend.'), 403);
         } elseif ($this->scoped->getID() === $this->other->getID()) {
@@ -116,14 +119,21 @@ class ApiDirectMessageNewAction extends ApiAuthAction
             $this->clientError(_('Do not send a message to yourself; just say it to yourself quietly instead.'), 403);
         }
 
-        $message = Message::saveNew(
+        // push other profile to the content, it will be
+        // detected during Notice save
+        if ($this->other->isLocal()) {
+            $this->content = "@{$this->other->getNickname()} {$this->content}";
+        } else {
+            $this->content = '@' . substr($this->other->getAcctUri(), 5) . $this->content;
+        }
+
+        $message = MessageModel::saveNew(
             $this->scoped->getID(),
-            $this->other->getID(),
-            html_entity_decode($this->content, ENT_NOQUOTES, 'UTF-8'),
+            $this->content,
             $this->source
         );
-
-        $message->notify();
+        Event::handle('SendDirectMessage', [$message]);
+        mail_notify_message($message);
 
         if ($this->format == 'xml') {
             $this->showSingleXmlDirectMessage($message);
