@@ -33,6 +33,7 @@ namespace App\Util;
 use App\Core\DB\DB;
 use App\Core\Router;
 use App\Core\Security;
+use Functional as F;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 abstract class Common
@@ -104,6 +105,14 @@ abstract class Common
         // }
 
         // return in_array($str, array_keys($paths));
+    }
+
+    /**
+     * Remove keys from the _values_ of $keys from the array $from
+     */
+    public static function array_remove_keys(array $from, array $keys, bool $strict = false)
+    {
+        return F\filter($from, function ($e) use ($keys, $strict) { return in_array($e, $keys, $strict); });
     }
 
     /**
