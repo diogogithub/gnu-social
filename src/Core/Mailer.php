@@ -32,21 +32,18 @@
 
 namespace App\Core;
 
-use App\Util\Common;
 use Symfony\Component\Mailer\MailerInterface;
 
 abstract class Mailer
 {
-    private MailerInterface $mailer;
+    private static MailerInterface $mailer;
     public static function setMailer($m)
     {
-        $this->mailer = $m;
+        self::$mailer = $m;
     }
 
     public static function __callStatic(string $method, array $args)
     {
-        if (Common::config('site', 'use_email')) {
-            return $this->{$method}(...$args);
-        }
+        return self::{$method}(...$args);
     }
 }
