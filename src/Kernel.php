@@ -30,6 +30,7 @@
 
 namespace App;
 
+use App\DependencyInjection\Compiler\ModuleManagerPass;
 use App\DependencyInjection\Compiler\SchemaDefPass;
 use const PHP_VERSION_ID;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
@@ -121,5 +122,6 @@ class Kernel extends BaseKernel
         parent::build($container);
 
         $container->addCompilerPass(new SchemaDefPass());
+        $container->addCompilerPass(new ModuleManagerPass());
     }
 }

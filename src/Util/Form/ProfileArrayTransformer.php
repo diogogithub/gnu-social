@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,36 +16,43 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 /**
- * Compiler pass which triggers Symfony to tell Doctrine to
- * use out `SchemaDef` metadata driver
+ * Transform between string and list of typed profiles
  *
  * @package  GNUsocial
- * @category DB
+ * @category Form
  *
  * @author    Hugo Sales <hugo@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\DependencyInjection\Compiler;
+namespace App\Util\Form;
 
-use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference;
-
-/**
- * Register a new ORM driver to allow use to use the old (and better) schemaDef format
- */
-class SchemaDefPass implements CompilerPassInterface
+class ProfileArrayTransformer extends ArrayTransformer
 {
-    public function process(ContainerBuilder $container)
+    /**
+     * @param array $a
+     *
+     * @return string
+     */
+    public function transform($a)
     {
-        $container->findDefinition('doctrine.orm.default_metadata_driver')
-                  ->addMethodCall('addDriver',
-                                  [new Reference('app.core.schemadef_driver'), 'App\\Entity']
-                  );
+        // TODO convert each to string
+        $s = parent::transform($a);
+    }
+
+    /**
+     * @param string $s
+     *
+     * @return array
+     */
+    public function reverseTransform($s)
+    {
+        $a = parent::reverseTransform($s);
+        // TODO convert each to profile
     }
 }

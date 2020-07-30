@@ -18,11 +18,13 @@
 // }}}
 
 /**
- * Compiler pass which triggers Symfony to tell Doctrine to
- * use out `SchemaDef` metadata driver
+ * Module and plugin loader code, one of the main features of GNU social
  *
- * @package  GNUsocial
- * @category DB
+ * Loads plugins from `plugins/enabled`, instances them
+ * and hooks its events
+ *
+ * @package   GNUsocial
+ * @category  Modules
  *
  * @author    Hugo Sales <hugo@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
@@ -31,20 +33,24 @@
 
 namespace App\DependencyInjection\Compiler;
 
+use App\Util\Formatting;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * Register a new ORM driver to allow use to use the old (and better) schemaDef format
- */
-class SchemaDefPass implements CompilerPassInterface
+class ModuleManagerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
-        $container->findDefinition('doctrine.orm.default_metadata_driver')
-                  ->addMethodCall('addDriver',
-                                  [new Reference('app.core.schemadef_driver'), 'App\\Entity']
-                  );
+        $extension_paths = array_merge(glob(INSTALLDIR . '/modules/*/*.php'), glob(INSTALLDIR . '/plugins/*/*.php'));
+
+        foreach ($extension_paths as $ext_path) {
+            // 'modules' and 'plugins' have the same length
+            $type   = ucfirst(substr($ext_path, strlen(INSTALLDIR) + 1, strlen('module')));
+            $module = basename(dirname($ext_path));
+            $fqcn   = "\\{$type}\\{$module}\\{$module}";
+            $def    = $container->register(Formatting::camelCaseToSnakeCase($module), $fqcn);
+            $def->addTag('app.module');
+            $def->setFile($ext_path);
+        }
     }
 }

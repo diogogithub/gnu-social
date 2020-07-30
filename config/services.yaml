@@ -45,3 +45,8 @@ services:
       tags: [messenger.message_handler]
 
     Symfony\Bridge\Doctrine\Security\RememberMe\DoctrineTokenProvider: ~
+
+    App\Core\ModuleManager:
+      arguments: [!tagged_locator { tag: 'app.module', index_by: 'key' }]
+
+
