@@ -33,10 +33,17 @@
 
 namespace App\Controller;
 
+// {{{ Imports
+
+use App\Core\DB\DB;
+use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Form\ArrayTransformer;
+use Doctrine\DBAL\Types\Types;
+use Exception;
+use Functional as F;
 use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -46,6 +53,8 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
+
+// }}} Imports
 
 class UserPanel extends AbstractController
 {
@@ -99,13 +108,37 @@ class UserPanel extends AbstractController
 
     public function notifications(Request $request)
     {
-        $notifications = Form::create([
-            [_m('transport'),   TextType::class,   ['help' => 'Address used to send and receive notices through IM.', 'label_format' => 'XMPP/Jabber']],
-            [_m('post_on_status_change'),   CheckboxType::class,   ['help' => 'Post a notice when my status changes.', 'label_format' => 'Status change']],
-            [_m('mention'),   CheckboxType::class,   ['help' => 'Send me replies from people I\'m not subscribed to.', 'label_format' => 'Mentions']],
-            [_m('posts_by_followed'),   CheckboxType::class,   ['help' => 'Send me notices.', 'label_format' => 'Notices']],
-            ['save',        SubmitType::class, ['label' => _m('Save')]], ]);
+        $schema    = DB::getConnection()->getSchemaManager();
+        $platform  = $schema->getDatabasePlatform();
+        $columns   = Common::array_remove_keys($schema->listTableColumns('user_notification_prefs'), ['user_id', 'transport', 'created', 'modified']);
+        $form_defs = ['placeholder' => []];
+        foreach ($columns as $name => $col) {
+            $val = $col->getType()->convertToPHPValue($col->getDefault(), $platform);
+            switch ($col->getType()) {
+            case Types::BOOLEAN:
+                $form_defs['placeholder'][] = [$name, CheckboxType::class, ['data' => $val, 'label' => _m($col->getComment())]];
+                break;
+            case Types::INTEGER:
+                if ($name == 'target_profile_id') {
+                    $form_defs['placeholder'][] = ['target_profiles', TextType::class, ['data' => $val, 'label' => _m($col->getComment())], 'transformer' => ProfileArrayTransformer::class];
+                    break;
+                }
+                // fallthrough
+                // no break
+            default:
+                throw new Exception("Structure of table user_notification_prefs changed in a way not accounted to in notification settings ({$name})", 500);
+            }
+        }
 
-        return ['_template' => 'settings/notifications.html.twig', 'notifications' => $notifications->createView()];
+        Event::handle('AddNotificationTransport', [&$form_defs]);
+        unset($form_defs['placeholder']);
+
+        $tabbed_forms = [];
+        foreach ($form_defs as $transport_name => $f) {
+            $tabbed_forms[$transport_name] = Form::create($f);
+        }
+
+        $tabbed_forms = F\map($tabbed_forms, function ($f) { return $f->createView(); });
+        return ['_template' => 'settings/notifications.html.twig', 'tabbed_forms' => $tabbed_forms];
     }
 }

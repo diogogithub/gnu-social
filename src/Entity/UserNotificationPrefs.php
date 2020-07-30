@@ -202,7 +202,7 @@ class UserNotificationPrefs
                 'user_id'               => ['type' => 'int', 'not null' => true],
                 'transport'             => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'transport (ex email. xmpp, aim)'],
                 'target_profile_id'     => ['type' => 'int',  'default' => null,  'description' => 'If not null, settings are specific only to a given profiles'],
-                'notice_by_followed'    => ['type' => 'bool', 'not null' => true, 'default' => true,  'description' => 'Notify when a new notice by someone we follow is made'],
+                'activity_by_followed'  => ['type' => 'bool', 'not null' => true, 'default' => true,  'description' => 'Notify when a new activity by someone we follow is made'],
                 'mention'               => ['type' => 'bool', 'not null' => true, 'default' => true,  'description' => 'Notify when mentioned by someone we do not follow'],
                 'reply'                 => ['type' => 'bool', 'not null' => true, 'default' => true,  'description' => 'Notify when someone replies to a notice made by us'],
                 'follow'                => ['type' => 'bool', 'not null' => true, 'default' => true,  'description' => 'Notify someone follows us'],
