@@ -10,9 +10,11 @@
         {% endblock primary_nav %}
 
         {% block form %}
-            <div class='form-single'>
-                {{ form(notifications) }}
+          {% for transport, form in tabbed_forms %}
+            <div id="form_{{ transport }}" class='form'>
+                {{ form(form) }}
             </div>
+          {% endfor %}
         {% endblock form %}
     </div>
 
