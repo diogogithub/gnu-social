@@ -47,9 +47,7 @@ use App\Core\DB\DefaultSettings;
 use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
-use App\Util\Common;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -58,6 +56,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Security as SSecurity;
@@ -77,6 +76,8 @@ class GNUsocial implements EventSubscriberInterface
     protected EventDispatcherInterface $event_dispatcher;
     protected SessionInterface         $session;
     protected SSecurity                $security;
+    protected MailerInterface          $mailer;
+    protected ModuleManager            $module_manager;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -89,7 +90,9 @@ class GNUsocial implements EventSubscriberInterface
                                 MessageBusInterface $mb,
                                 EventDispatcherInterface $ed,
                                 SessionInterface $sess,
-                                SSecurity $sec)
+                                SSecurity $sec,
+                                MailerInterface $mail,
+                                ModuleManager $mod)
     {
         $this->logger           = $logger;
         $this->translator       = $trans;
@@ -100,6 +103,8 @@ class GNUsocial implements EventSubscriberInterface
         $this->event_dispatcher = $ed;
         $this->session          = $sess;
         $this->security         = $sec;
+        $this->mailer           = $mail;
+        $this->module_manager   = $mod;
 
         $this->initialize();
     }
@@ -119,20 +124,13 @@ class GNUsocial implements EventSubscriberInterface
         Form::setFactory($this->form_factory);
         Queue::setMessageBus($this->message_bus);
         Security::setHelper($this->security);
+        Mailer::setMailer($this->mailer);
 
         DefaultSettings::setDefaults();
 
-        // TODO use configuration properly
-        try {
-            if (Common::config('site', 'use_email')) {
-                Mailer::setMailer($this->containen->get('mailer'));
-            }
-        } catch (Exception $e) {
-            // Table doesn't exist yet
-        }
-
         Cache::setupCache();
-        ModulesManager::loadModules();
+
+        $this->module_manager->loadModules();
     }
 
     /**
