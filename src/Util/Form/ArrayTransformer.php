@@ -21,7 +21,7 @@
  * Handle network public feed
  *
  * @package  GNUsocial
- * @category Controller
+ * @category Form
  *
  * @author    Hugo Sales <hugo@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
@@ -36,10 +36,12 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 
 class ArrayTransformer implements DataTransformerInterface
 {
+    // Can't use type annotations, to conform to interface
+
     /**
-     * Array to string, but can't use type annotations
+     * @param array $a
      *
-     * @param mixed $a
+     * @return string
      */
     public function transform($a)
     {
@@ -50,9 +52,9 @@ class ArrayTransformer implements DataTransformerInterface
     }
 
     /**
-     * String to array, but can't use type annotations
+     * @param string $s
      *
-     * @param mixed $s
+     * @return array
      */
     public function reverseTransform($s)
     {
