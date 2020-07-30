@@ -50,7 +50,9 @@ EOF
 
 fi
 
-echo "${database_url}" > .env.local
+echo "${database_url}" >> .env.local
+
+printf "Mailer dsn: " && read -r mailer_dsn
 
 mkdir -p ./docker/social
 
@@ -65,4 +67,5 @@ SOCIAL_ADMIN_NICK="${admin_nick}"
 SOCIAL_ADMIN_PASSWORD="${admin_password}"
 SOCIAL_ADMIN_EMAIL="${email}"
 SOCIAL_SITE_PROFILE="${profile}"
+MAILER_DSN="${mailer_dsn}"
 EOF
