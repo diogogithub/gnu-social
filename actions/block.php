@@ -1,50 +1,44 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Block a user action class.
  *
- * PHP version 5
- *
- * @category Action
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Robin Millette <millette@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @category  Action
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Robin Millette <millette@status.net>
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Block a user action class.
  *
- * @category Action
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Robin Millette <millette@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @category  Action
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Robin Millette <millette@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class BlockAction extends ProfileFormAction
 {
-    var $profile = null;
+    public $profile = null;
 
     /**
      * Take arguments for running
@@ -53,7 +47,7 @@ class BlockAction extends ProfileFormAction
      *
      * @return boolean success flag
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = []): bool
     {
         if (!parent::prepare($args)) {
             return false;
@@ -78,7 +72,7 @@ class BlockAction extends ProfileFormAction
      *
      * @return void
      */
-    function handle()
+    public function handle(): void
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($this->arg('no')) {
@@ -94,16 +88,19 @@ class BlockAction extends ProfileFormAction
         }
     }
 
-    function showContent() {
+    public function showContent(): void
+    {
         $this->areYouSureForm();
     }
 
-    function title() {
+    public function title(): string
+    {
         // TRANS: Title for block user page.
         return _('Block user');
     }
 
-    function showNoticeForm() {
+    public function showNoticeForm(): void
+    {
         // nop
     }
 
@@ -114,7 +111,7 @@ class BlockAction extends ProfileFormAction
      *
      * @return void
      */
-    function areYouSureForm()
+    public function areYouSureForm()
     {
         // @fixme if we ajaxify the confirmation form, skip the preview on ajax hits
         $profile = new ArrayWrapper(array($this->profile));
@@ -131,35 +128,44 @@ class BlockAction extends ProfileFormAction
         $this->hidden('token', common_session_token());
         // TRANS: Legend for block user form.
         $this->element('legend', _('Block user'));
-        $this->element('p', null,
-                       // TRANS: Explanation of consequences when blocking a user on the block user page.
-                       _('Are you sure you want to block this user? '.
-                         'Afterwards, they will be unsubscribed from you, '.
-                         'unable to subscribe to you in the future, and '.
-                         'you will not be notified of any @-replies from them.'));
-        $this->element('input', array('id' => 'blockto-' . $id,
-                                      'name' => 'profileid',
-                                      'type' => 'hidden',
-                                      'value' => $id));
+        $this->element(
+            'p',
+            null,
+            // TRANS: Explanation of consequences when blocking a user on the block user page.
+            _('Are you sure you want to block this user? '
+              . 'Afterwards, they will be unsubscribed from you, '
+              . 'unable to subscribe to you in the future, and '
+              . 'you will not be notified of any @-replies from them.')
+        );
+        $this->element('input', [
+            'id'    => 'blockto-' . $id,
+            'name'  => 'profileid',
+            'type'  => 'hidden',
+            'value' => $id
+        ]);
         foreach ($this->args as $k => $v) {
             if (substr($k, 0, 9) == 'returnto-') {
                 $this->hidden($k, $v);
             }
         }
-        $this->submit('form_action-no',
-                      // TRANS: Button label on the user block form.
-                      _m('BUTTON','No'),
-                      'submit form_action-primary',
-                      'no',
-                      // TRANS: Submit button title for 'No' when blocking a user.
-                      _('Do not block this user.'));
-        $this->submit('form_action-yes',
-                      // TRANS: Button label on the user block form.
-                      _m('BUTTON','Yes'),
-                      'submit form_action-secondary',
-                      'yes',
-                      // TRANS: Submit button title for 'Yes' when blocking a user.
-                      _('Block this user.'));
+        $this->submit(
+            'form_action-no',
+            // TRANS: Button label on the user block form.
+            _m('BUTTON', 'No'),
+            'submit form_action-primary',
+            'no',
+            // TRANS: Submit button title for 'No' when blocking a user.
+            _('Do not block this user.')
+        );
+        $this->submit(
+            'form_action-yes',
+            // TRANS: Button label on the user block form.
+            _m('BUTTON', 'Yes'),
+            'submit form_action-secondary',
+            'yes',
+            // TRANS: Submit button title for 'Yes' when blocking a user.
+            _('Block this user.')
+        );
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
     }
@@ -170,7 +176,7 @@ class BlockAction extends ProfileFormAction
      * @return void
      */
 
-    function handlePost()
+    public function handlePost(): void
     {
         $cur = common_current_user();
 
@@ -187,7 +193,7 @@ class BlockAction extends ProfileFormAction
         }
     }
 
-    function showScripts()
+    public function showScripts(): void
     {
         parent::showScripts();
         $this->autofocus('form_action-yes');
@@ -201,13 +207,14 @@ class BlockAction extends ProfileFormAction
      * @throws ClientException if token is bad on POST request or if we have
      *         confirmation parameters which could trigger something.
      */
-    function checkSessionToken()
+    public function checkSessionToken(): void
     {
-        if ($_SERVER['REQUEST_METHOD'] == 'POST' ||
-            $this->arg('yes') ||
-            $this->arg('no')) {
-
-            return parent::checkSessionToken();
+        if (
+            $_SERVER['REQUEST_METHOD'] === 'POST'
+            || $this->arg('yes')
+            || $this->arg('no')
+        ) {
+            parent::checkSessionToken();
         }
     }
 
@@ -217,12 +224,14 @@ class BlockAction extends ProfileFormAction
      *
      * @return string URL
      */
-    function defaultReturnTo()
+    public function defaultReturnTo()
     {
         $user = common_current_user();
         if ($user) {
-            return common_local_url('subscribers',
-                                    array('nickname' => $user->nickname));
+            return common_local_url(
+                'subscribers',
+                ['nickname' => $user->nickname]
+            );
         } else {
             return common_local_url('public');
         }
