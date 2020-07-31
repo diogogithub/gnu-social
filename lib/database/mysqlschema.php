@@ -364,28 +364,6 @@ class MysqlSchema extends Schema
     }
 
     /**
-     * Get the unique index key name for a given column on this table
-     * @param $tableName
-     * @param $columnName
-     * @return string
-     */
-    public function _uniqueKey($tableName, $columnName)
-    {
-        return $this->_key($tableName, $columnName);
-    }
-
-    /**
-     * Get the index key name for a given column on this table
-     * @param $tableName
-     * @param $columnName
-     * @return string
-     */
-    public function _key($tableName, $columnName)
-    {
-        return "{$tableName}_{$columnName}_idx";
-    }
-
-    /**
      * Append phrase(s) to an array of partial ALTER TABLE chunks in order
      * to alter the given column from its old state to a new one.
      *
@@ -425,6 +403,11 @@ class MysqlSchema extends Schema
     public function appendAlterDropUnique(array &$phrase, $keyName)
     {
         $phrase[] = 'DROP INDEX ' . $keyName;
+    }
+
+    public function appendAlterDropForeign(array &$phrase, $keyName)
+    {
+        $phrase[] = 'DROP FOREIGN KEY ' . $keyName;
     }
 
     /**

@@ -764,10 +764,10 @@ class Schema
             $phrase[] = $prefix . ' DROP NOT NULL';
         }
 
-        if (!($old['default'] ?? false) && ($cd['default'] ?? false)) {
-            $phrase[] = $prefix . ' SET DEFAULT ' . $this->quoteDefaultValue($cd);
-        } elseif (($old['default'] ?? false) && !($cd['default'] ?? false)) {
+        if (!is_null($old['default'] ?? null) && is_null($cd['default'] ?? null)) {
             $phrase[] = $prefix . ' DROP DEFAULT';
+        } elseif (($old['default'] ?? null) !== ($cd['default'] ?? null)) {
+            $phrase[] = $prefix . ' SET DEFAULT ' . $this->quoteDefaultValue($cd);
         }
     }
 
@@ -819,7 +819,7 @@ class Schema
 
     public function appendAlterDropForeign(array &$phrase, $keyName)
     {
-        $phrase[] = 'DROP FOREIGN KEY ' . $keyName;
+        $phrase[] = 'DROP CONSTRAINT ' . $keyName;
     }
 
     public function appendAlterExtras(array &$phrase, $tableName, array $def)
@@ -1043,7 +1043,6 @@ class Schema
                     $col['type'] = 'datetime';
                     if (!array_key_exists('default', $col)) {
                         $col['default'] = 'CURRENT_TIMESTAMP';
-                        $col['auto_update_timestamp'] = true;
                     }
                     // no break
                 case 'datetime':
