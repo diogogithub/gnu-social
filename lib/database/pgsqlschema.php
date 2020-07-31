@@ -371,6 +371,8 @@ class PgsqlSchema extends Schema
         foreach ($tableDef['fields'] as $name => &$col) {
             // No convenient support for field descriptions
             unset($col['description']);
+            // @fixme Nor for MariaDB-specific collations
+            unset($col['collate']);
 
             if ($col['type'] === 'serial') {
                 $col['type'] = 'int';
