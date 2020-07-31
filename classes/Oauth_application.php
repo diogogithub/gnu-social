@@ -200,6 +200,10 @@ class Oauth_application extends Managed_DataObject
                 'oauth_application_owner_fkey' => array('profile', array('owner' => 'id')), // Are remote users allowed to create oauth application records?
                 'oauth_application_consumer_key_fkey' => array('consumer', array('consumer_key' => 'consumer_key')),
             ),
+            'indexes' => array(
+                'oauth_application_owner_idx' => array('owner'),
+                'oauth_application_consumer_key_idx' => array('consumer_key'),
+            ),
         );
     }
 }

@@ -49,6 +49,9 @@ class Confirm_address extends Managed_DataObject
             'foreign keys' => array(
                 'confirm_address_user_id_fkey' => array('user', array('user_id' => 'id')),
             ),
+            'indexes' => array(
+                'confirm_address_user_id_idx' => array('user_id'),
+            ),
         );
     }
 

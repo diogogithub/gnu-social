@@ -95,6 +95,7 @@ class Happening extends Managed_DataObject
                 'happening_uri_fkey' => array('notice', array('uri' => 'uri'))
             ),
             'indexes' => array(
+                'happening_profile_id_idx' => array('profile_id'),
                 'happening_created_idx' => array('created'),
                 'happening_start_time_end_time_idx' => array('start_time', 'end_time'),
             ),

@@ -52,6 +52,9 @@ class File_redirection extends Managed_DataObject
             'foreign keys' => array(
                 'file_redirection_file_id_fkey' => array('file', array('file_id' => 'id')),
             ),
+            'indexes' => array(
+                'file_redirection_file_id_idx' => array('file_id'),
+            ),
         );
     }
 

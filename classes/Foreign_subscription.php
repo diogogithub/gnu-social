@@ -51,6 +51,8 @@ class Foreign_subscription extends Managed_DataObject
                 'foreign_subscription_subscribed_service_fkey' => array('foreign_user', array('subscribed' => 'id', 'service' => 'service')),
             ),
             'indexes' => array(
+                'foreign_subscription_subscriber_service_idx' => array('subscriber', 'service'),
+                'foreign_subscription_subscribed_service_idx' => array('subscribed', 'service'),
                 'foreign_subscription_service_subscribed_idx' => array('service', 'subscribed'),
             ),
         );

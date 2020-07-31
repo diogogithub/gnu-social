@@ -49,6 +49,9 @@ class Profile_block extends Managed_DataObject
                 'profile_block_blocked_fkey' => array('profile', array('blocked' => 'id')),
             ),
             'primary key' => array('blocker', 'blocked'),
+            'indexes' => array(
+                'profile_block_blocked_idx' => array('blocked'),
+            ),
         );
     }
 

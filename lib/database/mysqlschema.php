@@ -259,12 +259,9 @@ class MysqlSchema extends Schema
             <<<END
             SELECT INDEX_NAME AS `key_name`, INDEX_TYPE AS `key_type`, COLUMN_NAME AS `col`
               FROM INFORMATION_SCHEMA.STATISTICS
-              WHERE TABLE_SCHEMA = '{$schema}' AND TABLE_NAME = '{$table}'
+              WHERE TABLE_SCHEMA = '{$schema}'
+              AND TABLE_NAME = '{$table}'
               AND NON_UNIQUE IS TRUE
-              AND INDEX_NAME NOT IN (
-                SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
-                WHERE REFERENCED_TABLE_NAME IS NOT NULL
-              )
               ORDER BY SEQ_IN_INDEX;
             END
         );

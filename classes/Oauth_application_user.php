@@ -52,6 +52,9 @@ class Oauth_application_user extends Managed_DataObject
                 'oauth_application_user_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
                 'oauth_application_user_application_id_fkey' => array('oauth_application', array('application_id' => 'id')),
             ),
+            'indexes' => array(
+                'oauth_application_user_application_id_idx' => array('application_id'),
+            ),
         );
     }
 

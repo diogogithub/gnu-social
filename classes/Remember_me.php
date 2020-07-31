@@ -45,6 +45,9 @@ class Remember_me extends Managed_DataObject
             'foreign keys' => array(
                 'remember_me_user_id_fkey' => array('user', array('user_id' => 'id')),
             ),
+            'indexes' => array(
+                'remember_me_user_id_idx' => array('user_id'),
+            ),
         );
     }
 }

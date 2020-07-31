@@ -90,6 +90,7 @@ class ModLog extends Managed_DataObject
             ],
             'indexes' => [
                 'modlog_profile_id_created_idx' => ['profile_id', 'created'],
+                'modlog_moderator_id_idx' => ['moderator_id'],
             ],
         ];
     }
