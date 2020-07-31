@@ -504,7 +504,7 @@ class OpenIDPlugin extends Plugin
                                      'server_url' => array('type' => 'blob', 'not null' => true),
                                      'handle' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'default' => ''), // character set latin1,
                                      'secret' => array('type' => 'blob'),
-                                     'issued' => array('type' => 'int'),
+                                     'issued' => array('type' => 'int', 'size' => 'big'),
                                      'lifetime' => array('type' => 'int'),
                                      'assoc_type' => array('type' => 'varchar', 'length' => 64),
                                  ),
@@ -514,7 +514,7 @@ class OpenIDPlugin extends Plugin
                              array(
                                  'fields' => array(
                                      'server_url' => array('type' => 'varchar', 'length' => 2047),
-                                     'timestamp' => array('type' => 'int'),
+                                     'timestamp' => array('type' => 'int', 'size' => 'big'),
                                      'salt' => array('type' => 'char', 'length' => 40),
                                  ),
                                  'unique keys' => array(
