@@ -54,6 +54,9 @@ class Foreign_user extends Managed_DataObject
             'unique keys' => array(
                 'foreign_user_uri_key' => array('uri'),
             ),
+            'indexes' => array(
+                'foreign_user_service_idx' => array('service'),
+            ),
         );
     }
 

@@ -1083,8 +1083,44 @@ class Schema
         }
 
         // A few quick checks :D
-        if (!isset($def['fields'])) {
-            throw new Exception("Invalid table definition for $tableName: no fields.");
+        if (!array_key_exists('fields', $def)) {
+            throw new ServerException(
+                "Invalid table definition for {$tableName}: no fields."
+            );
+        }
+
+        // Invalidate foreign key definitions that lack a specified index
+        if (array_key_exists('foreign keys', $def)) {
+            foreach ($def['foreign keys'] as $fkey_name => $fkey_def) {
+                $fkey_cols = array_keys($fkey_def[1]);
+
+                // A list of all keys/indices
+                $keys = array_values(array_merge(
+                    ($def['unique keys'] ?? []),
+                    ($def['indexes'] ?? [])
+                ));
+                if (array_key_exists('primary key', $def)) {
+                    $keys[] = $def['primary key'];
+                }
+
+                $indexed = false;
+                foreach ($keys as $key_cols) {
+                    // Only the beginning of a key counts
+                    $cols = array_slice($key_cols, 0, count($fkey_cols));
+
+                    if ($cols == $fkey_cols) {
+                        $indexed = true;
+                        break;
+                    }
+                }
+
+                if (!$indexed) {
+                    throw new ServerException(
+                        "Invalid table definition for {$tableName}: "
+                        . "foreign key {$fkey_name} is not indexed."
+                    );
+                }
+            }
         }
 
         return $def;

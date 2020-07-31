@@ -37,6 +37,9 @@ class Mention_url_profile extends Managed_DataObject
             'foreign keys' => array(
                 'mention_url_profile_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
             ),
+            'indexes' => array(
+                'mention_url_profile_profile_id_idx' => array('profile_id'),
+            ),
         );
     }
 

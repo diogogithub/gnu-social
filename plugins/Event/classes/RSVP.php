@@ -85,7 +85,10 @@ class RSVP extends Managed_DataObject
                 'rsvp_event_uri_fkey' => array('happening', array('event_uri' => 'uri')),
                 'rsvp_profile_id_fkey' => array('profile', array('profile_id' => 'id'))
             ),
-            'indexes' => array('rsvp_created_idx' => array('created')),
+            'indexes' => array(
+                'rsvp_event_uri_idx' => array('event_uri'),
+                'rsvp_created_idx' => array('created'),
+            ),
         );
     }
 

@@ -47,6 +47,9 @@ class Related_group extends Managed_DataObject
                 'related_group_group_id_fkey' => array('user_group', array('group_id' => 'id')),
                 'related_group_related_group_id_fkey' => array('user_group', array('related_group_id' => 'id')),
             ),
+            'indexes' => array(
+                'related_group_related_group_id_idx' => array('related_group_id'),
+            ),
         );
     }
 }

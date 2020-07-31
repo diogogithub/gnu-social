@@ -63,6 +63,10 @@ class Foreign_link extends Managed_DataObject
                 'foreign_link_foreign_id_service_fkey' => array('foreign_user', array('foreign_id' => 'id', 'service' => 'service')),
                 'foreign_link_service_fkey' => array('foreign_service', array('service' => 'id')),
             ),
+            'indexes' => array(
+                'foreign_link_foreign_id_service_idx' => array('foreign_id', 'service'),
+                'foreign_link_service_idx' => array('service'),
+            ),
         );
     }
 

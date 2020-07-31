@@ -54,6 +54,10 @@ class Group_block extends Managed_DataObject
                 'group_block_blocked_fkey' => array('profile', array('blocked' => 'id')),
                 'group_block_blocker_fkey' => array('user', array('blocker' => 'id')),
             ),
+            'indexes' => array(
+                'group_block_blocked_idx' => array('blocked'),
+                'group_block_blocker_idx' => array('blocker'),
+            ),
         );
     }
 

@@ -60,6 +60,10 @@ class Activitypub_pending_follow_requests extends Managed_DataObject
                 'activitypub_pending_follow_requests_local_profile_id_fkey'  => ['profile', ['local_profile_id' => 'id']],
                 'activitypub_pending_follow_requests_remote_profile_id_fkey' => ['profile', ['remote_profile_id' => 'id']],
             ],
+            'indexes' => [
+                'activitypub_pending_follow_requests_local_profile_id_idx'  => ['local_profile_id'],
+                'activitypub_pending_follow_requests_remote_profile_id_idx' => ['remote_profile_id'],
+            ],
         ];
     }
 

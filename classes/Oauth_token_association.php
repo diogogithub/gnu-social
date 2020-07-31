@@ -68,6 +68,9 @@ class Oauth_token_association extends Managed_DataObject
                 'oauth_token_association_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
                 'oauth_token_association_application_id_fkey' => array('oauth_application', array('application_id' => 'id')),
             ),
+            'indexes' => array(
+                'oauth_token_association_application_id_idx' => array('application_id'),
+            ),
         );
     }
 }
