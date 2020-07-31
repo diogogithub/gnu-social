@@ -48,8 +48,7 @@ class Fave extends Managed_DataObject
                 'fave_user_id_fkey' => array('profile', array('user_id' => 'id')), // note: formerly referenced notice.id, but we can now record remote users' favorites
             ),
             'indexes' => array(
-                'fave_notice_id_idx' => array('notice_id'),
-                'fave_user_id_idx' => array('user_id', 'modified'),
+                'fave_user_id_modified_idx' => array('user_id', 'modified'),
                 'fave_modified_idx' => array('modified'),
             ),
         );

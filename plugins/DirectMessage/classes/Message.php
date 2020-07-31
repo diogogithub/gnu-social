@@ -28,7 +28,7 @@ defined('GNUSOCIAL') || die();
 
 /**
  * Table definition for message.
- * 
+ *
  * Since the new updates this class only has the necessary
  * logic to upgrade te plugin.
  *
@@ -84,24 +84,24 @@ class Message extends Managed_DataObject
             'indexes' => array(
                 // @fixme these are really terrible indexes, since you can only sort on one of them at a time.
                 // looks like we really need a (to_profile, created) for inbox and a (from_profile, created) for outbox
-                'message_from_idx' => array('from_profile'),
-                'message_to_idx' => array('to_profile'),
+                'message_from_profile_idx' => array('from_profile'),
+                'message_to_profile_idx' => array('to_profile'),
                 'message_created_idx' => array('created'),
             ),
         );
     }
 
-    function getFrom()
+    public function getFrom()
     {
         return Profile::getKV('id', $this->from_profile);
     }
 
-    function getTo()
+    public function getTo()
     {
         return Profile::getKV('id', $this->to_profile);
     }
 
-    function getSource()
+    public function getSource()
     {
         if (empty($this->source)) {
             return false;
@@ -133,7 +133,7 @@ class Message extends Managed_DataObject
         return $ns;
     }
 
-    function asActivity()
+    public function asActivity()
     {
         $act = new Activity();
 

@@ -49,7 +49,6 @@ class Reply extends Managed_DataObject
                 'reply_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
             ),
             'indexes' => array(
-                'reply_notice_id_idx' => array('notice_id'),
                 'reply_profile_id_idx' => array('profile_id'),
                 'reply_replied_id_idx' => array('replied_id'),
                 'reply_profile_id_modified_notice_id_idx' => array('profile_id', 'modified', 'notice_id')

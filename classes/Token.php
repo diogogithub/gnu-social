@@ -55,7 +55,7 @@ class Token extends Managed_DataObject
             ),
             'primary key' => array('consumer_key', 'tok'),
             'foreign keys' => array(
-                'token_consumer_key_fkey' => array('consumer', array('consumer_key'=> 'consumer_key')),
+                'token_consumer_key_fkey' => array('consumer', array('consumer_key' => 'consumer_key')),
             ),
         );
     }

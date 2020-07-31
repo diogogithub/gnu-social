@@ -53,9 +53,6 @@ class Usage_stats extends Managed_DataObject
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key' => ['type'],
-            'indexes' => [
-                'user_stats_idx' => ['type'],
-            ],
         ];
     }
 

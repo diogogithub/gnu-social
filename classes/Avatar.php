@@ -52,9 +52,6 @@ class Avatar extends Managed_DataObject
             'foreign keys' => array(
                 'avatar_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
             ),
-            'indexes' => array(
-                'avatar_profile_id_idx' => array('profile_id'),
-            ),
         );
     }
 

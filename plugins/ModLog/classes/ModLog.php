@@ -48,36 +48,49 @@ class ModLog extends Managed_DataObject
      */
     public static function schemaDef()
     {
-        return array('description' => 'Log of moderation events',
-                     'fields' => array(
-                                       'id' => array('type' => 'varchar',
-                                                     'length' => 36,
-                                                     'not null' => true,
-                                                     'description' => 'unique event ID'),
-                                       'profile_id' => array('type' => 'int',
-                                                             'not null' => true,
-                                                             'description' => 'profile getting the role'),
-                                       'moderator_id' => array('type' => 'int',
-                                                               'description' => 'profile granting or revoking the role'),
-                                       'role' => array('type' => 'varchar',
-                                                       'length' => 32,
-                                                       'not null' => true,
-                                                       'description' => 'role granted or revoked'),
-                                       'is_grant' => array('type' => 'bool',
-                                                           'default' => true,
-                                                           'description' => 'Was this a grant or revocation of a role'),
-                                       'created' => array('type' => 'datetime',
-                                                          'not null' => true,
-                                                          'description' => 'date this record was created')
-                                       ),
-                     'primary key' => array('id'),
-                     'foreign keys' => array(
-                                             'mod_log_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
-                                             'mod_log_moderator_id_fkey' => array('user', array('moderator_id' => 'id'))
-                                             ),
-                     'indexes' => array(
-                                        'mod_log_profile_id_created_idx' => array('profile_id', 'created'),
-                                        ),
-                     );
+        return [
+            'description' => 'Log of moderation events',
+            'fields' => [
+                'id' => [
+                    'type' => 'varchar',
+                    'length' => 36,
+                    'not null' => true,
+                    'description' => 'unique event ID',
+                ],
+                'profile_id' => [
+                    'type' => 'int',
+                    'not null' => true,
+                    'description' => 'profile getting the role',
+                ],
+                'moderator_id' => [
+                    'type' => 'int',
+                    'description' => 'profile granting or revoking the role',
+                ],
+                'role' => [
+                    'type' => 'varchar',
+                    'length' => 32,
+                    'not null' => true,
+                    'description' => 'role granted or revoked',
+                ],
+                'is_grant' => [
+                    'type' => 'bool',
+                    'default' => true,
+                    'description' => 'Was this a grant or revocation of a role',
+                ],
+                'created' => [
+                    'type' => 'datetime',
+                    'not null' => true,
+                    'description' => 'date this record was created',
+                ],
+            ],
+            'primary key' => ['id'],
+            'foreign keys' => [
+                'modlog_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'modlog_moderator_id_fkey' => ['user', ['moderator_id' => 'id']],
+            ],
+            'indexes' => [
+                'modlog_profile_id_created_idx' => ['profile_id', 'created'],
+            ],
+        ];
     }
 }

@@ -61,7 +61,7 @@ class Invitation extends Managed_DataObject
                 'invitation_registered_user_id_fkey' => array('user', array('registered_user_id' => 'id')),
             ),
             'indexes' => array(
-                'invitation_address_idx' => array('address', 'address_type'),
+                'invitation_address_address_type_idx' => array('address', 'address_type'),
                 'invitation_user_id_idx' => array('user_id'),
                 'invitation_registered_user_id_idx' => array('registered_user_id'),
             ),

@@ -52,9 +52,6 @@ class Notice_prefs extends Managed_DataObject
             'foreign keys' => array(
                 'notice_prefs_notice_id_fkey' => array('notice', array('notice_id' => 'id')),
             ),
-            'indexes' => array(
-                'notice_prefs_notice_id_idx' => array('notice_id'),
-            ),
         );
     }
 

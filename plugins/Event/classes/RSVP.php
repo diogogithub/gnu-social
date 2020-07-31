@@ -1,44 +1,40 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Data class for event RSVPs
  *
- * PHP version 5
- *
- * @category Data
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * @category  Data
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Data class for event RSVPs
  *
- * @category Event
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @category  Event
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      Managed_DataObject
+ * @see       Managed_DataObject
  */
 class RSVP extends Managed_DataObject
 {
@@ -83,7 +79,7 @@ class RSVP extends Managed_DataObject
             'primary key' => array('id'),
             'unique keys' => array(
                 'rsvp_uri_key' => array('uri'),
-                'rsvp_profile_event_key' => array('profile_id', 'event_uri'),
+                'rsvp_profile_id_event_uri_key' => array('profile_id', 'event_uri'),
             ),
             'foreign keys' => array(
                 'rsvp_event_uri_fkey' => array('happening', array('event_uri' => 'uri')),
@@ -93,7 +89,7 @@ class RSVP extends Managed_DataObject
         );
     }
 
-    static public function beforeSchemaUpdate()
+    public static function beforeSchemaUpdate()
     {
         $table = strtolower(get_called_class());
         $schema = Schema::get();
@@ -128,7 +124,7 @@ class RSVP extends Managed_DataObject
         print "Resuming core schema upgrade...";
     }
 
-    static function saveActivityObject(Activity $act, Notice $stored)
+    public static function saveActivityObject(Activity $act, Notice $stored)
     {
         $target = Notice::getByKeys(array('uri'=>$act->target->id));
         if (!ActivityUtils::compareTypes($target->getObjectType(), [ Happening::OBJECT_TYPE ])) {
@@ -138,9 +134,10 @@ class RSVP extends Managed_DataObject
         // FIXME: Maybe we need some permission handling here, though I think it's taken care of in saveActivity?
 
         try {
-            $other = RSVP::getByKeys( [ 'profile_id' => $stored->getProfile()->getID(),
-                                        'event_uri' => $target->getUri(),
-                                      ] );
+            $other = RSVP::getByKeys([
+                'profile_id' => $stored->getProfile()->getID(),
+                'event_uri'  => $target->getUri(),
+            ]);
             // TRANS: Client exception thrown when trying to save an already existing RSVP ("please respond").
             throw new AlreadyFulfilledException(_m('RSVP already exists.'));
         } catch (NoResultException $e) {
@@ -162,7 +159,7 @@ class RSVP extends Managed_DataObject
         return $rsvp;
     }
 
-    static public function getObjectType()
+    public static function getObjectType()
     {
         return ActivityObject::ACTIVITY;
     }
@@ -181,7 +178,7 @@ class RSVP extends Managed_DataObject
         return $actobj;
     }
 
-    static function codeFor($verb)
+    public static function codeFor($verb)
     {
         switch (true) {
         case ActivityUtils::compareVerbs($verb, [RSVP::POSITIVE]):
@@ -195,11 +192,11 @@ class RSVP extends Managed_DataObject
             break;
         default:
             // TRANS: Exception thrown when requesting an undefined verb for RSVP.
-            throw new Exception(sprintf(_m('Unknown verb "%s".'),$verb));
+            throw new Exception(sprintf(_m('Unknown verb "%s".'), $verb));
         }
     }
 
-    static function verbFor($code)
+    public static function verbFor($code)
     {
         switch ($code) {
         case 'Y':
@@ -235,18 +232,18 @@ class RSVP extends Managed_DataObject
         return Notice::getByKeys(['uri' => $this->getUri()]);
     }
 
-    static function fromStored(Notice $stored)
+    public static function fromStored(Notice $stored)
     {
         return self::getByKeys(['uri' => $stored->getUri()]);
     }
 
-    static function byEventAndActor(Happening $event, Profile $actor)
+    public static function byEventAndActor(Happening $event, Profile $actor)
     {
         return self::getByKeys(['event_uri' => $event->getUri(),
                                 'profile_id' => $actor->getID()]);
     }
 
-    static function forEvent(Happening $event)
+    public static function forEvent(Happening $event)
     {
         $keypart = sprintf('rsvp:for-event:%s', $event->getUri());
 
@@ -287,31 +284,35 @@ class RSVP extends Managed_DataObject
         return $rsvps;
     }
 
-    function getProfile()
+    public function getProfile()
     {
         return Profile::getByID($this->profile_id);
     }
 
-    function getEvent()
+    public function getEvent()
     {
         return Happening::getByKeys(['uri' => $this->getEventUri()]);
     }
 
-    function asHTML()
+    public function asHTML()
     {
-        return self::toHTML($this->getProfile(),
-                            $this->getEvent(),
-                            $this->response);
+        return self::toHTML(
+            $this->getProfile(),
+            $this->getEvent(),
+            $this->response
+        );
     }
 
-    function asString()
+    public function asString()
     {
-        return self::toString($this->getProfile(),
-                              $this->getEvent(),
-                              $this->response);
+        return self::toString(
+            $this->getProfile(),
+            $this->getEvent(),
+            $this->response
+        );
     }
 
-    static function toHTML(Profile $profile, Happening $event, $response)
+    public static function toHTML(Profile $profile, Happening $event, $response)
     {
         $fmt = null;
 
@@ -337,7 +338,7 @@ class RSVP extends Managed_DataObject
         default:
             // TRANS: Exception thrown when requesting a user's RSVP status for a non-existing response code.
             // TRANS: %s is the non-existing response code.
-            throw new Exception(sprintf(_m('Unknown response code %s.'),$response));
+            throw new Exception(sprintf(_m('Unknown response code %s.'), $response));
         }
 
         if (empty($event)) {
@@ -350,14 +351,16 @@ class RSVP extends Managed_DataObject
             $eventTitle = $event->title;
         }
 
-        return sprintf($fmt,
-                       htmlspecialchars($profile->getUrl()),
-                       htmlspecialchars($profile->getBestName()),
-                       htmlspecialchars($eventUrl),
-                       htmlspecialchars($eventTitle));
+        return sprintf(
+            $fmt,
+            htmlspecialchars($profile->getUrl()),
+            htmlspecialchars($profile->getBestName()),
+            htmlspecialchars($eventUrl),
+            htmlspecialchars($eventTitle)
+        );
     }
 
-    static function toString($profile, $event, $response)
+    public static function toString($profile, $event, $response)
     {
         $fmt = null;
 
@@ -380,7 +383,7 @@ class RSVP extends Managed_DataObject
         default:
             // TRANS: Exception thrown when requesting a user's RSVP status for a non-existing response code.
             // TRANS: %s is the non-existing response code.
-            throw new Exception(sprintf(_m('Unknown response code %s.'),$response));
+            throw new Exception(sprintf(_m('Unknown response code %s.'), $response));
             break;
         }
 
@@ -392,9 +395,11 @@ class RSVP extends Managed_DataObject
             $eventTitle = $event->title;
         }
 
-        return sprintf($fmt,
-                       $profile->getBestName(),
-                       $eventTitle);
+        return sprintf(
+            $fmt,
+            $profile->getBestName(),
+            $eventTitle
+        );
     }
 
     public function delete($useWhere=false)

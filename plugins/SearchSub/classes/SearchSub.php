@@ -60,7 +60,7 @@ class SearchSub extends Managed_DataObject
             ),
             'indexes' => array(
                 'searchsub_created_idx' => array('created'),
-                'searchsub_profile_id_tag_idx' => array('profile_id', 'search'),
+                'searchsub_profile_id_search_idx' => array('profile_id', 'search'),
             ),
         );
     }

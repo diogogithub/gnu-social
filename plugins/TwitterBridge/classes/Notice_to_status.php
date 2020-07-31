@@ -64,7 +64,7 @@ class Notice_to_status extends Managed_DataObject
             ),
             'primary key' => array('notice_id'),
             'unique keys' => array(
-                'status_id_key' => array('status_id'),
+                'notice_to_status_status_id_key' => array('status_id'),
             ),
             'foreign keys' => array(
                 'notice_to_status_notice_id_fkey' => array('notice', array('notice_id' => 'id')),

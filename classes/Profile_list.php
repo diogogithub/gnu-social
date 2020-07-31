@@ -67,7 +67,6 @@ class Profile_list extends Managed_DataObject
             'indexes' => array(
                 'profile_list_modified_idx' => array('modified'),
                 'profile_list_tag_idx' => array('tag'),
-                'profile_list_tagger_tag_idx' => array('tagger', 'tag'),
                 'profile_list_tagged_count_idx' => array('tagged_count'),
                 'profile_list_subscriber_count_idx' => array('subscriber_count'),
             ),
