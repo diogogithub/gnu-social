@@ -88,7 +88,7 @@ class User_group extends Managed_DataObject
 // when it's safe and everyone's run upgrade.php                'user_profile_id_key' => array('profile_id'),
             ),
             'foreign keys' => array(
-                'user_group_id_fkey' => array('profile', array('profile_id' => 'id')),
+                'user_group_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
             ),
             'indexes' => array(
                 'user_group_nickname_idx' => array('nickname'),

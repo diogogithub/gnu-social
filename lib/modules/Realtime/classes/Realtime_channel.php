@@ -90,7 +90,9 @@ class Realtime_channel extends Managed_DataObject
                     'description' => 'date this record was modified'],
             ],
             'primary key' => ['channel_key'],
-            'unique keys' => ['realtime_channel_user_page_idx' => ['user_id', 'action', 'arg1', 'arg2']],
+            'unique keys' => [
+                'realtime_channel_user_id_action_arg1_arg2_key' => ['user_id', 'action', 'arg1', 'arg2'],
+            ],
             'foreign keys' => [
                 'realtime_channel_user_id_fkey' => ['user', ['user_id' => 'id']],
             ],

@@ -1,33 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Data class for happenings
  *
- * PHP version 5
- *
- * @category Data
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * @category  Data
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Data class for happenings
@@ -37,13 +34,12 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  *
  * "Happening" seemed good enough.
  *
- * @category Event
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @category  Event
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      Managed_DataObject
+ * @see       Managed_DataObject
  */
 class Happening extends Managed_DataObject
 {
@@ -98,8 +94,10 @@ class Happening extends Managed_DataObject
                 'happening_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
                 'happening_uri_fkey' => array('notice', array('uri' => 'uri'))
             ),
-            'indexes' => array('happening_created_idx' => array('created'),
-                               'happening_start_end_idx' => array('start_time', 'end_time')),
+            'indexes' => array(
+                'happening_created_idx' => array('created'),
+                'happening_start_time_end_time_idx' => array('start_time', 'end_time'),
+            ),
         );
     }
 
@@ -129,25 +127,26 @@ class Happening extends Managed_DataObject
 
         foreach ($actobj->extra as $extra) {
             switch ($extra[0]) {
-            case 'dtstart':
-                $dtstart = $extra[2];
-            case 'dtend':
-                $dtend = $extra[2];
-                break;
-            case 'location':
-                // location is optional
-                $location = $extra[2];
-                break;
-            case 'url':
-                // url is optional
-                $url = $extra[2];
+                case 'dtstart':
+                    $dtstart = $extra[2];
+                    break;
+                case 'dtend':
+                    $dtend = $extra[2];
+                    break;
+                case 'location':
+                    // location is optional
+                    $location = $extra[2];
+                    break;
+                case 'url':
+                    // url is optional
+                    $url = $extra[2];
             }
         }
-        if(empty($dtstart)) {
+        if (empty($dtstart)) {
             // TRANS: Exception thrown when has no start date
             throw new Exception(_m('No start date for event.'));
         }
-        if(empty($dtend)) {
+        if (empty($dtend)) {
             // TRANS: Exception thrown when has no end date
             throw new Exception(_m('No end date for event.'));
         }
@@ -211,7 +210,7 @@ class Happening extends Managed_DataObject
         return Notice::getByKeys(array('uri'=>$this->getUri()));
     }
 
-    static function fromStored(Notice $stored)
+    public static function fromStored(Notice $stored)
     {
         if (!ActivityUtils::compareTypes($stored->getObjectType(), [self::OBJECT_TYPE])) {
             throw new ServerException('Notice is not of type '.self::OBJECT_TYPE);
@@ -219,18 +218,20 @@ class Happening extends Managed_DataObject
         return self::getByKeys(array('uri'=>$stored->getUri()));
     }
 
-    function getRSVPs()
+    public function getRSVPs()
     {
         return RSVP::forEvent($this);
     }
 
-    function getRSVP($profile)
+    public function getRSVP($profile)
     {
-        return RSVP::pkeyGet(array('profile_id' => $profile->getID(),
-                                   'event_uri' => $this->getUri()));
+        return RSVP::pkeyGet([
+            'profile_id' => $profile->getID(),
+            'event_uri'  => $this->getUri(),
+        ]);
     }
 
-    static public function getObjectType()
+    public static function getObjectType()
     {
         return self::OBJECT_TYPE;
     }

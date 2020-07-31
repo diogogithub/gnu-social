@@ -114,7 +114,7 @@ class Notice extends Managed_DataObject
                 'notice_object_type_idx' => array('object_type'),
                 'notice_verb_idx' => array('verb'),
                 'notice_url_idx' => array('url'),   // Qvitter wants this
-                'notice_replyto_idx' => array('reply_to')
+                'notice_reply_to_idx' => array('reply_to')
             )
         );
 

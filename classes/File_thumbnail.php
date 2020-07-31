@@ -51,7 +51,6 @@ class File_thumbnail extends Managed_DataObject
             ),
             'primary key' => array('file_id', 'width', 'height'),
             'indexes' => array(
-                'file_thumbnail_file_id_idx' => array('file_id'),
                 'file_thumbnail_urlhash_idx' => array('urlhash'),
             ),
             'foreign keys' => array(

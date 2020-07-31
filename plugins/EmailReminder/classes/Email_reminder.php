@@ -135,7 +135,7 @@ class Email_reminder extends Managed_DataObject
             ),
             'primary key' => array('type', 'code', 'days'),
             'indexes' => array(
-                'sent_idx' => array('sent'),
+                'email_reminder_sent_idx' => array('sent'),
              ),
         );
     }

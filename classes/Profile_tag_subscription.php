@@ -46,7 +46,7 @@ class Profile_tag_subscription extends Managed_DataObject
             ),
             'primary key' => array('profile_tag_id', 'profile_id'),
             'foreign keys' => array(
-                'profile_tag_subscription_profile_list_id_fkey' => array('profile_list', array('profile_tag_id' => 'id')),
+                'profile_tag_subscription_profile_tag_id_fkey' => array('profile_list', array('profile_tag_id' => 'id')),
                 'profile_tag_subscription_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
             ),
             'indexes' => array(

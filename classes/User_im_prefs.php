@@ -59,7 +59,7 @@ class User_im_prefs extends Managed_DataObject
             ),
             'primary key' => array('user_id', 'transport'),
             'unique keys' => array(
-                'transport_screenname_key' => array('transport', 'screenname'),
+                'user_im_prefs_transport_screenname_key' => array('transport', 'screenname'),
             ),
             'foreign keys' => array(
                 'user_im_prefs_user_id_fkey' => array('user', array('user_id' => 'id')),

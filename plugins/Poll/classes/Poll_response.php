@@ -20,7 +20,7 @@
  * @category  PollPlugin
  * @package   GNUsocial
  * @author    Brion Vibber <brion@status.net>
- * @copyright 2011, StatusNet, Inc.
+ * @copyright 2011 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
@@ -29,7 +29,7 @@ defined('GNUSOCIAL') || die();
 /**
  * For storing the poll options and such
  *
- * @copyright 2011, StatusNet, Inc.
+ * @copyright 2011 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
  * @see       DB_DataObject
@@ -65,7 +65,7 @@ class Poll_response extends Managed_DataObject
                 'poll_response_poll_id_profile_id_key' => array('poll_id', 'profile_id'),
             ),
             'indexes' => array(
-                'poll_response_profile_id_poll_id_index' => array('profile_id', 'poll_id'),
+                'poll_response_profile_id_poll_id_idx' => array('profile_id', 'poll_id'),
             )
         );
     }

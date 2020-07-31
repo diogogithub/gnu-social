@@ -51,9 +51,6 @@ class Profile_prefs extends Managed_DataObject
             'foreign keys' => array(
                 'profile_prefs_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
             ),
-            'indexes' => array(
-                'profile_prefs_profile_id_idx' => array('profile_id'),
-            ),
         );
     }
 

@@ -15,7 +15,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @copyright 2008, 2009, StatusNet, Inc.
+ * @copyright 2008, 2009 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
@@ -59,8 +59,8 @@ class Subscription extends Managed_DataObject
                 'subscription_uri_key' => array('uri'),
             ),
             'indexes' => array(
-                'subscription_subscriber_idx' => array('subscriber', 'created'),
-                'subscription_subscribed_idx' => array('subscribed', 'created'),
+                'subscription_subscriber_created_idx' => array('subscriber', 'created'),
+                'subscription_subscribed_created_idx' => array('subscribed', 'created'),
                 'subscription_token_idx' => array('token'),
             ),
         );
