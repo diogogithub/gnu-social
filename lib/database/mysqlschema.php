@@ -157,49 +157,36 @@ class MysqlSchema extends Schema
         }
 
         if ($hasKeys) {
-            // INFORMATION_SCHEMA's CONSTRAINTS and KEY_COLUMN_USAGE tables give
-            // good info on primary and unique keys but don't list ANY info on
-            // multi-value keys, which is lame-o. Sigh.
-            $keyColumns = $this->fetchMetaInfo($table, 'KEY_COLUMN_USAGE', 'CONSTRAINT_NAME, ORDINAL_POSITION');
-            $keys = [];
-            $fkeys = [];
+            $key_info = $this->fetchKeyInfo($table);
 
-            foreach ($keyColumns as $row) {
-                $keyName = $row['CONSTRAINT_NAME'];
-                $keyCol = $row['COLUMN_NAME'];
-                if (!isset($keys[$keyName])) {
-                    $keys[$keyName] = [];
-                }
-                $keys[$keyName][] = $keyCol;
-                if (!is_null($row['REFERENCED_TABLE_NAME'])) {
-                    $fkeys[] = $keyName;
-                }
-            }
-
-            foreach ($keys as $keyName => $cols) {
-                if ($keyName === 'PRIMARY') {
-                    $def['primary key'] = $cols;
-                } elseif (in_array($keyName, $fkeys)) {
-                    $fkey = $this->fetchForeignKeyInfo($table, $keyName);
-                    $colMap = array_combine($cols, $fkey['cols']);
-                    $def['foreign keys'][$keyName] = [$fkey['table_name'], $colMap];
-                } else {
-                    $def['unique keys'][$keyName] = $cols;
-                }
-            }
-
-            $indexInfo = $this->fetchIndexInfo($table);
-
-            foreach ($indexInfo as $row) {
-                $keyName = $row['key_name'];
+            foreach ($key_info as $row) {
+                $key_name = $row['key_name'];
                 $cols = $row['cols'];
 
-                if ($row['key_type'] === 'FULLTEXT') {
-                    $def['fulltext indexes'][$keyName] = $cols;
-                } else {
-                    $def['indexes'][$keyName] = $cols;
+                switch ($row['key_type']) {
+                    case 'PRIMARY':
+                        $def['primary key'] = $cols;
+                        break;
+                    case 'UNIQUE':
+                        $def['unique keys'][$key_name] = $cols;
+                        break;
+                    case 'FULLTEXT':
+                        $def['fulltext indexes'][$key_name] = $cols;
+                        break;
+                    default:
+                        $def['indexes'][$key_name] = $cols;
                 }
             }
+        }
+
+        $foreign_key_info = $this->fetchForeignKeyInfo($table);
+
+        foreach ($foreign_key_info as $row) {
+            $key_name = $row['key_name'];
+            $cols = $row['cols'];
+            $ref_table = $row['ref_table'];
+
+            $def['foreign keys'][$key_name] = [$ref_table, $cols];
         }
         return $def;
     }
@@ -235,14 +222,17 @@ class MysqlSchema extends Schema
      */
     public function fetchMetaInfo($table, $infoTable, $orderBy = null)
     {
-        $query = "SELECT * FROM INFORMATION_SCHEMA.%s " .
-            "WHERE TABLE_SCHEMA='%s' AND TABLE_NAME='%s'";
         $schema = $this->conn->dsn['database'];
-        $sql = sprintf($query, $infoTable, $schema, $table);
-        if ($orderBy) {
-            $sql .= ' ORDER BY ' . $orderBy;
-        }
-        return $this->fetchQueryData($sql);
+        return $this->fetchQueryData(sprintf(
+            <<<'END'
+            SELECT * FROM INFORMATION_SCHEMA.%1$s
+              WHERE TABLE_SCHEMA = '%2$s' AND TABLE_NAME = '%3$s'%4$s;
+            END,
+            $this->quoteIdentifier($infoTable),
+            $schema,
+            $table,
+            ($orderBy ? " ORDER BY {$orderBy}" : '')
+        ));
     }
 
     /**
@@ -252,62 +242,87 @@ class MysqlSchema extends Schema
      * @return array of arrays
      * @throws PEAR_Exception
      */
-    public function fetchIndexInfo(string $table): array
+    private function fetchKeyInfo(string $table): array
+    {
+        $schema = $this->conn->dsn['database'];
+        $data = $this->fetchQueryData(
+            <<<EOT
+            SELECT INDEX_NAME AS `key_name`,
+                CASE
+                  WHEN INDEX_NAME = 'PRIMARY' THEN 'PRIMARY'
+                  WHEN NON_UNIQUE IS NOT TRUE THEN 'UNIQUE'
+                  ELSE INDEX_TYPE
+                END AS `key_type`,
+                COLUMN_NAME AS `col`,
+                SUB_PART AS `col_length`
+              FROM INFORMATION_SCHEMA.STATISTICS
+              WHERE TABLE_SCHEMA = '{$schema}' AND TABLE_NAME = '{$table}'
+              ORDER BY `key_name`, `key_type`, SEQ_IN_INDEX;
+            EOT
+        );
+
+        $rows = [];
+        foreach ($data as $row) {
+            $name = $row['key_name'];
+
+            if (!is_null($row['col_length'])) {
+                $row['col'] = [$row['col'], (int) $row['col_length']];
+            }
+            unset($row['col_length']);
+
+            if (!array_key_exists($name, $rows)) {
+                $row['cols'] = [$row['col']];
+
+                unset($row['col']);
+                $rows[$name] = $row;
+            } else {
+                $rows[$name]['cols'][] = $row['col'];
+            }
+        }
+
+        return array_values($rows);
+    }
+
+    /**
+     * Pull foreign key information for the given table.
+     *
+     * @param string $table
+     * @return array array of arrays
+     * @throws PEAR_Exception
+     */
+    private function fetchForeignKeyInfo(string $table): array
     {
         $schema = $this->conn->dsn['database'];
         $data = $this->fetchQueryData(
             <<<END
-            SELECT INDEX_NAME AS `key_name`, INDEX_TYPE AS `key_type`, COLUMN_NAME AS `col`
-              FROM INFORMATION_SCHEMA.STATISTICS
+            SELECT CONSTRAINT_NAME AS `key_name`,
+                COLUMN_NAME AS `col`,
+                REFERENCED_TABLE_NAME AS `ref_table`,
+                REFERENCED_COLUMN_NAME AS `ref_col`
+              FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
               WHERE TABLE_SCHEMA = '{$schema}'
               AND TABLE_NAME = '{$table}'
-              AND NON_UNIQUE IS TRUE
-              ORDER BY SEQ_IN_INDEX;
+              AND REFERENCED_TABLE_SCHEMA = '{$schema}'
+              ORDER BY `key_name`, ORDINAL_POSITION;
             END
         );
 
         $rows = [];
         foreach ($data as $row) {
             $name = $row['key_name'];
-            if (isset($rows[$name])) {
-                $rows[$name]['cols'][] = $row['col'];
-            } else {
-                $row['cols'] = [$row['col']];
+
+            if (!array_key_exists($name, $rows)) {
+                $row['cols'] = [$row['col'] => $row['ref_col']];
+
                 unset($row['col']);
+                unset($row['ref_col']);
                 $rows[$name] = $row;
+            } else {
+                $rows[$name]['cols'][$row['col']] = $row['ref_col'];
             }
         }
+
         return array_values($rows);
-    }
-
-    /**
-     * @param string $table
-     * @param string $constraint_name
-     * @return array array of rows with keys: table_name, cols (array of strings)
-     * @throws PEAR_Exception
-     */
-    public function fetchForeignKeyInfo(string $table, string $constraint_name): array
-    {
-        $query = 'SELECT REFERENCED_TABLE_NAME AS `table_name`, REFERENCED_COLUMN_NAME AS `col` ' .
-            'FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE ' .
-            'WHERE TABLE_SCHEMA = \'%s\' AND TABLE_NAME = \'%s\' AND CONSTRAINT_NAME = \'%s\' ' .
-            'AND REFERENCED_TABLE_SCHEMA IS NOT NULL ' .
-            'ORDER BY POSITION_IN_UNIQUE_CONSTRAINT';
-        $schema = $this->conn->dsn['database'];
-        $sql = sprintf($query, $schema, $table, $constraint_name);
-        $data = $this->fetchQueryData($sql);
-        if (count($data) < 1) {
-            throw new Exception('Could not find foreign key ' . $constraint_name . ' on table ' . $table);
-        }
-
-        $info = [
-            'table_name' => $data[0]['table_name'],
-            'cols'       => [],
-        ];
-        foreach ($data as $row) {
-            $info['cols'][] = $row['col'];
-        }
-        return $info;
     }
 
     /**
