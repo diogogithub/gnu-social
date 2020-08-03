@@ -78,7 +78,7 @@ abstract class Event
     public static function addHandler(string $name,
                                       callable $handler,
                                       int $priority = 0,
-                                      string $ns = 'GNUsocial/'): void
+                                      string $ns = 'GNUsocial.'): void
     {
         self::$dispatcher->addListener(
             $ns . $name,
@@ -116,9 +116,9 @@ abstract class Event
      * @return bool flag saying whether to continue processing, based
      *              on results of handlers.
      */
-    public static function handle(string $name, array $args = [], string $ns = 'GNUsocial/'): bool
+    public static function handle(string $name, array $args = [], string $ns = 'GNUsocial.'): bool
     {
-        return !(self::$dispatcher->dispatch(new GenericEvent($ns . $name, $args), $name)->isPropagationStopped());
+        return !(self::$dispatcher->dispatch(new GenericEvent($name, $args), $ns . $name)->isPropagationStopped());
     }
 
     /**
