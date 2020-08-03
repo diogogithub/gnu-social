@@ -68,10 +68,15 @@ class ActivityPubQueueHandler extends QueueHandler
             common_log(LOG_ERR, "Ignoring distribution of notice:{$notice->id}: activity source");
             return true;
         }
-        
+
         $other = Activitypub_profile::from_profile_collection(
             $notice->getAttentionProfiles()
         );
+
+        // Handling a Create?
+        if (ActivityUtils::compareVerbs($notice->verb, [ActivityVerb::POST])) {
+            return $this->handle_create($profile, $notice, $other);
+        }
 
         // Handling a Like?
         if (ActivityUtils::compareVerbs($notice->verb, [ActivityVerb::FAVORITE])) {
@@ -88,73 +93,71 @@ class ActivityPubQueueHandler extends QueueHandler
             return $this->onStartDeleteOwnNotice($profile, $notice, $other);
         }
 
+        return true;
+    }
+
+    private function handle_create($profile, $notice, $other)
+    {
         // Handling a reply?
         if ($notice->reply_to) {
-            return $this->handle_reply($profile, $notice, $other);
+            try {
+                $parent_notice = $notice->getParent();
+
+                try {
+                    $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
+                } catch (Exception $e) {
+                    // Local user can be ignored
+                }
+
+                foreach ($parent_notice->getAttentionProfiles() as $mention) {
+                    try {
+                        $other[] = Activitypub_profile::from_profile($mention);
+                    } catch (Exception $e) {
+                        // Local user can be ignored
+                    }
+                }
+            } catch (NoParentNoticeException $e) {
+                // This is not a reply to something (has no parent)
+            } catch (NoResultException $e) {
+                // Parent author's profile not found! Complain louder?
+                common_log(
+                    LOG_ERR,
+                    "Parent notice's author not found: " . $e->getMessage()
+                );
+            }
         }
 
         // Handling an Announce?
         if ($notice->isRepeat()) {
-            return $this->handle_announce($profile, $notice, $other);
-        }
+            $repeated_notice = Notice::getKV('id', $notice->repeat_of);
+            if ($repeated_notice instanceof Notice) {
+                $other = array_merge(
+                    $other,
+                    Activitypub_profile::from_profile_collection(
+                        $repeated_notice->getAttentionProfiles()
+                    )
+                );
 
-        return true;
-    }
-
-    private function handle_reply($profile, $notice, $other)
-    {
-        try {
-            $parent_notice = $notice->getParent();
-
-            try {
-                $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
-            } catch (Exception $e) {
-                // Local user can be ignored
-            }
-
-            foreach ($parent_notice->getAttentionProfiles() as $mention) {
                 try {
-                    $other[] = Activitypub_profile::from_profile($mention);
+                    $other[] = Activitypub_profile::from_profile(
+                        $repeated_notice->getProfile()
+                    );
                 } catch (Exception $e) {
                     // Local user can be ignored
                 }
+
+                // That was it
+                $postman = new Activitypub_postman($profile, $other);
+                $postman->announce($repeated_notice);
             }
-        } catch (NoParentNoticeException $e) {
-            // This is not a reply to something (has no parent)
-        } catch (NoResultException $e) {
-            // Parent author's profile not found! Complain louder?
-            common_log(LOG_ERR, "Parent notice's author not found: ".$e->getMessage());
+
+            // either made the announce or found nothing to repeat
+            return true;
         }
 
         // That was it
         $postman = new Activitypub_postman($profile, $other);
         $postman->create_note($notice);
-        return true;
-    }
-
-    private function handle_announce($profile, $notice, $other)
-    {
-        $repeated_notice = Notice::getKV('id', $notice->repeat_of);
-        if ($repeated_notice instanceof Notice) {
-            $other = array_merge(
-                $other,
-                Activitypub_profile::from_profile_collection(
-                    $repeated_notice->getAttentionProfiles()
-                )
-            );
-
-            try {
-                $other[] = Activitypub_profile::from_profile($repeated_notice->getProfile());
-            } catch (Exception $e) {
-                // Local user can be ignored
-            }
-
-            // That was it
-            $postman = new Activitypub_postman($profile, $other);
-            $postman->announce($repeated_notice);
-        }
-
-        // either made the announce or found nothing to repeat
         return true;
     }
 
