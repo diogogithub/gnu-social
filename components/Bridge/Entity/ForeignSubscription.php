@@ -17,12 +17,12 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace Module\Entity;
+namespace Component\Bridge\Entity;
 
 use DateTimeInterface;
 
 /**
- * Entity for Foreign Users
+ * Entity for user's foreign subscriptions
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,27 +35,14 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ForeignUser
+class ForeignSubscription
 {
     // {{{ Autocode
 
-    private int $id;
     private int $service;
-    private string $uri;
-    private ?string $nickname;
+    private int $subscriber;
+    private int $subscribed;
     private DateTimeInterface $created;
-    private DateTimeInterface $modified;
-
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
 
     public function setService(int $service): self
     {
@@ -68,26 +55,26 @@ class ForeignUser
         return $this->service;
     }
 
-    public function setUri(string $uri): self
+    public function setSubscriber(int $subscriber): self
     {
-        $this->uri = $uri;
+        $this->subscriber = $subscriber;
         return $this;
     }
 
-    public function getUri(): string
+    public function getSubscriber(): int
     {
-        return $this->uri;
+        return $this->subscriber;
     }
 
-    public function setNickname(?string $nickname): self
+    public function setSubscribed(int $subscribed): self
     {
-        $this->nickname = $nickname;
+        $this->subscribed = $subscribed;
         return $this;
     }
 
-    public function getNickname(): ?string
+    public function getSubscribed(): int
     {
-        return $this->nickname;
+        return $this->subscribed;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -101,37 +88,28 @@ class ForeignUser
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
-    {
-        $this->modified = $modified;
-        return $this;
-    }
-
-    public function getModified(): DateTimeInterface
-    {
-        return $this->modified;
-    }
-
     // }}} Autocode
 
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'foreign_user',
+            'name' => 'foreign_subscription',
+
             'fields' => [
-                'id'       => ['type' => 'int', 'size' => 'big', 'not null' => true, 'description' => 'unique numeric key on foreign service'],
-                'service'  => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to service'],
-                'uri'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'identifying URI'],
-                'nickname' => ['type' => 'varchar', 'length' => 191, 'description' => 'nickname on foreign service'],
-                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+                'service'    => ['type' => 'int', 'not null' => true, 'description' => 'service where relationship happens'],
+                'subscriber' => ['type' => 'int', 'size' => 'big', 'not null' => true, 'description' => 'subscriber on foreign service'],
+                'subscribed' => ['type' => 'int', 'size' => 'big', 'not null' => true, 'description' => 'subscribed user'],
+                'created'    => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
             ],
-            'primary key'  => ['id', 'service'],
+            'primary key'  => ['service', 'subscriber', 'subscribed'],
             'foreign keys' => [
-                'foreign_user_service_fkey' => ['foreign_service', ['service' => 'id']],
+                'foreign_subscription_service_fkey'    => ['foreign_service', ['service' => 'id']],
+                'foreign_subscription_subscriber_fkey' => ['foreign_user', ['subscriber' => 'id', 'service' => 'service']],
+                'foreign_subscription_subscribed_fkey' => ['foreign_user', ['subscribed' => 'id', 'service' => 'service']],
             ],
-            'unique keys' => [
-                'foreign_user_uri_key' => ['uri'],
+            'indexes' => [
+                'foreign_subscription_subscriber_idx' => ['service', 'subscriber'],
+                'foreign_subscription_subscribed_idx' => ['service', 'subscribed'],
             ],
         ];
     }

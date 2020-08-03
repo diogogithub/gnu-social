@@ -17,7 +17,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace Module\Entity;
+namespace Component\Bridge\Entity;
 
 use DateTimeInterface;
 
