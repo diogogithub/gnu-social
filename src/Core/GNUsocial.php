@@ -67,6 +67,7 @@ class GNUsocial implements EventSubscriberInterface
 {
     use TargetPathTrait;
 
+    protected bool                     $initialized = false;
     protected LoggerInterface          $logger;
     protected TranslatorInterface      $translator;
     protected EntityManagerInterface   $entity_manager;
@@ -92,7 +93,7 @@ class GNUsocial implements EventSubscriberInterface
                                 SessionInterface $sess,
                                 SSecurity $sec,
                                 MailerInterface $mail,
-                                ModuleManager $mod)
+                                ModuleManager $mm)
     {
         $this->logger           = $logger;
         $this->translator       = $trans;
@@ -104,7 +105,7 @@ class GNUsocial implements EventSubscriberInterface
         $this->session          = $sess;
         $this->security         = $sec;
         $this->mailer           = $mail;
-        $this->module_manager   = $mod;
+        $this->module_manager   = $mm;
 
         $this->initialize();
     }
@@ -116,21 +117,27 @@ class GNUsocial implements EventSubscriberInterface
      */
     public function initialize(): void
     {
-        Log::setLogger($this->logger);
-        Event::setDispatcher($this->event_dispatcher);
-        I18n::setTranslator($this->translator);
-        DB::setManager($this->entity_manager);
-        Router::setRouter($this->router);
-        Form::setFactory($this->form_factory);
-        Queue::setMessageBus($this->message_bus);
-        Security::setHelper($this->security);
-        Mailer::setMailer($this->mailer);
+        if (!$this->initialized) {
+            Log::setLogger($this->logger);
+            Event::setDispatcher($this->event_dispatcher);
+            I18n::setTranslator($this->translator);
+            DB::setManager($this->entity_manager);
+            Form::setFactory($this->form_factory);
+            Queue::setMessageBus($this->message_bus);
+            Security::setHelper($this->security);
+            Mailer::setMailer($this->mailer);
 
-        DefaultSettings::setDefaults();
+            DefaultSettings::setDefaults();
 
-        Cache::setupCache();
+            Cache::setupCache();
 
-        $this->module_manager->loadModules();
+            // Events are proloaded on compilation, but set at runtime
+            $this->module_manager->loadModules();
+
+            Router::setRouter($this->router);
+
+            $this->initialized = true;
+        }
     }
 
     /**
