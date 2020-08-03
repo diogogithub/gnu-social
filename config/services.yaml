@@ -45,3 +45,11 @@ services:
       tags: [messenger.message_handler]
 
     Symfony\Bridge\Doctrine\Security\RememberMe\DoctrineTokenProvider: ~
+
+    Plugin\:
+      resource: '../plugins/*'
+      tags: ['controller.service_arguments']
+
+    Component\:
+      resource: '../components/*'
+      tags: ['controller.service_arguments']
