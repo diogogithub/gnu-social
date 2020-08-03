@@ -65,7 +65,8 @@
         "files": ["src/Core/I18n/I18n.php"],
         "psr-4": {
             "App\\": "src/",
-            "Plugin\\": "plugins/enabled/"
+            "Plugin\\": "plugins/",
+            "Component\\": "components/"
         }
     },
     "autoload-dev": {
