@@ -69,9 +69,6 @@ EOF
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-
-        $options   = [];
         $patterm   = $input->getArgument('pattern') ?? 'GNUsocial.*';
         $listeners = $this->dispatcher->getListeners();
         $listeners = F\select($listeners,
@@ -79,18 +76,24 @@ EOF
                                   return preg_match('/' . $patterm . '/', $key);
                               });
 
+        echo "\n";
         foreach ($listeners as $event => $listener) {
-            echo "Event '{$event}' handled by:\n";
+            echo "Event '{$event}':\n";
             foreach ($listener as $c) {
                 $r = new ReflectionFunction($c);
-                echo '    ' . get_class($r->getStaticVariables()['handler'][0]) . "\n";
+                $m = $r->getStaticVariables()['handler'];
+                echo '    ' . get_class($m[0]) . '::' . $m[1] . "\n";
             }
+            echo "\n";
         }
 
-        $helper            = new DescriptorHelper();
-        $options['output'] = $io;
-        $helper->describe($io, null, $options);
-
+        if (!$input->hasArgument('pattern')) {
+            $io                = new SymfonyStyle($input, $output);
+            $options           = [];
+            $helper            = new DescriptorHelper();
+            $options['output'] = $io;
+            $helper->describe($io, null, $options);
+        }
         return 0;
     }
 }
