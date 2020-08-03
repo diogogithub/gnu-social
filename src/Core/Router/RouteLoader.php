@@ -34,6 +34,7 @@
 
 namespace App\Core\Router;
 
+use App\Core\Event;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
@@ -60,6 +61,8 @@ class RouteLoader extends Loader
             $ns = '\\App\\Routes\\' . basename($file, '.php');
             $ns::load($this);
         }
+
+        Event::handle('add_route', [&$this]);
 
         return $this->rc;
     }
