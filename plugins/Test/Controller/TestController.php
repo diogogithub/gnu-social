@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Controller;
+namespace Plugin\Test\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Core\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class TestController extends AbstractController
+class TestController extends Controller
 {
-    public function __invoke()
+    public function __invoke(Request $request)
     {
-        return new Response('<div style="background: #333; text-color: #999"> Test controller </div>');
+        return new Response('<html style="background: #333; color: #ccc"> Test controller </div>');
     }
 }
