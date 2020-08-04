@@ -44,9 +44,7 @@ END_OF_HELP;
 
 require_once INSTALLDIR.'/scripts/commandline.inc';
 
-$quiet = have_option('q', 'quiet');
-
-if (!$quiet) {
+if (!have_option('q', 'quiet')) {
     echo "ActivityPub Profiles updater will now start!\n";
     echo "Summoning Diogo Cordeiro, Richard Stallman and Chuck Norris to help us with this task!\n";
 }
@@ -60,9 +58,7 @@ if (have_option('u', 'uri')) {
         echo $e->getMessage()."\n";
         exit(1);
     }
-    if (!$quiet) {
-        echo 'Updated '.Activitypub_profile::update_profile($user, $res)->getBestName()."\n";
-    }
+    printfnq('Updated '.Activitypub_profile::update_profile($user, $res)->getBestName()."\n");
     exit(0);
 } elseif (!have_option('a', 'all')) {
     show_help();
@@ -72,18 +68,12 @@ if (have_option('u', 'uri')) {
 $user = new Activitypub_profile();
 $cnt = $user->find();
 if (!empty($cnt)) {
-    if (!$quiet) {
-        echo "Found {$cnt} ActivityPub profiles:\n";
-    }
+    printfnq("Found {$cnt} ActivityPub profiles:\n");
 } else {
     if (have_option('u', 'uri')) {
-        if (!$quiet) {
-            echo "Couldn't find an existing ActivityPub profile with that URI.\n";
-        }
+        printfnq("Couldn't find an existing ActivityPub profile with that URI.\n");
     } else {
-        if (!$quiet) {
-            echo "Couldn't find any existing ActivityPub profiles.\n";
-        }
+        printfnq("Couldn't find any existing ActivityPub profiles.\n");
     }
     exit(0);
 }
@@ -91,14 +81,12 @@ while ($user->fetch()) {
     try {
         $res = Activitypub_explorer::get_remote_user_activity($user->uri);
         $updated_profile = Activitypub_profile::update_profile($user, $res);
-        if (!$quiet) {
-            echo 'Updated '.$updated_profile->getBestName()."\n";
-        }
+        printfnq('Updated '.$updated_profile->getBestName()."\n");
     } catch (NoProfileException $e) {
-        if (!$quiet) {
-            echo 'Deleted '.$user->uri."\n";
-        }
+        printfnq('Deleted '.$user->uri."\n");
     } catch (Exception $e) {
         // let it go
     }
 }
+$user->free();
+unset($user);
