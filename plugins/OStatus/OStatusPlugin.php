@@ -710,7 +710,7 @@ class OStatusPlugin extends Plugin
      * @param Profile $profile  subscriber
      * @param Profile $other    subscribee
      *
-     * @return hook return code
+     * @return bool hook return code
      *
      * @throws Exception
      */
@@ -735,7 +735,7 @@ class OStatusPlugin extends Plugin
      * @param Profile $profile  subscriber
      * @param Profile $other    subscribee
      *
-     * @return hook return code
+     * @return bool hook return code
      *
      * @throws Exception
      */

@@ -385,7 +385,7 @@ class Ostatus_profile extends Managed_DataObject
      *
      * @param mixed $entry XML string, Notice, or Activity
      * @param Profile $actor
-     * @return boolean success
+     * @return bool success
      */
     public function notifyActivity($entry, Profile $actor)
     {

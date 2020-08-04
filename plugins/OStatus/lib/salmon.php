@@ -43,11 +43,16 @@ class Salmon
      *
      * @param string $endpoint_uri
      * @param string $xml string representation of payload
-     * @param Profile $user profile whose keys we sign with (must be a local user)
-     * @return boolean success
+     * @param Profile $actor profile whose keys we sign with (must be a local user)
+     * @param Profile|null $target
+     * @return bool success
      */
-    public static function post($endpoint_uri, $xml, Profile $actor, Profile $target=null)
-    {
+    public static function post(
+        $endpoint_uri,
+        $xml,
+        Profile $actor,
+        ?Profile $target = null
+    ) {
         if (empty($endpoint_uri)) {
             common_debug('No endpoint URI for Salmon post to '.$actor->getUri());
             return false;

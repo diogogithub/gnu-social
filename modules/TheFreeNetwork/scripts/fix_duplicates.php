@@ -80,25 +80,35 @@ function fix_duplicates(string $profile_class, array &$seen): void
 
         // Have we seen this profile before?
         if (array_key_exists($uri, $seen)) {
-            // Was it on a previous protocol? Keep the highest preference protocol's one
-            if ($seen[$uri] !== $id) {
-                printfnq("Deleting Profile with id = {$id}\n");
-                $profile = Profile::getByID($id);
-                $profile->delete();
-            } else {
-                printfnq("Deleting {$profile_class} with id = {$id}\n");
-                $protocol_profile->delete();
+            try {
+                // Was it on a previous protocol? Keep the highest preference protocol's one
+                if ($seen[$uri] !== $id) {
+                    printfnq("Deleting Profile with id = {$id}\n");
+                    $profile = Profile::getByID($id);
+                    $profile->delete();
+                } else {
+                    printfnq("Deleting {$profile_class} with id = {$id}\n");
+                    $protocol_profile->delete();
+                }
+            } catch (Exception $e) {
+                // Let it go
+                printfnq('FWIW: ' . $e->getMessage() . "\n");
             }
         } elseif (array_key_exists($uri, $seen_local)) {
-            // Was it in this protocol? Delete the older record.
-            if ($seen_local[$uri] !== $id) {
-                printfnq("Deleting Profile with id = {$seen_local[$uri]}\n");
-                $profile = Profile::getByID($seen_local[$uri]);
-                $profile->delete();
-            } else {
-                printfnq("Deleting {$profile_class} with id = {$seen_local[$uri]}\n");
-                $profile = $profile_class::getKV('profile_id', $seen_local[$uri]);
-                $profile->delete();
+            try {
+                // Was it in this protocol? Delete the older record.
+                if ($seen_local[$uri] !== $id) {
+                    printfnq("Deleting Profile with id = {$seen_local[$uri]}\n");
+                    $profile = Profile::getByID($seen_local[$uri]);
+                    $profile->delete();
+                } else {
+                    printfnq("Deleting {$profile_class} with id = {$seen_local[$uri]}\n");
+                    $profile = $profile_class::getKV('profile_id', $seen_local[$uri]);
+                    $profile->delete();
+                }
+            } catch (Exception $e) {
+                // Let it go
+                printfnq('FWIW: ' . $e->getMessage() . "\n");
             }
             // Update the profile id for this URI.
             $seen_local[$uri] = $id;
@@ -107,6 +117,8 @@ function fix_duplicates(string $profile_class, array &$seen): void
             $seen_local[$uri] = $id;
         }
     }
+    $protocol_profile->free();
+    unset($protocol_profile);
 
     // Merge the findings inside this protocol with the global seen to be used on the next protocol of the list.
     $seen = array_merge($seen, $seen_local);
