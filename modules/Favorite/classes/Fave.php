@@ -137,18 +137,14 @@ class Fave extends Managed_DataObject
         $result = null;
 
         try {
-            if ($this->find()) {
-                while ($this->fetch()) {
-                    $profile = $this->getActor();
-                    $notice  = $this->getTarget();
+            $profile = $this->getActor();
+            $notice  = $this->getTarget();
 
-                    if (Event::handle('StartDisfavorNotice', [$profile, $notice, &$result])) {
-                        $result = parent::delete($useWhere);
+            if (Event::handle('StartDisfavorNotice', [$profile, $notice, &$result])) {
+                $result = parent::delete($useWhere);
 
-                        if ($result !== false) {
-                            Event::handle('EndDisfavorNotice', [$profile, $notice]);
-                        }
-                    }
+                if ($result !== false) {
+                    Event::handle('EndDisfavorNotice', [$profile, $notice]);
                 }
             }
         } catch (NoResultException $e) {

@@ -342,7 +342,14 @@ class FavoriteModule extends ActivityVerbHandlerModule
     {
         $fave = new Fave();
         $fave->user_id = $profile->id;
-        $fave->delete();    // Will perform a DELETE matching "user_id = {$user->id}"
+
+        // Will perform a DELETE matching "user_id = {$user->id}"
+        if ($fave->find()) {
+            while ($fave->fetch()) {
+                $fave->delete();
+            }
+        }
+
         $fave->free();
 
         Fave::blowCacheForProfileId($profile->id);
