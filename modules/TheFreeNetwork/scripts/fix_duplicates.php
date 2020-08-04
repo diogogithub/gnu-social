@@ -41,11 +41,15 @@ require_once INSTALLDIR . '/scripts/commandline.inc';
 /**
  * Remote profiles are inspected from the most to the least
  * relevant according to the protocols they belong.
- * Doing so while maintaing a global 'seen' array makes it
+ * Invariants:
+ *  - `seen_local` array:  The most recent profile inside of a certain protocol
+ *  - global `seen` array:  The most relevant profile (if there were duplicates, the first protocol of the list is the one to have its profile maintained)
+ * We do so while maintaining a global 'seen' array makes it
  * easy to satisfy a policy of maintaining only the duplicated
  * profiles that are either the most relevant or the newest
  * ones intra-protocol wise.
  */
+
 function run(): void
 {
     $protocols = common_config('TheFreeNetworkModule', 'protocols');
@@ -73,38 +77,38 @@ function fix_duplicates(string $profile_class, array &$seen): void
         $id  = $db->profile_id;
         $uri = $db->uri;
 
-        // have we seen this profile before?
+        // Have we seen this profile before?
         if (array_key_exists($uri, $seen)) {
-            // yes, mantain previous
+            // Was it on a previous protocol? Keep the highest preference protocol's one
             if ($seen[$uri] !== $id) {
-                printfv("Deleting Profile with id = {$id}");
+                printfv("Deleting Profile with id = {$id}\n");
                 $profile = Profile::getKV('id', $id);
-                $profile->delete(); // will propagate to federation profile classes
+                $profile->delete();
             } else {
-                printfv("Deleting {$profile_class} with id = {$id}");
+                printfv("Deleting {$profile_class} with id = {$id}\n");
                 $profile = $profile_class::getKV('profile_id', $id);
                 $profile->delete();
             }
         } elseif (array_key_exists($uri, $seen_local)) {
-            // yes, mantain current
+            // Was it in this protocol? Delete the older record.
             if ($seen_local[$uri] !== $id) {
-                printfv("Deleting Profile with id = {$id}");
+                printfv("Deleting Profile with id = {$seen_local[$uri]}\n");
                 $profile = Profile::getKV('id', $seen_local[$uri]);
-                $profile->delete(); // will propagate to federation profile classes
+                $profile->delete();
             } else {
-                printfv("Deleting {$profile_class} with id = {$seen_local[$uri]}");
+                printfv("Deleting {$profile_class} with id = {$seen_local[$uri]}\n");
                 $profile = $profile_class::getKV('profile_id', $seen_local[$uri]);
                 $profile->delete();
             }
-
+            // Update the profile id for this URI.
             $seen_local[$uri] = $id;
         } else {
-            // no, save it
+            // It's the first time we see this profile _inside_ this protocol!
             $seen_local[$uri] = $id;
         }
     }
 
-    // save valid local profiles
+    // Merge the findings inside this protocol with the global seen to be used on the next protocol of the list.
     $seen = array_merge($seen, $seen_local);
 }
 
