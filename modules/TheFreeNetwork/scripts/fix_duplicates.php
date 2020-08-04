@@ -40,13 +40,12 @@ require_once INSTALLDIR . '/scripts/commandline.inc';
 
 /**
  * Remote profiles are inspected from the most to the least
- * relevant according to the protocols they belong.
+ * preferred according to the protocols they belong and age.
  * Invariants:
- *  - `seen_local` array:  The most recent profile inside of a certain protocol
- *  - global `seen` array:  The most relevant profile (if there were duplicates, the first protocol of the list is the one to have its profile maintained)
- * We do so while maintaining a global 'seen' array makes it
- * easy to satisfy a policy of maintaining only the duplicated
- * profiles that are either the most relevant or the newest
+ *  - `seen_local` array:  The most recent profile inside of a certain protocol are kept
+ *  - global `seen` array:  The most relevant profile (if there were duplicates, the first protocol of the list is the one to have its profile maintained) are kept
+ * These two variables make it easy to satisfy a policy of maintaining
+ * only the profiles that are either the most relevant or the newest
  * ones intra-protocol wise.
  */
 
@@ -62,41 +61,42 @@ function run(): void
 
 function fix_duplicates(string $profile_class, array &$seen): void
 {
-    $db = new $profile_class();
-    $db->selectAdd('profile_id');
-    $db->selectAdd('uri');
-    $db->whereAdd('profile_id IS NOT NULL'); // ignore groups
+    $protocol_profile = new $profile_class();
+    $protocol_profile->selectAdd();
+    $protocol_profile->selectAdd('profile_id');
+    $protocol_profile->selectAdd('uri');
+    $protocol_profile->whereAdd('profile_id IS NOT NULL'); // ignore groups
 
-    if (!$db->find()) {
+    if (!$protocol_profile->find()) {
+        // This protocol wasn't used apparently
         return;
     }
 
     $seen_local = [];
 
-    while ($db->fetch()) {
-        $id  = $db->profile_id;
-        $uri = $db->uri;
+    while ($protocol_profile->fetch()) {
+        $id  = $protocol_profile->profile_id;
+        $uri = $protocol_profile->uri;
 
         // Have we seen this profile before?
         if (array_key_exists($uri, $seen)) {
             // Was it on a previous protocol? Keep the highest preference protocol's one
             if ($seen[$uri] !== $id) {
-                printfv("Deleting Profile with id = {$id}\n");
-                $profile = Profile::getKV('id', $id);
+                printfnq("Deleting Profile with id = {$id}\n");
+                $profile = Profile::getByID($id);
                 $profile->delete();
             } else {
-                printfv("Deleting {$profile_class} with id = {$id}\n");
-                $profile = $profile_class::getKV('profile_id', $id);
-                $profile->delete();
+                printfnq("Deleting {$profile_class} with id = {$id}\n");
+                $protocol_profile->delete();
             }
         } elseif (array_key_exists($uri, $seen_local)) {
             // Was it in this protocol? Delete the older record.
             if ($seen_local[$uri] !== $id) {
-                printfv("Deleting Profile with id = {$seen_local[$uri]}\n");
-                $profile = Profile::getKV('id', $seen_local[$uri]);
+                printfnq("Deleting Profile with id = {$seen_local[$uri]}\n");
+                $profile = Profile::getByID($seen_local[$uri]);
                 $profile->delete();
             } else {
-                printfv("Deleting {$profile_class} with id = {$seen_local[$uri]}\n");
+                printfnq("Deleting {$profile_class} with id = {$seen_local[$uri]}\n");
                 $profile = $profile_class::getKV('profile_id', $seen_local[$uri]);
                 $profile->delete();
             }
