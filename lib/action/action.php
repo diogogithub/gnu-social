@@ -150,11 +150,9 @@ class action extends HTMLOutputter // lawsuit
             $code = 400;
         }
 
-        $status_string = ClientErrorAction::$status[$code];
-
         switch ($format) {
             case 'xml':
-                header("HTTP/1.1 {$code} {$status_string}");
+                http_response_code($code);
                 $this->initDocument('xml');
                 $this->elementStart('hash');
                 $this->element('error', null, $msg);
@@ -164,7 +162,7 @@ class action extends HTMLOutputter // lawsuit
                 break;
             case 'json':
                 if (!isset($this->callback)) {
-                    header("HTTP/1.1 {$code} {$status_string}");
+                    http_response_code($code);
                 }
                 $this->initDocument('json');
                 $error_array = ['error' => $msg, 'request' => $_SERVER['REQUEST_URI']];
@@ -172,7 +170,7 @@ class action extends HTMLOutputter // lawsuit
                 $this->endDocument('json');
                 break;
             case 'text':
-                header("HTTP/1.1 {$code} {$status_string}");
+                http_response_code($code);
                 header('Content-Type: text/plain; charset=utf-8');
                 echo $msg;
                 break;
@@ -411,7 +409,7 @@ class action extends HTMLOutputter // lawsuit
                 // If this check fails, ignore the if-modified-since below.
                 $checked = true;
                 if ($this->_hasEtag($etag, $if_none_match)) {
-                    header('HTTP/1.1 304 Not Modified');
+                    http_response_code(304);
                     // Better way to do this?
                     exit(0);
                 }
@@ -422,7 +420,7 @@ class action extends HTMLOutputter // lawsuit
             $if_modified_since = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
             $ims = strtotime($if_modified_since);
             if ($lm <= $ims) {
-                header('HTTP/1.1 304 Not Modified');
+                http_response_code(304);
                 // Better way to do this?
                 exit(0);
             }
@@ -505,11 +503,9 @@ class action extends HTMLOutputter // lawsuit
             $code = 500;
         }
 
-        $status_string = ServerErrorAction::$status[$code];
-
         switch ($format) {
             case 'xml':
-                header("HTTP/1.1 {$code} {$status_string}");
+                http_response_code($code);
                 $this->initDocument('xml');
                 $this->elementStart('hash');
                 $this->element('error', null, $msg);
@@ -519,7 +515,7 @@ class action extends HTMLOutputter // lawsuit
                 break;
             case 'json':
                 if (!isset($this->callback)) {
-                    header("HTTP/1.1 {$code} {$status_string}");
+                    http_response_code($code);
                 }
                 $this->initDocument('json');
                 $error_array = ['error' => $msg, 'request' => $_SERVER['REQUEST_URI']];
@@ -1743,9 +1739,14 @@ class action extends HTMLOutputter // lawsuit
      *
      * @return void
      */
-    public function menuItem(string $url, $text, ?string $title = null, bool $is_selected = false,
-                             ?string $id = null, $class = null): void
-    {
+    public function menuItem(
+        string $url,
+        $text,
+        ?string $title = null,
+        bool $is_selected = false,
+        ?string $id = null,
+        $class = null
+    ): void {
         // Added @id to li for some control.
         // XXX: We might want to move this to htmloutputter.php
         $lattrs = [];

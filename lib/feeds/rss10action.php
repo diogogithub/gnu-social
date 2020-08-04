@@ -1,34 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Base class for RSS 1.0 feed actions
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Mail
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Earle Martin <earle@downlode.org>
- * @copyright 2008-9 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 define('DEFAULT_RSS_LIMIT', 48);
 
@@ -36,10 +33,10 @@ class Rss10Action extends ManagedAction
 {
     // This will contain the details of each feed item's author and be used to generate SIOC data.
 
-    var $creators = array();
-    var $limit = DEFAULT_RSS_LIMIT;
-    var $notices = null;
-    var $tags_already_output = array();
+    public $creators = [];
+    public $limit = DEFAULT_RSS_LIMIT;
+    public $notices = null;
+    public $tags_already_output = [];
 
     public function isReadOnly($args)
     {
@@ -88,9 +85,9 @@ class Rss10Action extends ManagedAction
         // for example if we need to set $this->target or something
     }
 
-    function show_basic_auth_error()
+    public function show_basic_auth_error()
     {
-        header('HTTP/1.1 401 Unauthorized');
+        http_response_code(401);
         header('Content-Type: application/xml; charset=utf-8');
         $this->startXML();
         $this->elementStart('hash');
@@ -119,20 +116,22 @@ class Rss10Action extends ManagedAction
      * @return array
      */
 
-    function getChannel()
+    public function getChannel()
     {
-        return array('url' => '',
-                     'title' => '',
-                     'link' => '',
-                     'description' => '');
+        return [
+            'url'         => '',
+            'title'       => '',
+            'link'        => '',
+            'description' => '',
+        ];
     }
 
-    function getImage()
+    public function getImage()
     {
         return null;
     }
 
-    function showPage()
+    public function showPage()
     {
         $this->initRss();
         $this->showChannel();
@@ -154,9 +153,8 @@ class Rss10Action extends ManagedAction
         $this->endRss();
     }
 
-    function showChannel()
+    public function showChannel()
     {
-
         $channel = $this->getChannel();
         $image = $this->getImage();
 
@@ -164,7 +162,9 @@ class Rss10Action extends ManagedAction
         $this->element('title', null, $channel['title']);
         $this->element('link', null, $channel['link']);
         $this->element('description', null, $channel['description']);
-        $this->element('cc:licence', array('rdf:resource' => common_config('license','url')));
+        $this->element('cc:licence', [
+            'rdf:resource' => common_config('license', 'url'),
+        ]);
 
         if ($image) {
             $this->element('image', array('rdf:resource' => $image));
@@ -185,7 +185,7 @@ class Rss10Action extends ManagedAction
         $this->elementEnd('channel');
     }
 
-    function showImage()
+    public function showImage()
     {
         $image = $this->getImage();
         if ($image) {
@@ -198,7 +198,7 @@ class Rss10Action extends ManagedAction
         }
     }
 
-    function showItem($notice)
+    public function showItem($notice)
     {
         $profile = $notice->getProfile();
         $nurl = common_local_url('shownotice', array('notice' => $notice->id));
@@ -237,13 +237,17 @@ class Rss10Action extends ManagedAction
             $this->element('sioc:reply_of', array('rdf:resource' => $replyurl));
         }
         if (!empty($notice->conversation)) {
-            $conversationurl = common_local_url('conversation',
-                                         array('id' => $notice->conversation));
-            $this->element('sioc:has_discussion', array('rdf:resource' => $conversationurl));
+            $conversationurl = common_local_url(
+                'conversation',
+                ['id' => $notice->conversation]
+            );
+            $this->element('sioc:has_discussion', [
+                'rdf:resource' => $conversationurl,
+            ]);
         }
         $attachments = $notice->attachments();
-        if($attachments){
-            foreach($attachments as $attachment){
+        if ($attachments) {
+            foreach ($attachments as $attachment) {
                 try {
                     $enclosure = $attachment->getEnclosure();
                     $attribs = array('rdf:resource' => $enclosure->url);
@@ -274,7 +278,7 @@ class Rss10Action extends ManagedAction
             while ($tag->fetch()) {
                 $tagpage = common_local_url('tag', array('tag' => $tag->tag));
 
-                if ( in_array($tag, $this->tags_already_output) ) {
+                if (in_array($tag, $this->tags_already_output)) {
                     $this->element('ctag:tagged', array('rdf:resource'=>$tagpage.'#concept'));
                     continue;
                 }
@@ -294,7 +298,7 @@ class Rss10Action extends ManagedAction
         $this->creators[$creator_uri] = $profile;
     }
 
-    function showCreators()
+    public function showCreators()
     {
         foreach ($this->creators as $uri => $profile) {
             $id = $profile->id;
@@ -311,7 +315,7 @@ class Rss10Action extends ManagedAction
         }
     }
 
-    function initRss()
+    public function initRss()
     {
         $channel = $this->getChannel();
         header('Content-Type: application/rdf+xml');
@@ -351,7 +355,7 @@ class Rss10Action extends ManagedAction
         $this->elementEnd('sioc:Site');
     }
 
-    function endRss()
+    public function endRss()
     {
         $this->elementEnd('rdf:RDF');
     }
@@ -361,7 +365,7 @@ class Rss10Action extends ManagedAction
      *
      */
 
-    function lastModified()
+    public function lastModified()
     {
         if (empty($this->notices)) {
             return null;
@@ -376,4 +380,3 @@ class Rss10Action extends ManagedAction
         return strtotime($this->notices[0]->created);
     }
 }
-

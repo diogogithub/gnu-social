@@ -1,31 +1,28 @@
 <?php
-/*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Integrated WebSub hub; lets us only ping them what need it.
- * @package Hub
- * @maintainer Brion Vibber <brion@status.net>
+ * @package   Hub
+ * @author    Brion Vibber <brion@status.net>
+ * @copyright 2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Things to consider...
@@ -38,7 +35,7 @@ if (!defined('STATUSNET')) {
  */
 class PushHubAction extends Action
 {
-    function arg($arg, $def=null)
+    public function arg($arg, $def = null)
     {
         // PHP converts '.'s in incoming var names to '_'s.
         // It also merges multiple values, which'll break hub.verify and hub.topic for publishing
@@ -47,7 +44,7 @@ class PushHubAction extends Action
         return parent::arg($arg, $def);
     }
 
-    protected function prepare(array $args=array())
+    protected function prepare(array $args = [])
     {
         GNUsocial::setApi(true); // reduce exception reports to aid in debugging
         return parent::prepare($args);
@@ -62,11 +59,17 @@ class PushHubAction extends Action
             $this->subunsub($mode);
             break;
         case "publish":
-            // TRANS: Client exception.
-            throw new ClientException(_m('Publishing outside feeds not supported.'), 400);
+            throw new ClientException(
+                // TRANS: Client exception.
+                _m('Publishing outside feeds not supported.'),
+                400
+            );
         default:
-            // TRANS: Client exception. %s is a mode.
-            throw new ClientException(sprintf(_m('Unrecognized mode "%s".'),$mode), 400);
+            throw new ClientException(sprintf(
+                // TRANS: Client exception. %s is a mode.
+                _m('Unrecognized mode "%s".'), $mode),
+                400
+            );
         }
     }
 
@@ -79,7 +82,7 @@ class PushHubAction extends Action
      *   204 No Content - already subscribed
      *   400 Bad Request - rejecting this (not specifically spec'd)
      */
-    function subunsub($mode)
+    public function subunsub($mode)
     {
         $callback = $this->argUrl('hub.callback');
 
@@ -87,22 +90,31 @@ class PushHubAction extends Action
         $topic = $this->argUrl('hub.topic');
         if (!$this->recognizedFeed($topic)) {
             common_debug('WebSub hub request had unrecognized feed topic=='._ve($topic));
-            // TRANS: Client exception. %s is a topic.
-            throw new ClientException(sprintf(_m('Unsupported hub.topic %s this hub only serves local user and group Atom feeds.'),$topic));
+            throw new ClientException(sprintf(
+                // TRANS: Client exception. %s is a topic.
+                _m('Unsupported hub.topic %s this hub only serves local user and group Atom feeds.'),
+                $topic
+            ));
         }
 
         $lease = $this->arg('hub.lease_seconds', null);
         if ($mode == 'subscribe' && $lease != '' && !preg_match('/^\d+$/', $lease)) {
             common_debug('WebSub hub request had invalid lease_seconds=='._ve($lease));
             // TRANS: Client exception. %s is the invalid lease value.
-            throw new ClientException(sprintf(_m('Invalid hub.lease "%s". It must be empty or positive integer.'),$lease));
+            throw new ClientException(sprintf(
+                _m('Invalid hub.lease "%s". It must be empty or positive integer.'),
+                $lease
+            ));
         }
 
         $secret = $this->arg('hub.secret', null);
         if ($secret != '' && strlen($secret) >= 200) {
             common_debug('WebSub hub request had invalid secret=='._ve($secret));
-            // TRANS: Client exception. %s is the invalid hub secret.
-            throw new ClientException(sprintf(_m('Invalid hub.secret "%s". It must be under 200 bytes.'),$secret));
+            throw new ClientException(sprintf(
+                // TRANS: Client exception. %s is the invalid hub secret.
+                _m('Invalid hub.secret "%s". It must be under 200 bytes.'),
+                $secret
+            ));
         }
 
         $sub = HubSub::getByHashkey($topic, $callback);
@@ -126,10 +138,10 @@ class PushHubAction extends Action
         $token = $this->arg('hub.verify_token', null);  // TODO: deprecated
         if ($verify == 'sync') {    // pre-0.4 PuSH
             $sub->verify($mode, $token);
-            header('HTTP/1.1 204 No Content');
+            http_response_code(204);
         } else {    // If $verify is not "sync", we might be using WebSub or PuSH 0.4
             $sub->scheduleVerify($mode, $token);    // If we were certain it's WebSub or PuSH 0.4, token could be removed
-            header('HTTP/1.1 202 Accepted');
+            http_response_code(202);
         }
     }
 
@@ -154,16 +166,22 @@ class PushHubAction extends Action
             case common_local_url('ApiTimelineUser', $params):
                 $user = User::getKV('id', $id);
                 if (!$user instanceof User) {
-                    // TRANS: Client exception. %s is a feed URL.
-                    throw new ClientException(sprintf(_m('Invalid hub.topic "%s". User does not exist.'),$feed));
+                    throw new ClientException(sprintf(
+                        // TRANS: Client exception. %s is a feed URL.
+                        _m('Invalid hub.topic "%s". User does not exist.'),
+                        $feed
+                    ));
                 }
                 return true;
 
             case common_local_url('ApiTimelineGroup', $params):
                 $group = Local_group::getKV('group_id', $id);
                 if (!$group instanceof Local_group) {
-                    // TRANS: Client exception. %s is a feed URL.
-                    throw new ClientException(sprintf(_m('Invalid hub.topic "%s". Local_group does not exist.'),$feed));
+                    throw new ClientException(sprintf(
+                        // TRANS: Client exception. %s is a feed URL.
+                        _m('Invalid hub.topic "%s". Local_group does not exist.'),
+                        $feed
+                    ));
                 }
                 return true;
             }
@@ -183,8 +201,11 @@ class PushHubAction extends Action
                 $list = Profile_list::getKV('id', $id);
                 $user = User::getKV('id', $user);
                 if (!$list instanceof Profile_list || !$user instanceof User || $list->tagger != $user->id) {
-                    // TRANS: Client exception. %s is a feed URL.
-                    throw new ClientException(sprintf(_m('Invalid hub.topic %s; list does not exist.'),$feed));
+                    throw new ClientException(sprintf(
+                        // TRANS: Client exception. %s is a feed URL.
+                        _m('Invalid hub.topic %s; list does not exist.'),
+                        $feed
+                    ));
                 }
                 return true;
             }
@@ -207,9 +228,13 @@ class PushHubAction extends Action
                         'allowed_schemes' => array('http', 'https'));
         $validate = new Validate();
         if (!$validate->uri($url, $params)) {
-            // TRANS: Client exception.
-            // TRANS: %1$s is this argument to the method this exception occurs in, %2$s is a URL.
-            throw new ClientException(sprintf(_m('Invalid URL passed for %1$s: "%2$s"'),$arg,$url));
+            throw new ClientException(sprintf(
+                // TRANS: Client exception.
+                // TRANS: %1$s is this argument to the method this exception occurs in, %2$s is a URL.
+                _m('Invalid URL passed for %1$s: "%2$s"'),
+                $arg,
+                $url
+            ));
         }
 
         Event::handle('UrlBlacklistTest', array($url));

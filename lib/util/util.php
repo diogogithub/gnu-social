@@ -1659,15 +1659,11 @@ function common_sql_weight($column, $dropoff)
     return "SUM(EXP({$expr} / {$dropoff}))";
 }
 
-function common_redirect($url, $code=307)
+function common_redirect(string $url, int $code = 307): void
 {
-    static $status = [301 => "Moved Permanently",
-                      302 => "Found",
-                      303 => "See Other",
-                      307 => "Temporary Redirect"];
-
-    header('HTTP/1.1 '.$code.' '.$status[$code]);
-    header("Location: $url");
+    assert(in_array($code, [301, 302, 303, 307]));
+    http_response_code($code);
+    header("Location: {$url}");
     header("Connection: close");
 
     $xo = new XMLOutputter();
@@ -1678,7 +1674,7 @@ function common_redirect($url, $code=307)
     );
     $xo->element('a', ['href' => $url], $url);
     $xo->endXML();
-    exit;
+    die();
 }
 
 // Stick the notice on the queue
