@@ -76,7 +76,12 @@ class GNUsocial
         // TODO: put into a static array that makes sure $inst isn't lost.
         $inst = new $moduleclass();
         foreach ($attrs as $aname => $avalue) {
-            $inst->$aname = $avalue;
+            // Only apply default if a user preference wasn't set
+            if (common_config($moduleclass, $aname) === false) {
+                $inst->$aname = $avalue;
+                // Module attributes shall be part of global config
+                common_config_set($moduleclass, $aname, $avalue);
+            }
         }
 
         // Record activated modules for later display/config dump
