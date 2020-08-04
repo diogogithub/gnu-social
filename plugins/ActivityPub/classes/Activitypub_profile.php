@@ -721,20 +721,17 @@ class Activitypub_profile extends Managed_DataObject
         }
 
         $subs = Subscription::getSubscribedIDs($profile->id, $offset, $limit);
-        try {
-            $profiles = [];
 
-            $users = User::multiGet('id', $subs);
-            foreach ($users->fetchAll() as $user) {
-                $profiles[$user->id] = $user->getProfile();
-            }
+        $profiles = [];
 
-            $ap_profiles = Activitypub_profile::multiGet('profile_id', $subs);
-            foreach ($ap_profiles->fetchAll() as $ap) {
-                $profiles[$ap->getID()] = $ap->local_profile();
-            }
-        } catch (NoResultException $e) {
-            return $e->obj;
+        $users = User::multiGet('id', $subs);
+        foreach ($users->fetchAll() as $user) {
+            $profiles[$user->id] = $user->getProfile();
+        }
+
+        $ap_profiles = Activitypub_profile::multiGet('profile_id', $subs);
+        foreach ($ap_profiles->fetchAll() as $ap) {
+            $profiles[$ap->getID()] = $ap->local_profile();
         }
 
         if ($cache) {
