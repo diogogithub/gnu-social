@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:51+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lib/offlinebackupqueuehandler.php:105
+#: lib/offlinebackupqueuehandler.php:106
 #, php-format
 msgctxt ""
 "The backup file you requested is ready for download.\n"
@@ -27,7 +27,7 @@ msgctxt ""
 msgid "%s\n"
 msgstr ""
 
-#. TRANS: Plugin description.
-#: OfflineBackupPlugin.php:83
+#. TRANS: Module description.
+#: OfflineBackupPlugin.php:86
 msgid "Backup user data in offline queue and email when ready."
 msgstr ""

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:51+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,9 +17,9 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Plugin description.
-#: EmailReminderPlugin.php:192
-msgid "Send email reminders for various things."
+#. TRANS: Server exception thrown when a reminder record could not be inserted into the database.
+#: classes/Email_reminder.php:88
+msgid "Database error inserting reminder record."
 msgstr ""
 
 #. TRANS: Subject for reminder e-mail.
@@ -50,7 +50,11 @@ msgstr ""
 msgid "Final reminder - you have been invited to join %s!"
 msgstr ""
 
-#. TRANS: Server exception thrown when a reminder record could not be inserted into the database.
-#: classes/Email_reminder.php:88
-msgid "Database error inserting reminder record."
+#: scripts/sendemailreminder.php:68
+msgid "Unknown reminder type: "
+msgstr ""
+
+#. TRANS: Plugin description.
+#: EmailReminderPlugin.php:192
+msgid "Send email reminders for various things."
 msgstr ""

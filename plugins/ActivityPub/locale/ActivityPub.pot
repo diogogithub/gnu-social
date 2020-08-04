@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-12 01:23+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,35 +17,35 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#. TRANS: Exception.
+#: classes/Activitypub_profile.php:393
+msgid "Not a valid WebFinger address (via cache)."
+msgstr ""
+
+#. TRANS: Exception.
+#: classes/Activitypub_profile.php:414
+msgid "Not a valid WebFinger address."
+msgstr ""
+
+#. TRANS: Exception. %s is a WebFinger address.
+#: classes/Activitypub_profile.php:454
+#, php-format
+msgid "Could not find a valid profile for \"%s\"."
+msgstr ""
+
 #. TRANS: Plugin description.
-#: ActivityPubPlugin.php:212
+#: ActivityPubPlugin.php:241
 msgid ""
 "Follow people across social networks that implement <a href=\"https://"
 "activitypub.rocks/\">ActivityPub</a>."
 msgstr ""
 
-#: ActivityPubPlugin.php:254
+#: ActivityPubPlugin.php:415
 msgid "Remote Profile"
 msgstr ""
 
 #. TRANS: Title. %s is a domain name.
-#: ActivityPubPlugin.php:909
+#: ActivityPubPlugin.php:920
 #, php-format
 msgid "Sent from %s via ActivityPub"
-msgstr ""
-
-#. TRANS: Exception.
-#: classes/Activitypub_profile.php:355
-msgid "Not a valid webfinger address (via cache)."
-msgstr ""
-
-#. TRANS: Exception.
-#: classes/Activitypub_profile.php:376
-msgid "Not a valid webfinger address."
-msgstr ""
-
-#. TRANS: Exception. %s is a webfinger address.
-#: classes/Activitypub_profile.php:416
-#, php-format
-msgid "Could not find a valid profile for \"%s\"."
 msgstr ""

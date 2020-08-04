@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:51+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Checkbox label in form for profile settings.
-#: FollowEveryonePlugin.php:136
+#: FollowEveryonePlugin.php:129
 msgid "Follow everyone"
 msgstr ""
 
 #. TRANS: Plugin description.
-#: FollowEveryonePlugin.php:178
+#: FollowEveryonePlugin.php:172
 msgid "New users follow everyone at registration and are followed in return."
 msgstr ""

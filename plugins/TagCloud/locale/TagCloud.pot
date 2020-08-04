@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:51+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,21 +17,10 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Menu item in search group navigation panel.
-#: TagCloudPlugin.php:29
-msgctxt "MENU"
-msgid "Recent tags"
-msgstr ""
-
-#. TRANS: Plugin description.
-#: TagCloudPlugin.php:68
-msgid "Adds tag clouds to stream pages"
-msgstr ""
-
-#. TRANS: Title for personal tag cloud section.
-#: lib/personaltagcloudsection.php:54
+#. TRANS: Title for inbox tag cloud section.
+#: lib/publictagcloudsection.php:45 lib/inboxtagcloudsection.php:50
 msgctxt "TITLE"
-msgid "Tags"
+msgid "Trends"
 msgstr ""
 
 #. TRANS: Content displayed in a tag cloud section if there are no tags.
@@ -40,8 +29,19 @@ msgctxt "NOTAGS"
 msgid "None"
 msgstr ""
 
-#. TRANS: Title for inbox tag cloud section.
-#: lib/inboxtagcloudsection.php:56 lib/publictagcloudsection.php:53
+#. TRANS: Title for personal tag cloud section.
+#: lib/personaltagcloudsection.php:48
 msgctxt "TITLE"
-msgid "Trends"
+msgid "Tags"
+msgstr ""
+
+#. TRANS: Menu item in search group navigation panel.
+#: TagCloudPlugin.php:43
+msgctxt "MENU"
+msgid "Recent tags"
+msgstr ""
+
+#. TRANS: Module description.
+#: TagCloudPlugin.php:83
+msgid "Adds tag clouds to stream pages"
 msgstr ""

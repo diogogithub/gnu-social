@@ -24,7 +24,7 @@
  * @author    Brion Vibber <brion@pobox.com>
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @copyright 2010-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @copyright 2010-2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
@@ -35,7 +35,7 @@ define('GNUSOCIAL_ENGINE_URL', 'https://gnusocial.network/'); // Change to https
 define('GNUSOCIAL_ENGINE_REPO_URL', 'https://notabug.org/diogo/gnu-social/'); // Change to https://git.gnu.io/gnu/gnu-social
 
 define('GNUSOCIAL_BASE_VERSION', '2.0.0');
-define('GNUSOCIAL_LIFECYCLE', 'dev'); // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'
+define('GNUSOCIAL_LIFECYCLE', 'alpha0'); // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'
 
 define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
 

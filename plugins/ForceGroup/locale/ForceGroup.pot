@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:51+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,15 +17,13 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Server exception.
-#. TRANS: %1$s is a user nickname, %2$s is a group nickname.
-#: ForceGroupModule.php:107
+#: ForceGroupPlugin.php:107
 #, php-format
 msgid "Could not join user %1$s to group %2$s."
 msgstr ""
 
 #. TRANS: Module description.
-#: ForceGroupModule.php:137
+#: ForceGroupPlugin.php:137
 msgid ""
 "Allows forced group memberships and forces all notices to appear in groups "
 "that users were forced in."

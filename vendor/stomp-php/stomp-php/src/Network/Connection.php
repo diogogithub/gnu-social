@@ -347,15 +347,15 @@ class Connection
     {
         $hosts = $this->getHostList();
 
+        $lastException = null;
         while ($host = array_shift($hosts)) {
             try {
                 return $this->connectSocket($host);
             } catch (ConnectionException $connectionException) {
-                if (empty($hosts)) {
-                    throw new ConnectionException("Could not connect to a broker", [], $connectionException);
-                }
+                $lastException = $connectionException;
             }
         }
+        throw new ConnectionException("Could not connect to a broker", [], $lastException);
     }
 
     /**
@@ -546,7 +546,7 @@ class Connection
             if ($frame = $this->parser->nextFrame()) {
                 return $this->onFrame($frame);
             }
-        } while ($this->isDataOnStream());
+        } while ($this->hasDataToRead());
 
         return false;
     }
@@ -684,7 +684,7 @@ class Connection
             $this->writeData(self::ALIVE, $timeout);
         }
     }
-    
+
     /**
      * Immediately releases all allocated resources when the connection object gets destroyed.
      *

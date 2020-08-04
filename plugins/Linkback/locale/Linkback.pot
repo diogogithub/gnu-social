@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:51+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,26 +23,6 @@ msgstr ""
 
 #: lib/util.php:426
 msgid "Favor"
-msgstr ""
-
-#: actions/webmention.php:42 actions/webmention.php:43
-msgid "\"source\" is missing"
-msgstr ""
-
-#: actions/webmention.php:47 actions/webmention.php:48
-msgid "\"target\" is missing"
-msgstr ""
-
-#: actions/webmention.php:53 actions/webmention.php:54
-msgid "Source does not link to target."
-msgstr ""
-
-#: actions/webmention.php:59 actions/webmention.php:60
-msgid "Target not found"
-msgstr ""
-
-#: actions/webmention.php:65 actions/webmention.php:66
-msgid "An error occured while saving."
 msgstr ""
 
 #. TRANS: Title of Linkback settings page for a user.
@@ -71,6 +51,26 @@ msgstr ""
 
 #: actions/linkbacksettings.php:89
 msgid "Linkback preferences saved."
+msgstr ""
+
+#: actions/webmention.php:42 actions/webmention.php:43
+msgid "\"source\" is missing"
+msgstr ""
+
+#: actions/webmention.php:47 actions/webmention.php:48
+msgid "\"target\" is missing"
+msgstr ""
+
+#: actions/webmention.php:53 actions/webmention.php:54
+msgid "Source does not link to target."
+msgstr ""
+
+#: actions/webmention.php:59 actions/webmention.php:60
+msgid "Target not found"
+msgstr ""
+
+#: actions/webmention.php:65 actions/webmention.php:66
+msgid "An error occured while saving."
 msgstr ""
 
 #. TRANS: Trackback title.

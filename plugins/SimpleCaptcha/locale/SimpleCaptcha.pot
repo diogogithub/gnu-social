@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:51+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,12 +18,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. TRANS: Field label.
-#: SimpleCaptchaPlugin.php:41
+#: SimpleCaptchaPlugin.php:43
 msgid "Captcha"
 msgstr ""
 
 #. TRANS: The instruction box for our simple captcha plugin
-#: SimpleCaptchaPlugin.php:43
+#: SimpleCaptchaPlugin.php:45
 #, php-format
 msgid "Copy this to the textbox: \"%s\""
 msgstr ""
@@ -31,15 +31,15 @@ msgstr ""
 #. TRANS: Placeholder in the text box
 #. name=id
 #. required
-#: SimpleCaptchaPlugin.php:45
+#: SimpleCaptchaPlugin.php:47
 msgid "Prove that you are sentient."
 msgstr ""
 
-#: SimpleCaptchaPlugin.php:59
+#: SimpleCaptchaPlugin.php:61
 msgid "Captcha does not match!"
 msgstr ""
 
 #. TRANS: Plugin description.
-#: SimpleCaptchaPlugin.php:72
+#: SimpleCaptchaPlugin.php:74
 msgid "A simple captcha to get rid of spambots."
 msgstr ""
