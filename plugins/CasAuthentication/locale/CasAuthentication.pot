@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:51+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,40 +18,40 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. TRANS: Menu item. CAS is Central Authentication Service.
-#: CasAuthenticationPlugin.php:86
+#: CasAuthenticationPlugin.php:65
 msgid "CAS"
 msgstr ""
 
 #. TRANS: Tooltip for menu item. CAS is Central Authentication Service.
-#: CasAuthenticationPlugin.php:88
+#: CasAuthenticationPlugin.php:67
 msgid "Login or register with CAS."
 msgstr ""
 
 #. TRANS: Invitation to users with a CAS account to log in using the service.
 #. TRANS: "[CAS login]" is a link description. (%%action.caslogin%%) is the URL.
 #. TRANS: These two elements may not be separated.
-#: CasAuthenticationPlugin.php:104
+#: CasAuthenticationPlugin.php:83
 #, php-format
 msgid "(Have an account with CAS? Try our [CAS login](%%action.caslogin%%)!)"
 msgstr ""
 
 #. TRANS: Exception thrown when the CAS Authentication plugin has been configured incorrectly.
-#: CasAuthenticationPlugin.php:132
+#: CasAuthenticationPlugin.php:111
 msgid "Specifying a server is required."
 msgstr ""
 
 #. TRANS: Exception thrown when the CAS Authentication plugin has been configured incorrectly.
-#: CasAuthenticationPlugin.php:136
+#: CasAuthenticationPlugin.php:115
 msgid "Specifying a port is required."
 msgstr ""
 
 #. TRANS: Exception thrown when the CAS Authentication plugin has been configured incorrectly.
-#: CasAuthenticationPlugin.php:140
+#: CasAuthenticationPlugin.php:119
 msgid "Specifying a path is required."
 msgstr ""
 
 #. TRANS: Plugin description. CAS is Central Authentication Service.
-#: CasAuthenticationPlugin.php:161
+#: CasAuthenticationPlugin.php:140
 msgid ""
 "The CAS Authentication plugin allows for StatusNet to handle authentication "
 "through CAS (Central Authentication Service)."

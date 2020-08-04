@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-21 10:51+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,21 +18,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#. TRANS: Menu item in personal group navigation menu.
-#: DirectMessagePlugin.php:134
-msgctxt "MENU"
-msgid "Messages"
+#. TRANS: A possible notice source (web interface).
+#: lib/messagelistitem.php:127
+msgctxt "SOURCE"
+msgid "web"
 msgstr ""
 
-#. TRANS: Link text for link on user profile.
-#: DirectMessagePlugin.php:167
-msgctxt "BUTTON"
-msgid "Message"
+#. TRANS: A possible notice source (XMPP).
+#: lib/messagelistitem.php:129
+msgctxt "SOURCE"
+msgid "xmpp"
 msgstr ""
 
-#. TRANS: Plugin description.
-#: DirectMessagePlugin.php:223
-msgid "Direct Message to other local users."
+#. TRANS: A possible notice source (e-mail).
+#: lib/messagelistitem.php:131
+msgctxt "SOURCE"
+msgid "mail"
+msgstr ""
+
+#. TRANS: A possible notice source (OpenMicroBlogging).
+#: lib/messagelistitem.php:133
+msgctxt "SOURCE"
+msgid "omb"
+msgstr ""
+
+#. TRANS: A possible notice source (Application Programming Interface).
+#: lib/messagelistitem.php:135
+msgctxt "SOURCE"
+msgid "api"
 msgstr ""
 
 #. TRANS: Form legend for direct notice.
@@ -82,35 +95,14 @@ msgid_plural "Message too long - maximum is %1$d characters, you sent %2$d."
 msgstr[0] ""
 msgstr[1] ""
 
-#. TRANS: A possible notice source (web interface).
-#: lib/messagelistitem.php:127
-msgctxt "SOURCE"
-msgid "web"
-msgstr ""
-
-#. TRANS: A possible notice source (XMPP).
-#: lib/messagelistitem.php:129
-msgctxt "SOURCE"
-msgid "xmpp"
-msgstr ""
-
-#. TRANS: A possible notice source (e-mail).
-#: lib/messagelistitem.php:131
-msgctxt "SOURCE"
-msgid "mail"
-msgstr ""
-
-#. TRANS: A possible notice source (OpenMicroBlogging).
-#: lib/messagelistitem.php:133
-msgctxt "SOURCE"
-msgid "omb"
-msgstr ""
-
-#. TRANS: A possible notice source (Application Programming Interface).
-#: lib/messagelistitem.php:135
-msgctxt "SOURCE"
-msgid "api"
-msgstr ""
+#. TRANS: Form validation error displayed when message content is too long.
+#. TRANS: %d is the maximum number of characters for a message.
+#: actions/newmessage.php:99 actions/apidirectmessagenew.php:99
+#, php-format
+msgid "That's too long. Maximum message size is %d character."
+msgid_plural "That's too long. Maximum message size is %d characters."
+msgstr[0] ""
+msgstr[1] ""
 
 #. TRANS: Title for outbox for any but the fist page.
 #. TRANS: %1$s is the user nickname, %2$d is the page number.
@@ -159,15 +151,6 @@ msgstr ""
 msgid "Message from %1$s on %2$s"
 msgstr ""
 
-#. TRANS: Form validation error displayed when message content is too long.
-#. TRANS: %d is the maximum number of characters for a message.
-#: actions/apidirectmessagenew.php:104 actions/newmessage.php:99
-#, php-format
-msgid "That's too long. Maximum message size is %d character."
-msgid_plural "That's too long. Maximum message size is %d characters."
-msgstr[0] ""
-msgstr[1] ""
-
 #. TRANS: Title for all but the first page of the inbox page.
 #. TRANS: %1$s is the user's nickname, %2$s is the page number.
 #: actions/inbox.php:50
@@ -185,4 +168,21 @@ msgstr ""
 #. TRANS: Instructions for user inbox page.
 #: actions/inbox.php:85
 msgid "This is your inbox, which lists your incoming private messages."
+msgstr ""
+
+#. TRANS: Menu item in personal group navigation menu.
+#: DirectMessagePlugin.php:149
+msgctxt "MENU"
+msgid "Messages"
+msgstr ""
+
+#. TRANS: Link text for link on user profile.
+#: DirectMessagePlugin.php:184
+msgctxt "BUTTON"
+msgid "Message"
+msgstr ""
+
+#. TRANS: Plugin description.
+#: DirectMessagePlugin.php:246
+msgid "Direct Message to other local users."
 msgstr ""

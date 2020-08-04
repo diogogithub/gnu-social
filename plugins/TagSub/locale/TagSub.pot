@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 14:51+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,25 +17,32 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Plugin description.
-#: TagSubPlugin.php:102
-msgid "Plugin to allow following all messages with a given tag."
+#. TRANS: Form legend.
+#: forms/tagsub.php:109
+msgid "Subscribe to this tag"
 msgstr ""
 
-#. TRANS: SubMirror plugin menu item on user settings page.
-#: TagSubPlugin.php:177
-msgctxt "MENU"
-msgid "Tags"
+#: forms/tagsub.php:137
+msgctxt "BUTTON"
+msgid "Subscribe"
 msgstr ""
 
-#. TRANS: SubMirror plugin tooltip for user settings menu item.
-#: TagSubPlugin.php:179
-msgid "Configure tag subscriptions"
+#: forms/tagsub.php:141
+msgid "Subscribe to this tag."
 msgstr ""
 
-#. TRANS: Menu item text for tags submenu.
-#: TagSubPlugin.php:196
-msgid "Tags"
+#. TRANS: Form legend.
+#: forms/tagunsub.php:91
+msgid "Unsubscribe from this tag"
+msgstr ""
+
+#: forms/tagunsub.php:105
+msgctxt "BUTTON"
+msgid "Unsubscribe"
+msgstr ""
+
+#: forms/tagunsub.php:109
+msgid "Unsubscribe from this tag."
 msgstr ""
 
 #. TRANS: Header for subscriptions overview for a user (first page).
@@ -119,30 +126,23 @@ msgstr ""
 msgid "Unsubscribed"
 msgstr ""
 
-#. TRANS: Form legend.
-#: forms/tagsub.php:109
-msgid "Subscribe to this tag"
+#. TRANS: Plugin description.
+#: TagSubPlugin.php:102
+msgid "Plugin to allow following all messages with a given tag."
 msgstr ""
 
-#: forms/tagsub.php:137
-msgctxt "BUTTON"
-msgid "Subscribe"
+#. TRANS: SubMirror plugin menu item on user settings page.
+#: TagSubPlugin.php:177
+msgctxt "MENU"
+msgid "Tags"
 msgstr ""
 
-#: forms/tagsub.php:141
-msgid "Subscribe to this tag."
+#. TRANS: SubMirror plugin tooltip for user settings menu item.
+#: TagSubPlugin.php:179
+msgid "Configure tag subscriptions"
 msgstr ""
 
-#. TRANS: Form legend.
-#: forms/tagunsub.php:91
-msgid "Unsubscribe from this tag"
-msgstr ""
-
-#: forms/tagunsub.php:105
-msgctxt "BUTTON"
-msgid "Unsubscribe"
-msgstr ""
-
-#: forms/tagunsub.php:109
-msgid "Unsubscribe from this tag."
+#. TRANS: Menu item text for tags submenu.
+#: TagSubPlugin.php:196
+msgid "Tags"
 msgstr ""

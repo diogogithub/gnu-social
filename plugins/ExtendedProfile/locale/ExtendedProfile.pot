@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-14 15:07+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,33 +17,12 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Module description.
-#: ExtendedProfileModule.php:46
-msgid "UI extensions for additional profile fields."
+#: classes/GNUsocialProfileExtensionResponse.php:74
+msgid "Error creating new response."
 msgstr ""
 
-#. TRANS: Link text on user profile page leading to extended profile page.
-#: ExtendedProfileModule.php:100
-msgid "More details..."
-msgstr ""
-
-#. TRANS: Extended profile plugin menu item on user settings page.
-#: ExtendedProfileModule.php:119
-msgctxt "MENU"
-msgid "Full Profile"
-msgstr ""
-
-#. TRANS: Extended profile plugin tooltip for user settings menu item.
-#: ExtendedProfileModule.php:121
-msgid "Change your extended profile settings"
-msgstr ""
-
-#: ExtendedProfileModule.php:206
-msgid "Profile Fields"
-msgstr ""
-
-#: ExtendedProfileModule.php:207
-msgid "Custom profile fields"
+#: classes/GNUsocialProfileExtensionField.php:75
+msgid "Error creating new field."
 msgstr ""
 
 #. TRANS: Field label for extended profile properties.
@@ -223,60 +202,6 @@ msgstr ""
 msgid "Save details"
 msgstr ""
 
-#. TRANS: Title for extended profile settings.
-#. TRANS: %%site.name%% is the name of the site.
-#: actions/profiledetailsettings.php:35
-msgid "Extended profile settings"
-msgstr ""
-
-#. TRANS: Message given submitting a form with an unknown action.
-#: actions/profiledetailsettings.php:59
-msgid "Unexpected form submission."
-msgstr ""
-
-#. TRANS: Success message after saving extended profile details.
-#: actions/profiledetailsettings.php:108
-msgid "Details saved."
-msgstr ""
-
-#. TRANS: Exception thrown when no date was entered in a required date field.
-#. TRANS: %s is the field name.
-#: actions/profiledetailsettings.php:118
-#, php-format
-msgid "You must supply a date for \"%s\"."
-msgstr ""
-
-#. TRANS: Exception thrown on incorrect data input.
-#. TRANS: %1$s is a field name, %2$s is the incorrect input.
-#: actions/profiledetailsettings.php:130
-#, php-format
-msgid "Invalid date entered for \"%1$s\": %2$s."
-msgstr ""
-
-#. TRANS: Exception thrown when entering an invalid URL.
-#. TRANS: %s is the invalid URL.
-#: actions/profiledetailsettings.php:247
-#, php-format
-msgid "Invalid URL: %s."
-msgstr ""
-
-#. TRANS: Server error displayed when a field could not be saved in the database.
-#: actions/profiledetailsettings.php:490 actions/profiledetailsettings.php:503
-msgid "Could not save profile details."
-msgstr ""
-
-#. TRANS: Validation error in form for profile settings.
-#. TRANS: %s is an invalid tag.
-#: actions/profiledetailsettings.php:545
-#, php-format
-msgid "Invalid tag: \"%s\"."
-msgstr ""
-
-#. TRANS: Server error thrown when user profile settings could not be saved.
-#: actions/profiledetailsettings.php:584
-msgid "Could not save profile."
-msgstr ""
-
 #: actions/profilefieldsadminpanel.php:39
 msgid "Profile fields"
 msgstr ""
@@ -368,10 +293,85 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: classes/GNUsocialProfileExtensionField.php:75
-msgid "Error creating new field."
+#. TRANS: Title for extended profile settings.
+#. TRANS: %%site.name%% is the name of the site.
+#: actions/profiledetailsettings.php:35
+msgid "Extended profile settings"
 msgstr ""
 
-#: classes/GNUsocialProfileExtensionResponse.php:73
-msgid "Error creating new response."
+#. TRANS: Message given submitting a form with an unknown action.
+#: actions/profiledetailsettings.php:45
+msgid "Unexpected form submission."
+msgstr ""
+
+#. TRANS: Success message after saving extended profile details.
+#: actions/profiledetailsettings.php:86
+msgid "Details saved."
+msgstr ""
+
+#. TRANS: Exception thrown when no date was entered in a required date field.
+#. TRANS: %s is the field name.
+#: actions/profiledetailsettings.php:96
+#, php-format
+msgid "You must supply a date for \"%s\"."
+msgstr ""
+
+#. TRANS: Exception thrown on incorrect data input.
+#. TRANS: %1$s is a field name, %2$s is the incorrect input.
+#: actions/profiledetailsettings.php:108
+#, php-format
+msgid "Invalid date entered for \"%1$s\": %2$s."
+msgstr ""
+
+#. TRANS: Exception thrown when entering an invalid URL.
+#. TRANS: %s is the invalid URL.
+#: actions/profiledetailsettings.php:228
+#, php-format
+msgid "Invalid URL: %s."
+msgstr ""
+
+#. TRANS: Server error displayed when a field could not be saved in the database.
+#: actions/profiledetailsettings.php:471 actions/profiledetailsettings.php:483
+msgid "Could not save profile details."
+msgstr ""
+
+#. TRANS: Validation error in form for profile settings.
+#. TRANS: %s is an invalid tag.
+#: actions/profiledetailsettings.php:525
+#, php-format
+msgid "Invalid tag: \"%s\"."
+msgstr ""
+
+#. TRANS: Server error thrown when user profile settings could not be saved.
+#: actions/profiledetailsettings.php:564
+msgid "Could not save profile."
+msgstr ""
+
+#. TRANS: Module description.
+#: ExtendedProfilePlugin.php:46
+msgid "UI extensions for additional profile fields."
+msgstr ""
+
+#. TRANS: Link text on user profile page leading to extended profile page.
+#: ExtendedProfilePlugin.php:100
+msgid "More details..."
+msgstr ""
+
+#. TRANS: Extended profile plugin menu item on user settings page.
+#: ExtendedProfilePlugin.php:119
+msgctxt "MENU"
+msgid "Full Profile"
+msgstr ""
+
+#. TRANS: Extended profile plugin tooltip for user settings menu item.
+#: ExtendedProfilePlugin.php:121
+msgid "Change your extended profile settings"
+msgstr ""
+
+#: ExtendedProfilePlugin.php:206
+msgid "Profile Fields"
+msgstr ""
+
+#: ExtendedProfilePlugin.php:207
+msgid "Custom profile fields"
 msgstr ""

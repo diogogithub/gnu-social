@@ -9,6 +9,7 @@ class Instagram extends EndPoint implements EndPointInterface
     protected static $pattern = [
         'instagram.com/p/*',
         'www.instagram.com/p/*',
+        'instagr.am/p/*',
     ];
     protected static $endPoint = 'https://api.instagram.com/oembed';
 
@@ -17,7 +18,7 @@ class Instagram extends EndPoint implements EndPointInterface
      */
     public function getEndPoint()
     {
-        $url = $this->response->getUrl()->withScheme('http');
+        $url = $this->getUrl()->withScheme('http');
 
         return Url::create(static::$endPoint)
                 ->withQueryParameters([

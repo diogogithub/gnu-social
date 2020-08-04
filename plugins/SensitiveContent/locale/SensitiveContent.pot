@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-07 01:53+0100\n"
+"POT-Creation-Date: 2020-08-04 01:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,32 +17,32 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: SensitiveContentPlugin.php:53
-msgid "Mark, hide/show sensitive notices like on Twitter."
-msgstr ""
-
-#: SensitiveContentPlugin.php:135
-msgctxt "MENU"
-msgid "Sensitive Content"
-msgstr ""
-
-#: SensitiveContentPlugin.php:136
-msgid "Settings for display of sensitive content."
-msgstr ""
-
-#: actions/sensitivecontentsettings.php:44
+#: actions/sensitivecontentsettings.php:42
 msgid "Sensitive content settings"
 msgstr ""
 
-#: actions/sensitivecontentsettings.php:49
+#: actions/sensitivecontentsettings.php:47
 msgid "Set preferences for display of \"sensitive\" content"
 msgstr ""
 
-#: actions/sensitivecontentsettings.php:80
+#: actions/sensitivecontentsettings.php:78
 msgctxt "BUTTON"
 msgid "Save"
 msgstr ""
 
-#: actions/sensitivecontentsettings.php:90
+#: actions/sensitivecontentsettings.php:88
 msgid "Settings saved."
+msgstr ""
+
+#: SensitiveContentPlugin.php:51
+msgid "Mark, hide/show sensitive notices like on Twitter."
+msgstr ""
+
+#: SensitiveContentPlugin.php:132
+msgctxt "MENU"
+msgid "Sensitive Content"
+msgstr ""
+
+#: SensitiveContentPlugin.php:133
+msgid "Settings for display of sensitive content."
 msgstr ""
