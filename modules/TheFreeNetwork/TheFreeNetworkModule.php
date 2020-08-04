@@ -79,11 +79,13 @@ class TheFreeNetworkModule extends Module
     {
         $profile_id = $this->lookup($uri, $class);
 
-        $perf = common_config('performance', 'high');
+        if (is_null($profile_id)) {
+            $perf = common_config('performance', 'high');
 
-        if (is_null($profile_id) && !$perf && $this->lrdd) {
-            // Force lookup with online resources
-            $profile_id = $this->lookup($uri, $class, true);
+            if (!$perf && $this->lrdd) {
+                // Force lookup with online resources
+                $profile_id = $this->lookup($uri, $class, true);
+            }
         }
 
         return false;
