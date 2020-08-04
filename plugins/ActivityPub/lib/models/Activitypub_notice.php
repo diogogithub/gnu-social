@@ -185,9 +185,12 @@ class Activitypub_notice
         $discovery = new Activitypub_explorer;
         foreach ($mentions as $mention) {
             try {
-                $mentions_profiles[] = $discovery->lookup($mention)[0];
+                $actor_profile = $discovery->lookup($mention);
+                if (!empty($actor_profile)) {
+                    $mentions_profiles[] = $actor_profile[0];
+                }
             } catch (Exception $e) {
-                // Invalid actor found, just let it go. // TODO: Fallback to OStatus
+                // Invalid actor found, just let it go, it will eventually be handled by some other federation plugin like OStatus.
             }
         }
         unset($discovery);
