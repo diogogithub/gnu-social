@@ -1,25 +1,27 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Table Definition for status_network
  *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 class Status_network extends Safe_DataObject
 {
@@ -39,12 +41,13 @@ class Status_network extends Safe_DataObject
     public $theme;                           // varchar(191)               not 255 because utf8mb4 takes more space
     public $logo;                            // varchar(191)               not 255 because utf8mb4 takes more space
     public $created;                         // datetime()   not_null
-    public $modified;                        // datetime()   not_null default_CURRENT_TIMESTAMP
+    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
 
     /* Static get */
-    static function getKV($k,$v=NULL) {
+    public static function getKV($k, $v = null)
+    {
         // TODO: This must probably be turned into a non-static call
-        $i = DB_DataObject::staticGet('Status_network',$k,$v);
+        $i = DB_DataObject::staticGet('Status_network', $k, $v);
 
         // Don't use local process cache; if we're fetching multiple
         // times it's because we're reloading it in a long-running
@@ -60,8 +63,8 @@ class Status_network extends Safe_DataObject
     // XXX: made public so Status_network_tag can eff with it
     public static $cache = null;
     public static $cacheInitialized = false;
-    static $base = null;
-    static $wildcard = null;
+    public static $base = null;
+    public static $wildcard = null;
 
     /**
      * @param string $dbhost
@@ -70,8 +73,13 @@ class Status_network extends Safe_DataObject
      * @param string $dbname
      * @param array $servers memcached servers to use for caching config info
      */
-    static function setupDB($dbhost, $dbuser, $dbpass, $dbname, array $servers)
-    {
+    public static function setupDB(
+        $dbhost,
+        $dbuser,
+        $dbpass,
+        $dbname,
+        array $servers
+    ) {
         global $config;
 
         $config['db']['database_'.$dbname] = "mysqli://$dbuser:$dbpass@$dbhost/$dbname";
@@ -95,8 +103,8 @@ class Status_network extends Safe_DataObject
             $persist = php_sapi_name() != 'cli' || self::$cacheInitialized;
             if (!is_array($servers)) {
                 $servers = array($servers);
-            } 
-            foreach($servers as $server) {
+            }
+            foreach ($servers as $server) {
                 $parts = explode(':', $server);
                 $server = $parts[0];
                 if (count($parts) > 1) {
@@ -112,11 +120,12 @@ class Status_network extends Safe_DataObject
         self::$base = $dbname;
     }
 
-    static function cacheKey($k, $v) {
+    public static function cacheKey($k, $v)
+    {
         return 'gnusocial:' . self::$base . ':status_network:'.$k.':'.$v;
     }
 
-    static function memGet($k, $v)
+    public static function memGet($k, $v)
     {
         if (!self::$cache) {
             return self::getKV($k, $v);
@@ -136,7 +145,7 @@ class Status_network extends Safe_DataObject
         return $sn;
     }
 
-    function decache()
+    public function decache()
     {
         if (self::$cache) {
             $keys = array('nickname', 'hostname', 'pathname');
@@ -147,10 +156,11 @@ class Status_network extends Safe_DataObject
         }
     }
 
-    function update($dataObject=false)
+    public function update($dataObject = false)
     {
         if (is_object($dataObject)) {
-            $dataObject->decache(); # might be different keys
+            // might be different keys
+            $dataObject->decache();
         }
         return parent::update($dataObject);
     }
@@ -158,7 +168,7 @@ class Status_network extends Safe_DataObject
     /**
      * DB_DataObject doesn't allow updating keys (even non-primary)
      */
-    function updateKeys(&$orig)
+    public function updateKeys(&$orig)
     {
         $this->_connect();
         foreach (array('hostname', 'pathname') as $k) {
@@ -183,9 +193,10 @@ class Status_network extends Safe_DataObject
         return $result;
     }
 
-    function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
-        $this->decache(); # while we still have the values!
+        // while we still have the values!
+        $this->decache();
         return parent::delete($useWhere);
     }
 
@@ -194,7 +205,7 @@ class Status_network extends Safe_DataObject
      * @param string $wildcard hostname suffix to match wildcard config
      * @return mixed Status_network or null
      */
-    static function getFromHostname($servername, $wildcard)
+    public static function getFromHostname($servername, $wildcard)
     {
         $sn = null;
         if (0 == strncasecmp(strrev($wildcard), strrev($servername), strlen($wildcard))) {
@@ -223,7 +234,7 @@ class Status_network extends Safe_DataObject
      * @param string $pathname URL base path
      * @param string $wildcard hostname suffix to match wildcard config
      */
-    static function setupSite($servername, $pathname, $wildcard)
+    public static function setupSite($servername, $pathname, $wildcard)
     {
         global $config;
 
@@ -241,10 +252,14 @@ class Status_network extends Safe_DataObject
                 empty($_SERVER['HTTPS']) &&
                 0 != strcasecmp($sn->hostname, $servername)) {
                 $sn->redirectTo('http://'.$sn->hostname.$_SERVER['REQUEST_URI']);
-            } else if (!empty($_SERVER['HTTPS']) &&
-                       0 != strcasecmp($sn->hostname, $servername) &&
-                       0 != strcasecmp($sn->nickname.'.'.$wildcard, $servername)) {
-                $sn->redirectTo('https://'.$sn->nickname.'.'.$wildcard.$_SERVER['REQUEST_URI']);
+            } elseif (
+                !empty($_SERVER['HTTPS'])
+                && strcasecmp($sn->hostname, $servername) !== 0
+                && strcasecmp($sn->nickname . '.' . $wildcard, $servername) !== 0
+            ) {
+                $sn->redirectTo(
+                    "https://{$sn->nickname}.{$wildcard}{$_SERVER['REQUEST_URI']}"
+                );
             }
 
             $dbhost = (empty($sn->dbhost)) ? 'localhost' : $sn->dbhost;
@@ -282,7 +297,7 @@ class Status_network extends Safe_DataObject
     // (C) 2006 by Heiko Richler  http://www.richler.de/
     // LGPL
 
-    function redirectTo($destination)
+    public function redirectTo($destination)
     {
         $old = 'http'.
           (($_SERVER['HTTPS'] == 'on') ? 'S' : '').
@@ -295,15 +310,15 @@ class Status_network extends Safe_DataObject
             return false;
         }
 
-        header('HTTP/1.1 301 Moved Permanently');
-        header("Location: $destination");
+        http_response_code(301);
+        header("Location: {$destination}");
 
-        print "<a href='$destination'>$destination</a>\n";
+        echo "<a href='{$destination}'>{$destination}</a>\n";
 
         exit;
     }
 
-    function getServerName()
+    public function getServerName()
     {
         if (!empty($this->hostname)) {
             return $this->hostname;
@@ -316,7 +331,7 @@ class Status_network extends Safe_DataObject
      * Return site meta-info tags as an array
      * @return array of strings
      */
-    function getTags()
+    public function getTags()
     {
         return Status_network_tag::getTags($this->site_id);
     }
@@ -326,7 +341,7 @@ class Status_network extends Safe_DataObject
      * @param array tags
      * @fixme only add/remove differentials
      */
-    function setTags(array $tags)
+    public function setTags(array $tags)
     {
         $this->clearTags();
         foreach ($tags as $tag) {
@@ -347,13 +362,13 @@ class Status_network extends Safe_DataObject
         return true;
     }
 
-    function clearTags()
+    public function clearTags()
     {
         $tag = new Status_network_tag();
         $tag->site_id = $this->site_id;
 
         if ($tag->find()) {
-            while($tag->fetch()) {
+            while ($tag->fetch()) {
                 $tag->delete();
             }
         }
@@ -366,7 +381,7 @@ class Status_network extends Safe_DataObject
      * @param string $tag
      * @return bool
      */
-    function hasTag($tag)
+    public function hasTag($tag)
     {
         return in_array($tag, $this->getTags());
     }

@@ -1,36 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * This test class pretends to be an RSS aggregator. It logs notifications
  * from the cloud.
  *
- * PHP version 5
- *
- * @category Plugin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Dummy aggregator that acts as a proper notification handler. It
@@ -39,16 +34,15 @@ if (!defined('STATUSNET')) {
  * and easily test things end-to-end. I'm leaving it in here as it
  * may be useful for developing the plugin further.
  *
- * @category Plugin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class LoggingAggregatorAction extends Action
 {
-    var $challenge = null;
-    var $url       = null;
+    public $challenge = null;
+    public $url       = null;
 
     /**
      * Initialization.
@@ -57,7 +51,7 @@ class LoggingAggregatorAction extends Action
      *
      * @return boolean false if user doesn't exist
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -77,7 +71,7 @@ class LoggingAggregatorAction extends Action
      *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
 
@@ -106,7 +100,7 @@ class LoggingAggregatorAction extends Action
             }
 
             header('Content-Type: text/xml');
-            Echo "<notifyResult success='true' msg='Thanks for the update.' />\n";
+            echo "<notifyResult success='true' msg='Thanks for the update.' />\n";
         }
 
         $this->ip = $_SERVER['REMOTE_ADDR'];
@@ -123,9 +117,9 @@ class LoggingAggregatorAction extends Action
      *
      * @return void
      */
-    function showError($msg)
+    public function showError($msg)
     {
-        header('HTTP/1.1 400 Bad Request');
+        http_response_code(400);
         header('Content-Type: text/xml');
         echo "<?xml version='1.0'?>\n";
         echo "<notifyResult success='false' msg='$msg' />\n";

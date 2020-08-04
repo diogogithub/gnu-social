@@ -1,26 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Show a user's timeline
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  API
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Craig Andrews <candrews@integralblue.com>
  * @author    Evan Prodromou <evan@status.net>
  * @author    Jeffery To <jeffery.to@gmail.com>
@@ -30,30 +28,26 @@
  * @author    Zach Copley <zach@status.net>
  * @copyright 2009 StatusNet, Inc.
  * @copyright 2009 Free Software Foundation, Inc http://www.fsf.org
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Returns the most recent notices (default 20) posted by the authenticating
  * user. Another user's timeline can be requested via the id parameter. This
  * is the API equivalent of the user profile web page.
  *
- * @category API
- * @package  StatusNet
- * @author   Craig Andrews <candrews@integralblue.com>
- * @author   Evan Prodromou <evan@status.net>
- * @author   Jeffery To <jeffery.to@gmail.com>
- * @author   mac65 <mac65@mac65.com>
- * @author   Mike Cochrane <mikec@mikenz.geek.nz>
- * @author   Robin Millette <robin@millette.info>
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  API
+ * @package   GNUsocial
+ * @author    Craig Andrews <candrews@integralblue.com>
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Jeffery To <jeffery.to@gmail.com>
+ * @author    mac65 <mac65@mac65.com>
+ * @author    Mike Cochrane <mikec@mikenz.geek.nz>
+ * @author    Robin Millette <robin@millette.info>
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ApiTimelineUserAction extends ApiBareAuthAction
 {
@@ -101,16 +95,14 @@ class ApiTimelineUserAction extends ApiBareAuthAction
         if (!empty($this->notices) && (count($this->notices) > 0)) {
             $last = count($this->notices) - 1;
 
-            return '"' . implode(
-                    ':',
-                    array($this->arg('action'),
-                        common_user_cache_hash($this->scoped),
-                        common_language(),
-                        $this->target->getID(),
-                        strtotime($this->notices[0]->created),
-                        strtotime($this->notices[$last]->created))
-                )
-                . '"';
+            return '"' . implode(':', [
+                $this->arg('action'),
+                common_user_cache_hash($this->scoped),
+                common_language(),
+                $this->target->getID(),
+                strtotime($this->notices[0]->created),
+                strtotime($this->notices[$last]->created),
+            ]) . '"';
         }
 
         return null;
@@ -250,7 +242,7 @@ class ApiTimelineUserAction extends ApiBareAuthAction
         }
         Event::handle('EndAtomPubNewActivity', array($activity, $this->target, $stored));
 
-        header('HTTP/1.1 201 Created');
+        http_response_code(201);
         header("Location: " . common_local_url('ApiStatusesShow', array('id' => $stored->getID(),
                 'format' => 'atom')));
         $this->showSingleAtomStatus($stored);

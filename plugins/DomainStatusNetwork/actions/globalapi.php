@@ -1,53 +1,44 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
  * An action that requires an API key
- * 
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  DomainStatusNetwork
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    // This check helps protect against security problems;
-    // your code file can't be executed directly from the web.
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * An action that requires an API key
  *
  * @category  General
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 class GlobalApiAction extends Action
 {
-    var $email;
+    public $email;
 
     /**
      * Check for an API key, and throw an exception if it's not set
@@ -57,7 +48,7 @@ class GlobalApiAction extends Action
      * @return boolean continuation flag
      */
 
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         GNUsocial::setApi(true); // reduce exception reports to aid in debugging
 
@@ -96,12 +87,12 @@ class GlobalApiAction extends Action
         return true;
     }
 
-    function showError($message, $code=400)
+    public function showError($message, $code = 400)
     {
         $this->showOutput(array('error' => $message), $code);
     }
 
-    function showSuccess($values=null, $code=200)
+    public function showSuccess($values = null, $code = 200)
     {
         if (empty($values)) {
             $values = array();
@@ -110,19 +101,17 @@ class GlobalApiAction extends Action
         $this->showOutput($values, $code);
     }
 
-    function showOutput($values, $code)
+    public function showOutput($values, $code)
     {
-        if (array_key_exists($code, ClientErrorAction::$status)) {
-            $status_string = ClientErrorAction::$status[$code];
-        } else if (array_key_exists($code, ServerErrorAction::$status)) {
-            $status_string = ServerErrorAction::$status[$code];
-        } else {
+        if (
+            !array_key_exists($code, ClientErrorAction::$status)
+            && !array_key_exists($code, ServerErrorAction::$status)
+        ) {
             // bad code!
             $code = 500;
-            $status_string = ServerErrorAction::$status[$code];
         }
 
-        header('HTTP/1.1 '.$code.' '.$status_string);
+        http_response_code($code);
 
         header('Content-Type: application/json; charset=utf-8');
         print(json_encode($values));

@@ -1,26 +1,24 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Show a notice (as a Twitter-style status)
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  API
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Craig Andrews <candrews@integralblue.com>
  * @author    Evan Prodromou <evan@status.net>
  * @author    Jeffery To <jeffery.to@gmail.com>
@@ -30,31 +28,29 @@
  * @author    Zach Copley <zach@status.net>
  * @copyright 2009 StatusNet, Inc.
  * @copyright 2009 Free Software Foundation, Inc http://www.fsf.org
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Returns the notice specified by id as a Twitter-style status and inline user
  *
- * @category API
- * @package  StatusNet
- * @author   Craig Andrews <candrews@integralblue.com>
- * @author   Evan Prodromou <evan@status.net>
- * @author   Jeffery To <jeffery.to@gmail.com>
- * @author   Tom Blankenship <mac65@mac65.com>
- * @author   Mike Cochrane <mikec@mikenz.geek.nz>
- * @author   Robin Millette <robin@millette.info>
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  API
+ * @package   GNUsocial
+ * @author    Craig Andrews <candrews@integralblue.com>
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Jeffery To <jeffery.to@gmail.com>
+ * @author    Tom Blankenship <mac65@mac65.com>
+ * @author    Mike Cochrane <mikec@mikenz.geek.nz>
+ * @author    Robin Millette <robin@millette.info>
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ApiStatusesShowAction extends ApiPrivateAuthAction
 {
-    var $notice_id = null;
-    var $notice    = null;
+    public $notice_id = null;
+    public $notice    = null;
 
     /**
      * Take arguments for running
@@ -131,7 +127,7 @@ class ApiStatusesShowAction extends ApiPrivateAuthAction
      *
      * @return void
      */
-    function showNotice()
+    public function showNotice()
     {
         switch ($this->format) {
         case 'xml':
@@ -158,9 +154,9 @@ class ApiStatusesShowAction extends ApiPrivateAuthAction
      * @return boolean true
      */
 
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
-        return ($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'HEAD');
+        return in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD']);
     }
 
     /**
@@ -168,7 +164,7 @@ class ApiStatusesShowAction extends ApiPrivateAuthAction
      *
      * @return string datestamp of the latest notice in the stream
      */
-    function lastModified()
+    public function lastModified()
     {
         return strtotime($this->notice->created);
     }
@@ -181,7 +177,7 @@ class ApiStatusesShowAction extends ApiPrivateAuthAction
      *
      * @return string etag
      */
-    function etag()
+    public function etag()
     {
         return '"' . implode(
             ':',
@@ -194,7 +190,7 @@ class ApiStatusesShowAction extends ApiPrivateAuthAction
         . '"';
     }
 
-    function deleteNotice()
+    public function deleteNotice()
     {
         if ($this->format != 'atom') {
             // TRANS: Client error displayed when trying to delete a notice not using the Atom format.
@@ -215,7 +211,7 @@ class ApiStatusesShowAction extends ApiPrivateAuthAction
 
         // @fixme is there better output we could do here?
 
-        header('HTTP/1.1 200 OK');
+        http_response_code(200);
         header('Content-Type: text/plain');
         // TRANS: Confirmation of notice deletion in API. %d is the ID (number) of the deleted notice.
         print(sprintf(_('Deleted notice %d'), $this->notice->id));
