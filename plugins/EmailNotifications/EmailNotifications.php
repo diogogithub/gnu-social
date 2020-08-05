@@ -19,16 +19,28 @@
 
 // }}}
 
-namespace Component\XMPP;
+/**
+ * Handle email notifications
+ *
+ * @package  GNUsocial
+ * @category Plugin
+ *
+ * @author    Hugo Sales <hugo@fc.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
+
+namespace Plugin\EmailNotifications;
 
 use App\Core\Event;
 use App\Core\Module;
 
-class XMPP extends Module
+class EmailNotifications extends Module
 {
     public function onAddNotificationTransport(&$form_defs): bool
     {
-        $form_defs['xmpp'] = $form_defs['placeholder'];
+        $form_defs['email'] = $form_defs['placeholder'];
+        unset($form_defs['email']['post_on_status_change']);
         return Event::next;
     }
 }
