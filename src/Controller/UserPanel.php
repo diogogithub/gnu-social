@@ -130,13 +130,32 @@ class UserPanel extends AbstractController
             $val      = $type->convertToPHPValue($col->getDefault(), $platform);
             $type_str = lcfirst(substr((string) $type, 1));
             $label    = str_replace('_', ' ', ucfirst($name));
+
+            $labels = [
+                'target_profile_id' => 'Target Profiles',
+                'dm'                => 'DM',
+            ];
+
+            $help = [
+                'target_profile_id'     => 'If specified, these settings apply only to these profiles (comma- or space-separated list)',
+                'activity_by_followed'  => 'Notify me when someone I follow has new activity',
+                'mention'               => 'Notify me when mentions me in a notice',
+                'reply'                 => 'Notify me when someone replies to a notice made by me',
+                'follow'                => 'Notify me when someone follows me or asks for permission to do so',
+                'favorite'              => 'Notify me when someone favorites one of my notices',
+                'nudge'                 => 'Notify me when someone nudges me',
+                'dm'                    => 'Notify me when someone sends me a direct message',
+                'post_on_status_change' => 'Post a notice when my status in this service changes',
+                'enable_posting'        => 'Enable posting from this service',
+            ];
+
             switch ($type_str) {
             case Types::BOOLEAN:
-                $form_defs['placeholder'][] = [$name, CheckboxType::class, ['data' => $val, 'label' => $label, 'help' => _m($col->getComment())]];
+                $form_defs['placeholder'][$name] = [$name, CheckboxType::class, ['data' => $val, 'label' => _m($labels[$name] ?? $label), 'help' => _m($help[$name])]];
                 break;
             case Types::INTEGER:
                 if ($name == 'target_profile_id') {
-                    $form_defs['placeholder'][] = ['target_profiles', TextType::class, ['data' => $val, 'label' => $label, 'help' => _m($col->getComment())], 'transformer' => ProfileArrayTransformer::class];
+                    $form_defs['placeholder'][$name] = ['target_profiles', TextType::class, ['data' => $val, 'label' => _m($labels[$name]), 'help' => _m($help[$name])], 'transformer' => ProfileArrayTransformer::class];
                     break;
                 }
                 // no break
@@ -154,6 +173,9 @@ class UserPanel extends AbstractController
         }
 
         $tabbed_forms = F\map($tabbed_forms, function ($f) { return $f->createView(); });
-        return ['_template' => 'settings/notifications.html.twig', 'tabbed_forms' => $tabbed_forms];
+        return [
+            '_template'    => 'settings/notifications.html.twig',
+            'tabbed_forms' => $tabbed_forms,
+        ];
     }
 }
