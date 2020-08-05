@@ -48,8 +48,11 @@
 .faq-nav a {
       color: #91B9D0;
 }
-
 .faq-nav a:hover {
+      color: #F6F6F6;
+      transition: all 0.8s ease;
+}
+.faq-nav a:focus {
       color: #F6F6F6;
       transition: all 0.8s ease;
 }

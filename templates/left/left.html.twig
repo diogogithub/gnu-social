@@ -10,9 +10,9 @@
 {% block left %}
     {% if app.user %}
         <div id='left-panel'>
-            <input type="checkbox" id="toggle">
+            <input type="checkbox" id="toggle" autofocus>
             <div class="icon-menu">
-                <label for="toggle" id='menu'></label>
+                <label for="toggle" id='menu' tabindex="0"></label>
             </div>
             <div class='navbar'>
                 <div class="left-nav">

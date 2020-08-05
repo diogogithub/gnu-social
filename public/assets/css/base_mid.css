@@ -43,12 +43,15 @@ a:link {
       margin: 0;
       padding: 0;
 }
-
 a:visited {
       outline: 0;
       color: #F6F6F6;
       margin: 0;
       padding: 0;
+}
+a:focus {
+      color: #F6F6F6;
+      transition: all 0.8s ease;
 }
 
 b {
