@@ -97,7 +97,7 @@ class ActivityPubPlugin extends Plugin
             // Look for a local notice (unfortunately GNU social doesn't
             // provide this functionality natively)
             try {
-                $candidate = Notice::getByID(intval(substr($url, (strlen(common_local_url('apNotice', ['id' => 0]))-1))));
+                $candidate = Notice::getByID((int)substr($url, (strlen(common_local_url('apNotice', ['id' => 0]))-1)));
                 if (common_local_url('apNotice', ['id' => $candidate->getID()]) === $url) { // Sanity check
                     return $candidate;
                 } else {

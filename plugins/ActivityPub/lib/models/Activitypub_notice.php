@@ -211,6 +211,23 @@ class Activitypub_notice
            throw new Exception('That\'s too long. Maximum notice size is %d character.');
            }*/
 
+        // Attachments (first part)
+        $attachments = [];
+        if (isset($object['attachment']) && is_array($object['attachment'])) {
+            foreach ($object['attachment'] as $attachment) {
+                if (array_key_exists('type', $attachment) && $attachment['type'] == 'Document') {
+                    try {
+                        // throws exception on failure
+                        $attachment = MediaFile::fromUrl($attachment['url'], $actor_profile, $attachment['name']);
+                        $act->enclosures[] = $attachment->getEnclosure();
+                        $attachments[] = $attachment;
+                    } catch (Exception $e) {
+                        // Whatever.
+                    }
+                }
+            }
+        }
+
         $actobj = new ActivityObject();
         $actobj->type = ActivityObject::NOTE;
         $actobj->content = strip_tags($content, '<p><b><i><u><a><ul><ol><li>');
@@ -219,6 +236,11 @@ class Activitypub_notice
         $act->objects[] = $actobj;
 
         $note = Notice::saveActivity($act, $actor_profile, $options);
+
+        // Attachments (last part)
+        foreach($attachments as $attachment) {
+            $attachment->attachToNotice($note);
+        }
 
         return $note;
     }
