@@ -50,6 +50,10 @@
       color: #F6F6F6;
       transition: all 0.8s ease;
 }
+.navbar a:focus {
+      color: #F6F6F6;
+      transition: all 0.8s ease;
+}
 
 .icon-menu label {
       display: none;
