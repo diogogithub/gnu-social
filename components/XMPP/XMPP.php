@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,23 +16,19 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
-namespace Plugin\Test;
+namespace Component\XMPP;
 
+use App\Core\Event;
 use App\Core\Module;
-use App\Core\Router\RouteLoader;
-use Plugin\Test\Controller\TestController;
 
-class Test extends Module
+class XMPP extends Module
 {
-    public function onTest(string $foo)
+    public function onAddNotificationTransport(&$form_defs): bool
     {
-        var_dump('Event handled: ' . $foo);
-    }
-
-    public function onAddRoute(RouteLoader $r)
-    {
-        $r->connect('test_foo', '/foo', TestController::class);
+        $form_defs['xmpp'] = $form_defs['placeholder'];
+        return Event::next;
     }
 }
