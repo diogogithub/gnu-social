@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 /**
@@ -104,15 +106,15 @@ abstract class Common
         //     $paths[basename(common_config($cat, 'path'))] = true;
         // }
 
-        // return in_array($str, array_keys($paths));
+        // return in_arry($str, array_keys($paths));
     }
 
     /**
      * Remove keys from the _values_ of $keys from the array $from
      */
-    public static function array_remove_keys(array $from, array $keys, bool $strict = false)
+    public static function arrayRemoveKeys(array $from, array $keys, bool $strict = false)
     {
-        return F\filter($from, function ($e) use ($keys, $strict) { return in_array($e, $keys, $strict); });
+        return F\filter($from, function ($_, $key) use ($keys, $strict) { return !in_array($key, $keys, $strict); });
     }
 
     /**
