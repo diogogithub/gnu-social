@@ -39,10 +39,10 @@ services:
 
     App\Core\I18n\TransExtractor:
         tags:
-            - { name: translation.extractor, alias: social }
+            - { name: 'translation.extractor', alias: social }
 
     App\Core\Queue\MessageHandler:
-      tags: [messenger.message_handler]
+      tags: ['messenger.message_handler']
 
     Symfony\Bridge\Doctrine\Security\RememberMe\DoctrineTokenProvider: ~
 
