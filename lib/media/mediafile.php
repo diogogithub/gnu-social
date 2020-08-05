@@ -445,10 +445,17 @@ class MediaFile
      *
      * @param string $url Remote media URL
      * @param Profile|null $scoped
+     * @param string|null $name
      * @return ImageFile|MediaFile
+     * @throws ClientException
+     * @throws FileNotFoundException
+     * @throws InvalidFilenameException
+     * @throws NoResultException
      * @throws ServerException
+     * @throws UnsupportedMediaException
+     * @throws UseFileAsThumbnailException
      */
-    public static function fromUrl(string $url, ?Profile $scoped = null)
+    public static function fromUrl(string $url, ?Profile $scoped = null, ?string $name = null)
     {
         if (!common_valid_http_url($url)) {
             // TRANS: Server exception. %s is a URL.
@@ -478,10 +485,10 @@ class MediaFile
                     File::respectsQuota($scoped, filesize($temp_filename));
                 }
 
-                $mimetype = self::getUploadedMimeType($temp_filename);
+                $mimetype = self::getUploadedMimeType($temp_filename, $name ?? false);
                 $media = common_get_mime_media($mimetype);
 
-                $basename = basename($temp_filename);
+                $basename = basename($name ?? $temp_filename);
 
                 if ($media == 'image') {
                     // Use -1 for the id to avoid adding this temporary file to the DB
