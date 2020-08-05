@@ -256,13 +256,19 @@ class ImageFile extends MediaFile
      *
      * @param string $url Remote image URL
      * @param Profile|null $scoped
+     * @param string|null $name
      * @return ImageFile
      * @throws ClientException
+     * @throws FileNotFoundException
+     * @throws InvalidFilenameException
+     * @throws NoResultException
      * @throws ServerException
+     * @throws UnsupportedMediaException
+     * @throws UseFileAsThumbnailException
      */
-    public static function fromUrl(string $url, ?Profile $scoped = null): self
+    public static function fromUrl(string $url, ?Profile $scoped = null, ?string $name = null): self
     {
-        $mediafile = parent::fromUrl($url, $scoped);
+        $mediafile = parent::fromUrl($url, $scoped, $name);
         if ($mediafile instanceof self) {
             return $mediafile;
         } else {
