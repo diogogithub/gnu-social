@@ -2,6 +2,23 @@
 
 {% block title %}Notification Settings{% endblock %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  <style>
+    .form {
+    display: none;
+    clip-path: polygon(0 0);
+    }
+
+    {% for transport, form in tabbed_forms %}
+      #form_toggle_{{ transport }}:checked ~ #form_{{ transport }} {
+      display: flex;
+      clip-path: none;
+      }
+    {% endfor %}
+  </style>
+{% endblock %}
+
 {% block body %}
     <div class='content'>
         {% block primary_nav %}
