@@ -276,6 +276,9 @@ class Activitypub_inbox_handler
             // We don't know the type of the deleted object :(
             // Nor if it's gone or not.
             try {
+                if (is_array($object)) {
+                    $object = $object['id'];
+                }
                 $aprofile = Activitypub_profile::fromUri($object, false);
                 $res = Activitypub_explorer::get_remote_user_activity($object);
                 Activitypub_profile::update_profile($aprofile, $res);
