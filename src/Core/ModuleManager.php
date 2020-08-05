@@ -1,7 +1,6 @@
 <?php
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -16,7 +15,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
 
 /**
@@ -36,10 +34,22 @@
 namespace App\Core;
 
 use App\Util\Formatting;
+
+use AppendIterator;
+use FilesystemIterator;
 use Functional as F;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 class ModuleManager
 {
+    public function __construct()
+    {
+        if (!defined('CACHE_FILE')) {
+            define('CACHE_FILE', INSTALLDIR . '/var/cache/module_manager.php');
+        }
+    }
+
     protected static $loader;
     public static function setLoader($l)
     {
@@ -72,6 +82,23 @@ class ModuleManager
         }
     }
 
+    public static function process()
+    {
+        $module_paths   = array_merge(glob(INSTALLDIR . '/components/*/*.php'), glob(INSTALLDIR . '/plugins/*/*.php'));
+        $module_manager = new self();
+        foreach ($module_paths as $path) {
+            // 'modules' and 'plugins' have the same length
+            $type   = ucfirst(preg_replace('%' . INSTALLDIR . '/(component|plugin)s/.*%', '\1', $path));
+            $module = basename(dirname($path));
+            $fqcn   = "\\{$type}\\{$module}\\{$module}";
+            $module_manager->add($fqcn, $path);
+        }
+
+        $module_manager->preRegisterEvents();
+
+        file_put_contents(CACHE_FILE, "<?php\nreturn " . var_export($module_manager, true) . ';');
+    }
+
     public static function __set_state($state)
     {
         $obj          = new self();
@@ -82,8 +109,21 @@ class ModuleManager
 
     public function loadModules()
     {
-        $f   = INSTALLDIR . '/var/cache/module_manager.php';
-        $obj = require $f;
+        if ($_ENV['APP_ENV'] == 'prod' && !file_exists(CACHE_FILE)) {
+            throw new Exception('The application needs to be compiled before using in production');
+        } else {
+            $rdi = new AppendIterator();
+            $rdi->append(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(INSTALLDIR . '/components', FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS)));
+            $rdi->append(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(INSTALLDIR . '/plugins',    FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS)));
+            $time = file_exists(CACHE_FILE) ? filemtime(CACHE_FILE) : 0;
+
+            if (F\some($rdi, function ($e) use ($time) { return $e->getMTime() > $time; })) {
+                self::process();
+            }
+        }
+
+        $obj = require CACHE_FILE;
+
         foreach ($obj->events as $event => $callables) {
             foreach ($callables as $callable) {
                 Event::addHandler($event, $callable);

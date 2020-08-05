@@ -41,18 +41,6 @@ class ModuleManagerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
-        $module_paths   = array_merge(glob(INSTALLDIR . '/components/*/*.php'), glob(INSTALLDIR . '/plugins/*/*.php'));
-        $module_manager = new ModuleManager();
-        foreach ($module_paths as $path) {
-            // 'modules' and 'plugins' have the same length
-            $type   = ucfirst(preg_replace('%' . INSTALLDIR . '/(component|plugin)s/.*%', '\1', $path));
-            $module = basename(dirname($path));
-            $fqcn   = "\\{$type}\\{$module}\\{$module}";
-            $module_manager->add($fqcn, $path);
-        }
-
-        $module_manager->preRegisterEvents();
-
-        file_put_contents(INSTALLDIR . '/var/cache/module_manager.php', "<?php\nreturn " . var_export($module_manager, true) . ';');
+        ModuleManager::process();
     }
 }
