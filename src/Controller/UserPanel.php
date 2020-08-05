@@ -110,27 +110,29 @@ class UserPanel extends AbstractController
     {
         $schema    = DB::getConnection()->getSchemaManager();
         $platform  = $schema->getDatabasePlatform();
-        $columns   = Common::array_remove_keys($schema->listTableColumns('user_notification_prefs'), ['user_id', 'transport', 'created', 'modified']);
+        $columns   = Common::arrayRemoveKeys($schema->listTableColumns('user_notification_prefs'), ['user_id', 'transport', 'created', 'modified']);
         $form_defs = ['placeholder' => []];
         foreach ($columns as $name => $col) {
-            $val = $col->getType()->convertToPHPValue($col->getDefault(), $platform);
-            switch ($col->getType()) {
+            $type     = $col->getType();
+            $val      = $type->convertToPHPValue($col->getDefault(), $platform);
+            $type_str = lcfirst(substr((string) $type, 1));
+            $label    = str_replace('_', ' ', ucfirst($name));
+            switch ($type_str) {
             case Types::BOOLEAN:
-                $form_defs['placeholder'][] = [$name, CheckboxType::class, ['data' => $val, 'label' => _m($col->getComment())]];
+                $form_defs['placeholder'][] = [$name, CheckboxType::class, ['data' => $val, 'label' => $label, 'help' => _m($col->getComment())]];
                 break;
             case Types::INTEGER:
                 if ($name == 'target_profile_id') {
-                    $form_defs['placeholder'][] = ['target_profiles', TextType::class, ['data' => $val, 'label' => _m($col->getComment())], 'transformer' => ProfileArrayTransformer::class];
+                    $form_defs['placeholder'][] = ['target_profiles', TextType::class, ['data' => $val, 'label' => $label, 'help' => _m($col->getComment())], 'transformer' => ProfileArrayTransformer::class];
                     break;
                 }
-                // fallthrough
                 // no break
             default:
                 throw new Exception("Structure of table user_notification_prefs changed in a way not accounted to in notification settings ({$name})", 500);
             }
         }
 
-        Event::handle('AddNotificationTransport', [&$form_defs]);
+        Event::handle('add_notification_transport', [&$form_defs]);
         unset($form_defs['placeholder']);
 
         $tabbed_forms = [];
