@@ -40,6 +40,7 @@ class Email extends Module
     public function onAddNotificationTransport(&$form_defs): bool
     {
         $form_defs['email'] = $form_defs['placeholder'];
+        unset($form_defs['email']['post_on_status_change']);
         return Event::next;
     }
 }
