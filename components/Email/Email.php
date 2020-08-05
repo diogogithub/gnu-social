@@ -32,12 +32,14 @@
 
 namespace Component\Email;
 
+use App\Core\Event;
 use App\Core\Module;
 
 class Email extends Module
 {
-    public function onAddNotificationTransport($form_defs)
+    public function onAddNotificationTransport(&$form_defs): bool
     {
         $form_defs['email'] = $form_defs['placeholder'];
+        return Event::next;
     }
 }
