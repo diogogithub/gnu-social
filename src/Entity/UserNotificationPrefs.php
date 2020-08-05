@@ -40,7 +40,7 @@ class UserNotificationPrefs
     private int $user_id;
     private string $transport;
     private ?int $target_profile_id;
-    private bool $notice_by_followed    = true;
+    private bool $activity_by_followed  = true;
     private bool $mention               = true;
     private bool $reply                 = true;
     private bool $follow                = true;
@@ -82,14 +82,14 @@ class UserNotificationPrefs
         return $this->target_profile_id;
     }
 
-    public function setNoticeByFollowed(bool $notice_by_followed): self
+    public function setActivityByFollowed(bool $activity_by_followed): self
     {
-        $this->notice_by_followed = $notice_by_followed;
+        $this->activity_by_followed = $activity_by_followed;
         return $this;
     }
-    public function getNoticeByFollowed(): bool
+    public function getActivityByFollowed(): bool
     {
-        return $this->notice_by_followed;
+        return $this->activity_by_followed;
     }
 
     public function setMention(bool $mention): self
