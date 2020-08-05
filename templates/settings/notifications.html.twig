@@ -3,19 +3,29 @@
 {% block title %}Notification Settings{% endblock %}
 
 {% block body %}
+  <div class='content'>
+    {% block primary_nav %}
+      {{ parent() }}
+    {% endblock primary_nav %}
 
-    <div class='content'>
-        {% block primary_nav %}
-            {{ parent() }}
-        {% endblock primary_nav %}
-
-        {% block form %}
+    {% block form %}
+      <div id='form-tabs'>
+        <ul>
           {% for transport, form in tabbed_forms %}
-            <div id="form_{{ transport }}" class='form'>
-                {{ form(form) }}
-            </div>
+            <li class='hover-effect'>
+              {{ transport }}
+            </li>
           {% endfor %}
-        {% endblock form %}
-    </div>
+        </ul>
+      </div>
+      <div id='form-content'>
+        {% for transport, form in tabbed_forms %}
+          <div id="form_{{ transport }}" class='form'>
+            {{ form(form) }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endblock form %}
+  </div>
 
 {% endblock body %}
