@@ -159,3 +159,12 @@ b {
       fill: currentColor;
       align-self: center;
 }
+
+/* left panel z-index fix */
+.form {
+      position: relative;
+      z-index: 0;
+}
+#header {
+      z-index: 1;
+}
