@@ -117,7 +117,7 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
 
         // Note: DataObject::getDatabaseConnection() creates
         // a new connection if there isn't one already
-        $conn = &$flink->getDatabaseConnection();
+        $conn = $flink->getDatabaseConnection();
 
         $this->subscribeTwitterFriends($flink);
 
