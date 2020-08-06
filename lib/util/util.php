@@ -287,20 +287,33 @@ function common_ensure_session()
         if (common_config('sessions', 'handle')) {
             session_set_save_handler(new InternalSessionHandler(), true);
         }
-        if (array_key_exists(session_name(), $_GET)) {
-            $id = $_GET[session_name()];
-        } elseif (array_key_exists(session_name(), $_COOKIE)) {
-            $id = $_COOKIE[session_name()];
+        $session_name = session_name();
+        $id = null;
+        foreach ([INPUT_COOKIE, INPUT_GET] as $input_type) {
+            // PHP's session handler only accepts symbols from
+            // "A" to "Z", "a" to "Z", the comma sign and the minus sign.
+            $id = filter_input(
+                $input_type,
+                $session_name,
+                FILTER_VALIDATE_REGEXP,
+                ['options' => ['regexp' => '/^[,\-A-Za-z0-9]+$/D']]
+            );
+            // Found the session (null is suspicious, so stop at that also)
+            if ($id !== false) {
+                break;
+            }
         }
-        if (isset($id)) {
+
+        if (!is_null($id)) {
             session_id($id);
         }
         session_start();
-        if (!isset($_SESSION['started'])) {
+        if (!array_key_exists('started', $_SESSION)) {
             $_SESSION['started'] = time();
-            if (!empty($id)) {
-                common_log(LOG_WARNING, 'Session cookie "' . $_COOKIE[session_name()] . '" ' .
-                           ' is set but started value is null');
+            if (!is_null($id)) {
+                common_debug(
+                    'Session cookie "' . $id . '" is set but without a session'
+                );
             }
         }
     }
