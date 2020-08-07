@@ -19,6 +19,8 @@
 
 namespace App\Entity;
 
+use App\Core\DB\DB;
+use App\Core\Entity;
 use DateTimeInterface;
 
 /**
@@ -35,15 +37,15 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Avatar
+class Avatar extends Entity
 {
     // {{{ Autocode
 
     private int $profile_id;
-    private ?bool $is_original;
     private int $width;
     private int $height;
-    private string $mediatype;
+    private ?bool $is_original;
+    private int $file_id;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
@@ -55,16 +57,6 @@ class Avatar
     public function getProfileId(): int
     {
         return $this->profile_id;
-    }
-
-    public function setIsOriginal(?bool $is_original): self
-    {
-        $this->is_original = $is_original;
-        return $this;
-    }
-    public function getIsOriginal(): ?bool
-    {
-        return $this->is_original;
     }
 
     public function setWidth(int $width): self
@@ -87,14 +79,24 @@ class Avatar
         return $this->height;
     }
 
-    public function setMediatype(string $mediatype): self
+    public function setIsOriginal(?bool $is_original): self
     {
-        $this->mediatype = $mediatype;
+        $this->is_original = $is_original;
         return $this;
     }
-    public function getMediatype(): string
+    public function getIsOriginal(): ?bool
     {
-        return $this->mediatype;
+        return $this->is_original;
+    }
+
+    public function setFileId(int $file_id): self
+    {
+        $this->file_id = $file_id;
+        return $this;
+    }
+    public function getFileId(): int
+    {
+        return $this->file_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -119,25 +121,59 @@ class Avatar
 
     // }}} Autocode
 
+    private ?File $file = null;
+
+    public function getFile(): File
+    {
+        $this->file = $this->file ?: DB::find('file', ['id' => $this->file_id]);
+        return $this->file;
+    }
+
+    public function getFilePath(): string
+    {
+        $file_name = $this->getFile()->getFileName();
+        if ($this->is_original) {
+            return Common::config('avatar', 'dir') . '/' . $file_name;
+        }
+    }
+
+    /**
+     * Delete this avatar and the corresponding file and thumbnails, which this owns
+     */
+    public function delete(bool $flush = false, bool $delete_files_now = false, bool $cascading = false): array
+    {
+        // Don't go into a loop if we're deleting from File
+        if (!$cascading) {
+            $files = $this->getFile()->delete($cascade = true, $file_flush = false, $delete_files_now);
+        } else {
+            DB::remove(DB::getReference('avatar', ['profile_id' => $this->profile_id, 'width' => $this->width, 'height' => $this->height]));
+            $file_path = $this->getFilePath();
+            $files[]   = $file_path;
+            if ($flush) {
+                DB::flush();
+            }
+            return $delete_files_now ? [] : $files;
+        }
+        return [];
+    }
+
     public static function schemaDef(): array
     {
         return [
             'name'   => 'avatar',
             'fields' => [
-                'profile_id'  => ['type' => 'int', 'not null' => true,  'description' => 'foreign key to profile table'],
-                'is_original' => ['type' => 'bool', 'default' => false, 'description' => 'uploaded by user or generated?'],
-                'width'       => ['type' => 'int', 'not null' => true,  'description' => 'image width'],
-                'height'      => ['type' => 'int', 'not null' => true,  'description' => 'image height'],
-                'mediatype'   => ['type' => 'varchar', 'length' => 32,  'not null' => true, 'description' => 'file type'],
-                'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'profile_id' => ['type' => 'int',       'not null' => true, 'description' => 'foreign key to profile table'],
+                'file_id'    => ['type' => 'int',       'not null' => true, 'description' => 'foreign key to file table'],
+                'created'    => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
+                'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
-            'primary key'  => ['profile_id', 'width', 'height'],
+            'primary key'  => ['profile_id'],
             'foreign keys' => [
                 'avatar_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'avatar_file_id_fkey'    => ['file', ['file_id' => 'id']],
             ],
             'indexes' => [
-                'avatar_profile_id_idx' => ['profile_id'],
+                'avatar_file_id_idx' => ['file_id'],
             ],
         ];
     }

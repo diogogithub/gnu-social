@@ -19,6 +19,7 @@
 
 namespace App\Entity;
 
+use App\Core\Entity;
 use DateTimeInterface;
 
 /**
@@ -35,22 +36,20 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class File
+class File extends Entity
 {
     // {{{ Autocode
 
     private int $id;
     private ?string $url;
     private ?bool $is_url_protected;
-    private string $url_hash;
+    private ?string $url_hash;
     private ?string $file_hash;
     private ?string $mimetype;
     private ?int $size;
     private ?string $title;
     private ?int $timestamp;
     private ?bool $is_local;
-    private ?int $width;
-    private ?int $height;
     private \DateTimeInterface $modified;
 
     public function setId(int $id): self
@@ -83,12 +82,12 @@ class File
         return $this->is_url_protected;
     }
 
-    public function setUrlHash(string $url_hash): self
+    public function setUrlHash(?string $url_hash): self
     {
         $this->url_hash = $url_hash;
         return $this;
     }
-    public function getUrlHash(): string
+    public function getUrlHash(): ?string
     {
         return $this->url_hash;
     }
@@ -153,26 +152,6 @@ class File
         return $this->is_local;
     }
 
-    public function setWidth(?int $width): self
-    {
-        $this->width = $width;
-        return $this;
-    }
-    public function getWidth(): ?int
-    {
-        return $this->width;
-    }
-
-    public function setHeight(?int $height): self
-    {
-        $this->height = $height;
-        return $this;
-    }
-    public function getHeight(): ?int
-    {
-        return $this->height;
-    }
-
     public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
@@ -185,6 +164,47 @@ class File
 
     // }}} Autocode
 
+    const URLHASH_ALGO  = 'sha256';
+    const FILEHASH_ALGO = 'sha256';
+
+    public function getFileName(): string
+    {
+        return $this->file_hash;
+    }
+
+    /**
+     * Delete this file and by default all the associated entities (avatar and/or thumbnails, which this owns)
+     */
+    public function delete(bool $cascade = true, bool $flush = false, bool $delete_files_now = false): array
+    {
+        $files = [];
+        if ($cascade) {
+            // An avatar can own a file, and it becomes invalid if the file is deleted
+            $avatar  = DB::find('avatar', ['file_id' => $this->id]);
+            $files[] = $avatar->getFilePath();
+            $avatar->delete($flush, $delete_files_now, $cascading = true);
+            foreach (DB::findBy('file_thumbnail', ['file_id' => $this->id]) as $ft) {
+                $files[] = $ft->delete($flush, $delete_files_now, $cascading);
+            }
+        }
+        DB::remove($this);
+        if ($flush) {
+            DB::flush();
+        }
+        if ($delete_files_now) {
+            self::deleteFiles($files);
+            return [];
+        }
+        return $files;
+    }
+
+    public static function deleteFiles(array $files)
+    {
+        foreach ($files as $f) {
+            @unlink($f);
+        }
+    }
+
     public static function schemaDef(): array
     {
         return [
@@ -192,21 +212,19 @@ class File
             'fields' => [
                 'id'               => ['type' => 'serial',   'not null' => true],
                 'url'              => ['type' => 'text',     'description' => 'URL after following possible redirections'],
-                'is_url_protected' => ['type' => 'bool',     'description' => 'true when URL is private (needs login)'],
-                'url_hash'         => ['type' => 'varchar',  'length' => 64,  'not null' => true, 'description' => 'sha256 of destination URL (url field)'],
+                'is_url_protected' => ['type' => 'bool',     'default' => false, 'description' => 'true when URL is private (needs login)'],
+                'url_hash'         => ['type' => 'varchar',  'length' => 64,  'description' => 'sha256 of destination URL (url field)'],
                 'file_hash'        => ['type' => 'varchar',  'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
                 'mimetype'         => ['type' => 'varchar',  'length' => 50,  'description' => 'mime type of resource'],
                 'size'             => ['type' => 'int',      'description' => 'size of resource when available'],
                 'title'            => ['type' => 'text',     'description' => 'title of resource when available'],
                 'timestamp'        => ['type' => 'int',      'description' => 'unix timestamp according to http query'],
                 'is_local'         => ['type' => 'bool',     'description' => 'whether the file is stored locally'],
-                'width'            => ['type' => 'int',      'description' => 'width in pixels, if it can be described as such and data is available'],
-                'height'           => ['type' => 'int',      'description' => 'height in pixels, if it can be described as such and data is available'],
                 'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'unique keys' => [
-                'file_urlhash_key' => ['url_hash'],
+                'file_file_key' => ['file_hash'],
             ],
             'indexes' => [
                 'file_filehash_idx' => ['file_hash'],
