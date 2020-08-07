@@ -92,31 +92,35 @@ class SelftagAction extends Action
     {
         $profile = new Profile();
 
+        $profile->_join .= "\n" . <<<'END'
+            INNER JOIN profile_list ON profile.id = profile_list.tagger
+            LEFT JOIN profile_role ON profile.id = profile_role.profile_id
+            END;
+
+        $profile->whereAdd(sprintf(
+            "profile_list.tag = '%s'",
+            $profile->escape($this->tag)
+        ));
+        $profile->whereAdd("COALESCE(profile_role.role, '') <> 'silenced'");
+
+        $user = common_current_user();
+        if (!empty($user)) {
+            $profile->whereAdd(sprintf(
+                'profile_list.tagger = %d OR profile_list.private IS NOT TRUE',
+                $user->getID()
+            ));
+        } else {
+            $profile->whereAdd('profile_list.private IS NOT TRUE');
+        }
+
+        $profile->orderBy('profile_list.modified DESC');
+
         $offset = ($this->page - 1) * PROFILES_PER_PAGE;
         $limit  = PROFILES_PER_PAGE + 1;
 
-        // XXX: memcached this
+        $profile->limit($offset, $limit);
 
-        $qry =  'SELECT profile.* ' .
-                'FROM profile JOIN ( profile_tag, profile_list ) ' .
-                'ON profile.id = profile_tag.tagger ' .
-                'AND profile_tag.tagger = profile_list.tagger ' .
-                'AND profile_list.tag = profile_tag.tag ' .
-                'WHERE profile_tag.tagger = profile_tag.tagged ' .
-                "AND profile_tag.tag = '%s' ";
-
-        $user = common_current_user();
-        if (empty($user)) {
-            $qry .= 'AND profile_list.private IS NOT TRUE ';
-        } else {
-            $qry .= 'AND (profile_list.tagger = ' . $user->id .
-                    ' OR profile_list.private IS NOT TRUE) ';
-        }
-
-        $qry .= 'ORDER BY profile_tag.modified DESC ' .
-                'LIMIT ' . $limit . ' OFFSET ' . $offset;
-
-        $profile->query(sprintf($qry, $this->tag));
+        $profile->find();
 
         $ptl = new SelfTagProfileList($profile, $this); // pass the ammunition
         $cnt = $ptl->show();
