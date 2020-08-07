@@ -3,29 +3,26 @@
 {% block title %}Notification Settings{% endblock %}
 
 {% block body %}
-  <div class='content'>
-    {% block primary_nav %}
-      {{ parent() }}
-    {% endblock primary_nav %}
+    <div class='content'>
+        {% block primary_nav %}
+            {{ parent() }}
+        {% endblock primary_nav %}
 
-    {% block form %}
-      <div id='form-tabs'>
-        <ul>
-          {% for transport, form in tabbed_forms %}
-            <li class='hover-effect'>
-              {{ transport }}
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
-      <div id='form-content'>
-        {% for transport, form in tabbed_forms %}
-          <div id="form_{{ transport }}" class='form'>
-            {{ form(form) }}
-          </div>
-        {% endfor %}
-      </div>
-    {% endblock form %}
-  </div>
+        {% block form %}
+            <div id='form-tabs'>
+                <ul>
+                    {% for transport, form in tabbed_forms %}
+                        <input type="radio" id="toggle-{{ transport }}" name="tabs" value="toggle-{{ transport }}">
+                        <label for="toggle-{{ transport }}" id='tabs' style = "text-transform:capitalize;">
+                            {{ transport }}
+                        </label>
+                        <div id="form_{{ transport }}" class='form'>
+                            {{ form(form) }}
+                        </div>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endblock form %}
+    </div>
 
 {% endblock body %}
