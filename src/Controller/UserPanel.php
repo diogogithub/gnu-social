@@ -1,7 +1,6 @@
 <?php
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -16,7 +15,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
 
 /**
@@ -39,8 +37,12 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Core\Log;
+use App\Entity\File;
+use App\Util\ClientException;
 use App\Util\Common;
 use App\Util\Form\ArrayTransformer;
+use Component\Media\Media;
 use Doctrine\DBAL\Types\Types;
 use Exception;
 use Functional as F;
@@ -53,6 +55,7 @@ use Symfony\Component\Form\Extension\Core\Type\LanguageType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 use Symfony\Component\HttpFoundation\Request;
 
 // }}} Imports
@@ -100,20 +103,53 @@ class UserPanel extends AbstractController
     public function avatar(Request $request)
     {
         $avatar = Form::create([
-            ['avatar',   FileType::class,   ['label' => _m('Avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 2MB.')]],
+            ['avatar', FileType::class,   ['label' => _m('Avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 2MB.')]],
             ['hidden', HiddenType::class, []],
-            ['save',     SubmitType::class, ['label' => _m('Submit')]],
+            ['save',   SubmitType::class, ['label' => _m('Submit')]],
         ]);
 
         $avatar->handleRequest($request);
 
         if ($avatar->isSubmitted() && $avatar->isValid()) {
-            $data              = $avatar->getData()['hidden'];
-            list($type, $data) = explode(';', $data);
-            list(, $data)      = explode(',', $data);
-            $data              = base64_decode($data);
-
-            file_put_contents('/tmp/image.png', $data);
+            $data  = $avatar->getData();
+            $sfile = $file_title = null;
+            if (isset($data['hidden'])) {
+                // Cropped client side
+                $matches = [];
+                if (!empty(preg_match('/data:([^;]*)(;(base64))?,(.*)/', $data['hidden'], $matches))) {
+                    list(, $mimetype_user, , $encoding_user, $data_user) = $matches;
+                    if ($encoding_user == 'base64') {
+                        $data_user = base64_decode($data_user);
+                        $tmp_file  = tmpfile();
+                        fwrite($tmp_file, $data_user);
+                        try {
+                            $sfile      = new SymfonyFile(stream_get_meta_data($tmp_file)['uri']);
+                            $file_title = $data['avatar']->getFilename();
+                        } finally {
+                            fclose($tmp_file);
+                        }
+                    } else {
+                        Log::info('Avatar upload got an invalid encoding, something\'s fishy and/or wrong');
+                    }
+                }
+            } elseif (isset($data['avatar'])) {
+                // Cropping failed (e.g. disabled js), have file as uploaded
+                $sfile = $data['avatar'];
+            } else {
+                throw new ClientException('Invalid form');
+            }
+            try {
+                $profile_id         = Common::user()->getProfile()->getId();
+                $file               = Media::validateAndStoreFile($sfile, Common::config('avatar', 'dir'), $file_title);
+                $fs_files_to_delete = DB::find('avatar', ['profile_id' => $profile_id])->delete();
+                DB::persist(Avatar::create(['profile_id' => $profile_id, 'file_id' => $file->getId()]));
+                DB::persist($file);
+                DB::flush();
+                // Only delete files if the commit went through
+                File::deleteFiles($fs_files_to_delete);
+            } catch (Exception $e) {
+                throw $e;
+            }
         }
 
         return ['_template' => 'settings/avatar.html.twig', 'avatar' => $avatar->createView()];
