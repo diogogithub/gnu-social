@@ -86,6 +86,15 @@ class FileThumbnail
 
     // }}} Autocode
 
+    /**
+     * Delete a file thumbnail. This table doesn't own all the files, only itself
+     */
+    public function delete(bool $flush = false, bool $delete_files_now = false, bool $cascading = false): string
+    {
+        // TODO Implement deleting file thumbnails
+        return '';
+    }
+
     public static function schemaDef(): array
     {
         return [
