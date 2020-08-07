@@ -18,7 +18,7 @@ function getRoundedCanvas(sourceCanvas) {
 var input     = document.getElementById('form_avatar')
 var container = document.getElementById('img-container')
 var cropImage = document.getElementById('img-cropped')
-var cropped    = document.getElementById('form_hidden')
+var cropped   = document.getElementById('form_hidden')
 
 input.addEventListener('change', function (e) {
     if (!input.files || !input.files[0]) return;
