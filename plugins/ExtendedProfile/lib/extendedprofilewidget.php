@@ -1,30 +1,29 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2011, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-if (!defined('STATUSNET')) {
-    exit(1);
-}
-
-/**
  * Class for outputting a widget to display or edit
  * extended profiles
+ *
+ * @copyright 2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+defined('GNUSOCIAL') || die();
+
 class ExtendedProfileWidget extends Form
 {
     const EDITABLE = true;
@@ -164,7 +163,7 @@ class ExtendedProfileWidget extends Form
     //      combine
     protected function showPhone($name, $field)
     {
-        $this->out->elementStart('div', array('class' => 'phone-display'));
+        $this->out->elementStart('div', ['class' => 'phone-display']);
         if (!empty($field['value'])) {
             $this->out->text($field['value']);
             if (!empty($field['rel'])) {
@@ -178,44 +177,43 @@ class ExtendedProfileWidget extends Form
 
     protected function showIm($name, $field)
     {
-        $this->out->elementStart('div', array('class' => 'im-display'));
-        $this->out->text($field['value'] ?? '');
-        if (!empty($field['rel'])) {
-            // TRANS: Value between parentheses (phone number, website, or IM address).
-            $outtext = sprintf(_m('(%s)'), $field['rel']);
-            $this->out->text(' ' . $outtext);
+        $this->out->elementStart('div', ['class' => 'im-display']);
+        if (!empty($field['value'])) {
+            $this->out->text($field['value']);
+            if (!empty($field['rel'])) {
+                // TRANS: Value between parentheses (phone number, website, or IM address).
+                $outtext = sprintf(_m('(%s)'), $field['rel']);
+                $this->out->text(' ' . $outtext);
+            }
         }
         $this->out->elementEnd('div');
     }
 
     protected function showWebsite($name, $field)
     {
-        $this->out->elementStart('div', array('class' => 'website-display'));
+        $this->out->elementStart('div', ['class' => 'website-display']);
+        if (!empty($field['value'])) {
+            $url = $field['value'];
 
-        $url = $field['value'];
-
-        $this->out->element(
-            "a",
-            array(
+            $this->out->element('a', [
                 'href' => $url,
                 'class' => 'extended-profile-link',
-                'target' => "_blank"
-            ),
-            $url
-        );
+                'target' => '_blank',
+            ], $url);
 
-        if (!empty($field['rel'])) {
-            // TRANS: Value between parentheses (phone number, website, or IM address).
-            $outtext = sprintf(_m('(%s)'), $field['rel']);
-            $this->out->text(' ' . $outtext);
+            if (!empty($field['rel'])) {
+                // TRANS: Value between parentheses (phone number, website, or IM address).
+                $outtext = sprintf(_m('(%s)'), $field['rel']);
+                $this->out->text(' ' . $outtext);
+            }
         }
         $this->out->elementEnd('div');
     }
 
     protected function showEditableIm($name, $field)
     {
-        $index = isset($field['index']) ? $field['index'] : 0;
-        $id = "extprofile-$name-$index";
+        $index = (int) ($field['index'] ?? 0);
+        $id = "extprofile-{$name}-{$index}";
         $rel = $id . '-rel';
         $this->out->elementStart(
             'div',
@@ -227,7 +225,7 @@ class ExtendedProfileWidget extends Form
         $this->out->input(
             $id,
             null,
-            isset($field['value']) ? $field['value'] : null
+            ($field['value'] ?? null)
         );
         $this->out->dropdown(
             $id . '-rel',
@@ -243,7 +241,7 @@ class ExtendedProfileWidget extends Form
             ),
             null,
             false,
-            isset($field['rel']) ? $field['rel'] : null
+            ($field['rel'] ?? null)
         );
 
         $this->showMultiControls();
@@ -252,8 +250,8 @@ class ExtendedProfileWidget extends Form
 
     protected function showEditablePhone($name, $field)
     {
-        $index = isset($field['index']) ? $field['index'] : 0;
-        $id = "extprofile-$name-$index";
+        $index = (int) ($field['index'] ?? 0);
+        $id = "extprofile-{$name}-{$index}";
         $rel = $id . '-rel';
         $this->out->elementStart(
             'div',
@@ -265,7 +263,7 @@ class ExtendedProfileWidget extends Form
         $this->out->input(
             $id,
             null,
-            isset($field['value']) ? $field['value'] : null
+            ($field['value'] ?? null)
         );
         $this->out->dropdown(
             $id . '-rel',
@@ -279,7 +277,7 @@ class ExtendedProfileWidget extends Form
             ),
             null,
             false,
-            isset($field['rel']) ? $field['rel'] : null
+            ($field['rel'] ?? null)
         );
 
         $this->showMultiControls();
@@ -288,8 +286,8 @@ class ExtendedProfileWidget extends Form
 
     protected function showEditableWebsite($name, $field)
     {
-        $index = isset($field['index']) ? $field['index'] : 0;
-        $id = "extprofile-$name-$index";
+        $index = (int) ($field['index'] ?? 0);
+        $id = "extprofile-{$name}-{$index}";
         $rel = $id . '-rel';
         $this->out->elementStart(
             'div',
@@ -301,7 +299,7 @@ class ExtendedProfileWidget extends Form
         $this->out->input(
             $id,
             null,
-            isset($field['value']) ? $field['value'] : null
+            ($field['value'] ?? null)
         );
         $this->out->dropdown(
             $id . '-rel',
@@ -317,7 +315,7 @@ class ExtendedProfileWidget extends Form
             ),
             null,
             false,
-            isset($field['rel']) ? $field['rel'] : null
+            ($field['rel'] ?? null)
         );
 
         $this->showMultiControls();
@@ -368,8 +366,8 @@ class ExtendedProfileWidget extends Form
 
     protected function showEditableExperience($name, $field)
     {
-        $index = isset($field['index']) ? $field['index'] : 0;
-        $id = "extprofile-$name-$index";
+        $index = (int) ($field['index'] ?? 0);
+        $id = "extprofile-{$name}-{$index}";
         $this->out->elementStart(
             'div',
             array(
@@ -383,7 +381,7 @@ class ExtendedProfileWidget extends Form
         $this->out->input(
             $id,
             null,
-            isset($field['company']) ? $field['company'] : null
+            ($field['company'] ?? null)
         );
 
         // TRANS: Field label in extended profile (when did one start a position or education).
@@ -458,8 +456,8 @@ class ExtendedProfileWidget extends Form
 
     protected function showEditableEducation($name, $field)
     {
-        $index = isset($field['index']) ? $field['index'] : 0;
-        $id = "extprofile-$name-$index";
+        $index = (int) ($field['index'] ?? 0);
+        $id = "extprofile-{$name}-{$index}";
         $this->out->elementStart(
             'div',
             array(
@@ -472,7 +470,7 @@ class ExtendedProfileWidget extends Form
         $this->out->input(
             $id,
             null,
-            isset($field['school']) ? $field['school'] : null
+            ($field['school'] ?? null)
         );
 
         // TRANS: Field label in extended profile for specifying an academic degree.
@@ -480,7 +478,7 @@ class ExtendedProfileWidget extends Form
         $this->out->input(
             $id . '-degree',
             null,
-            isset($field['degree']) ? $field['degree'] : null
+            ($field['degree'] ?? null)
         );
 
         // TRANS: Field label in education edit area of extended profile.
@@ -489,7 +487,7 @@ class ExtendedProfileWidget extends Form
         $this->out->textarea(
             $id . '-description',
             null,
-            isset($field['description']) ? $field['description'] : null
+            ($field['description'] ?? null)
         );
 
         // TRANS: Field label in extended profile (when did one start a position or education).
@@ -546,7 +544,7 @@ class ExtendedProfileWidget extends Form
      */
     protected function showFieldValue($name, $field)
     {
-        $type = strval(@$field['type']);
+        $type = (string) ($field['type'] ?? '');
 
         switch ($type) {
             case '':
@@ -557,7 +555,7 @@ class ExtendedProfileWidget extends Form
                 break;
             case 'custom-text':
             case 'custom-textarea':
-                $this->out->text(isset($field['value']) ? $field['value'] : null);
+                $this->out->text($field['value'] ?? '');
                 break;
             case 'date':
                 $value = $this->ext->getDateValue($name);
@@ -603,7 +601,7 @@ class ExtendedProfileWidget extends Form
     {
         $out = $this->out;
 
-        $type = strval(@$field['type']);
+        $type = (string) ($field['type'] ?? '');
         $id = "extprofile-" . $name;
 
         $value = 'placeholder';
@@ -616,7 +614,7 @@ class ExtendedProfileWidget extends Form
                 break;
             case 'custom-text':
             case 'custom-textarea':
-                $out->input($id, null, isset($field['value']) ? $field['value'] : null);
+                $out->input($id, null, ($field['value'] ?? null));
                 break;
             case 'date':
                 $value = $this->ext->getDateValue($name);
