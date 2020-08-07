@@ -502,6 +502,10 @@ class TwitterBridgePlugin extends Plugin
         if ($action instanceof ShowNoticeAction) {
             $notice = Notice::getKV('id', $action->arg('notice'));
 
+            if (is_null($notice)) {
+                return true;
+            }
+
             try {
                 $flink = Foreign_link::getByUserID($notice->profile_id, TWITTER_SERVICE);
                 $fuser = Foreign_user::getForeignUser($flink->foreign_id, TWITTER_SERVICE);
