@@ -58,6 +58,7 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Security as SSecurity;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
@@ -72,6 +73,7 @@ class GNUsocial implements EventSubscriberInterface
     protected TranslatorInterface      $translator;
     protected EntityManagerInterface   $entity_manager;
     protected RouterInterface          $router;
+    protected UrlGeneratorInterface    $url_generator;
     protected FormFactoryInterface     $form_factory;
     protected MessageBusInterface      $message_bus;
     protected EventDispatcherInterface $event_dispatcher;
@@ -87,6 +89,7 @@ class GNUsocial implements EventSubscriberInterface
                                 TranslatorInterface $trans,
                                 EntityManagerInterface $em,
                                 RouterInterface $router,
+                                UrlGeneratorInterface $url_gen,
                                 FormFactoryInterface $ff,
                                 MessageBusInterface $mb,
                                 EventDispatcherInterface $ed,
@@ -99,6 +102,7 @@ class GNUsocial implements EventSubscriberInterface
         $this->translator       = $trans;
         $this->entity_manager   = $em;
         $this->router           = $router;
+        $this->url_generator    = $url_gen;
         $this->form_factory     = $ff;
         $this->message_bus      = $mb;
         $this->event_dispatcher = $ed;
@@ -126,6 +130,7 @@ class GNUsocial implements EventSubscriberInterface
             Queue::setMessageBus($this->message_bus);
             Security::setHelper($this->security);
             Mailer::setMailer($this->mailer);
+            Router::setRouter($this->router, $this->url_generator);
 
             DefaultSettings::setDefaults();
 
@@ -133,8 +138,6 @@ class GNUsocial implements EventSubscriberInterface
 
             // Events are proloaded on compilation, but set at runtime
             $this->module_manager->loadModules();
-
-            Router::setRouter($this->router);
 
             $this->initialized = true;
         }

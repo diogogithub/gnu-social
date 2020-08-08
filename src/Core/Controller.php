@@ -32,6 +32,8 @@
 
 namespace App\Core;
 
+use App\Core\DB\DB;
+use App\Util\Common;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -60,7 +62,13 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $controller = $event->getController();
         $request    = $event->getRequest();
 
-        $this->vars = ['controler' => $controller, 'request' => $request];
+        if (($avatar = DB::find('avatar', ['profile_id' => Common::profile()->getId()])) != null) {
+            $avatar_filename = $avatar->getUrl();
+        } else {
+            $avatar_filename = '/public/assets/default_avatar.svg';
+        }
+
+        $this->vars = ['controler' => $controller, 'request' => $request, 'user_avatar' => $avatar_filename];
         Event::handle('StartTwigPopulateVars', [&$this->vars]);
 
         return $event;

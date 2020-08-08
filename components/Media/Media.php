@@ -21,6 +21,8 @@ namespace Component\Media;
 
 use App\Core\Module;
 use App\Entity\File;
+use App\Util\Common;
+use App\Util\Nickname;
 use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 
 class Media extends Module
@@ -41,5 +43,51 @@ class Media extends Module
         $sfile->move($dest_dir, $hash);
         // TODO Normalize file types
         return $file;
+    }
+
+    /**
+     * Include $filepath in the response, for viewing and downloading.
+     *
+     * @throws ServerException
+     */
+    public static function sendFile(string $filepath, string $mimetype, string $output_filename, string $disposition = 'inline'): void
+    {
+        $x_delivery = Common::config('site', 'x_static_delivery');
+        if (is_string($x_delivery)) {
+            $tmp           = explode(INSTALLDIR, $filepath);
+            $relative_path = end($tmp);
+            Log::debug("Using Static Delivery with header for: {$relative_path}");
+            header("{$x_delivery}: {$relative_path}");
+        } else {
+            if (file_exists($filepath)) {
+                header('Content-Description: File Transfer');
+                header("Content-Type: {$mimetype}");
+                header("Content-Disposition: {$disposition}; filename=\"{$output_filename}\"");
+                header('Expires: 0');
+                header('Content-Transfer-Encoding: binary');
+
+                $filesize = filesize($filepath);
+
+                http_response_code(200);
+                header("Content-Length: {$filesize}");
+                // header('Cache-Control: private, no-transform, no-store, must-revalidate');
+
+                $ret = @readfile($filepath);
+
+                if ($ret === false) {
+                    http_response_code(404);
+                    Log::error("Couldn't read file at {$filepath}.");
+                } elseif ($ret !== $filesize) {
+                    http_response_code(500);
+                    Log::error('The lengths of the file as recorded on the DB (or on disk) for the file ' .
+                               "{$filepath} differ from what was sent to the user ({$filesize} vs {$ret}).");
+                }
+            }
+        }
+    }
+
+    public function onAddRoute($r)
+    {
+        $r->connect('avatar', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'send']);
     }
 }

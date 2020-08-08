@@ -19,6 +19,7 @@
 
 namespace App\Entity;
 
+use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
 
@@ -57,6 +58,7 @@ class File extends Entity
         $this->id = $id;
         return $this;
     }
+
     public function getId(): int
     {
         return $this->id;
@@ -67,6 +69,7 @@ class File extends Entity
         $this->url = $url;
         return $this;
     }
+
     public function getUrl(): ?string
     {
         return $this->url;
@@ -77,6 +80,7 @@ class File extends Entity
         $this->is_url_protected = $is_url_protected;
         return $this;
     }
+
     public function getIsUrlProtected(): ?bool
     {
         return $this->is_url_protected;
@@ -87,6 +91,7 @@ class File extends Entity
         $this->url_hash = $url_hash;
         return $this;
     }
+
     public function getUrlHash(): ?string
     {
         return $this->url_hash;
@@ -97,6 +102,7 @@ class File extends Entity
         $this->file_hash = $file_hash;
         return $this;
     }
+
     public function getFileHash(): ?string
     {
         return $this->file_hash;
@@ -107,6 +113,7 @@ class File extends Entity
         $this->mimetype = $mimetype;
         return $this;
     }
+
     public function getMimetype(): ?string
     {
         return $this->mimetype;
@@ -117,6 +124,7 @@ class File extends Entity
         $this->size = $size;
         return $this;
     }
+
     public function getSize(): ?int
     {
         return $this->size;
@@ -127,6 +135,7 @@ class File extends Entity
         $this->title = $title;
         return $this;
     }
+
     public function getTitle(): ?string
     {
         return $this->title;
@@ -137,6 +146,7 @@ class File extends Entity
         $this->timestamp = $timestamp;
         return $this;
     }
+
     public function getTimestamp(): ?int
     {
         return $this->timestamp;
@@ -147,6 +157,7 @@ class File extends Entity
         $this->is_local = $is_local;
         return $this;
     }
+
     public function getIsLocal(): ?bool
     {
         return $this->is_local;
@@ -157,6 +168,7 @@ class File extends Entity
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
@@ -180,9 +192,11 @@ class File extends Entity
         $files = [];
         if ($cascade) {
             // An avatar can own a file, and it becomes invalid if the file is deleted
-            $avatar  = DB::find('avatar', ['file_id' => $this->id]);
-            $files[] = $avatar->getFilePath();
-            $avatar->delete($flush, $delete_files_now, $cascading = true);
+            $avatar = DB::findBy('avatar', ['file_id' => $this->id]);
+            foreach ($avatar as $a) {
+                $files[] = $a->getFilePath();
+                $a->delete($flush, $delete_files_now, $cascading = true);
+            }
             foreach (DB::findBy('file_thumbnail', ['file_id' => $this->id]) as $ft) {
                 $files[] = $ft->delete($flush, $delete_files_now, $cascading);
             }
