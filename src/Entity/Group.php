@@ -63,6 +63,7 @@ class Group
         $this->id = $id;
         return $this;
     }
+
     public function getId(): int
     {
         return $this->id;
@@ -73,6 +74,7 @@ class Group
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -83,6 +85,7 @@ class Group
         $this->nickname = $nickname;
         return $this;
     }
+
     public function getNickname(): ?string
     {
         return $this->nickname;
@@ -93,6 +96,7 @@ class Group
         $this->fullname = $fullname;
         return $this;
     }
+
     public function getFullname(): ?string
     {
         return $this->fullname;
@@ -103,6 +107,7 @@ class Group
         $this->homepage = $homepage;
         return $this;
     }
+
     public function getHomepage(): ?string
     {
         return $this->homepage;
@@ -113,6 +118,7 @@ class Group
         $this->description = $description;
         return $this;
     }
+
     public function getDescription(): ?string
     {
         return $this->description;
@@ -123,6 +129,7 @@ class Group
         $this->is_local = $is_local;
         return $this;
     }
+
     public function getIsLocal(): ?bool
     {
         return $this->is_local;
@@ -133,6 +140,7 @@ class Group
         $this->location = $location;
         return $this;
     }
+
     public function getLocation(): ?string
     {
         return $this->location;
@@ -143,6 +151,7 @@ class Group
         $this->original_logo = $original_logo;
         return $this;
     }
+
     public function getOriginalLogo(): ?string
     {
         return $this->original_logo;
@@ -153,6 +162,7 @@ class Group
         $this->homepage_logo = $homepage_logo;
         return $this;
     }
+
     public function getHomepageLogo(): ?string
     {
         return $this->homepage_logo;
@@ -163,6 +173,7 @@ class Group
         $this->stream_logo = $stream_logo;
         return $this;
     }
+
     public function getStreamLogo(): ?string
     {
         return $this->stream_logo;
@@ -173,6 +184,7 @@ class Group
         $this->mini_logo = $mini_logo;
         return $this;
     }
+
     public function getMiniLogo(): ?string
     {
         return $this->mini_logo;
@@ -183,6 +195,7 @@ class Group
         $this->uri = $uri;
         return $this;
     }
+
     public function getUri(): ?string
     {
         return $this->uri;
@@ -193,6 +206,7 @@ class Group
         $this->mainpage = $mainpage;
         return $this;
     }
+
     public function getMainpage(): ?string
     {
         return $this->mainpage;
@@ -203,6 +217,7 @@ class Group
         $this->join_policy = $join_policy;
         return $this;
     }
+
     public function getJoinPolicy(): ?int
     {
         return $this->join_policy;
@@ -213,6 +228,7 @@ class Group
         $this->force_scope = $force_scope;
         return $this;
     }
+
     public function getForceScope(): ?int
     {
         return $this->force_scope;
@@ -223,6 +239,7 @@ class Group
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -233,6 +250,7 @@ class Group
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

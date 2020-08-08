@@ -57,6 +57,7 @@ class UserNotificationPrefs
         $this->user_id = $user_id;
         return $this;
     }
+
     public function getUserId(): int
     {
         return $this->user_id;
@@ -67,6 +68,7 @@ class UserNotificationPrefs
         $this->transport = $transport;
         return $this;
     }
+
     public function getTransport(): string
     {
         return $this->transport;
@@ -77,6 +79,7 @@ class UserNotificationPrefs
         $this->target_profile_id = $target_profile_id;
         return $this;
     }
+
     public function getTargetProfileId(): ?int
     {
         return $this->target_profile_id;
@@ -87,6 +90,7 @@ class UserNotificationPrefs
         $this->activity_by_followed = $activity_by_followed;
         return $this;
     }
+
     public function getActivityByFollowed(): bool
     {
         return $this->activity_by_followed;
@@ -97,6 +101,7 @@ class UserNotificationPrefs
         $this->mention = $mention;
         return $this;
     }
+
     public function getMention(): bool
     {
         return $this->mention;
@@ -107,6 +112,7 @@ class UserNotificationPrefs
         $this->reply = $reply;
         return $this;
     }
+
     public function getReply(): bool
     {
         return $this->reply;
@@ -117,6 +123,7 @@ class UserNotificationPrefs
         $this->follow = $follow;
         return $this;
     }
+
     public function getFollow(): bool
     {
         return $this->follow;
@@ -127,6 +134,7 @@ class UserNotificationPrefs
         $this->favorite = $favorite;
         return $this;
     }
+
     public function getFavorite(): bool
     {
         return $this->favorite;
@@ -137,6 +145,7 @@ class UserNotificationPrefs
         $this->nudge = $nudge;
         return $this;
     }
+
     public function getNudge(): bool
     {
         return $this->nudge;
@@ -147,6 +156,7 @@ class UserNotificationPrefs
         $this->dm = $dm;
         return $this;
     }
+
     public function getDm(): bool
     {
         return $this->dm;
@@ -157,6 +167,7 @@ class UserNotificationPrefs
         $this->post_on_status_change = $post_on_status_change;
         return $this;
     }
+
     public function getPostOnStatusChange(): bool
     {
         return $this->post_on_status_change;
@@ -167,6 +178,7 @@ class UserNotificationPrefs
         $this->enable_posting = $enable_posting;
         return $this;
     }
+
     public function getEnablePosting(): ?bool
     {
         return $this->enable_posting;
@@ -177,6 +189,7 @@ class UserNotificationPrefs
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -187,6 +200,7 @@ class UserNotificationPrefs
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

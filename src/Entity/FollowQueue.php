@@ -48,6 +48,7 @@ class FollowQueue
         $this->follower = $follower;
         return $this;
     }
+
     public function getFollower(): int
     {
         return $this->follower;
@@ -58,6 +59,7 @@ class FollowQueue
         $this->followed = $followed;
         return $this;
     }
+
     public function getFollowed(): int
     {
         return $this->followed;
@@ -68,6 +70,7 @@ class FollowQueue
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

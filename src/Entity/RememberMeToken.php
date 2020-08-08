@@ -48,6 +48,7 @@ class RememberMeToken
         $this->series = $series;
         return $this;
     }
+
     public function getSeries(): string
     {
         return $this->series;
@@ -58,6 +59,7 @@ class RememberMeToken
         $this->value = $value;
         return $this;
     }
+
     public function getValue(): string
     {
         return $this->value;
@@ -68,6 +70,7 @@ class RememberMeToken
         $this->lastUsed = $lastUsed;
         return $this;
     }
+
     public function getLastUsed(): DateTimeInterface
     {
         return $this->lastUsed;
@@ -78,6 +81,7 @@ class RememberMeToken
         $this->class = $class;
         return $this;
     }
+
     public function getClass(): string
     {
         return $this->class;
@@ -88,6 +92,7 @@ class RememberMeToken
         $this->username = $username;
         return $this;
     }
+
     public function getUsername(): string
     {
         return $this->username;

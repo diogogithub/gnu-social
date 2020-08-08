@@ -48,6 +48,7 @@ class ProfileBlock
         $this->blocker = $blocker;
         return $this;
     }
+
     public function getBlocker(): int
     {
         return $this->blocker;
@@ -58,6 +59,7 @@ class ProfileBlock
         $this->blocked = $blocked;
         return $this;
     }
+
     public function getBlocked(): int
     {
         return $this->blocked;
@@ -68,6 +70,7 @@ class ProfileBlock
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
