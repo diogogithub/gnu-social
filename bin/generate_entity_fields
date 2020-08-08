@@ -12,8 +12,8 @@ const types = [
     'blob'         => '',
     'bool'         => 'bool',
     'char'         => 'string',
-    'datetime'     => '\DateTimeInterface',
-    'timestamp'    => '\DateTimeInterface',
+    'datetime'     => 'DateTimeInterface',
+    'timestamp'    => 'DateTimeInterface',
     'html'         => 'string',
     'int'          => 'int',
     'numeric'      => 'float',
@@ -28,12 +28,20 @@ $path = str_replace('%kernel.project_dir%', ROOT, $path);
 
 $files = glob($path . '/*.php');
 
+$classes = [];
+
 foreach ($files as $file) {
 
     require_once $file;
 
     $declared = get_declared_classes();
-    $class    = end($declared);
+    foreach ($declared as $dc) {
+        if (preg_match('/App\\\\Entity/', $dc) && !in_array($dc, $classes)) {
+            $class = $dc;
+            $classes[] = $class;
+            break;
+        }
+    }
 
     $no_ns_class  = preg_replace('/.*?\\\\/', '', $class);
     $schema       = $class::schemaDef();
@@ -59,10 +67,10 @@ foreach ($files as $file) {
             $fields_code[]  = "    private {$type} \${$field};";
         }
 
-        $methods_code[] = "    public function set{$method_name}({$type} \${$field}): self " .
-                        "{ \$this->{$field} = \${$field}; return \$this; }" . "\n" .
-                        "    public function get{$method_name}()" . ($type !== '' ? ": {$type} " : ' ') .
-                        "{ return \$this->{$field}; }" . "\n";
+        $methods_code[] = "    public function set{$method_name}({$type} \${$field}): self" .
+                        "\n    {\n        \$this->{$field} = \${$field};\n        return \$this;\n    }" . "\n\n" .
+                        "    public function get{$method_name}()" . ($type !== '' ? ": {$type}" : '') .
+                        "\n    {\n        return \$this->{$field};\n    }" . "\n";
     }
 
     $fields_code  = implode("\n", $fields_code);
@@ -77,8 +85,7 @@ foreach ($files as $file) {
 
 {$methods_code}
 
-    {$end}
-";
+    {$end}";
 
     foreach (['/\\//' => '\\/', '/ /' => '\\ '] as $from => $to) {
         $begin = preg_replace($from, $to, $begin);
