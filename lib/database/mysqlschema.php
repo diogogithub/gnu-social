@@ -370,11 +370,6 @@ class MysqlSchema extends Schema
 
     public function preferredEngine($def)
     {
-        /* MyISAM is no longer required for fulltext indexes, fortunately
-        if (!empty($def['fulltext indexes'])) {
-            return 'MyISAM';
-        }
-        */
         return 'InnoDB';
     }
 

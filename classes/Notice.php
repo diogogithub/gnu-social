@@ -115,12 +115,11 @@ class Notice extends Managed_DataObject
                 'notice_verb_idx' => array('verb'),
                 'notice_url_idx' => array('url'),   // Qvitter wants this
                 'notice_reply_to_idx' => array('reply_to')
-            )
+            ),
+            'fulltext indexes' => array(
+                'notice_fulltext_idx' => array('content'),
+            ),
         );
-
-        if (common_config('search', 'type') == 'fulltext') {
-            $def['fulltext indexes'] = array('content' => array('content'));
-        }
 
         return $def;
     }

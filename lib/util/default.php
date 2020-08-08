@@ -301,7 +301,7 @@ $default =
                 'allow_tagging' => array('all' => true), // equivalent to array('local' => true, 'remote' => true)
                 'desclimit' => null),
         'search' =>
-            array('type' => 'like'),
+            array('type' => 'fulltext'),
         'sessions' =>
             array('handle' => false,   // whether to handle sessions ourselves
                 'debug' => false,    // debugging output for sessions

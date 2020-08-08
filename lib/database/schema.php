@@ -1061,6 +1061,10 @@ class Schema
             }
         }
 
+        if (common_config('search', 'type') !== 'fulltext') {
+            unset($tableDef['fulltext indexes']);
+        }
+
         return $tableDef;
     }
 
