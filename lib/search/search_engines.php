@@ -78,7 +78,7 @@ class PostgreSQLSearch extends SearchEngine
             $cols = implode(" || ' ' || ", array_map(
                 function ($col) {
                     return sprintf(
-                        "COALESCE(%s.%s, '')",
+                        'COALESCE(%s."%s", \'\')',
                         common_database_tablename($this->table),
                         $col
                     );
@@ -87,7 +87,7 @@ class PostgreSQLSearch extends SearchEngine
             ));
 
             $this->target->whereAdd(sprintf(
-                'to_tsvector(\'english\', %2$s) @@ plainto_tsquery(\'%1$s\')',
+                'to_tsvector(\'english\', %2$s) @@ websearch_to_tsquery(\'%1$s\')',
                 $this->target->escape($q, true),
                 $cols
             ));
@@ -97,7 +97,7 @@ class PostgreSQLSearch extends SearchEngine
             $this->target->whereAdd('notice.is_local <> ' . Notice::GATEWAY);
 
             $this->target->whereAdd(sprintf(
-                'to_tsvector(\'english\', content) @@ plainto_tsquery(\'%1$s\')',
+                'to_tsvector(\'english\', "content") @@ websearch_to_tsquery(\'%1$s\')',
                 $this->target->escape($q, true)
             ));
             return true;
