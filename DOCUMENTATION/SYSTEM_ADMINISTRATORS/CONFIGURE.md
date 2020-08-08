@@ -744,11 +744,9 @@ search
 Some stuff for search.
 
 * `type`: type of search. Ignored if PostgreSQL or Sphinx are enabled. Can either
-    be 'fulltext' or 'like' (default). The former is faster and more efficient
-    but requires the lame old MyISAM engine for MySQL. The latter
-    will work with InnoDB but could be miserably slow on large
-    systems. We'll probably add another type sometime in the future,
-    with our own indexing system (maybe like MediaWiki's).
+    be 'like' or 'fulltext' (default). The latter is faster and more efficient
+    but if your storage engine of choice does not support it, then feel free to
+    choose 'like', but it could be miserably slow on large databases.
 
 
 sessions
