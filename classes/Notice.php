@@ -185,6 +185,7 @@ class Notice extends Managed_DataObject
             // Clear related records
             $this->clearReplies();
             $this->clearLocation();
+            $this->clearPrefs();
             $this->clearRepeats();
             $this->clearTags();
             $this->clearGroupInboxes();
@@ -2479,6 +2480,16 @@ class Notice extends Managed_DataObject
 
         if ($loc->find()) {
             $loc->delete();
+        }
+    }
+
+    private function clearPrefs(): void
+    {
+        $prefs = new Notice_prefs();
+        $prefs->notice_id = $this->id;
+
+        if ($prefs->find()) {
+            $prefs->delete();
         }
     }
 
