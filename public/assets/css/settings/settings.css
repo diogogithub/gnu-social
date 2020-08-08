@@ -277,6 +277,7 @@ ul input[type=radio]:checked + label + div {
 /* hide radio buttons */
 input[type=radio] {
       position: absolute;
+      z-index: 1;
       height: 1px;
       width: 1px;
       overflow: hidden;
@@ -286,37 +287,40 @@ input[type=radio] {
 
 #form-tabs {
       order: 2;
-      margin-top: var(--unit-size);
+      margin-top: var(--side-margin);
+      margin-left: var(--side-margin);
+      margin-right: var(--side-margin);
+      width: 100%;
+      font-size: var(--medium-size);
 }
 #form-tabs ul {
       display: flex;
       flex-wrap: wrap;
-      align-items: stretch;
-      justify-content: space-evenly;
-      padding: 0;
-      width: 100%;
       border-radius: var(--unit-size);
       box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
       background-color: #00000050;
+      justify-content: space-evenly;
+      width: 100%;
 }
 #form-tabs ul label {
       order: 1;
-      flex: 1;
+      flex: 0;
 }
+
 #tabs {
       padding: var(--unit-size);
-      display: inline-flex;
-      font-size: var(--medium-size);
+      text-transform: capitalize;
 }
+
 #form-tabs ul .form {
       order: 2;
       padding: calc(2*var(--unit-size));
       background-color: #00000000 !important;
-      font-size: var(--medium-size);
       height: 100%;
       margin-left: 0;
       margin-right: 0;
       margin-top: 0;
       box-shadow: 0;
       border-radius: 0 0 var(--unit-size) var(--unit-size);
+      font-size: var(--unit-size);
 }
