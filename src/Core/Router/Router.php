@@ -30,15 +30,46 @@
 
 namespace App\Core\Router;
 
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Router as SRouter;
 
 abstract class Router
 {
-    public static ?SRouter $router = null;
+    /**
+     * Generates an absolute URL, e.g. "http://example.com/dir/file".
+     */
+    const ABSOLUTE_URL = UrlGeneratorInterface::ABSOLUTE_URL;
 
-    public static function setRouter($rtr): void
+    /**
+     * Generates an absolute path, e.g. "/dir/file".
+     */
+    const ABSOLUTE_PATH = UrlGeneratorInterface::ABSOLUTE_PATH;
+
+    /**
+     * Generates a relative path based on the current request path, e.g. "../parent-file".
+     *
+     * @see UrlGenerator::getRelativePath()
+     */
+    const RELATIVE_PATH = UrlGeneratorInterface::RELATIVE_PATH;
+
+    /**
+     * Generates a network path, e.g. "//example.com/dir/file".
+     * Such reference reuses the current scheme but specifies the host.
+     */
+    const NETWORK_PATH = UrlGeneratorInterface::NETWORK_PATH;
+
+    public static ?SRouter $router                = null;
+    public static ?UrlGeneratorInterface $url_gen = null;
+
+    public static function setRouter($rtr, $gen): void
     {
-        self::$router = $rtr;
+        self::$router  = $rtr;
+        self::$url_gen = $gen;
+    }
+
+    public static function url(string $id, array $args, int $type = self::ABSOLUTE_PATH): string
+    {
+        return self::$url_gen->generate($id, $args, $type);
     }
 
     public static function __callStatic(string $name, array $args)

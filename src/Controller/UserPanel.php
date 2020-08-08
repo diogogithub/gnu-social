@@ -38,6 +38,7 @@ use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Log;
+use App\Entity\Avatar;
 use App\Entity\File;
 use App\Util\ClientException;
 use App\Util\Common;
@@ -102,16 +103,16 @@ class UserPanel extends AbstractController
 
     public function avatar(Request $request)
     {
-        $avatar = Form::create([
+        $form = Form::create([
             ['avatar', FileType::class,   ['label' => _m('Avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 2MB.')]],
             ['hidden', HiddenType::class, []],
             ['save',   SubmitType::class, ['label' => _m('Submit')]],
         ]);
 
-        $avatar->handleRequest($request);
+        $form->handleRequest($request);
 
-        if ($avatar->isSubmitted() && $avatar->isValid()) {
-            $data  = $avatar->getData();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data  = $form->getData();
             $sfile = $file_title = null;
             if (isset($data['hidden'])) {
                 // Cropped client side
@@ -120,13 +121,13 @@ class UserPanel extends AbstractController
                     list(, $mimetype_user, , $encoding_user, $data_user) = $matches;
                     if ($encoding_user == 'base64') {
                         $data_user = base64_decode($data_user);
-                        $tmp_file  = tmpfile();
-                        fwrite($tmp_file, $data_user);
+                        $filename  = tempnam('/tmp/', 'avatar');
+                        file_put_contents($filename, $data_user);
                         try {
-                            $sfile      = new SymfonyFile(stream_get_meta_data($tmp_file)['uri']);
+                            $sfile      = new SymfonyFile($filename);
                             $file_title = $data['avatar']->getFilename();
                         } finally {
-                            fclose($tmp_file);
+                            // fclose($tmp_file);
                         }
                     } else {
                         Log::info('Avatar upload got an invalid encoding, something\'s fishy and/or wrong');
@@ -138,21 +139,25 @@ class UserPanel extends AbstractController
             } else {
                 throw new ClientException('Invalid form');
             }
+            $profile_id = Common::profile()->getId();
+            $file       = Media::validateAndStoreFile($sfile, Common::config('avatar', 'dir'), $file_title);
+            $avatar     = null;
             try {
-                $profile_id         = Common::user()->getProfile()->getId();
-                $file               = Media::validateAndStoreFile($sfile, Common::config('avatar', 'dir'), $file_title);
-                $fs_files_to_delete = DB::find('avatar', ['profile_id' => $profile_id])->delete();
-                DB::persist(Avatar::create(['profile_id' => $profile_id, 'file_id' => $file->getId()]));
-                DB::persist($file);
-                DB::flush();
-                // Only delete files if the commit went through
-                File::deleteFiles($fs_files_to_delete);
+                $avatar = DB::find('avatar', ['profile_id' => $profile_id]);
             } catch (Exception $e) {
-                throw $e;
             }
+            if ($avatar != null) {
+                $avatar->delete();
+            } else {
+                DB::persist($file);
+                DB::persist(Avatar::create(['profile_id' => $profile_id, 'file_id' => $file->getId()]));
+            }
+            DB::flush();
+            // Only delete files if the commit went through
+            File::deleteFiles($fs_files_to_delete ?? []);
         }
 
-        return ['_template' => 'settings/avatar.html.twig', 'avatar' => $avatar->createView()];
+        return ['_template' => 'settings/avatar.html.twig', 'avatar' => $form->createView()];
     }
 
     public function notifications(Request $request)

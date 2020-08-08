@@ -23,6 +23,7 @@ namespace App\Core;
 
 use App\Core\DB\DB;
 use App\Util\Formatting;
+use DateTime;
 
 class Entity
 {
@@ -33,7 +34,8 @@ class Entity
         $args['created'] = $args['modified'] = new DateTime();
         foreach ($args as $prop => $val) {
             if (property_exists($class, $prop)) {
-                $obj->{$prop} = $val;
+                $set = 'set' . Formatting::snakeCaseToCamelCase($prop);
+                $obj->{$set}($val);
             } else {
                 Log::error("Property {$class}::{$prop} doesn't exist");
             }

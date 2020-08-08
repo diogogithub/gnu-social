@@ -35,8 +35,9 @@ namespace App\Util;
 use App\Core\DB\DB;
 use App\Core\Router;
 use App\Core\Security;
+use App\Entity\LocalUser;
+use App\Entity\Profile;
 use Functional as F;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 abstract class Common
 {
@@ -69,9 +70,14 @@ abstract class Common
         DB::flush();
     }
 
-    public static function user(): UserInterface
+    public static function user(): LocalUser
     {
         return Security::getUser();
+    }
+
+    public static function profile(): Profile
+    {
+        return self::user()->getProfile();
     }
 
     /**

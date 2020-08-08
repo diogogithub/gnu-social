@@ -21,6 +21,8 @@ namespace App\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Router\Router;
+use App\Util\Common;
 use DateTimeInterface;
 
 /**
@@ -42,9 +44,6 @@ class Avatar extends Entity
     // {{{ Autocode
 
     private int $profile_id;
-    private int $width;
-    private int $height;
-    private ?bool $is_original;
     private int $file_id;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
@@ -54,39 +53,10 @@ class Avatar extends Entity
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
-    }
-
-    public function setWidth(int $width): self
-    {
-        $this->width = $width;
-        return $this;
-    }
-    public function getWidth(): int
-    {
-        return $this->width;
-    }
-
-    public function setHeight(int $height): self
-    {
-        $this->height = $height;
-        return $this;
-    }
-    public function getHeight(): int
-    {
-        return $this->height;
-    }
-
-    public function setIsOriginal(?bool $is_original): self
-    {
-        $this->is_original = $is_original;
-        return $this;
-    }
-    public function getIsOriginal(): ?bool
-    {
-        return $this->is_original;
     }
 
     public function setFileId(int $file_id): self
@@ -94,6 +64,7 @@ class Avatar extends Entity
         $this->file_id = $file_id;
         return $this;
     }
+
     public function getFileId(): int
     {
         return $this->file_id;
@@ -104,6 +75,7 @@ class Avatar extends Entity
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -114,6 +86,7 @@ class Avatar extends Entity
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
@@ -123,18 +96,20 @@ class Avatar extends Entity
 
     private ?File $file = null;
 
+    public function getUrl(): string
+    {
+        return Router::url('avatar', ['nickname' => Profile::getNicknameFromId($this->profile_id)]);
+    }
+
     public function getFile(): File
     {
         $this->file = $this->file ?: DB::find('file', ['id' => $this->file_id]);
         return $this->file;
     }
 
-    public function getFilePath(): string
+    public function getFilePath(?string $filename = null): string
     {
-        $file_name = $this->getFile()->getFileName();
-        if ($this->is_original) {
-            return Common::config('avatar', 'dir') . '/' . $file_name;
-        }
+        return Common::config('avatar', 'dir') . '/' . $filename ?: $this->getFile()->getFileName();
     }
 
     /**
@@ -146,7 +121,7 @@ class Avatar extends Entity
         if (!$cascading) {
             $files = $this->getFile()->delete($cascade = true, $file_flush = false, $delete_files_now);
         } else {
-            DB::remove(DB::getReference('avatar', ['profile_id' => $this->profile_id, 'width' => $this->width, 'height' => $this->height]));
+            DB::remove(DB::getReference('avatar', ['profile_id' => $this->profile_id]));
             $file_path = $this->getFilePath();
             $files[]   = $file_path;
             if ($flush) {
