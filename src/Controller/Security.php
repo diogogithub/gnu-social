@@ -81,8 +81,8 @@ class Security extends Controller
                 throw new \Exception(_m('Invalid nickname'));
             }
 
-            $profile = new Profile($data['nickname']);
-            $user    = new LocalUser($data['nickname'], $data['email'], $data['password']);
+            $profile = Profile::create(['nickname' => $data['nickname']]);
+            $user    = LocalUser::create(['nickname' => $data['nickname'], 'email' => $data['email'], 'password' => $data['password']]);
 
             DB::persist($user);
             DB::persist($profile);
