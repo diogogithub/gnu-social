@@ -63,7 +63,7 @@ abstract class DefaultSettings
                 'ssl_proxy'            => false, // set to true to force GNU social to think it is HTTPS (i.e. using reverse proxy to enable it)
                 'duplicate_time_limit' => 60,    // default for same person saying the same thing
                 'text_limit'           => 1000,  // in chars; 0 == no limit
-                'x_static_delivery'    => null,
+                'x_static_delivery'    => false,
                 'defaults_modified'    => time(),
             ],
             'security' => [

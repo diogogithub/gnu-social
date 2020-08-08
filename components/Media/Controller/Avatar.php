@@ -49,10 +49,7 @@ class Avatar extends Controller
             }
 
             $res = $result[0];
-            Media::sendFile(EAvatar::getFilePath($res['file_hash']), $res['mimetype'], $res['title']);
-            die();
-            // TODO FIX THIS
-            break;
+            return Media::sendFile(EAvatar::getFilePath($res['file_hash']), $res['mimetype'], $res['title']);
         default:
             throw new Exception('Not implemented');
         }
