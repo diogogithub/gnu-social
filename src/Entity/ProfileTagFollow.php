@@ -49,6 +49,7 @@ class ProfileTagFollow
         $this->profile_tag_id = $profile_tag_id;
         return $this;
     }
+
     public function getProfileTagId(): int
     {
         return $this->profile_tag_id;
@@ -59,6 +60,7 @@ class ProfileTagFollow
         $this->profile_id = $profile_id;
         return $this;
     }
+
     public function getProfileId(): int
     {
         return $this->profile_id;
@@ -69,6 +71,7 @@ class ProfileTagFollow
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -79,6 +82,7 @@ class ProfileTagFollow
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

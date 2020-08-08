@@ -51,6 +51,7 @@ class ActivityLocation
         $this->activity_id = $activity_id;
         return $this;
     }
+
     public function getActivityId(): int
     {
         return $this->activity_id;
@@ -61,6 +62,7 @@ class ActivityLocation
         $this->lat = $lat;
         return $this;
     }
+
     public function getLat(): ?float
     {
         return $this->lat;
@@ -71,6 +73,7 @@ class ActivityLocation
         $this->lon = $lon;
         return $this;
     }
+
     public function getLon(): ?float
     {
         return $this->lon;
@@ -81,6 +84,7 @@ class ActivityLocation
         $this->location_id = $location_id;
         return $this;
     }
+
     public function getLocationId(): ?int
     {
         return $this->location_id;
@@ -91,6 +95,7 @@ class ActivityLocation
         $this->location_service = $location_service;
         return $this;
     }
+
     public function getLocationService(): ?int
     {
         return $this->location_service;
@@ -101,6 +106,7 @@ class ActivityLocation
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

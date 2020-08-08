@@ -48,6 +48,7 @@ class FileToActivity
         $this->file_id = $file_id;
         return $this;
     }
+
     public function getFileId(): int
     {
         return $this->file_id;
@@ -58,6 +59,7 @@ class FileToActivity
         $this->activity_id = $activity_id;
         return $this;
     }
+
     public function getActivityId(): int
     {
         return $this->activity_id;
@@ -68,6 +70,7 @@ class FileToActivity
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

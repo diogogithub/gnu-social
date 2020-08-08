@@ -49,6 +49,7 @@ class FileThumbnail
         $this->file_id = $file_id;
         return $this;
     }
+
     public function getFileId(): int
     {
         return $this->file_id;
@@ -59,6 +60,7 @@ class FileThumbnail
         $this->width = $width;
         return $this;
     }
+
     public function getWidth(): int
     {
         return $this->width;
@@ -69,6 +71,7 @@ class FileThumbnail
         $this->height = $height;
         return $this;
     }
+
     public function getHeight(): int
     {
         return $this->height;
@@ -79,6 +82,7 @@ class FileThumbnail
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

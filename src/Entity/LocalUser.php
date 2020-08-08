@@ -68,6 +68,7 @@ class LocalUser implements UserInterface
         $this->nickname = $nickname;
         return $this;
     }
+
     public function getNickname(): ?string
     {
         return $this->nickname;
@@ -78,6 +79,7 @@ class LocalUser implements UserInterface
         $this->password = $password;
         return $this;
     }
+
     public function getPassword(): ?string
     {
         return $this->password;
@@ -88,6 +90,7 @@ class LocalUser implements UserInterface
         $this->outgoing_email = $outgoing_email;
         return $this;
     }
+
     public function getOutgoingEmail(): ?string
     {
         return $this->outgoing_email;
@@ -98,6 +101,7 @@ class LocalUser implements UserInterface
         $this->incoming_email = $incoming_email;
         return $this;
     }
+
     public function getIncomingEmail(): ?string
     {
         return $this->incoming_email;
@@ -108,6 +112,7 @@ class LocalUser implements UserInterface
         $this->is_email_verified = $is_email_verified;
         return $this;
     }
+
     public function getIsEmailVerified(): ?bool
     {
         return $this->is_email_verified;
@@ -118,6 +123,7 @@ class LocalUser implements UserInterface
         $this->language = $language;
         return $this;
     }
+
     public function getLanguage(): ?string
     {
         return $this->language;
@@ -128,6 +134,7 @@ class LocalUser implements UserInterface
         $this->timezone = $timezone;
         return $this;
     }
+
     public function getTimezone(): ?string
     {
         return $this->timezone;
@@ -138,6 +145,7 @@ class LocalUser implements UserInterface
         $this->phone_number = $phone_number;
         return $this;
     }
+
     public function getPhoneNumber(): ?PhoneNumber
     {
         return $this->phone_number;
@@ -148,6 +156,7 @@ class LocalUser implements UserInterface
         $this->sms_carrier = $sms_carrier;
         return $this;
     }
+
     public function getSmsCarrier(): ?int
     {
         return $this->sms_carrier;
@@ -158,6 +167,7 @@ class LocalUser implements UserInterface
         $this->sms_email = $sms_email;
         return $this;
     }
+
     public function getSmsEmail(): ?string
     {
         return $this->sms_email;
@@ -168,6 +178,7 @@ class LocalUser implements UserInterface
         $this->uri = $uri;
         return $this;
     }
+
     public function getUri(): ?string
     {
         return $this->uri;
@@ -178,6 +189,7 @@ class LocalUser implements UserInterface
         $this->auto_follow_back = $auto_follow_back;
         return $this;
     }
+
     public function getAutoFollowBack(): ?bool
     {
         return $this->auto_follow_back;
@@ -188,6 +200,7 @@ class LocalUser implements UserInterface
         $this->follow_policy = $follow_policy;
         return $this;
     }
+
     public function getFollowPolicy(): ?int
     {
         return $this->follow_policy;
@@ -198,6 +211,7 @@ class LocalUser implements UserInterface
         $this->is_stream_private = $is_stream_private;
         return $this;
     }
+
     public function getIsStreamPrivate(): ?bool
     {
         return $this->is_stream_private;
@@ -208,6 +222,7 @@ class LocalUser implements UserInterface
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -218,6 +233,7 @@ class LocalUser implements UserInterface
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

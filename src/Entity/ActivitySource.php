@@ -50,6 +50,7 @@ class ActivitySource
         $this->code = $code;
         return $this;
     }
+
     public function getCode(): string
     {
         return $this->code;
@@ -60,6 +61,7 @@ class ActivitySource
         $this->name = $name;
         return $this;
     }
+
     public function getName(): string
     {
         return $this->name;
@@ -70,6 +72,7 @@ class ActivitySource
         $this->url = $url;
         return $this;
     }
+
     public function getUrl(): string
     {
         return $this->url;
@@ -80,6 +83,7 @@ class ActivitySource
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -90,6 +94,7 @@ class ActivitySource
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

@@ -50,6 +50,7 @@ class Follow
         $this->follower = $follower;
         return $this;
     }
+
     public function getFollower(): int
     {
         return $this->follower;
@@ -60,6 +61,7 @@ class Follow
         $this->followed = $followed;
         return $this;
     }
+
     public function getFollowed(): int
     {
         return $this->followed;
@@ -70,6 +72,7 @@ class Follow
         $this->uri = $uri;
         return $this;
     }
+
     public function getUri(): ?string
     {
         return $this->uri;
@@ -80,6 +83,7 @@ class Follow
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -90,6 +94,7 @@ class Follow
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

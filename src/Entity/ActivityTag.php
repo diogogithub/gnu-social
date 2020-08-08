@@ -48,6 +48,7 @@ class ActivityTag
         $this->tag = $tag;
         return $this;
     }
+
     public function getTag(): string
     {
         return $this->tag;
@@ -58,6 +59,7 @@ class ActivityTag
         $this->activity_id = $activity_id;
         return $this;
     }
+
     public function getActivityId(): int
     {
         return $this->activity_id;
@@ -68,6 +70,7 @@ class ActivityTag
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;

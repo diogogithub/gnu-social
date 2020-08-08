@@ -49,6 +49,7 @@ class LocalGroup
         $this->group_id = $group_id;
         return $this;
     }
+
     public function getGroupId(): int
     {
         return $this->group_id;
@@ -59,6 +60,7 @@ class LocalGroup
         $this->nickname = $nickname;
         return $this;
     }
+
     public function getNickname(): ?string
     {
         return $this->nickname;
@@ -69,6 +71,7 @@ class LocalGroup
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -79,6 +82,7 @@ class LocalGroup
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;

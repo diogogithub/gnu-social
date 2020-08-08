@@ -47,6 +47,7 @@ class UserLocationPrefs
         $this->user_id = $user_id;
         return $this;
     }
+
     public function getUserId(): int
     {
         return $this->user_id;
@@ -57,6 +58,7 @@ class UserLocationPrefs
         $this->share_location = $share_location;
         return $this;
     }
+
     public function getShareLocation(): ?bool
     {
         return $this->share_location;
@@ -67,6 +69,7 @@ class UserLocationPrefs
         $this->created = $created;
         return $this;
     }
+
     public function getCreated(): DateTimeInterface
     {
         return $this->created;
@@ -77,6 +80,7 @@ class UserLocationPrefs
         $this->modified = $modified;
         return $this;
     }
+
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
