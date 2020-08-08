@@ -152,6 +152,15 @@ class PgsqlSchema extends Schema
                 case 'unique':
                     $def['unique keys'][$key_name] = $cols;
                     break;
+                case 'gin':
+                    // @fixme Way too magical.
+                    $cols = array_values(preg_grep(
+                        '/^(.+(\(|\)).+|\s*)$/',
+                        preg_split('(COALESCE\(|,)', $cols[0]),
+                        PREG_GREP_INVERT
+                    ));
+                    $def['fulltext indexes'][$key_name] = $cols;
+                    break;
                 default:
                     $def['indexes'][$key_name] = $cols;
             }
@@ -211,7 +220,12 @@ class PgsqlSchema extends Schema
                   WHEN "idx"."indisunique"  IS TRUE THEN 'unique'
                   ELSE "am"."amname"
                 END AS "key_type",
-                "cols"."attname" AS "col"
+                CASE
+                  WHEN "cols"."attname" IS NOT NULL THEN "cols"."attname"
+                  ELSE pg_get_indexdef("idx"."indexrelid",
+                                       CAST("col_nums"."pos" AS INTEGER),
+                                       TRUE)
+                END AS "col"
               FROM pg_index AS "idx"
               CROSS JOIN LATERAL unnest("idx"."indkey")
               WITH ORDINALITY AS "col_nums" ("num", "pos")
@@ -377,6 +391,24 @@ class PgsqlSchema extends Schema
         $phrase[] = 'DROP CONSTRAINT ' . $this->quoteIdentifier($tableName . '_pkey');
     }
 
+    public function buildFulltextIndexList($table, array $def)
+    {
+        foreach ($def as &$val) {
+            $cols[] = $this->buildFulltextIndexItem($table, $val);
+        }
+
+        return "(to_tsvector('english', " . implode(" || ' ' || ", $cols) . '))';
+    }
+
+    public function buildFulltextIndexItem($table, $def)
+    {
+        return sprintf(
+            "COALESCE(%s.%s, '')",
+            $this->quoteIdentifier($table),
+            $def
+        );
+    }
+
     public function mapType($column)
     {
         $map = [
@@ -405,6 +437,21 @@ class PgsqlSchema extends Schema
         }
 
         return $type;
+    }
+
+    /**
+     * Append an SQL statement with an index definition for a full-text search
+     * index over one or more columns on a table.
+     *
+     * @param array $statements
+     * @param string $table
+     * @param string $name
+     * @param array $def
+     */
+    public function appendCreateFulltextIndex(array &$statements, $table, $name, array $def)
+    {
+        $statements[] = "CREATE INDEX {$name} ON {$table} USING gin "
+                      . $this->buildFulltextIndexList($table, $def);
     }
 
     /**
