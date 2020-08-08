@@ -22,23 +22,6 @@
       box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
 }
 
-#form-tabs {
-      order: 2;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      width: 100%;
-      background-color: #00000050;
-      padding: var(--medium-size);
-      margin-top: calc(2 * var(--unit-size));
-      margin-left: var(--side-margin);
-      margin-right: var(--side-margin);
-      font-size: var(--medium-size);
-      font-family: var(--head-font);
-      border-radius: var(--unit-size) var(--unit-size) 0 0;
-      box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
-}
-
 #form-content {
       order: 3;
       background-color: #00000050;
@@ -299,4 +282,41 @@ input[type=radio] {
       overflow: hidden;
       clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
       clip: rect(1px, 1px, 1px, 1px);
+}
+
+#form-tabs {
+      order: 2;
+      margin-top: var(--unit-size);
+}
+#form-tabs ul {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      justify-content: space-evenly;
+      padding: 0;
+      width: 100%;
+      border-radius: var(--unit-size);
+      box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
+      background-color: #00000050;
+}
+#form-tabs ul label {
+      order: 1;
+      flex: 1;
+}
+#tabs {
+      padding: var(--unit-size);
+      display: inline-flex;
+      font-size: var(--medium-size);
+}
+#form-tabs ul .form {
+      order: 2;
+      padding: calc(2*var(--unit-size));
+      background-color: #00000000 !important;
+      font-size: var(--medium-size);
+      height: 100%;
+      margin-left: 0;
+      margin-right: 0;
+      margin-top: 0;
+      box-shadow: 0;
+      border-radius: 0 0 var(--unit-size) var(--unit-size);
 }
