@@ -12,8 +12,8 @@
             <div id='form-tabs'>
                 <ul>
                     {% for transport, form in tabbed_forms %}
-                        <input type="radio" id="toggle-{{ transport }}" name="tabs" value="toggle-{{ transport }}">
-                        <label for="toggle-{{ transport }}" id='tabs' style = "text-transform:capitalize;">
+                        <input type="radio" id="toggle-{{ transport }}" name="tabs" value="toggle-{{ transport }}" {% if transport == "email" %} checked {% endif %}>
+                        <label for="toggle-{{ transport }}" id='tabs'>
                             {{ transport }}
                         </label>
                         <div id="form_{{ transport }}" class='form'>
