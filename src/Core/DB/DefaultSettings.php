@@ -212,7 +212,7 @@ abstract class DefaultSettings
                 'allow_tagging'     => ['local' => true, 'remote' => true],
                 'description_limit' => null,
             ],
-            'search'      => ['type' => 'like'],
+            'search'      => ['type' => 'fulltext'],
             'html_filter' => ['tags' => ['img', 'video', 'audio', 'script']],
             'notice'      => [
                 'content_limit' => null,
