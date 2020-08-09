@@ -104,7 +104,7 @@ class ProfileNoticeStream extends ScopingNoticeStream
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-class RawProfileNoticeStream extends NoticeStream
+class RawProfileNoticeStream extends FullNoticeStream
 {
     protected $target;
 

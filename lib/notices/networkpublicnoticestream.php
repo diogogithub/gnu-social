@@ -46,7 +46,7 @@ class NetworkPublicNoticeStream extends ModeratedNoticeStream
  * @copyright 2011 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class RawNetworkPublicNoticeStream extends NoticeStream
+class RawNetworkPublicNoticeStream extends FullNoticeStream
 {
     public function getNoticeIds($offset, $limit, $since_id, $max_id)
     {
