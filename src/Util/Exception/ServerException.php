@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,18 +16,20 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 /**
- * Client exception. Indicates a client request contains some sort of
- * error. HTTP code 400
+ * Class for server exceptions
+ *
+ * Subclass of PHP Exception for server errors.
+ * The user typically can't fix these.
  *
  * @category  Exception
  * @package   GNUsocial
  *
  * @author    Evan Prodromou <evan@status.net>
- * @copyright 2009 StatusNet Inc.
- * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
+ * @copyright 2008-2010 StatusNet, Inc.
  * @author    Alexei Sorokin <sor.alexei@meowr.ru>
  * @author    Hugo Sales <hugo@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
@@ -37,12 +40,13 @@ namespace App\Util\Exception;
 
 use Exception;
 
-class ClientException extends Exception
+class ServerException extends Exception
 {
     public function __construct(string $message = '', int $code = 500, Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
+
     public function __toString()
     {
         return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
