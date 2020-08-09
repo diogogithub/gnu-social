@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 namespace App\Entity;
@@ -107,9 +109,14 @@ class Avatar extends Entity
         return $this->file;
     }
 
-    public function getFilePath(?string $filename = null): string
+    public static function getFilePathStatic(string $filename): string
     {
-        return Common::config('avatar', 'dir') . '/' . $filename ?: $this->getFile()->getFileName();
+        return Common::config('avatar', 'dir') . '/' . $filename;
+    }
+
+    public function getFilePath(): string
+    {
+        return Common::config('avatar', 'dir') . '/' . $this->getFile()->getFileName();
     }
 
     /**

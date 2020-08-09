@@ -70,12 +70,12 @@ abstract class Common
         DB::flush();
     }
 
-    public static function user(): LocalUser
+    public static function user(): ?LocalUser
     {
         return Security::getUser();
     }
 
-    public static function profile(): Profile
+    public static function profile(): ?Profile
     {
         return self::user()->getProfile();
     }
