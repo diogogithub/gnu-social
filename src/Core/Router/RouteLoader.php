@@ -78,7 +78,7 @@ class RouteLoader extends Loader
      *                               'fragment', 'http-methods', 'locale', 'methods', 'schemes']
      *                               'http-methods' and 'methods' are aliases
      */
-    public function connect(string $id, string $uri_path, $target, ?array $param_reqs = [], ?array $options = [])
+    public function connect(string $id, string $uri_path, $target, ?array $options = [], ?array $param_reqs = [])
     {
         $this->rc->add($id,
             new Route(
@@ -94,7 +94,8 @@ class RouteLoader extends Loader
                         '_locale'     => $options['locale'] ?? 'en',
                         'template'    => $options['template'] ?? '',
                     ],
-                    $options['defaults'] ?? []),
+                    $options['defaults'] ?? []
+                ),
                 // requirements = [] -- param => regex
                 $param_reqs,
                 // options = []      -- possible keys: compiler_class:, utf8
