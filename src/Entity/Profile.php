@@ -202,12 +202,12 @@ class Profile extends Entity
 
     // }}} Autocode
 
-    public function getFromId(int $id): ?self
+    public static function getFromId(int $id): ?self
     {
         return DB::find('profile', ['id' => $id]);
     }
 
-    public function getFromNickname(string $nickname): ?self
+    public static function getFromNickname(string $nickname): ?self
     {
         return DB::findOneBy('profile', ['nickname' => $nickname]);
     }

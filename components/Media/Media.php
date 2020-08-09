@@ -23,6 +23,7 @@ use App\Core\Log;
 use App\Core\Module;
 use App\Entity\File;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Nickname;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;

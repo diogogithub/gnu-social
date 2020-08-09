@@ -19,6 +19,8 @@
 
 namespace App\Util\Exception;
 
+use Exception;
+
 /**
  * Client exception. Indicates a client request contains some sort of
  * error. HTTP code 400

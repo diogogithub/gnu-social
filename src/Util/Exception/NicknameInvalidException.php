@@ -40,7 +40,7 @@ namespace App\Util\Exception;
  */
 class NicknameInvalidException extends NicknameException
 {
-    protected function defaultMessage()
+    protected function defaultMessage(): string
     {
         // TRANS: Validation error in form for registration, profile and group settings, etc.
         return _m('Nickname must have only lowercase letters and numbers and no spaces.');
