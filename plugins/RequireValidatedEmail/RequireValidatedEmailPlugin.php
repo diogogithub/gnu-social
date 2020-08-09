@@ -44,9 +44,11 @@ class RequireValidatedEmailPlugin extends Plugin
     const PLUGIN_VERSION = '2.0.0';
 
     /**
-     * Users created before this time will be grandfathered in
+     * Users created before this date will be exempted
      * without the validation requirement.
      */
+    public $exemptBefore = null;
+    // Alternative more obscure term for exemption dates
     public $grandfatherCutoff = null;
 
     /**
@@ -56,14 +58,14 @@ class RequireValidatedEmailPlugin extends Plugin
      *
      * For example, to trust WikiHow and Wikipedia OpenID users:
      *
-     * addPlugin('RequireValidatedEmailPlugin', array(
-     *    'trustedOpenIDs' => array(
-     *        '!^http://\w+\.wikihow\.com/!',
-     *        '!^http://\w+\.wikipedia\.org/!',
-     *    ),
-     * ));
+     * addPlugin('RequireValidatedEmailPlugin', [
+     *    'trustedOpenIDs' => [
+     *        '!^https?://\w+\.wikihow\.com/!',
+     *        '!^https?://\w+\.wikipedia\.org/!',
+     *    ],
+     * ]);
      */
-    public $trustedOpenIDs = array();
+    public $trustedOpenIDs = [];
 
     /**
      * Whether or not to disallow login for unvalidated users.
@@ -95,6 +97,12 @@ class RequireValidatedEmailPlugin extends Plugin
             return true;
         }
         $user = $author->getUser();
+
+        if ($user !== common_current_user()) {
+            // Not the current user, must be legitimate (like welcomeuser)
+            return true;
+        }
+
         if (!$this->validated($user)) {
             // TRANS: Client exception thrown when trying to post notices before validating an e-mail address.
             $msg = _m('You must validate your email address before posting.');
@@ -124,20 +132,22 @@ class RequireValidatedEmailPlugin extends Plugin
     }
 
     /**
-     * Check if a user has a validated email address or has been
-     * otherwise grandfathered in.
+     * Check if a user has a validated email address or was
+     * otherwise exempted.
      *
      * @param User $user User to valide
      *
      * @return bool
      */
-    protected function validated(User $user)
+    protected function validated(User $user): bool
     {
         // The email field is only stored after validation...
         // Until then you'll find them in confirm_address.
-        $knownGood = !empty($user->email) ||
-          $this->grandfathered($user) ||
-          $this->hasTrustedOpenID($user);
+        $knownGood = (
+            !empty($user->email)
+            || $this->exempted($user)
+            || $this->hasTrustedOpenID($user)
+        );
 
         // Give other plugins a chance to override, if they can validate
         // that somebody's ok despite a non-validated email.
@@ -152,19 +162,22 @@ class RequireValidatedEmailPlugin extends Plugin
     }
 
     /**
-     * Check if a user was created before the grandfathering cutoff.
+     * Check if a user was created before the exemption date.
      * If so, we won't need to check for validation.
      *
      * @param User $user User to check
      *
-     * @return bool true if user is grandfathered
+     * @return bool true if user is exempted
      */
-    protected function grandfathered(User $user)
+    protected function exempted(User $user): bool
     {
-        if ($this->grandfatherCutoff) {
-            $created = strtotime($user->created . " GMT");
-            $cutoff  = strtotime($this->grandfatherCutoff);
-            if ($created < $cutoff) {
+        $exempt_before = ($this->exemptBefore ?? $this->grandfatherCutoff);
+
+        if (!empty($exempt_before)) {
+            $utc_timezone = new DateTimeZone('UTC');
+            $created_date = new DateTime($user->created, $utc_timezone);
+            $exempt_date  = new DateTime($exempt_before, $utc_timezone);
+            if ($created_date < $exempt_date) {
                 return true;
             }
         }
