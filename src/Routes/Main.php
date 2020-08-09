@@ -46,6 +46,7 @@ abstract class Main
         $r->connect('logout', '/logout', [C\Security::class, 'logout']);
         $r->connect('register', '/register', [C\Security::class, 'register']);
 
+        $r->connect('root', '/', RedirectController::class, ['defaults' => ['route' => 'main_all']]);
         $r->connect('main_all', '/main/all', C\NetworkPublic::class);
 
         $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
@@ -53,15 +54,15 @@ abstract class Main
 
         // FAQ static pages
         foreach (['faq', 'contact', 'tags', 'groups', 'openid'] as $s) {
-            $r->connect('doc_' . $s, '/doc/' . $s, TemplateController::class, [], ['defaults' => ['template' => 'doc/faq/' . $s . '.html.twig']]);
+            $r->connect('doc_' . $s, '/doc/' . $s, TemplateController::class, ['defaults' => ['template' => 'doc/faq/' . $s . '.html.twig']]);
         }
 
         foreach (['privacy', 'tos', 'version', 'source'] as $s) {
-            $r->connect('doc_' . $s, '/doc/' . $s, TemplateController::class, [], ['defaults' => ['template' => 'doc/' . $s . '.html.twig']]);
+            $r->connect('doc_' . $s, '/doc/' . $s, TemplateController::class, ['defaults' => ['template' => 'doc/' . $s . '.html.twig']]);
         }
 
         // Settings pages
-        $r->connect('settings', '/settings', RedirectController::class, [], ['defaults' => ['route' => 'settings_personal_info']]);
+        $r->connect('settings', '/settings', RedirectController::class, ['defaults' => ['route' => 'settings_personal_info']]);
         foreach (['personal_info', 'avatar', 'notifications', 'account'] as $s) {
             $r->connect('settings_' . $s, '/settings/' . $s, [C\UserPanel::class, $s]);
         }
