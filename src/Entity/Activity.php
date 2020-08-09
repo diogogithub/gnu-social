@@ -267,11 +267,8 @@ class Activity
                 'activity_profile_id_verb_idx'             => ['profile_id', 'verb'],
                 'activity_replyto_idx'                     => ['reply_to'],
             ],
+            'fulltext indexes' => ['notice_fulltext_idx' => ['content']]
         ];
-
-        if (isset($_ENV['SOCIAL_DB_USE_FULLTEXT_SEARCH'])) {
-            $def['fulltext indexes'] = ['content' => ['content']];
-        }
 
         return $def;
     }

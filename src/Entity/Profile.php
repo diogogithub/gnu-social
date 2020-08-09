@@ -261,11 +261,10 @@ class Profile extends Entity
             'indexes'     => [
                 'profile_nickname_idx' => ['nickname'],
             ],
+            'fulltext indexes' => [
+                'profile_fulltext_idx' => ['nickname', 'fullname', 'location', 'bio', 'homepage']
+            ],
         ];
-
-        if (isset($_ENV['SOCIAL_DB_USE_FULLTEXT_SEARCH'])) {
-            $def['fulltext indexes'] = ['nickname' => ['nickname', 'fullname', 'location', 'bio', 'homepage']];
-        }
 
         return $def;
     }
