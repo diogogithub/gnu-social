@@ -66,7 +66,7 @@ class InboxNoticeStream extends ScopingNoticeStream
  * @copyright 2014 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class RawInboxNoticeStream extends NoticeStream
+class RawInboxNoticeStream extends FullNoticeStream
 {
     protected $target = null;
     protected $inbox = null;
