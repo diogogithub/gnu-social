@@ -105,8 +105,7 @@ class RawInboxNoticeStream extends FullNoticeStream
                 FROM notice INNER JOIN subscription
                 ON notice.profile_id = subscription.subscribed
               UNION ALL
-              SELECT reply.id, notice.profile_id
-                FROM notice AS reply INNER JOIN notice ON reply.reply_to = notice.id
+              SELECT notice_id, profile_id FROM reply
               UNION ALL
               SELECT notice_id, profile_id FROM attention
               UNION ALL
