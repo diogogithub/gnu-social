@@ -104,21 +104,14 @@ class Queue_item extends Managed_DataObject
      */
     public function releaseClaim()
     {
-        $modified = common_sql_now();
         // @fixme Consider $this->sqlValue('NULL')
         $ret = $this->query(sprintf(
-            <<<'END'
-            UPDATE queue_item
-              SET claimed = NULL, modified = %1$s
-              WHERE id = %2$d
-            END,
-            $this->_quote($modified),
+            'UPDATE queue_item SET claimed = NULL WHERE id = %d',
             $this->getID()
         ));
 
         if ($ret) {
             $this->claimed = null;
-            $this->modified = $modified;
             $this->encache();
         }
     }
