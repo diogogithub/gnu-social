@@ -419,21 +419,24 @@ class PgsqlSchema extends Schema
         ];
 
         $type = $column['type'];
-        if (isset($map[$type])) {
+        if (array_key_exists($type, $map)) {
             $type = $map[$type];
         }
 
         $size = $column['size'] ?? null;
-        if ($type === 'int') {
-            if (in_array($size, ['tiny', 'small'])) {
-                $type = 'int2';
-            } elseif ($size === 'big') {
-                $type = 'int8';
-            } else {
-                $type = 'int4';
-            }
-        } elseif ($type === 'float') {
-            $type = ($size !== 'big') ? 'float4' : 'float8';
+        switch ($type) {
+            case 'int':
+                if (in_array($size, ['tiny', 'small'])) {
+                    $type = 'int2';
+                } elseif ($size === 'big') {
+                    $type = 'int8';
+                } else {
+                    $type = 'int4';
+                }
+                break;
+            case 'float':
+                $type = ($size !== 'big') ? 'float4' : 'float8';
+                break;
         }
 
         return $type;
