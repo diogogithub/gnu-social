@@ -77,18 +77,25 @@ class FavoritedSliceAction extends FavoritedAction
 
         $weightexpr = common_sql_weight('fave.modified', common_config('popular', 'dropoff'));
         $cutoff = sprintf(
-            "fave.modified > TIMESTAMP '%s'",
-            common_sql_date(time() - common_config('popular', 'cutoff'))
+            "fave.modified > CURRENT_TIMESTAMP - INTERVAL '%d' SECOND",
+            common_config('popular', 'cutoff')
         );
 
         $offset = ($this->page - 1) * NOTICES_PER_PAGE;
         $limit  = NOTICES_PER_PAGE + 1;
 
-        $qry = 'SELECT notice.*, ' . $weightexpr . ' AS weight ' .
-            'FROM notice INNER JOIN fave ON notice.id = fave.notice_id ' .
-            'WHERE ' . $cutoff . ' AND ' . $slice . ' ' .
-            'GROUP BY id, profile_id, uri, content, rendered, url, created, notice.modified, reply_to, is_local, source, notice.conversation ' .
-            'ORDER BY weight DESC LIMIT ' . $limit . ' OFFSET ' . $offset;
+        $qry = <<<END
+            SELECT *
+              FROM notice INNER JOIN (
+                SELECT notice.id, {$weightexpr} AS weight
+                  FROM notice
+                  INNER JOIN fave ON notice.id = fave.notice_id
+                  WHERE {$cutoff} AND {$slice}
+                  GROUP BY notice.id
+                ) AS t1 USING (id)
+              ORDER BY weight DESC
+              LIMIT {$limit} OFFSET {$offset};
+            END;
 
         $notice = Memcached_DataObject::cachedQuery('Notice', $qry, 600);
 
@@ -113,17 +120,15 @@ class FavoritedSliceAction extends FavoritedAction
         $include = $this->nicknamesToIds($this->includeUsers);
         $exclude = $this->nicknamesToIds($this->excludeUsers);
 
-        if (count($include) == 1) {
-            return "profile_id = " . intval($include[0]);
-        } elseif (count($include) > 1) {
-            return "profile_id IN (" . implode(',', $include) . ")";
-        } elseif (count($exclude) === 1) {
-            return "profile_id != " . intval($exclude[0]);
-        } elseif (count($exclude) > 1) {
-            return "profile_id NOT IN (" . implode(',', $exclude) . ")";
-        } else {
-            return false;
+        $sql = [];
+        if (count($include) > 0) {
+            $sql[] = 'notice.profile_id IN (' . implode(',', $include) . ')';
         }
+        if (count($exclude) > 0) {
+            $sql[] = 'notice.profile_id NOT IN (' . implode(',', $exclude) . ')';
+        }
+
+        return implode(' AND ', $sql) ?: false;
     }
 
     /**

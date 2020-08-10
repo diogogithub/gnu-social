@@ -38,11 +38,15 @@ class GroupsByMembersSection extends GroupSection
     {
         $limit = GROUPS_PER_SECTION;
 
-        $qry = 'SELECT user_group.*, COUNT(*) AS value ' .
-            'FROM user_group INNER JOIN group_member '.
-            'ON user_group.id = group_member.group_id ' .
-            'GROUP BY user_group.id, user_group.nickname, user_group.fullname, user_group.homepage, user_group.description, user_group.location, user_group.original_logo, user_group.homepage_logo, user_group.stream_logo, user_group.mini_logo, user_group.created, user_group.modified ' .
-            'ORDER BY value DESC LIMIT ' . $limit;
+        $qry = <<<END
+            SELECT *
+              FROM user_group INNER JOIN (
+                SELECT group_id AS id, COUNT(group_id) AS value
+                  FROM group_member
+                  GROUP BY group_id
+              ) AS t1 USING (id)
+              ORDER BY value DESC LIMIT {$limit};
+            END;
 
         $group = Memcached_DataObject::cachedQuery('User_group', $qry, 3600);
         return $group;

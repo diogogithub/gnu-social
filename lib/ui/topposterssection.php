@@ -41,11 +41,19 @@ class TopPostersSection extends ProfileSection
     {
         $limit = PROFILES_PER_SECTION;
 
-        $qry = 'SELECT profile.*, COUNT(*) AS value ' .
-            'FROM profile JOIN notice ON profile.id = notice.profile_id ' .
-            (common_config('public', 'localonly') ? 'WHERE is_local = 1 ' : '') .
-            'GROUP BY profile.id, nickname, fullname, profileurl, homepage, bio, location, profile.created, profile.modified ' .
-            'ORDER BY value DESC LIMIT ' . $limit;
+        $qry = sprintf(
+            <<<'END'
+            SELECT *
+              FROM profile INNER JOIN (
+                SELECT profile_id AS id, COUNT(profile_id) AS value
+                  FROM notice
+                  %1$sGROUP BY profile_id
+              ) AS t1 USING (id)
+              ORDER BY value DESC LIMIT %2$d;
+            END,
+            (common_config('public', 'localonly') ? 'WHERE notice.is_local = 1 ' : ''),
+            $limit
+        );
 
         $profile = Memcached_DataObject::cachedQuery('Profile', $qry, 6 * 3600);
         return $profile;
