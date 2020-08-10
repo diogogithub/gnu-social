@@ -517,24 +517,31 @@ class MysqlSchema extends Schema
         $map = [
             'integer' => 'int',
             'numeric' => 'decimal',
+            'blob'    => 'longblob',
         ];
 
         $type = $column['type'];
-        if (isset($map[$type])) {
+        if (array_key_exists($type, $map)) {
             $type = $map[$type];
         }
 
-        if (!empty($column['size'])) {
-            $size = $column['size'];
-            if ($type == 'int' &&
-                in_array($size, ['tiny', 'small', 'medium', 'big'])) {
-                $type = $size . $type;
-            } elseif ($type == 'float' && $size == 'big') {
-                $type = 'double';
-            } elseif (in_array($type, ['blob', 'text']) &&
-                in_array($size, ['tiny', 'medium', 'long'])) {
-                $type = $size . $type;
-            }
+        $size = $column['size'] ?? null;
+        switch ($type) {
+            case 'int':
+                if (in_array($size, ['tiny', 'small', 'medium', 'big'])) {
+                    $type = $size . $type;
+                }
+                break;
+            case 'float':
+                if ($size === 'big') {
+                    $type = 'double';
+                }
+                break;
+            case 'text':
+                if (in_array($size, ['tiny', 'medium', 'long'])) {
+                    $type = $size . $type;
+                }
+                break;
         }
 
         return $type;
