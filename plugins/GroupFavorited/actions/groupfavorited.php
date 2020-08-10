@@ -62,20 +62,25 @@ class GroupFavoritedAction extends ShowgroupAction
         $groupId = (int)$this->group->id;
         $weightexpr = common_sql_weight('fave.modified', common_config('popular', 'dropoff'));
         $cutoff = sprintf(
-            "fave.modified > TIMESTAMP '%s'",
-            common_sql_date(time() - common_config('popular', 'cutoff'))
+            "fave.modified > CURRENT_TIMESTAMP - INTERVAL '%d' SECOND",
+            common_config('popular', 'cutoff')
         );
 
         $offset = ($this->page - 1) * NOTICES_PER_PAGE;
-        $limit = NOTICES_PER_PAGE + 1;
+        $limit  = NOTICES_PER_PAGE + 1;
 
-        $qry = 'SELECT notice.*, ' . $weightexpr . ' AS weight ' .
-            'FROM notice ' .
-            'INNER JOIN group_inbox ON notice.id = group_inbox.notice_id ' .
-            'INNER JOIN fave ON notice.id = fave.notice_id ' .
-            'WHERE ' . $cutoff . ' AND group_id = ' . $groupId . ' ' .
-            'GROUP BY id, profile_id, uri, content, rendered, url, created, notice.modified, reply_to, is_local, source, notice.conversation ' .
-            'ORDER BY weight DESC LIMIT ' . $limit . ' OFFSET ' . $offset;
+        $qry = <<<END
+            SELECT *
+              FROM notice INNER JOIN (
+                SELECT notice_id AS id, {$weightexpr} AS weight
+                  FROM fave
+                  INNER JOIN group_inbox USING (notice_id)
+                  WHERE {$cutoff} AND group_inbox.group_id = {$groupId}
+                  GROUP BY notice_id
+                ) AS t1 USING (id)
+              ORDER BY weight DESC
+              LIMIT {$limit} OFFSET {$offset};
+            END;
 
         $notice = Memcached_DataObject::cachedQuery('Notice', $qry, 600);
 
