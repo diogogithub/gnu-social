@@ -1,25 +1,25 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008-2011 StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @copyright 2008-2011 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 define('TWITTER_SERVICE', 1); // Twitter is foreign_service ID 1
 
@@ -54,8 +54,10 @@ function add_twitter_user($twitter_id, $screen_name)
         common_log(LOG_WARNING, "Twitter bridge - failed to add new Twitter user: $twitter_id - $screen_name.");
         common_log_db_error($fuser, 'INSERT', __FILE__);
     } else {
-        common_log(LOG_INFO,
-                   "Twitter bridge - Added new Twitter user: $screen_name ($twitter_id).");
+        common_log(
+            LOG_INFO,
+            "Twitter bridge - Added new Twitter user: {$screen_name} ({$twitter_id})."
+        );
     }
 
     return $result;
@@ -73,11 +75,13 @@ function save_twitter_user($twitter_id, $screen_name)
         if ($fuser->nickname != $screen_name) {
             $oldname = $fuser->nickname;
             $fuser->delete();
-            common_log(LOG_INFO, sprintf('Twitter bridge - Updated nickname (and URI) ' .
-                                         'for Twitter user %1$d - %2$s, was %3$s.',
-                                         $fuser->id,
-                                         $screen_name,
-                                         $oldname));
+            common_log(LOG_INFO, sprintf(
+                'Twitter bridge - Updated nickname (and URI) '
+                . 'for Twitter user %1$d - %2$s, was %3$s.',
+                $fuser->id,
+                $screen_name,
+                $oldname
+            ));
         }
     } catch (NoResultException $e) {
         // No old users exist for this id
@@ -104,7 +108,8 @@ function save_twitter_user($twitter_id, $screen_name)
     return add_twitter_user($twitter_id, $screen_name);
 }
 
-function is_twitter_bound($notice, $flink) {
+function is_twitter_bound($notice, $flink)
+{
 
     // Don't send activity activities (at least for now)
     if ($notice->object_type == ActivityObject::ACTIVITY) {
@@ -114,11 +119,15 @@ function is_twitter_bound($notice, $flink) {
     $allowedVerbs = array(ActivityVerb::POST);
 
     // Default behavior: always send repeats
-    if (empty($flink))
+    if (empty($flink)) {
         array_push($allowedVerbs, ActivityVerb::SHARE);
+    }
     // Otherwise, check to see if repeats are allowed
-    else if (($flink->noticesync & FOREIGN_NOTICE_SEND_REPEAT) == FOREIGN_NOTICE_SEND_REPEAT)
+    elseif (
+        ($flink->noticesync & FOREIGN_NOTICE_SEND_REPEAT) === FOREIGN_NOTICE_SEND_REPEAT
+    ) {
         array_push($allowedVerbs, ActivityVerb::SHARE);
+    }
 
     // Don't send things that aren't posts or repeats (at least for now)
     if (!in_array($notice->verb, $allowedVerbs)) {
@@ -126,13 +135,18 @@ function is_twitter_bound($notice, $flink) {
     }
 
     // Check to see if notice should go to Twitter
-    if (!empty($flink) && (($flink->noticesync & FOREIGN_NOTICE_SEND) == FOREIGN_NOTICE_SEND)) {
-
+    if (
+        (($flink->noticesync & FOREIGN_NOTICE_SEND) === FOREIGN_NOTICE_SEND)
+        && !empty($flink)
+    ) {
         // If it's not a Twitter-style reply, or if the user WANTS to send replies,
         // or if it's in reply to a twitter notice
-        if ( (($flink->noticesync & FOREIGN_NOTICE_SEND_REPLY) == FOREIGN_NOTICE_SEND_REPLY) ||
-               is_twitter_notice($notice->reply_to) || is_twitter_notice($notice->repeat_of) ||
-             (empty($notice->reply_to) && !preg_match('/^@[a-zA-Z0-9_]{1,15}\b/u', $notice->content)) ){
+        if (
+            (($flink->noticesync & FOREIGN_NOTICE_SEND_REPLY) === FOREIGN_NOTICE_SEND_REPLY)
+            || is_twitter_notice($notice->reply_to)
+            || is_twitter_notice($notice->repeat_of)
+            || (empty($notice->reply_to) && !preg_match('/^@[a-zA-Z0-9_]{1,15}\b/u', $notice->content))
+        ) {
             return true;
         }
     }
@@ -272,8 +286,10 @@ function twitter_status_id($notice)
 function twitter_update_params($notice)
 {
     $params = array();
-    if ($notice->lat || $notice->lon) {
+    if (isset($notice->lat)) {
         $params['lat'] = $notice->lat;
+    }
+    if (isset($notice->lon)) {
         $params['long'] = $notice->lon;
     }
     if (!empty($notice->reply_to) && is_twitter_notice($notice->reply_to)) {
@@ -283,7 +299,8 @@ function twitter_update_params($notice)
     return $params;
 }
 
-function broadcast_oauth($notice, Foreign_link $flink) {
+function broadcast_oauth($notice, Foreign_link $flink)
+{
     try {
         $user = $flink->getUser();
     } catch (ServerException $e) {
@@ -309,11 +326,13 @@ function broadcast_oauth($notice, Foreign_link $flink) {
     if (empty($status)) {
         // This could represent a failure posting,
         // or the Twitter API might just be behaving flakey.
-        $errmsg = sprintf('Twitter bridge - No data returned by Twitter API when ' .
-                          'trying to post notice %d for User %s (user id %d).',
-                          $notice->id,
-                          $user->nickname,
-                          $user->id);
+        $errmsg = sprintf(
+            'Twitter bridge - No data returned by Twitter API when '
+            . 'trying to post notice %d for User %s (user id %d).',
+            $notice->id,
+            $user->nickname,
+            $user->id
+        );
 
         common_log(LOG_WARNING, $errmsg);
 
@@ -321,11 +340,13 @@ function broadcast_oauth($notice, Foreign_link $flink) {
     }
 
     // Notice crossed the great divide
-    $msg = sprintf('Twitter bridge - posted notice %d to Twitter using ' .
-                   'OAuth for User %s (user id %d).',
-                   $notice->id,
-                   $user->nickname,
-                   $user->id);
+    $msg = sprintf(
+        'Twitter bridge - posted notice %d to Twitter using '
+        . 'OAuth for User %s (user id %d).',
+        $notice->id,
+        $user->nickname,
+        $user->id
+    );
 
     common_log(LOG_INFO, $msg);
 
@@ -337,53 +358,47 @@ function process_error($e, $flink, $notice)
     $user = $flink->getUser();
     $code = $e->getCode();
 
-    $logmsg = sprintf('Twitter bridge - %d posting notice %d for ' .
-                      'User %s (user id: %d): %s.',
-                      $code,
-                      $notice->id,
-                      $user->nickname,
-                      $user->id,
-                      $e->getMessage());
+    $logmsg = sprintf(
+        'Twitter bridge - %d posting notice %d for User %s (user id: %d): %s.',
+        $code,
+        $notice->id,
+        $user->nickname,
+        $user->id,
+        $e->getMessage()
+    );
 
     common_log(LOG_WARNING, $logmsg);
 
     // http://dev.twitter.com/pages/responses_errors
-    switch($code) {
-     case 400:
-         // Probably invalid data (bad Unicode chars or coords) that
-         // cannot be resolved by just sending again.
-         //
-         // It could also be rate limiting, but retrying immediately
-         // won't help much with that, so we'll discard for now.
-         // If a facility for retrying things later comes up in future,
-         // we can detect the rate-limiting headers and use that.
-         //
-         // Discard the message permanently.
-         return true;
-         break;
-     case 401:
-        // Probably a revoked or otherwise bad access token - nuke!
-        remove_twitter_link($flink);
-        return true;
-        break;
-     case 403:
-        // User has exceeder her rate limit -- toss the notice
-        return true;
-        break;
-     case 404:
-         // Resource not found. Shouldn't happen much on posting,
-         // but just in case!
-         //
-         // Consider it a matter for tossing the notice.
-         return true;
-         break;
-     default:
-
-        // For every other case, it's probably some flakiness so try
-        // sending the notice again later (requeue).
-
-        return false;
-        break;
+    switch ($code) {
+        case 400:
+            // Probably invalid data (bad Unicode chars or coords) that
+            // cannot be resolved by just sending again.
+            //
+            // It could also be rate limiting, but retrying immediately
+            // won't help much with that, so we'll discard for now.
+            // If a facility for retrying things later comes up in future,
+            // we can detect the rate-limiting headers and use that.
+            //
+            // Discard the message permanently.
+            return true;
+        case 401:
+            // Probably a revoked or otherwise bad access token - nuke!
+            remove_twitter_link($flink);
+            return true;
+        case 403:
+            // User has exceeder her rate limit -- toss the notice
+            return true;
+        case 404:
+            // Resource not found. Shouldn't happen much on posting,
+            // but just in case!
+            //
+            // Consider it a matter for tossing the notice.
+            return true;
+        default:
+            // For every other case, it's probably some flakiness so try
+            // sending the notice again later (requeue).
+            return false;
     }
 }
 
@@ -466,16 +481,18 @@ function mail_twitter_bridge_removed($user)
     // TRANS: Mail body after forwarding notices to Twitter has stopped working.
     // TRANS: %1$ is the name of the user the mail is sent to, %2$s is a URL to the
     // TRANS: Twitter settings, %3$s is the StatusNet sitename.
-    $body = sprintf(_m('Hi, %1$s. We\'re sorry to inform you that your ' .
-        'link to Twitter has been disabled. We no longer seem to have ' .
-    'permission to update your Twitter status. Did you maybe revoke ' .
-    '%3$s\'s access?' . "\n\n" .
-    'You can re-enable your Twitter bridge by visiting your ' .
-    "Twitter settings page:\n\n\t%2\$s\n\n" .
-        "Regards,\n%3\$s"),
+    $body = sprintf(
+        _m('Hi, %1$s. We\'re sorry to inform you that your '
+           . 'link to Twitter has been disabled. We no longer seem to have '
+           . 'permission to update your Twitter status. Did you maybe revoke '
+           . '%3$s\'s access?' . "\n\n"
+           . 'You can re-enable your Twitter bridge by visiting your '
+           . "Twitter settings page:\n\n\t%2\$s\n\n"
+           . "Regards,\n%3\$s"),
         $profile->getBestName(),
         common_local_url('twittersettings'),
-        common_config('site', 'name'));
+        common_config('site', 'name')
+    );
 
     common_switch_locale();
     return mail_to_user($user, $subject, $body);
