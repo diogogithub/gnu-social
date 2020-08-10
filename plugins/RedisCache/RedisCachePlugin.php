@@ -15,7 +15,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plguin inplementing Redis based caching
+ * Plugin inplementing Redis based caching
  *
  * @category  Files
  * @package   GNUsocial
@@ -58,21 +58,28 @@ class RedisCachePlugin extends Plugin
     {
         try {
             $this->_ensureConn();
-            $ret = $this->client->get($key);
+            $data = $this->client->get($key);
         } catch (PredisException $e) {
             common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
             return true;
         }
 
-        // Hit, overwrite "value" and return false
-        // to indicate we took care of this
-        if ($ret !== null) {
-            $value = unserialize($ret);
-            return false;
+        if (is_null($data)) {
+            // Miss, let GS do its thing
+            return true;
         }
 
-        // Miss, let GS do its thing
-        return true;
+        $ret = unserialize($data);
+
+        if ($ret === false && $data !== 'b:0;') {
+            common_log(LOG_ERR, 'RedisCache could not handle: ' . $data);
+            return true;
+        }
+
+        // Hit, overwrite "value" and return false
+        // to indicate we took care of this
+        $value = $ret;
+        return false;
     }
 
     public function onStartCacheSet($key, $value, $flag, $expiry, &$success)
