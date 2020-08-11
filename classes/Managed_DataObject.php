@@ -246,7 +246,6 @@ abstract class Managed_DataObject extends Memcached_DataObject
             'date'      => DB_DATAOBJECT_DATE,
             'time'      => DB_DATAOBJECT_TIME,
             'datetime'  => DB_DATAOBJECT_DATE | DB_DATAOBJECT_TIME,
-            'timestamp' => DB_DATAOBJECT_MYSQLTIMESTAMP,
         ];
 
         if (isset($formatStyles[$type])) {
