@@ -1,45 +1,39 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Action to let RSSCloud aggregators request update notification when
  * user profile feeds change.
  *
- * PHP version 5
- *
- * @category Plugin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Action class to handle RSSCloud notification (subscription) requests
  *
- * @category Plugin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class RSSCloudRequestNotifyAction extends Action
 {
@@ -47,10 +41,9 @@ class RSSCloudRequestNotifyAction extends Action
      * Initialization.
      *
      * @param array $args Web and URL arguments
-     *
-     * @return boolean false if user doesn't exist
+     * @return bool false if user doesn't exist
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -82,7 +75,7 @@ class RSSCloudRequestNotifyAction extends Action
      *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
 
@@ -104,7 +97,7 @@ class RSSCloudRequestNotifyAction extends Action
 
         if (empty($this->protocol)) {
             $missing[] = 'protocol';
-        } else if (strtolower($this->protocol) != 'http-post') {
+        } elseif (strtolower($this->protocol) !== 'http-post') {
             // TRANS: Form validation error displayed when HTTP POST is not used.
             $msg = _m('Only HTTP POST notifications are supported at this time.');
             $this->showResult(false, $msg);
@@ -117,10 +110,13 @@ class RSSCloudRequestNotifyAction extends Action
 
         if (!empty($missing)) {
             // TRANS: List separator.
-            $separator = _m('SEPARATOR',', ');
+            $separator = _m('SEPARATOR', ', ');
             // TRANS: Form validation error displayed when a request body is missing expected parameters.
             // TRANS: %s is a list of parameters separated by a list separator (default: ", ").
-            $msg = sprintf(_m('The following parameters were missing from the request body: %s.'),implode($separator, $missing));
+            $msg = sprintf(
+                _m('The following parameters were missing from the request body: %s.'),
+                implode($separator, $missing)
+            );
             $this->showResult(false, $msg);
             return;
         }
@@ -139,8 +135,10 @@ class RSSCloudRequestNotifyAction extends Action
         foreach ($this->feeds as $feed) {
             if (!$this->validateFeed($feed)) {
                 $nh = $this->getNotifyUrl();
-                common_log(LOG_WARNING,
-                           "RSSCloud plugin - $nh tried to subscribe to invalid feed: $feed");
+                common_log(
+                    LOG_WARNING,
+                    "RSSCloud plugin - {$nh} tried to subscribe to invalid feed: {$feed}"
+                );
 
                 // TRANS: Form validation error displayed when not providing a valid feed URL.
                 $msg = _m('Feed subscription failed: Not a valid feed.');
@@ -176,10 +174,9 @@ class RSSCloudRequestNotifyAction extends Action
      * up via RSSCloud.
      *
      * @param string $feed the feed in question
-     *
-     * @return void
+     * @return bool
      */
-    function validateFeed($feed)
+    private function validateFeed(string $feed): bool
     {
         $user = $this->userFromFeed($feed);
 
@@ -196,11 +193,11 @@ class RSSCloudRequestNotifyAction extends Action
      *
      * @return array $feeds the list of feeds
      */
-    function getFeeds()
+    public function getFeeds()
     {
-        $feeds = array();
+        $feeds = [];
 
-        while (list($key, $feed) = each($this->args)) {
+        foreach ($this->args as $key => $feed) {
             if (preg_match('/^url\d*$/', $key)) {
                 $feeds[] = $feed;
             }
@@ -214,10 +211,9 @@ class RSSCloudRequestNotifyAction extends Action
      * correctly.  This is called before adding a subscription.
      *
      * @param string $feed the feed to verify
-     *
-     * @return boolean success result
+     * @return bool success result
      */
-    function testNotificationHandler($feed)
+    private function testNotificationHandler(string $feed): bool
     {
         $notifyUrl = $this->getNotifyUrl();
 
@@ -225,13 +221,18 @@ class RSSCloudRequestNotifyAction extends Action
 
         if (isset($this->domain)) {
             // 'domain' param set, so we have to use GET and send a challenge
-            common_log(LOG_INFO,
-                       'RSSCloud plugin - Testing notification handler with challenge: ' .
-                       $notifyUrl);
+            common_log(
+                LOG_INFO,
+                'RSSCloud plugin - Testing notification handler with '
+                . "challenge: {$notifyUrl}"
+            );
             return $notifier->challenge($notifyUrl, $feed);
         } else {
-            common_log(LOG_INFO, 'RSSCloud plugin - Testing notification handler: ' .
-                       $notifyUrl);
+            common_log(
+                LOG_INFO,
+                'RSSCloud plugin - Testing notification handler: '
+                . $notifyUrl
+            );
 
             return $notifier->postUpdate($notifyUrl, $feed);
         }
@@ -243,7 +244,7 @@ class RSSCloudRequestNotifyAction extends Action
      *
      * @return string notification handler url
      */
-    function getNotifyUrl()
+    private function getNotifyUrl(): string
     {
         if (isset($this->domain)) {
             return 'http://' . $this->domain . ':' . $this->port . $this->path;
@@ -258,10 +259,9 @@ class RSSCloudRequestNotifyAction extends Action
      * validate feeds before adding a subscription.
      *
      * @param string $feed the feed in question
-     *
-     * @return boolean success
+     * @return bool success
      */
-    function userFromFeed($feed)
+    private function userFromFeed(string $feed): bool
     {
         // We only do canonical RSS2 profile feeds (specified by ID), e.g.:
         // http://www.example.com/api/statuses/user_timeline/2.rss
@@ -282,10 +282,9 @@ class RSSCloudRequestNotifyAction extends Action
      * Save an RSSCloud subscription
      *
      * @param string $feed a valid profile feed
-     *
-     * @return boolean success result
+     * @return bool success result
      */
-    function saveSubscription($feed)
+    private function saveSubscription(string $feed): bool
     {
         $user = $this->userFromFeed($feed);
 
@@ -319,17 +318,18 @@ class RSSCloudRequestNotifyAction extends Action
      * Show an XML message indicating the subscription
      * was successful or failed.
      *
-     * @param boolean $success whether it was good or bad
-     * @param string  $msg     the message to output
+     * @param bool   $success whether it was good or bad
+     * @param string $msg     the message to output
      *
-     * @return boolean success result
+     * @return bool success result
      */
-    function showResult($success, $msg)
+    public function showResult(bool $success, string $msg): bool
     {
         $this->startXML();
-        $this->elementStart('notifyResult',
-                            array('success' => ($success) ? 'true' : 'false',
-                                  'msg'     => $msg));
+        $this->elementStart('notifyResult', [
+            'success' => ($success ? 'true' : 'false'),
+            'msg'     => $msg,
+        ]);
         $this->endXML();
     }
 }
