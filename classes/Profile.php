@@ -1162,7 +1162,10 @@ class Profile extends Managed_DataObject
             $role->role       = $name;
             $role->created    = common_sql_now();
 
-            $result = $role->insert();
+            $result = $role->update();
+            if ($result === 0 || $result === false) {
+                $result = $role->insert();
+            }
 
             if (!$result) {
                 throw new Exception("Can't save role '$name' for profile '{$this->id}'");
