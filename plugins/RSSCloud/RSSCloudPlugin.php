@@ -1,35 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Plugin to support RSSCloud
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
-   *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Plugin
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 define('RSSCLOUDPLUGIN_VERSION', '0.1.0');
 
@@ -39,8 +34,7 @@ define('RSSCLOUDPLUGIN_VERSION', '0.1.0');
  * @category Plugin
  * @package  StatusNet
  * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class RSSCloudPlugin extends Plugin
 {
@@ -49,7 +43,7 @@ class RSSCloudPlugin extends Plugin
      *
      * @return void
      */
-    function __construct()
+    public function __construct()
     {
         parent::__construct();
     }
@@ -60,7 +54,7 @@ class RSSCloudPlugin extends Plugin
      *
      * @return void
      */
-    function onInitializePlugin()
+    public function onInitializePlugin(): void
     {
         $this->domain   = common_config('rsscloud', 'domain');
         $this->port     = common_config('rsscloud', 'port');
@@ -98,19 +92,22 @@ class RSSCloudPlugin extends Plugin
      *
      * Hook for RouterInitialized event.
      *
-     * @param Mapper $m URL parser and mapper
-     *
-     * @return boolean hook return
+     * @param URLMapper $m URL parser and mapper
+     * @return bool hook return
      */
-    function onRouterInitialized($m)
+    public function onRouterInitialized(URLMapper $m): bool
     {
-        $m->connect('/main/rsscloud/request_notify',
-                    ['action' => 'RSSCloudRequestNotify']);
+        $m->connect(
+            'main/rsscloud/request_notify',
+            ['action' => 'RSSCloudRequestNotify']
+        );
 
         // XXX: This is just for end-to-end testing. Uncomment if you need to pretend
         //      to be a cloud hub for some reason.
-        //$m->connect('/main/rsscloud/notify',
-        //            array('action' => 'LoggingAggregator'));
+        //$m->connect(
+        //    'main/rsscloud/notify',
+        //    ['action' => 'LoggingAggregator']
+        //);
 
         return true;
     }
@@ -120,18 +117,18 @@ class RSSCloudPlugin extends Plugin
      * element is started).
      *
      * @param Action $action the ApiAction
-     *
      * @return void
      */
-    function onStartApiRss($action)
+    public function onStartApiRss(Action $action): void
     {
         if (get_class($action) == 'ApiTimelineUserAction') {
-
-            $attrs = array('domain'            => $this->domain,
-                           'port'              => $this->port,
-                           'path'              => $this->path,
-                           'registerProcedure' => $this->funct,
-                           'protocol'          => $this->protocol);
+            $attrs = [
+                'domain'   => $this->domain,
+                'port'     => $this->port,
+                'path'     => $this->path,
+                'registerProcedure' => $this->funct,
+                'protocol' => $this->protocol,
+            ];
 
             // Dipping into XMLWriter to avoid a full end element (</cloud>).
 
@@ -149,12 +146,13 @@ class RSSCloudPlugin extends Plugin
      *
      * @param Notice $notice      the notice
      * @param array  &$transports the list of transports (queues)
-     *
-     * @return boolean hook return
+     * @return bool hook return
      */
 
-    function onStartEnqueueNotice($notice, &$transports)
-    {
+    public function onStartEnqueueNotice(
+        Notice $notice,
+        array &$transports
+    ): bool {
         if ($notice->isLocal()) {
             array_push($transports, 'rsscloud');
         }
@@ -165,50 +163,67 @@ class RSSCloudPlugin extends Plugin
      * Create the rsscloud_subscription table if it's not
      * already in the DB
      *
-     * @return boolean hook return
+     * @return bool hook return
      */
 
-    function onCheckSchema()
+    public function onCheckSchema(): bool
     {
         $schema = Schema::get();
-        $schema->ensureTable('rsscloud_subscription',
-            array(
-                'fields' => array(
-                    'subscribed' => array('type' => 'int', 'not null' => true),
-                    'url' => array('type' => 'varchar', 'length' => '191', 'not null' => true),
-                    'failures' => array('type' => 'int', 'not null' => true, 'default' => 0),
-                    'created' => array('type' => 'datetime', 'not null' => true),
-                    'modified' => array('type' => 'timestamp', 'not null' => true),
-                ),
-                'primary key' => array('subscribed', 'url'),
-            ));
-         return true;
+        $schema->ensureTable(
+            'rsscloud_subscription',
+            RSSCloudSubscription::schemaDef()
+        );
+        return true;
     }
 
     /**
      * Register RSSCloud notice queue handler
      *
      * @param QueueManager $manager
-     *
-     * @return boolean hook return
+     * @return bool hook return
      */
-    function onEndInitializeQueueManager($manager)
+    public function onEndInitializeQueueManager(QueueManager $manager): bool
     {
         $manager->connect('rsscloud', 'RSSCloudQueueHandler');
         return true;
     }
 
+    /**
+     * Ensure that subscriptions for a user are deleted
+     * when that user gets deleted.
+     *
+     * @param User  $user
+     * @param array &$related list of related tables
+     *
+     * @return bool hook result
+     */
+    public function onUserDeleteRelated(User $user, array &$related): bool
+    {
+        $sub = new RSSCloudSubscription();
+        $sub->subscribed = $user->id;
+
+        if ($sub->find()) {
+            while ($sub->fetch()) {
+                $sub->delete();
+            }
+        }
+        $sub->free();
+        return true;
+    }
+
     public function onPluginVersion(array &$versions): bool
     {
-        $versions[] = array('name' => 'RSSCloud',
-                            'version' => RSSCLOUDPLUGIN_VERSION,
-                            'author' => 'Zach Copley',
-                            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/RSSCloud',
-                            'rawdescription' =>
-                            // TRANS: Plugin description.
-                            _m('The RSSCloud plugin enables your StatusNet instance to publish ' .
-                               'real-time updates for profile RSS feeds using the ' .
-                               '<a href="http://rsscloud.org/">RSSCloud protocol</a>.'));
+        $versions[] = [
+            'name'     => 'RSSCloud',
+            'version'  => RSSCLOUDPLUGIN_VERSION,
+            'author'   => 'Zach Copley',
+            'homepage' => GNUSOCIAL_ENGINE_REPO_URL . 'tree/master/plugins/RSSCloud',
+            'rawdescription' =>
+            // TRANS: Plugin description.
+            _m('The RSSCloud plugin enables your GNU social instance to '
+               . 'publish real-time updates for profile RSS feeds using the '
+               . '<a href="http://rsscloud.co/">rssCloud protocol</a>.'),
+        ];
 
         return true;
     }
