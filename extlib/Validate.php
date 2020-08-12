@@ -89,10 +89,9 @@ class Validate
      * This is an array of the known international
      * top-level domain names.
      *
-     * @access protected
-     * @var    array $_iTld (International top-level domains)
+     * @var array $itld (International top-level domains)
      */
-    public $_itld = [
+    protected static $itld = [
         'arpa',
         'root',
     ];
@@ -103,10 +102,9 @@ class Validate
      * This is an array of the official
      * generic top-level domains.
      *
-     * @access protected
-     * @var    array $_gTld (Generic top-level domains)
+     * @var array $gtld (Generic top-level domains)
      */
-    public $_gtld = [
+    protected static $gtld = [
         'aero',
         'biz',
         'cat',
@@ -137,10 +135,9 @@ class Validate
      * This is an array of the official country
      * codes top-level domains
      *
-     * @access protected
-     * @var    array $_ccTld (Country Code Top-Level Domain)
+     * @var array $cctld (Country Code Top-Level Domain)
      */
-    public $_cctld = [
+    protected static $cctld = [
         'ac',
         'ad', 'ae', 'af', 'ag',
         'ai', 'al', 'am', 'an',
@@ -218,7 +215,7 @@ class Validate
      * @access private
      * @throws Exception
      */
-    private function __uriRFC4151(string $uri): bool
+    private static function uriRFC4151(string $uri): bool
     {
         $datevalid = false;
         if (preg_match(
@@ -259,10 +256,8 @@ class Validate
      *                          'max'      maximum value
      *
      * @return bool true if valid number, false if not
-     *
-     * @access public
      */
-    public function number($number, array $options = []): bool
+    public static function number($number, array $options = []): bool
     {
         $decimal = $dec_prec = $min = $max = null;
         if (is_array($options)) {
@@ -297,10 +292,8 @@ class Validate
      * @param string $string string to be converted
      *
      * @return  string  converted string
-     *
-     * @access  private
      */
-    public function __stringToUtf7(string $string): string
+    private static function stringToUtf7(string $string): string
     {
         $return = '';
         $utf7 = [
@@ -375,10 +368,8 @@ class Validate
      * @param array $options email() options
      *
      * @return bool true if valid email, false if not
-     *
-     * @access private
      */
-    private function __emailRFC822(string &$email, array &$options): bool
+    private static function emailRFC822(string &$email, array &$options): bool
     {
         static $address = null;
         static $uncomment = null;
@@ -443,12 +434,12 @@ class Validate
      * @param string $email The email address to check.
      * @param array $options The options for validation
      *
-     * @access protected
-     *
      * @return bool True if validating succeeds
      */
-    public function _fullTLDValidation(string $email, array $options): bool
-    {
+    protected static function fullTLDValidation(
+        string $email,
+        array $options
+    ): bool {
         $validate = [];
         if (!empty($options["VALIDATE_ITLD_EMAILS"])) {
             array_push($validate, 'itld');
@@ -464,17 +455,15 @@ class Validate
             array_push($validate, 'itld', 'gtld', 'cctld');
         }
 
-        $self = new Validate;
-
         $toValidate = [];
 
         foreach ($validate as $valid) {
-            $tmpVar = '_' . (string)$valid;
+            $tmpVar = (string) $valid;
 
-            $toValidate[$valid] = $self->{$tmpVar};
+            $toValidate[$valid] = self::$$tmpVar;
         }
 
-        $e = $self->executeFullEmailValidation($email, $toValidate);
+        $e = self::executeFullEmailValidation($email, $toValidate);
 
         return $e;
     }
@@ -488,12 +477,12 @@ class Validate
      * @param string $email The email to validate.
      * @param array $arrayOfTLDs The array of the TLDs to validate
      *
-     * @access public
-     *
      * @return bool true or false (Depending on if it validates or if it does not)
      */
-    public function executeFullEmailValidation(string $email, array $arrayOfTLDs): bool
-    {
+    public static function executeFullEmailValidation(
+        string $email,
+        array $arrayOfTLDs
+    ): bool {
         $emailEnding = explode('.', $email);
         $emailEnding = $emailEnding[count($emailEnding) - 1];
         foreach ($arrayOfTLDs as $validator => $keys) {
@@ -525,10 +514,9 @@ class Validate
      *
      * @return bool true if valid email, false if not
      *
-     * @access public
      * @throws Exception
      */
-    public function email(string $email, $options = null): bool
+    public static function email(string $email, $options = null): bool
     {
         $check_domain = false;
         $use_rfc822 = false;
@@ -544,7 +532,7 @@ class Validate
          */
         $hasIDNA = false;
 
-        if (Validate::_includePathFileExists('Net/IDNA2.php')) {
+        if (self::includePathFileExists('Net/IDNA2.php')) {
             include_once('Net/IDNA2.php');
             $hasIDNA = true;
         }
@@ -572,8 +560,8 @@ class Validate
          *       The regular expression below
          */
         if (isset($fullTLDValidation)) {
-            //$valid = Validate::_fullTLDValidation($email, $fullTLDValidation);
-            $valid = Validate::_fullTLDValidation($email, $options);
+            //$valid = self::fullTLDValidation($email, $fullTLDValidation);
+            $valid = self::fullTLDValidation($email, $options);
 
             if (!$valid) {
                 return false;
@@ -592,7 +580,7 @@ class Validate
          $&xi';
 
         //checks if exists the domain (MX or A)
-        if ($use_rfc822 ? Validate::__emailRFC822($email, $options) :
+        if ($use_rfc822 ? self::emailRFC822($email, $options) :
             preg_match($regex, $email)) {
             if ($check_domain && function_exists('checkdnsrr')) {
                 $domain = preg_replace('/[^-a-z.0-9]/i', '', array_pop(explode('@', $email)));
@@ -617,10 +605,8 @@ class Validate
      *                          'max_length' maximum length
      *
      * @return bool true if valid string, false if not
-     *
-     * @access public
      */
-    public function string(string $string, $options): bool
+    public static function string(string $string, $options): bool
     {
         $format = null;
         $min_length = 0;
@@ -680,10 +666,9 @@ class Validate
      *
      * @return bool true if valid uri, false if not
      *
-     * @access public
      * @throws Exception
      */
-    public function uri(string $url, ?array $options = null): bool
+    public static function uri(string $url, ?array $options = null): bool
     {
         $strict = ';/?:@$,';
         $domain_check = false;
@@ -695,7 +680,7 @@ class Validate
             in_array("tag", $allowed_schemes)
         ) {
             if (strpos($url, "tag:") === 0) {
-                return self::__uriRFC4151($url);
+                return self::uriRFC4151($url);
             }
         }
 
@@ -751,12 +736,18 @@ class Validate
      * @param string $num Length
      * @param string|false $opt Unknown
      *
-     * @access private
      * @return string
      */
-    private function _substr(string &$date, string $num, $opt = false): string
-    {
-        if ($opt && strlen($date) >= $opt && preg_match('/^[0-9]{' . $opt . '}/', $date, $m)) {
+    private static function substr(
+        string &$date,
+        string $num,
+        $opt = false
+    ): string {
+        if (
+            $opt
+            && strlen($date) >= $opt
+            && preg_match('/^[0-9]{' . $opt . '}/', $date, $m)
+        ) {
             $ret = $m[0];
         } else {
             $ret = substr($date, 0, $num);
@@ -765,7 +756,7 @@ class Validate
         return $ret;
     }
 
-    public function _modf($val, $div)
+    protected static function modf($val, $div)
     {
         if (function_exists('bcmod')) {
             return bcmod($val, $div);
@@ -783,12 +774,12 @@ class Validate
      * @param string $number number string
      * @param array $weights reference to array of weights
      *
-     * @access protected
-     *
      * @return int returns product of number digits with weights
      */
-    public function _multWeights(string $number, array &$weights): int
-    {
+    protected static function multWeights(
+        string $number,
+        array &$weights
+    ): int {
         if (!is_array($weights)) {
             return -1;
         }
@@ -814,18 +805,21 @@ class Validate
      * @param int $subtract (optional) number
      * @param bool $allow_high (optional) true if function can return number higher than 10
      *
-     * @access protected
-     *
      * @return  int -1 calculated control number is returned
      */
-    public function _getControlNumber(string $number, array &$weights, int $modulo = 10, int $subtract = 0, bool $allow_high = false): int
-    {
+    protected static function getControlNumber(
+        string $number,
+        array &$weights,
+        int $modulo = 10,
+        int $subtract = 0,
+        bool $allow_high = false
+    ): int {
         // calc sum
-        $sum = Validate::_multWeights($number, $weights);
+        $sum = self::multWeights($number, $weights);
         if ($sum == -1) {
             return -1;
         }
-        $mod = Validate::_modf($sum, $modulo);  // calculate control digit
+        $mod = self::modf($sum, $modulo);  // calculate control digit
 
         if ($subtract > $mod && $mod > 0) {
             $mod = $subtract - $mod;
@@ -844,17 +838,26 @@ class Validate
      * @param int $modulo (optional) number
      * @param int $subtract (optional) number
      *
-     * @access protected
-     *
      * @return  bool true if valid, false if not
      */
-    public function _checkControlNumber(string $number, array &$weights, int $modulo = 10, int $subtract = 0): bool
+    protected static function checkControlNumber(
+        string $number,
+        array &$weights,
+        int $modulo = 10,
+        int $subtract = 0
+    ): bool
     {
         if (strlen($number) < count($weights)) {
             return false;
         }
         $target_digit = substr($number, count($weights), 1);
-        $control_digit = Validate::_getControlNumber($number, $weights, $modulo, $subtract, $modulo > 10);
+        $control_digit = self::getControlNumber(
+            $number,
+            $weights,
+            $modulo,
+            $subtract,
+            ($modulo > 10)
+        );
 
         if ($control_digit == -1) {
             return false;
@@ -882,11 +885,12 @@ class Validate
      * @param bool  $remove if set, the elements not listed in data will be removed
      *
      * @return array   value name => true|false    the value name comes from the data key
-     *
-     * @access public
      */
-    public function multiple(array &$data, array &$val_type, bool $remove = false): array
-    {
+    public static function multiple(
+        array &$data,
+        array &$val_type,
+        bool $remove = false
+    ): array {
         $keys = array_keys($data);
         $valid = [];
 
@@ -922,8 +926,8 @@ class Validate
                 $class = implode('_', $validateType);
                 $classPath = str_replace('_', DIRECTORY_SEPARATOR, $class);
                 $class = 'Validate_' . $class;
-                if (Validate::_includePathFileExists("Validate/$classPath.php")) {
-                    include_once "Validate/$classPath.php";
+                if (self::includePathFileExists("Validate/{$classPath}.php")) {
+                    include_once "Validate/{$classPath}.php";
                 } else {
                     trigger_error("$class isn't installed or you may have some permission issues", E_USER_ERROR);
                 }
@@ -963,11 +967,9 @@ class Validate
      *
      * @param string $filename file to search for
      *
-     * @access private
-     *
      * @return bool true if file exists
      */
-    private function _includePathFileExists(string $filename): bool
+    private static function includePathFileExists(string $filename): bool
     {
         $paths = explode(":", ini_get("include_path"));
         $result = false;
