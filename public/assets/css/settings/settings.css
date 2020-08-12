@@ -151,18 +151,23 @@ label {
 }
 
 label:nth-child() {
-    margin-top: var(--medium-size);
+      margin-top: var(--medium-size);
 }
 
 input[type=text] {
-    margin-top: calc(var(--unit-size) * 0.5);
-    width: calc(100% - var(--unit-size));
-    background-color: rgba(0, 0, 0, 0.30);
-    border-style: none;
-    padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
-    color: #F6F6F6;
-    border-radius: calc(var(--unit-size) * 0.5);
-    font-size: var(--medium-size);
+      margin-top: calc(var(--unit-size) * 0.5);
+      width: calc(100% - var(--unit-size));
+      background-color: rgba(0, 0, 0, 0.30);
+      border-style: none;
+      padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
+      color: #F6F6F6;
+      border-radius: calc(var(--unit-size) * 0.5);
+      font-size: var(--medium-size);
+}
+
+.form input[type=checkbox] {
+      float: left;
+      margin-right: calc(var(--unit-size) * 0.5);
 }
 
 button[type=submit] {
@@ -323,4 +328,10 @@ input[type=radio] {
       box-shadow: 0;
       border-radius: 0 0 var(--unit-size) var(--unit-size);
       font-size: var(--unit-size);
+}
+#form-tabs ul .form form{
+      width: 100%;
+}
+#form-tabs ul .form form div label {
+      margin-bottom: calc(var(--unit-size) * 0.5);
 }
