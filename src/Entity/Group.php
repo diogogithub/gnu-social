@@ -264,7 +264,7 @@ class Group
             'name'   => 'group',
             'fields' => [
                 'id'            => ['type' => 'serial',   'not null' => true],
-                'profile_id'    => ['type' => 'int',      'not null' => true, 'description' => 'foreign key to profile table'],
+                'gsactor_id'    => ['type' => 'int',      'not null' => true, 'description' => 'foreign key to gsactor table'],
                 'nickname'      => ['type' => 'varchar',  'length' => 64, 'description' => 'nickname for addressing'],
                 'fullname'      => ['type' => 'varchar',  'length' => 191, 'description' => 'display name'],
                 'homepage'      => ['type' => 'varchar',  'length' => 191, 'description' => 'URL, cached so we dont regenerate'],
@@ -272,7 +272,7 @@ class Group
                 'is_local'      => ['type' => 'bool',     'description' => 'whether this group was created in this instance'],
                 'location'      => ['type' => 'varchar',  'length' => 191, 'description' => 'related physical location, if any'],
                 'original_logo' => ['type' => 'varchar',  'length' => 191, 'description' => 'original size logo'],
-                'homepage_logo' => ['type' => 'varchar',  'length' => 191, 'description' => 'homepage (profile) size logo'],
+                'homepage_logo' => ['type' => 'varchar',  'length' => 191, 'description' => 'homepage (gsactor) size logo'],
                 'stream_logo'   => ['type' => 'varchar',  'length' => 191, 'description' => 'stream-sized logo'],
                 'mini_logo'     => ['type' => 'varchar',  'length' => 191, 'description' => 'mini logo'],
                 'uri'           => ['type' => 'varchar',  'length' => 191, 'description' => 'universal identifier'],
@@ -285,14 +285,14 @@ class Group
             'primary key' => ['id'],
             'unique keys' => [
                 'user_group_uri_key'  => ['uri'],
-                'user_profile_id_key' => ['profile_id'],
+                'user_gsactor_id_key' => ['gsactor_id'],
             ],
             'foreign keys' => [
-                'user_group_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'user_group_id_fkey' => ['gsactor', ['gsactor_id' => 'id']],
             ],
             'indexes' => [
                 'user_group_nickname_idx'   => ['nickname'],
-                'user_group_profile_id_idx' => ['profile_id'],
+                'user_group_gsactor_id_idx' => ['gsactor_id'],
             ],
         ];
     }

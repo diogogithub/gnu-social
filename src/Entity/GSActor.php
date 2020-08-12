@@ -26,7 +26,7 @@ use DateTimeInterface;
 use Functional as F;
 
 /**
- * Entity for user profiles
+ * Entity for actors
  *
  * @category  DB
  * @package   GNUsocial
@@ -39,7 +39,7 @@ use Functional as F;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Profile extends Entity
+class GSActor extends Entity
 {
     // {{{ Autocode
 
@@ -204,12 +204,12 @@ class Profile extends Entity
 
     public static function getFromId(int $id): ?self
     {
-        return DB::find('profile', ['id' => $id]);
+        return DB::find('gsactor', ['id' => $id]);
     }
 
     public static function getFromNickname(string $nickname): ?self
     {
-        return DB::findOneBy('profile', ['nickname' => $nickname]);
+        return DB::findOneBy('gsactor', ['nickname' => $nickname]);
     }
 
     public static function getNicknameFromId(int $id): string
@@ -219,7 +219,7 @@ class Profile extends Entity
 
     public function getSelfTags(): array
     {
-        return DB::findBy('profile_tag', ['tagger' => $this->id, 'tagged' => $this->id]);
+        return DB::findBy('gsactor_tag', ['tagger' => $this->id, 'tagged' => $this->id]);
     }
 
     public function setSelfTags(array $tags, array $pt_existing): void
@@ -229,7 +229,7 @@ class Profile extends Entity
         $tag_to_remove = array_diff($tag_existing, $tags);
         $pt_to_remove  = F\filter($pt_existing, function ($pt) use ($tag_to_remove) { return in_array($pt->getTag(), $tag_to_remove); });
         foreach ($tag_to_add as $tag) {
-            $pt = new ProfileTag($this->id, $this->id, $tag);
+            $pt = new GSActorTag($this->id, $this->id, $tag);
             DB::persist($pt);
         }
         foreach ($pt_to_remove as $pt) {
@@ -240,13 +240,13 @@ class Profile extends Entity
     public static function schemaDef(): array
     {
         $def = [
-            'name'        => 'profile',
-            'description' => 'local and remote users have profiles',
+            'name'        => 'gsactor',
+            'description' => 'local and remote users, groups and bots are gsactors, for instance',
             'fields'      => [
                 'id'               => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
                 'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
                 'fullname'         => ['type' => 'text', 'description' => 'display name'],
-                'roles'            => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this profile has'],
+                'roles'            => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this gsactor has'],
                 'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
                 'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
                 'location'         => ['type' => 'text', 'description' => 'physical location'],
@@ -259,10 +259,10 @@ class Profile extends Entity
             ],
             'primary key' => ['id'],
             'indexes'     => [
-                'profile_nickname_idx' => ['nickname'],
+                'gsactor_nickname_idx' => ['nickname'],
             ],
             'fulltext indexes' => [
-                'profile_fulltext_idx' => ['nickname', 'fullname', 'location', 'bio', 'homepage']
+                'gsactor_fulltext_idx' => ['nickname', 'fullname', 'location', 'bio', 'homepage'],
             ],
         ];
 

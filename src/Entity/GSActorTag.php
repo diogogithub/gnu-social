@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for Notices sources
+ * Entity for GSActor Tag
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,58 +35,46 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ActivitySource
+class GSActorTag
 {
     // {{{ Autocode
 
-    private string $code;
-    private string $name;
-    private string $url;
-    private \DateTimeInterface $created;
+    private int $tagger;
+    private int $tagged;
+    private string $tag;
     private \DateTimeInterface $modified;
 
-    public function setCode(string $code): self
+    public function setTagger(int $tagger): self
     {
-        $this->code = $code;
+        $this->tagger = $tagger;
         return $this;
     }
 
-    public function getCode(): string
+    public function getTagger(): int
     {
-        return $this->code;
+        return $this->tagger;
     }
 
-    public function setName(string $name): self
+    public function setTagged(int $tagged): self
     {
-        $this->name = $name;
+        $this->tagged = $tagged;
         return $this;
     }
 
-    public function getName(): string
+    public function getTagged(): int
     {
-        return $this->name;
+        return $this->tagged;
     }
 
-    public function setUrl(string $url): self
+    public function setTag(string $tag): self
     {
-        $this->url = $url;
+        $this->tag = $tag;
         return $this;
     }
 
-    public function getUrl(): string
+    public function getTag(): string
     {
-        return $this->url;
-    }
-
-    public function setCreated(DateTimeInterface $created): self
-    {
-        $this->created = $created;
-        return $this;
-    }
-
-    public function getCreated(): DateTimeInterface
-    {
-        return $this->created;
+        return $this->tag;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -105,15 +93,28 @@ class ActivitySource
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'activity_source',
+            'name'   => 'gsactor_tag',
             'fields' => [
-                'code'     => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'code identifier'],
-                'name'     => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'name of the source'],
-                'url'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'url to link to'],
-                'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'tagger'   => ['type' => 'int', 'not null' => true, 'description' => 'user making the tag'],
+                'tagged'   => ['type' => 'int', 'not null' => true, 'description' => 'gsactor tagged'],
+                'tag'      => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['code'],
+            'primary key'  => ['tagger', 'tagged', 'tag'],
+            'foreign keys' => [
+                'gsactor_tag_tagger_fkey' => ['gsactor', ['tagger' => 'id']],
+                'gsactor_tag_tagged_fkey' => ['gsactor', ['tagged' => 'id']],
+            ],
+            'indexes' => [
+                'gsactor_tag_modified_idx'   => ['modified'],
+                'gsactor_tag_tagger_tag_idx' => ['tagger', 'tag'], // For Circles
+                'gsactor_tag_tagged_idx'     => ['tagged'],
+            ],
         ];
+    }
+
+    public function __toString()
+    {
+        return $this->tag;
     }
 }

@@ -84,17 +84,17 @@ class GroupJoinQueue
             'name'        => 'group_join_queue',
             'description' => 'Holder for group join requests awaiting moderation.',
             'fields'      => [
-                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'remote or local profile making the request'],
+                'gsactor_id' => ['type' => 'int', 'not null' => true, 'description' => 'remote or local gsactor making the request'],
                 'group_id'   => ['type' => 'int', 'not null' => true, 'description' => 'remote or local group to join, if any'],
                 'created'    => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
-            'primary key' => ['profile_id', 'group_id'],
+            'primary key' => ['gsactor_id', 'group_id'],
             'indexes'     => [
-                'group_join_queue_profile_id_created_idx' => ['profile_id', 'created'],
+                'group_join_queue_gsactor_id_created_idx' => ['gsactor_id', 'created'],
                 'group_join_queue_group_id_created_idx'   => ['group_id', 'created'],
             ],
             'foreign keys' => [
-                'group_join_queue_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'group_join_queue_gsactor_id_fkey' => ['gsactor', ['gsactor_id' => 'id']],
                 'group_join_queue_group_id_fkey'   => ['group', ['group_id' => 'id']],
             ],
         ];

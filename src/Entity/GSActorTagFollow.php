@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for Data class for Profile preferences
+ * Entity for Gsactor Tag Subscription
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,16 +35,25 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ProfilePrefs
+class GSActorTagFollow
 {
     // {{{ Autocode
 
+    private int $profile_tag_id;
     private int $profile_id;
-    private string $namespace;
-    private string $topic;
-    private $data;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
+
+    public function setProfileTagId(int $profile_tag_id): self
+    {
+        $this->profile_tag_id = $profile_tag_id;
+        return $this;
+    }
+
+    public function getProfileTagId(): int
+    {
+        return $this->profile_tag_id;
+    }
 
     public function setProfileId(int $profile_id): self
     {
@@ -55,39 +64,6 @@ class ProfilePrefs
     public function getProfileId(): int
     {
         return $this->profile_id;
-    }
-
-    public function setNamespace(string $namespace): self
-    {
-        $this->namespace = $namespace;
-        return $this;
-    }
-
-    public function getNamespace(): string
-    {
-        return $this->namespace;
-    }
-
-    public function setTopic(string $topic): self
-    {
-        $this->topic = $topic;
-        return $this;
-    }
-
-    public function getTopic(): string
-    {
-        return $this->topic;
-    }
-
-    public function setData($data): self
-    {
-        $this->data = $data;
-        return $this;
-    }
-
-    public function getData()
-    {
-        return $this->data;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -117,21 +93,21 @@ class ProfilePrefs
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'profile_prefs',
+            'name'   => 'gsactor_tag_follow',
             'fields' => [
-                'profile_id' => ['type' => 'int', 'not null' => true, 'description' => 'user'],
-                'namespace'  => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'namespace, like pluginname or category'],
-                'topic'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'preference key, i.e. description, age...'],
-                'data'       => ['type' => 'blob', 'description' => 'topic data, may be anything'],
-                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'gsactor_tag_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to gsactor_tag'],
+                'gsactor_id'     => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'created'        => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'       => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['profile_id', 'namespace', 'topic'],
+            'primary key'  => ['gsactor_tag_id', 'gsactor_id'],
             'foreign keys' => [
-                'profile_prefs_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'gsactor_tag_follow_gsactor_list_id_fkey' => ['gsactor_list', ['gsactor_tag_id' => 'id']],
+                'gsactor_tag_follow_gsactor_id_fkey'      => ['gsactor', ['gsactor_id' => 'id']],
             ],
             'indexes' => [
-                'profile_prefs_profile_id_idx' => ['profile_id'],
+                'gsactor_tag_follow_gsactor_id_idx' => ['gsactor_id'],
+                'gsactor_tag_follow_created_idx'    => ['created'],
             ],
         ];
     }

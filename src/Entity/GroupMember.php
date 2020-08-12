@@ -120,24 +120,24 @@ class GroupMember
             'name'   => 'group_member',
             'fields' => [
                 'group_id'   => ['type' => 'int', 'not null' => true,  'description' => 'foreign key to group table'],
-                'profile_id' => ['type' => 'int', 'not null' => true,  'description' => 'foreign key to profile table'],
+                'gsactor_id' => ['type' => 'int', 'not null' => true,  'description' => 'foreign key to gsactor table'],
                 'is_admin'   => ['type' => 'bool', 'default' => false, 'description' => 'is this user an admin?'],
                 'uri'        => ['type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'],
                 'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['group_id', 'profile_id'],
+            'primary key' => ['group_id', 'gsactor_id'],
             'unique keys' => [
                 'group_member_uri_key' => ['uri'],
             ],
             'foreign keys' => [
                 'group_member_group_id_fkey'   => ['group', ['group_id' => 'id']],
-                'group_member_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'group_member_gsactor_id_fkey' => ['gsactor', ['gsactor_id' => 'id']],
             ],
             'indexes' => [
-                'group_member_profile_id_idx'         => ['profile_id'],
+                'group_member_gsactor_id_idx'         => ['gsactor_id'],
                 'group_member_created_idx'            => ['created'],
-                'group_member_profile_id_created_idx' => ['profile_id', 'created'],
+                'group_member_gsactor_id_created_idx' => ['gsactor_id', 'created'],
                 'group_member_group_id_created_idx'   => ['group_id', 'created'],
             ],
         ];

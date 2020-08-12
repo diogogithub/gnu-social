@@ -17,12 +17,8 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
-
-use DateTimeInterface;
-
 /**
- * Entity for List of profiles
+ * Entity for List of gsactors
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,7 +31,12 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ProfileList
+
+namespace App\Entity;
+
+use DateTimeInterface;
+
+class GSActorCircle
 {
     // {{{ Autocode
 
@@ -177,34 +178,30 @@ class ProfileList
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'profile_list',
-            'description' => 'a profile can have lists of profiles, to separate their timeline',
+            'name'        => 'gsactor_list',
+            'description' => 'a gsactor can have lists of gsactors, to separate their timeline',
             'fields'      => [
-                'id'             => ['type' => 'int', 'not null' => true, 'description' => 'unique identifier'],
-                'tagger'         => ['type' => 'int', 'not null' => true, 'description' => 'user making the tag'],
-                'tag'            => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'people tag'],
-                'description'    => ['type' => 'text', 'description' => 'description of the people tag'],
-                'private'        => ['type' => 'bool', 'default' => false, 'description' => 'is this tag private'],
-                'uri'            => ['type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'],
-                'mainpage'       => ['type' => 'varchar', 'length' => 191, 'description' => 'page to link to'],
-                'tagged_count'   => ['type' => 'int', 'default' => 0, 'description' => 'number of people tagged with this tag by this user'],
-                'follower_count' => ['type' => 'int', 'default' => 0, 'description' => 'number of followers to this tag'],
-                'created'        => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'       => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'          => ['type' => 'int', 'not null' => true, 'description' => 'unique identifier'],
+                'tagger'      => ['type' => 'int', 'not null' => true, 'description' => 'user making the tag'],
+                'tag'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'gsactor tag'], // Join with GSActorTag
+                'description' => ['type' => 'text', 'description' => 'description of the people tag'],
+                'private'     => ['type' => 'bool', 'default' => false, 'description' => 'is this tag private'],
+                'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['tagger', 'tag'],
             'unique keys' => [
-                'profile_list_id_key' => ['id'],
+                'gsactor_list_id_key' => ['id'],
             ],
             'foreign keys' => [
-                'profile_list_tagger_fkey' => ['profile', ['tagger' => 'id']],
+                'gsactor_list_tagger_fkey' => ['gsactor', ['tagger' => 'id']],
             ],
             'indexes' => [
-                'profile_list_modified_idx'       => ['modified'],
-                'profile_list_tag_idx'            => ['tag'],
-                'profile_list_tagger_tag_idx'     => ['tagger', 'tag'],
-                'profile_list_tagged_count_idx'   => ['tagged_count'],
-                'profile_list_follower_count_idx' => ['follower_count'],
+                'gsactor_list_modified_idx'       => ['modified'],
+                'gsactor_list_tag_idx'            => ['tag'],
+                'gsactor_list_tagger_tag_idx'     => ['tagger', 'tag'],
+                'gsactor_list_tagged_count_idx'   => ['tagged_count'],
+                'gsactor_list_follower_count_idx' => ['follower_count'],
             ],
         ];
     }
