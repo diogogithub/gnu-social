@@ -1,44 +1,40 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Data class to mark notices as bookmarks
  *
- * PHP version 5
- *
- * @category Data
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * @category  Data
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * For storing the fact that a notice is a bookmark
  *
- * @category Bookmark
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @category  Bookmark
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      DB_DataObject
+ * @see       DB_DataObject
  */
 class Bookmark extends Managed_DataObject
 {
@@ -92,7 +88,7 @@ class Bookmark extends Managed_DataObject
      * @return  Bookmark            The found bookmark object.
      * @throws  NoResultException   When you don't find it after all.
      */
-    static public function fromStored(Notice $stored)
+    public static function fromStored(Notice $stored)
     {
         return self::getByPK(array('uri' => $stored->getUri()));
     }
@@ -133,7 +129,7 @@ class Bookmark extends Managed_DataObject
      *
      * @return Bookmark bookmark found or null
      */
-    static function getByURL(Profile $profile, $url)
+    public static function getByURL(Profile $profile, $url)
     {
         $nb = new Bookmark();
 
@@ -157,8 +153,10 @@ class Bookmark extends Managed_DataObject
      *
      * @return Bookmark the Bookmark object
      */
-    static function saveActivityObject(ActivityObject $actobj, Notice $stored)
-    {
+    public static function saveActivityObject(
+        ActivityObject $actobj,
+        Notice $stored
+    ): self {
         $url = null;
         // each extra element is array('tagname', array('attr'=>'val', ...), 'content')
         foreach ($actobj->extra as $extra) {
@@ -277,8 +275,14 @@ class Bookmark extends Managed_DataObject
      *
      * @return Notice saved notice
      */
-    static function addNew(Profile $actor, $title, $url, array $rawtags, $description, array $options=array())
-    {
+    public static function addNew(
+        Profile $actor,
+        $title,
+        $url,
+        array $rawtags,
+        $description,
+        array $options = []
+    ) {
         $act        = new Activity();
         $act->verb  = ActivityVerb::POST;
         $act->time  = time();
@@ -336,15 +340,17 @@ class Bookmark extends Managed_DataObject
         // TRANS: Rendered bookmark content.
         // TRANS: %1$s is a URL, %2$s the bookmark title, %3$s is the bookmark description,
         // TRANS: %4$s is space separated list of hash tags.
-        $actobj->content = sprintf(_m('<span class="xfolkentry">'.
-                                      '<a class="taggedlink" href="%1$s">%2$s</a> '.
-                                      '<span class="description">%3$s</span> '.
-                                      '<span class="meta">%4$s</span>'.
-                                      '</span>'),
-                                    htmlspecialchars($url),
-                                    htmlspecialchars($title),
-                                    htmlspecialchars($description),
-                                    implode(' ', $taglinks));
+        $actobj->content = sprintf(
+            _m('<span class="xfolkentry">'
+               . '<a class="taggedlink" href="%1$s">%2$s</a> '
+               . '<span class="description">%3$s</span> '
+               . '<span class="meta">%4$s</span>'
+               . '</span>'),
+            htmlspecialchars($url),
+            htmlspecialchars($title),
+            htmlspecialchars($description),
+            implode(' ', $taglinks)
+        );
 
         foreach ($tags as $term) {
             $catEl = new AtomCategory();
@@ -352,12 +358,13 @@ class Bookmark extends Managed_DataObject
             $activity->categories[] = $catEl;
         }
 
-        $options = array_merge(array('urls' => array($url),
-                                     'rendered' => $rendered,
-                                     'tags' => $tags,
-                                     'replies' => $replies,
-                                     'object_type' => ActivityObject::BOOKMARK),
-                               $options);
+        $options = array_merge([
+            'urls' => [$url],
+            'rendered' => $actobj->content,
+            'tags' => $tags,
+            'replies' => $replies,
+            'object_type' => ActivityObject::BOOKMARK,
+        ], $options);
 
         return Notice::saveActivity($act, $actor, $options);
     }
