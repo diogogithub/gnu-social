@@ -20,9 +20,9 @@
 namespace App\Entity;
 
 use App\Core\DB\DB;
+use App\Core\Entity;
 use App\Core\UserRoles;
 use App\Util\Common;
-use DateTime;
 use DateTimeInterface;
 use Exception;
 use libphonenumber\PhoneNumber;
@@ -42,7 +42,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class LocalUser implements UserInterface
+class LocalUser extends Entity implements UserInterface
 {
     // {{{ Autocode
 
@@ -241,59 +241,6 @@ class LocalUser implements UserInterface
 
     // }}} Autocode
 
-    public function __construct(string $nickname, string $email, string $password)
-    {
-        $this->nickname       = $nickname;
-        $this->outgoing_email = $email;
-        $this->incoming_email = $email;
-        $this->changePassword($password, true);
-        // TODO auto update created and modified
-        $this->created  = new DateTime();
-        $this->modified = new DateTime();
-    }
-
-    public static function schemaDef(): array
-    {
-        return [
-            'name'        => 'local_user',
-            'description' => 'local users',
-            'fields'      => [
-                'nickname'          => ['type' => 'varchar', 'length' => 64,  'description' => 'nickname or username, duped in profile'],
-                'password'          => ['type' => 'varchar', 'length' => 191, 'description' => 'salted password, can be null for OpenID users'],
-                'outgoing_email'    => ['type' => 'varchar', 'length' => 191, 'description' => 'email address for password recovery, notifications, etc.'],
-                'incoming_email'    => ['type' => 'varchar', 'length' => 191, 'description' => 'email address for post-by-email'],
-                'is_email_verified' => ['type' => 'bool', 'default' => false, 'description' => 'Whether the user opened the comfirmation email'],
-                'language'          => ['type' => 'varchar', 'length' => 50,  'description' => 'preferred language'],
-                'timezone'          => ['type' => 'varchar', 'length' => 50,  'description' => 'timezone'],
-                'phone_number'      => ['type' => 'phone_number', 'description' => 'phone number'],
-                'sms_carrier'       => ['type' => 'int', 'description' => 'foreign key to sms_carrier'],
-                'sms_email'         => ['type' => 'varchar', 'length' => 191, 'description' => 'built from sms and carrier (see sms_carrier)'],
-                'uri'               => ['type' => 'varchar', 'length' => 191, 'description' => 'universally unique identifier, usually a tag URI'],
-                'auto_follow_back'  => ['type' => 'bool', 'default' => false, 'description' => 'automatically follow users who follow us'],
-                'follow_policy'     => ['type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => '0 = anybody can follow; 1 = require approval'],
-                'is_stream_private' => ['type' => 'bool', 'default' => false, 'description' => 'whether to limit all notices to followers only'],
-                'created'           => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'          => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
-            ],
-            'primary key' => ['nickname'],
-            'unique keys' => [
-                'user_outgoing_email_key' => ['outgoing_email'],
-                'user_incoming_email_key' => ['incoming_email'],
-                'user_phone_number_key'   => ['phone_number'],
-                'user_uri_key'            => ['uri'],
-            ],
-            'foreign keys' => [
-                'user_nickname_fkey' => ['profile', ['nickname' => 'nickname']],
-                'user_carrier_fkey'  => ['sms_carrier', ['sms_carrier' => 'id']],
-            ],
-            'indexes' => [
-                'user_nickname_idx'  => ['nickname'],
-                'user_created_idx'   => ['created'],
-                'user_sms_email_idx' => ['sms_email'],
-            ],
-        ];
-    }
-
     public function getProfile()
     {
         return DB::findOneBy('profile', ['nickname' => $this->nickname]);
@@ -389,5 +336,47 @@ class LocalUser implements UserInterface
         default:
             throw new Exception('Unsupported or unsafe hashing algorithm requested');
         }
+    }
+
+    public static function schemaDef(): array
+    {
+        return [
+            'name'        => 'local_user',
+            'description' => 'local users, bots, etc',
+            'fields'      => [
+                'nickname'          => ['type' => 'varchar', 'length' => 64,  'description' => 'nickname or username, duped in profile'],
+                'password'          => ['type' => 'varchar', 'length' => 191, 'description' => 'salted password, can be null for OpenID users'],
+                'outgoing_email'    => ['type' => 'varchar', 'length' => 191, 'description' => 'email address for password recovery, notifications, etc.'],
+                'incoming_email'    => ['type' => 'varchar', 'length' => 191, 'description' => 'email address for post-by-email'],
+                'is_email_verified' => ['type' => 'bool', 'default' => false, 'description' => 'Whether the user opened the comfirmation email'],
+                'language'          => ['type' => 'varchar', 'length' => 50,  'description' => 'preferred language'],
+                'timezone'          => ['type' => 'varchar', 'length' => 50,  'description' => 'timezone'],
+                'phone_number'      => ['type' => 'phone_number', 'description' => 'phone number'],
+                'sms_carrier'       => ['type' => 'int', 'description' => 'foreign key to sms_carrier'],
+                'sms_email'         => ['type' => 'varchar', 'length' => 191, 'description' => 'built from sms and carrier (see sms_carrier)'],
+                'uri'               => ['type' => 'varchar', 'length' => 191, 'description' => 'universally unique identifier, usually a tag URI'],
+                'auto_follow_back'  => ['type' => 'bool', 'default' => false, 'description' => 'automatically follow users who follow us'],
+                'follow_policy'     => ['type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => '0 = anybody can follow; 1 = require approval'],
+                'is_stream_private' => ['type' => 'bool', 'default' => false, 'description' => 'whether to limit all notices to followers only'],
+                'created'           => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'          => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+            ],
+            'primary key' => ['nickname'],
+            'unique keys' => [
+                'user_outgoing_email_key' => ['outgoing_email'],
+                'user_incoming_email_key' => ['incoming_email'],
+                'user_phone_number_key'   => ['phone_number'],
+                'user_uri_key'            => ['uri'],
+            ],
+            'foreign keys' => [
+                'user_nickname_fkey' => ['profile', ['nickname' => 'nickname']],
+                'user_carrier_fkey'  => ['sms_carrier', ['sms_carrier' => 'id']],
+            ],
+            'indexes' => [
+                'user_nickname_idx'  => ['nickname'],
+                'user_created_idx'   => ['created'],
+                'user_sms_email_idx' => ['sms_email'],
+            ],
+        ];
     }
 }
