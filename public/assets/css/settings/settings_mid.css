@@ -135,10 +135,6 @@ label {
       width: 100%;
 }
 
-label:nth-child(n) {
-      margin-top: var(--medium-size);
-}
-
 input[type=text] {
       margin-top: calc(var(--unit-size) * 0.5);
       width: calc(100% - var(--unit-size));
@@ -310,7 +306,7 @@ input[type=radio] {
       margin-left: 0;
       margin-right: 0;
       margin-top: 0;
-      box-shadow: unset;
+      box-shadow: 0;
       border-radius: 0 0 var(--unit-size) var(--unit-size);
       font-size: var(--unit-size);
 }
