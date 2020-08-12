@@ -160,10 +160,20 @@ class Memcached_DataObject extends Safe_DataObject
      *
      * @return array Array mapping $keyVals to objects, or null if not found
      */
-    public static function pivotGetClass($cls, $keyCol, array $keyVals, array $otherCols = [])
-    {
+    public static function pivotGetClass(
+        $cls,
+        $keyCol,
+        array $keyVals,
+        array $otherCols = []
+    ) {
         if (is_array($keyCol)) {
             foreach ($keyVals as $keyVal) {
+                if (!is_array($keyVal)) {
+                    throw new ServerException(
+                        'keyVals passed to pivotGet must be an array of arrays '
+                        . 'if keyCol is an array'
+                    );
+                }
                 $result[implode(',', $keyVal)] = null;
             }
         } else {
@@ -595,7 +605,7 @@ class Memcached_DataObject extends Safe_DataObject
         return $ckeys;
     }
 
-    public static function multicache($cls, $kv)
+    public static function multicache($cls, array $kv)
     {
         ksort($kv);
         $c = self::memcache();
@@ -606,7 +616,7 @@ class Memcached_DataObject extends Safe_DataObject
         }
     }
 
-    public static function multicacheKey($cls, $kv)
+    public static function multicacheKey($cls, array $kv)
     {
         ksort($kv);
         $pkeys = implode(',', array_keys($kv));
