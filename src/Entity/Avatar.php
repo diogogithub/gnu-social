@@ -100,7 +100,7 @@ class Avatar extends Entity
 
     public function getUrl(): string
     {
-        return Router::url('avatar', ['nickname' => Profile::getNicknameFromId($this->profile_id)]);
+        return Router::url('avatar', ['nickname' => GSActor::getNicknameFromId($this->gsactor_id)]);
     }
 
     public function getFile(): File
@@ -128,7 +128,7 @@ class Avatar extends Entity
         if (!$cascading) {
             $files = $this->getFile()->delete($cascade = true, $file_flush = false, $delete_files_now);
         } else {
-            DB::remove(DB::getReference('avatar', ['profile_id' => $this->profile_id]));
+            DB::remove(DB::getReference('avatar', ['gsactor_id' => $this->gsactor_id]));
             $file_path = $this->getFilePath();
             $files[]   = $file_path;
             if ($flush) {
@@ -144,14 +144,14 @@ class Avatar extends Entity
         return [
             'name'   => 'avatar',
             'fields' => [
-                'profile_id' => ['type' => 'int',       'not null' => true, 'description' => 'foreign key to profile table'],
+                'gsactor_id' => ['type' => 'int',       'not null' => true, 'description' => 'foreign key to gsactor table'],
                 'file_id'    => ['type' => 'int',       'not null' => true, 'description' => 'foreign key to file table'],
                 'created'    => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
                 'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
-            'primary key'  => ['profile_id'],
+            'primary key'  => ['gsactor_id'],
             'foreign keys' => [
-                'avatar_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'avatar_gsactor_id_fkey' => ['gsactor', ['gsactor_id' => 'id']],
                 'avatar_file_id_fkey'    => ['file', ['file_id' => 'id']],
             ],
             'indexes' => [

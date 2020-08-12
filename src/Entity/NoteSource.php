@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for Profile Tag Subscription
+ * Entity for Notices sources
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,35 +35,47 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ProfileTagFollow
+class NoteSource
 {
     // {{{ Autocode
 
-    private int $profile_tag_id;
-    private int $profile_id;
+    private string $code;
+    private string $name;
+    private string $url;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
-    public function setProfileTagId(int $profile_tag_id): self
+    public function setCode(string $code): self
     {
-        $this->profile_tag_id = $profile_tag_id;
+        $this->code = $code;
         return $this;
     }
 
-    public function getProfileTagId(): int
+    public function getCode(): string
     {
-        return $this->profile_tag_id;
+        return $this->code;
     }
 
-    public function setProfileId(int $profile_id): self
+    public function setName(string $name): self
     {
-        $this->profile_id = $profile_id;
+        $this->name = $name;
         return $this;
     }
 
-    public function getProfileId(): int
+    public function getName(): string
     {
-        return $this->profile_id;
+        return $this->name;
+    }
+
+    public function setUrl(string $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->url;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -93,23 +105,14 @@ class ProfileTagFollow
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'profile_tag_follow',
+            'name'   => 'note_source',
             'fields' => [
-                'profile_tag_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to profile_tag'],
-                'profile_id'     => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to profile table'],
-                'created'        => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'       => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'code'     => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'code identifier'],
+                'name'     => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'name of the source'],
+                'url'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'url to link to'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['profile_tag_id', 'profile_id'],
-            'foreign keys' => [
-                'profile_tag_follow_profile_list_id_fkey' => ['profile_list', ['profile_tag_id' => 'id']],
-                'profile_tag_follow_profile_id_fkey'      => ['profile', ['profile_id' => 'id']],
-            ],
-            'indexes' => [
-                // @fixme probably we want a (profile_id, created) index here?
-                'profile_tag_follow_profile_id_idx' => ['profile_id'],
-                'profile_tag_follow_created_idx'    => ['created'],
-            ],
+            'primary key' => ['code'],
         ];
     }
 }

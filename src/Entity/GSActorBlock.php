@@ -19,11 +19,10 @@
 
 namespace App\Entity;
 
-use DateTime;
 use DateTimeInterface;
 
 /**
- * Entity for Profile Tag
+ * Entity for User's GSActor Block
  *
  * @category  DB
  * @package   GNUsocial
@@ -36,46 +35,34 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ProfileTag
+class GSActorBlock
 {
     // {{{ Autocode
 
-    private int $tagger;
-    private int $tagged;
-    private string $tag;
+    private int $blocker;
+    private int $blocked;
     private \DateTimeInterface $modified;
 
-    public function setTagger(int $tagger): self
+    public function setBlocker(int $blocker): self
     {
-        $this->tagger = $tagger;
+        $this->blocker = $blocker;
         return $this;
     }
 
-    public function getTagger(): int
+    public function getBlocker(): int
     {
-        return $this->tagger;
+        return $this->blocker;
     }
 
-    public function setTagged(int $tagged): self
+    public function setBlocked(int $blocked): self
     {
-        $this->tagged = $tagged;
+        $this->blocked = $blocked;
         return $this;
     }
 
-    public function getTagged(): int
+    public function getBlocked(): int
     {
-        return $this->tagged;
-    }
-
-    public function setTag(string $tag): self
-    {
-        $this->tag = $tag;
-        return $this;
-    }
-
-    public function getTag(): string
-    {
-        return $this->tag;
+        return $this->blocked;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -91,39 +78,20 @@ class ProfileTag
 
     // }}} Autocode
 
-    public function __construct(int $tagger, int $tagged, string $tag)
-    {
-        $this->tagger   = $tagger;
-        $this->tagged   = $tagged;
-        $this->tag      = preg_replace('/ /', '_', trim($tag));
-        $this->modified = new DateTime();
-    }
-
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'profile_tag',
+            'name'   => 'gsactor_block',
             'fields' => [
-                'tagger'   => ['type' => 'int', 'not null' => true, 'description' => 'user making the tag'],
-                'tagged'   => ['type' => 'int', 'not null' => true, 'description' => 'profile tagged'],
-                'tag'      => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'],
+                'blocker'  => ['type' => 'int', 'not null' => true, 'description' => 'user making the block'],
+                'blocked'  => ['type' => 'int', 'not null' => true, 'description' => 'gsactor that is blocked'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['tagger', 'tagged', 'tag'],
+            'primary key'  => ['blocker', 'blocked'],
             'foreign keys' => [
-                'profile_tag_tagger_fkey' => ['profile', ['tagger' => 'id']],
-                'profile_tag_tagged_fkey' => ['profile', ['tagged' => 'id']],
-            ],
-            'indexes' => [
-                'profile_tag_modified_idx'   => ['modified'],
-                'profile_tag_tagger_tag_idx' => ['tagger', 'tag'],
-                'profile_tag_tagged_idx'     => ['tagged'],
+                'gsactor_block_blocker_fkey' => ['local_user', ['blocker' => 'id']],
+                'gsactor_block_blocked_fkey' => ['gsactor', ['blocked' => 'id']],
             ],
         ];
-    }
-
-    public function __toString()
-    {
-        return $this->tag;
     }
 }

@@ -81,11 +81,11 @@ class FollowQueue
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'Follow_queue',
+            'name'        => 'follow_queue',
             'description' => 'Holder for Follow requests awaiting moderation.',
             'fields'      => [
-                'follower' => ['type' => 'int', 'not null' => true, 'description' => 'remote or local profile making the request'],
-                'followed' => ['type' => 'int', 'not null' => true, 'description' => 'remote or local profile being followed to'],
+                'follower' => ['type' => 'int', 'not null' => true, 'description' => 'gsactor making the request'],
+                'followed' => ['type' => 'int', 'not null' => true, 'description' => 'gsactor being followed'],
                 'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key' => ['follower', 'followed'],
@@ -94,8 +94,8 @@ class FollowQueue
                 'Follow_queue_followed_created_idx' => ['followed', 'created'],
             ],
             'foreign keys' => [
-                'Follow_queue_follower_fkey' => ['profile', ['follower' => 'id']],
-                'Follow_queue_followed_fkey' => ['profile', ['followed' => 'id']],
+                'Follow_queue_follower_fkey' => ['gsactor', ['follower' => 'id']],
+                'Follow_queue_followed_fkey' => ['gsactor', ['followed' => 'id']],
             ],
         ];
     }

@@ -241,9 +241,9 @@ class LocalUser extends Entity implements UserInterface
 
     // }}} Autocode
 
-    public function getProfile()
+    public function getActor()
     {
-        return DB::findOneBy('profile', ['nickname' => $this->nickname]);
+        return DB::findOneBy('gsactor', ['nickname' => $this->nickname]);
     }
 
     /**
@@ -251,7 +251,7 @@ class LocalUser extends Entity implements UserInterface
      */
     public function getRoles()
     {
-        return UserRoles::bitmapToStrings($this->getProfile()->getRoles());
+        return UserRoles::bitmapToStrings($this->getActor()->getRoles());
     }
 
     /**
@@ -344,8 +344,8 @@ class LocalUser extends Entity implements UserInterface
             'name'        => 'local_user',
             'description' => 'local users, bots, etc',
             'fields'      => [
-                'nickname'          => ['type' => 'varchar', 'length' => 64,  'description' => 'nickname or username, duped in profile'],
-                'password'          => ['type' => 'varchar', 'length' => 191, 'description' => 'salted password, can be null for OpenID users'],
+                'nickname'          => ['type' => 'varchar', 'length' => 64,  'description' => 'nickname or username, foreign key to gsactor'],
+                'password'          => ['type' => 'varchar', 'length' => 191, 'description' => 'salted password, can be null for users with federated authentication'],
                 'outgoing_email'    => ['type' => 'varchar', 'length' => 191, 'description' => 'email address for password recovery, notifications, etc.'],
                 'incoming_email'    => ['type' => 'varchar', 'length' => 191, 'description' => 'email address for post-by-email'],
                 'is_email_verified' => ['type' => 'bool', 'default' => false, 'description' => 'Whether the user opened the comfirmation email'],
@@ -369,7 +369,7 @@ class LocalUser extends Entity implements UserInterface
                 'user_uri_key'            => ['uri'],
             ],
             'foreign keys' => [
-                'user_nickname_fkey' => ['profile', ['nickname' => 'nickname']],
+                'user_nickname_fkey' => ['gsactor', ['nickname' => 'nickname']],
                 'user_carrier_fkey'  => ['sms_carrier', ['sms_carrier' => 'id']],
             ],
             'indexes' => [

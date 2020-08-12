@@ -17,10 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Entity;
-
-use DateTimeInterface;
-
 /**
  * Entity for Notice Tag
  *
@@ -35,13 +31,18 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ActivityTag
+
+namespace App\Entity;
+
+use DateTimeInterface;
+
+class NoteHashtag
 {
     // {{{ Autocode
 
     private string $tag;
     private int $activity_id;
-    private \DateTimeInterface $created;
+    private DateTimeInterface $created;
 
     public function setTag(string $tag): self
     {
@@ -81,21 +82,21 @@ class ActivityTag
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'activity_tag',
-            'description' => 'Hash tags',
+            'name'        => 'note_hashtag',
+            'description' => 'Hash tags on notes',
             'fields'      => [
-                'tag'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this activity'],
-                'activity_id' => ['type' => 'int', 'not null' => true, 'description' => 'activity tagged'],
-                'created'     => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'tag'      => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this note'],
+                'note_id'  => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to tagged note'],
+                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['tag', 'activity_id'],
+            'primary key'  => ['tag', 'note_id'],
             'foreign keys' => [
-                'activity_tag_activity_id_fkey' => ['activity', ['activity_id' => 'id']],
+                'note_hashtag_note_id_fkey' => ['note', ['note_id' => 'id']],
             ],
             'indexes' => [
-                'activity_tag_created_idx'                 => ['created'],
-                'activity_tag_activity_id_idx'             => ['activity_id'],
-                'activity_tag_tag_created_activity_id_idx' => ['tag', 'created', 'activity_id'],
+                'note_tag_created_idx'             => ['created'],
+                'note_tag_note_id_idx'             => ['note_id'],
+                'note_tag_tag_created_note_id_idx' => ['tag', 'created', 'note_id'],
             ],
         ];
     }

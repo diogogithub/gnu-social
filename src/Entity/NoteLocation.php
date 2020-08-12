@@ -22,7 +22,7 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for Notice's location
+ * Entity for Note's location
  *
  * @category  DB
  * @package   GNUsocial
@@ -35,7 +35,7 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ActivityLocation
+class NoteLocation
 {
     // {{{ Autocode
 
@@ -119,19 +119,19 @@ class ActivityLocation
         return [
             'name'   => 'activity_location',
             'fields' => [
-                'activity_id'      => ['type' => 'int', 'not null' => true, 'description' => 'activity this refers to'],
+                'note_id'          => ['type' => 'int', 'not null' => true, 'description' => 'activity this refers to'],
                 'lat'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
                 'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
                 'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
                 'location_service' => ['type' => 'int', 'size' => 'tiny', 'description' => 'service used to retrieve location information'],
                 'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['activity_id'],
+            'primary key'  => ['note_id'],
             'foreign keys' => [
-                'activity_location_activity_id_fkey' => ['activity', ['activity_id' => 'id']],
+                'note_location_note_id_fkey' => ['note', ['note_id' => 'id']],
             ],
             'indexes' => [
-                'activity_location_location_id_idx' => ['location_id'],
+                'note_location_location_id_idx' => ['location_id'],
             ],
         ];
     }

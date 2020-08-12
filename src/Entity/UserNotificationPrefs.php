@@ -22,13 +22,11 @@ namespace App\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for user IM preferences
+ * Entity for user notification preferences
  *
  * @category  DB
  * @package   GNUsocial
  *
- * @author    Craig Andrews <candrews@integralblue.com>
- * @copyright 2009 StatusNet Inc.
  * @author    Hugo Sales <hugo@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -215,7 +213,7 @@ class UserNotificationPrefs
             'fields' => [
                 'user_id'               => ['type' => 'int', 'not null' => true],
                 'transport'             => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'transport (ex email. xmpp, aim)'],
-                'target_profile_id'     => ['type' => 'int',  'default' => null,  'description' => 'If not null, settings are specific only to a given profiles'],
+                'target_gsactor_id'     => ['type' => 'int',  'default' => null,  'description' => 'If not null, settings are specific only to a given gsactors'],
                 'activity_by_followed'  => ['type' => 'bool', 'not null' => true, 'default' => true,  'description' => 'Notify when a new activity by someone we follow is made'],
                 'mention'               => ['type' => 'bool', 'not null' => true, 'default' => true,  'description' => 'Notify when mentioned by someone we do not follow'],
                 'reply'                 => ['type' => 'bool', 'not null' => true, 'default' => true,  'description' => 'Notify when someone replies to a notice made by us'],
@@ -231,10 +229,10 @@ class UserNotificationPrefs
             'primary key'  => ['user_id', 'transport'],
             'foreign keys' => [
                 'user_notification_prefs_user_id_fkey'   => ['user', ['user_id' => 'id']],
-                'user_notification_prefs_target_profile' => ['profile', ['target_profile_id' => 'id']],
+                'user_notification_prefs_target_gsactor' => ['gsactor', ['target_gsactor_id' => 'id']],
             ],
             'indexes' => [
-                'user_notification_prefs_user_target_profile_idx' => ['user_id', 'target_profile_id'],
+                'user_notification_prefs_user_target_gsactor_idx' => ['user_id', 'target_gsactor_id'],
             ],
         ];
     }

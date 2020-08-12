@@ -106,22 +106,22 @@ class Notification
     {
         return [
             'name'        => 'notification',
-            'description' => 'Activity notification for profiles (that are not a mention and not result of a subscription)',
+            'description' => 'Note notification for gsactors (that are not a mention and not result of a subscription)',
             'fields'      => [
                 'notice_id'  => ['type' => 'int', 'not null' => true,  'description' => 'notice_id to give attention'],
-                'profile_id' => ['type' => 'int', 'not null' => true,  'description' => 'profile_id for feed receiver'],
-                'reason'     => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of profile_id'],
+                'gsactor_id' => ['type' => 'int', 'not null' => true,  'description' => 'gsactor_id for feed receiver'],
+                'reason'     => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of gsactor_id'],
                 'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['notice_id', 'profile_id'],
+            'primary key'  => ['notice_id', 'gsactor_id'],
             'foreign keys' => [
                 'attention_notice_id_fkey'  => ['notice', ['notice_id' => 'id']],
-                'attention_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
+                'attention_gsactor_id_fkey' => ['gsactor', ['gsactor_id' => 'id']],
             ],
             'indexes' => [
                 'attention_notice_id_idx'  => ['notice_id'],
-                'attention_profile_id_idx' => ['profile_id'],
+                'attention_gsactor_id_idx' => ['gsactor_id'],
             ],
         ];
     }

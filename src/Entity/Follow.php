@@ -107,8 +107,8 @@ class Follow
         return [
             'name'   => 'follow',
             'fields' => [
-                'follower' => ['type' => 'int', 'not null' => true,  'description' => 'profile listening'],
-                'followed' => ['type' => 'int', 'not null' => true,  'description' => 'profile being listened to'],
+                'follower' => ['type' => 'int', 'not null' => true,  'description' => 'gsactor listening'],
+                'followed' => ['type' => 'int', 'not null' => true,  'description' => 'gsactor being listened to'],
                 'uri'      => ['type' => 'varchar', 'length' => 191, 'description' => 'universally unique identifier'],
                 'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
