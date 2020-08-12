@@ -73,9 +73,6 @@
     -webkit-transform: scale(3);
     padding: 10px;
 }
-input[type="checkbox"]:focus + label {
-      border:2px solid red;
-}
 
 #toggle:checked~.navbar {
       display: flex;
