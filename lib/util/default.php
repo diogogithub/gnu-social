@@ -256,6 +256,7 @@ $default =
                     image_type_to_mime_type(IMAGETYPE_GIF) => image_type_to_extension(IMAGETYPE_GIF),
                     'image/svg+xml' => 'svg', // No built-in constant
                     image_type_to_mime_type(IMAGETYPE_ICO) => image_type_to_extension(IMAGETYPE_ICO),
+                    image_type_to_mime_type(IMAGETYPE_WEBP) => image_type_to_extension(IMAGETYPE_WEBP),
                     'audio/ogg' => 'ogg',
                     'audio/mpeg' => 'mpg',
                     'audio/x-speex' => 'spx',

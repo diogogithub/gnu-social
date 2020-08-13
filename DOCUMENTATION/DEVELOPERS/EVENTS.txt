@@ -1447,7 +1447,7 @@ CreateFileImageThumbnailSource: Hook to create image thumbnail source from a Fil
 
 StartResizeImageFile: Hook to resize an image and output it to a file. No matching End event yet.
 - $imagefile: ImageFile object we're resizing.
-- $outpath:   string with output filepath
+- $outpath:  string with output filepath
 - $box:       array with size ('width', 'height') and boundary box('x', 'y', 'w', 'h').
 
 FillImageFileMetadata: Get more metadata about the ImageFile if it is perhaps not a real local file
