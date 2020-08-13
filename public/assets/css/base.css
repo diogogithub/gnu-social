@@ -138,3 +138,70 @@ b {
       fill: currentColor;
       align-self: center;
 }
+
+
+/* RIGHT PANEL */
+#right-panel {
+      order: 4;
+}
+
+.arrow {
+      border: solid white;
+      border-width: 0 3px 3px 0;
+      display: inline-block;
+      padding: 0.3em;
+}
+.right {
+      transform: rotate(135deg);
+      -webkit-transform: rotate(135deg);
+}
+
+.rss {
+      display: flex;
+      flex-direction: column;
+      width: var(--nav-size);
+      height: calc(100vh - (3 * var(--unit-size)));
+      position: fixed;
+      background-color: rgba(0, 0, 0, 0.40);
+      margin-top: calc(3 * var(--main-size));
+}
+
+.right-panel input[type=checkbox] {
+      transform: scale(3);
+      -ms-transform: scale(3);
+      -webkit-transform: scale(3);
+      padding: 3em;
+}
+
+/* untoggled */
+.rss {
+      right: -100%;
+      top: 0;
+      transition: 0.3s ease;
+}
+.arrow label {
+      display: block;
+      cursor: pointer
+}
+#toggle-right {
+      position: absolute;
+      z-index: 2;
+      cursor: pointer;
+      opacity: 0;
+}
+#toggle-right:not(:checked)+.arrow {
+      transform: rotate(135deg);
+      transition: 0.3s ease;
+}
+
+/* toggled */
+#toggle-right:checked~.rss {
+      display: flex;
+      right: 0;
+      top: 0;
+      transition: 0.3s ease;
+}
+#toggle-right:checked+.arrow {
+      transform: rotate(-45deg);
+      transition: 0.3s ease;
+}
