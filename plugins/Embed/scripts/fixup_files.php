@@ -121,7 +121,7 @@ while ($fn->fetch()) {
                 UPDATE file
                   SET mimetype = NULL, title = NULL, size = NULL,
                       protected = NULL, modified = CURRENT_TIMESTAMP
-                  WHERE id = %d
+                  WHERE id = %d;
                 END,
                 $f->getID()
             ));
@@ -157,7 +157,7 @@ while ($fn->fetch()) {
                 UPDATE file
                   SET title = NULL, size = NULL,
                       protected = NULL, modified = CURRENT_TIMESTAMP
-                  WHERE id = %d,
+                  WHERE id = %d;
                 END,
                 $f->getID()
             ));
