@@ -41,7 +41,7 @@ class FileToActivity
 
     private int $file_id;
     private int $activity_id;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setFileId(int $file_id): self
     {

@@ -54,8 +54,8 @@ class GSActor extends Entity
     private ?float $lon;
     private ?int $location_id;
     private ?int $location_service;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {

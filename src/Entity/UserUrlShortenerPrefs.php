@@ -43,8 +43,8 @@ class UserUrlShortenerPrefs
     private ?string $url_shortening_service;
     private int $max_url_length;
     private int $max_notice_length;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setUserId(int $user_id): self
     {

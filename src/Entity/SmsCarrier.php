@@ -42,8 +42,8 @@ class SmsCarrier
     private int $id;
     private ?string $name;
     private string $email_pattern;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {

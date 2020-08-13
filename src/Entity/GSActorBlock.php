@@ -41,7 +41,7 @@ class GSActorBlock
 
     private int $blocker;
     private int $blocked;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setBlocker(int $blocker): self
     {

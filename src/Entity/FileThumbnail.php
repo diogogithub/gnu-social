@@ -42,7 +42,7 @@ class FileThumbnail
     private int $file_id;
     private int $width;
     private int $height;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setFileId(int $file_id): self
     {

@@ -37,7 +37,7 @@ class UserNotificationPrefs
 
     private int $user_id;
     private string $transport;
-    private ?int $target_profile_id;
+    private ?int $target_gsactor_id;
     private bool $activity_by_followed  = true;
     private bool $mention               = true;
     private bool $reply                 = true;
@@ -47,8 +47,8 @@ class UserNotificationPrefs
     private bool $dm                    = true;
     private bool $post_on_status_change = false;
     private ?bool $enable_posting;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setUserId(int $user_id): self
     {
@@ -72,15 +72,15 @@ class UserNotificationPrefs
         return $this->transport;
     }
 
-    public function setTargetProfileId(?int $target_profile_id): self
+    public function setTargetGsactorId(?int $target_gsactor_id): self
     {
-        $this->target_profile_id = $target_profile_id;
+        $this->target_gsactor_id = $target_gsactor_id;
         return $this;
     }
 
-    public function getTargetProfileId(): ?int
+    public function getTargetGsactorId(): ?int
     {
-        return $this->target_profile_id;
+        return $this->target_gsactor_id;
     }
 
     public function setActivityByFollowed(bool $activity_by_followed): self

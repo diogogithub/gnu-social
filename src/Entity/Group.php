@@ -40,7 +40,7 @@ class Group
     // {{{ Autocode
 
     private int $id;
-    private int $profile_id;
+    private int $gsactor_id;
     private ?string $nickname;
     private ?string $fullname;
     private ?string $homepage;
@@ -55,8 +55,8 @@ class Group
     private ?string $mainpage;
     private ?int $join_policy;
     private ?int $force_scope;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -69,15 +69,15 @@ class Group
         return $this->id;
     }
 
-    public function setProfileId(int $profile_id): self
+    public function setGsactorId(int $gsactor_id): self
     {
-        $this->profile_id = $profile_id;
+        $this->gsactor_id = $gsactor_id;
         return $this;
     }
 
-    public function getProfileId(): int
+    public function getGsactorId(): int
     {
-        return $this->profile_id;
+        return $this->gsactor_id;
     }
 
     public function setNickname(?string $nickname): self

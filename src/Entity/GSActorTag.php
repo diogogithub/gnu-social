@@ -42,7 +42,7 @@ class GSActorTag
     private int $tagger;
     private int $tagged;
     private string $tag;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setTagger(int $tagger): self
     {

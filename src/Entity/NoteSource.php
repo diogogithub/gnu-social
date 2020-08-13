@@ -42,8 +42,7 @@ class NoteSource
     private string $code;
     private string $name;
     private string $url;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setCode(string $code): self
     {
@@ -76,17 +75,6 @@ class NoteSource
     public function getUrl(): string
     {
         return $this->url;
-    }
-
-    public function setCreated(DateTimeInterface $created): self
-    {
-        $this->created = $created;
-        return $this;
-    }
-
-    public function getCreated(): DateTimeInterface
-    {
-        return $this->created;
     }
 
     public function setModified(DateTimeInterface $modified): self

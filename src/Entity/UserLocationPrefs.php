@@ -39,8 +39,8 @@ class UserLocationPrefs
 
     private int $user_id;
     private ?bool $share_location;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setUserId(int $user_id): self
     {

@@ -43,8 +43,8 @@ class Follow
     private int $follower;
     private int $followed;
     private ?string $uri;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setFollower(int $follower): self
     {

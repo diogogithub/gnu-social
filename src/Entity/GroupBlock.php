@@ -40,9 +40,9 @@ class GroupBlock
     // {{{ Autocode
 
     private int $group_id;
-    private int $blocked_profile;
+    private int $blocked_gsactor;
     private int $blocker_user;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setGroupId(int $group_id): self
     {
@@ -55,15 +55,15 @@ class GroupBlock
         return $this->group_id;
     }
 
-    public function setBlockedProfile(int $blocked_profile): self
+    public function setBlockedGsactor(int $blocked_gsactor): self
     {
-        $this->blocked_profile = $blocked_profile;
+        $this->blocked_gsactor = $blocked_gsactor;
         return $this;
     }
 
-    public function getBlockedProfile(): int
+    public function getBlockedGsactor(): int
     {
-        return $this->blocked_profile;
+        return $this->blocked_gsactor;
     }
 
     public function setBlockerUser(int $blocker_user): self

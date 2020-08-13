@@ -51,7 +51,7 @@ class File extends Entity
     private ?string $title;
     private ?int $timestamp;
     private ?bool $is_local;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {

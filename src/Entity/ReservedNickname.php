@@ -40,7 +40,7 @@ class ReservedNickname
     // {{{ Autocode
 
     private string $nickname;
-    private \DateTimeInterface $created;
+    private DateTimeInterface $created;
 
     public function setNickname(string $nickname): self
     {

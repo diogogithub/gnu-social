@@ -45,20 +45,20 @@ class Avatar extends Entity
 {
     // {{{ Autocode
 
-    private int $profile_id;
+    private int $gsactor_id;
     private int $file_id;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
-    public function setProfileId(int $profile_id): self
+    public function setGsactorId(int $gsactor_id): self
     {
-        $this->profile_id = $profile_id;
+        $this->gsactor_id = $gsactor_id;
         return $this;
     }
 
-    public function getProfileId(): int
+    public function getGsactorId(): int
     {
-        return $this->profile_id;
+        return $this->gsactor_id;
     }
 
     public function setFileId(int $file_id): self

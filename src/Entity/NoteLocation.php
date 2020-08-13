@@ -39,22 +39,22 @@ class NoteLocation
 {
     // {{{ Autocode
 
-    private int $activity_id;
+    private int $note_id;
     private ?float $lat;
     private ?float $lon;
     private ?int $location_id;
     private ?int $location_service;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $modified;
 
-    public function setActivityId(int $activity_id): self
+    public function setNoteId(int $note_id): self
     {
-        $this->activity_id = $activity_id;
+        $this->note_id = $note_id;
         return $this;
     }
 
-    public function getActivityId(): int
+    public function getNoteId(): int
     {
-        return $this->activity_id;
+        return $this->note_id;
     }
 
     public function setLat(?float $lat): self

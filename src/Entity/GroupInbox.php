@@ -41,7 +41,7 @@ class GroupInbox
 
     private int $group_id;
     private int $activity_id;
-    private \DateTimeInterface $created;
+    private DateTimeInterface $created;
 
     public function setGroupId(int $group_id): self
     {

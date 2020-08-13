@@ -45,12 +45,8 @@ class GSActorCircle
     private string $tag;
     private ?string $description;
     private ?bool $private;
-    private ?string $uri;
-    private ?string $mainpage;
-    private ?int $tagged_count;
-    private ?int $follower_count;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -107,50 +103,6 @@ class GSActorCircle
         return $this->private;
     }
 
-    public function setUri(?string $uri): self
-    {
-        $this->uri = $uri;
-        return $this;
-    }
-
-    public function getUri(): ?string
-    {
-        return $this->uri;
-    }
-
-    public function setMainpage(?string $mainpage): self
-    {
-        $this->mainpage = $mainpage;
-        return $this;
-    }
-
-    public function getMainpage(): ?string
-    {
-        return $this->mainpage;
-    }
-
-    public function setTaggedCount(?int $tagged_count): self
-    {
-        $this->tagged_count = $tagged_count;
-        return $this;
-    }
-
-    public function getTaggedCount(): ?int
-    {
-        return $this->tagged_count;
-    }
-
-    public function setFollowerCount(?int $follower_count): self
-    {
-        $this->follower_count = $follower_count;
-        return $this;
-    }
-
-    public function getFollowerCount(): ?int
-    {
-        return $this->follower_count;
-    }
-
     public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
@@ -197,11 +149,9 @@ class GSActorCircle
                 'gsactor_list_tagger_fkey' => ['gsactor', ['tagger' => 'id']],
             ],
             'indexes' => [
-                'gsactor_list_modified_idx'       => ['modified'],
-                'gsactor_list_tag_idx'            => ['tag'],
-                'gsactor_list_tagger_tag_idx'     => ['tagger', 'tag'],
-                'gsactor_list_tagged_count_idx'   => ['tagged_count'],
-                'gsactor_list_follower_count_idx' => ['follower_count'],
+                'gsactor_list_modified_idx'   => ['modified'],
+                'gsactor_list_tag_idx'        => ['tag'],
+                'gsactor_list_tagger_tag_idx' => ['tagger', 'tag'],
             ],
         ];
     }

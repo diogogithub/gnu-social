@@ -41,8 +41,8 @@ class LocationService
 
     private int $id;
     private ?string $description;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
