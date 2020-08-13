@@ -1,5 +1,4 @@
 #!/usr/local/bin/php
-
 <?php
 
 use Symfony\Component\Yaml\Yaml;
@@ -55,7 +54,7 @@ foreach ($files as $file) {
         $method_name    = str_replace(' ', '', ucwords(str_replace('_', ' ', $field)));
         $default        = @$schema['fields'][$field]['default'];
 
-        if (isset($default) && $nullable != '?' && $type != '\DateTimeInterface') {
+        if (isset($default) && $nullable != '?' && $type != 'DateTimeInterface') {
             if (is_string($default)) {
                 $default = "'{$default}'";
             } elseif ($type == 'bool') {
