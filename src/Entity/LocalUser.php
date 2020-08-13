@@ -60,8 +60,8 @@ class LocalUser extends Entity implements UserInterface
     private ?bool $auto_follow_back;
     private ?int $follow_policy;
     private ?bool $is_stream_private;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setNickname(?string $nickname): self
     {

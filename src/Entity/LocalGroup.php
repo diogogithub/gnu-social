@@ -41,8 +41,8 @@ class LocalGroup
 
     private int $group_id;
     private ?string $nickname;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setGroupId(int $group_id): self
     {

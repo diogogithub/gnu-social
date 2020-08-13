@@ -1,6 +1,6 @@
 <?php
 
-// {{{ License
+// {{{ License/
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -41,7 +41,7 @@ class NoteHashtag
     // {{{ Autocode
 
     private string $tag;
-    private int $activity_id;
+    private int $note_id;
     private DateTimeInterface $created;
 
     public function setTag(string $tag): self
@@ -55,15 +55,15 @@ class NoteHashtag
         return $this->tag;
     }
 
-    public function setActivityId(int $activity_id): self
+    public function setNoteId(int $note_id): self
     {
-        $this->activity_id = $activity_id;
+        $this->note_id = $note_id;
         return $this;
     }
 
-    public function getActivityId(): int
+    public function getNoteId(): int
     {
-        return $this->activity_id;
+        return $this->note_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -85,9 +85,9 @@ class NoteHashtag
             'name'        => 'note_hashtag',
             'description' => 'Hash tags on notes',
             'fields'      => [
-                'tag'      => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this note'],
-                'note_id'  => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to tagged note'],
-                'modified' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'tag'     => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this note'],
+                'note_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to tagged note'],
+                'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['tag', 'note_id'],
             'foreign keys' => [

@@ -38,10 +38,9 @@ class Conversation
     // {{{ Autocode
 
     private int $id;
-    private string $uri;
-    private ?string $url;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private int $note_id;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -54,26 +53,15 @@ class Conversation
         return $this->id;
     }
 
-    public function setUri(string $uri): self
+    public function setNoteId(int $note_id): self
     {
-        $this->uri = $uri;
+        $this->note_id = $note_id;
         return $this;
     }
 
-    public function getUri(): string
+    public function getNoteId(): int
     {
-        return $this->uri;
-    }
-
-    public function setUrl(?string $url): self
-    {
-        $this->url = $url;
-        return $this;
-    }
-
-    public function getUrl(): ?string
-    {
-        return $this->url;
+        return $this->note_id;
     }
 
     public function setCreated(DateTimeInterface $created): self

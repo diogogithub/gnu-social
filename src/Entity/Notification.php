@@ -40,10 +40,10 @@ class Notification
     // {{{ Autocode
 
     private int $notice_id;
-    private int $profile_id;
+    private int $gsactor_id;
     private ?string $reason;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setNoticeId(int $notice_id): self
     {
@@ -56,15 +56,15 @@ class Notification
         return $this->notice_id;
     }
 
-    public function setProfileId(int $profile_id): self
+    public function setGsactorId(int $gsactor_id): self
     {
-        $this->profile_id = $profile_id;
+        $this->gsactor_id = $gsactor_id;
         return $this;
     }
 
-    public function getProfileId(): int
+    public function getGsactorId(): int
     {
-        return $this->profile_id;
+        return $this->gsactor_id;
     }
 
     public function setReason(?string $reason): self

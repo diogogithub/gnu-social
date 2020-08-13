@@ -41,7 +41,7 @@ class FollowQueue
 
     private int $follower;
     private int $followed;
-    private \DateTimeInterface $created;
+    private DateTimeInterface $created;
 
     public function setFollower(int $follower): self
     {

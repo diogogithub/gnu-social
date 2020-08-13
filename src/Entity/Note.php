@@ -38,20 +38,16 @@ class Note
     // {{{ Autocode
 
     private int $id;
-    private int $profile_id;
-    private ?string $uri;
+    private int $gsactor_id;
     private ?string $content;
-    private ?string $rendered;
     private ?int $reply_to;
     private ?bool $is_local;
     private ?string $source;
     private ?int $conversation;
     private ?int $repeat_of;
-    private ?string $object_type;
-    private ?string $verb;
     private ?int $scope;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -64,26 +60,15 @@ class Note
         return $this->id;
     }
 
-    public function setProfileId(int $profile_id): self
+    public function setGsactorId(int $gsactor_id): self
     {
-        $this->profile_id = $profile_id;
+        $this->gsactor_id = $gsactor_id;
         return $this;
     }
 
-    public function getProfileId(): int
+    public function getGsactorId(): int
     {
-        return $this->profile_id;
-    }
-
-    public function setUri(?string $uri): self
-    {
-        $this->uri = $uri;
-        return $this;
-    }
-
-    public function getUri(): ?string
-    {
-        return $this->uri;
+        return $this->gsactor_id;
     }
 
     public function setContent(?string $content): self
@@ -95,17 +80,6 @@ class Note
     public function getContent(): ?string
     {
         return $this->content;
-    }
-
-    public function setRendered(?string $rendered): self
-    {
-        $this->rendered = $rendered;
-        return $this;
-    }
-
-    public function getRendered(): ?string
-    {
-        return $this->rendered;
     }
 
     public function setReplyTo(?int $reply_to): self
@@ -161,28 +135,6 @@ class Note
     public function getRepeatOf(): ?int
     {
         return $this->repeat_of;
-    }
-
-    public function setObjectType(?string $object_type): self
-    {
-        $this->object_type = $object_type;
-        return $this;
-    }
-
-    public function getObjectType(): ?string
-    {
-        return $this->object_type;
-    }
-
-    public function setVerb(?string $verb): self
-    {
-        $this->verb = $verb;
-        return $this;
-    }
-
-    public function getVerb(): ?string
-    {
-        return $this->verb;
     }
 
     public function setScope(?int $scope): self

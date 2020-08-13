@@ -41,7 +41,7 @@ class RelatedGroup
 
     private int $group_id;
     private int $related_group_id;
-    private \DateTimeInterface $created;
+    private DateTimeInterface $created;
 
     public function setGroupId(int $group_id): self
     {

@@ -44,9 +44,9 @@ class ConfirmAddress
     private string $address;
     private ?string $address_extra;
     private string $address_type;
-    private ?\DateTimeInterface $claimed;
-    private \DateTimeInterface $sent;
-    private \DateTimeInterface $modified;
+    private ?DateTimeInterface $claimed;
+    private DateTimeInterface $sent;
+    private DateTimeInterface $modified;
 
     public function setCode(string $code): self
     {

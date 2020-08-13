@@ -39,7 +39,7 @@ class RememberMeToken
 
     private string $series;
     private string $value;
-    private \DateTimeInterface $lastUsed;
+    private DateTimeInterface $lastUsed;
     private string $class;
     private string $username;
 
