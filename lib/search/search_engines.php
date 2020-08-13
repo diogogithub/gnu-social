@@ -111,53 +111,84 @@ class PostgreSQLSearch extends SearchEngine
 
 class MySQLSearch extends SearchEngine
 {
+    /*
+     * Creates a full-text MATCH IN BOOLEAN MODE from the query format
+     * analogous to PostgreSQL's websearch_to_tsquery.
+     * The resulting boolean search query should never raise syntax errors
+     * regardless of the kind of input this method receives.
+     *
+     * The syntax is as follows:
+     *  - unquoted text: text not inside quote marks will be converted to
+     *    individual quoted words with "+" operators each.
+     *  - "quoted text": text inside quote marks will have the "+" operator
+     *    prepended.
+     *  - OR: causes the two adjoined words to lose the "+" operator.
+     *  - "-": words prepended with the "-" operator will retain it unquoted.
+     */
+    private function websearchToBoolean(string $input): string
+    {
+        $split = [];
+        preg_match_all('/(?:[^\s"]|["][^"]*["])+/', $input, $split);
+
+        $phrases = [];
+        $or_cond = false;
+        foreach ($split[0] as $phrase) {
+            if (strtoupper($phrase) === 'OR') {
+                $last = &$phrases[array_key_last($phrases)];
+                $last['op'] = '';
+                $or_cond = true;
+                continue;
+            }
+
+            if (substr($phrase, 0, 1) === '-') {
+                $phrases[] = ['op' => '-', 'text' => substr($phrase, 1)];
+            } elseif ($or_cond) {
+                $phrases[] = ['op' => '',  'text' => $phrase];
+            } else {
+                $phrases[] = ['op' => '+', 'text' => $phrase];
+            }
+            $or_cond = false;
+        }
+
+        return array_reduce(
+            $phrases,
+            function (string $carry, array $item): string {
+                // Strip all double quote marks and wrap with them around
+                $text = '"' . str_replace('"', '', $item['text']) . '"';
+
+                return $carry . ' ' . $item['op'] . $text;
+            },
+            ''
+        );
+    }
+
     public function query($q)
     {
         if ($this->table === 'profile') {
-            $this->target->whereAdd(sprintf(
-                'MATCH (%2$s.nickname, %2$s.fullname, %2$s.location, %2$s.bio, %2$s.homepage) ' .
-                'AGAINST (\'%1$s\' IN BOOLEAN MODE)',
-                $this->target->escape($q, true),
+            $tables = sprintf(
+                '%1$s.nickname, %1$s.fullname, %1$s.location, %1$s.bio, %1$s.homepage',
                 $this->table
-            ));
-            if (strtolower($q) != $q) {
-                $this->target->whereAdd(
-                    sprintf(
-                        'MATCH (%2$s.nickname, %2$s.fullname, %2$s.location, %2$s.bio, %2$s.homepage) ' .
-                        'AGAINST (\'%1$s\' IN BOOLEAN MODE)',
-                        $this->target->escape(strtolower($q), true),
-                        $this->table
-                    ),
-                    'OR'
-                );
-            }
-            return true;
+            );
         } elseif ($this->table === 'notice') {
             // Don't show direct messages.
             $this->target->whereAdd('notice.scope <> ' . Notice::MESSAGE_SCOPE);
             // Don't show imported notices
             $this->target->whereAdd('notice.is_local <> ' . Notice::GATEWAY);
 
-            $this->target->whereAdd(sprintf(
-                'MATCH (%2$s.content) AGAINST (\'%1$s\' IN BOOLEAN MODE)',
-                $this->target->escape($q, true),
-                $this->table
-            ));
-            if (strtolower($q) != $q) {
-                $this->target->whereAdd(
-                    sprintf(
-                        'MATCH (%2$s.content) AGAINST (\'%1$s\' IN BOOLEAN MODE)',
-                        $this->target->escape(strtolower($q), true),
-                        $this->table
-                    ),
-                    'OR'
-                );
-            }
-
-            return true;
+            $tables = 'notice.content';
         } else {
             throw new ServerException('Unknown table: ' . $this->table);
         }
+
+        $boolean_query = $this->websearchToBoolean($q);
+
+        $this->target->whereAdd(sprintf(
+            'MATCH (%1$s) AGAINST (\'%2$s\' IN BOOLEAN MODE)',
+            $tables,
+            $this->target->escape($boolean_query)
+        ));
+
+        return true;
     }
 }
 
