@@ -88,12 +88,13 @@ class ImageFile extends MediaFile
             }
             return false;
         };
-        if (!(($cmp($this, IMAGETYPE_GIF)  && function_exists('imagecreatefromgif'))   ||
+        if (!(($cmp($this, IMAGETYPE_GIF)  && function_exists('imagecreatefromgif'))  ||
               ($cmp($this, IMAGETYPE_JPEG) && function_exists('imagecreatefromjpeg')) ||
-              ($cmp($this, IMAGETYPE_BMP)  && function_exists('imagecreatefrombmp'))   ||
+              ($cmp($this, IMAGETYPE_BMP)  && function_exists('imagecreatefrombmp'))  ||
               ($cmp($this, IMAGETYPE_WBMP) && function_exists('imagecreatefromwbmp')) ||
-              ($cmp($this, IMAGETYPE_XBM)  && function_exists('imagecreatefromxbm'))   ||
-              ($cmp($this, IMAGETYPE_PNG)  && function_exists('imagecreatefrompng'))
+              ($cmp($this, IMAGETYPE_XBM)  && function_exists('imagecreatefromxbm'))  ||
+              ($cmp($this, IMAGETYPE_PNG)  && function_exists('imagecreatefrompng'))  ||
+              ($cmp($this, IMAGETYPE_WEBP) && function_exists('imagecreatefromwebp'))
              )
         ) {
             common_debug("Mimetype '{$this->mimetype}' was not recognized as a supported format");
@@ -169,6 +170,7 @@ class ImageFile extends MediaFile
             if ($media !== 'image') {
                 throw new UnsupportedMediaException(_m('Unsupported media format.'), $file->getPath());
             }
+
             if (!empty($file->filename)) {
                 $imgPath = $file->getPath();
             }
@@ -282,22 +284,19 @@ class ImageFile extends MediaFile
     }
 
     /**
-     * Several obscure file types should be normalized to PNG on resize.
+     * Several obscure file types should be normalized to WebP on resize.
      *
-     * Keeps only PNG, JPEG and GIF
+     * Keeps only GIF (if animated) and WebP formats
      *
      * @return int
      */
     public function preferredType()
     {
-        // Keep only JPEG and GIF in their original format
-        if ($this->type === IMAGETYPE_JPEG || $this->type === IMAGETYPE_GIF) {
+        if ($this->type == IMAGETYPE_GIF && $this->animated) {
             return $this->type;
         }
-        // We don't want to save some formats as they are rare, inefficient and antiquated
-        // thus we can't guarantee clients will support
-        // So just save it as PNG
-        return IMAGETYPE_PNG;
+
+        return IMAGETYPE_WEBP;
     }
 
     /**
@@ -436,14 +435,11 @@ class ImageFile extends MediaFile
         // Ensure we save in the correct format and allow customization based on type
         $type = $this->preferredType();
         switch ($type) {
+            case IMAGETYPE_WEBP:
+                $img->save($outpath, 100, 'webp');
+                break;
             case IMAGETYPE_GIF:
                 $img->save($outpath, 100, 'gif');
-                break;
-            case IMAGETYPE_PNG:
-                $img->save($outpath, 100, 'png');
-                break;
-            case IMAGETYPE_JPEG:
-                $img->save($outpath, common_config('image', 'jpegquality'), 'jpg');
                 break;
             default:
                 // TRANS: Exception thrown when trying resize an unknown file type.

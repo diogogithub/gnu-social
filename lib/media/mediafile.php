@@ -408,8 +408,8 @@ class MediaFile
             if ($media == 'image') {
                 // Use -1 for the id to avoid adding this temporary file to the DB
                 $img = new ImageFile(-1, $_FILES[$param]['tmp_name']);
-                // Validate the image by re-encoding it. Additionally normalizes old formats to PNG,
-                // keeping JPEG and GIF untouched
+                // Validate the image by re-encoding it. Additionally normalizes old formats to WebP,
+                // keeping GIF untouched if animated
                 $outpath = $img->resizeTo($img->filepath);
                 $ext = image_type_to_extension($img->preferredType(), false);
             }
