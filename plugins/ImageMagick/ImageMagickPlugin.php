@@ -29,48 +29,16 @@
 
 if (!defined('GNUSOCIAL')) { exit(1); }
 
-/*
- * Dependencies:
- *  php5-imagick
- *
- * Provides:
- *  Animated GIF resize support
- *
- * Comments:
- *  Animated GIF resize requires setting $config['thumbnail']['animated'] = true;
- *
- * Bugs:
- *  Not even ImageMagick is very good at resizing animated GIFs.
- *  We are not infinitely fast, so resizing animated GIFs is _not_ recommended.
- */
-
 class ImageMagickPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.0';
-
-    public $preview_imageformat = 'PNG';    // Image format strings: http://www.imagemagick.org/script/formats.php#supported
-    public $rasterize_vectors = false;       // Whether we want to turn SVG into PNG etc.
-
-    /**
-     * @param ImageFile $file An ImageFile object we're getting metadata for
-     * @param array $info The response from getimagesize()
-     */
-    public function onFillImageFileMetadata(ImageFile $imagefile) {
-        if (is_null($imagefile->animated) && $imagefile->mimetype === 'image/gif') {
-            $magick = new Imagick($imagefile->filepath);
-            $magick = $magick->coalesceImages();
-            $imagefile->animated = $magick->getNumberImages()>1;
-        }
-
-        return true;
-    }
+    const PLUGIN_VERSION = '2.1.0';
 
     public function onStartResizeImageFile(ImageFile $imagefile, $outpath, array $box)
     {
         switch ($imagefile->mimetype) {
         case 'image/gif':
-            // If GIF, then only for animated gifs! (and only if we really want to resize the animation!)
-            if ($imagefile->animated && common_config('thumbnail', 'animated')) {
+            // If GIF, then only for animated gifs
+            if ($imagefile->animated) {
                 return $this->resizeImageFileAnimatedGif($imagefile, $outpath, $box);
             }
             break;
@@ -91,47 +59,12 @@ class ImageMagickPlugin extends Plugin
         $magick = $magick->deconstructImages();
 
         // $magick->writeImages($outpath, true); did not work, had to use filehandle
-        // There's been bugs for writeImages in php5-imagick before, probably now too
         $fh = fopen($outpath, 'w+');
         $success = $magick->writeImagesFile($fh);
         fclose($fh);
         $magick->destroy();
 
         return !$success;
-    }
-
-    public function onCreateFileImageThumbnailSource(File $file, &$imgPath, $media=null)
-    {
-        switch ($file->mimetype) {
-        case 'image/svg+xml':
-            if (!$this->rasterize_vectors) {
-                // ImageMagick seems to be hard to trick into scaling vector graphics...
-                return true;
-            }
-            break;
-        default:
-            // If we don't know the format, let's try not to mess with anything.
-            return true;
-        }
-
-        $imgPath = tempnam(sys_get_temp_dir(), 'socialthumb-');
-        if (!$this->createImagePreview($file, $imgPath)) {
-            common_debug('Could not create ImageMagick preview of File id=='.$file->id);
-            @unlink($imgPath);
-            $imgPath = null;
-            return true;
-        }
-        return false;
-    }
-
-    protected function createImagePreview(File $file, $outpath)
-    {
-        $magick = new Imagick($file->getPath());
-        $magick->setImageFormat($this->preview_imageformat);
-        $magick->writeImage($outpath);
-        $magick->destroy();
-
-        return getimagesize($outpath);  // Verify that we wrote an understandable image.
     }
 
     public function onPluginVersion(array &$versions): bool
