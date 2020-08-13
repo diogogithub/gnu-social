@@ -850,20 +850,19 @@ class File extends Managed_DataObject
         }
 
         // Clear out related things in the database and filesystem, such as thumbnails
-        if (Event::handle('FileDeleteRelated', array($this))) {
-            $thumbs = new File_thumbnail();
-            $thumbs->file_id = $this->id;
-            if ($thumbs->find()) {
-                while ($thumbs->fetch()) {
-                    $thumbs->delete();
-                }
-            }
+        $related = [
+            'File_redirection',
+            'File_thumbnail',
+            'File_to_post',
+        ];
+        Event::handle('FileDeleteRelated', [$this, &$related]);
 
-            $f2p = new File_to_post();
-            $f2p->file_id = $this->id;
-            if ($f2p->find()) {
-                while ($f2p->fetch()) {
-                    $f2p->delete();
+        foreach ($related as $cls) {
+            $inst = new $cls();
+            $inst->file_id = $this->id;
+            if ($inst->find()) {
+                while ($inst->fetch()) {
+                    $inst->delete();
                 }
             }
         }

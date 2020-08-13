@@ -440,6 +440,12 @@ class EmbedPlugin extends Plugin
         return !file_exists($imgPath);
     }
 
+    public function onFileDeleteRelated(File $file, array &$related): bool
+    {
+        $related[] = 'File_embed';
+        return true;
+    }
+
     /**
      * @return bool             false on no check made, provider name on success
      * @throws ServerException  if check is made but fails
