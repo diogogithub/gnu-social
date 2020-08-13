@@ -47,6 +47,8 @@ class MemcachedPlugin extends Plugin
     public $servers = ['127.0.0.1'];
     public $defaultExpiry = 86400; // 24h
 
+    protected $persistent = null;
+
     private $_conn = null;
 
     /**
@@ -56,7 +58,7 @@ class MemcachedPlugin extends Plugin
      *
      * @return bool flag value
      */
-    public function initialize(): bool
+    public function onInitializePlugin(): bool
     {
         if (self::$cacheInitialized) {
             $this->persistent = true;
@@ -216,7 +218,13 @@ class MemcachedPlugin extends Plugin
     private function _ensureConn(): void
     {
         if (empty($this->_conn)) {
-            $this->_conn = new Memcached(common_config('site', 'nickname'));
+            if ($this->persistent) {
+                $this->_conn = new Memcached(
+                    'gnusocial:' . common_config('site', 'nickname')
+                );
+            } else {
+                $this->_conn = new Memcached();
+            }
 
             if (!count($this->_conn->getServerList())) {
                 if (is_array($this->servers)) {
