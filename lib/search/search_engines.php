@@ -93,6 +93,8 @@ class PostgreSQLSearch extends SearchEngine
             ));
             return true;
         } elseif ($this->table === 'notice') {
+            // Don't show direct messages.
+            $this->target->whereAdd('notice.scope <> ' . Notice::MESSAGE_SCOPE);
             // Don't show imported notices
             $this->target->whereAdd('notice.is_local <> ' . Notice::GATEWAY);
 
@@ -131,6 +133,8 @@ class MySQLSearch extends SearchEngine
             }
             return true;
         } elseif ($this->table === 'notice') {
+            // Don't show direct messages.
+            $this->target->whereAdd('notice.scope <> ' . Notice::MESSAGE_SCOPE);
             // Don't show imported notices
             $this->target->whereAdd('notice.is_local <> ' . Notice::GATEWAY);
 
@@ -172,7 +176,15 @@ class SQLLikeSearch extends SearchEngine
                 $this->table
             );
         } elseif ($this->table === 'notice') {
-            $qry = sprintf('content LIKE \'%%%1$s%%\'', $this->target->escape($q, true));
+            // Don't show direct messages.
+            $this->target->whereAdd('notice.scope <> ' . Notice::MESSAGE_SCOPE);
+            // Don't show imported notices
+            $this->target->whereAdd('notice.is_local <> ' . Notice::GATEWAY);
+
+            $qry = sprintf(
+                'notice.content LIKE \'%%%1$s%%\'',
+                $this->target->escape($q, true)
+            );
         } else {
             throw new ServerException('Unknown table: ' . $this->table);
         }
