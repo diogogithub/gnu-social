@@ -66,8 +66,8 @@ class UserPanel extends AbstractController
     public function personal_info(Request $request)
     {
         $user            = Common::user();
-        $profile         = $user->getProfile();
-        $extra           = ['self_tags' => $profile->getSelfTags()];
+        $actor           = $user->getActor();
+        $extra           = ['self_tags' => $actor->getSelfTags()];
         $form_definition = [
             ['nickname',  TextType::class,     ['label' => _m('Nickname'),  'required' => true,  'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
             ['full_name', TextType::class,     ['label' => _m('Full Name'), 'required' => false, 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
@@ -78,7 +78,7 @@ class UserPanel extends AbstractController
             ['save',      SubmitType::class,   ['label' => _m('Save')]],
         ];
         $extra_step = function ($data, $extra_args) use ($user) { $user->setNickname($data['nickname']); };
-        $form = Form::handle($form_definition, $request, $profile, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
+        $form = Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
 
         return ['_template' => 'settings/profile.html.twig', 'prof' => $form->createView()];
     }
@@ -139,18 +139,18 @@ class UserPanel extends AbstractController
             } else {
                 throw new ClientException('Invalid form');
             }
-            $profile_id = Common::profile()->getId();
-            $file       = Media::validateAndStoreFile($sfile, Common::config('avatar', 'dir'), $file_title);
-            $avatar     = null;
+            $actor_id = Common::actor()->getId();
+            $file     = Media::validateAndStoreFile($sfile, Common::config('avatar', 'dir'), $file_title);
+            $avatar   = null;
             try {
-                $avatar = DB::find('avatar', ['profile_id' => $profile_id]);
+                $avatar = DB::find('avatar', ['actor_id' => $actor_id]);
             } catch (Exception $e) {
             }
             if ($avatar != null) {
                 $avatar->delete();
             } else {
                 DB::persist($file);
-                DB::persist(Avatar::create(['profile_id' => $profile_id, 'file_id' => $file->getId()]));
+                DB::persist(Avatar::create(['actor_id' => $actor_id, 'file_id' => $file->getId()]));
             }
             DB::flush();
             // Only delete files if the commit went through
@@ -173,12 +173,12 @@ class UserPanel extends AbstractController
             $label    = str_replace('_', ' ', ucfirst($name));
 
             $labels = [
-                'target_profile_id' => 'Target Profiles',
-                'dm'                => 'DM',
+                'target_actor_id' => 'Target Actors',
+                'dm'              => 'DM',
             ];
 
             $help = [
-                'target_profile_id'     => 'If specified, these settings apply only to these profiles (comma- or space-separated list)',
+                'target_actor_id'       => 'If specified, these settings apply only to these profiles (comma- or space-separated list)',
                 'activity_by_followed'  => 'Notify me when someone I follow has new activity',
                 'mention'               => 'Notify me when mentions me in a notice',
                 'reply'                 => 'Notify me when someone replies to a notice made by me',
@@ -195,8 +195,8 @@ class UserPanel extends AbstractController
                 $form_defs['placeholder'][$name] = [$name, CheckboxType::class, ['data' => $val, 'label' => _m($labels[$name] ?? $label), 'help' => _m($help[$name])]];
                 break;
             case Types::INTEGER:
-                if ($name == 'target_profile_id') {
-                    $form_defs['placeholder'][$name] = ['target_profiles', TextType::class, ['data' => $val, 'label' => _m($labels[$name]), 'help' => _m($help[$name])], 'transformer' => ProfileArrayTransformer::class];
+                if ($name == 'target_actor_id') {
+                    $form_defs['placeholder'][$name] = ['target_actors', TextType::class, ['data' => $val, 'label' => _m($labels[$name]), 'help' => _m($help[$name])], 'transformer' => ActorArrayTransformer::class];
                     break;
                 }
                 // no break

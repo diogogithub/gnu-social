@@ -32,7 +32,7 @@
 
 namespace App\Util\Form;
 
-class ProfileArrayTransformer extends ArrayTransformer
+class ActorArrayTransformer extends ArrayTransformer
 {
     /**
      * @param array $a

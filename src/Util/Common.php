@@ -35,8 +35,8 @@ namespace App\Util;
 use App\Core\DB\DB;
 use App\Core\Router;
 use App\Core\Security;
+use App\Entity\GSActor;
 use App\Entity\LocalUser;
-use App\Entity\Profile;
 use Functional as F;
 
 abstract class Common
@@ -75,9 +75,9 @@ abstract class Common
         return Security::getUser();
     }
 
-    public static function profile(): ?Profile
+    public static function actor(): ?GSActor
     {
-        return self::user()->getProfile();
+        return self::user()->getActor();
     }
 
     /**

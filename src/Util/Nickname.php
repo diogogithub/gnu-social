@@ -22,6 +22,9 @@
 namespace App\Util;
 
 use App\Core\DB\DB;
+use App\Entity\GSActor;
+use App\Entity\LocalGroup;
+use App\Entity\LocalUser;
 use Normalizer;
 
 /**
@@ -146,9 +149,9 @@ class Nickname
         } elseif (self::isReserved($nickname) || Common::isSystemPath($nickname)) {
             throw new NicknameReservedException();
         } elseif ($check_already_used) {
-            $profile = self::isTaken($nickname);
-            if ($profile instanceof Profile) {
-                throw new NicknameTakenException($profile);
+            $actor = self::isTaken($nickname);
+            if ($actor instanceof GSActor) {
+                throw new NicknameTakenException($actor);
             }
         }
 
@@ -197,9 +200,9 @@ class Nickname
     /**
      * Is the nickname already in use locally? Checks the User table.
      *
-     * @return null|Profile Returns Profile if nickname found, otherwise null
+     * @return null|GSActor Returns GSActor if nickname found
      */
-    public static function isTaken(string $nickname): ?Profile
+    public static function isTaken(string $nickname): ?GSActor
     {
         $found = DB::findBy('local_user', ['nickname' => $nickname]);
         if ($found instanceof LocalUser) {
@@ -207,7 +210,7 @@ class Nickname
         }
 
         $found = DB::findBy('local_group', ['nickname' => $nickname]);
-        if ($found instanceof Local_group) {
+        if ($found instanceof LocalGroup) {
             return $found->getProfile();
         }
 

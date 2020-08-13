@@ -36,9 +36,10 @@ class Avatar extends Controller
     {
         switch ($size) {
         case 'full':
-            $result = DB::createQuery('select f.file_hash, f.mimetype, f.title from ' .
-                                      'App\\Entity\\File f join App\\Entity\\Avatar a with f.id = a.file_id ' .
-                                      'join App\\Entity\\Profile p with p.id = a.profile_id ' .
+            $result = DB::createQuery('select f.file_hash, f.mimetype, f.title ' .
+                                      'from App\\Entity\\File f ' .
+                                      'join App\\Entity\\Avatar a with f.id = a.file_id ' .
+                                      'join App\\Entity\\GSActor p with p.id = a.gsactor_id ' .
                                       'where p.nickname = :nickname')
                     ->setParameter('nickname', $nickname)
                     ->getResult();

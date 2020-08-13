@@ -100,6 +100,9 @@ abstract class DB
                 $args[0] = '\App\Entity\\' . ucfirst(Formatting::snakeCaseToCamelCase($args[0]));
             }
         }
+        if (($args[0] ?? '') === '\App\Entity\Gsactor') {
+            $args[0] = '\App\Entity\GSActor';
+        }
 
         return self::$em->{$name}(...$args);
     }
