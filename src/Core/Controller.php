@@ -62,7 +62,7 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $controller = $event->getController();
         $request    = $event->getRequest();
 
-        if (($user = Common::user()) !== null && ($avatar = DB::find('avatar', ['profile_id' => $user->getProfile()->getId()])) != null) {
+        if (($user = Common::user()) !== null && ($avatar = DB::find('avatar', ['gsactor_id' => $user->getActor()->getId()])) != null) {
             $avatar_filename = $avatar->getUrl();
         } else {
             $avatar_filename = '/public/assets/default_avatar.svg';

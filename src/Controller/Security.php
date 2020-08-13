@@ -6,8 +6,8 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Entity\GSActor;
 use App\Entity\LocalUser;
-use App\Entity\Profile;
 use App\Security\Authenticator;
 use App\Security\EmailVerifier;
 use app\Util\Common;
@@ -81,11 +81,11 @@ class Security extends Controller
                 throw new \Exception(_m('Invalid nickname'));
             }
 
-            $profile = Profile::create(['nickname' => $data['nickname']]);
-            $user    = LocalUser::create(['nickname' => $data['nickname'], 'email' => $data['email'], 'password' => $data['password']]);
+            $actor = GSActor::create(['nickname' => $data['nickname']]);
+            $user  = LocalUser::create(['nickname' => $data['nickname'], 'email' => $data['email'], 'password' => $data['password']]);
 
             DB::persist($user);
-            DB::persist($profile);
+            DB::persist($actor);
             DB::flush();
 
             // generate a signed url and email it to the user
