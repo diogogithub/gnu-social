@@ -132,7 +132,9 @@ class GNUsocial implements EventSubscriberInterface
             Mailer::setMailer($this->mailer);
             Router::setRouter($this->router, $this->url_generator);
 
-            DefaultSettings::setDefaults();
+            if (isset($_ENV['HTTPS']) || isset($_ENV['HTTP_HOST'])) {
+                DefaultSettings::setDefaults();
+            }
 
             Cache::setupCache();
 
