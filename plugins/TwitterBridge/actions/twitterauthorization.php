@@ -1,34 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Class for doing OAuth authentication against Twitter
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Plugin
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @author    Julien C <chaumond@gmail.com>
  * @copyright 2009-2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 require_once dirname(__DIR__) . '/twitter.php';
 require_once INSTALLDIR . '/lib/util/oauthclient.php';
@@ -41,20 +38,18 @@ require_once INSTALLDIR . '/lib/util/oauthclient.php';
  * (Foreign_link) between the StatusNet user and Twitter user and stores the
  * access token and secret in the link.
  *
- * @category Plugin
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @author   Julien C <chaumond@gmail.com>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
- *
+ * @category  Plugin
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @author    Julien C <chaumond@gmail.com>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class TwitterauthorizationAction extends FormAction
 {
-    var $twuid        = null;
-    var $tw_fields    = null;
-    var $access_token = null;
-    var $verifier     = null;
+    public $twuid        = null;
+    public $tw_fields    = null;
+    public $access_token = null;
+    public $verifier     = null;
 
     protected $needLogin = false;   // authorization page can also be used to create a new user
 
@@ -75,7 +70,7 @@ class TwitterauthorizationAction extends FormAction
 
                 common_redirect(common_local_url('twittersettings'));
             } catch (NoResultException $e) {
-                // but if we don't have a foreign user linked, let's continue authorization procedure.                
+                // but if we don't have a foreign user linked, let's continue authorization procedure.
             }
         }
     }
@@ -97,15 +92,15 @@ class TwitterauthorizationAction extends FormAction
                 // TRANS: Form validation error displayed when the checkbox to agree to the license has not been checked.
                 throw new ClientException(_m('You cannot register if you do not agree to the license.'));
             }
-            return $this->createNewUser();
+            $this->createNewUser();
         } elseif ($this->arg('connect')) {
             common_debug('TwitterBridgeDebug - POST with connect');
-            return $this->connectNewUser();
+            $this->connectNewUser();
+        } else {
+            common_debug('TwitterBridgeDebug - ' . print_r($this->args, true));
+            // TRANS: Form validation error displayed when an unhandled error occurs.
+            throw new ClientException(_m('No known action for POST.'));
         }
-
-        common_debug('TwitterBridgeDebug - ' . print_r($this->args, true));
-        // TRANS: Form validation error displayed when an unhandled error occurs.
-        throw new ClientException(_m('No known action for POST.'));
     }
 
     /**
@@ -142,9 +137,9 @@ class TwitterauthorizationAction extends FormAction
      * Called when Twitter returns an authorized request token. Exchanges
      * it for an access token and stores it.
      *
-     * @return nothing
+     * @return void
      */
-    function saveAccessToken()
+    private function saveAccessToken(): void
     {
         // Check to make sure Twitter returned the same request
         // token we sent them
@@ -165,7 +160,6 @@ class TwitterauthorizationAction extends FormAction
             // Test the access token and get the user's Twitter info
             $client       = new TwitterOAuthClient($atok->key, $atok->secret);
             $twitter_user = $client->verifyCredentials();
-
         } catch (OAuthClientException $e) {
             $msg = sprintf(
                 'OAuth client error - code: %1$s, msg: %2$s',
@@ -182,14 +176,13 @@ class TwitterauthorizationAction extends FormAction
 
             $this->saveForeignLink($this->scoped->getID(), $twitter_user->id, $atok);
             save_twitter_user($twitter_user->id, $twitter_user->screen_name);
-
         } else {
-
             $this->twuid = $twitter_user->id;
             $this->tw_fields = array("screen_name" => $twitter_user->screen_name,
                                      "fullname" => $twitter_user->name);
             $this->access_token = $atok;
-            return $this->tryLogin();
+            $this->tryLogin();
+            return;
         }
 
         // Clean up the the mess we made in the session
@@ -210,10 +203,13 @@ class TwitterauthorizationAction extends FormAction
      * @param int        $twuid   Twitter user ID
      * @param OAuthToken $token   the access token to save
      *
-     * @return nothing
+     * @return void
      */
-    function saveForeignLink($user_id, $twuid, $access_token)
-    {
+    private function saveForeignLink(
+        int $user_id,
+        int $twuid,
+        OAuthToken $access_token
+    ): void {
         $flink = new Foreign_link();
 
         $flink->user_id = $user_id;
@@ -247,17 +243,15 @@ class TwitterauthorizationAction extends FormAction
             // TRANS: Server error displayed when linking to a Twitter account fails.
             throw new ServerException(_m('Could not link your Twitter account.'));
         }
-
-        return $flink_id;
     }
 
-    function getInstructions()
+    public function getInstructions()
     {
         // TRANS: Page instruction. %s is the StatusNet sitename.
         return sprintf(_m('This is the first time you have logged into %s so we must connect your Twitter account to a local account. You can either create a new account, or connect with your existing account, if you have one.'), common_config('site', 'name'));
     }
 
-    function title()
+    public function title()
     {
         // TRANS: Page title.
         return _m('Twitter Account Setup');
@@ -285,7 +279,7 @@ class TwitterauthorizationAction extends FormAction
      * Should probably be replaced with an extensible mini version of
      * the core registration form.
      */
-    function showContent()
+    public function showContent()
     {
         $this->elementStart('form', array('method' => 'post',
                                           'id' => 'form_settings_twitter_connect',
@@ -305,12 +299,18 @@ class TwitterauthorizationAction extends FormAction
         // Only allow new account creation if site is not flagged invite-only
         if (!common_config('site', 'inviteonly')) {
             $this->elementStart('fieldset');
-            $this->element('legend', null,
-                           // TRANS: Fieldset legend.
-                           _m('Create new account'));
-            $this->element('p', null,
-                           // TRANS: Sub form introduction text.
-                          _m('Create a new user with this nickname.'));
+            $this->element(
+                'legend',
+                null,
+                // TRANS: Fieldset legend.
+                _m('Create new account')
+            );
+            $this->element(
+                'p',
+                null,
+                // TRANS: Sub form introduction text.
+                _m('Create a new user with this nickname.')
+            );
             $this->elementStart('ul', 'form_data');
 
             // Hook point for captcha etc
@@ -318,17 +318,23 @@ class TwitterauthorizationAction extends FormAction
 
             $this->elementStart('li');
             // TRANS: Field label.
-            $this->input('newname', _m('New nickname'),
-                         $this->username ?: '',
-                         // TRANS: Field title for nickname field.
-                         _m('1-64 lowercase letters or numbers, no punctuation or spaces.'));
+            $this->input(
+                'newname',
+                _m('New nickname'),
+                $this->username ?: '',
+                // TRANS: Field title for nickname field.
+                _m('1-64 lowercase letters or numbers, no punctuation or spaces.')
+            );
             $this->elementEnd('li');
             $this->elementStart('li');
             // TRANS: Field label.
-            $this->input('email', _m('LABEL','Email'), $this->getEmail(),
-                         // TRANS: Field title for e-mail address field.
-                         _m('Used only for updates, announcements, '.
-                           'and password recovery'));
+            $this->input(
+                'email',
+                _m('LABEL', 'Email'),
+                $this->getEmail(),
+                // TRANS: Field title for e-mail address field.
+                _m('Used only for updates, announcements, and password recovery')
+            );
             $this->elementEnd('li');
 
             // Hook point for captcha etc
@@ -336,17 +342,23 @@ class TwitterauthorizationAction extends FormAction
 
             $this->elementEnd('ul');
             // TRANS: Button text for creating a new StatusNet account in the Twitter connect page.
-            $this->submit('create', _m('BUTTON','Create'));
+            $this->submit('create', _m('BUTTON', 'Create'));
             $this->elementEnd('fieldset');
         }
 
         $this->elementStart('fieldset');
-        $this->element('legend', null,
-                       // TRANS: Fieldset legend.
-                       _m('Connect existing account'));
-        $this->element('p', null,
-                       // TRANS: Sub form introduction text.
-                       _m('If you already have an account, login with your username and password to connect it to your Twitter account.'));
+        $this->element(
+            'legend',
+            null,
+            // TRANS: Fieldset legend.
+            _m('Connect existing account')
+        );
+        $this->element(
+            'p',
+            null,
+            // TRANS: Sub form introduction text.
+            _m('If you already have an account, login with your username and password to connect it to your Twitter account.')
+        );
         $this->elementStart('ul', 'form_data');
         $this->elementStart('li');
         // TRANS: Field label.
@@ -360,9 +372,12 @@ class TwitterauthorizationAction extends FormAction
         $this->elementEnd('fieldset');
 
         $this->elementStart('fieldset');
-        $this->element('legend', null,
-                       // TRANS: Fieldset legend.
-                       _m('License'));
+        $this->element(
+            'legend',
+            null,
+            // TRANS: Fieldset legend.
+            _m('License')
+        );
         $this->elementStart('ul', 'form_data');
         $this->elementStart('li');
         $this->element('input', array('type' => 'checkbox',
@@ -387,7 +402,7 @@ class TwitterauthorizationAction extends FormAction
         $this->elementEnd('ul');
         $this->elementEnd('fieldset');
         // TRANS: Button text for connecting an existing StatusNet account in the Twitter connect page..
-        $this->submit('connect', _m('BUTTON','Connect'));
+        $this->submit('connect', _m('BUTTON', 'Connect'));
         $this->elementEnd('fieldset');
         $this->elementEnd('form');
     }
@@ -397,7 +412,7 @@ class TwitterauthorizationAction extends FormAction
      *
      * @return string
      */
-    function getEmail()
+    private function getEmail(): string
     {
         $email = $this->trimmed('email');
         if (!empty($email)) {
@@ -469,17 +484,27 @@ class TwitterauthorizationAction extends FormAction
             $args['email'] = $email;
         }
 
-        common_debug('TwitterBridgeDebug - registering user with args:'.var_export($args,true));
+        common_debug(
+            'TwitterBridgeDebug - registering user with args:'
+            . var_export($args, true)
+        );
         $user = User::register($args);
 
-        common_debug('TwitterBridgeDebug - registered the user and saving foreign link for '.$user->id);
-
-        $this->saveForeignLink($user->id,
-                               $this->twuid,
-                               $this->access_token);
-
-        common_debug('TwitterBridgeDebug - saving twitter user after creating new local user '.$user->id);
+        common_debug(
+            'TwitterBridgeDebug - registered the user and saving twitter user'
+        );
         save_twitter_user($this->twuid, $this->tw_fields['screen_name']);
+
+        common_debug(
+            'TwitterBridgeDebug - saving foreign link after creating new '
+            . 'local user ' . $user->id
+        );
+
+        $this->saveForeignLink(
+            $user->id,
+            $this->twuid,
+            $this->access_token
+        );
 
         common_set_user($user);
         common_real_login(true);
@@ -492,7 +517,7 @@ class TwitterauthorizationAction extends FormAction
         common_redirect(common_local_url('showstream', array('nickname' => $user->nickname)), 303);
     }
 
-    function connectNewUser()
+    private function connectNewUser(): void
     {
         $nickname = $this->trimmed('nickname');
         $password = $this->trimmed('password');
@@ -511,9 +536,11 @@ class TwitterauthorizationAction extends FormAction
         }
 
         // throws exception on failure
-        $this->saveForeignLink($user->id,
-                               $this->twuid,
-                               $this->access_token);
+        $this->saveForeignLink(
+            $user->id,
+            $this->twuid,
+            $this->access_token
+        );
 
         save_twitter_user($this->twuid, $this->tw_fields['screen_name']);
 
@@ -526,7 +553,7 @@ class TwitterauthorizationAction extends FormAction
         $this->goHome($user->nickname);
     }
 
-    function connectUser()
+    private function connectUser(): void
     {
         $user = common_current_user();
 
@@ -570,22 +597,23 @@ class TwitterauthorizationAction extends FormAction
         throw new ServerException(_m('No foreign link found for Twitter user'));
     }
 
-    function goHome($nickname)
+    private function goHome(string $nickname): void
     {
         $url = common_get_returnto();
         if ($url) {
             // We don't have to return to it again
             common_set_returnto(null);
         } else {
-            $url = common_local_url('all',
-                                    array('nickname' =>
-                                          $nickname));
+            $url = common_local_url(
+                'all',
+                ['nickname' => $nickname]
+            );
         }
 
         common_redirect($url, 303);
     }
 
-    function bestNewNickname()
+    private function bestNewNickname(): ?string
     {
         try {
             return Nickname::normalize($this->tw_fields['fullname'], true);
