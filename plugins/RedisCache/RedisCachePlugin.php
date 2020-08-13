@@ -15,7 +15,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin inplementing Redis based caching
+ * Plugin implementing Redis based caching
  *
  * @category  Files
  * @package   GNUsocial
@@ -34,6 +34,10 @@ class RedisCachePlugin extends Plugin
 {
     const PLUGIN_VERSION = '0.1.0';
 
+    public static $cacheInitialized = false;
+
+    public $persistent = null;
+
     // settings which can be set in config.php with addPlugin('Embed', ['param'=>'value', ...]);
     public $server = null;
     public $defaultExpiry = 86400; // 24h
@@ -42,22 +46,29 @@ class RedisCachePlugin extends Plugin
 
     public function onInitializePlugin()
     {
-        $this->_ensureConn();
-
-        return true;
-    }
-
-    private function _ensureConn()
-    {
-        if ($this->client === null) {
-            $this->client = new Client($this->server);
+        if (self::$cacheInitialized) {
+            $this->persistent = true;
+        } else {
+            // If we're a parent command-line process we need
+            // to be able to close out the connection after
+            // forking, so disable persistence.
+            //
+            // We'll turn it back on again the second time
+            // through which will either be in a child process,
+            // or a single-process script which is switching
+            // configurations.
+            $this->persistent = (php_sapi_name() === 'cli') ? false : true;
         }
+
+        $this->ensureConn();
+        self::$cacheInitialized = true;
+        return true;
     }
 
     public function onStartCacheGet($key, &$value)
     {
         try {
-            $this->_ensureConn();
+            $this->ensureConn();
             $data = $this->client->get($key);
         } catch (PredisException $e) {
             common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
@@ -91,8 +102,7 @@ class RedisCachePlugin extends Plugin
         }
 
         try {
-            $this->_ensureConn();
-
+            $this->ensureConn();
             $ret = $this->client->setex($key, $expiry, serialize($value));
         } catch (PredisException $e) {
             $ret = false;
@@ -116,7 +126,7 @@ class RedisCachePlugin extends Plugin
         }
 
         try {
-            $this->_ensureConn();
+            $this->ensureConn();
             $ret = $this->client->del($key);
         } catch (PredisException $e) {
             common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
@@ -129,7 +139,7 @@ class RedisCachePlugin extends Plugin
     public function onStartCacheIncrement($key, $step, $value)
     {
         try {
-            $this->_ensureConn();
+            $this->ensureConn();
             $this->client->incrby($key, $step);
         } catch (PredisException $e) {
             common_log(LOG_ERR, 'RedisCache encountered exception ' . get_class($e) . ': ' . $e->getMessage());
@@ -137,6 +147,33 @@ class RedisCachePlugin extends Plugin
         }
 
         return false;
+    }
+
+    public function onStartCacheReconnect(bool &$success): bool
+    {
+        if (is_null($this->client)) {
+            // nothing to do
+            return true;
+        }
+        if ($this->persistent) {
+            common_log(LOG_ERR, 'Cannot close persistent Redis connection');
+            $success = false;
+        } else {
+            common_log(LOG_INFO, 'Closing Redis connection');
+            $success = $this->client->disconnect();
+            $this->client = null;
+        }
+        return false;
+    }
+
+    private function ensureConn(): void
+    {
+        if (is_null($this->client)) {
+            $this->client = new Client(
+                $this->server,
+                ['persistent' => $this->persistent]
+            );
+        }
     }
 
     public function onPluginVersion(array &$versions): bool
