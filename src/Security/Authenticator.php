@@ -23,6 +23,7 @@ use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Entity\User;
 use App\Util\Nickname;
+use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -90,8 +91,10 @@ class Authenticator extends AbstractFormLoginAuthenticator
         }
 
         $nick = Nickname::normalize($credentials['nickname']);
-        $user = DB::findOneBy('local_user', ['or' => ['nickname' => $nick, 'outgoing_email' => $nick]]);
-        if (!$user) {
+        $user = null;
+        try {
+            $user = DB::findOneBy('local_user', ['or' => ['nickname' => $nick, 'outgoing_email' => $nick]]);
+        } catch (Exception $e) {
             throw new CustomUserMessageAuthenticationException(
                 _m('\'{nickname}\' doesn\'t match any registered nickname or email.', ['{nickname}' => $credentials['nickname']]));
         }
