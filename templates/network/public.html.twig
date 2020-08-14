@@ -21,13 +21,48 @@
 
 {% block body %}
     <div class="content">
-        {% if notices is defined %}
-            {% for notice in notices %}
-                <div> {{notice}} </div>
-            {% endfor %}
-        {% else %}
-            No notices here.
-        {% endif %}
+        <div class="main">
+            <nav class='main-nav'>
+                <ul>
+                    <li>
+                        <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Timeline</a>
+                    </li>
+                    <li>
+                        <a href="#">Groups</a>
+                    </li>
+                    <li>
+                        <a href="#">People</a>
+                    </li>
+                </ul>
+            </nav>
+            <hr>
+            <div class="notices">
+                <nav class='main-nav'>
+                    <ul>
+                        <li>
+                            <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Public</a>
+                        </li>
+                        <li>
+                            <a href="#">Home</a>
+                        </li>
+                        <li>
+                            <a href="#">Network</a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="timeline-nav">
+                    <div class="notices">
+                        {% if notices is defined %}
+                            {% for notice in notices %}
+                                <div> {{notice}} </div>
+                            {% endfor %}
+                        {% else %}
+                            No notices here.
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock body %}
 
