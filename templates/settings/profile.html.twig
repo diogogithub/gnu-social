@@ -3,34 +3,36 @@
 {% block title %}Profile Settings{% endblock %}
 
 {% block body %}
-
     <div class='content'>
-        {% block primary_nav %}
-            {{ parent() }}
-        {% endblock primary_nav %}
+        <div class="main">
+            {% block primary_nav %}
+                {{ parent() }}
+            {% endblock primary_nav %}
 
-        {% block secundary_nav %}
-            <nav class='set-nav2'>
-                <ul>
-                    {# {% for tab in tabs %} #}
-                    {# {% endfor %} #}
+            <div class="secundary">
+                {% block secundary_nav %}
+                    <nav class='set-nav'>
+                        <ul>
+                            {# {% for tab in tabs %} #}
+                            {# {% endfor %} #}
 
-                    <li>
-                        <a href="{{ path('settings_personal_info') }}"
-                           class='hover-effect {{ active('settings_personal_info') }}'>Personal Info</a>
-                    </li>
-                    <li>
-                        <a href="{{ path('settings_avatar') }}" class='hover-effect {{ active('settings_avatar') }}'>Avatar</a>
-                    </li>
-                </ul>
-            </nav>
-        {% endblock secundary_nav %}
+                            <li>
+                                <a href="{{ path('settings_personal_info') }}"
+                                   class='hover-effect {{ active('settings_personal_info') }}'>Personal Info</a>
+                            </li>
+                            <li>
+                                <a href="{{ path('settings_avatar') }}" class='hover-effect {{ active('settings_avatar') }}'>Avatar</a>
+                            </li>
+                        </ul>
+                    </nav>
+                {% endblock secundary_nav %}
 
-        {% block form %}
-            <div class='form'>
-                {{ form(prof) }}
+                {% block form %}
+                    <div class='form'>
+                        {{ form(prof) }}
+                    </div>
+                {% endblock form %}
             </div>
-        {% endblock form %}
-
+        </div>
     </div>
 {% endblock body %}

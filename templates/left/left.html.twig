@@ -16,8 +16,9 @@
             </div>
             <div class='navbar'>
                 <div class="left-nav">
+                    <hr>
                     <div class='profile'>
-                        <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
+                        <img src='{{ asset('assets/default-avatar.svg') }}' alt="Your avatar." class="icon icon-avatar">
                         <div class="info">
                             <b id="nick">{{ app.user.username }}</b>
                             <div class="tags">
