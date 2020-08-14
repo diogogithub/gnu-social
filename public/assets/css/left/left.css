@@ -4,7 +4,7 @@
       width: var(--nav-size);
       height: calc(100vh - (3 * var(--unit-size)));
       position: fixed;
-      background-color: var(--bg5);
+      background-color: var(--bg1);
       margin-top: calc(3 * var(--main-size));
 }
 .navbar .left-nav {
@@ -17,6 +17,7 @@
       display: flex;
       flex-wrap: wrap;
       flex-direction: row;
+      justify-content: space-evenly;
       font-size: var(--medium-size);
       padding: var(--unit-size);
       margin-bottom: var(--unit-size);
@@ -71,7 +72,7 @@
 .profile {
       display: flex;
       flex-wrap: wrap;
-      background-color: var(--bg4);
+      background-color: var(--bg2);
       padding: var(--unit-size);
       font-size: var(--small-size);
       margin-bottom: var(--unit-size);
