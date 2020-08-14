@@ -24,7 +24,7 @@
 .set-nav ul {
       display: flex;
       align-items: stretch;
-      justify-content: space-evenly;
+      justify-content: space-around;
       width: 100%;
       margin-left: var(--side-margin);
       margin-right: var(--side-margin);

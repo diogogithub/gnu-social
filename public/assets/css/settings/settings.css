@@ -12,7 +12,7 @@
 .set-nav {
       order: 1;
       display: flex;
-      justify-content: space-between;
+      justify-content: space-evenly;
       flex-wrap: wrap;
       width: 100%;
       background-color: var(--bg5);

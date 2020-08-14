@@ -4,11 +4,7 @@
       width: var(--nav-size);
       height: calc(100vh - (3 * var(--unit-size)));
       position: fixed;
-      background: rgb(51,61,71);
-      background: -moz-linear-gradient(80deg, rgba(51,61,71,1) 0%, rgba(39,46,54,1) 90%);
-      background: -webkit-linear-gradient(80deg, rgba(51,61,71,1) 0%, rgba(39,46,54,1) 90%);
-      background: linear-gradient(80deg, rgba(51,61,71,1) 0%, rgba(39,46,54,1) 90%);
-      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#333d47",endColorstr="#272e36",GradientType=1);
+      background: var(--bg1);
       margin-top: calc(3 * var(--main-size));
 }
 .navbar .left-nav {
@@ -35,7 +31,7 @@
 }
 .navbar a {
       display: block;
-      color: #91B9D0;
+      color: var(--accent);
       font-size: var(--medium-size);
 }
 .navbar .left-nav a {
@@ -48,11 +44,11 @@
       margin-top: var(--unit-size);
 }
 .navbar a:hover {
-      color: #F6F6F6;
+      color: var(--fg);
       transition: all 0.8s ease;
 }
 .navbar a:focus {
-      color: #F6F6F6;
+      color: var(--fg);
       transition: all 0.8s ease;
 }
 
@@ -84,7 +80,7 @@
 .profile {
       display: flex;
       flex-wrap: wrap;
-      background-color: rgba(0, 0, 0, 0.20);
+      background-color: var(--bg2);
       padding: var(--unit-size);
       font-size: var(--small-size);
       margin-bottom: var(--unit-size);
@@ -117,7 +113,7 @@
 }
 
 .info .tags i {
-      color: #91B9D0;
+      color: var(--accent);
 }
 
 .info .tags i:last-child {
