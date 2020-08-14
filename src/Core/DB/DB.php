@@ -34,6 +34,7 @@ use App\Util\Formatting;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Query;
 use Exception;
 
 abstract class DB
@@ -42,6 +43,16 @@ abstract class DB
     public static function setManager($m): void
     {
         self::$em = $m;
+    }
+
+    public static function dql(string $query, ?array $params)
+    {
+        $q = new Query(self::$em);
+        $q->setDQL($query);
+        foreach ($params as $k => $v) {
+            $q->setParameter($k, $v);
+        }
+        return $q->getResult();
     }
 
     private static array $find_by_ops = ['or', 'and', 'eq', 'neq', 'lt', 'lte',
@@ -100,8 +111,9 @@ abstract class DB
                 $args[0] = '\App\Entity\\' . ucfirst(Formatting::snakeCaseToCamelCase($args[0]));
             }
         }
-        if (($args[0] ?? '') === '\App\Entity\Gsactor') {
-            $args[0] = '\App\Entity\GSActor';
+
+        if (isset($args[0]) && is_string($args[0])) {
+            $args[0] = preg_replace('/Gsactor/', 'GSActor', $args[0] ?? '');
         }
 
         return self::$em->{$name}(...$args);
