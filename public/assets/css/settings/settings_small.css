@@ -15,11 +15,10 @@
       justify-content: space-between;
       flex-wrap: wrap;
       width: 100%;
-      background-color: #2A323B;
+      background-color: var(--bg5);
       padding: var(--medium-size);
       font-size: var(--medium-size);
       font-family: var(--head-font);
-      box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
 }
 
 .set-nav ul {
@@ -41,11 +40,11 @@
 }
 
 .set-nav a {
-      color: #91B9D0;
+      color: var(--accent);
 }
 
 .set-nav a:hover {
-      color: #F6F6F6;
+      color: var(--fg);
       transition: all 0.8s ease;
 }
 
@@ -55,7 +54,7 @@
       justify-content: space-between;
       flex-wrap: wrap;
       width: 100%;
-      background-color: #00000050;
+      background-color: var(--bg5);
       padding: var(--medium-size);
       margin-top: var(--unit-size);
       margin-left: 1%;
@@ -63,7 +62,6 @@
       font-size: var(--medium-size);
       font-family: var(--head-font);
       border-radius: var(--unit-size) var(--unit-size) 0 0;
-      box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
 }
 
 .set-nav2 ul {
@@ -85,44 +83,44 @@
 }
 
 .set-nav2 a {
-      color: #91B9D0;
+      color: var(--accent);
 }
 
 .set-nav2 a:hover {
-      color: #F6F6F6;
+      color: var(--fg);
       transition: all 0.8s ease;
 }
 
 
 .active {
-      color: #F6F6F6 !important;
+      color: var(--fg) !important;
       font-weight: 700;
 }
 
 .form {
       order: 3;
-      background-color: #00000050;
+      background-color: var(--bg5);
       padding: calc(2*var(--unit-size));
       font-size: var(--medium-size);
       height: 100%;
       margin-left: 1%;
       margin-right: 1%;
       margin-top: 0;
-      box-shadow: unset;
+      box-shadow: var(--shadow);
       border-radius: 0 0 var(--unit-size) var(--unit-size);
 }
 
 .form-single {
       order: 3;
-      background-color: #00000050;
+      background-color: var(--bg5);
       padding: calc(2*var(--unit-size));
       font-size: var(--medium-size);
       height: 100%;
       width: 100%;
       margin-left: 1%;
       margin-right: 1%;
-      margin-top: var(--unit-size);
-      box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
+      margin-top: calc(2 * var(--unit-size));
+      box-shadow: var(--shadow);
       border-radius: var(--unit-size);
 }
 
@@ -137,10 +135,10 @@ label {
 input[type=text] {
       margin-top: calc(var(--unit-size) * 0.5);
       width: calc(100% - var(--unit-size));
-      background-color: rgba(0, 0, 0, 0.30);
+      background-color: var(--bg1);
       border-style: none;
       padding: calc(var(--unit-size) * 0.5);
-      color: #F6F6F6;
+      color: var(--fg);
       border-radius: calc(var(--unit-size) * 0.5);
       font-size: var(--medium-size);
 }
@@ -150,11 +148,11 @@ input[type=text] {
 }
 
 button[type=submit] {
-      background: rgba(0, 0, 0, 0.30);
+      background: var(--bg1);
       padding: calc(var(--unit-size) * 0.8) calc(var(--unit-size) * 2);
-      color: #F6F6F6;
+      color: var(--fg);
       border-style: solid;
-      border-color: rgba(144, 185, 208, 0.65);
+      border-color: var(--accent);
       border-radius: var(--unit-size);
       border-width: 2px;
       font-family: 'Montserrat', sans-serif;
@@ -165,11 +163,11 @@ button[type=submit] {
 #form_bio {
       margin-top: calc(var(--unit-size) * 0.5);
       width: calc(100% - var(--unit-size));
-      height: calc(5 * var(--unit-size));
-      background-color: rgba(0, 0, 0, 0.30);
+      height: calc(10 * var(--unit-size));
+      background-color: var(--bg1);
       border-style: none;
       padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
-      color: #F6F6F6;
+      color: var(--fg);
       border-radius: calc(var(--unit-size) * 0.5);
       font-size: var(--medium-size);
       word-wrap: break-word;
@@ -179,20 +177,20 @@ button[type=submit] {
 #form_phone_number {
       margin-top: calc(var(--unit-size) * 0.5);
       width: calc(100% - var(--unit-size));
-      background-color: rgba(0, 0, 0, 0.30);
+      background-color: var(--bg1);
       border-style: none;
       padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
-      color: #F6F6F6;
+      color: var(--fg);
       border-radius: calc(var(--unit-size) * 0.5);
       font-size: var(--medium-size);
 }
 
 #form_language{
       margin-top: calc(var(--unit-size) * 0.5);
-      background-color: rgba(0, 0, 0, 0.30);
+      background-color: var(--bg1);
       border-style: none;
       padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
-      color: #F6F6F6;
+      color: var(--fg);
       border-radius: calc(var(--unit-size) * 0.5);
       font-size: var(--medium-size);
 }
@@ -202,20 +200,19 @@ select {
       appearance: none;
       background-image: url("../../icons/drop.svg");
       background-size: var(--main-size);
-      background-position: center right;
+      background-position: 95% 50%;
       background-repeat: no-repeat;
 }
 
 .help-text {
       font-size: var(--medium-size);
       font-style: italic;
-      color: rgba(246, 246, 246, 0.8);
+      color: var(--fg);
       margin-bottom: var(--unit-size);
 }
 
 .form-single input[type=checkbox] {
       margin-left: var(--unit-size);
-      float: right;
 }
 
 /* JS Cropping */
@@ -233,7 +230,7 @@ select {
 }
 
 button {
-      background-color: #f6f6f6;
+      background-color: var(--fg);
       padding: var(--small-size);
       border: none;
       border-radius: var(--small-size);
@@ -242,13 +239,13 @@ button {
 /* NOTIFICATIONS TABS */
 /* visual feedback */
 ul input[type=radio] + label {
-      color: #91B9D0;
+      color: var(--accent);
 }
 ul input[type=radio]:checked + label {
-      color: #F6F6F6;
+      color: var(--fg);
 }
 ul input[type=radio]:focus + label {
-      color: #F6F6F6;
+      color: var(--fg);
 }
 
 /* show/hide each tab */
@@ -282,8 +279,7 @@ input[type=radio] {
       display: flex;
       flex-wrap: wrap;
       border-radius: var(--unit-size);
-      box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
-      background-color: #00000050;
+      background-color: var(--bg5);
       justify-content: space-evenly;
       width: 100%;
 }
@@ -293,7 +289,7 @@ input[type=radio] {
 }
 
 #tabs {
-      padding: var(--unit-size);
+      padding: var(--medium-size);
       text-transform: capitalize;
 }
 
