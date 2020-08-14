@@ -4,7 +4,7 @@
       width: var(--nav-size);
       height: calc(100vh - (3 * var(--unit-size)));
       position: fixed;
-      background-color: rgba(0, 0, 0, 0.40);
+      background-color: var(--bg5);
       margin-top: calc(3 * var(--main-size));
 }
 .navbar .left-nav {
@@ -31,7 +31,7 @@
 }
 .navbar a {
       display: block;
-      color: #91B9D0;
+      color: var(--accent);
       font-size: var(--medium-size);
 }
 .navbar .left-nav a {
@@ -44,11 +44,11 @@
       margin-top: var(--unit-size);
 }
 .navbar a:hover {
-      color: #F6F6F6;
+      color: var(--fg);
       transition: all 0.8s ease;
 }
 .navbar a:focus {
-      color: #F6F6F6;
+      color: var(--fg);
       transition: all 0.8s ease;
 }
 
@@ -71,7 +71,7 @@
 .profile {
       display: flex;
       flex-wrap: wrap;
-      background-color: rgba(0, 0, 0, 0.20);
+      background-color: var(--bg4);
       padding: var(--unit-size);
       font-size: var(--small-size);
       margin-bottom: var(--unit-size);
@@ -104,7 +104,7 @@
 }
 
 .info .tags i {
-      color: #91B9D0;
+      color: var(--accent);
 }
 
 .info .tags i:last-child {
