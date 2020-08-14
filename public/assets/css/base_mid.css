@@ -197,11 +197,9 @@ b {
       margin-top: calc(3 * var(--main-size));
 }
 
-.right-panel input[type=checkbox] {
-      transform: scale(3);
-      -ms-transform: scale(3);
-      -webkit-transform: scale(3);
-      padding: 3em;
+input.larger {
+      width: var(--main-size);
+      height: calc( 2 * var(--main-size));
 }
 
 /* untoggled */
