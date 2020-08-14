@@ -19,12 +19,16 @@
 
 namespace Component\Media;
 
+use App\Core\DB\DB;
+use App\Core\Event;
 use App\Core\Log;
 use App\Core\Module;
 use App\Entity\File;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Nickname;
+use Symfony\Component\Asset\Package;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
@@ -86,5 +90,16 @@ class Media extends Module
     public function onAddRoute($r)
     {
         $r->connect('avatar', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'send']);
+    }
+
+    public function onEndTwigPopulateVars(array &$vars)
+    {
+        if (($user = Common::user()) !== null && ($avatar = DB::find('avatar', ['gsactor_id' => $user->getActor()->getId()])) != null) {
+            $vars['user_avatar'] = $avatar->getUrl();
+        } else {
+            $package             = new Package(new EmptyVersionStrategy());
+            $vars['user_avatar'] = $package->getUrl('/assets/default-avatar.svg');
+        }
+        return Event::next;
     }
 }
