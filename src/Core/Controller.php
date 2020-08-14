@@ -32,8 +32,6 @@
 
 namespace App\Core;
 
-use App\Core\DB\DB;
-use App\Util\Common;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -62,14 +60,8 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $controller = $event->getController();
         $request    = $event->getRequest();
 
-        if (($user = Common::user()) !== null && ($avatar = DB::find('avatar', ['gsactor_id' => $user->getActor()->getId()])) != null) {
-            $avatar_filename = $avatar->getUrl();
-        } else {
-            $avatar_filename = '/public/assets/default_avatar.svg';
-        }
-
-        $this->vars = ['controler' => $controller, 'request' => $request, 'user_avatar' => $avatar_filename];
-        Event::handle('StartTwigPopulateVars', [&$this->vars]);
+        $this->vars = ['controler' => $controller, 'request' => $request];
+        Event::handle('start_twig_populate_vars', [&$this->vars]);
 
         return $event;
     }
@@ -83,7 +75,7 @@ class Controller extends AbstractController implements EventSubscriberInterface
         }
 
         $this->vars = array_merge_recursive($this->vars, $response);
-        Event::handle('EndTwigPopulateVars', [&$this->vars]);
+        Event::handle('end_twig_populate_vars', [&$this->vars]);
 
         $template = $this->vars['_template'];
         unset($this->vars['_template'], $this->vars['request']);
