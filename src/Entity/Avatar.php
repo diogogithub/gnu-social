@@ -111,12 +111,12 @@ class Avatar extends Entity
 
     public static function getFilePathStatic(string $filename): string
     {
-        return Common::config('avatar', 'dir') . '/' . $filename;
+        return Common::config('avatar', 'dir') . $filename;
     }
 
     public function getFilePath(): string
     {
-        return Common::config('avatar', 'dir') . '/' . $this->getFile()->getFileName();
+        return Common::config('avatar', 'dir') . $this->getFile()->getFileName();
     }
 
     /**
