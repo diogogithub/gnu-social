@@ -4,16 +4,19 @@
 
 {% block body %}
 
-      <div class='content'>
+    <div class='content'>
+        <div class="main">
             {% block primary_nav %}
-                  {{ parent() }}
+                {{ parent() }}
             {% endblock primary_nav %}
-
-            {% block form %}
-                  <div class='form-single'>
+            <div class="secundary">
+                {% block form %}
+                    <div class='form-single'>
                         {{ form(acc) }}
-                  </div>
-            {% endblock form %}
-      </div>
+                    </div>
+                {% endblock form %}
+            </div>
+        </div>
+    </div>
 
 {% endblock body %}
