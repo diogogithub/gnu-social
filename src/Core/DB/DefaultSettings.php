@@ -78,6 +78,7 @@ abstract class DefaultSettings
                 'server'      => null,
                 'ssl'         => null,
                 'dir'         => INSTALLDIR . '/file/avatar/',
+                'default'     => '/assets/default-avatar.svg',
                 'max_size_px' => 300,
             ],
             'javascript' => [
