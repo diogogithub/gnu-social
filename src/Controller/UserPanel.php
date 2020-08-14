@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 /**
@@ -33,6 +35,7 @@ namespace App\Controller;
 
 // {{{ Imports
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
@@ -139,22 +142,25 @@ class UserPanel extends AbstractController
             } else {
                 throw new ClientException('Invalid form');
             }
-            $actor_id = Common::actor()->getId();
-            $file     = Media::validateAndStoreFile($sfile, Common::config('avatar', 'dir'), $file_title);
-            $avatar   = null;
-            try {
-                $avatar = DB::find('avatar', ['actor_id' => $actor_id]);
-            } catch (Exception $e) {
-            }
+            $actor    = Common::actor();
+            $actor_id = $actor->getId();
+            $file     = Media::validateAndStoreFile($sfile, Common::config('avatar', 'dir'), $file_title, $is_local = true, $use_unique = $actor_id);
+            $old_file = null;
+            $avatar   = DB::find('avatar', ['gsactor_id' => $actor_id]);
+            // Must get old id before inserting another one
             if ($avatar != null) {
-                $avatar->delete();
-            } else {
-                DB::persist($file);
-                DB::persist(Avatar::create(['actor_id' => $actor_id, 'file_id' => $file->getId()]));
+                $old_file = $avatar->delete();
             }
+            DB::persist($file);
+            // Can only get new id after inserting
+            DB::flush();
+            DB::persist(Avatar::create(['gsactor_id' => $actor_id, 'file_id' => $file->getId()]));
             DB::flush();
             // Only delete files if the commit went through
-            File::deleteFiles($fs_files_to_delete ?? []);
+            if ($old_file != null) {
+                @unlink($old_file);
+            }
+            Cache::delete('avatar-' . $actor->getNickname());
         }
 
         return ['_template' => 'settings/avatar.html.twig', 'avatar' => $form->createView()];
