@@ -16,16 +16,15 @@
       --accent: #81a1c1;
       --bg1: #2e3440;
       --bg2: #3b4252;
-      --bg3: #4c566a;
-      --bg4: #2e344075;
-      --bg5: #2e344090;
-      --shadow:  0px 0px 90px 0px rgba(46,52,64,0.95);
+      --bg3: #434c5e;
+      --bg4: #4c566a;
+      --shadow:  0px 0px 40px 0px rgba(46,52,64,0.95);
 }
 
 /* DEFAULTS */
 body,
 html {
-      background: var(--bg3);
+      background: var(--bg4);
       background-attachment: fixed;
       background-size: cover;
       color: var(--fg);
@@ -33,6 +32,11 @@ html {
       font-size: var(--main-size);
       margin: 0;
       padding: 0;
+}
+
+hr {
+      margin: 0;
+      color: var(--accent);
 }
 
 ul {
@@ -193,7 +197,7 @@ b {
       width: var(--nav-size);
       height: calc(100vh - (3 * var(--unit-size)));
       position: fixed;
-      background-color: var(--bg3);
+      background-color: var(--bg1);
       margin-top: calc(3 * var(--main-size));
 }
 
