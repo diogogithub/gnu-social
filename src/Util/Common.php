@@ -37,6 +37,7 @@ use App\Core\Router;
 use App\Core\Security;
 use App\Entity\GSActor;
 use App\Entity\LocalUser;
+use Exception;
 use Functional as F;
 
 abstract class Common
@@ -87,32 +88,12 @@ abstract class Common
      */
     public static function isSystemPath(string $str): bool
     {
-        // TODO Implement
-        return false;
-
-        // $paths = [];
-
-        // // All directory and file names in site root should be blacklisted
-        // $d = dir(PUBLICDIR);
-        // while (false !== ($entry = $d->read())) {
-        //     $paths[$entry] = true;
-        // }
-        // $d->close();
-
-        // // All top level names in the router should be blocked
-        // $router = Router::get();
-        // foreach ($router->m->getPaths() as $path) {
-        //     if (preg_match('/^([^\/\?]+)[\/\?]/', $path, $matches) && isset($matches[1])) {
-        //         $paths[$matches[1]] = true;
-        //     }
-        // }
-
-        // // FIXME: this assumes the 'path' is in the first-level directory, though common it's not certain
-        // foreach (['avatar', 'attachments'] as $cat) {
-        //     $paths[basename(common_config($cat, 'path'))] = true;
-        // }
-
-        // return in_arry($str, array_keys($paths));
+        try {
+            Router::match('/' . $str);
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     /**
