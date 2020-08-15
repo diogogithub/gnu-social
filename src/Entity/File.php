@@ -229,16 +229,16 @@ class File extends Entity
                 'is_url_protected' => ['type' => 'bool',     'default' => false, 'description' => 'true when URL is private (needs login)'],
                 'url_hash'         => ['type' => 'varchar',  'length' => 64,  'description' => 'sha256 of destination URL (url field)'],
                 'file_hash'        => ['type' => 'varchar',  'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
+                'actor_id'         => ['type' => 'int',      'description' => 'If set, used so each actor can have a version of this file (for avatars, for instance)'],
                 'mimetype'         => ['type' => 'varchar',  'length' => 50,  'description' => 'mime type of resource'],
                 'size'             => ['type' => 'int',      'description' => 'size of resource when available'],
                 'title'            => ['type' => 'text',     'description' => 'title of resource when available'],
-                'timestamp'        => ['type' => 'int',      'description' => 'unix timestamp according to http query'],
                 'is_local'         => ['type' => 'bool',     'description' => 'whether the file is stored locally'],
                 'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'unique keys' => [
-                'file_file_key' => ['file_hash'],
+                'file_file_key' => ['file_hash', 'actor_id'],
             ],
             'indexes' => [
                 'file_filehash_idx' => ['file_hash'],

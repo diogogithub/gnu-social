@@ -47,10 +47,10 @@ abstract class Utils
         $hash = hash_file(File::FILEHASH_ALGO, $sfile->getPathname());
         $file = File::create([
             'file_hash' => $hash,
+            'actor_id'  => $actor_id,
             'mimetype'  => $sfile->getMimeType(),
             'size'      => $sfile->getSize(),
             'title'     => $title ?: _m('Untitled attachment'),
-            'timestamp' => $sfile->getMTime(),
             'is_local'  => $is_local,
         ]);
         $sfile->move($dest_dir, $hash);
