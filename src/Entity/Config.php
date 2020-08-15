@@ -19,6 +19,8 @@
 
 namespace App\Entity;
 
+use App\Core\Entity;
+
 /**
  * Entity for app configuration
  *
@@ -33,7 +35,7 @@ namespace App\Entity;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Config
+class Config extends Entity
 {
     // {{{ Autocode
 
