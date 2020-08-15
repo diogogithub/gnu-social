@@ -8,7 +8,9 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}" media="screen and (min-width: 1300px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_mid.css') }}" media="screen and (max-width: 1300px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_small.css') }}" media="screen and (max-width: 750px)">
 {% endblock %}
 
 {% block header %}
