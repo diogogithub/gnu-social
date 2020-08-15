@@ -19,6 +19,7 @@
 
 namespace App\Entity;
 
+use App\Core\Entity;
 use DateTimeInterface;
 
 /**
@@ -35,7 +36,7 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class RelatedGroup
+class RelatedGroup extends Entity
 {
     // {{{ Autocode
 

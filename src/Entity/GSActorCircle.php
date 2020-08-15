@@ -17,6 +17,11 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
+namespace App\Entity;
+
+use App\Core\Entity;
+use DateTimeInterface;
+
 /**
  * Entity for List of gsactors
  *
@@ -31,12 +36,7 @@
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
-namespace App\Entity;
-
-use DateTimeInterface;
-
-class GSActorCircle
+class GSActorCircle extends Entity
 {
     // {{{ Autocode
 
