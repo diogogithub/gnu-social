@@ -26,7 +26,7 @@
                     <b id="nick">{{ user_nickname }}</b>
                     <div class="tags">
                       {% for tag in user_tags %}
-                        <i> {{ tag }} </i>
+                        <a href='#'><i> #{{ tag }} </i></a>
                       {% endfor %}
                     </div>
                     <div class="stats">
