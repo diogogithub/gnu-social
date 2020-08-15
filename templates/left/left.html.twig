@@ -8,72 +8,76 @@
 {% endblock %}
 
 {% block left %}
-    {% if app.user %}
-        <div id='left-panel'>
-            <input type="checkbox" id="toggle" autofocus>
-            <div class="icon-menu">
-                <label for="toggle" id='menu' tabindex="0"></label>
-            </div>
-            <div class='navbar'>
-                <div class="left-nav">
-                    <hr>
-                    <div class='profile'>
-                        <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
-                        <div class="info">
-                            <b id="nick">{{ user_nickname }}</b>
-                            <div class="tags">
-                              {% for tag in user_tags %}
-                                <i> {{ tag }} </i>
-                              {% endfor %}
-                            </div>
-                            <div class="stats">
-                                <span>
-                                    <b>1337</b>
-                                    Followers</span>
-                                <span>
-                                    <b>42</b>
-                                    Following</span>
-                            </div>
-                        </div>
+  {% if app.user %}
+    <div id='left-panel'>
+      <input type="checkbox" id="toggle" autofocus>
+        <div class="icon-menu">
+          <label for="toggle" id='menu' tabindex="0"></label>
+        </div>
+        <div class='navbar'>
+          <div class="left-nav">
+            <hr>
+              <div class='profile'>
+                <a href="{{ path('settings_avatar') }}">
+                  <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
+                </a>
+                <a href="{{ path('settings_personal_info') }}">
+                  <div class="info">
+                    <b id="nick">{{ user_nickname }}</b>
+                    <div class="tags">
+                      {% for tag in user_tags %}
+                        <i> {{ tag }} </i>
+                      {% endfor %}
                     </div>
-                    <a href='#'>Bookmarks</a>
-                    <a href='#'>Happenings</a>
-                    <a href='#'>Messages</a>
-                    <a href='#'>Replies</a>
-                    <a href='#'>Favourites</a>
-                    <a href='#'>Reverse Favs</a>
-                    <a href="{{ path('settings_personal_info') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_' %}active{% endif %}'>Settings</a>
-                    <a href='#'>Logout</a>
-                </div>
-                <div class="footer">
-                    <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
-                    <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
-                    <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
-                    <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
-                    <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
-                </div>
-            </div>
+                    <div class="stats">
+                      <span>
+                        <b>1337</b>
+                        Followers</span>
+                        <span>
+                          <b>42</b>
+                          Following</span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              <a href='#'>Bookmarks</a>
+              <a href='#'>Happenings</a>
+              <a href='#'>Messages</a>
+              <a href='#'>Replies</a>
+              <a href='#'>Favourites</a>
+              <a href='#'>Reverse Favs</a>
+              <a href="{{ path('settings_personal_info') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_' %}active{% endif %}'>Settings</a>
+              <a href='#'>Logout</a>
+          </div>
+          <div class="footer">
+            <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
+            <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
+            <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
+            <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
+            <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
+          </div>
         </div>
-    {% else %}
-        <div id='left-panel'>
-            <input type="checkbox" id="toggle">
-            <div class="icon-menu">
-                <label for="toggle" id='menu'></label>
-            </div>
-            <div class='navbar'>
-                <div class="left-nav">
-                    <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
-                    <a href="{{ path('register') }}">Register</a>
-                </div>
-                <div class="footer">
-                    <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
-                    <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
-                    <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
-                    <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
-                    <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
-                </div>
-            </div>
+    </div>
+  {% else %}
+    <div id='left-panel'>
+      <input type="checkbox" id="toggle">
+        <div class="icon-menu">
+          <label for="toggle" id='menu'></label>
         </div>
-    {% endif %}
+        <div class='navbar'>
+          <div class="left-nav">
+            <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
+            <a href="{{ path('register') }}">Register</a>
+          </div>
+          <div class="footer">
+            <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
+            <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
+            <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
+            <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
+            <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
+          </div>
+        </div>
+    </div>
+  {% endif %}
 
 {% endblock %}
