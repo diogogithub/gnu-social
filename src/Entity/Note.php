@@ -21,6 +21,8 @@
 
 namespace App\Entity;
 
+use App\Core\DB\DB;
+use App\Core\Entity;
 use DateTimeInterface;
 
 /**
@@ -33,7 +35,7 @@ use DateTimeInterface;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Note
+class Note extends Entity
 {
     // {{{ Autocode
 
@@ -172,9 +174,14 @@ class Note
 
     // }}} Autocode
 
+    public function getActorNickname()
+    {
+        return DB::find('gsactor', $this->gsactor_id)->getNickname();
+    }
+
     public static function schemaDef(): array
     {
-        $def = [
+        return [
             'name'   => 'note',
             'fields' => [
                 'id'           => ['type' => 'serial', 'not null' => true],
@@ -207,7 +214,5 @@ class Note
             ],
             'fulltext indexes' => ['notice_fulltext_idx' => ['content']],
         ];
-
-        return $def;
     }
 }

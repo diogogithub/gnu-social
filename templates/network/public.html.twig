@@ -22,50 +22,58 @@
 {% endblock %}
 
 {% block body %}
-    <div class="content">
-        <div class="main">
-            <nav class='main-nav'>
-                <ul>
-                    <li>
-                        <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Timeline</a>
-                    </li>
-                    <li>
-                        <a href="#">Groups</a>
-                    </li>
-                    <li>
-                        <a href="#">People</a>
-                    </li>
-                </ul>
-            </nav>
-            <hr>
-            <div class="notices">
-                <nav class='main-nav'>
-                    <ul>
-                        <li>
-                            <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Public</a>
-                        </li>
-                        <li>
-                            <a href="#">Home</a>
-                        </li>
-                        <li>
-                            <a href="#">Network</a>
-                        </li>
-                    </ul>
-                </nav>
-                <div class="timeline-nav">
-                    <div class="notices">
-                        {% if notices is defined %}
-                            {% for notice in notices %}
-                                <div> {{notice}} </div>
-                            {% endfor %}
-                        {% else %}
-                            No notices here.
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+<div class="content">
+  <div class="main">
+    <nav class='main-nav'>
+      <ul>
+        <li>
+          <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Timeline</a>
+        </li>
+        <li>
+          <a href="#">Groups</a>
+        </li>
+        <li>
+          <a href="#">People</a>
+        </li>
+      </ul>
+    </nav>
+    <hr>
+      <div class="notes-wrap">
+        <nav class='main-nav'>
+          <ul>
+            <li>
+              <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Public</a>
+            </li>
+            <li>
+              <a href="#">Home</a>
+            </li>
+            <li>
+              <a href="#">Network</a>
+            </li>
+          </ul>
+        </nav>
+        <div class="note-post">
+          {{ form(post_form) }}
         </div>
-    </div>
+        <div class="timeline-nav">
+          <div class="notes">
+            {% if notes is defined %}
+              {% for note in notes %}
+                <div>
+                  {{ note.getContent() }}
+                  <br>
+                  {{ note.getActorNickname() }}
+                </div>
+              {% endfor %}
+            {% else %}
+              {{ 'No notes here.' | trans }}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </hr>
+  </div>
+</div>
 {% endblock body %}
 
 {% block javascripts %}{% endblock %}
