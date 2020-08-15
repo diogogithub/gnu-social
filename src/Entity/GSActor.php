@@ -19,6 +19,7 @@
 
 namespace App\Entity;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\UserRoles;
@@ -219,7 +220,10 @@ class GSActor extends Entity
 
     public function getSelfTags(): array
     {
-        return DB::findBy('gsactor_tag', ['tagger' => $this->id, 'tagged' => $this->id]);
+        return Cache::get('selftags-' . $this->id,
+                          function () {
+                              return DB::findBy('gsactor_tag', ['tagger' => $this->id, 'tagged' => $this->id]);
+                          });
     }
 
     public function setSelfTags(array $tags, array $existing): void
@@ -235,6 +239,25 @@ class GSActor extends Entity
         foreach ($pt_to_remove as $pt) {
             DB::remove($pt);
         }
+        Cache::delete('selftags-' . $this->id);
+    }
+
+    public function getFollowersCount()
+    {
+        return Cache::get('followers-' . $this->id,
+                          function () {
+                              return DB::dql('select count(f) from App\Entity\Follow f where f.followed = :followed',
+                                             ['followed' => $this->id])[0][1];
+                          });
+    }
+
+    public function getFollowedCount()
+    {
+        return Cache::get('followed-' . $this->id,
+                          function () {
+                              return DB::dql('select count(f) from App\Entity\Follow f where f.follower = :follower',
+                                             ['follower' => $this->id])[0][1];
+                          });
     }
 
     public static function schemaDef(): array

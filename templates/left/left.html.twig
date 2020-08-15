@@ -30,12 +30,8 @@
                       {% endfor %}
                     </div>
                     <div class="stats">
-                      <span>
-                        <b>1337</b>
-                        Followers</span>
-                        <span>
-                          <b>42</b>
-                          Following</span>
+                      <span> <b> {{ user_followers }} </b> {{'Followers' | trans}} </span>
+                      <span> <b> {{ user_followed }} </b> {{'Followed' | trans}} </span>
                     </div>
                   </div>
                 </a>

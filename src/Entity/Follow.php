@@ -110,17 +110,13 @@ class Follow extends Entity
             'fields' => [
                 'follower' => ['type' => 'int', 'not null' => true,  'description' => 'gsactor listening'],
                 'followed' => ['type' => 'int', 'not null' => true,  'description' => 'gsactor being listened to'],
-                'uri'      => ['type' => 'varchar', 'length' => 191, 'description' => 'universally unique identifier'],
                 'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['follower', 'followed'],
-            'unique keys' => [
-                'subscription_uri_key' => ['uri'],
-            ],
-            'indexes' => [
-                'subscription_subscriber_idx' => ['follower', 'created'],
-                'subscription_subscribed_idx' => ['followed', 'created'],
+            'indexes'     => [
+                'follow_follower_idx' => ['follower', 'created'],
+                'follow_followed_idx' => ['followed', 'created'],
             ],
         ];
     }
