@@ -46,11 +46,6 @@
       font-weight: 700;
 }
 
-.active {
-      color: var(--fg) !important;
-      font-weight: 700;
-}
-
 .set-nav a {
       color: var(--accent);
 }
