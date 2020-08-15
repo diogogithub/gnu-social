@@ -222,14 +222,14 @@ class GSActor extends Entity
         return DB::findBy('gsactor_tag', ['tagger' => $this->id, 'tagged' => $this->id]);
     }
 
-    public function setSelfTags(array $tags, array $pt_existing): void
+    public function setSelfTags(array $tags, array $existing): void
     {
-        $tag_existing  = F\map($pt_existing, function ($pt) { return $pt->getTag(); });
+        $tag_existing  = F\map($existing, function ($pt) { return $pt->getTag(); });
         $tag_to_add    = array_diff($tags, $tag_existing);
         $tag_to_remove = array_diff($tag_existing, $tags);
-        $pt_to_remove  = F\filter($pt_existing, function ($pt) use ($tag_to_remove) { return in_array($pt->getTag(), $tag_to_remove); });
+        $pt_to_remove  = F\filter($existing, function ($pt) use ($tag_to_remove) { return in_array($pt->getTag(), $tag_to_remove); });
         foreach ($tag_to_add as $tag) {
-            $pt = new GSActorTag($this->id, $this->id, $tag);
+            $pt = GSActorTag::create(['tagger' => $this->id, 'tagged' => $this->id, 'tag' => $tag]);
             DB::persist($pt);
         }
         foreach ($pt_to_remove as $pt) {
