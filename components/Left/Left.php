@@ -20,6 +20,7 @@
 namespace Component\Left;
 
 use App\Core\Event;
+use App\Core\Log;
 use App\Core\Module;
 use App\Util\Common;
 use Exception;
@@ -31,10 +32,14 @@ class Left extends Module
         try {
             $user = Common::user();
             if ($user != null) {
-                $vars['user_nickname'] = $user->getNickname();
-                $vars['user_tags']     = $user->getActor()->getSelfTags();
+                $actor                  = $user->getActor();
+                $vars['user_nickname']  = $user->getNickname();
+                $vars['user_tags']      = $actor->getSelfTags();
+                $vars['user_followers'] = $actor->getFollowersCount();
+                $vars['user_followed']  = $actor->getFollowedCount();
             }
         } catch (Exception $e) {
+            Log::error('Got an exception while populating variables for the left panel: ' . $e);
         }
         return Event::next;
     }
