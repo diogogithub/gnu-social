@@ -57,7 +57,7 @@
     transition: all 0.8s ease;
 }
 
-.notices {
+.notes-wrap {
     display: flex;
     flex-wrap: wrap;
     font-size: var(--medium-size);
@@ -65,13 +65,13 @@
     background-color: var(--bg3);
     padding: var(--unit-size);
 }
-.notices .timeline-nav {
-    order: 2;
+.notes-wrap .timeline-nav {
+    order: 3;
     width: 100%;
     box-shadow: var(--shadow);
     border-radius: var(--unit-size);
 }
-.notices .timeline-nav .notices div {
+.notes-wrap .timeline-nav .notes div {
     background-color: var(--bg4);
     box-shadow: var(--shadow);
     padding: var(--unit-size);
@@ -79,7 +79,16 @@
     border-radius: var(--unit-size);
     width: 100%;
 }
-.notices .main-nav {
+.notes-wrap .main-nav {
     width: 100%;
     font-size: var(--unit-size);
+}
+
+/* TODO FIX THIS */
+.notes-wrap .note-post {
+    order: 2;
+    width: 100%;
+}
+textarea#form_content {
+    width: 100%;
 }

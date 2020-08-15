@@ -31,19 +31,44 @@
 namespace App\Controller;
 
 use App\Core\Controller;
+use App\Core\DB\DB;
+use App\Core\Form;
+use function App\Core\I18n\_m;
+use App\Entity\Note;
+use App\Util\Common;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\HttpFoundation\Request;
 
 class NetworkPublic extends Controller
 {
-    public function onPost()
+    public function handle(Request $request)
     {
-        return ['notices' => ['some notice', 'some other notice', 'some other more diferent notice']];
-    }
+        $form = Form::create([
+            ['content', TextareaType::class, ['label' => ' ']],
+            ['send',    SubmitType::class,   ['label' => _m('Send')]],
+        ]);
 
-    public function handle()
-    {
+        $form->handleRequest($request);
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+            if ($form->isValid()) {
+                $content = $data['content'];
+                $id      = Common::actor()->getId();
+                $note    = Note::create(['gsactor_id' => $id, 'content' => $content]);
+                DB::persist($note);
+                DB::flush();
+            } else {
+                // TODO Display error
+            }
+        }
+
+        $notes = DB::findBy('note', [], ['created' => 'DESC']);
+
         return [
             '_template' => 'network/public.html.twig',
-            'notices'   => ['some notice', 'some other notice', 'some other more diferent notice'],
+            'post_form' => $form->createView(),
+            'notes'     => $notes,
         ];
     }
 }
