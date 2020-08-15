@@ -62,6 +62,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Security as SSecurity;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class GNUsocial implements EventSubscriberInterface
@@ -81,7 +82,7 @@ class GNUsocial implements EventSubscriberInterface
     protected SSecurity                $security;
     protected MailerInterface          $mailer;
     protected ModuleManager            $module_manager;
-
+    protected Httpclientinterface      $client;
     /**
      * Symfony dependency injection gives us access to these services
      */
@@ -96,7 +97,8 @@ class GNUsocial implements EventSubscriberInterface
                                 SessionInterface $sess,
                                 SSecurity $sec,
                                 MailerInterface $mail,
-                                ModuleManager $mm)
+                                ModuleManager $mm,
+                                HttpClientInterface $cl)
     {
         $this->logger           = $logger;
         $this->translator       = $trans;
@@ -110,6 +112,7 @@ class GNUsocial implements EventSubscriberInterface
         $this->security         = $sec;
         $this->mailer           = $mail;
         $this->module_manager   = $mm;
+        $this->client           = $cl;
 
         $this->initialize();
     }
@@ -131,6 +134,7 @@ class GNUsocial implements EventSubscriberInterface
             Security::setHelper($this->security);
             Mailer::setMailer($this->mailer);
             Router::setRouter($this->router, $this->url_generator);
+            HTTPClient::setClient($this->client);
 
             if (isset($_ENV['HTTPS']) || isset($_ENV['HTTP_HOST'])) {
                 DefaultSettings::setDefaults();
