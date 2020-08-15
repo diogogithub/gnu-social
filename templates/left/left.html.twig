@@ -18,12 +18,13 @@
                 <div class="left-nav">
                     <hr>
                     <div class='profile'>
-                        <img src='{{ asset('assets/default-avatar.svg') }}' alt="Your avatar." class="icon icon-avatar">
+                        <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
                         <div class="info">
-                            <b id="nick">{{ app.user.username }}</b>
+                            <b id="nick">{{ user_nickname }}</b>
                             <div class="tags">
-                                <i>coffee addict</i>
-                                <i>lazy</i>
+                              {% for tag in user_tags %}
+                                <i> {{ tag }} </i>
+                              {% endfor %}
                             </div>
                             <div class="stats">
                                 <span>
