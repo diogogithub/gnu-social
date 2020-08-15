@@ -1,7 +1,6 @@
 <?php
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -16,7 +15,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
 
 /**
@@ -42,7 +40,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class Controller extends AbstractController implements EventSubscriberInterface
 {
-    private array $vars;
+    private array $vars = [];
 
     public function __invoke(Request $request)
     {
@@ -63,6 +61,7 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $this->vars = ['controler' => $controller, 'request' => $request];
         Event::handle('start_twig_populate_vars', [&$this->vars]);
 
+        $event->stopPropagation();
         return $event;
     }
 
