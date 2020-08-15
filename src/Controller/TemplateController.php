@@ -17,26 +17,15 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-/**
- * Define FAQ's main routes
- *
- * @package  GNUsocial
- * @category Router
- *
- * @author    Eliseu Amaro <eliseu@fc.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- */
+namespace App\Controller;
 
-namespace App\Routes;
+use App\Core\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
-use App\Controller\FaqHome;
-use App\Core\Router\RouteLoader;
-
-abstract class Faq
+class TemplateController extends Controller
 {
-    public static function load(RouteLoader $r): void
+    public function handle(Request $req)
     {
-        $r->connect('doc_faq', '/doc/faq', FaqHome::class);
+        return ['_template' => $req->get('template')];
     }
 }

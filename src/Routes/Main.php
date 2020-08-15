@@ -36,7 +36,6 @@ namespace App\Routes;
 use App\Controller as C;
 use App\Core\Router\RouteLoader;
 use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
-use Symfony\Bundle\FrameworkBundle\Controller\TemplateController;
 
 abstract class Main
 {
@@ -54,11 +53,11 @@ abstract class Main
 
         // FAQ static pages
         foreach (['faq', 'contact', 'tags', 'groups', 'openid'] as $s) {
-            $r->connect('doc_' . $s, '/doc/' . $s, TemplateController::class, ['defaults' => ['template' => 'doc/faq/' . $s . '.html.twig']]);
+            $r->connect('doc_' . $s, '/doc/' . $s, C\TemplateController::class, ['template' => 'doc/faq/' . $s . '.html.twig']);
         }
 
         foreach (['privacy', 'tos', 'version', 'source'] as $s) {
-            $r->connect('doc_' . $s, '/doc/' . $s, TemplateController::class, ['defaults' => ['template' => 'doc/' . $s . '.html.twig']]);
+            $r->connect('doc_' . $s, '/doc/' . $s, C\TemplateController::class, ['template' => 'doc/' . $s . '.html.twig']);
         }
 
         // Settings pages
