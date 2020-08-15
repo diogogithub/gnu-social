@@ -1,7 +1,7 @@
 .content {
       display: flex;
       flex-wrap: wrap;
-      margin-top: calc(3 * var(--main-size));
+      margin-top: calc(4 * var(--main-size));
       justify-content: center;
       align-items: center;
       margin-left: 0;
@@ -9,13 +9,21 @@
       margin-bottom: var(--unit-size);
 }
 
+.main {
+      width: 100%;
+      margin-left: var(--unit-size);
+      margin-right: var(--unit-size);
+      box-shadow: var(--shadow);
+      border-radius: 0 0 var(--unit-size) var(--unit-size);
+}
+
 .set-nav {
       order: 1;
       display: flex;
       justify-content: space-evenly;
       flex-wrap: wrap;
-      width: 100%;
-      background-color: var(--bg5);
+      flex: 1;
+      background-color: var(--bg1);
       padding: var(--medium-size);
       font-size: var(--medium-size);
       font-family: var(--head-font);
@@ -48,82 +56,39 @@
       transition: all 0.8s ease;
 }
 
-.set-nav2 {
-      order: 2;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      width: 100%;
-      background-color: var(--bg5);
-      padding: var(--medium-size);
-      margin-top: calc(2 * var(--unit-size));
-      margin-left: var(--side-margin);
-      margin-right: var(--side-margin);
-      font-size: var(--medium-size);
-      font-family: var(--head-font);
-      border-radius: var(--unit-size) var(--unit-size) 0 0;
-}
-
-.set-nav2 ul {
-      display: flex;
-      align-items: stretch;
-      justify-content: space-evenly;
-      width: 100%;
-      margin-left: var(--side-margin);
-      margin-right: var(--side-margin);
-      padding: 0;
-}
-
-.set-nav2 li {
-      display: block;
-      flex: 0 1 auto;
-      list-style-type: none;
-      font-weight: 700;
-      font-size: var(--medium-size);
-}
-
-.set-nav2 a {
-      color: var(--accent);
-}
-
-.set-nav2 a:hover {
-      color: var(--fg);
-      transition: all 0.8s ease;
-}
-
-
 .active {
       color: var(--fg) !important;
       font-weight: 700;
 }
 
+.secundary {
+      display: flex;
+      flex-wrap: wrap;
+      border-radius: 0 0 var(--unit-size) var(--unit-size);
+      background-color: var(--bg3);
+      padding: var(--unit-size);
+}
+
 .form {
       order: 3;
-      background-color: var(--bg5);
+      background-color: var(--bg3);
       padding: calc(2*var(--unit-size));
       font-size: var(--medium-size);
       height: 100%;
       width: 100%;
-      margin-left: var(--side-margin);
-      margin-right: var(--side-margin);
       box-shadow: var(--shadow);
       border-radius: 0 0 var(--unit-size) var(--unit-size);
 }
-
 .form-single {
-      order: 3;
-      background-color: var(--bg5);
+      order: 2;
+      background-color: var(--bg3);
       padding: calc(2*var(--unit-size));
       font-size: var(--medium-size);
       height: 100%;
       width: 100%;
-      margin-left: var(--side-margin);
-      margin-right: var(--side-margin);
-      margin-top: calc(2 * var(--unit-size));
       box-shadow: var(--shadow);
       border-radius: var(--unit-size);
 }
-
 
 /* FORMS ------------------------------*/
 label {
@@ -136,7 +101,8 @@ label {
 input[type=text] {
       margin-top: calc(var(--unit-size) * 0.5);
       width: calc(100% - var(--unit-size));
-      background-color: var(--bg1);
+      background-color: var(--bg4);
+      box-shadow: var(--shadow);
       border-style: none;
       padding: calc(var(--unit-size) * 0.5);
       color: var(--fg);
@@ -165,7 +131,8 @@ button[type=submit] {
       margin-top: calc(var(--unit-size) * 0.5);
       width: calc(100% - var(--unit-size));
       height: calc(10 * var(--unit-size));
-      background-color: var(--bg1);
+      background-color: var(--bg4);
+      box-shadow: var(--shadow);
       border-style: none;
       padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
       color: var(--fg);
@@ -178,7 +145,8 @@ button[type=submit] {
 #form_phone_number {
       margin-top: calc(var(--unit-size) * 0.5);
       width: calc(100% - var(--unit-size));
-      background-color: var(--bg1);
+      background-color: var(--bg4);
+      box-shadow: var(--shadow);
       border-style: none;
       padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
       color: var(--fg);
@@ -188,7 +156,8 @@ button[type=submit] {
 
 #form_language{
       margin-top: calc(var(--unit-size) * 0.5);
-      background-color: var(--bg1);
+      background-color: var(--bg4);
+      box-shadow: var(--shadow);
       border-style: none;
       padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
       color: var(--fg);
@@ -216,6 +185,13 @@ select {
       margin-left: var(--unit-size);
 }
 
+button {
+      background-color: var(--fg);
+      padding: var(--small-size);
+      border: none;
+      border-radius: var(--small-size);
+}
+
 /* JS Cropping */
 #img-cropped {
       display: block;
@@ -228,13 +204,6 @@ select {
 .cropper-view-box,
 .cropper-face {
       border-radius: 50%;
-}
-
-button {
-      background-color: var(--fg);
-      padding: var(--small-size);
-      border: none;
-      border-radius: var(--small-size);
 }
 
 /* NOTIFICATIONS TABS */
@@ -270,17 +239,14 @@ input[type=radio] {
 
 #form-tabs {
       order: 2;
-      margin-top: var(--unit-size);
-      margin-left: var(--side-margin);
-      margin-right: var(--side-margin);
       width: 100%;
       font-size: var(--medium-size);
 }
 #form-tabs ul {
       display: flex;
       flex-wrap: wrap;
-      border-radius: var(--unit-size);
-      background-color: var(--bg5);
+      border-radius: 0 0 var(--unit-size) var(--unit-size);
+      background-color: var(--bg1);
       justify-content: space-evenly;
       width: 100%;
 }
@@ -292,13 +258,12 @@ input[type=radio] {
 #tabs {
       padding: var(--medium-size);
       text-transform: capitalize;
-      font-size: var(--medium-size);
 }
 
 #form-tabs ul .form {
       order: 2;
       padding: calc(2*var(--unit-size));
-      background-color: #00000000 !important;
+      background-color: var(--bg3) !important;
       height: 100%;
       margin-left: 0;
       margin-right: 0;
