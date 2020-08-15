@@ -42,7 +42,6 @@ class Follow extends Entity
 
     private int $follower;
     private int $followed;
-    private ?string $uri;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -66,17 +65,6 @@ class Follow extends Entity
     public function getFollowed(): int
     {
         return $this->followed;
-    }
-
-    public function setUri(?string $uri): self
-    {
-        $this->uri = $uri;
-        return $this;
-    }
-
-    public function getUri(): ?string
-    {
-        return $this->uri;
     }
 
     public function setCreated(DateTimeInterface $created): self

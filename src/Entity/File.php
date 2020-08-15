@@ -46,10 +46,10 @@ class File extends Entity
     private ?bool $is_url_protected;
     private ?string $url_hash;
     private ?string $file_hash;
+    private ?int $actor_id;
     private ?string $mimetype;
     private ?int $size;
     private ?string $title;
-    private ?int $timestamp;
     private ?bool $is_local;
     private DateTimeInterface $modified;
 
@@ -108,6 +108,17 @@ class File extends Entity
         return $this->file_hash;
     }
 
+    public function setActorId(?int $actor_id): self
+    {
+        $this->actor_id = $actor_id;
+        return $this;
+    }
+
+    public function getActorId(): ?int
+    {
+        return $this->actor_id;
+    }
+
     public function setMimetype(?string $mimetype): self
     {
         $this->mimetype = $mimetype;
@@ -139,17 +150,6 @@ class File extends Entity
     public function getTitle(): ?string
     {
         return $this->title;
-    }
-
-    public function setTimestamp(?int $timestamp): self
-    {
-        $this->timestamp = $timestamp;
-        return $this;
-    }
-
-    public function getTimestamp(): ?int
-    {
-        return $this->timestamp;
     }
 
     public function setIsLocal(?bool $is_local): self
