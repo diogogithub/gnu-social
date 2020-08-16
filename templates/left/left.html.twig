@@ -25,9 +25,13 @@
                   <div class="info">
                     <b id="nick">{{ user_nickname }}</b>
                     <div class="tags">
-                      {% for tag in user_tags %}
-                        <a href='#'><i> #{{ tag }} </i></a>
-                      {% endfor %}
+                      {% if user_tags %}
+                        {% for tag in user_tags %}
+                          <a href='#'><i> #{{ tag }} </i></a>
+                        {% endfor %}
+                      {% else %}
+                        <i> {{ '(None)' | trans }} </i>
+                      {% endif %}
                     </div>
                     <div class="stats">
                       <span> <b> {{ user_followers }} </b> {{'Followers' | trans}} </span>
