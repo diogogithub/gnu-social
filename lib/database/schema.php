@@ -892,6 +892,48 @@ class Schema
     }
 
     /**
+     * Is this column a string type?
+     *
+     * @param array $cd
+     * @return bool
+     */
+    protected function isStringType(array $cd): bool
+    {
+        $strings = ['char', 'varchar', 'text'];
+        $strings[] = 'bpchar';  // PostgreSQL
+        $strings[] = 'enum';    // MariaDB
+        return in_array(strtolower($cd['type']), $strings);
+    }
+
+    /**
+     * Collation in our format from MariaDB format
+     *
+     * @param string $collate
+     * @return string
+     */
+    protected function collationFromMySQL(string $collate): string
+    {
+        if (substr($collate, 0, 8) === 'utf8mb4_') {
+            $collate = 'utf8_' . substr($collate, 8);
+        }
+        if (substr($collate, 0, 13) === 'utf8_unicode_') {
+            $collate = 'utf8_general_' . substr($collate, 13);
+        }
+        if (!in_array($collate, [
+            'utf8_bin',
+            'utf8_general_cs',
+            'utf8_general_ci',
+        ])) {
+            common_log(
+                LOG_ERR,
+                'Collation not supported: "' . $collate . '"'
+            );
+            $collate = 'utf8_bin';
+        }
+        return $collate;
+    }
+
+    /**
      * Return the proper SQL for creating or
      * altering a column.
      *
@@ -1058,6 +1100,15 @@ class Schema
             }
             if (array_key_exists('not null', $col) && $col['not null'] !== true) {
                 unset($col['not null']);
+            }
+
+            if ($this->isStringType($col)) {
+                // Default collation
+                if (empty($col['collate'])) {
+                    $col['collate'] = 'utf8_bin';
+                }
+                // Migration from direct MariaDB collations
+                $col['collate'] = $this->collationFromMySQL($col['collate']);
             }
         }
 

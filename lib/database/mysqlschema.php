@@ -147,10 +147,8 @@ class MysqlSchema extends Schema
                 }
             }
 
-            $table_props = $this->getTableProperties($table, ['TABLE_COLLATION']);
-            $collate = $row['COLLATION_NAME'];
-            if (!empty($collate) && $collate !== $table_props['TABLE_COLLATION']) {
-                $field['collate'] = $collate;
+            if (!empty($row['COLLATION_NAME'])) {
+                $field['collate'] = $row['COLLATION_NAME'];
             }
 
             $def['fields'][$name] = $field;
@@ -472,17 +470,6 @@ class MysqlSchema extends Schema
     }
 
     /**
-     * Is this column a string type?
-     * @param array $cd
-     * @return bool
-     */
-    private function isStringType(array $cd): bool
-    {
-        $strings = ['char', 'varchar', 'text'];
-        return in_array(strtolower($cd['type']), $strings);
-    }
-
-    /**
      * Return the proper SQL for creating or
      * altering a column.
      *
@@ -547,6 +534,34 @@ class MysqlSchema extends Schema
         return $type;
     }
 
+    /**
+     * Collation in MariaDB format from our format
+     *
+     * @param string $collate
+     * @return string
+     */
+    protected function collationToMySQL(string $collate): string
+    {
+        if (!in_array($collate, [
+            'utf8_bin',
+            'utf8_general_cs',
+            'utf8_general_ci',
+        ])) {
+            common_log(
+                LOG_ERR,
+                'Collation not supported: "' . $collate . '"'
+            );
+            $collate = 'utf8_bin';
+        }
+
+        if (substr($collate, 0, 13) === 'utf8_general_') {
+            $collate = 'utf8mb4_unicode_' . substr($collate, 13);
+        } elseif (substr($collate, 0, 5) === 'utf8_') {
+            $collate = 'utf8mb4_' . substr($collate, 5);
+        }
+        return $collate;
+    }
+
     public function typeAndSize(string $name, array $column)
     {
         if ($column['type'] === 'enum') {
@@ -581,15 +596,6 @@ class MysqlSchema extends Schema
     {
         $tableDef = parent::filterDef($tableName, $tableDef);
 
-        // Get existing table collation if the table exists.
-        // To know if collation that's been set is unique for the table.
-        try {
-            $table_props = $this->getTableProperties($tableName, ['TABLE_COLLATION']);
-            $table_collate = $table_props['TABLE_COLLATION'];
-        } catch (SchemaTableMissingException $e) {
-            $table_collate = null;
-        }
-
         foreach ($tableDef['fields'] as $name => &$col) {
             switch ($col['type']) {
                 case 'serial':
@@ -603,9 +609,8 @@ class MysqlSchema extends Schema
                     break;
             }
 
-            if (!empty($col['collate'])
-                && $col['collate'] === $table_collate) {
-                unset($col['collate']);
+            if (!empty($col['collate'])) {
+                $col['collate'] = $this->collationToMySQL($col['collate']);
             }
 
             $col['type'] = $this->mapType($col);
