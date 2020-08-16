@@ -196,30 +196,40 @@ class SQLLikeSearch extends SearchEngine
 {
     public function query($q)
     {
+        $q_escaped = $this->target->escape(mb_strtolower($q), true);
+        $cols = [];
+
         if ($this->table === 'profile') {
-            $qry = sprintf(
-                '(   %2$s.nickname LIKE \'%%%1$s%%\' ' .
-                ' OR %2$s.fullname LIKE \'%%%1$s%%\' ' .
-                ' OR %2$s.location LIKE \'%%%1$s%%\' ' .
-                ' OR %2$s.bio      LIKE \'%%%1$s%%\' ' .
-                ' OR %2$s.homepage LIKE \'%%%1$s%%\')',
-                $this->target->escape($q, true),
-                $this->table
-            );
+            $cols = ['nickname', 'fullname', 'location', 'bio', 'homepage'];
         } elseif ($this->table === 'notice') {
             // Don't show direct messages.
             $this->target->whereAdd('notice.scope <> ' . Notice::MESSAGE_SCOPE);
             // Don't show imported notices
             $this->target->whereAdd('notice.is_local <> ' . Notice::GATEWAY);
 
-            $qry = sprintf(
-                'notice.content LIKE \'%%%1$s%%\'',
-                $this->target->escape($q, true)
-            );
+            $cols = ['content'];
         } else {
             throw new ServerException('Unknown table: ' . $this->table);
         }
 
+        $conds = [];
+        foreach ($cols as $col) {
+            switch (common_config('db', 'type')) {
+                case 'pgsql':
+                    // Faster than with the LOWER function
+                    $cond = "{$this->table}.{$col} ILIKE";
+                    break;
+                case 'mysql':
+                    // Case-insensitive collation
+                    $cond = "{$this->table}.{$col} LIKE";
+                    break;
+                default:
+                    $cond = "LOWER({$this->table}.{$col}) LIKE";
+            }
+            $conds[] = $cond . " '%" . $q_escaped . "%'";
+        }
+
+        $qry = '(' . implode(' OR ', $conds) . ')';
         $this->target->whereAdd($qry);
 
         return true;
