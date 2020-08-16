@@ -132,8 +132,11 @@ class PgsqlSchema extends Schema
             ) {
                 $field['auto_increment'] = true;
             } elseif (array_key_exists($name, $enum_info)) {
-                $field['type'] = $type = 'enum';
                 $field['enum'] = $enum_info[$name];
+            }
+
+            if (!empty($row['collation_name'])) {
+                $field['collate'] = $row['collation_name'];
             }
 
             $def['fields'][$name] = $field;
@@ -415,6 +418,7 @@ class PgsqlSchema extends Schema
             'integer'  => 'int',
             'char'     => 'bpchar',
             'datetime' => 'timestamp',
+            'enum'     => 'text',
             'blob'     => 'bytea'
         ];
 
@@ -440,6 +444,49 @@ class PgsqlSchema extends Schema
         }
 
         return $type;
+    }
+
+    /**
+     * Collation in PostgreSQL format from our format
+     *
+     * @param string $collate
+     * @return string
+     */
+    protected function collationToPostgreSQL(string $collate): string
+    {
+        if (!in_array($collate, [
+            'utf8_bin',
+            'utf8_general_cs',
+            'utf8_general_ci',
+        ])) {
+            common_log(
+                LOG_ERR,
+                'Collation not supported: "' . $collate . '"'
+            );
+            $collate = 'utf8_bin';
+        }
+
+        // @fixme No case-insensitivity support
+        if (substr($collate, 0, 13) === 'utf8_general_') {
+            $collate = 'und-x-icu';
+        } elseif (substr($collate, 0, 8) === 'utf8_bin') {
+            $collate = 'C';
+        }
+
+        return $collate;
+    }
+
+    public function typeAndSize(string $name, array $column)
+    {
+        $col = parent::typeAndSize($name, $column);
+
+        if ($this->isStringType($column)) {
+            if (!empty($column['collate'])) {
+                $col .= ' COLLATE "' . $column['collate'] . '"';
+            }
+        }
+
+        return $col;
     }
 
     /**
@@ -475,12 +522,14 @@ class PgsqlSchema extends Schema
         foreach ($tableDef['fields'] as $name => &$col) {
             // No convenient support for field descriptions
             unset($col['description']);
-            // @fixme Nor for MariaDB-specific collations
-            unset($col['collate']);
 
             if ($col['type'] === 'serial') {
                 $col['type'] = 'int';
                 $col['auto_increment'] = true;
+            }
+
+            if (!empty($col['collate'])) {
+                $col['collate'] = $this->collationToPostgreSQL($col['collate']);
             }
 
             $col['type'] = $this->mapType($col);
