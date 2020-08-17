@@ -1115,6 +1115,9 @@ class Schema
         if (common_config('search', 'type') !== 'fulltext') {
             unset($tableDef['fulltext indexes']);
         }
+        if (!common_config('db', 'foreign_keys')) {
+            unset($tableDef['foreign keys']);
+        }
 
         return $tableDef;
     }
