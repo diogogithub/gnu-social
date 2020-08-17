@@ -539,9 +539,11 @@ class PgsqlSchema extends Schema
         if (!empty($tableDef['primary key'])) {
             $tableDef['primary key'] = $this->filterKeyDef($tableDef['primary key']);
         }
-        if (!empty($tableDef['unique keys'])) {
-            foreach ($tableDef['unique keys'] as $i => $def) {
-                $tableDef['unique keys'][$i] = $this->filterKeyDef($def);
+        foreach (['unique keys', 'indexes'] as $type) {
+            if (!empty($tableDef[$type])) {
+                foreach ($tableDef[$type] as $k => $def) {
+                    $tableDef[$type][$k] = $this->filterKeyDef($def);
+                }
             }
         }
         return $tableDef;
