@@ -58,7 +58,7 @@ class Session extends Managed_DataObject
     {
         return [
             'fields' => [
-                'id' => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'session ID'],
+                'id' => ['type' => 'varchar', 'length' => 128, 'not null' => true, 'description' => 'session ID'],
                 'session_data' => ['type' => 'text', 'description' => 'session data'],
                 'created' => ['type' => 'datetime', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
