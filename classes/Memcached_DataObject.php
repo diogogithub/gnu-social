@@ -845,21 +845,11 @@ class Memcached_DataObject extends Safe_DataObject
         $result = parent::_connect();
 
         if ($result && !$exists) {
-            $DB = &$_DB_DATAOBJECT['CONNECTIONS'][$this->_database_dsn_md5];
-            if (common_config('db', 'type') == 'mysql' &&
-                common_config('db', 'utf8')) {
-                $conn = $DB->connection;
-                if (!empty($conn)) {
-                    if ($DB instanceof DB_mysqli || $DB instanceof MDB2_Driver_mysqli) {
-                        mysqli_set_charset($conn, 'utf8mb4');
-                    } elseif ($DB instanceof DB_mysql || $DB instanceof MDB2_Driver_mysql) {
-                        mysql_set_charset('utf8mb4', $conn);
-                    }
-                }
-            }
             // Needed to make timestamp values usefully comparable.
-            if (common_config('db', 'type') == 'mysql') {
-                parent::_query("set time_zone='+0:00'");
+            if (common_config('db', 'type') !== 'mysql') {
+                parent::_query("SET TIME ZONE INTERVAL '+00:00' HOUR TO MINUTE");
+            } else {
+                parent::_query("SET time_zone = '+0:00'");
             }
         }
 
