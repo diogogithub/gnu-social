@@ -57,7 +57,7 @@ class Notice extends Managed_DataObject
     public $uri;                             // varchar(191)  unique_key   not 255 because utf8mb4 takes more space
     public $content;                         // text
     public $rendered;                        // text
-    public $url;                             // varchar(191)   not 255 because utf8mb4 takes more space
+    public $url;                             // text
     public $created;                         // datetime()     multiple_key
     public $modified;                        // timestamp()    not_null default_CURRENT_TIMESTAMP
     public $reply_to;                        // int(4)
@@ -81,7 +81,7 @@ class Notice extends Managed_DataObject
                 'uri' => array('type' => 'varchar', 'length' => 191, 'description' => 'universally unique identifier, usually a tag URI'),
                 'content' => array('type' => 'text', 'description' => 'update content', 'collate' => 'utf8_general_ci'),
                 'rendered' => array('type' => 'text', 'description' => 'HTML version of the content'),
-                'url' => array('type' => 'varchar', 'length' => 191, 'description' => 'URL of any attachment (image, video, bookmark, whatever)'),
+                'url' => array('type' => 'text', 'description' => 'URL of any attachment (image, video, bookmark, whatever)'),
                 'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
                 'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
                 'reply_to' => array('type' => 'int', 'description' => 'notice replied to (usually a guess)'),
@@ -113,7 +113,7 @@ class Notice extends Managed_DataObject
                 'notice_conversation_created_id_idx' => array('conversation', 'created', 'id'),
                 'notice_object_type_idx' => array('object_type'),
                 'notice_verb_idx' => array('verb'),
-                'notice_url_idx' => array('url'),   // Qvitter wants this
+                'notice_url_idx' => array(array('url', 191)),  // Qvitter wants this
                 'notice_reply_to_idx' => array('reply_to')
             ),
             'fulltext indexes' => array(
