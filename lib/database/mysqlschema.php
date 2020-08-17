@@ -616,9 +616,6 @@ class MysqlSchema extends Schema
             $col['type'] = $this->mapType($col);
             unset($col['size']);
         }
-        if (!common_config('db', 'mysql_foreign_keys')) {
-            unset($tableDef['foreign keys']);
-        }
         return $tableDef;
     }
 }
