@@ -6,13 +6,33 @@
       position: fixed;
       background-color: var(--bg1);
       margin-top: calc(3 * var(--main-size));
+      left: 0;
+      top: 0;
+      transition: 0.3s ease;
 }
+/* left navigation */
 .navbar .left-nav {
       flex: 1;
 }
-.navbar .left-nav a {
+.navbar .left-nav > a {
+      display: block;
+      color: var(--accent);
+      font-size: var(--medium-size);
+      margin-bottom: var(--unit-size);
       margin-left: var(--unit-size);
 }
+.navbar .left-nav > a:nth-child(1) {
+      margin-top: var(--unit-size);
+}
+.navbar .left-nav > a:last-child {
+      margin-bottom: 0;
+}
+.navbar .left-nav > a:hover,
+.navbar .left-nav > a:focus {
+      color: var(--fg);
+      transition: all 0.8s ease;
+}
+/* footer static pages links */
 .navbar .footer {
       display: flex;
       flex-wrap: wrap;
@@ -24,44 +44,18 @@
 }
 .navbar .footer a {
       margin-right: var(--unit-size);
-}
-.navbar {
-      left: 0;
-      top: 0;
-      transition: 0.3s ease;
-}
-.navbar a {
-      display: block;
       color: var(--accent);
       font-size: var(--medium-size);
 }
-.navbar .left-nav a {
-      margin-bottom: var(--unit-size);
-}
-.navbar .left-nav a:last-child {
-      margin-bottom: 0;
-}
-.navbar .left-nav a:nth-child(1) {
-      margin-top: var(--unit-size);
-}
-.navbar a:hover {
-      color: var(--fg);
-      transition: all 0.8s ease;
-}
-.navbar a:focus {
-      color: var(--fg);
-      transition: all 0.8s ease;
-}
 
+/* checkbox trick remnants */
 .icon-menu label {
       display: none;
       cursor: pointer
 }
-
 #toggle {
       display: none;
 }
-
 #toggle:checked+.navbar {
       display: block;
       left: 0;
@@ -69,6 +63,7 @@
       transition: 0.3s ease;
 }
 
+/* profile stats */
 .profile {
       display: flex;
       flex-wrap: wrap;
@@ -89,29 +84,26 @@
 .info {
       order: 2;
 }
-
 .info #nick {
       order: 1;
       margin-bottom: var(--small-size);
 }
-
 .info .tags {
       order: 2;
       margin-bottom: var(--small-size);
 }
-
 .info .stats {
       order: 3;
 }
-
+.info .stats span:last-child {
+      margin-left: var(--small-size);
+}
 .info .tags i {
       color: var(--accent);
 }
-
-.info .tags i:last-child {
-      margin-left: var(--small-size);
+.info .tags i:first-child {
+      margin-left: 0 !important;
 }
-
-.stats span:last-child {
+.info .tags i:last-child {
       margin-left: var(--small-size);
 }
