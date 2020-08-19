@@ -82,11 +82,14 @@ class Security extends Controller
             }
 
             $actor = GSActor::create(['nickname' => $data['nickname']]);
-            $user  = LocalUser::create(['nickname' => $data['nickname'], 'email' => $data['email'], 'password' => $data['password']]);
+            $user  = LocalUser::create([
+                'nickname' => $data['nickname'],
+                'email'    => $data['email'],
+                'password' => LocalUser::hashPassword($data['password']),
+            ]);
 
             DB::persist($user);
             DB::persist($actor);
-            DB::flush();
 
             // generate a signed url and email it to the user
             if (Common::config('site', 'use_email')) {
@@ -102,6 +105,8 @@ class Security extends Controller
             } else {
                 $user->setIsEmailVerified(true);
             }
+
+            DB::flush();
 
             return $guard_handler->authenticateUserAndHandleSuccess(
                 $user,
