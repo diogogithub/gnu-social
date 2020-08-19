@@ -59,11 +59,10 @@
           <div class="notes">
             {% if notes is defined %}
               {% for note in notes %}
-                <div>
-                  {{ note.getContent() }}
-                  <br>
-                  {{ note.getActorNickname() }}
-                </div>
+                  <div>
+                    <b>{{ note.getActorNickname() }}</b>
+                    <div>{{ note.getContent() }}</div>
+                  </div>
               {% endfor %}
             {% else %}
               {{ 'No notes here.' | trans }}

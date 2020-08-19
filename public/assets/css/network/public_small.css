@@ -57,27 +57,39 @@
     transition: all 0.8s ease;
 }
 
+
+.notes {
+    display: flex;
+    flex-wrap: wrap;
+}
+.notes div div {
+    flex: 1;
+}
+
 .notes-wrap {
     display: flex;
     flex-wrap: wrap;
     font-size: var(--medium-size);
     border-radius: 0 0 var(--unit-size) var(--unit-size);
-    background-color: var(--bg3);
-    padding: 2%;
+    background-color: var(--bg4);
+    padding: var(--unit-size);
 }
 .notes-wrap .timeline-nav {
-    order: 2;
+    order: 3;
     width: 100%;
     box-shadow: var(--shadow);
     border-radius: var(--unit-size);
-}
-.notes-wrap .timeline-nav .notices div {
-    background-color: var(--bg4);
-    box-shadow: var(--shadow);
-    padding: var(--unit-size);
     margin-top: var(--unit-size);
+}
+.notes-wrap .timeline-nav .notes > div {
+    background-color: var(--bg2);
+    padding: var(--unit-size);
+    margin:  var(--unit-size) var(--unit-size) 0 var(--unit-size);
     border-radius: var(--unit-size);
     width: 100%;
+}
+.notes-wrap .timeline-nav .notes > div:last-child {
+    margin:  var(--unit-size) var(--unit-size) var(--unit-size) var(--unit-size);
 }
 .notes-wrap .main-nav {
     width: 100%;
