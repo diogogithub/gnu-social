@@ -28,7 +28,10 @@ use App\Core\Log;
 use App\Entity\Avatar;
 use App\Entity\File;
 use App\Util\Common;
+use Component\Media\Exception\NoAvatarException;
 use Exception;
+use Symfony\Component\Asset\Package;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -86,11 +89,15 @@ abstract class Utils
 
     public static function error($res, string $nickname)
     {
-        if (count($res) > 1) {
+        switch (count($res)) {
+        case 0:
+            throw new NoAvatarException();
+        case 1:
+            return $res[0];
+        default:
             Log::error('Avatar query returned more than one result for nickname ' . $nickname);
             throw new Exception(_m('Internal server error'));
         }
-        return $res[0];
     }
 
     public static function getAvatar(string $nickname)
@@ -99,8 +106,8 @@ abstract class Utils
             Cache::get('avatar-' . $nickname,
                        function () use ($nickname) {
                            return DB::dql('select a from App\\Entity\\Avatar a ' .
-                                          'join App\Entity\GSActor p with a.gsactor_id = p.id ' .
-                                          'where p.nickname = :nickname',
+                                          'join App\Entity\GSActor g with a.gsactor_id = g.id ' .
+                                          'where g.nickname = :nickname',
                                           ['nickname' => $nickname]);
                        }),
             $nickname
@@ -116,8 +123,8 @@ abstract class Utils
                                return DB::dql('select f.file_hash, f.mimetype, f.title ' .
                                               'from App\\Entity\\File f ' .
                                               'join App\\Entity\\Avatar a with f.id = a.file_id ' .
-                                              'join App\\Entity\\GSActor p with p.id = a.gsactor_id ' .
-                                              'where p.nickname = :nickname',
+                                              'join App\\Entity\\GSActor g with g.id = a.gsactor_id ' .
+                                              'where g.nickname = :nickname',
                                               ['nickname' => $nickname]);
                            }),
                 $nickname
@@ -128,5 +135,23 @@ abstract class Utils
             $filepath = INSTALLDIR . '/public/assets/default-avatar.svg';
             return ['file_path' => $filepath, 'mimetype' => 'image/svg+xml', 'title' => null];
         }
+    }
+
+    public static function getAvatarUrl(string $nickname = null)
+    {
+        if ($nickname == null) {
+            $user = Common::user();
+            if ($user != null) {
+                $nickname = $user->getNickname();
+            }
+        }
+        return Cache::get('avatar-url-' . $nickname, function () use ($nickname) {
+            try {
+                return self::getAvatar($nickname)->getUrl();
+            } catch (NoAvatarException $e) {
+            }
+            $package = new Package(new EmptyVersionStrategy());
+            return $package->getUrl(Common::config('avatar', 'default'));
+        });
     }
 }

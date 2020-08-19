@@ -19,19 +19,16 @@
 
 namespace Component\Media;
 
+use App\Core\Cache;
 use App\Core\Event;
 use App\Core\Module;
-use App\Util\Common;
 use App\Util\Nickname;
-use Exception;
-use Symfony\Component\Asset\Package;
-use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 
 class Media extends Module
 {
     public static function __callStatic(string $name, array $args)
     {
-        return Utils::$name(...$args);
+        return Utils::{$name}(...$args);
     }
 
     public function onAddRoute($r)
@@ -42,16 +39,20 @@ class Media extends Module
 
     public function onEndTwigPopulateVars(array &$vars)
     {
-        try {
-            $user = Common::user();
-            if ($user != null) {
-                $vars['user_avatar'] = self::getAvatar($user->getNickname())->getUrl();
-                return Event::next;
-            }
-        } catch (Exception $e) {
-        }
-        $package             = new Package(new EmptyVersionStrategy());
-        $vars['user_avatar'] = $package->getUrl(Common::config('avatar', 'default'));
+        $vars['user_avatar'] = self::getAvatarUrl();
         return Event::next;
+    }
+
+    public function onGetAvatarUrl(string $nickname, ?string &$url)
+    {
+        $url = self::getAvatarUrl($nickname);
+        return Event::next;
+    }
+
+    public function onDeleteCachedAvatar(string $nickname)
+    {
+        Cache::delete('avatar-' . $nickname);
+        Cache::delete('avatar-url-' . $nickname);
+        Cache::delete('avatar-file-info-' . $nickname);
     }
 }
