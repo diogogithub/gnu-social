@@ -238,7 +238,7 @@ class File extends Entity
             ],
             'primary key' => ['id'],
             'unique keys' => [
-                'file_file_key' => ['file_hash', 'actor_id'],
+                // 'file_file_key' => ['file_hash', 'actor_id'],
             ],
             'indexes' => [
                 'file_filehash_idx' => ['file_hash'],
