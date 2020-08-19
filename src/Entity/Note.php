@@ -23,6 +23,7 @@ namespace App\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Event;
 use DateTimeInterface;
 
 /**
@@ -176,7 +177,14 @@ class Note extends Entity
 
     public function getActorNickname()
     {
-        return DB::find('gsactor', $this->gsactor_id)->getNickname();
+        return GSActor::getNicknameFromId($this->gsactor_id);
+    }
+
+    public function getAvatarUrl()
+    {
+        $url = null;
+        Event::handle('get_avatar_url', [$this->getActorNickname(), &$url]);
+        return $url;
     }
 
     public static function schemaDef(): array

@@ -59,10 +59,11 @@
           <div class="notes">
             {% if notes is defined %}
               {% for note in notes %}
-                  <div>
-                    <b>{{ note.getActorNickname() }}</b>
-                    <div>{{ note.getContent() }}</div>
-                  </div>
+                <div>
+                  <img src="{{ note.getAvatarUrl() }}" alt="{{ note.getActorNickname() }}'s avatar" width="64px">
+                  <b>{{ note.getActorNickname() }}</b>
+                  <div>{{ note.getContent() }}</div>
+                </div>
               {% endfor %}
             {% else %}
               {{ 'No notes here.' | trans }}
