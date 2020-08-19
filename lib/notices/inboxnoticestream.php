@@ -94,56 +94,79 @@ class RawInboxNoticeStream extends FullNoticeStream
      */
     public function getNoticeIds($offset, $limit, $since_id = null, $max_id = null)
     {
-        $notice = new Notice();
-        $notice->selectAdd();
-        $notice->selectAdd('id');
-        // Reply:: is a table of mentions
-        // Subscription:: is a table of subscriptions (every user is subscribed to themselves)
-        $notice->_join .= "\n" . <<<'END'
-            LEFT JOIN (
-              SELECT notice.id, subscription.subscriber AS profile_id
-                FROM notice INNER JOIN subscription
-                ON notice.profile_id = subscription.subscribed
-              UNION ALL
-              SELECT notice_id, profile_id FROM reply
-              UNION ALL
-              SELECT notice_id, profile_id FROM attention
-              UNION ALL
-              SELECT group_inbox.notice_id, group_member.profile_id
-                FROM group_inbox INNER JOIN group_member USING (group_id)
-            ) AS t1 USING (id)
-            END;
-
-        $notice->whereAdd('t1.id IS NOT NULL');
-        $notice->whereAdd('t1.profile_id = ' . $this->target->getID());
-
-        $notice->whereAdd(sprintf(
-            "notice.created > TIMESTAMP '%s'",
-            $notice->escape($this->target->created)
+        $inner_notice = new Notice();
+        $inner_notice->whereAdd(sprintf(
+            "notice.created >= TIMESTAMP '%s'",
+            $inner_notice->escape($this->target->created)
         ));
 
         if (!empty($since_id)) {
-            $notice->whereAdd('id > ' . $since_id);
+            $inner_notice->whereAdd("notice.id > {$since_id}");
         }
         if (!empty($max_id)) {
-            $notice->whereAdd('id <= ' . $max_id);
+            $inner_notice->whereAdd("notice.id <= {$max_id}");
         }
 
-        $notice->whereAdd('scope <> ' . Notice::MESSAGE_SCOPE);
+        $inner_notice->whereAdd('notice.scope <> ' . Notice::MESSAGE_SCOPE);
 
-        self::filterVerbs($notice, $this->selectVerbs);
+        self::filterVerbs($inner_notice, $this->selectVerbs);
 
+        // The only purpose of this hack is to allow filterVerbs above
+        $notice_cond = preg_replace(
+            '/^\s+WHERE\s+/',
+            'AND ',
+            $inner_notice->_query['condition']
+        ) . 'ORDER BY notice.id DESC LIMIT ' . ($limit + $offset);
+
+        $notice = new Notice();
+        // Reply:: is a table of mentions
+        // Subscription:: is a table of subscriptions (every user is subscribed to themselves)
         // notice.id will give us even really old posts, which were recently
         // imported. For example if a remote instance had problems and just
         // managed to post here.
-        $notice->orderBy('id DESC');
+        $notice->query(sprintf(
+            <<<'END'
+            SELECT id
+              FROM (
+                (
+                  SELECT notice.id
+                    FROM notice
+                    INNER JOIN subscription
+                    ON notice.profile_id = subscription.subscribed
+                    WHERE subscription.subscriber = %1$d %2$s
+                ) UNION ALL (
+                  SELECT notice.id
+                    FROM notice
+                    INNER JOIN reply ON notice.id = reply.notice_id
+                    WHERE reply.profile_id = %1$d %2$s
+                ) UNION ALL (
+                  SELECT notice.id
+                    FROM notice
+                    INNER JOIN attention ON notice.id = attention.notice_id
+                    WHERE attention.profile_id = %1$d %2$s
+                ) UNION ALL (
+                  SELECT notice.id
+                    FROM notice
+                    INNER JOIN group_inbox
+                    ON notice.id = group_inbox.notice_id
+                    INNER JOIN group_member
+                    ON group_inbox.group_id = group_member.group_id
+                    WHERE group_member.profile_id = %1$d %2$s
+                )
+              ) AS t1
+              ORDER BY id DESC
+              LIMIT %3$d OFFSET %4$d;
+            END,
+            $this->target->getID(),
+            $notice_cond,
+            $limit,
+            $offset
+        ));
 
-        $notice->limit($offset, $limit);
-
-        if (!$notice->find()) {
-            return [];
+        $ret = [];
+        while ($notice->fetch()) {
+            $ret[] = $notice->id;
         }
-
-        return $notice->fetchAll('id');
+        return $ret;
     }
 }
