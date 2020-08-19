@@ -306,12 +306,12 @@ class LocalUser extends Entity implements UserInterface
     public function changePassword(string $new_password, bool $override = false): void
     {
         if ($override || $this->checkPassword($new_password)) {
-            $this->setPassword($this->hashPassword($new_password));
+            $this->setPassword(self::hashPassword($new_password));
             DB::flush();
         }
     }
 
-    public function hashPassword(string $password)
+    public static function hashPassword(string $password)
     {
         $algorithm = self::algoNameToConstant(Common::config('security', 'algorithm'));
         $options   = Common::config('security', 'options');
