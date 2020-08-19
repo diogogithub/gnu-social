@@ -205,17 +205,23 @@ class GSActor extends Entity
 
     public static function getFromId(int $id): ?self
     {
-        return DB::find('gsactor', ['id' => $id]);
+        return Cache::get('gsactor-id-' . $id, function () use ($id) {
+            return DB::find('gsactor', ['id' => $id]);
+        });
     }
 
     public static function getFromNickname(string $nickname): ?self
     {
-        return DB::findOneBy('gsactor', ['nickname' => $nickname]);
+        return Cache::get('gsactor-nick-' . $nickname, function () use ($nickname) {
+            return DB::findOneBy('gsactor', ['nickname' => $nickname]);
+        });
     }
 
     public static function getNicknameFromId(int $id): string
     {
-        return self::getFromId($id)->getNickname();
+        return Cache::get('gsactor-nick-id-' . $id, function () use ($id) {
+            return self::getFromId($id)->getNickname();
+        });
     }
 
     public function getSelfTags(): array

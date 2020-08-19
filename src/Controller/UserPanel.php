@@ -35,7 +35,6 @@ namespace App\Controller;
 
 // {{{ Imports
 
-use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
@@ -160,7 +159,7 @@ class UserPanel extends AbstractController
             if ($old_file != null) {
                 @unlink($old_file);
             }
-            Cache::delete('avatar-' . $actor->getNickname());
+            Event::handle('delete_cached_avatar', [$actor->getNickname()]);
         }
 
         return ['_template' => 'settings/avatar.html.twig', 'avatar' => $form->createView()];
