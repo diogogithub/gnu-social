@@ -24,8 +24,12 @@ use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Module;
+use App\Core\Security;
+use App\Entity\FileToNote;
 use App\Entity\Note;
 use App\Util\Common;
+use Component\Media\Media;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
@@ -33,12 +37,16 @@ class Posting extends Module
 {
     public function onStartTwigPopulateVars(array &$vars)
     {
+        if (Common::user() == null) {
+            return;
+        }
+
         $request = $vars['request'];
         $form    = Form::create([
-            ['content', TextareaType::class, ['label' => ' ']],
-            ['send',    SubmitType::class,   ['label' => _m('Send')]],
+            ['content',     TextareaType::class, ['label' => ' ']],
+            ['attachments', FileType::class,     ['label' => _m('Attachments'), 'multiple' => true, 'required' => false]],
+            ['send',        SubmitType::class,   ['label' => _m('Send')]],
         ]);
-
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             $data = $form->getData();
@@ -46,7 +54,20 @@ class Posting extends Module
                 $content = $data['content'];
                 $id      = Common::actor()->getId();
                 $note    = Note::create(['gsactor_id' => $id, 'content' => $content]);
+                $files   = [];
+                foreach ($data['attachments'] as $f) {
+                    $nf = Media::validateAndStoreFile($f, Common::config('attachments', 'dir'),
+                                                      Security::sanitize($title = $f->getClientOriginalName()),
+                                                      $is_local = true, $actor_id = $id);
+                    $files[] = $nf;
+                    DB::persist($nf);
+                }
                 DB::persist($note);
+                // Need file and note ids for the next step
+                DB::flush();
+                foreach ($files as $f) {
+                    DB::persist(FileToNote::create(['file_id' => $f->getId(), 'note_id' => $note->getId()]));
+                }
                 DB::flush();
             } else {
                 // TODO Display error

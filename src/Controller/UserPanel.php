@@ -115,7 +115,7 @@ class UserPanel extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data  = $form->getData();
-            $sfile = $file_title = null;
+            $sfile = null;
             if (isset($data['hidden'])) {
                 // Cropped client side
                 $matches = [];
@@ -125,12 +125,7 @@ class UserPanel extends AbstractController
                         $data_user = base64_decode($data_user);
                         $filename  = tempnam('/tmp/', 'avatar');
                         file_put_contents($filename, $data_user);
-                        try {
-                            $sfile      = new SymfonyFile($filename);
-                            $file_title = $data['avatar']->getFilename();
-                        } finally {
-                            // fclose($tmp_file);
-                        }
+                        $sfile = new SymfonyFile($filename);
                     } else {
                         Log::info('Avatar upload got an invalid encoding, something\'s fishy and/or wrong');
                     }
@@ -143,7 +138,7 @@ class UserPanel extends AbstractController
             }
             $actor    = Common::actor();
             $actor_id = $actor->getId();
-            $file     = Media::validateAndStoreFile($sfile, Common::config('avatar', 'dir'), $file_title, $is_local = true, $use_unique = $actor_id);
+            $file     = Media::validateAndStoreFile($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $actor_id);
             $old_file = null;
             $avatar   = DB::find('avatar', ['gsactor_id' => $actor_id]);
             // Must get old id before inserting another one
