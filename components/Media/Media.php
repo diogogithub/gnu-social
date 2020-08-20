@@ -22,6 +22,7 @@ namespace Component\Media;
 use App\Core\Cache;
 use App\Core\Event;
 use App\Core\Module;
+use App\Util\Common;
 use App\Util\Nickname;
 
 class Media extends Module
@@ -39,7 +40,9 @@ class Media extends Module
 
     public function onEndTwigPopulateVars(array &$vars)
     {
-        $vars['user_avatar'] = self::getAvatarUrl();
+        if (Common::user() != null) {
+            $vars['user_avatar'] = self::getAvatarUrl();
+        }
         return Event::next;
     }
 
