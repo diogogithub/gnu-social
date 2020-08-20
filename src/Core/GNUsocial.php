@@ -48,6 +48,7 @@ use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
 use Doctrine\ORM\EntityManagerInterface;
+use HtmlSanitizer\SanitizerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -56,7 +57,6 @@ use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -80,9 +80,10 @@ class GNUsocial implements EventSubscriberInterface
     protected EventDispatcherInterface $event_dispatcher;
     protected SessionInterface         $session;
     protected SSecurity                $security;
-    protected MailerInterface          $mailer;
     protected ModuleManager            $module_manager;
-    protected Httpclientinterface      $client;
+    protected HttpClientInterface      $client;
+    protected SanitizerInterface       $sanitizer;
+
     /**
      * Symfony dependency injection gives us access to these services
      */
@@ -96,9 +97,9 @@ class GNUsocial implements EventSubscriberInterface
                                 EventDispatcherInterface $ed,
                                 SessionInterface $sess,
                                 SSecurity $sec,
-                                MailerInterface $mail,
                                 ModuleManager $mm,
-                                HttpClientInterface $cl)
+                                HttpClientInterface $cl,
+                                SanitizerInterface $san)
     {
         $this->logger           = $logger;
         $this->translator       = $trans;
@@ -110,9 +111,9 @@ class GNUsocial implements EventSubscriberInterface
         $this->event_dispatcher = $ed;
         $this->session          = $sess;
         $this->security         = $sec;
-        $this->mailer           = $mail;
         $this->module_manager   = $mm;
         $this->client           = $cl;
+        $this->saniter          = $san;
 
         $this->initialize();
     }
@@ -131,8 +132,7 @@ class GNUsocial implements EventSubscriberInterface
             DB::setManager($this->entity_manager);
             Form::setFactory($this->form_factory);
             Queue::setMessageBus($this->message_bus);
-            Security::setHelper($this->security);
-            Mailer::setMailer($this->mailer);
+            Security::setHelper($this->security, $this->saniter);
             Router::setRouter($this->router, $this->url_generator);
             HTTPClient::setClient($this->client);
 
