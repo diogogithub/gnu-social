@@ -52,9 +52,11 @@
             </li>
           </ul>
         </nav>
-        <div class="note-post">
-          {{ form(post_form) }}
-        </div>
+        {% if post_form is defined %}
+          <div class="note-post">
+            {{ form(post_form) }}
+          </div>
+        {% endif %}
         <div class="timeline-nav">
           <div class="notes">
             {% if notes is defined %}
@@ -63,6 +65,12 @@
                   <img src="{{ note.getAvatarUrl() }}" alt="{{ note.getActorNickname() }}'s avatar" width="64px">
                   <b>{{ note.getActorNickname() }}</b>
                   <div>{{ note.getContent() }}</div>
+                  {% set id = note.getId() - 1 %}
+                  {% for attachment in attachments[id] %}
+                    <div>
+                      <i> {{ attachment.getTitle() }} </i>
+                    </div>
+                  {% endfor %}
                 </div>
               {% endfor %}
             {% else %}
