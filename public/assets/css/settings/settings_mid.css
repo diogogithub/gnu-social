@@ -14,7 +14,9 @@
       margin-left: var(--unit-size);
       margin-right: var(--unit-size);
       box-shadow: var(--shadow);
-      border-radius: 0 0 var(--unit-size) var(--unit-size);
+      border-radius: var(--small-size);
+      border: solid 2px var(--accent-low);
+      background-color: var(--bg3);
 }
 
 .set-nav {
@@ -27,6 +29,7 @@
       padding: var(--medium-size);
       font-size: var(--medium-size);
       font-family: var(--head-font);
+      border-radius: var(--small-size) var(--small-size) 0 0;
 }
 
 .set-nav ul {
@@ -64,30 +67,29 @@
 .secundary {
       display: flex;
       flex-wrap: wrap;
-      border-radius: 0 0 var(--unit-size) var(--unit-size);
       background-color: var(--bg3);
-      padding: var(--unit-size);
+      margin: var(--unit-size);
+      border: solid 2px var(--accent-low);
+      border-radius: var(--small-size);
+      box-shadow: var(--shadow);
 }
 
 .form {
       order: 3;
-      background-color: var(--bg3);
       padding: calc(2*var(--unit-size));
       font-size: var(--medium-size);
       height: 100%;
       width: 100%;
       box-shadow: var(--shadow);
-      border-radius: 0 0 var(--unit-size) var(--unit-size);
+      border-radius: 0 0 var(--small-size) var(--small-size);
 }
 .form-single {
       order: 2;
-      background-color: var(--bg3);
       padding: calc(2*var(--unit-size));
       font-size: var(--medium-size);
       height: 100%;
       width: 100%;
-      box-shadow: var(--shadow);
-      border-radius: var(--unit-size);
+      border-radius: var(--small-size);
 }
 
 /* FORMS ------------------------------*/
