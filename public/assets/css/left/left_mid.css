@@ -6,6 +6,8 @@
       position: fixed;
       background-color: var(--bg1);
       margin-top: calc(3 * var(--main-size));
+      margin-left: -1px;
+      border: solid 1px var(--accent-low);
 }
 .navbar {
       left: -100%;

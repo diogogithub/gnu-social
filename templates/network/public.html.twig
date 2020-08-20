@@ -8,9 +8,12 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}" media="screen and (min-width: 1300px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_mid.css') }}" media="screen and (max-width: 1300px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_small.css') }}" media="screen and (max-width: 750px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}"
+          media="screen and (min-width: 1300px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_mid.css') }}"
+          media="screen and (max-width: 1300px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_small.css') }}"
+          media="screen and (max-width: 750px)">
 {% endblock %}
 
 {% block header %}
@@ -22,66 +25,72 @@
 {% endblock %}
 
 {% block body %}
-<div class="content">
-  <div class="main">
-    <nav class='main-nav'>
-      <ul>
-        <li>
-          <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Timeline</a>
-        </li>
-        <li>
-          <a href="#">Groups</a>
-        </li>
-        <li>
-          <a href="#">People</a>
-        </li>
-      </ul>
-    </nav>
-    <hr>
-      <div class="notes-wrap">
-        <nav class='main-nav'>
-          <ul>
-            <li>
-              <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Public</a>
-            </li>
-            <li>
-              <a href="#">Home</a>
-            </li>
-            <li>
-              <a href="#">Network</a>
-            </li>
-          </ul>
-        </nav>
+    <div class="content">
         {% if post_form is defined %}
-          <div class="note-post">
-            {{ form(post_form) }}
-          </div>
+            <div class="note-post">
+                {{ form(post_form) }}
+            </div>
         {% endif %}
-        <div class="timeline-nav">
-          <div class="notes">
-            {% if notes is defined and notes is not empty %}
-              {% for note in notes %}
-                <div>
-                  <img src="{{ note.getAvatarUrl() }}" alt="{{ note.getActorNickname() }}'s avatar" width="64px">
-                  <b>{{ note.getActorNickname() }}</b>
-                  <div>{{ note.getContent() }}</div>
-                  {% set id = note.getId() - 1 %}
-                  {% for attachment in attachments[id] %}
-                    <div>
-                      <i> {{ attachment.getTitle() }} </i>
+        <div class="main">
+            <nav class='main-nav'>
+                <ul>
+                    <li>
+                        <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Timeline</a>
+                    </li>
+                    <li>
+                        <a href="#">Groups</a>
+                    </li>
+                    <li>
+                        <a href="#">People</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="notes-wrap">
+                <nav class='main-nav'>
+                    <ul>
+                        <li>
+                            <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Public</a>
+                        </li>
+                        <li>
+                            <a href="#">Home</a>
+                        </li>
+                        <li>
+                            <a href="#">Network</a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="timeline">
+                    <div class="notes">
+                        {% if notes is defined and notes is not empty %}
+                            {% for note in notes %}
+                                <div class="notice">
+                                    <div class="notice-info">
+                                        <a href="{{ path('settings_avatar') }}">
+                                            <img src="{{ note.getAvatarUrl() }}" alt="{{ note.getActorNickname() }}'s avatar">
+                                        </a>
+                                        <b>{{ note.getActorNickname() }}</b>
+                                    </div>
+                                    <div class="notice-content">
+                                        {{ note.getContent() }}
+                                        {% set id = note.getId() - 1 %}
+                                        {% for attachment in attachments[id] %}
+                                            <div>
+                                                <i> {{ attachment.getTitle() }} </i>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="notice-actions">
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <h1>{% trans %}No notes here.{% endtrans %}</h1>
+                        {% endif %}
                     </div>
-                  {% endfor %}
                 </div>
-              {% endfor %}
-            {% else %}
-              {{ 'No notes here.' | trans }}
-            {% endif %}
-          </div>
+            </div>
         </div>
-      </div>
-    </hr>
-  </div>
-</div>
+    </div>
 {% endblock body %}
 
 {% block javascripts %}{% endblock %}

@@ -9,6 +9,8 @@
       left: 0;
       top: 0;
       transition: 0.3s ease;
+      border: solid 1px var(--accent-low);
+      margin-left: -1px;
 }
 /* left navigation */
 .navbar .left-nav {
