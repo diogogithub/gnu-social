@@ -115,8 +115,7 @@
     height: auto;
 }
 .notice-content {
-    flex-grow: 1;
-    flex-shrink: 0;
+    word-break: break-word;
     padding: var(--small-size);
     border-radius: 0 0 var(--small-size) var(--small-size);
 }
