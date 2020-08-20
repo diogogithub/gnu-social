@@ -30,19 +30,26 @@
 
 namespace App\Core;
 
+use HtmlSanitizer\SanitizerInterface;
 use Symfony\Component\Security\Core\Security as SSecurity;
 
 abstract class Security
 {
     private static ?SSecurity $security;
+    private static ?SanitizerInterface $sanitizer;
 
-    public static function setHelper($s): void
+    public static function setHelper($sec, $san): void
     {
-        self::$security = $s;
+        self::$security  = $sec;
+        self::$sanitizer = $san;
     }
 
     public static function __callStatic(string $name, array $args)
     {
-        return self::$security->{$name}(...$args);
+        if (method_exists(self::$security, $name)) {
+            return self::$security->{$name}(...$args);
+        } else {
+            return self::$sanitizer->{$name}(...$args);
+        }
     }
 }

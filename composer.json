@@ -44,6 +44,7 @@
         "symfony/web-link": "5.1.*",
         "symfony/yaml": "5.1.*",
         "symfonycasts/verify-email-bundle": "^1.0",
+        "tgalopin/html-sanitizer-bundle": "^1.2",
         "twig/markdown-extra": "^3.0",
         "wikimedia/composer-merge-plugin": "^1.4"
     },
