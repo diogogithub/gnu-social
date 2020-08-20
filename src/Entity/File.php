@@ -43,14 +43,14 @@ class File extends Entity
 
     private int $id;
     private ?string $url;
-    private ?bool $is_url_protected;
     private ?string $url_hash;
     private ?string $file_hash;
     private ?int $actor_id;
     private ?string $mimetype;
-    private ?int $size;
     private ?string $title;
     private ?bool $is_local;
+    private ?bool $is_nsfw;
+    private ?bool $is_url_protected;
     private DateTimeInterface $modified;
 
     public function setId(int $id): self
@@ -73,17 +73,6 @@ class File extends Entity
     public function getUrl(): ?string
     {
         return $this->url;
-    }
-
-    public function setIsUrlProtected(?bool $is_url_protected): self
-    {
-        $this->is_url_protected = $is_url_protected;
-        return $this;
-    }
-
-    public function getIsUrlProtected(): ?bool
-    {
-        return $this->is_url_protected;
     }
 
     public function setUrlHash(?string $url_hash): self
@@ -130,17 +119,6 @@ class File extends Entity
         return $this->mimetype;
     }
 
-    public function setSize(?int $size): self
-    {
-        $this->size = $size;
-        return $this;
-    }
-
-    public function getSize(): ?int
-    {
-        return $this->size;
-    }
-
     public function setTitle(?string $title): self
     {
         $this->title = $title;
@@ -161,6 +139,28 @@ class File extends Entity
     public function getIsLocal(): ?bool
     {
         return $this->is_local;
+    }
+
+    public function setIsNsfw(?bool $is_nsfw): self
+    {
+        $this->is_nsfw = $is_nsfw;
+        return $this;
+    }
+
+    public function getIsNsfw(): ?bool
+    {
+        return $this->is_nsfw;
+    }
+
+    public function setIsUrlProtected(?bool $is_url_protected): self
+    {
+        $this->is_url_protected = $is_url_protected;
+        return $this;
+    }
+
+    public function getIsUrlProtected(): ?bool
+    {
+        return $this->is_url_protected;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -226,14 +226,14 @@ class File extends Entity
             'fields' => [
                 'id'               => ['type' => 'serial',   'not null' => true],
                 'url'              => ['type' => 'text',     'description' => 'URL after following possible redirections'],
-                'is_url_protected' => ['type' => 'bool',     'default' => false, 'description' => 'true when URL is private (needs login)'],
                 'url_hash'         => ['type' => 'varchar',  'length' => 64,  'description' => 'sha256 of destination URL (url field)'],
                 'file_hash'        => ['type' => 'varchar',  'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
                 'actor_id'         => ['type' => 'int',      'description' => 'If set, used so each actor can have a version of this file (for avatars, for instance)'],
                 'mimetype'         => ['type' => 'varchar',  'length' => 50,  'description' => 'mime type of resource'],
-                'size'             => ['type' => 'int',      'description' => 'size of resource when available'],
                 'title'            => ['type' => 'text',     'description' => 'title of resource when available'],
                 'is_local'         => ['type' => 'bool',     'description' => 'whether the file is stored locally'],
+                'is_nsfw'          => ['type' => 'bool',     'default' => false, 'description' => 'whether the file is NSFW'],
+                'is_url_protected' => ['type' => 'bool',     'default' => false, 'description' => 'true when URL is private (needs login)'],
                 'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],

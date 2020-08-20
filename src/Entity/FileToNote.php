@@ -41,7 +41,7 @@ class FileToNote extends Entity
     // {{{ Autocode
 
     private int $file_id;
-    private int $activity_id;
+    private int $note_id;
     private DateTimeInterface $modified;
 
     public function setFileId(int $file_id): self
@@ -55,15 +55,15 @@ class FileToNote extends Entity
         return $this->file_id;
     }
 
-    public function setActivityId(int $activity_id): self
+    public function setNoteId(int $note_id): self
     {
-        $this->activity_id = $activity_id;
+        $this->note_id = $note_id;
         return $this;
     }
 
-    public function getActivityId(): int
+    public function getNoteId(): int
     {
-        return $this->activity_id;
+        return $this->note_id;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -82,20 +82,20 @@ class FileToNote extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'file_to_activity',
+            'name'   => 'file_to_note',
             'fields' => [
-                'file_id'     => ['type' => 'int', 'not null' => true,       'description' => 'id of file'],
-                'activity_id' => ['type' => 'int', 'not null' => true,       'description' => 'id of the activity it belongs to'],
-                'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'file_id'  => ['type' => 'int', 'not null' => true,       'description' => 'id of file'],
+                'note_id'  => ['type' => 'int', 'not null' => true,       'description' => 'id of the note it belongs to'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['file_id', 'activity_id'],
+            'primary key'  => ['file_id', 'note_id'],
             'foreign keys' => [
-                'file_to_activity_file_id_fkey'     => ['file', ['file_id' => 'id']],
-                'file_to_activity_activity_id_fkey' => ['notice', ['activity_id' => 'id']],
+                'file_to_note_file_id_fkey' => ['file', ['file_id' => 'id']],
+                'file_to_note_note_id_fkey' => ['note', ['note_id' => 'id']],
             ],
             'indexes' => [
-                'file_id_idx'     => ['file_id'],
-                'activity_id_idx' => ['activity_id'],
+                'file_id_idx' => ['file_id'],
+                'note_id_idx' => ['note_id'],
             ],
         ];
     }
