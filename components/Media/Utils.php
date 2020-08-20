@@ -52,7 +52,6 @@ abstract class Utils
             'file_hash' => $hash,
             'actor_id'  => $actor_id,
             'mimetype'  => $sfile->getMimeType(),
-            'size'      => $sfile->getSize(),
             'title'     => $title ?: _m('Untitled attachment'),
             'is_local'  => $is_local,
         ]);
@@ -137,12 +136,14 @@ abstract class Utils
         }
     }
 
-    public static function getAvatarUrl(string $nickname = null)
+    public static function getAvatarUrl(?string $nickname = null)
     {
         if ($nickname == null) {
             $user = Common::user();
             if ($user != null) {
                 $nickname = $user->getNickname();
+            } else {
+                throw new Exception('No user is logged in and no avatar provided to `getAvatarUrl`');
             }
         }
         return Cache::get('avatar-url-' . $nickname, function () use ($nickname) {
