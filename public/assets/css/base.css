@@ -5,7 +5,7 @@
 
       /* font and margin sizes */
       --main-size: 1.2em;
-      --medium-size: 0.8em;
+      --medium-size: 0.75em;
       --small-size: 0.65em;
       --unit-size: 1em;
       --side-margin: 2em;
@@ -14,17 +14,19 @@
       /* colours and shadows */
       --fg: #eceff4;
       --accent: #81a1c1;
+      --accent-low: #81a1c140;
       --bg1: #2e3440;
       --bg2: #3b4252;
       --bg3: #434c5e;
       --bg4: #4c566a;
-      --shadow:  0px 0px 40px 0px rgba(46,52,64,0.95);
+      --bg5: #d8dee9;
+      --shadow:  0px 0px 20px 0px rgba(46,52,64,0.95);
 }
 
 /* DEFAULTS */
 body,
 html {
-      background: var(--bg4);
+      background: var(--bg1);
       background-attachment: fixed;
       background-size: cover;
       color: var(--fg);
@@ -36,7 +38,7 @@ html {
 
 hr {
       margin: 0;
-      color: var(--accent);
+      color: var(--accent-low);
 }
 
 ul {
@@ -83,9 +85,12 @@ b {
       left: 0;
       right: 0;
       background-color: var(--bg1);
-      box-shadow: var(--shadow);
       padding: var(--main-size);
       height: var(--main-size);
+      margin-left: -1px;
+      margin-right: 1px;
+      margin-top: -1px;
+      border: solid 1px var(--accent-low);
 }
 
 #top {
@@ -169,6 +174,7 @@ b {
       background-color: var(--bg1);
       margin-top: calc(3 * var(--main-size));
       z-index: 0;
+      border: solid 1px var(--accent-low);
 }
 
 input.larger {

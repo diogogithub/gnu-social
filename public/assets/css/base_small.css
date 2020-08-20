@@ -5,7 +5,7 @@
 
       /* font and margin sizes */
       --main-size: 1.2em;
-      --medium-size: 0.8em;
+      --medium-size: 0.7em;
       --small-size: 0.65em;
       --unit-size: 1em;
       --side-margin: 2em;
@@ -18,13 +18,14 @@
       --bg2: #3b4252;
       --bg3: #434c5e;
       --bg4: #4c566a;
+      --bg5: #d8dee9;
       --shadow:  0px 0px 40px 0px rgba(46,52,64,0.95);
 }
 
 /* DEFAULTS */
 body,
 html {
-      background: var(--bg4);
+      background: var(--bg1);
       background-attachment: fixed;
       background-size: cover;
       color: var(--fg);
