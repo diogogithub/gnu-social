@@ -30,6 +30,7 @@
 
 namespace App\Twig;
 
+use App\Util\Formatting;
 use Functional as F;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -52,7 +53,7 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
     public function isCurrentRoute(string $class, string ...$routes): string
     {
         $current_route = $this->request->attributes->get('_route');
-        return F\some($routes, F\equal($current_route)) ? $class : '';
+        return F\some($routes, F\partial_left([Formatting::class, 'startsWith'], $current_route)) ? $class : '';
     }
 
     // ----------------------------------------------------------
