@@ -9,10 +9,10 @@
 }
 form {
     font-size: var(--medium-size);
-    background-color: #61778C30;
+    background-color: var(--bg2);
     padding: calc(2 * var(--unit-size));
-    border-radius: var(--unit-size);
-    box-shadow: 0 0 60px -20px rgba(0, 0, 0, 0.75);
+    border-radius: var(--small-size);
+    border: solid 2px var(--accent-low);
 }
 label {
     font-family: 'Montserrat', sans-serif;
@@ -27,8 +27,8 @@ input[type=password],
 input[type=email]
 {
     margin-top: calc(var(--unit-size) * 0.5);
-    background-color: rgba(0, 0, 0, 0.30);
-    color: #f6f6f6;
+    background-color: var(--bg1);
+    color: var(--fg);
     border-style: none;
     padding: calc(var(--unit-size) * 0.5);
     border-radius: calc(var(--unit-size) * 0.5);
@@ -36,13 +36,17 @@ input[type=email]
     margin-bottom: var(--unit-size);
     width: calc(100% - var(--unit-size));
 }
+.checkbox {
+    display: flex;
+    vertical-align: center;
+}
 .checkbox label {
     font-family: "Open Sans", sans-serif;
-    font-size: var(--medium-size);
+    font-size: var(--unit-size);
     font-weight: normal;
 }
 .active {
-    color: #F6F6F6 !important;
+    color: var(--fg) !important;
     font-weight: 700;
 }
 input {
@@ -50,8 +54,10 @@ input {
 }
 
 button {
-    background-color: #f6f6f6;
-    padding: var(--small-size);
-    border: none;
+    color: var(--fg);
+    font-size: var(--unit-size);
+    background-color: var(--bg1);
+    padding: var(--small-size) var(--main-size) var(--small-size) var(--main-size);
+    border: solid 2px var(--accent-low);
     border-radius: var(--small-size);
 }
