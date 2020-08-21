@@ -1,4 +1,7 @@
 <?php
+
+// {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -14,48 +17,56 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
+// }}}
+
 /**
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@fc.up.pt>
+ * @copyright 2018-2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
 
-defined('GNUSOCIAL') || die();
+namespace Plugin\ActivityPub;
 
-// Import plugin libs
-foreach (glob(__DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . '*.php') as $filename) {
-    require_once $filename;
-}
-// Import plugin models
-foreach (glob(__DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . '*.php') as $filename) {
-    require_once $filename;
-}
+use App\Core\Module;
 
-// So that this isn't hardcoded everywhere
-const ACTIVITYPUB_PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
-                               'Public',
-                               'as:Public'
-                              ];
-const ACTIVITYPUB_HTTP_CLIENT_HEADERS = [
-    'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-    'User-Agent: GNUsocialBot ' . GNUSOCIAL_VERSION . ' - https://gnusocial.rocks'
-];
+// // Import plugin libs
+// foreach (glob(__DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . '*.php') as $filename) {
+//     require_once $filename;
+// }
+// // Import plugin models
+// foreach (glob(__DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . 'models' . DIRECTORY_SEPARATOR . '*.php') as $filename) {
+//     require_once $filename;
+// }
 
 /**
  * Adds ActivityPub support to GNU social when enabled
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ActivityPubPlugin extends Plugin
+class ActivityPub extends Module
 {
     const PLUGIN_VERSION = '0.4.0alpha0';
+    // So that this isn't hardcoded everywhere
+    const ACTIVITYPUB_PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
+        'Public',
+        'as:Public',
+    ];
+
+    const ACTIVITYPUB_HTTP_CLIENT_HEADERS = [
+        'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+        'User-Agent: GNUsocialBot ' . GNUSOCIAL_VERSION . ' - https://gnusocial.network',
+    ];
 
     /**
      * Returns a Actor's URI from its local $profile
@@ -64,8 +75,10 @@ class ActivityPubPlugin extends Plugin
      * This ensures that Profile->getUri() will always return the intended for a remote AP profile.
      *
      * @param Profile $profile Actor's local profile
-     * @param string &$uri I/O Actor's URI
+     * @param string  &$uri    I/O Actor's URI
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
+     *
      * @return bool event hook
      */
     public function onStartGetProfileUri(Profile $profile, &$uri): bool
@@ -81,15 +94,18 @@ class ActivityPubPlugin extends Plugin
     /**
      * Returns a notice from its URL.
      *
-     * @param string $url Notice's URL
-     * @param bool $grab_online whether to try online grabbing, defaults to true
-     * @return Notice|null The Notice object
+     * @param string $url         Notice's URL
+     * @param bool   $grab_online whether to try online grabbing, defaults to true
+     *
      * @throws Exception This function or provides a Notice, null, or fails with exception
+     *
+     * @return null|Notice The Notice object
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function grab_notice_from_url(string $url, bool $grab_online = true): ?Notice
     {
-        /* Offline Grabbing */
+        // Offline Grabbing
         try {
             // Look for a known remote notice
             return Notice::getByUri($url);
@@ -97,22 +113,22 @@ class ActivityPubPlugin extends Plugin
             // Look for a local notice (unfortunately GNU social doesn't
             // provide this functionality natively)
             try {
-                $candidate = Notice::getByID((int)substr($url, (strlen(Activitypub_notice::note_uri(0))-1)));
-                if (Activitypub_notice::note_uri($candidate->getID()) === $url) { // Sanity check
+                $candidate = Notice::getByID((int) substr($url, (strlen(common_local_url('apNotice', ['id' => 0])) - 1)));
+                if (common_local_url('apNotice', ['id' => $candidate->getID()]) === $url) { // Sanity check
                     return $candidate;
                 } else {
-                    common_debug('ActivityPubPlugin Notice Grabber: '.$candidate->getUrl(). ' is different of '.$url);
+                    common_debug('ActivityPubPlugin Notice Grabber: ' . $candidate->getUrl() . ' is different of ' . $url);
                 }
             } catch (Exception $e) {
-                common_debug('ActivityPubPlugin Notice Grabber: failed to find: '.$url.' offline.');
+                common_debug('ActivityPubPlugin Notice Grabber: failed to find: ' . $url . ' offline.');
             }
         }
 
         if ($grab_online) {
-            /* Online Grabbing */
-            $client = new HTTPClient();
+            // Online Grabbing
+            $client   = new HTTPClient();
             $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
-            $object = json_decode($response->getBody(), true);
+            $object   = json_decode($response->getBody(), true);
             if (Activitypub_notice::validate_note($object)) {
                 // Okay, we've found a valid note object!
                 // Now we need to find the Actor who authored it
@@ -132,11 +148,11 @@ class ActivityPubPlugin extends Plugin
                     throw new Exception("The acclaimed actor didn't create this note.");
                 }
             } else {
-                throw new Exception("Invalid Note Object. Maybe it's a Tombstone?");
+                throw new Exception('Valid ActivityPub Notice object but unsupported by GNU social.');
             }
         }
 
-        common_debug('ActivityPubPlugin Notice Grabber: failed to find: '.$url);
+        common_debug('ActivityPubPlugin Notice Grabber: failed to find: ' . $url);
         return null;
     }
 
@@ -144,16 +160,18 @@ class ActivityPubPlugin extends Plugin
      * Route/Reroute urls
      *
      * @param URLMapper $m
-     * @return void
+     *
      * @throws Exception
+     *
+     * @return void
      */
     public function onRouterInitialized(URLMapper $m)
     {
         $acceptHeaders = [
             'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' => 0,
-            'application/activity+json' => 1,
-            'application/json' => 2,
-            'application/ld+json' => 3
+            'application/activity+json'                                            => 1,
+            'application/json'                                                     => 2,
+            'application/ld+json'                                                  => 3,
         ];
 
         $m->connect(
@@ -205,31 +223,31 @@ class ActivityPubPlugin extends Plugin
         $m->connect(
             'user/:id/liked.json',
             ['action' => 'apActorLiked'],
-            ['id' => '[0-9]+']
+            ['id'     => '[0-9]+']
         );
 
         $m->connect(
             'user/:id/followers.json',
             ['action' => 'apActorFollowers'],
-            ['id' => '[0-9]+']
+            ['id'     => '[0-9]+']
         );
 
         $m->connect(
             'user/:id/following.json',
             ['action' => 'apActorFollowing'],
-            ['id' => '[0-9]+']
+            ['id'     => '[0-9]+']
         );
 
         $m->connect(
             'user/:id/inbox.json',
             ['action' => 'apInbox'],
-            ['id' => '[0-9]+']
+            ['id'     => '[0-9]+']
         );
 
         $m->connect(
             'user/:id/outbox.json',
             ['action' => 'apActorOutbox'],
-            ['id' => '[0-9]+']
+            ['id'     => '[0-9]+']
         );
 
         $m->connect(
@@ -242,18 +260,19 @@ class ActivityPubPlugin extends Plugin
      * Plugin version information
      *
      * @param array $versions
+     *
      * @return bool hook true
      */
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = [
-            'name' => 'ActivityPub',
-            'version' => self::PLUGIN_VERSION,
-            'author' => 'Diogo Cordeiro',
+            'name'     => 'ActivityPub',
+            'version'  => self::PLUGIN_VERSION,
+            'author'   => 'Diogo Cordeiro',
             'homepage' => 'https://notabug.org/diogo/gnu-social/src/nightly/plugins/ActivityPub',
             // TRANS: Plugin description.
-            'rawdescription' => _m('Follow people across social networks that implement '.
-            '<a href="https://activitypub.rocks/">ActivityPub</a>.')
+            'rawdescription' => _m('Follow people across social networks that implement ' .
+            '<a href="https://activitypub.rocks/">ActivityPub</a>.'),
         ];
         return true;
     }
@@ -262,6 +281,7 @@ class ActivityPubPlugin extends Plugin
      * Set up queue handlers for required interactions
      *
      * @param QueueManager $qm
+     *
      * @return bool event hook return
      */
     public function onEndInitializeQueueManager(QueueManager $qm): bool
@@ -276,8 +296,9 @@ class ActivityPubPlugin extends Plugin
     /**
      * Enqueue saved notices for distribution
      *
-     * @param Notice $notice notice to be distributed
-     * @param Array &$transports list of transports to queue for
+     * @param Notice $notice      notice to be distributed
+     * @param array  &$transports list of transports to queue for
+     *
      * @return bool event hook return
      */
     public function onStartEnqueueNotice(Notice $notice, array &$transports): bool
@@ -290,7 +311,7 @@ class ActivityPubPlugin extends Plugin
                 $this->log(LOG_INFO, "Notice:{$id} queued for distribution");
             }
         } catch (Exception $e) {
-            $this->log(LOG_ERR, "Invalid notice, not queueing for distribution");
+            $this->log(LOG_ERR, 'Invalid notice, not queueing for distribution');
         }
 
         return true;
@@ -302,21 +323,21 @@ class ActivityPubPlugin extends Plugin
      * notices away from the public timelines.
      *
      * @param Notice &$notice notice to be saved
+     *
      * @return bool event hook return
      */
     public function onStartNoticeSave(Notice &$notice): bool
     {
         if ($notice->reply_to) {
             try {
-                $parent = $notice->getParent();
-                $is_local = (int)$parent->is_local;
+                $parent   = $notice->getParent();
+                $is_local = (int) $parent->is_local;
 
                 // if we're replying unlisted/followers-only notices received by AP
                 // or replying to replies of such notices, then we make sure to set
                 // the correct type flag.
-                if (($parent->source === 'ActivityPub' && $is_local === Notice::GATEWAY) ||
-                     ($parent->source === 'web' && $is_local === Notice::LOCAL_NONPUBLIC)) {
-                    $this->log(LOG_INFO, "Enforcing type flag LOCAL_NONPUBLIC for new notice");
+                if (($parent->source === 'ActivityPub' && $is_local === Notice::GATEWAY) || ($parent->source === 'web' && $is_local === Notice::LOCAL_NONPUBLIC)) {
+                    $this->log(LOG_INFO, 'Enforcing type flag LOCAL_NONPUBLIC for new notice');
                     $notice->is_local = Notice::LOCAL_NONPUBLIC;
                 }
             } catch (NoParentNoticeException $e) {
@@ -330,8 +351,9 @@ class ActivityPubPlugin extends Plugin
     /**
      * Add AP-subscriptions for private messaging
      *
-     * @param User $current current logged user
+     * @param User  $current     current logged user
      * @param array &$recipients
+     *
      * @return void
      */
     public function onFillDirectMessageRecipients(User $current, array &$recipients): void
@@ -341,10 +363,10 @@ class ActivityPubPlugin extends Plugin
             foreach ($subs as $sub) {
                 if (!$sub->isLocal()) { // AP plugin adds AP users
                     try {
-                        $value = 'profile:'.$sub->getID();
+                        $value              = 'profile:' . $sub->getID();
                         $recipients[$value] = substr($sub->getAcctUri(), 5) . " [{$sub->getBestName()}]";
                     } catch (ProfileNoAcctUriException $e) {
-                        $recipients[$value] = "[?@?] " . $e->profile->getBestName();
+                        $recipients[$value] = '[?@?] ' . $e->profile->getBestName();
                     }
                 }
             }
@@ -357,6 +379,7 @@ class ActivityPubPlugin extends Plugin
      * Validate AP-recipients for profile page message action addition
      *
      * @param Profile $recipient
+     *
      * @return bool hook return value
      */
     public function onDirectMessageProfilePageActions(Profile $recipient): bool
@@ -374,6 +397,7 @@ class ActivityPubPlugin extends Plugin
      *
      * @param Profile profile being deleted
      * @param array &$related objects with same profile_id to be deleted
+     *
      * @return void
      */
     public function onProfileDeleteRelated(Profile $profile, array &$related): void
@@ -396,11 +420,12 @@ class ActivityPubPlugin extends Plugin
      * Plugin Nodeinfo information
      *
      * @param array $protocols
+     *
      * @return bool hook true
      */
     public function onNodeInfoProtocols(array &$protocols)
     {
-        $protocols[] = "activitypub";
+        $protocols[] = 'activitypub';
         return true;
     }
 
@@ -408,9 +433,12 @@ class ActivityPubPlugin extends Plugin
      * Adds an indicator on Remote ActivityPub profiles.
      *
      * @param HTMLOutputter $out
-     * @param Profile $profile
-     * @return boolean hook return value
+     * @param Profile       $profile
+     *
      * @throws Exception
+     *
+     * @return bool hook return value
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function onEndShowAccountProfileBlock(HTMLOutputter $out, Profile $profile)
@@ -444,7 +472,9 @@ class ActivityPubPlugin extends Plugin
      * could do both search and grab.
      *
      * @param string $query search query
+     *
      * @return bool hook
+     *
      * @author Bruno Casteleiro <up201505347@fc.up.pt>
      */
     public function onStartNoticeSearch(string $query): bool
@@ -463,7 +493,7 @@ class ActivityPubPlugin extends Plugin
                 return false;
             }
         } elseif (filter_var($query, FILTER_VALIDATE_URL)) { // URL found!
-            /* Is this an ActivityPub notice? */
+            // Is this an ActivityPub notice?
 
             // If we already know it, just return
             try {
@@ -486,12 +516,12 @@ class ActivityPubPlugin extends Plugin
                 // We will next check if this URL is an actor
             }
 
-            /* Is this an ActivityPub actor? */
+            // Is this an ActivityPub actor?
 
             // If we already know it, just return
             try {
                 $explorer = new Activitypub_explorer();
-                $profile = $explorer->lookup($query, false)[0]; // Only check locally
+                $profile  = $explorer->lookup($query, false)[0]; // Only check locally
                 if ($profile instanceof Profile) {
                     return true;
                 }
@@ -531,15 +561,15 @@ class ActivityPubPlugin extends Plugin
         return true;
     }
 
-    /********************************************************
-     *                   WebFinger Events                   *
-     ********************************************************/
+    // WebFinger Events
 
     /**
      * Get remote user's ActivityPub_profile via a identifier
      *
      * @param string $arg A remote user identifier
-     * @return Activitypub_profile|null Valid profile in success | null otherwise
+     *
+     * @return null|Activitypub_profile Valid profile in success | null otherwise
+     *
      * @author GNU social
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
@@ -561,9 +591,9 @@ class ActivityPubPlugin extends Plugin
             $urls[] = $arg;
         }
         if (preg_match('!^((?:\w+\.)*\w+(?:\w+\-\w+)*\.\w+(?:/\w+)+)$!', $arg)) {
-            $schemes = array('http', 'https');
+            $schemes = ['http', 'https'];
             foreach ($schemes as $scheme) {
-                $urls[] = "$scheme://$arg";
+                $urls[] = "{$scheme}://{$arg}";
             }
         }
 
@@ -579,24 +609,26 @@ class ActivityPubPlugin extends Plugin
     }
 
     /**
-    * Webfinger matches: @user@example.com or even @user--one.george_orwell@1984.biz
-    *
-    * @author GNU social
-    * @param   string  $text       The text from which to extract webfinger IDs
-    * @param   string  $preMention Character(s) that signals a mention ('@', '!'...)
-    * @return  array   The matching IDs (without $preMention) and each respective position in the given string.
-    */
-    public static function extractWebfingerIds($text, $preMention='@')
+     * Webfinger matches: @user@example.com or even @user--one.george_orwell@1984.biz
+     *
+     * @author GNU social
+     *
+     * @param string $text       The text from which to extract webfinger IDs
+     * @param string $preMention Character(s) that signals a mention ('@', '!'...)
+     *
+     * @return array The matching IDs (without $preMention) and each respective position in the given string.
+     */
+    public static function extractWebfingerIds($text, $preMention = '@')
     {
         $wmatches = [];
-        $result = preg_match_all(
-            '/(?<!\S)'.preg_quote($preMention, '/').'('.Nickname::WEBFINGER_FMT.')/',
+        $result   = preg_match_all(
+            '/(?<!\S)' . preg_quote($preMention, '/') . '(' . Nickname::WEBFINGER_FMT . ')/',
             $text,
             $wmatches,
             PREG_OFFSET_CAPTURE
         );
         if ($result === false) {
-            common_log(LOG_ERR, __METHOD__ . ': Error parsing webfinger IDs from text (preg_last_error=='.preg_last_error().').');
+            common_log(LOG_ERR, __METHOD__ . ': Error parsing webfinger IDs from text (preg_last_error==' . preg_last_error() . ').');
             return [];
         } elseif (($n_matches = count($wmatches)) != 0) {
             common_debug(sprintf('Found %d matches for WebFinger IDs: %s', $n_matches, _ve($wmatches)));
@@ -608,23 +640,25 @@ class ActivityPubPlugin extends Plugin
      * Profile URL matches: @example.com/mublog/user
      *
      * @author GNU social
-     * @param   string  $text       The text from which to extract URL mentions
-     * @param   string  $preMention Character(s) that signals a mention ('@', '!'...)
-     * @return  array   The matching URLs (without @ or acct:) and each respective position in the given string.
+     *
+     * @param string $text       The text from which to extract URL mentions
+     * @param string $preMention Character(s) that signals a mention ('@', '!'...)
+     *
+     * @return array The matching URLs (without @ or acct:) and each respective position in the given string.
      */
-    public static function extractUrlMentions($text, $preMention='@')
+    public static function extractUrlMentions($text, $preMention = '@')
     {
         $wmatches = [];
         // In the regexp below we need to match / _before_ URL_REGEX_VALID_PATH_CHARS because it otherwise gets merged
         // with the TLD before (but / is in URL_REGEX_VALID_PATH_CHARS anyway, it's just its positioning that is important)
         $result = preg_match_all(
-            '/(?:^|\s+)'.preg_quote($preMention, '/').'('.URL_REGEX_DOMAIN_NAME.'(?:\/['.URL_REGEX_VALID_PATH_CHARS.']*)*)/',
+            '/(?:^|\s+)' . preg_quote($preMention, '/') . '(' . URL_REGEX_DOMAIN_NAME . '(?:\/[' . URL_REGEX_VALID_PATH_CHARS . ']*)*)/',
             $text,
             $wmatches,
             PREG_OFFSET_CAPTURE
         );
         if ($result === false) {
-            common_log(LOG_ERR, __METHOD__ . ': Error parsing profile URL mentions from text (preg_last_error=='.preg_last_error().').');
+            common_log(LOG_ERR, __METHOD__ . ': Error parsing profile URL mentions from text (preg_last_error==' . preg_last_error() . ').');
             return [];
         } elseif (count($wmatches)) {
             common_debug(sprintf('Found %d matches for profile URL mentions: %s', count($wmatches), _ve($wmatches)));
@@ -635,9 +669,11 @@ class ActivityPubPlugin extends Plugin
     /**
      * Add activity+json mimetype on WebFinger
      *
-     * @param XML_XRD $xrd
+     * @param XML_XRD            $xrd
      * @param Managed_DataObject $object
+     *
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function onEndWebFingerProfileLinks(XML_XRD $xrd, Managed_DataObject $object)
@@ -648,7 +684,7 @@ class ActivityPubPlugin extends Plugin
                 $object->getProfile()->getUri(),
                 'application/activity+json'
             );
-            $xrd->links[] = clone($link);
+            $xrd->links[] = clone $link;
         }
     }
 
@@ -656,11 +692,15 @@ class ActivityPubPlugin extends Plugin
      * Find any explicit remote mentions. Accepted forms:
      *   Webfinger: @user@example.com
      *   Profile link:
+     *
      * @param Profile $sender
-     * @param string $text input markup text
+     * @param string  $text   input markup text
      * @param $mentions
-     * @return boolean hook return value
+     *
      * @throws InvalidUrlException
+     *
+     * @return bool hook return value
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @example.com/mublog/user
      *
@@ -672,13 +712,13 @@ class ActivityPubPlugin extends Plugin
 
         foreach (self::extractWebfingerIds($text, '@') as $wmatch) {
             list($target, $pos) = $wmatch;
-            $this->log(LOG_INFO, "Checking webfinger person '$target'");
+            $this->log(LOG_INFO, "Checking webfinger person '{$target}'");
             $profile = null;
             try {
                 $aprofile = Activitypub_profile::ensure_webfinger($target);
-                $profile = $aprofile->local_profile();
+                $profile  = $aprofile->local_profile();
             } catch (Exception $e) {
-                $this->log(LOG_ERR, "Webfinger check failed: " . $e->getMessage());
+                $this->log(LOG_ERR, 'Webfinger check failed: ' . $e->getMessage());
                 continue;
             }
             assert($profile instanceof Profile);
@@ -690,34 +730,34 @@ class ActivityPubPlugin extends Plugin
             if (!common_valid_http_url($url)) {
                 $url = $profile->getUrl();
             }
-            $matches[$pos] = array('mentioned' => array($profile),
-                                               'type' => 'mention',
-                                               'text' => $displayName,
-                                               'position' => $pos,
-                                               'length' => mb_strlen($target),
-                                               'url' => $url);
+            $matches[$pos] = ['mentioned' => [$profile],
+                'type'                    => 'mention',
+                'text'                    => $displayName,
+                'position'                => $pos,
+                'length'                  => mb_strlen($target),
+                'url'                     => $url, ];
         }
 
         foreach (self::extractUrlMentions($text) as $wmatch) {
             list($target, $pos) = $wmatch;
-            $schemes = array('https', 'http');
+            $schemes            = ['https', 'http'];
             foreach ($schemes as $scheme) {
-                $url = "$scheme://$target";
-                $this->log(LOG_INFO, "Checking profile address '$url'");
+                $url = "{$scheme}://{$target}";
+                $this->log(LOG_INFO, "Checking profile address '{$url}'");
                 try {
-                    $aprofile = Activitypub_profile::fromUri($url);
-                    $profile = $aprofile->local_profile();
+                    $aprofile    = Activitypub_profile::fromUri($url);
+                    $profile     = $aprofile->local_profile();
                     $displayName = !empty($profile->nickname) && mb_strlen($profile->nickname) < mb_strlen($target) ?
                                         $profile->nickname : $target;
-                    $matches[$pos] = array('mentioned' => array($profile),
-                                                               'type' => 'mention',
-                                                               'text' => $displayName,
-                                                               'position' => $pos,
-                                                               'length' => mb_strlen($target),
-                                                               'url' => $profile->getUrl());
+                    $matches[$pos] = ['mentioned' => [$profile],
+                        'type'                    => 'mention',
+                        'text'                    => $displayName,
+                        'position'                => $pos,
+                        'length'                  => mb_strlen($target),
+                        'url'                     => $profile->getUrl(), ];
                     break;
                 } catch (Exception $e) {
-                    $this->log(LOG_ERR, "Profile check failed: " . $e->getMessage());
+                    $this->log(LOG_ERR, 'Profile check failed: ' . $e->getMessage());
                 }
             }
         }
@@ -744,18 +784,20 @@ class ActivityPubPlugin extends Plugin
      *   reply http://identi.ca/evan hey what's up
      *
      * @param Command $command
-     * @param string $arg
+     * @param string  $arg
      * @param Profile &$profile
-     * @return boolean hook return code
+     *
+     * @return bool hook return code
+     *
      * @author GNU social
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function onStartCommandGetProfile($command, $arg, &$profile)
     {
-        $aprofile = self::pull_remote_profile($arg);
-        if ($aprofile instanceof Activitypub_profile) {
-            $profile = $aprofile->local_profile();
-        } else {
+        try {
+            $aprofile = $this->pull_remote_profile($arg);
+            $profile  = $aprofile->local_profile();
+        } catch (Exception $e) {
             // No remote ActivityPub profile found
             return true;
         }
@@ -763,17 +805,17 @@ class ActivityPubPlugin extends Plugin
         return false;
     }
 
-    /********************************************************
-     *                   Discovery Events                   *
-     ********************************************************/
+    // Discovery Events
 
     /**
      * Profile from URI.
      *
      * @author GNU social
      * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param string $uri
+     *
+     * @param string  $uri
      * @param Profile &$profile in/out param: Profile got from URI
+     *
      * @return mixed hook return code
      */
     public function onStartGetProfileFromURI($uri, &$profile)
@@ -789,8 +831,9 @@ class ActivityPubPlugin extends Plugin
     /**
      * Try to grab and store the remote profile by the given uri
      *
-     * @param string $uri
+     * @param string  $uri
      * @param Profile &$profile
+     *
      * @return bool
      */
     public function onRemoteFollowPullProfile(string $uri, ?Profile &$profile): bool
@@ -806,18 +849,19 @@ class ActivityPubPlugin extends Plugin
         return is_null($profile);
     }
 
-    /********************************************************
-     *                    Delivery Events                   *
-     ********************************************************/
+    // Delivery Events
 
     /**
      * Having established a remote subscription, send a notification to the
      * remote ActivityPub profile's endpoint.
      *
      * @param Profile $profile subscriber
-     * @param Profile $other subscribee
-     * @return bool return value
+     * @param Profile $other   subscribee
+     *
      * @throws HTTP_Request2_Exception
+     *
+     * @return bool return value
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function onStartSubscribe(Profile $profile, Profile $other)
@@ -842,8 +886,11 @@ class ActivityPubPlugin extends Plugin
      *
      * @param Profile $profile
      * @param Profile $other
-     * @return bool return value
+     *
      * @throws HTTP_Request2_Exception
+     *
+     * @return bool return value
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function onStartUnsubscribe(Profile $profile, Profile $other)
@@ -930,7 +977,7 @@ class ActivityPubPlugin extends Plugin
      * Notify remote followers when a user gets deleted
      *
      * @param Action $action
-     * @param User $user user being deleted
+     * @param User   $user   user being deleted
      */
     public function onEndDeleteUser(Action $action, User $user): void
     {
@@ -943,6 +990,7 @@ class ActivityPubPlugin extends Plugin
      * Federate private message
      *
      * @param Notice $message
+     *
      * @return void
      */
     public function onSendDirectMessage(Notice $message): void
@@ -968,17 +1016,20 @@ class ActivityPubPlugin extends Plugin
      * original post and show the domain it came from.
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
+     *
      * @param $notice
      * @param $name
      * @param $url
      * @param $title
-     * @return mixed hook return code
+     *
      * @throws Exception
+     *
+     * @return mixed hook return code
      */
     public function onStartNoticeSourceLink($notice, &$name, &$url, &$title)
     {
         // If we don't handle this, keep the event handler going
-        if (!in_array($notice->source, array('ActivityPub', 'share'))) {
+        if (!in_array($notice->source, ['ActivityPub', 'share'])) {
             return true;
         }
 
@@ -986,7 +1037,7 @@ class ActivityPubPlugin extends Plugin
             $url = $notice->getUrl();
             // If getUrl() throws exception, $url is never set
 
-            $bits = parse_url($url);
+            $bits   = parse_url($url);
             $domain = $bits['host'];
             if (substr($domain, 0, 4) == 'www.') {
                 $name = substr($domain, 4);
@@ -1015,15 +1066,17 @@ class ActivityPubReturn
      * Return a valid answer
      *
      * @param string $res
-     * @param int $code Status Code
+     * @param int    $code Status Code
+     *
      * @return void
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function answer($res = '', $code = 202)
     {
         http_response_code($code);
         header('Content-Type: application/activity+json');
-        echo json_encode($res, JSON_UNESCAPED_SLASHES | (isset($_GET["pretty"]) ? JSON_PRETTY_PRINT : null));
+        echo json_encode($res, JSON_UNESCAPED_SLASHES | (isset($_GET['pretty']) ? JSON_PRETTY_PRINT : null));
         exit;
     }
 
@@ -1031,8 +1084,10 @@ class ActivityPubReturn
      * Return an error
      *
      * @param string $m
-     * @param int $code Status Code
+     * @param int    $code Status Code
+     *
      * @return void
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function error($m, $code = 400)
