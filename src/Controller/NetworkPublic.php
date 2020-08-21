@@ -49,9 +49,6 @@ class NetworkPublic extends Controller
             );
             $attachments[] = $a;
         }
-        if ($notes === []) {
-            $notes = null;
-        }
         return [
             '_template'   => 'network/public.html.twig',
             'notes'       => $notes,

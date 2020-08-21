@@ -59,7 +59,7 @@
         {% endif %}
         <div class="timeline-nav">
           <div class="notes">
-            {% if notes is defined %}
+            {% if notes is defined and notes is not empty %}
               {% for note in notes %}
                 <div>
                   <img src="{{ note.getAvatarUrl() }}" alt="{{ note.getActorNickname() }}'s avatar" width="64px">

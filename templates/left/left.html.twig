@@ -30,7 +30,7 @@
                           <a href='#'><i> #{{ tag }} </i></a>
                         {% endfor %}
                       {% else %}
-                        <i> {{ '(None)' | trans }} </i>
+                        <i> {{ '(No tags)' | trans }} </i>
                       {% endif %}
                     </div>
                     <div class="stats">
@@ -46,7 +46,7 @@
               <a href='#'>Replies</a>
               <a href='#'>Favourites</a>
               <a href='#'>Reverse Favs</a>
-              <a href="{{ path('settings_personal_info') }}" class='hover-effect {% if app.request.attributes.get('_route') starts with 'settings_' %}active{% endif %}'>Settings</a>
+              <a href="{{ path('settings_personal_info') }}" class='hover-effect {{ active('settings_') }}'>Settings</a>
               <a href='#'>Logout</a>
           </div>
           <div class="footer">
