@@ -29,6 +29,7 @@ use App\Entity\FileToNote;
 use App\Entity\Note;
 use App\Util\Common;
 use Component\Media\Media;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -41,18 +42,32 @@ class Posting extends Module
             return;
         }
 
+        $to_options = ['public' => _m('public'), 'instance' => _m('instance')];
+
+        $id      = Common::actor()->getId();
+        $to_tags = DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $id]);
+        foreach ($to_tags as $t) {
+            $t              = $t['tag'];
+            $to_options[$t] = $t;
+        }
+
         $request = $vars['request'];
         $form    = Form::create([
-            ['content',     TextareaType::class, ['label' => ' ']],
+            ['content', TextareaType::class, ['label' => ' ']],
             ['attachments', FileType::class,     ['label' => _m('Attachments'), 'multiple' => true, 'required' => false]],
-            ['send',        SubmitType::class,   ['label' => _m('Send')]],
+            ['scope', ChoiceType::class, [
+                'label'    => 'To:',
+                'multiple' => true,
+                'expanded' => true,
+                'choices'  => $to_options,
+            ]],
+            ['send',    SubmitType::class,   ['label' => _m('Send')]],
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
                 $content = $data['content'];
-                $id      = Common::actor()->getId();
                 $note    = Note::create(['gsactor_id' => $id, 'content' => $content]);
                 $files   = [];
                 foreach ($data['attachments'] as $f) {
