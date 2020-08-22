@@ -53,4 +53,5 @@ services:
 
     Component\:
       resource: '../components/*/*.php'
+      exclude: '../components/*/{scripts,classes,lib,actions,locale,doc}'
       tags: ['controller.service_arguments']

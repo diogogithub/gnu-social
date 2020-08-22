@@ -58,7 +58,8 @@ class ActivityPub extends Module
 {
     const PLUGIN_VERSION = '0.4.0alpha0';
     // So that this isn't hardcoded everywhere
-    const ACTIVITYPUB_PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
+    const ACTIVITYPUB_PUBLIC_TO = [
+        'https://www.w3.org/ns/activitystreams#Public',
         'Public',
         'as:Public',
     ];

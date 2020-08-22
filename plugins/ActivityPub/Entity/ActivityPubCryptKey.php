@@ -1,4 +1,7 @@
 <?php
+
+// {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -14,69 +17,39 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
+// }}}
+
 /**
- * ActivityPub implementation for GNU social
+ * ActivityPub Assymetric Key Storage System
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
+ * @author    Hugo Sales <hugo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
  */
 
-defined('GNUSOCIAL') || die();
+namespace Plugin\ActivityPub\Entity;
 
-/**
- * ActivityPub Keys System
- *
- * @category  Plugin
- * @package   GNUsocial
- * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- */
-class Activitypub_rsa extends Managed_DataObject
+class ActivityPubCryptKey
 {
-    public $__table = 'activitypub_rsa';
-    public $profile_id;                      // int(4)  primary_key not_null
-    public $private_key;                     // text()   not_null
-    public $public_key;                      // text()   not_null
-    public $created;                         // datetime()
-    public $modified;                        // timestamp()  not_null default_CURRENT_TIMESTAMP
-
-    /**
-     * Return table definition for Schema setup and DB_DataObject usage.
-     *
-     * @return array array of column definitions
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     */
-    public static function schemaDef()
-    {
-        return [
-            'fields' => [
-                'profile_id' => ['type' => 'int', 'not null' => true],
-                'private_key' => ['type' => 'text'],
-                'public_key' => ['type' => 'text', 'not null' => true],
-                'created' => ['type' => 'datetime', 'description' => 'date this record was created'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
-            ],
-            'primary key' => ['profile_id'],
-            'foreign keys' => [
-                'activitypub_rsa_profile_id_fkey' => ['profile', ['profile_id' => 'id']],
-            ],
-        ];
-    }
+    // {{{ Autocode
+    // }}} Autocode
 
     /**
      * Private key getter
      *
      * @param Profile $profile
-     * @return string The private key
+     *
      * @throws Exception Throws exception if tries to fetch a private key of an actor we don't own
+     *
+     * @return string The private key
      */
     public function get_private_key(Profile $profile): string
     {
         $this->profile_id = $profile->getID();
-        $apRSA = self::getKV('profile_id', $this->profile_id);
+        $apRSA            = self::getKV('profile_id', $this->profile_id);
         if (!$apRSA instanceof Activitypub_rsa) {
             // Nonexistent key pair for this profile
             if ($profile->isLocal()) {
@@ -94,16 +67,19 @@ class Activitypub_rsa extends Managed_DataObject
      * Guarantees a Public Key for a given profile.
      *
      * @param Profile $profile
-     * @param bool $fetch=true Should attempt to fetch keys from a remote profile?
-     * @return string The public key
+     * @param bool    $fetch=true Should attempt to fetch keys from a remote profile?
+     *
      * @throws ServerException It should never occur, but if so, we break everything!
      * @throws Exception
+     *
+     * @return string The public key
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function ensure_public_key(Profile $profile, bool $fetch = true): string
     {
         $this->profile_id = $profile->getID();
-        $apRSA = self::getKV('profile_id', $this->profile_id);
+        $apRSA            = self::getKV('profile_id', $this->profile_id);
         if (!$apRSA instanceof Activitypub_rsa) {
             // No existing key pair for this profile
             if ($profile->isLocal()) {
@@ -112,7 +88,7 @@ class Activitypub_rsa extends Managed_DataObject
                 $apRSA->public_key = $this->public_key;
             } else {
                 // ASSERT: This should never happen, but try to recover!
-                common_log(LOG_ERR, "Activitypub_rsa: An impossible thing has happened... Please let the devs know that it entered in line 116 at Activitypub_rsa.php");
+                common_log(LOG_ERR, 'Activitypub_rsa: An impossible thing has happened... Please let the devs know that it entered in line 116 at Activitypub_rsa.php');
                 if ($fetch) {
                     $res = Activitypub_explorer::get_remote_user_activity($profile->getUri());
                     Activitypub_rsa::update_public_key($profile, $res['publicKey']['publicKeyPem']);
@@ -129,13 +105,13 @@ class Activitypub_rsa extends Managed_DataObject
      * Insert the current object variables into the database.
      *
      * @throws ServerException
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @access public
      */
     public function store_keys(): void
     {
         $this->created = $this->modified = common_sql_now();
-        $ok = $this->insert();
+        $ok            = $this->insert();
         if ($ok === false) {
             throw new ServerException('Cannot save ActivityPub RSA.');
         }
@@ -145,13 +121,14 @@ class Activitypub_rsa extends Managed_DataObject
      * Generates a pair of RSA keys.
      *
      * @param string $private_key out
-     * @param string $public_key out
+     * @param string $public_key  out
+     *
      * @author PHP Manual Contributed Notes <dirt@awoms.com>
      */
     public static function generate_keys(?string &$private_key, ?string &$public_key): void
     {
         $config = [
-            'digest_alg' => 'sha512',
+            'digest_alg'       => 'sha512',
             'private_key_bits' => 2048,
             'private_key_type' => OPENSSL_KEYTYPE_RSA,
         ];
@@ -163,28 +140,49 @@ class Activitypub_rsa extends Managed_DataObject
         openssl_pkey_export($res, $private_key);
 
         // Extract the public key from $res to $pubKey
-        $pubKey = openssl_pkey_get_details($res);
-        $public_key = $pubKey["key"];
+        $pubKey     = openssl_pkey_get_details($res);
+        $public_key = $pubKey['key'];
         unset($pubKey);
     }
 
     /**
      * Update public key.
      *
-     * @param Profile|Activitypub_profile $profile
-     * @param string $public_key
+     * @param Activitypub_profile|Profile $profile
+     * @param string                      $public_key
+     *
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function update_public_key($profile, string $public_key): void
     {
         // Public Key
-        $apRSA = new Activitypub_rsa();
+        $apRSA             = new Activitypub_rsa();
         $apRSA->profile_id = $profile->getID();
         $apRSA->public_key = $public_key;
-        $apRSA->created = common_sql_now();
+        $apRSA->created    = common_sql_now();
         if (!$apRSA->update()) {
             $apRSA->insert();
         }
+    }
+
+    public static function schemaDef()
+    {
+        return [
+            'name'        => 'activitypub_crypt_key',
+            'description' => 'assymetric key storage for activitypub',
+            'fields'      => [
+                'gsactor_id'  => ['type' => 'int', 'not null' => true],
+                'private_key' => ['type' => 'text'],
+                'public_key'  => ['type' => 'text', 'not null' => true],
+                'created'     => ['type' => 'datetime', 'description' => 'date this record was created'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
+            ],
+            'primary key'  => ['gsactor_id'],
+            'foreign keys' => [
+                'activitypub_rsa_gsactor_id_fkey' => ['gsactor', ['gsactor_id' => 'id']],
+            ],
+        ];
     }
 }
