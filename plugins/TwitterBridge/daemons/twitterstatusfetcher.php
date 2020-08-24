@@ -128,7 +128,11 @@ class TwitterStatusFetcher extends ParallelizingDaemon
         unset($flink);
 
         $conn->disconnect();
-        unset($_DB_DATAOBJECT['CONNECTIONS']);
+        foreach ($_DB_DATAOBJECT['CONNECTIONS'] as $k => $v) {
+            if ($v === $conn) {
+                unset($_DB_DATAOBJECT['CONNECTIONS'][$k]);
+            }
+        }
 
         return $flinks;
     }
@@ -153,7 +157,11 @@ class TwitterStatusFetcher extends ParallelizingDaemon
         // XXX: Couldn't find a less brutal way to blow
         // away a cached connection
         global $_DB_DATAOBJECT;
-        unset($_DB_DATAOBJECT['CONNECTIONS']);
+        foreach ($_DB_DATAOBJECT['CONNECTIONS'] as $k => $v) {
+            if ($v === $conn) {
+                unset($_DB_DATAOBJECT['CONNECTIONS'][$k]);
+            }
+        }
     }
 
     public function getTimeline(Foreign_link $flink, $timelineUri = 'home_timeline')
