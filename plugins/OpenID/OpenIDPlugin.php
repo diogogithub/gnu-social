@@ -501,14 +501,14 @@ class OpenIDPlugin extends Plugin
         $schema->ensureTable('oid_associations',
                              array(
                                  'fields' => array(
-                                     'server_url' => array('type' => 'blob', 'not null' => true),
-                                     'handle' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'default' => ''), // character set latin1,
+                                     'server_url' => array('type' => 'varchar', 'length' => 2047, 'not null' => true),
+                                     'handle' => array('type' => 'varchar', 'length' => 255, 'not null' => true, 'default' => ''),
                                      'secret' => array('type' => 'blob'),
                                      'issued' => array('type' => 'int', 'size' => 'big'),
                                      'lifetime' => array('type' => 'int'),
                                      'assoc_type' => array('type' => 'varchar', 'length' => 64),
                                  ),
-                                 'primary key' => array(array('server_url', 191), 'handle'),
+                                 'primary key' => array(array('server_url', 191), array('handle', 191)),
                              ));
         $schema->ensureTable('oid_nonces',
                              array(
