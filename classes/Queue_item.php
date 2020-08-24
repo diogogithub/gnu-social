@@ -61,20 +61,24 @@ class Queue_item extends Managed_DataObject
         $qi = new Queue_item();
         if ($transports) {
             if (is_array($transports)) {
-                // @fixme use safer escaping
-                $list = implode("','", array_map(array($qi, 'escape'), $transports));
-                $qi->whereAdd("transport in ('$list')");
+                $qi->whereAddIn(
+                    'transport',
+                    $transports,
+                    $qi->columnType('transport')
+                );
             } else {
                 $qi->transport = $transports;
             }
         }
         if (!empty($ignored_transports)) {
-            // @fixme use safer escaping
-            $list = implode("','", array_map(array($qi, 'escape'), $ignored_transports));
-            $qi->whereAdd("transport NOT IN ('$list')");
+            $qi->whereAddIn(
+                '!transport',
+                $ignored_transports,
+                $qi->columnType('transport')
+            );
         }
+        $qi->whereAdd('claimed IS NULL');
         $qi->orderBy('created');
-        $qi->whereAdd('claimed is null');
 
         $qi->limit(1);
 
@@ -95,7 +99,7 @@ class Queue_item extends Managed_DataObject
                 common_log(LOG_ERR, 'claim of queue item id= ' . $qi->getID() . ' for transport ' . $qi->transport . ' failed.');
             }
         }
-        $qi = null;
+        unset($qi);
         return null;
     }
 
