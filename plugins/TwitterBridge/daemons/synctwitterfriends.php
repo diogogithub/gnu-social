@@ -105,7 +105,11 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
         $conn->disconnect();
 
         global $_DB_DATAOBJECT;
-        unset($_DB_DATAOBJECT['CONNECTIONS']);
+        foreach ($_DB_DATAOBJECT['CONNECTIONS'] as $k => $v) {
+            if ($v === $conn) {
+                unset($_DB_DATAOBJECT['CONNECTIONS'][$k]);
+            }
+        }
 
         return $flinks;
     }
@@ -129,7 +133,11 @@ class SyncTwitterFriendsDaemon extends ParallelizingDaemon
         // XXX: Couldn't find a less brutal way to blow
         // away a cached connection
         global $_DB_DATAOBJECT;
-        unset($_DB_DATAOBJECT['CONNECTIONS']);
+        foreach ($_DB_DATAOBJECT['CONNECTIONS'] as $k => $v) {
+            if ($v === $conn) {
+                unset($_DB_DATAOBJECT['CONNECTIONS'][$k]);
+            }
+        }
     }
 
     public function fetchTwitterFriends(Foreign_link $flink)
