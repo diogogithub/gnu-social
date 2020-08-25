@@ -228,7 +228,7 @@ class TwitterauthorizationAction extends FormAction
 
         $creds = TwitterOAuthClient::packToken($access_token);
 
-        $flink->credentials = $creds;
+        $flink->credentials = DB_DataObject_Cast::blob($creds);
         $flink->created     = common_sql_now();
 
         // Defaults: noticesync on, everything else off
