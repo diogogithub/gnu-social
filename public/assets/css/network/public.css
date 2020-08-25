@@ -26,7 +26,6 @@
     flex: 1;
     background-color: var(--bg1);
     padding: var(--medium-size);
-    font-size: var(--medium-size);
     font-family: var(--head-font);
     border-radius: var(--small-size) var(--small-size) 0 0;
 }
@@ -36,6 +35,7 @@
     align-items: stretch;
     justify-content: space-evenly;
     width: 100%;
+    font-size: var(--medium-size);
     margin-left: calc(2 * var(--side-margin));
     margin-right: calc(2 * var(--side-margin));
     padding: 0;
