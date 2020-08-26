@@ -54,7 +54,7 @@ class Posting extends Module
         $request = $vars['request'];
         $form    = Form::create([
             ['content', TextareaType::class, ['label' => ' ']],
-            ['attachments', FileType::class,     ['label' => _m('Attachments'), 'multiple' => true, 'required' => false]],
+            ['attachments', FileType::class,     ['label' => _m(' '), 'multiple' => true, 'required' => false]],
             ['scope', ChoiceType::class, [
                 'label'    => 'To:',
                 'multiple' => true,
@@ -63,6 +63,7 @@ class Posting extends Module
             ]],
             ['send',    SubmitType::class,   ['label' => _m('Send')]],
         ]);
+
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             $data = $form->getData();
