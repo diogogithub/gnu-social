@@ -27,9 +27,24 @@
 {% block body %}
     <div class="content">
         {% if post_form is defined %}
-            <div class="note-post">
-                {{ form(post_form) }}
-            </div>
+            {{ form_start(post_form) }}
+                <div class="create-notice">
+                    <div class="scope">
+                        {{ form_row(post_form.scope) }}
+                    </div>
+                    <div class="notice-input">
+                        <div class="content-input">
+                            {{ form_row(post_form.content) }}
+                        </div>
+                        <div class="attachments">
+                            {{ form_row(post_form.attachments) }}
+                        </div>
+                        <div class="send">
+                            {{ form_row(post_form.send) }}
+                        </div>
+                    </div>
+                </div>
+            {{ form_end(post_form) }}
         {% endif %}
         <div class="main">
             <nav class='main-nav'>
