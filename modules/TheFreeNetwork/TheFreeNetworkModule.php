@@ -42,6 +42,7 @@ class TheFreeNetworkModule extends Module
     const MODULE_VERSION = '0.1.0alpha0';
 
     public $protocols = null; // protocols TFN should handle
+    public $priority = []; // protocols preferences
 
     private $lrdd = false; // whether LRDD plugin is active or not
 
@@ -56,9 +57,12 @@ class TheFreeNetworkModule extends Module
         // require needed classes
         $plugin_dir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'plugins';
 
+        $p = 0;
         foreach ($this->protocols as $protocol => $class) {
+            $this->priority[$class] = $p++;
             require_once $plugin_dir . DIRECTORY_SEPARATOR . $protocol . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . $class . '.php';
         }
+        unset($p);
 
         // $lrdd flag
         $this->lrdd = PluginList::isPluginActive("LRDD");
@@ -74,25 +78,31 @@ class TheFreeNetworkModule extends Module
      * @param string $class profile class that triggered this event
      * @param int|null &$profile_id Profile:id associated with the remote entity found
      * @return bool hook flag
+     * @throws AlreadyHandledException Do not allow to create a profile if a preferred protocol already has one
      */
     public function onStartTFNLookup(string $uri, string $class, int &$profile_id = null): bool
     {
-        $profile_id = $this->lookup($uri, $class);
+        [$profile_id, $cls] = $this->lookup($uri, $class);
 
         if (is_null($profile_id)) {
             $perf = common_config('performance', 'high');
 
             if (!$perf && $this->lrdd) {
                 // Force lookup with online resources
-                $profile_id = $this->lookup($uri, $class, true);
+                [$profile_id, $cls] = $this->lookup($uri, $class, true);
             }
+        }
+
+        // Lower means higher priority
+        if ($this->priority[$cls] < $this->priority[$class]) {
+            throw new AlreadyHandledException("TheFreeNetworkModule->AlreadyHandled: $cls is preferred over $class");
         }
 
         return false;
     }
 
     /**
-     * A new remote profile was sucessfully added, delete
+     * A new remote profile was successfully added, delete
      * other remotes associated with the same Profile entity.
      *
      * @param string $class profile class that triggered this event
@@ -146,9 +156,9 @@ class TheFreeNetworkModule extends Module
      * @param string $uri
      * @param string $class
      * @param bool $online
-     * @return int|null Profile:id associated with the remote entity found
+     * @return null|array [Profile:id, class] associated with the remote entity found
      */
-    private function lookup(string $uri, string $class, bool $online = false): ?int
+    private function lookup(string $uri, string $class, bool $online = false): ?array
     {
         if ($online) {
             $this->log(LOG_INFO, 'Searching with online resources for a remote profile with URI: ' . $uri);
@@ -169,7 +179,7 @@ class TheFreeNetworkModule extends Module
                     $profile = $cls::getKV('uri', $alias);
                     if ($profile instanceof $cls) {
                         $this->log(LOG_INFO, 'Found a remote ' . $cls . ' associated with Profile:' . $profile->getID());
-                        return $profile->getID();
+                        return [$profile->getID(), $cls];
                     }
                 }
             }

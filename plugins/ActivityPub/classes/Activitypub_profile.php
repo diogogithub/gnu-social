@@ -285,8 +285,6 @@ class Activitypub_profile extends Managed_DataObject
         }
 
         $aprofile->created = $aprofile->modified = common_sql_now();
-
-        $aprofile = new Activitypub_profile;
         $aprofile->profile_id = $profile->getID();
         $aprofile->uri = $url;
         $aprofile->nickname = $profile->getNickname();

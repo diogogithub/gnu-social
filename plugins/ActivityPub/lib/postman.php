@@ -49,7 +49,7 @@ class Activitypub_postman
      * Create a postman to deliver something to someone
      *
      * @param Profile $from sender Profile
-     * @param array $to receiver Profiles
+     * @param array $to receiver AProfiles
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
