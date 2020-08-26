@@ -1,50 +1,44 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Output a group directory
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Public
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
  * @copyright 2011 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or late
  */
 
-if (!defined('GNUSOCIAL')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Group directory
  *
- * @category Directory
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @author   Mikael Nordfeldth <mmn@hethane.se>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Directory
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or late
  */
 class GroupdirectoryAction extends ManagedAction
 {
     protected $redirectAfterLogin = true;
-    
+
     /**
      * The page we're on
      *
@@ -175,13 +169,16 @@ class GroupdirectoryAction extends ManagedAction
     public function showContent()
     {
         if (common_logged_in()) {
-            $this->elementStart('p',
-                                ['id' => 'new_group']);
-            $this->element('a',
-                           ['href'  => common_local_url('newgroup'),
-                            'class' => 'more'],
-                           // TRANS: Link to create a new group on the group list page.
-                           _m('Create a new group'));
+            $this->elementStart('p', ['id' => 'new_group']);
+            $this->element(
+                'a',
+                [
+                    'href'  => common_local_url('newgroup'),
+                    'class' => 'more',
+                ],
+                // TRANS: Link to create a new group on the group list page.
+                _m('Create a new group')
+            );
             $this->elementEnd('p');
         }
 
@@ -232,11 +229,12 @@ class GroupdirectoryAction extends ManagedAction
 
     public function showForm($error=null)
     {
-        $this->elementStart('form',
-                            ['method' => 'get',
-                             'id'     => 'form_search',
-                             'class'  => 'form_settings',
-                             'action' => common_local_url('groupdirectory')]);
+        $this->elementStart('form', [
+            'method' => 'get',
+            'id'     => 'form_search',
+            'class'  => 'form_settings',
+            'action' => common_local_url('groupdirectory'),
+        ]);
 
         $this->elementStart('fieldset');
 
@@ -273,17 +271,20 @@ class GroupdirectoryAction extends ManagedAction
             $wheres = ['nickname', 'fullname', 'homepage', 'description', 'location'];
             foreach ($wheres as $where) {
                 // Double % because of sprintf
-                $group->whereAdd(sprintf('LOWER(%1$s.%2$s) LIKE LOWER("%%%3$s%%")',
-                                         $group->escapedTableName(),
-                                         $where,
-                                         $group->escape($this->q)),
-                                 'OR');
+                $group->whereAdd(sprintf(
+                    'LOWER(%1$s.%2$s) LIKE LOWER(\'%%%3$s%%\')',
+                    $group->escapedTableName(),
+                    $where,
+                    $group->escape($this->q)
+                ), 'OR');
             }
 
-            $order = sprintf('%1$s.%2$s %3$s',
-                             $group->escapedTableName(),
-                             $this->getSortKey('created'),
-                             $this->reverse ? 'DESC' : 'ASC');
+            $order = sprintf(
+                '%1$s.%2$s %3$s',
+                $group->escapedTableName(),
+                $this->getSortKey('created'),
+                $this->reverse ? 'DESC' : 'ASC'
+            );
         } else {
             // User is browsing via AlphaNav
 
@@ -292,24 +293,30 @@ class GroupdirectoryAction extends ManagedAction
                 // NOOP
                 break;
             case '0-9':
-                $group->whereAdd(sprintf('LEFT(%1$s.%2$s, 1) BETWEEN %3$s AND %4$s',
-                                         $group->escapedTableName(),
-                                         'nickname',
-                                         $group->_quote("0"),
-                                         $group->_quote("9")));
+                $group->whereAdd(sprintf(
+                    'LEFT(%1$s.%2$s, 1) BETWEEN %3$s AND %4$s',
+                    $group->escapedTableName(),
+                    'nickname',
+                    $group->_quote('0'),
+                    $group->_quote('9')
+                ));
                 break;
             default:
-                $group->whereAdd(sprintf('LEFT(LOWER(%1$s.%2$s), 1) = %3$s',
-                                         $group->escapedTableName(),
-                                         'nickname',
-                                         $group->_quote($this->filter)));
+                $group->whereAdd(sprintf(
+                    'LEFT(LOWER(%1$s.%2$s), 1) = %3$s',
+                    $group->escapedTableName(),
+                    'nickname',
+                    $group->_quote($this->filter)
+                ));
             }
 
-            $order = sprintf('%1$s.%2$s %3$s, %1$s.%4$s ASC',
-                             $group->escapedTableName(),
-                             $this->getSortKey('nickname'),
-                             $this->reverse ? 'DESC' : 'ASC',
-                             'nickname');
+            $order = sprintf(
+                '%1$s.%2$s %3$s, %1$s.%4$s ASC',
+                $group->escapedTableName(),
+                $this->getSortKey('nickname'),
+                $this->reverse ? 'DESC' : 'ASC',
+                'nickname'
+            );
         }
 
         $offset = ($this->page-1) * PROFILES_PER_PAGE;
@@ -347,13 +354,12 @@ class GroupdirectoryAction extends ManagedAction
     public function showEmptyListMessage()
     {
         if (!empty($this->filter) && ($this->filter != 'all')) {
-            $this->element('p',
-                           'error',
-                           sprintf(
-                               // TRANS: Empty list message for searching group directory.
-                               // TRANS: %s is the search string.
-                               _m('No groups starting with %s.'),
-                               $this->filter));
+            $this->element('p', 'error', sprintf(
+                // TRANS: Empty list message for searching group directory.
+                // TRANS: %s is the search string.
+                _m('No groups starting with %s.'),
+                $this->filter
+            ));
         } else {
             // TRANS: Empty list message for searching group directory.
             $this->element('p', 'error', _m('No results.'));
