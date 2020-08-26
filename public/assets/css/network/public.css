@@ -46,6 +46,10 @@
     list-style-type: none;
     font-weight: 700;
 }
+.notes-wrap .main-nav ul {
+    font-size: var(--unit-size);
+}
+
 .active {
     color: var(--fg) !important;
     font-weight: 700;
@@ -110,6 +114,9 @@
     flex-shrink: 0;
     width: 100%;
 }
+.notice-info b {
+    margin-left: var(--small-size);
+}
 .notice-info a img {
     width: calc(2 * var(--unit-size));
     height: auto;
@@ -119,44 +126,57 @@
     padding: var(--small-size);
     border-radius: 0 0 var(--small-size) var(--small-size);
 }
-/* posting form */
-.note-post {
-    width: calc(100% - (6 * var(--unit-size)));
-    border: solid 2px var(--accent-low);
-    border-radius: var(--small-size);
+
+/* POSTING */
+.content > form {
+    display: flex;
+    flex: max-content;
 }
-#form {
+.create-notice {
     display: flex;
     flex-wrap: wrap;
-}
-#form div {
-    flex-grow: 1;
-    flex-shrink: 0;
-    width: 100%;
-}
-#form div:nth-of-type(2) {
-    display: flex;
-    justify-content: right;
+    flex: max-content;
+    margin-left: 4%;
+    margin-right: 4%;
+    border-radius: var(--small-size);
+    border: solid 2px var(--accent-low);
+    background-color: var(--bg3);
+    padding: 2%;
 }
 
-textarea#form_content {
-    background-color: var(--bg3);
-    border-radius: var(--small-size) var(--small-size) 0 0;
-    color: var(--fg);
-    height: calc(8 * var(--unit-size));
+.scope {
+    order: 1;
     width: 100%;
-    box-sizing: border-box;
-    padding: var(--unit-size);
-    word-wrap: break-word;
-    resize: vertical;
-    font-size: var(--unit-size);
-}
-button#form_send {
+    display: flex;
+    flex-wrap: wrap;
     color: var(--fg);
-    font-size: var(--small-size);
-    background-color: var(--bg1);
-    padding: var(--small-size) var(--main-size) var(--small-size) var(--main-size);
-    border: solid 2px var(--accent-low);
-    border-radius: var(--main-size);
-    margin: var(--small-size);
+    font-size: var(--medium-size);
+}
+.scope .required {
+    order: 1;
+    width: 100%;
+    flex-grow: 1;
+    flex-shrink: 0;
+    font-weight: 800;
+    margin: 0;
+    padding: 0;
+}
+.scope #form_scope {
+    order: 2;
+    width: 100%;
+    flex-grow: 1;
+    flex-shrink: 0;
+    color: var(--fg);
+    border: none;
+    vertical-align: center;
+    overflow-x: hidden;
+}
+.scope #form_scope label {
+    margin-right: var(--small-size);
+    margin-left: 0.2em;
+}
+
+.notice-input {
+    order: 2;
+    width: 80%;
 }
