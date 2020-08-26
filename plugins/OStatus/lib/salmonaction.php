@@ -287,7 +287,13 @@ class SalmonAction extends Action
             if (!$this->oprofile instanceof Ostatus_profile) {
                 common_debug("We do not have a local profile to connect to this activity's author. Let's create one.");
                 // ensureActivityObjectProfile throws exception on failure
-                $this->oprofile = Ostatus_profile::ensureActivityObjectProfile($this->activity->actor);
+                try {
+                    $this->oprofile = Ostatus_profile::ensureActivityObjectProfile($this->activity->actor);
+                } catch (AlreadyHandledException $e) {
+                    // Some other federation protocol is handling this profile, let it go.
+                    common_debug('SalmonAction found that this actor already was handled by another federation protocol: ' . $e->getMessage());
+                    return;
+                }
             }
         }
 

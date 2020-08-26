@@ -4,7 +4,7 @@ Making this possible essentially consists in not allowing duplication of remote 
 and to ensure that each profile is handled by one and only one federation protocol at a time.
 
 Each newly added federation protocol **must** support all the already supported functionalities by the other federation
-protocols, otherwise this module will be moving between FullFeaturedFederationProtocolProfile and LackyFederationProtocolProfile all the time.
+protocols, otherwise if the LackyFederationProtocolProfile is preferred, the remote actors using it will be limited.
 
 You **must** feed this Module with the list of preferences for each federation protocol, more on that in the following section.
 
