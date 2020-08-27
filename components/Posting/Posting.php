@@ -51,9 +51,15 @@ class Posting extends Module
             $to_options[$t] = $t;
         }
 
+        $empty_string = ['how are you feeling?...', 'Something to share?...', 'How was your day?...'];
+        $rand_keys    = array_rand($empty_string, 1);
+
         $request = $vars['request'];
         $form    = Form::create([
-            ['content', TextareaType::class, ['label' => ' ']],
+            ['content', TextareaType::class, [
+                'label' => ' ',
+                'data'  => $empty_string[$rand_keys],
+            ]],
             ['attachments', FileType::class,     ['label' => _m(' '), 'multiple' => true, 'required' => false]],
             ['scope', ChoiceType::class, [
                 'label'    => 'To:',
