@@ -36,7 +36,27 @@ use Symfony\Component\HttpFoundation\Request;
 
 class NetworkPublic extends Controller
 {
-    public function handle(Request $request)
+    public function public(Request $request)
+    {
+        $notes       = DB::findBy('note', [], ['created' => 'DESC']);
+        $attachments = [];
+        foreach ($notes as $n) {
+            $a = DB::dql(
+                'select f from App\Entity\File f ' .
+                'join App\Entity\FileToNote ftn with ftn.file_id = f.id ' .
+                'where ftn.note_id = :note_id',
+                ['note_id' => $n->getId()]
+            );
+            $attachments[] = $a;
+        }
+        return [
+            '_template'   => 'network/public.html.twig',
+            'notes'       => $notes,
+            'attachments' => array_reverse($attachments),
+        ];
+    }
+
+    public function home(Request $request)
     {
         $notes       = DB::findBy('note', [], ['created' => 'DESC']);
         $attachments = [];
