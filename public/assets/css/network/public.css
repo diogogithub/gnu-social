@@ -141,9 +141,10 @@
     border-radius: var(--small-size);
     border: solid 2px var(--accent-low);
     background-color: var(--bg3);
-    padding: 2%;
+    padding: 1%;
 }
 
+/* scope options */
 .scope {
     order: 1;
     width: 100%;
@@ -152,31 +153,55 @@
     color: var(--fg);
     font-size: var(--medium-size);
 }
+.scope div {
+    display: inline;
+    vertical-align: middle;
+    flex: 1;
+    color: var(--fg);
+    border-radius: var(--small-size);
+    background-color: var(--bg2);
+    padding: 1%;
+}
 .scope .required {
     order: 1;
-    width: 100%;
-    flex-grow: 1;
-    flex-shrink: 0;
     font-weight: 800;
-    margin: 0;
-    padding: 0;
 }
 .scope #form_scope {
     order: 2;
-    width: 100%;
     flex-grow: 1;
-    flex-shrink: 0;
-    color: var(--fg);
-    border: none;
-    vertical-align: center;
-    overflow-x: hidden;
+    flex-shrink: 1;
 }
 .scope #form_scope label {
     margin-right: var(--small-size);
     margin-left: 0.2em;
 }
 
-.notice-input {
+/* input box */
+.content-input {
     order: 2;
-    width: 80%;
+    flex-grow: 1;
+    flex-shrink: 0;
+}
+#form_content {
+    background-color: var(--bg2);
+    padding: 1%;
+    color: var(--fg);
+    font-size: var(--unit-size);
+    border-radius: var(--small-size);
+    margin-top: 0.2em;
+    width: 100%;
+    box-sizing: border-box;
+    height: calc(8 * var(--unit-size));
+}
+
+/* options */
+.notice-options {
+    order: 3;
+    display: inline-flex;
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+}
+.send {
+    margin-left: auto;
 }
