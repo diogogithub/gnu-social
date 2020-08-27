@@ -59,25 +59,23 @@ if (empty($max_date)) {
     exit(1);
 }
 
-$query = "
-    SELECT DISTINCT
-        file_to_post.file_id
-    FROM
-        file_to_post
-            INNER JOIN
-        file ON file.id = file_to_post.file_id
-            INNER JOIN
-        notice ON notice.id = file_to_post.post_id
-    WHERE
-        notice.is_local = 0 ";
-
-$query .= $image_only ? " AND file.width IS NOT NULL AND file.height IS NOT NULL " : "";
-
-$query .= $include_previews ? "" : " AND file.filehash IS NOT NULL ";
-$query .= " AND notice.modified <= '{$max_date}' ORDER BY notice.modified ASC";
-
 $fn = new DB_DataObject();
-$fn->query($query);
+$fn->query(sprintf(
+    <<<'END'
+    SELECT file_to_post.file_id
+      FROM file_to_post
+      INNER JOIN file ON file_to_post.file_id = file.id
+      INNER JOIN notice ON file_to_post.post_id = notice.id
+      WHERE notice.is_local = 0
+      %1$s%2$sAND notice.modified <= '%3$s'
+      GROUP BY file_to_post.file_id
+      ORDER BY MAX(notice.modified)
+    END,
+    $image_only ? 'AND file.width IS NOT NULL AND file.height IS NOT NULL ' : '',
+    $include_previews ? '' : 'AND file.filehash IS NOT NULL ',
+    $fn->escape($max_date)
+));
+
 while ($fn->fetch()) {
     $file = File::getByID($fn->file_id);
     $file_info_id = $file->getID();
