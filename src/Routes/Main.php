@@ -46,7 +46,8 @@ abstract class Main
         $r->connect('register', '/register', [C\Security::class, 'register']);
 
         $r->connect('root', '/', RedirectController::class, ['defaults' => ['route' => 'main_all']]);
-        $r->connect('main_all', '/main/all', C\NetworkPublic::class);
+        $r->connect('main_all', '/main/all', [C\NetworkPublic::class, 'public']);
+        $r->connect('home_all', '/user_here/all', [C\NetworkPublic::class, 'home']);
 
         $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
         $r->connect('panel_site', '/panel/site', [C\AdminPanel::class, 'site']);
