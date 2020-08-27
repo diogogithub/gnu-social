@@ -173,6 +173,7 @@ class ActivityPubQueueHandler extends QueueHandler
      */
     public function onEndFavorNotice(Profile $profile, Notice $notice, $other)
     {
+        $notice = $notice->getParent();
         if ($notice->reply_to) {
             try {
                 $parent_notice = $notice->getParent();
