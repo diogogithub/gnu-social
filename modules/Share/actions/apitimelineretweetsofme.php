@@ -1,44 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Show authenticating user's most recent notices that have been repeated
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  API
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Show authenticating user's most recent notices that have been repeated
  *
- * @category API
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  API
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ApiTimelineRetweetsOfMeAction extends ApiAuthAction
 {
@@ -46,20 +40,20 @@ class ApiTimelineRetweetsOfMeAction extends ApiAuthAction
     const MAXCOUNT     = 200;
     const MAXNOTICES   = 3200;
 
-    var $repeats  = null;
-    var $cnt      = self::DEFAULTCOUNT;
-    var $page     = 1;
-    var $since_id = null;
-    var $max_id   = null;
+    public $repeats  = null;
+    public $cnt      = self::DEFAULTCOUNT;
+    public $page     = 1;
+    public $since_id = null;
+    public $max_id   = null;
 
     /**
      * Take arguments for running
      *
      * @param array $args $_REQUEST args
      *
-     * @return boolean success flag
+     * @return bool success flag
      */
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -83,7 +77,7 @@ class ApiTimelineRetweetsOfMeAction extends ApiAuthAction
      *
      * @return void
      */
-    function handle()
+    public function handle()
     {
         parent::handle();
 
@@ -101,7 +95,9 @@ class ApiTimelineRetweetsOfMeAction extends ApiAuthAction
             // TRANS: Subtitle of API time with retweets of me.
             // TRANS: %1$s is the StatusNet sitename, %2$s is the user nickname, %3$s is the user profile name.
             _('%1$s notices that %2$s / %3$s has repeated.'),
-            $sitename, $this->auth_user->nickname, $profile->getBestName()
+            $sitename,
+            $this->auth_user->nickname,
+            $profile->getBestName()
         );
 
         $taguribase = TagURI::base();
@@ -109,18 +105,15 @@ class ApiTimelineRetweetsOfMeAction extends ApiAuthAction
 
         $link = common_local_url(
             'all',
-             array('nickname' => $this->auth_user->nickname)
+            ['nickname' => $this->auth_user->nickname]
         );
 
-        // This is a really bad query for some reason
-
-        if (!common_config('performance', 'high')) {
-            $strm = $this->auth_user->repeatsOfMe($offset, $limit, $this->since_id, $this->max_id);
-        } else {
-            $strm = new Notice();
-            $strm->whereAdd('0 = 1');
-            $strm->find();
-        }
+        $strm = $this->auth_user->repeatsOfMe(
+            $offset,
+            $limit,
+            $this->since_id,
+            $this->max_id
+        );
 
         switch ($this->format) {
         case 'xml':
@@ -165,7 +158,7 @@ class ApiTimelineRetweetsOfMeAction extends ApiAuthAction
      *
      * @return boolean is read only action?
      */
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }

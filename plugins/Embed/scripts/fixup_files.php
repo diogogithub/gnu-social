@@ -52,32 +52,32 @@ if (!($broken ^ $h_bug)) {
     die();
 }
 
-$query = "
-    SELECT DISTINCT
-        file_to_post.file_id
-    FROM
-        file_to_post
-            INNER JOIN
-        file ON file.id = file_to_post.file_id
-            INNER JOIN
-        notice ON notice.id = file_to_post.post_id
-    WHERE";
+$fn = new DB_DataObject();
 
-$f = new File();
+$query = <<<'END'
+    SELECT file_to_post.file_id
+      FROM file_to_post
+      INNER JOIN file ON file_to_post.file_id = file.id
+      INNER JOIN notice ON file_to_post.post_id = notice.id
+      WHERE
+    END;
+
 if ($h_bug) {
-    $query .= " file.title = 'h'
-                AND file.mimetype = 'h'
-                AND file.size = 0
-                AND file.protected = 0";
+    $query .= <<<'END'
+              file.title = 'h'
+          AND file.mimetype = 'h'
+          AND file.size = 0
+          AND file.protected = 0
+        END;
 } elseif ($broken) {
-    $query .= " file.filename is NULL";
+    $query .= ' file.filename IS NULL';
 }
 
-$query .= empty($limit) ? "" : " AND notice.modified >= '{$limit}' ORDER BY notice.modified ASC";
+if (!empty($limit)) {
+    $query .= " AND notice.modified >= '{$fn->escape($limit)}'";
+}
+$query .= ' GROUP BY file_to_post.file_id ORDER BY MAX(notice.modified)';
 
-// echo $query;
-
-$fn = new DB_DataObject();
 $fn->query($query);
 
 if ($h_bug) {
@@ -133,14 +133,15 @@ while ($fn->fetch()) {
                 echo " (ok, but embedding lookup failed)\n";
             }
         }
-    } elseif ($broken &&
-              (!$data instanceof File_embed ||
-               empty($data->title) ||
-               empty($f->title)
-               ||
-               ($thumb instanceof File_thumbnail && empty($thumb->filename))
-              )) {
-
+    } elseif (
+        $broken
+        && (
+            !($data instanceof File_embed)
+            || empty($data->title)
+            || empty($f->title)
+            || ($thumb instanceof File_thumbnail && empty($thumb->filename))
+        )
+    ) {
         // print_r($thumb);
 
         if (!$dry) {
