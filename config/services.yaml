@@ -47,11 +47,11 @@ services:
     Symfony\Bridge\Doctrine\Security\RememberMe\DoctrineTokenProvider: ~
 
     Plugin\:
-      resource: '../plugins/*/*.php'
+      resource: '../plugins/*'
       exclude: '../plugins/*/{scripts,classes,lib,actions,locale,doc}'
       tags: ['controller.service_arguments']
 
     Component\:
-      resource: '../components/*/*.php'
+      resource: '../components/*'
       exclude: '../components/*/{scripts,classes,lib,actions,locale,doc}'
       tags: ['controller.service_arguments']
