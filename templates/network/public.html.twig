@@ -29,18 +29,30 @@
         {% if post_form is defined %}
             {{ form_start(post_form) }}
                 <div class="create-notice">
-                    <div class="scope">
-                        {{ form_row(post_form.scope) }}
-                    </div>
-                    <div class="content-input">
-                        {{ form_row(post_form.content) }}
-                    </div>
-                    <div class="notice-options">
-                        <div class="attachments">
-                            {{ form_row(post_form.attachments) }}
+                    <div class="target">
+                        <div class="target-top">
+                            {{ form_label(post_form.to) }}
                         </div>
-                        <div class="send">
-                            {{ form_row(post_form.send) }}
+                        <div class="target-bot">
+                            {{ form_widget(post_form.to) }}
+                        </div>
+                    </div>
+                    <div class="create-right">
+                        <div class="scope">
+                            {{ form_row(post_form.visibility) }}
+                        </div>
+                        <div class="input-wrapper">
+                            <div class="content-input">
+                                {{ form_row(post_form.content) }}
+                            </div>
+                        </div>
+                        <div class="notice-options">
+                            <div class="attachments">
+                                {{ form_row(post_form.attachments) }}
+                            </div>
+                            <div class="send">
+                                {{ form_row(post_form.send) }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -52,12 +64,6 @@
                     <li>
                         <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Timeline</a>
                     </li>
-                    <li>
-                        <a href="#">Groups</a>
-                    </li>
-                    <li>
-                        <a href="#">People</a>
-                    </li>
                 </ul>
             </nav>
             <div class="notes-wrap">
@@ -67,7 +73,7 @@
                             <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Public</a>
                         </li>
                         <li>
-                            <a href="#">Home</a>
+                            <a href="{{ path("home_all", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("home_all") }}'>Home</a>
                         </li>
                         <li>
                             <a href="#">Network</a>
