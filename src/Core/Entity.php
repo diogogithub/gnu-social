@@ -33,7 +33,7 @@ class Entity
         $obj             = $obj ?: new $class();
         $args['created'] = $args['modified'] = new DateTime();
         foreach ($args as $prop => $val) {
-            if (property_exists($class, $prop)) {
+            if (property_exists($class, $prop) && $val != null) {
                 $set = 'set' . Formatting::snakeCaseToCamelCase($prop);
                 $obj->{$set}($val);
             } else {

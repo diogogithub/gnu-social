@@ -1,0 +1,10 @@
+{% extends '/base.html.twig' %}
+
+{% block body %}
+  <div class="content" style="margin-top: 5em">
+    <div class="main">
+      {% include '/note/view.html.twig' with {'note': note} only %}
+      {{ form(reply) }}
+    </div>
+  </div>
+{% endblock body %}

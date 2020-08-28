@@ -81,6 +81,16 @@ abstract class Common
         return self::user()->getActor();
     }
 
+    public static function ensureLoggedIn(): LocalUser
+    {
+        if (($user = self::user()) == null) {
+            throw new NoLoggedInUser();
+        // TODO Maybe redirect to login page and back
+        } else {
+            return $user;
+        }
+    }
+
     /**
      * Is the given string identical to a system path or route?
      * This could probably be put in some other class, but at
