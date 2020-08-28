@@ -34,45 +34,23 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use Symfony\Component\HttpFoundation\Request;
 
-class NetworkPublic extends Controller
+class Network extends Controller
 {
     public function public(Request $request)
     {
-        $notes       = DB::findBy('note', [], ['created' => 'DESC']);
-        $attachments = [];
-        foreach ($notes as $n) {
-            $a = DB::dql(
-                'select f from App\Entity\File f ' .
-                'join App\Entity\FileToNote ftn with ftn.file_id = f.id ' .
-                'where ftn.note_id = :note_id',
-                ['note_id' => $n->getId()]
-            );
-            $attachments[] = $a;
-        }
         return [
-            '_template'   => 'network/public.html.twig',
-            'notes'       => $notes,
-            'attachments' => array_reverse($attachments),
+            '_template' => 'network/public.html.twig',
+            'notes'     => DB::dql('select n from App\Entity\Note n ' .
+                                     'where n.reply_to is null order by n.created DESC'),
         ];
     }
 
     public function home(Request $request)
     {
-        $notes       = DB::findBy('note', [], ['created' => 'DESC']);
-        $attachments = [];
-        foreach ($notes as $n) {
-            $a = DB::dql(
-                'select f from App\Entity\File f ' .
-                'join App\Entity\FileToNote ftn with ftn.file_id = f.id ' .
-                'where ftn.note_id = :note_id',
-                ['note_id' => $n->getId()]
-            );
-            $attachments[] = $a;
-        }
+        $notes = DB::findBy('note', [], ['created' => 'DESC']);
         return [
-            '_template'   => 'network/public.html.twig',
-            'notes'       => $notes,
-            'attachments' => array_reverse($attachments),
+            '_template' => 'network/public.html.twig',
+            'notes'     => $notes,
         ];
     }
 }

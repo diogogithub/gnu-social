@@ -1,7 +1,6 @@
 <?php
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -16,7 +15,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
 
 namespace App\Core;
@@ -24,6 +22,7 @@ namespace App\Core;
 use Functional as F;
 use Redis;
 use RedisCluster;
+use SplFixedArray;
 use Symfony\Component\Cache\Adapter;
 use Symfony\Component\Cache\Adapter\ChainAdapter;
 
@@ -81,8 +80,8 @@ abstract class Cache
                     $r->setOption($class::OPT_TCP_KEEPALIVE, true);
                     // Use LZ4 for the improved decompression speed (while keeping an okay compression ratio)
                     $r->setOption($class::OPT_COMPRESSION, $class::COMPRESSION_LZ4);
-                    self::$redis[$pool][] = $r;
-                    $adapters[$pool][]    = new Adapter\RedisAdapter($r);
+                    self::$redis[$pool] = $r;
+                    $adapters[$pool][]  = new Adapter\RedisAdapter($r);
                     break;
                 case 'memcached':
                     // memcached can also have multiple servers
@@ -131,17 +130,38 @@ abstract class Cache
         return self::$pools[$pool]->delete($key);
     }
 
-    public static function getList(string $key, callable $calculate, string $pool = 'default', int $max_count = 64, float $beta = 1.0): SplFixedArray
+    public static function getList(string $key, callable $calculate, string $pool = 'default', int $max_count = -1, float $beta = 1.0): array
     {
         if (isset(self::$redis[$pool])) {
-            return SplFixedArray::fromArray(self::$redis[$pool]->lRange($key, 0, -1));
+            if (!($recompute = $beta === INF || !(self::$redis[$pool]->exists($key)))) {
+                if (!($_ENV['REDIS_CACHE_USE_EXPONENTIAL_UPDATE'] ?? false)) {
+                    $recompute = (mt_rand() / mt_getrandmax() > ((float) ($_ENV['REDIS_CACHE_RANDOM_UPDATE'] ?? 0.95)));
+                    Log::info('Item "{key}" elected for early recomputation', ['key' => $key]);
+                } else {
+                    if ($recompute = ($idletime = self::$redis[$pool]->object('idletime', $key) ?? false) && ($expiry = self::$redis[$pool]->ttl($key) ?? false) && $expiry <= $idletime / 1000 * $beta * log(random_int(1, PHP_INT_MAX) / PHP_INT_MAX)) {
+                        Log::info('Item "{key}" elected for early recomputation {delta}s before its expiration', [
+                            'key'   => $key,
+                            'delta' => sprintf('%.1f', $expiry - microtime(true)),
+                        ]);
+                    }
+                }
+            }
+            if ($recompute) {
+                $save = true;
+                $res  = $calculate(null, $save);
+                if ($save) {
+                    self::$redis[$pool]->del($key);
+                    self::$redis[$pool]->lPush($key, ...$res);
+                }
+            }
+            return self::$redis[$pool]->lRange($key, 0, $max_count);
         } else {
             $keys = self::getKeyList($key, $max_count, $beta);
             $list = new SplFixedArray($keys->count());
             foreach ($keys as $k) {
                 $list[] = self::get($k, $calculate, $pool, $beta);
             }
-            return $list;
+            return $list->toArray();
         }
     }
 
