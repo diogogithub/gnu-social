@@ -138,7 +138,39 @@
     border-radius: var(--small-size);
     border: solid 2px var(--accent-low);
     background-color: var(--bg3);
-    padding: 1%;
+}
+.create-right {
+    order: 2;
+    width: 80%;
+    border-radius: 0 var(--small-size) var(--small-size) 0;
+    background-color: var(--bg3);
+}
+
+/* target multi-select */
+.target {
+    order: 1;
+    width: 20%;
+    background-color: var(--bg1);
+    border-radius: var(--small-size) 0 0 var(--small-size);
+    font-size: var(--medium-size);
+}
+.target-top {
+    padding: var(--unit-size);
+}
+.target-bot {
+    padding-left: var(--unit-size);
+    padding-bottom: var(--unit-size);
+}
+.target .required {
+    font-weight: 800;
+    font-family: var(--head-font);
+}
+.target #form_to {
+    font-weight: 400;
+    font-family: var(--main-font);
+}
+.target #form_to label {
+    margin-left: 0.5em;
 }
 
 /* scope options */
@@ -149,31 +181,41 @@
     flex-wrap: wrap;
     color: var(--fg);
     font-size: var(--medium-size);
+    background-color: var(--bg1);
+    border-radius: 0 var(--small-size) 0 0;
 }
 .scope div {
     display: inline;
     vertical-align: middle;
     flex: 1;
     color: var(--fg);
-    border-radius: var(--small-size);
-    background-color: var(--bg2);
-    padding: 1%;
+    padding: var(--unit-size);
 }
 .scope .required {
     order: 1;
     font-weight: 800;
+    font-family: var(--head-font);
+}
+#form_visibility .required {
+    font-family: var(--main-font);
+    font-weight: 400;
+    margin-left: 0.2em;
+    margin-right: 0.5em;
 }
 .scope #form_scope {
     order: 2;
     flex-grow: 1;
     flex-shrink: 1;
 }
-.scope #form_scope label {
-    margin-right: var(--small-size);
-    margin-left: 0.2em;
-}
 
 /* input box */
+.input-wrapper {
+    order: 2;
+    display: inline-flex;
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+}
 .content-input {
     order: 2;
     flex-grow: 1;
@@ -181,11 +223,10 @@
 }
 #form_content {
     background-color: var(--bg2);
-    padding: 1%;
+    padding: var(--unit-size);
     color: var(--fg);
-    font-size: var(--unit-size);
-    border-radius: var(--small-size);
-    margin-top: 0.2em;
+    font-size: var(--medium-size);
+    font-family: var(--main-font);
     width: 100%;
     box-sizing: border-box;
     height: calc(8 * var(--unit-size));
@@ -198,6 +239,7 @@
     justify-content: flex-start;
     width: 100%;
     box-sizing: border-box;
+    padding: 1%;
 }
 .send {
     margin-left: auto;
