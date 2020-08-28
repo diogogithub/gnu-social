@@ -29,6 +29,7 @@ use App\Entity\FileToNote;
 use App\Entity\Note;
 use App\Util\Common;
 use Component\Media\Media;
+use Component\Posting\Controller as C;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -36,36 +37,47 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class Posting extends Module
 {
+    public function onAddRoute($r)
+    {
+        $r->connect('note_new', '/note/new/{reply_to<\d*>}',
+          [C\Post::class, 'note'], []);
+    }
+
     public function onStartTwigPopulateVars(array &$vars)
     {
         if (Common::user() == null) {
             return;
         }
 
-        $to_options = ['public' => _m('public'), 'instance' => _m('instance')];
+        $to_options = ['public' => _m('public'), 'instance' => _m('instance'), 'private' => _m('private')];
 
         $id      = Common::actor()->getId();
-        $to_tags = DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $id]);
-        foreach ($to_tags as $t) {
-            $t              = $t['tag'];
-            $to_options[$t] = $t;
+        $to_tags = [];
+        foreach (DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $id]) as $t) {
+            $t           = $t['tag'];
+            $to_tags[$t] = $t;
         }
 
-        $empty_string = ['how are you feeling?...', 'Something to share?...', 'How was your day?...'];
+        $empty_string = ['How are you feeling?...', 'Something to share?...', 'How was your day?...'];
         $rand_keys    = array_rand($empty_string, 1);
 
         $request = $vars['request'];
         $form    = Form::create([
             ['content', TextareaType::class, [
                 'label' => ' ',
-                'data'  => $empty_string[$rand_keys],
+                'data'  => _m($empty_string[$rand_keys]),
             ]],
             ['attachments', FileType::class,     ['label' => _m(' '), 'multiple' => true, 'required' => false]],
-            ['scope', ChoiceType::class, [
+            ['visibility', ChoiceType::class, [
+                'label'    => 'Visibility:',
+                'expanded' => true,
+                'choices'  => $to_options,
+            ]],
+            ['to', ChoiceType::class, [
                 'label'    => 'To:',
                 'multiple' => true,
                 'expanded' => true,
-                'choices'  => $to_options,
+                'choices'  => $to_tags,
             ]],
             ['send',    SubmitType::class,   ['label' => _m('Send')]],
         ]);
