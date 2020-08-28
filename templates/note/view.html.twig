@@ -1,0 +1,28 @@
+<div class="note">
+  <div class="note-info">
+    <a href="{{ path('settings_avatar') }}">
+      <img src="{{ note.getAvatarUrl() }}" alt="{{ note.getActorNickname() }}'s avatar">
+    </a>
+    <b>{{ note.getActorNickname() }}</b>
+  </div>
+  <div class="note-content">
+    {{ note.getContent() }}
+    {% for attachment in note.getAttachments() %}
+      <div>
+        <i> {{ attachment.getTitle() }} </i>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="note-actions">
+    <a href="{{ path('note_reply', {'reply_to': note.getId()}) }}">
+      <svg class="icon icon-reply">
+        <use xlink:href="#icon-reply"></use>
+      </svg>
+    </a>
+  </div>
+  <div class="replies">
+    {% for reply in note.getReplies() %}
+      {% include '/note/view.html.twig' with {'note': reply} only %}
+    {% endfor %}
+  </div>
+</div>

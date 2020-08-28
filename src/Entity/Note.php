@@ -21,6 +21,7 @@
 
 namespace App\Entity;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
@@ -185,6 +186,23 @@ class Note extends Entity
         $url = null;
         Event::handle('get_avatar_url', [$this->getActorNickname(), &$url]);
         return $url;
+    }
+
+    public function getAttachments(): array
+    {
+        return Cache::get('note-attachments-' . $this->id, function () {
+            return DB::dql(
+                    'select f from App\Entity\File f ' .
+                    'join App\Entity\FileToNote ftn with ftn.file_id = f.id ' .
+                    'where ftn.note_id = :note_id',
+                    ['note_id' => $this->id]
+                );
+        });
+    }
+
+    public function getReplies(): array
+    {
+        return Cache::getList('note-replies-' . $this->id, function () { return DB::dql('select n from App\Entity\Note n where n.reply_to = :id', ['id' => $this->id]); });
     }
 
     public static function schemaDef(): array

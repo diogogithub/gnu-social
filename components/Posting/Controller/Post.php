@@ -19,27 +19,74 @@
 
 namespace Component\Posting\Controller;
 
+use App\Core\DB\DB;
 use App\Core\Form;
-use App\Core\Module;
+use function App\Core\I18n\_m;
+use App\Entity\FileToNote;
+use App\Entity\Note;
+use App\Util\Common;
+use App\Util\Exception\ClientException;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
-use function App\Core\I18n\_m;
 
-class Post extends Module {
-    public function reply(Request $r) {
+class Post
+{
+    public function reply(Request $request, string $reply_to)
+    {
+        $note = DB::find('note', ['id' => $reply_to]);
+        if ($note == null) {
+            throw new ClientException(_m('No such note'));
+        }
+
+        $actor_id = Common::ensureLoggedIn()->getActor()->getId();
 
         $form = Form::create([
-            ['avatar', FileType::class,   ['label' => _m('Avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 2MB.')]],
-            ['reply_to', HiddenType::class, []],
-            ['save',   SubmitType::class, ['label' => _m('Submit')]],
+            ['reply_to',    HiddenType::class,   ['data' => (int) $reply_to]],
+            ['content',     TextareaType::class, ['label' => ' ']],
+            ['attachments', FileType::class,     ['label' => ' ', 'multiple' => true, 'required' => false]],
+            ['save',        SubmitType::class,   ['label' => _m('Submit')]],
         ]);
 
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data  = $form->getData();
-            $sfile = null;
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+            if ($form->isValid()) {
+                self::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true, $data['reply_to']);
+            } else {
+                // TODO display errors
+            }
+        }
+
+        return [
+            '_template' => 'note/reply.html.twig',
+            'note'      => $note,
+            'reply'     => $form->createView(),
+        ];
+    }
+
+    public static function storeNote(int $actor_id, string $content, array $attachments, bool $is_local, ?int $reply_to = null)
+    {
+        $note  = Note::create(['gsactor_id' => $actor_id, 'content' => $content, 'is_local' => $is_local, 'reply_to' => $reply_to]);
+        $files = [];
+        foreach ($attachments as $f) {
+            $nf = Media::validateAndStoreFile($f, Common::config('attachments', 'dir'),
+                                              Security::sanitize($title = $f->getClientOriginalName()),
+                                              $is_local = true, $actor_id);
+            $files[] = $nf;
+            DB::persist($nf);
+        }
+        DB::persist($note);
+        // Need file and note ids for the next step
+        DB::flush();
+        if ($attachments != []) {
+            foreach ($files as $f) {
+                DB::persist(FileToNote::create(['file_id' => $f->getId(), 'note_id' => $note->getId()]));
+            }
+            DB::flush();
+        }
     }
 }

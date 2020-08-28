@@ -24,11 +24,7 @@ use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Module;
-use App\Core\Security;
-use App\Entity\FileToNote;
-use App\Entity\Note;
 use App\Util\Common;
-use Component\Media\Media;
 use Component\Posting\Controller as C;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -39,8 +35,7 @@ class Posting extends Module
 {
     public function onAddRoute($r)
     {
-        $r->connect('note_new', '/note/new/{reply_to<\d*>}',
-          [C\Post::class, 'note'], []);
+        $r->connect('note_reply', '/note/reply/{reply_to<\d*>}', [C\Post::class, 'reply']);
     }
 
     public function onStartTwigPopulateVars(array &$vars)
@@ -49,60 +44,30 @@ class Posting extends Module
             return;
         }
 
-        $to_options = ['public' => _m('public'), 'instance' => _m('instance'), 'private' => _m('private')];
-
-        $id      = Common::actor()->getId();
-        $to_tags = [];
-        foreach (DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $id]) as $t) {
+        $actor_id = Common::actor()->getId();
+        $to_tags  = [];
+        foreach (DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]) as $t) {
             $t           = $t['tag'];
             $to_tags[$t] = $t;
         }
 
-        $empty_string = ['How are you feeling?...', 'Something to share?...', 'How was your day?...'];
-        $rand_keys    = array_rand($empty_string, 1);
+        $placeholder_string = ['How are you feeling?', 'Have something to share?', 'How was your day?'];
+        $rand_key           = array_rand($placeholder_string);
 
         $request = $vars['request'];
         $form    = Form::create([
-            ['content', TextareaType::class, [
-                'label' => ' ',
-                'data'  => _m($empty_string[$rand_keys]),
-            ]],
-            ['attachments', FileType::class,     ['label' => _m(' '), 'multiple' => true, 'required' => false]],
-            ['visibility', ChoiceType::class, [
-                'label'    => 'Visibility:',
-                'expanded' => true,
-                'choices'  => $to_options,
-            ]],
-            ['to', ChoiceType::class, [
-                'label'    => 'To:',
-                'multiple' => true,
-                'expanded' => true,
-                'choices'  => $to_tags,
-            ]],
-            ['send',    SubmitType::class,   ['label' => _m('Send')]],
+            ['content',     TextareaType::class, ['label' => ' ', 'data' => '', 'attr' => ['placeholder' => _m($placeholder_string[$rand_key])]]],
+            ['attachments', FileType::class,     ['label' => ' ', 'data' => null, 'multiple' => true, 'required' => false]],
+            ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'expanded' => true, 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
+            ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => true, 'expanded' => true, 'choices' => $to_tags]],
+            ['send',        SubmitType::class,   ['label' => _m('Send')]],
         ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
-                $content = $data['content'];
-                $note    = Note::create(['gsactor_id' => $id, 'content' => $content]);
-                $files   = [];
-                foreach ($data['attachments'] as $f) {
-                    $nf = Media::validateAndStoreFile($f, Common::config('attachments', 'dir'),
-                                                      Security::sanitize($title = $f->getClientOriginalName()),
-                                                      $is_local = true, $actor_id = $id);
-                    $files[] = $nf;
-                    DB::persist($nf);
-                }
-                DB::persist($note);
-                // Need file and note ids for the next step
-                DB::flush();
-                foreach ($files as $f) {
-                    DB::persist(FileToNote::create(['file_id' => $f->getId(), 'note_id' => $note->getId()]));
-                }
-                DB::flush();
+                Post::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true);
             } else {
                 // TODO Display error
             }

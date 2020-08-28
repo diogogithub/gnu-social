@@ -45,7 +45,7 @@ abstract class DB
         self::$em = $m;
     }
 
-    public static function dql(string $query, ?array $params)
+    public static function dql(string $query, array $params = [])
     {
         $q = new Query(self::$em);
         $q->setDQL($query);

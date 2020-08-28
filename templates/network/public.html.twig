@@ -72,9 +72,11 @@
                         <li>
                             <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Public</a>
                         </li>
-                        <li>
+                        {% if user_nickname is defined %}
+                          <li>
                             <a href="{{ path("home_all", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("home_all") }}'>Home</a>
-                        </li>
+                          </li>
+                        {% endif %}
                         <li>
                             <a href="#">Network</a>
                         </li>
@@ -84,25 +86,8 @@
                     <div class="notes">
                         {% if notes is defined and notes is not empty %}
                             {% for note in notes %}
-                                <div class="notice">
-                                    <div class="notice-info">
-                                        <a href="{{ path('settings_avatar') }}">
-                                            <img src="{{ note.getAvatarUrl() }}" alt="{{ note.getActorNickname() }}'s avatar">
-                                        </a>
-                                        <b>{{ note.getActorNickname() }}</b>
-                                    </div>
-                                    <div class="notice-content">
-                                        {{ note.getContent() }}
-                                        {% set id = note.getId() - 1 %}
-                                        {% for attachment in attachments[id] %}
-                                            <div>
-                                                <i> {{ attachment.getTitle() }} </i>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="notice-actions">
-                                    </div>
-                                </div>
+                              {% set id = note.getId() - 1 %}
+                              {% include '/note/view.html.twig' with {'note': note} only  %}
                             {% endfor %}
                         {% else %}
                             <h1>{% trans %}No notes here.{% endtrans %}</h1>
