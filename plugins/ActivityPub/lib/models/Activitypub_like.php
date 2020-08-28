@@ -39,20 +39,73 @@ class Activitypub_like
     /**
      * Generates an ActivityPub representation of a Like
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
      * @param string $actor  Actor URI
-     * @param string $object Notice URI
+     * @param Notice $notice Notice URI
      * @return array pretty array to be used in a response
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function like_to_array($actor, $object)
+    public static function like_to_array(string $actor, Notice $notice): array
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => common_root_url().'like_from_'.urlencode($actor).'_to_'.urlencode($object),
-            "type"   => "Like",
-            "actor"  => $actor,
-            "object" => $object
+            'id'       => Activitypub_notice::getUri($notice),
+            'type'     => 'Like',
+            'actor'    => $actor,
+            'object'   => Activitypub_notice::getUri($notice->getParent()),
         ];
         return $res;
+    }
+
+    /**
+     * Save a favorite record.
+     *
+     * @param string $uri
+     * @param Profile $actor the local or remote Profile who favorites
+     * @param Notice $target the notice that is favorited
+     * @return Notice record on success
+     * @throws AlreadyFulfilledException
+     * @throws ClientException
+     * @throws NoticeSaveException
+     * @throws ServerException
+     */
+    public static function addNew(string $uri, Profile $actor, Notice $target): Notice
+    {
+        if (Fave::existsForProfile($target, $actor)) {
+            // TRANS: Client error displayed when trying to mark a notice as favorite that already is a favorite.
+            throw new AlreadyFulfilledException(_m('You have already favorited this!'));
+        }
+
+        $act = new Activity();
+        $act->type  = ActivityObject::ACTIVITY;
+        $act->verb  = ActivityVerb::FAVORITE;
+        $act->time  = time();
+        $act->id    = $uri;
+        $act->title = _m('Favor');
+        // TRANS: Message that is the "content" of a favorite (%1$s is the actor's nickname, %2$ is the favorited
+        //        notice's nickname and %3$s is the content of the favorited notice.)
+        $act->content = sprintf(
+            _m('%1$s favorited something by %2$s: %3$s'),
+            $actor->getNickname(),
+            $target->getProfile()->getNickname(),
+            $target->getRendered()
+        );
+        $act->actor   = $actor->asActivityObject();
+        $act->target  = $target->asActivityObject();
+        $act->objects = [clone($act->target)];
+
+        $url = common_local_url('AtomPubShowFavorite', ['profile'=>$actor->id, 'notice'=>$target->id]);
+        $act->selfLink = $url;
+        $act->editLink = $url;
+
+        $options = [
+            'source'   => 'ActivityPub',
+            'uri'      => $act->id,
+            'url'      => $url,
+            'is_local' => ($actor->isLocal() ? Notice::LOCAL_PUBLIC : Notice::REMOTE),
+            'scope'    => $target->getScope(),
+        ];
+
+        // saveActivity will in turn also call Fave::saveActivityObject
+        return Notice::saveActivity($act, $actor, $options);
     }
 }

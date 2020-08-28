@@ -43,11 +43,11 @@ class Activitypub_undo
      * @param array $object
      * @return array pretty array to be used in a response
      */
-    public static function undo_to_array($object)
+    public static function undo_to_array(array $object): array
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => $object['id'].'/undo',
+            'id'     => $object['id'] . '#undo',
             'type'   => 'Undo',
             'actor'  => $object['actor'],
             'object' => $object
@@ -63,7 +63,7 @@ class Activitypub_undo
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function validate_object($object)
+    public static function validate_object(array $object): bool
     {
         if (!is_array($object)) {
             throw new Exception('Invalid Object Format for Undo Activity.');

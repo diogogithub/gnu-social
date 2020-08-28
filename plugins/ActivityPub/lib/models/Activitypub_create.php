@@ -49,7 +49,7 @@ class Activitypub_create
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id' => $object['id'] . '/create',
+            'id' => $object['id'] . '#create',
             'type' => 'Create',
             'directMessage' => $directMessage,
             'to' => $object['to'],

@@ -43,7 +43,7 @@ class Activitypub_reject
      * @param array $object
      * @return array pretty array to be used in a response
      */
-    public static function reject_to_array($object)
+    public static function reject_to_array(array $object): array
     {
         $res = [
                 '@context' => 'https://www.w3.org/ns/activitystreams',

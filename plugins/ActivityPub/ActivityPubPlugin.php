@@ -180,6 +180,14 @@ class ActivityPubPlugin extends Plugin
             $acceptHeaders
         );
 
+        // v3
+        $m->connect(
+            'activity/:id',
+            ['action' => 'apNotice'],
+            ['id'     => '[0-9]+'],
+        );
+
+        // v2
         $m->connect(
             'notice/:id',
             ['action' => 'apNotice'],

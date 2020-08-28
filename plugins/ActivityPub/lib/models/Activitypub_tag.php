@@ -40,15 +40,15 @@ class Activitypub_tag
      * Generates a pretty tag from a Tag object
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param array Tag $tag
+     * @param string $tag
      * @return array pretty array to be used in a response
      */
-    public static function tag_to_array($tag)
+    public static function tag_to_array(string $tag): array
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
             'name' => $tag,
-            'url'  => common_local_url('tag', ['tag' => $tag])
+            'url'  => common_local_url('tag', ['tag' => $tag]),
         ];
         return $res;
     }

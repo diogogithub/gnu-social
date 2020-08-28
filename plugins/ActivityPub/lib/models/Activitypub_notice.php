@@ -47,7 +47,7 @@ class Activitypub_notice
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function notice_to_array($notice)
+    public static function notice_to_array(Notice $notice): array
     {
         $profile = $notice->getProfile();
         $attachments = [];
@@ -81,10 +81,10 @@ class Activitypub_notice
 
         $item = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id' => self::getUrl($notice),
+            'id' => self::getUri($notice),
             'type' => 'Note',
             'published' => str_replace(' ', 'T', $notice->getCreated()) . 'Z',
-            'url' => self::getUrl($notice),
+            'url' => $notice->getUrl(),
             'attributedTo' => $profile->getUri(),
             'to' => $to,
             'cc' => $cc,
@@ -97,7 +97,7 @@ class Activitypub_notice
 
         // Is this a reply?
         if (!empty($notice->reply_to)) {
-            $item['inReplyTo'] = self::getUrl(Notice::getById($notice->reply_to));
+            $item['inReplyTo'] = self::getUri(Notice::getById($notice->reply_to));
         }
 
         // Do we have a location for this notice?
@@ -207,9 +207,9 @@ class Activitypub_notice
         }
 
         /* Reject notice if it is too long (without the HTML)
-           if (Notice::contentTooLong($content)) {
-           throw new Exception('That\'s too long. Maximum notice size is %d character.');
-           }*/
+        if (Notice::contentTooLong($content)) {
+            throw new Exception('That\'s too long. Maximum notice size is %d character.');
+        }*/
 
         // Attachments (first part)
         $attachments = [];
@@ -253,7 +253,7 @@ class Activitypub_notice
      * @throws Exception if invalid ActivityPub object
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function validate_note($object)
+    public static function validate_note(array $object): bool
     {
         if (!isset($object['id'])) {
             common_debug('ActivityPub Notice Validator: Rejected because Object ID was not specified.');
@@ -290,7 +290,7 @@ class Activitypub_notice
      * @throws Exception
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public static function getUrl(Notice $notice): string
+    public static function getUri(Notice $notice): string
     {
         if ($notice->isLocal()) {
             return common_local_url('apNotice', ['id' => $notice->getID()]);

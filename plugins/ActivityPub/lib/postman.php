@@ -141,8 +141,8 @@ class Activitypub_postman
             Activitypub_follow::follow_to_array(
                 $this->actor_uri,
                 $this->to[0]->getUrl()
-                    )
-                );
+            )
+        );
         $res = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
         $res_body = json_decode($res->getBody(), true);
 
@@ -174,8 +174,8 @@ class Activitypub_postman
                 $this->to[0]->getUrl(),
                 $this->actor_uri,
                 $id
-                )
-            );
+            )
+        );
         $res = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
         $res_body = json_decode($res->getBody(), true);
 
@@ -199,18 +199,18 @@ class Activitypub_postman
      * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function like($notice)
+    public function like(Notice $notice): void
     {
         $data = Activitypub_like::like_to_array(
             $this->actor_uri,
-            Activitypub_notice::getUrl($notice)
-                );
+            $notice
+        );
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
         foreach ($this->to_inbox() as $inbox) {
             $res = $this->send($data, $inbox);
 
-            // accummulate errors for later use, if needed
+            // accumulate errors for later use, if needed
             if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
                 $res_body = json_decode($res->getBody(), true);
                 $errors[] = isset($res_body['error']) ?
@@ -237,9 +237,9 @@ class Activitypub_postman
         $data = Activitypub_undo::undo_to_array(
             Activitypub_like::like_to_array(
                 $this->actor_uri,
-                Activitypub_notice::getUrl($notice)
-                         )
-                );
+                $notice
+            )
+        );
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
         foreach ($this->to_inbox() as $inbox) {
@@ -273,7 +273,7 @@ class Activitypub_postman
         $data = Activitypub_create::create_to_array(
             $this->actor_uri,
             Activitypub_notice::notice_to_array($notice)
-                );
+        );
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
         foreach ($this->to_inbox() as $inbox) {
@@ -327,14 +327,16 @@ class Activitypub_postman
      * Send a Announce notification to remote instances
      *
      * @param Notice $notice
+     * @param Notice $repeat_of
      * @throws HTTP_Request2_Exception
-     * @throws Exception
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public function announce($notice)
+    public function announce(Notice $notice, Notice $repeat_of): void
     {
-        $data = json_encode(Activitypub_announce::announce_to_array($this->actor, $notice),
-                            JSON_UNESCAPED_SLASHES);
+        $data = json_encode(
+            Activitypub_announce::announce_to_array($this->actor, $notice, $repeat_of),
+            JSON_UNESCAPED_SLASHES
+        );
 
         foreach ($this->to_inbox() as $inbox) {
             $res = $this->send($data, $inbox);
@@ -365,8 +367,8 @@ class Activitypub_postman
     {
         $data = Activitypub_delete::delete_to_array(
             $notice->getProfile()->getUri(),
-            Activitypub_notice::getUrl($notice)
-                );
+            Activitypub_notice::getUri($notice)
+        );
         $errors = [];
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
         foreach ($this->to_inbox() as $inbox) {

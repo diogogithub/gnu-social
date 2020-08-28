@@ -53,11 +53,12 @@ class apNoticeAction extends ManagedAction
         try {
             $notice = Notice::getByID($this->trimmed('id'));
         } catch (Exception $e) {
-            ActivityPubReturn::error('Invalid Notice URI.', 404);
+            ActivityPubReturn::error('Invalid Activity URI.', 404);
         }
 
         if (!$notice->isLocal()) {
-            ActivityPubReturn::error("This is not a local notice.", 403);
+            // We have no authority on the requested activity.
+            ActivityPubReturn::error("This is not a local activity.", 403);
         }
 
         $res = Activitypub_notice::notice_to_array($notice);
