@@ -54,7 +54,7 @@ class ActivityPubQueueHandler extends QueueHandler
     public function handle($notice): bool
     {
         if (!($notice instanceof Notice)) {
-            common_log(LOG_ERR, "Got a bogus notice, not distributing");
+            common_log(LOG_ERR, 'Got a bogus notice, not distributing');
             return true;
         }
 
@@ -74,7 +74,7 @@ class ActivityPubQueueHandler extends QueueHandler
         );
 
         // Handling a Create?
-        if (ActivityUtils::compareVerbs($notice->verb, [ActivityVerb::POST])) {
+        if (ActivityUtils::compareVerbs($notice->verb, [ActivityVerb::POST, ActivityVerb::SHARE])) {
             return $this->handle_create($profile, $notice, $other);
         }
 
@@ -143,7 +143,7 @@ class ActivityPubQueueHandler extends QueueHandler
 
                 // That was it
                 $postman = new Activitypub_postman($profile, $other);
-                $postman->announce($repeated_notice);
+                $postman->announce($notice, $repeated_notice);
             }
 
             // either made the announce or found nothing to repeat
@@ -160,7 +160,7 @@ class ActivityPubQueueHandler extends QueueHandler
      * Notify remote users when their notices get favourited.
      *
      * @param Profile $profile of local user doing the faving
-     * @param Notice $notice Notice being favored
+     * @param Notice $notice_liked Notice being favored
      * @return bool return value
      * @throws HTTP_Request2_Exception
      * @throws InvalidUrlException
@@ -168,10 +168,10 @@ class ActivityPubQueueHandler extends QueueHandler
      */
     public function onEndFavorNotice(Profile $profile, Notice $notice, $other)
     {
-        $notice = $notice->getParent();
-        if ($notice->reply_to) {
+        $notice_liked = $notice->getParent();
+        if ($notice_liked->reply_to) {
             try {
-                $parent_notice = $notice->getParent();
+                $parent_notice = $notice_liked->getParent();
 
                 try {
                     $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
@@ -189,7 +189,7 @@ class ActivityPubQueueHandler extends QueueHandler
                 // This is not a reply to something (has no parent)
             } catch (NoResultException $e) {
                 // Parent author's profile not found! Complain louder?
-                common_log(LOG_ERR, "Parent notice's author not found: ".$e->getMessage());
+                common_log(LOG_ERR, "Parent notice's author not found: " . $e->getMessage());
             }
         }
 
@@ -242,7 +242,7 @@ class ActivityPubQueueHandler extends QueueHandler
                 // This is not a reply to something (has no parent)
             } catch (NoResultException $e) {
                 // Parent author's profile not found! Complain louder?
-                common_log(LOG_ERR, "Parent notice's author not found: ".$e->getMessage());
+                common_log(LOG_ERR, "Parent notice's author not found: " . $e->getMessage());
             }
         }
 

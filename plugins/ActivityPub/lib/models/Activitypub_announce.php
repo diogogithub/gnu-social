@@ -41,13 +41,16 @@ class Activitypub_announce
      *
      * @param Profile $actor
      * @param Notice $notice
+     * @param Notice $repeat_of
      * @return array pretty array to be used in a response
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function announce_to_array(Profile $actor, Notice $notice): array
-    {
+    public static function announce_to_array(
+        Profile $actor,
+        Notice $notice,
+        Notice $repeat_of
+    ): array {
         $actor_uri = $actor->getUri();
-        $notice_url = Activitypub_notice::getUrl($notice);
 
         $to = [common_local_url('apActorFollowers', ['id' => $actor->getID()])];
         foreach ($notice->getAttentionProfiles() as $to_profile) {
@@ -58,13 +61,48 @@ class Activitypub_announce
 
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => common_root_url().'share_from_'.urlencode($actor_uri).'_to_'.urlencode($notice_url),
-            "type"   => "Announce",
-            "actor"  => $actor_uri,
-            "object" => $notice_url,
-            "to"     => $to,
-            "cc"     => $cc
+            'id'       => Activitypub_notice::getUri($notice),
+            'type'     => 'Announce',
+            'actor'    => $actor_uri,
+            'object'   => Activitypub_notice::getUri($repeat_of),
+            'to'       => $to,
+            'cc'       => $cc,
         ];
         return $res;
+    }
+
+    /**
+     * Convenience function for posting a repeat of an existing message.
+     *
+     * @param string $uri
+     * @param Profile $actor Profile which is doing the repeat
+     * @param Notice $target
+     * @return Notice
+     */
+    public static function repeat(string $uri, Profile $actor, Notice $target): Notice
+    {
+        // TRANS: Message used to repeat a notice. RT is the abbreviation of 'retweet'.
+        // TRANS: %1$s is the repeated user's name, %2$s is the repeated notice.
+        $content = sprintf(
+            _('RT @%1$s %2$s'),
+            $actor->getNickname(),
+            $target->getContent()
+        );
+
+        $options = [
+            'source'    => 'ActivityPub',
+            'uri'       => $uri,
+            'is_local'  => ($actor->isLocal() ? Notice::LOCAL_PUBLIC : Notice::REMOTE),
+            'repeat_of' => $target->getParent()->getID(),
+            'scope'     => $target->getScope(),
+        ];
+
+        // Scope is same as this one's
+        return Notice::saveNew(
+            $actor->getID(),
+            $content,
+            'ActivityPub',
+            $options
+        );
     }
 }

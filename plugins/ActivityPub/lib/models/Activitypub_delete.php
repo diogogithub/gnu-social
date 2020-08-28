@@ -48,7 +48,7 @@ class Activitypub_delete
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'       => $object.'/delete',
+            'id'       => $object . '#delete',
             'type'     => 'Delete',
             'to'       => ['https://www.w3.org/ns/activitystreams#Public'],
             'actor'    => $actor,

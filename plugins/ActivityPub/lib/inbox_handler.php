@@ -331,7 +331,7 @@ class Activitypub_inbox_handler
     private function handle_like()
     {
         $notice = ActivityPubPlugin::grab_notice_from_url($this->object);
-        Fave::addNew($this->actor, $notice);
+        Activitypub_like::addNew($this->activity['id'], $this->actor, $notice);
     }
 
     /**
@@ -390,7 +390,7 @@ class Activitypub_inbox_handler
      */
     private function handle_undo_like()
     {
-        $notice = ActivityPubPlugin::grab_notice_from_url($this->object['object']);
+        $notice = ActivityPubPlugin::grab_notice_from_url($this->activity['id']);
         Fave::removeEntry($this->actor, $notice);
     }
 
@@ -402,7 +402,7 @@ class Activitypub_inbox_handler
      */
     private function handle_announce()
     {
-        $object_notice = ActivityPubPlugin::grab_notice_from_url($this->object);
-        $object_notice->repeat($this->actor, 'ActivityPub');
+        $notice = ActivityPubPlugin::grab_notice_from_url($this->object);
+        Activitypub_announce::repeat($this->activity['id'], $this->actor, $notice);
     }
 }
