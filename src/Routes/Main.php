@@ -35,6 +35,7 @@ namespace App\Routes;
 
 use App\Controller as C;
 use App\Core\Router\RouteLoader;
+use App\Util\Nickname;
 use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
 
 abstract class Main
@@ -47,7 +48,7 @@ abstract class Main
 
         $r->connect('root', '/', RedirectController::class, ['defaults' => ['route' => 'main_all']]);
         $r->connect('main_all', '/main/all', [C\NetworkPublic::class, 'public']);
-        $r->connect('home_all', '/user_here/all', [C\NetworkPublic::class, 'home']);
+        $r->connect('home_all', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/all', [C\NetworkPublic::class, 'home']);
 
         $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
         $r->connect('panel_site', '/panel/site', [C\AdminPanel::class, 'site']);
