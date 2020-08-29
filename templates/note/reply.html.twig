@@ -1,5 +1,15 @@
 {% extends '/base.html.twig' %}
 
+{% block stylesheets %}
+  {{ parent() }}
+  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}"
+        media="screen and (min-width: 1300px)">
+  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_mid.css') }}"
+        media="screen and (max-width: 1300px)">
+  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_small.css') }}"
+        media="screen and (max-width: 750px)">
+{% endblock %}
+
 {% block body %}
   <div class="content" style="margin-top: 5em">
     <div class="main">
