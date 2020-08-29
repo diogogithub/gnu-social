@@ -31,7 +31,7 @@ class DBQueueManager extends QueueManager
 {
     /**
      * Saves an object reference into the queue item table.
-     * @return boolean true on success
+     * @return bool true on success
      * @throws ServerException on failure
      */
     public function enqueue($object, $queue)

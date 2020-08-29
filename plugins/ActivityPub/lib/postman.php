@@ -42,6 +42,7 @@ class Activitypub_postman
     private $actor;
     private $actor_uri;
     private $to = [];
+    private $failed_to = [];
     private $client;
     private $headers;
 
@@ -61,6 +62,21 @@ class Activitypub_postman
         $this->actor_uri = $this->actor->getUri();
 
         $this->client = new HTTPClient();
+    }
+
+    /**
+     * When dear postman dies, resurrect him until he finishes what he couldn't in life
+     *
+     * @throws ServerException
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     */
+    public function __destruct()
+    {
+        $qm = QueueManager::get();
+        foreach($this->failed_to as $to => $activity) {
+            $qm->enqueue([$to, $activity], 'activitypub_failed');
+        }
+
     }
 
     /**
@@ -215,6 +231,7 @@ class Activitypub_postman
                 $res_body = json_decode($res->getBody(), true);
                 $errors[] = isset($res_body['error']) ?
                           $res_body['error'] : "An unknown error occurred.";
+                $to_failed[$inbox] = $notice;
             }
         }
 
@@ -250,6 +267,7 @@ class Activitypub_postman
                 $res_body = json_decode($res->getBody(), true);
                 $errors[] = isset($res_body['error']) ?
                           $res_body['error'] : "An unknown error occurred.";
+                $to_failed[$inbox] = $notice;
             }
         }
 
@@ -284,6 +302,7 @@ class Activitypub_postman
                 $res_body = json_decode($res->getBody(), true);
                 $errors[] = isset($res_body['error']) ?
                           $res_body['error'] : "An unknown error occurred.";
+                $to_failed[$inbox] = $notice;
             }
         }
 
@@ -315,6 +334,7 @@ class Activitypub_postman
                 $res_body = json_decode($res->getBody(), true);
                 $errors[] = isset($res_body['error']) ?
                           $res_body['error'] : "An unknown error occurred.";
+                $to_failed[$inbox] = $message;
             }
         }
 
@@ -346,6 +366,7 @@ class Activitypub_postman
                 $res_body = json_decode($res->getBody(), true);
                 $errors[] = isset($res_body['error']) ?
                           $res_body['error'] : "An unknown error occurred.";
+                $to_failed[$inbox] = $notice;
             }
         }
 
@@ -374,6 +395,7 @@ class Activitypub_postman
                 $res_body = json_decode($res->getBody(), true);
                 $errors[] = isset($res_body['error']) ?
                           $res_body['error'] : "An unknown error occurred.";
+                $to_failed[$inbox] = $notice;
             }
         }
         if (!empty($errors)) {
