@@ -100,7 +100,7 @@ class Activitypub_notice
         } else { // Note
             $item = [
                 '@context' => 'https://www.w3.org/ns/activitystreams',
-                'id' => self::getUri($notice),
+                'id' => self::note_uri($notice->getID()),
                 'type' => 'Note',
                 'published' => str_replace(' ', 'T', $notice->getCreated()) . 'Z',
                 'url' => $notice->getUrl(),
@@ -310,6 +310,7 @@ class Activitypub_notice
      * @throws InvalidUrlException
      * @throws Exception
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
+     * @see note_uri when it's not a generic activity but a object type note
      */
     public static function getUri(Notice $notice): string
     {
@@ -318,6 +319,19 @@ class Activitypub_notice
         } else {
             return $notice->getUrl();
         }
+    }
+
+    /**
+     * Use this if your Notice is in fact a note
+     *
+     * @param int $id
+     * @return string it's uri
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     * @see getUri for every other activity that aren't objects of a certain type like note
+     */
+    public static function note_uri(int $id): string
+    {
+        return common_root_url() . 'object/note/' . $id;
     }
 
     /**

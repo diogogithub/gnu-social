@@ -124,6 +124,7 @@ class apActorOutboxAction extends ManagedAction
             if ($note->object_type == 'http://activitystrea.ms/schema/1.0/note') {
                 $notices[] = Activitypub_create::create_to_array(
                     $note->getProfile()->getUri(),
+                    common_local_url('apNotice', ['id' => $note->getID()]),
                     Activitypub_notice::notice_to_array($note)
                 );
             }

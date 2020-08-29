@@ -40,16 +40,17 @@ class Activitypub_create
      * Generates an ActivityPub representation of a Create
      *
      * @param string $actor
-     * @param array $object
+     * @param string $uri
+     * @param mixed $object
      * @param bool $directMessage whether it is a private Create activity or not
      * @return array pretty array to be used in a response
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function create_to_array(string $actor, array $object, bool $directMessage = false): array
+    public static function create_to_array(string $actor, string $uri, $object, bool $directMessage = false): array
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id' => $object['id'] . '#create',
+            'id' => $uri,
             'type' => 'Create',
             'directMessage' => $directMessage,
             'to' => $object['to'],

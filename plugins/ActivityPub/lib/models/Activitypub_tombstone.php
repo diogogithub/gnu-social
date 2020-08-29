@@ -48,7 +48,7 @@ class Activitypub_tombstone
         $dead = Deleted_notice::getByID($id);
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'       => Activitypub_notice::getUri($id),
+            'id'       => Activitypub_notice::note_uri($id),
             'type'     => 'Tombstone',
             'created'  => str_replace(' ', 'T', $dead->act_created) . 'Z',
             'deleted'  => str_replace(' ', 'T', $dead->created) . 'Z'
