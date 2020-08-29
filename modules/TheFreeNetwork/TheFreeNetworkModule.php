@@ -77,12 +77,12 @@ class TheFreeNetworkModule extends Module
      * @param string $uri
      * @param string $class profile class that triggered this event
      * @param int|null &$profile_id Profile:id associated with the remote entity found
-     * @return bool hook flag
+     * @return bool hook flag false
      * @throws AlreadyHandledException Do not allow to create a profile if a preferred protocol already has one
      */
     public function onStartTFNLookup(string $uri, string $class, int &$profile_id = null): bool
     {
-        [$profile_id, $cls] = $this->lookup($uri, $class);
+        [$profile_id, $cls] = $this->lookup($uri, $class) ?? [null, null];
 
         if (is_null($profile_id)) {
             $perf = common_config('performance', 'high');
@@ -93,8 +93,8 @@ class TheFreeNetworkModule extends Module
             }
         }
 
-        // Lower means higher priority
-        if ($this->priority[$cls] < $this->priority[$class]) {
+        // $cls being lower then $class means it has a higher priority (comes first) @see $this->onInitializePlugin()
+        if (!is_null($profile_id) && $this->priority[$cls] < $this->priority[$class]) {
             throw new AlreadyHandledException("TheFreeNetworkModule->AlreadyHandled: $cls is preferred over $class");
         }
 
