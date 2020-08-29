@@ -290,6 +290,7 @@ class Activitypub_postman
     {
         $data = Activitypub_create::create_to_array(
             $this->actor_uri,
+            common_local_url('apNotice', ['id' => $notice->getID()]),
             Activitypub_notice::notice_to_array($notice)
         );
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
@@ -321,6 +322,7 @@ class Activitypub_postman
     {
         $data = Activitypub_create::create_to_array(
             $this->actor_uri,
+            common_local_url('apNotice', ['id' => $message->getID()]),
             Activitypub_message::message_to_array($message),
             true
         );

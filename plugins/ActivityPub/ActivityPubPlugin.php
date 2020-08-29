@@ -97,8 +97,8 @@ class ActivityPubPlugin extends Plugin
             // Look for a local notice (unfortunately GNU social doesn't
             // provide this functionality natively)
             try {
-                $candidate = Notice::getByID((int)substr($url, (strlen(common_local_url('apNotice', ['id' => 0]))-1)));
-                if (common_local_url('apNotice', ['id' => $candidate->getID()]) === $url) { // Sanity check
+                $candidate = Notice::getByID((int)substr($url, (strlen(Activitypub_notice::note_uri(0))-1)));
+                if (Activitypub_notice::note_uri($candidate->getID()) === $url) { // Sanity check
                     return $candidate;
                 } else {
                     common_debug('ActivityPubPlugin Notice Grabber: '.$candidate->getUrl(). ' is different of '.$url);
@@ -194,6 +194,12 @@ class ActivityPubPlugin extends Plugin
             ['id'     => '[0-9]+'],
             true,
             $acceptHeaders
+        );
+
+        $m->connect(
+            'object/note/:id',
+            ['action' => 'apNotice'],
+            ['id'     => '[0-9]+'],
         );
 
         $m->connect(
