@@ -39,16 +39,19 @@ class Activitypub_tombstone
     /**
      * Generates an ActivityPub representation of a Tombstone
      *
-     * @param string $id Activity id
+     * @param int $id Activity id
      * @return array pretty array to be used in a response
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function tombstone_to_array(string $id): array
+    public static function tombstone_to_array(int $id): array
     {
+        $dead = Deleted_notice::getByID($id);
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'       => $id,
-            'type'     => 'Tombstone'
+            'id'       => Activitypub_notice::getUri($id),
+            'type'     => 'Tombstone',
+            'created'  => str_replace(' ', 'T', $dead->act_created) . 'Z',
+            'deleted'  => str_replace(' ', 'T', $dead->created) . 'Z'
         ];
         return $res;
     }

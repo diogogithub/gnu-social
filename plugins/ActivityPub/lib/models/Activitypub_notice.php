@@ -85,7 +85,7 @@ class Activitypub_notice
                 'id' => self::getUri($notice),
                 'type' => 'Delete',
                 // XXX: A bit of ugly code here
-                'object' => array_merge(Activitypub_tombstone::tombstone_to_array(common_local_url('apNotice', ['id' => (int)substr(explode(':', $notice->getUri())[2],9)])), ['deleted' => str_replace(' ', 'T', $notice->getCreated()) . 'Z']),
+                'object' => array_merge(Activitypub_tombstone::tombstone_to_array((int)substr(explode(':', $notice->getUri())[2],9)), ['deleted' => str_replace(' ', 'T', $notice->getCreated()) . 'Z']),
                 'url' => $notice->getUrl(),
                 'actor' => $profile->getUri(),
                 'to' => $to,

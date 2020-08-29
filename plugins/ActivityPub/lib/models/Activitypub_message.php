@@ -47,7 +47,7 @@ class Activitypub_message
 
         $tags = [];
         foreach ($message->getTags() as $tag) {
-            if ($tag != "") { // Hacky workaround to avoid stupid outputs
+            if ($tag != '') { // Hacky workaround to avoid stupid outputs
                 $tags[] = Activitypub_tag::tag_to_array($tag);
             }
         }

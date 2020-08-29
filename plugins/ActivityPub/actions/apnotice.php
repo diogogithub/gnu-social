@@ -79,7 +79,7 @@ class apNoticeAction extends ManagedAction
             $this->notice = $this->getNotice();
         } catch (ClientException $e) {
             //ActivityPubReturn::error('Activity deleted.', 410);
-            ActivityPubReturn::answer(Activitypub_tombstone::tombstone_to_array(common_local_url('apNotice', ['id' => $this->notice_id])), 410);
+            ActivityPubReturn::answer(Activitypub_tombstone::tombstone_to_array($this->notice_id), 410);
         }
         $this->target = $this->notice;
 
