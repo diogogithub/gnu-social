@@ -231,12 +231,12 @@ class Notice extends Managed_DataObject
         return $notice;
     }
 
-    /*
-     * @param $root boolean If true, link to just the conversation root.
+    /**
+     * @param bool $anchor If false, link to just the conversation root.
      *
-     * @return URL to conversation
+     * @return string URL to conversation
      */
-    public function getConversationUrl($anchor=true)
+    public function getConversationUrl(bool $anchor = true): string
     {
         return Conversation::getUrlFromNotice($this, $anchor);
     }

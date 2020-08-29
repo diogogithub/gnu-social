@@ -27,7 +27,7 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * ActivityPub error representation
+ * ActivityPub Like representation
  *
  * @category  Plugin
  * @package   GNUsocial

@@ -39,22 +39,13 @@ class Activitypub_delete
     /**
      * Generates an ActivityPub representation of a Delete
      *
-     * @param string $actor actor URI
-     * @param string $object object URI
+     * @param Notice $notice
      * @return array pretty array to be used in a response
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function delete_to_array(string $actor, string $object): array
+    public static function delete_to_array(Notice $notice): array
     {
-        $res = [
-            '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'       => $object . '#delete',
-            'type'     => 'Delete',
-            'to'       => ['https://www.w3.org/ns/activitystreams#Public'],
-            'actor'    => $actor,
-            'object'   => $object
-        ];
-        return $res;
+        return Activitypub_notice::notice_to_array($notice);
     }
 
     /**

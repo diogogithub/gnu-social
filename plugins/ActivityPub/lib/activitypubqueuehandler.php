@@ -204,7 +204,7 @@ class ActivityPubQueueHandler extends QueueHandler
      *
      * @param $user
      * @param $notice
-     * @return boolean hook flag
+     * @return bool hook flag
      * @throws HTTP_Request2_Exception
      * @throws InvalidUrlException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
@@ -217,10 +217,6 @@ class ActivityPubQueueHandler extends QueueHandler
         if ($notice->isRepeat() || ($notice->getProfile()->getID() != $profile->getID())) {
             return true;
         }
-
-        $other = Activitypub_profile::from_profile_collection(
-            $notice->getAttentionProfiles()
-        );
 
         if ($notice->reply_to) {
             try {

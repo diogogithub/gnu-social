@@ -132,7 +132,7 @@ class ActivityPubPlugin extends Plugin
                     throw new Exception("The acclaimed actor didn't create this note.");
                 }
             } else {
-                throw new Exception("Valid ActivityPub Notice object but unsupported by GNU social.");
+                throw new Exception("Invalid Note Object. Maybe it's a Tombstone?");
             }
         }
 

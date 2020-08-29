@@ -19,7 +19,7 @@
  *
  * @package   GNUsocial
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  * @link      http://www.gnu.org/software/social/
  */
@@ -27,26 +27,29 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * ActivityPub error representation
+ * ActivityPub Tombstone representation
  *
  * @category  Plugin
  * @package   GNUsocial
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Activitypub_error
+class Activitypub_tombstone
 {
     /**
-     * Generates a pretty error from a string
+     * Generates an ActivityPub representation of a Tombstone
      *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param string $m
+     * @param string $id Activity id
      * @return array pretty array to be used in a response
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function error_message_to_array(string $m): array
+    public static function tombstone_to_array(string $id): array
     {
-        return [
-            'error'=> $m
+        $res = [
+            '@context' => 'https://www.w3.org/ns/activitystreams',
+            'id'       => $id,
+            'type'     => 'Tombstone'
         ];
+        return $res;
     }
 }

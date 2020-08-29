@@ -229,8 +229,6 @@ class Activitypub_inbox_handler
     /**
      * Handles a Delete Activity received by our inbox.
      *
-     * @throws NoProfileException
-     * @throws Exception
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
@@ -240,8 +238,8 @@ class Activitypub_inbox_handler
         if (is_string($object)) {
             $client = new HTTPClient();
             $response = $client->get($object, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
-            $gone = !$response->isOk();
-            if (!$gone) { // It's not gone, we're updating it.
+            $not_gone = $response->isOk();
+            if ($not_gone) { // It's not gone, we're updating it.
                 $object = json_decode($response->getBody(), true);
                 switch ($object['type']) {
                     case 'Person':
@@ -254,57 +252,57 @@ class Activitypub_inbox_handler
                             Activitypub_explorer::get_profile_from_url($object['id']);
                         }
                         break;
-                    case 'Tombstone':
+                    case 'Note': // XXX: We do not support updating a note's contents so, we'll delete and re-fetch for now...
                         try {
-                            $notice = ActivityPubPlugin::grab_notice_from_url($object, false);
+                            $notice = ActivityPubPlugin::grab_notice_from_url($object['id'], false);
                             if ($notice instanceof Notice) {
                                 $notice->delete();
                             }
+                            ActivityPubPlugin::grab_notice_from_url($object['id'], true);
                             return;
                         } catch (Exception $e) {
                             // either already deleted or not an object at all
                             // nothing to do..
                         }
                         break;
-                    case 'Note':
-                        // XXX: We do not support updating a note's contents so, we'll ignore it for now...
                     default:
                         common_log(LOG_INFO, "Ignoring Delete activity, we do not understand for {$object['type']}.");
                 }
             }
-        } else {
-            // We don't know the type of the deleted object :(
-            // Nor if it's gone or not.
-            try {
-                if (is_array($object)) {
-                    $object = $object['id'];
-                }
-                $aprofile = Activitypub_profile::fromUri($object, false);
-                $res = Activitypub_explorer::get_remote_user_activity($object);
-                Activitypub_profile::update_profile($aprofile, $res);
-                return;
-            } catch (Exception $e) {
-                // Means this wasn't a profile
-            }
+        }
 
-            try {
-                $client = new HTTPClient();
-                $response = $client->get($object, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
-                // If it was deleted
-                if ($response->getStatus() == 410) {
-                    $notice = ActivityPubPlugin::grab_notice_from_url($object, false);
-                    if ($notice instanceof Notice) {
-                        $notice->delete();
-                    }
-                } else {
-                    // We can't update a note's contents so, we'll ignore it for now...
-                }
-                return;
-            } catch (Exception $e) {
-                // Means we didn't have this note already
-            }
+        // IFF we reached this point, it either is gone or it's an array
+        // If it's gone, we don't know the type of the deleted object, we only have a Tombstone
+        // If we were given an array, we don't know if it's Gone or not via status code...
+        // In both cases, we will want to fetch the ID and act on that as it is easier than updating the fields
 
+        // Was it a profile?
+        try {
+            $object = $object['id'];
+            $aprofile = Activitypub_profile::fromUri($object, false);
+            $res = Activitypub_explorer::get_remote_user_activity($object);
+            Activitypub_profile::update_profile($aprofile, $res);
             return;
+        } catch (Exception $e) {
+            // Means this wasn't a profile
+        }
+
+        // Was it a note?
+        try {
+            $client = new HTTPClient();
+            /*$response =*/ $client->get($object, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
+            // If it was deleted
+            //if (!$response->isOk()) { // 410 or 404
+            $notice = ActivityPubPlugin::grab_notice_from_url($object, false);
+            if ($notice instanceof Notice) {
+                $notice->delete();
+            }
+            // } else
+            ActivityPubPlugin::grab_notice_from_url($object, true);
+            // XXX: We do not support updating a note's contents so, we'll delete and re-fetch for now...
+        } catch (Exception $e) {
+            // Means we didn't have this note already
+            // Or we had, deleted and it exploded trying to fetch the Tombstone, either way, we're good.
         }
     }
 
