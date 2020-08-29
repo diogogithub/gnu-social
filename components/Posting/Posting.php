@@ -67,7 +67,7 @@ class Posting extends Module
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
-                Post::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true);
+                C\Post::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true);
             } else {
                 // TODO Display error
             }
