@@ -111,7 +111,7 @@ abstract class QueueManager extends IoManager
      *
      * Must be implemented by any queue manager.
      *
-     * @param Notice $object
+     * @param mixed $object
      * @param string $queue
      */
     abstract function enqueue($object, $queue);

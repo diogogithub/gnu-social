@@ -44,7 +44,7 @@ class QueueHandler
      * and the item is placed back in the queue to be re-run.
      *
      * @param mixed $object
-     * @return boolean true on success, false on failure
+     * @return bool true on success, false on failure
      */
     function handle($object) : bool
     {

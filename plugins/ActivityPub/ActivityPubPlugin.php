@@ -262,6 +262,8 @@ class ActivityPubPlugin extends Plugin
     {
         // Notice distribution
         $qm->connect('activitypub', 'ActivityPubQueueHandler');
+        // Failed Notice distribution
+        $qm->connect('activitypub_failed', 'ActivityPubFailedQueueHandler');
         return true;
     }
 
