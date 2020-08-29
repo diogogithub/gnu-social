@@ -47,7 +47,32 @@ class Network extends Controller
 
     public function home(Request $request)
     {
-        $notes = DB::findBy('note', [], ['created' => 'DESC']);
+        $notes = DB::dql(
+                'select n from ( 
+                                            (
+                                                select note.id 
+                                                from App\Entity\Note
+                                                inner join App\Entity\Follow
+                                                with note.id = follow.followed
+                                            )
+                                            union all
+                                            (
+                                                select note.id
+                                                from App\Entity\Note
+                                                with note.id = note.reply_to
+                                            )
+                                            union all
+                                            (
+                                                select note.id
+                                                from App\Entity\Note
+                                                inner join App\Entity\GroupInbox
+                                                with note.id = group_inbox.activity_id
+                                                inner join App\Entity\GroupMember
+                                                where group_inbox.group_id = group_member.group_id
+                                            )
+                                       ) n ' .
+                        'order by n.created DESC'
+                        );
         return [
             '_template' => 'network/public.html.twig',
             'notes'     => $notes,
