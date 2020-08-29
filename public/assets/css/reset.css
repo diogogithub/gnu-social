@@ -24,4 +24,6 @@ a img,:link img,:visited img { border:none }
 /* de-italicize address */
 address { font-style:normal }
 
-/* more varnish stripping as necessary... */
+/* firefox focus outline */
+:focus {outline:none;}
+::-moz-focus-inner {border:0;}
