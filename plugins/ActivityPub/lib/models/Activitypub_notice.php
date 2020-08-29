@@ -79,21 +79,42 @@ class Activitypub_notice
             $tags[] = Activitypub_mention_tag::mention_tag_to_array_from_values($href, $to_profile->getNickname() . '@' . parse_url($href, PHP_URL_HOST));
         }
 
-        $item = [
-            '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id' => self::getUri($notice),
-            'type' => 'Note',
-            'published' => str_replace(' ', 'T', $notice->getCreated()) . 'Z',
-            'url' => $notice->getUrl(),
-            'attributedTo' => $profile->getUri(),
-            'to' => $to,
-            'cc' => $cc,
-            'conversation' => $notice->getConversationUrl(),
-            'content' => $notice->getRendered(),
-            'isLocal' => $notice->isLocal(),
-            'attachment' => $attachments,
-            'tag' => $tags
-        ];
+        if (ActivityUtils::compareVerbs($notice->getVerb(), ActivityVerb::DELETE)) {
+            $item = [
+                '@context' => 'https://www.w3.org/ns/activitystreams',
+                'id' => self::getUri($notice),
+                'type' => 'Delete',
+                // XXX: A bit of ugly code here
+                'object' => array_merge(Activitypub_tombstone::tombstone_to_array(common_local_url('apNotice', ['id' => (int)substr(explode(':', $notice->getUri())[2],9)])), ['deleted' => str_replace(' ', 'T', $notice->getCreated()) . 'Z']),
+                'url' => $notice->getUrl(),
+                'actor' => $profile->getUri(),
+                'to' => $to,
+                'cc' => $cc,
+                'conversationId' => $notice->getConversationUrl(false),
+                'conversationUrl' => $notice->getConversationUrl(),
+                'content' => $notice->getRendered(),
+                'isLocal' => $notice->isLocal(),
+                'attachment' => $attachments,
+                'tag' => $tags
+            ];
+        } else { // Note
+            $item = [
+                '@context' => 'https://www.w3.org/ns/activitystreams',
+                'id' => self::getUri($notice),
+                'type' => 'Note',
+                'published' => str_replace(' ', 'T', $notice->getCreated()) . 'Z',
+                'url' => $notice->getUrl(),
+                'attributedTo' => $profile->getUri(),
+                'to' => $to,
+                'cc' => $cc,
+                'conversationId' => $notice->getConversationUrl(false),
+                'conversationUrl' => $notice->getConversationUrl(),
+                'content' => $notice->getRendered(),
+                'isLocal' => $notice->isLocal(),
+                'attachment' => $attachments,
+                'tag' => $tags
+            ];
+        }
 
         // Is this a reply?
         if (!empty($notice->reply_to)) {

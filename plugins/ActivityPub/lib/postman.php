@@ -365,10 +365,7 @@ class Activitypub_postman
      */
     public function delete_note($notice)
     {
-        $data = Activitypub_delete::delete_to_array(
-            $notice->getProfile()->getUri(),
-            Activitypub_notice::getUri($notice)
-        );
+        $data = Activitypub_delete::delete_to_array($notice);
         $errors = [];
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
         foreach ($this->to_inbox() as $inbox) {
