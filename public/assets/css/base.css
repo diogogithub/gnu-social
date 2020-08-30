@@ -4,7 +4,7 @@
       --main-font: 'Open Sans', sans-serif;
 
       /* font and margin sizes */
-      --main-size: 1.2em;
+      --main-size: 1.15em;
       --medium-size: 0.75em;
       --small-size: 0.65em;
       --unit-size: 1em;
@@ -14,7 +14,7 @@
       /* colours and shadows */
       --fg: #eceff4;
       --accent: #81a1c1;
-      --accent-low: #81a1c140;
+      --accent-low: #81a1c160;
       --bg1: #2e3440;
       --bg2: #3b4252;
       --bg3: #434c5e;
@@ -84,18 +84,14 @@ b {
       top: 0;
       left: 0;
       right: 0;
-      background-color: var(--bg1);
+      background-color: var(--accent);
       padding: var(--main-size);
       height: var(--main-size);
-      margin-left: -1px;
-      margin-right: 1px;
-      margin-top: -1px;
-      border: solid 1px var(--accent-low);
 }
 
 #top {
       display: flex;
-      justify-content: space-between;
+      justify-content: space-around;
       align-items: center;
       flex-wrap: wrap;
       width: 100%;
@@ -104,7 +100,7 @@ b {
 .icon-menu {
       margin: 0;
       padding: 0;
-      display: inline-block;
+      display: none;
       width: var(--unit-size);
       height: var(--unit-size);
       stroke-width: 0;
@@ -114,7 +110,6 @@ b {
 
 #instance {
       order: 2;
-
 }
 
 #instance b {
@@ -122,6 +117,7 @@ b {
       padding: 0;
       vertical-align: middle;
       margin-left: calc(0.2 * var(--unit-size));
+      color: var(--bg1);
 }
 
 .icon-logo {
@@ -132,7 +128,7 @@ b {
       height: var(--unit-size);
       stroke-width: 0;
       stroke: currentColor;
-      fill: currentColor;
+      fill: var(--bg1);
       vertical-align: middle;
 }
 
@@ -174,7 +170,7 @@ b {
       background-color: var(--bg1);
       margin-top: calc(3 * var(--main-size));
       z-index: 0;
-      border: solid 1px var(--accent-low);
+      border-left: solid 1px var(--accent-low);
 }
 
 input.larger {

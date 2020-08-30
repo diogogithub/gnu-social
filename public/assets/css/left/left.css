@@ -9,8 +9,7 @@
       left: 0;
       top: 0;
       transition: 0.3s ease;
-      border: solid 1px var(--accent-low);
-      margin-left: -1px;
+      border-right: solid 1px var(--accent-low);
 }
 /* left navigation */
 .navbar .left-nav {
@@ -52,11 +51,14 @@
 
 /* checkbox trick remnants */
 .icon-menu label {
-      display: none;
+      opacity: 0;
       cursor: pointer
 }
 #toggle {
-      display: none;
+      position: absolute;
+      z-index: 2;
+      cursor: pointer;
+      opacity: 0;
 }
 #toggle:checked+.navbar {
       display: block;
