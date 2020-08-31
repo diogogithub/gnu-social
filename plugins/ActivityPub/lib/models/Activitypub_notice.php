@@ -344,7 +344,8 @@ class Activitypub_notice
      */
     public static function getNotePolicyType(array $note, Profile $actor_profile): int
     {
-        if (in_array('https://www.w3.org/ns/activitystreams#Public', $note['to'])) {
+        $addressee = array_unique(array_merge($note['to'], $note['cc']));
+        if (in_array('https://www.w3.org/ns/activitystreams#Public', $addressee)) {
             return $actor_profile->isLocal() ? Notice::LOCAL_PUBLIC : Notice::REMOTE;
         } else {
             // either an unlisted or followers-only note, we'll handle
