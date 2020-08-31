@@ -14,13 +14,13 @@
       /* colours and shadows */
       --fg: #eceff4;
       --accent: #81a1c1;
-      --accent-low: #81a1c140;
+      --accent-low: #81a1c160;
       --bg1: #2e3440;
       --bg2: #3b4252;
       --bg3: #434c5e;
       --bg4: #4c566a;
       --bg5: #d8dee9;
-      --shadow:  0px 0px 40px 0px rgba(46,52,64,0.95);
+      --shadow:  0px 0px 20px 0px rgba(46,52,64,0.95);
 }
 
 /* DEFAULTS */
@@ -81,14 +81,9 @@ b {
       top: 0;
       left: 0;
       right: 0;
-      background-color: var(--bg1);
-      box-shadow: var(--shadow);
+      background-color: var(--accent);
       padding: var(--main-size);
       height: var(--main-size);
-      border: solid 1px var(--accent-low);
-      margin-left: -1px;
-      margin-right: 1px;
-      margin-top: -1px;
 }
 
 #top {
@@ -110,8 +105,9 @@ b {
 }
 .icon-menu label {
       width: var(--unit-size);
-      height: 2px;
-      background: var(--fg);
+      height: 3px;
+      border-radius: 3px;
+      background: var(--bg1);
       transition: all .5s ease-in-out;
 }
 .icon-menu label::before,
@@ -119,8 +115,9 @@ b {
       content: '';
       position: absolute;
       width: var(--unit-size);
-      height: 2px;
-      background: var(--fg);
+      height: 3px;
+      border-radius: 3px;
+      background: var(--bg1);
       transition: all .5s ease-in-out;
 }
 .icon-menu label::before {
@@ -148,6 +145,7 @@ b {
       padding: 0;
       vertical-align: middle;
       margin-left: calc(0.2 * var(--unit-size));
+      color: var(--bg1);
 }
 
 .icon-logo {
@@ -158,7 +156,7 @@ b {
       height: var(--unit-size);
       stroke-width: 0;
       stroke: currentColor;
-      fill: currentColor;
+      fill: var(--bg1);
       vertical-align: middle;
 }
 
@@ -182,7 +180,7 @@ b {
 }
 
 .arrow {
-      border: solid var(--fg);
+      border: solid var(--bg1);
       border-width: 0 3px 3px 0;
       display: inline-block;
       padding: 0.3em;
@@ -242,7 +240,7 @@ input.larger {
 }
 
 /* styling radio buttons and checkboxes */
-input[type="checkbox"] + label::before {
+.content input[type="checkbox"] + label::before {
       content: '';
       position: relative;
       display: inline-block;
@@ -252,19 +250,19 @@ input[type="checkbox"] + label::before {
       background: var(--fg);
       border-radius: 10%
 }
-input[type="checkbox"]:checked + label::before {
+.content input[type="checkbox"]:checked + label::before {
       background: var(--accent);
       border-radius: 10%;
       background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyAgIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIiAgIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyIgICB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgICB4bWxuczpzb2RpcG9kaT0iaHR0cDovL3NvZGlwb2RpLnNvdXJjZWZvcmdlLm5ldC9EVEQvc29kaXBvZGktMC5kdGQiICAgeG1sbnM6aW5rc2NhcGU9Imh0dHA6Ly93d3cuaW5rc2NhcGUub3JnL25hbWVzcGFjZXMvaW5rc2NhcGUiICAgdmVyc2lvbj0iMS4xIiAgIHdpZHRoPSIzMiIgICBoZWlnaHQ9IjMyIiAgIHZpZXdCb3g9IjAgMCAzMiAzMiIgICBpZD0ic3ZnNiIgICBzb2RpcG9kaTpkb2NuYW1lPSJjaGVja21hcmsuc3ZnIiAgIGlua3NjYXBlOnZlcnNpb249IjEuMCAoNDAzNWE0ZmI0OSwgMjAyMC0wNS0wMSkiPiAgPG1ldGFkYXRhICAgICBpZD0ibWV0YWRhdGExMiI+ICAgIDxyZGY6UkRGPiAgICAgIDxjYzpXb3JrICAgICAgICAgcmRmOmFib3V0PSIiPiAgICAgICAgPGRjOmZvcm1hdD5pbWFnZS9zdmcreG1sPC9kYzpmb3JtYXQ+ICAgICAgICA8ZGM6dHlwZSAgICAgICAgICAgcmRmOnJlc291cmNlPSJodHRwOi8vcHVybC5vcmcvZGMvZGNtaXR5cGUvU3RpbGxJbWFnZSIgLz4gICAgICA8L2NjOldvcms+ICAgIDwvcmRmOlJERj4gIDwvbWV0YWRhdGE+ICA8ZGVmcyAgICAgaWQ9ImRlZnMxMCIgLz4gIDxzb2RpcG9kaTpuYW1lZHZpZXcgICAgIGlua3NjYXBlOmRvY3VtZW50LXJvdGF0aW9uPSIwIiAgICAgcGFnZWNvbG9yPSIjZmZmZmZmIiAgICAgYm9yZGVyY29sb3I9IiM2NjY2NjYiICAgICBib3JkZXJvcGFjaXR5PSIxIiAgICAgb2JqZWN0dG9sZXJhbmNlPSIxMCIgICAgIGdyaWR0b2xlcmFuY2U9IjEwIiAgICAgZ3VpZGV0b2xlcmFuY2U9IjEwIiAgICAgaW5rc2NhcGU6cGFnZW9wYWNpdHk9IjAiICAgICBpbmtzY2FwZTpwYWdlc2hhZG93PSIyIiAgICAgaW5rc2NhcGU6d2luZG93LXdpZHRoPSIyNTYwIiAgICAgaW5rc2NhcGU6d2luZG93LWhlaWdodD0iMTM4MiIgICAgIGlkPSJuYW1lZHZpZXc4IiAgICAgc2hvd2dyaWQ9ImZhbHNlIiAgICAgaW5rc2NhcGU6em9vbT0iMjkuODc1IiAgICAgaW5rc2NhcGU6Y3g9IjE2LjA2Njk0NiIgICAgIGlua3NjYXBlOmN5PSIxNiIgICAgIGlua3NjYXBlOndpbmRvdy14PSIwIiAgICAgaW5rc2NhcGU6d2luZG93LXk9IjMwIiAgICAgaW5rc2NhcGU6d2luZG93LW1heGltaXplZD0iMSIgICAgIGlua3NjYXBlOmN1cnJlbnQtbGF5ZXI9InN2ZzYiIC8+ICA8dGl0bGUgICAgIGlkPSJ0aXRsZTIiPmNoZWNrbWFyazwvdGl0bGU+ICA8cGF0aCAgICAgZD0iTTI3IDRsLTE1IDE1LTctNy01IDUgMTIgMTIgMjAtMjB6IiAgICAgaWQ9InBhdGg0IiAgICAgc3R5bGU9ImZpbGw6IzJlMzQ0MDtmaWxsLW9wYWNpdHk6MSIgLz48L3N2Zz4=);      background-position: center;
       background-repeat: no-repeat;
       background-size: 80%;
 }
-input[type="checkbox"]:focus + label::before,
-input[type="checkbox"]:hover + label::before{
+.content input[type="checkbox"]:focus + label::before,
+.content input[type="checkbox"]:hover + label::before{
       border-radius: 10%;
       box-shadow: 0 0px 8px var(--accent);
 }
-input[type="checkbox"] {
+.content input[type="checkbox"] {
       position: absolute;
       height: 1px;
       width: 1px;
@@ -274,7 +272,7 @@ input[type="checkbox"] {
 }
 
 
-input[type="radio"] + label::before {
+.content input[type="radio"] + label::before {
       content: '';
       position: relative;
       display: inline-block;
@@ -284,16 +282,16 @@ input[type="radio"] + label::before {
       background: var(--fg);
       border-radius: 50%
 }
-input[type="radio"]:checked + label::before {
+.content input[type="radio"]:checked + label::before {
       background: var(--accent);
       border-radius: 50%
 }
-input[type="radio"]:focus + label::before,
-input[type="radio"]:hover + label::before{
+.content input[type="radio"]:focus + label::before,
+.content input[type="radio"]:hover + label::before{
       border-radius: 50%;
       box-shadow: 0 0px 8px var(--accent);
 }
-input[type="radio"] {
+.content input[type="radio"] {
       position: absolute;
       height: 1px;
       width: 1px;
@@ -301,7 +299,7 @@ input[type="radio"] {
       clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
       clip: rect(1px, 1px, 1px, 1px);
 }
-button[type=submit] {
+.content button[type=submit] {
       background: var(--bg1);
       padding: 0.3em 1em;
       color: var(--fg);
@@ -313,8 +311,8 @@ button[type=submit] {
       font-size: var(--small-size);
       font-weight: 700;
 }
-button[type=submit]:focus,
-button[type=submit]:hover {
+.content button[type=submit]:focus,
+.content [type=submit]:hover {
       border-radius: var(--small-size);
       box-shadow: 0 0px 8px var(--accent);
 }

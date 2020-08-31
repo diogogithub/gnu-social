@@ -4,16 +4,16 @@
     margin-top: calc(4 * var(--main-size));
     justify-content: center;
     align-items: center;
-    margin-left: 0;
-    margin-right: 0;
-    margin-bottom: var(--unit-size);
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-bottom: 1%;
 }
 .content .main {
     width: 100%;
-    margin-left: 1%;
-    margin-right: 1%;
+    margin-left: 0;
+    margin-right: 0;
     margin-top: var(--unit-size);
-    border-radius: var(--small-size);
+    border-radius: var(--unit-size);
     background-color: var(--bg3);
     border: solid 2px var(--accent-low);
 }
@@ -27,24 +27,27 @@
     background-color: var(--bg1);
     padding: var(--medium-size);
     font-family: var(--head-font);
-    border-radius: var(--small-size) var(--small-size) 0 0;
+    border-radius: var(--unit-size) var(--unit-size) 0 0;
+    border-bottom: solid 2px var(--accent-low);
 }
 
 .main-nav ul {
     display: flex;
     align-items: stretch;
     justify-content: space-evenly;
+    text-align: center;
     width: 100%;
     font-size: var(--medium-size);
-    margin-left: 1%;
-    margin-right: 1%;
+    margin-left: calc(2 * var(--side-margin));
+    margin-right: calc(2 * var(--side-margin));
     padding: 0;
 }
 .main-nav li {
     display: block;
-    flex: 0 1 auto;
+    flex: 1;
     list-style-type: none;
     font-weight: 700;
+    width: auto;
 }
 .notes-wrap .main-nav ul {
     font-size: var(--unit-size);
@@ -64,7 +67,7 @@
     transition: all 0.8s ease;
 }
 
-/* notes */
+/* notices */
 .notes {
     display: flex;
     flex-wrap: wrap;
@@ -74,10 +77,10 @@
     display: flex;
     flex-wrap: wrap;
     font-size: var(--medium-size);
-    border-radius: var(--small-size);
+    border-radius: var(--unit-size);
     background-color: var(--bg3);
     box-shadow: var(--shadow);
-    margin: 2%;
+    margin: 1%;
     border: solid 2px var(--accent-low);
 }
 .notes-wrap .timeline {
@@ -86,11 +89,11 @@
 }
 .notes-wrap .timeline .notes > div {
     margin: 2% 2% 0 2%;
-    border-radius: var(--small-size);
+    border-radius: var(--unit-size);
     width: 100%;
 }
 .notes-wrap .timeline .notes > div:last-child {
-    margin:  2%;
+    margin: 2%;
 }
 .notes-wrap .main-nav {
     width: 100%;
@@ -101,14 +104,16 @@
     display: flex;
     flex-wrap: wrap;
     border: solid 2px var(--accent-low);
-    border-radius: var(--small-size);
+    border-radius: var(--unit-size);
+    box-shadow: var(--shadow);
+    margin-bottom: 2%;
 }
 .note-info {
     order: 1;
     background-color: var(--bg1);
     box-sizing: border-box;
     padding: 5px 10px 5px 10px;
-    border-radius: var(--small-size) 0 0 0;
+    border-radius: var(--unit-size) 0 0 0;
     display: flex;
     align-items: center;
     flex-grow: 1;
@@ -129,7 +134,7 @@
     order: 3;
     word-break: break-word;
     padding: var(--small-size);
-    border-radius: 0 0 var(--small-size) var(--small-size);
+    border-radius: 0 0 var(--unit-size) var(--unit-size);
     width: 100%;
 }
 
@@ -137,7 +142,7 @@
     order: 2;
     width: 50%;
     justify-content: right;
-    border-radius: 0 var(--small-size) 0 0;
+    border-radius: 0 var(--unit-size) 0 0;
     background-color: var(--bg1);
     box-sizing: border-box;
     padding: 5px 10px 5px 10px;
@@ -148,6 +153,7 @@
 }
 .note-actions a {
     height: var(--main-size);
+    margin-left: auto;
 }
 .note-actions a svg {
     width: var(--main-size);
@@ -159,45 +165,48 @@
     order: 4;
     width: 100%;
     box-sizing: content-box;
-    padding: var(--unit-size);
+    padding: 2% 2% 0 2%;
 }
 
 /* POSTING */
 .content > form {
     display: flex;
     flex: max-content;
+    width: -webkit-fill-available;
 }
 .create-notice {
     display: flex;
     flex-wrap: wrap;
     flex: max-content;
-    margin-left: 4%;
-    margin-right: 4%;
-    border-radius: var(--small-size);
+    width: -webkit-fill-available;
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: var(--unit-size);
     border: solid 2px var(--accent-low);
     background-color: var(--bg3);
 }
 .create-right {
     order: 2;
-    width: 90%;
-    border-radius: 0 var(--small-size) var(--small-size) 0;
+    width: 75%;
+    border-radius: 0 var(--unit-size) var(--unit-size) 0;
     background-color: var(--bg3);
 }
 
 /* target multi-select */
 .target {
     order: 1;
-    width: 10%;
+    width: 25%;
     background-color: var(--bg1);
-    border-radius: var(--small-size) 0 0 var(--small-size);
-    font-size: var(--medium-size);
+    border-radius: var(--unit-size) 0 0 var(--unit-size);
 }
 .target-top {
-    padding: var(--unit-size);
+    padding: var(--unit-size) var(--unit-size) 0 var(--unit-size);
+    font-size: var(--medium-size);
 }
 .target-bot {
     padding-left: var(--unit-size);
     padding-bottom: var(--unit-size);
+    font-size: var(--medium-size);
 }
 .target .required {
     font-weight: 800;
@@ -218,14 +227,14 @@
     display: flex;
     flex-wrap: wrap;
     color: var(--fg);
-    font-size: var(--medium-size);
     background-color: var(--bg1);
-    border-radius: 0 var(--small-size) 0 0;
+    border-radius: 0 var(--unit-size) 0 0;
 }
-.scope div {
+.scope > div {
     display: inline;
     vertical-align: middle;
     flex: 1;
+    font-size: var(--medium-size);
     color: var(--fg);
     padding: var(--unit-size);
 }
@@ -260,7 +269,7 @@
     flex-shrink: 0;
 }
 #form_content {
-    background-color: var(--bg2);
+    background-color: var(--bg3);
     padding: var(--unit-size);
     color: var(--fg);
     font-size: var(--medium-size);
@@ -278,8 +287,8 @@
     width: 100%;
     box-sizing: border-box;
     padding: 1%;
-    background-color: var(--bg2);
-    border-radius: 0 0 var(--small-size) 0;
+    background-color: var(--bg3);
+    border-radius: 0 0 var(--unit-size) 0;
 }
 .send {
     order: 2;
@@ -303,22 +312,21 @@
 }
 #form_attachments:focus + label,
 #form_attachments + label:hover {
-    border-radius: var(--small-size);
+    border-radius: var(--unit-size);
     box-shadow: 0 0px 8px var(--accent);
 }
 .icon-attach {
-    opacity: 1 !important;
-    cursor: pointer;
-    fill: var(--fg);
     width: var(--main-size);
     height: var(--main-size);
-    z-index: 0;
+    font-size: var(--medium-size);
+    fill: var(--fg);
     background-color: var(--bg1);
     padding: 0.3em 1em;
     border-style: solid;
     border-color: var(--accent);
-    border-radius: var(--small-size);
+    border-radius: var(--unit-size);
     border-width: 2px;
-    font-size: var(--medium-size);
     margin-bottom: -0.5em;
+    cursor: pointer;
+    z-index: 0;
 }
