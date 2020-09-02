@@ -72,19 +72,17 @@ class MessageModel
      */
     public static function inboxMessages(User $to, ?int $page = null)
     {
-        // fetch all notice IDs related to the user $to
-        $attention = new Attention();
-        $attention->selectAdd('notice_id');
-        $attention->whereAdd('profile_id = ' . $to->getID());
-
-        $ids = $attention->find() ? $attention->fetchAll('notice_id') : [];
-
         // get the messages
         $message = new Notice();
 
-        $message->whereAdd('scope = ' . NOTICE::MESSAGE_SCOPE);
-        $message->whereAddIn('id', $ids, 'int');
-        $message->orderBy('created DESC, id DESC');
+        $message->selectAdd();
+        $message->selectAdd('notice.*');
+
+        // fetch all notice IDs related to the user $to
+        $message->joinAdd(['id', 'attention:notice_id']);
+        $message->whereAdd('notice.scope = ' . Notice::MESSAGE_SCOPE);
+        $message->whereAdd('attention.profile_id = ' . $to->getID());
+        $message->orderBy('notice.created DESC, notice.id DESC');
 
         if (!is_null($page) && $page >= 0) {
             $page = ($page == 0) ? 1 : $page;
