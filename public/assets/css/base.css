@@ -277,7 +277,7 @@ input.larger {
       color: var(--fg);
       border-style: solid;
       border-color: var(--accent);
-      border-radius: var(--small-size);
+      border-radius: var(--unit-size);
       border-width: 2px;
       font-family: 'Montserrat', sans-serif;
       font-size: var(--small-size);
@@ -285,6 +285,6 @@ input.larger {
 }
 .content button[type=submit]:focus,
 .content [type=submit]:hover {
-      border-radius: var(--small-size);
+      border-radius: var(--unit-size);
       box-shadow: 0 0px 8px var(--accent);
 }
