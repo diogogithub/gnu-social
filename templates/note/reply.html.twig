@@ -10,8 +10,17 @@
         media="screen and (max-width: 750px)">
 {% endblock %}
 
+{% block header %}
+  {{ parent() }}
+{% endblock %}
+
+{% block left %}
+  {{ parent() }}
+{% endblock %}
+
 {% block body %}
-  <div class="content" style="margin-top: 5em">
+  {{ parent() }}
+  <div class="content">
     <div class="main">
       {% include '/note/view.html.twig' with {'note': note} only %}
       {{ form(reply) }}

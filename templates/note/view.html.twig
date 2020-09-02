@@ -19,6 +19,16 @@
         <use xlink:href="#icon-reply"></use>
       </svg>
     </a>
+    <a href="{{ path('note_reply', {'reply_to': note.getId()}) }}">
+      <svg class="icon icon-recycle">
+        <use xlink:href="#icon-recycle"></use>
+      </svg>
+    </a>
+    <a href="{{ path('note_reply', {'reply_to': note.getId()}) }}">
+      <svg class="icon icon-heart">
+        <use xlink:href="#icon-heart"></use>
+      </svg>
+    </a>
   </div>
   <div class="replies">
     {% for reply in note.getReplies() %}
