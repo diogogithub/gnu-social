@@ -141,7 +141,7 @@
 .note-actions {
     order: 2;
     width: 50%;
-    justify-content: right;
+    justify-content: flex-end;
     border-radius: 0 var(--unit-size) 0 0;
     background-color: var(--bg1);
     box-sizing: border-box;
@@ -153,12 +153,13 @@
 }
 .note-actions a {
     height: var(--main-size);
-    margin-left: auto;
+    margin-left: var(--unit-size);
 }
 .note-actions a svg {
     width: var(--main-size);
     height: var(--main-size);
-    fill: var(--fg);
+    filter: invert(91%) sepia(3%) saturate(350%) hue-rotate(162deg) brightness(106%) contrast(92%);
+    stroke: none;
 }
 
 .replies {
