@@ -68,6 +68,37 @@ class Post
         ];
     }
 
+    public function favourite(Request $request, string $fav_to)
+    {
+        $note = DB::find('note', ['id' => $fav_to]);
+        if ($note == null) {
+            throw new ClientException(_m('No such note'));
+        }
+
+        $actor_id = Common::ensureLoggedIn()->getActor()->getId();
+
+        $form = Form::create([
+            ['favourite',        SubmitType::class,   []],
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            $data = $form->getData();
+            if ($form->isValid()) {
+                self::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true, $data['reply_to']);
+            } else {
+                // TODO display errors
+            }
+        }
+
+        return [
+            '_template' => 'note/reply.html.twig',
+            'note'      => $note,
+            'fav'       => $form->createView(),
+        ];
+    }
+
     public static function storeNote(int $actor_id, string $content, array $attachments, bool $is_local, ?int $reply_to = null)
     {
         $note  = Note::create(['gsactor_id' => $actor_id, 'content' => $content, 'is_local' => $is_local, 'reply_to' => $reply_to]);
