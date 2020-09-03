@@ -24,6 +24,7 @@
  * @category Controller
  *
  * @author    Hugo Sales <hugo@fc.up.pt>
+ * @author    Eliseu Amaro <eliseu@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -32,6 +33,7 @@ namespace App\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
+use App\Util\Common;
 use Symfony\Component\HttpFoundation\Request;
 
 class Network extends Controller
@@ -47,35 +49,37 @@ class Network extends Controller
 
     public function home(Request $request)
     {
-        $notes = DB::dql(
-                'select n from ( 
-                                            (
-                                                select note.id 
-                                                from App\Entity\Note
-                                                inner join App\Entity\Follow
-                                                with note.id = follow.followed
-                                            )
-                                            union all
-                                            (
-                                                select note.id
-                                                from App\Entity\Note
-                                                with note.id = note.reply_to
-                                            )
-                                            union all
-                                            (
-                                                select note.id
-                                                from App\Entity\Note
-                                                inner join App\Entity\GroupInbox
-                                                with note.id = group_inbox.activity_id
-                                                inner join App\Entity\GroupMember
-                                                where group_inbox.group_id = group_member.group_id
-                                            )
-                                       ) n ' .
-                        'order by n.created DESC'
-                        );
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => $notes,
+            'notes'     => DB::dql('select n, g_inbox, g_member ' .
+                'from App\Entity\Note n inner join App\Entity\GroupInbox g_inbox inner join App\Entity\GroupMember g_member ' .
+                'with n.id = g_inbox.activity_id ' .
+                'order by n.created DESC'
+            ),
+        ];
+    }
+
+    public function network(Request $request)
+    {
+        return [
+            '_template' => 'network/public.html.twig',
+            'notes'     => DB::dql('select n from App\Entity\Note n ' .
+                                    'where n.scope = 1 ' .
+                                    'order by n.created DESC'
+            ),
+        ];
+    }
+
+    public function replies(Request $request)
+    {
+        $actor_id = Common::ensureLoggedIn()->getActor()->getId();
+
+        return [
+            '_template' => 'network/public.html.twig',
+            'notes'     => DB::dql('select n from App\Entity\Note n ' .
+                'where n.reply_to is not null and n.gsactor_id = ' . $actor_id .
+                'order by n.created DESC'
+            ),
         ];
     }
 }
