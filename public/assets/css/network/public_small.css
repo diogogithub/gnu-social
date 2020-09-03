@@ -108,6 +108,12 @@
     box-shadow: var(--shadow);
     margin-bottom: 2%;
 }
+.note > .replies > .note {
+    border: none;
+}
+.notes > h1 {
+    padding: var(--unit-size);
+}
 .note-info {
     order: 1;
     background-color: var(--bg1);
