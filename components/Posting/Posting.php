@@ -36,6 +36,7 @@ class Posting extends Module
     public function onAddRoute($r)
     {
         $r->connect('note_reply', '/note/reply/{reply_to<\d*>}', [C\Post::class, 'reply']);
+        $r->connect('note_recycle', '/main/all', [C\Post::class, 'recycle']);
     }
 
     public function onStartTwigPopulateVars(array &$vars)
