@@ -55,7 +55,7 @@ class Post
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
-                self::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true, $data['reply_to']);
+                self::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true, $data['reply_to'], null);
             } else {
                 // TODO display errors
             }
@@ -68,9 +68,13 @@ class Post
         ];
     }
 
-    public function favourite(Request $request, string $fav_to)
+    public function recycle(Request $request, string $repeat_of)
     {
-        $note = DB::find('note', ['id' => $fav_to]);
+        $note           = DB::find('note', ['id' => $repeat_of]);
+        $content_repeat = DB::dql('select n.content from App\Entity\Note n ' .
+            'where n.reply_to = ' . $repeat_of
+        );
+
         if ($note == null) {
             throw new ClientException(_m('No such note'));
         }
@@ -78,7 +82,8 @@ class Post
         $actor_id = Common::ensureLoggedIn()->getActor()->getId();
 
         $form = Form::create([
-            ['favourite',        SubmitType::class,   []],
+            ['repeat_of',    HiddenType::class,   ['data' => (int) $repeat_of]],
+            ['save',        SubmitType::class,   ['label' => _m('Submit')]],
         ]);
 
         $form->handleRequest($request);
@@ -86,7 +91,7 @@ class Post
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
-                self::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true, $data['reply_to']);
+                self::storeNote($actor_id, $data[$content_repeat], $data['attachments'], $is_local = true, $data['reply_to'], $data['repeat_of']);
             } else {
                 // TODO display errors
             }
@@ -95,13 +100,13 @@ class Post
         return [
             '_template' => 'note/reply.html.twig',
             'note'      => $note,
-            'fav'       => $form->createView(),
+            'reply'     => $form->createView(),
         ];
     }
 
-    public static function storeNote(int $actor_id, string $content, array $attachments, bool $is_local, ?int $reply_to = null)
+    public static function storeNote(int $actor_id, string $content, array $attachments, bool $is_local, ?int $reply_to = null, ?int $repeat_of = null)
     {
-        $note  = Note::create(['gsactor_id' => $actor_id, 'content' => $content, 'is_local' => $is_local, 'reply_to' => $reply_to]);
+        $note  = Note::create(['gsactor_id' => $actor_id, 'content' => $content, 'is_local' => $is_local, 'reply_to' => $reply_to, 'repeat_of' => $repeat_of]);
         $files = [];
         foreach ($attachments as $f) {
             $nf = Media::validateAndStoreFile($f, Common::config('attachments', 'dir'),
