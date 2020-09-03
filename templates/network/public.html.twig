@@ -67,7 +67,7 @@
             <nav class='main-nav'>
                 <ul>
                     <li>
-                        <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Timeline</a>
+                        <a href="{{ path('main_public') }}" class='hover-effect {{ active('main_public') }}'>Timeline</a>
                     </li>
                 </ul>
             </nav>
@@ -75,7 +75,7 @@
                 <nav class='main-nav'>
                     <ul>
                         <li>
-                            <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Public</a>
+                            <a href="{{ path('main_public') }}" class='hover-effect {{ active('main_public') }}'>Public</a>
                         </li>
                         {% if user_nickname is defined %}
                           <li>
@@ -83,7 +83,7 @@
                           </li>
                         {% endif %}
                         <li>
-                            <a href="#">Network</a>
+                            <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
                         </li>
                     </ul>
                 </nav>
