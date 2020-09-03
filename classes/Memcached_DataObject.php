@@ -66,87 +66,131 @@ class Memcached_DataObject extends Safe_DataObject
     /**
      * Get multiple items from the database by key
      *
-     * @param string  $cls       Class to fetch
-     * @param string  $keyCol    name of column for key
-     * @param array   $keyVals   key values to fetch
-     * @param boolean $skipNulls skip provided null values
-     *
-     * @return array Array of objects, in order
+     * @param  string $cls       Class to fetch
+     * @param  string $keyCol    name of column for key
+     * @param  array  $keyVals   key values to fetch
+     * @param  bool   $skipNulls return only non-null results
+     * @param  bool   $preserve  return the same tuples as input
+     * @return object An object with tuples to be fetched, in order
      */
-    public static function multiGetClass($cls, $keyCol, array $keyVals, $skipNulls = true)
-    {
-        $obj = new $cls;
+    public static function multiGetClass(
+        string $cls,
+        string $keyCol,
+        array  $keyVals,
+        bool   $skipNulls,
+        bool   $preserve
+    ): object {
+        $obj = new $cls();
 
-        // PHP compatible datatype for settype() below
-        $colType = $obj->columnType($keyCol);
+        // Do not select anything extra
+        $obj->selectAdd();
+        $obj->selectAdd($obj->escapedTableName() . '.*');
 
-        if (!in_array($colType, array('integer', 'int'))) {
-            // This is because I'm afraid to escape strings incorrectly
-            // in the way we use them below in FIND_IN_SET for MariaDB
-            throw new ServerException('Cannot do multiGet on anything but integer columns');
+        // A PHP-compatible datatype to check against
+        $col_type = $obj->columnType($keyCol);
+
+        // The code below assumes one of the two results
+        if (!in_array($col_type, ['int', 'string'])) {
+            throw new ServerException(
+                'Cannot do multiGet on anything but integer or string columns'
+            );
         }
 
-        if ($skipNulls) {
-            foreach ($keyVals as $key => $val) {
-                if (is_null($val)) {
-                    unset($keyVals[$key]);
-                }
+        // Actually need to know if MariaDB or Oracle MySQL this time
+        $db_type = common_config('db', 'type');
+        if ($db_type === 'mysql') {
+            $tmp_obj = new $cls();
+            $tmp_obj->query('SELECT 0 /*M! + 1 */ AS is_mariadb;');
+            if ($tmp_obj->fetch() && $tmp_obj->is_mariadb) {
+                $db_type = 'mariadb';
             }
         }
-
-        $obj->whereAddIn($keyCol, $keyVals, $colType);
 
         // Since we're inputting straight to a query: format and escape
-        foreach ($keyVals as $key => $val) {
-            settype($val, $colType);
-            $keyVals[$key] = $obj->escape($val);
+        $vals_escaped = [];
+        foreach (array_values($keyVals) as $i => $val) {
+            if (is_null($val)) {
+                $val_escaped = 'NULL';
+            } elseif ($col_type === 'int') {
+                $val_escaped = (string)(int) $val;
+            } else {
+                $val_escaped = "'{$obj->escape($val)}'";
+            }
+            if ($db_type !== 'mariadb') {
+                $vals_escaped[] = $val_escaped;
+            } else {
+                // A completely different approach for MariaDB (see below)
+                $vals_escaped[] = "({$val_escaped},{$i})";
+            }
         }
 
-        // Check if values are ordered, makes sorting in SQL easier
-        $prev_val = reset($keyVals);
-        $order_asc = $order_desc = true;
-        foreach ($keyVals as $val) {
-            if ($val < $prev_val) {
-                $order_asc = false;
-            }
-            if ($val > $prev_val) {
-                $order_desc = false;
-            }
-            if ($order_asc === false && $order_desc === false) {
+        // One way to guarantee that there is no name collision
+        $join_tablename = common_database_tablename(
+            $obj->tableName() . '_vals'
+        );
+        $join_keyword = ($preserve ? 'RIGHT' : 'LEFT') . ' JOIN';
+        $vals_cast_type = ($col_type === 'int') ? 'INTEGER' : 'TEXT';
+
+        // A lot of magic to ensure we get an ordered reply with the same exact
+        // values as on input.
+        switch ($db_type) {
+            case 'pgsql':
+                // Explicit casting is done to cast empty arrays
+                $obj->_join = "\n" . sprintf(
+                    <<<END
+                    {$join_keyword} unnest(
+                      CAST(ARRAY[%s] AS {$vals_cast_type}[])
+                    ) WITH ORDINALITY
+                    AS {$join_tablename} ({$keyCol}, {$keyCol}_pos)
+                    USING ({$keyCol})
+                    END,
+                    implode(',', $vals_escaped)
+                );
                 break;
-            }
-            $prev_val = $val;
+            case 'mariadb':
+                // Delivers an empty set
+                if (count($vals_escaped) == 0) {
+                    $vals_escaped[] = '(NULL,0) LIMIT 0';
+                }
+                // MariaDB doesn't support JSON_TABLE, but Oracle MySQL does,
+                // which doesn't support VALUES without a ROW keyword though.
+                $obj->_join = "\n" . sprintf(
+                    <<<END
+                    {$join_keyword} (
+                      WITH t1 ({$keyCol}, {$keyCol}_pos) AS (VALUES %s)
+                      SELECT * FROM t1
+                    ) AS {$join_tablename} USING ({$keyCol})
+                    END,
+                    implode(',', $vals_escaped)
+                );
+                break;
+            case 'mysql':
+            default:
+                $obj->_join = "\n" . sprintf(
+                    <<<END
+                    {$join_keyword} JSON_TABLE(
+                      JSON_ARRAY(%s), '$[*]' COLUMNS (
+                        {$keyCol} {$vals_cast_type} PATH '$',
+                        {$keyCol}_pos FOR ORDINALITY
+                      )
+                    ) AS {$join_tablename} USING ({$keyCol})
+                    END,
+                    implode(',', $vals_escaped)
+                );
         }
 
-        if ($order_asc) {
-            $obj->orderBy($keyCol);
-        } elseif ($order_desc) {
-            $obj->orderBy("{$keyCol} DESC");
-        } else {
-            switch (common_config('db', 'type')) {
-                case 'pgsql':
-                    // "position" will make sure we keep the desired order
-                    $obj->orderBy(sprintf(
-                        "position(',' || CAST(%s AS text) || ',' IN ',%s,')",
-                        $keyCol,
-                        implode(',', $keyVals)
-                    ));
-                    break;
-                case 'mysql':
-                    // "find_in_set" will make sure we keep the desired order
-                    $obj->orderBy(sprintf(
-                        "find_in_set(%s, '%s')",
-                        $keyCol,
-                        implode(',', $keyVals)
-                    ));
-                    break;
-                default:
-                    throw new ServerException('Unknown DB type selected.');
-            }
+        if (!$preserve) {
+            // Implements a left semi-join
+            $obj->whereAdd("{$join_tablename}.{$keyCol}_pos IS NOT NULL");
         }
+        // Filters both NULLs requested and non-matching NULLs
+        if ($skipNulls) {
+            $obj->whereAdd("{$obj->escapedTableName()}.{$keyCol} IS NOT NULL");
+        }
+
+        $obj->orderBy("{$join_tablename}.{$keyCol}_pos");
 
         $obj->find();
-
         return $obj;
     }
 
@@ -400,6 +444,11 @@ class Memcached_DataObject extends Safe_DataObject
         return $result;
     }
 
+    public function escapedTableName()
+    {
+        return common_database_tablename($this->tableName());
+    }
+
     public function columnType($columnName)
     {
         $keys = $this->table();
@@ -410,7 +459,7 @@ class Memcached_DataObject extends Safe_DataObject
         $def = $keys[$columnName];
 
         if ($def & DB_DATAOBJECT_INT) {
-            return 'integer';
+            return 'int';
         } else {
             return 'string';
         }

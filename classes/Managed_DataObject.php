@@ -75,15 +75,25 @@ abstract class Managed_DataObject extends Memcached_DataObject
     /**
      * Get multiple items from the database by key
      *
-     * @param string  $keyCol    name of column for key
-     * @param array   $keyVals   key values to fetch
-     * @param boolean $skipNulls return only non-null results?
-     *
-     * @return array Array of objects, in order
+     * @param  string $keyCol    name of column for key
+     * @param  array  $keyVals   key values to fetch
+     * @param  bool   $skipNulls return only non-null results
+     * @param  bool   $preserve  return the same tuples as input
+     * @return object An object with tuples to be fetched, in order
      */
-    public static function multiGet($keyCol, array $keyVals, $skipNulls = true)
-    {
-        return parent::multiGetClass(get_called_class(), $keyCol, $keyVals, $skipNulls);
+    public static function multiGet(
+        string $keyCol,
+        array  $keyVals,
+        bool   $skipNulls = true,
+        bool   $preserve  = false
+    ): object {
+        return parent::multiGetClass(
+            get_called_class(),
+            $keyCol,
+            $keyVals,
+            $skipNulls,
+            $preserve
+        );
     }
 
     /**
@@ -310,11 +320,6 @@ abstract class Managed_DataObject extends Memcached_DataObject
             $ckeys[] = self::multicacheKey($this->tableName(), $val);
         }
         return $ckeys;
-    }
-
-    public function escapedTableName()
-    {
-        return common_database_tablename($this->tableName());
     }
 
     /**
