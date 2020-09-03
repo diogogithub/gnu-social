@@ -1,7 +1,14 @@
-{% extends '/base.html.twig' %}
+{% extends 'left/left.html.twig' %}
+
+{% block meta %}
+  {{ parent() }}
+{% endblock %}
+
+{% block title %}Welcome!{% endblock %}
 
 {% block stylesheets %}
   {{ parent() }}
+  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/replies/replies.css') }}">
   <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}"
         media="screen and (min-width: 1300px)">
   <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_mid.css') }}"
