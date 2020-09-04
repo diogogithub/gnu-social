@@ -52,7 +52,8 @@ abstract class Form
                                   string $type = 'Symfony\Component\Form\Extension\Core\Type\FormType',
                                   array $builder_options = []): SymfForm
     {
-        $fb = self::$form_factory->createBuilder($type, array_merge($builder_options, ['translation_domain' => false]));
+        $name = $form[array_key_last($form)][0];
+        $fb   = self::$form_factory->createNamedBuilder($name, $type, array_merge($builder_options, ['translation_domain' => false]));
         foreach ($form as list($key, $class, $options)) {
             if ($target != null && empty($options['data']) && (strstr($key, 'password') == false) && $class != SubmitType::class) {
                 if (isset($extra_data[$key])) {
