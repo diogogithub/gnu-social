@@ -14,19 +14,17 @@
     {% endfor %}
   </div>
   <div class="note-actions">
+    {% for act in get_note_actions(note) %}
+      <div>
+        <svg class="icon icon-heart">
+          <use xlink:href="#icon-heart"></use>
+        </svg>
+        {{ form(act) }}
+      </div>
+    {% endfor %}
     <a href="{{ path('note_reply', {'reply_to': note.getId()}) }}">
       <svg class="icon icon-reply">
         <use xlink:href="#icon-reply"></use>
-      </svg>
-    </a>
-    <a href="{{ path('note_recycle', {'repeat_of': note.getId()}) }}">
-      <svg class="icon icon-recycle">
-        <use xlink:href="#icon-recycle"></use>
-      </svg>
-    </a>
-    <a href="{{ path('note_reply', {'reply_to': note.getId()}) }}">
-      <svg class="icon icon-heart">
-        <use xlink:href="#icon-heart"></use>
       </svg>
     </a>
   </div>

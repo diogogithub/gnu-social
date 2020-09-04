@@ -30,6 +30,8 @@
 
 namespace App\Twig;
 
+use App\Core\Event;
+use App\Entity\Note;
 use App\Util\Formatting;
 use Functional as F;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -54,6 +56,13 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
     {
         $current_route = $this->request->attributes->get('_route');
         return F\some($routes, F\partial_left([Formatting::class, 'startsWith'], $current_route)) ? $class : '';
+    }
+
+    public function getNoteActions(Note $note)
+    {
+        $actions = [];
+        Event::handle('add_note_actions', [$this->request, $note, &$actions]);
+        return $actions;
     }
 
     // ----------------------------------------------------------
