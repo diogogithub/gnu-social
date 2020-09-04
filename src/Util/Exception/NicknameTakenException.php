@@ -19,8 +19,6 @@
 
 // }}}
 
-namespace App\Util\Exception;
-
 /**
  * Nickname empty exception
  *
@@ -40,6 +38,11 @@ namespace App\Util\Exception;
  * @copyright 2018-2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+namespace App\Util\Exception;
+
+use function App\Core\I18n\_m;
+
 class NicknameTakenException extends NicknameException
 {
     public ?Profile $profile = null;    // the Profile which occupies the nickname

@@ -38,6 +38,7 @@
 
 namespace App\Util\Exception;
 
+use function App\Core\I18n\_m;
 use Exception;
 
 class ServerException extends Exception
@@ -49,6 +50,6 @@ class ServerException extends Exception
 
     public function __toString()
     {
-        return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+        return __CLASS__ . " [{$this->code}]: " . _m($this->message) . "\n";
     }
 }
