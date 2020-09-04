@@ -35,6 +35,7 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Exception;
 
 abstract class DB
@@ -52,6 +53,22 @@ abstract class DB
         foreach ($params as $k => $v) {
             $q->setParameter($k, $v);
         }
+        return $q->getResult();
+    }
+
+    public static function sql(string $query, array $entities, array $params = [])
+    {
+        $rsm = new ResultSetMappingBuilder(self::$em);
+        foreach ($entities as $alias => $entity) {
+            $rsm->addRootEntityFromClassMetadata($entity, $alias);
+        }
+        $query = preg_replace('/{select}/', $rsm->generateSelectClause(), $query);
+        $q     = self::$em->createNativeQuery($query, $rsm);
+        foreach ($params as $k => $v) {
+            $q->setParameter($k, $v);
+        }
+        // dump($q);
+        // die();
         return $q->getResult();
     }
 
