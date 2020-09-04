@@ -49,6 +49,7 @@ class Extension extends AbstractExtension
             /** Twig function to output the 'active' class if the current route matches the given route */
             new TwigFunction('active', [Runtime::class, 'isCurrentRouteActive']),
             new TwigFunction('is_route', [Runtime::class, 'isCurrentRoute']),
+            new TwigFunction('get_note_actions', [Runtime::class, 'getNoteActions']),
         ];
     }
 }
