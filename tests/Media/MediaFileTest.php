@@ -32,6 +32,7 @@ if (!defined('STATUSNET')) { // Compatibility
 use ClientException;
 use Exception;
 use MediaFile;
+use TemporaryFile;
 use PHPUnit\Framework\TestCase;
 use ServerException;
 
@@ -83,11 +84,11 @@ final class MediaFileTest extends TestCase
         if (!file_exists($filename)) {
             throw new Exception("WTF? {$filename} test file missing");
         }
-        $tmp = tmpfile();
-        fwrite($tmp, file_get_contents($filename));
+        $tempfile = new TemporaryFile('gs-mediafiletest');
+        fwrite($tempfile->getResource(), file_get_contents($filename));
+        fflush($tempfile->getResource());
 
-        $tmp_metadata = stream_get_meta_data($tmp);
-        $type = MediaFile::getUploadedMimeType($tmp_metadata['uri'], basename($filename));
+        $type = MediaFile::getUploadedMimeType($tempfile->getRealPath(), basename($filename));
         static::assertSame($expectedType, $type);
     }
 
@@ -124,4 +125,3 @@ final class MediaFileTest extends TestCase
         return $dataset;
     }
 }
-
