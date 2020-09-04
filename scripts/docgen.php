@@ -74,7 +74,7 @@ if ($plugin) {
 function getVersion()
 {
     // define('GNUSOCIAL_VERSION', '0.9.1');
-    $source = file_get_contents(INSTALLDIR . '/lib/common.php');
+    $source = file_get_contents(INSTALLDIR . '/lib/util/common.php');
     if (preg_match('/^\s*define\s*\(\s*[\'"]GNUSOCIAL_VERSION[\'"]\s*,\s*[\'"](.*)[\'"]\s*\)\s*;/m', $source, $matches)) {
         return $matches[1];
     }

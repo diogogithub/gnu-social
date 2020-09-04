@@ -1,48 +1,44 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Upload an image via the API
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  API
  * @author    Zach Copley <zach@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Upload an image via the API.  Returns a shortened URL for the image
  * to the user. Apparently modelled after a former Twitpic API.
  *
- * @category API
- * @package  StatusNet
- * @author   Zach Copley <zach@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  API
+ * @package   GNUsocial
+ * @author    Zach Copley <zach@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ApiMediaUploadAction extends ApiAuthAction
 {
     protected $needPost = true;
 
-    protected function prepare(array $args=array())
+    protected function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -79,22 +75,23 @@ class ApiMediaUploadAction extends ApiAuthAction
             $upload = MediaFile::fromUpload('media', $this->scoped);
         } catch (NoUploadedMediaException $e) {
             common_debug('No media file was uploaded to the _FILES array');
-            $fh = tmpfile();
+            $tempfile = new TemporaryFile('gs-mediaupload');
             if ($this->arg('media')) {
                 common_debug('Found media parameter which we hope contains a media file!');
-                fwrite($fh, $this->arg('media'));
+                fwrite($tempfile->getResource(), $this->arg('media'));
             } elseif ($this->arg('media_data')) {
                 common_debug('Found media_data parameter which we hope contains a base64-encoded media file!');
-                fwrite($fh, base64_decode($this->arg('media_data')));
+                fwrite($tempfile->getResource(), base64_decode($this->arg('media_data')));
             } else {
                 common_debug('No media|media_data POST parameter was supplied');
-                fclose($fh);
+                unset($tempfile);
                 throw $e;
             }
-            common_debug('MediaFile importing the uploaded file with fromFilehandle');
-            $upload = MediaFile::fromFilehandle($fh, $this->scoped);
+            common_debug('MediaFile importing the uploaded file with fromFileInfo');
+            fflush($tempfile->getResource());
+            $upload = MediaFile::fromFileInfo($tempfile, $this->scoped);
         }
-        
+
         common_debug('MediaFile completed and saved us fileRecord with id=='._ve($upload->fileRecord->id));
         // Thumbnails will be generated/cached on demand when accessed (such as with /attachment/:id/thumbnail)
         $this->showResponse($upload);
@@ -168,9 +165,9 @@ class ApiMediaUploadAction extends ApiAuthAction
     /**
      * Overrided clientError to show a more Twitpic-like error
      *
-     * @param String $msg an error message
+     * @param string $msg an error message
      */
-    function clientError($msg, $code=400, $format=null)
+    public function clientError($msg, $code = 400, $format = null)
     {
         $this->initDocument($this->format);
         switch ($this->format) {

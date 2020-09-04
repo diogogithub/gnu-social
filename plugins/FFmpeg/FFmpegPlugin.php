@@ -30,8 +30,11 @@ class FFmpegPlugin extends Plugin
 {
     const PLUGIN_VERSION = '0.1.0';
 
-    public function onStartResizeImageFile(ImageFile $imagefile, string $outpath, array $box): bool
-    {
+    public function onStartResizeImageFile(
+        ImageFile $imagefile,
+        string $outpath,
+        array  $box
+    ): bool {
         switch ($imagefile->mimetype) {
         case 'image/gif':
             // resize only if an animated GIF
@@ -49,7 +52,7 @@ class FFmpegPlugin extends Plugin
      * @see http://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html
      * @see https://github.com/PHP-FFMpeg/PHP-FFMpeg/pull/592
      */
-    public function resizeImageFileAnimatedGif(ImageFile $imagefile,  string $outpath, array $box): bool
+    public function resizeImageFileAnimatedGif(ImageFile $imagefile, string $outpath, array $box): bool
     {
         // Create FFMpeg instance
         // Need to explictly tell the drivers location or it won't find them
@@ -60,7 +63,7 @@ class FFmpegPlugin extends Plugin
 
         // FFmpeg can't edit existing files in place,
         // generate temporary output file to avoid that
-        $tmp_outpath = tempnam(sys_get_temp_dir(), 'outpath-');
+        $tempfile = new TemporaryFile('gs-outpath');
 
         // Generate palette file. FFmpeg explictly needs to be told the
         // extension for PNG files outputs
@@ -89,7 +92,7 @@ class FFmpegPlugin extends Plugin
         $commands_2[] = '-f';
         $commands_2[] = 'gif';
         $commands_2[] = '-y';
-        $commands_2[] = $tmp_outpath;
+        $commands_2[] = $tempfile->getRealPath();
 
         $success = true;
 
@@ -112,10 +115,9 @@ class FFmpegPlugin extends Plugin
         }
 
         if ($success) {
-            $success = @rename($tmp_outpath, $outpath);
+            $success = $tempfile->commit($outpath);
         }
 
-        @unlink($tmp_outpath);
         @unlink($palette);
 
         return $success;

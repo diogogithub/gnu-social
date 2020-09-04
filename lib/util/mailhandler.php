@@ -1,35 +1,40 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
+defined('GNUSOCIAL') || die();
+
+require_once INSTALLDIR . '/lib/util/tempfile.php';
 require_once INSTALLDIR . '/lib/util/mail.php';
-require_once('Mail/mimeDecode.php');
+require_once 'Mail/mimeDecode.php';
 
 // @todo FIXME: we use both Mail_mimeDecode and mailparse
 // Need to move everything to mailparse
 
 class MailHandler
 {
-    function __construct()
+    public function __construct()
     {
     }
 
-    function handle_message($rawmessage)
+    public function handle_message($rawmessage)
     {
         list($from, $to, $msg, $attachments) = $this->parse_message($rawmessage);
         if (!$from || !$to || !$msg) {
@@ -61,20 +66,22 @@ class MailHandler
         $msg = $user->shortenLinks($msg);
         if (Notice::contentTooLong($msg)) {
             // TRANS: Error message in incoming mail handler used when an incoming e-mail contains too many characters.
-            $this->error($from, sprintf(_m('That\'s too long. Maximum notice size is %d character.',
-                                          'That\'s too long. Maximum notice size is %d characters.',
-                                          Notice::maxContent()),
-                                        Notice::maxContent()));
+            $this->error($from, sprintf(
+                _m('That\'s too long. Maximum notice size is %d character.',
+                   'That\'s too long. Maximum notice size is %d characters.',
+                   Notice::maxContent()),
+                Notice::maxContent()
+            ));
         }
 
         $mediafiles = array();
 
-        foreach($attachments as $attachment){
+        foreach ($attachments as $attachment) {
             $mf = null;
 
             try {
-                $mf = MediaFile::fromFilehandle($attachment, $user->getProfile());
-            } catch(ClientException $ce) {
+                $mf = MediaFile::fromFileInfo($attachment, $user->getProfile());
+            } catch (ClientException $ce) {
                 $this->error($from, $ce->getMessage());
             }
 
@@ -94,13 +101,13 @@ class MailHandler
         }
     }
 
-    function error($from, $msg)
+    public function error($from, $msg)
     {
         file_put_contents("php://stderr", $msg . "\n");
         exit(1);
     }
 
-    function user_from_header($from_hdr)
+    public function user_from_header($from_hdr)
     {
         $froms = mailparse_rfc822_parse_addresses($from_hdr);
         if (!$froms) {
@@ -115,7 +122,7 @@ class MailHandler
         return $user;
     }
 
-    function user_match_to($user, $to_hdr)
+    public function user_match_to($user, $to_hdr)
     {
         $incoming = $user->incomingemail;
         $tos = mailparse_rfc822_parse_addresses($to_hdr);
@@ -127,7 +134,7 @@ class MailHandler
         return false;
     }
 
-    function handle_command($user, $from, $msg)
+    public function handle_command($user, $from, $msg)
     {
         $inter = new CommandInterpreter();
         $cmd = $inter->handle_command($user, $msg);
@@ -138,7 +145,7 @@ class MailHandler
         return false;
     }
 
-    function respond($from, $to, $response)
+    public function respond($from, $to, $response)
     {
         $headers['From'] = $to;
         $headers['To'] = $from;
@@ -148,12 +155,12 @@ class MailHandler
         return mail_send(array($from), $headers, $response);
     }
 
-    function log($level, $msg)
+    public function log($level, $msg)
     {
         common_log($level, 'MailDaemon: '.$msg);
     }
 
-    function add_notice($user, $msg, $mediafiles)
+    public function add_notice($user, $msg, $mediafiles)
     {
         try {
             $notice = Notice::saveNew($user->id, $msg, 'mail');
@@ -161,21 +168,25 @@ class MailHandler
             $this->log(LOG_ERR, $e->getMessage());
             return $e->getMessage();
         }
-        foreach($mediafiles as $mf){
+        foreach ($mediafiles as $mf) {
             $mf->attachToNotice($notice);
         }
 
-        $this->log(LOG_INFO,
-                   'Added notice ' . $notice->id . ' from user ' . $user->nickname);
+        $this->log(
+            LOG_INFO,
+            "Added notice {$notice->id} from user {$user->nickname}"
+        );
         return true;
     }
 
-    function parse_message($contents)
+    public function parse_message($contents)
     {
-        $parsed = Mail_mimeDecode::decode(array('input' => $contents,
-                                                'include_bodies' => true,
-                                                'decode_headers' => true,
-                                                'decode_bodies' => true));
+        $parsed = Mail_mimeDecode::decode([
+            'input' => $contents,
+            'include_bodies' => true,
+            'decode_headers' => true,
+            'decode_bodies'  => true,
+        ]);
         if (!$parsed) {
             return null;
         }
@@ -188,53 +199,60 @@ class MailHandler
 
         $attachments = array();
 
-        $this->extract_part($parsed,$msg,$attachments);
+        $this->extract_part($parsed, $msg, $attachments);
 
         return array($from, $to, $msg, $attachments);
     }
 
-    function extract_part($parsed,&$msg,&$attachments){
-        if ($parsed->ctype_primary == 'multipart') {
-            if($parsed->ctype_secondary == 'alternative'){
+    public function extract_part($parsed, &$msg, &$attachments)
+    {
+        if ($parsed->ctype_primary === 'multipart') {
+            if ($parsed->ctype_secondary === 'alternative') {
                 $altmsg = $this->extract_msg_from_multipart_alternative_part($parsed);
-                if(!empty($altmsg)) $msg = $altmsg;
-            }else{
-                foreach($parsed->parts as $part){
-                    $this->extract_part($part,$msg,$attachments);
+                if (!empty($altmsg)) {
+                    $msg = $altmsg;
+                }
+            } else {
+                foreach ($parsed->parts as $part) {
+                    $this->extract_part($part, $msg, $attachments);
                 }
             }
-        } else if ($parsed->ctype_primary == 'text'
-            && $parsed->ctype_secondary=='plain') {
+        } elseif (
+            $parsed->ctype_primary === 'text'
+            && $parsed->ctype_secondary === 'plain'
+        ) {
             $msg = $parsed->body;
-            if(strtolower($parsed->ctype_parameters['charset']) != "utf-8"){
+            if (strtolower($parsed->ctype_parameters['charset']) !== 'utf-8') {
                 $msg = utf8_encode($msg);
             }
-        }else if(!empty($parsed->body)){
-            if(common_config('attachments', 'uploads')){
-                //only save attachments if uploads are enabled
-                $attachment = tmpfile();
-                fwrite($attachment, $parsed->body);
+        } elseif (!empty($parsed->body)) {
+            if (common_config('attachments', 'uploads')) {
+                // Only save attachments if uploads are enabled
+                $attachment = new TemporaryFile('gs-mailattach');
+                fwrite($attachment->getResource(), $parsed->body);
+                fflush($attachment->getResource());
                 $attachments[] = $attachment;
             }
         }
     }
 
-    function extract_msg_from_multipart_alternative_part($parsed){
+    public function extract_msg_from_multipart_alternative_part($parsed)
+    {
         foreach ($parsed->parts as $part) {
-            $this->extract_part($part,$msg,$attachments);
+            $this->extract_part($part, $msg, $attachments);
         }
         //we don't want any attachments that are a result of this parsing
         return $msg;
     }
 
-    function unsupported_type($type)
+    public function unsupported_type($type)
     {
         // TRANS: Error message in incoming mail handler used when an incoming e-mail is of an unsupported type.
         // TRANS: %s is the unsupported type.
         $this->error(null, sprintf(_('Unsupported message type: %s.'), $type));
     }
 
-    function cleanup_msg($msg)
+    public function cleanup_msg($msg)
     {
         $lines = explode("\n", $msg);
 
@@ -258,9 +276,10 @@ class MailHandler
             }
 
             // skip everything after a sig
-            if (preg_match('/^\s*--+\s*$/', $line) ||
-                preg_match('/^\s*__+\s*$/', $line))
-            {
+            if (
+                preg_match('/^\s*--+\s*$/', $line)
+                || preg_match('/^\s*__+\s*$/', $line)
+            ) {
                 break;
             }
             // skip everything after Outlook quote

@@ -1,51 +1,38 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
  * Plugin to pull WikiHow-style user avatars at OpenID setup time.
  * These are not currently exposed via OpenID.
  *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Plugins
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Brion Vibber <brion@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    // This check helps protect against security problems;
-    // your code file can't be executed directly from the web.
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
- * Sample plugin main class
- *
- * Each plugin requires a main class to interact with the StatusNet system.
- *
  * @category  Plugins
  * @package   WikiHowProfilePlugin
  * @author    Brion Vibber <brion@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class WikiHowProfilePlugin extends Plugin
 {
@@ -70,7 +57,7 @@ class WikiHowProfilePlugin extends Plugin
      * @param string $canonical OpenID provider URL
      * @param array $sreg query data from provider
      */
-    function onEndOpenIDCreateNewUser($user, $canonical, $sreg)
+    public function onEndOpenIDCreateNewUser($user, $canonical, $sreg)
     {
         $this->updateProfile($user, $canonical);
         return true;
@@ -83,7 +70,7 @@ class WikiHowProfilePlugin extends Plugin
      * @param string $canonical OpenID provider URL (wiki profile page)
      * @param array $sreg query data from provider
      */
-    function onEndOpenIDUpdateUser($user, $canonical, $sreg)
+    public function onEndOpenIDUpdateUser($user, $canonical, $sreg)
     {
         $this->updateProfile($user, $canonical);
         return true;
@@ -180,26 +167,25 @@ class WikiHowProfilePlugin extends Plugin
 
         // @todo FIXME: This should be better encapsulated
         // ripped from OStatus via oauthstore.php (for old OMB client)
-        $temp_filename = tempnam(sys_get_temp_dir(), 'listener_avatar');
-        try {
-            if (!copy($url, $temp_filename)) {
-                // TRANS: Exception thrown when fetching an avatar from a URL fails.
-                // TRANS: %s is a URL.
-                throw new ServerException(sprintf(_m('Unable to fetch avatar from %s.'), $url));
-            }
-
-            $profile = $user->getProfile();
-            $id = $profile->id;
-            $imagefile = new ImageFile(null, $temp_filename);
-            $filename = Avatar::filename($id,
-                                         image_type_to_extension($imagefile->type),
-                                         null,
-                                         common_timestamp());
-            rename($temp_filename, Avatar::path($filename));
-        } catch (Exception $e) {
-            unlink($temp_filename);
-            throw $e;
+        $tempfile = new TemporaryFile('gs-avatarlisten');
+        $img_data = HTTPClient::quickGet($url);
+        // Make sure it's at least an image file. ImageFile can do the rest.
+        if (getimagesizefromstring($img_data) === false) {
+            return false;
         }
+        fwrite($tempfile->getResource(), $img_data);
+        fflush($tempfile->getResource());
+
+        $profile = $user->getProfile();
+        $id = $profile->id;
+        $imagefile = new ImageFile(-1, $tempfile->getRealPath());
+        $filename = Avatar::filename(
+            $id,
+            image_type_to_extension($imagefile->type),
+            null,
+            common_timestamp()
+        );
+        $tempfile->commit(Avatar::path($filename));
         $profile->setOriginal($filename);
     }
 }

@@ -30,6 +30,8 @@
  */
 defined('GNUSOCIAL') || die();
 
+require_once INSTALLDIR . '/lib/util/tempfile.php';
+
 /**
  * Class responsible for abstracting media files
  */
@@ -462,74 +464,77 @@ class MediaFile
             throw new ServerException(sprintf('Invalid remote media URL %s.', $url));
         }
 
-        $temp_filename = tempnam(sys_get_temp_dir(), 'tmp' . common_timestamp());
+        $tempfile = new TemporaryFile('gs-mediafile');
+        fwrite($tempfile->getResource(), HTTPClient::quickGet($url));
+        fflush($tempfile->getResource());
+
+        $filehash = strtolower(self::getHashOfFile($tempfile->getRealPath()));
 
         try {
-            $fileData = HTTPClient::quickGet($url);
-            file_put_contents($temp_filename, $fileData);
-            unset($fileData);    // No need to carry this in memory.
-
-            $filehash = strtolower(self::getHashOfFile($temp_filename));
-
-            try {
-                $file = File::getByHash($filehash);
-                // If no exception is thrown the file exists locally, so we'll use that and just add redirections.
-                // but if the _actual_ locally stored file doesn't exist, getPath will throw FileNotFoundException
-                $filepath = $file->getPath();
-                $mimetype = $file->mimetype;
-            } catch (FileNotFoundException | NoResultException $e) {
-                // We have to save the downloaded as a new local file. This is the normal course of action.
-                if ($scoped instanceof Profile) {
-                    // Throws exception if additional size does not respect quota
-                    // This test is only needed, of course, if we're uploading something new.
-                    File::respectsQuota($scoped, filesize($temp_filename));
-                }
-
-                $mimetype = self::getUploadedMimeType($temp_filename, $name ?? false);
-                $media = common_get_mime_media($mimetype);
-
-                $basename = basename($name ?? $temp_filename);
-
-                if ($media == 'image') {
-                    // Use -1 for the id to avoid adding this temporary file to the DB
-                    $img = new ImageFile(-1, $temp_filename);
-                    // Validate the image by re-encoding it. Additionally normalizes old formats to PNG,
-                    // keeping JPEG and GIF untouched
-                    $outpath = $img->resizeTo($img->filepath);
-                    $ext = image_type_to_extension($img->preferredType(), false);
-                }
-                $filename = self::encodeFilename($basename, $filehash, isset($ext) ? $ext : File::getSafeExtension($basename));
-
-                $filepath = File::path($filename);
-
-                if ($media == 'image') {
-                    $result = rename($outpath, $filepath);
-                } else {
-                    $result = rename($temp_filename, $filepath);
-                }
-                if (!$result) {
-                    // TRANS: Client exception thrown when a file upload operation fails because the file could
-                    // TRANS: not be moved from the temporary folder to the permanent file location.
-                    throw new ServerException(_m('File could not be moved to destination directory.'));
-                }
-
-                if ($media == 'image') {
-                    return new ImageFile(null, $filepath);
-                }
+            $file = File::getByHash($filehash);
+            /*
+             * If no exception is thrown the file exists locally, so we'll use
+             * that and just add redirections.
+             * But if the _actual_ locally stored file doesn't exist, getPath
+             * will throw FileNotFoundException.
+             */
+            $filepath = $file->getPath();
+            $mimetype = $file->mimetype;
+        } catch (FileNotFoundException | NoResultException $e) {
+            // We have to save the downloaded as a new local file.
+            // This is the normal course of action.
+            if ($scoped instanceof Profile) {
+                // Throws exception if additional size does not respect quota
+                // This test is only needed, of course, if something new is uploaded.
+                File::respectsQuota($scoped, filesize($tempfile->getRealPath()));
             }
-            return new self($filepath, $mimetype, $filehash);
-        } catch (Exception $e) {
-            unlink($temp_filename); // Garbage collect
-            throw $e;
+
+            $mimetype = self::getUploadedMimeType(
+                $tempfile->getRealPath(),
+                $name ?? false
+            );
+            $media = common_get_mime_media($mimetype);
+
+            $basename = basename($name ?? ('media' . common_timestamp()));
+
+            if ($media === 'image') {
+                // Use -1 for the id to avoid adding this temporary file to the DB.
+                $img = new ImageFile(-1, $tempfile->getRealPath());
+                // Validate the image by re-encoding it.
+                // Additionally normalises old formats to PNG,
+                // keeping JPEG and GIF untouched.
+                $outpath = $img->resizeTo($img->filepath);
+                $ext = image_type_to_extension($img->preferredType(), false);
+            }
+            $filename = self::encodeFilename(
+                $basename,
+                $filehash,
+                $ext ?? File::getSafeExtension($basename)
+            );
+
+            $filepath = File::path($filename);
+
+            if ($media === 'image') {
+                $result = rename($outpath, $filepath);
+            } else {
+                $result = $tempfile->commit($filepath);
+            }
+            if (!$result) {
+                // TRANS: Server exception thrown when a file upload operation fails because the file could
+                // TRANS: not be moved from the temporary directory to the permanent file location.
+                throw new ServerException(_m('File could not be moved to destination directory.'));
+            }
+
+            if ($media === 'image') {
+                return new ImageFile(null, $filepath);
+            }
         }
+        return new self($filepath, $mimetype, $filehash);
     }
 
-    public static function fromFilehandle($fh, Profile $scoped = null)
+    public static function fromFileInfo(SplFileInfo $finfo, Profile $scoped = null)
     {
-        $stream = stream_get_meta_data($fh);
-        // So far we're only handling filehandles originating from tmpfile(),
-        // so we can always do hash_file on $stream['uri'] as far as I can tell!
-        $filehash = hash_file(File::FILEHASH_ALG, $stream['uri']);
+        $filehash = hash_file(File::FILEHASH_ALG, $finfo->getRealPath());
 
         try {
             $file = File::getByHash($filehash);
@@ -541,13 +546,12 @@ class MediaFile
         } catch (FileNotFoundException $e) {
             // This happens if the file we have uploaded has disappeared
             // from the local filesystem for some reason. Since we got the
-            // File object from a sha256 check in fromFilehandle, it's safe
+            // File object from a sha256 check in fromFileInfo, it's safe
             // to just copy the uploaded data to disk!
 
-            fseek($fh, 0);  // just to be sure, go to the beginning
             // dump the contents of our filehandle to the path from our exception
             // and report error if it failed.
-            if (false === file_put_contents($e->path, fread($fh, filesize($stream['uri'])))) {
+            if (file_put_contents($e->path, file_get_contents($finfo->getRealPath())) === false) {
                 // TRANS: Client exception thrown when a file upload operation fails because the file could
                 // TRANS: not be moved from the temporary folder to the permanent file location.
                 throw new ClientException(_m('File could not be moved to destination directory.'));
@@ -560,15 +564,15 @@ class MediaFile
             $mimetype = $file->mimetype;
         } catch (NoResultException $e) {
             if ($scoped instanceof Profile) {
-                File::respectsQuota($scoped, filesize($stream['uri']));
+                File::respectsQuota($scoped, filesize($finfo->getRealPath()));
             }
 
-            $mimetype = self::getUploadedMimeType($stream['uri']);
+            $mimetype = self::getUploadedMimeType($finfo->getRealPath());
 
             $filename = strtolower($filehash) . '.' . File::guessMimeExtension($mimetype);
             $filepath = File::path($filename);
 
-            $result = copy($stream['uri'], $filepath) && chmod($filepath, 0664);
+            $result = copy($finfo->getRealPath(), $filepath) && chmod($filepath, 0664);
 
             if (!$result) {
                 common_log(LOG_ERR, 'File could not be moved (or chmodded) from ' . _ve($stream['uri']) . ' to ' . _ve($filepath));
