@@ -167,14 +167,14 @@
     filter: invert(91%) sepia(3%) saturate(350%) hue-rotate(162deg) brightness(106%) contrast(92%);
     stroke: none;
 }
-#form > div {
+#repeat div,
+#favourite div {
     width: var(--main-size);
     height: var(--main-size);
     display: flex;
     margin-left: var(--unit-size);
-
 }
-#form_repeat {
+#repeat_repeat {
     cursor: pointer;
     border: none !important;
     background-color: transparent;
@@ -184,7 +184,7 @@
     width: 100%;
     height: 100%;
 }
-#form_favourite {
+#favourite_favourite {
     cursor: pointer;
     border: none !important;
     background-color: transparent;
