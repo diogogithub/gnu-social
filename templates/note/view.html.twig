@@ -15,12 +15,11 @@
   </div>
   <div class="note-actions">
     {% for act in get_note_actions(note) %}
-      <div>
-        <svg class="icon icon-heart">
-          <use xlink:href="#icon-heart"></use>
-        </svg>
-        {{ form(act) }}
-      </div>
+      {{ form_start(act) }}
+        <div>
+          {{ form_widget(act) }}
+        </div>
+      {{ form_end(act) }}
     {% endfor %}
     <a href="{{ path('note_reply', {'reply_to': note.getId()}) }}">
       <svg class="icon icon-reply">
