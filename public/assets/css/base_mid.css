@@ -4,8 +4,8 @@
       --main-font: 'Open Sans', sans-serif;
 
       /* font and margin sizes */
-      --main-size: 1.2em;
-      --medium-size: 0.75em;
+      --main-size: 1.15em;
+      --medium-size: 0.7em;
       --small-size: 0.65em;
       --unit-size: 1em;
       --side-margin: 5em;
@@ -299,7 +299,7 @@ input.larger {
       clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
       clip: rect(1px, 1px, 1px, 1px);
 }
-.content button[type=submit] {
+.create-notice button[type=submit] {
       background: var(--bg1);
       padding: 0.3em 1em;
       color: var(--fg);
@@ -311,8 +311,8 @@ input.larger {
       font-size: var(--small-size);
       font-weight: 700;
 }
-.content button[type=submit]:focus,
-.content [type=submit]:hover {
+.create-notice button[type=submit]:focus,
+.create-notice button[type=submit]:hover {
       border-radius: var(--small-size);
       box-shadow: 0 0px 8px var(--accent);
 }
