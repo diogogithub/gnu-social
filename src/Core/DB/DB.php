@@ -107,8 +107,9 @@ abstract class DB
     public static function __callStatic(string $name, array $args)
     {
         foreach (['find', 'getReference', 'getPartialReference', 'getRepository'] as $m) {
-            if ($name == $m) {
-                $args[0] = '\App\Entity\\' . ucfirst(Formatting::snakeCaseToCamelCase($args[0]));
+            $pref = '\App\Entity\\';
+            if ($name == $m && Formatting::startsWith($name, $pref) === false) {
+                $args[0] = $pref . ucfirst(Formatting::snakeCaseToCamelCase($args[0]));
             }
         }
 
