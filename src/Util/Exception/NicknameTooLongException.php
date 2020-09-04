@@ -19,10 +19,6 @@
 
 // }}}
 
-namespace App\Util\Exception;
-
-use App\Util\Nickname;
-
 /**
  * Nickname too long exception
  *
@@ -42,6 +38,12 @@ use App\Util\Nickname;
  * @copyright 2018-2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+namespace App\Util\Exception;
+
+use function App\Core\I18n\_m;
+use App\Util\Nickname;
+
 class NicknameTooLongException extends NicknameInvalidException
 {
     protected function defaultMessage(): string

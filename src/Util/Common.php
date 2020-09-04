@@ -37,6 +37,7 @@ use App\Core\Router\Router;
 use App\Core\Security;
 use App\Entity\GSActor;
 use App\Entity\LocalUser;
+use App\Util\Exception\NoLoggedInUser;
 use Exception;
 use Functional as F;
 

@@ -17,8 +17,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Util\Exception;
-
 /**
  * Nickname empty exception
  *
@@ -38,6 +36,9 @@ namespace App\Util\Exception;
  * @copyright 2018-2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+namespace App\Util\Exception;
+
 class NicknameException extends ClientException
 {
     public function __construct(string $msg = null, int $code = 400)
