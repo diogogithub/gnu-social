@@ -17,27 +17,16 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-/**
- * User role enum
- *
- * @category  User
- * @package   GNUsocial
- *
- * @author    Hugo Sales <hugo@fc.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- */
-
 namespace App\Core;
 
 use App\Util\Bitmap;
 
-abstract class UserRoles extends Bitmap
+abstract class NoteScope extends Bitmap
 {
-    public const ADMIN     = 1;
-    public const MODERATOR = 2;
-    public const USER      = 4;
-    public const BOT       = 8;
-
-    public const PREFIX = 'ROLE_';
+    public const PUBLIC    = 1;
+    public const SITE      = 2;
+    public const ADDRESSEE = 4;
+    public const GROUP     = 8;
+    public const FOLLOWER  = 16;
+    public const MESSAGE   = 32;
 }
