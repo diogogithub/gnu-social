@@ -48,4 +48,13 @@ class Entity
         $table = Formatting::camelCaseToSnakeCase(get_called_class());
         return self::create($args, DB::findBy($table, $find_by)[0]);
     }
+
+    public static function remove(array $args, $obj = null)
+    {
+        $class = '\\' . get_called_class();
+        if ($obj == null) {
+            $obj = DB::findBy($class, $args);
+        }
+        DB::remove($obj);
+    }
 }
