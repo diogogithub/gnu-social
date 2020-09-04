@@ -37,7 +37,7 @@ class Repeat extends Module
         $form      = Form::create([
             ['is_set', HiddenType::class, ['data' => $is_set ? '1' : '0']],
             ['note_id', HiddenType::class, ['data' => $note->getId()]],
-            ['repeat', SubmitType::class, ['label' => 'Repeat']],
+            ['repeat', SubmitType::class, ['label' => ' ']],
         ]);
         $form->handleRequest($request);
 
@@ -59,7 +59,7 @@ class Repeat extends Module
             }
         }
 
-        $actions[] = $form->createView();
+        $actions['post_repeat'] = $form->createView();
         return Event::next;
     }
 }
