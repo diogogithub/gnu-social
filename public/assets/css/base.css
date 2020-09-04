@@ -271,7 +271,7 @@ input.larger {
       clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
       clip: rect(1px, 1px, 1px, 1px);
 }
-.content button[type=submit] {
+.create-notice button[type=submit] {
       background: var(--bg1);
       padding: 0.3em 1em;
       color: var(--fg);
@@ -283,8 +283,8 @@ input.larger {
       font-size: var(--small-size);
       font-weight: 700;
 }
-.content button[type=submit]:focus,
-.content [type=submit]:hover {
+.create-notice button[type=submit]:focus,
+.create-notice button[type=submit]:hover {
       border-radius: var(--unit-size);
       box-shadow: 0 0px 8px var(--accent);
 }
