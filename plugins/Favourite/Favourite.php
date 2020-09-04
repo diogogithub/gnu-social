@@ -22,7 +22,6 @@ namespace Plugin\Favourite;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
-use function App\Core\I18n\_m;
 use App\Core\Module;
 use App\Entity\Favourite as Fave;
 use App\Entity\Note;
@@ -40,7 +39,7 @@ class Favourite extends Module
         $form   = Form::create([
             ['is_set', HiddenType::class, ['data' => $is_set ? '1' : '0']],
             ['note_id', HiddenType::class, ['data' => $note->getId()]],
-            ['favourite', SubmitType::class, ['label' => _m('Favourite')]],
+            ['favourite', SubmitType::class, ['label' => ' ']],
         ]);
         $form->handleRequest($request);
 
@@ -63,7 +62,7 @@ class Favourite extends Module
             }
         }
 
-        $actions[] = $form->createView();
+        $actions['post_fav'] = $form->createView();
         return Event::next;
     }
 }
