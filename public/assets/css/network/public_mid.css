@@ -219,11 +219,11 @@
     font-weight: 800;
     font-family: var(--head-font);
 }
-.target #form_to {
+.target #post_to {
     font-weight: 400;
     font-family: var(--main-font);
 }
-.target #form_to label {
+.target #post_to label {
     margin-left: 0.2em;
 }
 
@@ -250,13 +250,13 @@
     font-weight: 800;
     font-family: var(--head-font);
 }
-#form_visibility .required {
+#post_visibility .required {
     font-family: var(--main-font);
     font-weight: 400;
     margin-left: 0.1em;
     margin-right: 1em;
 }
-.scope #form_scope {
+.scope #post_scope {
     order: 2;
     flex-grow: 1;
     flex-shrink: 1;
@@ -275,7 +275,7 @@
     flex-grow: 1;
     flex-shrink: 0;
 }
-#form_content {
+#post_content {
     background-color: var(--bg3);
     padding: var(--unit-size);
     color: var(--fg);
@@ -297,16 +297,16 @@
     background-color: var(--bg3);
     border-radius: 0 0 var(--unit-size) 0;
 }
-.send {
+.post {
     order: 2;
     width: calc(100% - var(--main-size));
 }
-.send div {
+.post div {
     float: right;
     vertical-align: middle;
 }
 
-#form_attachments {
+#post_attachments {
     width: 0.1px;
     height: 0.1px;
     opacity: 0;
@@ -314,11 +314,11 @@
     position: absolute;
     z-index: -1;
 }
-#form_attachments + label {
+#post_attachments + label {
     cursor: pointer;
 }
-#form_attachments:focus + label,
-#form_attachments + label:hover {
+#post_attachments:focus + label,
+#post_attachments + label:hover {
     border-radius: var(--unit-size);
     box-shadow: 0 0px 8px var(--accent);
 }
@@ -343,7 +343,6 @@
     height: var(--main-size);
     display: flex;
     margin-left: var(--unit-size);
-
 }
 #form_repeat {
     cursor: pointer;

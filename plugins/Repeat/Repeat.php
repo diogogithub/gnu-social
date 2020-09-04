@@ -39,27 +39,29 @@ class Repeat extends Module
             ['note_id', HiddenType::class, ['data' => $note->getId()]],
             ['repeat', SubmitType::class, ['label' => ' ']],
         ]);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            $data = $form->getData();
-            if ($data['note_id'] == $to_repeat && $form->isValid()) {
-                // Loose comparison
-                if (!$data['is_set']) {
-                    var_dump($note);
-                    die();
-                    DB::persist(Note::create(['repeat_of' => $note->getId(), 'content' => $note->getContent(), 'is_local' => true]));
-                    DB::flush();
+        if ('POST' === $request->getMethod() && $request->request->has('repeat')) {
+            $form->handleRequest($request);
+            if ($form->isSubmitted()) {
+                $data = $form->getData();
+                if ($data['note_id'] == $to_repeat && $form->isValid()) {
+                    // Loose comparison
+                    if (!$data['is_set']) {
+                        var_dump($note);
+                        die();
+                        DB::persist(Note::create(['repeat_of' => $note->getId(), 'content' => $note->getContent(), 'is_local' => true]));
+                        DB::flush();
+                    } else {
+                        DB::remove($to_repeat);
+                        DB::flush();
+                    }
                 } else {
-                    DB::remove($to_repeat);
-                    DB::flush();
+                    // TODO display errors
                 }
-            } else {
-                // TODO display errors
             }
         }
 
-        $actions['post_repeat'] = $form->createView();
+        $actions[] = $form->createView();
         return Event::next;
     }
 }

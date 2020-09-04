@@ -61,7 +61,7 @@ class Posting extends Module
             ['attachments', FileType::class,     ['label' => ' ', 'data' => null, 'multiple' => true, 'required' => false]],
             ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'expanded' => true, 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
             ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => true, 'expanded' => true, 'choices' => $to_tags]],
-            ['send',        SubmitType::class,   ['label' => _m('Send')]],
+            ['post',        SubmitType::class,   ['label' => _m('Post')]],
         ]);
 
         $form->handleRequest($request);

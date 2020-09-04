@@ -41,24 +41,24 @@ class Favourite extends Module
             ['note_id', HiddenType::class, ['data' => $note->getId()]],
             ['favourite', SubmitType::class, ['label' => ' ']],
         ]);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted()) {
-            $data = $form->getData();
-            var_dump($data);
-
-            $fave = DB::find('favourite', $opts);
-            if ($data['note_id'] == $note->getId() && $form->isValid()) {
-                // Loose comparison
-                if (!$data['is_set'] && ($fave == null)) {
-                    DB::persist(Fave::create($opts));
-                    DB::flush();
+        if ('POST' === $request->getMethod() && $request->request->has('favourite')) {
+            $form->handleRequest($request);
+            if ($form->isSubmitted()) {
+                $data = $form->getData();
+                $fave = DB::find('favourite', $opts);
+                if ($data['note_id'] == $note->getId() && $form->isValid()) {
+                    // Loose comparison
+                    if (!$data['is_set'] && ($fave == null)) {
+                        DB::persist(Fave::create($opts));
+                        DB::flush();
+                    } else {
+                        DB::remove($fave);
+                        DB::flush();
+                    }
                 } else {
-                    DB::remove($fave);
-                    DB::flush();
+                    // TODO display errors
                 }
-            } else {
-                // TODO display errors
             }
         }
 
