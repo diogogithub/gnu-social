@@ -221,6 +221,7 @@ class File extends Entity
 
     public static function schemaDef(): array
     {
+        // TODO add scope
         return [
             'name'   => 'file',
             'fields' => [

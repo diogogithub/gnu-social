@@ -25,6 +25,7 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
+use App\Core\NoteScope;
 use DateTimeInterface;
 
 /**
@@ -49,7 +50,7 @@ class Note extends Entity
     private ?string $source;
     private ?int $conversation;
     private ?int $repeat_of;
-    private ?int $scope;
+    private int $scope = 1;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -141,13 +142,13 @@ class Note extends Entity
         return $this->repeat_of;
     }
 
-    public function setScope(?int $scope): self
+    public function setScope(int $scope): self
     {
         $this->scope = $scope;
         return $this;
     }
 
-    public function getScope(): ?int
+    public function getScope(): int
     {
         return $this->scope;
     }
@@ -218,7 +219,7 @@ class Note extends Entity
                 'source'       => ['type' => 'varchar', 'length' => 32, 'description' => 'source of note, like "web", "im", or "clientname"'],
                 'conversation' => ['type' => 'int', 'description' => 'the local conversation id'],
                 'repeat_of'    => ['type' => 'int', 'description' => 'note this is a repeat of'],
-                'scope'        => ['type' => 'int', 'description' => 'bit map for distribution scope; 0 = everywhere; 1 = this server only; 2 = addressees; 4 = groups; 8 = followers; 16 = messages; null = default'],
+                'scope'        => ['type' => 'int', 'not null' => true, 'default' => NoteScope::PUBLIC, 'description' => 'bit map for distribution scope; 0 = everywhere; 1 = this server only; 2 = addressees; 4 = groups; 8 = followers; 16 = messages; null = default'],
                 'created'      => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'     => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
