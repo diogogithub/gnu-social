@@ -86,48 +86,66 @@ abstract class Utils
         return $response;
     }
 
-    public static function error($res, string $nickname)
+    public static function error($except, $id, array $res)
     {
         switch (count($res)) {
         case 0:
-            throw new NoAvatarException();
+            throw new $except();
         case 1:
             return $res[0];
         default:
-            Log::error('Avatar query returned more than one result for nickname ' . $nickname);
+            Log::error('Media query returned more than one result for identifier: \"' . $id . '\"');
             throw new Exception(_m('Internal server error'));
         }
     }
 
     public static function getAvatar(string $nickname)
     {
-        return self::error(
-            Cache::get('avatar-' . $nickname,
-                       function () use ($nickname) {
-                           return DB::dql('select a from App\\Entity\\Avatar a ' .
-                                          'join App\Entity\GSActor g with a.gsactor_id = g.id ' .
-                                          'where g.nickname = :nickname',
-                                          ['nickname' => $nickname]);
-                       }),
-            $nickname
-        );
+        return self::error(NoAvatarException::class,
+                           $nickname,
+                           Cache::get("avatar-{$nickname}",
+                                      function () use ($nickname) {
+                                          return DB::dql('select a from App\\Entity\\Avatar a ' .
+                                                         'join App\Entity\GSActor g with a.gsactor_id = g.id ' .
+                                                         'where g.nickname = :nickname',
+                                                         ['nickname' => $nickname]);
+                                      }));
+    }
+
+    public static function getFileInfo(int $id)
+    {
+        return self::error(NoSuchFileException::class,
+                           $id,
+                           Cache::get("file-info-{$id}",
+                                      function () use ($id) {
+                                          return DB::dql('select f.file_hash, f.mimetype, f.title ' .
+                                                         'from App\\Entity\\File f ' .
+                                                         'where f.id = :id',
+                                                         ['id' => $id]);
+                                      }));
+    }
+
+    public static function getAttachmentFileInfo(int $id)
+    {
+        $res              = self::getFileInfo($id);
+        $res['file_path'] = Common::config('attachments', 'dir') . $res['file_hash'];
+        return $res;
     }
 
     public static function getAvatarFileInfo(string $nickname)
     {
         try {
-            $res = self::error(
-                Cache::get('avatar-file-info-' . $nickname,
-                           function () use ($nickname) {
-                               return DB::dql('select f.file_hash, f.mimetype, f.title ' .
-                                              'from App\\Entity\\File f ' .
-                                              'join App\\Entity\\Avatar a with f.id = a.file_id ' .
-                                              'join App\\Entity\\GSActor g with g.id = a.gsactor_id ' .
-                                              'where g.nickname = :nickname',
-                                              ['nickname' => $nickname]);
-                           }),
-                $nickname
-            );
+            $res = self::error(NoAvatarException::class,
+                               $nickname,
+                               Cache::get("avatar-file-info-{$nickname}",
+                                          function () use ($nickname) {
+                                              return DB::dql('select f.file_hash, f.mimetype, f.title ' .
+                                                             'from App\\Entity\\File f ' .
+                                                             'join App\\Entity\\Avatar a with f.id = a.file_id ' .
+                                                             'join App\\Entity\\GSActor g with g.id = a.gsactor_id ' .
+                                                             'where g.nickname = :nickname',
+                                                             ['nickname' => $nickname]);
+                                          }));
             $res['file_path'] = Avatar::getFilePathStatic($res['file_hash']);
             return $res;
         } catch (Exception $e) {
@@ -146,7 +164,7 @@ abstract class Utils
                 throw new Exception('No user is logged in and no avatar provided to `getAvatarUrl`');
             }
         }
-        return Cache::get('avatar-url-' . $nickname, function () use ($nickname) {
+        return Cache::get("avatar-url-{$nickname}", function () use ($nickname) {
             try {
                 return self::getAvatar($nickname)->getUrl();
             } catch (NoAvatarException $e) {

@@ -34,7 +34,8 @@ class Media extends Module
 
     public function onAddRoute($r)
     {
-        $r->connect('avatar', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'send']);
+        $r->connect('avatar', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/avatar/{size<full|big|medium|small>?full}', [Controller\Media::class, 'avatar']);
+        $r->connect('attachment_inline', '/attachment/{id<\d+>}', [Controller\Media::class, 'attachment_inline']);
         return Event::next;
     }
 

@@ -22,20 +22,26 @@
 namespace Component\Media\Controller;
 
 use App\Core\Controller;
-use Component\Media\Media;
+use Component\Media\Media as M;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 
-class Avatar extends Controller
+class Media extends Controller
 {
-    public function send(Request $request, string $nickname, string $size)
+    public function avatar(Request $request, string $nickname, string $size)
     {
         switch ($size) {
         case 'full':
-            $res = Media::getAvatarFileInfo($nickname);
-            return Media::sendFile($res['file_path'], $res['mimetype'], $res['title']);
+            $res = M::getAvatarFileInfo($nickname);
+            return M::sendFile($res['file_path'], $res['mimetype'], $res['title']);
         default:
             throw new Exception('Not implemented');
         }
+    }
+
+    public function attachment_inline(Request $request, int $id)
+    {
+        $res = M::getAttachmentFileInfo($id);
+        return M::sendFile($res['file_path'], $res['mimetype'], $res['title']);
     }
 }

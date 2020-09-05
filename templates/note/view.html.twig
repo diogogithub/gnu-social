@@ -7,11 +7,17 @@
   </div>
   <div class="note-content">
     {{ note.getContent() }}
-    {% for attachment in note.getAttachments() %}
-      <div>
-        <i> {{ attachment.getTitle() }} </i>
-      </div>
-    {% endfor %}
+    <div class="note-attachments">
+      {% for attachment in note.getAttachments() %}
+        {% if attachment.mimetype starts with 'image/' %}
+          <img src="{{ path('attachment_inline', {'id': attachment.getId()}) }}"> {{ attachment.getTitle() }} </img>
+        {% elseif attachment.mimetype starts with 'video/' %}
+          <video src="{{ path('attachment_inline', {'id': attachment.getId()}) }}"> {{ attachment.getTitle() }} </img>
+        {% else %}
+          <i> {{ attachment.getTitle() }} </i>
+        {% endif %}
+      {% endfor %}
+    </div>
   </div>
   <div class="note-actions">
     {% for act in get_note_actions(note) %}
