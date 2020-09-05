@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 namespace App\Entity;
@@ -253,7 +255,7 @@ class GSActor extends Entity
         return Cache::get('followers-' . $this->id,
                           function () {
                               return DB::dql('select count(f) from App\Entity\Follow f where f.followed = :followed',
-                                             ['followed' => $this->id])[0][1];
+                                             ['followed' => $this->id])[0][1] - 1; // Remove self follow
                           });
     }
 
@@ -262,7 +264,7 @@ class GSActor extends Entity
         return Cache::get('followed-' . $this->id,
                           function () {
                               return DB::dql('select count(f) from App\Entity\Follow f where f.follower = :follower',
-                                             ['follower' => $this->id])[0][1];
+                                             ['follower' => $this->id])[0][1] - 1; // Remove self follow
                           });
     }
 
