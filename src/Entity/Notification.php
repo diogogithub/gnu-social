@@ -40,21 +40,21 @@ class Notification extends Entity
 {
     // {{{ Autocode
 
-    private int $notice_id;
+    private int $activity_id;
     private int $gsactor_id;
     private ?string $reason;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
-    public function setNoticeId(int $notice_id): self
+    public function setActivityId(int $activity_id): self
     {
-        $this->notice_id = $notice_id;
+        $this->activity_id = $activity_id;
         return $this;
     }
 
-    public function getNoticeId(): int
+    public function getActivityId(): int
     {
-        return $this->notice_id;
+        return $this->activity_id;
     }
 
     public function setGsactorId(int $gsactor_id): self
@@ -107,22 +107,22 @@ class Notification extends Entity
     {
         return [
             'name'        => 'notification',
-            'description' => 'Note notification for gsactors (that are not a mention and not result of a subscription)',
+            'description' => 'Activity notification for gsactors (that are not a mention and not result of a subscription)',
             'fields'      => [
-                'notice_id'  => ['type' => 'int', 'not null' => true,  'description' => 'notice_id to give attention'],
-                'gsactor_id' => ['type' => 'int', 'not null' => true,  'description' => 'gsactor_id for feed receiver'],
-                'reason'     => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of gsactor_id'],
-                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'activity_id' => ['type' => 'int', 'not null' => true,  'description' => 'activity_id to give attention'],
+                'gsactor_id'  => ['type' => 'int', 'not null' => true,  'description' => 'gsactor_id for feed receiver'],
+                'reason'      => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of gsactor_id'],
+                'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['notice_id', 'gsactor_id'],
+            'primary key'  => ['activity_id', 'gsactor_id'],
             'foreign keys' => [
-                'attention_notice_id_fkey'  => ['notice', ['notice_id' => 'id']],
-                'attention_gsactor_id_fkey' => ['gsactor', ['gsactor_id' => 'id']],
+                'attention_activity_id_fkey' => ['activity', ['activity_id' => 'id']],
+                'attention_gsactor_id_fkey'  => ['gsactor', ['gsactor_id' => 'id']],
             ],
             'indexes' => [
-                'attention_notice_id_idx'  => ['notice_id'],
-                'attention_gsactor_id_idx' => ['gsactor_id'],
+                'attention_activity_id_idx' => ['activity_id'],
+                'attention_gsactor_id_idx'  => ['gsactor_id'],
             ],
         ];
     }
