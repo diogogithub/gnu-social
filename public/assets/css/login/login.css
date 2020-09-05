@@ -7,11 +7,14 @@
     margin-left: var(--small-size);
     margin-bottom: var(--unit-size);
 }
+.navbar .left-nav > a {
+    font-size: var(--unit-size);
+}
 form {
     font-size: var(--medium-size);
     background-color: var(--bg2);
     padding: calc(2 * var(--unit-size));
-    border-radius: var(--small-size);
+    border-radius: var(--unit-size);
     border: solid 2px var(--accent-low);
 }
 label {
@@ -32,18 +35,9 @@ input[type=email]
     border-style: none;
     padding: calc(var(--unit-size) * 0.5);
     border-radius: calc(var(--unit-size) * 0.5);
-    font-size: var(--medium-size);
+    font-size: var(--unit-size);
     margin-bottom: var(--unit-size);
     width: calc(100% - var(--unit-size));
-}
-.checkbox {
-    display: flex;
-    vertical-align: center;
-}
-.checkbox label {
-    font-family: "Open Sans", sans-serif;
-    font-size: var(--unit-size);
-    font-weight: normal;
 }
 .active {
     color: var(--fg) !important;
@@ -52,12 +46,22 @@ input[type=email]
 input {
     filter: none;
 }
-
-button {
+form input[type="checkbox"] {
+    position: unset !important;
+}
+form button[type=submit] {
+    background: var(--bg1);
+    padding: 0.3em 1em;
     color: var(--fg);
-    font-size: var(--unit-size);
-    background-color: var(--bg1);
-    padding: var(--small-size) var(--main-size) var(--small-size) var(--main-size);
-    border: solid 2px var(--accent-low);
-    border-radius: var(--small-size);
+    border-style: solid;
+    border-color: var(--accent);
+    border-radius: var(--unit-size);
+    border-width: 2px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+form button[type=submit]:focus,
+form button[type=submit]:hover {
+    border-radius: var(--unit-size);
+    box-shadow: 0 0px 8px var(--accent);
 }
