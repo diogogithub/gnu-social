@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 namespace App\Entity;
@@ -46,7 +48,8 @@ class LocalUser extends Entity implements UserInterface
 {
     // {{{ Autocode
 
-    private ?string $nickname;
+    private int $id;
+    private string $nickname;
     private ?string $password;
     private ?string $outgoing_email;
     private ?string $incoming_email;
@@ -63,13 +66,24 @@ class LocalUser extends Entity implements UserInterface
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
-    public function setNickname(?string $nickname): self
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setNickname(string $nickname): self
     {
         $this->nickname = $nickname;
         return $this;
     }
 
-    public function getNickname(): ?string
+    public function getNickname(): string
     {
         return $this->nickname;
     }
@@ -243,7 +257,7 @@ class LocalUser extends Entity implements UserInterface
 
     public function getActor()
     {
-        return DB::findOneBy('gsactor', ['nickname' => $this->nickname]);
+        return DB::find('gsactor', ['id' => $this->id]);
     }
 
     /**
@@ -344,7 +358,8 @@ class LocalUser extends Entity implements UserInterface
             'name'        => 'local_user',
             'description' => 'local users, bots, etc',
             'fields'      => [
-                'nickname'          => ['type' => 'varchar', 'length' => 64,  'description' => 'nickname or username, foreign key to gsactor'],
+                'id'                => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'nickname'          => ['type' => 'varchar', 'not null' => true, 'length' => 64,  'description' => 'nickname or username, foreign key to gsactor'],
                 'password'          => ['type' => 'varchar', 'length' => 191, 'description' => 'salted password, can be null for users with federated authentication'],
                 'outgoing_email'    => ['type' => 'varchar', 'length' => 191, 'description' => 'email address for password recovery, notifications, etc.'],
                 'incoming_email'    => ['type' => 'varchar', 'length' => 191, 'description' => 'email address for post-by-email'],
@@ -361,16 +376,17 @@ class LocalUser extends Entity implements UserInterface
                 'created'           => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'          => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['nickname'],
+            'primary key' => ['id'],
             'unique keys' => [
+                'user_nickname_key'       => ['nickname'],
                 'user_outgoing_email_key' => ['outgoing_email'],
                 'user_incoming_email_key' => ['incoming_email'],
                 'user_phone_number_key'   => ['phone_number'],
                 'user_uri_key'            => ['uri'],
             ],
             'foreign keys' => [
-                'user_nickname_fkey' => ['gsactor', ['nickname' => 'nickname']],
-                'user_carrier_fkey'  => ['sms_carrier', ['sms_carrier' => 'id']],
+                'user_id_fkey'      => ['gsactor', ['id' => 'id']],
+                'user_carrier_fkey' => ['sms_carrier', ['sms_carrier' => 'id']],
             ],
             'indexes' => [
                 'user_nickname_idx'  => ['nickname'],
