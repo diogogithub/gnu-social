@@ -120,4 +120,17 @@ END;
             ),
         ];
     }
+
+    public function favourites(Request $request)
+    {
+        $actor_id = Common::ensureLoggedIn()->getActor()->getId();
+
+        return [
+            '_template' => 'network/public.html.twig',
+            'notes'     => DB::dql('select f from App\Entity\Favourite f ' .
+                'where f.gsactor_id = ' . $actor_id .
+                'order by f.created DESC'
+            ),
+        ];
+    }
 }
