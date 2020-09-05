@@ -24,6 +24,7 @@ use App\Core\Event;
 use App\Core\Form;
 use App\Core\Module;
 use App\Entity\Note;
+use App\Util\Common;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -32,6 +33,12 @@ class Repeat extends Module
 {
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
+        $user = Common::user();
+        // Only show buttons if a user is logged in
+        if ($user == null) {
+            return Event::next;
+        }
+
         $to_repeat = DB::find('note', ['id' => $note->getId()]);
         $is_set    = false;
         $form      = Form::create([
@@ -47,9 +54,7 @@ class Repeat extends Module
                 if ($data['note_id'] == $to_repeat && $form->isValid()) {
                     // Loose comparison
                     if (!$data['is_set']) {
-                        var_dump($note);
-                        die();
-                        DB::persist(Note::create(['repeat_of' => $note->getId(), 'content' => $note->getContent(), 'is_local' => true]));
+                        DB::persist(Note::create(['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId(), 'content' => $note->getContent(), 'is_local' => true]));
                         DB::flush();
                     } else {
                         DB::remove($to_repeat);
