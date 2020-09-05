@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 namespace Component\Posting\Controller;
@@ -43,13 +45,13 @@ class Post
             throw new ClientException(_m('No such note'));
         }
 
-        $actor_id = Common::ensureLoggedIn()->getActor()->getId();
+        $actor_id = Common::ensureLoggedIn()->getId();
 
         $form = Form::create([
             ['reply_to',    HiddenType::class,   ['data' => (int) $reply_to]],
             ['content',     TextareaType::class, ['label' => ' ']],
             ['attachments', FileType::class,     ['label' => ' ', 'multiple' => true, 'required' => false]],
-            ['save',        SubmitType::class,   ['label' => _m('Submit')]],
+            ['reply',       SubmitType::class,   ['label' => _m('Submit')]],
         ]);
 
         $form->handleRequest($request);
@@ -58,42 +60,6 @@ class Post
             $data = $form->getData();
             if ($form->isValid()) {
                 self::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true, $data['reply_to'], null);
-            } else {
-                // TODO display errors
-            }
-        }
-
-        return [
-            '_template' => 'note/reply.html.twig',
-            'note'      => $note,
-            'reply'     => $form->createView(),
-        ];
-    }
-
-    public function recycle(Request $request, string $repeat_of)
-    {
-        $note           = DB::find('note', ['id' => $repeat_of]);
-        $content_repeat = DB::dql('select n.content from App\Entity\Note n ' .
-            'where n.reply_to = ' . $repeat_of
-        );
-
-        if ($note == null) {
-            throw new ClientException(_m('No such note'));
-        }
-
-        $actor_id = Common::ensureLoggedIn()->getActor()->getId();
-
-        $form = Form::create([
-            ['repeat_of',    HiddenType::class,   ['data' => (int) $repeat_of]],
-            ['save',        SubmitType::class,   ['label' => _m('Submit')]],
-        ]);
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted()) {
-            $data = $form->getData();
-            if ($form->isValid()) {
-                self::storeNote($actor_id, $data[$content_repeat], $data['attachments'], $is_local = true, $data['reply_to'], $data['repeat_of']);
             } else {
                 // TODO display errors
             }

@@ -25,6 +25,7 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Module;
 use App\Util\Common;
+use App\Util\Exception\RedirectException;
 use Component\Posting\Controller as C;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -36,16 +37,15 @@ class Posting extends Module
     public function onAddRoute($r)
     {
         $r->connect('note_reply', '/note/reply/{reply_to<\d*>}', [C\Post::class, 'reply']);
-        $r->connect('note_recycle', '/main/all', [C\Post::class, 'recycle']);
     }
 
     public function onStartTwigPopulateVars(array &$vars)
     {
-        if (Common::user() == null) {
+        if (($user = Common::user()) == null) {
             return;
         }
 
-        $actor_id = Common::actor()->getId();
+        $actor_id = $user->getId();
         $to_tags  = [];
         foreach (DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]) as $t) {
             $t           = $t['tag'];
@@ -69,6 +69,7 @@ class Posting extends Module
             $data = $form->getData();
             if ($form->isValid()) {
                 C\Post::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true);
+                throw new RedirectException();
             } else {
                 // TODO Display error
             }
