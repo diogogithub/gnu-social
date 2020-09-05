@@ -74,6 +74,7 @@ abstract class Utils
                 'Content-Description' => 'File Transfer',
                 'Content-Type'        => $mimetype,
                 'Content-Disposition' => HeaderUtils::makeDisposition($disposition, $output_filename ?: _m('untitled')),
+                'Cache-Control'       => 'public',
             ],
             $public = true,
             $disposition = null,
