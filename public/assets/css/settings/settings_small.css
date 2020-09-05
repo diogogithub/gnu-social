@@ -27,7 +27,6 @@
       flex: 1;
       background-color: var(--bg1);
       padding: var(--medium-size);
-      font-size: var(--medium-size);
       font-family: var(--head-font);
       border-radius: var(--small-size) var(--small-size) 0 0;
 }
@@ -47,7 +46,7 @@
       flex: 0 1 auto;
       list-style-type: none;
       font-weight: 700;
-      font-size: var(--unit-size);
+      font-size: var(--medium-size);
 }
 
 .set-nav a {
@@ -78,7 +77,6 @@
 .form {
       order: 3;
       padding: var(--unit-size);
-      font-size: var(--unit-size);
       height: 100%;
       width: 100%;
       box-shadow: var(--shadow);
@@ -87,14 +85,18 @@
 .form-single {
       order: 2;
       padding: var(--unit-size);
-      font-size: var(--unit-size);
       height: 100%;
       width: 100%;
       border-radius: var(--small-size);
 }
+.form label,
+.form-single label {
+      font-size: var(--medium-size);
+}
 
 /* FORMS ------------------------------*/
-label {
+.form label,
+.form-single label {
       display: inline-block;
       font-family: 'Montserrat', sans-serif;
       font-weight: 700;
@@ -102,12 +104,13 @@ label {
       width: 100%;
 }
 
-input[type=text] {
+.form input[type=text],
+.form-single input[type=text] {
       margin-top: calc(var(--unit-size) * 0.5);
       width: calc(100% - var(--unit-size));
-      background-color: var(--bg4);
       box-shadow: var(--shadow);
-      border-style: none;
+      background-color: var(--bg2);
+      border: solid 2px var(--accent-low);
       padding: calc(var(--unit-size) * 0.5);
       color: var(--fg);
       border-radius: calc(var(--unit-size) * 0.5);
@@ -118,26 +121,13 @@ input[type=text] {
       float: right;
 }
 
-button[type=submit] {
-      background: var(--bg1);
-      padding: calc(var(--unit-size) * 0.8) calc(var(--unit-size) * 2);
-      color: var(--fg);
-      border-style: solid;
-      border-color: var(--accent);
-      border-radius: var(--unit-size);
-      border-width: 2px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: var(--small-size);
-      font-weight: 700;
-}
-
-#form_bio {
+#save_bio {
       margin-top: calc(var(--unit-size) * 0.5);
       width: calc(100% - var(--unit-size));
       height: calc(10 * var(--unit-size));
-      background-color: var(--bg4);
+      background-color: var(--bg2);
+      border: solid 2px var(--accent-low);
       box-shadow: var(--shadow);
-      border-style: none;
       padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
       color: var(--fg);
       border-radius: calc(var(--unit-size) * 0.5);
@@ -146,23 +136,23 @@ button[type=submit] {
       resize: vertical;
 }
 
-#form_phone_number {
+#save_phone_number {
       margin-top: calc(var(--unit-size) * 0.5);
       width: calc(100% - var(--unit-size));
-      background-color: var(--bg4);
+      background-color: var(--bg2);
+      border: solid 2px var(--accent-low);
       box-shadow: var(--shadow);
-      border-style: none;
       padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
       color: var(--fg);
       border-radius: calc(var(--unit-size) * 0.5);
       font-size: var(--medium-size);
 }
 
-#form_language{
+#save_language{
       margin-top: calc(var(--unit-size) * 0.5);
-      background-color: var(--bg4);
+      background-color: var(--bg2);
+      border: solid 2px var(--accent-low);
       box-shadow: var(--shadow);
-      border-style: none;
       padding: calc(var(--unit-size) * 0.5) calc(var(--unit-size) * 0.5);
       color: var(--fg);
       border-radius: calc(var(--unit-size) * 0.5);
@@ -187,13 +177,6 @@ select {
 
 .form-single input[type=checkbox] {
       margin-left: var(--unit-size);
-}
-
-button {
-      background-color: var(--fg);
-      padding: var(--small-size);
-      border: none;
-      border-radius: var(--small-size);
 }
 
 /* JS Cropping */
