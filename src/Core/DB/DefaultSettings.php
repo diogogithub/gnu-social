@@ -88,7 +88,7 @@ abstract class DefaultSettings
             'attachments' => [
                 'server'    => null,
                 'ssl'       => null,
-                'dir'       => INSTALLDIR . '/file/uploads/',
+                'dir'       => INSTALLDIR . '/file/attachments/',
                 'supported' => [
                     'application/vnd.oasis.opendocument.chart'                 => 'odc',
                     'application/vnd.oasis.opendocument.formula'               => 'odf',
