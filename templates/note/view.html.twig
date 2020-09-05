@@ -10,11 +10,21 @@
     <div class="note-attachments">
       {% for attachment in note.getAttachments() %}
         {% if attachment.mimetype starts with 'image/' %}
-          <img src="{{ path('attachment_inline', {'id': attachment.getId()}) }}"> {{ attachment.getTitle() }} </img>
+          <div>
+            <img src="{{ path('attachment_inline', {'id': attachment.getId()}) }}" alt="{{ attachment.getTitle() }}">
+            <i> {{ attachment.getTitle() }} </i>
+            </img>
+          </div>
         {% elseif attachment.mimetype starts with 'video/' %}
-          <video src="{{ path('attachment_inline', {'id': attachment.getId()}) }}"> {{ attachment.getTitle() }} </img>
+          <div>
+            <video src="{{ path('attachment_inline', {'id': attachment.getId()}) }}">
+              <i> {{ attachment.getTitle() }} </i>
+            </video>
+          </div>
         {% else %}
-          <i> {{ attachment.getTitle() }} </i>
+          <div>
+            <i> {{ attachment.getTitle() }} </i>
+          </div>
         {% endif %}
       {% endfor %}
     </div>
