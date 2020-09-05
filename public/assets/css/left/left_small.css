@@ -21,7 +21,7 @@
 .navbar .left-nav > a {
       display: block;
       color: var(--accent);
-      font-size: var(--medium-size);
+      font-size: calc(1.2 * var(--medium-size));
       margin-bottom: var(--unit-size);
       margin-left: var(--unit-size);
 }
@@ -80,7 +80,7 @@ input.larger {
       flex-wrap: wrap;
       background-color: var(--bg2);
       padding: var(--unit-size);
-      font-size: var(--small-size);
+      font-size: var(--medium-size);
       margin-bottom: var(--unit-size);
       vertical-align: middle;
 }
