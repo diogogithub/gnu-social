@@ -33,29 +33,67 @@ namespace App\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
+use function App\Core\I18n\_m;
+use App\Core\NoteScope;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use Symfony\Component\HttpFoundation\Request;
 
 class Network extends Controller
 {
+    // Can't have constanst inside herestring
+    private $public_scope   = NoteScope::PUBLIC;
+    private $instance_scope = NoteScope::PUBLIC | NoteScope::SITE;
+    private $message_scope  = NoteScope::MESSAGE;
+    private $follower_scope = NoteScope::PUBLIC | NoteScope::FOLLOWER;
+
     public function public(Request $request)
     {
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => DB::dql('select n from App\Entity\Note n ' .
-                                     'where n.reply_to is null order by n.created DESC'),
+            'notes'     => DB::sql('select * from note n ' .
+                                   "where n.reply_to is null and (n.scope & {$this->instance_scope}) <> 0 " .
+                                   'order by n.created DESC',
+                                   ['n' => 'App\Entity\Note']),
         ];
     }
 
-    public function home(Request $request)
+    public function home(Request $request, string $nickname)
     {
+        $target = DB::findOneBy('gsactor', ['nickname' => $nickname]);
+        if ($target == null) {
+            throw new ClientException(_m('User {nickname} doesn\'t exist', ['{nickname}' => $nickname]));
+        }
+
+        $query = <<<END
+        -- Select notes from:
+        select note.* from note left join -- left join ensures all returned notes' ids are not null
+        (
+            -- Followed by target
+            select n.id from note n inner join follow f on n.gsactor_id = f.followed
+                where f.follower = :target_actor_id
+            union all
+            -- Replies to notes by target
+            select n.id from note n inner join note nr on nr.id = nr.reply_to
+            union all
+            -- Notifications to target
+            select a.activity_id from notification a inner join note n on a.activity_id = n.id
+            union all
+            -- Notes in groups target follows
+            select gi.activity_id from group_inbox gi inner join group_member gm on gi.group_id = gm.group_id
+                where gm.gsactor_id = :target_actor_id
+        )
+        as s on s.id = note.id
+        where
+            -- Remove direct messages
+            note.scope <> {$this->message_scope}
+        order by note.modified DESC
+END;
+        $notes = DB::sql($query, ['note' => 'App\Entity\Note'], ['target_actor_id' => $target->getId()]);
+
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => DB::dql('select n, g_inbox, g_member ' .
-                'from App\Entity\Note n inner join App\Entity\GroupInbox g_inbox inner join App\Entity\GroupMember g_member ' .
-                'with n.id = g_inbox.activity_id ' .
-                'order by n.created DESC'
-            ),
+            'notes'     => $notes,
         ];
     }
 
@@ -64,8 +102,8 @@ class Network extends Controller
         return [
             '_template' => 'network/public.html.twig',
             'notes'     => DB::dql('select n from App\Entity\Note n ' .
-                                    'where n.scope = 1 ' .
-                                    'order by n.created DESC'
+                                   "where n.scope = {$this->public_scope} " .
+                                   'order by n.created DESC'
             ),
         ];
     }
