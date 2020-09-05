@@ -34,7 +34,13 @@ class Favourite extends Module
 {
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
-        $opts   = ['note_id' => $note->getId(), 'gsactor_id' => Common::ensureLoggedIn()->getActor()->getId()];
+        $user = Common::user();
+        // Only show buttons if a user is logged in
+        if ($user == null) {
+            return Event::next;
+        }
+
+        $opts   = ['note_id' => $note->getId(), 'gsactor_id' => $user->getId()];
         $is_set = DB::find('favourite', $opts) != null;
         $form   = Form::create([
             ['is_set', HiddenType::class, ['data' => $is_set ? '1' : '0']],
@@ -62,7 +68,7 @@ class Favourite extends Module
             }
         }
 
-        $actions['post_fav'] = $form->createView();
+        $actions[] = $form->createView();
         return Event::next;
     }
 }
