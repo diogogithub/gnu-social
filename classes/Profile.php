@@ -46,7 +46,7 @@ class Profile extends Managed_DataObject
             'description' => 'local and remote users have profiles',
             'fields' => array(
                 'id' => array('type' => 'serial', 'not null' => true, 'description' => 'unique identifier'),
-                'nickname' => array('type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username', 'collate' => 'utf8_general_ci'),
+                'nickname' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'nickname or username', 'collate' => 'utf8_general_ci'),
                 'fullname' => array('type' => 'text', 'description' => 'display name', 'collate' => 'utf8_general_ci'),
                 'profileurl' => array('type' => 'text', 'description' => 'URL, cached so we dont regenerate'),
                 'homepage' => array('type' => 'text', 'description' => 'identifying URL', 'collate' => 'utf8_general_ci'),
