@@ -68,8 +68,8 @@ class UserPanel extends AbstractController
     public function personal_info(Request $request)
     {
         $user            = Common::user();
-        $actor           = $user->getActor();
-        $extra           = ['self_tags' => $actor->getSelfTags()];
+        $user            = $user->getActor();
+        $extra           = ['self_tags' => $user->getSelfTags()];
         $form_definition = [
             ['nickname',  TextType::class,     ['label' => _m('Nickname'),  'required' => true,  'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
             ['full_name', TextType::class,     ['label' => _m('Full Name'), 'required' => false, 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
@@ -80,7 +80,7 @@ class UserPanel extends AbstractController
             ['save',      SubmitType::class,   ['label' => _m('Save')]],
         ];
         $extra_step = function ($data, $extra_args) use ($user) { $user->setNickname($data['nickname']); };
-        $form = Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
+        $form = Form::handle($form_definition, $request, $user, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
 
         return ['_template' => 'settings/profile.html.twig', 'prof' => $form->createView()];
     }
@@ -136,8 +136,8 @@ class UserPanel extends AbstractController
             } else {
                 throw new ClientException('Invalid form');
             }
-            $actor    = Common::actor();
-            $actor_id = $actor->getId();
+            $user     = Common::user();
+            $actor_id = $user->getId();
             $file     = Media::validateAndStoreFile($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $actor_id);
             $old_file = null;
             $avatar   = DB::find('avatar', ['gsactor_id' => $actor_id]);
@@ -154,7 +154,7 @@ class UserPanel extends AbstractController
             if ($old_file != null) {
                 @unlink($old_file);
             }
-            Event::handle('delete_cached_avatar', [$actor->getNickname()]);
+            Event::handle('delete_cached_avatar', [$user->getNickname()]);
         }
 
         return ['_template' => 'settings/avatar.html.twig', 'avatar' => $form->createView()];
