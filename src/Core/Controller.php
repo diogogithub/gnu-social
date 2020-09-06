@@ -30,11 +30,14 @@
 
 namespace App\Core;
 
+use App\Util\Exception\RedirectException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -95,10 +98,23 @@ class Controller extends AbstractController implements EventSubscriberInterface
         return $event;
     }
 
+    public function onKernelException(ExceptionEvent $event)
+    {
+        if (($except = $event->getThrowable()) instanceof RedirectException) {
+            if (($redir = $except->redirect_response) != null) {
+                $event->setResponse($redir);
+            } else {
+                $event->setResponse(new RedirectResponse($event->getRequest()->getPathInfo()));
+            }
+        }
+        return $event;
+    }
+
     public static function getSubscribedEvents()
     {
         return [
             KernelEvents::CONTROLLER => 'onKernelController',
+            KernelEvents::EXCEPTION  => 'onKernelException',
             KernelEvents::VIEW       => 'onKernelView',
         ];
     }

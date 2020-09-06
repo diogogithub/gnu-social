@@ -110,27 +110,25 @@ END;
 
     public function replies(Request $request)
     {
-        $actor_id = Common::ensureLoggedIn()->getActor()->getId();
+        $actor_id = Common::ensureLoggedIn()->getId();
 
         return [
             '_template' => 'network/public.html.twig',
             'notes'     => DB::dql('select n from App\Entity\Note n ' .
-                'where n.reply_to is not null and n.gsactor_id = ' . $actor_id .
-                'order by n.created DESC'
-            ),
+                                   'where n.reply_to is not null and n.gsactor_id = :id ' .
+                                   'order by n.created DESC', ['id' => $gsactor_id]),
         ];
     }
 
     public function favourites(Request $request)
     {
-        $actor_id = Common::ensureLoggedIn()->getActor()->getId();
+        $actor_id = Common::ensureLoggedIn()->getId();
 
         return [
             '_template' => 'network/public.html.twig',
             'notes'     => DB::dql('select f from App\Entity\Favourite f ' .
-                'where f.gsactor_id = ' . $actor_id .
-                'order by f.created DESC'
-            ),
+                                   'where f.gsactor_id = :id ' .
+                                   'order by f.created DESC', ['id' => $gsactor_id]),
         ];
     }
 }

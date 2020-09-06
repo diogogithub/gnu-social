@@ -82,14 +82,16 @@ class Security extends Controller
             }
 
             $actor = GSActor::create(['nickname' => $data['nickname']]);
-            $user  = LocalUser::create([
-                'nickname' => $data['nickname'],
-                'email'    => $data['email'],
-                'password' => LocalUser::hashPassword($data['password']),
-            ]);
-
-            DB::persist($user);
             DB::persist($actor);
+            DB::flush();
+            $user = LocalUser::create([
+                'id'             => $actor->getId(),
+                'nickname'       => $data['nickname'],
+                'outgoing_email' => $data['email'],
+                'incoming_email' => $data['email'],
+                'password'       => LocalUser::hashPassword($data['password']),
+            ]);
+            DB::persist($user);
 
             // generate a signed url and email it to the user
             if (Common::config('site', 'use_email')) {
