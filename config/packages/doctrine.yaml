@@ -3,6 +3,7 @@ doctrine:
         url: '%env(resolve:DATABASE_URL)%'
         charset: UTF8
         schema_filter: ~^(?!rememberme_token)~ # Ignore these in migrations
+        profiling_collect_backtrace: true
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
