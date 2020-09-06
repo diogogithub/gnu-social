@@ -1,9 +1,14 @@
 <div class="note">
   <div class="note-info">
+    {% set nickname = note.getActorNickname() %}
     <a href="{{ path('settings_avatar') }}">
-      <img src="{{ note.getAvatarUrl() }}" alt="{{ note.getActorNickname() }}'s avatar">
+      <img src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
     </a>
-    <b>{{ note.getActorNickname() }}</b>
+    <b>{{ nickname }}</b>
+    {% set reply_to = note.getReplyToNickname() %}
+    {% if reply_to is not null and not skip_reply_to is defined %}
+      {% trans with {'%name%': reply_to}%} in reply to %name% {% endtrans %}
+    {% endif %}
   </div>
   <div class="note-content">
     {{ note.getContent() }}
@@ -41,7 +46,7 @@
   </div>
   <div class="replies">
     {% for reply in note.getReplies() %}
-      {% include '/note/view.html.twig' with {'note': reply} only %}
+      {% include '/note/view.html.twig' with {'note': reply, 'skip_reply_to': true} only %}
     {% endfor %}
   </div>
 </div>

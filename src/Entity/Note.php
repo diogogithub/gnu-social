@@ -215,7 +215,21 @@ class Note extends Entity
 
     public function getReplies(): array
     {
-        return Cache::getList('note-replies-' . $this->id, function () { return DB::dql('select n from App\Entity\Note n where n.reply_to = :id', ['id' => $this->id]); });
+        return Cache::getList('note-replies-' . $this->id, function () {
+            return DB::dql('select n from App\Entity\Note n where n.reply_to = :id', ['id' => $this->id]);
+        });
+    }
+
+    public function getReplyToNickname(): ?string
+    {
+        if (!empty($this->reply_to)) {
+            return Cache::get('note-reply-to-' . $this->id, function () {
+                return DB::dql('select g from App\Entity\Note n join ' .
+                                   'App\Entity\GSActor g with n.gsactor_id = g.id where n.reply_to = :reply',
+                                   ['reply' => $this->reply_to])[0]->getNickname();
+            });
+        }
+        return null;
     }
 
     public static function schemaDef(): array
