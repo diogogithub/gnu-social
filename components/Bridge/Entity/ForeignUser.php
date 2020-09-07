@@ -123,7 +123,7 @@ class ForeignUser
                 'service'  => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to service'],
                 'uri'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'identifying URI'],
                 'nickname' => ['type' => 'varchar', 'length' => 191, 'description' => 'nickname on foreign service'],
-                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'created'  => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['id', 'service'],
