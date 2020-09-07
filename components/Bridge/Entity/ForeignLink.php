@@ -43,9 +43,9 @@ class ForeignLink
     private int $foreign_id;
     private int $service;
     private ?string $credentials;
-    private int $noticesync;
-    private int $friendsync;
-    private int $profilesync;
+    private int $noticesync  = 1;
+    private int $friendsync  = 2;
+    private int $profilesync = 1;
     private ?DateTimeInterface $last_noticesync;
     private ?DateTimeInterface $last_friendsync;
     private DateTimeInterface $created;

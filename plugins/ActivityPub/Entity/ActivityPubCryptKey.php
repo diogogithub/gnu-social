@@ -35,6 +35,68 @@ namespace Plugin\ActivityPub\Entity;
 class ActivityPubCryptKey
 {
     // {{{ Autocode
+
+    private int $gsactor_id;
+    private ?string $private_key;
+    private string $public_key;
+    private ?DateTimeInterface $created;
+    private DateTimeInterface $modified;
+
+    public function setGsactorId(int $gsactor_id): self
+    {
+        $this->gsactor_id = $gsactor_id;
+        return $this;
+    }
+
+    public function getGsactorId(): int
+    {
+        return $this->gsactor_id;
+    }
+
+    public function setPrivateKey(?string $private_key): self
+    {
+        $this->private_key = $private_key;
+        return $this;
+    }
+
+    public function getPrivateKey(): ?string
+    {
+        return $this->private_key;
+    }
+
+    public function setPublicKey(string $public_key): self
+    {
+        $this->public_key = $public_key;
+        return $this;
+    }
+
+    public function getPublicKey(): string
+    {
+        return $this->public_key;
+    }
+
+    public function setCreated(?DateTimeInterface $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+
+    public function getCreated(): ?DateTimeInterface
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     /**

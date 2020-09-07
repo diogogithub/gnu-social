@@ -35,6 +35,80 @@ namespace Plugin\ActivityPub\Entity;
 class ActivityPubActor
 {
     // {{{ Autocode
+
+    private string $uri;
+    private int $profile_id;
+    private string $inboxuri;
+    private ?string $sharedInboxuri;
+    private ?DateTimeInterface $created;
+    private DateTimeInterface $modified;
+
+    public function setUri(string $uri): self
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+
+    public function getUri(): string
+    {
+        return $this->uri;
+    }
+
+    public function setProfileId(int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+
+    public function getProfileId(): int
+    {
+        return $this->profile_id;
+    }
+
+    public function setInboxuri(string $inboxuri): self
+    {
+        $this->inboxuri = $inboxuri;
+        return $this;
+    }
+
+    public function getInboxuri(): string
+    {
+        return $this->inboxuri;
+    }
+
+    public function setSharedInboxuri(?string $sharedInboxuri): self
+    {
+        $this->sharedInboxuri = $sharedInboxuri;
+        return $this;
+    }
+
+    public function getSharedInboxuri(): ?string
+    {
+        return $this->sharedInboxuri;
+    }
+
+    public function setCreated(?DateTimeInterface $created): self
+    {
+        $this->created = $created;
+        return $this;
+    }
+
+    public function getCreated(): ?DateTimeInterface
+    {
+        return $this->created;
+    }
+
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     /**
@@ -289,42 +363,6 @@ class ActivityPubActor
         }
 
         return $this->sharedInboxuri;
-    }
-
-    /**
-     * Getter for uri property
-     *
-     * @return string URI
-     *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     */
-    public function getUri(): string
-    {
-        return $this->uri;
-    }
-
-    /**
-     * Getter for url property
-     *
-     * @return string URL
-     *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     */
-    public function getUrl(): string
-    {
-        return $this->getUri();
-    }
-
-    /**
-     * Getter for id property
-     *
-     * @return int
-     *
-     * @author Diogo Cordeiro <diogo@fc.up.pt>
-     */
-    public function getID(): int
-    {
-        return $this->profile_id;
     }
 
     /**

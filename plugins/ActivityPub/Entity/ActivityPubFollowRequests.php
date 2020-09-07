@@ -35,6 +35,44 @@ namespace Plugin\ActivityPub\Entity;
 class ActivityPubFollowRequests
 {
     // {{{ Autocode
+
+    private int $local_gsactor_id;
+    private int $remote_gsactor_id;
+    private int $relation_id;
+
+    public function setLocalGsactorId(int $local_gsactor_id): self
+    {
+        $this->local_gsactor_id = $local_gsactor_id;
+        return $this;
+    }
+
+    public function getLocalGsactorId(): int
+    {
+        return $this->local_gsactor_id;
+    }
+
+    public function setRemoteGsactorId(int $remote_gsactor_id): self
+    {
+        $this->remote_gsactor_id = $remote_gsactor_id;
+        return $this;
+    }
+
+    public function getRemoteGsactorId(): int
+    {
+        return $this->remote_gsactor_id;
+    }
+
+    public function setRelationId(int $relation_id): self
+    {
+        $this->relation_id = $relation_id;
+        return $this;
+    }
+
+    public function getRelationId(): int
+    {
+        return $this->relation_id;
+    }
+
     // }}} Autocode
 
     public static function schemaDef()
