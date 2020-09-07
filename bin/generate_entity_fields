@@ -22,10 +22,9 @@ const types = [
     'phone_number' => 'PhoneNumber',
 ];
 
-$path = Yaml::parseFile(ROOT . '/config/services.yaml')['services']['app.core.schemadef_driver']['arguments'][0];
-$path = str_replace('%kernel.project_dir%', ROOT, $path);
-
-$files = glob($path . '/*.php');
+$files = array_merge(glob(ROOT . '/src/Entity/*.php'),
+                     array_merge(glob(ROOT . '/components/*/Entity/*.php'),
+                                 glob(ROOT . '/plugins/*/Entity/*.php')));
 
 $classes = [];
 
@@ -35,7 +34,7 @@ foreach ($files as $file) {
 
     $declared = get_declared_classes();
     foreach ($declared as $dc) {
-        if (preg_match('/App\\\\Entity/', $dc) && !in_array($dc, $classes)) {
+        if (preg_match('/(App|(Component|Plugin)\\\\[^\\\\]+)\\\\Entity/', $dc) && !in_array($dc, $classes)) {
             $class = $dc;
             $classes[] = $class;
             break;
