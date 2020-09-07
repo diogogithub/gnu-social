@@ -188,7 +188,7 @@ class ForeignLink
                 'profilesync'     => ['type' => 'int', 'size' => 'tiny', 'not null' => true, 'default' => 1, 'description' => 'profile synchronization, bit 1 = sync outgoing, bit 2 = sync incoming'],
                 'last_noticesync' => ['type' => 'datetime', 'description' => 'last time notices were imported'],
                 'last_friendsync' => ['type' => 'datetime', 'description' => 'last time friends were imported'],
-                'created'         => ['type' => 'datetime', 'not null' => true, 'default' => '0000-00-00 00:00:00', 'description' => 'date this record was created'],
+                'created'         => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'        => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['user_id', 'foreign_id', 'service'],
