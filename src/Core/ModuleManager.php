@@ -34,12 +34,13 @@
 namespace App\Core;
 
 use App\Util\Formatting;
-
 use AppendIterator;
 use FilesystemIterator;
 use Functional as F;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 
 class ModuleManager
 {
@@ -82,17 +83,30 @@ class ModuleManager
         }
     }
 
-    public static function process()
+    public static function process(ContainerBuilder $container)
     {
         $module_paths   = array_merge(glob(INSTALLDIR . '/components/*/*.php'), glob(INSTALLDIR . '/plugins/*/*.php'));
         $module_manager = new self();
+        $entity_paths   = [];
+        $default_driver = $container->findDefinition('doctrine.orm.default_metadata_driver');
         foreach ($module_paths as $path) {
             // 'modules' and 'plugins' have the same length
             $type   = ucfirst(preg_replace('%' . INSTALLDIR . '/(component|plugin)s/.*%', '\1', $path));
-            $module = basename(dirname($path));
+            $dir    = dirname($path);
+            $module = basename($dir);
             $fqcn   = "\\{$type}\\{$module}\\{$module}";
             $module_manager->add($fqcn, $path);
+            if (file_exists($dir = $dir . '/Entity') && is_dir($dir)) {
+                $entity_paths[] = $dir;
+                $default_driver->addMethodCall(
+                    'addDriver',
+                    [new Reference('app.core.schemadef_driver'), "{$type}\\{$module}\\Entity"]
+                );
+            }
         }
+
+        $container->findDefinition('app.core.schemadef_driver')
+                  ->addMethodCall('addPaths', ['$paths' => $entity_paths]);
 
         $module_manager->preRegisterEvents();
 
