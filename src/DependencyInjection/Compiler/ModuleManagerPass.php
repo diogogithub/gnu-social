@@ -36,17 +36,11 @@ namespace App\DependencyInjection\Compiler;
 use App\Core\ModuleManager;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference;
 
 class ModuleManagerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container)
     {
-        ModuleManager::process();
-        $container->findDefinition('doctrine.orm.default_metadata_driver')
-                  ->addMethodCall('addDriver',
-                                  [new Reference('app.core.schemadef_driver'), 'Plugin\\Entity'])
-                  ->addMethodCall('addDriver',
-                                   [new Reference('app.core.schemadef_driver'), 'Component\\Entity']);
+        ModuleManager::process($container);
     }
 }
