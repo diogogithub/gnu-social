@@ -37,6 +37,7 @@ use App\Core\DB\DefaultSettings;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Util\Common;
+use App\Util\Exceptiion\InvalidFormException;
 use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -89,7 +90,7 @@ class AdminPanel extends Controller
                     ];
                 }
             } else {
-                // TODO Display error
+                throw new InvalidFormException();
             }
         }
 

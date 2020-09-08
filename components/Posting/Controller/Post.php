@@ -28,7 +28,8 @@ use App\Core\Security;
 use App\Entity\FileToNote;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Exception\ClientException;
+use App\Util\Exceptiion\InvalidFormException;
+use App\Util\Exception\NoSuchNoteException;
 use Component\Media\Media;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -42,7 +43,7 @@ class Post
     {
         $note = DB::find('note', ['id' => $reply_to]);
         if ($note == null) {
-            throw new ClientException(_m('No such note'));
+            throw new NoSuchNoteException();
         }
 
         $actor_id = Common::ensureLoggedIn()->getId();
@@ -61,7 +62,7 @@ class Post
             if ($form->isValid()) {
                 self::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true, $data['reply_to'], null);
             } else {
-                // TODO display errors
+                throw new InvalidFormException();
             }
         }
 
