@@ -26,6 +26,7 @@ use App\Core\Module;
 use App\Entity\Favourite as Fave;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exceptiion\InvalidFormException;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,8 +44,8 @@ class Favourite extends Module
         $opts   = ['note_id' => $note->getId(), 'gsactor_id' => $user->getId()];
         $is_set = DB::find('favourite', $opts) != null;
         $form   = Form::create([
-            ['is_set', HiddenType::class, ['data' => $is_set ? '1' : '0']],
-            ['note_id', HiddenType::class, ['data' => $note->getId()]],
+            ['is_set',    HiddenType::class, ['data' => $is_set ? '1' : '0']],
+            ['note_id',   HiddenType::class, ['data' => $note->getId()]],
             ['favourite', SubmitType::class, ['label' => ' ']],
         ]);
 
@@ -52,8 +53,13 @@ class Favourite extends Module
             $form->handleRequest($request);
             if ($form->isSubmitted()) {
                 $data = $form->getData();
+                // Loose comparison
+                if ($data['note_id'] != $note->getId()) {
+                    return Event::next;
+                }
+
                 $fave = DB::find('favourite', $opts);
-                if ($data['note_id'] == $note->getId() && $form->isValid()) {
+                if ($form->isValid()) {
                     // Loose comparison
                     if (!$data['is_set'] && ($fave == null)) {
                         DB::persist(Fave::create($opts));
@@ -62,8 +68,9 @@ class Favourite extends Module
                         DB::remove($fave);
                         DB::flush();
                     }
+                    return Event::stop;
                 } else {
-                    // TODO display errors
+                    throw new InvalidFormException();
                 }
             }
         }

@@ -25,6 +25,7 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Module;
 use App\Util\Common;
+use App\Util\Exceptiion\InvalidFormException;
 use App\Util\Exception\RedirectException;
 use Component\Posting\Controller as C;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -71,7 +72,7 @@ class Posting extends Module
                 C\Post::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true);
                 throw new RedirectException();
             } else {
-                // TODO Display error
+                throw new InvalidFormException();
             }
         }
 

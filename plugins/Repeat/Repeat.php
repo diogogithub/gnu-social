@@ -25,6 +25,7 @@ use App\Core\Form;
 use App\Core\Module;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exceptiion\InvalidFormException;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,17 +43,21 @@ class Repeat extends Module
         $to_repeat = DB::find('note', ['id' => $note->getId()]);
         $is_set    = false;
         $form      = Form::create([
-            ['is_set', HiddenType::class, ['data' => $is_set ? '1' : '0']],
+            ['is_set',  HiddenType::class, ['data' => $is_set ? '1' : '0']],
             ['note_id', HiddenType::class, ['data' => $note->getId()]],
-            ['repeat', SubmitType::class, ['label' => ' ']],
+            ['repeat',  SubmitType::class, ['label' => ' ']],
         ]);
 
         if ('POST' === $request->getMethod() && $request->request->has('repeat')) {
             $form->handleRequest($request);
             if ($form->isSubmitted()) {
                 $data = $form->getData();
-                if ($data['note_id'] == $to_repeat && $form->isValid()) {
-                    // Loose comparison
+                // Loose comparison
+                if ($data['note_id'] != $to_repeat) {
+                    return Event::next;
+                }
+
+                if ($form->isValid()) {
                     if (!$data['is_set']) {
                         DB::persist(Note::create(['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId(), 'content' => $note->getContent(), 'is_local' => true]));
                         DB::flush();
@@ -60,8 +65,9 @@ class Repeat extends Module
                         DB::remove($to_repeat);
                         DB::flush();
                     }
+                    return Event::stop;
                 } else {
-                    // TODO display errors
+                    throw new InvalidFormException();
                 }
             }
         }
