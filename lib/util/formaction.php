@@ -1,43 +1,40 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Form action extendable class.
  *
- * PHP version 5
- *
- * @category Action
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @category  Action
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Form action extendable class
  *
- * @category Action
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Mikael Nordfeldth <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
+ * @category  Action
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Mikael Nordfeldth <evan@status.net>
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class FormAction extends ManagedAction
 {
@@ -47,7 +44,8 @@ class FormAction extends ManagedAction
     protected $needLogin = true;
     protected $canPost = true;
 
-    protected function prepare(array $args = []) {
+    protected function prepare(array $args = [])
+    {
         parent::prepare($args);
 
         $this->form = $this->form ?: ucfirst($this->action);
@@ -63,17 +61,18 @@ class FormAction extends ManagedAction
         return true;
     }
 
-    public function isReadOnly($args) {
+    public function isReadOnly($args)
+    {
         return !$this->isPost();
     }
 
     public function showPageNotice()
     {
         $this->showInstructions();
-        if ($msg = $this->getError()) {
+        if (!empty($msg = $this->getError())) {
             $this->element('div', 'error', $msg);
         }
-        if ($msg = $this->getInfo()) {
+        if (!empty($msg = $this->getInfo())) {
             $this->element('div', 'info', $msg);
         }
     }

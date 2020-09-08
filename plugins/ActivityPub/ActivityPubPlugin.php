@@ -598,7 +598,7 @@ class ActivityPubPlugin extends Plugin
         if ($result === false) {
             common_log(LOG_ERR, __METHOD__ . ': Error parsing webfinger IDs from text (preg_last_error=='.preg_last_error().').');
             return [];
-        } elseif ($n_matches = count($wmatches)) {
+        } elseif (($n_matches = count($wmatches)) != 0) {
             common_debug(sprintf('Found %d matches for WebFinger IDs: %s', $n_matches, _ve($wmatches)));
         }
         return $wmatches[1];
@@ -891,10 +891,12 @@ class ActivityPubPlugin extends Plugin
             // Local user can be ignored
         }
 
-        $other = array_merge($other,
+        $other = array_merge(
+            $other,
             Activitypub_profile::from_profile_collection(
                 $notice->getAttentionProfiles()
-            ));
+            )
+        );
 
         if ($notice->reply_to) {
             try {
@@ -906,10 +908,12 @@ class ActivityPubPlugin extends Plugin
                     // Local user can be ignored
                 }
 
-                $other = array_merge($other,
+                $other = array_merge(
+                    $other,
                     Activitypub_profile::from_profile_collection(
                         $parent_notice->getAttentionProfiles()
-                    ));
+                    )
+                );
             } catch (NoParentNoticeException $e) {
                 // This is not a reply to something (has no parent)
             } catch (NoResultException $e) {

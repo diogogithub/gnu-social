@@ -1,36 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * An activity
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Feed
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Zach Copley <zach@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPLv3
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * An activity in the ActivityStrea.ms world
@@ -42,11 +37,10 @@ if (!defined('STATUSNET')) {
  * 'something else' is the object.
  *
  * @category  OStatus
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPLv3
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class Activity
 {
@@ -113,7 +107,7 @@ class Activity
      * @param DOMElement $entry Atom entry to poke at
      * @param DOMElement $feed  Atom feed, for context
      */
-    function __construct($entry = null, $feed = null)
+    public function __construct($entry = null, $feed = null)
     {
         if (is_null($entry)) {
             return;
@@ -130,14 +124,20 @@ class Activity
         $this->entry = $entry;
         $this->feed  = $feed;
 
-        if ($entry->namespaceURI == Activity::ATOM &&
-            $entry->localName == 'entry') {
+        if (
+            $entry->namespaceURI === Activity::ATOM
+            && $entry->localName === 'entry'
+        ) {
             $this->_fromAtomEntry($entry, $feed);
-        } else if ($entry->namespaceURI == Activity::RSS &&
-                   $entry->localName == 'item') {
+        } elseif (
+            $entry->namespaceURI === Activity::RSS
+            && $entry->localName === 'item'
+        ) {
             $this->_fromRssItem($entry, $feed);
-        } else if ($entry->namespaceURI == Activity::SPEC &&
-                   $entry->localName == 'object') {
+        } elseif (
+            $entry->namespaceURI === Activity::SPEC
+            && $entry->localName === 'object'
+        ) {
             $this->_fromAtomEntry($entry, $feed);
         } else {
             // Low level exception. No need for i18n.
@@ -145,7 +145,7 @@ class Activity
         }
     }
 
-    function _fromAtomEntry($entry, $feed)
+    public function _fromAtomEntry($entry, $feed)
     {
         $pubEl = $this->_child($entry, self::PUBLISHED, self::ATOM);
 
@@ -191,9 +191,7 @@ class Activity
             $this->objects[] = new ActivityObject($entry);
         }
 
-        $actorEl = $this->_child($entry, self::ACTOR);
-
-        if (!empty($actorEl)) {
+        if (!empty($actorEl = $this->_child($entry, self::ACTOR))) {
             // Standalone <activity:actor> elements are a holdover from older
             // versions of ActivityStreams. Newer feeds should have this data
             // integrated straight into <atom:author>.
@@ -211,22 +209,25 @@ class Activity
                     $this->actor->id = $authorObj->id;
                 }
             }
-        } else if ($authorEl = $this->_child($entry, self::AUTHOR, self::ATOM)) {
-
+        } elseif (!empty($authorEl = $this->_child(
+            $entry,
+            self::AUTHOR,
+            self::ATOM
+        ))) {
             // An <atom:author> in the entry overrides any author info on
             // the surrounding feed.
             $this->actor = new ActivityObject($authorEl);
-
-        } else if (!empty($feed) &&
-                   $subjectEl = $this->_child($feed, self::SUBJECT)) {
-
+        } elseif (
+            !empty($feed)
+            && !empty($subjectEl = $this->_child($feed, self::SUBJECT))
+        ) {
             // Feed subject is used for things like groups.
             // Should actually possibly not be interpreted as an actor...?
             $this->actor = new ActivityObject($subjectEl);
-
-        } else if (!empty($feed) && $authorEl = $this->_child($feed, self::AUTHOR,
-                                                              self::ATOM)) {
-
+        } elseif (
+            !empty($feed)
+            && !empty($authorEl = $this->_child($feed, self::AUTHOR, self::ATOM))
+        ) {
             // If there's no <atom:author> on the entry, it's safe to assume
             // the containing feed's authorship info applies.
             $this->actor = new ActivityObject($authorEl);
@@ -271,7 +272,7 @@ class Activity
         $this->editLink = ActivityUtils::getLink($entry, 'edit', 'application/atom+xml');
     }
 
-    function _fromRssItem($item, $channel)
+    public function _fromRssItem($item, $channel)
     {
         $verbEl = $this->_child($item, self::VERB);
 
@@ -288,14 +289,26 @@ class Activity
             $this->time = strtotime($pubDateEl->textContent);
         }
 
-        if ($authorEl = $this->_child($item, self::AUTHOR, self::RSS)) {
+        if (!empty($authorEl = $this->_child(
+            $item,
+            self::AUTHOR,
+            self::RSS
+        ))) {
             $this->actor = ActivityObject::fromRssAuthor($authorEl);
-        } else if ($dcCreatorEl = $this->_child($item, self::CREATOR, self::DC)) {
+        } elseif (!empty($dcCreatorEl = $this->_child(
+            $item,
+            self::CREATOR,
+            self::DC
+        ))) {
             $this->actor = ActivityObject::fromDcCreator($dcCreatorEl);
-        } else if ($posterousEl = $this->_child($item, ActivityObject::AUTHOR, ActivityObject::POSTEROUS)) {
+        } elseif (!empty($posterousEl = $this->_child(
+            $item,
+            ActivityObject::AUTHOR,
+            ActivityObject::POSTEROUS
+        ))) {
             // Special case for Posterous.com
             $this->actor = ActivityObject::fromPosterousAuthor($posterousEl);
-        } else if (!empty($channel)) {
+        } elseif (!empty($channel)) {
             $this->actor = ActivityObject::fromRssChannel($channel);
         } else {
             // No actor!
@@ -347,7 +360,7 @@ class Activity
      * @return DOMElement Atom entry
      */
 
-    function toAtomEntry()
+    public function toAtomEntry()
     {
         return null;
     }
@@ -359,7 +372,7 @@ class Activity
      * @return array $activity
      */
 
-    function asArray()
+    public function asArray()
     {
         $activity = array();
 
@@ -416,7 +429,6 @@ class Activity
         // Context stuff.
 
         if (!empty($this->context)) {
-
             if (!empty($this->context->location)) {
                 $loc = $this->context->location;
 
@@ -528,15 +540,23 @@ class Activity
         return array_filter($activity);
     }
 
-    function asString($namespace=false, $author=true, $source=false)
-    {
+    public function asString(
+        $namespace = false,
+        $author    = true,
+        $source    = false
+    ) {
         $xs = new XMLStringer(true);
         $this->outputTo($xs, $namespace, $author, $source);
         return $xs->getString();
     }
 
-    function outputTo($xs, $namespace=false, $author=true, $source=false, $tag='entry')
-    {
+    public function outputTo(
+        $xs,
+        $namespace = false,
+        $author    = true,
+        $source    = false,
+        $tag       = 'entry'
+    ) {
         if ($namespace) {
             $attrs = array('xmlns' => 'http://www.w3.org/2005/Atom',
                            'xmlns:thr' => 'http://purl.org/syndication/thread/1.0',
@@ -557,10 +577,8 @@ class Activity
         }
 
         if ($this->verb == ActivityVerb::POST && count($this->objects) == 1 && $tag == 'entry') {
-
             $obj = $this->objects[0];
-			$obj->outputTo($xs, null);
-
+            $obj->outputTo($xs, null);
         } else {
             $xs->element('id', null, $this->id);
 
@@ -582,7 +600,6 @@ class Activity
                                            'type' => 'text/html',
                                            'href' => $this->link));
             }
-
         }
 
         $xs->element('activity:verb', null, $this->verb);
@@ -597,7 +614,7 @@ class Activity
         }
 
         if ($this->verb != ActivityVerb::POST || count($this->objects) != 1 || $tag != 'entry') {
-            foreach($this->objects as $object) {
+            foreach ($this->objects as $object) {
                 if ($object instanceof Activity) {
                     $object->outputTo($xs, false, true, true, 'activity:object');
                 } else {
@@ -607,21 +624,24 @@ class Activity
         }
 
         if (!empty($this->context)) {
-
             if (!empty($this->context->replyToID)) {
                 if (!empty($this->context->replyToUrl)) {
-                    $xs->element('thr:in-reply-to',
-                                 array('ref' => $this->context->replyToID,
-                                       'href' => $this->context->replyToUrl));
+                    $xs->element('thr:in-reply-to', [
+                        'ref'  => $this->context->replyToID,
+                        'href' => $this->context->replyToUrl,
+                    ]);
                 } else {
-                    $xs->element('thr:in-reply-to',
-                                 array('ref' => $this->context->replyToID));
+                    $xs->element('thr:in-reply-to', [
+                        'ref' => $this->context->replyToID,
+                    ]);
                 }
             }
 
             if (!empty($this->context->replyToUrl)) {
-                $xs->element('link', array('rel' => 'related',
-                                           'href' => $this->context->replyToUrl));
+                $xs->element('link', [
+                    'rel'  => 'related',
+                    'href' => $this->context->replyToUrl,
+                ]);
             }
 
             if (!empty($this->context->conversation)) {
@@ -631,14 +651,18 @@ class Activity
                     $convattr['href'] = $conv->getUrl();
                     $convattr['local_id'] = $conv->getID();
                     $convattr['ref'] = $conv->getUri();
-                    $xs->element('link', array('rel' => 'ostatus:'.ActivityContext::CONVERSATION,
-                                                'href' => $convattr['href']));
+                    $xs->element('link', [
+                        'rel'  => 'ostatus:' . ActivityContext::CONVERSATION,
+                        'href' => $convattr['href'],
+                    ]);
                 } else {
                     $convattr['ref'] = $this->context->conversation;
                 }
-                $xs->element('ostatus:'.ActivityContext::CONVERSATION,
-                                $convattr,
-                                $this->context->conversation);
+                $xs->element(
+                    'ostatus:' . ActivityContext::CONVERSATION,
+                    $convattr,
+                    $this->context->conversation
+                );
                 /* Since we use XMLWriter we just use the previously hardcoded prefix for ostatus,
                     otherwise we should use something like this:
                 $xs->elementNS(array(ActivityContext::OSTATUS => 'ostatus'),    // namespace
@@ -649,9 +673,11 @@ class Activity
             }
 
             foreach ($this->context->attention as $attnURI=>$type) {
-                $xs->element('link', array('rel' => ActivityContext::MENTIONED,
-                                           ActivityContext::OBJECTTYPE => $type,  // FIXME: undocumented 
-                                           'href' => $attnURI));
+                $xs->element('link', [
+                    'rel'  => ActivityContext::MENTIONED,
+                    ActivityContext::OBJECTTYPE => $type,  // @fixme undocumented
+                    'href' => $attnURI,
+                ]);
             }
 
             if (!empty($this->context->location)) {
@@ -759,7 +785,7 @@ class Activity
      * @param int $tm Unix timestamp
      * @return string
      */
-    static function iso8601Date($tm)
+    public static function iso8601Date($tm)
     {
         $dateStr = date('d F Y H:i:s', $tm);
         $d = new DateTime($dateStr, new DateTimeZone('UTC'));
