@@ -1,23 +1,25 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @copyright 2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Extended DB_DataObject to improve a few things:
@@ -34,7 +36,7 @@ class Safe_DataObject extends GS_DataObject
      * DB_DataObject doesn't do this yet by itself.
      */
 
-    function __destruct()
+    public function __destruct()
     {
         $this->free();
         if (method_exists('DB_DataObject', '__destruct')) {
@@ -56,7 +58,7 @@ class Safe_DataObject extends GS_DataObject
      * It will still be freed properly when the original object
      * gets destroyed.
      */
-    function __clone()
+    public function __clone()
     {
         $this->_DB_resultid = false;
     }
@@ -70,7 +72,7 @@ class Safe_DataObject extends GS_DataObject
      *
      * @return array of variable names to include in serialization.
      */
-    function __sleep()
+    public function __sleep()
     {
         $vars = array_keys(get_object_vars($this));
         $skip = array('_DB_resultid', '_link_loaded');
@@ -86,7 +88,7 @@ class Safe_DataObject extends GS_DataObject
      *
      * Old cached objects may still have them.
      */
-    function __wakeup()
+    public function __wakeup()
     {
         // Refers to global state info from a previous process.
         // Clear this out so we don't accidentally break global
@@ -108,7 +110,7 @@ class Safe_DataObject extends GS_DataObject
      * @return mixed
      * @throws Exception
      */
-    function __call($method, $params)
+    public function __call($method, $params)
     {
         $return = null;
         // Yes, that's _call with one underscore, which does the
@@ -135,19 +137,18 @@ class Safe_DataObject extends GS_DataObject
      * @return true or PEAR:error on wrong paramenters.. or false if no file exists..
      *              or the array(tablename => array(column_name=>type)) if called with 1 argument.. (databasename)
      */
-    function databaseStructure()
+    public function databaseStructure()
     {
         global $_DB_DATAOBJECT;
 
-        // Assignment code
-
-        if ($args = func_get_args()) {
-
+        if (!empty($args = func_get_args())) {
             if (count($args) == 1) {
-
                 // this returns all the tables and their structure..
                 if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {
-                    $this->debug("Loading Generator as databaseStructure called with args",1);
+                    $this->debug(
+                        'Loading Generator as databaseStructure called with args',
+                        1
+                    );
                 }
 
                 $x = new DB_DataObject;
@@ -159,13 +160,12 @@ class Safe_DataObject extends GS_DataObject
                 class_exists('DB_DataObject_Generator') ? '' :
                     require_once 'DB/DataObject/Generator.php';
 
-                foreach($tables as $table) {
+                foreach ($tables as $table) {
                     $y = new DB_DataObject_Generator;
-                    $y->fillTableSchema($x->_database,$table);
+                    $y->fillTableSchema($x->_database, $table);
                 }
                 return $_DB_DATAOBJECT['INI'][$x->_database];
             } else {
-
                 $_DB_DATAOBJECT['INI'][$args[0]] = isset($_DB_DATAOBJECT['INI'][$args[0]]) ?
                     $_DB_DATAOBJECT['INI'][$args[0]] + $args[1] : $args[1];
 
@@ -175,7 +175,6 @@ class Safe_DataObject extends GS_DataObject
                 }
                 return true;
             }
-
         }
         if (!$this->_database) {
             $this->_connect();
@@ -190,14 +189,14 @@ class Safe_DataObject extends GS_DataObject
                     && !empty($_DB_DATAOBJECT['CONFIG']['proxy'])
                 ) {
                 if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {
-                    $this->debug("Loading Generator to fetch Schema",1);
+                    $this->debug('Loading Generator to fetch Schema', 1);
                 }
                 class_exists('DB_DataObject_Generator') ? '' :
                     require_once 'DB/DataObject/Generator.php';
 
 
                 $x = new DB_DataObject_Generator;
-                $x->fillTableSchema($this->_database,$this->tableName());
+                $x->fillTableSchema($this->_database, $this->tableName());
             }
             return true;
         }
@@ -216,7 +215,7 @@ class Safe_DataObject extends GS_DataObject
         if (isset($_DB_DATAOBJECT['CONFIG']["ini_{$this->_database}"])) {
             $schemas = is_array($_DB_DATAOBJECT['CONFIG']["ini_{$this->_database}"]) ?
                 $_DB_DATAOBJECT['CONFIG']["ini_{$this->_database}"] :
-                explode(PATH_SEPARATOR,$_DB_DATAOBJECT['CONFIG']["ini_{$this->_database}"]);
+                explode(PATH_SEPARATOR, $_DB_DATAOBJECT['CONFIG']["ini_{$this->_database}"]);
         }
 
         /* BEGIN CHANGED FROM UPSTREAM */
@@ -234,15 +233,25 @@ class Safe_DataObject extends GS_DataObject
                 require_once 'DB/DataObject/Generator.php';
 
             $x = new DB_DataObject_Generator;
-            $x->fillTableSchema($this->_database,$this->tableName());
+            $x->fillTableSchema($this->_database, $this->tableName());
             // should this fail!!!???
             return true;
         }
-        $this->debug("Cant find database schema: {$this->_database}/{$this->tableName()} \n".
-                    "in links file data: " . print_r($_DB_DATAOBJECT['INI'],true),"databaseStructure",5);
+        $this->debug(
+            "Can't find database schema: {$this->_database}/{$this->tableName()}\n"
+            . 'in links file data: '
+            . print_r($_DB_DATAOBJECT['INI'], true),
+            'databaseStructure',
+            5
+        );
         // we have to die here!! - it causes chaos if we don't (including looping forever!)
         // Low level exception. No need for i18n as discussed with Brion.
-        $this->raiseError( "Unable to load schema for database and table (turn debugging up to 5 for full error message)", DB_DATAOBJECT_ERROR_INVALIDARGS, PEAR_ERROR_DIE);
+        $this->raiseError(
+            'Unable to load schema for database and table '
+            . '(turn debugging up to 5 for full error message)',
+            DB_DATAOBJECT_ERROR_INVALIDARGS,
+            PEAR_ERROR_DIE
+        );
         return false;
     }
 
@@ -268,15 +277,27 @@ class Safe_DataObject extends GS_DataObject
                     $data = array_merge($data, parse_ini_file($ini, true));
 
                     if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {
-                        if (!is_readable ($ini)) {
-                            $this->debug("ini file is not readable: $ini","databaseStructure",1);
+                        if (!is_readable($ini)) {
+                            $this->debug(
+                                "ini file is not readable: {$ini}",
+                                'databaseStructure',
+                                1
+                            );
                         } else {
-                            $this->debug("Loaded ini file: $ini","databaseStructure",1);
+                            $this->debug(
+                                "Loaded ini file: {$ini}",
+                                'databaseStructure',
+                                1
+                            );
                         }
                     }
                 } else {
                     if (!empty($_DB_DATAOBJECT['CONFIG']['debug'])) {
-                        $this->debug("Missing ini file: $ini","databaseStructure",1);
+                        $this->debug(
+                            "Missing ini file: {$ini}",
+                            'databaseStructure',
+                            1
+                        );
                     }
                 }
             }

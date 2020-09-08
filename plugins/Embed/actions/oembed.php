@@ -115,7 +115,13 @@ class OEmbedAction extends Action
                 // TRANS: %d is an attachment ID.
                 $this->clientError(sprintf(_('Attachment %s not found.'), $id), 404);
             }
-            if (empty($attachment->filename) && $file_oembed = File_oembed::getKV('file_id', $attachment->id)) {
+            if (
+                empty($attachment->filename)
+                && !empty($file_oembed = File_oembed::getKV(
+                    'file_id',
+                    $attachment->id
+                ))
+            ) {
                 // Proxy the existing oembed information
                 $oembed['type']=$file_oembed->type;
                 $oembed['provider']=$file_oembed->provider;

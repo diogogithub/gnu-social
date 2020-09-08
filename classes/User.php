@@ -770,7 +770,7 @@ class User extends Managed_DataObject
             throw new ServerException(_('Single-user mode code called when not enabled.'));
         }
 
-        if ($nickname = common_config('singleuser', 'nickname')) {
+        if (!empty($nickname = common_config('singleuser', 'nickname'))) {
             $user = User::getKV('nickname', $nickname);
             if ($user instanceof User) {
                 return $user;

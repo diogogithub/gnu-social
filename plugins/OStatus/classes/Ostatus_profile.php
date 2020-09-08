@@ -964,7 +964,10 @@ class Ostatus_profile extends Managed_DataObject
             $best = false;
             // Take the exact-size avatar, or the largest avatar, or the first avatar if all sizeless
             foreach ($object->avatarLinks as $avatar) {
-                if ($avatar->width == AVATAR_PROFILE_SIZE && $avatar->height = AVATAR_PROFILE_SIZE) {
+                if (
+                    $avatar->width === AVATAR_PROFILE_SIZE
+                    && $avatar->height === AVATAR_PROFILE_SIZE
+                ) {
                     // Exact match!
                     $best = $avatar;
                     break;

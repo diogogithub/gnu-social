@@ -2097,7 +2097,7 @@ function common_get_mime_media($type)
 function common_bare_mime($mimetype)
 {
     $mimetype = mb_strtolower($mimetype);
-    if ($semicolon = mb_strpos($mimetype, ';')) {
+    if (($semicolon = mb_strpos($mimetype, ';')) !== false) {
         $mimetype = mb_substr($mimetype, 0, $semicolon);
     }
     return trim($mimetype);

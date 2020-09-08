@@ -1,36 +1,31 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Utilities for theme files and paths
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Paths
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
  * @copyright 2008-2009 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * Class for querying and manipulating a theme
@@ -45,19 +40,18 @@ if (!defined('STATUSNET') && !defined('LACONICA')) {
  * This used to be a couple of functions, but for various reasons it's nice
  * to have a class instead.
  *
- * @category Output
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Output
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class Theme
 {
     const FALLBACK = 'neo';
 
-    var $name = null;
-    var $dir  = null;
-    var $path = null;
+    public $name = null;
+    public $dir  = null;
+    public $path = null;
     protected $metadata = null; // access via getMetadata() lazy-loader
     protected $externals = null;
     protected $deps = null;
@@ -70,7 +64,7 @@ class Theme
      * @param string $name Name of the theme; defaults to config value
      * @throws ServerException
      */
-    function __construct($name = null)
+    public function __construct($name = null)
     {
         if (empty($name)) {
             $name = common_config('site', 'theme');
@@ -107,14 +101,15 @@ class Theme
 
         // Ruh roh. Fall back to default, then.
 
-        common_log(LOG_WARNING, sprintf("Unable to find theme '%s', falling back to default theme '%s'",
-                                        $name,
-                                        Theme::FALLBACK));
+        common_log(LOG_WARNING, sprintf(
+            'Unable to find theme \'%s\', falling back to default theme \'%s\'',
+            $name,
+            Theme::FALLBACK
+        ));
 
         $this->name = Theme::FALLBACK;
         $this->dir  = $instroot.'/'.Theme::FALLBACK;
         $this->path = $this->relativeThemePath('theme', 'theme', Theme::FALLBACK);
-
     }
 
     /**
@@ -135,13 +130,13 @@ class Theme
             $sslserver = common_config($group, 'sslserver');
 
             if (empty($sslserver)) {
-                if (is_string(common_config('site', 'sslserver')) &&
-                    mb_strlen(common_config('site', 'sslserver')) > 0) {
-                    $server = common_config('site', 'sslserver');
-                } else if (common_config('site', 'server')) {
+                $sslserver = common_config('site', 'sslserver');
+                if (is_string($sslserver) && strlen($sslserver) > 0) {
+                    $server = $sslserver;
+                } elseif (!empty(common_config('site', 'server'))) {
                     $server = common_config('site', 'server');
                 }
-                $path   = common_config('site', 'path') . '/';
+                $path = common_config('site', 'path') . '/';
                 if ($fallbackSubdir) {
                     $path .= $fallbackSubdir . '/';
                 }
@@ -191,7 +186,7 @@ class Theme
      *
      * @return string full pathname, like /var/www/mublog/theme/default/logo.png
      */
-    function getFile($relative)
+    public function getFile($relative)
     {
         return $this->dir.'/'.$relative;
     }
@@ -203,7 +198,7 @@ class Theme
      *
      * @return string full URL, like 'http://example.com/theme/default/logo.png'
      */
-    function getPath($relative)
+    public function getPath($relative)
     {
         return $this->path.'/'.$relative;
     }
@@ -215,7 +210,7 @@ class Theme
      *
      * @return array of strings with theme names
      */
-    function getDeps()
+    public function getDeps()
     {
         if ($this->deps === null) {
             $chain = $this->doGetDeps(array($this->name));
@@ -238,9 +233,11 @@ class Theme
                     array_unshift($chain, $include);
                     return $theme->doGetDeps($chain);
                 } catch (Exception $e) {
-                    common_log(LOG_ERR,
-                            "Exception while fetching theme dependencies " .
-                            "for $this->name: " . $e->getMessage());
+                    common_log(
+                        LOG_ERR,
+                        'Exception while fetching theme dependencies '
+                        . "for {$this->name}: {$e->getMessage()}"
+                    );
                 }
             }
         }
@@ -253,9 +250,9 @@ class Theme
      *
      * @return array associative of strings
      */
-    function getMetadata()
+    public function getMetadata()
     {
-        if ($this->metadata == null) {
+        if (is_null($this->metadata)) {
             $this->metadata = $this->doGetMetadata();
         }
         return $this->metadata;
@@ -284,9 +281,9 @@ class Theme
      * @return array of URL strings
      * @throws ServerException
      */
-    function getExternals()
+    public function getExternals()
     {
-        if ($this->externals == null) {
+        if (is_null($this->externals)) {
             $data = $this->getMetadata();
             if (!empty($data['external'])) {
                 $ext = (array)$data['external'];
@@ -313,7 +310,7 @@ class Theme
      * @return string File path to the theme file
      * @throws ServerException
      */
-    static function file($relative, $name=null)
+    public static function file($relative, $name = null)
     {
         $theme = new Theme($name);
         return $theme->getFile($relative);
@@ -328,7 +325,7 @@ class Theme
      * @return string URL of the file
      * @throws ServerException
      */
-    static function path($relative, $name=null)
+    public static function path($relative, $name = null)
     {
         $theme = new Theme($name);
         return $theme->getPath($relative);
@@ -339,7 +336,7 @@ class Theme
      *
      * @return array list of available theme names
      */
-    static function listAvailable()
+    public static function listAvailable()
     {
         $local   = self::subdirsOf(self::localRoot());
         $install = self::subdirsOf(self::installRoot());
@@ -363,7 +360,7 @@ class Theme
         $subdirs = array();
 
         if (is_dir($dir)) {
-            if ($dh = opendir($dir)) {
+            if (($dh = opendir($dir)) !== false) {
                 while (($filename = readdir($dh)) !== false) {
                     if ($filename != '..' && $filename !== '.' &&
                         is_dir($dir.'/'.$filename)) {
@@ -409,7 +406,7 @@ class Theme
         return $instroot;
     }
 
-    static function validName($name)
+    public static function validName($name)
     {
         return preg_match('/^[a-z0-9][a-z0-9_-]*$/i', $name);
     }

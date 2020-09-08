@@ -67,7 +67,10 @@ call_user_func(function () {
 
         // Find composer.json
         if (is_file($path . '/composer.json')) {
-            if ($cfg = json_decode(file_get_contents($path . '/composer.json'), true)) {
+            if (!empty($cfg = json_decode(
+                file_get_contents($path . '/composer.json'),
+                true
+            ))) {
                 if (isset($cfg['name']) && $cfg['name'] === 'psy/psysh') {
                     // We're inside the psysh project. Let's use the local
                     // Composer autoload.
@@ -82,7 +85,10 @@ call_user_func(function () {
 
         // Or a composer.lock
         if (is_file($path . '/composer.lock')) {
-            if ($cfg = json_decode(file_get_contents($path . '/composer.lock'), true)) {
+            if (!empty($cfg = json_decode(
+                file_get_contents($path . '/composer.lock'),
+                true
+            ))) {
                 foreach (array_merge($cfg['packages'], $cfg['packages-dev']) as $pkg) {
                     if (isset($pkg['name']) && $pkg['name'] === 'psy/psysh') {
                         // We're inside a project which requires psysh. We'll
