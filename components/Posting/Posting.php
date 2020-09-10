@@ -24,9 +24,13 @@ use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Module;
+use App\Core\Security;
+use App\Entity\FileToNote;
+use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exceptiion\InvalidFormException;
 use App\Util\Exception\RedirectException;
+use Component\Media\Media;
 use Component\Posting\Controller as C;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -79,5 +83,27 @@ class Posting extends Module
         $vars['post_form'] = $form->createView();
 
         return Event::next;
+    }
+
+    public static function storeNote(int $actor_id, string $content, array $attachments, bool $is_local, ?int $reply_to = null, ?int $repeat_of = null)
+    {
+        $note  = Note::create(['gsactor_id' => $actor_id, 'content' => $content, 'is_local' => $is_local, 'reply_to' => $reply_to, 'repeat_of' => $repeat_of]);
+        $files = [];
+        foreach ($attachments as $f) {
+            $nf = Media::validateAndStoreFile($f, Common::config('attachments', 'dir'),
+                                              Security::sanitize($title = $f->getClientOriginalName()),
+                                              $is_local = true, $actor_id);
+            $files[] = $nf;
+            DB::persist($nf);
+        }
+        DB::persist($note);
+        // Need file and note ids for the next step
+        DB::flush();
+        if ($attachments != []) {
+            foreach ($files as $f) {
+                DB::persist(FileToNote::create(['file_id' => $f->getId(), 'note_id' => $note->getId()]));
+            }
+            DB::flush();
+        }
     }
 }
