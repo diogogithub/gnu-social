@@ -22,14 +22,17 @@ namespace Plugin\Reply;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Core\Module;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exceptiion\InvalidFormException;
 use App\Util\Exception\RedirectException;
 use Componenet\Posting;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
 
 class Reply extends Module
@@ -41,42 +44,29 @@ class Reply extends Module
 
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
-        $is_set = false;
-        $form   = Form::create([
+        $form = Form::create([
             ['content',     HiddenType::class, ['label' => ' ', 'required' => false]],
             ['attachments', HiddenType::class, ['label' => ' ', 'required' => false]],
             ['note_id',     HiddenType::class, ['data' => $note->getId()]],
             ['reply',       SubmitType::class, ['label' => ' ']],
         ]);
-
-        if ('POST' === $request->getMethod() && $request->request->has('reply')) {
-            $form->handleRequest($request);
-            if ($form->isSubmitted()) {
-                $data = $form->getData();
-                // Loose comparison
-                if ($data['note_id'] != $note->getId()) {
-                    return Event::next;
-                } else {
-                    if ($form->isValid()) {
-                        if ($data['content'] !== null) {
-                            // JS submitted
-                        // TODO DO THE THING
-                        } else {
-                            // JS disabled, redirect
-                            throw new RedirectException('note_reply', ['reply_to' => $note->getId()]);
-                        }
-                    } else {
-                        throw new InvalidFormException();
-                    }
-                }
+        $ret = self::noteActionHandle($request, $form, $note, 'reply', function ($note, $data) {
+            if ($data['content'] !== null) {
+                // JS submitted
+                    // TODO DO THE THING
+            } else {
+                // JS disabled, redirect
+                throw new RedirectException('note_reply', ['reply_to' => $note->getId()]);
             }
+        });
+        if ($ret != null) {
+            return $ret;
         }
-
         $actions[] = $form->createView();
         return Event::next;
     }
 
-    public function reply(Request $request, string $reply_to)
+    public function replyController(Request $request, string $reply_to)
     {
         $user     = Common::ensureLoggedIn();
         $actor_id = $user->getId();

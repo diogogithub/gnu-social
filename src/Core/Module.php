@@ -19,6 +19,10 @@
 
 namespace App\Core;
 
+use App\Entity\Note;
+use Symfony\Component\Form\Form;
+use Symfony\Component\HttpFoundation\Request;
+
 class Module
 {
     public static function __set_state($state)
@@ -29,5 +33,37 @@ class Module
             $obj->{$k} = $v;
         }
         return $obj;
+    }
+
+    public static function noteActionHandle(Request $request, Form $form, Note $note, string $form_name, callable $handle)
+    {
+        if ('POST' === $request->getMethod() && $request->request->has($form_name)) {
+            $form->handleRequest($request);
+            if ($form->isSubmitted()) {
+                $data = $form->getData();
+                // Loose comparison
+                if ($data['note_id'] != $note->getId()) {
+                    return Event::next;
+                } else {
+                    $user = Common::user();
+                    if (!$note->isVisibleTo($user)) {
+                        // ^ Ensure user isn't trying to trip us up
+                        Log::error('Suspicious activity: user ' . $user->getNickname() .
+                                   ' tried to repeat note ' . $note->getId() .
+                                   ', but they shouldn\'t have access to it');
+                        throw new NoSuchNoteException();
+                    } else {
+                        if ($form->isValid()) {
+                            $ret = $handle($note, $data, $user);
+                            if ($ret != null) {
+                                return $ret;
+                            }
+                        } else {
+                            throw new InvalidFormException();
+                        }
+                    }
+                }
+            }
+        }
     }
 }

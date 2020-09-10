@@ -25,7 +25,7 @@ use App\Core\Form;
 use App\Core\Module;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Exceptiion\InvalidFormException;
+use App\Util\Exception\NotFoundException;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -34,45 +34,38 @@ class Repeat extends Module
 {
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
-        $is_set = false;
-        $form   = Form::create([
+        $user = Common::user();
+        $opts = ['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId()];
+        try {
+            $is_set = DB::findOneBy('note', $opts) != null;
+        } catch (NotFoundException $e) {
+            // Not found
+            $is_set = false;
+        }
+        $form = Form::create([
             ['is_set',  HiddenType::class, ['data' => $is_set ? '1' : '0']],
             ['note_id', HiddenType::class, ['data' => $note->getId()]],
             ['repeat',  SubmitType::class, ['label' => ' ']],
         ]);
-
-        if ('POST' === $request->getMethod() && $request->request->has('repeat')) {
-            $form->handleRequest($request);
-            if ($form->isSubmitted()) {
-                $data = $form->getData();
-                if ($data['note_id'] != $note . getId()) {
-                    // ^ Loose comparison
-                    return Event::next;
-                } else {
-                    if (!$note->isVisibleTo(Common::user())) {
-                        // ^ Ensure user isn't trying to trip us up
-                        Log::error('Suspicious activity: user ' . $user->getNickname() .
-                               ' tried to repeat note ' . $note->getId() .
-                               ', but they shouldn\'t have access to it');
-                        throw new NoSuchNoteException();
-                    } else {
-                        if ($form->isValid()) {
-                            if (!$data['is_set']) {
-                                DB::persist(Note::create(['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId(), 'content' => $note->getContent(), 'is_local' => true]));
-                                DB::flush();
-                            } else {
-                                DB::remove(DB::findOneBy('note', ['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId()]));
-                                DB::flush();
-                            }
-                            return Event::stop;
-                        } else {
-                            throw new InvalidFormException();
-                        }
-                    }
-                }
+        $ret = self::noteActionHandle($request, $form, $note, 'repeat', function ($note, $data, $user) use ($opts) {
+            $note = DB::findOneBy('note', $opts);
+            if (!$data['is_set'] && $note == null) {
+                DB::persist(Note::create([
+                    'gsactor_id' => $user->getId(),
+                    'repeat_of'  => $note->getId(),
+                    'content'    => $note->getContent(),
+                    'is_local'   => true,
+                ]));
+                DB::flush();
+            } else {
+                DB::remove($note);
+                DB::flush();
             }
+            return Event::stop;
+        });
+        if ($ret != null) {
+            return $ret;
         }
-
         $actions[] = $form->createView();
         return Event::next;
     }
