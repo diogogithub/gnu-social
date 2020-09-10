@@ -25,20 +25,31 @@ abstract class Bitmap
 {
     public static $consts = null;
 
-    public static function bitmapToStrings(int $r): array
+    public static function _do(int $r, bool $instance)
     {
         $init  = $r;
         $class = get_called_class();
-        $vals  = [];
+        if ($instance) {
+            $obj = new $class;
+        } else {
+            $vals = [];
+        }
+
         if (self::$consts == null) {
             self::$consts = (new \ReflectionClass($class))->getConstants();
             unset(self::$consts['PREFIX']);
         }
 
         foreach (self::$consts as $c => $v) {
-            if (($r & $v) !== 0) {
+            $b = ($r & $v) !== 0;
+            if ($instance) {
+                $obj->{$c} = $b;
+            }
+            if ($b) {
                 $r -= $v;
-                $vals[] = $class::PREFIX . $c;
+                if (!$instance) {
+                    $vals[] = $class::PREFIX . $c;
+                }
             }
         }
 
@@ -47,6 +58,20 @@ abstract class Bitmap
             throw new ServerException("Bug in bitmap conversion for class {$class} from value {$init}");
         }
 
-        return $vals;
+        if ($instance) {
+            return $obj;
+        } else {
+            return $vals;
+        }
+    }
+
+    public static function create(int $r): self
+    {
+        return self::_do($r, true);
+    }
+
+    public static function toArray(int $r): array
+    {
+        return self::_do($r, false);
     }
 }

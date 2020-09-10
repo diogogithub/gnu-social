@@ -21,7 +21,7 @@ namespace App\Core;
 
 use App\Util\Bitmap;
 
-abstract class NoteScope extends Bitmap
+class NoteScope extends Bitmap
 {
     public const PUBLIC    = 1;
     public const SITE      = 2;
