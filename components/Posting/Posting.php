@@ -31,7 +31,6 @@ use App\Util\Common;
 use App\Util\Exceptiion\InvalidFormException;
 use App\Util\Exception\RedirectException;
 use Component\Media\Media;
-use Component\Posting\Controller as C;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -39,11 +38,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class Posting extends Module
 {
-    public function onAddRoute($r)
-    {
-        $r->connect('note_reply', '/note/reply/{reply_to<\d*>}', [C\Post::class, 'reply']);
-    }
-
     public function onStartTwigPopulateVars(array &$vars)
     {
         if (($user = Common::user()) == null) {
