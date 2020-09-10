@@ -137,6 +137,8 @@ class GNUsocial implements EventSubscriberInterface
             HTTPClient::setClient($this->client);
 
             if (isset($_ENV['HTTPS']) || isset($_ENV['HTTP_HOST'])) {
+                // TODO move to container definition, after removing
+                // this way of doing configuration
                 DefaultSettings::setDefaults();
             }
 
