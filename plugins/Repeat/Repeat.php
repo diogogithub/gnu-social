@@ -34,15 +34,8 @@ class Repeat extends Module
 {
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
-        $user = Common::user();
-        // Only show buttons if a user is logged in
-        if ($user == null) {
-            return Event::next;
-        }
-
-        $to_repeat = DB::find('note', ['id' => $note->getId()]);
-        $is_set    = false;
-        $form      = Form::create([
+        $is_set = false;
+        $form   = Form::create([
             ['is_set',  HiddenType::class, ['data' => $is_set ? '1' : '0']],
             ['note_id', HiddenType::class, ['data' => $note->getId()]],
             ['repeat',  SubmitType::class, ['label' => ' ']],
@@ -52,22 +45,30 @@ class Repeat extends Module
             $form->handleRequest($request);
             if ($form->isSubmitted()) {
                 $data = $form->getData();
-                // Loose comparison
-                if ($data['note_id'] != $to_repeat) {
+                if ($data['note_id'] != $note . getId()) {
+                    // ^ Loose comparison
                     return Event::next;
-                }
-
-                if ($form->isValid()) {
-                    if (!$data['is_set']) {
-                        DB::persist(Note::create(['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId(), 'content' => $note->getContent(), 'is_local' => true]));
-                        DB::flush();
-                    } else {
-                        DB::remove($to_repeat);
-                        DB::flush();
-                    }
-                    return Event::stop;
                 } else {
-                    throw new InvalidFormException();
+                    if (!$note->isVisibleTo(Common::user())) {
+                        // ^ Ensure user isn't trying to trip us up
+                        Log::error('Suspicious activity: user ' . $user->getNickname() .
+                               ' tried to repeat note ' . $note->getId() .
+                               ', but they shouldn\'t have access to it');
+                        throw new NoSuchNoteException();
+                    } else {
+                        if ($form->isValid()) {
+                            if (!$data['is_set']) {
+                                DB::persist(Note::create(['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId(), 'content' => $note->getContent(), 'is_local' => true]));
+                                DB::flush();
+                            } else {
+                                DB::remove(DB::findOneBy('note', ['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId()]));
+                                DB::flush();
+                            }
+                            return Event::stop;
+                        } else {
+                            throw new InvalidFormException();
+                        }
+                    }
                 }
             }
         }

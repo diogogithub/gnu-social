@@ -60,6 +60,11 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
 
     public function getNoteActions(Note $note)
     {
+        // Only show buttons if a user is logged in
+        if (Common::user() == null) {
+            return [];
+        }
+
         $actions = [];
         Event::handle('add_note_actions', [$this->request, $note, &$actions]);
         return $actions;

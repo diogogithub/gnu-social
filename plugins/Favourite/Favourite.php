@@ -35,12 +35,7 @@ class Favourite extends Module
 {
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
-        $user = Common::user();
-        // Only show buttons if a user is logged in
-        if ($user == null) {
-            return Event::next;
-        }
-
+        $user   = Common::user();
         $opts   = ['note_id' => $note->getId(), 'gsactor_id' => $user->getId()];
         $is_set = DB::find('favourite', $opts) != null;
         $form   = Form::create([
