@@ -30,6 +30,7 @@
 
 namespace App\Core;
 
+use App\Util\Common;
 use App\Util\Exception\RedirectException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -61,7 +62,7 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $controller = $event->getController();
         $request    = $event->getRequest();
 
-        $this->vars = ['controler' => $controller, 'request' => $request];
+        $this->vars = ['controler' => $controller, 'request' => $request, 'have_user' => Common::user() !== null];
         Event::handle('start_twig_populate_vars', [&$this->vars]);
 
         $event->stopPropagation();
@@ -100,13 +101,16 @@ class Controller extends AbstractController implements EventSubscriberInterface
 
     public function onKernelException(ExceptionEvent $event)
     {
-        if (($except = $event->getThrowable()) instanceof RedirectException) {
-            if (($redir = $except->redirect_response) != null) {
-                $event->setResponse($redir);
-            } else {
-                $event->setResponse(new RedirectResponse($event->getRequest()->getPathInfo()));
+        $except = $event->getThrowable();
+        do {
+            if ($except instanceof RedirectException) {
+                if (($redir = $except->redirect_response) != null) {
+                    $event->setResponse($redir);
+                } else {
+                    $event->setResponse(new RedirectResponse($event->getRequest()->getPathInfo()));
+                }
             }
-        }
+        } while ($except != null && ($except = $except->getPrevious()) != null);
         return $event;
     }
 
