@@ -32,7 +32,7 @@ namespace App\Core;
 
 use App\Util\Bitmap;
 
-abstract class UserRoles extends Bitmap
+class UserRoles extends Bitmap
 {
     public const ADMIN     = 1;
     public const MODERATOR = 2;
