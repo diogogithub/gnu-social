@@ -75,10 +75,11 @@ class SchemaDefDriver extends StaticPHPDriver
     {
         $schema = $class_name::schemaDef();
 
-        $metadata->setPrimaryTable(['name' => $schema['name'],
-            'indexes'                      => self::kv_to_name_col($schema['indexes'] ?? []),
-            'uniqueConstraints'            => self::kv_to_name_col($schema['unique keys'] ?? []),
-            'options'                      => ['comment' => $schema['description'] ?? ''],
+        $metadata->setPrimaryTable([
+            'name'              => $schema['name'],
+            'indexes'           => self::kv_to_name_col($schema['indexes'] ?? []),
+            'uniqueConstraints' => self::kv_to_name_col($schema['unique keys'] ?? []),
+            'options'           => ['comment' => $schema['description'] ?? ''],
         ]);
 
         foreach ($schema['fields'] as $name => $opts) {

@@ -83,12 +83,11 @@ class ModuleManager
         }
     }
 
-    public static function process(ContainerBuilder $container)
+    public static function process(?ContainerBuilder $container = null)
     {
         $module_paths   = array_merge(glob(INSTALLDIR . '/components/*/*.php'), glob(INSTALLDIR . '/plugins/*/*.php'));
         $module_manager = new self();
         $entity_paths   = [];
-        $default_driver = $container->findDefinition('doctrine.orm.default_metadata_driver');
         foreach ($module_paths as $path) {
             // 'modules' and 'plugins' have the same length
             $type   = ucfirst(preg_replace('%' . INSTALLDIR . '/(component|plugin)s/.*%', '\1', $path));
@@ -96,17 +95,19 @@ class ModuleManager
             $module = basename($dir);
             $fqcn   = "\\{$type}\\{$module}\\{$module}";
             $module_manager->add($fqcn, $path);
-            if (file_exists($dir = $dir . '/Entity') && is_dir($dir)) {
+            if (!is_null($container) && file_exists($dir = $dir . '/Entity') && is_dir($dir)) {
                 $entity_paths[] = $dir;
-                $default_driver->addMethodCall(
+                $container->findDefinition('doctrine.orm.default_metadata_driver')->addMethodCall(
                     'addDriver',
                     [new Reference('app.core.schemadef_driver'), "{$type}\\{$module}\\Entity"]
                 );
             }
         }
 
-        $container->findDefinition('app.core.schemadef_driver')
-                  ->addMethodCall('addPaths', ['$paths' => $entity_paths]);
+        if (!is_null($container)) {
+            $container->findDefinition('app.core.schemadef_driver')
+                      ->addMethodCall('addPaths', ['$paths' => $entity_paths]);
+        }
 
         $module_manager->preRegisterEvents();
 
@@ -132,6 +133,7 @@ class ModuleManager
             $time = file_exists(CACHE_FILE) ? filemtime(CACHE_FILE) : 0;
 
             if (F\some($rdi, function ($e) use ($time) { return $e->getMTime() > $time; })) {
+                Log::info('Rebuilding plugin cache at runtime. This means we can\'t update DB definitions');
                 self::process();
             }
         }
