@@ -26,7 +26,6 @@ use App\Core\Module;
 use App\Entity\Favourite as Fave;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Exceptiion\InvalidFormException;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,33 +42,20 @@ class Favourite extends Module
             ['note_id',   HiddenType::class, ['data' => $note->getId()]],
             ['favourite', SubmitType::class, ['label' => ' ']],
         ]);
-
-        if ('POST' === $request->getMethod() && $request->request->has('favourite')) {
-            $form->handleRequest($request);
-            if ($form->isSubmitted()) {
-                $data = $form->getData();
-                // Loose comparison
-                if ($data['note_id'] != $note->getId()) {
-                    return Event::next;
-                }
-
-                $fave = DB::find('favourite', $opts);
-                if ($form->isValid()) {
-                    // Loose comparison
-                    if (!$data['is_set'] && ($fave == null)) {
-                        DB::persist(Fave::create($opts));
-                        DB::flush();
-                    } else {
-                        DB::remove($fave);
-                        DB::flush();
-                    }
-                    return Event::stop;
-                } else {
-                    throw new InvalidFormException();
-                }
+        $ret = self::noteActionHandle($request, $form, $note, 'favourite', function ($note, $data) use ($opts) {
+            $fave = DB::find('favourite', $opts);
+            if (!$data['is_set'] && ($fave == null)) {
+                DB::persist(Fave::create($opts));
+                DB::flush();
+            } else {
+                DB::remove($fave);
+                DB::flush();
             }
+            return Event::stop;
+        });
+        if ($ret != null) {
+            return $ret;
         }
-
         $actions[] = $form->createView();
         return Event::next;
     }
