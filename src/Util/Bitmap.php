@@ -23,8 +23,6 @@ use App\Util\Exception\ServerException;
 
 abstract class Bitmap
 {
-    public static $consts = null;
-
     public static function _do(int $r, bool $instance)
     {
         $init  = $r;
@@ -35,14 +33,13 @@ abstract class Bitmap
             $vals = [];
         }
 
-        if (self::$consts == null) {
-            self::$consts = (new \ReflectionClass($class))->getConstants();
-            unset(self::$consts['PREFIX']);
-        }
+        $consts = (new \ReflectionClass($class))->getConstants();
+        unset($consts['PREFIX']);
 
-        foreach (self::$consts as $c => $v) {
+        foreach ($consts as $c => $v) {
             $b = ($r & $v) !== 0;
             if ($instance) {
+                $c         = strtolower($c);
                 $obj->{$c} = $b;
             }
             if ($b) {
