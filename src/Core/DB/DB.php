@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 /**
@@ -30,13 +32,13 @@
 
 namespace App\Core\DB;
 
+use App\Util\Exception\NotFoundException;
 use App\Util\Formatting;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
-use Exception;
 
 abstract class DB
 {
@@ -117,7 +119,7 @@ abstract class DB
         if (count($res) == 1) {
             return $res[0];
         } else {
-            throw new Exception("No value in table {$table} matches the requested criteria");
+            throw new NotFoundException("No value in table {$table} matches the requested criteria");
         }
     }
 
