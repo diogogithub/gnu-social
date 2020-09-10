@@ -27,10 +27,10 @@ class RedirectException extends Exception
 {
     public ?RedirectResponse $redirect_response = null;
 
-    public function __construct(string $url_id = '', $message = '', $code = 302, Exception $previous_exception = null)
+    public function __construct(string $url_id = '', array $args = [], $message = '', $code = 302, Exception $previous_exception = null)
     {
         if (!empty($url_id)) {
-            $this->redirect_response = new RedirectResponse(Router::url($urlid));
+            $this->redirect_response = new RedirectResponse(Router::url($url_id, $args));
         }
         parent::__construct($message, $code, $previous_exception);
     }

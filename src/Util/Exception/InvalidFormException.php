@@ -21,7 +21,7 @@
 
 namespace App\Util\Exception;
 
-class InvalidFormException
+class InvalidFormException extends ClientException
 {
     public function __construct()
     {
