@@ -92,7 +92,7 @@
                         {% if notes is defined and notes is not empty %}
                             {% for note in notes %}
                               {% set id = note.getId() - 1 %}
-                              {% include '/note/view.html.twig' with {'note': note} only  %}
+                              {% include '/note/view.html.twig' with {'note': note, 'have_user': have_user} only %}
                             {% endfor %}
                         {% else %}
                             <h1>{% trans %}No notes here.{% endtrans %}</h1>
