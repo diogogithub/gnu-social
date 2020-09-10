@@ -265,7 +265,7 @@ class LocalUser extends Entity implements UserInterface
      */
     public function getRoles()
     {
-        return UserRoles::bitmapToStrings($this->getActor()->getRoles());
+        return UserRoles::toArray($this->getActor()->getRoles());
     }
 
     /**
