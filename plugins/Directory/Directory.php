@@ -21,6 +21,7 @@
 
 namespace Plugin\Directory;
 
+use App\Core\Event;
 use App\Core\Module;
 
 class Directory extends Module
