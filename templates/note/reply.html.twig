@@ -29,7 +29,7 @@
   {{ parent() }}
   <div class="content">
     <div class="main">
-      {% include '/note/view.html.twig' with {'note': note} only %}
+      {% include '/note/view.html.twig' with {'note': note, 'have_user': have_user} only %}
       {{ form(reply) }}
     </div>
   </div>

@@ -35,18 +35,15 @@
     </div>
   </div>
   <div class="note-actions">
-    {% for act in get_note_actions(note) %}
-      {{ form(act) }}
-    {% endfor %}
-    <a href="{{ path('note_reply', {'reply_to': note.getId()}) }}">
-      <svg class="icon icon-reply">
-        <use xlink:href="#icon-reply"></use>
-      </svg>
-    </a>
+    {% if have_user %}
+      {% for act in get_note_actions(note) %}
+        {{ form(act) }}
+      {% endfor %}
+    {% endif %}
   </div>
   <div class="replies">
     {% for reply in note.getReplies() %}
-      {% include '/note/view.html.twig' with {'note': reply, 'skip_reply_to': true} only %}
+      {% include '/note/view.html.twig' with {'note': reply, 'skip_reply_to': true, 'have_user': have_user} only %}
     {% endfor %}
   </div>
 </div>
