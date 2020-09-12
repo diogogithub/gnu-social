@@ -190,14 +190,14 @@ class ApiAction extends Action
      *
      * @param string $tag Element type or tagname
      * @param array|string|null $attrs Array of element attributes, as key-value pairs
-     * @param string|null $content string content of the element
+     * @param string|bool|null $content string content of the element
      *
      * @return void
      */
-    public function element(string $tag, $attrs = null, ?string $content = null): void
+    public function element(string $tag, $attrs = null, $content = null): void
     {
         if (is_bool($content)) {
-            $content = ($content ? "true" : "false");
+            $content = ($content ? 'true' : 'false');
         }
 
         parent::element($tag, $attrs, $content);
@@ -511,6 +511,9 @@ class ApiAction extends Action
                 case 'retweeted_status':
                     // FIXME: MOVE TO SHARE PLUGIN
                     $this->showTwitterXmlStatus($value, 'retweeted_status');
+                    break;
+                case 'tags':
+                    // Used only for showTwitterRssItem
                     break;
                 default:
                     if (strncmp($element, 'statusnet_', 10) == 0) {
