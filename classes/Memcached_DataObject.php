@@ -894,11 +894,14 @@ class Memcached_DataObject extends Safe_DataObject
         $result = parent::_connect();
 
         if ($result && !$exists) {
-            // Needed to make timestamp values usefully comparable.
+            // Required to make timestamp values usefully comparable.
+            // And set the character set to UTF-8.
             if (common_config('db', 'type') !== 'mysql') {
                 parent::_query("SET TIME ZONE INTERVAL '+00:00' HOUR TO MINUTE");
+                parent::_query("SET NAMES 'UTF8'");
             } else {
                 parent::_query("SET time_zone = '+0:00'");
+                parent::_query("SET NAMES 'utf8mb4'");
             }
         }
 
