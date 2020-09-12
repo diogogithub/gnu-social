@@ -306,6 +306,8 @@ abstract class Installer
 
         switch ($this->dbtype) {
             case 'pgsql':
+                // ensure the timezone is UTC
+                $conn->query("SET TIME ZONE INTERVAL '+00:00' HOUR TO MINUTE");
                 // ensure the database encoding is UTF8
                 $conn->query("SET NAMES 'UTF8'");
                 $server_encoding = $conn->getRow('SHOW server_encoding')[0];
@@ -313,11 +315,13 @@ abstract class Installer
                     $this->updateStatus(
                         'GNU social requires the UTF8 character encoding. Yours is ' .
                        htmlentities($server_encoding)
-                   );
+                    );
                     return false;
                 }
                break;
             case 'mysql':
+                // ensure the timezone is UTC
+                $conn->query("SET time_zone = '+0:00'");
                 // ensure the database encoding is utf8mb4
                 $conn->query("SET NAMES 'utf8mb4'");
                 $server_encoding = $conn->getRow("SHOW VARIABLES LIKE 'character_set_server'")[1];
@@ -340,10 +344,11 @@ abstract class Installer
             return false;
         }
 
-        foreach (['sms_carrier' => 'SMS carrier',
-                     'notice_source' => 'notice source',
-                     'foreign_services' => 'foreign service']
-                 as $scr => $name) {
+        foreach ([
+            'sms_carrier'      => 'SMS carrier',
+            'notice_source'    => 'notice source',
+            'foreign_services' => 'foreign service',
+        ] as $scr => $name) {
             $this->updateStatus(sprintf("Adding %s data to database...", $name));
             $res = $this->runDbScript($scr . '.sql', $conn);
             if ($res === false) {
