@@ -383,7 +383,7 @@ abstract class Installer
                 break;
             case 'mysql':
                 $res = $conn->query(
-                    "SHOW SESSION VARIABLES LIKE 'character_set_server'"
+                    "SHOW SESSION VARIABLES LIKE 'character_set_database'"
                 );
                 if (MDB2::isError($res)) {
                     throw new Exception($res->getMessage());
