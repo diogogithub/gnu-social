@@ -66,12 +66,12 @@ abstract class Installer
         'mysql' => [
             'name' => 'MariaDB 10.3+',
             'check_module' => 'mysqli',
-            'scheme' => 'mysqli', // DSN prefix for PEAR::DB
+            'scheme' => 'mysqli',  // DSN prefix for MDB2
         ],
         'pgsql' => [
             'name' => 'PostgreSQL 11+',
             'check_module' => 'pgsql',
-            'scheme' => 'pgsql', // DSN prefix for PEAR::DB
+            'scheme' => 'pgsql',  // DSN prefix for MDB2
         ]
     ];
 
@@ -283,64 +283,45 @@ abstract class Installer
      */
     public function setupDatabase()
     {
-        if ($this->db) {
-            throw new Exception("Bad order of operations: DB already set up.");
+        if (!empty($this->db)) {
+            throw new Exception('Bad order of operations: DB already set up.');
         }
-        $this->updateStatus("Starting installation...");
+        $this->updateStatus('Starting installation...');
 
-        if (empty($this->password)) {
-            $auth = '';
-        } else {
-            $auth = ":$this->password";
+        $auth = '';
+        if (!empty($this->password)) {
+            $auth .= ":{$this->password}";
         }
         $scheme = self::$dbModules[$this->dbtype]['scheme'];
         $dsn = "{$scheme}://{$this->username}{$auth}@{$this->host}/{$this->database}";
 
-        $this->updateStatus("Checking database...");
+        $this->updateStatus('Checking database...');
         $conn = $this->connectDatabase($dsn);
 
-        if (!$conn instanceof DB_common) {
-            // Is not the right instance
-            throw new Exception('Cannot connect to database: ' . $conn->getMessage());
+        $charset = ($this->dbtype !== 'mysql') ? 'UTF8' : 'utf8mb4';
+        $server_charset = $this->getDatabaseCharset($conn, $this->dbtype);
+
+        // Ensure the database server character set is UTF-8.
+        $conn->exec("SET NAMES '{$charset}'");
+
+        if ($server_charset !== $charset) {
+            $this->updateStatus(
+                'GNU social requires the "' . $charset . '" character set. '
+                . 'Yours is ' . htmlentities($server_charset)
+            );
+            return false;
         }
 
-        switch ($this->dbtype) {
-            case 'pgsql':
-                // ensure the timezone is UTC
-                $conn->query("SET TIME ZONE INTERVAL '+00:00' HOUR TO MINUTE");
-                // ensure the database encoding is UTF8
-                $conn->query("SET NAMES 'UTF8'");
-                $server_encoding = $conn->getRow('SHOW server_encoding')[0];
-                if ($server_encoding !== 'UTF8') {
-                    $this->updateStatus(
-                        'GNU social requires the UTF8 character encoding. Yours is ' .
-                       htmlentities($server_encoding)
-                    );
-                    return false;
-                }
-               break;
-            case 'mysql':
-                // ensure the timezone is UTC
-                $conn->query("SET time_zone = '+0:00'");
-                // ensure the database encoding is utf8mb4
-                $conn->query("SET NAMES 'utf8mb4'");
-                $server_encoding = $conn->getRow("SHOW VARIABLES LIKE 'character_set_server'")[1];
-                if ($server_encoding !== 'utf8mb4') {
-                    $this->updateStatus(
-                        'GNU social requires the utf8mb4 character encoding. Yours is ' .
-                        htmlentities($server_encoding)
-                    );
-                    return false;
-                }
-                break;
-            default:
-                $this->updateStatus('Unknown DB type selected: ' . $this->dbtype);
-                return false;
+        // Ensure the timezone is UTC.
+        if ($this->dbtype !== 'mysql') {
+            $conn->exec("SET TIME ZONE INTERVAL '+00:00' HOUR TO MINUTE");
+        } else {
+            $conn->exec("SET time_zone = '+0:00'");
         }
 
-        $res = $this->updateStatus("Creating database tables...");
+        $res = $this->updateStatus('Creating database tables...');
         if (!$this->createCoreTables($conn)) {
-            $this->updateStatus("Error creating tables.", true);
+            $this->updateStatus('Error creating tables.', true);
             return false;
         }
 
@@ -365,21 +346,67 @@ abstract class Installer
      * Open a connection to the database.
      *
      * @param string $dsn
-     * @return DB|DB_Error
+     * @return MDB2_Driver_Common
+     * @throws Exception
      */
-    public function connectDatabase(string $dsn)
+    protected function connectDatabase(string $dsn)
     {
-        global $_DB;
-        return $_DB->connect($dsn);
+        $conn = MDB2::connect($dsn);
+        if (MDB2::isError($conn)) {
+            throw new Exception(
+                'Cannot connect to database: ' . $conn->getMessage()
+            );
+        }
+        return $conn;
+    }
+
+    /**
+     * Get the database server character set.
+     *
+     * @param MDB2_Driver_Common $conn
+     * @param string $dbtype
+     * @return string
+     * @throws Exception
+     */
+    protected function getDatabaseCharset($conn, string $dbtype): string
+    {
+        $database = $conn->getDatabase();
+
+        switch ($dbtype) {
+            case 'pgsql':
+                $res = $conn->query('SHOW server_encoding');
+
+                if (MDB2::isError($res)) {
+                    throw new Exception($res->getMessage());
+                }
+                $ret = $res->fetchOne();
+                break;
+            case 'mysql':
+                $res = $conn->query(
+                    "SHOW SESSION VARIABLES LIKE 'character_set_server'"
+                );
+                if (MDB2::isError($res)) {
+                    throw new Exception($res->getMessage());
+                }
+                [, $ret] = $res->fetchRow(MDB2_FETCHMODE_ORDERED);
+                break;
+            default:
+                throw new Exception('Unknown DB type selected.');
+        }
+
+        if (MDB2::isError($ret)) {
+            throw new Exception($ret->getMessage());
+        }
+        return $ret;
     }
 
     /**
      * Create core tables on the given database connection.
      *
-     * @param DB_common $conn
+     * @param MDB2_Driver_Common $conn
      * @return bool
      */
-    public function createCoreTables(DB_common $conn): bool
+    public function createCoreTables($conn): bool
     {
         $schema = Schema::get($conn, $this->dbtype);
         $tableDefs = $this->getCoreSchema();
@@ -520,11 +547,11 @@ abstract class Installer
      * Install schema into the database
      *
      * @param string $filename location of database schema file
-     * @param DB_common $conn connection to database
+     * @param MDB2_Driver_Common $conn connection to database
      *
      * @return bool - indicating success or failure
      */
-    public function runDbScript(string $filename, DB_common $conn): bool
+    public function runDbScript(string $filename, $conn): bool
     {
         $sql = trim(file_get_contents(INSTALLDIR . '/db/' . $filename));
         $stmts = explode(';', $sql);

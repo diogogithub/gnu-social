@@ -21,11 +21,12 @@
 
 defined('GNUSOCIAL') || die();
 
-require_once('Auth/OpenID.php');
-require_once('Auth/OpenID/Consumer.php');
-require_once('Auth/OpenID/Server.php');
-require_once('Auth/OpenID/SReg.php');
-require_once('Auth/OpenID/MySQLStore.php');
+require_once __DIR__ . '/lib/openiddbconn.php';
+
+require_once 'Auth/OpenID.php';
+require_once 'Auth/OpenID/Consumer.php';
+require_once 'Auth/OpenID/Server.php';
+require_once 'Auth/OpenID/SReg.php';
 
 // About one year cookie expiry
 
@@ -34,31 +35,24 @@ define('OPENID_COOKIE_KEY', 'lastusedopenid');
 
 function oid_store()
 {
+    global $_PEAR;
     static $store = null;
+
     if (is_null($store)) {
-        // To create a new Database connection is an absolute must
-        // because database is in transaction (auto-commit = false)
-        // mode during OpenID operation
-        // Is a must because our Internal Session Handler uses database
-        // and depends on auto-commit = true
         $dsn = common_config('db', 'database');
-        $options = PEAR::getStaticProperty('DB', 'options');
+        $options = $_PEAR->getStaticProperty('MDB2', 'options');
 
         if (!is_array($options)) {
             $options = [];
         }
-        $db = DB::connect($dsn, $options);
-
-        if ((new PEAR)->isError($db)) {
-            throw new ServerException($db->getMessage());
-        }
+        $dbconn = new SQLStore_DB_Connection($dsn, $options);
 
         switch (common_config('db', 'type')) {
             case 'pgsql':
-                $store = new Auth_OpenID_PostgreSQLStore($db);
+                $store = new Auth_OpenID_PostgreSQLStore($dbconn);
                 break;
             case 'mysql':
-                $store = new Auth_OpenID_MySQLStore($db);
+                $store = new Auth_OpenID_MySQLStore($dbconn);
                 break;
             default:
                 throw new ServerException('Unknown DB type selected.');
@@ -247,8 +241,12 @@ function oid_authenticate($openid_url, $returnto, $immediate=false)
     } else {
         // Generate form markup and render it.
         $form_id = 'openid_message';
-        $form_html = $auth_request->formMarkup($trust_root, $process_url,
-                                               $immediate, array('id' => $form_id));
+        $form_html = $auth_request->formMarkup(
+            $trust_root,
+            $process_url,
+            $immediate,
+            ['id' => $form_id]
+        );
 
         // XXX: This is cheap, but things choke if we don't escape ampersands
         // in the HTML attributes

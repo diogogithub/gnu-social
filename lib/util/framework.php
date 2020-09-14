@@ -95,11 +95,9 @@ global $_PEAR;
 $_PEAR = new PEAR;
 $_PEAR->setErrorHandling(PEAR_ERROR_CALLBACK, 'PEAR_ErrorToPEAR_Exception');
 
-require_once 'DB.php';
+require_once 'MDB2.php';
 require_once 'DB/DataObject.php';
-require_once 'DB/DataObject/Cast.php'; # for dates
-global $_DB;
-$_DB = new DB;
+require_once 'DB/DataObject/Cast.php';  // for dates
 
 require_once INSTALLDIR . '/lib/util/language.php';
 
@@ -129,13 +127,14 @@ function GNUsocial_class_autoload($cls)
 
     $lib_path = INSTALLDIR . '/lib/';
     $lib_dirs = array_map(function ($dir) {
-                             return '/lib/' . $dir . '/';
-                          },
-                              array_filter(scandir($lib_path),
-                                           function ($dir) use ($lib_path) {
-                                               // Filter out files and both hidden and implicit folders
-                                               return $dir[0] != '.' && is_dir($lib_path . $dir);
-                                           }));
+        return '/lib/' . $dir . '/';
+    }, array_filter(
+        scandir($lib_path),
+        function ($dir) use ($lib_path) {
+            // Filter out files and both hidden and implicit directories.
+            return $dir[0] !== '.' && is_dir($lib_path . $dir);
+        }
+    ));
 
     $found = false;
     foreach (array_merge(['/classes/'], $lib_dirs) as $dir) {

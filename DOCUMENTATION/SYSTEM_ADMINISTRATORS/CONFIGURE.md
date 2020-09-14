@@ -173,10 +173,6 @@ The ones that you may want to set are listed below for clarity.
     Note that the real name of your database should go in there, not literally
     'yourdbname'.
 
-* `db_driver`(enum['DB','MDB2'], default null): You can try changing this to
-    'MDB2' to use the other driver type for DB_DataObject, but note that it
-    breaks the OpenID libraries, which only support PEAR::DB.
-
 * `type` (enum["mysql", "pgsql"], default 'mysql'): Used for certain
     database-specific optimization code.  Assumes mysql if not set.  "mysql"
     covers MariaDB, Oracle MySQL, mysqli or otherwise.

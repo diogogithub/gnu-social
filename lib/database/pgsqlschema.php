@@ -193,8 +193,8 @@ class PgsqlSchema extends Schema
      */
     public function fetchMetaInfo($table, $infoTable, $orderBy = null)
     {
-        $catalog = $this->conn->dsn['database'];
-        return $this->fetchQueryData(sprintf(
+        $catalog = $this->conn->getDatabase();
+        $info = $this->fetchQueryData(sprintf(
             <<<'END'
             SELECT * FROM information_schema.%1$s
               WHERE table_catalog = '%2$s' AND table_name = '%3$s'%4$s;
@@ -204,6 +204,10 @@ class PgsqlSchema extends Schema
             $table,
             ($orderBy ? " ORDER BY {$orderBy}" : '')
         ));
+
+        return array_map(function (array $cols): array {
+            return array_change_key_case($cols, CASE_LOWER);
+        }, $info);
     }
 
     /**

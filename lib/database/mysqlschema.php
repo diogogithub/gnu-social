@@ -220,8 +220,8 @@ class MysqlSchema extends Schema
      */
     public function fetchMetaInfo($table, $infoTable, $orderBy = null)
     {
-        $schema = $this->conn->dsn['database'];
-        return $this->fetchQueryData(sprintf(
+        $schema = $this->conn->getDatabase();
+        $info = $this->fetchQueryData(sprintf(
             <<<'END'
             SELECT * FROM INFORMATION_SCHEMA.%1$s
               WHERE TABLE_SCHEMA = '%2$s' AND TABLE_NAME = '%3$s'%4$s;
@@ -231,6 +231,10 @@ class MysqlSchema extends Schema
             $table,
             ($orderBy ? " ORDER BY {$orderBy}" : '')
         ));
+
+        return array_map(function (array $cols): array {
+            return array_change_key_case($cols, CASE_UPPER);
+        }, $info);
     }
 
     /**
@@ -242,7 +246,7 @@ class MysqlSchema extends Schema
      */
     private function fetchKeyInfo(string $table): array
     {
-        $schema = $this->conn->dsn['database'];
+        $schema = $this->conn->getDatabase();
         $data = $this->fetchQueryData(
             <<<EOT
             SELECT INDEX_NAME AS `key_name`,
@@ -290,7 +294,7 @@ class MysqlSchema extends Schema
      */
     private function fetchForeignKeyInfo(string $table): array
     {
-        $schema = $this->conn->dsn['database'];
+        $schema = $this->conn->getDatabase();
         $data = $this->fetchQueryData(
             <<<END
             SELECT CONSTRAINT_NAME AS `key_name`,
