@@ -115,7 +115,12 @@ class FFmpegPlugin extends Plugin
         }
 
         if ($success) {
-            $success = $tempfile->commit($outpath);
+            try {
+                $tempfile->commit($outpath);
+            } catch (TemporaryFileException $e) {
+                $this->log(LOG_ERR, 'Unable to save the GIF image');
+                $success = false;
+            }
         }
 
         @unlink($palette);

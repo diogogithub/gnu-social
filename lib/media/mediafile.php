@@ -517,7 +517,12 @@ class MediaFile
             if ($media === 'image') {
                 $result = rename($outpath, $filepath);
             } else {
-                $result = $tempfile->commit($filepath);
+                try {
+                    $tempfile->commit($filepath);
+                    $result = true;
+                } catch (TemporaryFileException $e) {
+                    $result = false;
+                }
             }
             if (!$result) {
                 // TRANS: Server exception thrown when a file upload operation fails because the file could
