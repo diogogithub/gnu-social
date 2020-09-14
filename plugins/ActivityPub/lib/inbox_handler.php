@@ -275,10 +275,13 @@ class Activitypub_inbox_handler
         // If it's gone, we don't know the type of the deleted object, we only have a Tombstone
         // If we were given an array, we don't know if it's Gone or not via status code...
         // In both cases, we will want to fetch the ID and act on that as it is easier than updating the fields
+        $object = $object['id'] ?? null;
+        if (is_null($object)) {
+            return;
+        }
 
         // Was it a profile?
         try {
-            $object = $object['id'];
             $aprofile = Activitypub_profile::fromUri($object, false);
             $res = Activitypub_explorer::get_remote_user_activity($object);
             Activitypub_profile::update_profile($aprofile, $res);
@@ -291,7 +294,7 @@ class Activitypub_inbox_handler
         try {
             $client = new HTTPClient();
             /*$response =*/ $client->get($object, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
-            // If it was deleted
+            // If it were deleted
             //if (!$response->isOk()) { // 410 or 404
             $notice = ActivityPubPlugin::grab_notice_from_url($object, false);
             if ($notice instanceof Notice) {
