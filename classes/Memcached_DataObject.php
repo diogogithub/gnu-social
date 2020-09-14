@@ -501,8 +501,9 @@ class Memcached_DataObject extends Safe_DataObject
     public function insert()
     {
         $result = parent::insert();
-        if ($result) {
-            $this->encache(); // in case of cached negative lookups
+        if ($result !== false) {
+            // In case of cached negative lookups
+            $this->decache();
         }
         return $result;
     }
@@ -510,11 +511,12 @@ class Memcached_DataObject extends Safe_DataObject
     public function update($dataObject = false)
     {
         if (is_object($dataObject) && $dataObject instanceof Memcached_DataObject) {
-            $dataObject->decache(); # might be different keys
+            $dataObject->decache(); // might be different keys
         }
         $result = parent::update($dataObject);
         if ($result !== false) {
-            $this->encache();
+            // Cannot encache yet, so decache instead
+            $this->decache();
         }
         return $result;
     }
@@ -582,6 +584,17 @@ class Memcached_DataObject extends Safe_DataObject
 
     public function encache()
     {
+        if ($this->N < 1) {
+            // Caching breaks when it is too early.
+            $e = new Exception();
+            common_log(
+                LOG_ERR,
+                'DataObject must be the result of a query (N>=1) before encache() '
+                . str_replace("\n", ' ', $e->getTraceAsString())
+            );
+            return false;
+        }
+
         $c = self::memcache();
 
         if (!$c) {
