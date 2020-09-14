@@ -752,10 +752,10 @@ class ActivityPubPlugin extends Plugin
      */
     public function onStartCommandGetProfile($command, $arg, &$profile)
     {
-        try {
-            $aprofile = $this->pull_remote_profile($arg);
+        $aprofile = self::pull_remote_profile($arg);
+        if ($aprofile instanceof Activitypub_profile) {
             $profile = $aprofile->local_profile();
-        } catch (Exception $e) {
+        } else {
             // No remote ActivityPub profile found
             return true;
         }
@@ -795,12 +795,10 @@ class ActivityPubPlugin extends Plugin
      */
     public function onRemoteFollowPullProfile(string $uri, ?Profile &$profile): bool
     {
-        try {
-            $aprofile = $this->pull_remote_profile($uri);
-            if ($aprofile instanceof Activitypub_profile) {
-                $profile = $aprofile->local_profile();
-            }
-        } catch (Exception $e) {
+        $aprofile = self::pull_remote_profile($uri);
+        if ($aprofile instanceof Activitypub_profile) {
+            $profile = $aprofile->local_profile();
+        } else {
             // No remote ActivityPub profile found
             return true;
         }
