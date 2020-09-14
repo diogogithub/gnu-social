@@ -121,7 +121,7 @@ function handleError($error)
             }
         }
         if ($error instanceof DB_DataObject_Error
-            || $error instanceof DB_Error
+            || $error instanceof MDB2_Error
             || ($error instanceof PEAR_Exception && $error->getCode() == -24)
         ) {
             //If we run into a DB error, assume we can't connect to the DB at all

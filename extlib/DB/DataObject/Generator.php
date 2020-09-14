@@ -701,7 +701,13 @@ class DB_DataObject_Generator extends DB_DataObject
                         die($res->getMessage());
                     }
 
-                    while ($row = $res->fetchRow(DB_FETCHMODE_ASSOC)) {
+                    if ($db_driver == 'DB') {
+                        $fetchmode = DB_FETCHMODE_ASSOC;
+                    } else {
+                        $fetchmode = MDB2_FETCHMODE_ASSOC;
+                    }
+
+                    while ($row = $res->fetchRow($fetchmode)) {
                         $treffer = array();
                         // this only picks up one of these.. see this for why: http://pear.php.net/bugs/bug.php?id=17049
                         preg_match(
@@ -731,7 +737,11 @@ class DB_DataObject_Generator extends DB_DataObject
                         die($res->getMessage());
                     }
 
-                    $text = $res->fetchRow(DB_FETCHMODE_DEFAULT, 0);
+                    if ($db_driver == 'DB') {
+                        $text = $res->fetchRow(DB_FETCHMODE_DEFAULT, 0);
+                    } else {
+                        $text = $res->fetchRow(MDB2_FETCHMODE_DEFAULT, 0);
+                    }
                     $treffer = array();
                     // Extract FOREIGN KEYS
                     preg_match_all(
@@ -1558,7 +1568,11 @@ class DB_DataObject_Generator extends DB_DataObject
         $options = (new PEAR)->getStaticProperty('DB_DataObject', 'options');
         $db_driver = empty($options['db_driver']) ? 'DB' : $options['db_driver'];
         $method = $db_driver == 'DB' ? 'getAll' : 'queryAll';
-        $res = $__DB->$method('DESCRIBE ' . $table, DB_FETCHMODE_ASSOC);
+        if ($db_driver == 'DB') {
+            $res = $__DB->$method('DESCRIBE ' . $table, DB_FETCHMODE_ASSOC);
+        } else {
+            $res = $__DB->$method('DESCRIBE ' . $table, MDB2_FETCHMODE_ASSOC);
+        }
         $defaults = array();
         foreach ($res as $ar) {
             // this is initially very dumb... -> and it may mess up..

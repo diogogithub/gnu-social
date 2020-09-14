@@ -72,7 +72,7 @@ class Schema
         if (is_null($conn)) {
             $key = 'default';
         } else {
-            $key = md5(serialize($conn->dsn));
+            $key = hash('md5', $conn->getDSN('string'));
         }
 
         if (is_null($dbtype)) {
@@ -343,7 +343,7 @@ class Schema
     {
         global $_PEAR;
 
-        $res = $this->conn->query('DROP TABLE ' . $this->quoteIdentifier($name));
+        $res = $this->conn->exec('DROP TABLE ' . $this->quoteIdentifier($name));
 
         if ($_PEAR->isError($res)) {
             PEAR_ErrorToPEAR_Exception($res);
@@ -372,7 +372,7 @@ class Schema
     {
         global $_PEAR;
 
-        $qry = [];
+        $statements = [];
 
         if (!is_array($columnNames)) {
             $columnNames = [$columnNames];
@@ -382,14 +382,20 @@ class Schema
             $name = "{$table}_" . implode("_", $columnNames) . "_idx";
         }
 
-        $this->appendCreateIndex($qry, $table, $name, $columnNames);
+        $this->appendCreateIndex($statements, $table, $name, $columnNames);
 
-        $res = $this->conn->query(implode('; ', $qry));
+        $this->conn->beginTransaction();
 
-        if ($_PEAR->isError($res)) {
-            PEAR_ErrorToPEAR_Exception($res);
+        foreach ($statements as $sql) {
+            $res = $this->conn->exec($sql);
+
+            if ($_PEAR->isError($res)) {
+                $this->conn->rollback();
+                PEAR_ErrorToPEAR_Exception($res);
+            }
         }
 
+        $this->conn->commit();
         return true;
     }
 
@@ -409,12 +415,18 @@ class Schema
         $statements = [];
         $this->appendDropIndex($statements, $table, $name);
 
-        $res = $this->conn->query(implode(";\n", $statements));
+        $this->conn->beginTransaction();
 
-        if ($_PEAR->isError($res)) {
-            PEAR_ErrorToPEAR_Exception($res);
+        foreach ($statements as $sql) {
+            $res = $this->conn->exec($sql);
+
+            if ($_PEAR->isError($res)) {
+                $this->conn->rollback();
+                PEAR_ErrorToPEAR_Exception($res);
+            }
         }
 
+        $this->conn->commit();
         return true;
     }
 
@@ -435,7 +447,7 @@ class Schema
         $sql = 'ALTER TABLE ' . $this->quoteIdentifier($table) .
                ' ADD COLUMN ' . $this->columnSql($name, $columndef);
 
-        $res = $this->conn->query($sql);
+        $res = $this->conn->exec($sql);
 
         if ($_PEAR->isError($res)) {
             PEAR_ErrorToPEAR_Exception($res);
@@ -463,7 +475,7 @@ class Schema
         $sql = 'ALTER TABLE ' . $this->quoteIdentifier($table) .
                ' MODIFY COLUMN ' . $this->columnSql($name, $columndef);
 
-        $res = $this->conn->query($sql);
+        $res = $this->conn->exec($sql);
 
         if ($_PEAR->isError($res)) {
             PEAR_ErrorToPEAR_Exception($res);
@@ -490,7 +502,7 @@ class Schema
         $sql = 'ALTER TABLE ' . $this->quoteIdentifier($table) .
                ' DROP COLUMN ' . $columnName;
 
-        $res = $this->conn->query($sql);
+        $res = $this->conn->exec($sql);
 
         if ($_PEAR->isError($res)) {
             PEAR_ErrorToPEAR_Exception($res);
@@ -532,19 +544,24 @@ class Schema
     {
         global $_PEAR;
 
-        $ok = true;
+        $this->conn->beginTransaction();
+
         foreach ($statements as $sql) {
             if (defined('DEBUG_INSTALLER')) {
                 echo "<code>" . htmlspecialchars($sql) . "</code><br/>\n";
             }
-            $res = $this->conn->query($sql);
+
+            $res = $this->conn->exec($sql);
 
             if ($_PEAR->isError($res)) {
+                $this->conn->rollback();
                 common_debug('PEAR exception on query: ' . $sql);
                 PEAR_ErrorToPEAR_Exception($res);
             }
         }
-        return $ok;
+
+        $this->conn->commit();
+        return true;
     }
 
     /**
@@ -849,7 +866,11 @@ class Schema
 
     public function quoteValue($val)
     {
-        return $this->conn->quoteSmart($val);
+        // MDB2_Driver_Common::quote changes empty strings to "NULL".
+        if ($val === '') {
+            return '';
+        }
+        return $this->conn->quote($val);
     }
 
     /**
@@ -1190,7 +1211,7 @@ class Schema
      * @return array of arrays
      * @throws PEAR_Exception
      */
-    protected function fetchQueryData($sql)
+    protected function fetchQueryData(string $sql): array
     {
         global $_PEAR;
 
@@ -1200,8 +1221,7 @@ class Schema
         }
 
         $out = [];
-        $row = [];
-        while ($res->fetchInto($row, DB_FETCHMODE_ASSOC)) {
+        while (!empty($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC))) {
             $out[] = $row;
         }
         $res->free();
