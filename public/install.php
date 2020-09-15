@@ -70,7 +70,6 @@ class Posted
 
     /**
      * The given POST parameter value, in its original form.
-     * Magic quotes are stripped, if provided.
      * Missing value will give null.
      *
      * @param string $name
@@ -78,29 +77,7 @@ class Posted
      */
     public function raw(string $name)
     {
-        if (isset($_POST[$name])) {
-            return $this->dequote($_POST[$name]);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * If necessary, strip magic quotes from the given value.
-     *
-     * @param mixed $val
-     * @return mixed
-     */
-    public function dequote($val)
-    {
-        if (get_magic_quotes_gpc()) {
-            if (is_string($val)) {
-                return stripslashes($val);
-            } elseif (is_array($val)) {
-                return array_map([$this, 'dequote'], $val);
-            }
-        }
-        return $val;
+        return filter_input(INPUT_POST, $name);
     }
 }
 

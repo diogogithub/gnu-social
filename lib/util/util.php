@@ -1498,7 +1498,7 @@ function common_fake_local_nonfancy_url($url)
 
     // remove the first element, which is the full matching string
     array_shift($matches);
-    return implode($matches);
+    return implode('', $matches);
 }
 
 function common_inject_session($url, $serverpart = null)
@@ -2178,40 +2178,17 @@ function common_config_append($main, $sub, $value)
 }
 
 /**
- * Pull arguments from a GET/POST/REQUEST array with first-level input checks:
- * strips "magic quotes" slashes if necessary,
- * and replaces invalid in UTF-8 sequences with question marks.
+ * Pull arguments from a GET/POST/REQUEST array and replace invalid in UTF-8
+ * sequences with question marks.
  *
  * @param array $from
  * @return array
  */
 function common_copy_args(array $from): array
 {
-    $strip = get_magic_quotes_gpc();
-    return array_map(function ($v) use ($strip) {
-        if (is_array($v)) {
-            return common_copy_args($v);
-        } else {
-            if ($strip) {
-                $v = stripslashes($v);
-            }
-            return mb_scrub($v);
-        }
+    return array_map(function ($v) {
+        return is_array($v) ? common_copy_args($v) : mb_scrub($v);
     }, $from);
-}
-
-/**
- * Neutralise the evil effects of magic_quotes_gpc in the current request.
- * This is used before handing a request off to OAuthRequest::from_request.
- * @fixme Doesn't consider vars other than _POST and _GET?
- * @fixme Can't be undone and could corrupt data if run twice.
- */
-function common_remove_magic_from_request()
-{
-    if (get_magic_quotes_gpc()) {
-        $_POST=array_map('stripslashes', $_POST);
-        $_GET=array_map('stripslashes', $_GET);
-    }
 }
 
 function common_user_uri(&$user)
