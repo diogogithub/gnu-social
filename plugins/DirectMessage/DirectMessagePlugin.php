@@ -208,7 +208,7 @@ class DirectMessagePlugin extends Plugin
 
         $message->selectAdd(); // clears it
         $message->selectAdd('id');
-        $message->orderBy('created ASC');
+        $message->orderBy('created, id');
 
         if ($message->find()) {
             while ($message->fetch()) {

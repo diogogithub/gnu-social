@@ -21,30 +21,28 @@ class RawEventsNoticeStream extends NoticeStream
     public function getNoticeIds($offset, $limit, $since_id, $max_id)
     {
         $notice = new Notice();
-        $qry = null;
 
-        $qry =  'SELECT notice.* FROM notice ';
-        $qry .= 'INNER JOIN happening ON happening.uri = notice.uri ';
-        $qry .= 'AND notice.is_local <> ' . Notice::GATEWAY . ' ';
+        $notice->selectAdd();
+        $notice->selectAdd('notice.*');
 
-        if ($since_id != 0) {
-            $qry .= 'AND notice.id > ' . $since_id . ' ';
-        }
+        $notice->joinAdd(['uri', 'happening:uri']);
 
-        if ($max_id != 0) {
-            $qry .= 'AND notice.id <= ' . $max_id . ' ';
-        }
+        $notice->whereAdd('notice.is_local <> ' . Notice::GATEWAY);
+
+        Notice::addWhereSinceId($notice, $since_id, 'notice.id', 'happening.created');
+        Notice::addWhereMaxId($notice, $max_id, 'notice.id', 'happening.created');
 
         // NOTE: we sort by event time, not by notice time!
-        $qry .= 'ORDER BY happening.created DESC ';
+        $notice->orderBy('happening.created DESC');
         if (!is_null($offset)) {
-            $qry .= "LIMIT $limit OFFSET $offset";
+            $notice->limit($offset, $limit);
         }
 
-        $notice->query($qry);
-        $ids = array();
-        while ($notice->fetch()) {
-            $ids[] = $notice->id;
+        $ids = [];
+        if ($notice->find()) {
+            while ($notice->fetch()) {
+                $ids[] = $notice->id;
+            }
         }
 
         $notice->free();

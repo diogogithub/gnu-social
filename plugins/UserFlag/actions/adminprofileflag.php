@@ -1,47 +1,39 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Show latest and greatest profile flags
  *
- * PHP version 5
- *
- * @category Action
- * @package  StatusNet
- *
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- *
- * @see     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @category  Action
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2009 StatusNet, Inc.
+ * @license   http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
  */
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+
+defined('GNUSOCIAL') || die();
 
 /**
  * Show the latest and greatest profile flags
  *
- * @category Action
- * @package  StatusNet
- *
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- *
- * @see     http://status.net/
+ * @category  Action
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class AdminprofileflagAction extends Action
 {
@@ -139,8 +131,12 @@ class AdminprofileflagAction extends Action
 
         $cnt = $pl->show();
 
-        $this->pagination($this->page > 1, $cnt > PROFILES_PER_PAGE,
-                          $this->page, 'adminprofileflag');
+        $this->pagination(
+            $this->page > 1,
+            $cnt > PROFILES_PER_PAGE,
+            $this->page,
+            'adminprofileflag'
+        );
     }
 
     /**
@@ -188,13 +184,11 @@ class AdminprofileflagAction extends Action
  *
  * Most of the hard part is done in FlaggedProfileListItem.
  *
- * @category Widget
- * @package  StatusNet
- *
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- *
- * @see     http://status.net/
+ * @category  Widget
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class FlaggedProfileList extends ProfileList
 {
@@ -214,13 +208,11 @@ class FlaggedProfileList extends ProfileList
 /**
  * Specialization of ProfileListItem to show flagging information
  *
- * @category Widget
- * @package  StatusNet
- *
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- *
- * @see     http://status.net/
+ * @category  Widget
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class FlaggedProfileListItem extends ProfileListItem
 {
@@ -354,7 +346,7 @@ class FlaggedProfileListItem extends ProfileListItem
         $ufp->selectAdd();
         $ufp->selectAdd('user_id');
         $ufp->profile_id = $this->profile->id;
-        $ufp->orderBy('created');
+        $ufp->orderBy('created, user_id');
 
         if ($ufp->find()) { // XXX: this should always happen
             while ($ufp->fetch()) {
@@ -376,12 +368,16 @@ class FlaggedProfileListItem extends ProfileListItem
         $lnks = [];
 
         foreach ($flaggers as $flagger) {
-            $url = common_local_url('showstream',
-                                    ['nickname' => $flagger->nickname]);
+            $url = common_local_url(
+                'showstream',
+                ['nickname' => $flagger->nickname]
+            );
 
-            $lnks[] = XMLStringer::estring('a', ['href' => $url,
-                'class'                                 => 'flagger', ],
-                                           $flagger->nickname);
+            $lnks[] = XMLStringer::estring(
+                'a',
+                ['href' => $url, 'class' => 'flagger'],
+                $flagger->nickname
+            );
         }
 
         if ($cnt > 0) {

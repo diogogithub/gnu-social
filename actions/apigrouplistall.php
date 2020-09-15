@@ -122,20 +122,19 @@ class ApiGroupListAllAction extends ApiPrivateAuthAction
     {
         $group = new User_group();
 
-        $offset = intval($this->page - 1) * intval($this->count);
-        $limit = intval($this->count);
+        $group->selectAdd();
+        $group->selectAdd('user_group.*');
+        $group->joinAdd(['id', 'local_group:group_id']);
+        $group->orderBy('user_group.created DESC, user_group.id DESC');
 
-        $group->query(
-            'SELECT user_group.* '.
-            'FROM user_group INNER JOIN local_group ' .
-            'ON user_group.id = local_group.group_id '.
-            'ORDER BY created DESC ' .
-            'LIMIT ' . $limit . ' OFFSET ' . $offset
-        );
+        $offset = ((int) $this->page - 1) * (int) $this->count;
+        $group->limit($offset, $this->count);
 
-        $groups = array();
-        while ($group->fetch()) {
-            $groups[] = clone($group);
+        $groups = [];
+        if ($group->find()) {
+            while ($group->fetch()) {
+                $groups[] = clone $group;
+            }
         }
 
         return $groups;

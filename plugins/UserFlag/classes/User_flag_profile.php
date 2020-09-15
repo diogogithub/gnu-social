@@ -19,11 +19,11 @@
  *
  * @category  Data
  * @package   GNUsocial
- *
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
 defined('GNUSOCIAL') || die();
 
 /**
@@ -33,7 +33,6 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Action
  * @package   GNUsocial
- *
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -65,8 +64,8 @@ class User_flag_profile extends Managed_DataObject
             ],
             'primary key' => ['profile_id', 'user_id'],
             'indexes'     => [
-                'user_flag_profile_cleared_idx' => ['cleared'],
-                'user_flag_profile_created_idx' => ['created'],
+                'user_flag_profile_cleared_profile_id_idx' => ['cleared', 'profile_id'],
+                'user_flag_profile_profile_id_created_user_id_idx' => ['profile_id', 'created', 'user_id'],
             ],
         ];
     }

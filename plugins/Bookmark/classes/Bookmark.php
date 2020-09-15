@@ -73,9 +73,9 @@ class Bookmark extends Managed_DataObject
                 'bookmark_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
                 'bookmark_uri_fkey' => array('notice', array('uri' => 'uri')),
             ),
-            'indexes' => array('bookmark_created_idx' => array('created'),
-                            'bookmark_url_idx' => array('url'),
-                            'bookmark_profile_id_idx' => array('profile_id'),
+            'indexes' => array(
+                'bookmark_url_idx' => array('url'),
+                'bookmark_profile_id_created_idx' => array('profile_id', 'created'),
             ),
         );
     }

@@ -129,12 +129,12 @@ class apActorLikedAction extends ManagedAction
         $limit = 40,
         $since_id = null,
         $max_id = null
-        ) {
+    ) {
         $fav = new Fave();
 
         $fav->user_id = $user_id;
 
-        $fav->orderBy('modified DESC');
+        $fav->orderBy('modified DESC, notice_id DESC');
 
         if ($since_id != null) {
             $fav->whereAdd("notice_id  > {$since_id}");

@@ -1,43 +1,44 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Show up to 100 favs of a notice
- *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @category  API
  * @package   GNUsocial
  * @author    Hannes Mannerheim <h@nnesmannerhe.im>
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://www.gnu.org/software/social/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Show up to 100 favs of a notice
  *
+ * @package   GNUsocial
+ * @author    Hannes Mannerheim <h@nnesmannerhe.im>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ApiStatusesFavsAction extends ApiAuthAction
 {
     const MAXCOUNT = 100;
 
-    var $original = null;   // Notice object for which to retrieve favs
-    var $cnt      = self::MAXCOUNT;
+    // Notice object for which to retrieve favs
+    public $original = null;
+    public $cnt      = self::MAXCOUNT;
 
     /**
      * Take arguments for running
@@ -46,7 +47,7 @@ class ApiStatusesFavsAction extends ApiAuthAction
      *
      * @return boolean success flag
      */
-    protected function prepare(array $args=array())
+    protected function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -86,37 +87,35 @@ class ApiStatusesFavsAction extends ApiAuthAction
     protected function handle()
     {
         parent::handle();
-	
+
         $fave = new Fave();
-        $fave->selectAdd(); 
+        $fave->selectAdd();
         $fave->selectAdd('user_id');
         $fave->notice_id = $this->original->id;
-        $fave->orderBy('modified');
+        $fave->orderBy('modified, user_id');
         if (!is_null($this->cnt)) {
             $fave->limit(0, $this->cnt);
         }
 
-		$ids = $fave->fetchAll('user_id');
-		
-		// get nickname and profile image
-		$ids_with_profile_data = array();
-		$i=0;
-		foreach($ids as $id) {
-			$profile = Profile::getKV('id', $id);
-			$ids_with_profile_data[$i]['user_id'] = $id;
-			$ids_with_profile_data[$i]['nickname'] = $profile->nickname;
-			$ids_with_profile_data[$i]['fullname'] = $profile->fullname;			
-			$ids_with_profile_data[$i]['profileurl'] = $profile->profileurl;						
-			$profile = new Profile();
-			$profile->id = $id;
-			$avatarurl = $profile->avatarUrl(24);
-			$ids_with_profile_data[$i]['avatarurl'] = $avatarurl;								
-			$i++;
-		}
-		
-		$this->initDocument('json');
-		$this->showJsonObjects($ids_with_profile_data);
-		$this->endDocument('json');
+        $ids = $fave->fetchAll('user_id');
+
+        // Get nickname and profile image.
+        $ids_with_profile_data = [];
+        foreach (array_values($ids) as $i => $id) {
+            $profile = Profile::getKV('id', $id);
+            $ids_with_profile_data[$i]['user_id'] = $id;
+            $ids_with_profile_data[$i]['nickname'] = $profile->nickname;
+            $ids_with_profile_data[$i]['fullname'] = $profile->fullname;
+            $ids_with_profile_data[$i]['profileurl'] = $profile->profileurl;
+            $profile = new Profile();
+            $profile->id = $id;
+            $avatarurl = $profile->avatarUrl(24);
+            $ids_with_profile_data[$i]['avatarurl'] = $avatarurl;
+        }
+
+        $this->initDocument('json');
+        $this->showJsonObjects($ids_with_profile_data);
+        $this->endDocument('json');
     }
 
     /**
@@ -129,7 +128,7 @@ class ApiStatusesFavsAction extends ApiAuthAction
      * @return boolean is read only action?
      */
 
-    function isReadOnly($args)
+    public function isReadOnly($args)
     {
         return true;
     }

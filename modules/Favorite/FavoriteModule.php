@@ -411,6 +411,7 @@ class FavoriteModule extends ActivityVerbHandlerModule
         if (!empty($uas->after)) {
             $fave->whereAdd("modified > '" . common_sql_date($uas->after) . "'");
         }
+        $fave->orderBy('modified DESC, notice_id DESC');
 
         if ($fave->find()) {
             while ($fave->fetch()) {

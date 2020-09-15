@@ -61,7 +61,7 @@ class Profile extends Managed_DataObject
             ),
             'primary key' => array('id'),
             'indexes' => array(
-                'profile_nickname_idx' => array('nickname'),
+                'profile_nickname_created_id_idx' => array('nickname', 'created', 'id'),
             ),
             'fulltext indexes' => array(
                 'profile_fulltext_idx' => array('nickname', 'fullname', 'location', 'bio', 'homepage'),
@@ -333,7 +333,7 @@ class Profile extends Managed_DataObject
             $gm = new Group_member();
 
             $gm->profile_id = $this->id;
-            $gm->orderBy('created DESC');
+            $gm->orderBy('created DESC, group_id DESC');
 
             if ($gm->find()) {
                 while ($gm->fetch()) {
@@ -518,7 +518,7 @@ class Profile extends Managed_DataObject
             $qry .= 'AND cursor < ' . $upto . ' ';
         }
 
-        $qry .= 'ORDER BY profile_tag.modified DESC ';
+        $qry .= 'ORDER BY profile_tag.modified DESC, profile_tag.tagged DESC ';
 
         if ($offset >= 0 && !is_null($limit)) {
             $qry .= sprintf('LIMIT %d OFFSET %d ', $limit, $offset);
@@ -569,7 +569,6 @@ class Profile extends Managed_DataObject
     public function getTagSubscriptions(int $offset = 0, ?int $limit = null, int $since = 0, int $upto = 0)
     {
         $lists = new Profile_list();
-        $subs = new Profile_tag_subscription();
 
         $lists->joinAdd(['id', 'profile_tag_subscription:profile_tag_id']);
 
@@ -597,7 +596,7 @@ class Profile extends Managed_DataObject
             $lists->limit($offset, $limit);
         }
 
-        $lists->orderBy('profile_tag_subscription.created DESC');
+        $lists->orderBy('profile_tag_subscription.created DESC, profile_list.id DESC');
         $lists->find();
 
         return $lists;
@@ -676,46 +675,52 @@ class Profile extends Managed_DataObject
 
     public function getTaggedSubscribers($tag, $offset = 0, $limit = null)
     {
-        $qry =
-          'SELECT profile.* ' .
-          'FROM profile JOIN subscription ' .
-          'ON profile.id = subscription.subscriber ' .
-          'JOIN profile_tag ON (profile_tag.tagged = subscription.subscriber ' .
-          'AND profile_tag.tagger = subscription.subscribed) ' .
-          'WHERE subscription.subscribed = %d ' .
-          "AND profile_tag.tag = '%s' " .
-          'AND subscription.subscribed <> subscription.subscriber ' .
-          'ORDER BY subscription.created DESC ';
+        $profile = new Profile();
+
+        $qry = <<<END
+            SELECT profile.*
+              FROM profile
+              INNER JOIN subscription ON profile.id = subscription.subscriber
+              INNER JOIN profile_tag
+              ON profile_tag.tagged = subscription.subscriber
+              AND profile_tag.tagger = subscription.subscribed
+              WHERE subscription.subscribed = {$this->getID()}
+              AND profile_tag.tag = '{$profile->escape($tag)}'
+              AND subscription.subscribed <> subscription.subscriber
+              ORDER BY subscription.created DESC, subscription.subscriber DESC
+            END;
 
         if ($offset) {
             $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
         }
 
-        $profile = new Profile();
-
-        $cnt = $profile->query(sprintf($qry, $this->id, $profile->escape($tag)));
+        $cnt = $profile->query($qry);
 
         return $profile;
     }
 
     public function getTaggedSubscriptions($tag, $offset = 0, $limit = null)
     {
-        $qry =
-          'SELECT profile.* ' .
-          'FROM profile JOIN subscription ' .
-          'ON profile.id = subscription.subscribed ' .
-          'JOIN profile_tag on (profile_tag.tagged = subscription.subscribed ' .
-          'AND profile_tag.tagger = subscription.subscriber) ' .
-          'WHERE subscription.subscriber = %d ' .
-          "AND profile_tag.tag = '%s' " .
-          'AND subscription.subscribed <> subscription.subscriber ' .
-          'ORDER BY subscription.created DESC ';
-
-        $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
-
         $profile = new Profile();
 
-        $profile->query(sprintf($qry, $this->id, $profile->escape($tag)));
+        $qry = <<<END
+            SELECT profile.*
+              FROM profile
+              INNER JOIN subscription ON profile.id = subscription.subscribed
+              INNER JOIN profile_tag
+              ON profile_tag.tagged = subscription.subscribed
+              AND profile_tag.tagger = subscription.subscriber
+              WHERE subscription.subscriber = {$this->getID()}
+              AND profile_tag.tag = '{$profile->escape($tag)}'
+              AND subscription.subscribed <> subscription.subscriber
+              ORDER BY subscription.created DESC, subscription.subscribed DESC
+            END;
+
+        if ($offset) {
+            $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
+        }
+
+        $profile->query($qry);
 
         return $profile;
     }
@@ -734,7 +739,9 @@ class Profile extends Managed_DataObject
         $subqueue->joinAdd(array('id', 'subscription_queue:subscriber'));
         $subqueue->whereAdd(sprintf('subscription_queue.subscribed = %d', $this->getID()));
         $subqueue->limit($offset, $limit);
-        $subqueue->orderBy('subscription_queue.created', 'DESC');
+        $subqueue->orderBy(
+            'subscription_queue.created DESC, subscription_queue.subscriber DESC'
+        );
         if (!$subqueue->find()) {
             throw new NoResultException($subqueue);
         }

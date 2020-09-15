@@ -65,7 +65,7 @@ class Profile_list extends Managed_DataObject
                 'profile_list_tagger_fkey' => array('profile', array('tagger' => 'id')),
             ),
             'indexes' => array(
-                'profile_list_modified_idx' => array('modified'),
+                'profile_list_modified_id_idx' => array('modified', 'id'),
                 'profile_list_tag_idx' => array('tag'),
                 'profile_list_tagged_count_idx' => array('tagged_count'),
                 'profile_list_subscriber_count_idx' => array('subscriber_count'),
@@ -225,11 +225,11 @@ class Profile_list extends Managed_DataObject
             $subs->whereAdd('cursor <= ' . $upto);
         }
 
-        if ($limit != null) {
+        if (!is_null($limit)) {
             $subs->limit($offset, $limit);
         }
 
-        $subs->orderBy('profile_tag_subscription.created DESC');
+        $subs->orderBy('profile_tag_subscription.created DESC, profile.id DESC');
         $subs->find();
 
         return $subs;
@@ -327,11 +327,11 @@ class Profile_list extends Managed_DataObject
             $tagged->whereAdd('cursor <= ' . $upto);
         }
 
-        if ($limit != null) {
+        if (!is_null($limit)) {
             $tagged->limit($offset, $limit);
         }
 
-        $tagged->orderBy('profile_tag.modified DESC');
+        $tagged->orderBy('profile_tag.modified DESC, profile_tag.tagged DESC');
         $tagged->find();
 
         return $tagged;

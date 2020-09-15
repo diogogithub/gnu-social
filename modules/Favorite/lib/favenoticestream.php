@@ -88,46 +88,36 @@ class RawFaveNoticeStream extends NoticeStream
      */
     public function getNoticeIds($offset, $limit, $since_id, $max_id)
     {
-        $fav = new Fave();
-        $qry = null;
+        $fave = new Fave();
 
-        if ($this->own) {
-            $qry  = 'SELECT fave.* FROM fave ';
-            $qry .= 'WHERE fave.user_id = ' . $this->user_id . ' ';
-        } else {
-            $qry =  'SELECT fave.* FROM fave ';
-            $qry .= 'INNER JOIN notice ON fave.notice_id = notice.id ';
-            $qry .= 'WHERE fave.user_id = ' . $this->user_id . ' ';
-            $qry .= 'AND notice.is_local <> ' . Notice::GATEWAY . ' ';
+        $fave->selectAdd();
+        $fave->selectAdd('fave.*');
+        $fave->user_id = $this->user_id;
+
+        if (!$this->own) {
+            $fave->joinAdd(['notice_id', 'notice:id']);
+            $fave->whereAdd('notice.is_local <> ' . Notice::GATEWAY);
         }
 
-        if ($since_id != 0) {
-            $qry .= 'AND notice_id > ' . $since_id . ' ';
-        }
-
-        if ($max_id != 0) {
-            $qry .= 'AND notice_id <= ' . $max_id . ' ';
-        }
+        Notice::addWhereSinceId($fave, $since_id, 'notice_id', 'fave.modified');
+        Notice::addWhereMaxId($fave, $max_id, 'notice_id', 'fave.modified');
 
         // NOTE: we sort by fave time, not by notice time!
-
-        $qry .= 'ORDER BY modified DESC ';
+        $fave->orderBy('fave.modified DESC, notice_id DESC');
 
         if (!is_null($offset)) {
-            $qry .= "LIMIT $limit OFFSET $offset";
+            $fave->limit($offset, $limit);
         }
 
-        $fav->query($qry);
-
-        $ids = array();
-
-        while ($fav->fetch()) {
-            $ids[] = $fav->notice_id;
+        $ids = [];
+        if ($fave->find()) {
+            while ($fave->fetch()) {
+                $ids[] = $fave->notice_id;
+            }
         }
 
-        $fav->free();
-        unset($fav);
-
+        $fave->free();
+        unset($fave);
         return $ids;
     }
 }

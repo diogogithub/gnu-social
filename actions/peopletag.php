@@ -112,13 +112,13 @@ class PeopletagAction extends Action
 
         $ptags = new Profile_list();
         $ptags->tag = $this->tag;
+        $ptags->orderBy('profile_list.modified DESC, profile_list.tagged DESC');
 
         $user = common_current_user();
 
         if (empty($user)) {
             $ckey = sprintf('profile_list:tag:%s', $this->tag);
             $ptags->private = false;
-            $ptags->orderBy('profile_list.modified DESC');
 
             $c = Cache::instance();
             if ($offset+$limit <= PEOPLETAG_CACHE_WINDOW && !empty($c)) {
@@ -146,7 +146,6 @@ class PeopletagAction extends Action
                 $user->getID()
             ));
 
-            $ptags->orderBy('profile_list.modified DESC');
             $ptags->find();
         }
 

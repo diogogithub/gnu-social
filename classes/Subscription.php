@@ -59,8 +59,8 @@ class Subscription extends Managed_DataObject
                 'subscription_uri_key' => array('uri'),
             ),
             'indexes' => array(
-                'subscription_subscriber_created_idx' => array('subscriber', 'created'),
-                'subscription_subscribed_created_idx' => array('subscribed', 'created'),
+                'subscription_subscriber_created_subscribed_idx' => array('subscriber', 'created', 'subscribed'),
+                'subscription_subscribed_created_subscriber_idx' => array('subscribed', 'created', 'subscriber'),
                 'subscription_token_idx' => array('token'),
             ),
         );
@@ -407,7 +407,7 @@ class Subscription extends Managed_DataObject
         $sub->$by_type = $profile_id;
         $sub->selectAdd($get_type);
         $sub->whereAdd($get_type . ' <> ' . $profile_id);
-        $sub->orderBy('created DESC');
+        $sub->orderBy("created DESC, {$get_type} DESC");
         $sub->limit($queryoffset, $querylimit);
 
         if (!$sub->find()) {

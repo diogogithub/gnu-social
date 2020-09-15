@@ -82,11 +82,8 @@ class Message extends Managed_DataObject
                 'message_to_profile_fkey' => array('profile', array('to_profile' => 'id')),
             ),
             'indexes' => array(
-                // @fixme these are really terrible indexes, since you can only sort on one of them at a time.
-                // looks like we really need a (to_profile, created) for inbox and a (from_profile, created) for outbox
-                'message_from_profile_idx' => array('from_profile'),
-                'message_to_profile_idx' => array('to_profile'),
-                'message_created_idx' => array('created'),
+                'message_from_profile_created_id_idx' => array('from_profile', 'created', 'id'),
+                'message_to_profile_created_id_idx' => array('to_profile', 'created', 'id'),
             ),
         );
     }

@@ -92,6 +92,7 @@ class User_group extends Managed_DataObject
             ),
             'indexes' => array(
                 'user_group_nickname_idx' => array('nickname'),
+                'user_group_created_id_idx' => array('created', 'id'),
                 'user_group_profile_id_idx' => array('profile_id'), //make this unique in future
             ),
         );
@@ -202,7 +203,7 @@ class User_group extends Managed_DataObject
 
         $gm->group_id = $this->id;
 
-        $gm->orderBy('created DESC');
+        $gm->orderBy('created DESC, profile_id DESC');
 
         if (!is_null($limit)) {
             $gm->limit($offset, $limit);
@@ -304,7 +305,7 @@ class User_group extends Managed_DataObject
             'group_member.group_id = %d AND group_member.is_admin IS TRUE',
             $this->getID()
         ));
-        $admins->orderBy('group_member.modified ASC');
+        $admins->orderBy('group_member.modified, group_member.profile_id');
         $admins->limit($offset, $limit);
         $admins->find();
 
@@ -317,7 +318,7 @@ class User_group extends Managed_DataObject
         $blocked = new Profile();
         $blocked->joinAdd(array('id', 'group_block:blocked'));
         $blocked->whereAdd(sprintf('group_block.group_id = %u', $this->id));
-        $blocked->orderBy('group_block.modified DESC');
+        $blocked->orderBy('group_block.modified DESC, group_block.blocked DESC');
         $blocked->limit($offset, $limit);
         $blocked->find();
 

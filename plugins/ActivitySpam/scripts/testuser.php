@@ -16,8 +16,6 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Description of this file.
- *
  * @package   GNUsocial
  * @copyright 2012 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
@@ -48,7 +46,7 @@ function testAllUsers($filter)
 
     do {
         $user = new User();
-        $user->orderBy('created');
+        $user->orderBy('created, id');
         $user->limit($offset, $limit);
 
         $found = $user->find();
