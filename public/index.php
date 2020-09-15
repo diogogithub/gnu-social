@@ -305,14 +305,16 @@ function main()
     // If the site is private, and they're not on one of the "public"
     // parts of the site, redirect to login
 
-    if (!$user && common_config('site', 'private')
+    if (
+        is_null($user)
+        && common_config('site', 'private')
         && !isLoginAction($action)
         && !preg_match('/rss$/', $action)
-        && $action != 'robotstxt'
-        && !preg_match('/^Api/', $action)) {
-
+        && $action !== 'robotstxt'
+        && !preg_match('/^Api/', $action)
+    ) {
         // set returnto
-        $rargs =& common_copy_args($args);
+        $rargs = common_copy_args($args);
         unset($rargs['action']);
         if (common_config('site', 'fancy')) {
             unset($rargs['p']);
