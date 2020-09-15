@@ -87,8 +87,7 @@ class RawConversationNoticeStream extends NoticeStream
         self::filterVerbs($notice, $this->selectVerbs);
 
         // ORDER BY
-        // currently imitates the previously used "_reverseChron" sorting
-        $notice->orderBy('notice.created DESC');
+        $notice->orderBy('notice.created DESC, notice.id DESC');
         $notice->find();
         return $notice->fetchAll('id');
     }

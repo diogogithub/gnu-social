@@ -45,7 +45,7 @@ function testAllUsers($filter, $minimum, $percent)
 
     do {
         $user = new User();
-        $user->orderBy('created');
+        $user->orderBy('created, id');
         $user->limit($offset, $limit);
 
         $found = $user->find();

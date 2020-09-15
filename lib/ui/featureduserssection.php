@@ -51,19 +51,27 @@ class FeaturedUsersSection extends ProfileSection
             return null;
         }
 
-        $quoted = array();
+        $quoted_nicks = implode(
+            ',',
+            array_map(
+                function (string $nick): string {
+                    return "'{$nick}'";
+                },
+                $featured_nicks
+            )
+        );
 
-        foreach ($featured_nicks as $nick) {
-            $quoted[] = "'$nick'";
-        }
-
-        $table = common_database_tablename('user');
+        $user_table = common_database_tablename('user');
         $limit = PROFILES_PER_SECTION + 1;
 
-        $qry = 'SELECT profile.* ' .
-            'FROM profile INNER JOIN ' . $table . ' ON profile.id = ' . $table . '.id ' .
-            'WHERE ' . $table . '.nickname IN (' . implode(',', $quoted) . ') ' .
-            'ORDER BY profile.created DESC LIMIT ' . $limit;
+        $qry = <<<END
+            SELECT profile.*
+              FROM profile
+              INNER JOIN {$user_table} ON profile.id = {$user_table}.id
+              WHERE profile.nickname IN ({$quoted_nicks})
+              ORDER BY profile.created DESC, profile.id DESC
+              LIMIT {$limit};
+            END;
 
         $profile = Memcached_DataObject::cachedQuery('Profile', $qry, 6 * 3600);
         return $profile;

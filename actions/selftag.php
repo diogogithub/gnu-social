@@ -92,10 +92,8 @@ class SelftagAction extends Action
     {
         $profile = new Profile();
 
-        $profile->_join .= "\n" . <<<'END'
-            INNER JOIN profile_list ON profile.id = profile_list.tagger
-            LEFT JOIN profile_role ON profile.id = profile_role.profile_id
-            END;
+        $profile->joinAdd(['id', 'profile_list:tagger']);
+        $profile->joinAdd(['id', 'profile_role:profile_id'], 'LEFT');
 
         $profile->whereAdd(sprintf(
             "profile_list.tag = '%s'",
@@ -113,7 +111,7 @@ class SelftagAction extends Action
             $profile->whereAdd('profile_list.private IS NOT TRUE');
         }
 
-        $profile->orderBy('profile_list.modified DESC');
+        $profile->orderBy('profile_list.modified DESC, profile_list.id DESC');
 
         $offset = ($this->page - 1) * PROFILES_PER_PAGE;
         $limit  = PROFILES_PER_PAGE + 1;

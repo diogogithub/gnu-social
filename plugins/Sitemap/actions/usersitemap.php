@@ -1,51 +1,46 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Show list of user pages
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Sitemap
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 /**
  * sitemap for users
  *
- * @category Sitemap
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Sitemap
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class UsersitemapAction extends SitemapAction
 {
-    var $users = null;
-    var $j     = 0;
+    public $users = null;
+    public $j     = 0;
 
-    function prepare(array $args = array())
+    public function prepare(array $args = [])
     {
         parent::prepare($args);
 
@@ -66,7 +61,7 @@ class UsersitemapAction extends SitemapAction
         return true;
     }
 
-    function nextUrl()
+    public function nextUrl()
     {
         if ($this->j < count($this->users)) {
             $nickname = $this->users[$this->j];
@@ -77,12 +72,11 @@ class UsersitemapAction extends SitemapAction
         }
     }
 
-    function getUsers($y, $m, $d, $i)
+    public function getUsers($y, $m, $d, $i)
     {
         $u = User::cacheGet("sitemap:user:$y:$m:$d:$i");
 
         if ($u === false) {
-
             $user = new User();
 
             $begindt = sprintf('%04d-%02d-%02d 00:00:00', $y, $m, $d);
@@ -99,7 +93,7 @@ class UsersitemapAction extends SitemapAction
             $user->whereAdd("created >= '$begindt'");
             $user->whereAdd("created <  '$enddt'");
 
-            $user->orderBy('created');
+            $user->orderBy('created, id');
 
             $offset = ($i-1) * SitemapPlugin::USERS_PER_MAP;
             $limit  = SitemapPlugin::USERS_PER_MAP;
@@ -115,10 +109,12 @@ class UsersitemapAction extends SitemapAction
             $c = Cache::instance();
 
             if (!empty($c)) {
-                $c->set(Cache::key("sitemap:user:$y:$m:$d:$i"),
-                        $u,
-                        Cache::COMPRESSED,
-                        ((time() > $theend) ? (time() + 90 * 24 * 60 * 60) : (time() + 5 * 60)));
+                $c->set(
+                    Cache::key("sitemap:user:{$y}:{$m}:{$d}:{$i}"),
+                    $u,
+                    Cache::COMPRESSED,
+                    ((time() > $theend) ? (time() + 90 * 24 * 60 * 60) : (time() + 5 * 60))
+                );
             }
         }
 

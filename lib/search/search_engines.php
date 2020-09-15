@@ -39,12 +39,6 @@ class SearchEngine
     public function set_sort_mode($mode)
     {
         switch ($mode) {
-            case 'chron':
-                return $this->target->orderBy('created DESC');
-                break;
-            case 'reverse_chron':
-                return $this->target->orderBy('created ASC');
-                break;
             case 'nickname_desc':
                 if ($this->table != 'profile') {
                     throw new Exception(
@@ -63,8 +57,12 @@ class SearchEngine
                     return $this->target->orderBy(sprintf('%1$s.nickname ASC', $this->table));
                 }
                 break;
+            case 'reverse_chron':
+                return $this->target->orderBy('created, id');
+                break;
+            case 'chron':
             default:
-                return $this->target->orderBy('created DESC');
+                return $this->target->orderBy('created DESC, id DESC');
                 break;
         }
     }

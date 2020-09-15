@@ -56,9 +56,8 @@ class Group_member extends Managed_DataObject
                 'group_member_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
             ),
             'indexes' => array(
-                'group_member_created_idx' => array('created'),
-                'group_member_profile_id_created_idx' => array('profile_id', 'created'),
-                'group_member_group_id_created_idx' => array('group_id', 'created'),
+                'group_member_profile_id_created_group_id_idx' => array('profile_id', 'created', 'group_id'),
+                'group_member_group_id_created_profile_id_idx' => array('profile_id', 'created', 'group_id'),
             ),
         );
     }
@@ -160,7 +159,7 @@ class Group_member extends Managed_DataObject
 
         $membership->profile_id = $memberId;
 
-        $membership->orderBy('created DESC');
+        $membership->orderBy('created DESC, group_id DESC');
 
         $membership->limit($offset, $limit);
 

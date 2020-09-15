@@ -1414,7 +1414,8 @@ class Notice extends Managed_DataObject
         if (empty($this->reply_to)) {
             $root = new Notice;
             $root->conversation = $this->conversation;
-            $root->orderBy('notice.created ASC');
+            $root->orderBy('created, id');
+            $root->limit(0, 1);
             $root->find(true);  // true means "fetch first result"
             $root->free();
             return $root;

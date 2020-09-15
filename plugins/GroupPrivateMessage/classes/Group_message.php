@@ -1,48 +1,41 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * Data class for group direct messages
  *
- * PHP version 5
- *
- * @category Data
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * @category  Data
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 require_once INSTALLDIR . '/classes/Memcached_DataObject.php';
 
 /**
  * Data class for group direct messages
  *
- * @category GroupPrivateMessage
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl.html AGPLv3
- * @link     http://status.net/
- *
- * @see      DB_DataObject
+ * @category  GroupPrivateMessage
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class Group_message extends Managed_DataObject
 {
@@ -81,20 +74,22 @@ class Group_message extends Managed_DataObject
             ),
             'indexes' => array(
                 'group_message_from_profile_idx' => array('from_profile'),
-                'group_message_to_group_idx' => array('to_group'),
+                'group_message_to_group_created_idx' => array('to_group', 'created'),
                 'group_message_url_idx' => array('url'),
             ),
         );
     }
 
-    static function send($user, $group, $text)
+    public static function send($user, $group, $text)
     {
         if (!$user->hasRight(Right::NEWMESSAGE)) {
             // XXX: maybe break this out into a separate right
             // TRANS: Exception thrown when trying to send group private message without having the right to do that.
             // TRANS: %s is a user nickname.
-            throw new Exception(sprintf(_m('User %s is not allowed to send private messages.'),
-                                        $user->nickname));
+            throw new Exception(sprintf(
+                _m('User %s is not allowed to send private messages.'),
+                $user->nickname
+            ));
         }
 
         Group_privacy_settings::ensurePost($user, $group);
@@ -106,10 +101,14 @@ class Group_message extends Managed_DataObject
         if (Message::contentTooLong($text)) {
             // TRANS: Exception thrown when trying to send group private message that is too long.
             // TRANS: %d is the maximum meggage length.
-            throw new Exception(sprintf(_m('That\'s too long. Maximum message size is %d character.',
-                                           'That\'s too long. Maximum message size is %d characters.',
-                                           Message::maxContent()),
-                                        Message::maxContent()));
+            throw new Exception(sprintf(
+                _m(
+                    'That\'s too long. Maximum message size is %d character.',
+                    'That\'s too long. Maximum message size is %d characters.',
+                    Message::maxContent()
+                ),
+                Message::maxContent()
+            ));
         }
 
         // Valid! Let's do this thing!
@@ -134,7 +133,7 @@ class Group_message extends Managed_DataObject
         return $gm;
     }
 
-    function distribute()
+    public function distribute()
     {
         $group = User_group::getKV('id', $this->to_group);
 
@@ -145,7 +144,7 @@ class Group_message extends Managed_DataObject
         }
     }
 
-    function getGroup()
+    public function getGroup()
     {
         $group = User_group::getKV('id', $this->to_group);
         if (empty($group)) {
@@ -155,7 +154,7 @@ class Group_message extends Managed_DataObject
         return $group;
     }
 
-    function getSender()
+    public function getSender()
     {
         $sender = Profile::getKV('id', $this->from_profile);
         if (empty($sender)) {
@@ -165,7 +164,7 @@ class Group_message extends Managed_DataObject
         return $sender;
     }
 
-    static function forGroup($group, $offset, $limit)
+    public static function forGroup($group, $offset, $limit)
     {
         // XXX: cache
         $gm = new Group_message();

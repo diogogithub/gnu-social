@@ -30,31 +30,29 @@ class RawBookmarksNoticeStream extends NoticeStream
     public function getNoticeIds($offset, $limit, $since_id, $max_id)
     {
         $notice = new Notice();
-        $qry = null;
 
-        $qry =  'SELECT notice.* FROM notice ';
-        $qry .= 'INNER JOIN bookmark ON bookmark.uri = notice.uri ';
-        $qry .= 'WHERE bookmark.profile_id = ' . $this->user_id . ' ';
-        $qry .= 'AND notice.is_local <> ' . Notice::GATEWAY . ' ';
+        $notice->selectAdd();
+        $notice->selectAdd('notice.*');
 
-        if ($since_id != 0) {
-            $qry .= 'AND notice.id > ' . $since_id . ' ';
-        }
+        $notice->joinAdd(['uri', 'bookmark:uri']);
 
-        if ($max_id != 0) {
-            $qry .= 'AND notice.id <= ' . $max_id . ' ';
-        }
+        $notice->whereAdd(sprintf('bookmark.profile_id = %d', $this->user_id));
+        $notice->whereAdd('notice.is_local <> ' . Notice::GATEWAY);
+
+        Notice::addWhereSinceId($notice, $since_id, 'notice.id', 'bookmark.created');
+        Notice::addWhereMaxId($notice, $max_id, 'notice.id', 'bookmark.created');
 
         // NOTE: we sort by bookmark time, not by notice time!
-        $qry .= 'ORDER BY created DESC ';
+        $notice->orderBy('bookmark.created DESC');
         if (!is_null($offset)) {
-            $qry .= "LIMIT $limit OFFSET $offset";
+            $notice->limit($offset, $limit);
         }
 
-        $notice->query($qry);
-        $ids = array();
-        while ($notice->fetch()) {
-            $ids[] = $notice->id;
+        $ids = [];
+        if ($notice->find()) {
+            while ($notice->fetch()) {
+                $ids[] = $notice->id;
+            }
         }
 
         $notice->free();

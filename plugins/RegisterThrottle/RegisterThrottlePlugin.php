@@ -1,34 +1,30 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010, StatusNet, Inc.
- *
  * Throttle registration by IP address
  *
- * PHP version 5
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Spam
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Throttle registration by IP address
@@ -36,11 +32,10 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  * We a) record IP address of registrants and b) throttle registrations.
  *
  * @category  Spam
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2010 StatusNet, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html AGPL 3.0
- * @link      http://status.net/
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 class RegisterThrottlePlugin extends Plugin
@@ -73,7 +68,7 @@ class RegisterThrottlePlugin extends Plugin
     /**
      * Whether we're enabled; prevents recursion.
      */
-    static private $enabled = true;
+    private static $enabled = true;
 
     /**
      * Database schema setup
@@ -93,9 +88,11 @@ class RegisterThrottlePlugin extends Plugin
 
     public function onRouterInitialized(URLMapper $m)
     {
-        $m->connect('main/ipregistrations/:ipaddress',
-                    ['action' => 'ipregistrations'],
-                    ['ipaddress'   => '[0-9a-f\.\:]+']);
+        $m->connect(
+            'main/ipregistrations/:ipaddress',
+            ['action' => 'ipregistrations'],
+            ['ipaddress' => '[0-9a-f\.\:]+']
+        );
     }
 
     /**
@@ -118,7 +115,6 @@ class RegisterThrottlePlugin extends Plugin
         }
 
         foreach ($this->regLimits as $seconds => $limit) {
-
             $this->debug("Checking $seconds ($limit)");
 
             $reg = $this->_getNthReg($ipaddress, $limit);
@@ -151,7 +147,7 @@ class RegisterThrottlePlugin extends Plugin
         return true;
     }
 
-    function onEndShowSections(Action $action)
+    public function onEndShowSections(Action $action)
     {
         if (!$action instanceof ShowstreamAction) {
             // early return for actions we're not interested in
@@ -188,11 +184,17 @@ class RegisterThrottlePlugin extends Plugin
         $attrs = ['class'=>'ipaddress'];
         if (!is_null($ipaddress)) {
             $el = 'a';
-            $attrs['href'] = common_local_url('ipregistrations', array('ipaddress'=>$ipaddress));
+            $attrs['href'] = common_local_url(
+                'ipregistrations',
+                ['ipaddress' => $ipaddress]
+            );
         }
-        $action->element($el, $attrs,
-                            // TRANS: Unknown IP address.
-                            $ipaddress ?: _('unknown'));
+        $action->element(
+            $el,
+            $attrs,
+            // TRANS: Unknown IP address.
+            $ipaddress ?? _('unknown')
+        );
 
         $action->elementEnd('div');
     }
@@ -285,7 +287,7 @@ class RegisterThrottlePlugin extends Plugin
 
         $reg->ipaddress = $ipaddress;
 
-        $reg->orderBy('created DESC');
+        $reg->orderBy('created DESC, user_id DESC');
         $reg->limit($n - 1, 1);
 
         if ($reg->find(true)) {

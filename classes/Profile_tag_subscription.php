@@ -50,9 +50,7 @@ class Profile_tag_subscription extends Managed_DataObject
                 'profile_tag_subscription_profile_id_fkey' => array('profile', array('profile_id' => 'id')),
             ),
             'indexes' => array(
-                // @fixme probably we want a (profile_id, created) index here?
-                'profile_tag_subscription_profile_id_idx' => array('profile_id'),
-                'profile_tag_subscription_created_idx' => array('created'),
+                'profile_tag_subscription_profile_id_created_profile_tag_id_idx' => array('profile_id', 'created', 'profile_tag_id'),
             ),
         );
     }

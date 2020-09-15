@@ -43,7 +43,7 @@ class Profile_tag extends Managed_DataObject
                 'profile_tag_tagged_fkey' => array('profile', array('tagged' => 'id')),
             ),
             'indexes' => array(
-                'profile_tag_modified_idx' => array('modified'),
+                'profile_tag_modified_tagged_idx' => array('modified', 'tagged'),
                 'profile_tag_tagger_tag_idx' => array('tagger', 'tag'),
                 'profile_tag_tagged_idx' => array('tagged'),
             ),

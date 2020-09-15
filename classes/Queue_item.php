@@ -47,7 +47,7 @@ class Queue_item extends Managed_DataObject
             ),
             'primary key' => array('id'),
             'indexes' => array(
-                'queue_item_created_idx' => array('created'),
+                'queue_item_created_id_idx' => array('created', 'id'),
             ),
         );
     }
@@ -78,7 +78,7 @@ class Queue_item extends Managed_DataObject
             );
         }
         $qi->whereAdd('claimed IS NULL');
-        $qi->orderBy('created');
+        $qi->orderBy('created, id');
 
         $qi->limit(1);
 

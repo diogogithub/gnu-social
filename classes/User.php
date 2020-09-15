@@ -103,7 +103,7 @@ class User extends Managed_DataObject
             ),
             'indexes' => array(
                 'user_carrier_idx' => array('carrier'),
-                'user_created_idx' => array('created'),
+                'user_created_id_idx' => array('created', 'id'),
                 'user_smsemail_idx' => array('smsemail'),
             ),
         );
@@ -734,7 +734,7 @@ class User extends Managed_DataObject
 
             $pr = new Profile_role();
             $pr->role = Profile_role::OWNER;
-            $pr->orderBy('created');
+            $pr->orderBy('created, profile_id');
             $pr->limit(1);
 
             if (!$pr->find(true)) {
@@ -839,21 +839,23 @@ class User extends Managed_DataObject
      */
     public function getConnectedApps($offset = 0, $limit = null)
     {
-        $qry =
-          'SELECT u.* ' .
-          'FROM oauth_application_user AS u, oauth_application AS a ' .
-          'WHERE u.profile_id = %d ' .
-          'AND a.id = u.application_id ' .
-          'AND u.access_type > 0 ' .
-          'ORDER BY u.created DESC ';
-
-        if ($offset > 0) {
-            $qry .= ' LIMIT ' . $limit . ' OFFSET ' . $offset;
-        }
-
         $apps = new Oauth_application_user();
 
-        $cnt = $apps->query(sprintf($qry, $this->id));
+        $apps->selectAdd();
+        $apps->selectAdd('oauth_application_user.*');
+
+        $apps->joinAdd(['application_id', 'oauth_application:id']);
+
+        $apps->profile_id = $this->getID();
+        $apps->whereAdd('oauth_application_user.access_type > 0');
+
+        $apps->orderBy('oauth_application_user.created DESC, oauth_application.id DESC');
+
+        if ($offset > 0) {
+            $apps->limit($offset, $limit);
+        }
+
+        $apps->find();
 
         return $apps;
     }

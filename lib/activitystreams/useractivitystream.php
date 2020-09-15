@@ -1,21 +1,28 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2010 StatusNet, Inc.
+ * Class for activity streams
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @package   GNUsocial
+ * @copyright 2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
+defined('GNUSOCIAL') || die();
 
 /**
  * Class for activity streams
@@ -24,6 +31,9 @@
  *
  * We extend atomusernoticefeed since it does some nice setup for us.
  *
+ * @package   GNUsocial
+ * @copyright 2010 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class UserActivityStream extends AtomUserNoticeFeed
 {
@@ -37,14 +47,18 @@ class UserActivityStream extends AtomUserNoticeFeed
     /**
      *
      * @param User $user
-     * @param boolean $indent
-     * @param boolean $outputMode: UserActivityStream::OUTPUT_STRING to return a string,
-     *                           or UserActivityStream::OUTPUT_RAW to go to raw output.
-     *                           Raw output mode will attempt to stream, keeping less
-     *                           data in memory but will leave $this->activities incomplete.
+     * @param bool $indent
+     * @param bool $outputMode: UserActivityStream::OUTPUT_STRING to return a string,
+     *                          or UserActivityStream::OUTPUT_RAW to go to raw output.
+     *                          Raw output mode will attempt to stream, keeping less
+     *                          data in memory but will leave $this->activities incomplete.
      */
-    function __construct($user, $indent = true, $outputMode = UserActivityStream::OUTPUT_STRING, $after = null)
-    {
+    public function __construct(
+        $user,
+        $indent = true,
+        $outputMode = UserActivityStream::OUTPUT_STRING,
+        $after = null
+    ) {
         parent::__construct($user, null, $indent);
 
         $this->outputMode = $outputMode;
@@ -56,7 +70,7 @@ class UserActivityStream extends AtomUserNoticeFeed
             // Raw output... need to restructure from the stringer init.
             $this->xw = new XMLWriter();
             $this->xw->openURI('php://output');
-            if(is_null($indent)) {
+            if (is_null($indent)) {
                 $indent = common_config('site', 'indent');
             }
             $this->xw->setIndent($indent);
@@ -102,7 +116,7 @@ class UserActivityStream extends AtomUserNoticeFeed
      * Interleave the pre-sorted objects with the user's
      * notices, all in reverse chron order.
      */
-    function renderEntries($format=Feed::ATOM, $handle=null)
+    public function renderEntries($format = Feed::ATOM, $handle = null)
     {
         $haveOne = false;
 
@@ -223,7 +237,7 @@ class UserActivityStream extends AtomUserNoticeFeed
         }
     }
 
-    function compareObject($a, $b)
+    public function compareObject($a, $b)
     {
         $ac = strtotime((empty($a->created)) ? $a->modified : $a->created);
         $bc = strtotime((empty($b->created)) ? $b->modified : $b->created);
@@ -231,7 +245,7 @@ class UserActivityStream extends AtomUserNoticeFeed
         return (($ac == $bc) ? 0 : (($ac < $bc) ? 1 : -1));
     }
 
-    function getSubscriptions()
+    public function getSubscriptions()
     {
         $subs = array();
 
@@ -254,7 +268,7 @@ class UserActivityStream extends AtomUserNoticeFeed
         return $subs;
     }
 
-    function getSubscribers()
+    public function getSubscribers()
     {
         $subs = array();
 
@@ -283,9 +297,9 @@ class UserActivityStream extends AtomUserNoticeFeed
      * @param int $end unix timestamp for latest
      * @return array of Notice objects
      */
-    function getNoticesBetween($start=0, $end=0)
+    public function getNoticesBetween($start = 0, $end = 0)
     {
-        $notices = array();
+        $notices = [];
 
         $notice = new Notice();
 
@@ -311,7 +325,7 @@ class UserActivityStream extends AtomUserNoticeFeed
             $notice->whereAdd("created < '$tsend'");
         }
 
-        $notice->orderBy('created DESC');
+        $notice->orderBy('created DESC, id DESC');
 
         if ($notice->find()) {
             while ($notice->fetch()) {
@@ -322,7 +336,7 @@ class UserActivityStream extends AtomUserNoticeFeed
         return $notices;
     }
 
-    function getNotices()
+    public function getNotices()
     {
         if (!empty($this->after)) {
             return $this->getNoticesBetween($this->after);
@@ -331,7 +345,7 @@ class UserActivityStream extends AtomUserNoticeFeed
         }
     }
 
-    function getGroups()
+    public function getGroups()
     {
         $groups = array();
 
@@ -352,12 +366,13 @@ class UserActivityStream extends AtomUserNoticeFeed
         return $groups;
     }
 
-    function createdAfter($item) {
+    public function createdAfter($item)
+    {
         $created = strtotime((empty($item->created)) ? $item->modified : $item->created);
         return ($created >= $this->after);
     }
 
-    function writeJSON($handle)
+    public function writeJSON($handle)
     {
         require_once INSTALLDIR . '/lib/activitystreams/activitystreamjsondocument.php';
         fwrite($handle, '{"items": [');

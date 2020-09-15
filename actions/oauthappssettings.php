@@ -32,9 +32,10 @@ defined('GNUSOCIAL') || die();
  * @category  Settings
  * @package   GNUsocial
  * @author    Zach Copley <zach@status.net>
+ * @copyright 2008-2009 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
- * @see      SettingsAction
+ * @see       SettingsAction
  */
 
 class OauthappssettingsAction extends SettingsAction
@@ -79,7 +80,7 @@ class OauthappssettingsAction extends SettingsAction
         $application->owner = $this->scoped->getID();
         $application->whereAdd("name <> 'anonymous'");
         $application->limit($offset, $limit);
-        $application->orderBy('created DESC');
+        $application->orderBy('created DESC, id DESC');
         $application->find();
 
         $cnt = 0;
