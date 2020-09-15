@@ -36,7 +36,7 @@ try {
     // TRANS: Error message displayed when no configuration file was found for a StatusNet installation.
     // TRANS: Is followed by a list of directories (separated by HTML breaks).
     echo '<p>'. _('I looked for configuration files in the following places:') .'<br /> ';
-    echo implode($e->configFiles, '<br />');
+    echo implode('<br />', $e->configFiles);
     // TRANS: Error message displayed when no configuration file was found for a StatusNet installation.
     echo '<p>'. _('You may wish to run the installer to fix this.') .'</p>';
     // @todo FIXME Link should be in a para?

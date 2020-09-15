@@ -175,9 +175,9 @@ class DB_DataObject_Cast
         $args = func_get_args();
         switch (count($args)) {
             case 0: // no args = now!
-                $datetime = date('Y-m-d G:i:s', mktime());
+                $datetime = date('Y-m-d G:i:s', time());
+                // no break
 
-            // no break
             case 1:
                 // continue on from 0 args.
                 if (!isset($datetime)) {
@@ -300,9 +300,9 @@ class DB_DataObject_Cast
         $args = func_get_args();
         switch (count($args)) {
             case 0: // no args = now!
-                $time = date('G:i:s', mktime());
+                $time = date('G:i:s', time());
+                // no break
 
-            // no break
             case 1:
                 // continue on from 0 args.
                 if (!isset($time)) {
@@ -440,10 +440,10 @@ class DB_DataObject_Cast
             case 'mssql':
                 // copied from the old DB mssql code...?? not sure how safe this is.
                 return "'" . str_replace(
-                        array("'", "\\\r\n", "\\\n"),
-                        array("''", "\\\\\r\n\r\n", "\\\\\n\n"),
-                        $this->value
-                    ) . "'";
+                    array("'", "\\\r\n", "\\\n"),
+                    array("''", "\\\\\r\n\r\n", "\\\\\n\n"),
+                    $this->value
+                ) . "'";
 
 
             default:
