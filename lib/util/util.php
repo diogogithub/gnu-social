@@ -2391,6 +2391,15 @@ function common_compatible_license($from, $to)
 }
 
 /**
+ * returns the character set name used for the current DBMS
+ */
+function common_database_charset(): string
+{
+    $schema = Schema::get();
+    return $schema->charset();
+}
+
+/**
  * returns a quoted table name
  */
 function common_database_tablename($tablename)

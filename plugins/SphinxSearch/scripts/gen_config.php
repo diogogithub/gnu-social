@@ -39,11 +39,11 @@ END_OF_TRIM_HELP;
 require_once INSTALLDIR . '/scripts/commandline.inc';
 require dirname(__FILE__) . '/sphinx-utils.php';
 
-
+$base = $base ?? '/usr/local';
 $timestamp = date('r');
-print <<<END
+echo <<<END
 #
-# Sphinx configuration for StatusNet
+# Sphinx configuration for GNU social
 # Generated {$timestamp}
 #
 
@@ -109,8 +109,9 @@ function sphinx_template($sn, $table, $query, $query_info)
 {
     $base = sphinx_base();
     $dbtype = common_config('db', 'type');
+    $charset = common_database_charset();
 
-    print <<<END
+    echo <<<END
 
 #
 # {$sn->sitename}
@@ -122,7 +123,7 @@ source {$sn->dbname}_src_{$table}
     sql_user                = {$sn->dbuser}
     sql_pass                = {$sn->dbpass}
     sql_db                  = {$sn->dbname}
-    sql_query_pre           = SET NAMES utf8;
+    sql_query_pre           = SET NAMES '{$charset}';
     sql_query               = {$query}
     sql_query_info          = {$query_info}
     sql_attr_timestamp      = created_ts

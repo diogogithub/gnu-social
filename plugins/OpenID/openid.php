@@ -45,6 +45,9 @@ function oid_store()
         if (!is_array($options)) {
             $options = [];
         }
+        // A special case, carry the charset.
+        $options['charset'] = common_database_charset();
+
         $dbconn = new SQLStore_DB_Connection($dsn, $options);
 
         switch (common_config('db', 'type')) {

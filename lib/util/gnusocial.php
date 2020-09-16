@@ -54,7 +54,6 @@ class GNUsocial
         $moduleclass = "{$name}Module";
 
         if (!class_exists($moduleclass)) {
-
             $files = [
                 "modules/{$moduleclass}.php",
                 "modules/{$name}/{$moduleclass}.php"
@@ -120,7 +119,6 @@ class GNUsocial
         $moduleclass = "{$name}Plugin";
 
         if (!class_exists($moduleclass)) {
-
             $files = [
                 "local/plugins/{$moduleclass}.php",
                 "local/plugins/{$name}/{$moduleclass}.php",
@@ -466,18 +464,30 @@ class GNUsocial
         }
 
         if (!self::$have_config) {
-            throw new NoConfigException("No configuration file found.",
-                $config_files);
+            throw new NoConfigException(
+                'No configuration file found.',
+                $config_files
+            );
         }
+
+        $dsn = $config['db']['database'];
 
         // Check for database server; must exist!
-
-        if (empty($config['db']['database'])) {
-            throw new ServerException("No database server for this site.");
+        if (empty($dsn)) {
+            throw new ServerException('No database server for this site.');
         }
+
+        $database = MDB2::parseDSN($dsn);
+
+        if (empty($database['phptype'])) {
+            throw new ServerException('Database server for this site is invalid.');
+        }
+
+        $database['charset'] = common_database_charset();
+        $config['db']['database'] = $database;
     }
 
-    static function fillConfigVoids()
+    public static function fillConfigVoids()
     {
         // special cases on empty configuration options
         if (!common_config('thumbnail', 'dir')) {
@@ -492,7 +502,7 @@ class GNUsocial
      * Might make changes to the filesystem, to created dirs, but will
      * not make database changes.
      */
-    static function verifyLoadedConfig()
+    public static function verifyLoadedConfig()
     {
         $mkdirs = [];
 
@@ -533,7 +543,7 @@ class GNUsocial
      * @return boolean true if we're running with HTTPS; else false
      */
 
-    static function isHTTPS()
+    public static function isHTTPS()
     {
         if (common_config('site', 'sslproxy')) {
             return true;
@@ -551,7 +561,7 @@ class GNUsocial
     /**
      * Can we use HTTPS? Then do! Only return false if it's not configured ("never").
      */
-    static function useHTTPS()
+    public static function useHTTPS()
     {
         return self::isHTTPS() || common_config('site', 'ssl') != 'never';
     }
@@ -561,7 +571,7 @@ class NoConfigException extends Exception
 {
     public $configFiles;
 
-    function __construct($msg, $configFiles)
+    public function __construct($msg, $configFiles)
     {
         parent::__construct($msg);
         $this->configFiles = $configFiles;
