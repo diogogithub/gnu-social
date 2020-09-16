@@ -49,6 +49,11 @@ class SQLStore_DB_Connection extends Auth_OpenID_DatabaseConnection
         }
         $dsn['new_link'] = true;
 
+        if (array_key_exists('charset', $options)) {
+            $dsn['charset'] = $options['charset'];
+            unset($options['charset']);
+        }
+
         // To create a new Database connection is an absolute must, because
         // php-openid code delays its transactions commitment.
         // Is a must because our Internal Session Handler uses the database

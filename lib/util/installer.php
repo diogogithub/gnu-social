@@ -67,11 +67,13 @@ abstract class Installer
             'name' => 'MariaDB 10.3+',
             'check_module' => 'mysqli',
             'scheme' => 'mysqli',  // DSN prefix for MDB2
+            'charset' => 'utf8mb4',
         ],
         'pgsql' => [
             'name' => 'PostgreSQL 11+',
             'check_module' => 'pgsql',
             'scheme' => 'pgsql',  // DSN prefix for MDB2
+            'charset' => 'UTF8',
         ]
     ];
 
@@ -296,14 +298,12 @@ abstract class Installer
         $dsn = "{$scheme}://{$this->username}{$auth}@{$this->host}/{$this->database}";
 
         $this->updateStatus('Checking database...');
-        $conn = $this->connectDatabase($dsn);
+        $charset = self::$dbModules[$this->dbtype]['charset'];
+        $conn = $this->connectDatabase($dsn, $charset);
 
-        $charset = ($this->dbtype !== 'mysql') ? 'UTF8' : 'utf8mb4';
         $server_charset = $this->getDatabaseCharset($conn, $this->dbtype);
 
         // Ensure the database server character set is UTF-8.
-        $conn->exec("SET NAMES '{$charset}'");
-
         if ($server_charset !== $charset) {
             $this->updateStatus(
                 'GNU social requires the "' . $charset . '" character set. '
@@ -346,11 +346,17 @@ abstract class Installer
      * Open a connection to the database.
      *
      * @param string $dsn
+     * @param string $charset
      * @return MDB2_Driver_Common
      * @throws Exception
      */
-    protected function connectDatabase(string $dsn)
+    protected function connectDatabase(string $dsn, string $charset)
     {
+        $dsn = MDB2::parseDSN($dsn);
+
+        // Ensure the database client character set is UTF-8.
+        $dsn['charset'] = $charset;
+
         $conn = MDB2::connect($dsn);
         if (MDB2::isError($conn)) {
             throw new Exception(
@@ -375,25 +381,31 @@ abstract class Installer
         switch ($dbtype) {
             case 'pgsql':
                 $res = $conn->query('SHOW server_encoding');
-
-                if (MDB2::isError($res)) {
-                    throw new Exception($res->getMessage());
-                }
-                $ret = $res->fetchOne();
                 break;
             case 'mysql':
-                $res = $conn->query(
-                    "SHOW SESSION VARIABLES LIKE 'character_set_database'"
+                $stmt = $conn->prepare(
+                    <<<END
+                    SELECT DEFAULT_CHARACTER_SET_NAME
+                      FROM INFORMATION_SCHEMA.SCHEMATA
+                      WHERE SCHEMA_NAME = ?
+                    END,
+                    ['text'],
+                    MDB2_PREPARE_RESULT
                 );
-                if (MDB2::isError($res)) {
-                    throw new Exception($res->getMessage());
+                if (MDB2::isError($stmt)) {
+                    return null;
                 }
-                [, $ret] = $res->fetchRow(MDB2_FETCHMODE_ORDERED);
+                $res = $stmt->execute([$database]);
                 break;
             default:
                 throw new Exception('Unknown DB type selected.');
         }
 
+        if (MDB2::isError($res)) {
+            throw new Exception($res->getMessage());
+        }
+
+        $ret = $res->fetchOne();
         if (MDB2::isError($ret)) {
             throw new Exception($ret->getMessage());
         }

@@ -361,16 +361,36 @@ class MysqlSchema extends Schema
      *
      * @param string $name
      * @param array $def
-     * @return string;
      *
+     * @return string
      */
     public function endCreateTable($name, array $def)
     {
-        $engine = $this->preferredEngine($def);
-        return ") ENGINE=$engine CHARACTER SET utf8mb4 COLLATE utf8mb4_bin";
+        $engine = self::storageEngine($def);
+        $charset = self::charset();
+        return ") ENGINE '{$engine}' "
+             . "DEFAULT CHARACTER SET '{$charset}' "
+             . "DEFAULT COLLATE '{$charset}_bin'";
     }
 
-    public function preferredEngine($def)
+    /**
+     * Returns the character set of choice for MariaDB.
+     * Overrides default standard "UTF8".
+     *
+     * @return string
+     */
+    public static function charset(): string
+    {
+        return 'utf8mb4';
+    }
+
+    /**
+     * Returns the storage engine of choice for the supplied definition.
+     *
+     * @param array $def
+     * @return string
+     */
+    protected static function storageEngine(array $def): string
     {
         return 'InnoDB';
     }
@@ -432,18 +452,18 @@ class MysqlSchema extends Schema
      */
     public function appendAlterExtras(array &$phrase, $tableName, array $def)
     {
-        // Check for table properties: make sure we're using a sane
-        // engine type and collation.
-        // @fixme make the default engine configurable?
+        // Check for table properties: make sure we are using sane
+        // storage engine, character set and collation.
         $oldProps = $this->getTableProperties($tableName, ['ENGINE', 'TABLE_COLLATION']);
-        $engine = $this->preferredEngine($def);
-        if (strtolower($oldProps['ENGINE']) != strtolower($engine)) {
-            $phrase[] = "ENGINE=$engine";
+        $engine = self::storageEngine($def);
+        $charset = self::charset();
+        if (mb_strtolower($oldProps['ENGINE']) !== mb_strtolower($engine)) {
+            $phrase[] = "ENGINE '{$engine}'";
         }
-        if (strtolower($oldProps['TABLE_COLLATION']) != 'utf8mb4_bin') {
-            $phrase[] = 'CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_bin';
-            $phrase[] = 'DEFAULT CHARACTER SET = utf8mb4';
-            $phrase[] = 'DEFAULT COLLATE = utf8mb4_bin';
+        if (strtolower($oldProps['TABLE_COLLATION']) !== "{$charset}_bin") {
+            $phrase[] = "CONVERT TO CHARACTER SET '{$charset} COLLATE '{$charset}_bin'";
+            $phrase[] = "DEFAULT CHARACTER SET '{$charset}'";
+            $phrase[] = "DEFAULT COLLATE '{$charset}_bin'";
         }
     }
 
@@ -573,11 +593,11 @@ class MysqlSchema extends Schema
             foreach ($column['enum'] as &$val) {
                 $vals[] = "'{$val}'";
             }
-            return 'enum(' . implode(',', $vals) . ')';
+            return 'ENUM(' . implode(',', $vals) . ')';
         } elseif ($this->isStringType($column)) {
             $col = parent::typeAndSize($name, $column);
             if (!empty($column['collate'])) {
-                $col .= ' COLLATE ' . $column['collate'];
+                $col .= " COLLATE '{$column['collate']}'";
             }
             return $col;
         } else {

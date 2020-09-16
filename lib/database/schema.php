@@ -457,6 +457,16 @@ class Schema
     }
 
     /**
+     * Returns the character set of choice for this DBMS (in practice, UTF-8).
+     *
+     * @return string
+     */
+    public static function charset(): string
+    {
+        return 'UTF8';
+    }
+
+    /**
      * Modifies a column in the schema.
      *
      * The name must match an existing column and table.

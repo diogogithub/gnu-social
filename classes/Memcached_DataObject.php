@@ -863,9 +863,6 @@ class Memcached_DataObject extends Safe_DataObject
         return $string;
     }
 
-    // We overload so that 'SET NAMES "utf8mb4"' is called for
-    // each connection
-
     public function _connect()
     {
         global $_DB_DATAOBJECT, $_PEAR;
@@ -908,13 +905,10 @@ class Memcached_DataObject extends Safe_DataObject
 
         if ($result && !$exists) {
             // Required to make timestamp values usefully comparable.
-            // And set the character set to UTF-8.
             if (common_config('db', 'type') !== 'mysql') {
                 parent::_query("SET TIME ZONE INTERVAL '+00:00' HOUR TO MINUTE");
-                parent::_query("SET NAMES 'UTF8'");
             } else {
                 parent::_query("SET time_zone = '+0:00'");
-                parent::_query("SET NAMES 'utf8mb4'");
             }
         }
 
