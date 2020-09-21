@@ -128,7 +128,7 @@ class Memcached_DataObject extends Safe_DataObject
         $join_tablename = common_database_tablename(
             $obj->tableName() . '_vals'
         );
-        $join_keyword = ($preserve ? 'RIGHT' : 'LEFT') . ' JOIN';
+        $join_keyword = ($preserve ? 'RIGHT' : 'INNER') . ' JOIN';
         $vals_cast_type = ($col_type === 'int') ? 'INTEGER' : 'TEXT';
 
         // A lot of magic to ensure we get an ordered reply with the same exact
@@ -179,10 +179,6 @@ class Memcached_DataObject extends Safe_DataObject
                 );
         }
 
-        if (!$preserve) {
-            // Implements a left semi-join
-            $obj->whereAdd("{$join_tablename}.{$keyCol}_pos IS NOT NULL");
-        }
         // Filters both NULLs requested and non-matching NULLs
         if ($skipNulls) {
             $obj->whereAdd("{$obj->escapedTableName()}.{$keyCol} IS NOT NULL");

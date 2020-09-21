@@ -97,8 +97,8 @@ class AutocompleteAction extends Action
         $this->groups = [];
         $this->profiles = [];
         $term = $this->arg('term');
-        $limit = $this->arg('limit');
-        // prevent DOS attacks
+        $limit = (int) $this->arg('limit');
+        // Prevent DOS attacks
         if ($limit > 200) {
             $limit = 200;
         }
@@ -109,17 +109,17 @@ class AutocompleteAction extends Action
             $profile = new Profile();
             $profile->_join .= sprintf(
                 "\n" . <<<'END'
-                LEFT JOIN (
+                INNER JOIN (
                   SELECT id FROM %s
-                  UNION ALL
+                  UNION
                   SELECT subscribed AS id FROM subscription WHERE subscriber = %d
                 ) AS t1 USING (id)
                 END,
                 $user_table,
                 $this->scoped->id
             );
-            $profile->whereAdd('t1.id IS NOT NULL');
             $profile->whereAdd('nickname LIKE \'' . trim($profile->escape($term), '\'') . '%\'');
+            $profile->orderBy('created, id');
             $profile->limit($limit);
 
             if ($profile->find()) {
@@ -127,8 +127,7 @@ class AutocompleteAction extends Action
                     $this->profiles[] = clone($profile);
                 }
             }
-        }
-        if (substr($term, 0, 1) === '!') {
+        } elseif (substr($term, 0, 1) === '!') {
             //group search
             $term = substr($term, 1);
             $group = new User_group();
@@ -138,6 +137,7 @@ class AutocompleteAction extends Action
                 $this->scoped->id
             ));
             $group->whereAdd('nickname LIKE \'' . trim($group->escape($term), '\'') . '%\'');
+            $group->orderBy('created, id');
             $group->limit($limit);
 
             if ($group->find()) {
