@@ -85,7 +85,7 @@ class Activitypub_notice
                 'id' => self::getUri($notice),
                 'type' => 'Delete',
                 // XXX: A bit of ugly code here
-                'object' => array_merge(Activitypub_tombstone::tombstone_to_array((int)substr(explode(':', $notice->getUri())[2],9)), ['deleted' => str_replace(' ', 'T', $notice->getCreated()) . 'Z']),
+                'object' => array_merge(Activitypub_tombstone::tombstone_to_array((int)substr(explode(':', $notice->getUri())[2], 9)), ['deleted' => str_replace(' ', 'T', $notice->getCreated()) . 'Z']),
                 'url' => $notice->getUrl(),
                 'actor' => $profile->getUri(),
                 'to' => $to,
@@ -236,14 +236,40 @@ class Activitypub_notice
         $attachments = [];
         if (isset($object['attachment']) && is_array($object['attachment'])) {
             foreach ($object['attachment'] as $attachment) {
-                if (array_key_exists('type', $attachment) && $attachment['type'] == 'Document') {
+                if (array_key_exists('type', $attachment)
+                    && $attachment['type'] === 'Document'
+                    && array_key_exists('url', $attachment)) {
                     try {
-                        // throws exception on failure
-                        $attachment = MediaFile::fromUrl($attachment['url'], $actor_profile, $attachment['name']);
-                        $act->enclosures[] = $attachment->getEnclosure();
-                        $attachments[] = $attachment;
+                        $file = new File();
+                        $file->url = $attachment['url'];
+                        $file->title = array_key_exists('type', $attachment) ? $attachment['name'] : null;
+                        if (array_key_exists('type', $attachment)) {
+                            $file->mimetype = $attachment['mediaType'];
+                        } else {
+                            $http = new HTTPClient();
+                            common_debug(
+                                'Performing HEAD request for incoming activity '
+                                . 'to avoid unnecessarily downloading too '
+                                . 'large files. URL: ' . $file->url
+                            );
+                            $head = $http->head($file->url);
+                            $headers = $head->getHeader();
+                            $headers = array_change_key_case($headers, CASE_LOWER);
+                            if (array_key_exists('content-type', $headers)) {
+                                $file->mimetype = $headers['content-type'];
+                            } else {
+                                continue;
+                            }
+                            if (array_key_exists('content-length', $headers)) {
+                                $file->size = $headers['content-length'];
+                            }
+                        }
+                        $file->saveFile();
+                        $act->enclosures[] = $file->getEnclosure();
+                        $attachments[] = $file;
                     } catch (Exception $e) {
                         // Whatever.
+                        continue;
                     }
                 }
             }
@@ -259,8 +285,8 @@ class Activitypub_notice
         $note = Notice::saveActivity($act, $actor_profile, $options);
 
         // Attachments (last part)
-        foreach($attachments as $attachment) {
-            $attachment->attachToNotice($note);
+        foreach ($attachments as $file) {
+            File_to_post::processNew($file, $note);
         }
 
         return $note;
