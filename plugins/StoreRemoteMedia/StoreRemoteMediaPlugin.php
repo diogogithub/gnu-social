@@ -138,6 +138,7 @@ class StoreRemoteMediaPlugin extends Plugin
         try {
             // Exception will be thrown before $file is set to anything, so old $file value will be kept
             $file = File::getByHash($filehash);
+            $file->fetch();
 
             //FIXME: Add some code so we don't have to store duplicate File rows for same hash files.
         } catch (NoResultException $e) {

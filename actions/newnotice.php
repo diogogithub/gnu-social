@@ -1,47 +1,43 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
- * StatusNet, the distributed open-source microblogging tool
- *
  * Handler for posting new notices
  *
- * PHP version 5
- *
- * LICENCE: This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
  * @category  Personal
- * @package   StatusNet
+ * @package   GNUsocial
  * @author    Evan Prodromou <evan@status.net>
  * @author    Zach Copley <zach@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
  * @copyright 2008-2009 StatusNet, Inc.
- * @copyright 2013 Free Software Foundation, Inc.
- * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ * @copyright 2013 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+defined('GNUSOCIAL') || die();
 
 /**
  * Action for posting new notices
  *
- * @category Personal
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @author   Zach Copley <zach@status.net>
- * @author   Sarven Capadisli <csarven@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Personal
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @author    Zach Copley <zach@status.net>
+ * @author    Sarven Capadisli <csarven@status.net>
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class NewnoticeAction extends FormAction
 {
@@ -56,7 +52,7 @@ class NewnoticeAction extends FormAction
      *
      * @return string page title
      */
-    function title()
+    public function title()
     {
         if ($this->getInfo() && $this->stored instanceof Notice) {
             // TRANS: Page title after sending a notice.
@@ -66,12 +62,12 @@ class NewnoticeAction extends FormAction
             return _m('TITLE', 'New reply');
         }
         // TRANS: Page title for sending a new notice.
-        return _m('TITLE','New notice');
+        return _m('TITLE', 'New notice');
     }
 
     protected function doPreparation()
     {
-        foreach(array('inreplyto') as $opt) {
+        foreach (['inreplyto'] as $opt) {
             if ($this->trimmed($opt)) {
                 $this->formOpts[$opt] = $this->trimmed($opt);
             }
@@ -106,26 +102,6 @@ class NewnoticeAction extends FormAction
         $options = array('source' => 'web');
         Event::handle('StartSaveNewNoticeWeb', array($this, $user, &$content, &$options));
 
-        $upload = null;
-        try {
-            // throws exception on failure
-            $upload = MediaFile::fromUpload('attach', $this->scoped);
-            if (Event::handle('StartSaveNewNoticeAppendAttachment', array($this, $upload, &$content, &$options))) {
-                $content .= ($content==='' ? '' : ' ') . $upload->shortUrl();
-            }
-            Event::handle('EndSaveNewNoticeAppendAttachment', array($this, $upload, &$content, &$options));
-
-            // We could check content length here if the URL was added, but I'll just let it slide for now...
-
-            $act->enclosures[] = $upload->getEnclosure();
-        } catch (NoUploadedMediaException $e) {
-            // simply no attached media to the new notice
-            if (empty($content)) {
-                // TRANS: Client error displayed trying to send a notice without content.
-                throw new ClientException(_('No content!'));
-            }
-        }
-
         $inter = new CommandInterpreter();
 
         $cmd = $inter->handle_command($user, $content);
@@ -144,15 +120,37 @@ class NewnoticeAction extends FormAction
         $act->time = time();
         $act->actor = $this->scoped->asActivityObject();
 
+        $upload = null;
+        try {
+            // throws exception on failure
+            $upload = MediaFile::fromUpload('attach', $this->scoped);
+            if (Event::handle('StartSaveNewNoticeAppendAttachment', array($this, $upload, &$content, &$options))) {
+                $content .= ($content==='' ? '' : ' ') . $upload->shortUrl();
+            }
+            Event::handle('EndSaveNewNoticeAppendAttachment', array($this, $upload, &$content, &$options));
+
+            // We could check content length here if the URL was added, but I'll just let it slide for now...
+
+            $act->enclosures[] = $upload->getEnclosure();
+        } catch (NoUploadedMediaException $e) {
+            // simply no attached media to the new notice
+            if (empty($content)) {
+                // TRANS: Client error displayed trying to send a notice without content.
+                throw new ClientException(_m('No content!'));
+            }
+        }
+
         // Reject notice if it is too long (without the HTML)
         // This is done after MediaFile::fromUpload etc. just to act the same as the ApiStatusesUpdateAction
         if (Notice::contentTooLong($content)) {
             // TRANS: Client error displayed when the parameter "status" is missing.
             // TRANS: %d is the maximum number of character for a notice.
-            throw new ClientException(sprintf(_m('That\'s too long. Maximum notice size is %d character.',
-                                                 'That\'s too long. Maximum notice size is %d characters.',
-                                                 Notice::maxContent()),
-                                              Notice::maxContent()));
+            throw new ClientException(sprintf(
+                _m('That\'s too long. Maximum notice size is %d character.',
+                   'That\'s too long. Maximum notice size is %d characters.',
+                   Notice::maxContent()),
+                Notice::maxContent()
+            ));
         }
 
         $act->context = new ActivityContext();
@@ -165,17 +163,21 @@ class NewnoticeAction extends FormAction
         if ($this->scoped->shareLocation()) {
             // use browser data if checked; otherwise profile data
             if ($this->arg('notice_data-geo')) {
-                $locOptions = Notice::locationOptions($this->trimmed('lat'),
-                                                      $this->trimmed('lon'),
-                                                      $this->trimmed('location_id'),
-                                                      $this->trimmed('location_ns'),
-                                                      $this->scoped);
+                $locOptions = Notice::locationOptions(
+                    $this->trimmed('lat'),
+                    $this->trimmed('lon'),
+                    $this->trimmed('location_id'),
+                    $this->trimmed('location_ns'),
+                    $this->scoped
+                );
             } else {
-                $locOptions = Notice::locationOptions(null,
-                                                      null,
-                                                      null,
-                                                      null,
-                                                      $this->scoped);
+                $locOptions = Notice::locationOptions(
+                    null,
+                    null,
+                    null,
+                    null,
+                    $this->scoped
+                );
             }
 
             $act->context->location = Location::fromOptions($locOptions);
@@ -202,9 +204,7 @@ class NewnoticeAction extends FormAction
 
             $this->stored = Notice::saveActivity($act, $this->scoped, $options);
 
-            if ($upload instanceof MediaFile) {
-                $upload->attachToNotice($this->stored);
-            }
+            $upload->attachToNotice($this->stored);
 
             Event::handle('EndNoticeSaveWeb', array($this, $this->stored));
         }
@@ -216,7 +216,7 @@ class NewnoticeAction extends FormAction
             common_redirect($url, 303);
         }
 
-        return _('Saved the notice!');
+        return _m('Saved the notice!');
     }
 
     protected function showContent()
@@ -240,7 +240,7 @@ class NewnoticeAction extends FormAction
      *
      * @return void
      */
-    function showNotice(Notice $notice)
+    public function showNotice(Notice $notice)
     {
         $nli = new NoticeListItem($notice, $this);
         $nli->show();

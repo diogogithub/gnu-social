@@ -60,6 +60,69 @@ class File_thumbnail extends Managed_DataObject
     }
 
     /**
+     * Get the attachment's thumbnail record, if any or generate one.
+     *
+     * @param File $file
+     * @param int|null $width    Max width of thumbnail in pixels. (if null, use common_config values)
+     * @param int|null $height   Max height of thumbnail in pixels. (if null, square-crop to $width)
+     * @param bool $crop         Crop to the max-values' aspect ratio
+     * @param bool $force_still  Don't allow fallback to showing original (such as animated GIF)
+     * @param bool|null $upscale Whether or not to scale smaller images up to larger thumbnail sizes. (null = site default)
+     *
+     * @return File_thumbnail
+     *
+     * @throws ClientException
+     * @throws FileNotFoundException
+     * @throws FileNotStoredLocallyException
+     * @throws InvalidFilenameException
+     * @throws NoResultException
+     * @throws ServerException on various other errors
+     * @throws UnsupportedMediaException if, despite trying, we can't understand how to make a thumbnail for this format
+     * @throws UseFileAsThumbnailException if the file is considered an image itself and should be itself as thumbnail
+     */
+    public static function fromFileObject (File $file, ?int $width = null, ?int $height = null, bool $crop = false, bool $force_still = true, ?bool $upscale = null): File_thumbnail
+    {
+        if (is_null($file->filename)) {
+            throw new FileNotFoundException("This remote file has no local thumbnail.");
+        }
+        $image = ImageFile::fromFileObject($file);
+        $imgPath = $image->getPath();
+        $media = common_get_mime_media($file->mimetype);
+        if (Event::handle('CreateFileImageThumbnailSource', [$file, &$imgPath, $media])) {
+            if (!file_exists($imgPath)) {
+                throw new FileNotFoundException($imgPath);
+            }
+
+            // First some mimetype specific exceptions
+            switch ($file->mimetype) {
+                case 'image/svg+xml':
+                    throw new UseFileAsThumbnailException($file);
+            }
+        }
+
+        if ($image->animated && !common_config('thumbnail', 'animated')) {
+            // null  means "always use file as thumbnail"
+            // false means you get choice between frozen frame or original when calling getThumbnail
+            if (is_null(common_config('thumbnail', 'animated')) || !$force_still) {
+                try {
+                    // remote files with animated GIFs as thumbnails will match this
+                    return File_thumbnail::byFile($file);
+                } catch (NoResultException $e) {
+                    // and if it's not a remote file, it'll be safe to use the locally stored File
+                    throw new UseFileAsThumbnailException($file);
+                }
+            }
+        }
+
+        return $image->getFileThumbnail(
+            $width,
+            $height,
+            $crop,
+            !is_null($upscale) ? $upscale : common_config('thumbnail', 'upscale')
+        );
+    }
+
+    /**
      * Save oEmbed-provided thumbnail data
      *
      * @param object $data
@@ -128,8 +191,8 @@ class File_thumbnail extends Managed_DataObject
         $tn->file_id = $file_id;
         $tn->url = $url;
         $tn->filename = $filename;
-        $tn->width = intval($width);
-        $tn->height = intval($height);
+        $tn->width = (int)$width;
+        $tn->height = (int)$height;
         $tn->insert();
         return $tn;
     }
@@ -146,30 +209,6 @@ class File_thumbnail extends Managed_DataObject
         }
 
         return $dir . $filename;
-    }
-
-    public static function url($filename)
-    {
-        File::tryFilename($filename);
-
-        // FIXME: private site thumbnails?
-
-        $path = common_config('thumbnail', 'path');
-        if (empty($path)) {
-            return File::url('thumb')."/{$filename}";
-        }
-
-        $protocol = (GNUsocial::useHTTPS() ? 'https' : 'http');
-        $server = common_config('thumbnail', 'server') ?: common_config('site', 'server');
-
-        if ($path[mb_strlen($path)-1] != '/') {
-            $path .= '/';
-        }
-        if ($path[0] != '/') {
-            $path = '/'.$path;
-        }
-
-        return $protocol.'://'.$server.$path.$filename;
     }
 
     public function getFilename()
@@ -222,17 +261,11 @@ class File_thumbnail extends Managed_DataObject
 
     public function getUrl()
     {
-        if (!empty($this->filename) || $this->getFile()->isLocal()) {
-            // A locally stored File, so we can dynamically generate a URL.
-            $url = common_local_url('attachment_thumbnail', array('attachment'=>$this->file_id));
-            if (strpos($url, '?') === false) {
-                $url .= '?';
-            }
-            return $url . http_build_query(array('w'=>$this->width, 'h'=>$this->height));
+        $url = common_local_url('attachment_thumbnail', ['filehash' => $this->getFile()->filehash]);
+        if (strpos($url, '?') === false) {
+            $url .= '?';
         }
-
-        // No local filename available, return the remote URL we have stored
-        return $this->url;
+        return $url . http_build_query(['w'=>$this->width, 'h'=>$this->height]);
     }
 
     public function getHeight()
@@ -272,7 +305,7 @@ class File_thumbnail extends Managed_DataObject
         return parent::delete($useWhere);
     }
 
-    public function getFile()
+    public function getFile(): File
     {
         return File::getByID($this->file_id);
     }

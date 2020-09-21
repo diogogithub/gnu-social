@@ -53,7 +53,7 @@ class File extends Managed_DataObject
         return array(
             'fields' => array(
                 'id' => array('type' => 'serial', 'not null' => true),
-                'urlhash' => array('type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'sha256 of destination URL (url field)'),
+                'urlhash' => array('type' => 'varchar', 'length' => 64, 'description' => 'sha256 of destination URL (url field)'),
                 'url' => array('type' => 'text', 'description' => 'destination URL after following possible redirections'),
                 'filehash' => array('type' => 'varchar', 'length' => 64, 'not null' => false, 'description' => 'sha256 of the file contents, only for locally stored files of course'),
                 'mimetype' => array('type' => 'varchar', 'length' => 50, 'description' => 'mime type of resource'),
@@ -112,21 +112,26 @@ class File extends Managed_DataObject
             // We don't have the file's URL since before, so let's continue.
         }
 
-        // if the given url is an local attachment url and the id already exists, don't
-        // save a new file record. This should never happen, but let's make it foolproof
-        // FIXME: how about attachments servers?
-        $u = parse_url($given_url);
-        if (isset($u['host']) && $u['host'] === common_config('site', 'server')) {
+        // If the given url is a local attachment url, don't save a new file record.
+        $uh = parse_url($given_url, PHP_URL_HOST);
+        $up = parse_url($given_url, PHP_URL_PATH);
+        if ($uh == common_config('site', 'server') || $uh == common_config('attachments', 'server')) {
+            unset($uh);
             $r = Router::get();
             // Skip the / in the beginning or $r->map won't match
             try {
-                $args = $r->map(mb_substr($u['path'], 1));
-                if ($args['action'] === 'attachment') {
+                $args = $r->map(mb_substr($up, 1));
+                if ($args['action'] === 'attachment'          ||
+                    $args['action'] === 'attachment_view'     ||
+                    $args['action'] === 'attachment_download' ||
+                    $args['action'] === 'attachment_thumbnail' ) {
                     try {
-                        if (!empty($args['attachment'])) {
-                            return File::getByID($args['attachment']);
-                        } elseif ($args['filehash']) {
-                            return File::getByHash($args['filehash']);
+                        if (array_key_exists('attachment', $args)) {
+                            return File::getByID((int)$args['attachment']);
+                        } elseif (array_key_exists('filehash', $args)) {
+                            $file = File::getByHash($args['filehash']);
+                            $file->fetch();
+                            return $file;
                         }
                     } catch (NoResultException $e) {
                         // apparently this link goes to us, but is _not_ an existing attachment (File) ID?
@@ -158,10 +163,10 @@ class File extends Managed_DataObject
             $file->mimetype = $redir_data['type'];
         }
         if (!empty($redir_data['size'])) {
-            $file->size = intval($redir_data['size']);
+            $file->size = (int)$redir_data['size'];
         }
         if (isset($redir_data['time']) && $redir_data['time'] > 0) {
-            $file->date = intval($redir_data['time']);
+            $file->date = (int)$redir_data['time'];
         }
         $file->saveFile();
         return $file;
@@ -169,7 +174,7 @@ class File extends Managed_DataObject
 
     public function saveFile()
     {
-        $this->urlhash = self::hashurl($this->url);
+        $this->urlhash = is_null($this->url) ? null : self::hashurl($this->url);
 
         if (!Event::handle('StartFileSaveNew', array(&$this))) {
             throw new ServerException('File not saved due to an aborted StartFileSaveNew event.');
@@ -193,14 +198,14 @@ class File extends Managed_DataObject
      * - return the File object with the full reference
      *
      * @param string $given_url the URL we're looking at
-     * @param Notice $notice (optional)
+     * @param Notice|null $notice (optional)
      * @param bool $followRedirects defaults to true
      *
      * @return mixed File on success, -1 on some errors
      *
      * @throws ServerException on failure
      */
-    public static function processNew($given_url, Notice $notice=null, $followRedirects=true)
+    public static function processNew($given_url, ?Notice $notice=null, bool $followRedirects=true)
     {
         if (empty($given_url)) {
             throw new ServerException('No given URL to process');
@@ -265,7 +270,8 @@ class File extends Managed_DataObject
                        INNER JOIN notice
                               ON file_to_post.post_id = notice.id
                   WHERE profile_id = {$scoped->id} AND
-                        file.url LIKE '%/notice/%/file'";
+                        filename IS NULL AND
+                        file.url IS NOT NULL";
         $file->query($query);
         $file->fetch();
         $total = $file->total + $fileSize;
@@ -460,6 +466,14 @@ class File extends Managed_DataObject
         return $dir . $filename;
     }
 
+    /**
+     * Don't use for attachments, only for assets.
+     *
+     * @param $filename
+     * @return mixed|string
+     * @throws InvalidFilenameException
+     * @throws ServerException
+     */
     public static function url($filename)
     {
         self::tryFilename($filename);
@@ -534,7 +548,7 @@ class File extends Managed_DataObject
 
         $needMoreMetadataMimetypes = array(null, 'application/xhtml+xml', 'text/html');
 
-        if (!isset($this->filename) && in_array(common_bare_mime($enclosure->mimetype), $needMoreMetadataMimetypes)) {
+        if (isset($enclosure->url) && in_array(common_bare_mime($enclosure->mimetype), $needMoreMetadataMimetypes)) {
             // This fetches enclosure metadata for non-local links with unset/HTML mimetypes,
             // which may be enriched through oEmbed or similar (implemented as plugins)
             Event::handle('FileEnclosureMetadata', array($this, &$enclosure));
@@ -561,45 +575,28 @@ class File extends Managed_DataObject
     }
 
     /**
-     * Get the attachment's thumbnail record, if any.
-     * Make sure you supply proper 'int' typed variables (or null).
+     * Get the attachment's thumbnail record, if any or generate one.
      *
-     * @param $width  int   Max width of thumbnail in pixels. (if null, use common_config values)
-     * @param $height int   Max height of thumbnail in pixels. (if null, square-crop to $width)
-     * @param $crop   bool  Crop to the max-values' aspect ratio
-     * @param $force_still  bool    Don't allow fallback to showing original (such as animated GIF)
-     * @param $upscale      mixed   Whether or not to scale smaller images up to larger thumbnail sizes. (null = site default)
+     * @param int|null $width    Max width of thumbnail in pixels. (if null, use common_config values)
+     * @param int|null $height   Max height of thumbnail in pixels. (if null, square-crop to $width)
+     * @param bool $crop         Crop to the max-values' aspect ratio
+     * @param bool $force_still  Don't allow fallback to showing original (such as animated GIF)
+     * @param bool|null $upscale Whether or not to scale smaller images up to larger thumbnail sizes. (null = site default)
      *
      * @return File_thumbnail
      *
-     * @throws UseFileAsThumbnailException  if the file is considered an image itself and should be itself as thumbnail
-     * @throws UnsupportedMediaException    if, despite trying, we can't understand how to make a thumbnail for this format
-     * @throws ServerException              on various other errors
+     * @throws ClientException
+     * @throws FileNotFoundException
+     * @throws FileNotStoredLocallyException
+     * @throws InvalidFilenameException
+     * @throws NoResultException
+     * @throws ServerException on various other errors
+     * @throws UnsupportedMediaException if, despite trying, we can't understand how to make a thumbnail for this format
+     * @throws UseFileAsThumbnailException if the file is considered an image itself and should be itself as thumbnail
      */
-    public function getThumbnail($width = null, $height = null, $crop = false, $force_still = true, $upscale = null): File_thumbnail
+    public function getThumbnail (?int $width = null, ?int $height = null, bool $crop = false, bool $force_still = true, ?bool $upscale = null): File_thumbnail
     {
-        // Get some more information about this file through our ImageFile class
-        $image = ImageFile::fromFileObject($this);
-        if ($image->animated && !common_config('thumbnail', 'animated')) {
-            // null  means "always use file as thumbnail"
-            // false means you get choice between frozen frame or original when calling getThumbnail
-            if (is_null(common_config('thumbnail', 'animated')) || !$force_still) {
-                try {
-                    // remote files with animated GIFs as thumbnails will match this
-                    return File_thumbnail::byFile($this);
-                } catch (NoResultException $e) {
-                    // and if it's not a remote file, it'll be safe to use the locally stored File
-                    throw new UseFileAsThumbnailException($this);
-                }
-            }
-        }
-
-        return $image->getFileThumbnail(
-            $width,
-            $height,
-            $crop,
-            !is_null($upscale) ? $upscale : common_config('thumbnail', 'upscale')
-        );
+        return File_thumbnail::fromFileObject($this, $width, $height, $crop, $force_still, $upscale);
     }
 
     public function getPath()
@@ -698,34 +695,33 @@ class File extends Managed_DataObject
 
     public function getAttachmentDownloadUrl()
     {
-        return common_local_url('attachment_download', array('attachment'=>$this->getID()));
+        return common_local_url('attachment_download', ['filehash' => $this->filehash]);
     }
 
     public function getAttachmentViewUrl()
     {
-        return common_local_url('attachment_view', array('attachment'=>$this->getID()));
+        return common_local_url('attachment_view', ['filehash' => $this->filehash]);
     }
 
     /**
-     * @param mixed $use_local true means require local, null means prefer local, false means use whatever is stored
+     * @param bool|null $use_local true means require local, null means prefer original, false means use whatever is stored
      * @return string
      * @throws FileNotStoredLocallyException
      */
-    public function getUrl($use_local=null)
+    public function getUrl(?bool $use_local=null): ?string
     {
         if ($use_local !== false) {
-            if (is_string($this->filename) || !empty($this->filename)) {
+            if (empty($this->url)) {
                 // A locally stored file, so let's generate a URL for our instance.
                 return $this->getAttachmentViewUrl();
             }
             if ($use_local) {
-                // if the file wasn't stored locally (has filename) and we require a local URL
+                // if the file isn't ours but and we require a local URL anyway
                 throw new FileNotStoredLocallyException($this);
             }
         }
 
-
-        // No local filename available, return the URL we have stored
+        // The original file's URL
         return $this->url;
     }
 
@@ -748,7 +744,7 @@ class File extends Managed_DataObject
     {
         $file = new File();
         $file->filehash = strtolower($hashstr);
-        if (!$file->find(true)) {
+        if (!$file->find()) {
             throw new NoResultException($file);
         }
         return $file;
@@ -836,11 +832,10 @@ class File extends Managed_DataObject
 
     public function isLocal()
     {
-        return !empty($this->filename);
+        return empty($this->url) && !empty($this->filename);
     }
 
-    public function delete($useWhere=false)
-    {
+    public function unlink() {
         // Delete the file, if it exists locally
         if (!empty($this->filename) && file_exists(self::path($this->filename))) {
             $deleted = @unlink(self::path($this->filename));
@@ -848,12 +843,18 @@ class File extends Managed_DataObject
                 common_log(LOG_ERR, sprintf('Could not unlink existing file: "%s"', self::path($this->filename)));
             }
         }
+    }
+
+    public function delete($useWhere=false)
+    {
+        // Delete the file, if it exists locally
+        $this->unlink();
 
         // Clear out related things in the database and filesystem, such as thumbnails
         $related = [
             'File_redirection',
             'File_thumbnail',
-            'File_to_post',
+            'File_to_post'
         ];
         Event::handle('FileDeleteRelated', [$this, &$related]);
 

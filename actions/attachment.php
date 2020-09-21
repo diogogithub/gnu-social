@@ -19,11 +19,11 @@ defined('GNUSOCIAL') || die();
 /**
  * Show notice attachments
  *
- * @category Personal
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Personal
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2008-2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class AttachmentAction extends ManagedAction
 {
@@ -58,9 +58,11 @@ class AttachmentAction extends ManagedAction
 
         try {
             if (!empty($id = $this->trimmed('attachment'))) {
-                $this->attachment = File::getByID($id);
+                $this->attachment = File::getByID((int) $id);
             } elseif (!empty($this->filehash = $this->trimmed('filehash'))) {
-                $this->attachment = File::getByHash($this->filehash);
+                $file = File::getByHash($this->filehash);
+                $file->fetch();
+                $this->attachment = $file;
             }
         } catch (Exception $e) {
             // Not found
@@ -70,13 +72,22 @@ class AttachmentAction extends ManagedAction
             $this->clientError(_m('No such attachment.'), 404);
         }
 
-        $this->filepath = $this->attachment->getFileOrThumbnailPath();
-        if (empty($this->filepath)) {
-            $this->clientError(_m('Requested local URL for a file that is not stored locally.'), 404);
+        $this->filesize = $this->attachment->size;
+        $this->mimetype = $this->attachment->mimetype;
+        $this->filename = $this->attachment->filename;
+
+        if ($this->attachment->isLocal()) {
+            $this->filepath = $this->attachment->getFileOrThumbnailPath();
+            if (empty($this->filepath)) {
+                $this->clientError(
+                    _m('Requested local URL for a file that is not stored locally.'),
+                    404
+                );
+            }
+            $this->filesize = $this->attachment->getFileOrThumbnailSize();
+            $this->mimetype = $this->attachment->getFileOrThumbnailMimetype();
+            $this->filename = MediaFile::getDisplayName($this->attachment);
         }
-        $this->filesize = $this->attachment->getFileOrThumbnailSize();
-        $this->mimetype = $this->attachment->getFileOrThumbnailMimetype();
-        $this->filename = MediaFile::getDisplayName($this->attachment);
 
         return true;
     }
@@ -104,8 +115,12 @@ class AttachmentAction extends ManagedAction
 
     public function showPage(): void
     {
-        if (empty($this->filepath)) {
-            // if it's not a local file, gtfo
+        if (
+            !$this->attachment->isLocal()
+            || empty($this->filepath)
+            || !file_exists($this->filepath)
+        ) {
+            // If it's not a locally stored file, get lost
             common_redirect($this->attachment->getUrl(), 303);
         }
 

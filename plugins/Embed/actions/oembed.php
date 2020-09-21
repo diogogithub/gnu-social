@@ -93,7 +93,7 @@ class OEmbedAction extends Action
                 }
                 try {
                     $thumb = $attachment->getThumbnail();
-                    $thumb_url = File_thumbnail::url($thumb->filename);
+                    $thumb_url = $thumb->getUrl();
                     $oembed['thumbnail_url'] = $thumb_url;
                     break;  // only first one
                 } catch (UseFileAsThumbnailException $e) {

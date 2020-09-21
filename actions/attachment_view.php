@@ -19,9 +19,10 @@ defined('GNUSOCIAL') || die();
 /**
  * View notice attachment
  *
- * @package  GNUsocial
- * @author   Miguel Dantas <biodantasgs@gmail.com>
- * @license  https://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
+ * @package   GNUsocial
+ * @author    Miguel Dantas <biodantasgs@gmail.com>
+ * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class Attachment_viewAction extends AttachmentAction
 {
@@ -32,7 +33,15 @@ class Attachment_viewAction extends AttachmentAction
         // script execution, and we don't want to have any more errors until then, so don't reset it
         @ini_set('display_errors', 0);
 
-        $disposition = in_array(common_get_mime_media($this->mimetype), ['image', 'video']) ? 'inline' : 'attachment';
-        common_send_file($this->filepath, $this->mimetype, $this->filename, $disposition);
+        if ($this->attachment->isLocal()) {
+            $disposition = 'attachment';
+            if (in_array(common_get_mime_media($this->mimetype), ['image', 'video'])) {
+                $disposition = 'inline';
+            }
+            common_send_file($this->filepath, $this->mimetype,
+$this->filename, $disposition);
+        } else {
+            common_redirect($this->attachment->getUrl(), 303);
+        }
     }
 }

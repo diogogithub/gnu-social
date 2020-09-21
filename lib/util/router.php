@@ -223,16 +223,18 @@ class Router
                         ['q' => '.+']);
             $m->connect('search/notice/rss', ['action' => 'noticesearchrss']);
 
-            foreach (['' => 'attachment',
-                      '/view' => 'attachment_view',
-                      '/download' => 'attachment_download',
+            // Attachment page for file
+            $m->connect("attachment/:attachment",
+                ['action' => 'attachment'],
+                ['attachment' => '[0-9]+']);
+
+            // Retrieve local file
+            foreach (['/view'      => 'attachment_view',
+                      '/download'  => 'attachment_download',
                       '/thumbnail' => 'attachment_thumbnail'] as $postfix => $action) {
-                foreach (['filehash' => '[A-Za-z0-9._-]{64}',
-                          'attachment' => '[0-9]+'] as $type => $match) {
-                    $m->connect("attachment/:{$type}{$postfix}",
+                    $m->connect("attachment/:filehash{$postfix}",
                                 ['action' => $action],
-                                [$type => $match]);
-                }
+                                ['filehash' => '[A-Za-z0-9._-]{64}']);
             }
 
             $m->connect('notice/new?replyto=:replyto&inreplyto=:inreplyto',

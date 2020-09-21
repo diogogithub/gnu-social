@@ -61,6 +61,6 @@ class Attachment extends AttachmentListItem
 
     public function linkAttr()
     {
-        return array('rel' => 'external', 'href' => $this->attachment->getAttachmentDownloadUrl());
+        return ['rel' => 'external', 'href' => $this->attachment->getUrl(null)];
     }
 }

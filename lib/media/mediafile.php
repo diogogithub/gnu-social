@@ -48,24 +48,25 @@ class MediaFile
     /**
      * MediaFile constructor.
      *
-     * @param string $filepath The path of the file this media refers to. Required
+     * @param string|null $filepath The path of the file this media refers to. Required
      * @param string $mimetype The mimetype of the file. Required
      * @param string|null $filehash The hash of the file, if known. Optional
      * @param int|null $id The DB id of the file. Int if known, null if not.
      *                     If null, it searches for it. If -1, it skips all DB
      *                     interactions (useful for temporary objects)
-     *
+     * @param string|null $fileurl Provide if remote
      * @throws ClientException
      * @throws NoResultException
      * @throws ServerException
      */
-    public function __construct(string $filepath, string $mimetype, ?string $filehash = null, ?int $id = null)
+    public function __construct(?string $filepath = null, string $mimetype, ?string $filehash = null, ?int $id = null, ?string $fileurl = null)
     {
         $this->filepath = $filepath;
         $this->filename = basename($this->filepath);
         $this->mimetype = $mimetype;
-        $this->filehash = self::getHashOfFile($this->filepath, $filehash);
-        $this->id = $id;
+        $this->filehash = is_null($filepath) ? null : self::getHashOfFile($this->filepath, $filehash);
+        $this->id       = $id;
+        $this->fileurl  = $fileurl;
 
         // If id is -1, it means we're dealing with a temporary object and don't want to store it in the DB,
         // or add redirects
@@ -82,14 +83,26 @@ class MediaFile
                 // Otherwise, store it
                 $this->fileRecord = $this->storeFile();
             }
-
-            $this->fileurl = common_local_url(
-                'attachment',
-                ['attachment' => $this->fileRecord->id]
-            );
-
-            $this->short_fileurl = common_shorten_url($this->fileurl);
         }
+    }
+
+    /**
+     * Shortcut method to get a MediaFile from a File
+     *
+     * @param File $file
+     * @return MediaFile|ImageFile
+     * @throws ClientException
+     * @throws FileNotFoundException
+     * @throws NoResultException
+     * @throws ServerException
+     */
+    public static function fromFileObject(File $file)
+    {
+        $filepath = null;
+        try {
+            $filepath = $file->getPath();
+        } catch (Exception $e) {}
+        return new self($filepath, common_get_mime_media($file->mimetype), $file->filehash, $file->getID());
     }
 
     public function attachToNotice(Notice $notice)
@@ -102,9 +115,26 @@ class MediaFile
         return File::path($this->filename);
     }
 
+    /**
+     * @param bool|null $use_local true means require local, null means prefer original, false means use whatever is stored
+     * @return string
+     */
+    public function getUrl(?bool $use_local=null): ?string
+    {
+        if ($use_local !== false) {
+            if (empty($this->fileurl)) {
+                // A locally stored file, so let's generate a URL for our instance.
+                return common_local_url('attachment_view', ['filehash' => $this->filehash]);
+            }
+        }
+
+        // The original file's URL
+        return $this->fileurl;
+    }
+
     public function shortUrl()
     {
-        return $this->short_fileurl;
+        return common_shorten_url($this->getUrl());
     }
 
     public function getEnclosure()
@@ -112,9 +142,25 @@ class MediaFile
         return $this->getFile()->getEnclosure();
     }
 
-    public function delete()
+    public function delete($useWhere=false)
     {
+        if (!is_null($this->fileRecord)) {
+            $this->fileRecord->delete($useWhere);
+        }
         @unlink($this->filepath);
+    }
+
+    public function unlink()
+    {
+        $this->filename = null;
+        // Delete the file, if it exists locally
+        if (!empty($this->filepath) && file_exists($this->filepath)) {
+            $deleted = @unlink($this->filepath);
+            if (!$deleted) {
+                common_log(LOG_ERR, sprintf('Could not unlink existing file: "%s"', $this->filepath));
+            }
+        }
+        $this->fileRecord->unlink();
     }
 
     public function getFile()
@@ -164,19 +210,19 @@ class MediaFile
     {
         try {
             $file = File::getByHash($this->filehash);
-            // We're done here. Yes. Already. We assume sha256 won't collide on us anytime soon.
-            return $file;
+            if (is_null($this->fileurl) && is_null($file->getUrl(false))) {
+                // An already existing local file is being re-added, return it
+                return $file;
+            }
         } catch (NoResultException $e) {
             // Well, let's just continue below.
         }
 
-        $fileurl = common_local_url('attachment_view', ['filehash' => $this->filehash]);
-
         $file = new File;
 
         $file->filename = $this->filename;
-        $file->urlhash = File::hashurl($fileurl);
-        $file->url = $fileurl;
+        $file->url = $this->fileurl;
+        $file->urlhash = is_null($file->url) ? null : File::hashurl($file->url);
         $file->filehash = $this->filehash;
         $file->size = filesize($this->filepath);
         if ($file->size === false) {
@@ -196,7 +242,7 @@ class MediaFile
         // Set file geometrical properties if available
         try {
             $image = ImageFile::fromFileObject($file);
-            $orig = clone $file;
+            $orig = clone($file);
             $file->width = $image->width;
             $file->height = $image->height;
             $file->update($orig);
@@ -205,6 +251,8 @@ class MediaFile
             // may have generated a temporary file from a
             // video support plugin or something.
             // FIXME: Do this more automagically.
+            // Honestly, I think this is unlikely these days,
+            // but better be safe than sure, I guess
             if ($image->getPath() != $file->getPath()) {
                 $image->unlink();
             }
@@ -390,6 +438,16 @@ class MediaFile
 
         try {
             $file = File::getByHash($filehash);
+            while ($file->fetch()) {
+                if ($file->getUrl(false)) {
+                    continue;
+                }
+                try {
+                    return ImageFile::fromFileObject($file);
+                } catch (UnsupportedMediaException $e) {
+                    return MediaFile::fromFileObject($file);
+                }
+            }
             // If no exception is thrown the file exists locally, so we'll use that and just add redirections.
             // but if the _actual_ locally stored file doesn't exist, getPath will throw FileNotFoundException
             $filepath = $file->getPath();
@@ -432,10 +490,10 @@ class MediaFile
             }
 
             if ($media == 'image') {
-                return new ImageFile(null, $filepath);
+                return new ImageFile(null, $filepath, $filehash);
             }
         }
-        return new self($filepath, $mimetype, $filehash);
+        return new self($filepath, $mimetype, $filehash, null);
     }
 
     /**
@@ -464,6 +522,48 @@ class MediaFile
             throw new ServerException(sprintf('Invalid remote media URL %s.', $url));
         }
 
+        $http = new HTTPClient();
+        common_debug(sprintf('Performing HEAD request for incoming activity to avoid ' .
+            'unnecessarily downloading too large files. URL: %s',
+            $url));
+        $head = $http->head($url);
+        $url = $head->getEffectiveUrl();   // to avoid going through redirects again
+        if (empty($url)) {
+            throw new ServerException(sprintf('URL after redirects is somehow empty, for URL %s.', $url));
+        }
+        $headers = $head->getHeader();
+        $headers = array_change_key_case($headers, CASE_LOWER);
+        if (array_key_exists('content-length', $headers)) {
+            $fileQuota = common_config('attachments', 'file_quota');
+            $fileSize = $headers['content-length'];
+            if ($fileSize > $fileQuota) {
+                // TRANS: Message used to be inserted as %2$s in  the text "No file may
+                // TRANS: be larger than %1$d byte and the file you sent was %2$s.".
+                // TRANS: %1$d is the number of bytes of an uploaded file.
+                $fileSizeText = sprintf(_m('%1$d byte', '%1$d bytes', $fileSize), $fileSize);
+
+                // TRANS: Message given if an upload is larger than the configured maximum.
+                // TRANS: %1$d (used for plural) is the byte limit for uploads,
+                // TRANS: %2$s is the proper form of "n bytes". This is the only ways to have
+                // TRANS: gettext support multiple plurals in the same message, unfortunately...
+                throw new ClientException(
+                    sprintf(
+                        _m(
+                            'No file may be larger than %1$d byte and the file you sent was %2$s. Try to upload a smaller version.',
+                            'No file may be larger than %1$d bytes and the file you sent was %2$s. Try to upload a smaller version.',
+                            $fileQuota
+                        ),
+                        $fileQuota,
+                        $fileSizeText
+                    )
+                );
+            }
+        } else {
+            throw new ServerException(sprintf('Invalid remote media URL headers %s.', $url));
+        }
+        unset($head);
+        unset($headers);
+
         $tempfile = new TemporaryFile('gs-mediafile');
         fwrite($tempfile->getResource(), HTTPClient::quickGet($url));
         fflush($tempfile->getResource());
@@ -471,7 +571,7 @@ class MediaFile
         $filehash = strtolower(self::getHashOfFile($tempfile->getRealPath()));
 
         try {
-            $file = File::getByHash($filehash);
+            $file = File::getByUrl($url);
             /*
              * If no exception is thrown the file exists locally, so we'll use
              * that and just add redirections.
@@ -531,10 +631,10 @@ class MediaFile
             }
 
             if ($media === 'image') {
-                return new ImageFile(null, $filepath);
+                return new ImageFile(null, $filepath, $filehash, $url);
             }
         }
-        return new self($filepath, $mimetype, $filehash);
+        return new self($filepath, $mimetype, $filehash, null, $url);
     }
 
     public static function fromFileInfo(SplFileInfo $finfo, Profile $scoped = null)
@@ -543,6 +643,7 @@ class MediaFile
 
         try {
             $file = File::getByHash($filehash);
+            $file->fetch();
             // Already have it, so let's reuse the locally stored File
             // by using getPath we also check whether the file exists
             // and throw a FileNotFoundException with the path if it doesn't.
