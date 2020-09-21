@@ -126,7 +126,7 @@ class RawInboxNoticeStream extends FullNoticeStream
         // managed to post here.
         $notice->query(sprintf(
             <<<'END'
-            SELECT id
+            SELECT DISTINCT id
               FROM (
                 (
                   SELECT notice.id
