@@ -63,13 +63,13 @@ class ImageFile extends MediaFile
      *                     interactions (useful for temporary objects)
      * @param string $filepath The path of the file this media refers to. Required
      * @param string|null $filehash The hash of the file, if known. Optional
-     *
+     * @param string|null $fileurl
      * @throws ClientException
      * @throws NoResultException
      * @throws ServerException
      * @throws UnsupportedMediaException
      */
-    public function __construct(?int $id = null, string $filepath, ?string $filehash = null)
+    public function __construct(?int $id = null, string $filepath, ?string $filehash = null, ?string $fileurl = null)
     {
         $old_limit = ini_set('memory_limit', common_config('attachments', 'memory_limit'));
 
@@ -109,7 +109,8 @@ class ImageFile extends MediaFile
             $filepath,
             $this->mimetype,
             $filehash,
-            $id
+            $id,
+            $fileurl
         );
 
         if ($this->type === IMAGETYPE_JPEG) {
@@ -143,69 +144,28 @@ class ImageFile extends MediaFile
     }
 
     /**
-     * Create a thumbnail from a file object
+     * Shortcut method to get an ImageFile from a File
      *
      * @param File $file
      * @return ImageFile
+     * @throws ClientException
      * @throws FileNotFoundException
+     * @throws NoResultException
+     * @throws ServerException
      * @throws UnsupportedMediaException
-     * @throws UseFileAsThumbnailException
      */
     public static function fromFileObject(File $file)
     {
-        $imgPath = null;
         $media = common_get_mime_media($file->mimetype);
-        if (Event::handle('CreateFileImageThumbnailSource', [$file, &$imgPath, $media])) {
-            if (empty($file->filename) && !file_exists($imgPath)) {
-                throw new FileNotFoundException($imgPath);
-            }
 
-            // First some mimetype specific exceptions
-            switch ($file->mimetype) {
-                case 'image/svg+xml':
-                    throw new UseFileAsThumbnailException($file);
-            }
-
-            // And we'll only consider it an image if it has such a media type
-            if ($media !== 'image') {
-                throw new UnsupportedMediaException(_m('Unsupported media format.'), $file->getPath());
-            }
-
-            if (!empty($file->filename)) {
-                $imgPath = $file->getPath();
-            }
+        // And we'll only consider it an image if it has such a media type
+        if ($media !== 'image') {
+            throw new UnsupportedMediaException(_m('Unsupported media format.'), $file->getPath());
         }
 
-        if (!file_exists($imgPath)) {
-            throw new FileNotFoundException($imgPath);
-        }
+        $filepath = $file->getPath();
 
-        try {
-            $image = new self($file->getID(), $imgPath);
-        } catch (Exception $e) {
-            // Avoid deleting the original
-            try {
-                if (strlen($imgPath) > 0 && $imgPath !== $file->getPath()) {
-                    common_debug(__METHOD__ . ': Deleting temporary file that was created as image file' .
-                        'thumbnail source: ' . _ve($imgPath));
-                    @unlink($imgPath);
-                }
-            } catch (FileNotFoundException $e) {
-                // File reported (via getPath) that the original file
-                // doesn't exist anyway, so it's safe to delete $imgPath
-                @unlink($imgPath);
-            }
-            common_debug(sprintf(
-                'Exception %s caught when creating ImageFile for File id==%s ' .
-                'and imgPath==%s: %s',
-                get_class($e),
-                _ve($file->id),
-                _ve($imgPath),
-                _ve($e->getMessage())
-            ));
-            throw $e;
-        }
-        return $image;
+        return new self($file->getID(), $filepath, $file->filehash);
     }
 
     public function getPath()
@@ -251,9 +211,9 @@ class ImageFile extends MediaFile
     }
 
     /**
-     * Process a file upload
+     * Create a new ImageFile object from an url
      *
-     * Uses MediaFile's `fromURL` to do the majority of the work
+     * Uses MediaFile's `fromUrl` to do the majority of the work
      * and ensures the uploaded file is in fact an image.
      *
      * @param string $url Remote image URL
@@ -453,11 +413,6 @@ class ImageFile extends MediaFile
         return $outpath;
     }
 
-    public function unlink()
-    {
-        @unlink($this->filepath);
-    }
-
     public function scaleToFit($maxWidth = null, $maxHeight = null, $crop = null)
     {
         return self::getScalingValues(
@@ -587,7 +542,21 @@ class ImageFile extends MediaFile
         return $count >= 1; // number of animated frames apart from the original image
     }
 
-    public function getFileThumbnail($width, $height, $crop, $upscale = false)
+    /**
+     * @param $width
+     * @param $height
+     * @param $crop
+     * @param false $upscale
+     * @return File_thumbnail
+     * @throws ClientException
+     * @throws FileNotFoundException
+     * @throws FileNotStoredLocallyException
+     * @throws InvalidFilenameException
+     * @throws ServerException
+     * @throws UnsupportedMediaException
+     * @throws UseFileAsThumbnailException
+     */
+    public function getFileThumbnail($width = null, $height = null, $crop = null, $upscale = false)
     {
         if (!$this->fileRecord instanceof File) {
             throw new ServerException('No File object attached to this ImageFile object.');
@@ -679,9 +648,7 @@ class ImageFile extends MediaFile
 
         return File_thumbnail::saveThumbnail(
             $this->fileRecord->getID(),
-            // no url since we generated it ourselves and can dynamically
-            // generate the url
-            null,
+            $this->fileRecord->getUrl(false),
             $width,
             $height,
             $outname

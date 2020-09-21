@@ -91,10 +91,11 @@ class AttachmentListItem extends Widget
     }
 
     function linkAttr() {
-        return array(
-                     'class' => 'u-url',
-                     'href' => $this->attachment->getAttachmentUrl(),
-                     'title' => $this->linkTitle());
+        return [
+            'class' => 'u-url',
+            'href'  => $this->attachment->getAttachmentDownloadUrl(),
+            'title' => $this->linkTitle()
+        ];
     }
 
     function showNoticeAttachment()
@@ -105,101 +106,110 @@ class AttachmentListItem extends Widget
     function showRepresentation() {
         $enclosure = $this->attachment->getEnclosure();
 
-        if (Event::handle('StartShowAttachmentRepresentation', array($this->out, $this->attachment))) {
+        if (Event::handle('StartShowAttachmentRepresentation', [$this->out, $this->attachment])) {
 
             $this->out->elementStart('label');
-            $this->out->element('a', $this->linkAttr(), $this->title());
+            $this->out->element('a', ['rel' => 'external', 'href' => $this->attachment->getAttachmentUrl()], $this->title());
             $this->out->elementEnd('label');
 
             $this->out->element('br');
 
-            if (!empty($enclosure->mimetype)) {
-                // First, prepare a thumbnail if it exists.
-                $thumb = null;
-                try {
-                    // Tell getThumbnail that we can show an animated image if it has one (4th arg, "force_still")
-                    $thumb = $this->attachment->getThumbnail(null, null, false, false);
-                } catch (UseFileAsThumbnailException $e) {
+            try {
+                if (!empty($enclosure->mimetype)) {
+                    // First, prepare a thumbnail if it exists.
                     $thumb = null;
-                } catch (UnsupportedMediaException $e) {
-                    // FIXME: Show a good representation of unsupported/unshowable images
-                    $thumb = null;
-                }
-
-                // Then get the kind of mediatype we're dealing with
-                $mediatype = common_get_mime_media($enclosure->mimetype);
-
-                // FIXME: Get proper mime recognition of Ogg files! If system has 'mediainfo', this should do it:
-                // $ mediainfo --inform='General;%InternetMediaType%'
-                if ($this->attachment->mimetype === 'application/ogg') {
-                    $mediatype = 'video';   // because this element can handle Ogg/Vorbis etc. on its own
-                }
-
-                // Ugly hack to show text/html links which have a thumbnail (such as from oEmbed/OpenGraph image URLs)
-                if (!in_array($mediatype, ['image','audio','video']) && $thumb instanceof File_thumbnail) {
-                    $mediatype = 'image';
-                }
-
-                switch ($mediatype) {
-                // Anything we understand as an image, if we need special treatment, do it in StartShowAttachmentRepresentation
-                case 'image':
-                    if ($thumb instanceof File_thumbnail) {
-                        $this->out->element('img', $thumb->getHtmlAttrs(['class'=>'u-photo', 'alt' => '']));
-                    } else {
-                        try {
-                            // getUrl(true) because we don't want to hotlink, could be made configurable
-                            $this->out->element('img', ['class'=>'u-photo',
-                                                        'src'=>$this->attachment->getUrl(true),
-                                                        'alt' => $this->attachment->getTitle()]);
-                        } catch (FileNotStoredLocallyException $e) {
-                            $url = $e->file->getUrl(false);
-                            $this->out->element('a', ['href'=>$url, 'rel'=>'external'], $url);
-                        }
-                    }
-                    unset($thumb);  // there's no need carrying this along after this
-                    break;
-
-                // HTML5 media elements
-                case 'audio':
-                case 'video':
-                    if ($thumb instanceof File_thumbnail) {
-                        $poster = $thumb->getUrl();
-                        unset($thumb);  // there's no need carrying this along after this
-                    } else {
-                        $poster = null;
+                    try {
+                        // Tell getThumbnail that we can show an animated image if it has one (4th arg, "force_still")
+                        $thumb = File_thumbnail::fromFileObject($this->attachment, null, null, false, false);
+                    } catch (UseFileAsThumbnailException $e) {
+                        $thumb = null;
+                    } catch (UnsupportedMediaException $e) {
+                        // FIXME: Show a good representation of unsupported/unshowable images
+                        $thumb = null;
+                    } catch (FileNotFoundException $e) {
+                        // Remote file
+                        $thumb = null;
                     }
 
-                    $this->out->elementStart($mediatype,
-                                             array('class'=>"attachment_player u-{$mediatype}",
-                                                   'poster'=>$poster,
-                                                   'controls'=>'controls'));
-                    $this->out->element('source',
-                                        array('src'=>$this->attachment->getUrl(),
-                                              'type'=>$this->attachment->mimetype));
-                    $this->out->elementEnd($mediatype);
-                    break;
+                    // Then get the kind of mediatype we're dealing with
+                    $mediatype = common_get_mime_media($enclosure->mimetype);
 
-                default:
-                    unset($thumb);  // there's no need carrying this along
-                    switch (common_bare_mime($this->attachment->mimetype)) {
-                    case 'text/plain':
-                        $this->element('div', ['class'=>'e-content plaintext'],
-                                       file_get_contents($this->attachment->getPath()));
-                        break;
-                    case 'text/html':
-                        if (!empty($this->attachment->filename)
-                                && (GNUsocial::isAjax() || common_config('attachments', 'show_html'))) {
-                            // Locally-uploaded HTML. Scrub and display inline.
-                            $this->showHtmlFile($this->attachment);
+                    // FIXME: Get proper mime recognition of Ogg files! If system has 'mediainfo', this should do it:
+                    // $ mediainfo --inform='General;%InternetMediaType%'
+                    if ($this->attachment->mimetype === 'application/ogg') {
+                        $mediatype = 'video';   // because this element can handle Ogg/Vorbis etc. on its own
+                    }
+
+                    // Ugly hack to show text/html links which have a thumbnail (such as from oEmbed/OpenGraph image URLs)
+                    if (!in_array($mediatype, ['image', 'audio', 'video']) && $thumb instanceof File_thumbnail) {
+                        $mediatype = 'image';
+                    }
+
+                    switch ($mediatype) {
+                        // Anything we understand as an image, if we need special treatment, do it in StartShowAttachmentRepresentation
+                        case 'image':
+                            if ($thumb instanceof File_thumbnail) {
+                                $this->out->element('img', $thumb->getHtmlAttrs(['class' => 'u-photo', 'alt' => '']));
+                            } else {
+                                try {
+                                    // getUrl(true) because we don't want to hotlink, could be made configurable
+                                    $this->out->element('img', ['class' => 'u-photo',
+                                        'src' => $this->attachment->getUrl(true),
+                                        'alt' => $this->attachment->getTitle()]);
+                                } catch (FileNotStoredLocallyException $e) {
+                                    $url = $e->file->getUrl(false);
+                                    $this->out->element('a', ['href' => $url, 'rel' => 'external'], $url);
+                                }
+                            }
+                            unset($thumb);  // there's no need carrying this along after this
                             break;
-                        }
-                        // Fall through to default if it wasn't a _local_ text/html File object
-                    default:
-                        Event::handle('ShowUnsupportedAttachmentRepresentation', array($this->out, $this->attachment));
+
+                        // HTML5 media elements
+                        case 'audio':
+                        case 'video':
+                            if ($thumb instanceof File_thumbnail) {
+                                $poster = $thumb->getUrl();
+                                unset($thumb);  // there's no need carrying this along after this
+                            } else {
+                                $poster = null;
+                            }
+
+                            $this->out->elementStart($mediatype,
+                                array('class' => "attachment_player u-{$mediatype}",
+                                    'poster' => $poster,
+                                    'controls' => 'controls'));
+                            $this->out->element('source',
+                                array('src' => $this->attachment->getUrl(),
+                                    'type' => $this->attachment->mimetype));
+                            $this->out->elementEnd($mediatype);
+                            break;
+
+                        default:
+                            unset($thumb);  // there's no need carrying this along
+                            switch (common_bare_mime($this->attachment->mimetype)) {
+                                case 'text/plain':
+                                    $this->element('div', ['class' => 'e-content plaintext'],
+                                        file_get_contents($this->attachment->getPath()));
+                                    break;
+                                case 'text/html':
+                                    if (!empty($this->attachment->filename)
+                                        && (GNUsocial::isAjax() || common_config('attachments', 'show_html'))) {
+                                        // Locally-uploaded HTML. Scrub and display inline.
+                                        $this->showHtmlFile($this->attachment);
+                                        break;
+                                    }
+                                // Fall through to default if it wasn't a _local_ text/html File object
+                                default:
+                                    Event::handle('ShowUnsupportedAttachmentRepresentation', array($this->out, $this->attachment));
+                            }
                     }
+                } else {
+                    Event::handle('ShowUnsupportedAttachmentRepresentation', array($this->out, $this->attachment));
                 }
-            } else {
-                Event::handle('ShowUnsupportedAttachmentRepresentation', array($this->out, $this->attachment));
+            } catch (FileNotFoundException $e) {
+                if (!$this->attachment->isLocal()) {
+                    throw $e;
+                }
             }
         }
         Event::handle('EndShowAttachmentRepresentation', array($this->out, $this->attachment));

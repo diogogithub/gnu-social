@@ -917,7 +917,7 @@ class Ostatus_profile extends Managed_DataObject
         }
         
         // ImageFile throws exception if something goes wrong, which we'll let go on its merry way
-        $imagefile = ImageFile::fromURL($url);
+        $imagefile = ImageFile::fromUrl($url);
 
         $self = $this->localProfile();
 

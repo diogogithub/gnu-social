@@ -189,14 +189,12 @@ class EmbedPlugin extends Plugin
             foreach (['xml', 'json'] as $format) {
                 $action->element(
                     'link',
-                    ['rel'   =>'alternate',
-                                  'type'  => "application/{$format}+oembed",
-                                  'href'  => common_local_url(
-                                      'oembed',
-                                      [],
-                                      ['format' => $format, 'url' => $url]
-                                  ),
-                                  'title' => 'oEmbed']
+                    [
+                        'rel'   =>'alternate',
+                        'type'  => "application/{$format}+oembed",
+                        'href'  => common_local_url('oembed', [], ['format' => $format, 'url' => $url]),
+                        'title' => 'oEmbed'
+                    ]
                 );
             }
         }

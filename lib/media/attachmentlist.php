@@ -75,12 +75,6 @@ class AttachmentList extends Widget
     function show()
     {
     	$attachments = $this->notice->attachments();
-        foreach ($attachments as $key=>$att) {
-            // Remove attachments which are not representable with neither a title nor thumbnail
-            if ($att->getTitle() === _('Untitled attachment') && !$att->hasThumbnail()) {
-                unset($attachments[$key]);
-            }
-        }
         if (!count($attachments)) {
             return 0;
         }

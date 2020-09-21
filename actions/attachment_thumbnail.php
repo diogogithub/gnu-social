@@ -19,13 +19,13 @@ defined('GNUSOCIAL') || die();
 /**
  * Show notice attachments
  *
- * @category Personal
- * @package  StatusNet
- * @author   Evan Prodromou <evan@status.net>
- * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ * @category  Personal
+ * @package   GNUsocial
+ * @author    Evan Prodromou <evan@status.net>
+ * @copyright 2008-2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Attachment_thumbnailAction extends AttachmentAction
+class Attachment_thumbnailAction extends Attachment_viewAction
 {
     protected $thumb_w = null;  // max width
     protected $thumb_h = null;  // max height
@@ -52,14 +52,21 @@ class Attachment_thumbnailAction extends AttachmentAction
     public function showPage(): void
     {
         // Returns a File_thumbnail object or throws exception if not available
+        $filename = $this->filename;
+        $filepath = $this->filepath;
         try {
             $thumbnail = $this->attachment->getThumbnail($this->thumb_w, $this->thumb_h, $this->thumb_c);
-            $file = $thumbnail->getFile();
+            $filename = $thumbnail->getFilename();
+            $filepath = $thumbnail->getPath();
         } catch (UseFileAsThumbnailException $e) {
-            // With this exception, the file exists locally
-            $file = $e->file;
+            // With this exception, the file exists locally $e->file;
         } catch (FileNotFoundException $e) {
             $this->clientError(_m('No such attachment'), 404);
+        } catch (Exception $e) {
+            if (is_null($filepath)) {
+                $this->clientError(_m('No such thumbnail'), 404);
+            }
+            // Remote file
         }
 
         // Disable errors, to not mess with the file contents (suppress errors in case access to this
@@ -67,6 +74,6 @@ class Attachment_thumbnailAction extends AttachmentAction
         // script execution, and we don't want to have any more errors until then, so don't reset it
         @ini_set('display_errors', 0);
 
-        common_send_file($this->filepath, $this->mimetype, $this->filename, 'inline');
+        common_send_file($filepath, $this->mimetype, $filename, 'inline');
     }
 }

@@ -41,9 +41,11 @@ class InlineAttachmentListItem extends AttachmentListItem
         // XXX: RDFa
         // TODO: add notice_type class e.g., notice_video, notice_image
         $this->out->elementStart('li',
-                    array('class' => 'inline-attachment',
-                          'id' => 'attachment-' . $this->attachment->getID(),
-                ));
+            [
+                'class' => 'inline-attachment',
+                'id'    => 'attachment-' . $this->attachment->getID(),
+            ]
+        );
     }
 
     /**
