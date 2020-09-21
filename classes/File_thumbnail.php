@@ -80,9 +80,27 @@ class File_thumbnail extends Managed_DataObject
      * @throws UnsupportedMediaException if, despite trying, we can't understand how to make a thumbnail for this format
      * @throws UseFileAsThumbnailException if the file is considered an image itself and should be itself as thumbnail
      */
-    public static function fromFileObject (File $file, ?int $width = null, ?int $height = null, bool $crop = false, bool $force_still = true, ?bool $upscale = null): File_thumbnail
-    {
-        if (is_null($file->filename)) {
+    public static function fromFileObject(
+        File $file,
+        ?int $width = null,
+        ?int $height = null,
+        bool $crop = false,
+        bool $force_still = true,
+        ?bool $upscale = null
+    ): File_thumbnail {
+        if (is_null($file->filename)) {  // Remote file
+            // If StoreRemoteMedia is enabled...
+            if (Event::handle('CreateFileImageThumbnailSource', [$file, &$imgPath, 'image'])) {
+                if (!file_exists($imgPath)) {
+                    throw new FileNotFoundException($imgPath);
+                }
+
+                // First some mimetype specific exceptions
+                switch ($file->mimetype) {
+                    case 'image/svg+xml':
+                        throw new UseFileAsThumbnailException($file);
+                }
+            }
             throw new FileNotFoundException("This remote file has no local thumbnail.");
         }
         $image = ImageFile::fromFileObject($file);
