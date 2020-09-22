@@ -1,21 +1,21 @@
 <?php
 
-/*
- * This file is part of GNU social - https://www.gnu.org/software/social
- *
- * GNU social is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * GNU social is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
- */
+// {{{ License
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+// }}}
 
 /**
  * Symfony Kernel, which is responsible for configuring the whole application
@@ -102,6 +102,14 @@ class Kernel extends BaseKernel
         $loader->load($confDir . '/{packages}/' . $this->environment . '/*' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services}' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
+
+        // Overriding doesn't work as we want, overrides the top-most key, do it manually
+        $loader->load(INSTALLDIR . '/social.local' . self::CONFIG_EXTS, 'glob');
+        $locals = $container->getParameter('gnusocial');
+        $loader->load(INSTALLDIR . '/social' . self::CONFIG_EXTS, 'glob');
+        $defaults = $container->getParameter('gnusocial');
+        $configs  = array_replace_recursive($defaults, $locals);
+        $container->setParameter('gnusocial', $configs);
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void

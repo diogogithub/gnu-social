@@ -40,20 +40,22 @@ use App\Entity\LocalUser;
 use App\Util\Exception\NoLoggedInUser;
 use Exception;
 use Functional as F;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 abstract class Common
 {
+    private static ?array $config = null;
+    public static function setConfigBag(ContainerBagInterface $config)
+    {
+        self::$config = $config->get('gnusocial');
+    }
+
     /**
      * Access sysadmin's configuration preferences for GNU social
      */
     public static function config(string $section, string $setting)
     {
-        $c = DB::find('config', ['section' => $section, 'setting' => $setting]);
-        if ($c === null) {
-            throw new \Exception("The field section = {$section} and setting = {$setting} doesn't exist");
-        }
-
-        return unserialize($c->getValue());
+        return $config[$section][$setting];
     }
 
     /**
@@ -63,6 +65,7 @@ abstract class Common
      */
     public static function setConfig(string $section, string $setting, $value): void
     {
+        throw new Exception('Implement this, ya dingus');
         $c = DB::getPartialReference('config', ['section' => $section, 'setting' => $setting]);
         if ($c === null) {
             throw new \Exception("The field section = {$section} and setting = {$setting} doesn't exist");
