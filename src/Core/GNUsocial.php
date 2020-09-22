@@ -43,14 +43,15 @@
 namespace App\Core;
 
 use App\Core\DB\DB;
-use App\Core\DB\DefaultSettings;
 use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
+use App\Util\Common;
 use Doctrine\ORM\EntityManagerInterface;
 use HtmlSanitizer\SanitizerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -83,6 +84,7 @@ class GNUsocial implements EventSubscriberInterface
     protected ModuleManager            $module_manager;
     protected HttpClientInterface      $client;
     protected SanitizerInterface       $sanitizer;
+    protected ContainerBagInterface    $config;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -99,7 +101,8 @@ class GNUsocial implements EventSubscriberInterface
                                 SSecurity $sec,
                                 ModuleManager $mm,
                                 HttpClientInterface $cl,
-                                SanitizerInterface $san)
+                                SanitizerInterface $san,
+                                ContainerBagInterface $conf)
     {
         $this->logger           = $logger;
         $this->translator       = $trans;
@@ -114,6 +117,7 @@ class GNUsocial implements EventSubscriberInterface
         $this->module_manager   = $mm;
         $this->client           = $cl;
         $this->saniter          = $san;
+        $this->config           = $conf;
 
         $this->initialize();
     }
@@ -126,6 +130,7 @@ class GNUsocial implements EventSubscriberInterface
     public function initialize(): void
     {
         if (!$this->initialized) {
+            Common::setConfigBag($this->config);
             Log::setLogger($this->logger);
             Event::setDispatcher($this->event_dispatcher);
             I18n::setTranslator($this->translator);
@@ -135,13 +140,6 @@ class GNUsocial implements EventSubscriberInterface
             Security::setHelper($this->security, $this->saniter);
             Router::setRouter($this->router, $this->url_generator);
             HTTPClient::setClient($this->client);
-
-            if (isset($_ENV['HTTPS']) || isset($_ENV['HTTP_HOST'])) {
-                // TODO move to container definition, after removing
-                // this way of doing configuration
-                DefaultSettings::setDefaults();
-            }
-
             Cache::setupCache();
 
             // Events are proloaded on compilation, but set at runtime

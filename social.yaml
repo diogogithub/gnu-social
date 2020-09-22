@@ -1,3 +1,563 @@
 parameters:
-    remember_me_httponly: true
-    remember_me_samesite: strict
+  remember_me_httponly: true
+  remember_me_samesite: strict
+
+  gnusocial:
+    site:
+      name: GNU social
+      notice:
+      theme: default
+      logo:
+      language: en
+      detect_language: true
+      languages:
+        af:
+          q: 0.8
+          lang: af
+          name: Afrikaans
+          direction: ltr
+        ar:
+          q: 0.8
+          lang: ar
+          name: Arabic
+          direction: rtl
+        ast:
+          q: 1
+          lang: ast
+          name: Asturian
+          direction: ltr
+        eu:
+          q: 1
+          lang: eu
+          name: Basque
+          direction: ltr
+        be-tarask:
+          q: 0.5
+          lang: be-tarask
+          name: Belarusian (Taraškievica orthography)
+          direction: ltr
+        br:
+          q: 0.8
+          lang: br
+          name: Breton
+          direction: ltr
+        bg:
+          q: 0.8
+          lang: bg
+          name: Bulgarian
+          direction: ltr
+        my:
+          q: 1
+          lang: my
+          name: Burmese
+          direction: ltr
+        ca:
+          q: 0.5
+          lang: ca
+          name: Catalan
+          direction: ltr
+        zh-cn:
+          q: 0.9
+          lang: zh_CN
+          name: Chinese (Simplified)
+          direction: ltr
+        zh-hant:
+          q: 0.2
+          lang: zh_TW
+          name: Chinese (Taiwanese)
+          direction: ltr
+        ksh:
+          q: 1
+          lang: ksh
+          name: Colognian
+          direction: ltr
+        cs:
+          q: 0.5
+          lang: cs
+          name: Czech
+          direction: ltr
+        da:
+          q: 0.8
+          lang: da
+          name: Danish
+          direction: ltr
+        nl:
+          q: 0.5
+          lang: nl
+          name: Dutch
+          direction: ltr
+        arz:
+          q: 0.8
+          lang: arz
+          name: Egyptian Spoken Arabic
+          direction: rtl
+        en:
+          q: 1
+          lang: en
+          name: English
+          direction: ltr
+        en-us:
+          q: 1
+          lang: en
+          name: English (US)
+          direction: ltr
+        en-gb:
+          q: 1
+          lang: en_GB
+          name: English (UK)
+          direction: ltr
+        eo:
+          q: 0.8
+          lang: eo
+          name: Esperanto
+          direction: ltr
+        fi:
+          q: 1
+          lang: fi
+          name: Finnish
+          direction: ltr
+        fr:
+          q: 1
+          lang: fr
+          name: French
+          direction: ltr
+        fr-fr:
+          q: 1
+          lang: fr
+          name: French (France)
+          direction: ltr
+        fur:
+          q: 0.8
+          lang: fur
+          name: Friulian
+          direction: ltr
+        gl:
+          q: 0.8
+          lang: gl
+          name: Galician
+          direction: ltr
+        ka:
+          q: 0.8
+          lang: ka
+          name: Georgian
+          direction: ltr
+        de:
+          q: 0.8
+          lang: de
+          name: German
+          direction: ltr
+        el:
+          q: 0.1
+          lang: el
+          name: Greek
+          direction: ltr
+        he:
+          q: 0.5
+          lang: he
+          name: Hebrew
+          direction: rtl
+        hu:
+          q: 0.8
+          lang: hu
+          name: Hungarian
+          direction: ltr
+        is:
+          q: 0.1
+          lang: is
+          name: Icelandic
+          direction: ltr
+        id:
+          q: 1
+          lang: id
+          name: Indonesian
+          direction: ltr
+        ia:
+          q: 0.8
+          lang: ia
+          name: Interlingua
+          direction: ltr
+        ga:
+          q: 0.5
+          lang: ga
+          name: Irish
+          direction: ltr
+        it:
+          q: 1
+          lang: it
+          name: Italian
+          direction: ltr
+        ja:
+          q: 0.5
+          lang: ja
+          name: Japanese
+          direction: ltr
+        ko:
+          q: 0.9
+          lang: ko
+          name: Korean
+          direction: ltr
+        lv:
+          q: 1
+          lang: lv
+          name: Latvian
+          direction: ltr
+        lt:
+          q: 1
+          lang: lt
+          name: Lithuanian
+          direction: ltr
+        lb:
+          q: 1
+          lang: lb
+          name: Luxembourgish
+          direction: ltr
+        mk:
+          q: 0.5
+          lang: mk
+          name: Macedonian
+          direction: ltr
+        mg:
+          q: 1
+          lang: mg
+          name: Malagasy
+          direction: ltr
+        ms:
+          q: 1
+          lang: ms
+          name: Malay
+          direction: ltr
+        ml:
+          q: 0.5
+          lang: ml
+          name: Malayalam
+          direction: ltr
+        ne:
+          q: 1
+          lang: ne
+          name: Nepali
+          direction: ltr
+        nb:
+          q: 0.1
+          lang: nb
+          name: Norwegian (Bokmål)
+          direction: ltr
+        'no':
+          q: 0.1
+          lang: nb
+          name: Norwegian (Bokmål)
+          direction: ltr
+        nn:
+          q: 1
+          lang: nn
+          name: Norwegian (Nynorsk)
+          direction: ltr
+        fa:
+          q: 1
+          lang: fa
+          name: Persian
+          direction: rtl
+        pl:
+          q: 0.5
+          lang: pl
+          name: Polish
+          direction: ltr
+        pt:
+          q: 1
+          lang: pt
+          name: Portuguese
+          direction: ltr
+        pt-br:
+          q: 0.9
+          lang: pt_BR
+          name: Brazilian Portuguese
+          direction: ltr
+        ru:
+          q: 0.9
+          lang: ru
+          name: Russian
+          direction: ltr
+        sr-ec:
+          q: 1
+          lang: sr-ec
+          name: Serbian
+          direction: ltr
+        es:
+          q: 1
+          lang: es
+          name: Spanish
+          direction: ltr
+        sv:
+          q: 0.8
+          lang: sv
+          name: Swedish
+          direction: ltr
+        tl:
+          q: 0.8
+          lang: tl
+          name: Tagalog
+          direction: ltr
+        ta:
+          q: 1
+          lang: ta
+          name: Tamil
+          direction: ltr
+        te:
+          q: 0.3
+          lang: te
+          name: Telugu
+          direction: ltr
+        tr:
+          q: 0.5
+          lang: tr
+          name: Turkish
+          direction: ltr
+        uk:
+          q: 1
+          lang: uk
+          name: Ukrainian
+          direction: ltr
+        hsb:
+          q: 0.8
+          lang: hsb
+          name: Upper Sorbian
+          direction: ltr
+        ur:
+          q: 1
+          lang: ur_PK
+          name: Urdu (Pakistan)
+          direction: rtl
+        vi:
+          q: 0.8
+          lang: vi
+          name: Vietnamese
+          direction: ltr
+      email: ''
+      use_email: false
+      recovery_disclose: false
+      timezone: UTC
+      brought_by:
+      brought_by_url:
+      closed: false
+      register_type: public
+      nickname: foo
+      ssl: always
+      ssl_proxy: false
+      duplicate_time_limit: 60
+      text_limit: 1000
+      x_static_delivery: false
+
+    security:
+      algorithm: bcrypt
+      options:
+        cost: 12
+
+    db:
+      mirror:
+
+    cache:
+      notice_max_count: 128
+
+    avatar:
+      server:
+      ssl:
+      dir: "%kernel.project_dir%/file/avatar/"
+      default: "/assets/default-avatar.svg"
+      max_size_px: 300
+
+    javascript:
+      server:
+      ssl:
+
+    attachments:
+      server:
+      ssl:
+      dir: "%kernel.project_dir%/file/attachments/"
+      supported:
+        application/vnd.oasis.opendocument.chart: odc
+        application/vnd.oasis.opendocument.formula: odf
+        application/vnd.oasis.opendocument.graphics: odg
+        application/vnd.oasis.opendocument.graphics-template: otg
+        application/vnd.oasis.opendocument.image: odi
+        application/vnd.oasis.opendocument.presentation: odp
+        application/vnd.oasis.opendocument.presentation-template: otp
+        application/vnd.oasis.opendocument.spreadsheet: ods
+        application/vnd.oasis.opendocument.spreadsheet-template: ots
+        application/vnd.oasis.opendocument.text: odt
+        application/vnd.oasis.opendocument.text-master: odm
+        application/vnd.oasis.opendocument.text-template: ott
+        application/vnd.oasis.opendocument.text-web: oth
+        application/pdf: pdf
+        application/zip: zip
+        application/x-bzip2: bz2
+        application/x-go-sgf: sgf
+        application/xml: xml
+        application/gpx+xml: gpx
+        image/png: ".png"
+        image/jpeg: ".jpeg"
+        image/gif: ".gif"
+        image/vnd.microsoft.icon: ".ico"
+        image/svg+xml: svg
+        audio/ogg: ogg
+        audio/mpeg: mpg
+        audio/x-speex: spx
+        application/ogg: ogx
+        text/plain: txt
+        video/mpeg: mpeg
+        video/mp4: mp4
+        video/ogg: ogv
+        video/quicktime: mov
+        video/webm: webm
+      file_quota: 2097152
+      user_quota: 209715200
+      monthly_quota: 20971520
+      uploads: true
+      show_html: true
+      show_thumbs: true
+      process_links: true
+      ext_blacklist: []
+      memory_limit: 1024M
+
+    thumbnail:
+      server:
+      ssl:
+      dir: "%kernel.project_dir%/file/thumbnails/"
+      crop: false
+      max_size_px: 1000
+      width: 450
+      height: 600
+      upscale: false
+      animated: false
+
+    theme:
+      server:
+      ssl:
+      dir: "%kernel.project_dir%/public/theme/"
+
+    plugins:
+      server:
+      ssl:
+      core: []
+      default: []
+      locale_path:
+
+    license:
+      type: cc
+      owner:
+      url: https://creativecommons.org/licenses/by/4.0/
+      title: Creative Commons Attribution 4.0
+      image: "/theme/licenses/cc_by_4.0.png"
+
+    nickname:
+      reserved:
+        - doc
+        - main
+        - avatar
+        - theme
+        - settings
+        - admin
+      featured: []
+
+    profile:
+      bio_text_limit:
+      allow_nick_change: false
+      allow_private_stream: true
+      backup: false
+      restore: false
+      delete: false
+      move: false
+
+    image:
+      jpegquality: 85
+
+    foaf:
+      mbox_sha1sum: false
+
+    public:
+      local_only: false
+      blacklist: []
+      exclude_sources: []
+
+    invite:
+      enabled: true
+
+    tag:
+      dropoff: 864000
+      cutoff: 7776000
+
+    popular:
+      dropoff: 864000
+      cutoff: 7776000
+
+    new_users:
+      default_subscriptions:
+      welcome_user:
+
+    linkify:
+      bare_domains: false
+      ipv4: false
+      ipv6: false
+
+    group:
+      max_aliases: 3
+      description_limit:
+
+    people_tag:
+      max_tags: 100
+      max_people: 500
+      allow_tagging:
+        local: true
+        remote: true
+      description_limit:
+
+    search:
+      type: fulltext
+
+    html_filter:
+      tags:
+      - img
+      - video
+      - audio
+      - script
+
+    notice:
+      content_limit:
+      allow_private: false
+      hide_banned: true
+
+    message:
+      content_limit:
+
+    location:
+      share: user
+
+    robots_txt:
+      crawl_delay: 0
+      disallow:
+      - main
+      - settings
+      - admin
+      - search
+      - message
+
+    nofollow:
+      subscribers: true
+      members: true
+      peopletag: true
+      external: sometimes
+
+    url_shortener:
+      service: internal
+      max_url_length: 100
+      max_notice_length:
+
+    http:
+      ssl_ca_file: "/docker/certbot/files/live/"
+      timeout: 60
+      proxy_host:
+      proxy_port:
+      proxy_user:
+      proxy_password:
+      proxy_auth_scheme:
+
+    discovery:
+      CORS: false
