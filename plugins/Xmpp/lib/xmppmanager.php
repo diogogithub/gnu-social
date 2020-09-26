@@ -1,25 +1,25 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 /*
- * StatusNet - the distributed open-source microblogging tool
- * Copyright (C) 2008, 2009, StatusNet, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * @copyright 2008, 2009 StatusNet, Inc.
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-if (!defined('STATUSNET') && !defined('LACONICA')) {
-    exit(1);
-}
+defined('GNUSOCIAL') || die();
 
 use XMPPHP\Log;
 
@@ -37,8 +37,8 @@ class XmppManager extends ImManager
 {
     const PING_INTERVAL = 120;
     public $conn = null;
-    protected $lastping = null;
-    protected $pingid = null;
+    protected $lastping = 0;
+    protected $pingid = 0;
 
     /**
      * Initialize connection to server.
@@ -55,13 +55,12 @@ class XmppManager extends ImManager
         }
     }
 
-    function connect()
+    protected function connect()
     {
         if (!$this->conn || $this->conn->isDisconnected()) {
             $resource = 'queue' . posix_getpid();
-            $this->conn = new SharingXMPP($this->plugin->host ?
-                $this->plugin->host :
-                $this->plugin->server,
+            $this->conn = new SharingXMPP(
+                $this->plugin->host ?: $this->plugin->server,
                 $this->plugin->port,
                 $this->plugin->user,
                 $this->plugin->password,
@@ -76,8 +75,18 @@ class XmppManager extends ImManager
             if (!$this->conn) {
                 return false;
             }
-            $this->conn->addEventHandler('message', 'handle_xmpp_message', $this);
-            $this->conn->addEventHandler('reconnect', 'handle_xmpp_reconnect', $this);
+            $this->conn->addEventHandler('message', function (&$pl) {
+                $this->handleXmppMessage($pl);
+            });
+            $this->conn->addEventHandler('reconnect', function ($pl) {
+                $this->handleXmppReconnect();
+            });
+            $this->conn->addXPathHandler(
+                'iq/{urn:xmpp:ping}ping',
+                function (&$xml) {
+                    $this->handleXmppPing($xml);
+                }
+            );
             $this->conn->setReconnectTimeout(600);
 
             $this->conn->autoSubscribe();
@@ -87,7 +96,13 @@ class XmppManager extends ImManager
 
             $this->conn->processUntil('session_start');
             // TRANS: Presence announcement for XMPP.
-            $this->send_presence(_m('Send me a message to post a notice'), 'available', null, 'available', 100);
+            $this->sendPresence(
+                _m('Send me a message to post a notice'),
+                'available',
+                null,
+                'available',
+                100
+            );
         }
         return $this->conn;
     }
@@ -95,18 +110,21 @@ class XmppManager extends ImManager
     /**
      * sends a presence stanza on the XMPP network
      *
-     * @param string $status current status, free-form string
+     * @param string|null $status current status, free-form string
      * @param string $show structured status value
-     * @param string $to recipient of presence, null for general
+     * @param string|null $to recipient of presence, null for general
      * @param string $type type of status message, related to $show
-     * @param int $priority priority of the presence
+     * @param int|null $priority priority of the presence
      *
-     * @return boolean success value
+     * @return bool success value
      */
-
-    function send_presence($status, $show = 'available', $to = null,
-                           $type = 'available', $priority = null)
-    {
+    protected function sendPresence(
+        ?string $status,
+        string $show = 'available',
+        ?string $to = null,
+        string $type = 'available',
+        ?int $priority = null
+    ): bool {
         $this->connect();
         if (!$this->conn || $this->conn->isDisconnected()) {
             return false;
@@ -115,7 +133,7 @@ class XmppManager extends ImManager
         return true;
     }
 
-    function send_raw_message($data)
+    public function send_raw_message($data)
     {
         $this->connect();
         if (!$this->conn || $this->conn->isDisconnected()) {
@@ -129,7 +147,7 @@ class XmppManager extends ImManager
      * Message pump is triggered on socket input, so we only need an idle()
      * call often enough to trigger our outgoing pings.
      */
-    function timeout()
+    public function timeout()
     {
         return self::PING_INTERVAL;
     }
@@ -174,48 +192,61 @@ class XmppManager extends ImManager
      */
     public function idle($timeout = 0)
     {
-        $now = time();
-        if (empty($this->lastping) || $now - $this->lastping > self::PING_INTERVAL) {
-            $this->send_ping();
+        if (
+            hrtime(true) - $this->lastping > self::PING_INTERVAL * 1000000000
+        ) {
+            $this->sendPing();
         }
     }
 
-    function send_ping()
+    protected function sendPing(): bool
     {
         $this->connect();
         if (!$this->conn || $this->conn->isDisconnected()) {
             return false;
         }
-        $now = time();
-        if (!isset($this->pingid)) {
-            $this->pingid = 0;
-        } else {
-            $this->pingid++;
-        }
+        ++$this->pingid;
 
         common_log(LOG_DEBUG, "Sending ping #{$this->pingid}");
         $this->conn->send("<iq from='{$this->plugin->daemonScreenname()}' to='{$this->plugin->server}' id='ping_{$this->pingid}' type='get'><ping xmlns='urn:xmpp:ping'/></iq>");
-        $this->lastping = $now;
+        $this->lastping = hrtime(true);
         return true;
     }
 
-    function handle_xmpp_message(&$pl)
+    protected function handleXmppMessage($pl): void
     {
         $this->plugin->enqueueIncomingRaw($pl);
-        return true;
     }
 
     /**
-     * Callback for Jabber reconnect event
-     * @param $pl
+     * Callback for the XMPP reconnect event
+     * @return void
      */
-    function handle_xmpp_reconnect(&$pl)
+    protected function handleXmppReconnect(): void
     {
         common_log(LOG_NOTICE, 'XMPP reconnected');
 
         $this->conn->processUntil('session_start');
         // TRANS: Message for XMPP reconnect.
-        $this->send_presence(_m('Send me a message to post a notice'), 'available', null, 'available', 100);
+        $this->sendPresence(
+            _m('Send me a message to post a notice'),
+            'available',
+            null,
+            'available',
+            100
+        );
+    }
+
+    protected function handleXmppPing($xml): void
+    {
+        if ($xml->attrs['type'] !== 'get') {
+            return;
+        }
+
+        $this->conn->send(
+            "<iq from=\"{$xml->attrs['to']}\" to=\"{$xml->attrs['from']}\" "
+            . "id=\"{$xml->attrs['id']}\" type=\"result\" />"
+        );
     }
 
     /**
@@ -226,14 +257,18 @@ class XmppManager extends ImManager
      * @param string $show show value for presence
      * @param string $status status value for presence
      *
-     * @return boolean success flag
+     * @return bool success flag
      *
-     * @see send_presence()
+     * @see sendPresence()
      */
 
-    function special_presence($type, $to = null, $show = null, $status = null)
-    {
-        // @todo FIXME: why use this instead of send_presence()?
+    protected function specialPresence(
+        string $type,
+        ?string $to = null,
+        ?string $show = null,
+        ?string $status = null
+    ): bool {
+        // @todo @fixme Why use this instead of sendPresence()?
         $this->connect();
         if (!$this->conn || $this->conn->isDisconnected()) {
             return false;
