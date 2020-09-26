@@ -191,16 +191,16 @@
         },
         {
             "name": "diogocomposer/xmpphp",
-            "version": "v3.0.2",
+            "version": "v3.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/diogogithub/xmpphp.git",
-                "reference": "d95381f8fb5ffbbda0894aea415742daaa2eab22"
+                "reference": "37f69546e8e24703c4a9116e7bb14864a61ee369"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/diogogithub/xmpphp/zipball/d95381f8fb5ffbbda0894aea415742daaa2eab22",
-                "reference": "d95381f8fb5ffbbda0894aea415742daaa2eab22",
+                "url": "https://api.github.com/repos/diogogithub/xmpphp/zipball/37f69546e8e24703c4a9116e7bb14864a61ee369",
+                "reference": "37f69546e8e24703c4a9116e7bb14864a61ee369",
                 "shasum": ""
             },
             "require": {
@@ -262,7 +262,7 @@
                 "xmpp",
                 "xmpphp"
             ],
-            "time": "2019-11-03T00:18:51+00:00"
+            "time": "2020-09-13T20:00:21+00:00"
         },
         {
             "name": "doctrine/cache",
