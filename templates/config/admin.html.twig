@@ -18,8 +18,10 @@
         {{ form(form) }}
 
         {% if old_value is defined and default is defined %}
-             Old value: {{ old_value }} <br>
-             Default value: {{ default }}
+            Old value: {{ old_value }} <br>
+            Default value: {{ default }}
+            Configuration dumped to <code> social.local.yaml </code>
+            Backup of previous configuration in <code> social.local.yaml.back </code> will be overriden with the next change
         {% endif %}
     </body>
 </html>

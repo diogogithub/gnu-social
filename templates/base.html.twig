@@ -38,8 +38,8 @@
                               <symbol id="icon-menu" viewbox="0 0 32 32">
                                     {{ source('@public_path/assets/icons/menu.svg') }}
                               </symbol>
-                              <symbol id="icon-recycle" viewbox="0 0 32 32">
-                                    {{ source('@public_path/assets/icons/recycle.svg') }}
+                              <symbol id="icon-repeat" viewbox="0 0 32 32">
+                                    {{ source('@public_path/assets/icons/repeat.svg') }}
                               </symbol>
                               <symbol id="icon-search" viewbox="0 0 32 32">
                                     {{ source('@public_path/assets/icons/search.svg') }}
@@ -63,7 +63,8 @@
                                     <a href="{{ path('main_public') }}">
                                           <svg class="icon icon-logo">
                                                 <use xlink:href="#icon-logo"></use>
-                                          </svg><b>GNU social</b>
+                                          </svg>
+                                          <b> {{ config('site', 'name') }} </b>
                                     </a>
                               </nav>
                               <div id="right-panel">
