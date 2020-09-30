@@ -104,12 +104,18 @@ class Kernel extends BaseKernel
         $loader->load($confDir . '/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
 
         // Overriding doesn't work as we want, overrides the top-most key, do it manually
-        $loader->load(INSTALLDIR . '/social.local' . self::CONFIG_EXTS, 'glob');
+        $local_file = INSTALLDIR . '/social.local.yaml';
+        if (!file_exists($local_file)) {
+            file_put_contents($local_file, "parameters:\n  gnusocial:\n");
+        }
+        $loader->load($local_file);
         $locals = $container->getParameter('gnusocial');
         $loader->load(INSTALLDIR . '/social' . self::CONFIG_EXTS, 'glob');
-        $defaults = $container->getParameter('gnusocial');
-        $configs  = array_replace_recursive($defaults, $locals);
-        $container->setParameter('gnusocial', $configs);
+        $container->setParameter('gnusocial_defaults', $defaults = $container->getParameter('gnusocial'));
+        if (is_array($locals)) {
+            $configs = array_replace_recursive($defaults, $locals);
+            $container->setParameter('gnusocial', $configs);
+        }
     }
 
     protected function configureRoutes(RoutingConfigurator $routes): void
