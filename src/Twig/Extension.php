@@ -50,6 +50,7 @@ class Extension extends AbstractExtension
             new TwigFunction('active', [Runtime::class, 'isCurrentRouteActive']),
             new TwigFunction('is_route', [Runtime::class, 'isCurrentRoute']),
             new TwigFunction('get_note_actions', [Runtime::class, 'getNoteActions']),
+            new TwigFunction('config', [Runtime::class, 'getConfig']),
         ];
     }
 }

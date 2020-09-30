@@ -32,6 +32,7 @@ namespace App\Twig;
 
 use App\Core\Event;
 use App\Entity\Note;
+use App\Util\Common;
 use App\Util\Formatting;
 use Functional as F;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -43,8 +44,9 @@ use Twig\Extension\RuntimeExtensionInterface;
 class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
 {
     private Request $request;
-    public function __constructor()
+    public function __constructor(Request $req)
     {
+        $this->request = $req;
     }
 
     public function isCurrentRouteActive(string ...$routes): string
@@ -63,6 +65,11 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         $actions = [];
         Event::handle('add_note_actions', [$this->request, $note, &$actions]);
         return $actions;
+    }
+
+    public function getConfig(...$args)
+    {
+        return Common::config(...$args);
     }
 
     // ----------------------------------------------------------

@@ -32,7 +32,6 @@
 
 namespace App\Util;
 
-use App\Core\DB\DB;
 use App\Core\Router\Router;
 use App\Core\Security;
 use App\Entity\GSActor;
@@ -41,13 +40,16 @@ use App\Util\Exception\NoLoggedInUser;
 use Exception;
 use Functional as F;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Symfony\Component\Yaml;
 
 abstract class Common
 {
+    private static array $defaults;
     private static ?array $config = null;
-    public static function setConfigBag(ContainerBagInterface $config)
+    public static function setupConfig(ContainerBagInterface $config)
     {
-        self::$config = $config->get('gnusocial');
+        self::$config   = $config->get('gnusocial');
+        self::$defaults = $config->get('gnusocial_defaults');
     }
 
     /**
@@ -55,7 +57,7 @@ abstract class Common
      */
     public static function config(string $section, string $setting)
     {
-        return $config[$section][$setting];
+        return self::$config[$section][$setting];
     }
 
     /**
@@ -65,14 +67,16 @@ abstract class Common
      */
     public static function setConfig(string $section, string $setting, $value): void
     {
-        throw new Exception('Implement this, ya dingus');
-        $c = DB::getPartialReference('config', ['section' => $section, 'setting' => $setting]);
-        if ($c === null) {
-            throw new \Exception("The field section = {$section} and setting = {$setting} doesn't exist");
-        }
+        self::$config[$section][$setting] = $value;
+        $diff                             = self::array_diff_recursive(self::$config, self::$defaults);
+        $yaml                             = (new Yaml\Dumper(2))->dump(['parameters' => ['gnusocial' => $diff]], Yaml\Yaml::DUMP_OBJECT_AS_MAP);
+        rename(INSTALLDIR . '/social.local.yaml', INSTALLDIR . '/social.local.yaml.back');
+        file_put_contents(INSTALLDIR . '/social.local.yaml', $yaml);
+    }
 
-        $c->setValue(serialize($value));
-        DB::flush();
+    public static function getConfigDefaults()
+    {
+        return self::$defaults;
     }
 
     public static function user(): ?LocalUser
@@ -108,6 +112,52 @@ abstract class Common
         } catch (Exception $e) {
             return false;
         }
+    }
+
+    // function array_diff_recursive($arr1, $arr2)
+    // {
+    //     $outputDiff = [];
+
+    //     foreach ($arr1 as $key => $value) {
+    //         // if the key exists in the second array, recursively call this function
+    //         // if it is an array, otherwise check if the value is in arr2
+    //         if (array_key_exists($key, $arr2)) {
+    //             if (is_array($value)) {
+    //                 $recursiveDiff = self::array_diff_recursive($value, $arr2[$key]);
+    //                 if (count($recursiveDiff)) {
+    //                     $outputDiff[$key] = $recursiveDiff;
+    //                 }
+    //             } else if (!in_array($value, $arr2)) {
+    //                 $outputDiff[$key] = $value;
+    //             }
+    //         } else if (!in_array($value, $arr2)) {
+    //             // if the key is not in the second array, check if the value is in
+    //             // the second array (this is a quirk of how array_diff works)
+    //             $outputDiff[$key] = $value;
+    //         }
+    //     }
+
+    //     return $outputDiff;
+    // }
+
+    public function array_diff_recursive(array $array1, array $array2)
+    {
+        $difference = [];
+        foreach ($array1 as $key => $value) {
+            if (is_array($value)) {
+                if (!isset($array2[$key]) || !is_array($array2[$key])) {
+                    $difference[$key] = $value;
+                } else {
+                    $new_diff = self::array_diff_recursive($value, $array2[$key]);
+                    if (!empty($new_diff)) {
+                        $difference[$key] = $new_diff;
+                    }
+                }
+            } elseif ((!isset($array2[$key]) || $array2[$key] != $value) && !($array2[$key] === null && $value === null)) {
+                $difference[$key] = $value;
+            }
+        }
+        return $difference ?? false;
     }
 
     /**

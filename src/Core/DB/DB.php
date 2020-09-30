@@ -126,6 +126,7 @@ abstract class DB
     public static function __callStatic(string $name, array $args)
     {
         foreach (['find', 'getReference', 'getPartialReference', 'getRepository'] as $m) {
+            // TODO Plugins
             $pref = '\App\Entity\\';
             if ($name == $m && Formatting::startsWith($name, $pref) === false) {
                 $args[0] = $pref . ucfirst(Formatting::snakeCaseToCamelCase($args[0]));
