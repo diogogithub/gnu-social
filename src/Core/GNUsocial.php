@@ -130,7 +130,7 @@ class GNUsocial implements EventSubscriberInterface
     public function initialize(): void
     {
         if (!$this->initialized) {
-            Common::setConfigBag($this->config);
+            Common::setupConfig($this->config);
             Log::setLogger($this->logger);
             Event::setDispatcher($this->event_dispatcher);
             I18n::setTranslator($this->translator);

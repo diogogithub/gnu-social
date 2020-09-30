@@ -33,7 +33,6 @@
 namespace App\Controller;
 
 use App\Core\Controller;
-use App\Core\DB\DefaultSettings;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Util\Common;
@@ -48,7 +47,7 @@ class AdminPanel extends Controller
 {
     public function site(Request $request)
     {
-        $defaults = DefaultSettings::$defaults;
+        $defaults = Common::getConfigDefaults();
         $options  = [];
         foreach ($defaults as $key => $inner) {
             $options[$key] = [];
@@ -71,6 +70,8 @@ class AdminPanel extends Controller
                 $value                   = $data['value'];
                 if (preg_match('/^[0-9]+$/', $value)) {
                     $value = (int) $value;
+                } elseif (strstr($value, ',') === false) {
+                    // empty, string
                 } elseif (Formatting::toArray($value, $value)) {
                     // empty
                 } elseif (preg_match('/true|false/i', $value)) {

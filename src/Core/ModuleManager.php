@@ -89,7 +89,6 @@ class ModuleManager
         $module_manager = new self();
         $entity_paths   = [];
         foreach ($module_paths as $path) {
-            // 'modules' and 'plugins' have the same length
             $type   = ucfirst(preg_replace('%' . INSTALLDIR . '/(component|plugin)s/.*%', '\1', $path));
             $dir    = dirname($path);
             $module = basename($dir);
