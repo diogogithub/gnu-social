@@ -19,6 +19,7 @@
 
 namespace App\Core;
 
+use App\Util\Common;
 use Functional as F;
 use Redis;
 use RedisCluster;
@@ -30,7 +31,6 @@ abstract class Cache
 {
     protected static $pools;
     protected static $redis;
-    private static string $ENV_VAR = 'SOCIAL_CACHE_ADAPTER';
 
     /**
      * Configure a cache pool, with adapters taken from `ENV_VAR`.
@@ -39,16 +39,11 @@ abstract class Cache
      */
     public static function setupCache()
     {
-        if (!isset($_ENV[self::$ENV_VAR])) {
-            die("A cache adapter is needed in the environment variable {$ENV_VAR}");
-        }
-
         self::$pools = [];
         self::$redis = [];
 
         $adapters = [];
-        foreach (explode(';', $_ENV[self::$ENV_VAR]) as $a) {
-            list($pool, $val)   = explode('=', $a);
+        foreach (Common::config('cache', 'adapters') as $pool => $val) {
             self::$pools[$pool] = [];
             self::$redis[$pool] = [];
             foreach (explode(',', $val) as $dsn) {
@@ -134,8 +129,8 @@ abstract class Cache
     {
         if (isset(self::$redis[$pool])) {
             if (!($recompute = $beta === INF || !(self::$redis[$pool]->exists($key)))) {
-                if (!($_ENV['REDIS_CACHE_USE_EXPONENTIAL_UPDATE'] ?? false)) {
-                    $recompute = (mt_rand() / mt_getrandmax() > ((float) ($_ENV['REDIS_CACHE_RANDOM_UPDATE'] ?? 0.95)));
+                if (is_float($er = Common::config('cache', 'early_recompute'))) {
+                    $recompute = (mt_rand() / mt_getrandmax() > $er);
                     Log::info('Item "{key}" elected for early recomputation', ['key' => $key]);
                 } else {
                     if ($recompute = ($idletime = self::$redis[$pool]->object('idletime', $key) ?? false) && ($expiry = self::$redis[$pool]->ttl($key) ?? false) && $expiry <= $idletime / 1000 * $beta * log(random_int(1, PHP_INT_MAX) / PHP_INT_MAX)) {
@@ -147,7 +142,7 @@ abstract class Cache
                 }
             }
             if ($recompute) {
-                $save = true;
+                $save = true; // Pass by reference
                 $res  = $calculate(null, $save);
                 if ($save) {
                     self::$redis[$pool]->del($key);

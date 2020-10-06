@@ -355,7 +355,10 @@ parameters:
       mirror:
 
     cache:
+      early_recompute: 0.95
       notice_max_count: 128
+      adapters:
+        default: redis://redis
 
     avatar:
       server:
