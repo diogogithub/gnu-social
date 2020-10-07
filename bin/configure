@@ -7,6 +7,11 @@ done
 
 cd "${git_dir}" || exit
 
+if [ ! -f ./docker/bootstrap/bootstrap.env ]; then
+   printf "bootstrap.env missing! Please run the bootstrap_certificates script.\n"
+   exit 1
+fi
+
 . ./docker/bootstrap/bootstrap.env
 
 
