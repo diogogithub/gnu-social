@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 /**
@@ -116,7 +118,7 @@ END;
             '_template' => 'network/public.html.twig',
             'notes'     => DB::dql('select n from App\Entity\Note n ' .
                                    'where n.reply_to is not null and n.gsactor_id = :id ' .
-                                   'order by n.created DESC', ['id' => $gsactor_id]),
+                                   'order by n.created DESC', ['id' => $actor_id]),
         ];
     }
 
@@ -128,7 +130,7 @@ END;
             '_template' => 'network/public.html.twig',
             'notes'     => DB::dql('select f from App\Entity\Favourite f ' .
                                    'where f.gsactor_id = :id ' .
-                                   'order by f.created DESC', ['id' => $gsactor_id]),
+                                   'order by f.created DESC', ['id' => $actor_id]),
         ];
     }
 }
