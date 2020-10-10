@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 namespace Plugin\Reply;
@@ -28,7 +30,7 @@ use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exceptiion\InvalidFormException;
 use App\Util\Exception\RedirectException;
-use Componenet\Posting;
+use Component\Posting\Posting;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
