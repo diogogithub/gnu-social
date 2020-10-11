@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Entity\Follow;
 use App\Entity\GSActor;
 use App\Entity\LocalUser;
 use App\Security\Authenticator;
@@ -84,8 +85,9 @@ class Security extends Controller
             $actor = GSActor::create(['nickname' => $data['nickname']]);
             DB::persist($actor);
             DB::flush();
+            $id   = $actor->getId();
             $user = LocalUser::create([
-                'id'             => $actor->getId(),
+                'id'             => $id,
                 'nickname'       => $data['nickname'],
                 'outgoing_email' => $data['email'],
                 'incoming_email' => $data['email'],
@@ -108,6 +110,9 @@ class Security extends Controller
                 $user->setIsEmailVerified(true);
             }
 
+            // Self follow
+            $follow = Follow::create(['follower' => $id, 'followed' => $id]);
+            DB::persist($follow);
             DB::flush();
 
             return $guard_handler->authenticateUserAndHandleSuccess(
