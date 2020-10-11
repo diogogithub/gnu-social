@@ -85,7 +85,7 @@ class Realtime_channel extends Managed_DataObject
                 'created' => ['type' => 'datetime',
                     'not null' => true,
                     'description' => 'date this record was created'],
-                'modified' => ['type' => 'datetime',
+                'modified' => ['type' => 'timestamp',
                     'not null' => true,
                     'description' => 'date this record was modified'],
             ],

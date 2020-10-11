@@ -44,7 +44,7 @@ class Email_summary_status extends Managed_DataObject
     public $send_summary;                    // bool    not_null default_true
     public $last_summary_id;                 // int(4)  null
     public $created;                         // datetime not_null
-    public $modified;                        // datetime not_null
+    public $modified;                        // timestamp not_null
 
     public static function schemaDef()
     {

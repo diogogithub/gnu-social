@@ -461,7 +461,7 @@ class MysqlSchema extends Schema
             $phrase[] = "ENGINE '{$engine}'";
         }
         if (strtolower($oldProps['TABLE_COLLATION']) !== "{$charset}_bin") {
-            $phrase[] = "CONVERT TO CHARACTER SET '{$charset} COLLATE '{$charset}_bin'";
+            $phrase[] = "CONVERT TO CHARACTER SET '{$charset}' COLLATE '{$charset}_bin'";
             $phrase[] = "DEFAULT CHARACTER SET '{$charset}'";
             $phrase[] = "DEFAULT COLLATE '{$charset}_bin'";
         }

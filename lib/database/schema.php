@@ -878,7 +878,7 @@ class Schema
     {
         // MDB2_Driver_Common::quote changes empty strings to "NULL".
         if ($val === '') {
-            return '';
+            return "''";
         }
         return $this->conn->quote($val);
     }
