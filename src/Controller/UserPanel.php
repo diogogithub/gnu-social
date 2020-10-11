@@ -197,10 +197,10 @@ class UserPanel extends AbstractController
             case Types::INTEGER:
                 if ($name == 'target_actor_id') {
                     $form_defs['placeholder'][$name] = ['target_actors', TextType::class, ['data' => $val, 'label' => _m($labels[$name]), 'help' => _m($help[$name])], 'transformer' => ActorArrayTransformer::class];
-                    break;
                 }
-                // no break
+                break;
             default:
+                dd($type_str);
                 throw new Exception("Structure of table user_notification_prefs changed in a way not accounted to in notification settings ({$name})", 500);
             }
         }
