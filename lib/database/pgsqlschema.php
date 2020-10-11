@@ -328,7 +328,8 @@ class PgsqlSchema extends Schema
     {
         $data = $this->fetchQueryData(
             <<<END
-            SELECT "cols"."attname" AS "col", "con"."consrc" AS "check"
+            SELECT "cols"."attname" AS "col",
+                pg_get_expr("con"."conbin", "con"."conrelid") AS "check"
               FROM pg_constraint AS "con"
               INNER JOIN pg_attribute AS "cols"
               ON "con"."conrelid" = "cols"."attrelid"

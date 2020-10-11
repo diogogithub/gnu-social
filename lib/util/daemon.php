@@ -78,12 +78,12 @@ class Daemon
 
     public function background()
     {
-        // Database connection will likely get lost after forking
+        // Database connection will be likely lost after forking.
         $this->resetDb();
 
         // Double-forking.
         foreach (['single', 'double'] as $v) {
-            switch ($pid = pcntl_fork()) {
+            switch (($pid = pcntl_fork())) {
                 case -1: // error
                     common_log(LOG_ERR, 'Could not fork.');
                     return false;

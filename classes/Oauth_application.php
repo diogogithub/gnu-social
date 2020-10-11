@@ -190,7 +190,7 @@ class Oauth_application extends Managed_DataObject
                 'type' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'type of app, 1 = browser, 2 = desktop'),
                 'access_type' => array('type' => 'int', 'size' => 'tiny', 'default' => 0, 'description' => 'default access type, bit 1 = read, bit 2 = write'),
                 'created' => array('type' => 'datetime', 'description' => 'date this record was created'),
-                'modified' => array('type' => 'datetime', 'not null' => true, 'description' => 'date this record was modified'),
+                'modified' => array('type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'),
             ),
             'primary key' => array('id'),
             'unique keys' => array(

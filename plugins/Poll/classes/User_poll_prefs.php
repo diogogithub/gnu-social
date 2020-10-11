@@ -41,7 +41,7 @@ class User_poll_prefs extends Managed_DataObject
     public $user_id;          // int id
     public $hide_responses;   // bool
     public $created;          // datetime
-    public $modified;         // datetime
+    public $modified;         // timestamp
 
     /**
      * The One True Thingy that must be defined and declared.
