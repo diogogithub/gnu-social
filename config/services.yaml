@@ -37,6 +37,10 @@ services:
     App\Core\Queue\MessageHandler:
       tags: ['messenger.message_handler']
 
+    App\EventListener\UpdateListener:
+      tags:
+        - { name: doctrine.event_listener , event: preUpdate }
+
     Symfony\Bridge\Doctrine\Security\RememberMe\DoctrineTokenProvider: ~
 
     Plugin\:
