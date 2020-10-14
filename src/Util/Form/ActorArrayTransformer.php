@@ -32,20 +32,28 @@
 
 namespace App\Util\Form;
 
+use App\Entity\GSActor;
+
 class ActorArrayTransformer extends ArrayTransformer
 {
     /**
+     * Transforms array of GSActors into string of usernames
+     *
      * @param array $a
      *
      * @return string
      */
     public function transform($a)
     {
-        // TODO convert each to string
-        $s = parent::transform($a);
+        $a = array_map(function ($actor) {
+            return $actor->getNickname();
+        },$a);
+        return parent::transform($a);
     }
 
     /**
+     * Transforms string of usernames into GSActors
+     *
      * @param string $s
      *
      * @return array
@@ -53,6 +61,8 @@ class ActorArrayTransformer extends ArrayTransformer
     public function reverseTransform($s)
     {
         $a = parent::reverseTransform($s);
-        // TODO convert each to profile
+        return array_map(function ($nickmame) {
+            return GSActor::getFromNickname($nickmame);
+        },$a);
     }
 }
