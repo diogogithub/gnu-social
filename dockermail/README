@@ -1,0 +1,6 @@
+To start, run setup.sh choose name and domain and create the first email account. Then open mailserver/ and run 'docker-compose up'
+To change settings read mailserver/env-mailserver
+
+To update, run update.sh
+
+Add more accounts with add_account.sh and send mails with send_mail.sh
