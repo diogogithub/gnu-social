@@ -41,5 +41,5 @@ social.local.yaml
 config.php
 /file
 
-### PHPSTORM
-.idea
+# Docker mailserver
+dockermail/mailserver/*
