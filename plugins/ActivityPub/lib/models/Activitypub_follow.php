@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -40,24 +42,26 @@ class Activitypub_follow
      * Generates an ActivityPub representation of a subscription
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
-     * @param string $actor
-     * @param string $object
-     * @param string|null $id Activity id, to be used when generating for an Accept Activity
+     *
+     * @param string      $actor
+     * @param string      $object
+     * @param null|string $id     Activity id, to be used when generating for an Accept Activity
+     *
      * @return array pretty array to be used in a response
      */
     public static function follow_to_array(string $actor, string $object, ?string $id = null): array
     {
         if ($id === null) {
-            $id = common_root_url().'follow_from_'.urlencode($actor).'_to_'.urlencode($object);
+            $id = common_root_url() . 'follow_from_' . urlencode($actor) . '_to_' . urlencode($object);
         }
 
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => $id,
-            'type'   => 'Follow',
-            'actor'  => $actor,
-            'object' => $object
-       ];
+            'id'       => $id,
+            'type'     => 'Follow',
+            'actor'    => $actor,
+            'object'   => $object,
+        ];
         return $res;
     }
 
@@ -65,12 +69,14 @@ class Activitypub_follow
      * Handles a Follow Activity received by our inbox.
      *
      * @param Profile $actor_profile Remote Actor
-     * @param string $object Local Actor
-     * @param string $id Activity id
+     * @param string  $object        Local Actor
+     * @param string  $id            Activity id
+     *
      * @throws AlreadyFulfilledException
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function follow(Profile $actor_profile, string $object, string $id)
@@ -85,13 +91,13 @@ class Activitypub_follow
         if (!Subscription::exists($actor_profile, $object_profile)) {
             Subscription::start($actor_profile, $object_profile);
             Activitypub_profile::subscribeCacheUpdate($actor_profile, $object_profile);
-            common_debug('ActivityPubPlugin: Accepted Follow request from '.$actor_profile->getUri().' to '.$object);
+            common_debug('ActivityPubPlugin: Accepted Follow request from ' . $actor_profile->getUri() . ' to ' . $object);
         } else {
-            common_debug('ActivityPubPlugin: Received a repeated Follow request from '.$actor_profile->getUri().' to '.$object);
+            common_debug('ActivityPubPlugin: Received a repeated Follow request from ' . $actor_profile->getUri() . ' to ' . $object);
         }
 
         // Notify remote instance that we have accepted their request
-        common_debug('ActivityPubPlugin: Notifying remote instance that we have accepted their Follow request request from '.$actor_profile->getUri().' to '.$object);
+        common_debug('ActivityPubPlugin: Notifying remote instance that we have accepted their Follow request request from ' . $actor_profile->getUri() . ' to ' . $object);
         $postman = new Activitypub_postman($object_profile, [$actor_aprofile]);
         $postman->accept_follow($id);
     }

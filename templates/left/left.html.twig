@@ -44,7 +44,7 @@
               <a href="{{ path("favourites", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("favourites") }}'>Favourites</a>
               <a href='#'>Reverse Favs</a>
               <a href="{{ path('settings_personal_info') }}" class='hover-effect {{ active('settings_') }}'>Settings</a>
-              <a href='#'>Logout</a>
+              <a href='{{ path('logout') }}'>Logout</a>
           </div>
           <div class="footer">
             <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>

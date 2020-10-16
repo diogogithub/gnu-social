@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -42,27 +44,29 @@ class apActorLikedAction extends ManagedAction
     /**
      * Handle the Liked Collection request
      *
-     * @return void
      * @throws EmptyPkeyValueException
      * @throws ServerException
+     *
+     * @return void
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     protected function handle()
     {
         try {
-            $profile = Profile::getByID($this->trimmed('id'));
+            $profile    = Profile::getByID($this->trimmed('id'));
             $profile_id = $profile->getID();
         } catch (Exception $e) {
             ActivityPubReturn::error('Invalid Actor URI.', 404);
         }
 
         if (!$profile->isLocal()) {
-            ActivityPubReturn::error("This is not a local user.", 403);
+            ActivityPubReturn::error('This is not a local user.', 403);
         }
 
-        $limit    = intval($this->trimmed('limit'));
-        $since_id = intval($this->trimmed('since_id'));
-        $max_id   = intval($this->trimmed('max_id'));
+        $limit    = (int) ($this->trimmed('limit'));
+        $since_id = (int) ($this->trimmed('since_id'));
+        $max_id   = (int) ($this->trimmed('max_id'));
 
         $limit    = empty($limit) ? 40 : $limit;       // Default is 40
         $since_id = empty($since_id) ? null : $since_id;
@@ -75,20 +79,20 @@ class apActorLikedAction extends ManagedAction
 
         $fave = $this->fetch_faves($profile_id, $limit, $since_id, $max_id);
 
-        $faves = array();
+        $faves = [];
         while ($fave->fetch()) {
-            $faves[] = $this->pretty_fave(clone ($fave));
+            $faves[] = $this->pretty_fave(clone $fave);
         }
 
         $res = [
-            '@context'     => [
-              "https://www.w3.org/ns/activitystreams",
-              "https://w3id.org/security/v1",
+            '@context' => [
+                'https://www.w3.org/ns/activitystreams',
+                'https://w3id.org/security/v1',
             ],
             'id'           => common_local_url('apActorLiked', ['id' => $profile_id]),
             'type'         => 'OrderedCollection',
             'totalItems'   => Fave::countByProfile($profile),
-            'orderedItems' => $faves
+            'orderedItems' => $faves,
         ];
 
         ActivityPubReturn::answer($res);
@@ -99,16 +103,19 @@ class apActorLikedAction extends ManagedAction
      * as a plugin answer
      *
      * @param Fave $fave_object
-     * @return array pretty array representating a Fave
+     *
      * @throws EmptyPkeyValueException
      * @throws ServerException
+     *
+     * @return array pretty array representating a Fave
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     protected function pretty_fave($fave_object)
     {
         $res = [
             'created' => $fave_object->created,
-            'object' => Activitypub_notice::notice_to_array(Notice::getByID($fave_object->notice_id))
+            'object'  => Activitypub_notice::notice_to_array(Notice::getByID($fave_object->notice_id)),
         ];
 
         return $res;
@@ -118,10 +125,12 @@ class apActorLikedAction extends ManagedAction
      * Fetch faves
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
+     *
      * @param int $user_id
      * @param int $limit
      * @param int $since_id
      * @param int $max_id
+     *
      * @return Fave fetchable fave collection
      */
     private static function fetch_faves(
