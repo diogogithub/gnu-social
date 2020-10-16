@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -40,18 +42,20 @@ class Activitypub_mention_tag
      * Generates an ActivityPub representation of a Mention Tag
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
+     *
      * @param string $href Actor Uri
      * @param string $name Mention name
+     *
      * @return array pretty array to be used in a response
      */
     public static function mention_tag_to_array_from_values(string $href, string $name): array
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            "type" => "Mention",
-            "href" => $href,
-            "name" => $name
-         ];
+            'type'     => 'Mention',
+            'href'     => $href,
+            'name'     => $name,
+        ];
         return $res;
     }
 }

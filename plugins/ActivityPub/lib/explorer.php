@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -33,6 +34,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category Plugin
  * @package  GNUsocial
+ *
  * @author   Diogo Cordeiro <diogo@fc.up.pt>
  * @license  https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -44,17 +46,20 @@ class Activitypub_explorer
      * Shortcut function to get a single profile from its URL.
      *
      * @param string $url
-     * @param bool $grab_online whether to try online grabbing, defaults to true
-     * @return Profile
+     * @param bool   $grab_online whether to try online grabbing, defaults to true
+     *
      * @throws HTTP_Request2_Exception Network issues
-     * @throws NoProfileException This won't happen
-     * @throws Exception Invalid request
-     * @throws ServerException Error storing remote actor
+     * @throws NoProfileException      This won't happen
+     * @throws Exception               Invalid request
+     * @throws ServerException         Error storing remote actor
+     *
+     * @return Profile
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function get_profile_from_url(string $url, bool $grab_online = true): Profile
     {
-        $discovery = new Activitypub_explorer();
+        $discovery = new self();
         // Get valid Actor object
         $actor_profile = $discovery->lookup($url, $grab_online);
         if (!empty($actor_profile)) {
@@ -68,13 +73,16 @@ class Activitypub_explorer
      * This function cleans the $this->discovered_actor_profiles array
      * so that there is no erroneous data
      *
-     * @param string $url User's url
-     * @param bool $grab_online whether to try online grabbing, defaults to true
-     * @return array of Profile objects
+     * @param string $url         User's url
+     * @param bool   $grab_online whether to try online grabbing, defaults to true
+     *
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws Exception
      * @throws ServerException
+     *
+     * @return array of Profile objects
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function lookup(string $url, bool $grab_online = true)
@@ -94,13 +102,16 @@ class Activitypub_explorer
      * This is a recursive function that will accumulate the results on
      * $discovered_actor_profiles array
      *
-     * @param string $url User's url
-     * @param bool $grab_online whether to try online grabbing, defaults to true
-     * @return array of Profile objects
+     * @param string $url         User's url
+     * @param bool   $grab_online whether to try online grabbing, defaults to true
+     *
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
      * @throws Exception
+     *
+     * @return array of Profile objects
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function _lookup(string $url, bool $grab_online = true): array
@@ -120,11 +131,14 @@ class Activitypub_explorer
      * Get a local user profile from its URL and joins it on
      * $this->discovered_actor_profiles
      *
-     * @param string $uri Actor's uri
-     * @param bool $online
-     * @return bool success state
+     * @param string $uri    Actor's uri
+     * @param bool   $online
+     *
      * @throws NoProfileException
      * @throws Exception
+     *
+     * @return bool success state
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function grab_local_user(string $uri, bool $online = false): bool
@@ -153,9 +167,9 @@ class Activitypub_explorer
                 if ($online) {
                     common_debug('ActivityPub Explorer: Double-checking ' . $alias . ' to confirm it as a legitimate alias');
 
-                    $disco = new Discovery();
-                    $xrd = $disco->lookup($aprofile->getUri());
-                    $doublecheck_aliases = array_merge(array($xrd->subject), $xrd->aliases);
+                    $disco               = new Discovery();
+                    $xrd                 = $disco->lookup($aprofile->getUri());
+                    $doublecheck_aliases = array_merge([$xrd->subject], $xrd->aliases);
 
                     if (in_array($uri, $doublecheck_aliases)) {
                         // the original URI is present, we're sure now!
@@ -177,11 +191,11 @@ class Activitypub_explorer
                 common_debug('ActivityPub Explorer: Unable to find a local Aprofile for ' . $alias . ' - looking for a Profile instead.');
                 // Well, maybe it is a pure blood?
                 // Iff, we are in the same instance:
-                $ACTIVITYPUB_BASE_ACTOR_URI = common_local_url('userbyid', ['id' => null], null, null, false, true); // @FIXME: Could this be too hardcoded?
+                $ACTIVITYPUB_BASE_ACTOR_URI        = common_local_url('userbyid', ['id' => null], null, null, false, true); // @FIXME: Could this be too hardcoded?
                 $ACTIVITYPUB_BASE_ACTOR_URI_length = strlen($ACTIVITYPUB_BASE_ACTOR_URI);
                 if (substr($alias, 0, $ACTIVITYPUB_BASE_ACTOR_URI_length) === $ACTIVITYPUB_BASE_ACTOR_URI) {
                     try {
-                        $profile = Profile::getByID((int)substr($alias, $ACTIVITYPUB_BASE_ACTOR_URI_length));
+                        $profile = Profile::getByID((int) substr($alias, $ACTIVITYPUB_BASE_ACTOR_URI_length));
                         common_debug('ActivityPub Explorer: Found a Profile for ' . $alias);
                         // We found something!
                         $this->discovered_actor_profiles[] = $profile;
@@ -208,19 +222,22 @@ class Activitypub_explorer
      * $this->discovered_actor_profiles
      *
      * @param string $url User's url
-     * @return bool success state
+     *
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
      * @throws Exception
+     *
+     * @return bool success state
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function grab_remote_user(string $url): bool
     {
         common_debug('ActivityPub Explorer: Trying to grab a remote actor for ' . $url);
-        $client = new HTTPClient();
+        $client   = new HTTPClient();
         $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
-        $res = json_decode($response->getBody(), true);
+        $res      = json_decode($response->getBody(), true);
         if ($response->getStatus() == 410) { // If it was deleted
             return true; // Nothing to add.
         } elseif (!$response->isOk()) { // If it is unavailable
@@ -251,29 +268,32 @@ class Activitypub_explorer
      * Save remote user profile in local instance
      *
      * @param array $res remote response
-     * @return Profile remote Profile object
+     *
      * @throws NoProfileException
      * @throws ServerException
      * @throws Exception
+     *
+     * @return Profile remote Profile object
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function store_profile(array $res): Profile
     {
         // ActivityPub Profile
-        $aprofile = new Activitypub_profile;
-        $aprofile->uri = $res['id'];
-        $aprofile->nickname = $res['preferredUsername'];
-        $aprofile->fullname = $res['name'] ?? null;
-        $aprofile->bio = isset($res['summary']) ? substr(strip_tags($res['summary']), 0, 1000) : null;
-        $aprofile->inboxuri = $res['inbox'];
+        $aprofile                 = new Activitypub_profile;
+        $aprofile->uri            = $res['id'];
+        $aprofile->nickname       = $res['preferredUsername'];
+        $aprofile->fullname       = $res['name'] ?? null;
+        $aprofile->bio            = isset($res['summary']) ? substr(strip_tags($res['summary']), 0, 1000) : null;
+        $aprofile->inboxuri       = $res['inbox'];
         $aprofile->sharedInboxuri = $res['endpoints']['sharedInbox'] ?? $res['inbox'];
-        $aprofile->profileurl = $res['url'] ?? $aprofile->uri;
+        $aprofile->profileurl     = $res['url']                      ?? $aprofile->uri;
 
         $aprofile->do_insert();
         $profile = $aprofile->local_profile();
 
         // Public Key
-        $apRSA = new Activitypub_rsa();
+        $apRSA             = new Activitypub_rsa();
         $apRSA->profile_id = $profile->getID();
         $apRSA->public_key = $res['publicKey']['publicKeyPem'];
         $apRSA->store_keys();
@@ -296,7 +316,9 @@ class Activitypub_explorer
      * response is a valid profile or not
      *
      * @param array $res remote response
+     *
      * @return bool success state
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function validate_remote_response(array $res): bool
@@ -315,15 +337,17 @@ class Activitypub_explorer
      * this hacky workaround (at least for now)
      *
      * @param string $v URL
-     * @return bool|Activitypub_profile false if fails | Aprofile object if successful
+     *
+     * @return Activitypub_profile|bool false if fails | Aprofile object if successful
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function get_aprofile_by_url(string $v)
     {
-        $i = Managed_DataObject::getcached("Activitypub_profile", "uri", $v);
+        $i = Managed_DataObject::getcached('Activitypub_profile', 'uri', $v);
         if (empty($i)) { // false = cache miss
-            $i = new Activitypub_profile;
-            $result = $i->get("uri", $v);
+            $i      = new Activitypub_profile;
+            $result = $i->get('uri', $v);
             if ($result) {
                 // Hit!
                 $i->encache();
@@ -338,14 +362,17 @@ class Activitypub_explorer
      * Given a valid actor profile url returns its inboxes
      *
      * @param string $url of Actor profile
-     * @return bool|array false if fails to validate the answer | array with inbox and shared inbox if successful
+     *
      * @throws HTTP_Request2_Exception
-     * @throws Exception If an irregular error happens (status code, body format or GONE)
+     * @throws Exception               If an irregular error happens (status code, body format or GONE)
+     *
+     * @return array|bool false if fails to validate the answer | array with inbox and shared inbox if successful
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function get_actor_inboxes_uri(string $url)
     {
-        $client = new HTTPClient();
+        $client   = new HTTPClient();
         $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
         if ($response->getStatus() == 410) { // If it was deleted
             throw new Exception('This actor is GONE.');
@@ -359,8 +386,8 @@ class Activitypub_explorer
         }
         if (self::validate_remote_response($res)) {
             return [
-                'inbox' => $res['inbox'],
-                'sharedInbox' => isset($res['endpoints']['sharedInbox']) ? $res['endpoints']['sharedInbox'] : $res['inbox']
+                'inbox'       => $res['inbox'],
+                'sharedInbox' => isset($res['endpoints']['sharedInbox']) ? $res['endpoints']['sharedInbox'] : $res['inbox'],
             ];
         }
 
@@ -373,9 +400,12 @@ class Activitypub_explorer
      * TODO: Should be in AProfile instead?
      *
      * @param Profile $profile
-     * @param string $url
-     * @return Avatar    The Avatar we have on disk. (seldom used)
+     * @param string  $url
+     *
      * @throws Exception in various failure cases
+     *
+     * @return Avatar The Avatar we have on disk. (seldom used)
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function update_avatar(Profile $profile, string $url): Avatar
@@ -386,7 +416,7 @@ class Activitypub_explorer
 
         $id = $profile->getID();
 
-        $type = $imagefile->preferredType();
+        $type     = $imagefile->preferredType();
         $filename = Avatar::filename(
             $id,
             image_type_to_extension($type),
@@ -412,31 +442,34 @@ class Activitypub_explorer
      * Allows the Explorer to transverse a collection of persons.
      *
      * @param string $url
-     * @return bool
+     *
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
+     *
+     * @return bool
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function travel_collection(string $url): bool
     {
-        $client = new HTTPClient();
+        $client   = new HTTPClient();
         $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
-        $res = json_decode($response->getBody(), true);
+        $res      = json_decode($response->getBody(), true);
 
         if (!isset($res['orderedItems'])) {
             return false;
         }
 
-        foreach ($res["orderedItems"] as $profile) {
+        foreach ($res['orderedItems'] as $profile) {
             if ($this->_lookup($profile) == false) {
                 common_debug('ActivityPub Explorer: Found an invalid actor for ' . $profile);
                 // TODO: Invalid actor found, fallback to OStatus
             }
         }
         // Go through entire collection
-        if (!is_null($res["next"])) {
-            $this->travel_collection($res["next"]);
+        if (!is_null($res['next'])) {
+            $this->travel_collection($res['next']);
         }
 
         return true;
@@ -447,13 +480,16 @@ class Activitypub_explorer
      * profile updating and shall not be used for anything else)
      *
      * @param string $url User's url
-     * @return array|false If it is able to fetch, false if it's gone
+     *
      * @throws Exception Either network issues or unsupported Activity format
+     *
+     * @return array|false If it is able to fetch, false if it's gone
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function get_remote_user_activity(string $url)
     {
-        $client = new HTTPClient();
+        $client   = new HTTPClient();
         $response = $client->get($url, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
         // If it was deleted
         if ($response->getStatus() == 410) {
@@ -466,7 +502,7 @@ class Activitypub_explorer
             common_debug('ActivityPub Explorer: Invalid JSON returned from given Actor URL: ' . $response->getBody());
             throw new Exception('Given Actor URL didn\'t return a valid JSON.');
         }
-        if (Activitypub_explorer::validate_remote_response($res)) {
+        if (self::validate_remote_response($res)) {
             common_debug('ActivityPub Explorer: Found a valid remote actor for ' . $url);
             return $res;
         }

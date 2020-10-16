@@ -18,11 +18,11 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -38,7 +38,9 @@ class Activitypub_message
      * Generates a pretty message from a Notice object
      *
      * @param Notice $message
+     *
      * @return array array to be used in a response
+     *
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
     public static function message_to_array(Notice $message): array
@@ -54,21 +56,21 @@ class Activitypub_message
 
         $to = [];
         foreach ($message->getAttentionProfiles() as $to_profile) {
-            $to[]   = $href = $to_profile->getUri();
-            $tags[] = Activitypub_mention_tag::mention_tag_to_array_from_values($href, $to_profile->getNickname().'@'.parse_url($href, PHP_URL_HOST));
+            $to[]   = $href   = $to_profile->getUri();
+            $tags[] = Activitypub_mention_tag::mention_tag_to_array_from_values($href, $to_profile->getNickname() . '@' . parse_url($href, PHP_URL_HOST));
         }
 
         $item = [
-            '@context'      => 'https://www.w3.org/ns/activitystreams',
-            'id'            => common_local_url('showmessage', ['message' => $message->getID()]),
-            'type'          => 'Note',
-            'published'     => str_replace(' ', 'T', $message->created).'Z',
-            'attributedTo'  => $from->getUri(),
-            'to'            => $to,
-            'cc'            => [],
-            'content'       => $message->getRendered(),
-            'attachment'    => [],
-            'tag'           => $tags
+            '@context'     => 'https://www.w3.org/ns/activitystreams',
+            'id'           => common_local_url('showmessage', ['message' => $message->getID()]),
+            'type'         => 'Note',
+            'published'    => str_replace(' ', 'T', $message->created) . 'Z',
+            'attributedTo' => $from->getUri(),
+            'to'           => $to,
+            'cc'           => [],
+            'content'      => $message->getRendered(),
+            'attachment'   => [],
+            'tag'          => $tags,
         ];
 
         return $item;
@@ -79,10 +81,13 @@ class Activitypub_message
      * Returns created Notice.
      *
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
-     * @param array $object
+     *
+     * @param array   $object
      * @param Profile $actor_profile
-     * @return Notice
+     *
      * @throws Exception
+     *
+     * @return Notice
      */
     public static function create_message(array $object, Profile $actor_profile = null): Notice
     {

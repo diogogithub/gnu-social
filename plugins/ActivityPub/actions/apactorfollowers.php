@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -42,27 +44,29 @@ class apActorFollowersAction extends ManagedAction
     /**
      * Handle the Followers Collection request
      *
-     * @return void
      * @throws Exception
+     *
+     * @return void
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     protected function handle()
     {
         try {
-            $profile = Profile::getByID($this->trimmed('id'));
+            $profile    = Profile::getByID($this->trimmed('id'));
             $profile_id = $profile->getID();
         } catch (Exception $e) {
             ActivityPubReturn::error('Invalid Actor URI.', 404);
         }
 
         if (!$profile->isLocal()) {
-            ActivityPubReturn::error("This is not a local user.", 403);
+            ActivityPubReturn::error('This is not a local user.', 403);
         }
 
-        if (!isset($_GET["page"])) {
+        if (!isset($_GET['page'])) {
             $page = 0;
         } else {
-            $page = intval($this->trimmed('page'));
+            $page = (int) ($this->trimmed('page'));
         }
 
         if ($page < 0) {
@@ -72,32 +76,32 @@ class apActorFollowersAction extends ManagedAction
         $since = ($page - 1) * PROFILES_PER_MINILIST;
         $limit = PROFILES_PER_MINILIST;
 
-        /* Calculate total items */
+        // Calculate total items
         $total_subs  = Activitypub_profile::subscriberCount($profile);
         $total_pages = ceil($total_subs / PROFILES_PER_MINILIST);
 
         $res = [
-            '@context'     => [
-              "https://www.w3.org/ns/activitystreams",
-              "https://w3id.org/security/v1",
+            '@context' => [
+                'https://www.w3.org/ns/activitystreams',
+                'https://w3id.org/security/v1',
             ],
-            'id'           => common_local_url('apActorFollowers', ['id' => $profile_id]).(($page != 0) ? '?page='.$page : ''),
-            'type'         => ($page == 0 ? 'OrderedCollection' : 'OrderedCollectionPage'),
-            'totalItems'   => $total_subs
+            'id'         => common_local_url('apActorFollowers', ['id' => $profile_id]) . (($page != 0) ? '?page=' . $page : ''),
+            'type'       => ($page == 0 ? 'OrderedCollection' : 'OrderedCollectionPage'),
+            'totalItems' => $total_subs,
         ];
 
         if ($page == 0) {
-            $res['first'] = common_local_url('apActorFollowers', ['id' => $profile_id]).'?page=1';
+            $res['first'] = common_local_url('apActorFollowers', ['id' => $profile_id]) . '?page=1';
         } else {
             $res['orderedItems'] = $this->generate_followers($profile, $since, $limit);
-            $res['partOf'] = common_local_url('apActorFollowers', ['id' => $profile_id]);
+            $res['partOf']       = common_local_url('apActorFollowers', ['id' => $profile_id]);
 
-            if ($page+1 < $total_pages) {
-                $res['next'] = common_local_url('apActorFollowers', ['id' => $profile_id]).'page='.($page+1 == 1 ? 2 : $page+1);
+            if ($page + 1 < $total_pages) {
+                $res['next'] = common_local_url('apActorFollowers', ['id' => $profile_id]) . 'page=' . ($page + 1 == 1 ? 2 : $page + 1);
             }
 
             if ($page > 1) {
-                $res['prev'] = common_local_url('apActorFollowers', ['id' => $profile_id]).'?page='.($page-1 <= 0 ? 1 : $page-1);
+                $res['prev'] = common_local_url('apActorFollowers', ['id' => $profile_id]) . '?page=' . ($page - 1 <= 0 ? 1 : $page - 1);
             }
         }
 
@@ -108,10 +112,13 @@ class apActorFollowersAction extends ManagedAction
      * Generates a list of stalkers for a given profile.
      *
      * @param Profile $profile
-     * @param int $since
-     * @param int $limit
-     * @return array of URIs
+     * @param int     $since
+     * @param int     $limit
+     *
      * @throws Exception
+     *
+     * @return array of URIs
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function generate_followers($profile, $since, $limit)
@@ -120,7 +127,7 @@ class apActorFollowersAction extends ManagedAction
         try {
             $sub = Activitypub_profile::getSubscribers($profile, $since, $limit);
 
-            /* Get followers' URLs */
+            // Get followers' URLs
             foreach ($sub as $s) {
                 $subs[] = $s->getUri();
             }

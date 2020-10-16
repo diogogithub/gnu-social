@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -34,6 +35,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -50,14 +52,16 @@ class Activitypub_postman
      * Create a postman to deliver something to someone
      *
      * @param Profile $from sender Profile
-     * @param array $to receiver AProfiles
+     * @param array   $to   receiver Profiles
+     *
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function __construct(Profile $from, array $to = [])
     {
         $this->actor = $from;
-        $this->to = $to;
+        $this->to    = $to;
 
         $this->actor_uri = $this->actor->getUri();
 
@@ -82,21 +86,24 @@ class Activitypub_postman
     /**
      * Send something to remote instance
      *
-     * @param string $data request body
-     * @param string $inbox url of remote inbox
+     * @param string $data   request body
+     * @param string $inbox  url of remote inbox
      * @param string $method request method
-     * @return GNUsocial_HTTPResponse
+     *
      * @throws HTTP_Request2_Exception
-     * @throws HTTP_Request2_LogicException
+     * @throws Exception
+     *
+     * @return GNUsocial_HTTPResponse
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function send($data, $inbox, $method = 'POST')
     {
-        common_debug('ActivityPub Postman: Delivering '.$data.' to '.$inbox);
+        common_debug('ActivityPub Postman: Delivering ' . $data . ' to ' . $inbox);
 
         $headers = HttpSignature::sign($this->actor, $inbox, $data);
 
-        common_debug('ActivityPub Postman: Delivery headers were: '.print_r($headers, true));
+        common_debug('ActivityPub Postman: Delivery headers were: ' . print_r($headers, true));
 
         $this->client->setBody($data);
 
@@ -108,25 +115,27 @@ class Activitypub_postman
                 $response = $this->client->get($inbox, $headers);
                 break;
             default:
-                throw new Exception("Unsupported request method for postman.");
+                throw new Exception('Unsupported request method for postman.');
         }
 
-        common_debug('ActivityPub Postman: Delivery result with status code '.$response->getStatus().': '.$response->getBody());
+        common_debug('ActivityPub Postman: Delivery result with status code ' . $response->getStatus() . ': ' . $response->getBody());
         return $response;
     }
 
     /**
      * Send a follow notification to remote instance
      *
-     * @return bool
      * @throws HTTP_Request2_Exception
      * @throws Exception
+     *
+     * @return bool
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function follow()
     {
-        $data = Activitypub_follow::follow_to_array($this->actor_uri, $this->to[0]->getUrl());
-        $res = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
+        $data     = Activitypub_follow::follow_to_array($this->actor_uri, $this->to[0]->getUrl());
+        $res      = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
         $res_body = json_decode($res->getBody(), true);
 
         if ($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409) {
@@ -137,18 +146,20 @@ class Activitypub_postman
             throw new Exception($res_body['error']);
         }
 
-        throw new Exception("An unknown error occurred.");
+        throw new Exception('An unknown error occurred.');
     }
 
     /**
      * Send a Undo Follow notification to remote instance
      *
-     * @return bool
      * @throws HTTP_Request2_Exception
      * @throws Exception
      * @throws Exception
      * @throws Exception
      * @throws Exception
+     *
+     * @return bool
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function undo_follow()
@@ -157,9 +168,9 @@ class Activitypub_postman
             Activitypub_follow::follow_to_array(
                 $this->actor_uri,
                 $this->to[0]->getUrl()
-            )
-        );
-        $res = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
+                    )
+                );
+        $res      = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
         $res_body = json_decode($res->getBody(), true);
 
         if ($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409) {
@@ -171,16 +182,19 @@ class Activitypub_postman
         if (isset($res_body['error'])) {
             throw new Exception($res_body['error']);
         }
-        throw new Exception("An unknown error occurred.");
+        throw new Exception('An unknown error occurred.');
     }
 
     /**
      * Send a Accept Follow notification to remote instance
      *
      * @param string $id Follow activity id
-     * @return bool
+     *
      * @throws HTTP_Request2_Exception
-     * @throws Exception Description of HTTP Response error or generic error message.
+     * @throws Exception               Description of HTTP Response error or generic error message.
+     *
+     * @return bool
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function accept_follow(string $id): bool
@@ -190,9 +204,9 @@ class Activitypub_postman
                 $this->to[0]->getUrl(),
                 $this->actor_uri,
                 $id
-            )
-        );
-        $res = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
+                )
+            );
+        $res      = $this->send(json_encode($data, JSON_UNESCAPED_SLASHES), $this->to[0]->get_inbox());
         $res_body = json_decode($res->getBody(), true);
 
         if ($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409) {
@@ -203,16 +217,18 @@ class Activitypub_postman
         if (isset($res_body['error'])) {
             throw new Exception($res_body['error']);
         }
-        throw new Exception("An unknown error occurred.");
+        throw new Exception('An unknown error occurred.');
     }
 
     /**
      * Send a Like notification to remote instances holding the notice
      *
      * @param Notice $notice
+     *
      * @throws HTTP_Request2_Exception
      * @throws InvalidUrlException
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function like(Notice $notice): void
@@ -239,7 +255,7 @@ class Activitypub_postman
         }
 
         if (!empty($errors)) {
-            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the like activity!");
+            common_log(LOG_ERR, sizeof($errors) . ' instance/s failed to handle the like activity!');
         }
     }
 
@@ -247,9 +263,11 @@ class Activitypub_postman
      * Send a Undo Like notification to remote instances holding the notice
      *
      * @param Notice $notice
+     *
      * @throws HTTP_Request2_Exception
      * @throws InvalidUrlException
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function undo_like($notice)
@@ -279,7 +297,7 @@ class Activitypub_postman
         }
 
         if (!empty($errors)) {
-            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the undo-like activity!");
+            common_log(LOG_ERR, sizeof($errors) . ' instance/s failed to handle the undo-like activity!');
         }
     }
 
@@ -287,10 +305,12 @@ class Activitypub_postman
      * Send a Create notification to remote instances
      *
      * @param Notice $notice
+     *
      * @throws EmptyPkeyValueException
      * @throws HTTP_Request2_Exception
      * @throws InvalidUrlException
      * @throws ServerException
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function create_note($notice)
@@ -319,7 +339,7 @@ class Activitypub_postman
         }
 
         if (!empty($errors)) {
-            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the create-note activity!");
+            common_log(LOG_ERR, sizeof($errors) . ' instance/s failed to handle the create-note activity!');
         }
     }
 
@@ -327,6 +347,7 @@ class Activitypub_postman
      * Send a Create direct-notification to remote instances
      *
      * @param Notice $message
+     *
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
     public function create_direct_note(Notice $message)
@@ -346,13 +367,12 @@ class Activitypub_postman
             if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
                 $res_body = json_decode($res->getBody(), true);
                 $errors[] = isset($res_body['error']) ?
-                          $res_body['error'] : "An unknown error occurred.";
-                $to_failed[$inbox] = $message;
+                          $res_body['error'] : 'An unknown error occurred.';
             }
         }
 
         if (!empty($errors)) {
-            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the create-note activity!");
+            common_log(LOG_ERR, sizeof($errors) . ' instance/s failed to handle the create-note activity!');
         }
     }
 
@@ -360,8 +380,10 @@ class Activitypub_postman
      * Send a Announce notification to remote instances
      *
      * @param Notice $notice
-     * @param Notice $repeat_of
+     *
      * @throws HTTP_Request2_Exception
+     * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function announce(Notice $notice, Notice $repeat_of): void
@@ -388,7 +410,7 @@ class Activitypub_postman
         }
 
         if (!empty($errors)) {
-            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the announce activity!");
+            common_log(LOG_ERR, sizeof($errors) . ' instance/s failed to handle the announce activity!');
         }
     }
 
@@ -396,16 +418,18 @@ class Activitypub_postman
      * Send a Delete notification to remote instances holding the notice
      *
      * @param Notice $notice
+     *
      * @throws HTTP_Request2_Exception
      * @throws InvalidUrlException
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function delete_note($notice)
     {
         $data = Activitypub_delete::delete_to_array($notice);
         $errors = [];
-        $data = json_encode($data, JSON_UNESCAPED_SLASHES);
+        $data   = json_encode($data, JSON_UNESCAPED_SLASHES);
         foreach ($this->to_inbox() as $inbox) {
             try {
                 $res = $this->send($data, $inbox);
@@ -427,8 +451,12 @@ class Activitypub_postman
     /**
      * Send a Delete notification to remote followers of some deleted profile
      *
-     * @param Profile $deleted_profile
+     * @param Notice $notice
+     *
      * @throws HTTP_Request2_Exception
+     * @throws InvalidUrlException
+     * @throws Exception
+     *
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
     public function delete_profile(Profile $deleted_profile)
@@ -453,7 +481,7 @@ class Activitypub_postman
         }
 
         if (!empty($errors)) {
-            common_log(LOG_ERR, sizeof($errors) . " instance/s failed to handle the delete_profile activity!");
+            common_log(LOG_ERR, sizeof($errors) . ' instance/s failed to handle the delete_profile activity!');
         }
     }
 
@@ -461,8 +489,11 @@ class Activitypub_postman
      * Clean list of inboxes to deliver messages
      *
      * @param bool $actorFollowers whether to include the actor's follower collection
-     * @return array To Inbox URLs
+     *
      * @throws Exception
+     *
+     * @return array To Inbox URLs
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function to_inbox(bool $actorFollowers = true): array
@@ -472,7 +503,7 @@ class Activitypub_postman
             $followers = apActorFollowersAction::generate_followers($this->actor, 0, null);
             foreach ($followers as $sub) {
                 try {
-                    $this->to[]= Activitypub_profile::from_profile($discovery->lookup($sub)[0]);
+                    $this->to[] = Activitypub_profile::from_profile($discovery->lookup($sub)[0]);
                 } catch (Exception $e) {
                     // Not an ActivityPub Remote Follower, let it go
                 }

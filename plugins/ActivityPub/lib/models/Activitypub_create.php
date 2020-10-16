@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -40,23 +42,24 @@ class Activitypub_create
      * Generates an ActivityPub representation of a Create
      *
      * @param string $actor
-     * @param string $uri
-     * @param mixed $object
-     * @param bool $directMessage whether it is a private Create activity or not
+     * @param array  $object
+     * @param bool   $directMessage whether it is a private Create activity or not
+     *
      * @return array pretty array to be used in a response
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function create_to_array(string $actor, string $uri, $object, bool $directMessage = false): array
     {
         $res = [
-            '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id' => $uri,
-            'type' => 'Create',
+            '@context'      => 'https://www.w3.org/ns/activitystreams',
+            'id'            => $object['id'] . '/create',
+            'type'          => 'Create',
             'directMessage' => $directMessage,
-            'to' => $object['to'],
-            'cc' => $object['cc'],
-            'actor' => $actor,
-            'object' => $object
+            'to'            => $object['to'],
+            'cc'            => $object['cc'],
+            'actor'         => $actor,
+            'object'        => $object,
         ];
         return $res;
     }
@@ -65,8 +68,11 @@ class Activitypub_create
      * Verifies if a given object is acceptable for a Create Activity.
      *
      * @param array $object
-     * @return bool True if acceptable, false if valid but unsupported
+     *
      * @throws Exception if invalid
+     *
+     * @return bool True if acceptable, false if valid but unsupported
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function validate_object($object): bool
@@ -100,7 +106,9 @@ class Activitypub_create
      * https://github.com/w3c/activitypub/issues/196#issuecomment-304958984
      *
      * @param array $activity received Create-Note activity
+     *
      * @return bool true if note is private, false otherwise
+     *
      * @author Bruno casteleiro <brunoccast@fc.up.pt>
      */
     public static function isPrivateNote(array $activity): bool

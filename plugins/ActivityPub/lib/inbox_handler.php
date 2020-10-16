@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -43,15 +45,17 @@ class Activitypub_inbox_handler
     /**
      * Create a Inbox Handler to receive something from someone.
      *
-     * @param array $activity Activity we are receiving
+     * @param array   $activity      Activity we are receiving
      * @param Profile $actor_profile Actor originating the activity
+     *
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function __construct($activity, $actor_profile = null)
     {
         $this->activity = $activity;
-        $this->object = $activity['object'];
+        $this->object   = $activity['object'];
 
         // Validate Activity
         if (!$this->validate_activity()) {
@@ -73,7 +77,9 @@ class Activitypub_inbox_handler
      * Validates if a given Activity is valid. Throws exception if not.
      *
      * @throws Exception if invalid
+     *
      * @return bool true if valid and acceptable, false if unsupported
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function validate_activity(): bool
@@ -127,6 +133,7 @@ class Activitypub_inbox_handler
      * @throws NoProfileException
      * @throws ServerException
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function process()
@@ -162,6 +169,7 @@ class Activitypub_inbox_handler
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_accept()
@@ -180,6 +188,7 @@ class Activitypub_inbox_handler
      * @throws NoProfileException
      * @throws ServerException
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_accept_follow()
@@ -200,6 +209,7 @@ class Activitypub_inbox_handler
      * Handles a Create Activity received by our inbox.
      *
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_create()
@@ -215,6 +225,7 @@ class Activitypub_inbox_handler
      * Handle a Create Note Activity received by our inbox.
      *
      * @throws Exception
+     *
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
     private function handle_create_note()
@@ -229,6 +240,9 @@ class Activitypub_inbox_handler
     /**
      * Handles a Delete Activity received by our inbox.
      *
+     * @throws NoProfileException
+     * @throws Exception
+     *
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
@@ -236,10 +250,10 @@ class Activitypub_inbox_handler
     {
         $object = $this->object;
         if (is_string($object)) {
-            $client = new HTTPClient();
+            $client   = new HTTPClient();
             $response = $client->get($object, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
-            $not_gone = $response->isOk();
-            if ($not_gone) { // It's not gone, we're updating it.
+            $gone     = !$response->isOk();
+            if (!$gone) { // It's not gone, we're updating it.
                 $object = json_decode($response->getBody(), true);
                 switch ($object['type']) {
                     case 'Person':
@@ -269,16 +283,37 @@ class Activitypub_inbox_handler
                         common_log(LOG_INFO, "Ignoring Delete activity, we do not understand for {$object['type']}.");
                 }
             }
-        }
+        } else {
+            // We don't know the type of the deleted object :(
+            // Nor if it's gone or not.
+            try {
+                if (is_array($object)) {
+                    $object = $object['id'];
+                }
+                $aprofile = Activitypub_profile::fromUri($object, false);
+                $res      = Activitypub_explorer::get_remote_user_activity($object);
+                Activitypub_profile::update_profile($aprofile, $res);
+                return;
+            } catch (Exception $e) {
+                // Means this wasn't a profile
+            }
 
-        // IFF we reached this point, it either is gone or it's an array
-        // If it's gone, we don't know the type of the deleted object, we only have a Tombstone
-        // If we were given an array, we don't know if it's Gone or not via status code...
-        // In both cases, we will want to fetch the ID and act on that as it is easier than updating the fields
-        $object = $object['id'] ?? null;
-        if (is_null($object)) {
-            return;
-        }
+            try {
+                $client   = new HTTPClient();
+                $response = $client->get($object, ACTIVITYPUB_HTTP_CLIENT_HEADERS);
+                // If it was deleted
+                if ($response->getStatus() == 410) {
+                    $notice = ActivityPubPlugin::grab_notice_from_url($object, false);
+                    if ($notice instanceof Notice) {
+                        $notice->delete();
+                    }
+                } else {
+                    // We can't update a note's contents so, we'll ignore it for now...
+                }
+                return;
+            } catch (Exception $e) {
+                // Means we didn't have this note already
+            }
 
         // Was it a profile?
         try {
@@ -316,6 +351,7 @@ class Activitypub_inbox_handler
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_follow()
@@ -327,6 +363,7 @@ class Activitypub_inbox_handler
      * Handles a Like Activity received by our inbox.
      *
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_like()
@@ -342,6 +379,7 @@ class Activitypub_inbox_handler
      * @throws HTTP_Request2_Exception
      * @throws NoProfileException
      * @throws ServerException
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_undo()
@@ -364,6 +402,7 @@ class Activitypub_inbox_handler
      * @throws NoProfileException
      * @throws ServerException
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_undo_follow()
@@ -387,6 +426,7 @@ class Activitypub_inbox_handler
      * @throws AlreadyFulfilledException
      * @throws ServerException
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_undo_like()
@@ -399,6 +439,7 @@ class Activitypub_inbox_handler
      * Handles a Announce Activity received by our inbox.
      *
      * @throws Exception
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     private function handle_announce()

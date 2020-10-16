@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -40,17 +42,19 @@ class Activitypub_undo
      * Generates an ActivityPub representation of a Undo
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
+     *
      * @param array $object
+     *
      * @return array pretty array to be used in a response
      */
     public static function undo_to_array(array $object): array
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => $object['id'] . '#undo',
-            'type'   => 'Undo',
-            'actor'  => $object['actor'],
-            'object' => $object
+            'id'       => $object['id'] . '/undo',
+            'type'     => 'Undo',
+            'actor'    => $object['actor'],
+            'object'   => $object,
         ];
         return $res;
     }
@@ -59,8 +63,11 @@ class Activitypub_undo
      * Verifies if a given object is acceptable for a Undo Activity.
      *
      * @param array $object
-     * @return bool
+     *
      * @throws Exception
+     *
+     * @return bool
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function validate_object(array $object): bool

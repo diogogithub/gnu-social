@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,13 +32,13 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class Activitypub_activityverb2 extends Managed_DataObject
 {
-    const FULL_LIST =
-    [
+    const FULL_LIST = [
         'Accept'          => 'https://www.w3.org/ns/activitystreams#Accept',
         'TentativeAccept' => 'https://www.w3.org/ns/activitystreams#TentativeAccept',
         'Add'             => 'https://www.w3.org/ns/activitystreams#Add',
@@ -65,25 +66,26 @@ class Activitypub_activityverb2 extends Managed_DataObject
         'Block'           => 'https://www.w3.org/ns/activitystreams#Block',
         'Flag'            => 'https://www.w3.org/ns/activitystreams#Flag',
         'Dislike'         => 'https://www.w3.org/ns/activitystreams#Dislike',
-        'Question'        => 'https://www.w3.org/ns/activitystreams#Question'
+        'Question'        => 'https://www.w3.org/ns/activitystreams#Question',
     ];
 
-    const KNOWN =
-    [
+    const KNOWN = [
         'Accept',
         'Create',
         'Delete',
         'Follow',
         'Like',
         'Undo',
-        'Announce'
+        'Announce',
     ];
 
     /**
      * Converts canonical into verb.
      *
      * @author GNU social
+     *
      * @param string $verb
+     *
      * @return string
      */
     public static function canonical($verb)

@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -40,13 +42,15 @@ class Activitypub_error
      * Generates a pretty error from a string
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
+     *
      * @param string $m
+     *
      * @return array pretty array to be used in a response
      */
     public static function error_message_to_array(string $m): array
     {
-        return [
-            'error'=> $m
+        $res = [
+            'error' => $m,
         ];
     }
 }

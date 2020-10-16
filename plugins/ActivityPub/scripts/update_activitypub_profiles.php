@@ -19,17 +19,18 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 define('INSTALLDIR', dirname(__DIR__, 3));
 define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'u:af';
-$longoptions = ['uri=', 'all', 'force'];
+$longoptions  = ['uri=', 'all', 'force'];
 
 $helptext = <<<END_OF_HELP
 update_activitypub_profiles.php [options]
@@ -42,7 +43,7 @@ you have no backup.
 
 END_OF_HELP;
 
-require_once INSTALLDIR.'/scripts/commandline.inc';
+require_once INSTALLDIR . '/scripts/commandline.inc';
 
 if (!have_option('q', 'quiet')) {
     echo "ActivityPub Profiles updater will now start!\n";
@@ -50,15 +51,15 @@ if (!have_option('q', 'quiet')) {
 }
 
 if (have_option('u', 'uri')) {
-    $uri = get_option_value('u', 'uri');
+    $uri  = get_option_value('u', 'uri');
     $user = Activitypub_profile::from_profile(Activitypub_explorer::get_profile_from_url($uri));
     try {
         $res = Activitypub_explorer::get_remote_user_activity($uri);
     } catch (Exception $e) {
-        echo $e->getMessage()."\n";
+        echo $e->getMessage() . "\n";
         exit(1);
     }
-    printfnq('Updated '.Activitypub_profile::update_profile($user, $res)->getBestName()."\n");
+    printfnq('Updated ' . Activitypub_profile::update_profile($user, $res)->getBestName() . "\n");
     exit(0);
 } elseif (!have_option('a', 'all')) {
     show_help();
@@ -66,7 +67,7 @@ if (have_option('u', 'uri')) {
 }
 
 $user = new Activitypub_profile();
-$cnt = $user->find();
+$cnt  = $user->find();
 if (!empty($cnt)) {
     printfnq("Found {$cnt} ActivityPub profiles:\n");
 } else {
@@ -79,11 +80,11 @@ if (!empty($cnt)) {
 }
 while ($user->fetch()) {
     try {
-        $res = Activitypub_explorer::get_remote_user_activity($user->uri);
+        $res             = Activitypub_explorer::get_remote_user_activity($user->uri);
         $updated_profile = Activitypub_profile::update_profile($user, $res);
-        printfnq('Updated '.$updated_profile->getBestName()."\n");
+        printfnq('Updated ' . $updated_profile->getBestName() . "\n");
     } catch (NoProfileException $e) {
-        printfnq('Deleted '.$user->uri."\n");
+        printfnq('Deleted ' . $user->uri . "\n");
     } catch (Exception $e) {
         // let it go
     }

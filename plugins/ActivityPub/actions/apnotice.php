@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -132,10 +134,12 @@ class apNoticeAction extends ManagedAction
     /**
      * Handle the Notice request
      *
-     * @return void
      * @throws EmptyPkeyValueException
      * @throws InvalidUrlException
      * @throws ServerException
+     *
+     * @return void
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     protected function handle(): void
@@ -143,9 +147,9 @@ class apNoticeAction extends ManagedAction
         if (is_null($this->notice)) {
             ActivityPubReturn::error('Invalid Activity URI.', 404);
         }
-        if (!$this->notice->isLocal()) {
-            // We have no authority on the requested activity.
-            ActivityPubReturn::error("This is not a local activity.", 403);
+
+        if (!$notice->isLocal()) {
+            ActivityPubReturn::error('This is not a local notice.', 403);
         }
 
         $res = Activitypub_notice::notice_to_array($this->notice);

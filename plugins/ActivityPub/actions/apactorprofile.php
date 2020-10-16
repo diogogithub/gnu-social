@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -42,9 +44,11 @@ class apActorProfileAction extends ManagedAction
     /**
      * Handle the Actor Profile request
      *
-     * @return void
      * @throws InvalidUrlException
      * @throws ServerException
+     *
+     * @return void
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     protected function handle()
@@ -65,7 +69,7 @@ class apActorProfileAction extends ManagedAction
         }
 
         if (!$profile->isLocal()) {
-            ActivityPubReturn::error("This is not a local user.", 403);
+            ActivityPubReturn::error('This is not a local user.', 403);
         }
 
         $res = Activitypub_profile::profile_to_array($profile);
