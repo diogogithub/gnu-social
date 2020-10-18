@@ -30,21 +30,12 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class UpdateListenerTest extends WebTestCase
 {
-<<<<<<< HEAD
-
-    public function testPreUpdate()
-    {
-        $actor = new GSActor();
-        $actor->setModified(new DateTime('1999-09-23'));
-        static::assertEquals($actor->getModified(), new DateTime('1999-09-23'));
-=======
     public function testPreUpdate()
     {
         $actor = new GSActor();
         $date  = new DateTime('1999-09-23');
         $actor->setModified($date);
         static::assertSame($actor->getModified(), $date);
->>>>>>> 619cc5cdde... [CODING-STANDARDS] Fixed existing files to conform to defined coding style
 
         $em = $this->createMock(EntityManager::class);
 
