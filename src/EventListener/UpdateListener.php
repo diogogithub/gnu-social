@@ -19,29 +19,11 @@
 
 namespace App\EventListener;
 
-use Doctrine\ORM\Event\OnFlushEventArgs;
+use DateTime;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 
 class UpdateListener
 {
-//    public function preUpdate(PreUpdateEventArgs $args)
-//    {
-//        $entity = $args->getEntity();
-//
-//        if (!method_exists($entity, 'setModified')) {
-//            return false;
-//        }
-//
-//        $entity->setModified(new \DateTime);
-//
-//        $em = $args->getEntityManager();
-//        $uow = $em->getUnitOfWork();
-//        $md = $em->getClassMetadata(get_class($entity));
-//        $uow->recomputeSingleEntityChangeSet($md, $entity);
-//
-//        return true;
-//
-//    }
 
     public function preUpdate(PreUpdateEventArgs $args)
     {
@@ -55,7 +37,7 @@ class UpdateListener
         $uow = $em->getUnitOfWork();
         $md = $em->getClassMetadata(get_class($entity));
 
-        $entity->setModified(new \DateTime);
+        $entity->setModified(new DateTime());
         $uow->recomputeSingleEntityChangeSet($md, $entity);
 
         return true;
