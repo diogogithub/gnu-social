@@ -40,3 +40,6 @@ social.local.yaml
 # V2
 config.php
 /file
+
+### PHPSTORM
+.idea
