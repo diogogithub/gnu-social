@@ -39,7 +39,83 @@
 {% endblock %}
 
 {% block body %}
-    {% include '/security/public_stream.html.twig' with {'page': 'register'} %}
-{% endblock %}
+    <div class="content">
+        {% if post_form is defined %}
+            {{ form_start(post_form) }}
+            <div class="create-notice">
+                <div class="target">
+                    <div class="target-top">
+                        {{ form_label(post_form.to) }}
+                    </div>
+                    <div class="target-bot">
+                        {{ form_widget(post_form.to) }}
+                    </div>
+                </div>
+                <div class="create-right">
+                    <div class="scope">
+                        {{ form_row(post_form.visibility) }}
+                    </div>
+                    <div class="input-wrapper">
+                        <div class="content-input">
+                            {{ form_row(post_form.content) }}
+                        </div>
+                    </div>
+                    <div class="notice-options">
+                        <div class="attachments">
+                            {{ form_widget(post_form.attachments) }}
+                            <label for="{{ post_form.attachments.vars.id }}">
+                                <svg class="icon icon-attach">
+                                    <use xlink:href="#icon-attach"></use>
+                                </svg>
+                            </label>
+                        </div>
+                        <div class="post">
+                            {{ form_row(post_form.post) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {{ form_end(post_form) }}
+        {% endif %}
+        <div class="main">
+            <nav class='main-nav'>
+                <ul>
+                    <li>
+                        <a href="{{ path('main_public') }}" class='hover-effect {{ active('main_public', 'main_all', "home_all") }}'>Timeline</a>
+                    </li>
+                </ul>
+            </nav>
+            <div class="notes-wrap">
+                <nav class='main-nav'>
+                    <ul>
+                        <li>
+                            <a href="{{ path('main_public') }}" class='hover-effect {{ active('main_public') }}'>Public</a>
+                        </li>
+                        {% if user_nickname is defined %}
+                            <li>
+                                <a href="{{ path("home_all", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("home_all") }}'>Home</a>
+                            </li>
+                        {% endif %}
+                        <li>
+                            <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="timeline">
+                    <div class="notes">
+                        {% if notes is defined and notes is not empty %}
+                            {% for note in notes %}
+                                {% set id = note.getId() - 1 %}
+                                {% include '/note/view.html.twig' with {'note': note, 'have_user': have_user} only %}
+                            {% endfor %}
+                        {% else %}
+                            <h1>{% trans %}No notes here.{% endtrans %}</h1>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock body %}
 
 {% block javascripts %}{% endblock %}
