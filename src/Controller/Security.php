@@ -39,7 +39,11 @@ class Security extends Controller
         // last username entered by the user
         $last_username = $authenticationUtils->getLastUsername();
 
-        return ['_template' => 'security/login.html.twig', 'last_username' => $last_username, 'error' => $error];
+        return ['_template' => 'security/login.html.twig', 'last_username' => $last_username, 'error' => $error,
+            'notes'         => DB::sql('select * from note n ' .
+                "where n.reply_to is null and (n.scope & {$this->instance_scope}) <> 0 " .
+                'order by n.created DESC',
+                ['n' => 'App\Entity\Note']), ];
     }
 
     public function logout()
@@ -133,6 +137,10 @@ class Security extends Controller
         return [
             '_template'         => 'security/register.html.twig',
             'registration_form' => $form->createView(),
+            'notes'             => DB::sql('select * from note n ' .
+                "where n.reply_to is null and (n.scope & {$this->instance_scope}) <> 0 " .
+                'order by n.created DESC',
+                ['n' => 'App\Entity\Note']),
         ];
     }
 }

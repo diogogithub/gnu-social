@@ -1,4 +1,4 @@
-.content {
+#left-panel .login-content {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
@@ -7,27 +7,27 @@
     margin-left: var(--small-size);
     margin-bottom: var(--unit-size);
 }
-.navbar .left-nav > a {
+#left-panel .navbar .left-nav > a {
     font-size: var(--unit-size);
 }
-form {
+#left-panel .login-content form {
     font-size: var(--medium-size);
     background-color: var(--bg2);
     padding: calc(2 * var(--unit-size));
     border-radius: var(--unit-size);
     border: solid 2px var(--accent-low);
 }
-label {
+#left-panel label {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     width: 100%;
 }
-button {
+#left-panel button {
     margin-top: var(--unit-size);
 }
-input[type=text],
-input[type=password],
-input[type=email]
+#left-panel input[type=text],
+#left-panel input[type=password],
+#left-panel input[type=email]
 {
     margin-top: calc(var(--unit-size) * 0.5);
     background-color: var(--bg1);
@@ -60,8 +60,9 @@ form button[type=submit] {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
 }
-form button[type=submit]:focus,
-form button[type=submit]:hover {
+#left-panel form button[type=submit]:focus,
+#left-panel form button[type=submit]:hover {
     border-radius: var(--unit-size);
     box-shadow: 0 0px 8px var(--accent);
 }
+
