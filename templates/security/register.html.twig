@@ -77,28 +77,14 @@
             </div>
             {{ form_end(post_form) }}
         {% endif %}
-        <div class="main">
-            <nav class='main-nav'>
-                <ul>
-                    <li>
-                        <a href="{{ path('main_public') }}" class='hover-effect {{ active('main_public', 'main_all', "home_all") }}'>Timeline</a>
-                    </li>
-                </ul>
-            </nav>
-            <div class="notes-wrap">
+        <div class="main" id="login-main">
+            <div class="notes-wrap" id="login-notes">
                 <nav class='main-nav'>
                     <ul>
                         <li>
-                            <a href="{{ path('main_public') }}" class='hover-effect {{ active('main_public') }}'>Public</a>
+                            <a class='hover-effect {{ active('register') }}'>Public</a>
                         </li>
-                        {% if user_nickname is defined %}
-                            <li>
-                                <a href="{{ path("home_all", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("home_all") }}'>Home</a>
-                            </li>
-                        {% endif %}
-                        <li>
-                            <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
-                        </li>
+
                     </ul>
                 </nav>
                 <div class="timeline">
