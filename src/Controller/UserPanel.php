@@ -154,7 +154,7 @@ class UserPanel extends AbstractController
             if ($old_file != null) {
                 @unlink($old_file);
             }
-            Event::handle('delete_cached_avatar', [$user->getNickname()]);
+            Event::handle('DeleteCachedAvatar', [$user->getNickname()]);
         }
 
         return ['_template' => 'settings/avatar.html.twig', 'avatar' => $form->createView()];
@@ -205,7 +205,7 @@ class UserPanel extends AbstractController
             }
         }
 
-        Event::handle('add_notification_transport', [&$form_defs]);
+        Event::handle('AddNotificationTransport', [&$form_defs]);
         unset($form_defs['placeholder']);
 
         $tabbed_forms = [];

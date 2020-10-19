@@ -63,7 +63,7 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $request    = $event->getRequest();
 
         $this->vars = ['controler' => $controller, 'request' => $request, 'have_user' => Common::user() !== null];
-        Event::handle('start_twig_populate_vars', [&$this->vars]);
+        Event::handle('StartTwigPopulateVars', [&$this->vars]);
 
         $event->stopPropagation();
         return $event;
@@ -78,7 +78,7 @@ class Controller extends AbstractController implements EventSubscriberInterface
         }
 
         $this->vars = array_merge_recursive($this->vars, $response);
-        Event::handle('end_twig_populate_vars', [&$this->vars]);
+        Event::handle('EndTwigPopulateVars', [&$this->vars]);
 
         $template = $this->vars['_template'];
         unset($this->vars['_template'], $this->vars['request']);
