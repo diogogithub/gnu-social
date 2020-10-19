@@ -197,7 +197,7 @@ class Note extends Entity
     public function getAvatarUrl()
     {
         $url = null;
-        Event::handle('get_avatar_url', [$this->getActorNickname(), &$url]);
+        Event::handle('GetAvatarUrl', [$this->getActorNickname(), &$url]);
         return $url;
     }
 

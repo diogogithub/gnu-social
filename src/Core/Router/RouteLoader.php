@@ -62,7 +62,7 @@ class RouteLoader extends Loader
             $ns::load($this);
         }
 
-        Event::handle('add_route', [&$this]);
+        Event::handle('AddRoute', [&$this]);
 
         return $this->rc;
     }

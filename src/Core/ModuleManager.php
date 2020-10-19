@@ -75,7 +75,7 @@ class ModuleManager
             F\map(F\select(get_class_methods($obj),
                            F\ary(F\partial_right('App\Util\Formatting::startsWith', 'on'), 1)),
                   function (string $m) use ($obj) {
-                      $ev = Formatting::camelCaseToSnakeCase(substr($m, 2));
+                      $ev = substr($m, 2);
                       $this->events[$ev] = $this->events[$ev] ?? [];
                       $this->events[$ev][] = [$obj, $m];
                   }
