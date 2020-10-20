@@ -1,27 +1,54 @@
 #!/bin/sh
 
+check_retval(){
+  case $1 in
+    1|255)
+      echo "Stopped"
+      exit;;
+  esac
+}
+
+check_input(){
+  if [ "$1" = "" ] 
+  then  
+    echo "Can't be empty" 
+    exit 
+  fi
+}
+
 DIALOG=${DIALOG=dialog}
 tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
 trap "rm -f $tempfile" 0 1 2 5 15
 
-$DIALOG --title "Configure" --clear \
+$DIALOG --title "Configure"  \
         --inputbox "Domain root:" 12 51 2> $tempfile
+check_retval $?
 domain_root=`cat $tempfile`
+check_input $domain_root
 
-$DIALOG --title "Configure" --clear \
+
+$DIALOG --title "Configure"  \
         --inputbox "Subdomain (can be empty):" 12 51 2> $tempfile
+check_retval $?
 sub_domain=`cat $tempfile`
 
+
 $DIALOG --title "Configure" --clear \
-        --inputbox "Use certificate signed by Let's Encrypt (Y/n):" 12 51 2> $tempfile
+        --menu "Use certificate signed by Let's Encrypt?" 12 51 2 \
+        "Y"  "" \
+        "n" ""  2> $tempfile
+check_retval $?
 signed=`cat $tempfile`
 
 [ "${signed}" = "${signed#[Yy]}" ]
 signed=$?
 
 if [ $signed -ne 0 ]; then
-    printf "Email: "
-    read -r email
+  $DIALOG --title "Configure"  \
+        --inputbox "Email:" 12 51 2> $tempfile
+  check_retval $?
+  email=`cat $tempfile`
+  check_input $email
 fi
 
 if [ -z "$sub_domain" ]
@@ -45,8 +72,6 @@ chmod +x ./docker/bootstrap/bootstrap.env
 
 docker-compose -f docker/bootstrap/bootstrap.yaml up
 
-
-## --------------------------------
 git_dir=$PWD
 while [ ! -d .git ]; do
     git_dir=$(dirname "${git_dir}")
@@ -65,34 +90,46 @@ $DIALOG --clear --title "Configure" \
         --menu "Select DBMS:" 12 51 2 \
         "postgres"  "" \
         "mariadb" ""  2> $tempfile
+check_retval $?
 dbms=`cat $tempfile`
 
 $DIALOG --title "Configure" --clear \
         --inputbox "Social database name:" 12 51 2> $tempfile
+check_retval $?
 db=`cat $tempfile`
 
 if [ "${dbms}" = 'mariadb' ] 
 then
-    $DIALOG --title "Configure" --clear \
-            --inputbox "Database user:" 12 51 2> $tempfile
-    user=`cat $tempfile`
+  $DIALOG --title "Configure" --clear \
+          --inputbox "Database user:" 12 51 2> $tempfile
+  check_retval $?
+  user=`cat $tempfile`
+  check_input $user
 fi
 
 $DIALOG --title "Configure" --clear \
         --inputbox "Database password:" 12 51 2> $tempfile
+check_retval $?
 password=`cat $tempfile`
+check_input $password
 
 $DIALOG --title "Configure" --clear \
         --inputbox "Sitename:" 12 51 2> $tempfile
+check_retval $?
 sitename=`cat $tempfile`
+check_input $sitename
 
 $DIALOG --title "Configure" --clear \
         --inputbox "Admin nickname:" 12 51 2> $tempfile
+check_retval $?
 admin_nick=`cat $tempfile`
+check_input $admin_nick
 
 $DIALOG --title "Configure" --clear \
         --inputbox "Admin password:" 12 51 2> $tempfile
+check_retval $?
 admin_password=`cat $tempfile`
+check_input $admin_password
 
 $DIALOG --clear --title "Configure" \
         --menu "Site profile:" 12 51 4 \
@@ -100,16 +137,23 @@ $DIALOG --clear --title "Configure" \
         "private"  "" \
         "community"  "" \
         "single_user" ""  2> $tempfile
+check_retval $?
 profile=`cat $tempfile`
 
 $DIALOG --title "Configure" --clear \
         --inputbox "Mailer dsn:" 12 51 2> $tempfile
+check_retval $?
 mailer_dsn=`cat $tempfile`
+check_input $mailer_dsn
 
 mkdir -p ./docker/db
 
 if [ "${dbms}" = 'mariadb' ]; then
-    printf "DB root password: " && read -r db_root_password
+    $DIALOG --title "Configure" --clear \
+            --inputbox "DB root password" 12 51 2> $tempfile
+    check_retval $?
+    db_root_password=`cat $tempfile`
+    check_input $db_root_password
     cat > ./docker/db/db.env <<EOF
 DBMS=${dbms}
 MYSQL_ROOT_PASSWORD=${db_root_password}
@@ -159,8 +203,7 @@ $DIALOG --title "Services" --clear \
         3 "php" on \
         4 "db" on \
         5 "redis" on  2> $tempfile
-retval=$?
-
+check_retval $?
 choice=`cat $tempfile`
 
 echo "\nservices:" >> docker-compose.yaml
