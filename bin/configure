@@ -100,11 +100,11 @@ db=`cat $tempfile`
 
 if [ "${dbms}" = 'mariadb' ] 
 then
-  $DIALOG --title "Configure" --clear \
-          --inputbox "Database user:" 12 51 2> $tempfile
-  check_retval $?
-  user=`cat $tempfile`
-  check_input $user
+    $DIALOG --title "Configure" --clear \
+            --inputbox "Database user:" 12 51 2> $tempfile
+    check_retval $?
+    user=`cat $tempfile`
+    check_input $user
 fi
 
 $DIALOG --title "Configure" --clear \
