@@ -1,5 +1,52 @@
 #!/bin/sh
 
+DIALOG=${DIALOG=dialog}
+tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
+trap "rm -f $tempfile" 0 1 2 5 15
+
+$DIALOG --title "Configure" --clear \
+        --inputbox "Domain root:" 12 51 2> $tempfile
+domain_root=`cat $tempfile`
+
+$DIALOG --title "Configure" --clear \
+        --inputbox "Subdomain (can be empty):" 12 51 2> $tempfile
+sub_domain=`cat $tempfile`
+
+$DIALOG --title "Configure" --clear \
+        --inputbox "Use certificate signed by Let's Encrypt (Y/n):" 12 51 2> $tempfile
+signed=`cat $tempfile`
+
+[ "${signed}" = "${signed#[Yy]}" ]
+signed=$?
+
+if [ $signed -ne 0 ]; then
+    printf "Email: "
+    read -r email
+fi
+
+if [ -z "$sub_domain" ]
+then
+  domain="${domain_root}"
+else
+  domain="${sub_domain}.${domain_root}"
+fi
+
+mkdir -p ./docker/bootstrap
+
+cat > ./docker/bootstrap/bootstrap.env <<EOF
+#!/bin/sh
+email=${email}
+domain=${domain}
+domain_root=${domain_root}
+signed=${signed}
+EOF
+
+chmod +x ./docker/bootstrap/bootstrap.env
+
+docker-compose -f docker/bootstrap/bootstrap.yaml up
+
+
+## --------------------------------
 git_dir=$PWD
 while [ ! -d .git ]; do
     git_dir=$(dirname "${git_dir}")
@@ -14,23 +61,50 @@ fi
 
 . ./docker/bootstrap/bootstrap.env
 
+$DIALOG --clear --title "Configure" \
+        --menu "Select DBMS:" 12 51 2 \
+        "postgres"  "" \
+        "mariadb" ""  2> $tempfile
+dbms=`cat $tempfile`
 
-while :; do
-    printf "DBMS (postgres|mariadb): " && read -r dbms
-    [ $(echo "${dbms}" | grep -E 'postgres|mariadb') ] && break
-done
+$DIALOG --title "Configure" --clear \
+        --inputbox "Social database name:" 12 51 2> $tempfile
+db=`cat $tempfile`
 
-printf "Social database name: " && read -r db
-[ "${dbms}" = 'mariadb' ] && printf "Database user: " && read -r user
-printf "Database password: " && read -r password
-printf "Sitename: " && read -r sitename
-printf "Admin nickname: " && read -r admin_nick
-printf "Admin password: " && read -r admin_password
+if [ "${dbms}" = 'mariadb' ] 
+then
+    $DIALOG --title "Configure" --clear \
+            --inputbox "Database user:" 12 51 2> $tempfile
+    user=`cat $tempfile`
+fi
 
-while :; do
-    printf "Site profile (public|private|community|single_user): " && read -r profile
-    [ $(echo "${profile}" | grep -E 'public|private|community|single_user') ] && break
-done
+$DIALOG --title "Configure" --clear \
+        --inputbox "Database password:" 12 51 2> $tempfile
+password=`cat $tempfile`
+
+$DIALOG --title "Configure" --clear \
+        --inputbox "Sitename:" 12 51 2> $tempfile
+sitename=`cat $tempfile`
+
+$DIALOG --title "Configure" --clear \
+        --inputbox "Admin nickname:" 12 51 2> $tempfile
+admin_nick=`cat $tempfile`
+
+$DIALOG --title "Configure" --clear \
+        --inputbox "Admin password:" 12 51 2> $tempfile
+admin_password=`cat $tempfile`
+
+$DIALOG --clear --title "Configure" \
+        --menu "Site profile:" 12 51 4 \
+        "public"  "" \
+        "private"  "" \
+        "community"  "" \
+        "single_user" ""  2> $tempfile
+profile=`cat $tempfile`
+
+$DIALOG --title "Configure" --clear \
+        --inputbox "Mailer dsn:" 12 51 2> $tempfile
+mailer_dsn=`cat $tempfile`
 
 mkdir -p ./docker/db
 
@@ -57,8 +131,6 @@ fi
 
 echo "${database_url}" >> .env.local
 
-printf "Mailer dsn: " && read -r mailer_dsn
-
 mkdir -p ./docker/social
 
 cat > ./docker/social/social.env <<EOF
@@ -74,3 +146,119 @@ SOCIAL_ADMIN_EMAIL="${email}"
 SOCIAL_SITE_PROFILE="${profile}"
 MAILER_DSN="${mailer_dsn}"
 EOF
+
+
+##docker-compose 
+
+echo "version: '3.3'" > docker-compose.yaml
+
+$DIALOG --title "Services" --clear \
+    --checklist "Services to include in docker-compose:" 12 44 6 \
+        1 "nginx" on \
+        2 "certbot" on \
+        3 "php" on \
+        4 "db" on \
+        5 "redis" on  2> $tempfile
+retval=$?
+
+choice=`cat $tempfile`
+
+echo "\nservices:" >> docker-compose.yaml
+
+case $choice in *"1"*)
+    echo "  nginx:
+    image: nginx:alpine
+    depends_on:
+      - php
+    restart: always
+    tty: false
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      # Nginx
+      - ./docker/nginx/nginx.conf:/var/nginx/social.conf
+      - ./docker/nginx/domain.sh:/var/nginx/domain.sh
+      # Certbot
+      - ./docker/certbot/www:/var/www/certbot
+      - ./docker/certbot/.files:/etc/letsencrypt
+      # Social
+      - ./public:/var/www/social/public
+    env_file:
+      - ./docker/bootstrap/bootstrap.env
+      - ./docker/db/db.env
+    command: /bin/sh -c '/var/nginx/domain.sh;
+                         while :; do
+                             sleep 6h & wait \$\${!};
+                             nginx -s reload;
+                         done &
+                         nginx -g \"daemon off;\"'\n" >> docker-compose.yaml;;
+esac
+
+case $choice in *"2"*)
+    echo  "  certbot:
+    image: certbot/certbot
+    depends_on:
+      - nginx
+    # Check for certificate renewal every 12h as
+    # recomnended by Let's Encryot
+    entrypoint: /bin/sh -c 'trap exit TERM;
+                            while :; do
+                                certbot renew > /dev/null;
+                                sleep 12h & wait \$\${!};
+                            done'
+    volumes:
+      - ./docker/certbot/www:/var/www/certbot
+      - ./docker/certbot/.files:/etc/letsencrypt\n" >> docker-compose.yaml;;
+esac
+
+case $choice in *"3"*)
+        echo  "  php:
+    build: docker/php
+    depends_on:
+      - db
+    restart: always
+    tty: true
+    ports:
+      - 9000:9000
+    volumes:
+      # Entrypoint
+      - ./docker/php/entrypoint.sh:/entrypoint.sh
+      - ./docker/db/wait_for_db.sh:/wait_for_db.sh
+      - ./docker/social/install.sh:/var/entrypoint.d/social_install.sh
+      # Main files
+      - .:/var/www/social
+    env_file:
+      - ./docker/social/social.env
+      - ./docker/db/db.env
+    command: /entrypoint.sh\n" >> docker-compose.yaml;;
+esac
+
+case $choice in *"4"*)
+        echo "  db:
+    image: postgres:alpine
+    restart: always
+    tty: false
+    ports:
+      - 5432:5432
+    environment:
+      - PGDATA=/var/lib/postgres/data
+    env_file:
+      - ./docker/db/db.env
+    volumes:
+      - database:/var/lib/postgres/data\n" >> docker-compose.yaml;;
+esac
+
+case $choice in *"5"*)
+        echo "  redis:
+    image: redis:alpine
+    restart: always
+    tty: false
+    ports:
+      - 6379:6379" >> docker-compose.yaml;;
+esac
+
+echo "\nvolumes:\n  database:" >> docker-compose.yaml
+clear
+
+
