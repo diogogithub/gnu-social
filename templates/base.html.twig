@@ -17,42 +17,6 @@
             {% endblock %}
       </head>
       <body>
-            {% block icons %}
-                  <svg aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                        <defs>
-                              <symbol id="icon-attach" viewbox="0 0 32 32">
-                                    {{ source('@public_path'~asset('assets/icons/attach.svg')) }}
-                              </symbol>
-                              <symbol id="icon-heart" viewbox="0 0 32 32">
-                                    {{ source('@public_path/assets/icons/heart.svg') }}
-                              </symbol>
-                              <symbol id="icon-logo" viewbox="0 0 32 32">
-                                    {{ source('@public_path/assets/icons/logo.svg') }}
-                              </symbol>
-                              <symbol id="icon-drop" viewbox="0 0 32 32">
-                                    {{ source('@public_path/assets/icons/drop.svg') }}
-                              </symbol>
-                              <symbol id="icon-reply" viewbox="0 0 32 32">
-                                    {{ source('@public_path/assets/icons/reply.svg') }}
-                              </symbol>
-                              <symbol id="icon-menu" viewbox="0 0 32 32">
-                                    {{ source('@public_path/assets/icons/menu.svg') }}
-                              </symbol>
-                              <symbol id="icon-repeat" viewbox="0 0 32 32">
-                                    {{ source('@public_path/assets/icons/repeat.svg') }}
-                              </symbol>
-                              <symbol id="icon-search" viewbox="0 0 32 32">
-                                    {{ source('@public_path/assets/icons/search.svg') }}
-                              </symbol>
-                              <symbol id="icon-avatar" viewbox="0 0 32 32">
-                                    {{ source('@public_path/assets/icons/avatar.svg') }}
-                              </symbol>
-                              <symbol id="icon-checkmark" viewbox="0 0 32 32">
-                                    {{ source('@public_path/assets/icons/checkmark.svg') }}
-                              </symbol>
-                        </defs>
-                  </svg>
-            {% endblock %}
       <div class="container">
             {% block header %}
                   <div id='header'>
@@ -61,9 +25,7 @@
                               {% endblock left %}
                               <nav id='instance'>
                                     <a href="{{ path('main_public') }}">
-                                          <svg class="icon icon-logo">
-                                                <use xlink:href="#icon-logo"></use>
-                                          </svg>
+                                          {{ icon('logo', 'icon icon-logo') | raw }}
                                           <b> {{ config('site', 'name') }} </b>
                                     </a>
                               </nav>
