@@ -29,9 +29,9 @@ namespace App\Tests\Templates\Icons;
 
 use App\Twig\IconsExtension;
 use DirectoryIterator;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class IconsExtensionTest extends KernelTestCase
+class IconsExtensionTest extends TestCase
 {
     public function testIconsExtension()
     {
