@@ -1,0 +1,5 @@
+#!/bin/sh
+
+ACTION=${1}
+
+curl -q -s --connect-timeout 60 --data-binary @- http://filter:11334/${ACTION}
