@@ -18,75 +18,35 @@
 // }}}
 
 /**
- * Common utility functions
+ * GNU social Twig extensions
  *
  * @package   GNUsocial
- * @category  Util
+ * @category  Twig
  *
- * @author    Hugo Sales <hugo@hsal.es>
- * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Ângelo D. Moura <up201303828@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 namespace App\Twig;
 
-use App\Core\Event;
-use App\Entity\Note;
-use App\Util\Common;
-use App\Util\Formatting;
-use Functional as F;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use Twig\Extension\RuntimeExtensionInterface;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
-class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
+class IconsExtension extends AbstractExtension
 {
-    private Request $request;
-    public function __constructor(Request $req)
+    public function getFunctions()
     {
-        $this->request = $req;
-    }
-
-    public function isCurrentRouteActive(string ...$routes): string
-    {
-        return $this->isCurrentRoute('active', ...$routes);
-    }
-
-    public function isCurrentRoute(string $class, string ...$routes): string
-    {
-        $current_route = $this->request->attributes->get('_route');
-        return F\some($routes, F\partial_left([Formatting::class, 'startsWith'], $current_route)) ? $class : '';
-    }
-
-    public function getNoteActions(Note $note)
-    {
-        $actions = [];
-        Event::handle('AddNoteActions', [$this->request, $note, &$actions]);
-        return $actions;
-    }
-
-    public function getConfig(...$args)
-    {
-        return Common::config(...$args);
-    }
-
-    // ----------------------------------------------------------
-
-    // Request is not a service, can't find a better way to get it
-    public function onKernelRequest(RequestEvent $event)
-    {
-        $this->request = $event->getRequest();
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return [KernelEvents::REQUEST => 'onKernelRequest'];
+        return [
+            new TwigFunction('icon',
+                [$this, 'embedSvgIcon'],
+                ['needs_environment' => true]
+            ),
+        ];
     }
 
     /**

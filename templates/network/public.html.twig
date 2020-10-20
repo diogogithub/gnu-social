@@ -50,9 +50,7 @@
                             <div class="attachments">
                                 {{ form_widget(post_form.attachments) }}
                                 <label for="{{ post_form.attachments.vars.id }}">
-                                    <svg class="icon icon-attach">
-                                        <use xlink:href="#icon-attach"></use>
-                                    </svg>
+                                    {{ icon('attach', 'icon icon-attach') | raw }}
                                 </label>
                             </div>
                             <div class="post">
