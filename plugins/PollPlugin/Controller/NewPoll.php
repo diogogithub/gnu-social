@@ -22,62 +22,33 @@
 namespace Plugin\PollPlugin\Controller;
 
 use App\Core\DB\DB;
-use App\Entity\Poll;
-use App\Util\Common;
-use App\Util\Exception\InvalidFormException;
-use App\Util\Exception\RedirectException;
-use Plugin\PollPlugin\Forms\NewPollForm;
+use App\Core\Form;
+use function App\Core\I18n\_m;
+use Plugin\PollPlugin\Entity\Poll;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
-
-/**
- * Create a Poll
- *
- * @package  GNUsocial
- * @category PollPlugin
- *
- * @author    Daniel Brandao <up201705812@fe.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- */
-const MAX_OPTS = 5;
-const MIN_OPTS = 2;
 
 class NewPoll
 {
-    /**
-     * Create poll
-     *
-     * @param Request $request
-     * @param int     $num     num of options
-     *
-     * @throws InvalidFormException               invalid form
-     * @throws RedirectException
-     * @throws \App\Util\Exception\NoLoggedInUser user is not logged in
-     *
-     * @return array template
-     */
-    public function newpoll(Request $request, int $num)
+    public function newpoll(Request $request)
     {
-        $user       = Common::ensureLoggedIn();
-        $numOptions = min(max($num,MIN_OPTS),MAX_OPTS);
-        $form       = NewPollForm::make($numOptions);
+        $form = Form::create([
+            ['Option_1',   TextType::class,   ['label' => _m('Option 1')]],
+            ['Option_2',   TextType::class,   ['label' => _m('Option 2')]],
+            ['Option_3',   TextType::class,   ['label' => _m('Option 3')]],
+            ['Option_4',   TextType::class,   ['label' => _m('Option 4')]],
+            ['save',    SubmitType::class, ['label' => _m('Submit Poll')]],
+        ]);
+
         $form->handleRequest($request);
-        $opt = [];
         if ($form->isSubmitted()) {
-            if ($form->isValid()) {
-                $data     = $form->getData();
-                $question = $data['Question'];
-                for ($i = 1; $i <= $numOptions; ++$i) {
-                    array_push($opt, $data['Option_' . $i]);
-                }
-                $poll = Poll::make($user->getId(), $question, $opt);
-                DB::persist($poll);
-                DB::flush();
-                throw new RedirectException('showpoll', ['id' => $poll->getId()]);
-            } else {
-                throw new InvalidFormException();
-            }
+            $data = $form->getData();
         }
+
+        //$test = Poll::create(['id' => '0']); //not working till generating things
+        //DB::persist($test);
+        //DB::flush();
 
         return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
     }
