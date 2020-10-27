@@ -9,13 +9,12 @@ fi
 
 DOMAINPART=$(echo $1 | sed -e "s/^.*\@//")
 
-if ! grep -q "^$DOMAINPART" /etc/mail/domains
-then
+if ! grep "^$DOMAINPART\s" /etc/mail/domains &> /dev/null; then
 	echo "This server is not responsible for the domain of this alias."
 	exit 1
 fi
 
-echo "$1  $2" >> /etc/mail/aliases
+echo -e "$1\t\t$2" >> /etc/mail/aliases
 postmap /etc/mail/aliases
 postfix reload
 

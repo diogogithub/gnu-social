@@ -7,7 +7,7 @@ then
   exit 1;
 fi
 
-echo "$1  #OK" >> /etc/mail/domains
+echo -e "$1" >> /etc/mail/domains
 postmap /etc/mail/domains
 mkdir "/var/mail/$1"
 chown vmail:vmail "/var/mail/$1"

@@ -82,23 +82,25 @@ services:
     restart: always
     tty: false
     ports:
-      - 6379:6379    
+      - 6379:6379
   
   mail:
-    build: docker/mail
-    env_file:
-      - ./docker/mail/mail.env
+    build: docker/php
+    restart: always
+    tty: true
     ports:
-      - 25:25
-      - 143:143
-      - 587:587
-      - 993:993
-    volumes:
-      - ./docker/mail/mail:/var/mail
-      - ./docker/mail/config:/etc/mail
-      # Certbot
-      - ./docker/certbot/www:/var/www/certbot
-      - ./docker/certbot/.files:/etc/letsencrypt
-
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+    environment:
+      - DOMAINNAME=mail.test
+      - HOSTNAME=mail
+      - POSTMASTER=postmaster@mail.test
+      - SSL_CERT=/etc/dovecot/ssl/mailserver.crt
+      - SSL_KEY=/etc/dovecot/ssl/mailserver.key
+    
+    
+  
 volumes:
   database:
