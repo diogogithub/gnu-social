@@ -1,9 +1,0 @@
-POP3 STARTTLS		 		127.0.0.1:110
-POP3S 						127.0.0.1:995
-IMAP STARTTLS		 		127.0.0.1:143
-IMAPS 						127.0.0.1:993
-SMTP 						127.0.0.1:25
-Mail Submission STARTTLS 	127.0.0.1:587
-Management Interface 		127.0.0.1:81/manager/
-Webmail 					127.0.0.1:81/webmail/
-Rspamd interface 			127.0.0.1:81/rspamd/
