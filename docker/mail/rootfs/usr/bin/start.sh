@@ -1,4 +1,5 @@
 #!/bin/sh
+
 # Config postfix
 postconf -e myhostname="$MAILNAME"
 postconf -e mydomain="$DOMAINNAME"

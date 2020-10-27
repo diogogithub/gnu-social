@@ -1,6 +1,6 @@
 FROM debian:buster-slim
 
-ENV DEBIAN_FRONTEND=noninteractive 
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install packages
 RUN \
@@ -30,8 +30,11 @@ RUN \
 	&& usermod -aG vmail opendkim\
 	&& mkdir -p -m 751 /var/mail/ \
 	&& mkdir -p -m 755 /etc/mail/ \
-	&& chown vmail:vmail /var/mail
-	
+	&& mkdir -p -m 755 /etc/ssl/ \
+	&& mkdir -p -m 700 /etc/opendkim/keys \
+	&& chown vmail:vmail /var/mail \
+	&& chown opendkim:opendkim /etc/opendkim/keys
+
 # Copy config files
 COPY rootfs/ /
 
