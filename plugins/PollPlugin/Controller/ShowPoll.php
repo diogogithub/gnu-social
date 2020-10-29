@@ -21,44 +21,11 @@
 
 namespace Plugin\PollPlugin\Controller;
 
-use App\Entity\Poll;
-use App\Util\Common;
-use App\Util\Exception\NotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * Show a Poll
- *
- * @package  GNUsocial
- * @category PollPlugin
- *
- * @author    Daniel Brandao <up201705812@fe.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- */
 class ShowPoll
 {
-    /**
-     * Show poll
-     *
-     * @param Request $request
-     * @param string  $id      poll id
-     *
-     * @throws NotFoundException                  poll does not exist
-     * @throws \App\Util\Exception\NoLoggedInUser user is not logged in
-     *
-     * @return array Template
-     */
-    public function showpoll(Request $request, string $id)
+    public function showpoll(Request $request)
     {
-        $user = Common::ensureLoggedIn();
-
-        $poll = Poll::getFromId((int) $id);
-
-        if ($poll == null) {
-            throw new NotFoundException('Poll does not exist');
-        }
-
-        return ['_template' => 'Poll/showpoll.html.twig', 'poll' => $poll];
     }
 }

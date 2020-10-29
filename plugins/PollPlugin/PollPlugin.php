@@ -22,6 +22,9 @@ namespace Plugin\PollPlugin;
 
 use App\Core\Event;
 use App\Core\Module;
+use Plugin\PollPlugin\Entity\Poll;
+
+const ID_FMT = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 
 class PollPlugin extends Module
 {
@@ -61,16 +64,8 @@ class PollPlugin extends Module
     public function onAddRoute($r)
     {
         $r->connect('newpoll', 'main/poll/new', [Controller\NewPoll::class, 'newpoll']);
+        $r->connect('showpoll', 'main/poll/{id<' . ID_FMT . '>}' , [Controller\ShowPoll::class, 'showpoll']);
 
         return Event::next;
     }
-    /*
-        public function onCheckSchema()
-        {
-            $schema = Schema::get();
-            $schema->ensureTable('poll', Poll::schemaDef());
-
-            return Event::next;
-        }
-    */
 }
