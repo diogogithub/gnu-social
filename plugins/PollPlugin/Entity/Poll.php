@@ -21,24 +21,74 @@
 
 namespace Plugin\PollPlugin\Entity;
 
+use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
 
 class Poll extends Entity
 {
-    public int $id;          // char(36) primary key not null -> UUID
-    public ?string $uri;         // varchar(191)   not 255 because utf8mb4 takes more space
-    public ?int $profile_id;  // int -> profile.id
-    public ?string $question;    // text
-    public ?string $options;     // text; newline(?)-delimited
-    public ?DateTimeInterface $created;     // datetime
+    // {{{ Autocode
 
-    //need to generate_entity_diagrams/fields
+    private int $id;
+    private string $uri;
+    private ?int $profile_id;
+    private ?string $question;
+    private ?string $options;
+    private DateTimeInterface $created;
 
-    public function setId($id): self
+    public function setId(int $id): self
     {
         $this->id = $id;
         return $this;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setUri(string $uri): self
+    {
+        $this->uri = $uri;
+        return $this;
+    }
+
+    public function getUri(): string
+    {
+        return $this->uri;
+    }
+
+    public function setProfileId(?int $profile_id): self
+    {
+        $this->profile_id = $profile_id;
+        return $this;
+    }
+
+    public function getProfileId(): ?int
+    {
+        return $this->profile_id;
+    }
+
+    public function setQuestion(?string $question): self
+    {
+        $this->question = $question;
+        return $this;
+    }
+
+    public function getQuestion(): ?string
+    {
+        return $this->question;
+    }
+
+    public function setOptions(?string $options): self
+    {
+        $this->options = $options;
+        return $this;
+    }
+
+    public function getOptions(): ?string
+    {
+        return $this->options;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -46,6 +96,13 @@ class Poll extends Entity
         $this->created = $created;
         return $this;
     }
+
+    public function getCreated(): DateTimeInterface
+    {
+        return $this->created;
+    }
+
+    // }}} Autocode
 
     /**
      * The One True Thingy that must be defined and declared.
@@ -56,7 +113,7 @@ class Poll extends Entity
             'name'        => 'poll',
             'description' => 'Per-notice poll data for Poll plugin',
             'fields'      => [
-                'id'         => ['type' => 'char', 'length' => 36, 'not null' => true, 'description' => 'UUID'], //int?
+                'id'         => ['type' => 'int', 'not null' => true],
                 'uri'        => ['type' => 'varchar', 'length' => 191, 'not null' => true],
                 'profile_id' => ['type' => 'int'], //-> gsactor id?
                 'question'   => ['type' => 'text'],
@@ -68,6 +125,11 @@ class Poll extends Entity
                 'poll_uri_key' => ['uri'],
             ],
         ];
+    }
+
+    public static function getFromId(int $id): ?self
+    {
+        return DB::find('poll', ['id' => $id]); //not working yet
     }
 
     //from old version
