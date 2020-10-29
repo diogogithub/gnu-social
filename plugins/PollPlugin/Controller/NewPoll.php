@@ -79,6 +79,12 @@ class NewPoll
             }
         }
 
+        //testing
+        $test = Poll::create(['id' => '0', 'uri' => 'a']);
+        //DB::persist($test);
+        //DB::flush();
+        //$loadpoll = Poll::getFromId('0'); //need to add plugin support for DB::__callStatic
+
         return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
     }
 }
