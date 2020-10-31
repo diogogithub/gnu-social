@@ -14,16 +14,13 @@ RUN \
 		opendkim \
 		opendkim-tools \
 		openssl \
-		postfix \
-		rsyslog \
-		supervisor \
-		telnet \
 	&& apt-get autoclean \
 	&& apt-get autoremove
 
 # Setup folders and users
 RUN \
-	groupadd -g 2222 vmail \
+	rm /etc/postfix/main.cf /etc/postfix/master.cf /etc/dovecot/dovecot.conf /etc/dovecot/conf.d/* /etc/rsyslog.conf /etc/rsyslog.d/* \
+	&& groupadd -g 2222 vmail \
 	&& useradd -d /var/mail -M -s /usr/sbin/nologin -u 2222 -g 2222 vmail \
 	&& usermod -aG vmail postfix \
 	&& usermod -aG vmail dovecot \
