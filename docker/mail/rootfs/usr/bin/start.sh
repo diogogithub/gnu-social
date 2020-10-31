@@ -1,35 +1,50 @@
 #!/bin/sh
 
+# Config postfix
 postconf -e myhostname="$MAILNAME"
 postconf -e mydomain="$DOMAINNAME"
 postconf -e smtpd_tls_cert_file="$SSL_CERT"
 postconf -e smtpd_tls_key_file="$SSL_KEY"
 
-touch /etc/mail/aliases /etc/mail/domains /etc/mail/mailbox /etc/mail/passwd
-if [ ! -d "/var/mail/$DOMAINNAME" ]
-then
-	echo "$DOMAINNAME  #OK" >> /etc/mail/domains
-	mkdir "/var/mail/$DOMAINNAME"
-	chown vmail:vmail "/var/mail/$DOMAINNAME"
-fi
-postmap /etc/mail/aliases && postmap /etc/mail/domains && postmap /etc/mail/mailbox
-
+# Config dovecot
 sed -i -e "s#^\s*ssl_cert\s*=.*#ssl_cert = $SSL_CERT#" /etc/dovecot/dovecot.conf
 sed -i -e "s#^\s*ssl_key\s*=.*#ssl_key = $SSL_KEY#" /etc/dovecot/dovecot.conf
 sed -i -e "s#^\s*hostname\s*=.*#hostname = $MAILNAME#" /etc/dovecot/dovecot.conf
 sed -i -e "s#^\s*postmaster_address\s*=.*#postmaster_address = $POSTMASTER#" /etc/dovecot/dovecot.conf
 
+# Config dkim
 sed -i -e "s/#HOSTNAME/$MAILNAME/" /etc/opendkim/TrustedHosts
 
-if [ ! -e "/etc/opendkim/keys/default.private" ]
+# Run openssl
+if [ ! -e /etc/ssl/.ssl-generated ]
 then
-	opendkim-genkey -d "$DOMAINNAME" -D "/etc/opendkim/keys"
+	openssl genrsa -des3 -passout pass:asdf -out /etc/ssl/mail.pass.key 2048 && \
+	openssl rsa -passin pass:asdf -in /etc/ssl/mail.pass.key -out /etc/ssl/mail.key
+	rm /etc/ssl/mail.pass.key
+	openssl req -new -key /etc/ssl/mail.key -out /etc/ssl/mail.csr \
+	  -subj "/C=UK/ST=England/L=London/O=OrgName/OU=IT Department/CN=$MAIL_HOSTNAME_FQDN"
+	openssl x509 -req -days 365 -in /etc/ssl/mail.csr -signkey /etc/ssl/mail.key -out /etc/ssl/mail.crt
+	echo "Do not remove this file." >> /etc/ssl/.ssl-generated
 fi
 
-# Start services
+# Run opendkim
+if [ ! -e "/var/opendkim/keys/default.private" ]
+then
+	mkdir -p /var/opendkim/keys
+	opendkim-genkey -d "$DOMAINNAME" -D "/var/opendkim/keys"
+fi
 
-rsyslogd  	-f /etc/rsyslogd/rsyslogd.conf
-/usr/sbin/opendkim 	#-x /etc/opendkim/opendkim.conf
-dovecot 	-c /etc/dovecot/dovecot.conf
-postfix start -c /etc/postfix
-supervisord -c /etc/supervisord/supervisord.conf
+if [ ! -d "/var/mail/$DOMAINNAME" ]
+then
+	touch /etc/mail/aliases /etc/mail/domains /etc/mail/mailboxes /etc/mail/passwd
+	postmap /etc/mail/aliases && postmap /etc/mail/domains && postmap /etc/mail/mailboxes
+	/usr/bin/new-domain.sh "$DOMAINNAME"
+fi
+
+
+# Start services
+rsyslogd 				-f /etc/rsyslogd/rsyslog.conf
+/usr/sbin/opendkim 		-x /etc/opendkim/opendkim.conf
+/usr/sbin/dovecot 		-c /etc/dovecot/dovecot.conf
+/usr/sbin/postfix start	-c /etc/postfix
+supervisord 			-c /etc/supervisord/supervisord.conf

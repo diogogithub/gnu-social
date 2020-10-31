@@ -18,7 +18,7 @@ fi
 
 PASSHASH=$(doveadm pw -s SHA512-CRYPT)
 
-new-alias.sh $1 $1
+/usr/bin/new-alias.sh "$1" "$1"
 echo "$1  $DOMAINPART/$USERPART/" >> /etc/mail/mailboxes
 postmap /etc/mail/mailboxes
 echo "$1:$PASSHASH" >> /etc/mail/passwd

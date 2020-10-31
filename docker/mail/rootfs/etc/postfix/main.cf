@@ -1,9 +1,8 @@
-smtpd_banner = $myhostname ESMTP
-biff = no
-append_dot_mydomain = no
-compatibility_level=2
+## STANDARD POSTFIX CONFIG PARAMS ###
+
 queue_directory = /var/spool/postfix
 command_directory = /usr/sbin
+daemon_directory = /usr/lib/postfix/sbin
 data_directory = /var/lib/postfix
 mail_owner = postfix
 myhostname = %MAIL_HOSTNAME%
@@ -14,8 +13,10 @@ inet_protocols = all
 mydestination = $myhostname, localhost.$mydomain, localhost
 unknown_local_recipient_reject_code = 550
 mynetworks = 127.0.0.0/8, [::1]/128
+alias_maps = hash:/etc/postfix/aliases
+alias_database = $alias_maps
 
-mailbox_command = /usr/libexec/dovecot/deliver
+mailbox_command = /usr/lib/dovecot/deliver
   
 debug_peer_level = 2
 debugger_command =
@@ -42,17 +43,17 @@ virtual_mailbox_domains = hash:/etc/mail/domains
 virtual_mailbox_maps = hash:/etc/mail/mailboxes
 
 virtual_mailbox_base = /var/mail
-virtual_minimum_uid = 5000
+virtual_minimum_uid = 2222
 virtual_transport = dovecot
-virtual_uid_maps = static:5000
-virtual_gid_maps = static:5000
+virtual_uid_maps = static:2222
+virtual_gid_maps = static:2222
 
 dovecot_destination_recipient_limit = 1
 
 milter_protocol = 2
 milter_default_action = accept
 smtpd_milters = inet:localhost:8891
-non_smtpd_milters = "inet:localhost:8891"
+non_smtpd_milters = inet:localhost:8891
 
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_type = dovecot
@@ -63,8 +64,8 @@ smtpd_sasl_local_domain = $mydomain
 broken_sasl_auth_clients = yes
 
 smtpd_tls_security_level = may
-smtpd_tls_key_file = /etc/ssl/mailserver.key
-smtpd_tls_cert_file = /etc/ssl/mailserver.crt
+smtpd_tls_key_file = /etc/ssl/mailcerts/mail.key
+smtpd_tls_cert_file = /etc/ssl/mailcerts/mail_chained.crt
 smtpd_tls_loglevel = 1
 smtpd_tls_session_cache_timeout = 3600s
 smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_tls_cache
