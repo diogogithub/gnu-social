@@ -18,8 +18,13 @@ sed -i -e "s/#HOSTNAME/$MAILNAME/" /etc/mail/opendkim/TrustedHosts
 # Run openssl
 if [ ! -e "$SSL_CERT" ]
 then
-	mkdir -p "$(dirname $SSL_CERT)" "$(dirname $SSL_KEY)"
-	openssl req -x509 -nodes -newkey rsa:2018 -days 365 -keyout "$SSL_CERT" -out "$SSL_KEY"
+	openssl genrsa -des3 -passout pass:asdf -out /etc/ssl/mail.pass.key 2048 && \
+	openssl rsa -passin pass:asdf -in /etc/ssl/mail.pass.key -out "$SSL_KEY"
+	rm /etc/ssl/mail.pass.key
+	openssl req -new -key "$SSL_KEY" -out /etc/ssl/mail.csr \
+	  -subj "/C=UK/ST=England/L=London/O=OrgName/OU=IT Department/CN=$MAILNAME"
+	openssl x509 -req -days 365 -in /etc/ssl/mail.csr -signkey "$SSL_KEY" -out "$SSL_CERT"
+	echo "Do not remove this file." >> /etc/ssl/.ssl-generated
 fi
 
 # Run opendkim
