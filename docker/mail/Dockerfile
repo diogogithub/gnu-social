@@ -5,8 +5,8 @@ ENV \
 	DOMAINNAME=example.com \
 	MAILNAME=mail \
 	POSTMASTER=postmaster@example.com \
-	SSL_CERT=/etc/ssl/mailserver.crt \
-	SSL_KEY=/etc/ssl/mailserver.key
+	SSL_CERT=/etc/ssl/cert.pem \
+	SSL_KEY=/etc/ssl/key.pem
 
 # Install packages
 RUN \
