@@ -24,7 +24,6 @@ use Doctrine\ORM\Event\PreUpdateEventArgs;
 
 class UpdateListener
 {
-
     public function preUpdate(PreUpdateEventArgs $args)
     {
         $entity = $args->getEntity();
@@ -33,15 +32,13 @@ class UpdateListener
             return false;
         }
 
-        $em = $args->getEntityManager();
+        $em  = $args->getEntityManager();
         $uow = $em->getUnitOfWork();
-        $md = $em->getClassMetadata(get_class($entity));
+        $md  = $em->getClassMetadata(get_class($entity));
 
         $entity->setModified(new DateTime());
         $uow->recomputeSingleEntityChangeSet($md, $entity);
 
         return true;
-
     }
-
 }
