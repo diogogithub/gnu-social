@@ -19,11 +19,11 @@ sed -i -e "s/#HOSTNAME/$MAILNAME/" /etc/opendkim/TrustedHosts
 if [ ! -e /etc/ssl/.ssl-generated ]
 then
 	openssl genrsa -des3 -passout pass:asdf -out /etc/ssl/mail.pass.key 2048 && \
-	openssl rsa -passin pass:asdf -in /etc/ssl/mail.pass.key -out /etc/ssl/mail.key
+	openssl rsa -passin pass:asdf -in /etc/ssl/mail.pass.key -out "$SSL_KEY"
 	rm /etc/ssl/mail.pass.key
-	openssl req -new -key /etc/ssl/mail.key -out /etc/ssl/mail.csr \
-	  -subj "/C=UK/ST=England/L=London/O=OrgName/OU=IT Department/CN=$MAIL_HOSTNAME_FQDN"
-	openssl x509 -req -days 365 -in /etc/ssl/mail.csr -signkey /etc/ssl/mail.key -out /etc/ssl/mail.crt
+	openssl req -new -key "$SSL_KEY" -out /etc/ssl/mail.csr \
+	  -subj "/C=UK/ST=England/L=London/O=OrgName/OU=IT Department/CN=$MAILNAME"
+	openssl x509 -req -days 365 -in /etc/ssl/mail.csr -signkey "$SSL_KEY" -out "$SSL_CERT"
 	echo "Do not remove this file." >> /etc/ssl/.ssl-generated
 fi
 
