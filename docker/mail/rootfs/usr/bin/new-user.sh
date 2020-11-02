@@ -7,8 +7,8 @@ then
   exit 1;
 fi
 
-DOMAINPART=$(echo $1 | sed -e "s/^.*\@//")
-USERPART=$(echo $1 | sed -e "s/\@.*$//")
+DOMAINPART=$(echo "$1" | sed -e "s/^.*\@//")
+USERPART=$(echo "$1" | sed -e "s/\@.*$//")
 
 if ! grep -q "^$DOMAINPART" /etc/mail/domains 
 then
@@ -16,7 +16,7 @@ then
 	exit 1
 fi
 
-PASSHASH=$(doveadm pw -s SHA512-CRYPT)
+PASSHASH=$(doveadm pw -s SHA512-CRYPT -p "$2")
 
 /usr/bin/new-alias.sh "$1" "$1"
 echo "$1  $DOMAINPART/$USERPART/" >> /etc/mail/mailboxes
