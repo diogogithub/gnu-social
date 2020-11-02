@@ -64,8 +64,8 @@ smtpd_sasl_local_domain = $mydomain
 broken_sasl_auth_clients = yes
 
 smtpd_tls_security_level = may
-smtpd_tls_key_file = /etc/ssl/mailcerts/mail.key
-smtpd_tls_cert_file = /etc/ssl/mailcerts/mail_chained.crt
+smtpd_tls_key_file = /etc/ssl/mail.key
+smtpd_tls_cert_file = /etc/ssl/mail.crt
 smtpd_tls_loglevel = 1
 smtpd_tls_session_cache_timeout = 3600s
 smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_tls_cache
