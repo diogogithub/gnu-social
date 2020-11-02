@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,19 +32,22 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class apInboxAction extends ManagedAction
 {
     protected $needLogin = false;
-    protected $canPost = true;
+    protected $canPost   = true;
 
     /**
      * Handle the Inbox request
      *
-     * @return void
      * @throws ServerException
+     *
+     * @return void
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     protected function handle()
@@ -120,8 +124,8 @@ class apInboxAction extends ManagedAction
             } catch (Exception $e) {
                 ActivityPubReturn::error('Failed to updated remote actor information.');
             }
-            $actor_public_key = new Activitypub_rsa();
-            $actor_public_key = $actor_public_key->ensure_public_key($actor);
+            $actor_public_key             = new Activitypub_rsa();
+            $actor_public_key             = $actor_public_key->ensure_public_key($actor);
             list($verified, /*$headers*/) = HTTPSignature::verify($actor_public_key, $signatureData, $headers, $path, $body);
         }
 

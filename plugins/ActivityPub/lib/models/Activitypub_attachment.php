@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -40,13 +42,15 @@ class Activitypub_attachment
      * Generates a pretty array from an Attachment object
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
+     *
      * @param Attachment $attachment
+     *
      * @return array pretty array to be used in a response
      */
     public static function attachment_to_array($attachment)
     {
         $res = [
-            '@context' => 'https://www.w3.org/ns/activitystreams',
+            '@context'  => 'https://www.w3.org/ns/activitystreams',
             'type'      => 'Document',
             'mediaType' => $attachment->mimetype,
             'url'       => $attachment->getUrl(),
@@ -55,10 +59,10 @@ class Activitypub_attachment
         ];
 
         // Image
-        if (substr($res["mediaType"], 0, 5) == "image") {
-            $res["meta"]= [
+        if (substr($res['mediaType'], 0, 5) == 'image') {
+            $res['meta'] = [
                 'width'  => $attachment->width,
-                'height' => $attachment->height
+                'height' => $attachment->height,
             ];
         }
 

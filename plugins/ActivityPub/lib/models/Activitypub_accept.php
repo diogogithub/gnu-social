@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -40,17 +42,19 @@ class Activitypub_accept
      * Generates an ActivityPub representation of a Accept
      *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
+     *
      * @param array $object
+     *
      * @return array pretty array to be used in a response
      */
     public static function accept_to_array($object)
     {
         $res = [
             '@context' => 'https://www.w3.org/ns/activitystreams',
-            'id'     => common_root_url().'accept_follow_from_'.urlencode($object['actor']).'_to_'.urlencode($object['object']),
-            'type'   => 'Accept',
-            'actor'  => $object['object'],
-            'object' => $object
+            'id'       => common_root_url() . 'accept_follow_from_' . urlencode($object['actor']) . '_to_' . urlencode($object['object']),
+            'type'     => 'Accept',
+            'actor'    => $object['object'],
+            'object'   => $object,
         ];
         return $res;
     }
@@ -59,8 +63,11 @@ class Activitypub_accept
      * Verifies if a given object is acceptable for an Accept Activity.
      *
      * @param array $object
-     * @return bool
+     *
      * @throws Exception
+     *
+     * @return bool
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public static function validate_object($object)
@@ -75,7 +82,7 @@ class Activitypub_accept
             case 'Follow':
                 // Validate data
                 if (!filter_var($object['object'], FILTER_VALIDATE_URL)) {
-                    throw new Exception("Object is not a valid Object URI for Activity.");
+                    throw new Exception('Object is not a valid Object URI for Activity.');
                 }
                 break;
             default:

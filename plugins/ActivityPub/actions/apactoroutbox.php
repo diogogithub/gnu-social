@@ -18,12 +18,13 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
@@ -31,6 +32,7 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Plugin
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -47,55 +49,55 @@ class apActorOutboxAction extends ManagedAction
     protected function handle()
     {
         try {
-            $profile = Profile::getByID($this->trimmed('id'));
+            $profile    = Profile::getByID($this->trimmed('id'));
             $profile_id = $profile->getID();
         } catch (Exception $e) {
             ActivityPubReturn::error('Invalid Actor URI.', 404);
         }
 
         if (!$profile->isLocal()) {
-            ActivityPubReturn::error("This is not a local user.", 403);
+            ActivityPubReturn::error('This is not a local user.', 403);
         }
 
-        if (!isset($_GET["page"])) {
+        if (!isset($_GET['page'])) {
             $page = 0;
         } else {
-            $page = intval($this->trimmed('page'));
+            $page = (int) ($this->trimmed('page'));
         }
 
         if ($page < 0) {
             ActivityPubReturn::error('Invalid page number.');
         }
 
-        $since = ($page - 1) * PROFILES_PER_MINILIST;
+        $since = ($page - 1)                    * PROFILES_PER_MINILIST;
         $limit = (($page - 1) == 0 ? 1 : $page) * PROFILES_PER_MINILIST;
 
-        /* Calculate total items */
+        // Calculate total items
         $total_notes = $profile->noticeCount();
         $total_pages = ceil($total_notes / PROFILES_PER_MINILIST);
 
         $res = [
-            '@context'     => [
-              "https://www.w3.org/ns/activitystreams",
-              "https://w3id.org/security/v1",
+            '@context' => [
+                'https://www.w3.org/ns/activitystreams',
+                'https://w3id.org/security/v1',
             ],
-            'id'           => common_local_url('apActorOutbox', ['id' => $profile_id]).(($page != 0) ? '?page='.$page : ''),
-            'type'         => ($page == 0 ? 'OrderedCollection' : 'OrderedCollectionPage'),
-            'totalItems'   => $total_notes
+            'id'         => common_local_url('apActorOutbox', ['id' => $profile_id]) . (($page != 0) ? '?page=' . $page : ''),
+            'type'       => ($page == 0 ? 'OrderedCollection' : 'OrderedCollectionPage'),
+            'totalItems' => $total_notes,
         ];
 
         if ($page == 0) {
-            $res['first'] = common_local_url('apActorOutbox', ['id' => $profile_id]).'?page=1';
+            $res['first'] = common_local_url('apActorOutbox', ['id' => $profile_id]) . '?page=1';
         } else {
             $res['orderedItems'] = $this->generate_outbox($profile);
-            $res['partOf'] = common_local_url('apActorOutbox', ['id' => $profile_id]);
+            $res['partOf']       = common_local_url('apActorOutbox', ['id' => $profile_id]);
 
-            if ($page+1 < $total_pages) {
-                $res['next'] = common_local_url('apActorOutbox', ['id' => $profile_id]).'page='.($page+1 == 1 ? 2 : $page+1);
+            if ($page + 1 < $total_pages) {
+                $res['next'] = common_local_url('apActorOutbox', ['id' => $profile_id]) . 'page=' . ($page + 1 == 1 ? 2 : $page + 1);
             }
 
             if ($page > 1) {
-                $res['prev'] = common_local_url('apActorOutbox', ['id' => $profile_id]).'?page='.($page-1 <= 0 ? 1 : $page-1);
+                $res['prev'] = common_local_url('apActorOutbox', ['id' => $profile_id]) . '?page=' . ($page - 1 <= 0 ? 1 : $page - 1);
             }
         }
 
@@ -106,17 +108,20 @@ class apActorOutboxAction extends ManagedAction
      * Generates a list of people following given profile.
      *
      * @param Profile $profile
-     * @return array of Notices
+     *
      * @throws EmptyPkeyValueException
      * @throws InvalidUrlException
      * @throws ServerException
+     *
+     * @return array of Notices
+     *
      * @author Daniel Supernault <danielsupernault@gmail.com>
      */
     public function generate_outbox($profile)
     {
-        /* Fetch Notices */
+        // Fetch Notices
         $notices = [];
-        $notice = $profile->getNotices();
+        $notice  = $profile->getNotices();
         while ($notice->fetch()) {
             $note = $notice;
 

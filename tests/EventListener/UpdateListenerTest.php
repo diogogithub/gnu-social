@@ -30,33 +30,31 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class UpdateListenerTest extends WebTestCase
 {
-
     public function testPreUpdate()
     {
         $actor = new GSActor();
-        $actor->setModified(new DateTime('1999-09-23'));
-        static::assertEquals($actor->getModified(), new DateTime('1999-09-23'));
+        $date  = new DateTime('1999-09-23');
+        $actor->setModified($date);
+        static::assertSame($actor->getModified(), $date);
 
         $em = $this->createMock(EntityManager::class);
 
         $uow = $this->createMock(UnitOfWork::class);
-        $em->expects($this->once())
+        $em->expects(static::once())
             ->method('getUnitOfWork')
-            ->will($this->returnValue($uow));
+            ->willReturn($uow);
 
         $md = $this->createMock(ClassMetadata::class);
-        $em->expects($this->once())
+        $em->expects(static::once())
             ->method('getClassMetadata')
-            ->will($this->returnValue($md));
+            ->willReturn($md);
 
         $change_set = [];
-        $args = new PreUpdateEventArgs($actor, $em, $change_set);
+        $args       = new PreUpdateEventArgs($actor, $em, $change_set);
 
         $ul = new UpdateListener();
         $ul->preUpdate($args);
 
-        static::assertNotEquals($actor->getModified(), new DateTime('1999-09-23'));
-
+        static::assertNotSame($actor->getModified(), $date);
     }
-
 }
