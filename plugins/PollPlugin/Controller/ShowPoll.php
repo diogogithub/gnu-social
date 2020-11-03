@@ -21,11 +21,23 @@
 
 namespace Plugin\PollPlugin\Controller;
 
+use App\Entity\Poll;
+use App\Util\Common;
 use Symfony\Component\HttpFoundation\Request;
 
 class ShowPoll
 {
-    public function showpoll(Request $request)
+    public function showpoll(Request $request, string $id)
     {
+        $user = Common::ensureLoggedIn();
+
+        $poll = Poll::getFromId((int) $id);
+        //var_dump($poll);
+
+        if ($poll == null) {//|| !$poll->isVisibleTo($user)) { todo
+            throw new NoSuchPollException(); //?
+        }
+
+        return ['_template' => 'base.html.twig'];
     }
 }

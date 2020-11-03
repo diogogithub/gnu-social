@@ -27,31 +27,13 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Form as SymfForm;
 
-/**
- * Form to add a Poll
- *
- * @package  GNUsocial
- * @category PollPlugin
- *
- * @author    Daniel Brandao <up201705812@fe.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- */
 const MAX_OPT = 5;
 class NewPollForm extends Form
 {
-    /**
-     * Creates a form with variable num of fields
-     *
-     * @param int $optionNum
-     *
-     * @return SymfForm
-     */
     public static function make(int $optionNum): SymfForm
     {
         $optionNum = min(MAX_OPT,$optionNum);
         $options   = [];
-        array_push($options,['Question', TextType::class, ['label' => _m(('Question'))]]);
         for ($i = 1; $i <= $optionNum; ++$i) {
             //['Option_i',   TextType::class,   ['label' => _m('Option i')]],
             array_push($options,['Option_' . $i, TextType::class, ['label' => _m(('Option ' . $i))]]);
