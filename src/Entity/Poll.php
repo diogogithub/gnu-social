@@ -19,7 +19,7 @@
 
 // }}}
 
-namespace Plugin\PollPlugin\Entity;
+namespace App\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
@@ -129,7 +129,7 @@ class Poll extends Entity
 
     public static function getFromId(int $id): ?self
     {
-        return DB::find('poll', ['id' => $id]); //not working yet
+        return DB::find('poll', ['id' => $id]);
     }
 
     //from old version

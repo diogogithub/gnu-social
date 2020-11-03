@@ -22,35 +22,29 @@
 namespace Plugin\PollPlugin\Controller;
 
 use App\Core\DB\DB;
-use App\Core\Form;
-use function App\Core\I18n\_m;
-use Plugin\PollPlugin\Entity\Poll;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
+use App\Entity\Poll;
+use Plugin\PollPlugin\Forms\NewPollForm;
 use Symfony\Component\HttpFoundation\Request;
 
 class NewPoll
 {
     public function newpoll(Request $request)
     {
-        $form = Form::create([
-            ['Option_1',   TextType::class,   ['label' => _m('Option 1')]],
-            ['Option_2',   TextType::class,   ['label' => _m('Option 2')]],
-            ['Option_3',   TextType::class,   ['label' => _m('Option 3')]],
-            ['Option_4',   TextType::class,   ['label' => _m('Option 4')]],
-            ['save',    SubmitType::class, ['label' => _m('Submit Poll')]],
-        ]);
+        $form = NewPollForm::make(3);
 
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             $data = $form->getData();
+            //var_dump($data);
         }
 
-        //testing
+        /* testing
         $test = Poll::create(['id' => '0', 'uri' => 'a']);
-        //DB::persist($test);
-        //DB::flush();
-        //$loadpoll = Poll::getFromId('0'); //need to add plugin support for DB::__callStatic
+        DB::persist($test);
+        DB::flush();
+        $loadpoll = Poll::getFromId('0');
+        var_dump($loadpoll);
+        */
 
         return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
     }
