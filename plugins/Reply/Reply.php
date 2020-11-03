@@ -42,6 +42,8 @@ class Reply extends Module
     public function onAddRoute($r)
     {
         $r->connect('note_reply', '/note/reply/{reply_to<\\d*>}', [self::class, 'replyController']);
+
+        return Event::next;
     }
 
     /**

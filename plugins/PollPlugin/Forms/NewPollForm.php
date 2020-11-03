@@ -19,25 +19,27 @@
 
 // }}}
 
-namespace Plugin\PollPlugin\Controller;
+namespace Plugin\PollPlugin\Forms;
 
-use App\Entity\Poll;
-use App\Util\Common;
-use Symfony\Component\HttpFoundation\Request;
+use App\Core\Form;
+use function App\Core\I18n\_m;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Form as SymfForm;
 
-class ShowPoll
+const MAX_OPT = 5;
+class NewPollForm extends Form
 {
-    public function showpoll(Request $request, string $id)
+    public static function make(int $optionNum): SymfForm
     {
-        $user = Common::ensureLoggedIn();
-
-        $poll = Poll::getFromId((int) $id);
-        //var_dump($poll);
-
-        if ($poll == null) {//|| !$poll->isVisibleTo($user)) { todo
-            throw new NoSuchPollException(); //?
+        $optionNum = min(MAX_OPT,$optionNum);
+        $options   = [];
+        for ($i = 1; $i <= $optionNum; ++$i) {
+            //['Option_i',   TextType::class,   ['label' => _m('Option i')]],
+            array_push($options,['Option_' . $i, TextType::class, ['label' => _m(('Option ' . $i))]]);
         }
+        array_push($options, ['save', SubmitType::class, ['label' => _m('Submit Poll')]]);
 
-        return ['_template' => 'base.html.twig'];
+        return parent::create($options);
     }
 }
