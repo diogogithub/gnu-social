@@ -1,4 +1,5 @@
 <?php
+
 // {{{ License
 
 // This file is part of GNU social - https://www.gnu.org/software/social
