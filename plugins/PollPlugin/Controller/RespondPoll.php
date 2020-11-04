@@ -21,13 +21,20 @@
 
 namespace Plugin\PollPlugin\Controller;
 
+use App\Core\DB\DB;
 use App\Entity\Poll;
+use App\Entity\PollResponse;
 use App\Util\Common;
+use App\Util\Exception\InvalidFormException;
+use League\Uri\Exception;
 use Plugin\PollPlugin\Forms\PollResponseForm;
 use Symfony\Component\HttpFoundation\Request;
 
 class RespondPoll
 {
+    /**
+     * Handle poll response
+     */
     public function respondpoll(Request $request, string $id)
     {
         $user = Common::ensureLoggedIn();
@@ -36,7 +43,7 @@ class RespondPoll
         //var_dump($poll);
 
         if ($poll == null) {//|| !$poll->isVisibleTo($user)) { todo
-            throw new NoSuchPollException(); //?
+            throw new Exception(); //?fix
         }
         $opts = $poll->getOptionsArr();
         //var_dump($opts);
@@ -45,9 +52,16 @@ class RespondPoll
 
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
-            $data   = $form->getData();
-            $choice = array_values($data)[1];
-            //echo $choice;
+            $data      = $form->getData();
+            $selection = array_values($data)[1];
+            echo $selection;
+            if (!$poll->isValidSelection($selection)) {
+                throw new InvalidFormException();
+            }
+            $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
+            DB::persist($pollResponse);
+            DB::flush();
+            //var_dump($pollResponse);
         }
 
         //return ['_template' => 'base.html.twig'];

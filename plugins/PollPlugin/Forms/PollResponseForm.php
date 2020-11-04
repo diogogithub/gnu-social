@@ -33,8 +33,8 @@ class PollResponseForm extends Form
     {
         $formOptions = [];
         $options     = [];
-        for ($i = 0; $i < count($opts); ++$i) {
-            $options[$opts[$i]] = $i;
+        for ($i = 1; $i <= count($opts); ++$i) {
+            $options[$opts[$i - 1]] = $i;
         }
         array_push($formOptions, ['Question', ChoiceType::class, [
             'choices'  => $options,
