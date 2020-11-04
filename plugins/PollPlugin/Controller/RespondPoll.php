@@ -21,46 +21,36 @@
 
 namespace Plugin\PollPlugin\Controller;
 
-use App\Core\DB\DB;
 use App\Entity\Poll;
 use App\Util\Common;
-use Plugin\PollPlugin\Forms\NewPollForm;
+use Plugin\PollPlugin\Forms\PollResponseForm;
 use Symfony\Component\HttpFoundation\Request;
 
-class NewPoll
+class RespondPoll
 {
-    public function newpoll(Request $request)
+    public function respondpoll(Request $request, string $id)
     {
         $user = Common::ensureLoggedIn();
 
-        $numOptions = 3; //temporary
-        $form       = NewPollForm::make($numOptions);
+        $poll = Poll::getFromId((int) $id);
+        //var_dump($poll);
+
+        if ($poll == null) {//|| !$poll->isVisibleTo($user)) { todo
+            throw new NoSuchPollException(); //?
+        }
+        $opts = $poll->getOptionsArr();
+        //var_dump($opts);
+
+        $form = PollResponseForm::make($opts);
 
         $form->handleRequest($request);
-        $question = 'Test Question?';
-        $opt      = [];
         if ($form->isSubmitted()) {
-            $data = $form->getData();
-            //var_dump($data);
-            for ($i = 1; $i <= $numOptions; ++$i) {
-                array_push($opt,$data['Option_' . $i]);
-            }
-            $testPoll = Poll::make($question,$opt);
-            DB::persist($testPoll);
-            DB::flush();
-            //var_dump($testPoll);
+            $data   = $form->getData();
+            $choice = array_values($data)[1];
+            //echo $choice;
         }
 
-        // testing
-
-        //$test = Poll::create(['id' => '0', 'uri' => 'a']);
-        //DB::persist($test);
-        //DB::flush();
-        /*
-        $loadpoll = Poll::getFromId('0');
-        var_dump($loadpoll);
-        */
-
+        //return ['_template' => 'base.html.twig'];
         return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
     }
 }

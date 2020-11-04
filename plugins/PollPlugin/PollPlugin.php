@@ -66,6 +66,7 @@ class PollPlugin extends Module
         $r->connect('newpoll', 'main/poll/new', [Controller\NewPoll::class, 'newpoll']);
         //$r->connect('showpoll', 'main/poll/:{id<' . ID_FMT . '>}' , [Controller\ShowPoll::class, 'showpoll']); //doesnt work
         $r->connect('showpoll', 'main/poll/{id<\\d*>}',[Controller\ShowPoll::class, 'showpoll']);
+        $r->connect('showpoll', 'main/poll/{id<\\d*>}/respond',[Controller\RespondPoll::class, 'respondpoll']);
 
         return Event::next;
     }
