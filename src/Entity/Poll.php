@@ -139,9 +139,27 @@ class Poll extends Entity
         return self::create(['question' => $question, 'options' => $options]);
     }
 
-    public function getOptionsArr()
+    public function getOptionsArr(): array
     {
         return explode("\n", $this->options);
+    }
+
+    /**
+     * Is this a valid selection index?
+     *
+     * @param int $selection (1-based)
+     *
+     * @return bool
+     */
+    public function isValidSelection($selection): bool
+    {
+        if ($selection != (int) $selection) {
+            return false;
+        }
+        if ($selection < 1 || $selection > count($this->getOptionsArr())) {
+            return false;
+        }
+        return true;
     }
 
     //from old version
@@ -156,26 +174,6 @@ class Poll extends Entity
     public static function getByNotice($notice)
     {
         return self::getKV('uri', $notice->uri);
-    }
-    */
-
-    /**
-     * Is this a valid selection index?
-     *
-     * @param int $selection (1-based)
-     *
-     * @return bool
-     */
-    /*
-    public function isValidSelection($selection)
-    {
-        if ($selection != intval($selection)) {
-            return false;
-        }
-        if ($selection < 1 || $selection > count($this->getOptions())) {
-            return false;
-        }
-        return true;
     }
     */
 
