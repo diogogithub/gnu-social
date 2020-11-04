@@ -40,6 +40,3 @@ social.local.yaml
 # V2
 config.php
 /file
-
-# Docker mailserver
-dockermail/mailserver/*
