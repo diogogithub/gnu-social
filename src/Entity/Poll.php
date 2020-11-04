@@ -172,7 +172,7 @@ class Poll extends Entity
         return self::create(['question' => $question, 'options' => $options]);
     }
 
-    public function getOptionsArr()
+    public function getOptionsArr(): array
     {
         return explode("\n", $this->options);
     }
