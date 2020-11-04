@@ -30,8 +30,8 @@ class Poll extends Entity
     // {{{ Autocode
 
     private int $id;
-    private string $uri;
-    private ?int $profile_id;
+    private ?string $uri;
+    private ?int $gsactor_id;
     private ?string $question;
     private ?string $options;
     private DateTimeInterface $created;
@@ -47,26 +47,26 @@ class Poll extends Entity
         return $this->id;
     }
 
-    public function setUri(string $uri): self
+    public function setUri(?string $uri): self
     {
         $this->uri = $uri;
         return $this;
     }
 
-    public function getUri(): string
+    public function getUri(): ?string
     {
         return $this->uri;
     }
 
-    public function setProfileId(?int $profile_id): self
+    public function setGsactorId(?int $gsactor_id): self
     {
-        $this->profile_id = $profile_id;
+        $this->gsactor_id = $gsactor_id;
         return $this;
     }
 
-    public function getProfileId(): ?int
+    public function getGsactorId(): ?int
     {
-        return $this->profile_id;
+        return $this->gsactor_id;
     }
 
     public function setQuestion(?string $question): self
@@ -113,23 +113,35 @@ class Poll extends Entity
             'name'        => 'poll',
             'description' => 'Per-notice poll data for Poll plugin',
             'fields'      => [
-                'id'         => ['type' => 'int', 'not null' => true],
-                'uri'        => ['type' => 'varchar', 'length' => 191, 'not null' => true],
-                'profile_id' => ['type' => 'int'], //-> gsactor id?
+                'id'  => ['type' => 'serial', 'not null' => true],
+                'uri' => ['type' => 'varchar', 'length' => 191],
+                //    'uri'        => ['type' => 'varchar', 'length' => 191, 'not null' => true],
+                'gsactor_id' => ['type' => 'int'], //-> gsactor id?
                 'question'   => ['type' => 'text'],
                 'options'    => ['type' => 'text'],
                 'created'    => ['type' => 'datetime', 'not null' => true],
             ],
             'primary key' => ['id'],
-            'unique keys' => [
-                'poll_uri_key' => ['uri'],
-            ],
+            //  'unique keys' => [
+            //      'poll_uri_key' => ['uri'],
+            //  ],
         ];
     }
 
     public static function getFromId(int $id): ?self
     {
         return DB::find('poll', ['id' => $id]);
+    }
+
+    public static function make(string $question, array $opt): self
+    {
+        $options = implode("\n",$opt);
+        return self::create(['question' => $question, 'options' => $options]);
+    }
+
+    public function getOptionsArr()
+    {
+        return explode("\n", $this->options);
     }
 
     //from old version
@@ -144,12 +156,6 @@ class Poll extends Entity
     public static function getByNotice($notice)
     {
         return self::getKV('uri', $notice->uri);
-    }
-    */
-    /*
-    public function getOptions()
-    {
-        return explode("\n", $this->options);
     }
     */
 
