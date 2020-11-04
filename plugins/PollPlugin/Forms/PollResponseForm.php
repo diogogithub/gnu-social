@@ -27,33 +27,16 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Form as SymfForm;
 
-/**
- * Form to respond a Poll
- *
- * @package  GNUsocial
- * @category PollPlugin
- *
- * @author    Daniel Brandao <up201705812@fe.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- */
 class PollResponseForm extends Form
 {
-    /**
-     * Creates a radio form with the options given
-     *
-     * @param array $opts options
-     *
-     * @return SymfForm
-     */
     public static function make(array $opts): SymfForm
     {
         $formOptions = [];
         $options     = [];
-        for ($i = 1; $i <= count($opts); ++$i) {
-            $options[$opts[$i - 1]] = $i;
+        for ($i = 0; $i < count($opts); ++$i) {
+            $options[$opts[$i]] = $i;
         }
-        array_push($formOptions, ['Options:', ChoiceType::class, [
+        array_push($formOptions, ['Question', ChoiceType::class, [
             'choices'  => $options,
             'expanded' => true,
         ]]);

@@ -23,6 +23,7 @@ namespace Plugin\PollPlugin\Controller;
 
 use App\Core\DB\DB;
 use App\Entity\Poll;
+use App\Util\Common;
 use Plugin\PollPlugin\Forms\NewPollForm;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -30,18 +31,32 @@ class NewPoll
 {
     public function newpoll(Request $request)
     {
-        $form = NewPollForm::make(3);
+        $user = Common::ensureLoggedIn();
+
+        $numOptions = 3; //temporary
+        $form       = NewPollForm::make($numOptions);
 
         $form->handleRequest($request);
+        $question = 'Test Question?';
+        $opt      = [];
         if ($form->isSubmitted()) {
             $data = $form->getData();
             //var_dump($data);
+            for ($i = 1; $i <= $numOptions; ++$i) {
+                array_push($opt,$data['Option_' . $i]);
+            }
+            $testPoll = Poll::make($question,$opt);
+            DB::persist($testPoll);
+            DB::flush();
+            //var_dump($testPoll);
         }
 
-        /* testing
-        $test = Poll::create(['id' => '0', 'uri' => 'a']);
-        DB::persist($test);
-        DB::flush();
+        // testing
+
+        //$test = Poll::create(['id' => '0', 'uri' => 'a']);
+        //DB::persist($test);
+        //DB::flush();
+        /*
         $loadpoll = Poll::getFromId('0');
         var_dump($loadpoll);
         */

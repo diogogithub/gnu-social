@@ -21,31 +21,19 @@
 
 namespace App\Entity;
 
-use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
 
-/**
- * For storing a poll response
- *
- * @package  GNUsocial
- * @category PollPlugin
- *
- * @author    Daniel Brandao <up201705812@fe.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- */
 class PollResponse extends Entity
 {
     // {{{ Autocode
 
     private int $id;
     private ?string $uri;
-    private int $poll_id;
+    private string $poll_id;
     private ?int $gsactor_id;
     private ?int $selection;
     private DateTimeInterface $created;
-    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -69,13 +57,13 @@ class PollResponse extends Entity
         return $this->uri;
     }
 
-    public function setPollId(int $poll_id): self
+    public function setPollId(string $poll_id): self
     {
         $this->poll_id = $poll_id;
         return $this;
     }
 
-    public function getPollId(): int
+    public function getPollId(): string
     {
         return $this->poll_id;
     }
@@ -113,23 +101,10 @@ class PollResponse extends Entity
         return $this->created;
     }
 
-    public function setModified(DateTimeInterface $modified): self
-    {
-        $this->modified = $modified;
-        return $this;
-    }
-
-    public function getModified(): DateTimeInterface
-    {
-        return $this->modified;
-    }
-
     // }}} Autocode
 
     /**
-     * Entity schema definition
-     *
-     * @return array schema definition
+     * The One True Thingy that must be defined and declared.
      */
     public static function schemaDef()
     {
@@ -140,38 +115,22 @@ class PollResponse extends Entity
                 'id' => ['type' => 'serial', 'not null' => true],
                 //'uri' => array('type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'UUID to the response notice'),
                 'uri'        => ['type' => 'varchar', 'length' => 191, 'description' => 'UUID to the response notice'],
-                'poll_id'    => ['type' => 'int', 'length' => 36, 'not null' => true, 'description' => 'UUID of poll being responded to'],
+                'poll_id'    => ['type' => 'char', 'length' => 36, 'not null' => true, 'description' => 'UUID of poll being responded to'],
                 'gsactor_id' => ['type' => 'int'],
                 'selection'  => ['type' => 'int'],
-                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'created'    => ['type' => 'datetime', 'not null' => true],
             ],
             'primary key' => ['id'],
+            /*
+            'unique keys' => array(
+                'poll_uri_key' => array('uri'),
+                'poll_response_poll_id_profile_id_key' => array('poll_id', 'profile_id'),
+            ),
 
-            'unique keys' => [
-                //'poll_uri_key' => array('uri'),
-                //'poll_response_poll_id_gsactor_id_key' => ['poll_id', 'gsactor_id'], //doctrine bug?
-            ],
-
-            'indexes' => [
-                'poll_response_gsactor_id_poll_id_index' => ['gsactor_id', 'poll_id'],
-            ],
+            'indexes' => array(
+                'poll_response_profile_id_poll_id_index' => array('profile_id', 'poll_id'),
+            )
+           */
         ];
-    }
-
-    /**
-     * Checks if a user already responded to the poll
-     *
-     * @param int $pollId
-     * @param int $gsactorId user
-     *
-     * @return bool
-     */
-    public static function exits(int $pollId, int $gsactorId): bool
-    {
-        $res = DB::dql('select pr from App\Entity\PollResponse pr
-                   where pr.poll_id = :pollId and pr.gsactor_id = :gsactorId',
-                ['pollId' => $pollId, 'gsactorId' => $gsactorId]);
-        return count($res) != 0;
     }
 }
