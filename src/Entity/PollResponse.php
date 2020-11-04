@@ -143,35 +143,19 @@ class PollResponse extends Entity
                 'poll_id'    => ['type' => 'int', 'length' => 36, 'not null' => true, 'description' => 'UUID of poll being responded to'],
                 'gsactor_id' => ['type' => 'int'],
                 'selection'  => ['type' => 'int'],
-                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'created'    => ['type' => 'datetime', 'not null' => true],
             ],
             'primary key' => ['id'],
+            /*
+            'unique keys' => array(
+                'poll_uri_key' => array('uri'),
+                'poll_response_poll_id_profile_id_key' => array('poll_id', 'profile_id'),
+            ),
 
-            'unique keys' => [
-                //'poll_uri_key' => array('uri'),
-                //'poll_response_poll_id_gsactor_id_key' => ['poll_id', 'gsactor_id'], //doctrine bug?
-            ],
-
-            'indexes' => [
-                'poll_response_gsactor_id_poll_id_index' => ['gsactor_id', 'poll_id'],
-            ],
+            'indexes' => array(
+                'poll_response_profile_id_poll_id_index' => array('profile_id', 'poll_id'),
+            )
+           */
         ];
-    }
-
-    /**
-     * Checks if a user already responded to the poll
-     *
-     * @param int $pollId
-     * @param int $gsactorId user
-     *
-     * @return bool
-     */
-    public static function exits(int $pollId, int $gsactorId): bool
-    {
-        $res = DB::dql('select pr from App\Entity\PollResponse pr
-                   where pr.poll_id = :pollId and pr.gsactor_id = :gsactorId',
-                ['pollId' => $pollId, 'gsactorId' => $gsactorId]);
-        return count($res) != 0;
     }
 }

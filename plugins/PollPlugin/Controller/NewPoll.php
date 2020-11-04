@@ -79,10 +79,12 @@ class NewPoll
             }
         }
 
-        /* testing
-        $test = Poll::create(['id' => '0', 'uri' => 'a']);
-        DB::persist($test);
-        DB::flush();
+        // testing
+
+        //$test = Poll::create(['id' => '0', 'uri' => 'a']);
+        //DB::persist($test);
+        //DB::flush();
+        /*
         $loadpoll = Poll::getFromId('0');
         var_dump($loadpoll);
         */
