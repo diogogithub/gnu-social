@@ -32,9 +32,16 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Favourite extends Module
 {
+    /**
+     * HTML rendering event that adds the favourite form as a note
+     * action, if a user is logged in
+     */
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
-        $user   = Common::user();
+        if (($user = Common::user()) == null) {
+            return Event::next;
+        }
+
         $opts   = ['note_id' => $note->getId(), 'gsactor_id' => $user->getId()];
         $is_set = DB::find('favourite', $opts) != null;
         $form   = Form::create([
@@ -42,6 +49,8 @@ class Favourite extends Module
             ['note_id',   HiddenType::class, ['data' => $note->getId()]],
             ['favourite', SubmitType::class, ['label' => ' ']],
         ]);
+
+        // Form handler
         $ret = self::noteActionHandle($request, $form, $note, 'favourite', function ($note, $data) use ($opts) {
             $fave = DB::find('favourite', $opts);
             if (!$data['is_set'] && ($fave == null)) {
@@ -53,9 +62,11 @@ class Favourite extends Module
             }
             return Event::stop;
         });
+
         if ($ret != null) {
             return $ret;
         }
+
         $actions[] = $form->createView();
         return Event::next;
     }

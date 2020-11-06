@@ -65,6 +65,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class UserPanel extends AbstractController
 {
+    /**
+     * Local user personal information panel
+     */
     public function personal_info(Request $request)
     {
         $user            = Common::user();
@@ -85,6 +88,9 @@ class UserPanel extends AbstractController
         return ['_template' => 'settings/profile.html.twig', 'prof' => $form->createView()];
     }
 
+    /**
+     * Local user account information panel
+     */
     public function account(Request $request)
     {
         $user            = Common::user();
@@ -103,6 +109,9 @@ class UserPanel extends AbstractController
         return ['_template' => 'settings/account.html.twig', 'acc' => $form->createView()];
     }
 
+    /**
+     * Local user avatar panel
+     */
     public function avatar(Request $request)
     {
         $form = Form::create([
@@ -160,6 +169,9 @@ class UserPanel extends AbstractController
         return ['_template' => 'settings/avatar.html.twig', 'avatar' => $form->createView()];
     }
 
+    /**
+     * Local user notification settings tabbed panel
+     */
     public function notifications(Request $request)
     {
         $schema    = DB::getConnection()->getSchemaManager();

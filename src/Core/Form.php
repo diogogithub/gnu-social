@@ -46,6 +46,9 @@ abstract class Form
         self::$form_factory = $ff;
     }
 
+    /**
+     * Create a form with the given associative array $form as fields
+     */
     public static function create(array $form,
                                   ?object $target = null,
                                   array $extra_data = [],
@@ -79,11 +82,19 @@ abstract class Form
         return $fb->getForm();
     }
 
+    /**
+     * Whether the given $field of $form has the `required` property
+     * set, defaults to true
+     */
     public static function isRequired(array $form, string $field): bool
     {
         return $form[$field][2]['required'] ?? true;
     }
 
+    /**
+     * Handle the full life cycle of a form. Creates it with @see
+     * self::create and inserts the submitted values into the database
+     */
     public static function handle(array $form_definition, Request $request, object $target, array $extra_args = [], ?callable $extra_step = null, array $create_args = [])
     {
         $form = self::create($form_definition, $target, ...$create_args);

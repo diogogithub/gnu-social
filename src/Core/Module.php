@@ -24,8 +24,16 @@ use App\Util\Common;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 
-class Module
+/**
+ * Base class for all GNU social modules (plugins and components)
+ */
+abstract class Module
 {
+    /**
+     * Serialize the class to store in the cache
+     *
+     * @param mixed $state
+     */
     public static function __set_state($state)
     {
         $class = get_called_class();
@@ -36,6 +44,10 @@ class Module
         return $obj;
     }
 
+    /**
+     * Handle the $form submission for the note action for note if
+     * $note->getId() == $data['note_id']
+     */
     public static function noteActionHandle(Request $request, Form $form, Note $note, string $form_name, callable $handle)
     {
         if ('POST' === $request->getMethod() && $request->request->has($form_name)) {

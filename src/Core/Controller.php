@@ -57,6 +57,9 @@ class Controller extends AbstractController implements EventSubscriberInterface
         }
     }
 
+    /**
+     * Symfony event when it's searching for which controller to use
+     */
     public function onKernelController(ControllerEvent $event)
     {
         $controller = $event->getController();
@@ -69,6 +72,9 @@ class Controller extends AbstractController implements EventSubscriberInterface
         return $event;
     }
 
+    /**
+     * Symfony event when the controller result is not a Response object
+     */
     public function onKernelView(ViewEvent $event)
     {
         $request  = $event->getRequest();
@@ -99,6 +105,9 @@ class Controller extends AbstractController implements EventSubscriberInterface
         return $event;
     }
 
+    /**
+     * Symfony event when the controller throws an exception
+     */
     public function onKernelException(ExceptionEvent $event)
     {
         $except = $event->getThrowable();

@@ -232,6 +232,11 @@ class Note extends Entity
         return null;
     }
 
+    /**
+     * Whether this note is visible to the given actor
+     *
+     * @param mixed $a
+     */
     public function isVisibleTo(/* GSActor|LocalUser */ $a): bool
     {
         $scope = NoteScope::create($this->scope);

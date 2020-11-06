@@ -25,8 +25,18 @@ use App\Core\DB\DB;
 use App\Util\Formatting;
 use DateTime;
 
-class Entity
+/**
+ * Base class to all entities, with some utilities
+ */
+abstract class Entity
 {
+    /**
+     * Create an instance of the called class or fill in the
+     * properties of $obj with the associative array $args. Doesn't
+     * persist the result
+     *
+     * @param null|mixed $obj
+     */
     public static function create(array $args, $obj = null)
     {
         $class           = get_called_class();
@@ -43,12 +53,21 @@ class Entity
         return $obj;
     }
 
+    /**
+     * Create a new instance, but check for duplicates
+     */
     public static function createOrUpdate(array $args, array $find_by)
     {
         $table = Formatting::camelCaseToSnakeCase(get_called_class());
-        return self::create($args, DB::findBy($table, $find_by)[0]);
+        return self::create($args, DB::findOneBy($table, $find_by));
     }
 
+    /**
+     * Remove a given $obj or whatever is found by `DB::findBy(..., $args)`
+     * from the database. Doesn't flush
+     *
+     * @param null|mixed $obj
+     */
     public static function remove(array $args, $obj = null)
     {
         $class = '\\' . get_called_class();

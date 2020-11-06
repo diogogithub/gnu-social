@@ -48,6 +48,9 @@ abstract class DB
         self::$em = $m;
     }
 
+    /**
+     * Perform a Doctrine Query Language query
+     */
     public static function dql(string $query, array $params = [])
     {
         $q = new Query(self::$em);
@@ -58,6 +61,11 @@ abstract class DB
         return $q->getResult();
     }
 
+    /**
+     * Perform a native, parameterized, SQL query. $entities is a map
+     * from table aliases to class names. Replaces '{select}' in
+     * $query with the appropriate select list
+     */
     public static function sql(string $query, array $entities, array $params = [])
     {
         $rsm = new ResultSetMappingBuilder(self::$em);
@@ -69,15 +77,23 @@ abstract class DB
         foreach ($params as $k => $v) {
             $q->setParameter($k, $v);
         }
-        // dump($q);
-        // die();
         return $q->getResult();
     }
 
-    private static array $find_by_ops = ['or', 'and', 'eq', 'neq', 'lt', 'lte',
+    /**
+     * A list of possible operations needed in self::buildExpression
+     */
+    private static array $find_by_ops = [
+        'or', 'and', 'eq', 'neq', 'lt', 'lte',
         'gt', 'gte', 'is_null', 'in', 'not_in',
-        'contains', 'member_of', 'starts_with', 'ends_with', ];
+        'contains', 'member_of', 'starts_with', 'ends_with',
+    ];
 
+    /**
+     * Build a Doctrine Criteria expression from the given $criteria.
+     *
+     * @see self::findBy for the syntax
+     */
     private static function buildExpression(ExpressionBuilder $eb, array $criteria)
     {
         $expressions = [];
@@ -100,6 +116,13 @@ abstract class DB
         return $expressions;
     }
 
+    /**
+     * Query $table according to $criteria. If $criteria's keys are
+     * one of self::$find_by_ops (and, or, etc), build a subexpression
+     * with that operator and recurse. Examples of $criteria are
+     * `['and' => ['lt' => ['foo' => 4], 'gte' => ['bar' => 2]]]` or
+     * `['in' => ['foo', 'bar']]`
+     */
     public static function findBy(string $table, array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array
     {
         $criteria = array_change_key_case($criteria);
@@ -113,6 +136,9 @@ abstract class DB
         }
     }
 
+    /**
+     * Return the first element of the result of @see self::findBy
+     */
     public static function findOneBy(string $table, array $criteria, ?array $orderBy = null, ?int $offset = null)
     {
         $res = self::findBy($table, $criteria, $orderBy, 1, $offset);
@@ -123,18 +149,21 @@ abstract class DB
         }
     }
 
+    /**
+     * Intercept static function calls to allow refering to entities
+     * without writing the namespace (which is deduced from the call
+     * context)
+     */
     public static function __callStatic(string $name, array $args)
     {
-        foreach (['find', 'getReference', 'getPartialReference', 'getRepository'] as $m) {
-            // TODO Plugins
-            $pref = '\App\Entity\\';
-            if ($name == $m && Formatting::startsWith($name, $pref) === false) {
-                $args[0] = $pref . ucfirst(Formatting::snakeCaseToCamelCase($args[0]));
-            }
-        }
-
-        if (isset($args[0]) && is_string($args[0])) {
-            $args[0] = preg_replace('/Gsactor/', 'GSActor', $args[0] ?? '');
+        // TODO Plugins
+        // If the method is one of the following and the first argument doesn't look like a FQCN, add the prefix
+        $pref = '\App\Entity\\';
+        if (in_array($name, ['find', 'getReference', 'getPartialReference', 'getRepository'])
+            && preg_match('/\\\\/', $args[0]) === 0
+            && Formatting::startsWith($args[0], $pref) === false) {
+            $args[0] = $pref . ucfirst(Formatting::snakeCaseToCamelCase($args[0]));
+            $args[0] = preg_replace('/Gsactor/', 'GSActor', $args[0]);
         }
 
         return self::$em->{$name}(...$args);

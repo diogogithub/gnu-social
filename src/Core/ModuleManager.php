@@ -60,6 +60,9 @@ class ModuleManager
     protected array $modules = [];
     protected array $events  = [];
 
+    /**
+     * Add the $fqcn class from $path as a module
+     */
     public function add(string $fqcn, string $path)
     {
         list($type, $module) = preg_split('/\\\\/', $fqcn, 0, PREG_SPLIT_NO_EMPTY);
@@ -69,6 +72,9 @@ class ModuleManager
         $this->modules[$id] = $obj;
     }
 
+    /**
+     * Container-build-time step that preprocesses the registering of events
+     */
     public function preRegisterEvents()
     {
         foreach ($this->modules as $id => $obj) {
@@ -83,6 +89,9 @@ class ModuleManager
         }
     }
 
+    /**
+     * Compiler pass responsible for registering all modules
+     */
     public static function process(?ContainerBuilder $container = null)
     {
         $module_paths   = array_merge(glob(INSTALLDIR . '/components/*/*.php'), glob(INSTALLDIR . '/plugins/*/*.php'));
@@ -113,6 +122,11 @@ class ModuleManager
         file_put_contents(CACHE_FILE, "<?php\nreturn " . var_export($module_manager, true) . ';');
     }
 
+    /**
+     * Serialize this class, for dumping into the cache
+     *
+     * @param mixed $state
+     */
     public static function __set_state($state)
     {
         $obj          = new self();
@@ -121,6 +135,10 @@ class ModuleManager
         return $obj;
     }
 
+    /**
+     * Load the modules at runtime. In production requires the cache
+     * file to exist, in dev it rebuilds this cache
+     */
     public function loadModules()
     {
         if ($_ENV['APP_ENV'] == 'prod' && !file_exists(CACHE_FILE)) {

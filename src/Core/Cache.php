@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 namespace App\Core;
@@ -125,6 +127,10 @@ abstract class Cache
         return self::$pools[$pool]->delete($key);
     }
 
+    /**
+     * Retrieve a list from the cache, with a different implementation
+     * for redis and others, trimming to $max_count if given
+     */
     public static function getList(string $key, callable $calculate, string $pool = 'default', int $max_count = -1, float $beta = 1.0): array
     {
         if (isset(self::$redis[$pool])) {
@@ -149,6 +155,7 @@ abstract class Cache
                     self::$redis[$pool]->lPush($key, ...$res);
                 }
             }
+            self::$redis[$pool]->lTrim($key, 0, $max_count);
             return self::$redis[$pool]->lRange($key, 0, $max_count);
         } else {
             $keys = self::getKeyList($key, $max_count, $beta);
@@ -160,6 +167,9 @@ abstract class Cache
         }
     }
 
+    /**
+     * Push a value to the list, if not using redis, get, add to subkey and set
+     */
     public static function pushList(string $key, mixed $value, string $pool = 'default', int $max_count = 64, float $beta = 1.0): void
     {
         if (isset(self::$redis[$pool])) {
@@ -179,6 +189,9 @@ abstract class Cache
         }
     }
 
+    /**
+     * Delete a whole list at $key, if not using redis, recurse into keys
+     */
     public static function deleteList(string $key, string $pool = 'default'): bool
     {
         if (isset(self::$redis[$pool])) {
@@ -192,6 +205,9 @@ abstract class Cache
         }
     }
 
+    /**
+     * On non-Redis, get the list of keys that store a list at $key
+     */
     private static function getKeyList(string $key, int $max_count, string $pool, float $beta): RingBuffer
     {
         // Get the current keys associated with a list. If the cache

@@ -44,23 +44,43 @@ class Reply extends Module
         $r->connect('note_reply', '/note/reply/{reply_to<\\d*>}', [self::class, 'replyController']);
     }
 
+    /**
+     * HTML rendering event that adds the reply form as a note action,
+     * if a user is logged in
+     */
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
+        if (($user = Common::user()) == null) {
+            return Event::next;
+        }
+
         $form = Form::create([
             ['content',     HiddenType::class, ['label' => ' ', 'required' => false]],
             ['attachments', HiddenType::class, ['label' => ' ', 'required' => false]],
             ['note_id',     HiddenType::class, ['data' => $note->getId()]],
             ['reply',       SubmitType::class, ['label' => ' ']],
         ]);
+
+        // Handle form
         $ret = self::noteActionHandle($request, $form, $note, 'reply', function ($note, $data) {
             if ($data['content'] !== null) {
                 // JS submitted
-                    // TODO DO THE THING
+                // TODO Implement in JS
+                $actor_id = $user->getId();
+                Posting::storeNote(
+                    $actor_id,
+                    $data['content'],
+                    $data['attachments'],
+                    $is_local = true,
+                    $data['reply_to'],
+                    $repeat_of = null
+                );
             } else {
                 // JS disabled, redirect
                 throw new RedirectException('note_reply', ['reply_to' => $note->getId()]);
             }
         });
+
         if ($ret != null) {
             return $ret;
         }
@@ -68,6 +88,9 @@ class Reply extends Module
         return Event::next;
     }
 
+    /**
+     * Controller for the note reply non-JS page
+     */
     public function replyController(Request $request, string $reply_to)
     {
         $user     = Common::ensureLoggedIn();
@@ -88,7 +111,14 @@ class Reply extends Module
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
-                Posting::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true, $data['reply_to'], null);
+                Posting::storeNote(
+                    $actor_id,
+                    $data['content'],
+                    $data['attachments'],
+                    $is_local = true,
+                    $data['reply_to'],
+                    $repeat_of = null
+                );
             } else {
                 throw new InvalidFormException();
             }

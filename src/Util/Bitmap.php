@@ -23,7 +23,12 @@ use App\Util\Exception\ServerException;
 
 abstract class Bitmap
 {
-    public static function _do(int $r, bool $instance)
+    /**
+     * Convert an to or from an integer and an array of constants for
+     * each bit. If $instance, return an object with the corresponding
+     * properties set
+     */
+    private static function _do(int $r, bool $instance)
     {
         $init  = $r;
         $class = get_called_class();
