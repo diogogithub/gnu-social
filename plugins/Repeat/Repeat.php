@@ -32,9 +32,16 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Repeat extends Module
 {
+    /**
+     * HTML rendering event that adds the repeat form as a note
+     * action, if a user is logged in
+     */
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
-        $user = Common::user();
+        if (($user = Common::user()) == null) {
+            return Event::next;
+        }
+
         $opts = ['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId()];
         try {
             $is_set = DB::findOneBy('note', $opts) != null;
@@ -47,6 +54,8 @@ class Repeat extends Module
             ['note_id', HiddenType::class, ['data' => $note->getId()]],
             ['repeat',  SubmitType::class, ['label' => ' ']],
         ]);
+
+        // Handle form
         $ret = self::noteActionHandle($request, $form, $note, 'repeat', function ($note, $data, $user) use ($opts) {
             $note = DB::findOneBy('note', $opts);
             if (!$data['is_set'] && $note == null) {
@@ -63,6 +72,7 @@ class Repeat extends Module
             }
             return Event::stop;
         });
+
         if ($ret != null) {
             return $ret;
         }

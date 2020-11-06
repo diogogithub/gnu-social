@@ -45,8 +45,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AdminPanel extends Controller
 {
+    /**
+     * Handler for the site admin panel section. Allows the
+     * administrator to change various configuration options
+     */
     public function site(Request $request)
     {
+        // TODO CHECK PERMISSION
         $defaults = Common::getConfigDefaults();
         $options  = [];
         foreach ($defaults as $key => $inner) {

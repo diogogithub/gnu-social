@@ -38,10 +38,14 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class Posting extends Module
 {
-    public function onStartTwigPopulateVars(array &$vars)
+    /**
+     * HTML render event handler responsible for adding and handling
+     * the result of adding the note submission form, only if a user is logged in
+     */
+    public function onStartTwigPopulateVars(array &$vars): bool
     {
         if (($user = Common::user()) == null) {
-            return;
+            return Event::next;
         }
 
         $actor_id = $user->getId();
@@ -79,9 +83,20 @@ class Posting extends Module
         return Event::next;
     }
 
+    /**
+     * Store the given note with $content and $attachments, created by
+     * $actor_id, possibly as a reply to note $reply_to and with flag
+     * $is_local. Sanitizes $content and $attachments
+     */
     public static function storeNote(int $actor_id, string $content, array $attachments, bool $is_local, ?int $reply_to = null, ?int $repeat_of = null)
     {
-        $note  = Note::create(['gsactor_id' => $actor_id, 'content' => $content, 'is_local' => $is_local, 'reply_to' => $reply_to, 'repeat_of' => $repeat_of]);
+        $note = Note::create([
+            'gsactor_id' => $actor_id,
+            'content'    => Security::sanitize($content),
+            'is_local'   => $is_local,
+            'reply_to'   => $reply_to,
+            'repeat_of'  => $repeat_of,
+        ]);
         $files = [];
         foreach ($attachments as $f) {
             $nf = Media::validateAndStoreFile($f, Common::config('attachments', 'dir'),

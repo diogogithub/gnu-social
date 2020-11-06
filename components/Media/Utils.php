@@ -28,6 +28,7 @@ use App\Core\Log;
 use App\Entity\Avatar;
 use App\Entity\File;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use Component\Media\Exception\NoAvatarException;
 use Exception;
 use Symfony\Component\Asset\Package;
@@ -39,6 +40,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 abstract class Utils
 {
+    /**
+     * Perform file validation (checks and normalization) and store the given file
+     */
     public static function validateAndStoreFile(SymfonyFile $sfile,
                                                 string $dest_dir,
                                                 ?string $title = null,
@@ -87,7 +91,14 @@ abstract class Utils
         return $response;
     }
 
-    public static function error($except, $id, array $res)
+    /**
+     * Throw a client exception if the cache key $id doesn't contain
+     * exactly one entry
+     *
+     * @param mixed $except
+     * @param mixed $id
+     */
+    private static function error($except, $id, array $res)
     {
         switch (count($res)) {
         case 0:
@@ -96,23 +107,15 @@ abstract class Utils
             return $res[0];
         default:
             Log::error('Media query returned more than one result for identifier: \"' . $id . '\"');
-            throw new Exception(_m('Internal server error'));
+            throw new ClientException(_m('Internal server error'));
         }
     }
 
-    public static function getAvatar(string $nickname)
-    {
-        return self::error(NoAvatarException::class,
-                           $nickname,
-                           Cache::get("avatar-{$nickname}",
-                                      function () use ($nickname) {
-                                          return DB::dql('select a from App\\Entity\\Avatar a ' .
-                                                         'join App\Entity\GSActor g with a.gsactor_id = g.id ' .
-                                                         'where g.nickname = :nickname',
-                                                         ['nickname' => $nickname]);
-                                      }));
-    }
-
+    /**
+     * Get the file info by id
+     *
+     * Returns the file's hash, mimetype and title
+     */
     public static function getFileInfo(int $id)
     {
         return self::error(NoSuchFileException::class,
@@ -126,14 +129,62 @@ abstract class Utils
                                       }));
     }
 
-    public static function getAttachmentFileInfo(int $id)
+    // ----- Attachment ------
+
+    /**
+     * Get the attachment file info by id
+     *
+     * Returns the attachment file's hash, mimetype, title and path
+     */
+    public static function getAttachmentFileInfo(int $id): array
     {
         $res              = self::getFileInfo($id);
         $res['file_path'] = Common::config('attachments', 'dir') . $res['file_hash'];
         return $res;
     }
 
-    public static function getAvatarFileInfo(string $nickname)
+    // ----- Avatar ------
+
+    /**
+     * Get the avatar associated with the given nickname
+     */
+    public static function getAvatar(?string $nickname = null): Avatar
+    {
+        $nickname = $nickname ?: Common::userNickname();
+        return self::error(NoAvatarException::class,
+                           $nickname,
+                           Cache::get("avatar-{$nickname}",
+                                      function () use ($nickname) {
+                                          return DB::dql('select a from App\\Entity\\Avatar a ' .
+                                                         'join App\Entity\GSActor g with a.gsactor_id = g.id ' .
+                                                         'where g.nickname = :nickname',
+                                                         ['nickname' => $nickname]);
+                                      }));
+    }
+
+    /**
+     * Get the cached avatar associated with the given nickname, or the current user if not given
+     */
+    public static function getAvatarUrl(?string $nickname = null): string
+    {
+        $nickname = $nickname ?: Common::userNickname();
+        return Cache::get("avatar-url-{$nickname}", function () use ($nickname) {
+            try {
+                return self::getAvatar($nickname)->getUrl();
+            } catch (NoAvatarException $e) {
+            }
+            $package = new Package(new EmptyVersionStrategy());
+            return $package->getUrl(Common::config('avatar', 'default'));
+        });
+    }
+
+    /**
+     * Get the cached avatar file info associated with the given nickname
+     *
+     * Returns the avatar file's hash, mimetype, title and path.
+     * Ensures exactly one cached value exists
+     */
+    public static function getAvatarFileInfo(string $nickname): array
     {
         try {
             $res = self::error(NoAvatarException::class,
@@ -153,25 +204,5 @@ abstract class Utils
             $filepath = INSTALLDIR . '/public/assets/default-avatar.svg';
             return ['file_path' => $filepath, 'mimetype' => 'image/svg+xml', 'title' => null];
         }
-    }
-
-    public static function getAvatarUrl(?string $nickname = null)
-    {
-        if ($nickname == null) {
-            $user = Common::user();
-            if ($user != null) {
-                $nickname = $user->getNickname();
-            } else {
-                throw new Exception('No user is logged in and no avatar provided to `getAvatarUrl`');
-            }
-        }
-        return Cache::get("avatar-url-{$nickname}", function () use ($nickname) {
-            try {
-                return self::getAvatar($nickname)->getUrl();
-            } catch (NoAvatarException $e) {
-            }
-            $package = new Package(new EmptyVersionStrategy());
-            return $package->getUrl(Common::config('avatar', 'default'));
-        });
     }
 }

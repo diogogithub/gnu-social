@@ -75,6 +75,10 @@ class Kernel extends BaseKernel
         }
     }
 
+    /**
+     * Symfony framework function override responsible for registering
+     * bundles (similar to our modules)
+     */
     public function registerBundles(): iterable
     {
         $contents = require $this->getProjectDir() . '/config/bundles.php';
@@ -90,6 +94,11 @@ class Kernel extends BaseKernel
         return dirname(__DIR__);
     }
 
+    /**
+     * Configure the container. A 'compile-time' step in the Symfony
+     * framework that allows caching of the initialization of all
+     * services and modules
+     */
     protected function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
         $container->addResource(new FileResource($this->getProjectDir() . '/config/bundles.php'));
@@ -118,6 +127,9 @@ class Kernel extends BaseKernel
         }
     }
 
+    /**
+     * Configure HTTP(S) route to controller mapping
+     */
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $config = \dirname(__DIR__) . '/config';
@@ -131,6 +143,10 @@ class Kernel extends BaseKernel
         }
     }
 
+    /**
+     * 'Compile-time' step that builds the container, allowing us to
+     * define compiler passes
+     */
     protected function build(ContainerBuilder $container): void
     {
         parent::build($container);

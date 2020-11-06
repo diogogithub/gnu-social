@@ -25,6 +25,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 class Security extends Controller
 {
+    /**
+     * Log a user in
+     */
     public function login(AuthenticationUtils $authenticationUtils)
     {
         if ($this->getUser()) {
@@ -44,6 +47,10 @@ class Security extends Controller
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
+    /**
+     * Register a user, making sure the nickname is not reserved and
+     * possibly sending a confirmation email
+     */
     public function register(Request $request,
                              EmailVerifier $email_verifier,
                              GuardAuthenticatorHandler $guard_handler,
