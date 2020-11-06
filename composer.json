@@ -45,11 +45,11 @@
         "symfony/yaml": "5.1.*",
         "symfonycasts/verify-email-bundle": "^1.0",
         "tgalopin/html-sanitizer-bundle": "^1.2",
-        "twig/markdown-extra": "^3.0",
-        "wikimedia/composer-merge-plugin": "^1.4"
+        "twig/markdown-extra": "^3.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16",
+        "niels-de-blaauw/php-doc-check": "^0.2.2",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.14",
         "symfony/phpunit-bridge": "^5.1",
@@ -104,13 +104,6 @@
         "symfony": {
             "allow-contrib": false,
             "require": "5.1.*"
-        },
-        "merge-plugin": {
-            "include": [
-                "composer.local.json"
-            ],
-            "replace": true,
-            "ignore-duplicates": false
         }
     }
 }
