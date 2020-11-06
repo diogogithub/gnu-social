@@ -75,8 +75,10 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
         ],
     ];
 
+    // TODO probably shouldn't be done this way
     // {{{Code from PhpExtractor
-
+    // See vendor/symfony/translation/Extractor/PhpExtractor.php
+    //
     const MESSAGE_TOKEN          = 300;
     const METHOD_ARGUMENTS_TOKEN = 1000;
     const DOMAIN_TOKEN           = 1001;
@@ -143,6 +145,9 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
         }
     }
 
+    /**
+     * {@inheritdoc}
+     */
     private function skipMethodArgument(\Iterator $tokenIterator)
     {
         $openBraces = 0;
@@ -284,6 +289,9 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
         }
     }
 
+    /**
+     * Store the $message in the message catalogue $mc
+     */
     private function store(MessageCatalogue $mc, string $message,
                            string $domain, string $filename, ?int $line_no = null)
     {
@@ -293,6 +301,11 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
         $mc->setMetadata($message, $metadata, $domain);
     }
 
+    /**
+     * Calls `::_m_dynamic` from the class defined in $filename and
+     * stores the results in the catalogue. For cases when the
+     * translation can't be done in a static (non-PHP) file
+     */
     private function storeDynamic(MessageCatalogue $mc, string $filename)
     {
         require_once $filename;

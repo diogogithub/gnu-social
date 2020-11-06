@@ -234,6 +234,15 @@ abstract class I18n
         ];
     }
 
+    /**
+     * Format the given associative array $messages in the ICU
+     * translation format, with the given $params. Allows for a
+     * declarative use of the translation engine, for example
+     * `formatICU(['she' => ['She has one foo', 'She has many foo'],
+     *             'he'  => ['He has one foo', 'He has many foo']], ['she' => 1])`
+     *
+     * @see http://userguide.icu-project.org/formatparse/messages
+     */
     public static function formatICU(array $messages, array $params): string
     {
         $res = '';
@@ -293,10 +302,12 @@ abstract class I18n
  *
  * @todo add parameters
  */
-function _m(): string
+function _m(...$args): string
 {
-    $domain = I18n::_mdomain(debug_backtrace()[0]['file']);
-    $args   = func_get_args();
+    // Get the file where this function was called from, reducing the
+    // memory and performance inpact by not returning the arguments,
+    // and only 2 frames (this and previous)
+    $domain = I18n::_mdomain(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[0]['file'], 2);
     switch (count($args)) {
     case 1:
         // Empty parameters, simple message
