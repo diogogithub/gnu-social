@@ -67,6 +67,9 @@ EOF
              );
     }
 
+    /**
+     * Execute the command, outputing a list of GNU social events
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $patterm   = $input->getArgument('pattern') ?? 'GNUsocial.*';
@@ -76,15 +79,16 @@ EOF
                                   return preg_match('/' . $patterm . '/', $key);
                               });
 
-        echo "\n";
+        ksort($listeners);
         foreach ($listeners as $event => $listener) {
-            echo "Event '{$event}':\n";
+            $event = explode('.', $event)[1];
+            $output->writeln("<info>Event '<options=bold>{$event}</options=bold>':</info>");
             foreach ($listener as $c) {
                 $r = new ReflectionFunction($c);
                 $m = $r->getStaticVariables()['handler'];
-                echo '    ' . get_class($m[0]) . '::' . $m[1] . "\n";
+                $output->writeln("\t" . get_class($m[0]) . '::' . $m[1]);
             }
-            echo "\n";
+            $output->writeln('');
         }
 
         if (!$input->hasArgument('pattern')) {
