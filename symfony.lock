@@ -138,6 +138,9 @@
     "monolog/monolog": {
         "version": "2.1.0"
     },
+    "niels-de-blaauw/php-doc-check": {
+        "version": "v0.2.2"
+    },
     "nikic/php-parser": {
         "version": "v4.5.0"
     },
@@ -597,6 +600,9 @@
     "symfony/yaml": {
         "version": "v5.1.0"
     },
+    "symfonycasts/verify-email-bundle": {
+        "version": "v1.0.0"
+    },
     "tgalopin/html-sanitizer": {
         "version": "1.4.0"
     },
@@ -621,10 +627,19 @@
     "twig/twig": {
         "version": "v3.0.3"
     },
+    "ulrichsg/getopt-php": {
+        "version": "v3.4.0"
+    },
     "webimpress/safe-writer": {
         "version": "2.0.1"
     },
     "webmozart/assert": {
         "version": "1.8.0"
+    },
+    "wikimedia/composer-merge-plugin": {
+        "version": "v1.4.1"
+    },
+    "wp-cli/php-cli-tools": {
+        "version": "v0.11.11"
     }
 }
