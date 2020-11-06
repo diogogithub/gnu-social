@@ -1,10 +1,10 @@
+
 #!/usr/bin/env bash
 
-# get the list of changed files
-staged_files=$(git diff --cached --name-only)
+root="$(git rev-parse --show-toplevel)"
 
-# build command to fix files
-cmd="$(git rev-parse --show-toplevel)/vendor/bin/php-cs-fixer"
+# get the list of changed files
+staged_files="$(git diff --cached --name-only)"
 
 echo "Running php-cs-fixer on edited files"
 
@@ -12,7 +12,7 @@ for staged in ${staged_files}; do
     # work only with existing files
     if [[ -f ${staged} && ${staged} == *.php ]]; then
         # use php-cs-fixer and get flag of correction
-        "${cmd}" -q fix "${staged}"
+        "${root}/bin/php-cs-fixer" -q fix "${staged}"
 
         # if php-cs-fixer fix works, it returns 0
         if [[ $? -eq 0 ]]; then
@@ -21,4 +21,9 @@ for staged in ${staged_files}; do
     fi
 done
 
-exit 0 # do commit
+echo "Running php-doc-checker"
+
+"${root}/bin/php-doc-check" src plugins components
+
+# Only commit if there wasn't an error
+exit $?
