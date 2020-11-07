@@ -102,5 +102,3 @@ services:
 
 volumes:
   database:
-  maildata:
-  mailconf:

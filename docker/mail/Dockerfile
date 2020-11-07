@@ -14,23 +14,23 @@ RUN \
 		opendkim \
 		opendkim-tools \
 		openssl \
+		postfix \
+		rsyslog \
+		supervisor \
+		telnet \
 	&& apt-get autoclean \
 	&& apt-get autoremove
 
 # Setup folders and users
 RUN \
-	rm /etc/postfix/main.cf /etc/postfix/master.cf /etc/dovecot/dovecot.conf /etc/dovecot/conf.d/* /etc/rsyslog.conf /etc/rsyslog.d/* \
-	&& groupadd -g 2222 vmail \
+	groupadd -g 2222 vmail \
 	&& useradd -d /var/mail -M -s /usr/sbin/nologin -u 2222 -g 2222 vmail \
 	&& usermod -aG vmail postfix \
 	&& usermod -aG vmail dovecot \
 	&& usermod -aG vmail opendkim\
 	&& mkdir -p -m 751 /var/mail/ \
 	&& mkdir -p -m 755 /etc/mail/ \
-	&& mkdir -p -m 755 /etc/ssl/ \
-	&& mkdir -p -m 700 /etc/opendkim/keys \
-	&& chown vmail:vmail /var/mail \
-	&& chown opendkim:opendkim /etc/opendkim/keys
+	&& chown vmail:vmail /var/mail
 
 # Copy config files
 COPY rootfs/ /
