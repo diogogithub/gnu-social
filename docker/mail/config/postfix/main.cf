@@ -13,8 +13,7 @@ inet_protocols = all
 mydestination = $myhostname, localhost.$mydomain, localhost
 unknown_local_recipient_reject_code = 550
 mynetworks = 127.0.0.0/8, [::1]/128
-alias_maps = hash:/etc/postfix/aliases
-alias_database = $alias_maps
+alias_maps = hash:/etc/mail/postfix/aliases
 
 mailbox_command = /usr/lib/dovecot/deliver
   

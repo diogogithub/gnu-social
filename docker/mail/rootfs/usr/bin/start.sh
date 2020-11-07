@@ -1,32 +1,24 @@
 #!/bin/sh
-
-CERTBOT="/etc/letsencrypt/live/$domain/fullchain.pem"
-KEYBOT="/etc/letsencrypt/live/$domain/privkey.pem"
-
 # Config postfix
 postconf -e myhostname="$MAILNAME"
 postconf -e mydomain="$DOMAINNAME"
-postconf -e smtpd_tls_cert_file="$CERTBOT"
-postconf -e smtpd_tls_key_file="$KEYBOT"
+postconf -e smtpd_tls_cert_file="$SSL_CERT"
+postconf -e smtpd_tls_key_file="$SSL_KEY"
 
 # Config dovecot
-sed -i -e "s#^\s*ssl_cert\s*=.*#ssl_cert = <$CERTBOT#" /etc/dovecot/dovecot.conf
-sed -i -e "s#^\s*ssl_key\s*=.*#ssl_key = <$KEYBOT#" /etc/dovecot/dovecot.conf
-sed -i -e "s#^\s*hostname\s*=.*#hostname = $MAILNAME#" /etc/dovecot/dovecot.conf
-sed -i -e "s#^\s*postmaster_address\s*=.*#postmaster_address = $POSTMASTER#" /etc/dovecot/dovecot.conf
+sed -i -e "s#^\s*ssl_cert\s*=.*#ssl_cert = <$SSL_CERT#" /etc/mail/dovecot/dovecot.conf
+sed -i -e "s#^\s*ssl_key\s*=.*#ssl_key = <$SSL_KEY#" /etc/mail/dovecot/dovecot.conf
+sed -i -e "s#^\s*hostname\s*=.*#hostname = $MAILNAME#" /etc/mail/dovecot/dovecot.conf
+sed -i -e "s#^\s*postmaster_address\s*=.*#postmaster_address = $POSTMASTER#" /etc/mail/dovecot/dovecot.conf
 
 # Config dkim
-sed -i -e "s/#HOSTNAME/$MAILNAME/" /etc/opendkim/TrustedHosts
+sed -i -e "s/#HOSTNAME/$MAILNAME/" /etc/mail/opendkim/TrustedHosts
 
 # Run openssl
-if [ $signed -eq 0 ]
+if [ ! -e "$SSL_CERT" ]
 then
-	openssl req -newkey rsa:2048 -new -nodes -x509 -days 3650 -keyout "$SSL_KEY" -out "$SSL_CERT" \
-		-subj "/C=UK/ST=England/L=London/O=OrgName/OU=IT Department/CN=$MAILNAME"
-	postconf -e smtpd_tls_cert_file="$SSL_CERT"
-	postconf -e smtpd_tls_key_file="$SSL_KEY"
-	sed -i -e "s#^\s*ssl_cert\s*=.*#ssl_cert = <$SSL_CERT#" /etc/dovecot/dovecot.conf
-	sed -i -e "s#^\s*ssl_key\s*=.*#ssl_key = <$SSL_KEY#" /etc/dovecot/dovecot.conf
+	mkdir -p "$(dirname $SSL_CERT)" "$(dirname $SSL_KEY)"
+	openssl req -x509 -nodes -newkey rsa:2018 -days 365 -keyout "$SSL_CERT" -out "$SSL_KEY"
 fi
 
 # Run opendkim
@@ -45,8 +37,8 @@ fi
 
 
 # Start services
-rsyslogd 				-f /etc/rsyslogd/rsyslog.conf
-/usr/sbin/opendkim 		-x /etc/opendkim/opendkim.conf
-/usr/sbin/dovecot 		-c /etc/dovecot/dovecot.conf
-/usr/sbin/postfix start	-c /etc/postfix
-supervisord 			-c /etc/supervisord/supervisord.conf
+rsyslogd 				-f /etc/mail/rsyslogd/rsyslog.conf
+/usr/sbin/opendkim 		-x /etc/mail/opendkim/opendkim.conf
+/usr/sbin/dovecot 		-c /etc/mail/dovecot/dovecot.conf
+/usr/sbin/postfix start	-c /etc/mail/postfix
+supervisord 			-c /etc/mail/supervisord/supervisord.conf
