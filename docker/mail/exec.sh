@@ -16,6 +16,7 @@ then
 	then
 		docker exec mail new-user "${*,3}"
 	elif [ "$2" == "alias" ]
+	then
 		docker exec mail new-alias "${*,3}"	
 	fi	
 fi
