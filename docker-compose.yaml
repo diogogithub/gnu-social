@@ -86,25 +86,19 @@ services:
   
   mail:
     build: docker/mail
-    environment:
-      DOMAINNAME: mail.test
-      MAILNAME: mail.mail.test            
-      POSTMASTER: postmaster@mail.test
     env_file:
-      - ./docker/bootstrap/bootstrap.env
+      - ./docker/mail/mail.env
     ports:
       - 25:25
       - 143:143
       - 587:587
       - 993:993
     volumes:
-      - maildata:/var/mail
-      - mailconf:/etc/mail
+      - ./docker/mail/mail:/var/mail
+      - ./docker/mail/config:/etc/mail
       # Certbot
       - ./docker/certbot/www:/var/www/certbot
       - ./docker/certbot/.files:/etc/letsencrypt
 
 volumes:
   database:
-  maildata:
-  mailconf:
