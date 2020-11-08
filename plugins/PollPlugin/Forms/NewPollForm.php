@@ -34,6 +34,7 @@ class NewPollForm extends Form
     {
         $optionNum = min(MAX_OPT,$optionNum);
         $options   = [];
+        array_push($options,['Question', TextType::class, ['label' => _m(('Question'))]]);
         for ($i = 1; $i <= $optionNum; ++$i) {
             //['Option_i',   TextType::class,   ['label' => _m('Option i')]],
             array_push($options,['Option_' . $i, TextType::class, ['label' => _m(('Option ' . $i))]]);

@@ -22,33 +22,39 @@
 namespace Plugin\PollPlugin\Controller;
 
 use App\Core\DB\DB;
+use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Entity\Poll;
 use App\Util\Common;
+use App\Util\Exception\RedirectException;
 use Plugin\PollPlugin\Forms\NewPollForm;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
 class NewPoll
 {
+    private int $numOptions = 3;
+
     public function newpoll(Request $request)
     {
         $user = Common::ensureLoggedIn();
 
-        $numOptions = 3; //temporary
-        $form       = NewPollForm::make($numOptions);
-
+        $form = NewPollForm::make($this->numOptions);
         $form->handleRequest($request);
-        $question = 'Test Question?';
-        $opt      = [];
+        $opt = [];
         if ($form->isSubmitted()) {
             $data = $form->getData();
             //var_dump($data);
-            for ($i = 1; $i <= $numOptions; ++$i) {
+            $question = $data['Question'];
+            for ($i = 1; $i <= $this->numOptions; ++$i) {
                 array_push($opt,$data['Option_' . $i]);
             }
-            $testPoll = Poll::make($question,$opt);
-            DB::persist($testPoll);
+            $poll = Poll::make($question,$opt);
+            DB::persist($poll);
             DB::flush();
             //var_dump($testPoll);
+            throw new RedirectException('showpoll', ['id' => $poll->getId()]);
         }
 
         // testing
@@ -63,4 +69,18 @@ class NewPoll
 
         return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
     }
+    /*
+    public function pollsettings(Request $request)
+    {
+        $form = Form::create([['Num_of_Questions', NumberType::class, ['label' => _m(('Number of questions:'))]],['save', SubmitType::class, ['label' => _m('Continue')]]]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted())
+        {
+            $data = $form->getData();
+            $this->numOptions = $data['Num_of_Questions'];
+            var_dump($data);
+        }
+        return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
+    }
+    */
 }
