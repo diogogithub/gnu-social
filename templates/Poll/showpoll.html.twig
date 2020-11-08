@@ -1,11 +1,10 @@
-
 {% extends 'left/left.html.twig' %}
 
 {% block meta %}
     {{ parent() }}
 {% endblock %}
 
-{% block title %}New Poll{% endblock %}
+{% block title %}Poll{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -27,7 +26,13 @@
 
 {% block body %}
     <div class="content">
-        {{ form(form) }}
+        <ul>
+            <h2>{{ poll.question }}</h2>
+
+            {% for question, votes in poll.countResponses() %}
+                <li>{{ question }}: {{ votes }}</li>
+            {% endfor %}
+        </ul>
     </div>
 {% endblock body %}
 

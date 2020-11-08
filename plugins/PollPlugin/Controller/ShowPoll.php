@@ -38,6 +38,6 @@ class ShowPoll
             throw new NoSuchPollException(); //?
         }
 
-        return ['_template' => 'base.html.twig'];
+        return ['_template' => 'Poll/showpoll.html.twig', 'poll' => $poll];
     }
 }

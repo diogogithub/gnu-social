@@ -24,6 +24,7 @@ namespace App\Entity;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
+use function Functional\id;
 
 class Poll extends Entity
 {
@@ -160,6 +161,21 @@ class Poll extends Entity
             return false;
         }
         return true;
+    }
+
+    public function countResponses(): array
+    {
+        $responses = [];
+        $options   = $this->getOptionsArr();
+        for ($i = 1; $i <= count($options); ++$i) {
+            $responses[$options[$i - 1]] = $count = DB::dql('select count(pr) from App\Entity\Poll p, App\Entity\PollResponse pr
+                    where pr.poll_id = :id and pr.selection = :selection',
+                ['id' => $this->id, 'selection' => $i])[0][1] / $this->id; //todo: fix
+        }
+
+        //echo var_dump($count);
+        //var_dump($responses);
+        return $responses;
     }
 
     //from old version

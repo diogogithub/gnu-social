@@ -26,6 +26,7 @@ use App\Entity\Poll;
 use App\Entity\PollResponse;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\RedirectException;
 use League\Uri\Exception;
 use Plugin\PollPlugin\Forms\PollResponseForm;
 use Symfony\Component\HttpFoundation\Request;
@@ -45,6 +46,8 @@ class RespondPoll
         if ($poll == null) {//|| !$poll->isVisibleTo($user)) { todo
             throw new Exception(); //?fix
         }
+        $question = $poll->getQuestion();
+        // echo $question;
         $opts = $poll->getOptionsArr();
         //var_dump($opts);
 
@@ -54,17 +57,21 @@ class RespondPoll
         if ($form->isSubmitted()) {
             $data      = $form->getData();
             $selection = array_values($data)[1];
-            echo $selection;
+            //echo $selection;
             if (!$poll->isValidSelection($selection)) {
                 throw new InvalidFormException();
             }
+            if (PollResponse::exits($poll->getId(),$user->getId())) {
+                throw new Exception();
+            }
+
             $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
             DB::persist($pollResponse);
             DB::flush();
             //var_dump($pollResponse);
+            throw new RedirectException('showpoll', ['id' => $poll->getId()]);
         }
 
-        //return ['_template' => 'base.html.twig'];
-        return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
+        return ['_template' => 'Poll/respondpoll.html.twig', 'question' => $question, 'form' => $form->createView()];
     }
 }

@@ -36,7 +36,7 @@ class PollResponseForm extends Form
         for ($i = 1; $i <= count($opts); ++$i) {
             $options[$opts[$i - 1]] = $i;
         }
-        array_push($formOptions, ['Question', ChoiceType::class, [
+        array_push($formOptions, ['Options:', ChoiceType::class, [
             'choices'  => $options,
             'expanded' => true,
         ]]);

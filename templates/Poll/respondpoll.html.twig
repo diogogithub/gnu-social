@@ -1,11 +1,10 @@
-
 {% extends 'left/left.html.twig' %}
 
 {% block meta %}
     {{ parent() }}
 {% endblock %}
 
-{% block title %}New Poll{% endblock %}
+{% block title %}Poll{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -27,7 +26,10 @@
 
 {% block body %}
     <div class="content">
+        <div>
+        <h2>{{ question }}</h2>
         {{ form(form) }}
+        </div>
     </div>
 {% endblock body %}
 
