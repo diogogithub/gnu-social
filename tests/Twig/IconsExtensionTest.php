@@ -50,11 +50,10 @@ class IconsExtensionTest extends TestCase
             static::assertRegExp('#([a-zA-Z0-9\s_\\.\-\(\):])+(.svg.twig)$#', $icon_file_name);
         }
 
-        /*
-
         //Check if the function gives a valid HTML with a class attribute equal to the one passed
         $twig = self::$kernel->getContainer()->get('twig');
 
+        /*
         $icon_template_render = $twig->render('public/icons/logo.svg', ['iconClass' => 'icon icon-logo']);
 
         $iconsExtension= new IconsExtension();
