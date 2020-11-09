@@ -44,7 +44,6 @@ class ShowPoll
         $user = Common::ensureLoggedIn();
 
         $poll = Poll::getFromId((int) $id);
-        //var_dump($poll);
 
         if ($poll == null) {
             throw new NotFoundException('Poll does not exist');
