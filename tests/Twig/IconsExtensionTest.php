@@ -29,9 +29,9 @@ namespace App\Tests\Templates\Icons;
 
 use App\Twig\IconsExtension;
 use DirectoryIterator;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class IconsExtensionTest extends TestCase
+class IconsExtensionTest extends KernelTestCase
 {
     public function testIconsExtension()
     {
@@ -51,19 +51,18 @@ class IconsExtensionTest extends TestCase
         }
 
         //Check if the function gives a valid HTML with a class attribute equal to the one passed
+        static::bootKernel();
         $twig = self::$kernel->getContainer()->get('twig');
 
-        /*
-        $icon_template_render = $twig->render('public/icons/logo.svg', ['iconClass' => 'icon icon-logo']);
+        foreach ($icon_file_names as $icon_file_name) {
+            $icon_name = basename($icon_file_name, '.svg.twig');
 
-        $iconsExtension= new IconsExtension();
+            $icon_template_render = $twig->render('@public_path/assets/icons/' . $icon_file_name, ['iconClass' => 'icon icon-' . $icon_name]);
 
-        $iconsExtension_render = $iconsExtension->embedSvgIcon($twig, 'logo', 'logo');
+            $icons_extension       = new IconsExtension();
+            $icon_extension_render = $icons_extension->embedSvgIcon($twig, $icon_name, 'icon icon-' . $icon_name);
 
-        self::assertEquals($icon_template_render, $iconsExtension_render);
-
-        // Next I need to verify that the $iconsExtension_render is a valid html code (maybe through regex)
-
-        */
+            static::assertSame($icon_template_render, $icon_extension_render);
+        }
     }
 }
