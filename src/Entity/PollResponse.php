@@ -143,7 +143,8 @@ class PollResponse extends Entity
                 'poll_id'    => ['type' => 'int', 'length' => 36, 'not null' => true, 'description' => 'UUID of poll being responded to'],
                 'gsactor_id' => ['type' => 'int'],
                 'selection'  => ['type' => 'int'],
-                'created'    => ['type' => 'datetime', 'not null' => true],
+                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
 
