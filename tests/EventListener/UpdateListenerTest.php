@@ -19,8 +19,8 @@
 
 namespace App\Tests\EventListener;
 
+use App\Core\DB\UpdateListener;
 use App\Entity\GSActor;
-use App\EventListener\UpdateListener;
 use DateTime;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\PreUpdateEventArgs;

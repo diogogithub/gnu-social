@@ -34,9 +34,9 @@ namespace App\Tests\Templates\Icons;
 use App\Twig\Extension;
 use App\Twig\Runtime;
 use DirectoryIterator;
-use PHPUnit\Framework\TestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class IconsExtensionTest extends TestCase
+class IconsExtensionTest extends KernelTestCase
 {
     public function testIconsExtension()
     {
@@ -49,20 +49,24 @@ class IconsExtensionTest extends TestCase
             $icon_file_names[] = $file->getFilename();
         }
 
-        $twig = self::$kernel->getContainer()->get('twig');
-
-        // Check if every icon file as a ".svg.twig" extension
+        //Check if every icon file as a ".svg.twig" extension
         foreach ($icon_file_names as $icon_file_name) {
-            static::assertRegExp('#.+\.svg\.twig$#', $icon_file_name);
-
-            $icon_name = explode('.', basename($icon_file_name))[0];
-            $icon_template_render = $twig->render($icon_file_name, ['iconClass' => 'icon icon-' . $icon_name]);
-            $icons_extension       = new Runtime();
-            $icon_extension_render = $icons_extension->embedSvgIcon($twig, $icon_name, 'icon icon-' . $icon_name);
-
-            //Check if the function gives a valid HTML with a class attribute equal to the one passed
-            self::assertEquals($icon_template_render, $iconsExtension_render);
+            static::assertRegExp('#([a-zA-Z0-9\s_\\.\-\(\):])+(.svg.twig)$#', $icon_file_name);
         }
 
+        //Check if the function gives a valid HTML with a class attribute equal to the one passed
+        static::bootKernel();
+        $twig = self::$kernel->getContainer()->get('twig');
+
+        foreach ($icon_file_names as $icon_file_name) {
+            $icon_name = basename($icon_file_name, '.svg.twig');
+
+            $icon_template_render = $twig->render('@public_path/assets/icons/' . $icon_file_name, ['iconClass' => 'icon icon-' . $icon_name]);
+
+            $icons_extension       = new IconsExtension();
+            $icon_extension_render = $icons_extension->embedSvgIcon($twig, $icon_name, 'icon icon-' . $icon_name);
+
+            static::assertSame($icon_template_render, $icon_extension_render);
+        }
     }
 }
