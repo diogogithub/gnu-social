@@ -19,7 +19,7 @@
 
 // }}}
 
-namespace Plugin\PollPlugin\Controller;
+namespace Plugin\Poll\Controller;
 
 use App\Core\DB\DB;
 use App\Entity\Poll;
@@ -29,10 +29,20 @@ use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
-use Plugin\PollPlugin\Forms\PollResponseForm;
+use Plugin\Poll\Forms\PollResponseForm;
 use Symfony\Component\HttpFoundation\Request;
 
-class RespondPoll
+/**
+ * Respond to a Poll
+ *
+ * @package  GNUsocial
+ * @category PollPlugin
+ *
+ * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
+class AnswerPoll
 {
     /**
      * Handle poll response
@@ -48,40 +58,33 @@ class RespondPoll
      *
      * @return array template
      */
-    public function respondpoll(Request $request, string $id)
+    public function answerPoll(Request $request, string $id)
     {
         $user = Common::ensureLoggedIn();
 
         $poll = Poll::getFromId((int) $id);
-        //var_dump($poll);
-
         if ($poll == null) {
             throw new NotFoundException('Poll does not exist');
         }
+
         $question = $poll->getQuestion();
-        // echo $question;
-        $opts = $poll->getOptionsArr();
-        //var_dump($opts);
-
-        $form = PollResponseForm::make($opts);
-
+        $opts     = $poll->getOptionsArr();
+        $form     = PollResponseForm::make($opts);
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $data      = $form->getData();
                 $selection = array_values($data)[1];
-                //echo $selection;
                 if (!$poll->isValidSelection($selection)) {
                     throw new InvalidFormException();
                 }
                 if (PollResponse::exits($poll->getId(), $user->getId())) {
                     throw new ServerException('User already responded to poll');
                 }
-
                 $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
                 DB::persist($pollResponse);
                 DB::flush();
-                //var_dump($pollResponse);
+
                 throw new RedirectException('showpoll', ['id' => $poll->getId()]);
             } else {
                 throw new InvalidFormException();

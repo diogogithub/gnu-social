@@ -24,7 +24,6 @@ namespace App\Entity;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
-use function Functional\id;
 
 class Poll extends Entity
 {
@@ -36,6 +35,7 @@ class Poll extends Entity
     private ?string $question;
     private ?string $options;
     private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -103,6 +103,17 @@ class Poll extends Entity
         return $this->created;
     }
 
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     /**
@@ -119,43 +130,17 @@ class Poll extends Entity
                 'id'  => ['type' => 'serial', 'not null' => true],
                 'uri' => ['type' => 'varchar', 'length' => 191],
                 //    'uri'        => ['type' => 'varchar', 'length' => 191, 'not null' => true],
-                'gsactor_id' => ['type' => 'int'], //-> gsactor id?
+                'gsactor_id' => ['type' => 'int'],
                 'question'   => ['type' => 'text'],
                 'options'    => ['type' => 'text'],
-                'created'    => ['type' => 'datetime', 'not null' => true],
+                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             //  'unique keys' => [
             //      'poll_uri_key' => ['uri'],
             //  ],
         ];
-    }
-
-    /**
-     *  Get poll object from its id
-     *
-     * @param int $id
-     *
-     * @return null|static
-     */
-    public static function getFromId(int $id): ?self
-    {
-        return DB::find('poll', ['id' => $id]);
-    }
-
-    /**
-     *  Make new poll object
-     *
-     * @param int    $gsactorId
-     * @param string $question
-     * @param array  $opt       poll options
-     *
-     * @return static poll object
-     */
-    public static function make(int $gsactorId, string $question, array $opt): self
-    {
-        $options = implode("\n",$opt);
-        return self::create(['gsactor_id' => $gsactorId, 'question' => $question, 'options' => $options]);
     }
 
     /**
@@ -175,11 +160,8 @@ class Poll extends Entity
      *
      * @return bool
      */
-    public function isValidSelection($selection): bool
+    public function isValidSelection(int $selection): bool
     {
-        if ($selection != (int) $selection) {
-            return false;
-        }
         if ($selection < 1 || $selection > count($this->getOptionsArr())) {
             return false;
         }
@@ -196,169 +178,11 @@ class Poll extends Entity
         $responses = [];
         $options   = $this->getOptionsArr();
         for ($i = 0; $i < count($options); ++$i) {
-            $responses[$options[$i]] = DB::dql('select count(pr) from App\Entity\Poll p, App\Entity\PollResponse pr
-                    where pr.poll_id = :id and pr.selection = :selection',
-                ['id' => $this->id, 'selection' => $i + 1])[0][1] / $this->id; //todo: fix
-
-            /*
-            var_dump(DB::dql('select count(pr) from App\Entity\Poll p, App\Entity\PollResponse pr
-                    where pr.poll_id = :id and pr.selection = :selection',
-                ['id' => $this->id, 'selection' => $i + 1])[0][1]);
-            */
+            $responses[$options[$i]] = DB::dql('select count(pr) from App\Entity\PollResponse pr ' .
+                    'where pr.poll_id = :id and pr.selection = :selection',
+                ['id' => $this->id, 'selection' => $i + 1])[0][1];
         }
 
         return $responses;
     }
-
-    //from old version
-    /**
-     * Get a bookmark based on a notice
-     *
-     * @param Notice $notice Notice to check for
-     *
-     * @return get_called_class found poll or null
-     */
-    /*
-    public static function getByNotice($notice)
-    {
-        return self::getKV('uri', $notice->uri);
-    }
-    */
-
-    /*
-    public function getNotice()
-    {
-        return Notice::getKV('uri', $this->uri);
-    }
-
-    public function getUrl()
-    {
-        return $this->getNotice()->getUrl();
-    }*/
-
-    /**
-     * Get the response of a particular user to this poll, if any.
-     *
-     * @param Profile $profile
-     *
-     * @return get_called_class object or null
-     */
-    /*
-    public function getResponse(Profile $profile)
-    {
-        $pr = Poll_response::pkeyGet(array('poll_id' => $this->id,
-            'profile_id' => $profile->id));
-        return $pr;
-    }
-*/
-    /*
-    public function countResponses()
-    {
-        $pr = new Poll_response();
-        $pr->poll_id = $this->id;
-        $pr->groupBy('selection');
-        $pr->selectAdd('count(profile_id) as votes');
-        $pr->find();
-
-        $raw = array();
-        while ($pr->fetch()) {
-            // Votes list 1-based
-            // Array stores 0-based
-            $raw[$pr->selection - 1] = $pr->votes;
-        }
-
-        $counts = array();
-        foreach (array_keys($this->getOptions()) as $key) {
-            if (isset($raw[$key])) {
-                $counts[$key] = $raw[$key];
-            } else {
-                $counts[$key] = 0;
-            }
-        }
-        return $counts;
-    }*/
-
-    /**
-     * Save a new poll notice
-     *
-     * @param Profile $profile
-     * @param string  $question
-     * @param array   $opts     (poll responses)
-     * @param null    $options
-     *
-     * @throws ClientException
-     *
-     * @return Notice saved notice
-     */
-    /*
-    public static function saveNew($profile, $question, $opts, $options = null)
-    {
-        if (empty($options)) {
-            $options = array();
-        }
-
-        $p = new Poll();
-
-        $p->id = UUID::gen();
-        $p->profile_id = $profile->id;
-        $p->question = $question;
-        $p->options = implode("\n", $opts);
-
-        if (array_key_exists('created', $options)) {
-            $p->created = $options['created'];
-        } else {
-            $p->created = common_sql_now();
-        }
-
-        if (array_key_exists('uri', $options)) {
-            $p->uri = $options['uri'];
-        } else {
-            $p->uri = common_local_url(
-                'showpoll',
-                array('id' => $p->id)
-            );
-        }
-
-        common_log(LOG_DEBUG, "Saving poll: $p->id $p->uri");
-        $p->insert();
-
-        // TRANS: Notice content creating a poll.
-        // TRANS: %1$s is the poll question, %2$s is a link to the poll.
-        $content = sprintf(
-            _m('Poll: %1$s %2$s'),
-            $question,
-            $p->uri
-        );
-        $link = '<a href="' . htmlspecialchars($p->uri) . '">' . htmlspecialchars($question) . '</a>';
-        // TRANS: Rendered version of the notice content creating a poll.
-        // TRANS: %s is a link to the poll with the question as link description.
-        $rendered = sprintf(_m('Poll: %s'), $link);
-
-        $tags = array('poll');
-        $replies = array();
-
-        $options = array_merge(
-            array('urls' => array(),
-                'rendered' => $rendered,
-                'tags' => $tags,
-                'replies' => $replies,
-                'object_type' => PollPlugin::POLL_OBJECT),
-            $options
-        );
-
-        if (!array_key_exists('uri', $options)) {
-            $options['uri'] = $p->uri;
-        }
-
-        $saved = Notice::saveNew(
-            $profile->id,
-            $content,
-            array_key_exists('source', $options) ?
-                $options['source'] : 'web',
-            $options
-        );
-
-        return $saved;
-    }
-    */
 }

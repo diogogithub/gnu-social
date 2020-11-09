@@ -35,6 +35,7 @@ class PollResponse extends Entity
     private ?int $gsactor_id;
     private ?int $selection;
     private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -102,6 +103,17 @@ class PollResponse extends Entity
         return $this->created;
     }
 
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     /**
@@ -121,13 +133,17 @@ class PollResponse extends Entity
                 'poll_id'    => ['type' => 'int', 'length' => 36, 'not null' => true, 'description' => 'UUID of poll being responded to'],
                 'gsactor_id' => ['type' => 'int'],
                 'selection'  => ['type' => 'int'],
-                'created'    => ['type' => 'datetime', 'not null' => true],
+                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
 
             'unique keys' => [
                 //'poll_uri_key' => array('uri'),
                 //'poll_response_poll_id_gsactor_id_key' => ['poll_id', 'gsactor_id'], //doctrine bug?
+            ],
+            'foreign keys' => [
+                'foreign_poll' => ['poll', ['poll_id' => 'id']],
             ],
 
             'indexes' => [
@@ -149,7 +165,6 @@ class PollResponse extends Entity
         $res = DB::dql('select pr from App\Entity\PollResponse pr
                    where pr.poll_id = :pollId and pr.gsactor_id = :gsactorId',
                 ['pollId' => $pollId, 'gsactorId' => $gsactorId]);
-        //var_dump( $res);
         return count($res) != 0;
     }
 }

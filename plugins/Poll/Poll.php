@@ -18,51 +18,27 @@
 
 // }}}
 
-namespace Plugin\PollPlugin;
+namespace Plugin\Poll;
 
 use App\Core\Event;
 use App\Core\Module;
 use App\Core\Router\RouteLoader;
-use Plugin\PollPlugin\Entity\Poll;
 use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
 
 const ID_FMT = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 
-class PollPlugin extends Module
+/**
+ * Poll plugin main class
+ *
+ * @package  GNUsocial
+ * @category PollPlugin
+ *
+ * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
+class Poll extends Module
 {
-    /**
-     * Map URLs to actions
-     *
-     * @param URLMapper $m path-to-action mapper
-     * @param mixed     $r
-     *
-     * @return bool hook value; true means continue processing, false means stop.
-     */
-    /*
-        public function onRouterInitialized(URLMapper $m)
-        {
-            $m->connect('main/poll/new',
-                        ['action' => 'newpoll']);
-
-            $m->connect('main/poll/:id',
-                        ['action' => 'showpoll'],
-                        ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}']);
-
-            $m->connect('main/poll/response/:id',
-                        ['action' => 'showpollresponse'],
-                        ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}']);
-
-            $m->connect('main/poll/:id/respond',
-                        ['action' => 'respondpoll'],
-                        ['id' => '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}']);
-
-            $m->connect('settings/poll',
-                        ['action' => 'pollsettings']);
-
-            return true;
-        }
-    */
-
     /**
      * Map URLs to actions
      *
@@ -73,9 +49,8 @@ class PollPlugin extends Module
     public function onAddRoute(RouteLoader $r): bool
     {
         $r->connect('newpollnum', 'main/poll/new/{num<\\d*>}', [Controller\NewPoll::class, 'newpoll']);
-        //$r->connect('showpoll', 'main/poll/:{id<' . ID_FMT . '>}' , [Controller\ShowPoll::class, 'showpoll']); //doesnt work
         $r->connect('showpoll', 'main/poll/{id<\\d*>}',[Controller\ShowPoll::class, 'showpoll']);
-        $r->connect('respondpoll', 'main/poll/{id<\\d*>}/respond',[Controller\RespondPoll::class, 'respondpoll']);
+        $r->connect('answerpoll', 'main/poll/{id<\\d*>}/respond',[Controller\AnswerPoll::class, 'answerpoll']);
         $r->connect('newpoll', 'main/poll/new', RedirectController::class, ['defaults' => ['route' => 'newpollnum', 'num' => 3]]);
 
         return Event::next;

@@ -19,7 +19,7 @@
 
 // }}}
 
-namespace Plugin\PollPlugin\Forms;
+namespace Plugin\Poll\Forms;
 
 use App\Core\Form;
 use function App\Core\I18n\_m;
@@ -27,7 +27,16 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Form as SymfForm;
 
-const MAX_OPT = 5;
+/**
+ * Form to add a Poll
+ *
+ * @package  GNUsocial
+ * @category PollPlugin
+ *
+ * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class NewPollForm extends Form
 {
     /**
@@ -39,14 +48,14 @@ class NewPollForm extends Form
      */
     public static function make(int $optionNum): SymfForm
     {
-        $optionNum = min(MAX_OPT,$optionNum);
-        $options   = [];
-        array_push($options,['Question', TextType::class, ['label' => _m(('Question'))]]);
-        for ($i = 1; $i <= $optionNum; ++$i) {
+        $options    = [];
+        $options[0] = ['Question', TextType::class, ['label' => _m(('Question'))]];
+        $i          = 1;
+        for ($i; $i <= $optionNum; ++$i) {
             //['Option_i',   TextType::class,   ['label' => _m('Option i')]],
-            array_push($options,['Option_' . $i, TextType::class, ['label' => _m(('Option ' . $i))]]);
+            $options[$i] = ['Option_' . $i, TextType::class, ['label' => _m(('Option ' . $i))]];
         }
-        array_push($options, ['save', SubmitType::class, ['label' => _m('Submit Poll')]]);
+        $options[$i + 1] = ['save', SubmitType::class, ['label' => _m('Submit Poll')]];
 
         return parent::create($options);
     }

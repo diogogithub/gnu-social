@@ -22,6 +22,7 @@
 namespace App\Core;
 
 use App\Core\DB\DB;
+use App\Util\Exception\NotFoundException;
 use App\Util\Formatting;
 use DateTime;
 
@@ -75,5 +76,23 @@ abstract class Entity
             $obj = DB::findBy($class, $args);
         }
         DB::remove($obj);
+    }
+
+    /**
+     * Get an Entity from its id
+     *
+     * @param int $id
+     *
+     * @return null|static
+     */
+    public static function getFromId(int $id): ?self
+    {
+        $array = explode('\\', get_called_class());
+        $class = end($array);
+        try {
+            return DB::findOneBy($class, ['id' => $id]);
+        } catch (NotFoundException $e) {
+            return null;
+        }
     }
 }
