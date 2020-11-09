@@ -19,7 +19,7 @@
 
 // }}}
 
-namespace Plugin\PollPlugin\Forms;
+namespace Plugin\Poll\Forms;
 
 use App\Core\Form;
 use function App\Core\I18n\_m;
@@ -43,11 +43,11 @@ class PollResponseForm extends Form
         for ($i = 1; $i <= count($opts); ++$i) {
             $options[$opts[$i - 1]] = $i;
         }
-        array_push($formOptions, ['Options:', ChoiceType::class, [
+        $formOptions[0] = ['Options:', ChoiceType::class, [
             'choices'  => $options,
             'expanded' => true,
-        ]]);
-        array_push($formOptions, ['save', SubmitType::class, ['label' => _m('Submit')]]);
+        ]];
+        $formOptions[1] = ['save', SubmitType::class, ['label' => _m('Submit')]];
 
         return parent::create($formOptions);
     }

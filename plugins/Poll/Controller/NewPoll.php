@@ -19,14 +19,15 @@
 
 // }}}
 
-namespace Plugin\PollPlugin\Controller;
+namespace Plugin\Poll\Controller;
 
 use App\Core\DB\DB;
+use App\Core\Security;
 use App\Entity\Poll;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
-use Plugin\PollPlugin\Forms\NewPollForm;
+use Plugin\Poll\Forms\NewPollForm;
 use Symfony\Component\HttpFoundation\Request;
 
 const MAX_OPTS = 5;
@@ -46,55 +47,31 @@ class NewPoll
      *
      * @return array template
      */
-    public function newpoll(Request $request, int $num)
+    public function newPoll(Request $request, int $num)
     {
         $user       = Common::ensureLoggedIn();
-        $numOptions = min(max($num,MIN_OPTS),MAX_OPTS);
+        $numOptions = Common::clamp($num,MIN_OPTS,MAX_OPTS);
         $form       = NewPollForm::make($numOptions);
         $form->handleRequest($request);
         $opt = [];
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $data = $form->getData();
-                //var_dump($data);
-                $question = $data['Question'];
+                Security::sanitize($question = $data['Question']);
                 for ($i = 1; $i <= $numOptions; ++$i) {
-                    array_push($opt, $data['Option_' . $i]);
+                    Security::sanitize($opt[$i - 1] = $data['Option_' . $i]);
                 }
-                $poll = Poll::make($user->getId(), $question, $opt);
+
+                $options = implode("\n",$opt);
+                $poll    = Poll::create(['gsactor_id' => $user->getId(), 'question' => $question, 'options' => $options]);
                 DB::persist($poll);
                 DB::flush();
-                //var_dump($testPoll);
                 throw new RedirectException('showpoll', ['id' => $poll->getId()]);
             } else {
                 throw new InvalidFormException();
             }
         }
 
-        // testing
-
-        //$test = Poll::create(['id' => '0', 'uri' => 'a']);
-        //DB::persist($test);
-        //DB::flush();
-        /*
-        $loadpoll = Poll::getFromId('0');
-        var_dump($loadpoll);
-        */
-
         return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
     }
-    /*
-    public function pollsettings(Request $request)
-    {
-        $form = Form::create([['Num_of_Questions', NumberType::class, ['label' => _m(('Number of questions:'))]],['save', SubmitType::class, ['label' => _m('Continue')]]]);
-        $form->handleRequest($request);
-        if ($form->isSubmitted())
-        {
-            $data = $form->getData();
-            NewPoll::numOptions = $data['Num_of_Questions'];
-            var_dump($data);
-        }
-        return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
-    }
-    */
 }

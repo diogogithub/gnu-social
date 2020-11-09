@@ -19,7 +19,7 @@
 
 // }}}
 
-namespace Plugin\PollPlugin\Controller;
+namespace Plugin\Poll\Controller;
 
 use App\Entity\Poll;
 use App\Util\Common;
@@ -39,12 +39,11 @@ class ShowPoll
      *
      * @return array Template
      */
-    public function showpoll(Request $request, string $id)
+    public function showPoll(Request $request, string $id)
     {
         $user = Common::ensureLoggedIn();
 
         $poll = Poll::getFromId((int) $id);
-        //var_dump($poll);
 
         if ($poll == null) {
             throw new NotFoundException('Poll does not exist');
