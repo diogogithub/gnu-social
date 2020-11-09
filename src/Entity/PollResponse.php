@@ -158,6 +158,14 @@ class PollResponse extends Entity
         ];
     }
 
+    /**
+     * Checks if a user already responded to the poll
+     *
+     * @param int $pollId
+     * @param int $gsactorId user
+     *
+     * @return bool
+     */
     public static function exits(int $pollId, int $gsactorId): bool
     {
         $res = DB::dql('select pr from App\Entity\PollResponse pr

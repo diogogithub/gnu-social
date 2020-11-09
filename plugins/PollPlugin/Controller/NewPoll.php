@@ -22,15 +22,11 @@
 namespace Plugin\PollPlugin\Controller;
 
 use App\Core\DB\DB;
-use App\Core\Form;
-use function App\Core\I18n\_m;
 use App\Entity\Poll;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
 use Plugin\PollPlugin\Forms\NewPollForm;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -103,7 +99,7 @@ class NewPoll
         if ($form->isSubmitted())
         {
             $data = $form->getData();
-            $this->numOptions = $data['Num_of_Questions'];
+            NewPoll::numOptions = $data['Num_of_Questions'];
             var_dump($data);
         }
         return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];

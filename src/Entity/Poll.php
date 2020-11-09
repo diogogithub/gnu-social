@@ -166,12 +166,26 @@ class Poll extends Entity
         return DB::find('poll', ['id' => $id]);
     }
 
-    public static function make(string $question, array $opt): self
+    /**
+     *  Make new poll object
+     *
+     * @param int    $gsactorId
+     * @param string $question
+     * @param array  $opt       poll options
+     *
+     * @return static poll object
+     */
+    public static function make(int $gsactorId, string $question, array $opt): self
     {
         $options = implode("\n",$opt);
-        return self::create(['question' => $question, 'options' => $options]);
+        return self::create(['gsactor_id' => $gsactorId, 'question' => $question, 'options' => $options]);
     }
 
+    /**
+     * Gets options in array format
+     *
+     * @return array of options
+     */
     public function getOptionsArr(): array
     {
         return explode("\n", $this->options);
