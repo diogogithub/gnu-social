@@ -30,6 +30,13 @@ use Symfony\Component\Form\Form as SymfForm;
 const MAX_OPT = 5;
 class NewPollForm extends Form
 {
+    /**
+     * Creates a form with variable num of fields
+     *
+     * @param int $optionNum
+     *
+     * @return SymfForm
+     */
     public static function make(int $optionNum): SymfForm
     {
         $optionNum = min(MAX_OPT,$optionNum);
