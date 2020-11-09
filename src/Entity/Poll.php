@@ -106,7 +106,9 @@ class Poll extends Entity
     // }}} Autocode
 
     /**
-     * The One True Thingy that must be defined and declared.
+     * Entity schema definition
+     *
+     * @return array schema definition
      */
     public static function schemaDef(): array
     {
@@ -129,17 +131,38 @@ class Poll extends Entity
         ];
     }
 
+    /**
+     *  Get poll object from its id
+     *
+     * @param int $id
+     *
+     * @return null|static
+     */
     public static function getFromId(int $id): ?self
     {
         return DB::find('poll', ['id' => $id]);
     }
 
-    public static function make(string $question, array $opt): self
+    /**
+     *  Make new poll object
+     *
+     * @param int    $gsactorId
+     * @param string $question
+     * @param array  $opt       poll options
+     *
+     * @return static poll object
+     */
+    public static function make(int $gsactorId, string $question, array $opt): self
     {
         $options = implode("\n",$opt);
-        return self::create(['question' => $question, 'options' => $options]);
+        return self::create(['gsactor_id' => $gsactorId, 'question' => $question, 'options' => $options]);
     }
 
+    /**
+     * Gets options in array format
+     *
+     * @return array of options
+     */
     public function getOptionsArr(): array
     {
         return explode("\n", $this->options);
@@ -163,18 +186,27 @@ class Poll extends Entity
         return true;
     }
 
+    /**
+     * Counts responses from each option from a poll object, stores them into an array
+     *
+     * @return array with question and num of responses
+     */
     public function countResponses(): array
     {
         $responses = [];
         $options   = $this->getOptionsArr();
-        for ($i = 1; $i <= count($options); ++$i) {
-            $responses[$options[$i - 1]] = $count = DB::dql('select count(pr) from App\Entity\Poll p, App\Entity\PollResponse pr
+        for ($i = 0; $i < count($options); ++$i) {
+            $responses[$options[$i]] = DB::dql('select count(pr) from App\Entity\Poll p, App\Entity\PollResponse pr
                     where pr.poll_id = :id and pr.selection = :selection',
-                ['id' => $this->id, 'selection' => $i])[0][1] / $this->id; //todo: fix
+                ['id' => $this->id, 'selection' => $i + 1])[0][1] / $this->id; //todo: fix
+
+            /*
+            var_dump(DB::dql('select count(pr) from App\Entity\Poll p, App\Entity\PollResponse pr
+                    where pr.poll_id = :id and pr.selection = :selection',
+                ['id' => $this->id, 'selection' => $i + 1])[0][1]);
+            */
         }
 
-        //echo var_dump($count);
-        //var_dump($responses);
         return $responses;
     }
 

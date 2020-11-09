@@ -29,6 +29,13 @@ use Symfony\Component\Form\Form as SymfForm;
 
 class PollResponseForm extends Form
 {
+    /**
+     * Creates a radio form with the options given
+     *
+     * @param array $opts options
+     *
+     * @return SymfForm
+     */
     public static function make(array $opts): SymfForm
     {
         $formOptions = [];
