@@ -53,24 +53,18 @@ class RespondPoll
         $user = Common::ensureLoggedIn();
 
         $poll = Poll::getFromId((int) $id);
-        //var_dump($poll);
-
         if ($poll == null) {
             throw new NotFoundException('Poll does not exist');
         }
+
         $question = $poll->getQuestion();
-        // echo $question;
-        $opts = $poll->getOptionsArr();
-        //var_dump($opts);
-
-        $form = PollResponseForm::make($opts);
-
+        $opts     = $poll->getOptionsArr();
+        $form     = PollResponseForm::make($opts);
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
                 $data      = $form->getData();
                 $selection = array_values($data)[1];
-                //echo $selection;
                 if (!$poll->isValidSelection($selection)) {
                     throw new InvalidFormException();
                 }
@@ -81,7 +75,7 @@ class RespondPoll
                 $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
                 DB::persist($pollResponse);
                 DB::flush();
-                //var_dump($pollResponse);
+
                 throw new RedirectException('showpoll', ['id' => $poll->getId()]);
             } else {
                 throw new InvalidFormException();

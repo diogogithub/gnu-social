@@ -55,8 +55,7 @@ class NewPoll
         $opt = [];
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
-                $data = $form->getData();
-                //var_dump($data);
+                $data     = $form->getData();
                 $question = $data['Question'];
                 for ($i = 1; $i <= $numOptions; ++$i) {
                     array_push($opt, $data['Option_' . $i]);
@@ -64,37 +63,12 @@ class NewPoll
                 $poll = Poll::make($user->getId(), $question, $opt);
                 DB::persist($poll);
                 DB::flush();
-                //var_dump($testPoll);
                 throw new RedirectException('showpoll', ['id' => $poll->getId()]);
             } else {
                 throw new InvalidFormException();
             }
         }
 
-        // testing
-
-        //$test = Poll::create(['id' => '0', 'uri' => 'a']);
-        //DB::persist($test);
-        //DB::flush();
-        /*
-        $loadpoll = Poll::getFromId('0');
-        var_dump($loadpoll);
-        */
-
         return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
     }
-    /*
-    public function pollsettings(Request $request)
-    {
-        $form = Form::create([['Num_of_Questions', NumberType::class, ['label' => _m(('Number of questions:'))]],['save', SubmitType::class, ['label' => _m('Continue')]]]);
-        $form->handleRequest($request);
-        if ($form->isSubmitted())
-        {
-            $data = $form->getData();
-            NewPoll::numOptions = $data['Num_of_Questions'];
-            var_dump($data);
-        }
-        return ['_template' => 'Poll/newpoll.html.twig', 'form' => $form->createView()];
-    }
-    */
 }
