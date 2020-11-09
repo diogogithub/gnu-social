@@ -36,6 +36,7 @@ class Poll extends Entity
     private ?string $question;
     private ?string $options;
     private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
@@ -103,6 +104,17 @@ class Poll extends Entity
         return $this->created;
     }
 
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     /**
@@ -119,10 +131,11 @@ class Poll extends Entity
                 'id'  => ['type' => 'serial', 'not null' => true],
                 'uri' => ['type' => 'varchar', 'length' => 191],
                 //    'uri'        => ['type' => 'varchar', 'length' => 191, 'not null' => true],
-                'gsactor_id' => ['type' => 'int'], //-> gsactor id?
+                'gsactor_id' => ['type' => 'int'],
                 'question'   => ['type' => 'text'],
                 'options'    => ['type' => 'text'],
-                'created'    => ['type' => 'datetime', 'not null' => true],
+                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             //  'unique keys' => [
@@ -196,15 +209,9 @@ class Poll extends Entity
         $responses = [];
         $options   = $this->getOptionsArr();
         for ($i = 0; $i < count($options); ++$i) {
-            $responses[$options[$i]] = DB::dql('select count(pr) from App\Entity\Poll p, App\Entity\PollResponse pr
+            $responses[$options[$i]] = DB::dql('select count(pr) from App\Entity\PollResponse pr
                     where pr.poll_id = :id and pr.selection = :selection',
-                ['id' => $this->id, 'selection' => $i + 1])[0][1] / $this->id; //todo: fix
-
-            /*
-            var_dump(DB::dql('select count(pr) from App\Entity\Poll p, App\Entity\PollResponse pr
-                    where pr.poll_id = :id and pr.selection = :selection',
-                ['id' => $this->id, 'selection' => $i + 1])[0][1]);
-            */
+                ['id' => $this->id, 'selection' => $i + 1])[0][1];
         }
 
         return $responses;
