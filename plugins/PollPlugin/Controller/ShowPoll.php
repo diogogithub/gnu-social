@@ -23,10 +23,22 @@ namespace Plugin\PollPlugin\Controller;
 
 use App\Entity\Poll;
 use App\Util\Common;
+use App\Util\Exception\NotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 
 class ShowPoll
 {
+    /**
+     * Show poll
+     *
+     * @param Request $request
+     * @param string  $id      poll id
+     *
+     * @throws NotFoundException                  poll does not exist
+     * @throws \App\Util\Exception\NoLoggedInUser user is not logged in
+     *
+     * @return array Template
+     */
     public function showpoll(Request $request, string $id)
     {
         $user = Common::ensureLoggedIn();
@@ -34,8 +46,8 @@ class ShowPoll
         $poll = Poll::getFromId((int) $id);
         //var_dump($poll);
 
-        if ($poll == null) {//|| !$poll->isVisibleTo($user)) { todo
-            throw new NoSuchPollException(); //?
+        if ($poll == null) {
+            throw new NotFoundException('Poll does not exist');
         }
 
         return ['_template' => 'Poll/showpoll.html.twig', 'poll' => $poll];

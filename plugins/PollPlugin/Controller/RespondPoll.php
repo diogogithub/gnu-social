@@ -26,8 +26,9 @@ use App\Entity\Poll;
 use App\Entity\PollResponse;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
-use League\Uri\Exception;
+use App\Util\Exception\ServerException;
 use Plugin\PollPlugin\Forms\PollResponseForm;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -35,6 +36,17 @@ class RespondPoll
 {
     /**
      * Handle poll response
+     *
+     * @param Request $request
+     * @param string  $id      poll id
+     *
+     * @throws InvalidFormException               invalid form
+     * @throws NotFoundException                  poll does not exist
+     * @throws RedirectException
+     * @throws ServerException                    User already responded to poll
+     * @throws \App\Util\Exception\NoLoggedInUser User is not logged in
+     *
+     * @return array template
      */
     public function respondpoll(Request $request, string $id)
     {
@@ -43,8 +55,8 @@ class RespondPoll
         $poll = Poll::getFromId((int) $id);
         //var_dump($poll);
 
-        if ($poll == null) {//|| !$poll->isVisibleTo($user)) { todo
-            throw new Exception(); //?fix
+        if ($poll == null) {
+            throw new NotFoundException('Poll does not exist');
         }
         $question = $poll->getQuestion();
         // echo $question;
@@ -55,21 +67,25 @@ class RespondPoll
 
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
-            $data      = $form->getData();
-            $selection = array_values($data)[1];
-            //echo $selection;
-            if (!$poll->isValidSelection($selection)) {
+            if ($form->isValid()) {
+                $data      = $form->getData();
+                $selection = array_values($data)[1];
+                //echo $selection;
+                if (!$poll->isValidSelection($selection)) {
+                    throw new InvalidFormException();
+                }
+                if (PollResponse::exits($poll->getId(), $user->getId())) {
+                    throw new ServerException('User already responded to poll');
+                }
+
+                $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
+                DB::persist($pollResponse);
+                DB::flush();
+                //var_dump($pollResponse);
+                throw new RedirectException('showpoll', ['id' => $poll->getId()]);
+            } else {
                 throw new InvalidFormException();
             }
-            if (PollResponse::exits($poll->getId(),$user->getId())) {
-                throw new Exception();
-            }
-
-            $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
-            DB::persist($pollResponse);
-            DB::flush();
-            //var_dump($pollResponse);
-            throw new RedirectException('showpoll', ['id' => $poll->getId()]);
         }
 
         return ['_template' => 'Poll/respondpoll.html.twig', 'question' => $question, 'form' => $form->createView()];
