@@ -25,6 +25,16 @@ use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
 
+/**
+ * For storing a poll response
+ *
+ * @package  GNUsocial
+ * @category PollPlugin
+ *
+ * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class PollResponse extends Entity
 {
     // {{{ Autocode

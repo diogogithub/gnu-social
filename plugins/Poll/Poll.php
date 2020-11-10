@@ -25,6 +25,16 @@ use App\Core\Module;
 use App\Core\Router\RouteLoader;
 use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
 
+/**
+ * Poll plugin main class
+ *
+ * @package  GNUsocial
+ * @category PollPlugin
+ *
+ * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 const ID_FMT = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 
 /**

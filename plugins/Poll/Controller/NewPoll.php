@@ -30,6 +30,16 @@ use App\Util\Exception\RedirectException;
 use Plugin\Poll\Forms\NewPollForm;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Create a Poll
+ *
+ * @package  GNUsocial
+ * @category PollPlugin
+ *
+ * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 const MAX_OPTS = 5;
 const MIN_OPTS = 2;
 
