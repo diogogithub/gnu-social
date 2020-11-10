@@ -26,6 +26,16 @@ use App\Util\Common;
 use App\Util\Exception\NotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Show a Poll
+ *
+ * @package  GNUsocial
+ * @category PollPlugin
+ *
+ * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class ShowPoll
 {
     /**
