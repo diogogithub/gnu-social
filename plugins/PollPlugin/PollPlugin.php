@@ -23,7 +23,6 @@ namespace Plugin\PollPlugin;
 use App\Core\Event;
 use App\Core\Module;
 use App\Core\Router\RouteLoader;
-use Plugin\PollPlugin\Entity\Poll;
 use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
 
 const ID_FMT = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
@@ -40,7 +39,6 @@ class PollPlugin extends Module
     public function onAddRoute(RouteLoader $r): bool
     {
         $r->connect('newpollnum', 'main/poll/new/{num<\\d*>}', [Controller\NewPoll::class, 'newpoll']);
-        //$r->connect('showpoll', 'main/poll/:{id<' . ID_FMT . '>}' , [Controller\ShowPoll::class, 'showpoll']); //doesnt work
         $r->connect('showpoll', 'main/poll/{id<\\d*>}',[Controller\ShowPoll::class, 'showpoll']);
         $r->connect('respondpoll', 'main/poll/{id<\\d*>}/respond',[Controller\RespondPoll::class, 'respondpoll']);
         $r->connect('newpoll', 'main/poll/new', RedirectController::class, ['defaults' => ['route' => 'newpollnum', 'num' => 3]]);
