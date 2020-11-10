@@ -172,7 +172,6 @@ class PollResponse extends Entity
         $res = DB::dql('select pr from App\Entity\PollResponse pr
                    where pr.poll_id = :pollId and pr.gsactor_id = :gsactorId',
                 ['pollId' => $pollId, 'gsactorId' => $gsactorId]);
-        //var_dump( $res);
         return count($res) != 0;
     }
 }
