@@ -26,6 +26,16 @@ use App\Core\Entity;
 use DateTimeInterface;
 use function Functional\id;
 
+/**
+ * For storing a poll
+ *
+ * @package  GNUsocial
+ * @category PollPlugin
+ *
+ * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class Poll extends Entity
 {
     // {{{ Autocode
