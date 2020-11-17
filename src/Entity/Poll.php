@@ -24,7 +24,6 @@ namespace App\Entity;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use DateTimeInterface;
-use function Functional\id;
 
 /**
  * For storing a poll
@@ -155,33 +154,6 @@ class Poll extends Entity
     }
 
     /**
-     *  Get poll object from its id
-     *
-     * @param int $id
-     *
-     * @return null|static
-     */
-    public static function getFromId(int $id): ?self
-    {
-        return DB::find('poll', ['id' => $id]);
-    }
-
-    /**
-     *  Make new poll object
-     *
-     * @param int    $gsactorId
-     * @param string $question
-     * @param array  $opt       poll options
-     *
-     * @return static poll object
-     */
-    public static function make(int $gsactorId, string $question, array $opt): self
-    {
-        $options = implode("\n",$opt);
-        return self::create(['gsactor_id' => $gsactorId, 'question' => $question, 'options' => $options]);
-    }
-
-    /**
      * Gets options in array format
      *
      * @return array of options
@@ -198,11 +170,8 @@ class Poll extends Entity
      *
      * @return bool
      */
-    public function isValidSelection($selection): bool
+    public function isValidSelection(int $selection): bool
     {
-        if ($selection != (int) $selection) {
-            return false;
-        }
         if ($selection < 1 || $selection > count($this->getOptionsArr())) {
             return false;
         }
@@ -219,8 +188,8 @@ class Poll extends Entity
         $responses = [];
         $options   = $this->getOptionsArr();
         for ($i = 0; $i < count($options); ++$i) {
-            $responses[$options[$i]] = DB::dql('select count(pr) from App\Entity\PollResponse pr
-                    where pr.poll_id = :id and pr.selection = :selection',
+            $responses[$options[$i]] = DB::dql('select count(pr) from App\Entity\PollResponse pr ' .
+                    'where pr.poll_id = :id and pr.selection = :selection',
                 ['id' => $this->id, 'selection' => $i + 1])[0][1];
         }
 

@@ -16,23 +16,18 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Tests\Util\Form\ActorArrayTransformer;
+namespace App\Tests\Util\Common;
 
-use App\Entity\Poll;
+use App\Util\Common;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class PollTest extends WebTestCase
+class CommonTest extends WebTestCase
 {
-    public function testPoll()
+    public function testClamp()
     {
-        $poll1 = Poll::create(['options' => implode("\n",['option 1', '2nd option'])]);
-        static::assertSame("option 1\n2nd option", $poll1->getOptions());
-        static::assertSame(['option 1', '2nd option'], $poll1->getOptionsArr());
-
-        static::assertTrue($poll1->isValidSelection(1));
-        static::assertTrue($poll1->isValidSelection(2));
-
-        static::assertFalse($poll1->isValidSelection(0));
-        static::assertFalse($poll1->isValidSelection(3));
+        static::assertSame(2, Common::clamp(2,0,3));
+        static::assertSame(2, Common::clamp(2,2,3));
+        static::assertSame(1, Common::clamp(2,0,1));
+        static::assertSame(3, Common::clamp(2,3,5));
     }
 }

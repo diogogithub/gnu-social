@@ -19,7 +19,7 @@
 
 // }}}
 
-namespace Plugin\PollPlugin\Controller;
+namespace Plugin\Poll\Controller;
 
 use App\Core\DB\DB;
 use App\Entity\Poll;
@@ -29,7 +29,7 @@ use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
-use Plugin\PollPlugin\Forms\PollResponseForm;
+use Plugin\Poll\Forms\PollResponseForm;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -42,7 +42,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class RespondPoll
+class AnswerPoll
 {
     /**
      * Respond poll
@@ -58,7 +58,7 @@ class RespondPoll
      *
      * @return array template
      */
-    public function respondpoll(Request $request, string $id)
+    public function answerPoll(Request $request, string $id)
     {
         $user = Common::ensureLoggedIn();
 
@@ -81,7 +81,6 @@ class RespondPoll
                 if (PollResponse::exits($poll->getId(), $user->getId())) {
                     throw new ServerException('User already responded to poll');
                 }
-
                 $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
                 DB::persist($pollResponse);
                 DB::flush();

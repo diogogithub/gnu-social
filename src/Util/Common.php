@@ -205,4 +205,18 @@ abstract class Common
             self::sizeStrToInt(ini_get('memory_limit'))
         );
     }
+
+    /**
+     * Clamps a value between 2 numbers
+     *
+     * @param int $current
+     * @param int $min
+     * @param int $max
+     *
+     * @return int clamped value
+     */
+    public static function clamp(int $current,int $min,int $max): int
+    {
+        return min(max($current,$min),$max);
+    }
 }

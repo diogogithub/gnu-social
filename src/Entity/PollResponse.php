@@ -152,6 +152,9 @@ class PollResponse extends Entity
                 //'poll_uri_key' => array('uri'),
                 //'poll_response_poll_id_gsactor_id_key' => ['poll_id', 'gsactor_id'], //doctrine bug?
             ],
+            'foreign keys' => [
+                'foreign_poll' => ['poll', ['poll_id' => 'id']],
+            ],
 
             'indexes' => [
                 'poll_response_gsactor_id_poll_id_index' => ['gsactor_id', 'poll_id'],
@@ -169,8 +172,8 @@ class PollResponse extends Entity
      */
     public static function exits(int $pollId, int $gsactorId): bool
     {
-        $res = DB::dql('select pr from App\Entity\PollResponse pr
-                   where pr.poll_id = :pollId and pr.gsactor_id = :gsactorId',
+        $res = DB::dql('select pr from App\Entity\PollResponse pr ' .
+                   'where pr.poll_id = :pollId and pr.gsactor_id = :gsactorId',
                 ['pollId' => $pollId, 'gsactorId' => $gsactorId]);
         return count($res) != 0;
     }
