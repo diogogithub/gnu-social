@@ -1,5 +1,5 @@
 #!/bin/sh
-USAGE = "Usage: $0 new domain <domain_name>\n     : $0 new user <user_name> <user_password>\n     : $0 new alias <user_alias> <user_name>"
+USAGE="Usage: $0 new domain <domain_name>\n     : $0 new user <user_name> <user_password>\n     : $0 new alias <user_alias> <user_name>"
 
 if [ -z "$2" ]
 then

@@ -1,18 +1,4 @@
 #!/bin/sh
-# Config postfix
-postconf -e myhostname="$MAILNAME"
-postconf -e mydomain="$DOMAINNAME"
-postconf -e smtpd_tls_cert_file="$SSL_CERT"
-postconf -e smtpd_tls_key_file="$SSL_KEY"
-
-# Config dovecot
-sed -i -e "s#^\s*ssl_cert\s*=.*#ssl_cert = <$SSL_CERT#" /etc/mail/dovecot/dovecot.conf
-sed -i -e "s#^\s*ssl_key\s*=.*#ssl_key = <$SSL_KEY#" /etc/mail/dovecot/dovecot.conf
-sed -i -e "s#^\s*hostname\s*=.*#hostname = $MAILNAME#" /etc/mail/dovecot/dovecot.conf
-sed -i -e "s#^\s*postmaster_address\s*=.*#postmaster_address = $POSTMASTER#" /etc/mail/dovecot/dovecot.conf
-
-# Config dkim
-sed -i -e "s/#HOSTNAME/$MAILNAME/" /etc/mail/opendkim/TrustedHosts
 
 # Run openssl
 if [ ! -e "$SSL_CERT" ]
@@ -28,6 +14,7 @@ then
 	opendkim-genkey -d "$DOMAINNAME" -D "/var/opendkim/keys"
 fi
 
+# Prepare postfix
 if [ ! -d "/var/mail/$DOMAINNAME" ]
 then
 	touch /etc/mail/aliases /etc/mail/domains /etc/mail/mailboxes /etc/mail/passwd
