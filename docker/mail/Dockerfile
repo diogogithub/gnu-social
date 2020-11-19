@@ -36,7 +36,7 @@ RUN \
 COPY rootfs/ /
 
 # Expose ports
-EXPOSE 25 143 587 993
+EXPOSE 110 143 587 993 995
 
 # Run start script
 ENTRYPOINT /usr/bin/start.sh

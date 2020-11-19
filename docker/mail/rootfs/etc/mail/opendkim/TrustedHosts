@@ -8,6 +8,3 @@
 172.17.0.0/16
 fe80::/64
 #HOSTNAME
-
-#host.example.com
-#192.168.1.0/24
