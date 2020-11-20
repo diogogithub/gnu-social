@@ -20,10 +20,23 @@
 
 namespace Plugin\Poll;
 
+use App\Core\DB\DB;
 use App\Core\Event;
+use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Core\Module;
 use App\Core\Router\RouteLoader;
+use App\Entity\Note;
+use App\Entity\Poll as PollEntity;
+use App\Entity\PollResponse;
+use App\Util\Common;
+use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\ServerException;
+use Plugin\Poll\Forms\PollResponseForm;
 use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Poll plugin main class
@@ -63,6 +76,54 @@ class Poll extends Module
         $r->connect('answerpoll', 'main/poll/{id<\\d*>}/respond',[Controller\AnswerPoll::class, 'answerpoll']);
         $r->connect('newpoll', 'main/poll/new', RedirectController::class, ['defaults' => ['route' => 'newpollnum', 'num' => 3]]);
 
+        return Event::next;
+    }
+
+    public function onStartTwigPopulateVars(array &$vars): bool
+    {
+        $vars['tabs'] = [['title' => 'Poll',
+            'href'                => 'newpoll',
+        ]];
+        return Event::next;
+    }
+
+    /**
+     * Display a poll in the timeline
+     */
+    public function onShowNoteContent(Request $request, Note $note, array &$actions)
+    {
+        $user = Common::ensureLoggedIn();
+        $poll = PollEntity::getFromId(21);
+
+        if (!PollResponse::exits($poll->getId(), $user->getId())) {
+            $form = PollResponseForm::make($poll, $note->getId());
+            $ret  = self::noteActionHandle($request, $form, $note, 'pollresponse', function ($note, $data) {
+                $user = Common::ensureLoggedIn();
+                $poll = PollEntity::getFromId(21); //substituir por get from note
+                $selection = array_values($data)[1];
+                if (!$poll->isValidSelection($selection)) {
+                    throw new InvalidFormException();
+                }
+                if (PollResponse::exits($poll->getId(), $user->getId())) {
+                    throw new ServerException('User already responded to poll');
+                }
+                $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
+                DB::persist($pollResponse);
+                DB::flush();
+                return Event::stop;
+            });
+        } else {
+            $options[] = ['Question', TextType::class, ['data' => $poll->getQuestion(), 'label' => _m(('Question')), 'disabled' => true]];
+            $responses = $poll->countResponses();
+            $i         = 0;
+            foreach ($responses as $option => $num) {
+                //['Option_i',   TextType::class,   ['label' => _m('Option i')]],
+                $options[] = ['Option_' . $i, NumberType::class, ['data' => $num, 'label' => $option, 'disabled' => true]];
+                ++$i;
+            }
+            $form = Form::create($options);
+        }
+        $actions[] = $form->createView();
         return Event::next;
     }
 }

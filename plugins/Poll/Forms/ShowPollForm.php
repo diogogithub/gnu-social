@@ -25,8 +25,6 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Entity\Poll;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Form as SymfForm;
 
@@ -40,34 +38,29 @@ use Symfony\Component\Form\Form as SymfForm;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class PollResponseForm extends Form
+class ShowPollForm extends Form
 {
     /**
      * Creates a radio form with the options given
      *
-     * @param Poll $poll
-     * @param int  $noteId
+     * @param array $opts options
      *
      * @return SymfForm
      */
-    public static function make(Poll $poll,int $noteId): SymfForm
+    public static function make(Poll $poll): SymfForm
     {
         $opts        = $poll->getOptionsArr();
         $question    = $poll->getQuestion();
         $formOptions = [];
-        $options     = [];
         for ($i = 1; $i <= count($opts); ++$i) {
             $options[$opts[$i - 1]] = $i;
         }
-        $formOptions = [
-            ['Question', TextType::class, ['data' => $question, 'label' => _m(('Question')), 'disabled' => true]],
-            ['Options:', ChoiceType::class, [
-                'choices'  => $options,
-                'expanded' => true,
-            ]],
-            ['note_id',     HiddenType::class, ['data' => $noteId]],
-            ['pollresponse', SubmitType::class, ['label' => _m('Submit')]],
-        ];
+        $formOptions[] = ['Question', TextType::class, ['data' => $question, 'label' => _m(('Question')), 'disabled' => true]];
+        $formOptions[] = ['Options:', ChoiceType::class, [
+            'choices'  => $options,
+            'expanded' => true,
+        ]];
+
         return parent::create($formOptions);
     }
 }
