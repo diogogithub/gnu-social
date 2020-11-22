@@ -42,11 +42,10 @@ RUN \
 	&& chmod +x "/etc/service/rsyslog/run"
 
 # Prepare user
-RUN \
-	mkdir -p "/var/mail/${DOMAINNAME}" \
-	&& mkdir -p "/var/mail/${DOMAINPART}/${USER@*}" \
+RUN mkdir -p "/var/mail/${DOMAINNAME}" \
+	&& mkdir -p "/var/mail/${DOMAINPART}/${USER%@*}" \
 	&& chown vmail:vmail "/var/mail/${DOMAINNAME}" \
-	&& chown vmail:vmail "/var/mail/${DOMAINPART}/${USER@*}"
+	&& chown vmail:vmail "/var/mail/${DOMAINPART}/${USER%@*}"
 
 # Expose ports
 EXPOSE 25 110 143 587 993 995
