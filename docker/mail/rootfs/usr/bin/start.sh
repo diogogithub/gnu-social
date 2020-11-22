@@ -14,11 +14,9 @@ then
 	opendkim-genkey -d "$DOMAINNAME" -D "/var/opendkim/keys"
 fi
 
-# Prepare postfix
-if [ ! -d "/var/mail/$DOMAINNAME" ]
-then
-	/usr/bin/new-domain.sh "$DOMAINNAME"
-fi
+postmap /etc/mail/aliases /etc/mail/domains /etc/mail/mailboxes /etc/mail/passwd
+postfix reload
+dovecot reload
 
 # Run services
 s6-svscan /etc/service

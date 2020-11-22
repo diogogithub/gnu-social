@@ -24,26 +24,29 @@ RUN \
 # Setup folders and users
 RUN \
 	groupadd -g 2222 vmail \
-	&& useradd -d /var/mail -M -s /usr/sbin/nologin -u 2222 -g 2222 vmail \
+	&& mkdir -p -m 751 "/var/mail/" \
+	&& mkdir -p -m 755 "/etc/mail/" \
+	&& useradd -d "/var/mail" -M -s "/usr/sbin/nologin" -u 2222 -g 2222 vmail \
 	&& usermod -aG vmail postfix \
 	&& usermod -aG vmail dovecot \
 	&& usermod -aG vmail opendkim\
-	&& mkdir -p -m 751 /var/mail/ \
-	&& mkdir -p -m 755 /etc/mail/ \
-	&& chown vmail:vmail /var/mail
-	
+	&& chown vmail:vmail "/var/mail"
+
 # Copy config files
 COPY rootfs/ /
 
 RUN \
-	touch /etc/mail/aliases /etc/mail/domains /etc/mail/mailboxes /etc/mail/passwd \
-	&& postmap /etc/mail/aliases && postmap /etc/mail/domains && postmap /etc/mail/mailboxes
+	chmod +x "/etc/service/postfix/run" \
+	&& chmod +x "/etc/service/dovecot/run" \
+	&& chmod +x "/etc/service/opendkim/run" \
+	&& chmod +x "/etc/service/rsyslog/run"
 
+# Prepare user
 RUN \
-	chmod +x /etc/service/postfix/run \
-	&& chmod +x /etc/service/dovecot/run \
-	&& chmod +x /etc/service/opendkim/run \
-	&& chmod +x /etc/service/rsyslog/run
+	mkdir -p "/var/mail/${DOMAINNAME}" \
+	&& mkdir -p "/var/mail/${DOMAINPART}/${USER@*}" \
+	&& chown vmail:vmail "/var/mail/${DOMAINNAME}" \
+	&& chown vmail:vmail "/var/mail/${DOMAINPART}/${USER@*}"
 
 # Expose ports
 EXPOSE 25 110 143 587 993 995
