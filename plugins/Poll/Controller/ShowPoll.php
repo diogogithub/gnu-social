@@ -21,8 +21,10 @@
 
 namespace Plugin\Poll\Controller;
 
+use App\Entity\Note;
 use App\Entity\Poll;
 use App\Util\Common;
+use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\NotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -54,6 +56,12 @@ class ShowPoll
         $user = Common::ensureLoggedIn();
 
         $poll = Poll::getFromId((int) $id);
+
+        $note = Note::getFromId($poll->getNoteId());
+
+        if (!$note->isVisibleTo($user)) {
+            throw new NoSuchNoteException();
+        }
 
         if ($poll == null) {
             throw new NotFoundException('Poll does not exist');

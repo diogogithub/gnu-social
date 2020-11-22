@@ -23,8 +23,6 @@ namespace Plugin\Poll;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Core\Form;
-use function App\Core\I18n\_m;
 use App\Core\Module;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
@@ -32,11 +30,10 @@ use App\Entity\PollResponse;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NotFoundException;
+use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use Plugin\Poll\Forms\PollResponseForm;
 use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -121,22 +118,13 @@ class Poll extends Module
                 DB::persist($pollResponse);
                 DB::flush();
 
-                return Event::stop;
+                throw new RedirectException();
             });
             if ($ret != null) {
                 return $ret;
             }
         } else {
             $responses = $poll->countResponses();
-            /*
-            $i         = 0;
-            foreach ($responses as $option => $num) {
-                //['Option_i',   TextType::class,   ['label' => _m('Option i')]],
-                $options[] = ['Option_' . $i, NumberType::class, ['data' => $num, 'label' => $option, 'disabled' => true]];
-                ++$i;
-            }
-            $form = Form::create($options);
-            */
         }
         //$test[] = $form->createView();
         $test[] = ['name' => 'Poll', 'vars' => ['question' => $poll->getQuestion(), 'responses' => $responses, 'form' => $formView]];

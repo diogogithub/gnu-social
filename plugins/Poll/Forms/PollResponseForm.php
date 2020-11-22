@@ -58,7 +58,7 @@ class PollResponseForm extends Form
             $options[$opts[$i - 1]] = $i;
         }
         $formOptions = [
-            ['Options', ChoiceType::class, [
+            ['Options' . $poll->getId(), ChoiceType::class, [
                 'choices'  => $options,
                 'expanded' => true,
             ]],
