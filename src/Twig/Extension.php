@@ -50,6 +50,7 @@ class Extension extends AbstractExtension
             new TwigFunction('is_route', [Runtime::class, 'isCurrentRoute']),
             new TwigFunction('get_note_actions', [Runtime::class, 'getNoteActions']),
             new TwigFunction('get_note_test', [Runtime::class, 'getNoteTest']),
+            new TwigFunction('get_show_styles', [Runtime::class, 'getShowStyles']),
             new TwigFunction('config', [Runtime::class, 'getConfig']),
             new TwigFunction('icon', [Runtime::class, 'embedSvgIcon'], ['needs_environment' => true]),
         ];

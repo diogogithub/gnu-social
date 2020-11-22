@@ -42,6 +42,7 @@ class Poll extends Entity
     private int $id;
     private ?string $uri;
     private ?int $gsactor_id;
+    private int $note_id;
     private ?string $question;
     private ?string $options;
     private DateTimeInterface $created;
@@ -78,6 +79,17 @@ class Poll extends Entity
     public function getGsactorId(): ?int
     {
         return $this->gsactor_id;
+    }
+
+    public function setNoteId(int $note_id): self
+    {
+        $this->note_id = $note_id;
+        return $this;
+    }
+
+    public function getNoteId(): int
+    {
+        return $this->note_id;
     }
 
     public function setQuestion(?string $question): self
@@ -137,19 +149,19 @@ class Poll extends Entity
             'name'        => 'poll',
             'description' => 'Per-notice poll data for Poll plugin',
             'fields'      => [
-                'id'  => ['type' => 'serial', 'not null' => true],
-                'uri' => ['type' => 'varchar', 'length' => 191],
-                //    'uri'        => ['type' => 'varchar', 'length' => 191, 'not null' => true],
+                'id'         => ['type' => 'serial', 'not null' => true],
+                'uri'        => ['type' => 'varchar', 'length' => 191],
                 'gsactor_id' => ['type' => 'int'],
+                'note_id'    => ['type' => 'int', 'not null' => true],
                 'question'   => ['type' => 'text'],
                 'options'    => ['type' => 'text'],
                 'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
-            //  'unique keys' => [
-            //      'poll_uri_key' => ['uri'],
-            //  ],
+            'unique keys' => [
+                'poll_note_id' => ['note_id'],
+            ],
         ];
     }
 

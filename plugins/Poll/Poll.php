@@ -22,20 +22,17 @@ namespace Plugin\Poll;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Core\Form;
-use function App\Core\I18n\_m;
 use App\Core\Module;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
-use App\Entity\Poll as PollEntity;
 use App\Entity\PollResponse;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\NotFoundException;
+use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use Plugin\Poll\Forms\PollResponseForm;
 use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -87,19 +84,41 @@ class Poll extends Module
         return Event::next;
     }
 
+    public function onStartShowStyles(array &$styles): bool
+    {
+        $styles[] = 'poll/poll.css';
+        return Event::next;
+    }
+
     /**
      * Display a poll in the timeline
      */
-    public function onShowNoteContent(Request $request, Note $note, array &$actions)
+    public function onShowNoteContent(Request $request, Note $note, array &$test)
     {
-        $user = Common::ensureLoggedIn();
-        $poll = PollEntity::getFromId(21);
+        $responses = null;
+        $formView  = null;
+        try {
+            $poll = DB::findOneBy('poll', ['note_id' => $note->getId()]);
+        } catch (NotFoundException $e) {
+            return Event::next;
+        }
 
-        if (!PollResponse::exits($poll->getId(), $user->getId())) {
-            $form = PollResponseForm::make($poll, $note->getId());
-            $ret  = self::noteActionHandle($request, $form, $note, 'pollresponse', function ($note, $data) {
+        if (Common::isLoggedIn() && !PollResponse::exits($poll->getId(), Common::ensureLoggedIn()->getId())) {
+            $form     = PollResponseForm::make($poll, $note->getId());
+            $formView = $form->createView();
+            $ret      = self::noteActionHandle($request, $form, $note, 'pollresponse', /** TODO Documentation */ function ($note, $data) {
                 $user = Common::ensureLoggedIn();
-                $poll = PollEntity::getFromId(21); //substituir por get from note
+
+                try {
+                    $poll = DB::findOneBy('poll', ['note_id' => $note->getId()]);
+                } catch (NotFoundException $e) {
+                    return Event::next;
+                }
+
+                if (PollResponse::exits($poll->getId(), $user->getId())) {
+                    return Event::next;
+                }
+
                 $selection = array_values($data)[1];
                 if (!$poll->isValidSelection($selection)) {
                     throw new InvalidFormException();
@@ -110,20 +129,17 @@ class Poll extends Module
                 $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
                 DB::persist($pollResponse);
                 DB::flush();
-                return Event::stop;
+
+                throw new RedirectException();
             });
-        } else {
-            $options[] = ['Question', TextType::class, ['data' => $poll->getQuestion(), 'label' => _m(('Question')), 'disabled' => true]];
-            $responses = $poll->countResponses();
-            $i         = 0;
-            foreach ($responses as $option => $num) {
-                //['Option_i',   TextType::class,   ['label' => _m('Option i')]],
-                $options[] = ['Option_' . $i, NumberType::class, ['data' => $num, 'label' => $option, 'disabled' => true]];
-                ++$i;
+            if ($ret != null) {
+                return $ret;
             }
-            $form = Form::create($options);
+        } else {
+            $responses = $poll->countResponses();
         }
-        $actions[] = $form->createView();
+        //$test[] = $form->createView();
+        $test[] = ['name' => 'Poll', 'vars' => ['question' => $poll->getQuestion(), 'responses' => $responses, 'form' => $formView]];
         return Event::next;
     }
 }
