@@ -1,0 +1,6 @@
+#!/bin/sh
+PID=$(pgrep opendkim)
+if [ -z $PID ]
+then
+    exec /usr/sbin/opendkim -x /etc/mail/opendkim/opendkim.conf
+fi

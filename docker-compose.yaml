@@ -89,6 +89,8 @@ services:
     env_file:
       - ./docker/mail/mail.env
     ports:
+      - 25:25
+      - 110:110
       - 143:143
       - 587:587
       - 993:993
