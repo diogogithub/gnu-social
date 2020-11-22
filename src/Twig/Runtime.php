@@ -31,15 +31,11 @@
 namespace App\Twig;
 
 use App\Core\Event;
-use App\Core\Form;
-use function App\Core\I18n\_m;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Formatting;
 use Functional as F;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -79,31 +75,20 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
     {
         $test = [];
         Event::handle('show_note_content', [$this->request, $note, &$test]);
-        /*
-        $options = [];
 
-        $options[0] = ['Question', TextType::class, ['data'=>'fav color?','label' => _m(('Question')),'disabled'=>true]];
-
-        $options[1] = ['Option_1', NumberType::class, ['data'=>3,'label' => 'blue','disabled'=>true]];
-        */
-        /*
-        $options[0] = ['Question', TextType::class, ['data'=>'fav color?','label' => _m(('Question')),'disabled'=>true]];
-        $options[1] = ['Options:', ChoiceType::class, [
-            'choices'  => ['blue','green'],
-            'expanded' => true,
-        ]];
-        $options[2] = ['save', SubmitType::class, ['label' => _m('Submit')]];
-        */
-        /*
-        $form = Form::create($options);
-        $test[0] = $form->createView();
-        */
         return $test;
     }
 
     public function getConfig(...$args)
     {
         return Common::config(...$args);
+    }
+
+    public function getShowStyles()
+    {
+        $styles = [];
+        Event::handle('start_show_styles',[&$styles]);
+        return $styles;
     }
 
     // ----------------------------------------------------------

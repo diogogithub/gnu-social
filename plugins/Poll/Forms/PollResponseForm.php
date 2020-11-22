@@ -27,7 +27,6 @@ use App\Entity\Poll;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Form as SymfForm;
 
 /**
@@ -53,20 +52,18 @@ class PollResponseForm extends Form
     public static function make(Poll $poll,int $noteId): SymfForm
     {
         $opts        = $poll->getOptionsArr();
-        $question    = $poll->getQuestion();
         $formOptions = [];
         $options     = [];
         for ($i = 1; $i <= count($opts); ++$i) {
             $options[$opts[$i - 1]] = $i;
         }
         $formOptions = [
-            ['Question', TextType::class, ['data' => $question, 'label' => _m(('Question')), 'disabled' => true]],
-            ['Options:', ChoiceType::class, [
+            ['Options' . $poll->getId(), ChoiceType::class, [
                 'choices'  => $options,
                 'expanded' => true,
             ]],
             ['note_id',     HiddenType::class, ['data' => $noteId]],
-            ['pollresponse', SubmitType::class, ['label' => _m('Submit')]],
+            ['pollresponse', SubmitType::class, ['label' => _m('Vote')]],
         ];
         return parent::create($formOptions);
     }

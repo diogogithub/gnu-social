@@ -14,9 +14,13 @@
                   <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_mid.css') }}" media="screen and (max-width: 1300px)">
                   <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_small.css') }}" media="screen and (max-width: 750px)">
                   <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/reset.css') }}">
+                  {% for stylesheet in get_show_styles() %}
+                        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/' ~ stylesheet) }}">
+                  {% endfor %}
             {% endblock %}
       </head>
       <body>
+
       <div class="container">
             {% block header %}
                   <div id='header'>

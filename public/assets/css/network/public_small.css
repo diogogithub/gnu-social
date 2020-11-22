@@ -284,10 +284,25 @@
     margin-left: 0.2em;
 }
 
+.create-top-right{
+    display: flex;
+    justify-content: space-between;
+    color: var(--fg);
+    background-color: var(--bg1);
+    border-radius: 0 var(--unit-size) 0 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* tabs */
+
+.tabs{
+    padding: var(--unit-size);
+}
+
+
 /* scope options */
 .scope {
-    order: 1;
-    width: 100%;
     display: flex;
     flex-wrap: wrap;
     color: var(--fg);

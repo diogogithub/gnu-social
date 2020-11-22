@@ -38,13 +38,15 @@
                         </div>
                     </div>
                     <div class="create-right">
-                        <div class="scope">
-                            {{ form_row(post_form.visibility) }}
-
-
-                            {% for tab in tabs %}
-                                <a href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
-                            {% endfor %}
+                        <div class="create-top-right">
+                            <div class="scope">
+                                {{ form_row(post_form.visibility) }}
+                            </div>
+                            <div class="tabs">
+                                {% for tab in tabs %}
+                                    <a href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
+                                {% endfor %}
+                            </div>
                         </div>
                         <div class="input-wrapper">
                             <div class="content-input">
