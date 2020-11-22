@@ -24,6 +24,7 @@ DOMAINNAME=${domain_root}
 MAILNAME=${domain}
 SSL_CERT=/etc/letsencrypt/live/${domain_root}/fullchain.pem
 SSL_KEY=/etc/letsencrypt/live/${domain_root}/privkey.pem
+USER="${user}@${domain_root}"
 EOF
 
 DOMAINNAME="${domain_root}"
@@ -32,7 +33,7 @@ SSL_CERT="/etc/letsencrypt/live/${domain_root}/fullchain.pem"
 SSL_KEY="/etc/letsencrypt/live/${domain_root}/privkey.pem"
 
 USER="${user}@${DOMAINNAME}"
-PASS=$(mkpasswd -m sha-512 -S "" -R 5000 ${pass})
+PASSHASH=$(mkpasswd -m sha-512 -S "" -R 5000 ${pass})
 
 # Config postfix
 sed -i -e "s#^\s*myhostname\s*=.*#myhostname = ${MAILNAME}#" config/postfix/main.cf
@@ -50,7 +51,7 @@ sed -i -e "s/^.*#HOSTNAME/${MAILNAME}#HOSTNAME/" config/opendkim/TrustedHosts
 
 # Prepare mail user
 touch config/aliases config/domains config/mailboxes config/passwd
-echo "${DOMAINNAME}  #OK" >> config/domains
-echo "${USER}  ${USER}" >> config/aliases
-echo "${USER}  ${DOMAINNAME}/${user}/" >> config/mailboxes
-echo "${USER}:${PASSHASH}" >> config/passwd
+echo "${DOMAINNAME}  #OK" > config/domains
+echo "${USER}  ${USER}" > config/aliases
+echo "${USER}  ${DOMAINNAME}/${user}/" > config/mailboxes
+echo "${USER}:${PASSHASH}" > config/passwd
