@@ -1,0 +1,6 @@
+#!/bin/sh
+PID=$(pgrep master)
+if [ -z $PID ]
+then
+    exec /usr/sbin/postfix start -c /etc/mail/postfix
+fi

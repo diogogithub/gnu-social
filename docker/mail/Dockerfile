@@ -15,9 +15,9 @@ RUN \
 		opendkim-tools \
 		openssl \
 		postfix \
+		procps \
 		rsyslog \
-		supervisor \
-		telnet \
+		s6 \
 	&& apt-get autoclean \
 	&& apt-get autoremove
 
@@ -35,8 +35,18 @@ RUN \
 # Copy config files
 COPY rootfs/ /
 
+RUN \
+	touch /etc/mail/aliases /etc/mail/domains /etc/mail/mailboxes /etc/mail/passwd \
+	&& postmap /etc/mail/aliases && postmap /etc/mail/domains && postmap /etc/mail/mailboxes
+
+RUN \
+	chmod +x /etc/service/postfix/run \
+	&& chmod +x /etc/service/dovecot/run \
+	&& chmod +x /etc/service/opendkim/run \
+	&& chmod +x /etc/service/rsyslog/run
+
 # Expose ports
-EXPOSE 110 143 587 993 995
+EXPOSE 25 110 143 587 993 995
 
 # Run start script
 ENTRYPOINT /usr/bin/start.sh
