@@ -108,6 +108,11 @@ abstract class Common
         }
     }
 
+    public static function isLoggedIn(): bool
+    {
+        return  self::user() != null;
+    }
+
     /**
      * Is the given string identical to a system path or route?
      * This could probably be put in some other class, but at

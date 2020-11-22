@@ -1,0 +1,9 @@
+.poll #pollresponse_Options{
+    display:flex;
+    flex-direction: column;
+}
+
+#pollresponse > * > label{
+    vertical-align:top;
+    display: none;
+}

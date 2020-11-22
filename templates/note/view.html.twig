@@ -13,12 +13,9 @@
   <div class="note-content">
     {{ note.getContent() }}
 
-
-      {% if have_user %}
           {% for test in get_note_test(note) %}
-              {{ form(test) }}
+              {% include '/'~ test.name ~ '/view.html.twig' with {'vars': test.vars} only %}
           {% endfor %}
-      {% endif %}
 
     <div class="note-attachments">
       {% for attachment in note.getAttachments() %}
