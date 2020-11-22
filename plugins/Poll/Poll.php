@@ -133,7 +133,7 @@ class Poll extends Module
             $form = Form::create($formOptions);
 
             $formView = $form->createView();
-            $ret      = self::noteActionHandle($request, $form, $note, 'pollresponse', /** TODO Documentation */ function ($note, $data) {
+            $ret      = self::noteActionHandle($request, $form, $note, 'pollresponse', /** TODO needs documentation */ function ($note, $data) {
                 $user = Common::ensureLoggedIn();
 
                 try {
