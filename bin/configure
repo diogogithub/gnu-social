@@ -1,5 +1,9 @@
 #!/bin/sh
 
+ROOT="$(git rev-parse --show-toplevel)"
+HEIGHT=13
+WIDTH=51
+
 check_retval(){
   case $1 in
     1|255)
@@ -16,14 +20,13 @@ check_input(){
   fi
 }
 
-
 exec 3>&1
 domain_root=$(dialog \
   --title "Configure" \
-  --ok-label "Ok" \
   --clear \
+  --ok-label "Ok" \
   --cancel-label "Exit" \
-  --inputbox "Domain root:" 12 51 \
+  --inputbox "Domain root:" $HEIGHT $WIDTH \
   2>&1 1>&3)
 check_retval $?
 exec 3>&-
@@ -36,7 +39,7 @@ sub_domain=$(dialog \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
-  --inputbox "Subdomain (can be empty):" 12 51 \
+  --inputbox "Subdomain (can be empty):" $HEIGHT $WIDTH \
   2>&1 1>&3)
 check_retval $?
 exec 3>&-
@@ -47,7 +50,7 @@ signed=$(dialog \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
-  --menu "Use certificate signed by Let's Encrypt?" 12 51 2 \
+  --menu "Use certificate signed by Let's Encrypt?" $HEIGHT $WIDTH 2 \
     "Y" "" \
     "n" "" \
   2>&1 1>&3)
@@ -65,7 +68,7 @@ if [ $signed -ne 0 ]; then
     --clear \
     --ok-label "Ok" \
     --cancel-label "Exit" \
-    --inputbox "Email:" 12 51 \
+    --inputbox "Email:" $HEIGHT $WIDTH \
     2>&1 1>&3)
   check_retval $?
   exec 3>&-
@@ -79,8 +82,8 @@ else
   domain="${sub_domain}.${domain_root}"
 fi
 
-root="$(git rev-parse --show-toplevel)"
-mkdir -p root/docker/bootstrap
+mkdir -p $ROOT/docker/bootstrap
+
 
 cat > ./docker/bootstrap/bootstrap.env <<EOF
 #!/bin/sh
@@ -114,7 +117,7 @@ dbms=$(dialog \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
-  --menu "Select DBMS:" 12 51 2 \
+  --menu "Select DBMS:" $HEIGHT $WIDTH 2 \
     "postgres" "" \
     "mariadb" "" \
   2>&1 1>&3)
@@ -127,7 +130,7 @@ db=$(dialog \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
-  --inputbox "Social database name:" 12 51 \
+  --inputbox "GNU social database name:" $HEIGHT $WIDTH \
   2>&1 1>&3)
 check_retval $?
 exec 3>&-
@@ -140,7 +143,7 @@ then
     --clear \
     --ok-label "Ok" \
     --cancel-label "Exit" \
-    --inputbox "Database user:" 12 51 \
+    --inputbox "Database user:" $HEIGHT $WIDTH \
     2>&1 1>&3)
   check_retval $?
   exec 3>&-
@@ -154,7 +157,7 @@ password=$(dialog \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
-  --inputbox "Database password:" 12 51 \
+  --inputbox "Database password:" $HEIGHT $WIDTH \
   2>&1 1>&3)
 check_retval $?
 exec 3>&-
@@ -166,7 +169,7 @@ sitename=$(dialog \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
-  --inputbox "Sitename:" 12 51 \
+  --inputbox "Sitename:" $HEIGHT $WIDTH \
   2>&1 1>&3)
 check_retval $?
 exec 3>&-
@@ -178,7 +181,7 @@ admin_nick=$(dialog \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
-  --inputbox "Admin nickname:" 12 51 \
+  --inputbox "Admin nickname:" $HEIGHT $WIDTH \
   2>&1 1>&3)
 check_retval $?
 exec 3>&-
@@ -190,7 +193,7 @@ admin_password=$(dialog \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
-  --inputbox "Admin password:" 12 51 \
+  --inputbox "Admin password:" $HEIGHT $WIDTH \
   2>&1 1>&3)
 check_retval $?
 exec 3>&-
@@ -202,7 +205,7 @@ profile=$(dialog \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
-  --menu "Site profile:" 12 51 4 \
+  --menu "Site profile:" $HEIGHT $WIDTH 4 \
     "public"  "" \
     "private"  "" \
     "community"  "" \
@@ -217,13 +220,13 @@ mailer_dsn=$(dialog \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
-  --inputbox "Mailer dsn:" 12 51 \
+  --inputbox "Mailer dsn:" $HEIGHT $WIDTH \
   2>&1 1>&3)
 check_retval $?
 exec 3>&-
 check_input $mailer_dsn
 
-mkdir -p root/docker/db
+mkdir -p $ROOT/docker/db
 
 if [ "${dbms}" = 'mariadb' ]; then
   exec 3>&1
@@ -232,7 +235,7 @@ if [ "${dbms}" = 'mariadb' ]; then
     --clear \
     --ok-label "Ok" \
     --cancel-label "Exit" \
-    --inputbox "DB root password" 12 51 \
+    --inputbox "DB root password" $HEIGHT $WIDTH \
     2>&1 1>&3)
   check_retval $?
   exec 3>&-
@@ -259,7 +262,7 @@ fi
 
 echo "${database_url}" >> .env.local
 
-mkdir -p root/docker/social
+mkdir -p $ROOT/docker/social
 
 cat > ./docker/social/social.env <<EOF
 SOCIAL_DBMS="${dbms}"
@@ -276,123 +279,53 @@ MAILER_DSN="${mailer_dsn}"
 EOF
 
 
-##docker-compose 
-
-echo "version: '3.3'" > docker-compose.yaml
-
 exec 3>&1
-choice=$(dialog \
+docker_compose=$(dialog \
   --title "Services" \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
-  --checklist "Services to include in docker-compose:" 12 44 6 \
-    1 "nginx" on \
-    2 "certbot" on \
-    3 "php" on \
-    4 "db" on \
-    5 "redis" on \
+    --checklist "Services to include in docker-compose:" $HEIGHT $WIDTH 6 \
+    "nginx" "" on \
+    "certbot" "" on \
+    "php" "" on \
+    "db" "" on \
+    "redis" "" on \
+    "mail" "" on \
   2>&1 1>&3)
 check_retval $?
 exec 3>&-
 
-
+echo "version: '3.3'" > docker-compose.yaml
 echo "\nservices:" >> docker-compose.yaml
 
-case $choice in *"1"*)
-    echo "  nginx:
-    image: nginx:alpine
-    depends_on:
-      - php
-    restart: always
-    tty: false
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      # Nginx
-      - ./docker/nginx/nginx.conf:/var/nginx/social.conf
-      - ./docker/nginx/domain.sh:/var/nginx/domain.sh
-      # Certbot
-      - ./docker/certbot/www:/var/www/certbot
-      - ./docker/certbot/.files:/etc/letsencrypt
-      # Social
-      - ./public:/var/www/social/public
-    env_file:
-      - ./docker/bootstrap/bootstrap.env
-      - ./docker/db/db.env
-    command: /bin/sh -c '/var/nginx/domain.sh;
-                         while :; do
-                             sleep 6h & wait \$\${!};
-                             nginx -s reload;
-                         done &
-                         nginx -g \"daemon off;\"'\n" >> docker-compose.yaml;;
+case $docker_compose in *"nginx"*)
+  $ROOT/docker/social/nginx
 esac
 
-case $choice in *"2"*)
-    echo  "  certbot:
-    image: certbot/certbot
-    depends_on:
-      - nginx
-    # Check for certificate renewal every 12h as
-    # recomnended by Let's Encryot
-    entrypoint: /bin/sh -c 'trap exit TERM;
-                            while :; do
-                                certbot renew > /dev/null;
-                                sleep 12h & wait \$\${!};
-                            done'
-    volumes:
-      - ./docker/certbot/www:/var/www/certbot
-      - ./docker/certbot/.files:/etc/letsencrypt\n" >> docker-compose.yaml;;
+case $docker_compose in *"certbot"*)
+  $ROOT/docker/social/certbot
 esac
 
-case $choice in *"3"*)
-        echo  "  php:
-    build: docker/php
-    depends_on:
-      - db
-    restart: always
-    tty: true
-    ports:
-      - 9000:9000
-    volumes:
-      # Entrypoint
-      - ./docker/php/entrypoint.sh:/entrypoint.sh
-      - ./docker/db/wait_for_db.sh:/wait_for_db.sh
-      - ./docker/social/install.sh:/var/entrypoint.d/social_install.sh
-      # Main files
-      - .:/var/www/social
-    env_file:
-      - ./docker/social/social.env
-      - ./docker/db/db.env
-    command: /entrypoint.sh\n" >> docker-compose.yaml;;
+case $docker_compose in *"php"*)
+  $ROOT/docker/social/php
 esac
 
-case $choice in *"4"*)
-        echo "  db:
-    image: postgres:alpine
-    restart: always
-    tty: false
-    ports:
-      - 5432:5432
-    environment:
-      - PGDATA=/var/lib/postgres/data
-    env_file:
-      - ./docker/db/db.env
-    volumes:
-      - database:/var/lib/postgres/data\n" >> docker-compose.yaml;;
+case $docker_compose in *"db"*)
+  $ROOT/docker/social/db
 esac
 
-case $choice in *"5"*)
-        echo "  redis:
-    image: redis:alpine
-    restart: always
-    tty: false
-    ports:
-      - 6379:6379" >> docker-compose.yaml;;
+case $docker_compose in *"redis"*)
+  $ROOT/docker/social/redis
 esac
 
-echo "\nvolumes:\n  database:" >> docker-compose.yaml
+case $docker_compose in *"mail"*)
+  $ROOT/docker/social/mail
+esac
+
+echo "volumes:\n  database:" >> docker-compose.yaml
 clear
+
+
 
 
