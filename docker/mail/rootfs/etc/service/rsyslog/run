@@ -1,6 +1,6 @@
 #!/bin/sh
 PID=$(pgrep rsyslog)
-if [ -z ${PID} ]
+if [ -z "${PID}" ]
 then
     exec /usr/sbin/rsyslogd -f /etc/mail/rsyslogd/rsyslog.conf
 fi
