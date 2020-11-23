@@ -80,7 +80,9 @@ else
 fi
 
 root="$(git rev-parse --show-toplevel)"
-mkdir -p root/docker/bootstrap
+mkdir -p $root/docker/bootstrap
+
+
 
 cat > ./docker/bootstrap/bootstrap.env <<EOF
 #!/bin/sh
@@ -223,7 +225,7 @@ check_retval $?
 exec 3>&-
 check_input $mailer_dsn
 
-mkdir -p root/docker/db
+mkdir -p $root/docker/db
 
 if [ "${dbms}" = 'mariadb' ]; then
   exec 3>&1
@@ -259,7 +261,7 @@ fi
 
 echo "${database_url}" >> .env.local
 
-mkdir -p root/docker/social
+mkdir -p $root/docker/social
 
 cat > ./docker/social/social.env <<EOF
 SOCIAL_DBMS="${dbms}"
@@ -276,123 +278,53 @@ MAILER_DSN="${mailer_dsn}"
 EOF
 
 
-##docker-compose 
-
-echo "version: '3.3'" > docker-compose.yaml
-
 exec 3>&1
-choice=$(dialog \
+docker_compose=$(dialog \
   --title "Services" \
   --clear \
   --ok-label "Ok" \
   --cancel-label "Exit" \
   --checklist "Services to include in docker-compose:" 12 44 6 \
-    1 "nginx" on \
-    2 "certbot" on \
-    3 "php" on \
-    4 "db" on \
-    5 "redis" on \
+    "nginx" "" on \
+    "certbot" "" on \
+    "php" "" on \
+    "db" "" on \
+    "redis" "" on \
+    "mail" "" on \
   2>&1 1>&3)
 check_retval $?
 exec 3>&-
 
-
+echo "version: '3.3'" > docker-compose.yaml
 echo "\nservices:" >> docker-compose.yaml
 
-case $choice in *"1"*)
-    echo "  nginx:
-    image: nginx:alpine
-    depends_on:
-      - php
-    restart: always
-    tty: false
-    ports:
-      - 80:80
-      - 443:443
-    volumes:
-      # Nginx
-      - ./docker/nginx/nginx.conf:/var/nginx/social.conf
-      - ./docker/nginx/domain.sh:/var/nginx/domain.sh
-      # Certbot
-      - ./docker/certbot/www:/var/www/certbot
-      - ./docker/certbot/.files:/etc/letsencrypt
-      # Social
-      - ./public:/var/www/social/public
-    env_file:
-      - ./docker/bootstrap/bootstrap.env
-      - ./docker/db/db.env
-    command: /bin/sh -c '/var/nginx/domain.sh;
-                         while :; do
-                             sleep 6h & wait \$\${!};
-                             nginx -s reload;
-                         done &
-                         nginx -g \"daemon off;\"'\n" >> docker-compose.yaml;;
+case $docker_compose in *"nginx"*)
+  $root/docker/social/nginx
 esac
 
-case $choice in *"2"*)
-    echo  "  certbot:
-    image: certbot/certbot
-    depends_on:
-      - nginx
-    # Check for certificate renewal every 12h as
-    # recomnended by Let's Encryot
-    entrypoint: /bin/sh -c 'trap exit TERM;
-                            while :; do
-                                certbot renew > /dev/null;
-                                sleep 12h & wait \$\${!};
-                            done'
-    volumes:
-      - ./docker/certbot/www:/var/www/certbot
-      - ./docker/certbot/.files:/etc/letsencrypt\n" >> docker-compose.yaml;;
+case $docker_compose in *"certbot"*)
+  $root/docker/social/certbot
 esac
 
-case $choice in *"3"*)
-        echo  "  php:
-    build: docker/php
-    depends_on:
-      - db
-    restart: always
-    tty: true
-    ports:
-      - 9000:9000
-    volumes:
-      # Entrypoint
-      - ./docker/php/entrypoint.sh:/entrypoint.sh
-      - ./docker/db/wait_for_db.sh:/wait_for_db.sh
-      - ./docker/social/install.sh:/var/entrypoint.d/social_install.sh
-      # Main files
-      - .:/var/www/social
-    env_file:
-      - ./docker/social/social.env
-      - ./docker/db/db.env
-    command: /entrypoint.sh\n" >> docker-compose.yaml;;
+case $docker_compose in *"php"*)
+  $root/docker/social/php
 esac
 
-case $choice in *"4"*)
-        echo "  db:
-    image: postgres:alpine
-    restart: always
-    tty: false
-    ports:
-      - 5432:5432
-    environment:
-      - PGDATA=/var/lib/postgres/data
-    env_file:
-      - ./docker/db/db.env
-    volumes:
-      - database:/var/lib/postgres/data\n" >> docker-compose.yaml;;
+case $docker_compose in *"db"*)
+  $root/docker/social/db
 esac
 
-case $choice in *"5"*)
-        echo "  redis:
-    image: redis:alpine
-    restart: always
-    tty: false
-    ports:
-      - 6379:6379" >> docker-compose.yaml;;
+case $docker_compose in *"redis"*)
+  $root/docker/social/redis
 esac
 
-echo "\nvolumes:\n  database:" >> docker-compose.yaml
+case $docker_compose in *"mail"*)
+  $root/docker/social/mail
+esac
+
+echo "volumes:\n  database:" >> docker-compose.yaml
 clear
+
+
 
 
