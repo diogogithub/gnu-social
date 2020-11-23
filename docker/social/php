@@ -1,0 +1,21 @@
+#!/bin/sh
+
+echo  "  php:
+    build: docker/php
+    depends_on:
+      - db
+    restart: always
+    tty: true
+    ports:
+      - 9000:9000
+    volumes:
+      # Entrypoint
+      - ./docker/php/entrypoint.sh:/entrypoint.sh
+      - ./docker/db/wait_for_db.sh:/wait_for_db.sh
+      - ./docker/social/install.sh:/var/entrypoint.d/social_install.sh
+      # Main files
+      - .:/var/www/social
+    env_file:
+      - ./docker/social/social.env
+      - ./docker/db/db.env
+    command: /entrypoint.sh\n" >> docker-compose.yaml

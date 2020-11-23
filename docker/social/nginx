@@ -1,0 +1,29 @@
+#!/bin/sh
+
+echo "  nginx:
+    image: nginx:alpine
+    depends_on:
+      - php
+    restart: always
+    tty: false
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      # Nginx
+      - ./docker/nginx/nginx.conf:/var/nginx/social.conf
+      - ./docker/nginx/domain.sh:/var/nginx/domain.sh
+      # Certbot
+      - ./docker/certbot/www:/var/www/certbot
+      - ./docker/certbot/.files:/etc/letsencrypt
+      # Social
+      - ./public:/var/www/social/public
+    env_file:
+      - ./docker/bootstrap/bootstrap.env
+      - ./docker/db/db.env
+    command: /bin/sh -c '/var/nginx/domain.sh;
+                         while :; do
+                             sleep 6h & wait \$\${!};
+                             nginx -s reload;
+                         done &
+                         nginx -g \"daemon off;\"'\n" >> docker-compose.yaml

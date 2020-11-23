@@ -1,0 +1,8 @@
+#!/bin/sh
+
+echo "  redis:
+    image: redis:alpine
+    restart: always
+    tty: false
+    ports:
+      - 6379:6379\n" >> docker-compose.yaml

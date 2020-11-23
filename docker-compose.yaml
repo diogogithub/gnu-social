@@ -34,7 +34,7 @@ services:
     depends_on:
       - nginx
     # Check for certificate renewal every 12h as
-    # recomnended by Let's Encryot
+    # recommended by Let's Encrypt
     entrypoint: /bin/sh -c 'trap exit TERM;
                             while :; do
                                 certbot renew > /dev/null;
@@ -69,21 +69,21 @@ services:
     restart: always
     tty: false
     ports:
-      - 5432:5432
+        - 5432:5432
     environment:
-      - PGDATA=/var/lib/postgres/data
+        - PGDATA=/var/lib/postgres/data
     env_file:
-      - ./docker/db/db.env
+        - ./docker/db/db.env
     volumes:
-      - database:/var/lib/postgres/data
+        - database:/var/lib/postgres/data
 
   redis:
     image: redis:alpine
     restart: always
     tty: false
     ports:
-      - 6379:6379    
-  
+      - 6379:6379
+
   mail:
     build: docker/mail
     env_file:
