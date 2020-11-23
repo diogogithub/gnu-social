@@ -26,9 +26,13 @@
 
 {% block body %}
     <div class="content">
-        <div>
-        <h2>{{ question }}</h2>
-        {{ form(form) }}
+        <div class="poll">
+            <p class="poll-question">Q. {{ question }}</p>
+            {% block form %}
+            <div class='form-single'>
+                {{ form(form) }}
+            </div>
+            {% endblock form %}
         </div>
     </div>
 {% endblock body %}

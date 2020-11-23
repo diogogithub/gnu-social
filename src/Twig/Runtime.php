@@ -67,12 +67,12 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $actions;
     }
 
-    public function getNoteTest(Note $note)
+    public function getNoteOtherContent(Note $note)
     {
-        $test = [];
-        Event::handle('show_note_content', [$this->request, $note, &$test]);
+        $other = [];
+        Event::handle('show_note_content', [$this->request, $note, &$other]);
 
-        return $test;
+        return $other;
     }
 
     public function getConfig(...$args)

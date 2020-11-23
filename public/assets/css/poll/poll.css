@@ -15,10 +15,19 @@
 
 .poll .form-single ,
 .create-poll-notice .form-single{
-    padding: 0 var(--unit-size);
     height: 100%;
     width: 100%;
     border-radius: var(--small-size);
+}
+
+.poll .result{
+    display:flex;
+    padding-top: var(--unit-size) ;
+}
+
+.poll .result-vote{
+    font-weight: 650;
+    padding-left: var(--unit-size);
 }
 
 

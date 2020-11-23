@@ -81,7 +81,7 @@ class Poll extends Module
         return Event::next;
     }
 
-    public function onShowNoteContent(Request $request, Note $note, array &$test)
+    public function onShowNoteContent(Request $request, Note $note, array &$otherContent)
     {
         $responses = null;
         $formView  = null;
@@ -126,8 +126,7 @@ class Poll extends Module
         } else {
             $responses = $poll->countResponses();
         }
-        //$test[] = $form->createView();
-        $test[] = ['name' => 'Poll', 'vars' => ['question' => $poll->getQuestion(), 'responses' => $responses, 'form' => $formView]];
+        $otherContent[] = ['name' => 'Poll', 'vars' => ['question' => $poll->getQuestion(), 'responses' => $responses, 'form' => $formView]];
         return Event::next;
     }
 }

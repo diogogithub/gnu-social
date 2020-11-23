@@ -30,9 +30,7 @@ use App\Entity\Poll;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
-use Plugin\Poll\Forms\NewPollForm;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,23 +66,13 @@ class NewPoll
     {
         $user       = Common::ensureLoggedIn();
         $numOptions = Common::clamp($num,MIN_OPTS,MAX_OPTS);
-        //$form       = NewPollForm::make($numOptions);
-        /*
-        $opts    =
-            ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'expanded' => true, 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
-      //      ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => true, 'expanded' => true, 'choices' => $to_tags]],
-            ['post',        SubmitType::class,   ['label' => _m('Post')]],
-        ];
-        */
-        $opts[] = ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'expanded' => true, 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]];
-        $opts[] = ['Question', TextType::class, ['label' => _m(('Question'))]];
+        $opts[]     = ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'expanded' => true, 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]];
+        $opts[]     = ['Question', TextType::class, ['label' => _m(('Question'))]];
 
         for ($i = 1; $i <= $numOptions; ++$i) {
             //['Option_i',   TextType::class,   ['label' => _m('Option i')]],
             $opts[] = ['Option_' . $i, TextType::class, ['label' => _m(('Option ' . $i))]];
         }
-        //$subForm = Form::create($subOpts);
-        //$opts[] = ['options',FormType::class,[$subForm]];
         $opts[] = ['post_poll',        SubmitType::class,   ['label' => _m('Post')]];
 
         $form = Form::create($opts);
@@ -107,7 +95,7 @@ class NewPoll
                 $poll    = Poll::create(['gsactor_id' => $user->getId(), 'question' => $question, 'options' => $options, 'note_id' => $note->getId()]);
                 DB::persist($poll);
                 DB::flush();
-                throw new RedirectException('showpoll', ['id' => $poll->getId()]);
+                throw new RedirectException('root');
             } else {
                 throw new InvalidFormException();
             }
