@@ -67,6 +67,13 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $actions;
     }
 
+    /**
+     * get extra note content
+     *
+     * @param Note $note
+     *
+     * @return array|mixed note content
+     */
     public function getNoteOtherContent(Note $note)
     {
         $other = [];
@@ -80,6 +87,11 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return Common::config(...$args);
     }
 
+    /**
+     * get stylesheets
+     *
+     * @return array|mixed
+     */
     public function getShowStyles()
     {
         $styles = [];

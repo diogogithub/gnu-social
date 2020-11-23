@@ -67,6 +67,13 @@ class Poll extends Module
         return Event::next;
     }
 
+    /**
+     * Populate twig vars
+     *
+     * @param array $vars
+     *
+     * @return bool hook value; true means continue processing, false means stop.
+     */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
         $vars['tabs'] = [['title' => 'Poll',
@@ -75,12 +82,33 @@ class Poll extends Module
         return Event::next;
     }
 
+    /**
+     * Output our dedicated stylesheet
+     *
+     * @param array $styles stylesheets path
+     *
+     * @return bool hook value; true means continue processing, false means stop.
+     */
     public function onStartShowStyles(array &$styles): bool
     {
         $styles[] = 'poll/poll.css';
         return Event::next;
     }
 
+    /**
+     * Output our note content
+     *
+     * @param Request $request
+     * @param Note    $note
+     * @param array   $otherContent content
+     *
+     * @throws InvalidFormException               invalid forms
+     * @throws RedirectException
+     * @throws ServerException                    User already responded to poll
+     * @throws \App\Util\Exception\NoLoggedInUser user not logged in
+     *
+     * @return bool hook value; true means continue processing, false means stop.
+     */
     public function onShowNoteContent(Request $request, Note $note, array &$otherContent)
     {
         $responses = null;

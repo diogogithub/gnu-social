@@ -43,6 +43,11 @@ class Extension extends AbstractExtension
         ];
     }
 
+    /**
+     * get twig functions
+     *
+     * @return array|TwigFunction[]
+     */
     public function getFunctions()
     {
         return [

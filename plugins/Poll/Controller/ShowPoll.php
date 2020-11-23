@@ -56,15 +56,14 @@ class ShowPoll
         $user = Common::ensureLoggedIn();
 
         $poll = Poll::getFromId((int) $id);
+        if ($poll == null) {
+            throw new NotFoundException('Poll does not exist');
+        }
 
         $note = Note::getFromId($poll->getNoteId());
 
-        if (!$note->isVisibleTo($user)) {
+        if ($note == null || !$note->isVisibleTo($user)) {
             throw new NoSuchNoteException();
-        }
-
-        if ($poll == null) {
-            throw new NotFoundException('Poll does not exist');
         }
 
         return ['_template' => 'Poll/showpoll.html.twig', 'poll' => $poll];
