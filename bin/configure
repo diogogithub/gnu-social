@@ -16,38 +16,59 @@ check_input(){
   fi
 }
 
-DIALOG=${DIALOG=dialog}
-tempfile=`tempfile 2>/dev/null` || tempfile=/tmp/test$$
-trap "rm -f $tempfile" 0 1 2 5 15
 
-$DIALOG --title "Configure"  \
-        --inputbox "Domain root:" 12 51 2> $tempfile
+exec 3>&1
+domain_root=$(dialog \
+  --title "Configure" \
+  --ok-label "Ok" \
+  --clear \
+  --cancel-label "Exit" \
+  --inputbox "Domain root:" 12 51 \
+  2>&1 1>&3)
 check_retval $?
-domain_root=`cat $tempfile`
+exec 3>&-
 check_input $domain_root
 
 
-$DIALOG --title "Configure"  \
-        --inputbox "Subdomain (can be empty):" 12 51 2> $tempfile
+exec 3>&1
+sub_domain=$(dialog \
+  --title "Configure" \
+  --clear \
+  --ok-label "Ok" \
+  --cancel-label "Exit" \
+  --inputbox "Subdomain (can be empty):" 12 51 \
+  2>&1 1>&3)
 check_retval $?
-sub_domain=`cat $tempfile`
+exec 3>&-
 
-
-$DIALOG --title "Configure" --clear \
-        --menu "Use certificate signed by Let's Encrypt?" 12 51 2 \
-        "Y"  "" \
-        "n" ""  2> $tempfile
+exec 3>&1
+signed=$(dialog \
+  --title "Configure" \
+  --clear \
+  --ok-label "Ok" \
+  --cancel-label "Exit" \
+  --menu "Use certificate signed by Let's Encrypt?" 12 51 2 \
+    "Y" "" \
+    "n" "" \
+  2>&1 1>&3)
 check_retval $?
-signed=`cat $tempfile`
+exec 3>&-
 
 [ "${signed}" = "${signed#[Yy]}" ]
 signed=$?
 
+
 if [ $signed -ne 0 ]; then
-  $DIALOG --title "Configure"  \
-        --inputbox "Email:" 12 51 2> $tempfile
+  exec 3>&1
+  email=$(dialog \
+    --title "Configure" \
+    --clear \
+    --ok-label "Ok" \
+    --cancel-label "Exit" \
+    --inputbox "Email:" 12 51 \
+    2>&1 1>&3)
   check_retval $?
-  email=`cat $tempfile`
+  exec 3>&-
   check_input $email
 fi
 
@@ -58,7 +79,8 @@ else
   domain="${sub_domain}.${domain_root}"
 fi
 
-mkdir -p ./docker/bootstrap
+root="$(git rev-parse --show-toplevel)"
+mkdir -p root/docker/bootstrap
 
 cat > ./docker/bootstrap/bootstrap.env <<EOF
 #!/bin/sh
@@ -86,75 +108,137 @@ fi
 
 . ./docker/bootstrap/bootstrap.env
 
-$DIALOG --clear --title "Configure" \
-        --menu "Select DBMS:" 12 51 2 \
-        "postgres"  "" \
-        "mariadb" ""  2> $tempfile
+exec 3>&1
+dbms=$(dialog \
+  --title "Configure" \
+  --clear \
+  --ok-label "Ok" \
+  --cancel-label "Exit" \
+  --menu "Select DBMS:" 12 51 2 \
+    "postgres" "" \
+    "mariadb" "" \
+  2>&1 1>&3)
 check_retval $?
-dbms=`cat $tempfile`
+exec 3>&-
 
-$DIALOG --title "Configure" --clear \
-        --inputbox "Social database name:" 12 51 2> $tempfile
+exec 3>&1
+db=$(dialog \
+  --title "Configure" \
+  --clear \
+  --ok-label "Ok" \
+  --cancel-label "Exit" \
+  --inputbox "Social database name:" 12 51 \
+  2>&1 1>&3)
 check_retval $?
-db=`cat $tempfile`
+exec 3>&-
 
 if [ "${dbms}" = 'mariadb' ] 
 then
-  $DIALOG --title "Configure" --clear \
-          --inputbox "Database user:" 12 51 2> $tempfile
+  exec 3>&1
+  user=$(dialog \
+    --title "Configure" \
+    --clear \
+    --ok-label "Ok" \
+    --cancel-label "Exit" \
+    --inputbox "Database user:" 12 51 \
+    2>&1 1>&3)
   check_retval $?
-  user=`cat $tempfile`
+  exec 3>&-
   check_input $user
 fi
 
-$DIALOG --title "Configure" --clear \
-        --inputbox "Database password:" 12 51 2> $tempfile
+
+exec 3>&1
+password=$(dialog \
+  --title "Configure" \
+  --clear \
+  --ok-label "Ok" \
+  --cancel-label "Exit" \
+  --inputbox "Database password:" 12 51 \
+  2>&1 1>&3)
 check_retval $?
-password=`cat $tempfile`
+exec 3>&-
 check_input $password
 
-$DIALOG --title "Configure" --clear \
-        --inputbox "Sitename:" 12 51 2> $tempfile
+exec 3>&1
+sitename=$(dialog \
+  --title "Configure" \
+  --clear \
+  --ok-label "Ok" \
+  --cancel-label "Exit" \
+  --inputbox "Sitename:" 12 51 \
+  2>&1 1>&3)
 check_retval $?
-sitename=`cat $tempfile`
+exec 3>&-
 check_input $sitename
 
-$DIALOG --title "Configure" --clear \
-        --inputbox "Admin nickname:" 12 51 2> $tempfile
+exec 3>&1
+admin_nick=$(dialog \
+  --title "Configure" \
+  --clear \
+  --ok-label "Ok" \
+  --cancel-label "Exit" \
+  --inputbox "Admin nickname:" 12 51 \
+  2>&1 1>&3)
 check_retval $?
-admin_nick=`cat $tempfile`
+exec 3>&-
 check_input $admin_nick
 
-$DIALOG --title "Configure" --clear \
-        --inputbox "Admin password:" 12 51 2> $tempfile
+exec 3>&1
+admin_password=$(dialog \
+  --title "Configure" \
+  --clear \
+  --ok-label "Ok" \
+  --cancel-label "Exit" \
+  --inputbox "Admin password:" 12 51 \
+  2>&1 1>&3)
 check_retval $?
-admin_password=`cat $tempfile`
+exec 3>&-
 check_input $admin_password
 
-$DIALOG --clear --title "Configure" \
-        --menu "Site profile:" 12 51 4 \
-        "public"  "" \
-        "private"  "" \
-        "community"  "" \
-        "single_user" ""  2> $tempfile
+exec 3>&1
+profile=$(dialog \
+  --title "Configure" \
+  --clear \
+  --ok-label "Ok" \
+  --cancel-label "Exit" \
+  --menu "Site profile:" 12 51 4 \
+    "public"  "" \
+    "private"  "" \
+    "community"  "" \
+    "single_user" "" \
+  2>&1 1>&3)
 check_retval $?
-profile=`cat $tempfile`
+exec 3>&-
 
-$DIALOG --title "Configure" --clear \
-        --inputbox "Mailer dsn:" 12 51 2> $tempfile
+exec 3>&1
+mailer_dsn=$(dialog \
+  --title "Configure" \
+  --clear \
+  --ok-label "Ok" \
+  --cancel-label "Exit" \
+  --inputbox "Mailer dsn:" 12 51 \
+  2>&1 1>&3)
 check_retval $?
-mailer_dsn=`cat $tempfile`
+exec 3>&-
 check_input $mailer_dsn
 
-mkdir -p ./docker/db
+mkdir -p root/docker/db
 
 if [ "${dbms}" = 'mariadb' ]; then
-    $DIALOG --title "Configure" --clear \
-            --inputbox "DB root password" 12 51 2> $tempfile
-    check_retval $?
-    db_root_password=`cat $tempfile`
-    check_input $db_root_password
-    cat > ./docker/db/db.env <<EOF
+  exec 3>&1
+  db_root_password=$(dialog \
+    --title "Configure" \
+    --clear \
+    --ok-label "Ok" \
+    --cancel-label "Exit" \
+    --inputbox "DB root password" 12 51 \
+    2>&1 1>&3)
+  check_retval $?
+  exec 3>&-
+  check_input $db_root_password
+
+  cat > ./docker/db/db.env <<EOF
 DBMS=${dbms}
 MYSQL_ROOT_PASSWORD=${db_root_password}
 EOF
@@ -175,7 +259,7 @@ fi
 
 echo "${database_url}" >> .env.local
 
-mkdir -p ./docker/social
+mkdir -p root/docker/social
 
 cat > ./docker/social/social.env <<EOF
 SOCIAL_DBMS="${dbms}"
@@ -196,15 +280,22 @@ EOF
 
 echo "version: '3.3'" > docker-compose.yaml
 
-$DIALOG --title "Services" --clear \
-    --checklist "Services to include in docker-compose:" 12 44 6 \
-        1 "nginx" on \
-        2 "certbot" on \
-        3 "php" on \
-        4 "db" on \
-        5 "redis" on  2> $tempfile
+exec 3>&1
+choice=$(dialog \
+  --title "Services" \
+  --clear \
+  --ok-label "Ok" \
+  --cancel-label "Exit" \
+  --checklist "Services to include in docker-compose:" 12 44 6 \
+    1 "nginx" on \
+    2 "certbot" on \
+    3 "php" on \
+    4 "db" on \
+    5 "redis" on \
+  2>&1 1>&3)
 check_retval $?
-choice=`cat $tempfile`
+exec 3>&-
+
 
 echo "\nservices:" >> docker-compose.yaml
 
