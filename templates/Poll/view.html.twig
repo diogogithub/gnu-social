@@ -1,6 +1,6 @@
 
 <div class="poll">
-    <p class="poll-question">{{ vars.question }}</p>
+    <p class="poll-question">Q. {{ vars.question }}</p>
     {% if vars.form is not null %}
         {% block form %}
             <div class='form-single'>
@@ -10,7 +10,10 @@
     {%  else  %}
         <ul>
         {% for question, votes in vars.responses %}
-            <li>{{ question }}: {{ votes }}</li>
+            <li class="result">
+                <p class="result-option">{{ question }}</p>
+                <p class="result-vote">{{ votes }} </p>
+            </li>
         {% endfor %}
         </ul>
     {% endif %}

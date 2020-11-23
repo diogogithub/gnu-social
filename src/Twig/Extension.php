@@ -42,6 +42,11 @@ class Extension extends AbstractExtension
         ];
     }
 
+    /**
+     * get twig functions
+     *
+     * @return array|TwigFunction[]
+     */
     public function getFunctions()
     {
         return [
@@ -49,7 +54,7 @@ class Extension extends AbstractExtension
             new TwigFunction('active', [Runtime::class, 'isCurrentRouteActive']),
             new TwigFunction('is_route', [Runtime::class, 'isCurrentRoute']),
             new TwigFunction('get_note_actions', [Runtime::class, 'getNoteActions']),
-            new TwigFunction('get_note_test', [Runtime::class, 'getNoteTest']),
+            new TwigFunction('get_note_other_content', [Runtime::class, 'getNoteOtherContent']),
             new TwigFunction('get_show_styles', [Runtime::class, 'getShowStyles']),
             new TwigFunction('config', [Runtime::class, 'getConfig']),
             new TwigFunction('icon', [Runtime::class, 'embedSvgIcon'], ['needs_environment' => true]),
