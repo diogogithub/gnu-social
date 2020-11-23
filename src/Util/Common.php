@@ -108,6 +108,11 @@ abstract class Common
         }
     }
 
+    /**
+     * checks if user is logged in
+     *
+     * @return bool true if user is logged; false if it isn't
+     */
     public static function isLoggedIn(): bool
     {
         return  self::user() != null;

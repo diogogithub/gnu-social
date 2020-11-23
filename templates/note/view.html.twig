@@ -12,9 +12,9 @@
   </div>
   <div class="note-content">
     {{ note.getContent() }}
-      <div class="note-extra-content">
-          {% for test in get_note_test(note) %}
-              {% include '/'~ test.name ~ '/view.html.twig' with {'vars': test.vars} only %}
+      <div class="note-other-content">
+          {% for other in get_note_other_content(note) %}
+              {% include '/'~ other.name ~ '/view.html.twig' with {'vars': other.vars} only %}
           {% endfor %}
       </div>
     <div class="note-attachments">

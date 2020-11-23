@@ -51,9 +51,8 @@ class PollResponseForm extends Form
      */
     public static function make(Poll $poll,int $noteId): SymfForm
     {
-        $opts        = $poll->getOptionsArr();
-        $formOptions = [];
-        $options     = [];
+        $opts    = $poll->getOptionsArr();
+        $options = [];
         for ($i = 1; $i <= count($opts); ++$i) {
             $options[$opts[$i - 1]] = $i;
         }

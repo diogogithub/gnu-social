@@ -69,7 +69,7 @@ class AnswerPoll
 
         $question = $poll->getQuestion();
         $opts     = $poll->getOptionsArr();
-        $form     = PollResponseForm::make($opts);
+        $form     = PollResponseForm::make($poll, $poll->getNoteId());
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             if ($form->isValid()) {
