@@ -320,7 +320,7 @@ case $docker_compose in *"redis"*)
 esac
 
 case $docker_compose in *"mail"*)
-  #$ROOT/docker/social/mail
+  $ROOT/docker/social/mail
 esac
 
 echo "volumes:\n  database:" >> docker-compose.yaml

@@ -5,7 +5,7 @@ echo  "  certbot:
     depends_on:
       - nginx
     # Check for certificate renewal every 12h as
-    # recomnended by Let's Encryot
+    # recommended by Let's Encrypt
     entrypoint: /bin/sh -c 'trap exit TERM;
                             while :; do
                                 certbot renew > /dev/null;
