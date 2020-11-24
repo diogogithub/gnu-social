@@ -13,9 +13,6 @@
                 {% block secundary_nav %}
                     <nav class='set-nav'>
                         <ul>
-                            {# {% for tab in tabs %} #}
-                            {# {% endfor %} #}
-
                             <li>
                                 <a href="{{ path('settings_personal_info') }}"
                                    class='hover-effect {{ active('settings_personal_info') }}'>Personal Info</a>
@@ -23,6 +20,11 @@
                             <li>
                                 <a href="{{ path('settings_avatar') }}" class='hover-effect {{ active('settings_avatar') }}'>Avatar</a>
                             </li>
+                            {% for tab in profile_tabs %}
+                                <li>
+                                    <a href="{{ path(tab['href']) }}" class='hover-effect {{ active(tab['href']) }}' >{{ tab['title'] }}</a>
+                                </li>
+                            {% endfor %}
                         </ul>
                     </nav>
                 {% endblock secundary_nav %}
