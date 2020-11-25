@@ -67,7 +67,7 @@ class Cover
             // Can only get new id after inserting
             DB::flush();
             $cover = CoverEntity::create(['gsactor_id' => $actor_id, 'file_id' => $file->getId()]);
-            var_dump($cover);
+            //var_dump($cover);
             DB::persist($cover);
             DB::flush();
             // Only delete files if the commit went through
@@ -76,6 +76,6 @@ class Cover
             }
         }
 
-        return ['_template' => 'Cover/cover.html.twig', 'form' => $form->createView()];
+        return ['_template' => 'cover/cover.html.twig', 'form' => $form->createView()];
     }
 }
