@@ -46,6 +46,12 @@ parameters:
       default: "/assets/default-avatar.svg"
       max_size_px: 300
 
+    cover:
+      server:
+      ssl:
+      dir: "%kernel.project_dir%/file/cover/"
+      max_size_px: 300
+
     javascript:
       server:
       ssl:

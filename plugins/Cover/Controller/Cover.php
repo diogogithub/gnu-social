@@ -21,8 +21,13 @@
 
 namespace Plugin\Cover\Controller;
 
+use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Entity\Cover as CoverEntity;
+use App\Util\Common;
+use App\Util\Exception\ClientException;
+use Component\Media\Media;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -30,6 +35,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Cover
 {
+    /**
+     * Display and handle the cover edit page
+     */
     public function cover(Request $request)
     {
         $form = Form::create([
@@ -37,6 +45,37 @@ class Cover
             ['hidden', HiddenType::class, []],
             ['save',   SubmitType::class, ['label' => _m('Submit')]],
         ]);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            if (isset($data['cover'])) {
+                $sfile = $data['cover'];
+            } else {
+                throw new ClientException('Invalid form');
+            }
+            $user     = Common::user();
+            $actor_id = $user->getId();
+            $file     = Media::validateAndStoreFile($sfile, Common::config('cover', 'dir'), $title = null, $is_local = true, $use_unique = $actor_id);
+            $old_file = null;
+            $cover    = DB::find('cover', ['gsactor_id' => $actor_id]);
+            // Must get old id before inserting another one
+            if ($cover != null) {
+                //$old_file = $avatar->delete();
+            }
+            DB::persist($file);
+            // Can only get new id after inserting
+            DB::flush();
+            $cover = CoverEntity::create(['gsactor_id' => $actor_id, 'file_id' => $file->getId()]);
+            var_dump($cover);
+            DB::persist($cover);
+            DB::flush();
+            // Only delete files if the commit went through
+            if ($old_file != null) {
+                @unlink($old_file);
+            }
+        }
+
         return ['_template' => 'Cover/cover.html.twig', 'form' => $form->createView()];
     }
 }
