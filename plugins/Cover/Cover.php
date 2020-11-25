@@ -23,6 +23,7 @@ namespace Plugin\Cover;
 use App\Core\Event;
 use App\Core\Module;
 use App\Core\Router\RouteLoader;
+use App\Util\Common;
 
 class Cover extends Module
 {
@@ -57,6 +58,10 @@ class Cover extends Module
         $vars['profile_tabs'] = [['title' => 'Cover',
             'href'                        => 'settings_cover',
         ]];
+
+        if (Common::user() != null) {
+            $vars['profile_temp'][] = ['name' => 'cover', 'vars' => ['href' => 'test']];
+        }
         return Event::next;
     }
 
