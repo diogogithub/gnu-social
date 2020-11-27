@@ -1,6 +1,6 @@
 FROM php:fpm-alpine
 
-RUN apk update && apk add git autoconf make file gettext-dev icu-dev zlib-dev libpng-dev gmp-dev \
+RUN apk update && apk add git gcc autoconf make file gettext-dev icu-dev zlib-dev libpng-dev gmp-dev \
         mariadb-dev mariadb-client postgresql-dev postgresql-client composer > /dev/null
 
 ARG MAKEFLAGS="-j$(cat /proc/cpuinfo | grep processor | wc -l)"
