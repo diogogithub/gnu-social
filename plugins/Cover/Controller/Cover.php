@@ -28,6 +28,7 @@ use App\Entity\Cover as CoverEntity;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use Component\Media\Media;
+use Component\Media\Media as M;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -38,7 +39,7 @@ class Cover
     /**
      * Display and handle the cover edit page
      */
-    public function cover(Request $request)
+    public function coverSettings(Request $request)
     {
         $form = Form::create([
             ['cover', FileType::class,   ['label' => _m('Cover'), 'help' => _m('You can upload your personal cover. The maximum file size is 2MB.')]],
@@ -61,7 +62,9 @@ class Cover
             $cover    = DB::find('cover', ['gsactor_id' => $actor_id]);
             // Must get old id before inserting another one
             if ($cover != null) {
-                //$old_file = $avatar->delete();
+                var_dump('test');
+                $old_file = $cover->delete();
+                DB::remove($cover);
             }
             DB::persist($file);
             // Can only get new id after inserting
@@ -74,8 +77,17 @@ class Cover
             if ($old_file != null) {
                 @unlink($old_file);
             }
+
+            var_dump($cover->getFilePath());
         }
 
         return ['_template' => 'cover/cover.html.twig', 'form' => $form->createView()];
+    }
+
+    public function cover()
+    {
+        $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);
+        $file  = $cover->getFile();
+        return M::sendFile($cover->getFilePath(), $file->getMimetype(), $file->getTitle());
     }
 }
