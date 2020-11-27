@@ -20,6 +20,7 @@
 
 namespace Plugin\Cover;
 
+use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Module;
 use App\Core\Router\RouteLoader;
@@ -36,8 +37,9 @@ class Cover extends Module
      */
     public function onAddRoute(RouteLoader $r): bool
     {
-        $r->connect('settings_cover', 'settings/cover', [Controller\Cover::class, 'cover']);
+        $r->connect('settings_cover', 'settings/cover', [Controller\Cover::class, 'coversettings']);
 
+        $r->connect('cover', '/cover', [Controller\Cover::class, 'cover']);
         return Event::next;
     }
 
@@ -50,17 +52,16 @@ class Cover extends Module
      */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
-        /*
-        $vars['tabs'] = [['title' => 'Poll',
-            'href'                => 'newpoll',
-        ]];
-        */
         $vars['profile_tabs'] = [['title' => 'Cover',
             'href'                        => 'settings_cover',
         ]];
+        $vars['profile_temp'] = []; //fixme
 
         if (Common::user() != null) {
-            $vars['profile_temp'][] = ['name' => 'cover', 'vars' => ['href' => 'test']];
+            $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);
+            if ($cover != null) {
+                $vars['profile_temp'][] = ['name' => 'cover', 'vars' => ['href' => '/cover']];
+            }
         }
         return Event::next;
     }
@@ -74,7 +75,7 @@ class Cover extends Module
      */
     public function onStartShowStyles(array &$styles): bool
     {
-        //$styles[] = 'poll/poll.css';
+        //$styles[] = 'voer/poll.css';
         return Event::next;
     }
 }

@@ -21,7 +21,9 @@
 
 namespace App\Entity;
 
+use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Util\Common;
 use DateTimeInterface;
 
 class Cover extends Entity
@@ -78,6 +80,45 @@ class Cover extends Entity
     }
 
     // }}} Autocode
+
+    private ?File $file = null;
+
+    public function getFile(): File
+    {
+        $this->file = $this->file ?: DB::find('file', ['id' => $this->file_id]);
+        return $this->file;
+    }
+
+    public static function getFilePathStatic(string $filename): string
+    {
+        return Common::config('cover', 'dir') . $filename;
+    }
+
+    public function getFilePath(): string
+    {
+        return Common::config('cover', 'dir') . $this->getFile()->getFileName();
+    }
+
+    /**
+     * Delete this cover and the corresponding file and thumbnails, which this owns
+     */
+    public function delete(bool $flush = false, bool $delete_files_now = false, bool $cascading = false): array
+    {
+        // Don't go into a loop if we're deleting from File
+        if (!$cascading) {
+            $files = $this->getFile()->delete($cascade = true, $file_flush = false, $delete_files_now);
+        } else {
+            var_dump('test3');
+            DB::remove(DB::getReference('cover', ['gsactor_id' => $this->gsactor_id]));
+            $file_path = $this->getFilePath();
+            $files[]   = $file_path;
+            if ($flush) {
+                DB::flush();
+            }
+            return $delete_files_now ? [] : $files;
+        }
+        return [];
+    }
 
     public static function schemaDef(): array
     {
