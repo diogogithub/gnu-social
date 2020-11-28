@@ -55,12 +55,17 @@ class Cover extends Module
         $vars['profile_tabs'] = [['title' => 'Cover',
             'href'                        => 'settings_cover',
         ]];
-        $vars['profile_temp'] = []; //fixme
 
         if (Common::user() != null) {
+            if (array_key_exists('profile_temp',$vars)) {
+                $vars['profile_temp'] = [];
+            }
+
             $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);
             if ($cover != null) {
-                $vars['profile_temp'][] = ['name' => 'cover', 'vars' => ['href' => '/cover']];
+                $vars['profile_temp'][] = ['name' => 'cover', 'vars' => ['img' => '/cover']];
+            } else {
+                $vars['profile_temp'][] = ['name' => 'cover', 'vars' => []];
             }
         }
         return Event::next;
