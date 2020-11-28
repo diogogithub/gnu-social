@@ -21,6 +21,8 @@
 
 namespace App\Util\Exception;
 
+use function App\Core\I18n\_m;
+
 class NoSuchNoteException extends ClientException
 {
     public function __construct()
