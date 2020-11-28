@@ -37,8 +37,7 @@ class Cover extends Module
      */
     public function onAddRoute(RouteLoader $r): bool
     {
-        $r->connect('settings_cover', 'settings/cover', [Controller\Cover::class, 'coversettings']);
-
+        $r->connect('settings_profile_cover', 'settings/cover', [Controller\Cover::class, 'coversettings']);
         $r->connect('cover', '/cover', [Controller\Cover::class, 'cover']);
         return Event::next;
     }
@@ -53,7 +52,7 @@ class Cover extends Module
     public function onStartTwigPopulateVars(array &$vars): bool
     {
         $vars['profile_tabs'] = [['title' => 'Cover',
-            'href'                        => 'settings_cover',
+            'route'                       => 'settings_profile_cover',
         ]];
 
         if (Common::user() != null) {
@@ -80,7 +79,7 @@ class Cover extends Module
      */
     public function onStartShowStyles(array &$styles): bool
     {
-        //$styles[] = 'voer/poll.css';
+        $styles[] = 'cover/cover.css';
         return Event::next;
     }
 }

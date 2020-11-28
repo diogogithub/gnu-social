@@ -22,7 +22,7 @@
                             </li>
                             {% for tab in profile_tabs %}
                                 <li>
-                                    <a href="{{ path(tab['href']) }}" class='hover-effect {{ active(tab['href']) }}' >{{ tab['title'] }}</a>
+                                    <a href="{{ path(tab['route']) }}" class='hover-effect {{ active(tab['route']) }}' >{{ tab['title'] }}</a>
                                 </li>
                             {% endfor %}
                         </ul>
