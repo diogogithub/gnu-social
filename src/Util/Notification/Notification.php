@@ -54,7 +54,7 @@ class Notification
 
     public function __construct(int $type, Profile $profile)
     {
-        $this->tyoe    = $type;
+        $this->type    = $type;
         $this->profile = $profile;
     }
 }
