@@ -27,6 +27,7 @@ use function App\Core\I18n\_m;
 use App\Entity\Cover as CoverEntity;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
+use App\Util\Exception\RedirectException;
 use Component\Media\Media;
 use Component\Media\Media as M;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -77,8 +78,8 @@ class Cover
             if ($old_file != null) {
                 @unlink($old_file);
             }
-
-            var_dump($cover->getFilePath());
+            throw new RedirectException();
+            //var_dump($cover->getFilePath());
         }
 
         return ['_template' => 'cover/cover.html.twig', 'form' => $form->createView()];
