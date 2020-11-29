@@ -82,15 +82,14 @@ services:
     restart: always
     tty: false
     ports:
-      - 6379:6379    
-  
+      - 6379:6379
+
   mail:
     build: docker/mail
     env_file:
       - ./docker/mail/mail.env
     ports:
       - 25:25
-      - 110:110
       - 143:143
       - 587:587
       - 993:993
