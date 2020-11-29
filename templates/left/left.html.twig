@@ -17,8 +17,8 @@
         <div class='navbar'>
           <div class="left-nav">
               <div class='profile'>
-                  {% for temp in profile_temp %}
-                      {% include '/'~ temp.name ~ '/view.html.twig' with {'vars': temp.vars} only %}
+                  {% for extra in profile_extras %}
+                      {% include '/'~ extra.name ~ '/view.html.twig' with {'vars': extra.vars} only %}
                   {% endfor %}
                 <a href="{{ path('settings_avatar') }}">
                   <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
