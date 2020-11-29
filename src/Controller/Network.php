@@ -138,4 +138,11 @@ END;
                                    'order by f.created DESC', ['id' => $actor_id]),
         ];
     }
+
+    public function actors(Request $request)
+    {
+        return [
+            '_template' => 'network/public.html.twig',
+        ];
+    }
 }
