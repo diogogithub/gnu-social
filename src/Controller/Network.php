@@ -147,4 +147,13 @@ END;
                 'order by a.nickname ASC'),
         ];
     }
+
+    public function groups(Request $request)
+    {
+        return [
+            '_template' => 'network/groups.html.twig',
+            'groups'    => DB::dql('select group from App\Entity\Groups group ' .
+                                    'order by group.created DESC'),
+        ];
+    }
 }
