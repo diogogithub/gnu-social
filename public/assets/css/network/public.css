@@ -411,3 +411,15 @@
     cursor: pointer;
     z-index: 0;
 }
+
+/*actors stream*/
+.actor-bio{
+    order: 3;
+    word-break: break-word;
+    padding: var(--small-size);
+    border-radius: 0 0 var(--unit-size) var(--unit-size);
+    width: 70%;
+    display: flex;
+    flex-wrap: wrap;
+   justify-content: right;
+}
