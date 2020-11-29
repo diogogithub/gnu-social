@@ -27,23 +27,55 @@ use function App\Core\I18n\_m;
 use App\Entity\Cover as CoverEntity;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
-use App\Util\Exception\RedirectException;
+use App\Util\Exception\ServerException;
 use Component\Media\Media;
 use Component\Media\Media as M;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\Constraints\File as F;
 
+/**
+ * Cover controller
+ *
+ * @package  GNUsocial
+ * @category CoverPlugin
+ *
+ * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class Cover
 {
     /**
-     * Display and handle the cover edit page
+     * Display and handle the cover edit page, where a user can add or
+     * edit their cover image
+     *
+     * @param Request $request
+     *
+     * @throws ClientException Invalid form
+     * @throws ServerException Invalid file type
+     *
+     * @return array template
      */
     public function coverSettings(Request $request)
     {
         $form = Form::create([
-            ['cover', FileType::class,   ['label' => _m('Cover'), 'help' => _m('You can upload your personal cover. The maximum file size is 2MB.')]],
+            ['cover', FileType::class,   ['label' => _m('Cover'), 'help' => _m('You can upload your personal cover. The maximum file size is 2MB.'),
+                'constraints'                     => [
+                    new F([
+                        'maxSize'   => '2048k',
+                        'mimeTypes' => [
+                            'image/gif',
+                            'image/png',
+                            'image/jpeg',
+                            'image/bmp',
+                            'image/webp',
+                        ],
+                        'maxSizeMessage'   => 'Image exceeded maximum size',
+                        'mimeTypesMessage' => 'Please upload a valid image',
+                    ]), ], ]],
             ['hidden', HiddenType::class, []],
             ['save',   SubmitType::class, ['label' => _m('Submit')]],
         ]);
@@ -56,6 +88,10 @@ class Cover
             } else {
                 throw new ClientException('Invalid form');
             }
+
+            if (explode('/',$sfile->getMimeType())[0] != 'image') {
+                throw new ServerException('Invalid file type');
+            }
             $user     = Common::user();
             $actor_id = $user->getId();
             $file     = Media::validateAndStoreFile($sfile, Common::config('cover', 'dir'), $title = null, $is_local = true, $use_unique = $actor_id);
@@ -63,7 +99,6 @@ class Cover
             $cover    = DB::find('cover', ['gsactor_id' => $actor_id]);
             // Must get old id before inserting another one
             if ($cover != null) {
-                var_dump('test');
                 $old_file = $cover->delete();
                 DB::remove($cover);
             }
@@ -78,13 +113,16 @@ class Cover
             if ($old_file != null) {
                 @unlink($old_file);
             }
-            throw new RedirectException();
-            //var_dump($cover->getFilePath());
         }
 
         return ['_template' => 'cover/cover.html.twig', 'form' => $form->createView()];
     }
 
+    /**
+     * get user cover
+     *
+     * @return mixed cover file
+     */
     public function cover()
     {
         $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);

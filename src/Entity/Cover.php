@@ -26,6 +26,16 @@ use App\Core\Entity;
 use App\Util\Common;
 use DateTimeInterface;
 
+/**
+ * For storing a cover
+ *
+ * @package  GNUsocial
+ * @category CoverPlugin
+ *
+ * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class Cover extends Entity
 {
     // {{{ Autocode
@@ -83,17 +93,22 @@ class Cover extends Entity
 
     private ?File $file = null;
 
+    /**
+     * get cover file
+     *
+     * @return File
+     */
     public function getFile(): File
     {
         $this->file = $this->file ?: DB::find('file', ['id' => $this->file_id]);
         return $this->file;
     }
 
-    public static function getFilePathStatic(string $filename): string
-    {
-        return Common::config('cover', 'dir') . $filename;
-    }
-
+    /**
+     * get cover file path
+     *
+     * @return string
+     */
     public function getFilePath(): string
     {
         return Common::config('cover', 'dir') . $this->getFile()->getFileName();
@@ -101,6 +116,12 @@ class Cover extends Entity
 
     /**
      * Delete this cover and the corresponding file and thumbnails, which this owns
+     *
+     * @param bool $flush
+     * @param bool $delete_files_now
+     * @param bool $cascading
+     *
+     * @return array files deleted (if delete_files_now is true)
      */
     public function delete(bool $flush = false, bool $delete_files_now = false, bool $cascading = false): array
     {
@@ -108,7 +129,6 @@ class Cover extends Entity
         if (!$cascading) {
             $files = $this->getFile()->delete($cascade = true, $file_flush = false, $delete_files_now);
         } else {
-            var_dump('test3');
             DB::remove(DB::getReference('cover', ['gsactor_id' => $this->gsactor_id]));
             $file_path = $this->getFilePath();
             $files[]   = $file_path;
