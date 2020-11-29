@@ -85,7 +85,7 @@ fi
 mkdir -p $ROOT/docker/bootstrap
 
 
-cat > ./docker/bootstrap/bootstrap.env <<EOF
+cat > $ROOT/docker/bootstrap/bootstrap.env <<EOF
 #!/bin/sh
 email=${email}
 domain=${domain}
@@ -241,7 +241,7 @@ if [ "${dbms}" = 'mariadb' ]; then
   exec 3>&-
   check_input $db_root_password
 
-  cat > ./docker/db/db.env <<EOF
+  cat > $ROOT/docker/db/db.env <<EOF
 DBMS=${dbms}
 MYSQL_ROOT_PASSWORD=${db_root_password}
 EOF
@@ -249,7 +249,7 @@ EOF
     database_url="DATABASE_URL=mysql://${user}:${password}@db:3306/${db}"
 
 else
-    cat > ./docker/db/db.env <<EOF
+    cat > $ROOT/docker/db/db.env <<EOF
 DBMS=${dbms}
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=${password}
@@ -264,7 +264,7 @@ echo "${database_url}" >> .env.local
 
 mkdir -p $ROOT/docker/social
 
-cat > ./docker/social/social.env <<EOF
+cat > $ROOT/docker/social/social.env <<EOF
 SOCIAL_DBMS="${dbms}"
 SOCIAL_DB="${db}"
 SOCIAL_USER="${user}"
@@ -321,10 +321,68 @@ esac
 
 case $docker_compose in *"mail"*)
   $ROOT/docker/social/mail
+  exec 3>&1
+  mail_domain_root=$(dialog \
+    --title "Configure Mail" \
+    --clear \
+    --ok-label "Ok" \
+    --cancel-label "Exit" \
+    --inputbox "E-mail domain root:" $HEIGHT $WIDTH \
+    2>&1 1>&3)
+  check_retval $?
+  exec 3>&-
+  check_input $mail_domain_root
+
+  exec 3>&1
+  mail_subdomain=$(dialog \
+    --title "Configure Mail" \
+    --clear \
+    --ok-label "Ok" \
+    --cancel-label "Exit" \
+    --inputbox "E-mail subdomain (can be empty):" $HEIGHT $WIDTH \
+    2>&1 1>&3)
+  check_retval $?
+  exec 3>&-
+
+  exec 3>&1
+  mail_user=$(dialog \
+    --title "Configure Mail" \
+    --clear \
+    --ok-label "Ok" \
+    --cancel-label "Exit" \
+    --inputbox "E-mail user (name without @domain): " $HEIGHT $WIDTH \
+    2>&1 1>&3)
+  check_retval $?
+  exec 3>&-
+  check_input $mail_user
+
+  exec 3>&1
+  mail_pass=$(dialog \
+    --title "Configure Mail" \
+    --clear \
+    --ok-label "Ok" \
+    --cancel-label "Exit" \
+    --inputbox "E-mail user password: " $HEIGHT $WIDTH \
+    2>&1 1>&3)
+  check_retval $?
+  exec 3>&-
+  check_input $mail_pass
+  
+  mkdir -p $ROOT/docker/mail
+
+  cat > $ROOT/docker/mail/mail.env <<EOF
+  MAIL_DOMAIN_ROOT="${mail_domain_root}"
+  MAIL_SUBDOMAIN="${mail_subdomain}"
+  MAIL_USER="${mail_user}"
+  MAIL_PASSWORD="${mail_pass}"
+EOF
+  
+  $ROOT/docker/mail/setup.sh
+
 esac
 
 echo "volumes:\n  database:" >> docker-compose.yaml
-clear
+
 
 
 

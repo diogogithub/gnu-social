@@ -1,39 +1,30 @@
 #!/bin/sh
+
+ROOT="$(git rev-parse --show-toplevel)"
+. $ROOT/docker/mail/mail.env
+
 cd "${0%/*}"
 
-printf "Domain root: "
-read -r domain_root
-printf "Subdomain (can be empty): "
-read -r sub_domain
-
-printf "E-mail user (name without @domain): "
-read -r user
-printf "E-mail pass: "
-read -r pass
-
-if [ -z "${sub_domain}" ]
+if [ -z "${MAIL_SUBDOMAIN}" ]
 then
-  domain="${domain_root}"
+  domain="${MAIL_DOMAIN_ROOT}"
 else
-  domain="${sub_domain}.${domain_root}"
+  domain="${MAIL_SUBDOMAIN}.${MAIL_DOMAIN_ROOT}"
 fi
+
+PASSHASH=$(mkpasswd -m sha-512 -S "" -R 5000 ${MAIL_PASSWORD})
 
 cat > mail.env <<EOF
 #!/bin/sh
-DOMAINNAME=${domain_root}
+DOMAINNAME=${MAIL_DOMAIN_ROOT}
 MAILNAME=${domain}
-SSL_CERT=/etc/letsencrypt/live/${domain_root}/fullchain.pem
-SSL_KEY=/etc/letsencrypt/live/${domain_root}/privkey.pem
-USER="${user}@${domain_root}"
+SSL_CERT=/etc/letsencrypt/live/${MAIL_DOMAIN_ROOT}/fullchain.pem
+SSL_KEY=/etc/letsencrypt/live/${MAIL_DOMAIN_ROOT}/privkey.pem
+MAIL_USER="${MAIL_USER}"
+USER="${MAIL_USER}@${MAIL_DOMAIN_ROOT}"
 EOF
 
-DOMAINNAME="${domain_root}"
-MAILNAME="${domain}"
-SSL_CERT="/etc/letsencrypt/live/${domain_root}/fullchain.pem"
-SSL_KEY="/etc/letsencrypt/live/${domain_root}/privkey.pem"
-
-USER="${user}@${DOMAINNAME}"
-PASSHASH=$(mkpasswd -m sha-512 -S "" -R 5000 ${pass})
+. $ROOT/docker/mail/mail.env
 
 # Config postfix
 sed -i -e "s#^\s*myhostname\s*=.*#myhostname = ${MAILNAME}#" config/postfix/main.cf
@@ -53,5 +44,5 @@ sed -i -e "s/^.*#HOSTNAME/${MAILNAME}#HOSTNAME/" config/opendkim/TrustedHosts
 touch config/aliases config/domains config/mailboxes config/passwd
 echo "${DOMAINNAME}  #OK" > config/domains
 echo "${USER}  ${USER}" > config/aliases
-echo "${USER}  ${DOMAINNAME}/${user}/" > config/mailboxes
+echo "${USER}  ${DOMAINNAME}/${MAIL_USER}/" > config/mailboxes
 echo "${USER}:${PASSHASH}" > config/passwd
