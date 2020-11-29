@@ -53,6 +53,8 @@ abstract class Main
         $r->connect('replies', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [C\Network::class, 'replies']);
         $r->connect('favourites', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/favourites', [C\Network::class, 'favourites']);
 
+        $r->connect('actors', '/actors', [C\Network::class, 'actors']);
+
         $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
         $r->connect('panel_site', '/panel/site', [C\AdminPanel::class, 'site']);
 
