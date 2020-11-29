@@ -141,8 +141,21 @@ END;
 
     public function actors(Request $request)
     {
-        return [
-            '_template' => 'network/public.html.twig',
-        ];
+        if (Common::isLoggedIn()) {
+            $user_id = Common::ensureLoggedIn()->getId();
+
+            return [
+                '_template' => 'network/actors.html.twig',
+                'actors'    => DB::dql('select a from App\Entity\GSActor a ' .
+                                        'where a.id != :id ' .
+                                        'order by a.created DESC', ['id' => $user_id]),
+            ];
+        } else {
+            return [
+                '_template' => 'network/actors.html.twig',
+                'actors'    => DB::dql('select a from App\Entity\GSActor a ' .
+                    'order by a.created DESC'),
+            ];
+        }
     }
 }

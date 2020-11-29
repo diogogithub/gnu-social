@@ -24,6 +24,7 @@ namespace App\Entity;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Event;
 use App\Core\UserRoles;
 use DateTimeInterface;
 use Functional as F;
@@ -203,6 +204,13 @@ class GSActor extends Entity
     }
 
     // }}} Autocode
+
+    public function getAvatarUrl()
+    {
+        $url = null;
+        Event::handle('get_avatar_url', [$this->getNickname(), &$url]);
+        return $url;
+    }
 
     public static function getFromId(int $id): ?self
     {
