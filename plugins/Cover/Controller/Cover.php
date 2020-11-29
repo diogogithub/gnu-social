@@ -34,6 +34,7 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints\File as F;
 
 /**
@@ -125,7 +126,13 @@ class Cover
     public function cover()
     {
         $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);
-        $file  = $cover->getFile();
+        if ($cover == null) {
+            return  new Response('Cover not found',Response::HTTP_NOT_FOUND);
+        }
+        $file = $cover->getFile();
+        if ($file == null) {
+            return  new Response('Cover File not found',Response::HTTP_NOT_FOUND);
+        }
         return M::sendFile($cover->getFilePath(), $file->getMimetype(), $file->getTitle());
     }
 }
