@@ -26,6 +26,16 @@ use App\Core\Module;
 use App\Core\Router\RouteLoader;
 use App\Util\Common;
 
+/**
+ * Cover plugin main class
+ *
+ * @package  GNUsocial
+ * @category CoverPlugin
+ *
+ * @author    Daniel Brandao <up201705812@fe.up.pt>
+ * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class Cover extends Module
 {
     /**
@@ -56,15 +66,15 @@ class Cover extends Module
         ]];
 
         if (Common::user() != null) {
-            if (array_key_exists('profile_temp',$vars)) {
-                $vars['profile_temp'] = [];
+            if (array_key_exists('profile_extras',$vars)) {
+                $vars['profile_extras'] = [];
             }
 
             $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);
             if ($cover != null) {
-                $vars['profile_temp'][] = ['name' => 'cover', 'vars' => ['img' => '/cover']];
+                $vars['profile_extras'][] = ['name' => 'cover', 'vars' => ['img' => '/cover']];
             } else {
-                $vars['profile_temp'][] = ['name' => 'cover', 'vars' => []];
+                $vars['profile_extras'][] = ['name' => 'cover', 'vars' => []];
             }
         }
         return Event::next;

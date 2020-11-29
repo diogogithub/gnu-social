@@ -2,12 +2,6 @@
 
 {% block title %}Cover Settings{% endblock %}
 
-{% block stylesheets %}
-  {{ parent() }}
-  <link  href="{{ asset('assets/javascript/cropperjs/dist/cropper.css') }}" rel="stylesheet">
-  <script src="{{ asset('assets/javascript/cropperjs/dist/cropper.js') }}"></script>
-{% endblock %}
-
 {% block body %}
   {{ parent() }}
 {% endblock body %}
@@ -15,12 +9,5 @@
 {% block form %}
   <div class='form'>
     {{ form(form) }}
-    <div id="img-container">
-      <img id="img-cropped">
-    </div>
   </div>
 {% endblock form %}
-
-{% block javascripts %}
-  <script type="text/javascript" src="{{ asset('assets/javascript/cropping.js') }}"></script>
-{% endblock javascripts %}
