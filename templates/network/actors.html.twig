@@ -96,10 +96,10 @@
                     </ul>
                 </nav>
                 <div class="timeline">
-                    <div class="notes actors">
+                    <div class="actors">
                         {% if actors is defined and actors is not empty %}
                             {% for actor in actors %}
-                                {% include '/note/actor.html.twig' with {'actor': actor, 'have_user': have_user} only %}
+                                {% include '/actor/actor.html.twig' with {'actor': actor, 'have_user': have_user} only %}
                             {% endfor %}
                         {% else %}
                             <h1>{% trans %}No actors here.{% endtrans %}</h1>

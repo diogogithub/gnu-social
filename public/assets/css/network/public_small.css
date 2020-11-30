@@ -411,12 +411,51 @@
 }
 
 /*actors stream*/
+.actors{
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.notes-wrap .timeline .actors > div {
+    margin:  var(--unit-size) var(--unit-size) 0 var(--unit-size);
+    border-radius: var(--unit-size);
+    width: 100%;
+}
+.notes-wrap .timeline .actors > div:last-child {
+    margin:  var(--unit-size) var(--unit-size) var(--unit-size) var(--unit-size);
+}
+
+.actor{
+    display: flex;
+    flex-wrap: wrap;
+    border: solid 2px var(--accent-low);
+    border-radius: var(--unit-size);
+    box-shadow: var(--shadow);
+    margin-bottom: var(--unit-size);
+}
+
+.actor-content {
+    order: 3;
+    word-break: break-word;
+    padding: var(--small-size);
+    border-radius: 0 0 var(--unit-size) var(--unit-size);
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.actor-info{
+    order: 3;
+    display: flex;
+    flex-wrap: wrap;
+}
+
 .actor-bio{
     order: 3;
     word-break: break-word;
     padding: var(--small-size);
     border-radius: 0 0 var(--unit-size) var(--unit-size);
-    width: 70%;
     display: flex;
     flex-wrap: wrap;
     justify-content: right;

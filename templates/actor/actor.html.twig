@@ -1,0 +1,31 @@
+<div class="actor">
+    <div class="actor-content">
+        <div class="actor-info">
+            {% set nickname = actor.getNickname() %}
+            <div class="actor-avatar">
+                <img class="icon icon-avatar" src="{{ actor.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
+            </div>
+            <div class="actor-nickname-and-tags">
+                <b id="nick">{{ nickname }}</b>
+                {% set actor_tags = actor.getSelfTags() %}
+                <div class="tags">
+                    {% if actor_tags %}
+                        {% for tag in actor_tags %}
+                            <a href='#'><i> #{{ tag }} </i></a>
+                        {% endfor %}
+                    {% else %}
+                        <i> {{ '(No tags)' | trans }} </i>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% set actor_bio = actor.getBio() %}
+        <div class="actor-bio">
+            {% if actor_bio %}
+                <p>{{ actor_bio }}</p>
+            {% else %}
+                <p>{{ '(No bio)' | trans }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
