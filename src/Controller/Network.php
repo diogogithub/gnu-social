@@ -144,7 +144,7 @@ END;
         return [
             '_template' => 'network/groups.html.twig',
             'groups'    => DB::dql('select g from App\Entity\Group g ' .
-                                    'order by g.created DESC'),
+                                    'order by g.nickname ASC'),
         ];
     }
 }
