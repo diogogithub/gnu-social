@@ -144,7 +144,7 @@ END;
         return [
             '_template' => 'network/actors.html.twig',
             'actors'    => DB::dql('select a from App\Entity\GSActor a ' .
-                'order by a.created DESC'),
+                'order by a.nickname ASC'),
         ];
     }
 }
