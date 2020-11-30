@@ -55,6 +55,7 @@ abstract class Main
 
         $r->connect('actors', '/actors', [C\Network::class, 'actors']);
         $r->connect('groups', '/groups', [C\Network::class, 'groups']);
+        $r->connect('groups_stream', '/groups/stream', [C\Network::class, 'groups']);
 
         $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
         $r->connect('panel_site', '/panel/site', [C\AdminPanel::class, 'site']);
