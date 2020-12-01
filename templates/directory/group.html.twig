@@ -1,0 +1,23 @@
+<div class="group">
+    <div class="group-content">
+        <a href="{{ group.getHomepage() }}">
+            <div class="group-info">
+                {% set nickname = group.getNickname() %}
+                <div class="group-img">
+                    <img class="icon icon-group" src="{{  asset(group.getStreamLogo()) }}" alt="{{ nickname }}'s logo">
+                </div>
+                <div class="group-nickname">
+                    <b id="nick">{{ nickname }}</b>
+                </div>
+            </div>
+        </a>
+        {% set group_description = group.getDescription() %}
+        <div class="group-description">
+            {% if group_description %}
+                <p>{{ group_description }}</p>
+            {% else %}
+                <p>{{ '(No description)' | trans }}</p>
+            {% endif %}
+        </div>
+    </div>
+</div>

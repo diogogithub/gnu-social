@@ -138,13 +138,4 @@ END;
                                    'order by f.created DESC', ['id' => $actor_id]),
         ];
     }
-
-    public function groups(Request $request)
-    {
-        return [
-            '_template' => 'network/groups.html.twig',
-            'groups'    => DB::dql('select g from App\Entity\Group g ' .
-                                    'order by g.nickname ASC'),
-        ];
-    }
 }
