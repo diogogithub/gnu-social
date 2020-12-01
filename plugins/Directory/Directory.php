@@ -23,10 +23,18 @@ namespace Plugin\Directory;
 
 use App\Core\Event;
 use App\Core\Module;
+use App\Core\Router\RouteLoader;
 
 class Directory extends Module
 {
-    public function onAddRoute($r)
+    /**
+     * Map URLs to actions
+     *
+     * @param RouteLoader $r
+     *
+     * @return bool hook value; true means continue processing, false means stop.
+     */
+    public function onAddRoute(RouteLoader $r)
     {
         $r->connect('actors', '/actors', [Controller\Directory::class, 'actors']);
         $r->connect('groups', '/groups', [Controller\Directory::class, 'groups']);
@@ -42,9 +50,6 @@ class Directory extends Module
      */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
-        if (array_key_exists('main_nav_tabs',$vars)) {
-            $vars['main_nav_tabs'] = [];
-        }
         $vars['main_nav_tabs'][] = ['title' => 'Actors',
             'route'                         => 'actors',
         ];

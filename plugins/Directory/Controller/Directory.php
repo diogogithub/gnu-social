@@ -26,6 +26,13 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Directory
 {
+    /**
+     * actors stream
+     *
+     * @param Request $request
+     *
+     * @return array template
+     */
     public function actors(Request $request)
     {
         return ['_template' => 'directory/actors.html.twig', 'actors' => DB::dql('select g from App\Entity\GSActor g order by g.nickname ASC')];
