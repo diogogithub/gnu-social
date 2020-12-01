@@ -28,8 +28,27 @@ class Directory extends Module
 {
     public function onAddRoute($r)
     {
-        $r->connect('people', '/people', [Controller\Directory::class, 'people']);
+        $r->connect('actors', '/actors', [Controller\Directory::class, 'actors']);
         $r->connect('groups', '/groups', [Controller\Directory::class, 'groups']);
+        return Event::next;
+    }
+
+    /**
+     * Populate twig vars
+     *
+     * @param array $vars
+     *
+     * @return bool hook value; true means continue processing, false means stop.
+     */
+    public function onStartTwigPopulateVars(array &$vars): bool
+    {
+        if (array_key_exists('main_nav_tabs',$vars)) {
+            $vars['main_nav_tabs'] = [];
+        }
+        $vars['main_nav_tabs'][] = ['title' => 'Actors',
+            'route'                         => 'actors',
+        ];
+
         return Event::next;
     }
 }
