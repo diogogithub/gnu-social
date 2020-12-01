@@ -50,9 +50,6 @@ class Directory extends Module
      */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
-        if (array_key_exists('main_nav_tabs',$vars)) {
-            $vars['main_nav_tabs'] = [];
-        }
         $vars['main_nav_tabs'][] = ['title' => 'Actors',
             'route'                         => 'actors',
         ];

@@ -61,15 +61,11 @@ class Cover extends Module
      */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
-        $vars['profile_tabs'] = [['title' => 'Cover',
-            'route'                       => 'settings_profile_cover',
-        ]];
+        $vars['profile_tabs'][] = ['title' => 'Cover',
+            'route'                        => 'settings_profile_cover',
+        ];
 
         if (Common::user() != null) {
-            if (array_key_exists('profile_extras',$vars)) {
-                $vars['profile_extras'] = [];
-            }
-
             $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);
             if ($cover != null) {
                 $vars['profile_extras'][] = ['name' => 'cover', 'vars' => ['img' => '/cover']];
