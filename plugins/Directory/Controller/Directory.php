@@ -40,6 +40,6 @@ class Directory
 
     public function groups(Request $request)
     {
-        return ['_template' => 'directory/group.html.twig', 'groups' => DB::dql('select g from App\Entity\Group g order by g.nickname ASC')];
+        return ['_template' => 'directory/groups.html.twig', 'groups' => DB::dql('select g from App\Entity\Group g order by g.nickname ASC')];
     }
 }
