@@ -26,9 +26,9 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Directory
 {
-    public function people(Request $request)
+    public function actors(Request $request)
     {
-        return ['_template' => 'directory/people.html.twig', 'people' => DB::dql('select g from App\Entity\GSActor g order by g.nickname ASC')];
+        return ['_template' => 'directory/actors.html.twig', 'actors' => DB::dql('select g from App\Entity\GSActor g order by g.nickname ASC')];
     }
 
     public function groups(Request $request)

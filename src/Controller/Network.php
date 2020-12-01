@@ -138,13 +138,4 @@ END;
                                    'order by f.created DESC', ['id' => $actor_id]),
         ];
     }
-
-    public function actors(Request $request)
-    {
-        return [
-            '_template' => 'network/actors.html.twig',
-            'actors'    => DB::dql('select a from App\Entity\GSActor a ' .
-                'order by a.nickname ASC'),
-        ];
-    }
 }
