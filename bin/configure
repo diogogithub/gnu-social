@@ -382,7 +382,7 @@ EOF
 esac
 
 echo "volumes:\n  database:" >> docker-compose.yaml
-clear
+
 
 
 

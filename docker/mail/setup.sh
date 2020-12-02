@@ -17,11 +17,10 @@ PASSHASH=$(mkpasswd -m sha-512 -S "" -R 5000 ${MAIL_PASSWORD})
 cat > mail.env <<EOF
 #!/bin/sh
 DOMAINNAME=${MAIL_DOMAIN_ROOT}
-MAIL_SUBDOMAIN="${MAIL_DOMAIN_ROOT}"
-MAIL_USER="${MAIL_USER}"
 MAILNAME=${domain}
 SSL_CERT=/etc/letsencrypt/live/${MAIL_DOMAIN_ROOT}/fullchain.pem
 SSL_KEY=/etc/letsencrypt/live/${MAIL_DOMAIN_ROOT}/privkey.pem
+MAIL_USER="${MAIL_USER}"
 USER="${user}@${MAIL_DOMAIN_ROOT}"
 EOF
 
