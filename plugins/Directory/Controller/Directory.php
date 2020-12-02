@@ -38,6 +38,13 @@ class Directory
         return ['_template' => 'directory/actors.html.twig', 'actors' => DB::dql('select g from App\Entity\GSActor g order by g.nickname ASC')];
     }
 
+    /**
+     * groups stream
+     *
+     * @param Request $request
+     *
+     * @return array template
+     */
     public function groups(Request $request)
     {
         return ['_template' => 'directory/groups.html.twig', 'groups' => DB::dql('select g from App\Entity\Group g order by g.nickname ASC')];
