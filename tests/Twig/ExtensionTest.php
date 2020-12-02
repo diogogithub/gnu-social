@@ -36,7 +36,7 @@ use App\Twig\Runtime;
 use DirectoryIterator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class IconsExtensionTest extends KernelTestCase
+class ExtensionTest extends KernelTestCase
 {
     public function testIconsExtension()
     {
@@ -51,7 +51,7 @@ class IconsExtensionTest extends KernelTestCase
 
         //Check if every icon file as a ".svg.twig" extension
         foreach ($icon_file_names as $icon_file_name) {
-            static::assertRegExp('#([a-zA-Z0-9\s_\\.\-\(\):])+(.svg.twig)$#', $icon_file_name);
+            static::assertRegExp('/.svg.twig/', $icon_file_name);
         }
 
         //Check if the function gives a valid HTML with a class attribute equal to the one passed
@@ -63,7 +63,7 @@ class IconsExtensionTest extends KernelTestCase
 
             $icon_template_render = $twig->render('@public_path/assets/icons/' . $icon_file_name, ['iconClass' => 'icon icon-' . $icon_name]);
 
-            $icons_extension       = new IconsExtension();
+            $icons_extension       = new Extension();
             $icon_extension_render = $icons_extension->embedSvgIcon($twig, $icon_name, 'icon icon-' . $icon_name);
 
             static::assertSame($icon_template_render, $icon_extension_render);
