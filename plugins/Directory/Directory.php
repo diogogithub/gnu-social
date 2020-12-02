@@ -50,8 +50,15 @@ class Directory extends Module
      */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
-        $vars['main_nav_tabs'][] = ['title' => 'Actors',
-            'route'                         => 'actors',
+        $vars['main_nav_tabs']=[
+            [
+                'title' => 'Actors',
+                'route' => 'actors',
+            ],
+            [
+                'title' => 'Groups',
+                'route' => 'groups',
+            ]
         ];
 
         return Event::next;
