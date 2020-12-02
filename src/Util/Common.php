@@ -30,7 +30,6 @@
 
 namespace App\Util;
 
-use App\Core\DB\DB;
 use App\Core\Router\Router;
 use App\Core\Security;
 use App\Entity\GSActor;

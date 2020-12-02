@@ -9,6 +9,7 @@ use function App\Core\I18n\_m;
 use App\Entity\Follow;
 use App\Entity\GSActor;
 use App\Entity\LocalUser;
+use App\Entity\Note;
 use App\Security\Authenticator;
 use App\Security\EmailVerifier;
 use app\Util\Common;
@@ -40,7 +41,7 @@ class Security extends Controller
         $last_username = $authenticationUtils->getLastUsername();
 
         return ['_template' => 'security/login.html.twig', 'last_username' => $last_username, 'error' => $error,
-            'notes'         => Common::getAllNotes($this->instance_scope), ];
+            'notes'         => Note::getAllNotes($this->instance_scope), ];
     }
 
     public function logout()
@@ -134,7 +135,7 @@ class Security extends Controller
         return [
             '_template'         => 'security/register.html.twig',
             'registration_form' => $form->createView(),
-            'notes'             => Common::getAllNotes($this->instance_scope),
+            'notes'             => Note::getAllNotes($this->instance_scope),
         ];
     }
 }
