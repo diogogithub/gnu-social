@@ -41,7 +41,8 @@ RUN \
 	chmod +x "/etc/service/postfix/run" \
 	&& chmod +x "/etc/service/dovecot/run" \
 	&& chmod +x "/etc/service/opendkim/run" \
-	&& chmod +x "/etc/service/rsyslog/run"
+	&& chmod +x "/etc/service/rsyslog/run" \
+	&& chmod +x "/usr/bin/start.sh"
 
 # Prepare user
 RUN \
