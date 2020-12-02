@@ -58,7 +58,7 @@ class Network extends Controller
 
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => $notes,
+            'notes'     => Common::getAllNotes($this->instance_scope),
         ];
     }
 
