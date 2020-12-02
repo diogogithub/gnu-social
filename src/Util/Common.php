@@ -1,7 +1,6 @@
 <?php
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -16,7 +15,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
 
 /**
@@ -32,6 +30,7 @@
 
 namespace App\Util;
 
+use App\Core\DB\DB;
 use App\Core\Router\Router;
 use App\Core\Security;
 use App\Entity\GSActor;
@@ -96,6 +95,14 @@ abstract class Common
         } else {
             return $user->getNickname();
         }
+    }
+
+    public function getAllNotes(int $noteScope): array
+    {
+        return DB::sql('select * from note n ' .
+                       "where (n.scope & {$noteScope}) <> 0 " .
+                       'order by n.created DESC',
+                       ['n' => 'App\Entity\Note']);
     }
 
     public static function ensureLoggedIn(): LocalUser

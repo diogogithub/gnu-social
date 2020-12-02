@@ -52,10 +52,7 @@ class Network extends Controller
 
     public function public(Request $request)
     {
-        $notes = DB::sql('select * from note n ' .
-                         "where (n.scope & {$this->instance_scope}) <> 0 " .
-                         'order by n.created DESC',
-                         ['n' => 'App\Entity\Note']);
+        $notes = Common::getAllNotes($this->instance_scope);
 
         Event::handle('FormatNoteList', [&$notes]);
 
