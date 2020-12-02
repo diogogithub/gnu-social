@@ -199,6 +199,15 @@ class Note extends Entity
         Event::handle('GetAvatarUrl', [$this->getActorNickname(), &$url]);
         return $url;
     }
+    public function getAllNotes(int $noteScope): array
+    {
+        return DB::sql('select * from note n ' .
+            'where n.reply_to is null and (n.scope & :notescope) <> 0 ' .
+            'order by n.created DESC',
+            ['n'         => 'App\Entity\Note'],
+            ['notescope' => $noteScope]
+        );
+    }
 
     public function getAttachments(): array
     {

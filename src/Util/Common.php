@@ -98,6 +98,14 @@ abstract class Common
         }
     }
 
+    public function getAllNotes(int $noteScope): array
+    {
+        return DB::sql('select * from note n ' .
+                       "where n.reply_to is null and (n.scope & {$noteScope}) <> 0 " .
+                       'order by n.created DESC',
+                       ['n' => 'App\Entity\Note']);
+    }
+
     public static function ensureLoggedIn(): LocalUser
     {
         if (($user = self::user()) == null) {

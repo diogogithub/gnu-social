@@ -37,6 +37,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\NoteScope;
+use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use function App\Core\I18n\_m;
@@ -61,7 +62,7 @@ class Network extends Controller
 
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => $notes,
+            'notes'     => Note::getAllNotes($this->instance_scope),
         ];
     }
 
