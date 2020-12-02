@@ -4,7 +4,7 @@
             <div class="group-info">
                 {% set nickname = group.getNickname() %}
                 <div class="group-img">
-                    <img class="icon icon-group" src="{{  asset(group.getStreamLogo()) }}" alt="{{ nickname }}'s logo">
+                    <img class="icon icon-group" src="{{  group.getStreamLogo() }}" alt="{{ nickname }}'s logo">
                 </div>
                 <div class="group-nickname">
                     <b id="nick">{{ nickname }}</b>
