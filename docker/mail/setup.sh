@@ -12,7 +12,7 @@ else
   domain="${MAIL_SUBDOMAIN}.${MAIL_DOMAIN_ROOT}"
 fi
 
-PASSHASH=$(mkpasswd -m sha-512 -S "" -R 5000 ${MAIL_PASSWORD})
+PASSHASH="{SHA512-CRYPT}$(mkpasswd -m sha-512 -R 5000 ${MAIL_PASSWORD})"
 
 cat > mail.env <<EOF
 #!/bin/sh
