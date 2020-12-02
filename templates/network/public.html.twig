@@ -90,14 +90,13 @@
                         <li>
                             <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
                         </li>
-                        <li>
-                            <a href="{{ path('actors') }}" class='hover-effect {{ active('actors') }}'>Actors</a>
-                        </li>
-                        {% for tab in main_nav_tabs %}
-                            <li>
-                                <a href="{{ path(tab['route']) }}" class='hover-effect {{ active(tab['route']) }}' >{{ tab['title'] }}</a>
-                            </li>
-                        {% endfor %}
+                        {% if main_nav_tabs is defined  %}
+                            {% for tab in main_nav_tabs %}
+                                <li>
+                                    <a href="{{ path(tab['route']) }}" class='hover-effect {{ active(tab['route']) }}' >{{ tab['title'] }}</a>
+                                </li>
+                            {% endfor %}
+                        {% endif %}
                     </ul>
                 </nav>
                 <div class="timeline">
