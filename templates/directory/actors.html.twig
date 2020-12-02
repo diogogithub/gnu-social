@@ -14,7 +14,7 @@
           media="screen and (max-width: 1300px)">
     <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_small.css') }}"
           media="screen and (max-width: 750px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/directory/actors.css') }}"">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/directory/actors.css') }}">
 {% endblock %}
 
 {% block header %}
@@ -91,9 +91,11 @@
                         <li>
                             <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
                         </li>
-                        <li>
-                            <a href="{{ path('actors') }}" class='hover-effect {{ active('actors') }}'>Actors</a>
-                        </li>
+                        {% for tab in main_nav_tabs %}
+                            <li>
+                                <a href="{{ path(tab['route']) }}" class='hover-effect {{ active(tab['route']) }}' >{{ tab['title'] }}</a>
+                            </li>
+                        {% endfor %}
                     </ul>
                 </nav>
                 <div class="timeline">
