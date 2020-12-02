@@ -30,6 +30,10 @@
 
 namespace App\Twig;
 
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -58,6 +62,36 @@ class Extension extends AbstractExtension
             new TwigFunction('get_note_other_content', [Runtime::class, 'getNoteOtherContent']),
             new TwigFunction('get_show_styles', [Runtime::class, 'getShowStyles']),
             new TwigFunction('config', [Runtime::class, 'getConfig']),
+
+            /** Twig function to embed Svg Icons */
+            new TwigFunction('icon', [$this, 'embedSvgIcon'], ['needs_environment' => true]),
         ];
+    }
+
+    /**
+     * Renders the Svg Icon template and returns it.
+     *
+     * @param Environment $twig
+     * @param string      $icon_name
+     * @param string      $icon_css_class
+     *
+     * @return string
+     *
+     * @author Ângelo D. Moura <up201303828@fe.up.pt>
+     */
+    public function embedSvgIcon(Environment $twig, string $icon_name = '', string $icon_css_class = '')
+    {
+        try {
+            return $twig->render('@public_path/assets/icons/' . $icon_name . '.svg.twig', ['iconClass' => $icon_css_class]);
+        } catch (LoaderError $e) {
+            //return an empty string (a missing icon is not that important of an error)
+            return '';
+        } catch (RuntimeError $e) {
+            //return an empty string (a missing icon is not that important of an error)
+            return '';
+        } catch (SyntaxError $e) {
+            //return an empty string (a missing icon is not that important of an error)
+            return '';
+        }
     }
 }
