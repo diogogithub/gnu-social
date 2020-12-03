@@ -38,6 +38,7 @@ use App\Core\DB;
 use App\Core\Event;
 use function App\Core\I18n\_m;
 use App\Core\NoteScope;
+use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use Symfony\Component\HttpFoundation\Request;
