@@ -28,14 +28,14 @@
 {% block body %}
     <div class="content">
         <div class="main">
-            <nav class='main-nav'>
-                <ul>
-                    <li>
-                        <a href="{{ path('main_public') }}" class='hover-effect {{ active('main_public', 'main_all', "home_all") }}'>Reverse Favourites</a>
-                    </li>
-                </ul>
-            </nav>
             <div class="simple-stream">
+                <nav class='main-nav'>
+                    <ul>
+                        <li>
+                            <a href="{{ path('main_public') }}" class='hover-effect {{ active('main_public', 'main_all', "home_all") }}'><p>Reverse Favourites</p></a>
+                        </li>
+                    </ul>
+                </nav>
                 <div class="notes-wrap">
                     <div class="timeline">
                         {% if notes is defined and notes is not empty %}
