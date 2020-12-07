@@ -139,4 +139,28 @@ END;
                                    'order by f.created DESC', ['id' => $actor_id]),
         ];
     }
+
+    /**
+     *  Reverse favourites stream
+     *
+     * @param Request $request
+     *
+     * @throws \App\Util\Exception\NoLoggedInUser user not logged in
+     *
+     * @return array template
+     */
+    public function reversefavs(Request $request)
+    {
+        $actor_id = Common::ensureLoggedIn()->getId();
+
+        return [
+            '_template' => 'network/reversefavs.html.twig',
+            'notes'     => DB::dql('select n from App\Entity\Note n,  App\Entity\Favourite f ' .
+                'where n.id = f.note_id ' .
+                'and f.gsactor_id != :id ' .
+                'and n.gsactor_id = :id ' .
+                'order by f.created DESC' ,
+                ['id' => $actor_id]),
+        ];
+    }
 }

@@ -52,6 +52,7 @@ abstract class Main
         $r->connect('home_all', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/all', [C\Network::class, 'home']);
         $r->connect('replies', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/replies', [C\Network::class, 'replies']);
         $r->connect('favourites', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/favourites', [C\Network::class, 'favourites']);
+        $r->connect('reversefavs', '/{nickname<' . Nickname::DISPLAY_FMT . '>}/reversefavs', [C\Network::class, 'reversefavs']);
 
         $r->connect('panel', '/panel', [C\AdminPanel::class, 'site']);
         $r->connect('panel_site', '/panel/site', [C\AdminPanel::class, 'site']);
