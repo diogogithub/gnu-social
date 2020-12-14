@@ -22,6 +22,8 @@ namespace Plugin\Poll;
 
 use App\Core\DB\DB;
 use App\Core\Event;
+use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Core\Module;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
@@ -31,27 +33,16 @@ use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
-use Plugin\Poll\Forms\PollResponseForm;
-use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Poll plugin main class
  *
  * @package  GNUsocial
- * @category PollPlugin
- *
- * @author    Daniel Brandao <up201705812@fe.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- */
-const ID_FMT = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
-
-/**
- * Poll plugin main class
- *
- * @package  GNUsocial
- * @category PollPlugin
+ * @category Poll
  *
  * @author    Daniel Brandao <up201705812@fe.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
@@ -68,10 +59,7 @@ class Poll extends Module
      */
     public function onAddRoute(RouteLoader $r): bool
     {
-        $r->connect('newpollnum', 'main/poll/new/{num<\\d*>}', [Controller\NewPoll::class, 'newpoll']);
-        $r->connect('showpoll', 'main/poll/{id<\\d*>}',[Controller\ShowPoll::class, 'showpoll']);
-        $r->connect('answerpoll', 'main/poll/{id<\\d*>}/respond',[Controller\AnswerPoll::class, 'answerpoll']);
-        $r->connect('newpoll', 'main/poll/new', RedirectController::class, ['defaults' => ['route' => 'newpollnum', 'num' => 3]]);
+        $r->connect('newpoll', 'main/poll/new/{num<\\d+>?3}', [Controller\NewPoll::class, 'newpoll']);
 
         return Event::next;
     }
@@ -85,9 +73,9 @@ class Poll extends Module
      */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
-        $vars['tabs'] = [['title' => 'Poll',
-            'href'                => 'newpoll',
-        ]];
+        $vars['tabs'][] = ['title' => 'Poll',
+            'href'                 => 'newpoll',
+        ];
         return Event::next;
     }
 
@@ -129,7 +117,21 @@ class Poll extends Module
         }
 
         if (Common::isLoggedIn() && !PollResponse::exits($poll->getId(), Common::ensureLoggedIn()->getId())) {
-            $form     = PollResponseForm::make($poll, $note->getId());
+            $opts    = $poll->getOptionsArr();
+            $options = [];
+            for ($i = 1; $i <= count($opts); ++$i) {
+                $options[$opts[$i - 1]] = $i;
+            }
+            $formOptions = [
+                ['Options' . $poll->getId(), ChoiceType::class, [
+                    'choices'  => $options,
+                    'expanded' => true,
+                ]],
+                ['note_id',     HiddenType::class, ['data' => $note->getId()]],
+                ['pollresponse', SubmitType::class, ['label' => _m('Vote')]],
+            ];
+            $form = Form::create($formOptions);
+
             $formView = $form->createView();
             $ret      = self::noteActionHandle($request, $form, $note, 'pollresponse', /** TODO Documentation */ function ($note, $data) {
                 $user = Common::ensureLoggedIn();
