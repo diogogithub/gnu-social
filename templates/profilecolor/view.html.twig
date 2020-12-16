@@ -1,0 +1,8 @@
+
+    <a class="cover">
+        {% if vars is not empty %}
+            <img  class="cover-img" src='{{ vars.img }}' alt="Your cover." class="">
+        {% else %}
+            <div class="no-cover" ></div>
+        {% endif %}
+    </a>
