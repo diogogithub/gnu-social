@@ -21,20 +21,23 @@
 
 namespace Plugin\ProfileColor\Controller;
 
+use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Entity\ProfileColor as PColor;
+use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\ServerException;
+use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Cover controller
+ * Profile Color controller
  *
  * @package  GNUsocial
- * @category CoverPlugin
+ * @category ProfileColor
  *
  * @author    Daniel Brandao <up201705812@fe.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
@@ -54,8 +57,19 @@ class ProfileColor
      */
     public function profileColorSettings(Request $request)
     {
+        $user     = Common::user();
+        $actor_id = $user->getId();
+        $pcolor   = DB::find('profile_color', ['gsactor_id' => $actor_id]);
+        $color    = '#000000';
+        if ($pcolor != null) {
+            $color = $pcolor->getColor();
+        }
+
+        //print_r("STORED: " );
+        //var_dump($color);
+
         $form = Form::create([
-            ['color',   TextType::class,   ['label' => _m('Color')]],
+            ['color',   ColorType::class,   ['data' => $color, 'label' => _m('Profile Color')]],
             ['hidden', HiddenType::class, []],
             ['save',   SubmitType::class, ['label' => _m('Submit')]],
         ]);
@@ -63,6 +77,17 @@ class ProfileColor
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
+            //var_dump($data['color']);
+
+            // Must get old id before inserting another one
+            if ($pcolor != null) {
+                DB::remove($pcolor);
+                DB::flush();
+            }
+
+            $pcolor = PColor::create(['gsactor_id' => $actor_id, 'color' => $data['color']]);
+            DB::persist($pcolor);
+            DB::flush();
         }
 
         return ['_template' => 'profilecolor/profilecolor.html.twig', 'form' => $form->createView()];
