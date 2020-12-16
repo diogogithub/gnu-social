@@ -20,17 +20,15 @@
 
 namespace Plugin\ProfileColor;
 
-use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Module;
 use App\Core\Router\RouteLoader;
-use App\Util\Common;
 
 /**
  * Profile Color plugin main class
  *
  * @package  GNUsocial
- * @category CoverPlugin
+ * @category ProfileColor
  *
  * @author    Daniel Brandao <up201705812@fe.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
@@ -63,16 +61,6 @@ class ProfileColor extends Module
         $vars['profile_tabs'][] = ['title' => 'Color',
             'route'                        => 'settings_profile_color',
         ];
-        /*
-        if (Common::user() != null) {
-            $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);
-            if ($cover != null) {
-                $vars['profile_extras'][] = ['name' => 'cover', 'vars' => ['img' => '/cover']];
-            } else {
-                $vars['profile_extras'][] = ['name' => 'cover', 'vars' => []];
-            }
-        }
-        */
         return Event::next;
     }
 
@@ -86,7 +74,7 @@ class ProfileColor extends Module
     public function onStartShowStyles(array &$styles): bool
     {
 
-        //$styles[] = 'cover/cover.css';
+        //$styles[] = 'profilecolor/profilecolor.css';
         return Event::next;
     }
 }
