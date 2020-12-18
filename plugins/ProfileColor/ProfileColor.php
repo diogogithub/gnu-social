@@ -20,9 +20,11 @@
 
 namespace Plugin\ProfileColor;
 
+use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Module;
 use App\Core\Router\RouteLoader;
+use App\Util\Common;
 
 /**
  * Profile Color plugin main class
@@ -61,6 +63,14 @@ class ProfileColor extends Module
         $vars['profile_tabs'][] = ['title' => 'Color',
             'route'                        => 'settings_profile_color',
         ];
+        if (Common::user() != null) {
+            $color = DB::find('profile_color', ['gsactor_id' => Common::user()->getId()]);
+            if ($color != null) {
+                $vars['profile_extras'][] = ['name' => 'profilecolor', 'vars' => ['color' => $color->getColor()]];
+            } else {
+                $vars['profile_extras'][] = ['name' => 'profilecolor', 'vars' => []];
+            }
+        }
         return Event::next;
     }
 
