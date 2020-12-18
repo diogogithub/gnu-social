@@ -27,6 +27,7 @@ use function App\Core\I18n\_m;
 use App\Entity\ProfileColor as PColor;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
+use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -88,6 +89,7 @@ class ProfileColor
             $pcolor = PColor::create(['gsactor_id' => $actor_id, 'color' => $data['color']]);
             DB::persist($pcolor);
             DB::flush();
+            throw new RedirectException();
         }
 
         return ['_template' => 'profilecolor/profilecolor.html.twig', 'form' => $form->createView()];

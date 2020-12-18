@@ -1,8 +1,8 @@
 
-    <a class="cover">
+    <a class="pcolor">
         {% if vars is not empty %}
-            <img  class="cover-img" src='{{ vars.img }}' alt="Your cover." class="">
+            <div class="profile-color" style="background-color: {{ vars.color }}">{{ vars.color }}</div>
         {% else %}
-            <div class="no-cover" ></div>
+            <div class="no-profile-color" ></div>
         {% endif %}
     </a>
