@@ -1,8 +1,6 @@
 
     <a class="pcolor">
         {% if vars is not empty %}
-            <div class="profile-color" style="background-color: {{ vars.color }}">{{ vars.color }}</div>
-        {% else %}
-            <div class="no-profile-color" ></div>
+            <div class="profile-color" style="border-color: {{ vars.color }}"></div>
         {% endif %}
     </a>
