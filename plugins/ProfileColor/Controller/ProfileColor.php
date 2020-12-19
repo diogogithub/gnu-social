@@ -63,9 +63,6 @@ class ProfileColor
             $color = $pcolor->getColor();
         }
 
-        //print_r("STORED: " );
-        //var_dump($color);
-
         $form = Form::create([
             ['color',   ColorType::class,   ['data' => $color, 'label' => _m('Profile Color'), 'help' => _m('Choose your Profile Color')] ],
             ['hidden', HiddenType::class, []],
@@ -75,9 +72,7 @@ class ProfileColor
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            //var_dump($data['color']);
 
-            // Must get old id before inserting another one
             if ($pcolor != null) {
                 DB::remove($pcolor);
                 DB::flush();
