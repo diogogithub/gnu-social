@@ -67,8 +67,6 @@ class ProfileColor extends Module
             $color = DB::find('profile_color', ['gsactor_id' => Common::user()->getId()]);
             if ($color != null) {
                 $vars['profile_extras'][] = ['name' => 'profilecolor', 'vars' => ['color' => $color->getColor()]];
-            } else {
-                $vars['profile_extras'][] = ['name' => 'profilecolor', 'vars' => []];
             }
         }
         return Event::next;
@@ -83,8 +81,7 @@ class ProfileColor extends Module
      */
     public function onStartShowStyles(array &$styles): bool
     {
-
-        //$styles[] = 'profilecolor/profilecolor.css';
+        $styles[] = 'profilecolor/profilecolor.css';
         return Event::next;
     }
 }

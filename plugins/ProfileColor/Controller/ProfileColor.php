@@ -26,9 +26,7 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Entity\ProfileColor as PColor;
 use App\Util\Common;
-use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
-use App\Util\Exception\ServerException;
 use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -47,12 +45,11 @@ use Symfony\Component\HttpFoundation\Request;
 class ProfileColor
 {
     /**
-     * Add/change cover
+     * Add/change profile color
      *
      * @param Request $request
      *
-     * @throws ClientException Invalid form
-     * @throws ServerException Invalid file type
+     * @throws RedirectException
      *
      * @return array template
      */
@@ -66,11 +63,8 @@ class ProfileColor
             $color = $pcolor->getColor();
         }
 
-        //print_r("STORED: " );
-        //var_dump($color);
-
         $form = Form::create([
-            ['color',   ColorType::class,   ['data' => $color, 'label' => _m('Profile Color')]],
+            ['color',   ColorType::class,   ['data' => $color, 'label' => _m('Profile Color'), 'help' => _m('Choose your Profile Color')] ],
             ['hidden', HiddenType::class, []],
             ['save',   SubmitType::class, ['label' => _m('Submit')]],
         ]);
@@ -78,9 +72,7 @@ class ProfileColor
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            //var_dump($data['color']);
 
-            // Must get old id before inserting another one
             if ($pcolor != null) {
                 DB::remove($pcolor);
                 DB::flush();
