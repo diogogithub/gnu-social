@@ -27,6 +27,7 @@ use function App\Core\I18n\_m;
 use App\Entity\Cover as CoverEntity;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
+use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
 use Component\Media\Media;
 use Component\Media\Media as M;
@@ -62,6 +63,9 @@ class Cover
      */
     public function coverSettings(Request $request)
     {
+        $user     = Common::user();
+        $actor_id = $user->getId();
+
         $form = Form::create([
             ['cover', FileType::class,   ['label' => _m('Cover'), 'help' => _m('You can upload your personal cover. The maximum file size is 2MB.'),
                 'constraints'                     => [
@@ -93,8 +97,6 @@ class Cover
             if (explode('/',$sfile->getMimeType())[0] != 'image') {
                 throw new ServerException('Invalid file type');
             }
-            $user     = Common::user();
-            $actor_id = $user->getId();
             $file     = Media::validateAndStoreFile($sfile, Common::config('cover', 'dir'), $title = null, $is_local = true, $use_unique = $actor_id);
             $old_file = null;
             $cover    = DB::find('cover', ['gsactor_id' => $actor_id]);
@@ -113,9 +115,26 @@ class Cover
             if ($old_file != null) {
                 @unlink($old_file);
             }
+            throw new RedirectException();
         }
 
-        return ['_template' => 'cover/cover.html.twig', 'form' => $form->createView()];
+        $removeForm = null;
+        $cover      = DB::find('cover', ['gsactor_id' => $actor_id]);
+        if ($cover != null) {
+            $form2 = Form::create([
+                ['remove',   SubmitType::class, ['label' => _m('Remove')]],
+            ]);
+            $form2->handleRequest($request);
+            if ($form2->isSubmitted() && $form2->isValid()) {
+                $old_file = $cover->delete();
+                DB::remove($cover);
+                DB::flush();
+                @unlink($old_file);
+                throw new RedirectException();
+            }
+            $removeForm = $form2->createView();
+        }
+        return ['_template' => 'cover/cover.html.twig', 'form' => $form->createView(), 'remove_form' => $removeForm];
     }
 
     /**
