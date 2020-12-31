@@ -6387,7 +6387,7 @@ msgstr "Логотип сайту з SSL"
 #. TRANS: Button title for saving site settings.
 #: actions/siteadminpanel.php:376
 msgid "Save the site settings."
-msgstr ""
+msgstr "Зберегти налаштування сайту."
 
 #. TRANS: Page title for site-wide notice tab in admin panel.
 #: actions/sitenoticeadminpanel.php:55
@@ -7213,7 +7213,7 @@ msgstr "Опис"
 #. TRANS: An error message when avatar size is unreasonable
 #: classes/Avatar.php:242
 msgid "Avatar size too large"
-msgstr ""
+msgstr "Надто великий розмір аватару"
 
 #. TRANS: An error message when unable to insert avatar data into the db
 #: classes/Avatar.php:260
@@ -7470,7 +7470,7 @@ msgstr "%1$s (%2$s)"
 #. TRANS: Server error thrown when user profile settings could not be updated.
 #: classes/Profile.php:845
 msgid "Could not update user nickname."
-msgstr ""
+msgstr "Не вдалось оновити нікнейм користувача."
 
 #. TRANS: Exception thrown when trying to revoke an existing role for a user
 #. that does not exist.
@@ -7672,7 +7672,7 @@ msgstr "Не вдалося зберегти інформацію про лок�
 
 #: classes/User_group.php:802
 msgid "Unable to update profile"
-msgstr ""
+msgstr "Неможливо оновити профіль"
 
 #. TRANS: Exception thrown when an account could not be located when it should
 #. be moved.
@@ -7802,7 +7802,7 @@ msgstr ""
 #: lib/action.php:1101
 #, php-format
 msgid "**%%site.name%%** is a social network."
-msgstr ""
+msgstr "**%%site.name%%** - це соціальна мережа."
 
 #. TRANS: Second sentence of the GNU social site license. Mentions the GNU
 #. social source code license.
@@ -8390,7 +8390,7 @@ msgstr "Оновлення списку %2$s користувача %1$s на %3
 
 #: lib/attachment.php:43
 msgid "Download link"
-msgstr ""
+msgstr "Посилання на завантаження"
 
 #. TRANS: Title.
 #: lib/attachmentnoticesection.php:68
@@ -9067,7 +9067,7 @@ msgstr "Веб-стрічки"
 
 #: lib/filenotfoundexception.php:39
 msgid "File not found in filesystem."
-msgstr ""
+msgstr "У файловій системі файл не знайдено."
 
 #. TRANS: Client error displayed when the number of bytes in a POST request
 #. exceeds a limit.
@@ -9280,11 +9280,11 @@ msgstr "Ця сторінка не доступна для того типу м�
 #. format.
 #: lib/imagefile.php:73
 msgid "Unsupported image format."
-msgstr ""
+msgstr "Формат зображень не підтримується."
 
 #: lib/imagefile.php:115
 msgid "Unsupported media format."
-msgstr ""
+msgstr "Медіаформат не підтримується."
 
 #. TRANS: Exception thrown when too large a file is uploaded.
 #. TRANS: %s is the maximum file size, for example "500b", "10kB" or "2MB".
@@ -9741,7 +9741,7 @@ msgstr "%1$s щойно надіслав(ла) вам повідомлення (
 #: lib/mail.php:853
 #, php-format
 msgid "%1$s has joined your group %2$s on %3$s"
-msgstr ""
+msgstr "%1$s приєднався до вашої групи %2$s на %3$s"
 
 #. TRANS: Main body of group join notification e-mail.
 #. TRANS: %1$s is the subscriber's long name, %2$s is the group name, and %3$s
@@ -9813,13 +9813,13 @@ msgstr "Надати користувачеві права адміністра�
 #: lib/makeadminform.php:120
 msgctxt "BUTTON"
 msgid "Make Admin"
-msgstr "Зробити адміном"
+msgstr "Зробити адміністратором"
 
 #. TRANS: Submit button title.
 #: lib/makeadminform.php:124
 msgctxt "TOOLTIP"
 msgid "Make this user an admin."
-msgstr ""
+msgstr "Зробити цього користувача адміністратором."
 
 #. TRANS: Client exception thrown when a database error was thrown during a
 #. file upload operation.
@@ -9856,7 +9856,7 @@ msgstr "Тип файлів «%s» тепер не підтримується н
 #: lib/methodnotimplementedexception.php:48
 #, php-format
 msgid "Method %s not implemented"
-msgstr ""
+msgstr "Метод %s не реалізовано"
 
 #. TRANS: Link description to show more items in a list.
 #: lib/moremenu.php:98
@@ -10034,7 +10034,7 @@ msgstr "Повторено"
 #. TRANS: Link title in notice list item to reply to a notice.
 #: lib/noticelistitem.php:573
 msgid "Reply to this notice."
-msgstr ""
+msgstr "Відповісти на цей допис"
 
 #. TRANS: Link text in notice list item to reply to a notice.
 #: lib/noticelistitem.php:575
@@ -10044,7 +10044,7 @@ msgstr "Відповісти"
 #. TRANS: Link title in notice list item to delete a notice.
 #: lib/noticelistitem.php:601
 msgid "Delete this notice from the timeline."
-msgstr ""
+msgstr "Видалити цей допис зі стрічки"
 
 #. TRANS: Title for repeat form status in notice list when a notice has been
 #. repeated.
@@ -10075,7 +10075,7 @@ msgstr "Спробувати «розштовхати» цього корист�
 
 #: lib/passwordhashexception.php:39
 msgid "Password hashing failed."
-msgstr ""
+msgstr "Не вдалось захешувати пароль."
 
 #. TRANS: Field label for list.
 #: lib/peopletageditform.php:131
@@ -10360,7 +10360,7 @@ msgstr "Увійти на сайт."
 #. TRANS: Error message displayed when referring to a user without a profile.
 #: lib/profileaction.php:87
 msgid "Profile ID does not exist."
-msgstr ""
+msgstr "Ідентифікатор профілю не існує."
 
 #: lib/profileaction.php:100
 msgid "This profile has been silenced by site moderators"
@@ -11069,7 +11069,7 @@ msgstr "Відписатись"
 #. TRANS: Button title on unsubscribe form.
 #: lib/unsubscribeform.php:134
 msgid "Unsubscribe from this user."
-msgstr ""
+msgstr "Відписатись від цього користувача."
 
 #. TRANS: Authorisation exception thrown when a user a not allowed to login.
 #: lib/util.php:330
