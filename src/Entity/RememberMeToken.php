@@ -39,7 +39,7 @@ class RememberMeToken extends Entity
     // {{{ Autocode
     private string $series;
     private string $value;
-    private DateTimeInterface $lastUsed;
+    private DateTimeInterface $lastused;
     private string $class;
     private string $username;
 
@@ -65,15 +65,15 @@ class RememberMeToken extends Entity
         return $this->value;
     }
 
-    public function setLastUsed(DateTimeInterface $lastUsed): self
+    public function setLastUsed(DateTimeInterface $lastused): self
     {
-        $this->lastUsed = $lastUsed;
+        $this->lastused = $lastused;
         return $this;
     }
 
     public function getLastUsed(): DateTimeInterface
     {
-        return $this->lastUsed;
+        return $this->lastused;
     }
 
     public function setClass(string $class): self
@@ -107,7 +107,7 @@ class RememberMeToken extends Entity
             'fields' => [
                 'series'   => ['type' => 'char', 'length' => 88, 'not null' => true],
                 'value'    => ['type' => 'char', 'length' => 88, 'not null' => true],
-                'lastUsed' => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP'],
+                'lastused' => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP'],
                 'class'    => ['type' => 'varchar', 'length' => 100, 'not null' => true],
                 'username' => ['type' => 'varchar', 'length' => 64, 'not null' => true],
             ],
