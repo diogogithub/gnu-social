@@ -113,14 +113,7 @@ class Reply extends Module
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
-                Posting::storeNote(
-                    $actor_id,
-                    $data['content'],
-                    $data['attachments'],
-                    $is_local = true,
-                    $reply_to,
-                    $repeat_of = null
-                );
+                Posting::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true, $reply_to, $repeat_of = null);
             } else {
                 throw new InvalidFormException();
             }

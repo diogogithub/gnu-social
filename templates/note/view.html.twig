@@ -4,7 +4,7 @@
     <a href="{{ path('settings_avatar') }}">
       <img src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
     </a>
-    <b>{{ nickname }}</b>
+    <b>{{ nickname }}&nbsp;</b>
     {% set reply_to = note.getReplyToNickname() %}
     {% if reply_to is not null and not skip_reply_to is defined %}
       {% trans with {'%name%': reply_to}%} in reply to %name% {% endtrans %}
