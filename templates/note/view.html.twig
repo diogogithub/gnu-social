@@ -11,7 +11,11 @@
     {% endif %}
   </div>
   <div class="note-content">
-    {{ note.getContent() }}
+      {% block markdown %}
+          {% apply markdown_to_html %}
+            {{ note.getContent() }}
+          {% endapply %}
+      {% endblock %}
       <div class="note-other-content">
           {% for other in get_note_other_content(note) %}
               {% include '/'~ other.name ~ '/view.html.twig' with {'vars': other.vars} only %}

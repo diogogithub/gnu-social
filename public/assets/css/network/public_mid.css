@@ -143,8 +143,6 @@
     padding: var(--small-size);
     border-radius: 0 0 var(--unit-size) var(--unit-size);
     width: 100%;
-    display: flex;
-    flex-wrap: wrap;
 }
 .note-attachments {
     display: flex;
