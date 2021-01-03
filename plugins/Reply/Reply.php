@@ -105,7 +105,7 @@ class Reply extends Module
         $form = Form::create([
             ['content',     TextareaType::class, ['label' => ' ']],
             ['attachments', FileType::class,     ['label' => ' ', 'multiple' => true, 'required' => false]],
-            ['reply',       SubmitType::class,   ['label' => _m('Submit')]],
+            ['replyform',   SubmitType::class,   ['label' => _m('Submit')]],
         ]);
 
         $form->handleRequest($request);
