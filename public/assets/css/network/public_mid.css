@@ -410,3 +410,16 @@
     cursor: pointer;
     z-index: 0;
 }
+
+#replyform {
+    margin: var(--main-size);
+}
+#replyform div {
+    display: inline-flex;
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+}
+#replyform div textarea {
+    width: 100%;
+}
