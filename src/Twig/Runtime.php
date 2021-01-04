@@ -39,6 +39,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 use Twig\Extension\RuntimeExtensionInterface;
 
 class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
@@ -110,5 +114,32 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [KernelEvents::REQUEST => 'onKernelRequest'];
+    }
+
+    /**
+     * Renders the Svg Icon template and returns it.
+     *
+     * @param Environment $twig
+     * @param string      $icon_name
+     * @param string      $icon_css_class
+     *
+     * @return string
+     *
+     * @author Ângelo D. Moura <up201303828@fe.up.pt>
+     */
+    public function embedSvgIcon(Environment $twig, string $icon_name = '', string $icon_css_class = '')
+    {
+        try {
+            return $twig->render('@public_path/assets/icons/' . $icon_name . '.svg.twig', ['iconClass' => $icon_css_class]);
+        } catch (LoaderError $e) {
+            //return an empty string (a missing icon is not that important of an error)
+            return '';
+        } catch (RuntimeError $e) {
+            //return an empty string (a missing icon is not that important of an error)
+            return '';
+        } catch (SyntaxError $e) {
+            //return an empty string (a missing icon is not that important of an error)
+            return '';
+        }
     }
 }

@@ -28,10 +28,11 @@
 namespace App\Tests\Templates\Icons;
 
 use App\Twig\Extension;
+use App\Twig\Runtime;
 use DirectoryIterator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class ExtensionTest extends KernelTestCase
+class RuntimeTest extends KernelTestCase
 {
     public function testIconsExtension()
     {
@@ -59,7 +60,7 @@ class ExtensionTest extends KernelTestCase
 
             $icon_template_render = $twig->render('@public_path/assets/icons/' . $icon_file_name, ['iconClass' => 'icon icon-' . $icon_name]);
 
-            $icons_extension       = new Extension();
+            $icons_extension       = new Runtime();
             $icon_extension_render = $icons_extension->embedSvgIcon($twig, $icon_name, 'icon icon-' . $icon_name);
 
             static::assertSame($icon_template_render, $icon_extension_render);
