@@ -1,12 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Interfaces;
@@ -21,8 +23,6 @@ interface VisibilityInterface
      * - public
      * - protected
      * - private
-     *
-     * @return string
      */
-    public function getVisibility();
+    public function getVisibility() : string;
 }

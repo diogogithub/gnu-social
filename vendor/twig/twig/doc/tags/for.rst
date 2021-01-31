@@ -4,7 +4,7 @@
 Loop over each item in a sequence. For example, to display a list of users
 provided in a variable called ``users``:
 
-.. code-block:: twig
+.. code-block:: html+twig
 
     <h1>Members</h1>
     <ul>
@@ -81,15 +81,12 @@ Variable              Description
     implement the ``Countable`` interface. They are also not available when
     looping with a condition.
 
-.. versionadded:: 1.2
-    The ``if`` modifier support has been added in Twig 1.2.
-
 Adding a condition
 ------------------
 
 .. tip::
 
-    As of Twig 1.41, use the :doc:`filter <../filters/filter>` filter instead,
+    As of Twig 2.10, use the :doc:`filter <../filters/filter>` filter instead,
     or an ``if`` condition inside the ``for`` body (if your condition depends on
     a variable updated inside the loop and you are not using the ``loop``
     variable).
@@ -98,7 +95,7 @@ Unlike in PHP, it's not possible to ``break`` or ``continue`` in a loop. You
 can however filter the sequence during iteration which allows you to skip
 items. The following example skips all the users which are not active:
 
-.. code-block:: twig
+.. code-block:: html+twig
 
     <ul>
         {% for user in users if user.active %}
@@ -124,7 +121,7 @@ The `else` Clause
 If no iteration took place because the sequence was empty, you can render a
 replacement block by using ``else``:
 
-.. code-block:: twig
+.. code-block:: html+twig
 
     <ul>
         {% for user in users %}
@@ -140,7 +137,7 @@ Iterating over Keys
 By default, a loop iterates over the values of the sequence. You can iterate
 on keys by using the ``keys`` filter:
 
-.. code-block:: twig
+.. code-block:: html+twig
 
     <h1>Members</h1>
     <ul>
@@ -154,7 +151,7 @@ Iterating over Keys and Values
 
 You can also access both keys and values:
 
-.. code-block:: twig
+.. code-block:: html+twig
 
     <h1>Members</h1>
     <ul>
@@ -169,7 +166,7 @@ Iterating over a Subset
 You might want to iterate over a subset of values. This can be achieved using
 the :doc:`slice <../filters/slice>` filter:
 
-.. code-block:: twig
+.. code-block:: html+twig
 
     <h1>Top Ten Members</h1>
     <ul>

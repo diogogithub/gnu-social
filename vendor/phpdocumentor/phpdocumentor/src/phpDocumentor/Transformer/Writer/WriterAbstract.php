@@ -1,12 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Transformer\Writer;
@@ -25,38 +27,25 @@ abstract class WriterAbstract
      * If one of the requirements is missing for this Writer then an exception of type RequirementMissing
      * should be thrown; this indicates to the calling process that this writer will not function.
      *
-     * @throws Exception\RequirementMissing when a requirements is missing stating which one.
+     * @throws Exception\RequirementMissing When a requirements is missing stating which one.
      *
-     * @return void
+     * @codeCoverageIgnore
      */
-    public function checkRequirements()
+    public function checkRequirements() : void
     {
         // empty body since most writers do not have requirements
     }
 
     /**
-     * Checks if there is a space in the path.
-     *
-     * @param string $path
-     *
-     * @return void
-     *
-     * @throws \InvalidArgumentException if path contains a space.
-     */
-    protected function checkForSpacesInPath($path)
-    {
-        if (strpos($path, ' ') !== false) {
-            throw new \InvalidArgumentException('No spaces allowed in destination path: ' . $path);
-        }
-    }
-
-    /**
      * Abstract definition of the transformation method.
      *
-     * @param ProjectDescriptor $project        Document containing the structure.
-     * @param Transformation    $transformation Transformation to execute.
-     *
-     * @return void
+     * @param ProjectDescriptor $project Document containing the structure.
+     * @param Transformation $transformation Transformation to execute.
      */
-    abstract public function transform(ProjectDescriptor $project, Transformation $transformation);
+    abstract public function transform(ProjectDescriptor $project, Transformation $transformation) : void;
+
+    public function __toString() : string
+    {
+        return static::class;
+    }
 }

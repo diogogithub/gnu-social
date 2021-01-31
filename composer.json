@@ -21,6 +21,7 @@
         "diogocomposer/xmpphp": "^3.0",
         "embed/embed": "^3.4",
         "ezyang/htmlpurifier": "^4.10",
+        "friendsofphp/php-cs-fixer": "^2.18",
         "hoa/consistency": "^1.17.05.02",
         "intervention/image": "^2.5",
         "masterminds/html5": "^2.6",
@@ -30,12 +31,14 @@
         "paragonie/constant_time_encoding": "^1.0.4",
         "pear/console_getopt": "^1.4",
         "php-ffmpeg/php-ffmpeg": "^0.16",
+        "phpdocumentor/phpdocumentor": "^3.0",
         "phpseclib/phpseclib": "dev-master#f815e43077da67d3dd5b4d18a45753f5b79c1ab9",
         "predis/predis": "^1.1",
-        "stomp-php/stomp-php": "^4.5.1"
+        "stomp-php/stomp-php": "^4.5.1",
+        "symfony/stopwatch": "^5.2"
     },
     "require-dev": {
-        "phpdocumentor/phpdocumentor": "^2.9",
+        "composer/xdebug-handler": "^1.4",
         "phpunit/phpunit": "^8.2",
         "psy/psysh": "^0.9.9"
     },

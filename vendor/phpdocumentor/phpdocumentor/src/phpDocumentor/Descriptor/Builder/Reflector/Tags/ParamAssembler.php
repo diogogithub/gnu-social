@@ -1,45 +1,41 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Builder\Reflector\Tags;
 
-use phpDocumentor\Descriptor\Builder\Reflector\AssemblerAbstract;
 use phpDocumentor\Descriptor\Tag\ParamDescriptor;
-use phpDocumentor\Reflection\DocBlock\Tag\ParamTag;
-use phpDocumentor\Reflection\DocBlock\Type\Collection;
+use phpDocumentor\Reflection\DocBlock\Tags\Param;
 
 /**
  * Constructs a new descriptor from the Reflector for an `@param` tag.
  *
  * This object will read the reflected information for the `@param` tag and create a {@see ParamDescriptor} object that
  * can be used in the rest of the application and templates.
+ *
+ * @extends BaseTagAssembler<ParamDescriptor, Param>
  */
-class ParamAssembler extends AssemblerAbstract
+class ParamAssembler extends BaseTagAssembler
 {
     /**
      * Creates a new Descriptor from the given Reflector.
      *
-     * @param ParamTag $data
-     *
-     * @return ParamDescriptor
+     * @param Param $data
      */
-    public function create($data)
+    public function buildDescriptor(object $data) : ParamDescriptor
     {
         $descriptor = new ParamDescriptor($data->getName());
-        $descriptor->setDescription($data->getDescription());
-        $descriptor->setVariableName($data->getVariableName());
-
-        /** @var Collection $types */
-        $types = $this->builder->buildDescriptor(new Collection($data->getTypes()));
-        $descriptor->setTypes($types);
+        $descriptor->setVariableName((string) $data->getVariableName());
+        $descriptor->setType($data->getType());
 
         return $descriptor;
     }

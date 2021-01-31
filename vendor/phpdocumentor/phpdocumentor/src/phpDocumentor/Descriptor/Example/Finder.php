@@ -1,17 +1,28 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Example;
 
 use phpDocumentor\Descriptor\Tag\ExampleDescriptor;
+use function array_slice;
+use function file;
+use function getcwd;
+use function implode;
+use function is_readable;
+use function rtrim;
+use function sprintf;
+use function trim;
+use const DIRECTORY_SEPARATOR;
 
 /**
  * Class used to find an example file's location based on a given ExampleDescriptor.
@@ -22,45 +33,38 @@ class Finder
     private $sourceDirectory = '';
 
     /** @var string[] */
-    private $exampleDirectories = array();
+    private $exampleDirectories = [];
 
     /**
      * Attempts to find the example contents for the given descriptor.
-     *
-     * @param ExampleDescriptor $descriptor
-     *
-     * @return string
      */
-    public function find(ExampleDescriptor $descriptor)
+    public function find(ExampleDescriptor $descriptor) : string
     {
         $filename = $descriptor->getFilePath();
 
         $file = $this->getExampleFileContents($filename);
-        if (! $file) {
-            return "** File not found : {$filename} **";
+        if (!$file) {
+            return sprintf('** File not found : %s **', $filename);
         }
 
-        return implode('', array_slice($file, $descriptor->getStartingLine() - 1, $descriptor->getLineCount()));
+        return implode(
+            '',
+            array_slice($file, $descriptor->getStartingLine() - 1, $descriptor->getLineCount())
+        );
     }
 
     /**
      * Registers the project's root directory where an 'examples' folder can be expected.
-     *
-     * @param string $directory
-     *
-     * @return void
      */
-    public function setSourceDirectory($directory = '')
+    public function setSourceDirectory(string $directory = '') : void
     {
         $this->sourceDirectory = $directory;
     }
 
     /**
      * Returns the project's root directory where an 'examples' folder can be expected.
-     *
-     * @return string
      */
-    public function getSourceDirectory()
+    public function getSourceDirectory() : string
     {
         return $this->sourceDirectory;
     }
@@ -70,7 +74,7 @@ class Finder
      *
      * @param string[] $directories
      */
-    public function setExampleDirectories(array $directories)
+    public function setExampleDirectories(array $directories = []) : void
     {
         $this->exampleDirectories = $directories;
     }
@@ -80,7 +84,7 @@ class Finder
      *
      * @return string[]
      */
-    public function getExampleDirectories()
+    public function getExampleDirectories() : array
     {
         return $this->exampleDirectories;
     }
@@ -96,11 +100,9 @@ class Finder
      * 3. Checks the 'examples' folder in the current working directory for examples
      * 4. Checks the path relative to the current working directory for the given filename
      *
-     * @param string $filename
-     *
-     * @return string|null
+     * @return ?array<string>
      */
-    private function getExampleFileContents($filename)
+    private function getExampleFileContents(string $filename) : ?array
     {
         $normalizedPath = null;
 
@@ -112,7 +114,7 @@ class Finder
             }
         }
 
-        if (! $normalizedPath) {
+        if (!$normalizedPath) {
             if (is_readable($this->getExamplePathFromSource($filename))) {
                 $normalizedPath = $this->getExamplePathFromSource($filename);
             } elseif (is_readable($this->getExamplePathFromExampleDirectory($filename))) {
@@ -127,37 +129,24 @@ class Finder
 
     /**
      * Get example filepath based on the example directory inside your project.
-     *
-     * @param string $file
-     *
-     * @return string
      */
-    private function getExamplePathFromExampleDirectory($file)
+    private function getExamplePathFromExampleDirectory(string $file) : string
     {
         return getcwd() . DIRECTORY_SEPARATOR . 'examples' . DIRECTORY_SEPARATOR . $file;
     }
 
     /**
      * Returns a path to the example file in the given directory..
-     *
-     * @param string $directory
-     * @param string $file
-     *
-     * @return string
      */
-    private function constructExamplePath($directory, $file)
+    private function constructExamplePath(string $directory, string $file) : string
     {
         return rtrim($directory, '\\/') . DIRECTORY_SEPARATOR . $file;
     }
 
     /**
      * Get example filepath based on sourcecode.
-     *
-     * @param string $file
-     *
-     * @return string
      */
-    private function getExamplePathFromSource($file)
+    private function getExamplePathFromSource(string $file) : string
     {
         return sprintf(
             '%s%s%s',

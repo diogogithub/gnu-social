@@ -1,74 +1,51 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * phpDocumentor
  *
- * PHP Version 5
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @package   phpDocumentor\GraphViz\Test
- * @author    Danny van der Sluijs <danny.vandersluijs@fleppuhstein.com>
- * @copyright 2012 Danny van der Sluijs (http://www.dannyvandersluijs.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpDocumentor-project.org
+ * @link      http://phpdoc.org
  */
 
 namespace phpDocumentor\GraphViz\Test;
 
+use Mockery as m;
+use phpDocumentor\GraphViz\AttributeNotFound;
 use phpDocumentor\GraphViz\Edge;
 use phpDocumentor\GraphViz\Node;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test for the the class representing a GraphViz edge (vertex).
- *
- * @package phpDocumentor\GraphViz\Test
- * @author  Danny van der Sluijs <danny.vandersluijs@fleppuhstein.com>
- * @license http://www.opensource.org/licenses/mit-license.php MIT
- * @link    http://phpDocumentor-project.org
  */
-class EdgeTest extends \PHPUnit_Framework_TestCase
+class EdgeTest extends TestCase
 {
-
-    /**
-     * @var phpDocumentor\GraphViz\Edge
-     */
-    protected $fixture;
-
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     *
-     * @return void
-     */
-    protected function setUp()
-    {
-        $this->fixture = new Edge(new Node('from'), new Node('to'));
-    }
-
     /**
      * Tears down the fixture, for example, closes a network connection.
      * This method is called after a test is executed.
-     *
-     * @return void
      */
-    protected function tearDown()
+    protected function tearDown() : void
     {
-
+        m::close();
     }
 
     /**
      * Tests the construct method
      *
-     * @covers phpDocumentor\GraphViz\Edge::__construct
-     *
-     * @return void
+     * @covers \phpDocumentor\GraphViz\Edge::__construct
      */
-    public function testConstruct()
+    public function testConstruct() : void
     {
-        $fromNode = $this->getMock('phpDocumentor\GraphViz\Node', array(), array(), '', false);
-        $toNode = $this->getMock('phpDocumentor\GraphViz\Node', array(), array(), '', false);
-        $fixture = new Edge($fromNode, $toNode);
+        $fromNode = m::mock(Node::class);
+        $toNode   = m::mock(Node::class);
+        $fixture  = new Edge($fromNode, $toNode);
 
         $this->assertInstanceOf(
-            'phpDocumentor\GraphViz\Edge',
+            Edge::class,
             $fixture
         );
         $this->assertSame(
@@ -84,14 +61,12 @@ class EdgeTest extends \PHPUnit_Framework_TestCase
     /**
      * Tests the create method
      *
-     * @covers phpDocumentor\GraphViz\Edge::create
-     *
-     * @return void
+     * @covers \phpDocumentor\GraphViz\Edge::create
      */
-    public function testCreate()
+    public function testCreate() : void
     {
         $this->assertInstanceOf(
-            'phpDocumentor\GraphViz\Edge',
+            Edge::class,
             Edge::create(new Node('from'), new Node('to'))
         );
     }
@@ -100,11 +75,9 @@ class EdgeTest extends \PHPUnit_Framework_TestCase
      * Tests whether the getFrom method returns the same node as passed
      * in the create method
      *
-     * @covers phpDocumentor\GraphViz\Edge::getFrom
-     *
-     * @return void
+     * @covers \phpDocumentor\GraphViz\Edge::getFrom
      */
-    public function testGetFrom()
+    public function testGetFrom() : void
     {
         $from = new Node('from');
         $edge = Edge::create($from, new Node('to'));
@@ -115,13 +88,11 @@ class EdgeTest extends \PHPUnit_Framework_TestCase
      * Tests the getTo method returns the same node as passed
      * in the create method
      *
-     * @covers phpDocumentor\GraphViz\Edge::getTo
-     *
-     * @return void
+     * @covers \phpDocumentor\GraphViz\Edge::getTo
      */
-    public function testGetTo()
+    public function testGetTo() : void
     {
-        $to = new Node('to');
+        $to   = new Node('to');
         $edge = Edge::create(new Node('from'), $to);
         $this->assertSame($to, $edge->getTo());
     }
@@ -131,30 +102,44 @@ class EdgeTest extends \PHPUnit_Framework_TestCase
      * instance for a setX method, return the value for an getX method, and null
      * for the remaining method calls
      *
-     * @covers phpDocumentor\GraphViz\Edge::__call
-     *
-     * @return void
+     * @covers \phpDocumentor\GraphViz\Edge::__call
+     * @covers \phpDocumentor\GraphViz\Edge::setAttribute
+     * @covers \phpDocumentor\GraphViz\Edge::getAttribute
      */
-    public function testCall()
+    public function testCall() : void
     {
-        $label = 'my label';
-        $this->assertInstanceOf('phpDocumentor\GraphViz\Edge', $this->fixture->setLabel($label));
-        $this->assertSame($label, $this->fixture->getLabel()->getValue());
-        $this->assertNull($this->fixture->someNonExcistingMethod());
+        $label   = 'my label';
+        $fixture = new Edge(new Node('from'), new Node('to'));
+        $this->assertInstanceOf(Edge::class, $fixture->setLabel($label));
+        $this->assertSame($label, $fixture->getLabel()->getValue());
+        $this->assertNull($fixture->someNonExcistingMethod());
+    }
+
+    /**
+     * @covers \phpDocumentor\GraphViz\Edge::getAttribute
+     * @covers \phpDocumentor\GraphViz\AttributeNotFound::__construct
+     */
+    public function testGetNonExistingAttributeThrowsAttributeNotFound() : void
+    {
+        $fixture = new Edge(new Node('from'), new Node('to'));
+
+        $this->expectException(AttributeNotFound::class);
+        $this->expectExceptionMessage('Attribute with name "label" was not found');
+
+        $fixture->getLabel();
     }
 
     /**
      * Tests whether the magic __toString method returns a well formatted string
      * as specified in the DOT standard
      *
-     * @covers phpDocumentor\GraphViz\Edge::__toString
-     *
-     * @return void
+     * @covers \phpDocumentor\GraphViz\Edge::__toString
      */
-    public function testToString()
+    public function testToString() : void
     {
-        $this->fixture->setLabel('MyLabel');
-        $this->fixture->setWeight(45);
+        $fixture = new Edge(new Node('from'), new Node('to'));
+        $fixture->setLabel('MyLabel');
+        $fixture->setWeight(45);
 
         $dot = <<<DOT
 "from" -> "to" [
@@ -163,6 +148,6 @@ weight="45"
 ]
 DOT;
 
-        $this->assertSame($dot, (string) $this->fixture);
+        $this->assertSame($dot, (string) $fixture);
     }
 }

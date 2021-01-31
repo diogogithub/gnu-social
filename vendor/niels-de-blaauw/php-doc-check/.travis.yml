@@ -1,0 +1,39 @@
+language: php
+matrix:
+  fast_finish: true
+  include:
+  - php: '7.1'
+  - php: '7.2'
+    env:
+    - EXECUTE_DEPLOYMENT=true
+  - php: '7.3'
+  - php: nightly
+  allow_failures:
+  - php: nightly
+install:
+- composer install --prefer-dist --no-interaction --no-progress --no-suggest
+script:
+- composer validate
+- vendor/bin/phpunit
+- vendor/bin/phpcs
+- "vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --exclude vendor/"
+- "vendor/bin/phpstan analyse src --level 7"
+- "./bin/php-doc-check --exclude vendor ./"
+- vendor/bin/box compile
+- "php ./bin/php-doc-check.phar --exclude vendor ./"
+before_deploy:
+  - echo $DECRYPT_KEY | gpg --passphrase-fd 0 .travis/keys.asc.gpg  
+  - gpg --batch --yes --import .travis/keys.asc
+  - echo $SIGN_KEY | gpg --passphrase-fd 0 -u A010FF892D26859A --armor --detach-sig bin/php-doc-check.phar
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: ojBG9y3UL202hOM8Pzs8sNidw6wFWe0u+3dO6hIbCbbAE2QZ/PsQtNURC4xT2BgBri8/dkYiUh4nlrB/+9ai/S/rSp3SlHaInfT77uwomnlMDYxi4Cic2PJ1t75NnDlTD06BSttCLzN6WwrUE6E2CVWe3jVaduNuutee3IzODFXZOJQSs34KWOdpXKlTIoaBjREQsJyM2G3hhSFVT6pUtb4jLaVJ/vWT7158iyjwMr9x8Xn9t4Nh6iOuK5wkkKuV+N2QQMZD4whMfyLU2IwszgeWZ2ZK19TGS69vuESkwwDkZof0PuNuCFIWOTN/20QyuKCSllBxUX0AoOHlU0TY1ipi+TRl4DGVDnYFXHDrG1P/KfF9FscttmkP63hS7XTkEtxzidPqHeg5prh00zeMdhoRJINiM6sPsy4Vf8rS8GYD+IUbUIHEbmSYvYOrs7WFeULn328E9OAa8RCvL0DycvZNsEGqabnInr5Jvp8VnEfpoDkkxB9enci+JSYoCAKHKxheLdbBLNb2B5X5Rhhs7lleV1vNe1Ir/30PlVeWg5GRNpkzVhAlTupnkS1sKKmt8MpP4s3OEBvGcy7POMmIJZ9tMXk7YkfpeQBM0OXhBhZPGj1FGtodaTlyABvGRtuILNoSpQALkzS1eIkwDbBQd/X4VDIsvKauKJ/tCku9fq0=
+  file: 
+    - bin/php-doc-check.phar
+    - bin/php-doc-check.phar.asc
+  on:
+    tags: true
+    condition: "$EXECUTE_DEPLOYMENT"
+    repo: NielsdeBlaauw/php-doc-check

@@ -1,36 +1,36 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Tag;
 
-use phpDocumentor\Descriptor\DescriptorAbstract;
 use phpDocumentor\Descriptor\TagDescriptor;
+use phpDocumentor\Reflection\DocBlock\Tags\Reference\Reference;
 
+/**
+ * @api
+ * @package phpDocumentor\AST\Tags
+ */
 class SeeDescriptor extends TagDescriptor
 {
-    /** @var DescriptorAbstract|string $reference */
-    protected $reference = '';
+    /** @var Reference $reference */
+    private $reference;
 
-    /**
-     * @param DescriptorAbstract|string $reference
-     */
-    public function setReference($reference)
+    public function setReference(Reference $reference) : void
     {
         $this->reference = $reference;
     }
 
-    /**
-     * @return DescriptorAbstract|string
-     */
-    public function getReference()
+    public function getReference() : Reference
     {
         return $this->reference;
     }

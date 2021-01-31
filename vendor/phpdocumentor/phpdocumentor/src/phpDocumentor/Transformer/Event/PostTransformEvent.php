@@ -1,24 +1,56 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2012 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Transformer\Event;
 
+use phpDocumentor\Descriptor\ProjectDescriptor;
+use phpDocumentor\Event\EventAbstract;
+
 /**
  * Event happen right after all transformations have completed.
- *
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2012 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
  */
-class PostTransformEvent extends PreTransformEvent
+final class PostTransformEvent extends EventAbstract
 {
+    /** @var ProjectDescriptor|null */
+    private $project;
+
+    /**
+     * Creates a new instance of a derived object and return that.
+     *
+     * Used as convenience method for fluent interfaces.
+     */
+    public static function createInstance(object $subject) : EventAbstract
+    {
+        return new self($subject);
+    }
+
+    /**
+     * Returns the descriptor describing the project.
+     */
+    public function getProject() : ?ProjectDescriptor
+    {
+        return $this->project;
+    }
+
+    /**
+     * Returns the descriptor describing the project.
+     *
+     * @return $this
+     */
+    public function setProject(ProjectDescriptor $project) : self
+    {
+        $this->project = $project;
+
+        return $this;
+    }
 }

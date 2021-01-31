@@ -1,52 +1,49 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Compiler\Pass;
 
+use phpDocumentor\Compiler\CompilerPassInterface;
 use phpDocumentor\Descriptor\Collection;
 use phpDocumentor\Descriptor\DescriptorAbstract;
 use phpDocumentor\Descriptor\FileDescriptor;
-use phpDocumentor\Descriptor\TagDescriptor;
-use phpDocumentor\Compiler\CompilerPassInterface;
 use phpDocumentor\Descriptor\ProjectDescriptor;
+use phpDocumentor\Descriptor\TagDescriptor;
+use UnexpectedValueException;
 
 /**
  * This index builder collects all markers from tags and inserts them into the marker index.
  */
-class MarkerFromTagsExtractor implements CompilerPassInterface
+final class MarkerFromTagsExtractor implements CompilerPassInterface
 {
-    const COMPILER_PRIORITY = 9000;
+    public const COMPILER_PRIORITY = 9000;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDescription()
+    public function getDescription() : string
     {
         return 'Collect all markers embedded in tags';
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function execute(ProjectDescriptor $project)
+    public function execute(ProjectDescriptor $project) : void
     {
         /** @var DescriptorAbstract $element */
-        foreach ($project->getIndexes()->get('elements', new Collection()) as $element) {
-            $todos = $element->getTags()->get('todo');
+        foreach ($project->getIndexes()->fetch('elements', new Collection()) as $element) {
+            /** @var TagDescriptor[] $todos */
+            $todos = $element->getTags()->fetch('todo');
 
             if (!$todos) {
                 continue;
             }
 
-            /** @var TagDescriptor $todo */
             foreach ($todos as $todo) {
                 $fileDescriptor = $this->getFileDescriptor($element);
                 $this->addTodoMarkerToFile($fileDescriptor, $todo, $element->getLine());
@@ -57,20 +54,16 @@ class MarkerFromTagsExtractor implements CompilerPassInterface
     /**
      * Retrieves the File Descriptor from the given element.
      *
-     * @param DescriptorAbstract $element
-     *
-     * @throws \UnexpectedValueException if the provided element does not have a file associated with it.
-     *
-     * @return FileDescriptor
+     * @throws UnexpectedValueException If the provided element does not have a file associated with it.
      */
-    protected function getFileDescriptor($element)
+    private function getFileDescriptor(DescriptorAbstract $element) : FileDescriptor
     {
         $fileDescriptor = $element instanceof FileDescriptor
             ? $element
             : $element->getFile();
 
         if (!$fileDescriptor instanceof FileDescriptor) {
-            throw new \UnexpectedValueException('An element should always have a file associated with it');
+            throw new UnexpectedValueException('An element should always have a file associated with it');
         }
 
         return $fileDescriptor;
@@ -78,21 +71,15 @@ class MarkerFromTagsExtractor implements CompilerPassInterface
 
     /**
      * Adds a marker with the TO DO information to the file on a given line number.
-     *
-     * @param FileDescriptor $fileDescriptor
-     * @param TagDescriptor  $todo
-     * @param integer        $lineNumber
-     *
-     * @return void
      */
-    protected function addTodoMarkerToFile($fileDescriptor, $todo, $lineNumber)
+    private function addTodoMarkerToFile(FileDescriptor $fileDescriptor, TagDescriptor $todo, int $lineNumber) : void
     {
         $fileDescriptor->getMarkers()->add(
-            array(
-                'type'    => 'TODO',
-                'message' => $todo->getDescription(),
-                'line'    => $lineNumber,
-            )
+            [
+                'type' => 'TODO',
+                'message' => (string) $todo->getDescription(),
+                'line' => $lineNumber,
+            ]
         );
     }
 }

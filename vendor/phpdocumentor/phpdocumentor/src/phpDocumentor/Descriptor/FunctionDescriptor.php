@@ -1,23 +1,35 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor;
 
+use phpDocumentor\Descriptor\Tag\ReturnDescriptor;
+use phpDocumentor\Reflection\Type;
+use function current;
+
 /**
  * Descriptor representing a function.
+ *
+ * @api
+ * @package phpDocumentor\AST
  */
 class FunctionDescriptor extends DescriptorAbstract implements Interfaces\FunctionInterface
 {
-    /** @var Collection $arguments */
+    /** @var Collection<ArgumentDescriptor> $arguments */
     protected $arguments;
+
+    /** @var Type */
+    private $returnType;
 
     /**
      * Initializes the all properties representing a collection with a new Collection object.
@@ -29,30 +41,36 @@ class FunctionDescriptor extends DescriptorAbstract implements Interfaces\Functi
         $this->setArguments(new Collection());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setArguments(Collection $arguments)
+    public function setArguments(Collection $arguments) : void
     {
         $this->arguments = $arguments;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getArguments()
+    public function getArguments() : Collection
     {
         return $this->arguments;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getResponse()
+    public function getResponse() : ReturnDescriptor
     {
-        /** @var Collection|null $returnTags */
-        $returnTags = $this->getTags()->get('return');
+        $definedReturn = new ReturnDescriptor('return');
+        $definedReturn->setType($this->returnType);
 
-        return $returnTags instanceof Collection ? current($returnTags->getAll()) : null;
+        /** @var Collection<ReturnDescriptor> $returnTags */
+        $returnTags = $this->getTags()->fetch('return', new Collection())->filter(ReturnDescriptor::class);
+
+        if ($returnTags instanceof Collection && $returnTags->count() > 0) {
+            return current($returnTags->getAll());
+        }
+
+        return $definedReturn;
+    }
+
+    /**
+     * Sets return type of this method.
+     */
+    public function setReturnType(Type $returnType) : void
+    {
+        $this->returnType = $returnType;
     }
 }

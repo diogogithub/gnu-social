@@ -1,12 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Tag;
@@ -15,30 +17,27 @@ use phpDocumentor\Descriptor\TagDescriptor;
 
 /**
  * Descriptor representing the deprecated tag with a descriptor.
+ *
+ * @api
+ * @package phpDocumentor\AST\Tags
  */
-class DeprecatedDescriptor extends TagDescriptor
+final class DeprecatedDescriptor extends TagDescriptor
 {
     /** @var string $version represents the version since when the element was deprecated. */
-    protected $version;
+    private $version = '';
 
     /**
      * Returns the version since when the associated element was deprecated.
-     *
-     * @return string
      */
-    public function getVersion()
+    public function getVersion() : string
     {
         return $this->version;
     }
 
     /**
      * Sets the version since when the associated element was deprecated.
-     *
-     * @param string $version
-     *
-     * @return void
      */
-    public function setVersion($version)
+    public function setVersion(string $version) : void
     {
         $this->version = $version;
     }

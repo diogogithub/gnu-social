@@ -1,13 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2012 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Parser\Event;
@@ -17,19 +18,27 @@ use phpDocumentor\Event\EventAbstract;
 /**
  * Event thrown before the parsing of an individual file.
  */
-class PreFileEvent extends EventAbstract
+final class PreFileEvent extends EventAbstract
 {
     /** @var string */
-    protected $file;
+    private $file = '';
+
+    /**
+     * Creates a new instance of a derived object and return that.
+     *
+     * Used as convenience method for fluent interfaces.
+     *
+     * @return self
+     */
+    public static function createInstance(object $subject) : EventAbstract
+    {
+        return new self($subject);
+    }
 
     /**
      * Sets the name of the file that is about to be processed.
-     *
-     * @param string $file
-     *
-     * @return self|PreFileEvent
      */
-    public function setFile($file)
+    public function setFile(string $file) : self
     {
         $this->file = $file;
 
@@ -38,10 +47,8 @@ class PreFileEvent extends EventAbstract
 
     /**
      * Returns the name of the file that is about to be processed.
-     *
-     * @return string
      */
-    public function getFile()
+    public function getFile() : string
     {
         return $this->file;
     }

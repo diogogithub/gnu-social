@@ -1,28 +1,39 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor;
 
+use InvalidArgumentException;
+use phpDocumentor\Descriptor\Tag\ReturnDescriptor;
+use phpDocumentor\Descriptor\Validation\Error;
+use function ltrim;
+use function sprintf;
+
 /**
  * Descriptor representing a Trait.
+ *
+ * @api
+ * @package phpDocumentor\AST
  */
 class TraitDescriptor extends DescriptorAbstract implements Interfaces\TraitInterface
 {
-    /** @var Collection $properties */
+    /** @var Collection<PropertyDescriptor> $properties */
     protected $properties;
 
-    /** @var Collection $methods */
+    /** @var Collection<MethodDescriptor> $methods */
     protected $methods;
 
-    /** @var Collection $usedTraits */
+    /** @var Collection<TraitDescriptor|string> $usedTraits */
     protected $usedTraits;
 
     /**
@@ -37,39 +48,30 @@ class TraitDescriptor extends DescriptorAbstract implements Interfaces\TraitInte
         $this->setUsedTraits(new Collection());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setMethods(Collection $methods)
+    public function setMethods(Collection $methods) : void
     {
         $this->methods = $methods;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getMethods()
+    public function getMethods() : Collection
     {
         return $this->methods;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getInheritedMethods()
+    public function getInheritedMethods() : Collection
     {
         return new Collection();
     }
 
     /**
-     * @return Collection
+     * @return Collection<MethodDescriptor>
      */
-    public function getMagicMethods()
+    public function getMagicMethods() : Collection
     {
-        /** @var Collection $methodTags */
-        $methodTags = clone $this->getTags()->get('method', new Collection());
+        /** @var Collection<Tag\MethodDescriptor> $methodTags */
+        $methodTags = $this->getTags()->fetch('method', new Collection());
 
-        $methods = new Collection();
+        $methods = Collection::fromClassString(MethodDescriptor::class);
 
         /** @var Tag\MethodDescriptor $methodTag */
         foreach ($methodTags as $methodTag) {
@@ -79,55 +81,68 @@ class TraitDescriptor extends DescriptorAbstract implements Interfaces\TraitInte
             $method->setStatic($methodTag->isStatic());
             $method->setParent($this);
 
+            /** @var Collection<ReturnDescriptor> $returnTags */
+            $returnTags = $method->getTags()->fetch('return', new Collection());
+            $returnTags->add($methodTag->getResponse());
+
+            foreach ($methodTag->getArguments() as $name => $argument) {
+                $method->addArgument($name, $argument);
+            }
+
             $methods->add($method);
         }
 
         return $methods;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setProperties(Collection $properties)
+    public function setProperties(Collection $properties) : void
     {
         $this->properties = $properties;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getProperties()
+    public function getProperties() : Collection
     {
         return $this->properties;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getInheritedProperties()
+    public function getInheritedProperties() : Collection
     {
         return new Collection();
     }
 
     /**
-     * @return Collection
+     * @return Collection<PropertyDescriptor>
      */
-    public function getMagicProperties()
+    public function getMagicProperties() : Collection
     {
-        /** @var Collection $propertyTags */
-        $propertyTags = clone $this->getTags()->get('property', new Collection());
-        $propertyTags->merge($this->getTags()->get('property-read', new Collection()));
-        $propertyTags->merge($this->getTags()->get('property-write', new Collection()));
+        $tags = $this->getTags();
+        /** @var Collection<Tag\PropertyDescriptor> $propertyTags */
+        $propertyTags = $tags->fetch('property', new Collection())->filter(Tag\PropertyDescriptor::class)
+            ->merge($tags->fetch('property-read', new Collection())->filter(Tag\PropertyDescriptor::class))
+            ->merge($tags->fetch('property-write', new Collection())->filter(Tag\PropertyDescriptor::class));
 
-        $properties = new Collection();
+        $properties = Collection::fromClassString(PropertyDescriptor::class);
 
         /** @var Tag\PropertyDescriptor $propertyTag */
         foreach ($propertyTags as $propertyTag) {
             $property = new PropertyDescriptor();
             $property->setName(ltrim($propertyTag->getVariableName(), '$'));
             $property->setDescription($propertyTag->getDescription());
-            $property->setTypes($propertyTag->getTypes());
-            $property->setParent($this);
+            $property->setType($propertyTag->getType());
+            try {
+                $property->setParent($this);
+            } catch (InvalidArgumentException $e) {
+                $property->getErrors()->add(
+                    new Error(
+                        'ERROR',
+                        sprintf(
+                            'Property name is invalid %s',
+                            $e->getMessage()
+                        ),
+                        null
+                    )
+                );
+            }
 
             $properties->add($property);
         }
@@ -136,9 +151,9 @@ class TraitDescriptor extends DescriptorAbstract implements Interfaces\TraitInte
     }
 
     /**
-     * @param string $package
+     * @param PackageDescriptor|string $package
      */
-    public function setPackage($package)
+    public function setPackage($package) : void
     {
         parent::setPackage($package);
 
@@ -154,11 +169,9 @@ class TraitDescriptor extends DescriptorAbstract implements Interfaces\TraitInte
     /**
      * Sets a collection of all traits used by this class.
      *
-     * @param Collection $usedTraits
-     *
-     * @return void
+     * @param Collection<TraitDescriptor|string> $usedTraits
      */
-    public function setUsedTraits($usedTraits)
+    public function setUsedTraits(Collection $usedTraits) : void
     {
         $this->usedTraits = $usedTraits;
     }
@@ -168,9 +181,9 @@ class TraitDescriptor extends DescriptorAbstract implements Interfaces\TraitInte
      *
      * Returned values may either be a string (when the Trait is not in this project) or a TraitDescriptor.
      *
-     * @return Collection
+     * @return Collection<TraitDescriptor|string>
      */
-    public function getUsedTraits()
+    public function getUsedTraits() : Collection
     {
         return $this->usedTraits;
     }

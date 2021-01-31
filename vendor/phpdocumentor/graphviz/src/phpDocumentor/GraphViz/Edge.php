@@ -1,44 +1,46 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * phpDocumentor
  *
- * PHP Version 5
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2011 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
  * @link      http://phpdoc.org
  */
 
 namespace phpDocumentor\GraphViz;
 
+use function addslashes;
+use function implode;
+use function strtolower;
+use function substr;
+
 /**
  * Class representing an edge (arrow, line).
  *
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2011 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
  * @link      http://phpdoc.org
  */
 class Edge
 {
-    /** @var \phpDocumentor\GraphViz\Node Node from where to link */
-    protected $from = null;
+    use Attributes;
 
-    /** @var \phpDocumentor\GraphViz\Node Node where to to link */
-    protected $to = null;
+    /** @var Node Node from where to link */
+    private $from;
 
-    /** @var \phpDocumentor\GraphViz\Attribute List of attributes for this edge */
-    protected $attributes = array();
+    /** @var Node Node where to to link */
+    private $to;
 
     /**
      * Creates a new Edge / Link between the given nodes.
      *
-     * @param \phpDocumentor\GraphViz\Node $from Starting node to create an Edge from.
-     * @param \phpDocumentor\GraphViz\Node $to   Destination node where to create and
+     * @param Node $from Starting node to create an Edge from.
+     * @param Node $to   Destination node where to create and
      *  edge to.
      */
-    function __construct(Node $from, Node $to)
+    public function __construct(Node $from, Node $to)
     {
         $this->from = $from;
         $this->to   = $to;
@@ -49,32 +51,27 @@ class Edge
      *
      * See the examples for more details.
      *
-     * @param \phpDocumentor\GraphViz\Node $from Starting node to create an Edge from.
-     * @param \phpDocumentor\GraphViz\Node $to   Destination node where to create and
-     *  edge to.
-     *
-     * @return \phpDocumentor\GraphViz\Edge
+     * @param Node $from Starting node to create an Edge from.
+     * @param Node $to   Destination node where to create and
+     *   edge to.
      */
-    public static function create(Node $from, Node $to) {
+    public static function create(Node $from, Node $to) : self
+    {
         return new self($from, $to);
     }
 
     /**
      * Returns the source Node for this Edge.
-     *
-     * @return \phpDocumentor\GraphViz\Node
      */
-    public function getFrom()
+    public function getFrom() : Node
     {
         return $this->from;
     }
 
     /**
      * Returns the destination Node for this Edge.
-     *
-     * @return \phpDocumentor\GraphViz\Node
      */
-    public function getTo()
+    public function getTo() : Node
     {
         return $this->to;
     }
@@ -90,21 +87,22 @@ class Edge
      * return the attribute value.
      *
      * @param string  $name      name of the invoked method, expect it to be
-     *  setX or getX.
+     *       setX or getX.
      * @param mixed[] $arguments Arguments for the setter, only 1 is expected: value
      *
-     * @return \phpDocumentor\GraphViz\Attribute[]|\phpDocumentor\GraphViz\Edge|null
+     * @return Attribute|Edge|null
+     *
+     * @throws AttributeNotFound
      */
-    function __call($name, $arguments)
+    public function __call(string $name, array $arguments)
     {
         $key = strtolower(substr($name, 3));
-        if (strtolower(substr($name, 0, 3)) == 'set') {
-            $this->attributes[$key] = new Attribute($key, $arguments[0]);
-
-            return $this;
+        if (strtolower(substr($name, 0, 3)) === 'set') {
+            return $this->setAttribute($key, (string) $arguments[0]);
         }
-        if (strtolower(substr($name, 0, 3)) == 'get') {
-            return $this->attributes[$key];
+
+        if (strtolower(substr($name, 0, 3)) === 'get') {
+            return $this->getAttribute($key);
         }
 
         return null;
@@ -112,23 +110,22 @@ class Edge
 
     /**
      * Returns the edge definition as is requested by GraphViz.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
-        $attributes = array();
+        $attributes = [];
         foreach ($this->attributes as $value) {
-            $attributes[] = (string)$value;
+            $attributes[] = (string) $value;
         }
+
         $attributes = implode("\n", $attributes);
 
         $from_name = addslashes($this->getFrom()->getName());
         $to_name   = addslashes($this->getTo()->getName());
 
         return <<<DOT
-"$from_name" -> "$to_name" [
-$attributes
+"${from_name}" -> "${to_name}" [
+${attributes}
 ]
 DOT;
     }

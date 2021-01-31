@@ -1,23 +1,25 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * phpDocumentor
  *
- * PHP Version 5
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2011 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
  * @link      http://phpdoc.org
  */
 
 namespace phpDocumentor\GraphViz;
 
+use function addslashes;
+use function preg_replace;
+use function strstr;
+
 /**
  * Class representing a single GraphViz attribute.
  *
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2011 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
  * @link      http://phpdoc.org
  */
 class Attribute
@@ -25,7 +27,7 @@ class Attribute
     /** @var string The name of this attribute */
     protected $key = '';
 
-    /** @var string The value of this attribute*/
+    /** @var string The value of this attribute */
     protected $value = '';
 
     /**
@@ -34,9 +36,9 @@ class Attribute
      * @param string $key   Id for the new attribute.
      * @param string $value Value for this attribute,
      */
-    public function __construct($key, $value)
+    public function __construct(string $key, string $value)
     {
-        $this->key = $key;
+        $this->key   = $key;
         $this->value = $value;
     }
 
@@ -44,10 +46,8 @@ class Attribute
      * Sets the key for this attribute.
      *
      * @param string $key The new name of this attribute.
-     *
-     * @return \phpDocumentor\GraphViz\Attribute
      */
-    public function setKey($key)
+    public function setKey(string $key) : self
     {
         $this->key = $key;
         return $this;
@@ -55,10 +55,8 @@ class Attribute
 
     /**
      * Returns the name for this attribute.
-     *
-     * @return string
      */
-    public function getKey()
+    public function getKey() : string
     {
         return $this->key;
     }
@@ -67,10 +65,8 @@ class Attribute
      * Sets the value for this attribute.
      *
      * @param string $value The new value.
-     *
-     * @return \phpDocumentor\GraphViz\Attribute
      */
-    public function setValue($value)
+    public function setValue(string $value) : self
     {
         $this->value = $value;
         return $this;
@@ -78,23 +74,19 @@ class Attribute
 
     /**
      * Returns the value for this attribute.
-     *
-     * @return string
      */
-    public function getValue()
+    public function getValue() : string
     {
         return $this->value;
     }
 
     /**
      * Returns the attribute definition as is requested by GraphViz.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
         $key = $this->getKey();
-        if ($key == 'url') {
+        if ($key === 'url') {
             $key = 'URL';
         }
 
@@ -104,41 +96,38 @@ class Attribute
         } elseif (!$this->isValueInHtml()) {
             $value = '"' . addslashes($value) . '"';
         }
+
         return $key . '=' . $value;
     }
 
     /**
      * Returns whether the value contains HTML.
-     *
-     * @return bool
      */
-    public function isValueInHtml()
+    public function isValueInHtml() : bool
     {
         $value = $this->getValue();
 
-        return (bool)(isset($value[0]) && ($value[0] == '<'));
+        return isset($value[0]) && ($value[0] === '<');
     }
 
     /**
      * Checks whether the value contains any any special characters needing escaping.
-     *
-     * @return bool
      */
-    public function isValueContainingSpecials()
+    public function isValueContainingSpecials() : bool
     {
-        return strstr($this->getValue(), "\\") !== false;
+        return strstr($this->getValue(), '\\') !== false;
     }
 
     /**
      * Encode special characters so the escape sequences aren't removed
      *
      * @see http://www.graphviz.org/doc/info/attrs.html#k:escString
-     * @return string
      */
-    protected function encodeSpecials()
+    protected function encodeSpecials() : string
     {
         $value = $this->getValue();
         $regex = '(\'|"|\\x00|\\\\(?![\\\\NGETHLnlr]))';
-        return preg_replace($regex, '\\\\$0', $value);
+
+        return (string) preg_replace($regex, '\\\\$0', $value);
     }
 }

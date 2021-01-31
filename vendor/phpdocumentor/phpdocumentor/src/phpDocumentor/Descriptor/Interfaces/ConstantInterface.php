@@ -1,17 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Interfaces;
 
-use phpDocumentor\Descriptor\Collection;
+use phpDocumentor\Reflection\Type;
 
 /**
  * Descriptor representing a constant on a class, trait, property or file.
@@ -20,33 +22,23 @@ interface ConstantInterface extends ElementInterface, TypeInterface
 {
     /**
      * Sets the types that this constant may contain.
-     *
-     * @param Collection $types
-     *
-     * @return void
      */
-    public function setTypes(Collection $types);
+    public function setTypes(Type $types) : void;
 
     /**
      * Returns the types that may be present in this constant.
      *
-     * @return array[]
+     * @return list<Type>
      */
-    public function getTypes();
+    public function getTypes() : array;
 
     /**
      * Sets the value representation for this constant.
-     *
-     * @param string $value
-     *
-     * @return void
      */
-    public function setValue($value);
+    public function setValue(string $value) : void;
 
     /**
      * Retrieves a textual representation of the value in this constant.
-     *
-     * @return string
      */
-    public function getValue();
+    public function getValue() : string;
 }

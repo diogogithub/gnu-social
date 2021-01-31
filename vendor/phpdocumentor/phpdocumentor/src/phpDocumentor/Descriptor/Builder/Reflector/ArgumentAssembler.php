@@ -1,77 +1,76 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Builder\Reflector;
 
 use phpDocumentor\Descriptor\ArgumentDescriptor;
-use phpDocumentor\Reflection\DocBlock\Type\Collection;
+use phpDocumentor\Descriptor\Builder\AssemblerAbstract as BaseAssembler;
 use phpDocumentor\Descriptor\Tag\ParamDescriptor;
-use phpDocumentor\Reflection\FunctionReflector\ArgumentReflector;
+use phpDocumentor\Reflection\Php\Argument;
+use function stripcslashes;
 
 /**
  * Assembles an ArgumentDescriptor using an ArgumentReflector and ParamDescriptors.
+ *
+ * @extends BaseAssembler<ArgumentDescriptor, Argument>
  */
-class ArgumentAssembler extends AssemblerAbstract
+class ArgumentAssembler extends BaseAssembler
 {
     /**
      * Creates a Descriptor from the provided data.
      *
-     * @param ArgumentReflector $data
-     * @param ParamDescriptor[] $params
-     *
-     * @return ArgumentDescriptor
+     * @param Argument $data
+     * @param iterable<ParamDescriptor> $params
      */
-    public function create($data, $params = array())
+    public function create(object $data, iterable $params = []) : ArgumentDescriptor
     {
         $argumentDescriptor = new ArgumentDescriptor();
         $argumentDescriptor->setName($data->getName());
-        $argumentDescriptor->setTypes(
-            $this->builder->buildDescriptor(
-                $data->getType() ? new Collection(array($data->getType())) : new Collection()
-            )
-        );
+        $argumentDescriptor->setType($data->getType());
 
         foreach ($params as $paramDescriptor) {
             $this->overwriteTypeAndDescriptionFromParamTag($data, $paramDescriptor, $argumentDescriptor);
         }
 
-        $argumentDescriptor->setDefault($data->getDefault());
-        $argumentDescriptor->setByReference($data->isByRef());
+        $argumentDescriptor->setDefault($this->pretifyValue($data->getDefault()));
+        $argumentDescriptor->setByReference($data->isByReference());
+        $argumentDescriptor->setVariadic($data->isVariadic());
 
         return $argumentDescriptor;
     }
 
     /**
      * Overwrites the type and description in the Argument Descriptor with that from the tag if the names match.
-     *
-     * @param ArgumentReflector  $argument
-     * @param ParamDescriptor    $paramDescriptor
-     * @param ArgumentDescriptor $argumentDescriptor
-     *
-     * @return void
      */
     protected function overwriteTypeAndDescriptionFromParamTag(
-        ArgumentReflector  $argument,
-        ParamDescriptor    $paramDescriptor,
+        Argument $argument,
+        ParamDescriptor $paramDescriptor,
         ArgumentDescriptor $argumentDescriptor
-    ) {
-        if ($paramDescriptor->getVariableName() != $argument->getName()) {
+    ) : void {
+        if ($paramDescriptor->getVariableName() !== $argument->getName()) {
             return;
         }
 
         $argumentDescriptor->setDescription($paramDescriptor->getDescription());
-        $argumentDescriptor->setTypes(
-            $paramDescriptor->getTypes() ?: $this->builder->buildDescriptor(
-                new Collection(array($argument->getType() ?: 'mixed'))
-            )
-        );
+        $argumentDescriptor->setType($paramDescriptor->getType());
+    }
+
+    protected function pretifyValue(?string $value) : ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        return stripcslashes($value);
     }
 }

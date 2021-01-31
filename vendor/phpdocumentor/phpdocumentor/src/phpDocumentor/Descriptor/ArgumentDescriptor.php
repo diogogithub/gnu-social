@@ -1,25 +1,36 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
+
 namespace phpDocumentor\Descriptor;
+
+use phpDocumentor\Reflection\Type;
+use function array_filter;
+use function trigger_error;
+use const E_USER_DEPRECATED;
 
 /**
  * Descriptor representing a single Argument of a method or function.
+ *
+ * @api
+ * @package phpDocumentor\AST
  */
 class ArgumentDescriptor extends DescriptorAbstract implements Interfaces\ArgumentInterface
 {
     /** @var MethodDescriptor $method */
     protected $method;
 
-    /** @var string[] $type an array of normalized types that should be in this Argument */
-    protected $types = array();
+    /** @var Type|null $type normalized type of this argument */
+    protected $type = null;
 
     /** @var string|null $default the default value for an argument or null if none is provided */
     protected $default;
@@ -27,109 +38,94 @@ class ArgumentDescriptor extends DescriptorAbstract implements Interfaces\Argume
     /** @var bool $byReference whether the argument passes the parameter by reference instead of by value */
     protected $byReference = false;
 
-    /** @var boolean Determines if this Argument represents a variadic argument */
+    /** @var bool Determines if this Argument represents a variadic argument */
     protected $isVariadic = false;
 
     /**
      * To which method does this argument belong to
-     *
-     * @param MethodDescriptor $method
      */
-    public function setMethod(MethodDescriptor $method)
+    public function setMethod(MethodDescriptor $method) : void
     {
         $this->method = $method;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setTypes($types)
+    public function getMethod() : ?MethodDescriptor
     {
-        $this->types = $types;
+        return $this->method;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getTypes()
+    public function setType(?Type $type) : void
     {
-        if (count($this->types)==0 &&
-            $this->getInheritedElement() !== null
-            ) {
-                $this->setTypes($this->getInheritedElement()->getTypes());
+        $this->type = $type;
+    }
+
+    public function getType() : ?Type
+    {
+        if ($this->type === null && $this->getInheritedElement() !== null) {
+            $this->setType($this->getInheritedElement()->getType());
         }
 
-        return $this->types;
+        return $this->type;
     }
 
     /**
-     * @return null|ArgumentDescriptor
+     * @return list<Type>
      */
-    public function getInheritedElement()
+    public function getTypes() : array
+    {
+        trigger_error('Please use getType', E_USER_DEPRECATED);
+
+        return array_filter([$this->getType()]);
+    }
+
+    public function getInheritedElement() : ?ArgumentDescriptor
     {
         if ($this->method instanceof MethodDescriptor &&
             $this->method->getInheritedElement() instanceof MethodDescriptor) {
             $parents = $this->method->getInheritedElement()->getArguments();
-            foreach($parents as $parentArgument)
-            {
+            /** @var ArgumentDescriptor $parentArgument */
+            foreach ($parents as $parentArgument) {
                 if ($parentArgument->getName() === $this->getName()) {
                     return $parentArgument;
                 }
             }
         }
+
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setDefault($value)
+    public function setDefault(?string $value) : void
     {
         $this->default = $value;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDefault()
+    public function getDefault() : ?string
     {
         return $this->default;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setByReference($byReference)
+    public function setByReference(bool $byReference) : void
     {
         $this->byReference = $byReference;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function isByReference()
+    public function isByReference() : bool
     {
         return $this->byReference;
     }
 
     /**
      * Sets whether this argument represents a variadic argument.
-     *
-     * @param boolean $isVariadic
-     *
-     * @return false
      */
-    public function setVariadic($isVariadic)
+    public function setVariadic(bool $isVariadic) : void
     {
         $this->isVariadic = $isVariadic;
     }
 
     /**
      * Returns whether this argument represents a variadic argument.
-     *
-     * @return boolean
      */
-    public function isVariadic()
+    public function isVariadic() : bool
     {
         return $this->isVariadic;
     }

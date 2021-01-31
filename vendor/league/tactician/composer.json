@@ -1,0 +1,38 @@
+{
+    "name":        "league/tactician",
+    "description": "A small, flexible command bus. Handy for building service layers.",
+    "keywords":    ["command", "command bus", "service layer"],
+    "license":     "MIT",
+    "authors": [
+        {
+            "name": "Ross Tuck",
+            "homepage": "http://tactician.thephpleague.com"
+        }
+    ],
+    "require": {
+        "php":  ">=5.5"
+    },
+    "require-dev": {
+        "mockery/mockery": "~0.9",
+        "phpunit/phpunit": "^4.8.35",
+        "squizlabs/php_codesniffer": "~2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "League\\Tactician\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "League\\Tactician\\Tests\\": "tests/"
+        },
+        "files": [
+            "tests/Fixtures/Command/CommandWithoutNamespace.php"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0-dev"
+        }
+    }
+}

@@ -1,0 +1,8 @@
+composer.lock
+/artifacts/
+/vendor/
+/bin/php-doc-check.phar
+/bin/php-doc-check.phar.asc
+/.travis/php-doc-check-phar-private.pem
+/.travis/secrets.tar
+.vscode/

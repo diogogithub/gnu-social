@@ -1,33 +1,34 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Filter;
 
+use InvalidArgumentException;
 use phpDocumentor\Descriptor\DescriptorAbstract;
 use phpDocumentor\Descriptor\Interfaces\VisibilityInterface;
+use phpDocumentor\Descriptor\ProjectDescriptor\Settings;
 use phpDocumentor\Descriptor\ProjectDescriptorBuilder;
-use Zend\Filter\AbstractFilter;
 
 /**
  * Strips any Descriptor if their visibility is allowed according to the ProjectDescriptorBuilder.
  */
-class StripOnVisibility extends AbstractFilter
+class StripOnVisibility implements FilterInterface
 {
     /** @var ProjectDescriptorBuilder $builder */
     protected $builder;
 
     /**
      * Initializes this filter with an instance of the builder to retrieve the latest ProjectDescriptor from.
-     *
-     * @param ProjectDescriptorBuilder $builder
      */
     public function __construct(ProjectDescriptorBuilder $builder)
     {
@@ -36,19 +37,43 @@ class StripOnVisibility extends AbstractFilter
 
     /**
      * Filter Descriptor with based on visibility.
-     *
-     * @param DescriptorAbstract $value
-     *
-     * @return DescriptorAbstract|null
      */
-    public function filter($value)
+    public function __invoke(Filterable $value) : ?Filterable
     {
-        if ($value instanceof VisibilityInterface
-            && !$this->builder->isVisibilityAllowed($value->getVisibility())
-        ) {
-            return null;
+        if (!$value instanceof DescriptorAbstract) {
+            return $value;
         }
 
-        return $value;
+        // if a Descriptor is marked as 'api' and this is set as a visibility; _always_ show it; even if the visibility
+        // is not set
+        if (isset($value->getTags()['api'])
+            && $this->builder->getProjectDescriptor()->isVisibilityAllowed(Settings::VISIBILITY_API)
+        ) {
+            return $value;
+        }
+
+        if (!$value instanceof VisibilityInterface) {
+            return $value;
+        }
+
+        if ($this->builder->getProjectDescriptor()->isVisibilityAllowed($this->toVisibility($value->getVisibility()))) {
+            return $value;
+        }
+
+        return null;
+    }
+
+    private function toVisibility(string $visibility) : int
+    {
+        switch ($visibility) {
+            case 'public':
+                return Settings::VISIBILITY_PUBLIC;
+            case 'protected':
+                return Settings::VISIBILITY_PROTECTED;
+            case 'private':
+                return Settings::VISIBILITY_PRIVATE;
+        }
+
+        throw new InvalidArgumentException($visibility . ' is not a valid visibility');
     }
 }

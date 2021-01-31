@@ -1,40 +1,40 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Builder\Reflector\Tags;
 
-use phpDocumentor\Descriptor\Builder\Reflector\AssemblerAbstract;
 use phpDocumentor\Descriptor\Tag\LinkDescriptor;
-use phpDocumentor\Reflection\DocBlock\Tag\LinkTag;
+use phpDocumentor\Reflection\DocBlock\Tags\Link;
 
 /**
  * Constructs a new descriptor from the Reflector for an `@link` tag.
  *
  * This object will read the reflected information for the `@link` tag and create a {@see LinkDescriptor} object that
  * can be used in the rest of the application and templates.
+ *
+ * @extends BaseTagAssembler<LinkDescriptor, Link>
  */
-class LinkAssembler extends AssemblerAbstract
+class LinkAssembler extends BaseTagAssembler
 {
     /**
      * Creates a new Descriptor from the given Reflector.
      *
-     * @param LinkTag $data
-     *
-     * @return LinkDescriptor
+     * @param Link $data
      */
-    public function create($data)
+    public function buildDescriptor(object $data) : LinkDescriptor
     {
         $descriptor = new LinkDescriptor($data->getName());
         $descriptor->setLink($data->getLink());
-        $descriptor->setDescription($data->getDescription());
 
         return $descriptor;
     }

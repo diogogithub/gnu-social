@@ -43,7 +43,7 @@ class LinkStub extends ConstStub
 
             return;
         }
-        if (!file_exists($href)) {
+        if (!is_file($href)) {
             return;
         }
         if ($line) {
@@ -55,24 +55,24 @@ class LinkStub extends ConstStub
         if ($composerRoot = $this->getComposerRoot($href, $this->inVendor)) {
             $this->attr['ellipsis'] = \strlen($href) - \strlen($composerRoot) + 1;
             $this->attr['ellipsis-type'] = 'path';
-            $this->attr['ellipsis-tail'] = 1 + ($this->inVendor ? 2 + \strlen(implode(\array_slice(explode(\DIRECTORY_SEPARATOR, substr($href, 1 - $this->attr['ellipsis'])), 0, 2))) : 0);
+            $this->attr['ellipsis-tail'] = 1 + ($this->inVendor ? 2 + \strlen(implode('', \array_slice(explode(\DIRECTORY_SEPARATOR, substr($href, 1 - $this->attr['ellipsis'])), 0, 2))) : 0);
         } elseif (3 < \count($ellipsis = explode(\DIRECTORY_SEPARATOR, $href))) {
-            $this->attr['ellipsis'] = 2 + \strlen(implode(\array_slice($ellipsis, -2)));
+            $this->attr['ellipsis'] = 2 + \strlen(implode('', \array_slice($ellipsis, -2)));
             $this->attr['ellipsis-type'] = 'path';
             $this->attr['ellipsis-tail'] = 1;
         }
     }
 
-    private function getComposerRoot($file, &$inVendor)
+    private function getComposerRoot(string $file, bool &$inVendor)
     {
         if (null === self::$vendorRoots) {
-            self::$vendorRoots = array();
+            self::$vendorRoots = [];
 
             foreach (get_declared_classes() as $class) {
                 if ('C' === $class[0] && 0 === strpos($class, 'ComposerAutoloaderInit')) {
                     $r = new \ReflectionClass($class);
-                    $v = \dirname(\dirname($r->getFileName()));
-                    if (file_exists($v.'/composer/installed.json')) {
+                    $v = \dirname($r->getFileName(), 2);
+                    if (is_file($v.'/composer/installed.json')) {
                         self::$vendorRoots[] = $v.\DIRECTORY_SEPARATOR;
                     }
                 }
@@ -91,7 +91,7 @@ class LinkStub extends ConstStub
         }
 
         $parent = $dir;
-        while (!@file_exists($parent.'/composer.json')) {
+        while (!@is_file($parent.'/composer.json')) {
             if (!@file_exists($parent)) {
                 // open_basedir restriction in effect
                 break;

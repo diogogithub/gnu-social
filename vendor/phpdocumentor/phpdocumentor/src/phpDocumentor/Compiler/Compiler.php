@@ -1,29 +1,40 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Compiler;
 
+use SplPriorityQueue;
+use Webmozart\Assert\Assert;
+
 /**
  * Contains a series of compiler steps in a specific order; ready to be executed during transformation.
+ *
+ * @psalm-template-extends SplPriorityQueue<CompilerPassInterface, int>
+ * @template-extends SplPriorityQueue<int, CompilerPassInterface>
  */
-class Compiler extends \SplPriorityQueue
+class Compiler extends SplPriorityQueue
 {
-    /** @var integer Default priority assigned to Compiler Passes without provided priority */
-    const PRIORITY_DEFAULT = 10000;
+    /** @var int Default priority assigned to Compiler Passes without provided priority */
+    public const PRIORITY_DEFAULT = 10000;
 
     /**
-     * {@inheritDoc}
+     * @param CompilerPassInterface $value
+     * @param int $priority
      */
-    public function insert($value, $priority = self::PRIORITY_DEFAULT)
+    public function insert($value, $priority = self::PRIORITY_DEFAULT) : bool
     {
-        parent::insert($value, $priority);
+        Assert::isInstanceOf($value, CompilerPassInterface::class);
+
+        return parent::insert($value, $priority);
     }
 }

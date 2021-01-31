@@ -1,44 +1,49 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Tag;
 
+use phpDocumentor\Descriptor\Descriptor;
 use phpDocumentor\Descriptor\TagDescriptor;
+use phpDocumentor\Reflection\Fqsen;
 
 /**
  * Descriptor representing the uses tag on any element.
+ *
+ * @api
+ * @package phpDocumentor\AST\Tags
  */
-class UsesDescriptor extends TagDescriptor
+final class UsesDescriptor extends TagDescriptor
 {
-    /** @var string the FQSEN where the uses tag refers to */
-    protected $reference = '';
+    /** @var Fqsen|Descriptor|null the FQSEN where the uses tag refers to */
+    private $reference;
 
     /**
-     * Returns the FQSEN to which this tag points.
+     * Returns the FQSEN, or Descriptor after linking, to which this tag points.
      *
-     * @return string
+     * @return Fqsen|Descriptor|null
      */
-    public function getReference()
+    public function getReference() : ?object
     {
         return $this->reference;
     }
 
     /**
-     * Sets the FQSEN to which this tag points.
+     * Sets the FQSEN or Descriptor to which this tag points.
      *
-     * @param string $reference
-     *
-     * @return void
+     * @param Fqsen|Descriptor|null $reference
      */
-    public function setReference($reference)
+    public function setReference(?object $reference) : void
     {
         $this->reference = $reference;
     }

@@ -1,39 +1,34 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * phpDocumentor
  *
- * PHP Version 5
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @package   phpDocumentor\GraphViz\Tests
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2011 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpDocumentor-project.org
+ * @link      http://phpdoc.org
  */
 
 namespace phpDocumentor\GraphViz\Test;
 
+use phpDocumentor\GraphViz\AttributeNotFound;
 use phpDocumentor\GraphViz\Node;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Test for the the class representing a GraphViz node.
- *
- * @package phpDocumentor\GraphViz\Tests
- * @author  Mike van Riel <mike.vanriel@naenius.com>
- * @license http://www.opensource.org/licenses/mit-license.php MIT
- * @link    http://phpDocumentor-project.org
  */
-class NodeTest extends \PHPUnit_Framework_TestCase
+class NodeTest extends TestCase
 {
-    /** @var \phpDocumentor\GraphViz\Node */
+    /** @var Node */
     protected $fixture = null;
 
     /**
      * Initializes the fixture for this test.
-     *
-     * @return void
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         $this->fixture = new Node('name', 'label');
     }
@@ -41,15 +36,14 @@ class NodeTest extends \PHPUnit_Framework_TestCase
     /**
      * Tests the construct method
      *
-     * @covers phpDocumentor\GraphViz\Node::__construct
-     *
+     * @covers \phpDocumentor\GraphViz\Node::__construct
      * @returnn void
      */
-    public function testConstruct()
+    public function testConstruct() : void
     {
         $fixture = new Node('MyName', 'MyLabel');
         $this->assertInstanceOf(
-            'phpDocumentor\GraphViz\Node',
+            Node::class,
             $fixture
         );
         $this->assertSame('MyName', $fixture->getName());
@@ -59,14 +53,13 @@ class NodeTest extends \PHPUnit_Framework_TestCase
     /**
      * Tests the create method
      *
-     * @covers phpDocumentor\GraphViz\Node::create
-     *
+     * @covers \phpDocumentor\GraphViz\Node::create
      * @returnn void
      */
-    public function testCreate()
+    public function testCreate() : void
     {
         $this->assertInstanceOf(
-            'phpDocumentor\GraphViz\Node',
+            Node::class,
             Node::create('name', 'label')
         );
     }
@@ -76,21 +69,22 @@ class NodeTest extends \PHPUnit_Framework_TestCase
      *
      * @covers \phpDocumentor\GraphViz\Node::getName
      * @covers \phpDocumentor\GraphViz\Node::setName
-     *
-     * @return void
      */
-    public function testName()
+    public function testName() : void
     {
         $this->assertSame(
-            $this->fixture->getName(), 'name',
+            $this->fixture->getName(),
+            'name',
             'Expecting the name to match the initial state'
         );
         $this->assertSame(
-            $this->fixture, $this->fixture->setName('otherName'),
+            $this->fixture,
+            $this->fixture->setName('otherName'),
             'Expecting a fluent interface'
         );
         $this->assertSame(
-            $this->fixture->getName(), 'otherName',
+            $this->fixture->getName(),
+            'otherName',
             'Expecting the name to contain the new value'
         );
     }
@@ -100,27 +94,37 @@ class NodeTest extends \PHPUnit_Framework_TestCase
      * instance for a setX method, return the value for an getX method, and null
      * for the remaining method calls
      *
-     * @covers phpDocumentor\GraphViz\Node::__call
-     *
-     * @return void
+     * @covers \phpDocumentor\GraphViz\Node::__call
+     * @covers \phpDocumentor\GraphViz\Node::getAttribute
+     * @covers \phpDocumentor\GraphViz\Node::setAttribute
      */
-    public function testCall()
+    public function testCall() : void
     {
         $fontname = 'Bitstream Vera Sans';
-        $this->assertInstanceOf('phpDocumentor\GraphViz\Node', $this->fixture->setfontname($fontname));
+        $this->assertInstanceOf(Node::class, $this->fixture->setfontname($fontname));
         $this->assertSame($fontname, $this->fixture->getfontname()->getValue());
         $this->assertNull($this->fixture->someNonExistingMethod());
+    }
+
+    /**
+     * @covers \phpDocumentor\GraphViz\Node::getAttribute
+     * @covers \phpDocumentor\GraphViz\AttributeNotFound::__construct
+     */
+    public function testGetNonExistingAttributeThrowsAttributeNotFound() : void
+    {
+        $this->expectException(AttributeNotFound::class);
+        $this->expectExceptionMessage('Attribute with name "fontname" was not found');
+
+        $this->fixture->getFontname();
     }
 
     /**
      * Tests whether the magic __toString method returns a well formatted string
      * as specified in the DOT standard
      *
-     * @covers phpDocumentor\GraphViz\Node::__toString
-     *
-     * @return void
+     * @covers \phpDocumentor\GraphViz\Node::__toString
      */
-    public function testToString()
+    public function testToString() : void
     {
         $this->fixture->setfontsize(12);
         $this->fixture->setfontname('Bitstream Vera Sans');
@@ -140,9 +144,9 @@ DOT;
      * Tests whether the magic __toString method returns a well formatted string
      * as specified in the DOT standard when the label contains slashes.
      *
-     * @covers phpDocumentor\GraphViz\Node::__toString
+     * @covers \phpDocumentor\GraphViz\Node::__toString
      */
-    public function testToStringWithLabelContainingSlashes()
+    public function testToStringWithLabelContainingSlashes() : void
     {
         $this->fixture->setfontsize(12);
         $this->fixture->setfontname('Bitstream Vera Sans');

@@ -1,12 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Compiler\Pass;
@@ -14,9 +16,18 @@ namespace phpDocumentor\Compiler\Pass;
 use phpDocumentor\Compiler\CompilerPassInterface;
 use phpDocumentor\Descriptor\Collection;
 use phpDocumentor\Descriptor\DescriptorAbstract;
+use phpDocumentor\Descriptor\FileDescriptor;
 use phpDocumentor\Descriptor\PackageDescriptor;
 use phpDocumentor\Descriptor\ProjectDescriptor;
 use phpDocumentor\Descriptor\TagDescriptor;
+use phpDocumentor\Parser\Parser;
+use phpDocumentor\Reflection\Fqsen;
+use function explode;
+use function ltrim;
+use function preg_replace;
+use function rtrim;
+use function str_replace;
+use function ucfirst;
 
 /**
  * Rebuilds the package tree from the elements found in files.
@@ -27,40 +38,39 @@ use phpDocumentor\Descriptor\TagDescriptor;
  * If the package tree were to be persisted then both locations needed to be
  * invalidated if a file were to change.
  */
-class PackageTreeBuilder implements CompilerPassInterface
+final class PackageTreeBuilder implements CompilerPassInterface
 {
-    const COMPILER_PRIORITY = 9001;
+    /** @var Parser */
+    private $parser;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDescription()
+    public function __construct(Parser $parser)
+    {
+        $this->parser = $parser;
+    }
+
+    public const COMPILER_PRIORITY = 9001;
+
+    public function getDescription() : string
     {
         return 'Build "packages" index';
     }
 
-    /**
-     * Compiles a 'packages' index on the project and create all Package Descriptors necessary.
-     *
-     * @param ProjectDescriptor $project
-     *
-     * @return void
-     */
-    public function execute(ProjectDescriptor $project)
+    public function execute(ProjectDescriptor $project) : void
     {
-        $rootPackageDescriptor = new PackageDescriptor();
-        $rootPackageDescriptor->setName('\\');
-        $project->getIndexes()->set('packages', new Collection());
-        $project->getIndexes()->packages['\\'] = $rootPackageDescriptor;
+        $packages = Collection::fromClassString(PackageDescriptor::class);
+        $packages['\\'] = $project->getPackage();
 
+        /** @var FileDescriptor $file */
         foreach ($project->getFiles() as $file) {
-            $this->addElementsOfTypeToPackage($project, array($file), 'files');
-            $this->addElementsOfTypeToPackage($project, $file->getConstants()->getAll(), 'constants');
-            $this->addElementsOfTypeToPackage($project, $file->getFunctions()->getAll(), 'functions');
-            $this->addElementsOfTypeToPackage($project, $file->getClasses()->getAll(), 'classes');
-            $this->addElementsOfTypeToPackage($project, $file->getInterfaces()->getAll(), 'interfaces');
-            $this->addElementsOfTypeToPackage($project, $file->getTraits()->getAll(), 'traits');
+            $this->addElementsOfTypeToPackage($packages, [$file], 'files');
+            $this->addElementsOfTypeToPackage($packages, $file->getConstants()->getAll(), 'constants');
+            $this->addElementsOfTypeToPackage($packages, $file->getFunctions()->getAll(), 'functions');
+            $this->addElementsOfTypeToPackage($packages, $file->getClasses()->getAll(), 'classes');
+            $this->addElementsOfTypeToPackage($packages, $file->getInterfaces()->getAll(), 'interfaces');
+            $this->addElementsOfTypeToPackage($packages, $file->getTraits()->getAll(), 'traits');
         }
+
+        $project->getIndexes()->set('packages', $packages);
     }
 
     /**
@@ -69,52 +79,54 @@ class PackageTreeBuilder implements CompilerPassInterface
      * This method will assign the given elements to the package as registered in the package field of that
      * element. If a package does not exist yet it will automatically be created.
      *
-     * @param ProjectDescriptor    $project
-     * @param DescriptorAbstract[] $elements Series of elements to add to their respective package.
-     * @param string               $type     Declares which field of the package will be populated with the given
-     * series of elements. This name will be transformed to a getter which must exist. Out of performance
-     * considerations will no effort be done to verify whether the provided type is valid.
-     *
-     * @return void
+     * @param Collection<PackageDescriptor> $packages
+     * @param array<DescriptorAbstract>     $elements Series of elements to add to their respective package.
+     * @param string $type Declares which field of the package will be populated with the given
+     *                     series of elements. This name will be transformed to a getter which must exist. Out of
+     *                     performance considerations will no effort be done to verify whether the provided type is
+     *                     valid.
      */
-    protected function addElementsOfTypeToPackage(ProjectDescriptor $project, array $elements, $type)
+    private function addElementsOfTypeToPackage(Collection $packages, array $elements, string $type) : void
     {
-        /** @var DescriptorAbstract $element */
         foreach ($elements as $element) {
             $packageName = '';
-            $packageTags = $element->getTags()->get('package');
+            $packageTags = $element->getTags()->fetch('package');
             if ($packageTags instanceof Collection) {
                 $packageTag = $packageTags->getIterator()->current();
                 if ($packageTag instanceof TagDescriptor) {
-                    $packageName = $packageTag->getDescription();
+                    $packageName = $this->normalizePackageName((string) $packageTag->getDescription());
                 }
             }
 
-            $subpackageCollection = $element->getTags()->get('subpackage');
+            $subpackageCollection = $element->getTags()->fetch('subpackage');
             if ($subpackageCollection instanceof Collection && $subpackageCollection->count() > 0) {
                 $subpackageTag = $subpackageCollection->getIterator()->current();
                 if ($subpackageTag instanceof TagDescriptor) {
-                    $packageName .= '\\' . $subpackageTag->getDescription();
+                    $packageName .= '\\' . $this->normalizePackageName((string) $subpackageTag->getDescription());
                 }
+            }
+
+            if ($packageName === '') {
+                $packageName = $this->parser->getDefaultPackageName();
             }
 
             // ensure consistency by trimming the slash prefix and then re-appending it.
             $packageIndexName = '\\' . ltrim($packageName, '\\');
-            if (!isset($project->getIndexes()->packages[$packageIndexName])) {
-                $this->createPackageDescriptorTree($project, $packageName);
+            if (!isset($packages[$packageIndexName])) {
+                $this->createPackageDescriptorTree($packages, $packageName);
             }
 
             /** @var PackageDescriptor $package */
-            $package = $project->getIndexes()->packages[$packageIndexName];
+            $package = $packages[$packageIndexName];
 
             // replace textual representation with an object representation
             $element->setPackage($package);
 
             // add element to package
-            $getter = 'get'.ucfirst($type);
+            $getter = 'get' . ucfirst($type);
 
-            /** @var Collection $collection  */
-            $collection = $package->$getter();
+            /** @var Collection<DescriptorAbstract> $collection */
+            $collection = $package->{$getter}();
             $collection->add($element);
         }
     }
@@ -130,27 +142,25 @@ class PackageTreeBuilder implements CompilerPassInterface
      * created PackageDescriptors. Each index key is prefixed with a tilde (~) so that it will not conflict with
      * other FQSEN's, such as classes or interfaces.
      *
-     * @param ProjectDescriptor $project
-     * @param string            $packageName A FQNN of the package (and parents) to create.
-     *
-     * @see ProjectDescriptor::getPackage() for the root package.
      * @see PackageDescriptor::getChildren() for the child packages of a given package.
+     * @see ProjectDescriptor::getPackage() for the root package.
      *
-     * @return void
+     * @param Collection<PackageDescriptor> $packages
+     * @param string $packageName A FQNN of the package (and parents) to create.
      */
-    protected function createPackageDescriptorTree(ProjectDescriptor $project, $packageName)
+    private function createPackageDescriptorTree(Collection $packages, string $packageName) : void
     {
-        $parts   = explode('\\', ltrim($packageName, '\\'));
-        $fqnn    = '';
+        $parts = explode('\\', ltrim($packageName, '\\'));
+        $fqnn = '';
 
         // this method does not use recursion to traverse the tree but uses a pointer that will be overridden with the
         // next item that is to be traversed (child package) at the end of the loop.
 
-        /** @var PackageDescriptor $pointer  */
-        $pointer = $project->getIndexes()->packages['\\'];
+        /** @var PackageDescriptor $pointer */
+        $pointer = $packages['\\'];
         foreach ($parts as $part) {
             $fqnn .= '\\' . $part;
-            if ($pointer->getChildren()->get($part)) {
+            if ($pointer->getChildren()->fetch($part)) {
                 $pointer = $pointer->getChildren()->get($part);
                 continue;
             }
@@ -159,16 +169,29 @@ class PackageTreeBuilder implements CompilerPassInterface
             $interimPackageDescriptor = new PackageDescriptor();
             $interimPackageDescriptor->setParent($pointer);
             $interimPackageDescriptor->setName($part);
-            $interimPackageDescriptor->setFullyQualifiedStructuralElementName($fqnn);
+            $interimPackageDescriptor->setFullyQualifiedStructuralElementName(new Fqsen($fqnn));
 
             // add to the pointer's list of children
             $pointer->getChildren()->set($part ?: 'UNKNOWN', $interimPackageDescriptor);
 
             // add to index
-            $project->getIndexes()->packages[$fqnn] = $interimPackageDescriptor;
+            $packages[$fqnn] = $interimPackageDescriptor;
 
             // move pointer forward
             $pointer = $interimPackageDescriptor;
         }
+    }
+
+    /**
+     * Converts all old-style separators into namespace-style separators.
+     *
+     * Please note that the trim will, by design, remove any trailing spearators. This makes it easier to
+     * integrate in the rest of this class and allows `\My[Package]` to convert to `\My\Package`.
+     */
+    private function normalizePackageName(string $packageName) : string
+    {
+        $name = rtrim(str_replace(['.', '_', '-', '[', ']'], ['\\', '\\', '\\', '\\', '\\'], $packageName), '\\');
+
+        return preg_replace('/[^A-Za-z0-9\\\\]/', '', $name);
     }
 }

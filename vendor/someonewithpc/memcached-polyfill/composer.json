@@ -1,0 +1,19 @@
+{
+    "name": "someonewithpc/memcached-polyfill",
+    "keywords": ["memcached", "polyfill", "symfony"],
+    "description": "No-implementation memcached extension polyfill",
+    "type": "library",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Hugo Sales",
+            "email": "hugo@fc.up.pt"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4" : {
+            "": "src"
+        }
+    }
+}

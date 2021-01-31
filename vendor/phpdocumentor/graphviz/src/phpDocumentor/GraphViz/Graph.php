@@ -1,16 +1,33 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * phpDocumentor
  *
- * PHP Version 5
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2011 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
  * @link      http://phpdoc.org
  */
 
 namespace phpDocumentor\GraphViz;
+
+use InvalidArgumentException;
+use const DIRECTORY_SEPARATOR;
+use const PHP_EOL;
+use function array_merge;
+use function escapeshellarg;
+use function exec;
+use function file_put_contents;
+use function implode;
+use function in_array;
+use function realpath;
+use function strtolower;
+use function substr;
+use function sys_get_temp_dir;
+use function tempnam;
+use function unlink;
 
 /**
  * Class representing a graph; this may be a main graph but also a subgraph.
@@ -19,11 +36,6 @@ namespace phpDocumentor\GraphViz;
  * When the name of the subgraph is prefixed with _cluster_ then the contents
  * of this graph will be grouped and a border will be added. Otherwise it is
  * used as logical container to place defaults in.
- *
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2011 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
  *
  * @method Graph setRankSep(string $rankSep)
  * @method Graph setCenter(string $center)
@@ -34,6 +46,7 @@ namespace phpDocumentor\GraphViz;
  */
 class Graph
 {
+    use Attributes;
 
     /** @var string Name of this graph */
     protected $name = 'G';
@@ -44,17 +57,14 @@ class Graph
     /** @var bool If the graph is strict then multiple edges are not allowed between the same pairs of nodes */
     protected $strict = false;
 
-    /** @var \phpDocumentor\GraphViz\Attribute[] A list of attributes for this Graph */
-    protected $attributes = array();
+    /** @var Graph[] A list of subgraphs for this Graph */
+    protected $graphs = [];
 
-    /** @var \phpDocumentor\GraphViz\Graph[] A list of subgraphs for this Graph */
-    protected $graphs = array();
+    /** @var Node[] A list of nodes for this Graph */
+    protected $nodes = [];
 
-    /** @var \phpDocumentor\GraphViz\Node[] A list of nodes for this Graph */
-    protected $nodes = array();
-
-    /** @var \phpDocumentor\GraphViz\Edge[] A list of edges / arrows for this Graph */
-    protected $edges = array();
+    /** @var Edge[] A list of edges / arrows for this Graph */
+    protected $edges = [];
 
     /** @var string The path to execute dot from */
     protected $path = '';
@@ -68,7 +78,7 @@ class Graph
      *
      * @return \phpDocumentor\GraphViz\Graph
      */
-    public static function create($name = 'G', $directional = true)
+    public static function create(string $name = 'G', bool $directional = true) : self
     {
         $graph = new self();
         $graph
@@ -82,14 +92,14 @@ class Graph
      * Sets the path for the execution. Only needed if it is not in the PATH env.
      *
      * @param string $path The path to execute dot from
-     *
-     * @return \phpDocumentor\GraphViz\Graph
      */
-    public function setPath($path)
+    public function setPath(string $path) : self
     {
-        if ($path && $path = realpath($path)) {
+        $realpath = realpath($path);
+        if ($path && $path === $realpath) {
             $this->path = $path . DIRECTORY_SEPARATOR;
         }
+
         return $this;
     }
 
@@ -100,10 +110,8 @@ class Graph
      * contained nodes and add a border.
      *
      * @param string $name The new name for this graph.
-     *
-     * @return \phpDocumentor\GraphViz\Graph
      */
-    public function setName($name)
+    public function setName(string $name) : self
     {
         $this->name = $name;
         return $this;
@@ -111,10 +119,8 @@ class Graph
 
     /**
      * Returns the name for this Graph.
-     *
-     * @return string
      */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }
@@ -124,15 +130,13 @@ class Graph
      *
      * @param string $type Must be either "digraph", "graph" or "subgraph".
      *
-     * @throws \InvalidArgumentException if $type is not "digraph", "graph" or
-     *  "subgraph".
-     *
-     * @return \phpDocumentor\GraphViz\Graph
+     * @throws InvalidArgumentException If $type is not "digraph", "graph" or
+     * "subgraph".
      */
-    public function setType($type)
+    public function setType(string $type) : self
     {
-        if (!in_array($type, array('digraph', 'graph', 'subgraph'))) {
-            throw new \InvalidArgumentException(
+        if (!in_array($type, ['digraph', 'graph', 'subgraph'], true)) {
+            throw new InvalidArgumentException(
                 'The type for a graph must be either "digraph", "graph" or '
                 . '"subgraph"'
             );
@@ -144,10 +148,8 @@ class Graph
 
     /**
      * Returns the type of this Graph.
-     *
-     * @return string
      */
-    public function getType()
+    public function getType() : string
     {
         return $this->type;
     }
@@ -155,21 +157,14 @@ class Graph
     /**
      * Set if the Graph should be strict. If the graph is strict then
      * multiple edges are not allowed between the same pairs of nodes
-     *
-     * @param bool $isStrict
-     *
-     * @return \phpDocumentor\GraphViz\Graph
      */
-    public function setStrict($isStrict)
+    public function setStrict(bool $isStrict) : self
     {
         $this->strict = $isStrict;
         return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isStrict()
+    public function isStrict() : bool
     {
         return $this->strict;
     }
@@ -187,18 +182,19 @@ class Graph
      * @param string  $name      Name of the method including get/set
      * @param mixed[] $arguments The arguments, should be 1: the value
      *
-     * @return \phpDocumentor\GraphViz\Attribute[]|\phpDocumentor\GraphViz\Graph|null
+     * @return Attribute|Graph|null
+     *
+     * @throws AttributeNotFound
      */
-    function __call($name, $arguments)
+    public function __call(string $name, array $arguments)
     {
         $key = strtolower(substr($name, 3));
         if (strtolower(substr($name, 0, 3)) === 'set') {
-            $this->attributes[$key] = new Attribute($key, $arguments[0]);
-
-            return $this;
+            return $this->setAttribute($key, (string) $arguments[0]);
         }
+
         if (strtolower(substr($name, 0, 3)) === 'get') {
-            return $this->attributes[$key];
+            return $this->getAttribute($key);
         }
 
         return null;
@@ -211,14 +207,12 @@ class Graph
      * Thus if you have 2 subgraphs with the same name that the first will be
      * overwritten by the latter.
      *
-     * @param \phpDocumentor\GraphViz\Graph $graph The graph to add onto this graph as
-     *  subgraph.
+     * @see Graph::create()
      *
-     * @see \phpDocumentor\GraphViz\Graph::create()
-     *
-     * @return \phpDocumentor\GraphViz\Graph
+     * @param Graph $graph The graph to add onto this graph as
+     * subgraph.
      */
-    public function addGraph(\phpDocumentor\GraphViz\Graph $graph)
+    public function addGraph(self $graph) : self
     {
         $graph->setType('subgraph');
         $this->graphs[$graph->getName()] = $graph;
@@ -229,10 +223,8 @@ class Graph
      * Checks whether a graph with a certain name already exists.
      *
      * @param string $name Name of the graph to find.
-     *
-     * @return bool
      */
-    public function hasGraph($name)
+    public function hasGraph(string $name) : bool
     {
         return isset($this->graphs[$name]);
     }
@@ -241,10 +233,8 @@ class Graph
      * Returns the subgraph with a given name.
      *
      * @param string $name Name of the requested graph.
-     *
-     * @return \phpDocumentor\GraphViz\Graph
      */
-    public function getGraph($name)
+    public function getGraph(string $name) : self
     {
         return $this->graphs[$name];
     }
@@ -255,13 +245,11 @@ class Graph
      * Nodes can be retrieved by retrieving the property with the same name.
      * Thus 'node1' can be retrieved by invoking: $graph->node1
      *
-     * @param \phpDocumentor\GraphViz\Node $node The node to set onto this Graph.
+     * @see Node::create()
      *
-     * @see \phpDocumentor\GraphViz\Node::create()
-     *
-     * @return \phpDocumentor\GraphViz\Graph
+     * @param Node $node The node to set onto this Graph.
      */
-    public function setNode(Node $node)
+    public function setNode(Node $node) : self
     {
         $this->nodes[$node->getName()] = $node;
         return $this;
@@ -271,10 +259,8 @@ class Graph
      * Finds a node in this graph or any of its subgraphs.
      *
      * @param string $name Name of the node to find.
-     *
-     * @return \phpDocumentor\GraphViz\Node
      */
-    public function findNode($name)
+    public function findNode(string $name) : ?Node
     {
         if (isset($this->nodes[$name])) {
             return $this->nodes[$name];
@@ -293,44 +279,37 @@ class Graph
     /**
      * Sets a node using a custom name.
      *
-     * @param string                       $name  Name of the node.
-     * @param \phpDocumentor\GraphViz\Node $value Node to set on the given name.
+     * @see Graph::setNode()
      *
-     * @see \phpDocumentor\GraphViz\Graph::setNode()
-     *
-     * @return \phpDocumentor\GraphViz\Graph
+     * @param string $name  Name of the node.
+     * @param Node   $value Node to set on the given name.
      */
-    function __set($name, $value)
+    public function __set(string $name, Node $value) : self
     {
         $this->nodes[$name] = $value;
         return $this;
     }
 
-
     /**
      * Returns the requested node by its name.
      *
+     * @see Graph::setNode()
+     *
      * @param string $name The name of the node to retrieve.
-     *
-     * @see \phpDocumentor\GraphViz\Graph::setNode()
-     *
-     * @return \phpDocumentor\GraphViz\Node
      */
-    function __get($name)
+    public function __get(string $name) : ?Node
     {
-        return isset($this->nodes[$name]) ? $this->nodes[$name] : null;
+        return $this->nodes[$name] ?? null;
     }
 
     /**
      * Links two nodes to eachother and registers the Edge onto this graph.
      *
-     * @param \phpDocumentor\GraphViz\Edge $edge The link between two classes.
+     * @see Edge::create()
      *
-     * @see \phpDocumentor\GraphViz\Edge::create()
-     *
-     * @return \phpDocumentor\GraphViz\Graph
+     * @param Edge $edge The link between two classes.
      */
-    public function link(Edge $edge)
+    public function link(Edge $edge) : self
     {
         $this->edges[] = $edge;
         return $this;
@@ -341,37 +320,34 @@ class Graph
      *
      * This is the only method that actually requires GraphViz.
      *
-     * @param string $type     The type to export to; see the link above for a
-     *  list of supported types.
-     * @param string $filename The path to write to.
-     *
+     * @link http://www.graphviz.org/content/output-formats
      * @uses GraphViz/dot
      *
-     * @link http://www.graphviz.org/content/output-formats
+     * @param string $type     The type to export to; see the link above for a
+     *     list of supported types.
+     * @param string $filename The path to write to.
      *
-     * @throws \phpDocumentor\GraphViz\Exception if an error occurred in GraphViz.
-     *
-     * @return \phpDocumentor\GraphViz\Graph
+     * @throws Exception If an error occurred in GraphViz.
      */
-    public function export($type, $filename)
+    public function export(string $type, string $filename) : self
     {
-        $type = escapeshellarg($type);
+        $type     = escapeshellarg($type);
         $filename = escapeshellarg($filename);
 
         // write the dot file to a temporary file
-        $tmpfile = tempnam(sys_get_temp_dir(), 'gvz');
-        file_put_contents($tmpfile, (string)$this);
+        $tmpfile = (string) tempnam(sys_get_temp_dir(), 'gvz');
+        file_put_contents($tmpfile, (string) $this);
 
         // escape the temp file for use as argument
         $tmpfileArg = escapeshellarg($tmpfile);
 
         // create the dot output
-        $output = array();
-        $code = 0;
-        exec($this->path . "dot -T$type -o$filename < $tmpfileArg 2>&1", $output, $code);
+        $output = [];
+        $code   = 0;
+        exec($this->path . "dot -T${type} -o${filename} < ${tmpfileArg} 2>&1", $output, $code);
         unlink($tmpfile);
 
-        if ($code != 0) {
+        if ($code !== 0) {
             throw new Exception(
                 'An error occurred while creating the graph; GraphViz returned: '
                 . implode(PHP_EOL, $output)
@@ -386,28 +362,29 @@ class Graph
      *
      * GraphViz is not used in this method; it is safe to call it even without
      * GraphViz installed.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
         $elements = array_merge(
-            $this->graphs, $this->attributes, $this->edges, $this->nodes
+            $this->graphs,
+            $this->attributes,
+            $this->edges,
+            $this->nodes
         );
 
-        $attributes = array();
+        $attributes = [];
         foreach ($elements as $value) {
-            $attributes[] = (string)$value;
+            $attributes[] = (string) $value;
         }
+
         $attributes = implode(PHP_EOL, $attributes);
 
         $strict = ($this->isStrict() ? 'strict ' : '');
 
         return <<<DOT
 {$strict}{$this->getType()} "{$this->getName()}" {
-$attributes
+${attributes}
 }
 DOT;
     }
-
 }

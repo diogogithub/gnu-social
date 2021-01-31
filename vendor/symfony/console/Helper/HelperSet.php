@@ -24,26 +24,20 @@ class HelperSet implements \IteratorAggregate
     /**
      * @var Helper[]
      */
-    private $helpers = array();
+    private $helpers = [];
     private $command;
 
     /**
      * @param Helper[] $helpers An array of helper
      */
-    public function __construct(array $helpers = array())
+    public function __construct(array $helpers = [])
     {
         foreach ($helpers as $alias => $helper) {
             $this->set($helper, \is_int($alias) ? null : $alias);
         }
     }
 
-    /**
-     * Sets a helper.
-     *
-     * @param HelperInterface $helper The helper instance
-     * @param string          $alias  An alias
-     */
-    public function set(HelperInterface $helper, $alias = null)
+    public function set(HelperInterface $helper, string $alias = null)
     {
         $this->helpers[$helper->getName()] = $helper;
         if (null !== $alias) {
@@ -56,11 +50,9 @@ class HelperSet implements \IteratorAggregate
     /**
      * Returns true if the helper if defined.
      *
-     * @param string $name The helper name
-     *
      * @return bool true if the helper is defined, false otherwise
      */
-    public function has($name)
+    public function has(string $name)
     {
         return isset($this->helpers[$name]);
     }
@@ -68,24 +60,14 @@ class HelperSet implements \IteratorAggregate
     /**
      * Gets a helper value.
      *
-     * @param string $name The helper name
-     *
      * @return HelperInterface The helper instance
      *
      * @throws InvalidArgumentException if the helper is not defined
      */
-    public function get($name)
+    public function get(string $name)
     {
         if (!$this->has($name)) {
             throw new InvalidArgumentException(sprintf('The helper "%s" is not defined.', $name));
-        }
-
-        if ('dialog' === $name && $this->helpers[$name] instanceof DialogHelper) {
-            @trigger_error('"Symfony\Component\Console\Helper\DialogHelper" is deprecated since Symfony 2.5 and will be removed in 3.0. Use "Symfony\Component\Console\Helper\QuestionHelper" instead.', E_USER_DEPRECATED);
-        } elseif ('progress' === $name && $this->helpers[$name] instanceof ProgressHelper) {
-            @trigger_error('"Symfony\Component\Console\Helper\ProgressHelper" is deprecated since Symfony 2.5 and will be removed in 3.0. Use "Symfony\Component\Console\Helper\ProgressBar" instead.', E_USER_DEPRECATED);
-        } elseif ('table' === $name && $this->helpers[$name] instanceof TableHelper) {
-            @trigger_error('"Symfony\Component\Console\Helper\TableHelper" is deprecated since Symfony 2.5 and will be removed in 3.0. Use "Symfony\Component\Console\Helper\Table" instead.', E_USER_DEPRECATED);
         }
 
         return $this->helpers[$name];

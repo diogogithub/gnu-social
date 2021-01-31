@@ -1,30 +1,37 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor;
 
 use phpDocumentor\Descriptor\Tag\VarDescriptor;
+use phpDocumentor\Reflection\Fqsen;
+use phpDocumentor\Reflection\Type;
 
 /**
  * Descriptor representing a property.
+ *
+ * @api
+ * @package phpDocumentor\AST
  */
 class PropertyDescriptor extends DescriptorAbstract implements
     Interfaces\PropertyInterface,
     Interfaces\VisibilityInterface
 {
-    /** @var ClassDescriptor|TraitDescriptor $parent */
+    /** @var ClassDescriptor|TraitDescriptor|null $parent */
     protected $parent;
 
-    /** @var string[]|null $types */
-    protected $types;
+    /** @var Type|null $type */
+    protected $type;
 
     /** @var string $default */
     protected $default;
@@ -35,108 +42,100 @@ class PropertyDescriptor extends DescriptorAbstract implements
     /** @var string $visibility */
     protected $visibility = 'public';
 
+    /** @var bool */
+    private $readOnly = false;
+
+    /** @var bool */
+    private $writeOnly = false;
+
     /**
      * @param ClassDescriptor|TraitDescriptor $parent
      */
-    public function setParent($parent)
+    public function setParent(DescriptorAbstract $parent) : void
     {
-        $this->setFullyQualifiedStructuralElementName(
-            $parent->getFullyQualifiedStructuralElementName() . '::$' . $this->getName()
-        );
-
         $this->parent = $parent;
+
+        $this->setFullyQualifiedStructuralElementName(
+            new Fqsen($parent->getFullyQualifiedStructuralElementName() . '::$' . $this->getName())
+        );
     }
 
     /**
-     * @return ClassDescriptor|TraitDescriptor
+     * @return ClassDescriptor|TraitDescriptor|null
      */
-    public function getParent()
+    public function getParent() : ?DescriptorAbstract
     {
         return $this->parent;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setDefault($default)
+    public function setDefault(?string $default) : void
     {
         $this->default = $default;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDefault()
+    public function getDefault() : ?string
     {
         return $this->default;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setStatic($static)
+    public function setStatic(bool $static) : void
     {
         $this->static = $static;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function isStatic()
+    public function isStatic() : bool
     {
         return $this->static;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setTypes(Collection $types)
+    public function setType(?Type $type) : void
     {
-        $this->types = $types;
+        $this->type = $type;
     }
 
     /**
-     * {@inheritDoc}
+     * @return list<string>
      */
-    public function getTypes()
+    public function getTypes() : array
     {
-        if (!$this->types) {
-            $this->types = new Collection();
+        if ($this->getType() instanceof Type) {
+            return [(string) $this->getType()];
+        }
 
-            /** @var VarDescriptor $var */
+        return [];
+    }
+
+    public function getType() : ?Type
+    {
+        if ($this->type === null) {
+            /** @var VarDescriptor|bool $var */
             $var = $this->getVar()->getIterator()->current();
-            if ($var) {
-                $this->types = $var->getTypes();
+            if ($var instanceof VarDescriptor) {
+                return $var->getType();
             }
         }
 
-        return $this->types;
+        return $this->type;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setVisibility($visibility)
+    public function setVisibility(string $visibility) : void
     {
         $this->visibility = $visibility;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getVisibility()
+    public function getVisibility() : string
     {
         return $this->visibility;
     }
 
     /**
-     * @return Collection
+     * @return Collection<VarDescriptor>
      */
-    public function getVar()
+    public function getVar() : Collection
     {
-        /** @var Collection $var */
-        $var = $this->getTags()->get('var', new Collection());
-        if ($var->count() != 0) {
+        /** @var Collection<VarDescriptor> $var */
+        $var = $this->getTags()->fetch('var', new Collection());
+        if ($var->count() !== 0) {
             return $var;
         }
 
@@ -150,20 +149,16 @@ class PropertyDescriptor extends DescriptorAbstract implements
 
     /**
      * Returns the file associated with the parent class or trait.
-     *
-     * @return FileDescriptor
      */
-    public function getFile()
+    public function getFile() : FileDescriptor
     {
         return $this->getParent()->getFile();
     }
 
     /**
      * Returns the property from which this one should inherit, if any.
-     *
-     * @return PropertyDescriptor|null
      */
-    public function getInheritedElement()
+    public function getInheritedElement() : ?PropertyDescriptor
     {
         /** @var ClassDescriptor|InterfaceDescriptor|null $associatedClass */
         $associatedClass = $this->getParent();
@@ -176,9 +171,29 @@ class PropertyDescriptor extends DescriptorAbstract implements
             /** @var ClassDescriptor|InterfaceDescriptor $parentClass */
             $parentClass = $associatedClass->getParent();
 
-            return $parentClass->getProperties()->get($this->getName());
+            return $parentClass->getProperties()->fetch($this->getName());
         }
 
         return null;
+    }
+
+    public function setReadOnly(bool $value) : void
+    {
+        $this->readOnly = $value;
+    }
+
+    public function isReadOnly() : bool
+    {
+        return $this->readOnly;
+    }
+
+    public function setWriteOnly(bool $value) : void
+    {
+        $this->writeOnly = $value;
+    }
+
+    public function isWriteOnly() : bool
+    {
+        return $this->writeOnly;
     }
 }

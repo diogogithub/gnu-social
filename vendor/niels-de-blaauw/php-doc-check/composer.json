@@ -1,0 +1,43 @@
+{
+    "name": "niels-de-blaauw/php-doc-check",
+    "description": "Command line tool that identifies code that needs documentation.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Niels de Blaauw",
+            "email": "niels.de.blaauw@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "nikic/php-parser": "^4.2",
+        "wp-cli/php-cli-tools": "^0.11.11",
+        "ulrichsg/getopt-php": "^3.2"
+    },
+    "bin": [
+        "bin/php-doc-check"
+    ],
+    "scripts":{
+        "test": [
+            "composer validate",
+            "vendor/bin/phpunit",
+            "vendor/bin/phpcs",
+            "vendor/bin/phpmd ./ text cleancode,codesize,controversial,design,naming,unusedcode --exclude vendor/",
+            "vendor/bin/phpstan analyse src --level 7",
+            "./bin/php-doc-check --exclude vendor/ ./"
+        ]
+    },
+    "autoload": {
+        "psr-4": {
+            "NdB\\PhpDocCheck\\": "src"
+        }
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.4",
+        "humbug/box": "^3.4",
+        "phpmd/phpmd": "^2.6",
+        "phpstan/phpstan": "^0.11.1",
+        "phpunit/phpunit": "^7.5"
+    }
+}

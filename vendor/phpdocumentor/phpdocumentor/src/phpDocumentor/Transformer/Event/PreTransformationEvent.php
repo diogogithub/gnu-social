@@ -1,67 +1,50 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Transformer\Event;
 
-use phpDocumentor\Event\EventAbstract;
+use phpDocumentor\Transformer\Transformation;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event happening prior to each individual transformation.
  */
-class PreTransformationEvent extends EventAbstract
+final class PreTransformationEvent extends Event
 {
-    /** @var \DOMDocument remembers the XML-based AST so that it can be used from the listener */
-    protected $source;
+    /** @var Transformation */
+    private $transformation;
 
-    protected $transformation;
+    /** @var object */
+    private $subject;
 
-    /**
-     * Sets the Abstract Syntax Tree as DOMDocument.
-     *
-     * @param \DOMDocument $source
-     *
-     * @return PreTransformationEvent
-     */
-    public function setSource($source)
+    public function __construct(object $subject, Transformation $transformation)
     {
-        $this->source = $source;
-
-        return $this;
+        $this->subject = $subject;
+        $this->transformation = $transformation;
     }
 
-    /**
-     * Returns the Abstract Syntax Tree as DOMDocument.
-     *
-     * @return \DOMDocument
-     */
-    public function getSource()
+    public static function create(object $subject, Transformation $transformation) : self
     {
-        return $this->source;
+        return new self($subject, $transformation);
     }
 
-    /**
-     * @return mixed
-     */
-    public function getTransformation()
+    public function getTransformation() : Transformation
     {
         return $this->transformation;
     }
 
-    /**
-     * @param mixed $transformation
-     */
-    public function setTransformation($transformation)
+    public function getSubject() : object
     {
-        $this->transformation = $transformation;
-
-        return $this;
+        return $this->subject;
     }
 }

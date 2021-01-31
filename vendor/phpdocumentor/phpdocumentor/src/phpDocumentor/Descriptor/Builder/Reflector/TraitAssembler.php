@@ -1,45 +1,51 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Builder\Reflector;
 
+use phpDocumentor\Descriptor\MethodDescriptor;
+use phpDocumentor\Descriptor\PropertyDescriptor;
 use phpDocumentor\Descriptor\TraitDescriptor;
-use phpDocumentor\Reflection\ClassReflector\MethodReflector;
-use phpDocumentor\Reflection\ClassReflector\PropertyReflector;
-use phpDocumentor\Reflection\TraitReflector;
+use phpDocumentor\Reflection\Php\Method;
+use phpDocumentor\Reflection\Php\Property;
+use phpDocumentor\Reflection\Php\Trait_;
+use function strlen;
+use function substr;
 
 /**
  * Assembles an TraitDescriptor using an TraitReflector.
+ *
+ * @extends AssemblerAbstract<TraitDescriptor, Trait_>
  */
 class TraitAssembler extends AssemblerAbstract
 {
     /**
      * Creates a Descriptor from the provided data.
      *
-     * @param TraitReflector $data
-     *
-     * @return TraitDescriptor
+     * @param Trait_ $data
      */
-    public function create($data)
+    public function create(object $data) : TraitDescriptor
     {
         $traitDescriptor = new TraitDescriptor();
 
-        $traitDescriptor->setFullyQualifiedStructuralElementName($data->getName());
-        $traitDescriptor->setName($data->getShortName());
-        $traitDescriptor->setLine($data->getLinenumber());
+        $traitDescriptor->setFullyQualifiedStructuralElementName($data->getFqsen());
+        $traitDescriptor->setName($data->getName());
+        $traitDescriptor->setLine($data->getLocation()->getLineNumber());
         $traitDescriptor->setPackage($this->extractPackageFromDocBlock($data->getDocBlock()) ?: '');
 
         // Reflection library formulates namespace as global but this is not wanted for phpDocumentor itself
         $traitDescriptor->setNamespace(
-            '\\' . (strtolower($data->getNamespace()) == 'global' ? '' :$data->getNamespace())
+            substr((string) $data->getFqsen(), 0, -strlen($data->getName()) - 1)
         );
 
         $this->assembleDocBlock($data->getDocBlock(), $traitDescriptor);
@@ -53,38 +59,36 @@ class TraitAssembler extends AssemblerAbstract
     /**
      * Registers the child properties with the generated Trait Descriptor.
      *
-     * @param PropertyReflector[] $properties
-     * @param TraitDescriptor     $traitDescriptor
-     *
-     * @return void
+     * @param Property[] $properties
      */
-    protected function addProperties($properties, $traitDescriptor)
+    protected function addProperties(array $properties, TraitDescriptor $traitDescriptor) : void
     {
         foreach ($properties as $property) {
-            $propertyDescriptor = $this->getBuilder()->buildDescriptor($property);
-            if ($propertyDescriptor) {
-                $propertyDescriptor->setParent($traitDescriptor);
-                $traitDescriptor->getProperties()->set($propertyDescriptor->getName(), $propertyDescriptor);
+            $propertyDescriptor = $this->getBuilder()->buildDescriptor($property, PropertyDescriptor::class);
+            if ($propertyDescriptor === null) {
+                continue;
             }
+
+            $propertyDescriptor->setParent($traitDescriptor);
+            $traitDescriptor->getProperties()->set($propertyDescriptor->getName(), $propertyDescriptor);
         }
     }
 
     /**
      * Registers the child methods with the generated Trait Descriptor.
      *
-     * @param MethodReflector[] $methods
-     * @param TraitDescriptor   $traitDescriptor
-     *
-     * @return void
+     * @param Method[] $methods
      */
-    protected function addMethods($methods, $traitDescriptor)
+    protected function addMethods(array $methods, TraitDescriptor $traitDescriptor) : void
     {
         foreach ($methods as $method) {
-            $methodDescriptor = $this->getBuilder()->buildDescriptor($method);
-            if ($methodDescriptor) {
-                $methodDescriptor->setParent($traitDescriptor);
-                $traitDescriptor->getMethods()->set($methodDescriptor->getName(), $methodDescriptor);
+            $methodDescriptor = $this->getBuilder()->buildDescriptor($method, MethodDescriptor::class);
+            if ($methodDescriptor === null) {
+                continue;
             }
+
+            $methodDescriptor->setParent($traitDescriptor);
+            $traitDescriptor->getMethods()->set($methodDescriptor->getName(), $methodDescriptor);
         }
     }
 }

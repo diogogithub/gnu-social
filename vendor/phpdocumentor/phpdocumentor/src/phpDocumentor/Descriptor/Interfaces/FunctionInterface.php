@@ -1,16 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Interfaces;
 
+use phpDocumentor\Descriptor\ArgumentDescriptor;
 use phpDocumentor\Descriptor\Collection;
 
 /**
@@ -21,16 +24,14 @@ interface FunctionInterface extends ElementInterface, TypeInterface
     /**
      * Sets the arguments related to this function.
      *
-     * @param Collection $arguments
-     *
-     * @return void
+     * @param Collection<ArgumentDescriptor> $arguments
      */
-    public function setArguments(Collection $arguments);
+    public function setArguments(Collection $arguments) : void;
 
     /**
      * Returns the arguments related to this function.
      *
-     * @return Collection
+     * @return Collection<ArgumentDescriptor>
      */
-    public function getArguments();
+    public function getArguments() : Collection;
 }

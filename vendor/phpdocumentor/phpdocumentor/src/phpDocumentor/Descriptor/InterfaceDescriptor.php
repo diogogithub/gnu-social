@@ -1,28 +1,35 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor;
 
+use phpDocumentor\Reflection\Fqsen;
+
 /**
  * Descriptor representing an Interface.
+ *
+ * @api
+ * @package phpDocumentor\AST
  */
 class InterfaceDescriptor extends DescriptorAbstract implements Interfaces\InterfaceInterface
 {
-    /** @var Collection $extends */
+    /** @var Collection<InterfaceDescriptor|Fqsen> $parents */
     protected $parents;
 
-    /** @var Collection $constants */
+    /** @var Collection<ConstantDescriptor> $constants */
     protected $constants;
 
-    /** @var Collection $methods */
+    /** @var Collection<MethodDescriptor> $methods */
     protected $methods;
 
     /**
@@ -37,50 +44,34 @@ class InterfaceDescriptor extends DescriptorAbstract implements Interfaces\Inter
         $this->setMethods(new Collection());
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setParent($parents)
+    public function setParent(Collection $parents) : void
     {
         $this->parents = $parents;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getParent()
+    public function getParent() : Collection
     {
         return $this->parents;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setConstants(Collection $constants)
+    public function setConstants(Collection $constants) : void
     {
         $this->constants = $constants;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getConstants()
+    public function getConstants() : Collection
     {
         return $this->constants;
     }
 
     /**
-     * {@inheritDoc}
+     * @return Collection<ConstantDescriptor>
      */
-    public function getInheritedConstants()
+    public function getInheritedConstants() : Collection
     {
-        if (!$this->getParent() || !$this->getParent() instanceof Collection || $this->getParent()->count() === 0) {
-            return new Collection();
-        }
+        $inheritedConstants = Collection::fromClassString(ConstantDescriptor::class);
 
-        $inheritedConstants = new Collection();
-
-        /** @var self $parent */
+        /** @var InterfaceDescriptor|Fqsen $parent */
         foreach ($this->getParent() as $parent) {
             if (!$parent instanceof Interfaces\InterfaceInterface) {
                 continue;
@@ -93,36 +84,23 @@ class InterfaceDescriptor extends DescriptorAbstract implements Interfaces\Inter
         return $inheritedConstants;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setMethods(Collection $methods)
+    public function setMethods(Collection $methods) : void
     {
         $this->methods = $methods;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getMethods()
+    public function getMethods() : Collection
     {
         return $this->methods;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getInheritedMethods()
+    public function getInheritedMethods() : Collection
     {
-        if (!$this->getParent() || !$this->getParent() instanceof Collection || $this->getParent()->count() === 0) {
-            return new Collection();
-        }
+        $inheritedMethods = Collection::fromClassString(MethodDescriptor::class);
 
-        $inheritedMethods = new Collection();
-
-        /** @var self $parent */
+        /** @var InterfaceDescriptor|Fqsen $parent */
         foreach ($this->getParent() as $parent) {
-            if (!$parent instanceof Interfaces\InterfaceInterface) {
+            if ($parent instanceof Fqsen) {
                 continue;
             }
 
@@ -133,7 +111,10 @@ class InterfaceDescriptor extends DescriptorAbstract implements Interfaces\Inter
         return $inheritedMethods;
     }
 
-    public function setPackage($package)
+    /**
+     * @inheritDoc
+     */
+    public function setPackage($package) : void
     {
         parent::setPackage($package);
 
@@ -146,9 +127,12 @@ class InterfaceDescriptor extends DescriptorAbstract implements Interfaces\Inter
         }
     }
 
-    public function getInheritedElement()
+    /**
+     * @return InterfaceDescriptor|Fqsen|null
+     */
+    public function getInheritedElement() : ?object
     {
-        return $this->getParent() && $this->getParent()->count() > 0
+        return $this->getParent()->count() > 0
             ? $this->getParent()->getIterator()->current()
             : null;
     }

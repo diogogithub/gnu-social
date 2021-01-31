@@ -1,44 +1,64 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor;
 
+use InvalidArgumentException;
+use phpDocumentor\Descriptor\Tag\ReturnDescriptor;
+use phpDocumentor\Descriptor\Validation\Error;
+use phpDocumentor\Reflection\Fqsen;
+use function ltrim;
+use function sprintf;
+
 /**
  * Descriptor representing a Class.
+ *
+ * @api
+ * @package phpDocumentor\AST
  */
 class ClassDescriptor extends DescriptorAbstract implements Interfaces\ClassInterface
 {
-    /** @var ClassDescriptor|null $extends Reference to an instance of the superclass for this class, if any. */
+    /**
+     * Reference to an instance of the superclass for this class, if any.
+     *
+     * @var ClassDescriptor|Fqsen|string|null $parent
+     */
     protected $parent;
 
-    /** @var Collection $implements References to interfaces that are implemented by this class. */
+    /**
+     * References to interfaces that are implemented by this class.
+     *
+     * @var Collection<InterfaceDescriptor|Fqsen> $implements
+     */
     protected $implements;
 
-    /** @var boolean $abstract Whether this is an abstract class. */
+    /** @var bool $abstract Whether this is an abstract class. */
     protected $abstract = false;
 
-    /** @var boolean $final Whether this class is marked as final and can't be subclassed. */
+    /** @var bool $final Whether this class is marked as final and can't be subclassed. */
     protected $final = false;
 
-    /** @var Collection $constants References to constants defined in this class. */
+    /** @var Collection<ConstantDescriptor> $constants References to constants defined in this class. */
     protected $constants;
 
-    /** @var Collection $properties References to properties defined in this class. */
+    /** @var Collection<PropertyDescriptor> $properties References to properties defined in this class. */
     protected $properties;
 
-    /** @var Collection $methods References to methods defined in this class. */
+    /** @var Collection<MethodDescriptor> $methods References to methods defined in this class. */
     protected $methods;
 
-    /** @var Collection $usedTraits References to traits consumed by this class */
-    protected $usedTraits = array();
+    /** @var Collection<TraitDescriptor>|Collection<Fqsen> $usedTraits References to traits consumed by this class */
+    protected $usedTraits;
 
     /**
      * Initializes the all properties representing a collection with a new Collection object.
@@ -55,15 +75,17 @@ class ClassDescriptor extends DescriptorAbstract implements Interfaces\ClassInte
     }
 
     /**
-     * {@inheritDoc}
+     * @internal should not be called by any other class than the assamblers
+     *
+     * @param ClassDescriptor|Fqsen|string|null $parents
      */
-    public function setParent($parents)
+    public function setParent($parents) : void
     {
         $this->parent = $parents;
     }
 
     /**
-     * {@inheritDoc}
+     * @return ClassDescriptor|Fqsen|string|null
      */
     public function getParent()
     {
@@ -71,134 +93,120 @@ class ClassDescriptor extends DescriptorAbstract implements Interfaces\ClassInte
     }
 
     /**
-     * {@inheritDoc}
+     * @internal should not be called by any other class than the assamblers
+     *
+     * @param Collection<InterfaceDescriptor|Fqsen> $implements
      */
-    public function setInterfaces(Collection $implements)
+    public function setInterfaces(Collection $implements) : void
     {
         $this->implements = $implements;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getInterfaces()
+    public function getInterfaces() : Collection
     {
         return $this->implements;
     }
 
     /**
-     * {@inheritDoc}
+     * @internal should not be called by any other class than the assamblers
      */
-    public function setFinal($final)
+    public function setFinal(bool $final) : void
     {
         $this->final = $final;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function isFinal()
+    public function isFinal() : bool
     {
         return $this->final;
     }
 
     /**
-     * {@inheritDoc}
+     * @internal should not be called by any other class than the assamblers
      */
-    public function setAbstract($abstract)
+    public function setAbstract(bool $abstract) : void
     {
         $this->abstract = $abstract;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function isAbstract()
+    public function isAbstract() : bool
     {
         return $this->abstract;
     }
 
     /**
-     * {@inheritDoc}
+     * @internal should not be called by any other class than the assamblers
+     *
+     * @param Collection<ConstantDescriptor> $constants
      */
-    public function setConstants(Collection $constants)
+    public function setConstants(Collection $constants) : void
     {
         $this->constants = $constants;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getConstants()
+    public function getConstants() : Collection
     {
         return $this->constants;
     }
 
     /**
-     * {@inheritDoc}
+     * @return Collection<ConstantDescriptor>
      */
-    public function getInheritedConstants()
+    public function getInheritedConstants() : Collection
     {
-        if (!$this->getParent() || (!$this->getParent() instanceof ClassDescriptor)) {
+        if ($this->getParent() === null || (!$this->getParent() instanceof self)) {
             return new Collection();
         }
 
-        $inheritedConstants = clone $this->getParent()->getConstants();
+        $inheritedConstants = $this->getParent()->getConstants();
 
         return $inheritedConstants->merge($this->getParent()->getInheritedConstants());
     }
 
     /**
-     * {@inheritDoc}
+     * @internal should not be called by any other class than the assamblers
+     *
+     * @param Collection<MethodDescriptor> $methods
      */
-    public function setMethods(Collection $methods)
+    public function setMethods(Collection $methods) : void
     {
         $this->methods = $methods;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getMethods()
+    public function getMethods() : Collection
     {
         return $this->methods;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getInheritedMethods()
+    public function getInheritedMethods() : Collection
     {
-        $inheritedMethods = new Collection();
+        $inheritedMethods = Collection::fromClassString(MethodDescriptor::class);
 
         foreach ($this->getUsedTraits() as $trait) {
             if (!$trait instanceof TraitDescriptor) {
                 continue;
             }
 
-            $inheritedMethods = $inheritedMethods->merge(clone $trait->getMethods());
+            $inheritedMethods = $inheritedMethods->merge($trait->getMethods());
         }
 
-        if (!$this->getParent() || (!$this->getParent() instanceof ClassDescriptor)) {
+        if ($this->getParent() === null || (!$this->getParent() instanceof self)) {
             return $inheritedMethods;
         }
 
-        $inheritedMethods = $inheritedMethods->merge(clone $this->getParent()->getMethods());
+        $inheritedMethods = $inheritedMethods->merge($this->getParent()->getMethods());
 
         return $inheritedMethods->merge($this->getParent()->getInheritedMethods());
     }
 
     /**
-     * @return Collection
+     * @return Collection<MethodDescriptor>
      */
-    public function getMagicMethods()
+    public function getMagicMethods() : Collection
     {
-        /** @var Collection $methodTags */
-        $methodTags = clone $this->getTags()->get('method', new Collection());
+        $methodTags = $this->getTags()->fetch('method', new Collection())->filter(Tag\MethodDescriptor::class);
 
-        $methods = new Collection();
+        $methods = Collection::fromClassString(MethodDescriptor::class);
 
-        /** @var Tag\MethodDescriptor $methodTag */
         foreach ($methodTags as $methodTag) {
             $method = new MethodDescriptor();
             $method->setName($methodTag->getMethodName());
@@ -206,7 +214,7 @@ class ClassDescriptor extends DescriptorAbstract implements Interfaces\ClassInte
             $method->setStatic($methodTag->isStatic());
             $method->setParent($this);
 
-            $returnTags = $method->getTags()->get('return', new Collection());
+            $returnTags = $method->getTags()->fetch('return', new Collection())->filter(ReturnDescriptor::class);
             $returnTags->add($methodTag->getResponse());
 
             foreach ($methodTag->getArguments() as $name => $argument) {
@@ -224,69 +232,81 @@ class ClassDescriptor extends DescriptorAbstract implements Interfaces\ClassInte
     }
 
     /**
-     * {@inheritDoc}
+     * @internal should not be called by any other class than the assamblers
+     *
+     * @param Collection<PropertyDescriptor> $properties
      */
-    public function setProperties(Collection $properties)
+    public function setProperties(Collection $properties) : void
     {
         $this->properties = $properties;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getProperties()
+    public function getProperties() : Collection
     {
         return $this->properties;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getInheritedProperties()
+    public function getInheritedProperties() : Collection
     {
-        $inheritedProperties = new Collection();
+        $inheritedProperties = Collection::fromClassString(PropertyDescriptor::class);
 
         foreach ($this->getUsedTraits() as $trait) {
             if (!$trait instanceof TraitDescriptor) {
                 continue;
             }
 
-            $inheritedProperties = $inheritedProperties->merge(clone $trait->getProperties());
+            $inheritedProperties = $inheritedProperties->merge($trait->getProperties());
         }
 
-        if (!$this->getParent() || (!$this->getParent() instanceof ClassDescriptor)) {
+        if ($this->getParent() === null || (!$this->getParent() instanceof self)) {
             return $inheritedProperties;
         }
 
-        $inheritedProperties = $inheritedProperties->merge(clone $this->getParent()->getProperties());
+        $inheritedProperties = $inheritedProperties->merge($this->getParent()->getProperties());
 
         return $inheritedProperties->merge($this->getParent()->getInheritedProperties());
     }
 
     /**
-     * @return Collection
+     * @return Collection<PropertyDescriptor>
      */
-    public function getMagicProperties()
+    public function getMagicProperties() : Collection
     {
-        /** @var Collection $propertyTags */
-        $propertyTags = clone $this->getTags()->get('property', new Collection());
-        $propertyTags = $propertyTags->merge($this->getTags()->get('property-read', new Collection()));
-        $propertyTags = $propertyTags->merge($this->getTags()->get('property-write', new Collection()));
+        $tags = $this->getTags();
+        /** @var Collection<Tag\PropertyDescriptor> $propertyTags */
+        $propertyTags = $tags->fetch('property', new Collection())->filter(Tag\PropertyDescriptor::class)
+            ->merge($tags->fetch('property-read', new Collection())->filter(Tag\PropertyDescriptor::class))
+            ->merge($tags->fetch('property-write', new Collection())->filter(Tag\PropertyDescriptor::class));
 
-        $properties = new Collection();
+        $properties = Collection::fromClassString(PropertyDescriptor::class);
 
         /** @var Tag\PropertyDescriptor $propertyTag */
         foreach ($propertyTags as $propertyTag) {
             $property = new PropertyDescriptor();
             $property->setName(ltrim($propertyTag->getVariableName(), '$'));
             $property->setDescription($propertyTag->getDescription());
-            $property->setTypes($propertyTag->getTypes());
-            $property->setParent($this);
+            $property->setType($propertyTag->getType());
+            $property->setWriteOnly($propertyTag->getName() === 'property-write');
+            $property->setReadOnly($propertyTag->getName() === 'property-read');
+            try {
+                $property->setParent($this);
+            } catch (InvalidArgumentException $e) {
+                $property->getErrors()->add(
+                    new Error(
+                        'ERROR',
+                        sprintf(
+                            'Property name is invalid %s',
+                            $e->getMessage()
+                        ),
+                        null
+                    )
+                );
+            }
 
             $properties->add($property);
         }
 
-        if ($this->getParent() instanceof ClassDescriptor) {
+        if ($this->getParent() instanceof self) {
             $properties = $properties->merge($this->getParent()->getMagicProperties());
         }
 
@@ -294,42 +314,31 @@ class ClassDescriptor extends DescriptorAbstract implements Interfaces\ClassInte
     }
 
     /**
-     * @param string $package
+     * @inheritDoc
      */
-    public function setPackage($package)
+    public function setPackage($package) : void
     {
         parent::setPackage($package);
 
         foreach ($this->getConstants() as $constant) {
-            // TODO #840: Workaround; for some reason there are NULLs in the constants array.
-            if ($constant) {
-                $constant->setPackage($package);
-            }
+            $constant->setPackage($package);
         }
 
         foreach ($this->getProperties() as $property) {
-            // TODO #840: Workaround; for some reason there are NULLs in the properties array.
-            if ($property) {
-                $property->setPackage($package);
-            }
+            $property->setPackage($package);
         }
 
         foreach ($this->getMethods() as $method) {
-            // TODO #840: Workaround; for some reason there are NULLs in the methods array.
-            if ($method) {
-                $method->setPackage($package);
-            }
+            $method->setPackage($package);
         }
     }
 
     /**
      * Sets a collection of all traits used by this class.
      *
-     * @param Collection $usedTraits
-     *
-     * @return void
+     * @param Collection<TraitDescriptor>|Collection<Fqsen> $usedTraits
      */
-    public function setUsedTraits($usedTraits)
+    public function setUsedTraits(Collection $usedTraits) : void
     {
         $this->usedTraits = $usedTraits;
     }
@@ -339,13 +348,16 @@ class ClassDescriptor extends DescriptorAbstract implements Interfaces\ClassInte
      *
      * Returned values may either be a string (when the Trait is not in this project) or a TraitDescriptor.
      *
-     * @return Collection
+     * @return Collection<TraitDescriptor>|Collection<Fqsen>
      */
-    public function getUsedTraits()
+    public function getUsedTraits() : Collection
     {
         return $this->usedTraits;
     }
 
+    /**
+     * @return ClassDescriptor|Fqsen|string|null
+     */
     public function getInheritedElement()
     {
         return $this->getParent();

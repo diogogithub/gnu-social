@@ -1,43 +1,41 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Builder\Reflector\Tags;
 
 use phpDocumentor\Descriptor\Builder\Reflector\AssemblerAbstract;
 use phpDocumentor\Descriptor\Tag\ThrowsDescriptor;
-use phpDocumentor\Reflection\DocBlock\Tag\ThrowsTag;
-use phpDocumentor\Reflection\DocBlock\Type\Collection;
+use phpDocumentor\Reflection\DocBlock\Tags\Throws;
 
 /**
  * Constructs a new descriptor from the Reflector for an `@throws` tag.
  *
  * This object will read the reflected information for the `@throws` tag and create a {@see ThrowsDescriptor} object
  * that can be used in the rest of the application and templates.
+ *
+ * @extends BaseTagAssembler<ThrowsDescriptor, Throws>
  */
-class ThrowsAssembler extends AssemblerAbstract
+class ThrowsAssembler extends BaseTagAssembler
 {
     /**
      * Creates a new Descriptor from the given Reflector.
      *
-     * @param ThrowsTag $data
-     *
-     * @return ThrowsDescriptor
+     * @param Throws $data
      */
-    public function create($data)
+    public function buildDescriptor(object $data) : ThrowsDescriptor
     {
         $descriptor = new ThrowsDescriptor($data->getName());
-        $descriptor->setDescription($data->getDescription());
-        $descriptor->setTypes(
-            $this->builder->buildDescriptor(new Collection($data->getTypes()))
-        );
+        $descriptor->setType(AssemblerAbstract::deduplicateTypes($data->getType()));
 
         return $descriptor;
     }

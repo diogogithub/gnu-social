@@ -1,17 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Interfaces;
 
 use phpDocumentor\Descriptor\Collection;
+use phpDocumentor\Descriptor\ConstantDescriptor;
+use phpDocumentor\Descriptor\InterfaceDescriptor;
+use phpDocumentor\Descriptor\MethodDescriptor;
+use phpDocumentor\Descriptor\PropertyDescriptor;
+use phpDocumentor\Reflection\Fqsen;
 
 /**
  * Common interface representing the description of a class.
@@ -21,67 +28,41 @@ use phpDocumentor\Descriptor\Collection;
  */
 interface ClassInterface extends ElementInterface, ChildInterface, TypeInterface
 {
-    /**
-     * @return void
-     */
-    public function setInterfaces(Collection $interfaces);
+    /** @param Collection<InterfaceDescriptor|Fqsen> $implements */
+    public function setInterfaces(Collection $implements) : void;
 
-    /**
-     * @return Collection
-     */
-    public function getInterfaces();
+    /** @return Collection<InterfaceDescriptor|Fqsen> */
+    public function getInterfaces() : Collection;
 
-    /**
-     * @return void
-     */
-    public function setFinal($final);
+    public function setFinal(bool $final) : void;
 
-    public function isFinal();
+    public function isFinal() : bool;
 
-    /**
-     * @return void
-     */
-    public function setAbstract($abstract);
+    public function setAbstract(bool $abstract) : void;
 
-    public function isAbstract();
+    public function isAbstract() : bool;
 
-    /**
-     * @return void
-     */
-    public function setConstants(Collection $constants);
+    /** @param Collection<ConstantDescriptor> $constants */
+    public function setConstants(Collection $constants) : void;
 
-    /**
-     * @return Collection
-     */
-    public function getConstants();
+    /** @return Collection<ConstantDescriptor> */
+    public function getConstants() : Collection;
 
-    /**
-     * @return void
-     */
-    public function setMethods(Collection $methods);
+    /** @param Collection<MethodDescriptor> $methods */
+    public function setMethods(Collection $methods) : void;
 
-    /**
-     * @return Collection
-     */
-    public function getMethods();
+    /** @return Collection<MethodDescriptor> */
+    public function getMethods() : Collection;
 
-    /**
-     * @return Collection
-     */
-    public function getInheritedMethods();
+    /** @return Collection<MethodDescriptor> */
+    public function getInheritedMethods() : Collection;
 
-    /**
-     * @return void
-     */
-    public function setProperties(Collection $properties);
+    /** @param Collection<PropertyDescriptor> $properties */
+    public function setProperties(Collection $properties) : void;
 
-    /**
-     * @return Collection
-     */
-    public function getProperties();
+    /** @return Collection<PropertyDescriptor> */
+    public function getProperties() : Collection;
 
-    /**
-     * @return Collection
-     */
-    public function getInheritedProperties();
+    /** @return Collection<PropertyDescriptor> */
+    public function getInheritedProperties() : Collection;
 }

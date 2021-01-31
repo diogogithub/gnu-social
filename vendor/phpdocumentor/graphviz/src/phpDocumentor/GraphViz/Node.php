@@ -1,35 +1,36 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * phpDocumentor
  *
- * PHP Version 5
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2011 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
  * @link      http://phpdoc.org
  */
 
 namespace phpDocumentor\GraphViz;
 
+use function addslashes;
+use function implode;
+use function strtolower;
+use function substr;
+
 /**
  * Class representing a node / element in a graph.
  *
- * @author    Mike van Riel <mike.vanriel@naenius.com>
- * @copyright 2010-2011 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
  * @link      http://phpdoc.org
  *
  * @method void setLabel(string $name) Sets the label for this node.
  */
 class Node
 {
+    use Attributes;
 
     /** @var string Name for this node */
     protected $name = '';
-
-    /** @var \phpDocumentor\GraphViz\Attribute[] List of attributes for this node */
-    protected $attributes = array();
 
     /**
      * Creates a new node with name and optional label.
@@ -37,12 +38,14 @@ class Node
      * @param string      $name  Name of the new node.
      * @param string|null $label Optional label text.
      */
-    function __construct($name, $label = null)
+    public function __construct(string $name, ?string $label = null)
     {
         $this->setName($name);
-        if ($label !== null) {
-            $this->setLabel($label);
+        if ($label === null) {
+            return;
         }
+
+        $this->setLabel($label);
     }
 
     /**
@@ -52,10 +55,8 @@ class Node
      *
      * @param string      $name  Name of the new node.
      * @param string|null $label Optional label text.
-     *
-     * @return \phpDocumentor\GraphViz\Node
      */
-    public static function create($name, $label = null)
+    public static function create(string $name, ?string $label = null) : self
     {
         return new self($name, $label);
     }
@@ -66,10 +67,8 @@ class Node
      * Not to confuse with the label.
      *
      * @param string $name Name for this node.
-     *
-     * @return \phpDocumentor\GraphViz\Node
      */
-    public function setName($name)
+    public function setName(string $name) : self
     {
         $this->name = $name;
         return $this;
@@ -77,10 +76,8 @@ class Node
 
     /**
      * Returns the name for this node.
-     *
-     * @return string
      */
-    public function getName()
+    public function getName() : string
     {
         return $this->name;
     }
@@ -98,18 +95,19 @@ class Node
      * @param string  $name      Method name; either getX or setX is expected.
      * @param mixed[] $arguments List of arguments; only 1 is expected for setX.
      *
-     * @return \phpDocumentor\GraphViz\Attribute[]|\phpDocumentor\GraphViz\Node|null
+     * @return Attribute|Node|null
+     *
+     * @throws AttributeNotFound
      */
-    function __call($name, $arguments)
+    public function __call(string $name, array $arguments)
     {
         $key = strtolower(substr($name, 3));
-        if (strtolower(substr($name, 0, 3)) == 'set') {
-            $this->attributes[$key] = new Attribute($key, $arguments[0]);
-            return $this;
+        if (strtolower(substr($name, 0, 3)) === 'set') {
+            return $this->setAttribute($key, (string) $arguments[0]);
         }
 
-        if (strtolower(substr($name, 0, 3)) == 'get') {
-            return $this->attributes[$key];
+        if (strtolower(substr($name, 0, 3)) === 'get') {
+            return $this->getAttribute($key);
         }
 
         return null;
@@ -117,22 +115,21 @@ class Node
 
     /**
      * Returns the node definition as is requested by GraphViz.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
-        $attributes = array();
+        $attributes = [];
         foreach ($this->attributes as $value) {
-            $attributes[] = (string)$value;
+            $attributes[] = (string) $value;
         }
+
         $attributes = implode("\n", $attributes);
 
         $name = addslashes($this->getName());
 
         return <<<DOT
 "{$name}" [
-$attributes
+${attributes}
 ]
 DOT;
     }

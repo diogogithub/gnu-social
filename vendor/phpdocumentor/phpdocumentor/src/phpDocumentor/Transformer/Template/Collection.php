@@ -1,25 +1,31 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Transformer\Template;
 
+use ArrayObject;
+//phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse
 use phpDocumentor\Transformer\Template;
 use phpDocumentor\Transformer\Transformation;
+use phpDocumentor\Transformer\Transformer;
 use phpDocumentor\Transformer\Writer\Collection as WriterCollection;
-use phpDocumentor\Transformer\Writer\WriterAbstract;
 
 /**
  * Contains a collection of Templates that may be queried.
+ *
+ * @template-extends ArrayObject<string, Template>
  */
-class Collection extends \ArrayObject
+class Collection extends ArrayObject
 {
     /** @var Factory */
     private $factory;
@@ -29,34 +35,25 @@ class Collection extends \ArrayObject
 
     /**
      * Constructs this collection and requires a factory to load templates.
-     *
-     * @param Factory          $factory
-     * @param WriterCollection $writerCollection
      */
     public function __construct(Factory $factory, WriterCollection $writerCollection)
     {
-        $this->factory          = $factory;
+        parent::__construct([]);
+        $this->factory = $factory;
         $this->writerCollection = $writerCollection;
     }
 
     /**
      * Loads a template with the given name or file path.
-     *
-     * @param string $nameOrPath
-     *
-     * @return void
      */
-    public function load($nameOrPath)
+    public function load(Transformer $transformer, string $nameOrPath) : void
     {
-        $template = $this->factory->get($nameOrPath);
+        $template = $this->factory->get($transformer, $nameOrPath);
 
         /** @var Transformation $transformation */
         foreach ($template as $transformation) {
-            /** @var WriterAbstract $writer */
             $writer = $this->writerCollection[$transformation->getWriter()];
-            if ($writer) {
-                $writer->checkRequirements();
-            }
+            $writer->checkRequirements();
         }
 
         $this[$template->getName()] = $template;
@@ -67,9 +64,9 @@ class Collection extends \ArrayObject
      *
      * @return Transformation[]
      */
-    public function getTransformations()
+    public function getTransformations() : array
     {
-        $result = array();
+        $result = [];
         foreach ($this as $template) {
             foreach ($template as $transformation) {
                 $result[] = $transformation;
@@ -81,11 +78,9 @@ class Collection extends \ArrayObject
 
     /**
      * Returns the path where all templates are stored.
-     *
-     * @return string
      */
-    public function getTemplatesPath()
+    public function getTemplatesPath() : string
     {
-        return $this->factory->getTemplatePath();
+        return $this->factory->getTemplatesPath();
     }
 }

@@ -1,20 +1,22 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Compiler\Pass;
 
-use Psr\Log\LoggerInterface;
 use phpDocumentor\Compiler\CompilerPassInterface;
 use phpDocumentor\Descriptor\ProjectAnalyzer;
 use phpDocumentor\Descriptor\ProjectDescriptor;
+use Psr\Log\LoggerInterface;
 
 /**
  * This class is responsible for sending statistical information to the log.
@@ -24,7 +26,7 @@ use phpDocumentor\Descriptor\ProjectDescriptor;
  */
 class Debug implements CompilerPassInterface
 {
-    const COMPILER_PRIORITY = 1000;
+    public const COMPILER_PRIORITY = 1000;
 
     /** @var LoggerInterface $log the logger to write the debug results to */
     protected $log;
@@ -34,9 +36,6 @@ class Debug implements CompilerPassInterface
 
     /**
      * Registers the logger with this Compiler Pass.
-     *
-     * @param LoggerInterface $log
-     * @param ProjectAnalyzer $analyzer
      */
     public function __construct(LoggerInterface $log, ProjectAnalyzer $analyzer)
     {
@@ -44,22 +43,12 @@ class Debug implements CompilerPassInterface
         $this->analyzer = $analyzer;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getDescription()
+    public function getDescription() : string
     {
         return 'Analyze results and write report to log';
     }
 
-    /**
-     * Analyzes the given project and returns the results to the logger.
-     *
-     * @param ProjectDescriptor $project
-     *
-     * @return void
-     */
-    public function execute(ProjectDescriptor $project)
+    public function execute(ProjectDescriptor $project) : void
     {
         $this->analyzer->analyze($project);
         $this->log->debug((string) $this->analyzer);

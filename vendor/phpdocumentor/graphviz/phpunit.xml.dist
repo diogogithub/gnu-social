@@ -11,16 +11,18 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="true"
-         syntaxCheck="true"
 >
     <testsuites>
-        <testsuite name="phpDocumentor\GraphViz">
-            <directory>./tests/</directory>
+        <testsuite name="Graphviz suite">
+            <directory>./tests/phpDocumentor/GraphViz</directory>
+        </testsuite>
+        <testsuite name="PHPStan suite">
+            <directory>./tests/phpDocumentor/PHPStan</directory>
         </testsuite>
     </testsuites>
     <logging>
         <log type="coverage-clover" target="build/logs/clover.xml" />
-        <log type="junit" target="build/logs/junit.xml" logIncompleteSkipped="false" />
+        <log type="junit" target="build/logs/junit.xml" />
     </logging>
     <filter>
         <whitelist>

@@ -1,46 +1,41 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Interfaces;
 
 use phpDocumentor\Descriptor\Collection;
+use phpDocumentor\Descriptor\DescriptorAbstract;
+use phpDocumentor\Descriptor\FileDescriptor;
+use phpDocumentor\Descriptor\NamespaceDescriptor;
 
 /**
  * Describes the public interface for the description of a project.
  */
 interface ProjectInterface
 {
-    /**
-     * @param string $name
-     * @return void
-     */
-    public function setName($name);
+    public function setName(string $name) : void;
+
+    public function getName() : string;
 
     /**
-     * @return string
+     * @return Collection<FileDescriptor>
      */
-    public function getName();
+    public function getFiles() : Collection;
 
     /**
-     * @return Collection
+     * @return Collection<Collection<DescriptorAbstract>>
      */
-    public function getFiles();
+    public function getIndexes() : Collection;
 
-    /**
-     * @return Collection
-     */
-    public function getIndexes();
-
-    /**
-     * @return NamespaceInterface
-     */
-    public function getNamespace();
+    public function getNamespace() : NamespaceDescriptor;
 }

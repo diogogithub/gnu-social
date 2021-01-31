@@ -1,0 +1,52 @@
+{
+    "name": "odolbeau/phone-number-bundle",
+    "type": "symfony-bundle",
+    "description": "Integrates libphonenumber into your Symfony application",
+    "keywords": ["bundle", "phone-number", "phonenumber", "telephone number", "libphonenumber"],
+    "homepage": "https://github.com/odolbeau/phone-number-bundle",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/odolbeau/phone-number-bundle/issues"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": "^7.2",
+        "giggsey/libphonenumber-for-php": "^8.0",
+        "symfony/framework-bundle": "^3.4|^4.3|^5.0"
+    },
+    "require-dev": {
+        "doctrine/doctrine-bundle": "^1.12|^2.0",
+        "phpunit/phpunit": "^8.4",
+        "symfony/form": "^3.4|^4.3|^5.0",
+        "symfony/serializer": "^3.4|^4.3|^5.0",
+        "symfony/twig-bundle": "^3.4|^4.3|^5.0",
+        "symfony/validator": "^3.4|^4.3|^5.0"
+    },
+    "suggest": {
+        "doctrine/doctrine-bundle": "Add a DBAL mapping type",
+        "symfony/serializer": "Serialize/deserialize phone numbers using Symfony library",
+        "symfony/form": "Add a data transformer",
+        "symfony/twig-bundle": "Format phone numbers in Twig templates",
+        "symfony/validator": "Add a validation constraint"
+    },
+    "replace": {
+        "misd/phone-number-bundle": "self.version"
+    },
+    "autoload": {
+        "psr-4": {
+            "Misd\\PhoneNumberBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Misd\\PhoneNumberBundle\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "3.2.x-dev"
+        }
+    }
+}

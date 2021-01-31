@@ -1,18 +1,23 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor;
 
 /**
  * Represents the package for a class, trait, interface or file.
+ *
+ * @api
+ * @package phpDocumentor\AST
  */
 class PackageDescriptor extends NamespaceDescriptor implements Interfaces\PackageInterface
 {

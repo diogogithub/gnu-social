@@ -1,17 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Filter;
 
-use Zend\Filter\FilterInterface;
+use League\Pipeline\InterruptibleProcessor;
+use League\Pipeline\Pipeline;
 
 /**
  * Filter used to manipulate a descriptor after being build.
@@ -21,48 +24,37 @@ use Zend\Filter\FilterInterface;
  */
 class Filter
 {
-    /** @var int default priority for a filter in the series of filters. */
-    const DEFAULT_PRIORITY = 1000;
-
-    /** @var ClassFactory  */
-    protected $factory;
+    /** @var Pipeline */
+    private $pipeline;
 
     /**
-     * Constructs the filter and attaches the factory to it.
+     * Constructs the filter pipeline.
      *
-     * @param ClassFactory $factory
+     * Filters are allowed to return null when a elements needs to be removed. Therefor a
+     * default InterruptibleProcessor processor is applied which prevents the errors in these situations.
+     *
+     * @param iterable<FilterInterface> $filters
      */
-    public function __construct($factory)
+    public function __construct(iterable $filters)
     {
-        $this->factory = $factory;
-    }
+        $nullInteruption = new InterruptibleProcessor(static function (?Filterable $value) {
+            return $value !== null;
+        });
 
-    /**
-     * Attaches a filter to a specific FQCN.
-     *
-     * @param string          $fqcn
-     * @param FilterInterface $filter
-     * @param int             $priority [1000]
-     *
-     * @return void
-     */
-    public function attach($fqcn, $filter, $priority = self::DEFAULT_PRIORITY)
-    {
-        $chain = $this->factory->getChainFor($fqcn);
-        $chain->attach($filter, $priority);
+        $this->pipeline = new Pipeline($nullInteruption, ...$filters);
     }
 
     /**
      * Filters the given Descriptor and returns the altered object.
      *
-     * @param Filterable $descriptor
+     * @param TDescriptor $descriptor
      *
-     * @return Filterable|null
+     * @return TDescriptor|null
+     *
+     * @template TDescriptor as Filterable
      */
-    public function filter(Filterable $descriptor)
+    public function filter(Filterable $descriptor) : ?Filterable
     {
-        $chain = $this->factory->getChainFor(get_class($descriptor));
-
-        return $chain->filter($descriptor);
+        return $this->pipeline->process($descriptor);
     }
 }

@@ -1,35 +1,45 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Tag\BaseTypes;
 
-use phpDocumentor\Descriptor\Collection;
 use phpDocumentor\Descriptor\TagDescriptor;
+use phpDocumentor\Reflection\Type;
+use function array_filter;
+use function trigger_error;
+use const E_USER_DEPRECATED;
 
 /**
  * Base descriptor for tags that have a type associated with them.
  */
 abstract class TypedAbstract extends TagDescriptor
 {
-    /** @var Collection $types */
+    /** @var Type|null $types */
     protected $types;
 
     /**
      * Sets a list of types associated with this tag.
-     *
-     * @param Collection $types
-     *
-     * @return void
      */
-    public function setTypes(Collection $types)
+    public function setTypes(?Type $types = null) : void
+    {
+        trigger_error('Use setType, because type is an object', E_USER_DEPRECATED);
+        $this->types = $types;
+    }
+
+    /**
+     * Sets a list of types associated with this tag.
+     */
+    public function setType(?Type $types = null) : void
     {
         $this->types = $types;
     }
@@ -37,9 +47,16 @@ abstract class TypedAbstract extends TagDescriptor
     /**
      * Returns the list of types associated with this tag.
      *
-     * @return Collection
+     * @return list<Type>
      */
-    public function getTypes()
+    public function getTypes() : array
+    {
+        trigger_error('Use getType, because type is an object', E_USER_DEPRECATED);
+
+        return array_filter([$this->types]);
+    }
+
+    public function getType() : ?Type
     {
         return $this->types;
     }

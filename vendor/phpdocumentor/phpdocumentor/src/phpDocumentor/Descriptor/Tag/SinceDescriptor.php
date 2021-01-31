@@ -1,12 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Tag;
@@ -15,30 +17,27 @@ use phpDocumentor\Descriptor\TagDescriptor;
 
 /**
  * Descriptor representing the since tag with another descriptor.
+ *
+ * @api
+ * @package phpDocumentor\AST\Tags
  */
 class SinceDescriptor extends TagDescriptor
 {
     /** @var string $version represents the version since when the associated element was introduced */
-    protected $version;
+    protected $version = '';
 
     /**
      * Returns the version when the associated element was introduced.
-     *
-     * @return string
      */
-    public function getVersion()
+    public function getVersion() : string
     {
         return $this->version;
     }
 
     /**
      * Sets the version since when the associated element was introduced.
-     *
-     * @param string $version
-     *
-     * @return void
      */
-    public function setVersion($version)
+    public function setVersion(string $version) : void
     {
         $this->version = $version;
     }

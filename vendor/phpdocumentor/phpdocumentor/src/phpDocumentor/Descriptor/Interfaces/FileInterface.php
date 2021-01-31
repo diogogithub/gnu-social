@@ -1,50 +1,45 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Interfaces;
 
 use phpDocumentor\Descriptor\Collection;
+use phpDocumentor\Descriptor\NamespaceDescriptor;
+use phpDocumentor\Descriptor\Validation;
 
 /**
  * Describes the public interface for a description of a File.
  */
 interface FileInterface extends ElementInterface, ContainerInterface
 {
-    /**
-     * @return string
-     */
-    public function getHash();
+    public function getHash() : string;
+
+    public function setSource(?string $source) : void;
+
+    public function getSource() : ?string;
 
     /**
-     * @return void
+     * @return Collection<NamespaceDescriptor>
      */
-    public function setSource($source);
+    public function getNamespaceAliases() : Collection;
 
     /**
-     * @return string|null
+     * @return Collection<string>
      */
-    public function getSource();
+    public function getIncludes() : Collection;
 
     /**
-     * @return Collection
+     * @return Collection<Validation\Error>
      */
-    public function getNamespaceAliases();
-
-    /**
-     * @return Collection
-     */
-    public function getIncludes();
-
-    /**
-     * @return Collection
-     */
-    public function getErrors();
+    public function getErrors() : Collection;
 }

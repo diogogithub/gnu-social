@@ -1,15 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor;
+
+use function count;
+use function get_class;
+use function is_string;
+use function sprintf;
+use function str_replace;
+use const PHP_EOL;
 
 /**
  * Analyzes a Project Descriptor and collects key information.
@@ -20,49 +29,43 @@ namespace phpDocumentor\Descriptor;
  */
 class ProjectAnalyzer
 {
-    /** @var integer $elementCount */
+    /** @var int $elementCount */
     protected $elementCount = 0;
 
-    /** @var integer $fileCount */
+    /** @var int $fileCount */
     protected $fileCount = 0;
 
-    /** @var integer $topLevelNamespaceCount */
+    /** @var int $topLevelNamespaceCount */
     protected $topLevelNamespaceCount = 0;
 
-    /** @var integer $unresolvedParentClassesCount */
+    /** @var int $unresolvedParentClassesCount */
     protected $unresolvedParentClassesCount = 0;
 
-    /** @var integer[] $descriptorCountByType */
-    protected $descriptorCountByType = array();
+    /** @var int[] $descriptorCountByType */
+    protected $descriptorCountByType = [];
 
     /**
      * Analyzes the given project descriptor and populates this object's properties.
-     *
-     * @param ProjectDescriptor $projectDescriptor
-     *
-     * @return void
      */
-    public function analyze(ProjectDescriptor $projectDescriptor)
+    public function analyze(ProjectDescriptor $projectDescriptor) : void
     {
         $this->unresolvedParentClassesCount = 0;
 
-        $elementCounter = array();
+        $elementCounter = [];
         foreach ($this->findAllElements($projectDescriptor) as $element) {
             $elementCounter = $this->addElementToCounter($elementCounter, $element);
             $this->incrementUnresolvedParentCounter($element);
         }
 
-        $this->descriptorCountByType  = $elementCounter;
-        $this->fileCount              = count($projectDescriptor->getFiles());
+        $this->descriptorCountByType = $elementCounter;
+        $this->fileCount = count($projectDescriptor->getFiles());
         $this->topLevelNamespaceCount = count($projectDescriptor->getNamespace()->getChildren());
     }
 
     /**
      * Returns a textual report of the findings of this class.
-     *
-     * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
         $logString = <<<TEXT
 In the ProjectDescriptor are:
@@ -88,46 +91,48 @@ TEXT;
     /**
      * Increments the counter for element's class in the class counters.
      *
-     * @param array              $classCounters
-     * @param DescriptorAbstract $element
+     * @param array<string, int> $classCounters
      *
-     * @return array
+     * @return array<string, int>
+     *
+     * @phpstan-param array<class-string<DescriptorAbstract>, int> $classCounters
+     *
+     * @phpstan-return array<class-string<DescriptorAbstract>, int>
      */
-    protected function addElementToCounter($classCounters, $element)
+    protected function addElementToCounter(array $classCounters, DescriptorAbstract $element) : array
     {
         if (!isset($classCounters[get_class($element)])) {
             $classCounters[get_class($element)] = 0;
         }
-        $classCounters[get_class($element)]++;
+
+        ++$classCounters[get_class($element)];
 
         return $classCounters;
     }
 
     /**
      * Checks whether the given element is a class and if its parent could not be resolved; increment the counter.
-     *
-     * @param DescriptorAbstract $element
      */
-    protected function incrementUnresolvedParentCounter($element)
+    protected function incrementUnresolvedParentCounter(DescriptorAbstract $element) : void
     {
         if (!$element instanceof ClassDescriptor) {
             return;
         }
 
-        if (is_string($element->getParent())) {
-            $this->unresolvedParentClassesCount++;
+        if (!is_string($element->getParent())) {
+            return;
         }
+
+        ++$this->unresolvedParentClassesCount;
     }
 
     /**
      * Returns all elements from the project descriptor.
      *
-     * @param ProjectDescriptor $projectDescriptor
-     *
-     * @return DescriptorAbstract[]
+     * @return Collection<DescriptorAbstract>
      */
-    protected function findAllElements(ProjectDescriptor $projectDescriptor)
+    protected function findAllElements(ProjectDescriptor $projectDescriptor) : Collection
     {
-        return $projectDescriptor->getIndexes()->get('elements', new Collection());
+        return $projectDescriptor->getIndexes()->fetch('elements', new Collection());
     }
 }

@@ -1,114 +1,122 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor;
 
+use InvalidArgumentException;
 use phpDocumentor\Descriptor\Tag\VarDescriptor;
+use phpDocumentor\Reflection\Fqsen;
+use phpDocumentor\Reflection\Type;
+use Webmozart\Assert\Assert;
+use function array_filter;
 
 /**
  * Descriptor representing a constant
+ *
+ * @api
+ * @package phpDocumentor\AST
  */
-class ConstantDescriptor extends DescriptorAbstract implements Interfaces\ConstantInterface
+class ConstantDescriptor extends DescriptorAbstract implements
+    Interfaces\ConstantInterface,
+    Interfaces\VisibilityInterface
 {
     /** @var ClassDescriptor|InterfaceDescriptor|null $parent */
     protected $parent;
 
-    /** @var string[]|null $type */
+    /** @var Type|null $types */
     protected $types;
 
     /** @var string $value */
-    protected $value;
+    protected $value = '';
+
+    /** @var string $visibility */
+    protected $visibility = 'public';
 
     /**
      * Registers a parent class or interface with this constant.
      *
      * @param ClassDescriptor|InterfaceDescriptor|null $parent
      *
-     * @throws \InvalidArgumentException if anything other than a class, interface or null was passed.
-     *
-     * @return void
+     * @throws InvalidArgumentException If anything other than a class, interface or null was passed.
      */
-    public function setParent($parent)
+    public function setParent(?DescriptorAbstract $parent) : void
     {
-        if (!$parent instanceof ClassDescriptor && !$parent instanceof InterfaceDescriptor && $parent !== null) {
-            throw new \InvalidArgumentException('Constants can only have an interface or class as parent');
-        }
+        Assert::nullOrIsInstanceOfAny(
+            $parent,
+            [ClassDescriptor::class, InterfaceDescriptor::class],
+            'Constants can only have an interface or class as parent'
+        );
 
         $fqsen = $parent !== null
             ? $parent->getFullyQualifiedStructuralElementName() . '::' . $this->getName()
             : $this->getName();
 
-        $this->setFullyQualifiedStructuralElementName($fqsen);
+        $this->setFullyQualifiedStructuralElementName(new Fqsen($fqsen));
 
         $this->parent = $parent;
     }
 
     /**
-     * @return null|ClassDescriptor|InterfaceDescriptor
+     * @return ClassDescriptor|InterfaceDescriptor|null
      */
-    public function getParent()
+    public function getParent() : ?DescriptorAbstract
     {
         return $this->parent;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setTypes(Collection $types)
+    public function setTypes(Type $types) : void
     {
         $this->types = $types;
     }
 
     /**
-     * {@inheritDoc}
+     * @return list<Type>
      */
-    public function getTypes()
+    public function getTypes() : array
+    {
+        return array_filter([$this->getType()]);
+    }
+
+    public function getType() : ?Type
     {
         if ($this->types === null) {
-            $this->types = new Collection();
-
-            /** @var VarDescriptor $var */
-            $var = $this->getVar()->get(0);
-            if ($var) {
-                $this->types = $var->getTypes();
+            $var = $this->getVar()->fetch(0);
+            if ($var instanceof VarDescriptor) {
+                return $var->getType();
             }
         }
 
         return $this->types;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setValue($value)
+    public function setValue(string $value) : void
     {
         $this->value = $value;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getValue()
+    public function getValue() : string
     {
         return $this->value;
     }
 
     /**
-     * @return Collection
+     * @return Collection<VarDescriptor>
      */
-    public function getVar()
+    public function getVar() : Collection
     {
-        /** @var Collection $var */
-        $var = $this->getTags()->get('var', new Collection());
-        if ($var->count() != 0) {
+        /** @var Collection<VarDescriptor> $var */
+        $var = $this->getTags()->fetch('var', new Collection());
+        if ($var->count() !== 0) {
             return $var;
         }
 
@@ -122,20 +130,16 @@ class ConstantDescriptor extends DescriptorAbstract implements Interfaces\Consta
 
     /**
      * Returns the file associated with the parent class, interface or trait when inside a container.
-     *
-     * @return FileDescriptor
      */
-    public function getFile()
+    public function getFile() : FileDescriptor
     {
         return parent::getFile() ?: $this->getParent()->getFile();
     }
 
     /**
      * Returns the Constant from which this one should inherit, if any.
-     *
-     * @return ConstantDescriptor|null
      */
-    public function getInheritedElement()
+    public function getInheritedElement() : ?ConstantDescriptor
     {
         /** @var ClassDescriptor|InterfaceDescriptor|null $associatedClass */
         $associatedClass = $this->getParent();
@@ -148,9 +152,19 @@ class ConstantDescriptor extends DescriptorAbstract implements Interfaces\Consta
             /** @var ClassDescriptor|InterfaceDescriptor $parentClass */
             $parentClass = $associatedClass->getParent();
 
-            return $parentClass->getConstants()->get($this->getName());
+            return $parentClass->getConstants()->fetch($this->getName());
         }
 
         return null;
+    }
+
+    public function setVisibility(string $visibility) : void
+    {
+        $this->visibility = $visibility;
+    }
+
+    public function getVisibility() : string
+    {
+        return $this->visibility;
     }
 }

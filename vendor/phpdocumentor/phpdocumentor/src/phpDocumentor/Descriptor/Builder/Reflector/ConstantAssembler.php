@@ -1,48 +1,55 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Builder\Reflector;
 
 use phpDocumentor\Descriptor\ConstantDescriptor;
-use phpDocumentor\Reflection\ConstantReflector;
+use phpDocumentor\Reflection\Php\Constant;
+use function strlen;
+use function strpos;
+use function substr;
 
 /**
  * Assembles a ConstantDescriptor from a ConstantReflector.
+ *
+ * @extends AssemblerAbstract<ConstantDescriptor, Constant>
  */
 class ConstantAssembler extends AssemblerAbstract
 {
+    public const SEPARATOR_SIZE = 2;
+
     /**
      * Creates a Descriptor from the provided data.
      *
-     * @param ConstantReflector $data
-     *
-     * @return ConstantDescriptor
+     * @param Constant $data
      */
-    public function create($data)
+    public function create(object $data) : ConstantDescriptor
     {
         $constantDescriptor = new ConstantDescriptor();
-        $constantDescriptor->setName($data->getShortName());
-        $constantDescriptor->setValue($data->getValue());
+        $constantDescriptor->setName($data->getName());
+        $constantDescriptor->setValue($this->pretifyValue($data->getValue()));
         // Reflection library formulates namespace as global but this is not wanted for phpDocumentor itself
+
+        $separatorLenght = strpos((string) $data->getFqsen(), '::') === false ? 1 : 2;
         $constantDescriptor->setNamespace(
-            '\\' . (strtolower($data->getNamespace()) == 'global' ? '' :$data->getNamespace())
+            substr((string) $data->getFqsen(), 0, - strlen($data->getName()) - $separatorLenght)
         );
-        $constantDescriptor->setFullyQualifiedStructuralElementName(
-            (trim($constantDescriptor->getNamespace(), '\\') ? $constantDescriptor->getNamespace() : '')
-            . '\\' . $data->getShortName()
-        );
+        $constantDescriptor->setFullyQualifiedStructuralElementName($data->getFqsen());
 
         $this->assembleDocBlock($data->getDocBlock(), $constantDescriptor);
 
-        $constantDescriptor->setLine($data->getLinenumber());
+        $constantDescriptor->setLine($data->getLocation()->getLineNumber());
+        $constantDescriptor->setVisibility((string) $data->getVisibility() ?: 'public');
 
         return $constantDescriptor;
     }

@@ -5,9 +5,8 @@
  *
  * PHP Version 5.3
  *
- * @copyright 2010-2013 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @copyright 2010-2018 Mike van Riel / Naenius (http://www.naenius.com)
+ * @link      https://phpdoc.org
  */
 
 trigger_error('phpDocumentor2 should be run from the phpdoc file, not phpdoc.php', E_USER_DEPRECATED);

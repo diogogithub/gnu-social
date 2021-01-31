@@ -1,60 +1,94 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor;
+
+use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use InvalidArgumentException;
+use IteratorAggregate;
+use OutOfRangeException;
+use Webmozart\Assert\Assert;
+use function array_filter;
+use function array_merge;
+use function count;
 
 /**
  * Represents an easily accessible collection of elements.
  *
  * The goal for this class is to allow Descriptors to be easily retrieved and set so that interaction in
  * templates becomes easier.
+ *
+ * @template T
+ * @template-implements ArrayAccess<string|int, T>
+ * @template-implements IteratorAggregate<string|int, T>
  */
-class Collection implements \Countable, \IteratorAggregate, \ArrayAccess
+class Collection implements Countable, IteratorAggregate, ArrayAccess
 {
-    /** @var mixed[] $items */
-    protected $items = array();
+    /** @var array<T> $items */
+    protected $items = [];
 
     /**
      * Constructs a new collection object with optionally a series of items, generally Descriptors.
      *
-     * @param DescriptorAbstract[]|mixed[] $items
+     * @param array<T> $items
      */
-    public function __construct($items = array())
+    public function __construct(array $items = [])
     {
+        Assert::allNotNull($items);
         $this->items = $items;
     }
 
     /**
      * Adds a new item to this collection, generally a Descriptor.
      *
-     * @param DescriptorAbstract|mixed $item
-     *
-     * @return void
+     * @param T $item
      */
-    public function add($item)
+    public function add($item) : void
     {
+        Assert::notNull($item);
         $this->items[] = $item;
     }
 
     /**
      * Sets a new object onto the collection or clear it using null.
      *
-     * @param string|integer                $index An index value to recognize this item with.
-     * @param DescriptorAbstract|mixed|null $item  The item to store, generally a Descriptor but may be something else.
-     *
-     * @return void
+     * @param string|int $index An index value to recognize this item with.
+     * @param T          $item  The item to store, generally a Descriptor but may be something else.
      */
-    public function set($index, $item)
+    public function set($index, $item) : void
     {
+        Assert::notNull($item);
         $this->offsetSet($index, $item);
+    }
+
+    /**
+     * Retrieves a specific item from the Collection with its index. If index is not found, an exception is thrown
+     *
+     * @param string|int $index
+     *
+     * @return mixed The contents of the element with the given index
+     *
+     * @phpstan-return T
+     */
+    public function get($index)
+    {
+        if (!isset($this->items[$index])) {
+            throw new OutOfRangeException($index . ' offset not found in Collection');
+        }
+
+        return $this->items[$index];
     }
 
     /**
@@ -64,12 +98,18 @@ class Collection implements \Countable, \IteratorAggregate, \ArrayAccess
      * be created with the value provided by the $valueIfEmpty argument. This will allow for easy initialization during
      * tree building operations.
      *
-     * @param string|integer $index
-     * @param mixed          $valueIfEmpty If the index does not exist it will be created with this value and returned.
+     * @param string|int $index
+     * @param mixed      $valueIfEmpty If the index does not exist it will be created with this value and returned.
      *
      * @return mixed The contents of the element with the given index and the provided default if the key doesn't exist.
+     *
+     * @phpstan-param D $valueIfEmpty
+     *
+     * @phpstan-return T|D
+     *
+     * @template D
      */
-    public function get($index, $valueIfEmpty = null)
+    public function fetch($index, $valueIfEmpty = null)
     {
         if (!$this->offsetExists($index) && $valueIfEmpty !== null) {
             $this->offsetSet($index, $valueIfEmpty);
@@ -81,9 +121,9 @@ class Collection implements \Countable, \IteratorAggregate, \ArrayAccess
     /**
      * Retrieves all items from this collection as PHP Array.
      *
-     * @return mixed[]
+     * @return array<T>
      */
-    public function getAll()
+    public function getAll() : array
     {
         return $this->items;
     }
@@ -91,41 +131,37 @@ class Collection implements \Countable, \IteratorAggregate, \ArrayAccess
     /**
      * Retrieves an iterator to traverse this object.
      *
-     * @return \Traversable|\ArrayIterator
+     * @return ArrayIterator<string|int, T>
      */
-    public function getIterator()
+    public function getIterator() : ArrayIterator
     {
-        return new \ArrayIterator($this->items);
+        return new ArrayIterator($this->items);
     }
 
     /**
      * Returns a count of the number of elements in this collection.
-     *
-     * @return integer
      */
-    public function count()
+    public function count() : int
     {
         return count($this->items);
     }
 
     /**
      * Empties the collection.
-     *
-     * @return void
      */
-    public function clear()
+    public function clear() : void
     {
-        $this->items = array();
+        $this->items = [];
     }
 
     /**
      * Retrieves an item as if it were a property of the collection.
      *
-     * @param string $name
-     *
      * @return mixed
+     *
+     * @phpstan-return ?T
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         return $this->get($name);
     }
@@ -133,11 +169,9 @@ class Collection implements \Countable, \IteratorAggregate, \ArrayAccess
     /**
      * Checks whether an item in this collection exists.
      *
-     * @param string|integer $offset The index to check on.
-     *
-     * @return boolean
+     * @param string|int $offset The index to check on.
      */
-    public function offsetExists($offset)
+    public function offsetExists($offset) : bool
     {
         return isset($this->items[$offset]);
     }
@@ -145,30 +179,34 @@ class Collection implements \Countable, \IteratorAggregate, \ArrayAccess
     /**
      * Retrieves an item from the collection with the given index.
      *
-     * @param string|integer $offset The offset to retrieve.
+     * @param string|int $offset The offset to retrieve.
      *
      * @return mixed
+     *
+     * @phpstan-return ?T
      */
     public function offsetGet($offset)
     {
-        return ($this->offsetExists($offset)) ? $this->items[$offset] : null;
+        return $this->offsetExists($offset) ? $this->items[$offset] : null;
     }
 
     /**
      * Sets an item at the given index.
      *
-     * @param string|integer $offset The offset to assign the value to.
-     * @param mixed          $value  The value to set.
+     * @param string|int|null $offset The offset to assign the value to.
+     * @param mixed           $value  The value to set.
      *
-     * @throws \InvalidArgumentException if the key is null or an empty string.
+     * @throws InvalidArgumentException If the key is null or an empty string.
      *
-     * @return void
+     * @phpstan-param T       $value
      */
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value) : void
     {
         if ($offset === '' || $offset === null) {
-            throw new \InvalidArgumentException('The key of a collection must always be set');
+            throw new InvalidArgumentException('The key of a collection must always be set');
         }
+
+        Assert::notNull($value);
 
         $this->items[$offset] = $value;
     }
@@ -176,11 +214,9 @@ class Collection implements \Countable, \IteratorAggregate, \ArrayAccess
     /**
      * Removes an item with the given index from the collection.
      *
-     * @param string|integer $offset The offset to unset.
-     *
-     * @return void
+     * @param string|int $offset The offset to unset.
      */
-    public function offsetUnset($offset)
+    public function offsetUnset($offset) : void
     {
         unset($this->items[$offset]);
     }
@@ -188,12 +224,48 @@ class Collection implements \Countable, \IteratorAggregate, \ArrayAccess
     /**
      * Returns a new collection with the items from this collection and the provided combined.
      *
-     * @param Collection $collection
+     * @param Collection<T> $collection
      *
-     * @return Collection
+     * @return Collection<T>
      */
-    public function merge(Collection $collection)
+    public function merge(self $collection) : Collection
     {
-        return new Collection(array_merge($this->items, $collection->getAll()));
+        Assert::allNotNull($collection);
+
+        return new self(array_merge($this->items, $collection->getAll()));
+    }
+
+    /**
+     * @param class-string<F> $className
+     *
+     * @return Collection<object&F&T>
+     *
+     * @template F
+     */
+    public function filter(string $className) : Collection
+    {
+        return new self(
+            array_filter(
+                $this->getAll(),
+                static function ($item) use ($className) {
+                    return $item instanceof $className;
+                }
+            )
+        );
+    }
+
+    /**
+     * @param class-string<C> $classString
+     * @param array<C> $elements
+     *
+     * @return Collection<C>
+     *
+     * @template C
+     */
+    public static function fromClassString(string $classString, array $elements = []) : Collection
+    {
+        Assert::classExists($classString);
+
+        return new Collection($elements);
     }
 }

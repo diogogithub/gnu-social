@@ -1,17 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 /**
- * phpDocumentor
+ * This file is part of phpDocumentor.
  *
- * PHP Version 5.3
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  *
- * @copyright 2010-2014 Mike van Riel / Naenius (http://www.naenius.com)
- * @license   http://www.opensource.org/licenses/mit-license.php MIT
- * @link      http://phpdoc.org
+ * @link https://phpdoc.org
  */
 
 namespace phpDocumentor\Descriptor\Interfaces;
 
+use phpDocumentor\Descriptor\ClassDescriptor;
 use phpDocumentor\Descriptor\Collection;
+use phpDocumentor\Descriptor\ConstantDescriptor;
+use phpDocumentor\Descriptor\FunctionDescriptor;
+use phpDocumentor\Descriptor\InterfaceDescriptor;
+use phpDocumentor\Descriptor\TraitDescriptor;
 
 /**
  * Interface representing the common interface for all elements that can contain sub-elements.
@@ -19,27 +26,27 @@ use phpDocumentor\Descriptor\Collection;
 interface ContainerInterface
 {
     /**
-     * @return Collection
+     * @return Collection<ConstantDescriptor>
      */
-    public function getConstants();
+    public function getConstants() : Collection;
 
     /**
-     * @return Collection
+     * @return Collection<FunctionDescriptor>
      */
-    public function getFunctions();
+    public function getFunctions() : Collection;
 
     /**
-     * @return Collection
+     * @return Collection<ClassDescriptor>
      */
-    public function getClasses();
+    public function getClasses() : Collection;
 
     /**
-     * @return Collection
+     * @return Collection<InterfaceDescriptor>
      */
-    public function getInterfaces();
+    public function getInterfaces() : Collection;
 
     /**
-     * @return Collection
+     * @return Collection<TraitDescriptor>
      */
-    public function getTraits();
+    public function getTraits() : Collection;
 }
