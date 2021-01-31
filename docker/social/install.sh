@@ -7,9 +7,12 @@ case "${DBMS}" in
         DB_EXISTS=$?
         DB_TYPE='pgsql'
         SOCIAL_USER=postgres
+
+        # Create database, if it doesn't exits
+        [ ! ${DB_EXISTS} ] || PGPASSWORD="${POSTGRES_PASSWORD}" psql -Upostgres -hdb -c "create database ${SOCIAL_DB};"
         ;;
     'mariadb')
-        mysqlcheck -cqs -uroot -p${MYSQL_ROOT_PASSWORD} -hdb social 2> /dev/null
+        mysqlcheck -cqs -uroot "-p${MYSQL_ROOT_PASSWORD}" -hdb social 2> /dev/null
         DB_EXISTS=$?
         DB_TYPE='mysql'
         ;;
@@ -18,11 +21,11 @@ case "${DBMS}" in
         exit 1
 esac
 
-if [ ! ${DB_EXISTS} -o ! -e /var/www/social/config.php ]; then
+if [ ! ${DB_EXISTS} ] || [ ! -e /var/www/social/config.php ]; then
 
-    echo -e "Installing GNU social\nInstalling composer dependencies"
+    printf 'Installing GNU social\nInstalling composer dependencies'
 
-    cd /var/www/social
+    cd /var/www/social || exit 1
 
     composer install
 
