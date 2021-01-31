@@ -262,7 +262,7 @@ class Group extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'group',
+            'name'   => '`group`',
             'fields' => [
                 'id'            => ['type' => 'serial',   'not null' => true],
                 'gsactor_id'    => ['type' => 'int',      'not null' => true, 'description' => 'foreign key to gsactor table'],
