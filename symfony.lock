@@ -111,6 +111,9 @@
             ".php_cs.dist"
         ]
     },
+    "friendsofphp/proxy-manager-lts": {
+        "version": "v1.0.3"
+    },
     "giggsey/libphonenumber-for-php": {
         "version": "8.12.7.1"
     },
@@ -465,6 +468,9 @@
     },
     "symfony/property-info": {
         "version": "v5.1.0"
+    },
+    "symfony/proxy-manager-bridge": {
+        "version": "v5.1.11"
     },
     "symfony/redis-messenger": {
         "version": "v5.1.2"
