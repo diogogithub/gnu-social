@@ -76,14 +76,7 @@ class AttachmentAction extends ManagedAction
         $this->mimetype = $this->attachment->mimetype;
         $this->filename = $this->attachment->filename;
 
-        if ($this->attachment->isLocal()) {
-            $this->filepath = $this->attachment->getFileOrThumbnailPath();
-            if (empty($this->filepath)) {
-                $this->clientError(
-                    _m('Requested local URL for a file that is not stored locally.'),
-                    404
-                );
-            }
+        if ($this->attachment->isLocal() || $this->attachment->isFetchedRemoteFile()) {
             $this->filesize = $this->attachment->getFileOrThumbnailSize();
             $this->mimetype = $this->attachment->getFileOrThumbnailMimetype();
             $this->filename = MediaFile::getDisplayName($this->attachment);
@@ -115,15 +108,6 @@ class AttachmentAction extends ManagedAction
 
     public function showPage(): void
     {
-        if (
-            !$this->attachment->isLocal()
-            || empty($this->filepath)
-            || !file_exists($this->filepath)
-        ) {
-            // If it's not a locally stored file, get lost
-            common_redirect($this->attachment->getUrl(), 303);
-        }
-
         parent::showPage();
     }
 

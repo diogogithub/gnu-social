@@ -201,6 +201,7 @@ class ImageFile extends MediaFile
         if ($mediafile instanceof self) {
             return $mediafile;
         } else {
+            $mediafile->delete();
             // We can conclude that we have failed to get the MIME type
             // TRANS: Client exception thrown trying to upload an invalid image type.
             // TRANS: %s is the file type that was denied
@@ -219,21 +220,23 @@ class ImageFile extends MediaFile
      * @param string $url Remote image URL
      * @param Profile|null $scoped
      * @param string|null $name
+     * @param int|null $file_id same as in this class constructor
      * @return ImageFile
      * @throws ClientException
-     * @throws FileNotFoundException
+     * @throws HTTP_Request2_Exception
      * @throws InvalidFilenameException
      * @throws NoResultException
      * @throws ServerException
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
      */
-    public static function fromUrl(string $url, ?Profile $scoped = null, ?string $name = null): self
+    public static function fromUrl(string $url, ?Profile $scoped = null, ?string $name = null, ?int $file_id = null): self
     {
-        $mediafile = parent::fromUrl($url, $scoped, $name);
+        $mediafile = parent::fromUrl($url, $scoped, $name, $file_id);
         if ($mediafile instanceof self) {
             return $mediafile;
         } else {
+            $mediafile->delete();
             // We can conclude that we have failed to get the MIME type
             // TRANS: Client exception thrown trying to upload an invalid image type.
             // TRANS: %s is the file type that was denied

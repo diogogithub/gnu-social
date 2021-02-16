@@ -88,8 +88,8 @@ class File_thumbnail extends Managed_DataObject
         bool $force_still = true,
         ?bool $upscale = null
     ): File_thumbnail {
-        if (is_null($file->filename)) {  // Remote file
-            // If StoreRemoteMedia is enabled...
+        if ($file->isStoredRemotely()) {  // Remote file
+            // If StoreRemoteMedia or Embed are enabled...
             if (Event::handle('CreateFileImageThumbnailSource', [$file, &$imgPath, 'image'])) {
                 if (!file_exists($imgPath)) {
                     throw new FileNotFoundException($imgPath);
@@ -101,7 +101,7 @@ class File_thumbnail extends Managed_DataObject
                         throw new UseFileAsThumbnailException($file);
                 }
             }
-            throw new FileNotFoundException("This remote file has no local thumbnail.");
+            throw new ServerException("This remote file has no local thumbnail.");
         }
         $image = ImageFile::fromFileObject($file);
         $imgPath = $image->getPath();
@@ -215,7 +215,7 @@ class File_thumbnail extends Managed_DataObject
         return $tn;
     }
 
-    public static function path($filename)
+    public static function path($filename): string
     {
         File::tryFilename($filename);
 
@@ -239,7 +239,7 @@ class File_thumbnail extends Managed_DataObject
      * @throws FileNotFoundException
      * @throws ServerException
      */
-    public function getPath()
+    public function getPath(): string
     {
         $oldpath = File::path($this->getFilename());
         $thumbpath = self::path($this->getFilename());

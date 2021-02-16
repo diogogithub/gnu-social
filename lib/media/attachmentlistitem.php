@@ -103,7 +103,8 @@ class AttachmentListItem extends Widget
         $this->showRepresentation();
     }
 
-    function showRepresentation() {
+    function showRepresentation()
+    {
         $enclosure = $this->attachment->getEnclosure();
 
         if (Event::handle('StartShowAttachmentRepresentation', [$this->out, $this->attachment])) {

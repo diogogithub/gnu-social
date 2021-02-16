@@ -252,7 +252,7 @@ class MediaFile
             // video support plugin or something.
             // FIXME: Do this more automagically.
             // Honestly, I think this is unlikely these days,
-            // but better be safe than sure, I guess
+            // but better be safe than sorry, I guess
             if ($image->getPath() != $file->getPath()) {
                 $image->unlink();
             }
@@ -506,16 +506,17 @@ class MediaFile
      * @param string $url Remote media URL
      * @param Profile|null $scoped
      * @param string|null $name
+     * @param int|null $file_id same as in this class constructor
      * @return ImageFile|MediaFile
      * @throws ClientException
-     * @throws FileNotFoundException
+     * @throws HTTP_Request2_Exception
      * @throws InvalidFilenameException
      * @throws NoResultException
      * @throws ServerException
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
      */
-    public static function fromUrl(string $url, ?Profile $scoped = null, ?string $name = null)
+    public static function fromUrl(string $url, ?Profile $scoped = null, ?string $name = null, ?int $file_id = null)
     {
         if (!common_valid_http_url($url)) {
             // TRANS: Server exception. %s is a URL.
@@ -631,10 +632,10 @@ class MediaFile
             }
 
             if ($media === 'image') {
-                return new ImageFile(null, $filepath, $filehash, $url);
+                return new ImageFile($file_id, $filepath, $filehash, $url);
             }
         }
-        return new self($filepath, $mimetype, $filehash, null, $url);
+        return new self($filepath, $mimetype, $filehash, $file_id, $url);
     }
 
     public static function fromFileInfo(SplFileInfo $finfo, Profile $scoped = null)
