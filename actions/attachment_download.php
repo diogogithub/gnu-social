@@ -35,6 +35,14 @@ class Attachment_downloadAction extends AttachmentAction
         @ini_set('display_errors', 0);
 
         if ($this->attachment->isLocal()) {
+            try {
+                $this->filepath = $this->attachment->getFileOrThumbnailPath();
+            } catch (Exception $e) {
+                $this->clientError(
+                    _m('Requested local URL for a file that is not stored locally.'),
+                    404
+                );
+            }
             common_send_file(
                 $this->filepath,
                 $this->mimetype,

@@ -227,10 +227,10 @@ class Activitypub_notice
             $act->context->location = Location::fromLatLon($settings['latitude'], $settings['longitude']);
         }
 
-        /* Reject notice if it is too long (without the HTML)
+        // Reject notice if it is too long (without the HTML)
         if (Notice::contentTooLong($content)) {
             throw new Exception('That\'s too long. Maximum notice size is %d character.');
-        }*/
+        }
 
         // Attachments (first part)
         $attachments = [];

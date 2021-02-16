@@ -557,7 +557,9 @@ class File extends Managed_DataObject
             // This means we either don't know what it is, so it can't
             // be shown as an enclosure, or it is an HTML link which
             // does not link to a resource with further metadata.
-            throw new ServerException('Unknown enclosure mimetype, not enough metadata');
+            // throw new ServerException('Unknown enclosure mimetype, not enough metadata');
+            // It's not really an error that must be shown or handled...
+            common_debug('Unknown enclosure mimetype, not enough metadata');
         }
 
         self::$_enclosures[$this->getID()] = $enclosure;
@@ -830,9 +832,34 @@ class File extends Managed_DataObject
         return $count;
     }
 
-    public function isLocal()
+    // A file with no url and with filename is a local file.
+    public function isLocal(): bool
     {
         return empty($this->url) && !empty($this->filename);
+    }
+
+    // A file with an url but no filename is a remote file that wasn't fetched, not even the thumbnail.
+    public function isNonFetchedRemoteFile(): bool
+    {
+        return !empty($this->url) && empty($this->filename);
+    }
+
+    // A file with an url and filename is a fetched remote file (maybe just a thumbnail of it).
+    public function isFetchedRemoteFile(): bool
+    {
+        return !empty($this->url) && !empty($this->filename);
+    }
+
+    // A file with no filename nor url is a redirect.
+    public function isRedirect(): bool
+    {
+        return empty($this->url) && empty($this->filename);
+    }
+
+    // Is in a remote location.
+    public function isStoredRemotely(): bool
+    {
+        return empty($this->filename);
     }
 
     public function unlink() {

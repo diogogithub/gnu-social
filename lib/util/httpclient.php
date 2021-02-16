@@ -403,7 +403,7 @@ class HTTPClient extends HTTP_Request2
         return new GNUsocial_HTTPResponse($response, $this->getUrl(), $redirs);
     }
 
-    public static function get_filename(string $url, array $headers = null) : string {
+    public static function get_filename(string $url, array $headers = null) : ?string {
         if ($headers === null) {
             $head = (new HTTPClient())->head($url);
             $headers = $head->getHeader();
@@ -414,7 +414,7 @@ class HTTPClient extends HTTP_Request2
             return $matches[1];
         } else {
             common_log(LOG_INFO, "Couldn't determine filename for url: {$url}");
-            return _('Untitled attachment');
+            return null;
         }
     }
 }

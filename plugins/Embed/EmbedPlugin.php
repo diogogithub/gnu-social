@@ -40,7 +40,7 @@ use Embed\Embed;
  */
 class EmbedPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '0.1.0';
+    const PLUGIN_VERSION = '2.0.0';
 
     // settings which can be set in config.php with addPlugin('Embed', ['param'=>'value', ...]);
     // WARNING, these are _regexps_ (slashes added later). Always escape your dots and end ('$') your strings
@@ -141,7 +141,7 @@ class EmbedPlugin extends Plugin
             }
         } catch (Exception $e) {
             common_log(LOG_INFO, "Failed to find Embed data for {$url} with 'oscarotero/Embed'" .
-                       ", got exception: " . get_class($e));
+                ", got exception: " . get_class($e));
         }
 
         if (isset($metadata->thumbnail_url)) {
@@ -151,7 +151,7 @@ class EmbedPlugin extends Plugin
             if ($metadata->thumbnail_url[0] == '/') {
                 $thumbnail_url_parsed = parse_url($metadata->url);
                 $metadata->thumbnail_url = "{$thumbnail_url_parsed['scheme']}://".
-                                         "{$thumbnail_url_parsed['host']}{$metadata->thumbnail_url}";
+                    "{$thumbnail_url_parsed['host']}{$metadata->thumbnail_url}";
             }
 
             // some wordpress opengraph implementations sometimes return a white blank image
@@ -168,21 +168,21 @@ class EmbedPlugin extends Plugin
     public function onEndShowHeadElements(Action $action)
     {
         switch ($action->getActionName()) {
-        case 'attachment':
-            $url = common_local_url('attachment', ['attachment' => $action->attachment->getID()]);
-            break;
-        case 'shownotice':
-            if (!$action->notice->isLocal()) {
-                return true;
-            }
-            try {
-                $url = $action->notice->getUrl();
-            } catch (InvalidUrlException $e) {
-                // The notice is probably a share or similar, which don't
-                // have a representational URL of their own.
-                return true;
-            }
-            break;
+            case 'attachment':
+                $url = common_local_url('attachment', ['attachment' => $action->attachment->getID()]);
+                break;
+            case 'shownotice':
+                if (!$action->notice->isLocal()) {
+                    return true;
+                }
+                try {
+                    $url = $action->notice->getUrl();
+                } catch (InvalidUrlException $e) {
+                    // The notice is probably a share or similar, which don't
+                    // have a representational URL of their own.
+                    return true;
+                }
+                break;
         }
 
         if (isset($url)) {
@@ -226,7 +226,7 @@ class EmbedPlugin extends Plugin
 
         if (isset($file->mimetype)
             && (('text/html' === substr($file->mimetype, 0, 9) ||
-                 'application/xhtml+xml' === substr($file->mimetype, 0, 21)))) {
+                'application/xhtml+xml' === substr($file->mimetype, 0, 21)))) {
             try {
                 $embed_data = File_embed::getEmbed($file->url);
                 if ($embed_data === false) {
@@ -255,7 +255,7 @@ class EmbedPlugin extends Plugin
         }
         $out->elementStart('div', ['id'=>'oembed_info', 'class'=>'e-content']);
         foreach (['author_name' => ['class' => ' author', 'url' => 'author_url'],
-                  'provider'    => ['class' => '',        'url' => 'provider_url']]
+                     'provider' => ['class' => '',        'url' => 'provider_url']]
                  as $field => $options) {
             if (!empty($embed->{$field})) {
                 $out->elementStart('div', "fn vcard" . $options['class']);
@@ -265,7 +265,7 @@ class EmbedPlugin extends Plugin
                     $out->element(
                         'a',
                         ['href' => $embed->{$options['url']},
-                         'class' => 'url'],
+                            'class' => 'url'],
                         $embed->{$field}
                     );
                 }
@@ -367,16 +367,16 @@ class EmbedPlugin extends Plugin
 
         // the 'photo' type is shown through ordinary means, using StartShowAttachmentRepresentation!
         switch ($embed->type) {
-        case 'video':
-        case 'link':
-            if (!empty($embed->html)
+            case 'video':
+            case 'link':
+                if (!empty($embed->html)
                     && (GNUsocial::isAjax() || common_config('attachments', 'show_html'))) {
-                $purifier = new HTMLPurifier();
-                // FIXME: do we allow <object> and <embed> here? we did that when we used htmLawed,
-                // but I'm not sure anymore...
-                $out->raw($purifier->purify($embed->html));
-            }
-            return false;
+                    $purifier = new HTMLPurifier();
+                    // FIXME: do we allow <object> and <embed> here? we did that when we used htmLawed,
+                    // but I'm not sure anymore...
+                    $out->raw($purifier->purify($embed->html));
+                }
+                return false;
         }
 
         return true;
@@ -389,11 +389,15 @@ class EmbedPlugin extends Plugin
      *
      * @param $file File the file of the created thumbnail
      * @param &$imgPath string = the path to the created thumbnail
+     * @param $media string = media type
      * @return bool true if it succeeds (including non-action
      * states where it isn't oEmbed data, so it doesn't mess up the event handle
      * for other things hooked into it), or the exception if it fails.
+     * @throws FileNotFoundException
+     * @throws NoResultException
+     * @throws ServerException
      */
-    public function onCreateFileImageThumbnailSource(File $file, &$imgPath, $media)
+    public function onCreateFileImageThumbnailSource(File $file, &$imgPath, string $media): bool
     {
         // If we are on a private node, we won't do any remote calls (just as a precaution until
         // we can configure this from config.php for the private nodes)
@@ -402,9 +406,9 @@ class EmbedPlugin extends Plugin
         }
 
         // All our remote Embed images lack a local filename property in the File object
-        if (!is_null($file->filename)) {
-            common_debug(sprintf('Filename of file id==%d is not null (%s), so nothing Embed '.
-                                 'should handle.', $file->getID(), _ve($file->filename)));
+        if ($file->isLocal()) {
+            common_debug(sprintf('File of id==%d is local (filename: %s), so nothing Embed '.
+                'should handle.', $file->getID(), _ve($file->filename)));
             return true;
         }
 
@@ -486,7 +490,7 @@ class EmbedPlugin extends Plugin
             return isset($headers['content-length']) ? $headers['content-length'] : false;
         } catch (Exception $err) {
             common_log(LOG_ERR, __CLASS__.': getRemoteFileSize on URL : '._ve($url).
-                       ' threw exception: '.$err->getMessage());
+                ' threw exception: '.$err->getMessage());
             return false;
         }
     }
@@ -521,7 +525,7 @@ class EmbedPlugin extends Plugin
      * @param array|null $headers - The headers possible previous request to $url
      * @param int|null $file_id - The id of the file this image belongs to, used for logging
      */
-    protected function validateAndWriteImage(&$imgData, $url = null, $headers = null, $file_id = 0) : array
+    protected function validateAndWriteImage(&$imgData, ?string $url = null, ?array $headers = null, ?int $file_id = null) : array
     {
         $info = @getimagesizefromstring($imgData);
         // array indexes documented on php.net:
@@ -540,7 +544,7 @@ class EmbedPlugin extends Plugin
             if (!empty($url)) {
                 $original_name = HTTPClient::get_filename($url, $headers);
             }
-            $filename = MediaFile::encodeFilename($original_name ?? '', $filehash);
+            $filename = MediaFile::encodeFilename($original_name ?? _m('Untitled attachment'), $filehash);
             $fullpath = File_thumbnail::path($filename);
             // Write the file to disk. Throw Exception on failure
             if (!file_exists($fullpath)) {
@@ -569,13 +573,13 @@ class EmbedPlugin extends Plugin
                 }
             } else {
                 throw new AlreadyFulfilledException('A thumbnail seems to already exist for remote file' .
-                                                    ($file_id ? 'with id==' . $file_id : '') . ' at path ' . $fullpath);
+                    ($file_id ? 'with id==' . $file_id : '') . ' at path ' . $fullpath);
             }
         } catch (AlreadyFulfilledException $e) {
             // Carry on
         } catch (Exception $err) {
             common_log(LOG_ERR, "Went to write a thumbnail to disk in EmbedPlugin::storeRemoteThumbnail " .
-                       "but encountered error: {$err}");
+                "but encountered error: {$err}");
             throw $err;
         } finally {
             unset($imgData);
@@ -620,7 +624,7 @@ class EmbedPlugin extends Plugin
                     $file_size = $this->getRemoteFileSize($url, $headers);
                     if (($file_size!=false) && ($file_size > $max_size)) {
                         common_debug("Went to store remote thumbnail of size " . $file_size .
-                                     " but the upload limit is " . $max_size . " so we aborted.");
+                            " but the upload limit is " . $max_size . " so we aborted.");
                         return false;
                     }
                 } else {
@@ -628,7 +632,7 @@ class EmbedPlugin extends Plugin
                 }
             } catch (Exception $err) {
                 common_debug("Could not determine size of remote image, aborted local storage.");
-                return $err;
+                throw $err;
             }
 
             // First we download the file to memory and test whether it's actually an image file
@@ -667,8 +671,8 @@ class EmbedPlugin extends Plugin
             $thumbnail->updateWithKeys($orig);
         } catch (Exception $err) {
             common_log(LOG_ERR, "Went to write a thumbnail entry to the database in " .
-                       "EmbedPlugin::storeRemoteThumbnail but encountered error: ".$err);
-            return $err;
+                "EmbedPlugin::storeRemoteThumbnail but encountered error: ".$err);
+            throw $err;
         }
         return true;
     }

@@ -1,10 +1,10 @@
-The Oembed plugin for using and representing oEmbed data.
+The Embed plugin for using and representing both Open Graph and oEmbed data.
 
-See: http://www.oembed.com/
+See: https://ogp.me/ and https://www.oembed.com/
 
 Installation
 ============
-This plugin is enabled by default
+This plugin is enabled by default.
 
 Settings
 ========
@@ -16,14 +16,17 @@ check_whitelist: Whether to check the domain_whitelist.
 
 Example
 =======
+
+```
 $config['thumbnail']['width'] = 42;
 $config['thumbnail']['height'] = 42;
 $config['attachments']['show_html'] = true;
-addPlugin('Oembed', array(
-    'domain_whitelist' => array(
+addPlugin('Embed', [
+    'domain_whitelist' => [
         '^i\d*\.ytimg\.com$' => 'YouTube',
         '^i\d*\.vimeocdn\.com$' => 'Vimeo'
-    ),
+    ],
     'check_whitelist' => true
-));
-
+    ]
+);
+```

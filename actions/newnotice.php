@@ -204,7 +204,9 @@ class NewnoticeAction extends FormAction
 
             $this->stored = Notice::saveActivity($act, $this->scoped, $options);
 
-            $upload->attachToNotice($this->stored);
+            if ($upload instanceof MediaFile) {
+                $upload->attachToNotice($this->stored);
+            }
 
             Event::handle('EndNoticeSaveWeb', array($this, $this->stored));
         }

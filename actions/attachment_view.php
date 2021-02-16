@@ -20,8 +20,8 @@ defined('GNUSOCIAL') || die();
  * View notice attachment
  *
  * @package   GNUsocial
- * @author    Miguel Dantas <biodantasgs@gmail.com>
- * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Mikael Nordfeldth <mmn@hethane.se>
+ * @copyright 2016 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class Attachment_viewAction extends AttachmentAction
@@ -33,13 +33,20 @@ class Attachment_viewAction extends AttachmentAction
         // script execution, and we don't want to have any more errors until then, so don't reset it
         @ini_set('display_errors', 0);
 
-        if ($this->attachment->isLocal()) {
+        if ($this->attachment->isLocal() || $this->attachment->isFetchedRemoteFile()) {
+            try {
+                $this->filepath = $this->attachment->getFileOrThumbnailPath();
+            } catch (Exception $e) {
+                $this->clientError(
+                    _m('Requested local URL for a file that is not stored locally.'),
+                    404
+                );
+            }
             $disposition = 'attachment';
             if (in_array(common_get_mime_media($this->mimetype), ['image', 'video'])) {
                 $disposition = 'inline';
             }
-            common_send_file($this->filepath, $this->mimetype,
-$this->filename, $disposition);
+            common_send_file($this->filepath, $this->mimetype, $this->filename, $disposition);
         } else {
             common_redirect($this->attachment->getUrl(), 303);
         }
