@@ -252,17 +252,22 @@ class StoreRemoteMediaPlugin extends Plugin
                 if ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height) {
                     // Temporary object, not stored in DB
                     $img = new ImageFile(-1, $filepath);
-                    $box = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->thumbnail_crop);
+                    // Get proper aspect ratio width and height before lookup
+                    // We have to do it through an ImageFile object because of orientation etc.
+                    // Only other solution would've been to rotate + rewrite uploaded files
+                    // which we don't want to do because we like original, untouched data!
+                    list($width, $height, $x, $y, $w, $h) = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->thumbnail_crop);
+
+                    // The boundary box for our resizing
+                    $box = [
+                        'width' => $width, 'height' => $height,
+                        'x' => $x, 'y' => $y,
+                        'w' => $w, 'h' => $h,
+                    ];
+
                     $width = $box['width'];
                     $height = $box['height'];
-                    $outpath = $img->resizeTo($filepath, $box);
-                    $result = rename($outpath, $filepath);
-                    if (!$result) {
-                        // TRANS: Client exception thrown when a file upload operation fails because the file could
-                        // TRANS: not be moved from the temporary folder to the permanent file location.
-                        // UX: too specific
-                        throw new ClientException(_m('File could not be moved to destination directory.'));
-                    }
+                    $img->resizeTo($filepath, $box);
                 }
             } else {
                 throw new AlreadyFulfilledException('A thumbnail seems to already exist for remote file' .

@@ -100,8 +100,9 @@ class File_thumbnail extends Managed_DataObject
                     case 'image/svg+xml':
                         throw new UseFileAsThumbnailException($file);
                 }
+            } else {
+                throw new ServerException("This remote file has no local thumbnail.");
             }
-            throw new ServerException("This remote file has no local thumbnail.");
         }
         $image = ImageFile::fromFileObject($file);
         $imgPath = $image->getPath();
