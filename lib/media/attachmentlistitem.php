@@ -122,13 +122,8 @@ class AttachmentListItem extends Widget
                     try {
                         // Tell getThumbnail that we can show an animated image if it has one (4th arg, "force_still")
                         $thumb = File_thumbnail::fromFileObject($this->attachment, null, null, false, false);
-                    } catch (UseFileAsThumbnailException $e) {
-                        $thumb = null;
-                    } catch (UnsupportedMediaException $e) {
-                        // FIXME: Show a good representation of unsupported/unshowable images
-                        $thumb = null;
-                    } catch (FileNotFoundException $e) {
-                        // Remote file
+                    } catch (UseFileAsThumbnailException|UnsupportedMediaException|FileNotFoundException|ServerException $e) {
+                        // This remote file has no local thumbnail.
                         $thumb = null;
                     }
 
