@@ -35,10 +35,11 @@ namespace App\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
-use function App\Core\I18n\_m;
+use App\Core\Event;
 use App\Core\NoteScope;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
+use function App\Core\I18n\_m;
 use Symfony\Component\HttpFoundation\Request;
 
 class Network extends Controller
@@ -51,12 +52,16 @@ class Network extends Controller
 
     public function public(Request $request)
     {
+        $notes = DB::sql('select * from note n ' .
+                         "where (n.scope & {$this->instance_scope}) <> 0 " .
+                         'order by n.created DESC',
+                         ['n' => 'App\Entity\Note']);
+
+        Event::handle('FormatNoteList', [&$notes]);
+
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => DB::sql('select * from note n ' .
-                                   "where n.reply_to is null and (n.scope & {$this->instance_scope}) <> 0 " .
-                                   'order by n.created DESC',
-                                   ['n' => 'App\Entity\Note']),
+            'notes'     => $notes,
         ];
     }
 

@@ -42,8 +42,8 @@
     {% endif %}
   </div>
   <div class="replies">
-    {% for reply in note.getReplies() %}
-      {% include '/note/view.html.twig' with {'note': reply, 'skip_reply_to': true, 'have_user': have_user} only %}
+    {% for conversation in replies %}
+      {% include '/note/view.html.twig' with {'note': conversation['note'], 'skip_reply_to': true, 'have_user': have_user, 'replies': conversation['replies']} only %}
     {% endfor %}
   </div>
 </div>

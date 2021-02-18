@@ -90,9 +90,8 @@
                 <div class="timeline">
                     <div class="notes">
                         {% if notes is defined and notes is not empty %}
-                            {% for note in notes %}
-                              {% set id = note.getId() - 1 %}
-                              {% include '/note/view.html.twig' with {'note': note, 'have_user': have_user} only %}
+                            {% for conversation in notes %}
+                              {% include '/note/view.html.twig' with {'note': conversation['note'], 'have_user': have_user, 'replies': conversation['replies']} only %}
                             {% endfor %}
                         {% else %}
                             <h1>{% trans %}No notes here.{% endtrans %}</h1>
