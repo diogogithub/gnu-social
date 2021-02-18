@@ -435,11 +435,13 @@ class MediaFile
         }
 
         $filehash = strtolower(self::getHashOfFile($_FILES[$param]['tmp_name']));
-
+        $fileid = null;
         try {
             $file = File::getByHash($filehash);
+            // There can be more than one file for the same filehash IF the url are different (due to different metadata).
             while ($file->fetch()) {
                 if ($file->getUrl(false)) {
+                    // Files uploaded by Actors of this instance won't have an url, skip.
                     continue;
                 }
                 try {
@@ -448,10 +450,11 @@ class MediaFile
                     return MediaFile::fromFileObject($file);
                 }
             }
-            // If no exception is thrown the file exists locally, so we'll use that and just add redirections.
+            // If no exception is thrown then this file was already uploaded by a local actor once, so we'll use that and just add redirections.
             // but if the _actual_ locally stored file doesn't exist, getPath will throw FileNotFoundException
             $filepath = $file->getPath();
             $mimetype = $file->mimetype;
+            $fileid = $file->getID();
         } catch (FileNotFoundException | NoResultException $e) {
             // We have to save the upload as a new local file. This is the normal course of action.
             if ($scoped instanceof Profile) {
@@ -493,7 +496,7 @@ class MediaFile
                 return new ImageFile(null, $filepath, $filehash);
             }
         }
-        return new self($filepath, $mimetype, $filehash, null);
+        return new self($filepath, $mimetype, $filehash, $fileid);
     }
 
     /**
