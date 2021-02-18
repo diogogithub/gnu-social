@@ -116,7 +116,7 @@ class Reply extends Module
                     $data['content'],
                     $data['attachments'],
                     $is_local = true,
-                    $data['reply_to'],
+                    $reply_to,
                     $repeat_of = null
                 );
             } else {
