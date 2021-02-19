@@ -1,8 +1,34 @@
 <?php
+// This file is part of GNU social - https://www.gnu.org/software/social
+//
+// GNU social is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// GNU social is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * The StoreRemoteMedia plugin downloads remotely attached files to local server.
+ *
+ * @package   GNUsocial
+ * @author    Mikael Nordfeldth
+ * @author    Stephen Paul Weber
+ * @author    Mikael Nordfeldth
+ * @author    Miguel Dantas
+ * @author    Diogo Peralta Cordeiro
+ * @copyright 2015-2016, 2019-2021 Free Software Foundation, Inc http://www.fsf.org
+ * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ */
 class StoreRemoteMediaPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const PLUGIN_VERSION = '3.0.0';
 
     // settings which can be set in config.php with addPlugin('StoreRemoteMedia', array('param'=>'value', ...));
     // WARNING, these are _regexps_ (slashes added later). Always escape your dots and end your strings

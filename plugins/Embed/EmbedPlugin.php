@@ -18,12 +18,14 @@
  * OEmbed and OpenGraph implementation for GNU social
  *
  * @package   GNUsocial
+ * @author    Mikael Nordfeldth
  * @author    Stephen Paul Weber
  * @author    hannes
  * @author    Mikael Nordfeldth
- * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @author    Miguel Dantas <biodantasgs@gmail.com>
- * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Diogo Peralta Cordeiro
+ * @author    Miguel Dantas
+ * @author    Diogo Peralta Cordeiro
+ * @copyright 2014-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
@@ -35,12 +37,12 @@ use Embed\Embed;
  * Base class for the Embed plugin that does most of the heavy lifting to get
  * and display representations for remote content.
  *
- * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @copyright 2014-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class EmbedPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '2.0.0';
+    const PLUGIN_VERSION = '2.1.0';
 
     // settings which can be set in config.php with addPlugin('Embed', ['param'=>'value', ...]);
     // WARNING, these are _regexps_ (slashes added later). Always escape your dots and end ('$') your strings

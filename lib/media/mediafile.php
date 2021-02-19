@@ -24,8 +24,8 @@
  * @author    Miguel Dantas <biodantas@gmail.com>
  * @author    Zach Copley <zach@status.net>
  * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @copyright 2008-2009, 2019-2020 Free Software Foundation http://fsf.org
+ * @author    Diogo Peralta Cordeiro <mail+gnusocial@diogo.site>
+ * @copyright 2008-2009, 2019-2021 Free Software Foundation http://fsf.org
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  */
 defined('GNUSOCIAL') || die();
@@ -450,6 +450,7 @@ class MediaFile
                     return MediaFile::fromFileObject($file);
                 }
             }
+            var_dump($file);die;
             // If no exception is thrown then this file was already uploaded by a local actor once, so we'll use that and just add redirections.
             // but if the _actual_ locally stored file doesn't exist, getPath will throw FileNotFoundException
             $filepath = $file->getPath();
