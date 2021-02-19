@@ -19,16 +19,16 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2018-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 define('INSTALLDIR', dirname(__DIR__, 3));
 define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
 $shortoptions = 'i:af';
-$longoptions = ['id=', 'all', 'force'];
+$longoptions  = ['id=', 'all', 'force'];
 
 $helptext = <<<END_OF_HELP
 fix_subsriptions.php [options]
@@ -39,10 +39,10 @@ For every ActivityPub subscription, re-send Follow activity.
 
 END_OF_HELP;
 
-require_once INSTALLDIR.'/scripts/commandline.inc';
+require_once INSTALLDIR . '/scripts/commandline.inc';
 
 if (have_option('i', 'id')) {
-    $id = get_option_value('i', 'id');
+    $id   = get_option_value('i', 'id');
     $user = User::getByID($id);
     fix_subscriptions($user->getProfile());
     exit(0);
@@ -52,7 +52,7 @@ if (have_option('i', 'id')) {
 }
 
 $user = new User();
-$cnt = $user->find();
+$cnt  = $user->find();
 while ($user->fetch()) {
     fix_subscriptions($user->getProfile());
 }
@@ -61,11 +61,14 @@ unset($user);
 
 printfnq("Done.\n");
 
+/**
+ * Validate and fix the `subscription` table
+ */
 function fix_subscriptions(Profile $profile)
 {
     // Collect every remote AP subscription
-    $aprofiles = [];
-    $subs = Subscription::getSubscribedIDs($profile->getID(), 0, null);
+    $aprofiles      = [];
+    $subs           = Subscription::getSubscribedIDs($profile->getID(), 0, null);
     $subs_aprofiles = Activitypub_profile::multiGet('profile_id', $subs);
     foreach ($subs_aprofiles->fetchAll() as $ap) {
         $aprofiles[$ap->getID()] = $ap;
