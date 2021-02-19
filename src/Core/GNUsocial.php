@@ -42,7 +42,6 @@
 
 namespace App\Core;
 
-use App\Core\DB\DB;
 use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;

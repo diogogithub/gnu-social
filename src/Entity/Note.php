@@ -22,7 +22,7 @@
 namespace App\Entity;
 
 use App\Core\Cache;
-use App\Core\DB\DB;
+use App\Core\DB;
 use App\Core\Entity;
 use App\Core\Event;
 use App\Core\NoteScope;

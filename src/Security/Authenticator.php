@@ -19,7 +19,7 @@
 
 namespace App\Security;
 
-use App\Core\DB\DB;
+use App\Core\DB;
 use function App\Core\I18n\_m;
 use App\Entity\User;
 use App\Util\Nickname;

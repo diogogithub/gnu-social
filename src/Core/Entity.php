@@ -21,7 +21,6 @@
 
 namespace App\Core;
 
-use App\Core\DB\DB;
 use App\Util\Formatting;
 use DateTime;
 

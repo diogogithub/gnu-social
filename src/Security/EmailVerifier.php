@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Core\DB\DB;
+use App\Core\DB;
 use App\Core\Mailer;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;

@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Core\Controller;
-use App\Core\DB\DB;
+use App\Core\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Entity\Follow;

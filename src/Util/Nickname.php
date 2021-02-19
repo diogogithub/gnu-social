@@ -21,7 +21,7 @@
 
 namespace App\Util;
 
-use App\Core\DB\DB;
+use App\Core\DB;
 use App\Entity\GSActor;
 use App\Entity\LocalGroup;
 use App\Entity\LocalUser;

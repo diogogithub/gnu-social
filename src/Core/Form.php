@@ -30,7 +30,6 @@
 
 namespace App\Core;
 
-use App\Core\DB\DB;
 use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Form as SymfForm;

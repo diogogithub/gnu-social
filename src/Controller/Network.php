@@ -34,12 +34,12 @@
 namespace App\Controller;
 
 use App\Core\Controller;
-use App\Core\DB\DB;
+use App\Core\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\NoteScope;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
-use function App\Core\I18n\_m;
 use Symfony\Component\HttpFoundation\Request;
 
 class Network extends Controller

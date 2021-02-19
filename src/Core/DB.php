@@ -30,7 +30,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Core\DB;
+namespace App\Core;
 
 use App\Util\Exception\NotFoundException;
 use App\Util\Formatting;

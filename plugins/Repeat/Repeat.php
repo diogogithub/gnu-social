@@ -19,7 +19,7 @@
 
 namespace Plugin\Repeat;
 
-use App\Core\DB\DB;
+use App\Core\DB;
 use App\Core\Event;
 use App\Core\Form;
 use App\Core\Module;

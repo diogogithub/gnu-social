@@ -21,7 +21,7 @@
 
 namespace App\Entity;
 
-use App\Core\DB\DB;
+use App\Core\DB;
 use App\Core\Entity;
 use App\Core\UserRoles;
 use App\Util\Common;

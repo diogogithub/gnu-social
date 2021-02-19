@@ -21,7 +21,7 @@
 
 namespace Plugin\Directory\Controller;
 
-use App\Core\DB\DB;
+use App\Core\DB;
 use Symfony\Component\HttpFoundation\Request;
 
 class Directory

@@ -31,7 +31,6 @@
 
 namespace App\DependencyInjection\Compiler;
 
-use App\Core\Log;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\StaticPHPDriver;
 use Functional as F;
@@ -93,8 +92,6 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
     public function loadMetadataForClass($class_name, ClassMetadata $metadata)
     {
         $schema = $class_name::schemaDef();
-
-        Log::emergency($class_name);
 
         $metadata->setPrimaryTable([
             'name'              => $schema['name'],

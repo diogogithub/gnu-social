@@ -19,7 +19,7 @@
 
 namespace Component\Posting;
 
-use App\Core\DB\DB;
+use App\Core\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
