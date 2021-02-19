@@ -18,24 +18,43 @@
 // }}}
 
 /**
- * Doctrine metadata driver which implements our old `schemaDef` interface
+ * Compiler pass which triggers Symfony to tell Doctrine to
+ * use our `SchemaDef` metadata driver
  *
- * @package GNUsocial
+ * @package  GNUsocial
  * @category DB
  *
- * @author    Hugo Sales <hugo@fc.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@hsal.es>
+ * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Core\DB;
+namespace App\DependencyInjection\Compiler;
 
+use App\Core\Log;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\StaticPHPDriver;
 use Functional as F;
+use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 
-class SchemaDefDriver extends StaticPHPDriver
+/**
+ * Register a new ORM driver to allow use to use the old (and better) schemaDef format
+ */
+class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
 {
+    /**
+     * Register `app.schemadef_driver` (this class instantiated with argument src/Entity) as a metadata driver
+     */
+    public function process(ContainerBuilder $container)
+    {
+        $container->findDefinition('doctrine.orm.default_metadata_driver')
+                  ->addMethodCall('addDriver',
+                                  [new Reference('app.schemadef_driver'), 'App\\Entity']
+                  );
+    }
+
     /**
      * V2 DB type => Doctrine type
      */
@@ -74,6 +93,8 @@ class SchemaDefDriver extends StaticPHPDriver
     public function loadMetadataForClass($class_name, ClassMetadata $metadata)
     {
         $schema = $class_name::schemaDef();
+
+        Log::emergency($class_name);
 
         $metadata->setPrimaryTable([
             'name'              => $schema['name'],
