@@ -27,8 +27,8 @@
  * @author    Ciaran Gultnieks <ciaran@ciarang.com>
  * @author    Evan Prodromou <evan@status.net>
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @author    Hugo Sales <hugo@fc.up.pt>
- * @copyright 2010, 2018-2020 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@hsal.es>
+ * @copyright 2010, 2018-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 

@@ -25,8 +25,8 @@
  * @package   GNUsocial
  *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @author    Hugo Sales <hugo@fc.up.pt>
- * @copyright 2018-2020 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@hsal.es>
+ * @copyright 2018-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
  * @see      http://www.gnu.org/software/social/

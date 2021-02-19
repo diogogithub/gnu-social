@@ -25,8 +25,8 @@ namespace App\Util\Exception;
  * @category  Exception
  * @package   GNUsocial
  *
- * @author    Hugo Sales <hugo@fc.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@hsal.es>
+ * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class NoLoggedInUser extends ClientException
