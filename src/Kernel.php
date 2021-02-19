@@ -23,15 +23,15 @@
  * @package GNUsocial
  * @category Kernel
  *
- * @author    Hugo Sales <hugo@fc.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@hsal.es>
+ * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 namespace App;
 
 use App\DependencyInjection\Compiler\ModuleManagerPass;
-use App\DependencyInjection\Compiler\SchemaDefPass;
+use App\DependencyInjection\Compiler\SchemaDefDriver;
 use const PHP_VERSION_ID;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
@@ -152,6 +152,6 @@ class Kernel extends BaseKernel
         parent::build($container);
 
         $container->addCompilerPass(new ModuleManagerPass());
-        $container->addCompilerPass(new SchemaDefPass());
+        $container->addCompilerPass(new SchemaDefDriver(SRCDIR . '/Entity'));
     }
 }

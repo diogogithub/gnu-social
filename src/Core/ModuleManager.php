@@ -26,8 +26,8 @@
  * @package   GNUsocial
  * @category  Modules
  *
- * @author    Hugo Sales <hugo@fc.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@hsal.es>
+ * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
@@ -100,20 +100,20 @@ class ModuleManager
         foreach ($module_paths as $path) {
             $type   = ucfirst(preg_replace('%' . INSTALLDIR . '/(component|plugin)s/.*%', '\1', $path));
             $dir    = dirname($path);
-            $module = basename($dir);
+            $module = basename($dir); // component or plugin
             $fqcn   = "\\{$type}\\{$module}\\{$module}";
             $module_manager->add($fqcn, $path);
             if (!is_null($container) && file_exists($dir = $dir . '/Entity') && is_dir($dir)) {
                 $entity_paths[] = $dir;
                 $container->findDefinition('doctrine.orm.default_metadata_driver')->addMethodCall(
                     'addDriver',
-                    [new Reference('app.core.schemadef_driver'), "{$type}\\{$module}\\Entity"]
+                    [new Reference('app.schemadef_driver'), "{$type}\\{$module}\\Entity"]
                 );
             }
         }
 
         if (!is_null($container)) {
-            $container->findDefinition('app.core.schemadef_driver')
+            $container->findDefinition('app.schemadef_driver')
                       ->addMethodCall('addPaths', ['$paths' => $entity_paths]);
         }
 
