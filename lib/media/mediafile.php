@@ -450,12 +450,22 @@ class MediaFile
                     return MediaFile::fromFileObject($file);
                 }
             }
-            var_dump($file);die;
-            // If no exception is thrown then this file was already uploaded by a local actor once, so we'll use that and just add redirections.
-            // but if the _actual_ locally stored file doesn't exist, getPath will throw FileNotFoundException
-            $filepath = $file->getPath();
-            $mimetype = $file->mimetype;
-            $fileid = $file->getID();
+            // Assert: If we got to this line, then we only traversed URLs on the while loop above.
+            if (common_config('attachments', 'prefer_remote')) {
+                // Was this file imported from a remote source already?
+                $filepath = $file->getPath(); // This function will throw FileNotFoundException if not.
+                // Assert: If we got to this line, then we can use this file and just add redirections.
+                $mimetype = $file->mimetype;
+                $fileid = $file->getID();
+            } else {
+                throw new FileNotFoundException('This isn\'t a path.'); // A bit of dadaist art.
+                // It's natural that a sysadmin prefers to not add redirections to the first remote link of an
+                // attachment, it's not a very consistent thing to do. On the other hand, lack of space can drive
+                // a person crazy.
+
+                // Also note that if one configured StoreRemoteMedia to not save original images (very likely), then
+                // having prefer_remote enabled will never store the original attachment (sort of the idea here).
+            }
         } catch (FileNotFoundException | NoResultException $e) {
             // We have to save the upload as a new local file. This is the normal course of action.
             if ($scoped instanceof Profile) {

@@ -41,10 +41,11 @@ class StoreRemoteMediaPlugin extends Plugin
     public $append_whitelist = [];    // fill this array as domain_whitelist to add more trusted sources
     public $check_whitelist  = false; // security/abuse precaution
 
-    public $thumbnail_width  = null;
-    public $thumbnail_height = 128;
-    public $thumbnail_crop   = true;
-    public $max_size         = 10 * 1024 * 1024;  // 10MiB max image size by default
+    public $store_original   = true; // Whether to maintain a copy of the original media or only a thumbnail of it
+    public $thumbnail_width = null;
+    public $thumbnail_height = null;
+    public $crop = false;
+    public $max_size = null;
 
     protected $imgData = [];
 
@@ -57,12 +58,10 @@ class StoreRemoteMediaPlugin extends Plugin
     {
         parent::initialize();
 
-        if (is_null($this->thumbnail_width)) {
-            $this->thumbnail_width = common_config('thumbnail', 'width');
-            $this->thumbnail_height = common_config('thumbnail', 'height');
-            $this->thumbnail_crop = common_config('thumbnail', 'crop');
-            $this->max_size = common_get_preferred_php_upload_limit();
-        }
+        // Load global configuration if specific not provided
+        $this->thumbnail_width = $this->thumbnail_width ?? common_config('thumbnail', 'width');
+        $this->thumbnail_height = $this->thumbnail_height ?? common_config('thumbnail', 'height');
+        $this->max_size = $this->max_size ?? common_config('attachments', 'file_quota');
 
         $this->domain_whitelist = array_merge($this->domain_whitelist, $this->append_whitelist);
     }
@@ -275,14 +274,10 @@ class StoreRemoteMediaPlugin extends Plugin
                 }
 
                 // If the image is not of the desired size, resize it
-                if ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height) {
+                if ($this->crop && ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height)) {
                     // Temporary object, not stored in DB
                     $img = new ImageFile(-1, $filepath);
-                    // Get proper aspect ratio width and height before lookup
-                    // We have to do it through an ImageFile object because of orientation etc.
-                    // Only other solution would've been to rotate + rewrite uploaded files
-                    // which we don't want to do because we like original, untouched data!
-                    list($width, $height, $x, $y, $w, $h) = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->thumbnail_crop);
+                    list($width, $height, $x, $y, $w, $h) = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->crop);
 
                     // The boundary box for our resizing
                     $box = [

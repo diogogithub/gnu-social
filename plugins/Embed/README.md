@@ -8,11 +8,17 @@ This plugin is enabled by default.
 
 Settings
 ========
-width: Maximum width of the thumbnail in pixels.
-height: Maximum height of the thumbnail in pixels.
-show_html: Whether to show HTML oEmbed data.
-domain_whitelist: Array of regular expressions. Always escape your dots and end your strings.
-check_whitelist: Whether to check the domain_whitelist.
+* `domain_whitelist`: Array of regular expressions. Always escape your dots and end your strings.
+* `check_whitelist`: Whether to check the domain_whitelist.
+* `thumbnail_width`: Maximum width of the thumbnail in pixels. Defaults to global `[thumbnail][width]`.
+* `thumbnail_height`: Maximum height of the thumbnail in pixels. Defaults to global `[thumbnail][height]`.
+* `crop`: Crop to the thumbnail size and don't preserve the original file. Defaults to true.
+* `max_size`: Max media size. Anything bigger than this is rejected. Defaults to global `[attachments][file_quota]`.
+
+Relevant GNU social global settings
+===================================
+
+* `[attachments][show_html]`: Whether to show HTML oEmbed data.
 
 Example
 =======
