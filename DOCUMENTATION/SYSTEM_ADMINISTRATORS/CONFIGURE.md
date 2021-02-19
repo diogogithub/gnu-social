@@ -679,7 +679,7 @@ set too low (it's optional, so it may not be there at all).
 
 * `file_quota`: maximum size for a single file upload in bytes. A user can send
     any amount of notices with attachments as long as each attachment
-    is smaller than file_quota.
+    is smaller than file_quota. Defaults to PHP's configured upload limit.
 
 * `user_quota`: total size in bytes a user can store on this server. Each user
     can store any number of files as long as their total size does
@@ -716,6 +716,28 @@ set too low (it's optional, so it may not be there at all).
     Doesn't affect AJAX calls. Defaults to false.
 
 * `filename_base`: for new files, choose one: 'upload', 'hash'. Defaults to hash.
+
+* `memory_limit`: PHP's memory limit to use temporarily when handling images. Defaults to `1024M`.
+
+* `prefer_remote`: when a user uploads a file, if the first time this file was
+  retrieved was from an URL, prefer redirect to the attachment with the first known URL.
+
+
+thumbnail
+-------------------------------------------------------------------------------
+
+The software lets users upload media with their notes. You can configure
+the way thumbnails are generated for them.
+
+* `dir`: Where to store, defaults to `File::path('thumb')` (equivalent to `['attachments']['dir']/thumb/`).
+* `path`: URL path, relative to the server, to find thumbnails. Defaults to `File::url('thumb/$filename')` (equivalent to `['attachments']['path']/thumb/`).
+* `server`: Only used if `['thumbnail']['path']` is NOT empty. In which case it defaults to `['site']['server']`, schema is decided from `GNUsocial::useHTTPS()`
+* `crop`: Crop to the size (not preserving aspect ratio). Defaults to false.
+* `maxsize`: Thumbs with an edge larger than this will not be generated. Defaults to 1000.
+* `width`: Max width for the thumbnail. Defaults to 450.
+* `height`: Max height for the thumbnail. Defaults to 600.
+* `upscale`: Whether or not to scale smaller images up to larger thumbnail sizes. Defaults to false.
+* `animated`:  `null`  means use file as thumbnail. `false` means that a still frame can be used. `true` requires `ImageMagickPlugin`. Defaults to false.
 
 
 group

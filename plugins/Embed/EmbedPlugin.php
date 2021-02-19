@@ -55,9 +55,10 @@ class EmbedPlugin extends Plugin
     public $append_whitelist = [];  // fill this array as domain_whitelist to add more trusted sources
     public $check_whitelist  = false;    // security/abuse precaution
 
-    public $thumbnail_width  = 128;
-    public $thumbnail_height = 128;
-    public $thumbnail_crop   = true;
+    public $thumbnail_width = null;
+    public $thumbnail_height = null;
+    public $crop = true;
+    public $max_size = null;
 
     protected $imgData = [];
 
@@ -71,6 +72,11 @@ class EmbedPlugin extends Plugin
         parent::initialize();
 
         $this->domain_whitelist = array_merge($this->domain_whitelist, $this->append_whitelist);
+
+        // Load global configuration if specific not provided
+        $this->thumbnail_width = $this->thumbnail_width ?? common_config('thumbnail', 'width');
+        $this->thumbnail_height = $this->thumbnail_height ?? common_config('thumbnail', 'height');
+        $this->max_size = $this->max_size ?? common_config('attachments', 'file_quota');
     }
 
     /**
@@ -563,15 +569,21 @@ class EmbedPlugin extends Plugin
                 }
 
                 // If the image is not of the desired size, resize it
-                if ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height) {
+                if ($this->crop && ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height)) {
                     // Temporary object, not stored in DB
                     $img = new ImageFile(-1, $fullpath);
-                    $box = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->thumbnail_crop);
-                    $outpath = $img->resizeTo($fullpath, $box);
-                    $filename = basename($outpath);
-                    if ($fullpath !== $outpath) {
-                        @unlink($fullpath);
-                    }
+                    list($width, $height, $x, $y, $w, $h) = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->crop);
+
+                    // The boundary box for our resizing
+                    $box = [
+                        'width' => $width, 'height' => $height,
+                        'x' => $x, 'y' => $y,
+                        'w' => $w, 'h' => $h,
+                    ];
+
+                    $width = $box['width'];
+                    $height = $box['height'];
+                    $img->resizeTo($fullpath, $box);
                 }
             } else {
                 throw new AlreadyFulfilledException('A thumbnail seems to already exist for remote file' .
@@ -622,11 +634,10 @@ class EmbedPlugin extends Plugin
             try {
                 $is_image = $this->isRemoteImage($url, $headers);
                 if ($is_image == true) {
-                    $max_size  = common_get_preferred_php_upload_limit();
                     $file_size = $this->getRemoteFileSize($url, $headers);
-                    if (($file_size!=false) && ($file_size > $max_size)) {
+                    if (($file_size!=false) && ($file_size > $this->max_size)) {
                         common_debug("Went to store remote thumbnail of size " . $file_size .
-                            " but the upload limit is " . $max_size . " so we aborted.");
+                            " but the upload limit is " . $this->max_size . " so we aborted.");
                         return false;
                     }
                 } else {
