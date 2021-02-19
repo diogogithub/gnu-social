@@ -3141,7 +3141,7 @@
             "authors": [
                 {
                     "name": "Hugo Sales",
-                    "email": "hugo@fc.up.pt"
+                    "email": "hugo@hsal.es"
                 }
             ],
             "description": "No-implementation memcached extension polyfill",
@@ -3183,7 +3183,7 @@
             "authors": [
                 {
                     "name": "Hugo Sales",
-                    "email": "hugo@fc.up.pt"
+                    "email": "hugo@hsal.es"
                 }
             ],
             "description": "No-implementation redis extension polyfill",

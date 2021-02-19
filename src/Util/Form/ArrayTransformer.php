@@ -23,8 +23,8 @@
  * @package  GNUsocial
  * @category Form
  *
- * @author    Hugo Sales <hugo@fc.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@hsal.es>
+ * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
@@ -62,7 +62,6 @@ class ArrayTransformer implements DataTransformerInterface
             return [];
         }
 
-        $arr;
         if (is_string($s) && Formatting::toArray($s, $arr, Formatting::SPLIT_BY_BOTH)) {
             return $arr;
         } else {

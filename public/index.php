@@ -23,7 +23,7 @@
  * @package  GNUsocial
  * @category Framework
  *
- * @author    Hugo Sales <hugo@fc.up.pt>
+ * @author    Hugo Sales <hugo@hsal.es>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */

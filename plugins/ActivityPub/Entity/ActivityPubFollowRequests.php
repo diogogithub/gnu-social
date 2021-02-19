@@ -26,7 +26,7 @@
  * @package   GNUsocial
  *
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @author    Hugo Sales <hugo@fc.up.pt>
+ * @author    Hugo Sales <hugo@hsal.es>
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
