@@ -18,19 +18,19 @@
  * ActivityPub queue handler for notice distribution
  *
  * @package   GNUsocial
+ *
  * @author    Bruno Casteleiro <brunoccast@fc.up.pt>
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
  * @copyright 2019-2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-
 defined('GNUSOCIAL') || die();
 
 /**
  * @copyright 2019-2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ActivityPubQueueHandler extends QueueHandler
+class activitypubqueuehandler extends QueueHandler
 {
     /**
      * Getter of the queue transport name.
@@ -46,10 +46,13 @@ class ActivityPubQueueHandler extends QueueHandler
      * Notice distribution handler.
      *
      * @param Notice $notice notice to be distributed.
-     * @return bool true on success, false otherwise
+     *
      * @throws HTTP_Request2_Exception
      * @throws InvalidUrlException
      * @throws ServerException
+     *
+     * @return bool true on success, false otherwise
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function handle($notice): bool
@@ -97,6 +100,13 @@ class ActivityPubQueueHandler extends QueueHandler
         return true;
     }
 
+    /**
+     * Handle notice creation and propagation
+     *
+     * @param mixed $profile
+     * @param mixed $notice
+     * @param mixed $other
+     */
     private function handle_create($profile, $notice, $other)
     {
         // Handling a reply?
@@ -166,10 +176,14 @@ class ActivityPubQueueHandler extends QueueHandler
      * Notify remote users when their notices get favourited.
      *
      * @param Profile $profile of local user doing the faving
-     * @param Notice $notice_liked Notice being favored
-     * @return bool return value
+     * @param Notice  $notice  Notice being favored
+     * @param mixed   $other
+     *
      * @throws HTTP_Request2_Exception
      * @throws InvalidUrlException
+     *
+     * @return bool return value
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function onEndFavorNotice(Profile $profile, Notice $notice, $other)
@@ -206,13 +220,64 @@ class ActivityPubQueueHandler extends QueueHandler
     }
 
     /**
+     * Notify remote users when their notices get de-favourited.
+     *
+     * @param Profile $profile of local user doing the de-faving
+     * @param Notice  $notice  Notice being favored
+     * @param mixed   $other
+     *
+     * @throws HTTP_Request2_Exception
+     * @throws InvalidUrlException
+     *
+     * @return bool return value
+     *
+     * @author Diogo Cordeiro <diogo@fc.up.pt>
+     */
+    public function onEndDisfavorNotice(Profile $profile, Notice $notice, $other)
+    {
+        if ($notice->reply_to) {
+            try {
+                $parent_notice = $notice->getParent();
+
+                try {
+                    $other[] = Activitypub_profile::from_profile($parent_notice->getProfile());
+                } catch (Exception $e) {
+                    // Local user can be ignored
+                }
+
+                $other = array_merge(
+                    $other,
+                    Activitypub_profile::from_profile_collection(
+                        $parent_notice->getAttentionProfiles()
+                    )
+                );
+            } catch (NoParentNoticeException $e) {
+                // This is not a reply to something (has no parent)
+            } catch (NoResultException $e) {
+                // Parent author's profile not found! Complain louder?
+                common_log(LOG_ERR, "Parent notice's author not found: " . $e->getMessage());
+            }
+        }
+
+        $postman = new Activitypub_postman($profile, $other);
+        $postman->undo_like($notice);
+
+        return true;
+    }
+
+    /**
      * Notify remote users when their notices get deleted
      *
      * @param $user
      * @param $notice
-     * @return bool hook flag
+     * @param mixed $profile
+     * @param mixed $other
+     *
      * @throws HTTP_Request2_Exception
      * @throws InvalidUrlException
+     *
+     * @return bool hook flag
+     *
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function onStartDeleteOwnNotice($profile, $notice, $other)

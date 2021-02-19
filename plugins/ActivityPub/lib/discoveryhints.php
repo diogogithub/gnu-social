@@ -18,6 +18,7 @@
  * ActivityPub implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Evan Prodromou
  * @author    Brion Vibber
  * @author    James Walker
@@ -26,13 +27,16 @@
  * @author    Diogo Cordeiro
  * @copyright 2010-2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
-
 defined('GNUSOCIAL') || die();
 
-class DiscoveryHints
+class discoveryhints
 {
+    /**
+     * Find discovery hints in XML XRD (Extensible Resource Descriptor)
+     */
     public static function fromXRD(XML_XRD $xrd)
     {
         $hints = [];
@@ -74,16 +78,23 @@ class DiscoveryHints
             }
         } catch (HTTP_Request2_Exception $e) {
             // Any HTTPClient error that might've been thrown
-            common_log(LOG_ERR, __METHOD__ . ':'.$e->getMessage());
+            common_log(LOG_ERR, __METHOD__ . ':' . $e->getMessage());
             return null;
         }
 
         return self::hcardHints(
             $response->getBody(),
             $response->getEffectiveUrl()
+
         );
     }
 
+    /**
+     * ??????
+     *
+     * @param mixed $body
+     * @param mixed $url
+     */
     public static function hcardHints($body, $url)
     {
         $hcard = self::_hcard($body, $url);
@@ -123,6 +134,12 @@ class DiscoveryHints
         return $hints;
     }
 
+    /**
+     * ?????????
+     *
+     * @param mixed $body
+     * @param mixed $url
+     */
     public static function _hcard($body, $url)
     {
         $mf2 = new Mf2\Parser($body, $url);
