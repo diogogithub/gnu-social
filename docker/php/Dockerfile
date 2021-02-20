@@ -1,4 +1,4 @@
-FROM php:fpm-alpine
+FROM php:8-fpm-alpine
 
 RUN apk update && apk add git autoconf make file gettext-dev icu-dev zlib-dev libpng-dev gmp-dev \
         mariadb-dev mariadb-client postgresql-dev postgresql-client composer > /dev/null

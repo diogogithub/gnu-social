@@ -4,7 +4,7 @@
     "description": "Free software social networking platform.",
     "license": "AGPL-3.0-only",
     "require": {
-        "php": "^7.4",
+        "php": "^8.0",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "alchemy/zippy": "v0.5.x-dev",
