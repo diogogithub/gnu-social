@@ -37,7 +37,6 @@ use DateTimeInterface;
 class RememberMeToken extends Entity
 {
     // {{{ Autocode
-
     private string $series;
     private string $value;
     private DateTimeInterface $lastUsed;

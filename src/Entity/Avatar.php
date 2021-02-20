@@ -44,19 +44,18 @@ use DateTimeInterface;
 class Avatar extends Entity
 {
     // {{{ Autocode
-
     private int $gsactor_id;
     private int $file_id;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
-    public function setGsactorId(int $gsactor_id): self
+    public function setGSActorId(int $gsactor_id): self
     {
         $this->gsactor_id = $gsactor_id;
         return $this;
     }
 
-    public function getGsactorId(): int
+    public function getGSActorId(): int
     {
         return $this->gsactor_id;
     }

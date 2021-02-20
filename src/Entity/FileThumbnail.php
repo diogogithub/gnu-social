@@ -39,7 +39,6 @@ use DateTimeInterface;
 class FileThumbnail extends Entity
 {
     // {{{ Autocode
-
     private int $file_id;
     private int $width;
     private int $height;

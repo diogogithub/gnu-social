@@ -39,7 +39,6 @@ use DateTimeInterface;
 class FileToNote extends Entity
 {
     // {{{ Autocode
-
     private int $file_id;
     private int $note_id;
     private DateTimeInterface $modified;

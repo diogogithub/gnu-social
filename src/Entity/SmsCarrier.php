@@ -39,7 +39,6 @@ use DateTimeInterface;
 class SmsCarrier extends Entity
 {
     // {{{ Autocode
-
     private int $id;
     private ?string $name;
     private string $email_pattern;

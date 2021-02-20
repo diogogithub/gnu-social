@@ -35,7 +35,6 @@ namespace Plugin\ActivityPub\Entity;
 class ActivityPubActor
 {
     // {{{ Autocode
-
     private string $uri;
     private int $profile_id;
     private string $inboxuri;

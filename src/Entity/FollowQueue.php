@@ -39,7 +39,6 @@ use DateTimeInterface;
 class FollowQueue extends Entity
 {
     // {{{ Autocode
-
     private int $follower;
     private int $followed;
     private DateTimeInterface $created;

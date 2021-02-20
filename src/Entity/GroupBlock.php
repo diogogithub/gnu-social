@@ -39,7 +39,6 @@ use DateTimeInterface;
 class GroupBlock extends Entity
 {
     // {{{ Autocode
-
     private int $group_id;
     private int $blocked_gsactor;
     private int $blocker_user;
@@ -56,13 +55,13 @@ class GroupBlock extends Entity
         return $this->group_id;
     }
 
-    public function setBlockedGsactor(int $blocked_gsactor): self
+    public function setBlockedGSActor(int $blocked_gsactor): self
     {
         $this->blocked_gsactor = $blocked_gsactor;
         return $this;
     }
 
-    public function getBlockedGsactor(): int
+    public function getBlockedGSActor(): int
     {
         return $this->blocked_gsactor;
     }

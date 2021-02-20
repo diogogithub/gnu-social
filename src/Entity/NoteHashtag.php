@@ -39,7 +39,6 @@ use DateTimeInterface;
 class NoteHashtag extends Entity
 {
     // {{{ Autocode
-
     private string $tag;
     private int $note_id;
     private DateTimeInterface $created;

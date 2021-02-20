@@ -39,7 +39,6 @@ use DateTimeInterface;
 class Invitation extends Entity
 {
     // {{{ Autocode
-
     private string $code;
     private int $user_id;
     private string $address;

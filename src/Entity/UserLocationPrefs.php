@@ -37,7 +37,6 @@ use DateTimeInterface;
 class UserLocationPrefs extends Entity
 {
     // {{{ Autocode
-
     private int $user_id;
     private ?bool $share_location;
     private DateTimeInterface $created;

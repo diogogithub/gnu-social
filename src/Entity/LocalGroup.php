@@ -39,7 +39,6 @@ use DateTimeInterface;
 class LocalGroup extends Entity
 {
     // {{{ Autocode
-
     private int $group_id;
     private ?string $nickname;
     private DateTimeInterface $created;

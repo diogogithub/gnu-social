@@ -39,7 +39,6 @@ use DateTimeInterface;
 class NoteSource extends Entity
 {
     // {{{ Autocode
-
     private string $code;
     private string $name;
     private string $url;

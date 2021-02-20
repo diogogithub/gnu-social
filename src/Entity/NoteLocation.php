@@ -39,7 +39,6 @@ use DateTimeInterface;
 class NoteLocation extends Entity
 {
     // {{{ Autocode
-
     private int $note_id;
     private ?float $lat;
     private ?float $lon;

@@ -39,7 +39,6 @@ use DateTimeInterface;
 class GSActorCircle extends Entity
 {
     // {{{ Autocode
-
     private int $id;
     private int $tagger;
     private string $tag;
