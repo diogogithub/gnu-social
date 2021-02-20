@@ -39,7 +39,6 @@ use DateTimeInterface;
 class UserUrlShortenerPrefs extends Entity
 {
     // {{{ Autocode
-
     private int $user_id;
     private ?string $url_shortening_service;
     private int $max_url_length;

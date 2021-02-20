@@ -39,7 +39,6 @@ use DateTimeInterface;
 class RelatedGroup extends Entity
 {
     // {{{ Autocode
-
     private int $group_id;
     private int $related_group_id;
     private DateTimeInterface $created;

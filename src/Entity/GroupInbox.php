@@ -39,7 +39,6 @@ use DateTimeInterface;
 class GroupInbox extends Entity
 {
     // {{{ Autocode
-
     private int $group_id;
     private int $activity_id;
     private DateTimeInterface $created;

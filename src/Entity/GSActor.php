@@ -45,7 +45,6 @@ use Functional as F;
 class GSActor extends Entity
 {
     // {{{ Autocode
-
     private int $id;
     private string $nickname;
     private ?string $fullname;

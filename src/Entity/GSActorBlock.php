@@ -39,7 +39,6 @@ use DateTimeInterface;
 class GSActorBlock extends Entity
 {
     // {{{ Autocode
-
     private int $blocker;
     private int $blocked;
     private DateTimeInterface $modified;

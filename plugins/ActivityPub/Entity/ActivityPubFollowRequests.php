@@ -35,29 +35,28 @@ namespace Plugin\ActivityPub\Entity;
 class ActivityPubFollowRequests
 {
     // {{{ Autocode
-
     private int $local_gsactor_id;
     private int $remote_gsactor_id;
     private int $relation_id;
 
-    public function setLocalGsactorId(int $local_gsactor_id): self
+    public function setLocalGSActorId(int $local_gsactor_id): self
     {
         $this->local_gsactor_id = $local_gsactor_id;
         return $this;
     }
 
-    public function getLocalGsactorId(): int
+    public function getLocalGSActorId(): int
     {
         return $this->local_gsactor_id;
     }
 
-    public function setRemoteGsactorId(int $remote_gsactor_id): self
+    public function setRemoteGSActorId(int $remote_gsactor_id): self
     {
         $this->remote_gsactor_id = $remote_gsactor_id;
         return $this;
     }
 
-    public function getRemoteGsactorId(): int
+    public function getRemoteGSActorId(): int
     {
         return $this->remote_gsactor_id;
     }

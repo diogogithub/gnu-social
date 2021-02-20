@@ -39,7 +39,6 @@ use DateTimeInterface;
 class Follow extends Entity
 {
     // {{{ Autocode
->>>>>>> e63aa4d971 ([TOOLS] Change autocode tag to allow editor folding)
 
     private int $follower;
     private int $followed;

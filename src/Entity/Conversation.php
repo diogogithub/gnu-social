@@ -37,7 +37,6 @@ use DateTimeInterface;
 class Conversation extends Entity
 {
     // {{{ Autocode
-
     private int $id;
     private int $note_id;
     private DateTimeInterface $created;

@@ -39,7 +39,6 @@ use DateTimeInterface;
 class GroupMember extends Entity
 {
     // {{{ Autocode
-
     private int $group_id;
     private int $gsactor_id;
     private ?bool $is_admin;
@@ -58,13 +57,13 @@ class GroupMember extends Entity
         return $this->group_id;
     }
 
-    public function setGsactorId(int $gsactor_id): self
+    public function setGSActorId(int $gsactor_id): self
     {
         $this->gsactor_id = $gsactor_id;
         return $this;
     }
 
-    public function getGsactorId(): int
+    public function getGSActorId(): int
     {
         return $this->gsactor_id;
     }

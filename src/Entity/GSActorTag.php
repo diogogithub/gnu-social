@@ -39,7 +39,6 @@ use DateTimeInterface;
 class GSActorTag extends Entity
 {
     // {{{ Autocode
-
     private int $tagger;
     private int $tagged;
     private string $tag;

@@ -47,7 +47,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class LocalUser extends Entity implements UserInterface
 {
     // {{{ Autocode
-
     private int $id;
     private string $nickname;
     private ?string $password;

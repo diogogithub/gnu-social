@@ -39,7 +39,6 @@ use DateTimeInterface;
 class GroupAlias extends Entity
 {
     // {{{ Autocode
-
     private string $alias;
     private int $group_id;
     private DateTimeInterface $modified;

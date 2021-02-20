@@ -35,7 +35,6 @@ use DateTimeInterface;
 class UserNotificationPrefs extends Entity
 {
     // {{{ Autocode
-
     private int $user_id;
     private string $transport;
     private ?int $target_gsactor_id;
@@ -73,13 +72,13 @@ class UserNotificationPrefs extends Entity
         return $this->transport;
     }
 
-    public function setTargetGsactorId(?int $target_gsactor_id): self
+    public function setTargetGSActorId(?int $target_gsactor_id): self
     {
         $this->target_gsactor_id = $target_gsactor_id;
         return $this;
     }
 
-    public function getTargetGsactorId(): ?int
+    public function getTargetGSActorId(): ?int
     {
         return $this->target_gsactor_id;
     }

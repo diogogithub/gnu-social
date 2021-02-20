@@ -40,7 +40,6 @@ use DateTimeInterface;
 class File extends Entity
 {
     // {{{ Autocode
-
     private int $id;
     private ?string $url;
     private ?string $url_hash;

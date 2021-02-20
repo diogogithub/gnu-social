@@ -39,7 +39,6 @@ use DateTimeInterface;
 class ReservedNickname extends Entity
 {
     // {{{ Autocode
-
     private string $nickname;
     private DateTimeInterface $created;
 

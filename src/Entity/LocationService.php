@@ -39,7 +39,6 @@ use DateTimeInterface;
 class LocationService extends Entity
 {
     // {{{ Autocode
-
     private int $id;
     private ?string $description;
     private DateTimeInterface $created;
