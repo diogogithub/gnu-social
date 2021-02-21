@@ -507,7 +507,7 @@ class ImageFile extends MediaFile
         return [(int)$rw, (int)$rh,
             (int)$cx, (int)$cy,
             is_null($cw) ? $width : (int)$cw,
-            is_null($ch) ? $height : (int)$ch,];
+            is_null($ch) ? $height : (int)$ch];
     }
 
     /**

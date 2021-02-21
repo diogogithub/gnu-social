@@ -55,9 +55,9 @@ class EmbedPlugin extends Plugin
     public $append_whitelist = [];  // fill this array as domain_whitelist to add more trusted sources
     public $check_whitelist  = false;    // security/abuse precaution
 
-    public $thumbnail_width = null;
-    public $thumbnail_height = null;
-    public $crop = null;
+    public $thumbnail_width = 128;
+    public $thumbnail_height = 128;
+    public $crop = true;
     public $max_size = null;
 
     protected $imgData = [];
