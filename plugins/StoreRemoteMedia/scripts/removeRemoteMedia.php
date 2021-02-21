@@ -20,8 +20,9 @@
  *
  * @category  Plugin
  * @package   GNUsocial
- * @author    Diogo Cordeiro <diogo@fc.up.pt>
- * @copyright 2018 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Diogo Peralta Cordeiro <mail+gnusocial@diogo.site>
+ * @author    Alexei Sorokin
+ * @copyright 2018-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
@@ -33,20 +34,15 @@ $longoptions = ['limit=', 'all', 'image'];
 
 $helptext = <<<END_OF_HELP
 remove_remote_media.php [options]
-Removes remote media. In most cases, (if not all), an URL will be kept for the original attachment.
-In case the attachment is an image its thumbs will be removed as well.
+Removes remote media. Thumbs will be removed as well.
 
     -l --limit [date]  This is a timestamp, format is: yyyy-mm-dd (optional time hh:mm:ss may be provided)
-    -a --all           By default only remote attachments will be deleted, by using this flag you will remove oembed previews and alike
-    -i --image         Remove image only attachments (will ignore oembed previews and alike)
 
 END_OF_HELP;
 
 require_once INSTALLDIR . '/scripts/commandline.inc';
 
 $quiet = have_option('q', 'quiet');
-$include_previews = have_option('a', 'all');
-$image_only = have_option('i', 'image');
 
 if (!have_option('l', 'limit')) {
     echo "You must provide a limit!\n\n";
@@ -66,13 +62,10 @@ $fn->query(sprintf(
       FROM file_to_post
       INNER JOIN file ON file_to_post.file_id = file.id
       INNER JOIN notice ON file_to_post.post_id = notice.id
-      WHERE notice.is_local = 0
-      %1$s%2$sAND notice.modified <= '%3$s'
+      WHERE notice.is_local = 0 AND notice.modified <= '%3$s'
       GROUP BY file_to_post.file_id
       ORDER BY MAX(notice.modified)
     END,
-    $image_only ? 'AND file.width IS NOT NULL AND file.height IS NOT NULL ' : '',
-    $include_previews ? '' : 'AND file.filehash IS NOT NULL ',
     $fn->escape($max_date)
 ));
 
