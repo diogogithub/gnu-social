@@ -100,11 +100,15 @@ class File_thumbnail extends Managed_DataObject
                     case 'image/svg+xml':
                         throw new UseFileAsThumbnailException($file);
                 }
-            } else {
-                throw new ServerException("This remote file has no local thumbnail.");
             }
         }
-        $image = ImageFile::fromFileObject($file);
+        try {
+            $image = ImageFile::fromFileObject($file);
+        } catch (InvalidFilenameException $e) {
+            // Not having an original local file doesn't mean we don't have a thumbnail.
+            $existing_thumb = File_thumbnail::byFile($file);
+            $image = new ImageFile($file->getID(), $existing_thumb->getPath(), null, $existing_thumb->url);
+        }
         $imgPath = $image->getPath();
         $media = common_get_mime_media($file->mimetype);
         if (Event::handle('CreateFileImageThumbnailSource', [$file, &$imgPath, $media])) {
@@ -280,7 +284,7 @@ class File_thumbnail extends Managed_DataObject
 
     public function getUrl()
     {
-        $url = common_local_url('attachment_thumbnail', ['filehash' => $this->getFile()->filehash]);
+        $url = common_local_url('attachment_thumbnail', ['attachment' => $this->getFile()->getID()]);
         if (strpos($url, '?') === false) {
             $url .= '?';
         }
