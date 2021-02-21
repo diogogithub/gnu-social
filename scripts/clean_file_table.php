@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 define('INSTALLDIR', dirname(__DIR__));
 define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
@@ -47,8 +46,9 @@ if (!have_option('y', 'yes')) {
 
 print "Deleting";
 $file = new File();
-$file->whereAdd('filename IS NOT NULL');        // local files
-$file->whereAdd('filehash IS NULL', 'AND');     // without filehash value
+// Select local files
+$file->whereAdd('filename IS NOT NULL');
+$file->whereAdd('url IS NULL', 'AND');
 if ($file->find()) {
     while ($file->fetch()) {
         try {
