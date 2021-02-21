@@ -115,7 +115,7 @@ to install the development version of GNU social.
 To get it, use the git version control tool
 <http://git-scm.com/> like so:
 
-    git clone git@notabug.org:diogo/gnu-social.git
+    git clone https://notabug.org/diogo/gnu-social.git
 
 In the current phase of development it is probably
 recommended to use git as a means to stay up to date
