@@ -27,7 +27,7 @@
 defined('GNUSOCIAL') || die();
 
 /**
- * ActivityPub error representation
+ * ActivityPub delete representation
  *
  * @category  Plugin
  * @package   GNUsocial
@@ -37,15 +37,29 @@ defined('GNUSOCIAL') || die();
 class Activitypub_delete
 {
     /**
-     * Generates an ActivityPub representation of a Delete
+     * Generates an ActivityStreams 2.0 representation of a Delete
      *
-     * @param Notice $notice
+     * @param Notice $object
      * @return array pretty array to be used in a response
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
-    public static function delete_to_array(Notice $notice): array
+    public static function delete_to_array($object): array
     {
-        return Activitypub_notice::notice_to_array($notice);
+        if ($object instanceof Notice) {
+            return Activitypub_notice::notice_to_array($object);
+        } else if ($object instanceof Profile) {
+            $actor_uri = $object->getUri();
+            return [
+                '@context' => 'https://www.w3.org/ns/activitystreams',
+                'id' => $actor_uri . '#delete',
+                'type' => 'Delete',
+                'to' => ['https://www.w3.org/ns/activitystreams#Public'],
+                'actor' => $actor_uri,
+                'object' => $object
+            ];
+        } else {
+            throw new InvalidArgumentException();
+        }
     }
 
     /**

@@ -408,22 +408,20 @@ class Activitypub_postman
     /**
      * Send a Delete notification to remote followers of some deleted profile
      *
-     * @param Notice $notice
+     * @param Profile $deleted_profile
      * @throws HTTP_Request2_Exception
-     * @throws InvalidUrlException
-     * @throws Exception
      * @author Bruno Casteleiro <brunoccast@fc.up.pt>
      */
-    public function delete_profile()
+    public function delete_profile(Profile $deleted_profile)
     {
-        $data = Activitypub_delete::delete_to_array($this->actor_uri, $this->actor_uri);
+        $data = Activitypub_delete::delete_to_array($deleted_profile);
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
         $errors = [];
         foreach ($this->to_inbox() as $inbox) {
             $res = $this->send($data, $inbox);
 
-            // accummulate errors for later use, if needed
+            // accumulate errors for later use, if needed
             if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
                 $res_body = json_decode($res->getBody(), true);
                 $errors[] = isset($res_body['error']) ?
