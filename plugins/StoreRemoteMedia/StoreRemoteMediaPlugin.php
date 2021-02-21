@@ -41,10 +41,10 @@ class StoreRemoteMediaPlugin extends Plugin
     public $append_whitelist = [];    // fill this array as domain_whitelist to add more trusted sources
     public $check_whitelist  = false; // security/abuse precaution
 
-    public $store_original   = true; // Whether to maintain a copy of the original media or only a thumbnail of it
+    public $store_original   = false; // Whether to maintain a copy of the original media or only a thumbnail of it
     public $thumbnail_width = null;
     public $thumbnail_height = null;
-    public $crop = false;
+    public $crop = null;
     public $max_size = null;
 
     protected $imgData = [];
@@ -58,12 +58,13 @@ class StoreRemoteMediaPlugin extends Plugin
     {
         parent::initialize();
 
+        $this->domain_whitelist = array_merge($this->domain_whitelist, $this->append_whitelist);
+
         // Load global configuration if specific not provided
         $this->thumbnail_width = $this->thumbnail_width ?? common_config('thumbnail', 'width');
         $this->thumbnail_height = $this->thumbnail_height ?? common_config('thumbnail', 'height');
         $this->max_size = $this->max_size ?? common_config('attachments', 'file_quota');
-
-        $this->domain_whitelist = array_merge($this->domain_whitelist, $this->append_whitelist);
+        $this->crop = $this->crop ?? common_config('thumbnail', 'crop');
     }
 
     /**
@@ -103,7 +104,7 @@ class StoreRemoteMediaPlugin extends Plugin
             // We can move on
         }
 
-        $url = $file->getUrl();
+        $url = $file->getUrl(false);
 
         if (substr($url, 0, 7) == 'file://') {
             $filename = substr($url, 7);
@@ -160,19 +161,38 @@ class StoreRemoteMediaPlugin extends Plugin
             }
         }
 
-        try {
-            // Update our database for the file record
-            $orig = clone($file);
-            $file->filename = $filename;
-            $file->filehash = $filehash;
-            $file->width = $width;
-            $file->height = $height;
-            // Throws exception on failure.
-            $file->updateWithKeys($orig);
-        } catch (Exception $err) {
-            common_log(LOG_ERR, "Went to update a file entry to the database in " .
-                "StoreRemoteMediaPlugin::storeRemoteThumbnail but encountered error: ".$err);
-            throw $err;
+        if ($this->store_original) {
+            try {
+                // Update our database for the file record
+                $orig = clone($file);
+                $file->filename = $filename;
+                $file->filehash = $filehash;
+                $file->width = $width;
+                $file->height = $height;
+                // Throws exception on failure.
+                $file->updateWithKeys($orig);
+            } catch (Exception $err) {
+                common_log(LOG_ERR, "Went to update a file entry on the database in " .
+                    "StoreRemoteMediaPlugin::storeRemoteThumbnail but encountered error: " . $err);
+                throw $err;
+            }
+        } else {
+            try {
+                // Insert a thumbnail record for this file
+                $data = new stdClass();
+                $data->thumbnail_url = $url;
+                $data->thumbnail_width = $width;
+                $data->thumbnail_height = $height;
+                File_thumbnail::saveNew($data, $file->getID());
+                $ft = File_thumbnail::byFile($file);
+                $orig = clone($ft);
+                $ft->filename = $filename;
+                $ft->updateWithKeys($orig);
+            } catch (Exception $err) {
+                common_log(LOG_ERR, "Went to write a thumbnail entry to the database in " .
+                    "StoreRemoteMediaPlugin::storeRemoteThumbnail but encountered error: " . $err);
+                throw $err;
+            }
         }
 
         // Out
@@ -258,15 +278,15 @@ class StoreRemoteMediaPlugin extends Plugin
                 $original_name = HTTPClient::get_filename($url, $headers);
             }
             $filename = MediaFile::encodeFilename($original_name ?? _m('Untitled attachment'), $filehash);
-            $filepath = File::path($filename);
+            $fullpath = $this->store_original ? File::path($filename) : File_thumbnail::path($filename);
             // Write the file to disk. Throw Exception on failure
-            if (!file_exists($filepath)) {
-                if (strpos($filepath, INSTALLDIR) !== 0 || file_put_contents($filepath, $imgData) === false) {
+            if (!file_exists($fullpath)) {
+                if (strpos($fullpath, INSTALLDIR) !== 0 || file_put_contents($fullpath, $imgData) === false) {
                     throw new ServerException(_m('Could not write downloaded file to disk.'));
                 }
 
-                if (common_get_mime_media(MediaFile::getUploadedMimeType($filepath)) !== 'image') {
-                    @unlink($filepath);
+                if (common_get_mime_media(MediaFile::getUploadedMimeType($fullpath)) !== 'image') {
+                    @unlink($fullpath);
                     throw new UnsupportedMediaException(
                         _m('Remote file format was not identified as an image.'),
                         $url
@@ -274,9 +294,9 @@ class StoreRemoteMediaPlugin extends Plugin
                 }
 
                 // If the image is not of the desired size, resize it
-                if ($this->crop && ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height)) {
+                if (!$this->store_original && $this->crop && ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height)) {
                     // Temporary object, not stored in DB
-                    $img = new ImageFile(-1, $filepath);
+                    $img = new ImageFile(-1, $fullpath);
                     list($width, $height, $x, $y, $w, $h) = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->crop);
 
                     // The boundary box for our resizing
@@ -288,11 +308,11 @@ class StoreRemoteMediaPlugin extends Plugin
 
                     $width = $box['width'];
                     $height = $box['height'];
-                    $img->resizeTo($filepath, $box);
+                    $img->resizeTo($fullpath, $box);
                 }
             } else {
                 throw new AlreadyFulfilledException('A thumbnail seems to already exist for remote file' .
-                    ($file_id ? 'with id==' . $file_id : '') . ' at path ' . $filepath);
+                    ($file_id ? 'with id==' . $file_id : '') . ' at path ' . $fullpath);
             }
         } catch (AlreadyFulfilledException $e) {
             // Carry on

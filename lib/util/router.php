@@ -228,10 +228,14 @@ class Router
                 ['action' => 'attachment'],
                 ['attachment' => '[0-9]+']);
 
+            // Retrieve thumbnail
+            $m->connect("thumbnail/:attachment",
+                ['action' => 'attachment_thumbnail'],
+                ['attachment' => '[0-9]+']);
+
             // Retrieve local file
             foreach (['/view'      => 'attachment_view',
-                      '/download'  => 'attachment_download',
-                      '/thumbnail' => 'attachment_thumbnail'] as $postfix => $action) {
+                      '/download'  => 'attachment_download'] as $postfix => $action) {
                     $m->connect("attachment/:filehash{$postfix}",
                                 ['action' => $action],
                                 ['filehash' => '[A-Za-z0-9._-]{64}']);

@@ -17,8 +17,9 @@ domain_whitelist array are accepted for local storage.
 
 * `thumbnail_width`: Maximum width of the thumbnail in pixels. Defaults to global `[thumbnail][width]`.
 * `thumbnail_height`: Maximum height of the thumbnail in pixels. Defaults to global `[thumbnail][height]`.
-* `crop`: Crop to the thumbnail size and don't preserve the original file. Defaults to false.
+* `crop`: Crop to the size (not preserving aspect ratio). Defaults to global `[thumbnail][crop]`.
 * `max_size`: Max media size. Anything bigger than this is rejected. Defaults to global `[attachments][file_quota]`.
+* `store_original`: Whether to maintain a copy of the original media or only a thumbnail of it. Defaults to false.
 
 Example
 =======

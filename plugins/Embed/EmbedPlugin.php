@@ -57,7 +57,7 @@ class EmbedPlugin extends Plugin
 
     public $thumbnail_width = null;
     public $thumbnail_height = null;
-    public $crop = true;
+    public $crop = null;
     public $max_size = null;
 
     protected $imgData = [];
@@ -77,6 +77,7 @@ class EmbedPlugin extends Plugin
         $this->thumbnail_width = $this->thumbnail_width ?? common_config('thumbnail', 'width');
         $this->thumbnail_height = $this->thumbnail_height ?? common_config('thumbnail', 'height');
         $this->max_size = $this->max_size ?? common_config('attachments', 'file_quota');
+        $this->crop = $this->crop ?? common_config('thumbnail', 'crop');
     }
 
     /**
@@ -617,7 +618,7 @@ class EmbedPlugin extends Plugin
             );
         }
 
-        $url = $thumbnail->getUrl();
+        $url = $thumbnail->url; // Important not to use the getter here.
 
         if (substr($url, 0, 7) == 'file://') {
             $filename = substr($url, 7);
@@ -675,7 +676,7 @@ class EmbedPlugin extends Plugin
         }
 
         try {
-            // Update our database for the file record
+            // Update our database for the thumbnail record
             $orig = clone($thumbnail);
             $thumbnail->filename = $filename;
             $thumbnail->width = $width;

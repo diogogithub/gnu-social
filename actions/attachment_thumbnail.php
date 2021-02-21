@@ -74,6 +74,6 @@ class Attachment_thumbnailAction extends Attachment_viewAction
         // script execution, and we don't want to have any more errors until then, so don't reset it
         @ini_set('display_errors', 0);
 
-        common_send_file($filepath, $this->mimetype, $filename, 'inline');
+        common_send_file($filepath, image_type_to_mime_type(IMAGETYPE_WEBP), $filename, 'inline');
     }
 }
