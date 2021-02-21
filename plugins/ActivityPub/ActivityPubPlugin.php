@@ -934,8 +934,9 @@ class ActivityPubPlugin extends Plugin
      */
     public function onEndDeleteUser(Action $action, User $user): void
     {
-        $postman = new Activitypub_postman($user->getProfile());
-        $postman->delete_profile();
+        $deleted_profile = $user->getProfile();
+        $postman = new Activitypub_postman($deleted_profile);
+        $postman->delete_profile($deleted_profile);
     }
 
     /**
