@@ -31,7 +31,6 @@
 
 namespace App\DependencyInjection\Compiler;
 
-use App\Core\Log;
 use Doctrine\Persistence\Mapping\ClassMetadata;
 use Doctrine\Persistence\Mapping\Driver\StaticPHPDriver;
 use Functional as F;
@@ -94,8 +93,6 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
     {
         $schema = $class_name::schemaDef();
 
-        Log::emergency($class_name);
-
         $metadata->setPrimaryTable([
             'name'              => $schema['name'],
             'indexes'           => self::kv_to_name_col($schema['indexes'] ?? []),
@@ -104,66 +101,81 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
         ]);
 
         foreach ($schema['fields'] as $name => $opts) {
-            // TODO
-            // Convert old to new types
-            $type = $name === 'date'
-                  // Old date fields were stored as int, store as datetime/timestamp
-                  ? 'datetime'
-                  // For ints, prepend the size (smallint)
-                  // The size field doesn't exist otherwise
-                  :
-                  self::types[($opts['size'] ?? '') . $opts['type']];
+            if ($opts['type'] === 'foreign key') {
+                // See Doctrine\ORM\Mapping::associationMappings
 
-            $unique = null;
-            foreach ($schema['unique keys'] ?? [] as $key => $uniq_arr) {
-                if (in_array($name, $uniq_arr)) {
-                    $unique = $key;
+                // TODO still need to map nullability, comment, fk name and such, but
+                // the interface doesn't seem to support it currently
+                list($target_entity, $target_field) = explode('.', $opts['target']);
+                switch ($opts['multiplicity']) {
+                case 'one to one':
+                    $metadata->mapOneToOne([
+                        'fieldName'    => $name,
+                        'targetEntity' => $target_entity,
+                        'joinColumns'  => [[
+                            'name'                 => $name,
+                            'referencedColumnName' => $target_field,
+                        ]],
+                    ]);
                     break;
+                default:
+                    dd('Not yet implemented');
+                }
+            } else {
+                // Convert old to new types
+                // For ints, prepend the size (smallint)
+                // The size field doesn't exist otherwise
+                $type   = self::types[($opts['size'] ?? '') . $opts['type']];
+                $unique = null;
+                foreach ($schema['unique keys'] ?? [] as $key => $uniq_arr) {
+                    if (in_array($name, $uniq_arr)) {
+                        $unique = $key;
+                        break;
+                    }
+                }
+
+                $default = $opts['default'] ?? null;
+
+                $field = [
+                    // boolean, optional
+                    'id' => in_array($name, $schema['primary key']),
+                    // string
+                    'fieldName' => $name,
+                    // string
+                    'type' => $type,
+                    // string, optional
+                    'unique' => $unique,
+                    // String length, ignored if not a string
+                    // int, optional
+                    'length' => $opts['length'] ?? null,
+                    // boolean, optional
+                    'nullable' => !($opts['not null'] ?? false),
+                    // Numeric precision and scale, ignored if not a number
+                    // integer, optional
+                    'precision' => $opts['precision'] ?? null,
+                    // integer, optional
+                    'scale'   => $opts['scale'] ?? null,
+                    'options' => [
+                        'comment'  => $opts['description'] ?? null,
+                        'default'  => $default,
+                        'unsigned' => $opts['unsigned'] ?? null,
+                        // bool, optional
+                        'fixed' => $opts['type'] === 'char',
+                        // 'collation' => string, unused
+                        // 'check', unused
+                    ],
+                    // 'columnDefinition', unused
+                ];
+                // The optional feilds from earlier were populated with null, remove them
+                $field            = array_filter($field, F\not('is_null'));
+                $field['options'] = array_filter($field['options'], F\not('is_null'));
+
+                $metadata->mapField($field);
+                if ($opts['type'] === 'serial') {
+                    $metadata->setIdGeneratorType($metadata::GENERATOR_TYPE_AUTO);
                 }
             }
-
-            $default = $opts['default'] ?? null;
-
-            $field = [
-                // boolean, optional
-                'id' => in_array($name, $schema['primary key']),
-                // string
-                'fieldName' => $name,
-                // string
-                'type' => $type,
-                // stringn, optional
-                'unique' => $unique,
-                // String length, ignored if not a string
-                // int, optional
-                'length' => $opts['length'] ?? null,
-                // boolean, optional
-                'nullable' => !($opts['not null'] ?? false),
-                // Numeric precision and scale, ignored if not a number
-                // integer, optional
-                'precision' => $opts['precision'] ?? null,
-                // integer, optional
-                'scale'   => $opts['scale'] ?? null,
-                'options' => [
-                    'comment'  => $opts['description'] ?? null,
-                    'default'  => $default,
-                    'unsigned' => $opts['unsigned'] ?? null,
-                    // bool, optional
-                    'fixed' => $opts['type'] === 'char',
-                    // 'collation' => string, unused
-                    // 'check', unused
-                ],
-                // 'columnDefinition', unused
-            ];
-            // The optional feilds from earlier were populated with null, remove them
-            $field            = array_filter($field, F\not('is_null'));
-            $field['options'] = array_filter($field['options'], F\not('is_null'));
-
-            $metadata->mapField($field);
-            if ($opts['type'] === 'serial') {
-                $metadata->setIdGeneratorType($metadata::GENERATOR_TYPE_AUTO);
-            }
         }
-        // TODO foreign keys
     }
 
     /**
