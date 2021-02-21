@@ -44,6 +44,11 @@ foreach ($LC_CATEGORIES as $key => $name) {
     }
 }
 
+// Emulate if not available.
+if (!function_exists('gettext')) {
+    require_once('php-gettext/gettext.inc');
+}
+
 if (!function_exists('dpgettext')) {
     /**
      * Context-aware dgettext wrapper; use when messages in different contexts
