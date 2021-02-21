@@ -21,8 +21,8 @@
 define('INSTALLDIR', dirname(__DIR__));
 define('PUBLICDIR', INSTALLDIR . DIRECTORY_SEPARATOR . 'public');
 
-$shortoptions = 'y';
-$longoptions = array('yes');
+$shortoptions = 'y::a::f';
+$longoptions = ['yes', 'all', 'force'];
 
 $helptext = <<<END_OF_HELP
 clean_thumbnails.php [options]
@@ -30,6 +30,8 @@ Deletes all local thumbnails so they can be regenerated. Also deletes
 if the original File object does not exist, even for remote entries.
 
   -y --yes      do not wait for confirmation
+  -a --all      delete remote thumbnails
+  -f --force    delete even if we can't regenerate later
 
 Will print '.' for deleted local files and 'x' where File entry was missing.
 If the script seems to stop, it is processing correct File_thumbnail entries.
@@ -37,6 +39,8 @@ If the script seems to stop, it is processing correct File_thumbnail entries.
 END_OF_HELP;
 
 require_once INSTALLDIR.'/scripts/commandline.inc';
+
+$only_local = !have_option('a', 'all');
 
 if (!have_option('y', 'yes')) {
     print "About to delete locally generated thumbnails to allow regeneration. Are you sure? [y/N] ";
@@ -53,8 +57,17 @@ $thumbs->find();
 while ($thumbs->fetch()) {
     try {
         $file = $thumbs->getFile();
-        if ($file->isLocal()) {
-            // only delete properly linked thumbnails if they're local
+        $is_local = $file->isLocal();
+        if ($is_local || !$only_local) {
+            // only delete if we can regenerate it
+            if (!$is_local && !have_option('f', 'force')) {
+                try {
+                    $file->getPath();
+                } catch (Exception $e) {
+                    // We can't regenerate later if we don't have the original.
+                    continue;
+                }
+            }
             $thumbs->delete();
             print '.';
         }
