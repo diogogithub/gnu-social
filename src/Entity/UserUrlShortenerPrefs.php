@@ -119,17 +119,14 @@ class UserUrlShortenerPrefs extends Entity
         return [
             'name'   => 'user_url_shortener_prefs',
             'fields' => [
-                'user_id'                => ['type' => 'int', 'not null' => true, 'description' => 'user'],
-                'url_shortening_service' => ['type' => 'varchar', 'length' => 50, 'default' => 'internal', 'description' => 'service to use for auto-shortening URLs'],
-                'max_url_length'         => ['type' => 'int', 'not null' => true, 'description' => 'urls greater than this length will be shortened, 0 = always, -1 = never'],
-                'max_notice_length'      => ['type' => 'int', 'not null' => true, 'description' => 'notices with content greater than this value will have all urls shortened, 0 = always, -1 = only if notice text is longer than max allowed'],
-                'created'                => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'               => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'user_id'                => ['type' => 'int',       'foreign key' => true, 'target' => 'LocalUser.id', 'name' => 'user_urlshortener_prefs_user_id_fkey', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'user'],
+                'url_shortening_service' => ['type' => 'varchar',   'length' => 50,        'default' => 'internal',    'description' => 'service to use for auto-shortening URLs'],
+                'max_url_length'         => ['type' => 'int',       'not null' => true,    'description' => 'urls greater than this length will be shortened, 0 = always, -1 = never'],
+                'max_notice_length'      => ['type' => 'int',       'not null' => true,    'description' => 'notices with content greater than this value will have all urls shortened, 0 = always, -1 = only if notice text is longer than max allowed'],
+                'created'                => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'               => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['user_id'],
-            'foreign keys' => [
-                'user_urlshortener_prefs_user_id_fkey' => ['user', ['user_id' => 'id']],
-            ],
+            'primary key' => ['user_id'],
         ];
     }
 }

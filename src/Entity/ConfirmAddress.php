@@ -144,7 +144,7 @@ class ConfirmAddress extends Entity
             'name'   => 'confirm_address',
             'fields' => [
                 'code'          => ['type' => 'varchar',  'length' => 32, 'not null' => true, 'description' => 'good random code'],
-                'user_id'       => ['type' => 'int',      'default' => 0, 'description' => 'user who requested confirmation'],
+                'user_id'       => ['type' => 'int',      'foreign key' => true, 'target' => 'LocalUser.id', 'name' => 'confirm_address_user_id_fkey', 'multiplicity' => 'one to one', 'default' => 0, 'description' => 'user who requested confirmation'],
                 'address'       => ['type' => 'varchar',  'length' => 191, 'not null' => true, 'description' => 'address (email, xmpp, SMS, etc.)'],
                 'address_extra' => ['type' => 'varchar',  'length' => 191, 'description' => 'carrier ID, for SMS'],
                 'address_type'  => ['type' => 'varchar',  'length' => 8, 'not null' => true, 'description' => 'address type ("email", "xmpp", "sms")'],
@@ -152,10 +152,7 @@ class ConfirmAddress extends Entity
                 'sent'          => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this was sent for queueing'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['code'],
-            'foreign keys' => [
-                'confirm_address_user_id_fkey' => ['user', ['user_id' => 'id']],
-            ],
+            'primary key' => ['code'],
         ];
     }
 }

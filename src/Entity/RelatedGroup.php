@@ -84,15 +84,11 @@ class RelatedGroup extends Entity
             'name' => 'related_group',
             // @fixme description for related_group?
             'fields' => [
-                'group_id'         => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to user_group'],
-                'related_group_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to user_group'],
-                'created'          => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'group_id'         => ['type' => 'int',      'foreign key' => true, 'target' => 'Group.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to group'],
+                'related_group_id' => ['type' => 'int',      'foreign key' => true, 'target' => 'Group.id', 'mutiplicity' => 'one to one', 'type' => 'int', 'not null' => true, 'description' => 'foreign key to group'],
+                'created'          => ['type' => 'datetime', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
-            'primary key'  => ['group_id', 'related_group_id'],
-            'foreign keys' => [
-                'related_group_group_id_fkey'         => ['group', ['group_id' => 'id']],
-                'related_group_related_group_id_fkey' => ['group', ['related_group_id' => 'id']],
-            ],
+            'primary key' => ['group_id', 'related_group_id'],
         ];
     }
 }

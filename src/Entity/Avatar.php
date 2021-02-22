@@ -143,17 +143,13 @@ class Avatar extends Entity
         return [
             'name'   => 'avatar',
             'fields' => [
-                'gsactor_id' => ['type' => 'int',       'not null' => true, 'description' => 'foreign key to gsactor table'],
-                'file_id'    => ['type' => 'int',       'not null' => true, 'description' => 'foreign key to file table'],
+                'gsactor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'file_id'    => ['type' => 'int', 'foreign key' => true, 'target' => 'File.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to file table'],
                 'created'    => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
                 'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
-            'primary key'  => ['gsactor_id'],
-            'foreign keys' => [
-                'avatar_gsactor_id_fkey' => ['gsactor', ['gsactor_id' => 'id']],
-                'avatar_file_id_fkey'    => ['file', ['file_id' => 'id']],
-            ],
-            'indexes' => [
+            'primary key' => ['gsactor_id'],
+            'indexes'     => [
                 'avatar_file_id_idx' => ['file_id'],
             ],
         ];

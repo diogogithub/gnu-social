@@ -95,17 +95,13 @@ class GSActorTagFollow extends Entity
         return [
             'name'   => 'gsactor_tag_follow',
             'fields' => [
-                'gsactor_tag_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to gsactor_tag'],
-                'gsactor_id'     => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to gsactor table'],
-                'created'        => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'       => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'gsactor_tag' => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActorTag.tag', 'mutiplicity' => 'one to one', 'name' => 'gsactor_tag_follow_gsactor_tag_fkey', 'not null' => true, 'description' => 'foreign key to gsactor_tag'],
+                'gsactor_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'name' => 'gsactor_tag_follow_gsactor_id_fkey', 'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'created'     => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['gsactor_tag_id', 'gsactor_id'],
-            'foreign keys' => [
-                'gsactor_tag_follow_gsactor_list_id_fkey' => ['gsactor_list', ['gsactor_tag_id' => 'id']],
-                'gsactor_tag_follow_gsactor_id_fkey'      => ['gsactor', ['gsactor_id' => 'id']],
-            ],
-            'indexes' => [
+            'primary key' => ['gsactor_tag_id', 'gsactor_id'],
+            'indexes'     => [
                 'gsactor_tag_follow_gsactor_id_idx' => ['gsactor_id'],
                 'gsactor_tag_follow_created_idx'    => ['created'],
             ],

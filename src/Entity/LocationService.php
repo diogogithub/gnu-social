@@ -95,8 +95,8 @@ class LocationService extends Entity
         return [
             'name'   => 'location_service',
             'fields' => [
-                'id'          => ['type' => 'int', 'size' => 'tiny', 'not null' => true, 'description' => 'identifier for the location service'],
-                'description' => ['type' => 'varchar', 'length' => 191, 'description' => 'description of the service'],
+                'id'          => ['type' => 'int',       'size' => 'tiny', 'not null' => true, 'description' => 'identifier for the location service'],
+                'description' => ['type' => 'varchar',   'length' => 191, 'description' => 'description of the service'],
                 'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

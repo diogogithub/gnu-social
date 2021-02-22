@@ -36,7 +36,7 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class NoteHashtag extends Entity
+class NoteTag extends Entity
 {
     // {{{ Autocode
     private string $tag;
@@ -81,18 +81,15 @@ class NoteHashtag extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'note_hashtag',
+            'name'        => 'note_tag',
             'description' => 'Hash tags on notes',
             'fields'      => [
-                'tag'     => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this note'],
-                'note_id' => ['type' => 'int', 'not null' => true, 'description' => 'foreign key to tagged note'],
+                'tag'     => ['type' => 'varchar',  'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this note'],
+                'note_id' => ['type' => 'int',      'foreign key' => true, 'target' => 'Note.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to tagged note'],
                 'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['tag', 'note_id'],
-            'foreign keys' => [
-                'note_hashtag_note_id_fkey' => ['note', ['note_id' => 'id']],
-            ],
-            'indexes' => [
+            'primary key' => ['tag', 'note_id'],
+            'indexes'     => [
                 'note_tag_created_idx'             => ['created'],
                 'note_tag_note_id_idx'             => ['note_id'],
                 'note_tag_tag_created_note_id_idx' => ['tag', 'created', 'note_id'],

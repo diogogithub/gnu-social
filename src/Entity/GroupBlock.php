@@ -95,17 +95,12 @@ class GroupBlock extends Entity
         return [
             'name'   => 'group_block',
             'fields' => [
-                'group_id'        => ['type' => 'int', 'not null' => true, 'description' => 'group gsactor is blocked from'],
-                'blocked_gsactor' => ['type' => 'int', 'not null' => true, 'description' => 'gsactor that is blocked'],
-                'blocker_user'    => ['type' => 'int', 'not null' => true, 'description' => 'user making the block'],
+                'group_id'        => ['type' => 'int', 'foreign key' => true, 'target' => 'Group.id', 'mutiplicity' => 'many to one', 'not null' => true, 'description' => 'group gsactor is blocked from'],
+                'blocked_gsactor' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'gsactor that is blocked'],
+                'blocker_user'    => ['type' => 'int', 'foreign key' => true, 'target' => 'LocalUser.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'user making the block'],
                 'modified'        => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['group_id', 'blocked_gsactor'],
-            'foreign keys' => [
-                'group_block_group_id_fkey' => ['group', ['group_id' => 'id']],
-                'group_block_blocked_fkey'  => ['gsactor', ['blocked_gsactor' => 'id']],
-                'group_block_blocker_fkey'  => ['user', ['blocker_user' => 'id']],
-            ],
+            'primary key' => ['group_id', 'blocked_gsactor'],
         ];
     }
 }
