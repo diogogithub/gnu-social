@@ -81,17 +81,13 @@ class Favourite extends Entity
         return [
             'name'   => 'favourite',
             'fields' => [
-                'note_id'    => ['type' => 'int', 'not null' => true, 'description' => 'note that is the favorite of'],
-                'gsactor_id' => ['type' => 'int', 'not null' => true, 'description' => 'actor who favourited this note'],
+                'note_id'    => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'note that is the favorite of'],
+                'gsactor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'actor who favourited this note'],  // note: formerly referenced notice.id, but we can now record remote users' favorites
                 'created'    => ['type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'],
                 'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['note_id', 'gsactor_id'],
-            'foreign keys' => [
-                'fave_note_id_fkey'  => ['note', ['note_id' => 'id']],
-                'fave_actor_id_fkey' => ['gsactor', ['gsactor_id' => 'id']], // note: formerly referenced notice.id, but we can now record remote users' favorites
-            ],
-            'indexes' => [
+            'primary key' => ['note_id', 'gsactor_id'],
+            'indexes'     => [
                 'fave_note_id_idx'  => ['note_id'],
                 'fave_actor_id_idx' => ['gsactor_id', 'modified'],
                 'fave_modified_idx' => ['modified'],

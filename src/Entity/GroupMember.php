@@ -119,20 +119,16 @@ class GroupMember extends Entity
         return [
             'name'   => 'group_member',
             'fields' => [
-                'group_id'   => ['type' => 'int', 'not null' => true,  'description' => 'foreign key to group table'],
-                'gsactor_id' => ['type' => 'int', 'not null' => true,  'description' => 'foreign key to gsactor table'],
-                'is_admin'   => ['type' => 'bool', 'default' => false, 'description' => 'is this user an admin?'],
-                'uri'        => ['type' => 'varchar', 'length' => 191, 'description' => 'universal identifier'],
-                'created'    => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'group_id'   => ['type' => 'int',       'foreign key' => true, 'target' => 'Group.id', 'mutiplicity' => 'one to one', 'name' => 'group_member_group_id_fkey', 'not null' => true,  'description' => 'foreign key to group table'],
+                'gsactor_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'name' => 'group_member_gsactor_id_fkey', 'not null' => true,  'description' => 'foreign key to gsactor table'],
+                'is_admin'   => ['type' => 'bool',      'default' => false,    'description' => 'is this actor an admin?'],
+                'uri'        => ['type' => 'varchar',   'length' => 191,       'description' => 'universal identifier'],
+                'created'    => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'   => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['group_id', 'gsactor_id'],
             'unique keys' => [
                 'group_member_uri_key' => ['uri'],
-            ],
-            'foreign keys' => [
-                'group_member_group_id_fkey'   => ['group', ['group_id' => 'id']],
-                'group_member_gsactor_id_fkey' => ['gsactor', ['gsactor_id' => 'id']],
             ],
             'indexes' => [
                 'group_member_gsactor_id_idx'         => ['gsactor_id'],

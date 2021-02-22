@@ -108,18 +108,14 @@ class Notification extends Entity
             'name'        => 'notification',
             'description' => 'Activity notification for gsactors (that are not a mention and not result of a subscription)',
             'fields'      => [
-                'activity_id' => ['type' => 'int', 'not null' => true,  'description' => 'activity_id to give attention'],
-                'gsactor_id'  => ['type' => 'int', 'not null' => true,  'description' => 'gsactor_id for feed receiver'],
-                'reason'      => ['type' => 'varchar', 'length' => 191, 'description' => 'Optional reason why this was brought to the attention of gsactor_id'],
-                'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'activity_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Activity.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'activity_id to give attention'],
+                'gsactor_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id',  'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'gsactor_id for feed receiver'],
+                'reason'      => ['type' => 'varchar',   'length' => 191,       'description' => 'Optional reason why this was brought to the attention of gsactor_id'],
+                'created'     => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'    => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['activity_id', 'gsactor_id'],
-            'foreign keys' => [
-                'attention_activity_id_fkey' => ['activity', ['activity_id' => 'id']],
-                'attention_gsactor_id_fkey'  => ['gsactor', ['gsactor_id' => 'id']],
-            ],
-            'indexes' => [
+            'primary key' => ['activity_id', 'gsactor_id'],
+            'indexes'     => [
                 'attention_activity_id_idx' => ['activity_id'],
                 'attention_gsactor_id_idx'  => ['gsactor_id'],
             ],

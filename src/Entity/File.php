@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 namespace App\Entity;
@@ -40,6 +42,7 @@ use DateTimeInterface;
 class File extends Entity
 {
     // {{{ Autocode
+
     private int $id;
     private ?string $url;
     private ?string $url_hash;
@@ -224,16 +227,17 @@ class File extends Entity
         return [
             'name'   => 'file',
             'fields' => [
-                'id'               => ['type' => 'serial',   'not null' => true],
-                'url'              => ['type' => 'text',     'description' => 'URL after following possible redirections'],
-                'url_hash'         => ['type' => 'varchar',  'length' => 64,  'description' => 'sha256 of destination URL (url field)'],
-                'file_hash'        => ['type' => 'varchar',  'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
-                'actor_id'         => ['type' => 'int',      'description' => 'If set, used so each actor can have a version of this file (for avatars, for instance)'],
-                'mimetype'         => ['type' => 'varchar',  'length' => 50,  'description' => 'mime type of resource'],
-                'title'            => ['type' => 'text',     'description' => 'title of resource when available'],
-                'is_local'         => ['type' => 'bool',     'description' => 'whether the file is stored locally'],
-                'is_nsfw'          => ['type' => 'bool',     'default' => false, 'description' => 'whether the file is NSFW'],
-                'is_url_protected' => ['type' => 'bool',     'default' => false, 'description' => 'true when URL is private (needs login)'],
+                'id'               => ['type' => 'serial',    'not null' => true],
+                'url'              => ['type' => 'text',      'description' => 'URL after following possible redirections'],
+                'url_hash'         => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of destination URL (url field)'],
+                'file_hash'        => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
+                'gsactor_id'       => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'description' => 'If set, used so each actor can have a version of this file (for avatars, for instance)'],
+                'mimetype'         => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
+                'title'            => ['type' => 'text',      'description' => 'title of resource when available'],
+                'filename'         => ['type' => 'varchar',   'length' => 191, 'description' => 'title of resource when available'],
+                'is_local'         => ['type' => 'bool',      'description' => 'whether the file is stored locally'],
+                'is_nsfw'          => ['type' => 'bool',      'default' => false, 'description' => 'whether the file is NSFW'],
+                'is_url_protected' => ['type' => 'bool',      'default' => false, 'description' => 'true when URL is private (needs login)'],
                 'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],

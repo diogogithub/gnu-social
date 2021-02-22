@@ -95,9 +95,9 @@ class NoteSource extends Entity
         return [
             'name'   => 'note_source',
             'fields' => [
-                'code'     => ['type' => 'varchar', 'length' => 32, 'not null' => true, 'description' => 'code identifier'],
-                'name'     => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'name of the source'],
-                'url'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'url to link to'],
+                'code'     => ['type' => 'varchar',   'length' => 32,     'not null' => true, 'description' => 'code identifier'],
+                'name'     => ['type' => 'varchar',   'length' => 191,    'not null' => true, 'description' => 'name of the source'],
+                'url'      => ['type' => 'varchar',   'length' => 191,    'not null' => true, 'description' => 'url to link to'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['code'],

@@ -119,18 +119,15 @@ class NoteLocation extends Entity
         return [
             'name'   => 'activity_location',
             'fields' => [
-                'note_id'          => ['type' => 'int', 'not null' => true, 'description' => 'activity this refers to'],
-                'lat'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
-                'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
-                'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
-                'location_service' => ['type' => 'int', 'size' => 'tiny', 'description' => 'service used to retrieve location information'],
+                'note_id'          => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'name' => 'note_location_note_id_fkey', 'not null' => true, 'description' => 'activity this refers to'],
+                'lat'              => ['type' => 'numeric',   'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
+                'lon'              => ['type' => 'numeric',   'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
+                'location_id'      => ['type' => 'int',       'description' => 'location id if possible'],
+                'location_service' => ['type' => 'int',       'size' => 'tiny', 'description' => 'service used to retrieve location information'],
                 'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['note_id'],
-            'foreign keys' => [
-                'note_location_note_id_fkey' => ['note', ['note_id' => 'id']],
-            ],
-            'indexes' => [
+            'primary key' => ['note_id'],
+            'indexes'     => [
                 'note_location_location_id_idx' => ['location_id'],
             ],
         ];

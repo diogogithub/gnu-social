@@ -32,6 +32,8 @@ use DateTimeInterface;
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2010 StatusNet Inc.
  * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@hsal.es>
+ * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class Conversation extends Entity
@@ -94,12 +96,11 @@ class Conversation extends Entity
             'name'   => 'conversation',
             'fields' => [
                 'id'       => ['type' => 'serial',    'not null' => true, 'description' => 'Unique identifier'],
-                'note_id'  => ['type' => 'int',       'not null' => true, 'description' => 'Root of note for this conversation'],
+                'note_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'Root of note for this conversation'],
                 'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['id'],
-            'foreign keys' => ['conversation_note_id_fkey' => ['note', ['note_id' => 'id']]],
+            'primary key' => ['id'],
         ];
     }
 }
