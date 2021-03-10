@@ -42,14 +42,14 @@ use DateTimeInterface;
 class File extends Entity
 {
     // {{{ Autocode
-
     private int $id;
     private ?string $url;
     private ?string $url_hash;
     private ?string $file_hash;
-    private ?int $actor_id;
+    private ?int $gsactor_id;
     private ?string $mimetype;
     private ?string $title;
+    private ?string $filename;
     private ?bool $is_local;
     private ?bool $is_nsfw;
     private ?bool $is_url_protected;
@@ -99,15 +99,15 @@ class File extends Entity
         return $this->file_hash;
     }
 
-    public function setActorId(?int $actor_id): self
+    public function setGSActorId(?int $gsactor_id): self
     {
-        $this->actor_id = $actor_id;
+        $this->gsactor_id = $gsactor_id;
         return $this;
     }
 
-    public function getActorId(): ?int
+    public function getGSActorId(): ?int
     {
-        return $this->actor_id;
+        return $this->gsactor_id;
     }
 
     public function setMimetype(?string $mimetype): self
@@ -130,6 +130,17 @@ class File extends Entity
     public function getTitle(): ?string
     {
         return $this->title;
+    }
+
+    public function setFilename(?string $filename): self
+    {
+        $this->filename = $filename;
+        return $this;
+    }
+
+    public function getFilename(): ?string
+    {
+        return $this->filename;
     }
 
     public function setIsLocal(?bool $is_local): self
@@ -180,11 +191,6 @@ class File extends Entity
 
     const URLHASH_ALGO  = 'sha256';
     const FILEHASH_ALGO = 'sha256';
-
-    public function getFileName(): string
-    {
-        return $this->file_hash;
-    }
 
     /**
      * Delete this file and by default all the associated entities (avatar and/or thumbnails, which this owns)

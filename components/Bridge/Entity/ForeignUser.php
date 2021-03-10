@@ -38,7 +38,6 @@ use DateTimeInterface;
 class ForeignUser
 {
     // {{{ Autocode
-
     private int $id;
     private int $service;
     private string $uri;

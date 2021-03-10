@@ -39,20 +39,20 @@ use DateTimeInterface;
 class GSActorTagFollow extends Entity
 {
     // {{{ Autocode
-    private int $gsactor_tag_id;
+    private int $gsactor_tag;
     private int $gsactor_id;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
-    public function setGSActorTagId(int $gsactor_tag_id): self
+    public function setGSActorTag(int $gsactor_tag): self
     {
-        $this->gsactor_tag_id = $gsactor_tag_id;
+        $this->gsactor_tag = $gsactor_tag;
         return $this;
     }
 
-    public function getGSActorTagId(): int
+    public function getGSActorTag(): int
     {
-        return $this->gsactor_tag_id;
+        return $this->gsactor_tag;
     }
 
     public function setGSActorId(int $gsactor_id): self
