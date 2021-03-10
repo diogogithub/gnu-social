@@ -38,7 +38,6 @@ use DateTimeInterface;
 class ForeignService
 {
     // {{{ Autocode
-
     private int $id;
     private string $name;
     private ?string $description;

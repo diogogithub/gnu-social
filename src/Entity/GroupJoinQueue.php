@@ -20,7 +20,6 @@
 namespace App\Entity;
 
 use App\Core\Entity;
-use DateTimeInterface;
 
 /**
  * Entity for Queue on joining a group
@@ -41,7 +40,6 @@ class GroupJoinQueue extends Entity
     // {{{ Autocode
     private int $gsactor_id;
     private int $group_id;
-    private DateTimeInterface $created;
 
     public function setGSActorId(int $gsactor_id): self
     {
@@ -65,17 +63,6 @@ class GroupJoinQueue extends Entity
         return $this->group_id;
     }
 
-    public function setCreated(DateTimeInterface $created): self
-    {
-        $this->created = $created;
-        return $this;
-    }
-
-    public function getCreated(): DateTimeInterface
-    {
-        return $this->created;
-    }
-
     // }}} Autocode
 
     public static function schemaDef(): array
@@ -89,8 +76,8 @@ class GroupJoinQueue extends Entity
             ],
             'primary key' => ['gsactor_id', 'group_id'],
             'indexes'     => [
-                'group_join_queue_gsactor_id_created_idx' => ['gsactor_id', 'created'],
-                'group_join_queue_group_id_created_idx'   => ['group_id', 'created'],
+                'group_join_queue_gsactor_id_idx' => ['gsactor_id'],
+                'group_join_queue_group_id_idx'   => ['group_id'],
             ],
         ];
     }

@@ -44,7 +44,7 @@ class Activity extends Entity
     private string $object_type;
     private int $object_id;
     private bool $is_local;
-    private string $source;
+    private ?string $source;
     private DateTimeInterface $created;
 
     public function setId(int $id): self
@@ -113,13 +113,13 @@ class Activity extends Entity
         return $this->is_local;
     }
 
-    public function setSource(string $source): self
+    public function setSource(?string $source): self
     {
         $this->source = $source;
         return $this;
     }
 
-    public function getSource(): string
+    public function getSource(): ?string
     {
         return $this->source;
     }

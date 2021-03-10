@@ -38,7 +38,6 @@ use DateTimeInterface;
 class ForeignSubscription
 {
     // {{{ Autocode
-
     private int $service;
     private int $subscriber;
     private int $subscribed;
