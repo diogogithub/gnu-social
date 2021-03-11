@@ -95,8 +95,8 @@ class GSActorTag extends Entity
         return [
             'name'   => 'gsactor_tag',
             'fields' => [
-                'tagger'   => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'nmae' => 'gsactor_tag_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
-                'tagged'   => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'name' => 'gsactor_tag_tagged_fkey', 'not null' => true, 'description' => 'gsactor tagged'],
+                'tagger'   => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'nmae' => 'gsactor_tag_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
+                'tagged'   => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'name' => 'gsactor_tag_tagged_fkey', 'not null' => true, 'description' => 'gsactor tagged'],
                 'tag'      => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this notice'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

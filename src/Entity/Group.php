@@ -264,7 +264,7 @@ class Group extends Entity
             'name'   => '`group`',
             'fields' => [
                 'id'            => ['type' => 'serial',    'not null' => true],
-                'gsactor_id'    => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'many to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'gsactor_id'    => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
                 'nickname'      => ['type' => 'varchar',   'length' => 64, 'description' => 'nickname for addressing'],
                 'fullname'      => ['type' => 'varchar',   'length' => 191, 'description' => 'display name'],
                 'homepage'      => ['type' => 'varchar',   'length' => 191, 'description' => 'URL, cached so we dont regenerate'],

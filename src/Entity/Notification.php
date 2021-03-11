@@ -108,8 +108,8 @@ class Notification extends Entity
             'name'        => 'notification',
             'description' => 'Activity notification for gsactors (that are not a mention and not result of a subscription)',
             'fields'      => [
-                'activity_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Activity.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'activity_id to give attention'],
-                'gsactor_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id',  'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'gsactor_id for feed receiver'],
+                'activity_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Activity.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'activity_id to give attention'],
+                'gsactor_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id',  'multiplicity' => 'one to one', 'not null' => true, 'description' => 'gsactor_id for feed receiver'],
                 'reason'      => ['type' => 'varchar',   'length' => 191,       'description' => 'Optional reason why this was brought to the attention of gsactor_id'],
                 'created'     => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'    => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],

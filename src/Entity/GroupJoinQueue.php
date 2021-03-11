@@ -71,8 +71,8 @@ class GroupJoinQueue extends Entity
             'name'        => 'group_join_queue',
             'description' => 'Holder for group join requests awaiting moderation.',
             'fields'      => [
-                'gsactor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'many to many', 'name' => 'group_join_queue_gsactor_id_fkey', 'not null' => true, 'description' => 'remote or local gsactor making the request'],
-                'group_id'   => ['type' => 'int', 'foreign key' => true, 'target' => 'Group.id',   'mutiplicity' => 'one to one',   'name' => 'group_join_queue_group_id_fkey',   'not null' => true, 'description' => 'remote or local group to join, if any'],
+                'gsactor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'group_join_queue_gsactor_id_fkey', 'not null' => true, 'description' => 'remote or local gsactor making the request'],
+                'group_id'   => ['type' => 'int', 'foreign key' => true, 'target' => 'Group.id',   'multiplicity' => 'many to one',   'name' => 'group_join_queue_group_id_fkey',   'not null' => true, 'description' => 'remote or local group to join, if any'],
             ],
             'primary key' => ['gsactor_id', 'group_id'],
             'indexes'     => [

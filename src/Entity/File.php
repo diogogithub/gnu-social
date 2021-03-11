@@ -237,7 +237,7 @@ class File extends Entity
                 'url'              => ['type' => 'text',      'description' => 'URL after following possible redirections'],
                 'url_hash'         => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of destination URL (url field)'],
                 'file_hash'        => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
-                'gsactor_id'       => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'description' => 'If set, used so each actor can have a version of this file (for avatars, for instance)'],
+                'gsactor_id'       => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'description' => 'If set, used so each actor can have a version of this file (for avatars, for instance)'],
                 'mimetype'         => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
                 'title'            => ['type' => 'text',      'description' => 'title of resource when available'],
                 'filename'         => ['type' => 'varchar',   'length' => 191, 'description' => 'title of resource when available'],

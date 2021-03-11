@@ -83,8 +83,8 @@ class GSActorBlock extends Entity
         return [
             'name'   => 'gsactor_block',
             'fields' => [
-                'blocker'  => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'many to many', 'name' => 'gsactor_block_blocker_fkey', 'not null' => true, 'description' => 'user making the block'],
-                'blocked'  => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'many to many', 'name' => 'gsactor_block_blocked_fkey', 'not null' => true, 'description' => 'gsactor that is blocked'],
+                'blocker'  => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'gsactor_block_blocker_fkey', 'not null' => true, 'description' => 'user making the block'],
+                'blocked'  => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'gsactor_block_blocked_fkey', 'not null' => true, 'description' => 'gsactor that is blocked'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['blocker', 'blocked'],

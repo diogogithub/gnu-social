@@ -93,7 +93,7 @@ class UserLocationPrefs extends Entity
         return [
             'name'   => 'user_location_prefs',
             'fields' => [
-                'user_id'        => ['type' => 'int',       'foreign key' => true, 'target' => 'LocalUser.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'user who has the preference'],
+                'user_id'        => ['type' => 'int',       'foreign key' => true, 'target' => 'LocalUser.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'user who has the preference'],
                 'share_location' => ['type' => 'bool',      'default' => true, 'description' => 'Whether to share location data'],
                 'created'        => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'       => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],

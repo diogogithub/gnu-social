@@ -96,7 +96,7 @@ class Conversation extends Entity
             'name'   => 'conversation',
             'fields' => [
                 'id'       => ['type' => 'serial',    'not null' => true, 'description' => 'Unique identifier'],
-                'note_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'Root of note for this conversation'],
+                'note_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'Root of note for this conversation'],
                 'created'  => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
