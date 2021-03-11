@@ -119,7 +119,7 @@ class NoteLocation extends Entity
         return [
             'name'   => 'activity_location',
             'fields' => [
-                'note_id'          => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'name' => 'note_location_note_id_fkey', 'not null' => true, 'description' => 'activity this refers to'],
+                'note_id'          => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'name' => 'note_location_note_id_fkey', 'not null' => true, 'description' => 'activity this refers to'],
                 'lat'              => ['type' => 'numeric',   'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
                 'lon'              => ['type' => 'numeric',   'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
                 'location_id'      => ['type' => 'int',       'description' => 'location id if possible'],
