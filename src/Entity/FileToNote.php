@@ -83,8 +83,8 @@ class FileToNote extends Entity
         return [
             'name'   => 'file_to_note',
             'fields' => [
-                'file_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'File.id', 'mutiplicity' => 'one to one', 'name' => 'file_to_note_file_id_fkey', 'not null' => true, 'description' => 'id of file'],
-                'note_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'mutiplicity' => 'one to one', 'name' => 'file_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
+                'file_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'File.id', 'multiplicity' => 'one to one', 'name' => 'file_to_note_file_id_fkey', 'not null' => true, 'description' => 'id of file'],
+                'note_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'name' => 'file_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['file_id', 'note_id'],

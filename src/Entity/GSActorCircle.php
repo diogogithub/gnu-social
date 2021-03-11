@@ -129,22 +129,18 @@ class GSActorCircle extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'        => 'gsactor_list',
+            'name'        => 'gsactor_circle',
             'description' => 'a gsactor can have lists of gsactors, to separate their timeline',
             'fields'      => [
-                'id'          => ['type' => 'int',       'not null' => true, 'description' => 'unique identifier'],
-                'tagger'      => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'many to one', 'name' => 'gsactor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
-                'tag'         => ['type' => 'varchar',   'foreign key' => true, 'length' => 64, 'target' => 'GSActorTag.tag', 'mutiplicity' => 'many to many', 'not null' => true, 'description' => 'gsactor tag'], // Join with GSActorTag
+                'tagger'      => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'gsactor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
+                'tag'         => ['type' => 'varchar',   'foreign key' => true, 'length' => 64, 'target' => 'GSActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'gsactor tag'], // Join with GSActorTag
                 'description' => ['type' => 'text',      'description' => 'description of the people tag'],
                 'private'     => ['type' => 'bool',      'default' => false, 'description' => 'is this tag private'],
                 'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'    => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['tagger', 'tag'],
-            'unique keys' => [
-                'gsactor_list_id_key' => ['id'],
-            ],
-            'indexes' => [
+            'indexes'     => [
                 'gsactor_list_modified_idx'   => ['modified'],
                 'gsactor_list_tag_idx'        => ['tag'],
                 'gsactor_list_tagger_tag_idx' => ['tagger', 'tag'],

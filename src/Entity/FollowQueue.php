@@ -84,14 +84,14 @@ class FollowQueue extends Entity
             'name'        => 'follow_queue',
             'description' => 'Holder for Follow requests awaiting moderation.',
             'fields'      => [
-                'follower' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'many to many', 'name' => 'Follow_queue_follower_fkey', 'not null' => true, 'description' => 'gsactor making the request'],
-                'followed' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'many to many', 'name' => 'Follow_queue_followed_fkey', 'not null' => true, 'description' => 'gsactor being followed'],
+                'follower' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'Follow_queue_follower_fkey', 'not null' => true, 'description' => 'gsactor making the request'],
+                'followed' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'Follow_queue_followed_fkey', 'not null' => true, 'description' => 'gsactor being followed'],
                 'created'  => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key' => ['follower', 'followed'],
             'indexes'     => [
-                'Follow_queue_follower_created_idx' => ['follower', 'created'],
-                'Follow_queue_followed_created_idx' => ['followed', 'created'],
+                'follow_queue_follower_created_idx' => ['follower', 'created'],
+                'follow_queue_followed_created_idx' => ['followed', 'created'],
             ],
         ];
     }

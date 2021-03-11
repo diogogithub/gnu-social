@@ -85,7 +85,7 @@ class NoteTag extends Entity
             'description' => 'Hash tags on notes',
             'fields'      => [
                 'tag'     => ['type' => 'varchar',  'length' => 64, 'not null' => true, 'description' => 'hash tag associated with this note'],
-                'note_id' => ['type' => 'int',      'foreign key' => true, 'target' => 'Note.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to tagged note'],
+                'note_id' => ['type' => 'int',      'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to tagged note'],
                 'created' => ['type' => 'datetime', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['tag', 'note_id'],

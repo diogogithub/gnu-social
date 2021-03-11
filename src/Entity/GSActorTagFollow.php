@@ -95,8 +95,8 @@ class GSActorTagFollow extends Entity
         return [
             'name'   => 'gsactor_tag_follow',
             'fields' => [
-                'gsactor_tag' => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActorTag.tag', 'mutiplicity' => 'one to one', 'name' => 'gsactor_tag_follow_gsactor_tag_fkey', 'not null' => true, 'description' => 'foreign key to gsactor_tag'],
-                'gsactor_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'name' => 'gsactor_tag_follow_gsactor_id_fkey', 'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'gsactor_tag' => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActorTag.tag', 'multiplicity' => 'one to one', 'name' => 'gsactor_tag_follow_gsactor_tag_fkey', 'not null' => true, 'description' => 'foreign key to gsactor_tag'],
+                'gsactor_id'  => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'name' => 'gsactor_tag_follow_gsactor_id_fkey', 'not null' => true, 'description' => 'foreign key to gsactor table'],
                 'created'     => ['type' => 'datetime',  'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'    => ['type' => 'timestamp', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],

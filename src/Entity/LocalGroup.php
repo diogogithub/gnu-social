@@ -96,7 +96,7 @@ class LocalGroup extends Entity
             'name'        => 'local_group',
             'description' => 'Record for a user group on the local site, with some additional info not in user_group',
             'fields'      => [
-                'group_id' => ['type' => 'int',      'foreign key' => true, 'target' => 'Group.id', 'mutiplicity' => 'one to one', 'name' => 'local_group_group_id_fkey', 'not null' => true, 'description' => 'group represented'],
+                'group_id' => ['type' => 'int',      'foreign key' => true, 'target' => 'Group.id', 'multiplicity' => 'one to one', 'name' => 'local_group_group_id_fkey', 'not null' => true, 'description' => 'group represented'],
                 'nickname' => ['type' => 'varchar',  'length' => 64,        'description' => 'group represented'],
                 'created'  => ['type' => 'datetime', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified' => ['type' => 'datetime', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],

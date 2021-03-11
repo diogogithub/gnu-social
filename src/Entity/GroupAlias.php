@@ -84,7 +84,7 @@ class GroupAlias extends Entity
             'name'   => 'group_alias',
             'fields' => [
                 'alias'    => ['type' => 'varchar',   'length' => 64, 'not null' => true, 'description' => 'additional nickname for the group'],
-                'group_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Group.id', 'mutiplicity' => 'many to one', 'not null' => true, 'description' => 'group id which this is an alias of'],
+                'group_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Group.id', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'group id which this is an alias of'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['alias'],

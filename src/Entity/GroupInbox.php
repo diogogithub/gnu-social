@@ -84,8 +84,8 @@ class GroupInbox extends Entity
             'name'        => 'group_inbox',
             'description' => 'Many-many table listing activities posted to a given group, or which groups a given activity was posted to',
             'fields'      => [
-                'group_id'    => ['type' => 'int',      'foreign key' => true, 'target' => 'Group.id', 'mutiplicity' => 'one to one', 'name' => 'group_inbox_group_id_fkey', 'not null' => true, 'description' => 'group receiving the activity'],
-                'activity_id' => ['type' => 'int',      'foreign key' => true, 'target' => 'Activity.id', 'mutiplicity' => 'many to one', 'name' => 'group_inbox_activity_id_fkey', 'not null' => true, 'description' => 'activity received'],
+                'group_id'    => ['type' => 'int',      'foreign key' => true, 'target' => 'Group.id', 'multiplicity' => 'one to one', 'name' => 'group_inbox_group_id_fkey', 'not null' => true, 'description' => 'group receiving the activity'],
+                'activity_id' => ['type' => 'int',      'foreign key' => true, 'target' => 'Activity.id', 'multiplicity' => 'many to one', 'name' => 'group_inbox_activity_id_fkey', 'not null' => true, 'description' => 'activity received'],
                 'created'     => ['type' => 'datetime', 'not null' => true,    'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key' => ['group_id', 'activity_id'],

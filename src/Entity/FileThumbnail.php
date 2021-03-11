@@ -104,7 +104,7 @@ class FileThumbnail extends Entity
         return [
             'name'   => 'file_thumbnail',
             'fields' => [
-                'file_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'File.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what file'],
+                'file_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'File.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what file'],
                 'width'    => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
                 'height'   => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],

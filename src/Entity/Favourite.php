@@ -81,8 +81,8 @@ class Favourite extends Entity
         return [
             'name'   => 'favourite',
             'fields' => [
-                'note_id'    => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'note that is the favorite of'],
-                'gsactor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'not null' => true, 'description' => 'actor who favourited this note'],  // note: formerly referenced notice.id, but we can now record remote users' favorites
+                'note_id'    => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'note that is the favorite of'],
+                'gsactor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'actor who favourited this note'],  // note: formerly referenced notice.id, but we can now record remote users' favorites
                 'created'    => ['type' => 'datetime', 'not null' => true, 'description' => 'date this record was created'],
                 'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],

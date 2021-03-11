@@ -211,9 +211,9 @@ class UserNotificationPrefs extends Entity
         return [
             'name'   => 'user_notification_prefs',
             'fields' => [
-                'user_id'               => ['type' => 'int',       'foreign key' => true, 'target' => 'LocalUser.id', 'mutiplicity' => 'one to one', 'not null' => true],
+                'user_id'               => ['type' => 'int',       'foreign key' => true, 'target' => 'LocalUser.id', 'multiplicity' => 'one to one', 'not null' => true],
                 'transport'             => ['type' => 'varchar',   'length' => 191, 'not null' => true, 'description' => 'transport (ex email. xmpp, aim)'],
-                'target_gsactor_id'     => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'mutiplicity' => 'one to one', 'default' => null, 'description' => 'If not null, settings are specific only to a given gsactors'],
+                'target_gsactor_id'     => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'default' => null, 'description' => 'If not null, settings are specific only to a given gsactors'],
                 'activity_by_followed'  => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when a new activity by someone we follow is made'],
                 'mention'               => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when mentioned by someone we do not follow'],
                 'reply'                 => ['type' => 'bool',      'not null' => true, 'default' => true,  'description' => 'Notify when someone replies to a notice made by us'],
