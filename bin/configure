@@ -1,389 +1,414 @@
 #!/bin/sh
 
-ROOT="$(git rev-parse --show-toplevel)"
-HEIGHT=13
-WIDTH=51
-
-check_retval(){
-  case $1 in
-    1|255)
-      echo "Stopped"
-      exit;;
-  esac
-}
-
-check_input(){
-  if [ "$1" = "" ] 
-  then  
-    echo "Can't be empty" 
-    exit 
-  fi
-}
-
-exec 3>&1
-domain_root=$(dialog \
-  --title "Configure" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-  --inputbox "Domain root:" $HEIGHT $WIDTH \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
-check_input $domain_root
+# ------------ Find the root folder where social is installed --------------
+INSTALL_DIR="${PWD}"
+while true; do
+    if [ ! -f "${INSTALL_DIR}/social.yaml" ]; then
+        INSTALL_DIR="$(dirname "${INSTALL_DIR}")"
+    elif [ "${INSTALL_DIR}" = '/' ]; then
+        echo "The current folder and it's parents don't seem to contain a valid GNU social installation, exiting"
+        exit 1
+    else
+        break
+    fi
+done
+cd "${INSTALL_DIR}" || exit 1
+# --------------------------------------------------------------------------
 
 
-exec 3>&1
-sub_domain=$(dialog \
-  --title "Configure" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-  --inputbox "Subdomain (can be empty):" $HEIGHT $WIDTH \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
 
-exec 3>&1
-signed=$(dialog \
-  --title "Configure" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-  --menu "Use certificate signed by Let's Encrypt?" $HEIGHT $WIDTH 2 \
-    "Y" "" \
-    "n" "" \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
-
-[ "${signed}" = "${signed#[Yy]}" ]
-signed=$?
-
-
-if [ $signed -ne 0 ]; then
-  exec 3>&1
-  email=$(dialog \
-    --title "Configure" \
-    --clear \
-    --ok-label "Ok" \
-    --cancel-label "Exit" \
-    --inputbox "Email:" $HEIGHT $WIDTH \
-    2>&1 1>&3)
-  check_retval $?
-  exec 3>&-
-  check_input $email
-fi
-
-if [ -z "$sub_domain" ]
-then
-  domain="${domain_root}"
+# ------------ Check whether the system has whiptail or dialog -------------
+if command -v whiptail > /dev/null 2>&1; then
+    WHIPTAIL=whiptail
+elif command -v dialog > /dev/null 2>&1; then
+    WHIPTAIL=dialog
 else
-  domain="${sub_domain}.${domain_root}"
+    echo "whiptail/dialog are not available, can't proceed"
+    exit 1
 fi
 
-mkdir -p $ROOT/docker/bootstrap
+# whiptail/dialog exits with 1 when cancelling through the UI, or 255 on ^C
+validate_exit () {
+    case $1 in
+        1|255) printf "Canceling...\n" && exit 2 ;;
+    esac
+}
+# --------------------------------------------------------------------------
 
 
-cat > $ROOT/docker/bootstrap/bootstrap.env <<EOF
-#!/bin/sh
-email=${email}
-domain=${domain}
-domain_root=${domain_root}
-signed=${signed}
-EOF
+# TODO Add suport for other webservers
+# ------------ Pick which services to configure through docker-compose and which to configure externally --------------
+SERVICES=$(${WHIPTAIL} --title 'GNU social' --clear --backtitle 'GNU social' \
+                       --menu "\nWelcome to the GNU social configurator. This program will help configure your GNU social node.\n\n\
+Choose whether you prefer social to handle all the services it needs though docker,\nor if you'd rather use and configure your own:" 0 0 0 \
+                       docker 'Docker service configuration' \
+                       mixed 'Mixed docker/external service configuration' \
+                       external 'External service configuration' \
+                       3>&1 1>&2 2>&3)
+validate_exit $?
+case ${SERVICES} in
+    'docker') DOCKER='"nginx" "certbot" "php" "db" "redis" "mail"' ;;
+    'mixed')
+        DOCKER=$(${WHIPTAIL} --title 'GNU social Docker services' --clear --backtitle 'GNU social' \
+                             --checklist "\nPick which of the following services you'd like to add to docker-compose.\n* indicates a service that has extra configuration" 0 0 0 \
+                             nginx 'Configure NGINX' on \
+                             certbot "Configure CertBot (automatic certificate renewing)" on \
+                             php 'Configure PHP' on \
+                             db 'Configure a DBMS*' on \
+                             redis 'Configure Redis (optional, recommended)' on \
+                             mail 'Confugure a mail server*' on \
+                             3>&1 1>&2 2>&3)
+        validate_exit $?
+        ;;
+    'external') DOCKER='' ;;
+esac
+# --------------------------------------------------------------------------
 
-chmod +x ./docker/bootstrap/bootstrap.env
 
-docker-compose -f docker/bootstrap/bootstrap.yaml up
 
-git_dir=$PWD
-while [ ! -d .git ]; do
-    git_dir=$(dirname "${git_dir}")
+# ------------ If the user requested the use of docker services, ensure we have `docker` and `docker-compose` --------------
+case ${SERVICES} in
+    'mixed'|'docker')
+        if ! (command -v docker > /dev/null 2>&1 && command -v docker-compose > /dev/null 2>&1); then
+            echo "docker/docker-compose are not available, can't proceed"
+            exit 1
+        fi
+        ;;
+esac
+# --------------------------------------------------------------------------
+
+
+
+# ------------ Regarless of whether using a docker container for the DBMS or not, we need to know which we're using, and it's settings --------------
+DBMS=$(${WHIPTAIL} --title 'GNU social DBMS' --clear --backtitle 'GNU social' \
+                   --radiolist "\nPick which DBMS you'd like to use" 0 0 0 \
+                   postgres 'Use PostgreSQL' on \
+                   mariadb 'Use MariaDB' off \
+                   3>&1 1>&2 2>&3)
+validate_exit $?
+
+while true; do
+    DB_NAME=$(${WHIPTAIL} --title 'GNU social DB name' --clear --backtitle 'GNU social' \
+                          --inputbox "\nEnter a name for the database to be used by social" 0 0 "social" \
+                          3>&1 1>&2 2>&3)
+    validate_exit $?
+    if [ -n "${DB_NAME}" ]; then break; fi
 done
 
-cd "${git_dir}" || exit
+if [ "${DBMS}" = 'postgres' ]; then DB_USER="postgres"; else DB_USER="social"; fi
+while true; do
+    DB_USER=$(${WHIPTAIL} --title 'GNU social DB user' --clear --backtitle 'GNU social' \
+                          --inputbox "\nEnter a user name for social to connect to the database under" 0 0 "${DB_USER}" \
+                          3>&1 1>&2 2>&3)
+    validate_exit $?
+    if [ -n "${DB_USER}" ]; then break; fi
+done
 
-if [ ! -f ./docker/bootstrap/bootstrap.env ]; then
-   printf "bootstrap.env missing! Please run the bootstrap_certificates script.\n"
-   exit 1
+while true; do
+    DB_PASSWORD=$(${WHIPTAIL} --title 'GNU social DB password' --clear --backtitle 'GNU social' \
+                              --passwordbox "\nEnter a password for social to connect to the database with" 0 0 \
+                              3>&1 1>&2 2>&3)
+    validate_exit $?
+    if [ -n "${DB_PASSWORD}" ]; then break; fi
+done
+
+if [ "${DBMS}" = 'postgres' ]; then DB_DSN="postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}";
+else                                DB_DSN="mysql://${DB_USER}:${DB_PASSWORD}@db:3306/${DB_NAME}"; fi
+if echo "${DOCKER}" | grep -Fvq '"db"'; then
+    while true; do
+        DB_DSN=$(${WHIPTAIL} --title 'GNU social DB DSN' --clear --backtitle 'GNU social' \
+                             --inputbox "\nEnter the DSN/URL for social to connect to the database with" 0 0 \
+                             3>&1 1>&2 2>&3)
+        validate_exit $?
+        if [ -n "${DB_DSN}" ]; then break; fi
+    done
 fi
 
-. ./docker/bootstrap/bootstrap.env
-
-exec 3>&1
-dbms=$(dialog \
-  --title "Configure" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-  --menu "Select DBMS:" $HEIGHT $WIDTH 2 \
-    "postgres" "" \
-    "mariadb" "" \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
-
-exec 3>&1
-db=$(dialog \
-  --title "Configure" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-  --inputbox "GNU social database name:" $HEIGHT $WIDTH \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
-
-if [ "${dbms}" = 'mariadb' ] 
-then
-  exec 3>&1
-  user=$(dialog \
-    --title "Configure" \
-    --clear \
-    --ok-label "Ok" \
-    --cancel-label "Exit" \
-    --inputbox "Database user:" $HEIGHT $WIDTH \
-    2>&1 1>&3)
-  check_retval $?
-  exec 3>&-
-  check_input $user
+if [ "${DBMS}" != 'postgres' ] && echo "${DOCKER}" | grep -Fq '"db"'; then
+    while true; do
+        DB_ROOT_PASSWORD=$(${WHIPTAIL} --title 'GNU social DB root user password' --clear --backtitle 'GNU social' \
+                                       --passwordbox "\nEnter a password for the database root user" 0 0 \
+                                       3>&1 1>&2 2>&3)
+        validate_exit $?
+        if [ -n "${DB_ROOT_PASSWORD}" ]; then break; fi
+    done
 fi
+# --------------------------------------------------------------------------
 
 
-exec 3>&1
-password=$(dialog \
-  --title "Configure" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-  --inputbox "Database password:" $HEIGHT $WIDTH \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
-check_input $password
 
-exec 3>&1
-sitename=$(dialog \
-  --title "Configure" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-  --inputbox "Sitename:" $HEIGHT $WIDTH \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
-check_input $sitename
+# ------------------------ Network configuration ----------------------------
+while true; do
+    DOMAIN_ROOT=$(${WHIPTAIL} --title 'GNU social domain root' --clear --backtitle 'GNU social' \
+                              --inputbox "\nEnter the root domain from where social will be served" 0 0 \
+                              3>&1 1>&2 2>&3)
+    validate_exit $?
+    if [ -n "${DOMAIN_ROOT}" ]; then break; fi
+done
 
-exec 3>&1
-admin_nick=$(dialog \
-  --title "Configure" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-  --inputbox "Admin nickname:" $HEIGHT $WIDTH \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
-check_input $admin_nick
-
-exec 3>&1
-admin_password=$(dialog \
-  --title "Configure" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-  --inputbox "Admin password:" $HEIGHT $WIDTH \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
-check_input $admin_password
-
-exec 3>&1
-profile=$(dialog \
-  --title "Configure" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-  --menu "Site profile:" $HEIGHT $WIDTH 4 \
-    "public"  "" \
-    "private"  "" \
-    "community"  "" \
-    "single_user" "" \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
-
-exec 3>&1
-mailer_dsn=$(dialog \
-  --title "Configure" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-  --inputbox "Mailer dsn:" $HEIGHT $WIDTH \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
-check_input $mailer_dsn
-
-mkdir -p $ROOT/docker/db
-
-if [ "${dbms}" = 'mariadb' ]; then
-  exec 3>&1
-  db_root_password=$(dialog \
-    --title "Configure" \
-    --clear \
-    --ok-label "Ok" \
-    --cancel-label "Exit" \
-    --inputbox "DB root password" $HEIGHT $WIDTH \
-    2>&1 1>&3)
-  check_retval $?
-  exec 3>&-
-  check_input $db_root_password
-
-  cat > $ROOT/docker/db/db.env <<EOF
-DBMS=${dbms}
-MYSQL_ROOT_PASSWORD=${db_root_password}
-EOF
-
-    database_url="DATABASE_URL=mysql://${user}:${password}@db:3306/${db}"
-
+# Subdomain is optional
+SUBDOMAIN=$(${WHIPTAIL} --title 'GNU social subdomain' --clear --backtitle 'GNU social' \
+                        --inputbox "\nEnter the subdomain from where social will be served, if any" 0 0 \
+                        3>&1 1>&2 2>&3)
+validate_exit $?
+if [ -z "${SUBDOMAIN}" ]; then
+    DOMAIN="${DOMAIN_ROOT}"
 else
-    cat > $ROOT/docker/db/db.env <<EOF
-DBMS=${dbms}
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=${password}
-EOF
-
-    user='postgres'
-    database_url="DATABASE_URL=postgresql://${user}:${password}@db:5432/${db}"
-
+    DOMAIN="${SUBDOMAIN}.${DOMAIN_ROOT}"
 fi
 
-echo "${database_url}" >> .env.local
+${WHIPTAIL} --title "Use Let's Encrypt certificate?" --clear --backtitle 'GNU social' \
+            --yesno "\nDo you want to use a certificate signed by Let's Encrypt? A self signed certificate will be created, \
+as one is required, but you may provide your own" 0 0 \
+            3>&1 1>&2 2>&3
+LE_CERT=$((1-$?)) # Invert output
 
-mkdir -p $ROOT/docker/social
+if [ $LE_CERT -ne 0 ]; then
+    while true; do
+        EMAIL=$(${WHIPTAIL} --title 'GNU social admin email' --clear --backtitle 'GNU social' \
+                            --inputbox "\nEnter the email to register the admin user under" 0 0 \
+                            3>&1 1>&2 2>&3)
+        validate_exit $?
+        if [ -n "${EMAIL}" ]; then break; fi
+    done
+fi
 
-cat > $ROOT/docker/social/social.env <<EOF
-SOCIAL_DBMS="${dbms}"
-SOCIAL_DB="${db}"
-SOCIAL_USER="${user}"
-SOCIAL_PASSWORD="${password}"
-SOCIAL_DOMAIN="${domain}"
-SOCIAL_SITENAME="${sitename}"
-SOCIAL_ADMIN_NICK="${admin_nick}"
-SOCIAL_ADMIN_PASSWORD="${admin_password}"
-SOCIAL_ADMIN_EMAIL="${email}"
-SOCIAL_SITE_PROFILE="${profile}"
-MAILER_DSN="${mailer_dsn}"
+while true; do
+    NODE_NAME=$(${WHIPTAIL} --title 'GNU social node name' --clear --backtitle 'GNU social' \
+                            --inputbox "\nEnter the name for this GNU social node" 0 0 \
+                            3>&1 1>&2 2>&3)
+    validate_exit $?
+    if [ -n "${NODE_NAME}" ]; then break; fi
+done
+
+while true; do
+    NGINX_HTTP_PORT=$(${WHIPTAIL} --title 'GNU social HTTP port' --clear --backtitle 'GNU social' \
+                                  --inputbox "\nWhich port should NGINX use for HTTP traffic ('host:port' is also valid)" 0 0 "80" \
+                                  3>&1 1>&2 2>&3)
+    validate_exit $?
+    if [ -n "${NGINX_HTTP_PORT}" ]; then break; fi
+done
+
+while true; do
+    NGINX_HTTPS_PORT=$(${WHIPTAIL} --title 'GNU social HTTPS port' --clear --backtitle 'GNU social' \
+                                   --inputbox "\nWhich port should NGINX use for HTTPS traffic ('host:port' is also valid)" 0 0 "443" \
+                                   3>&1 1>&2 2>&3)
+    validate_exit $?
+    if [ -n "${NGINX_HTTPS_PORT}" ]; then break; fi
+done
+
+PHP_PORT=9000
+if echo "${DOCKER}" | grep -Fvq '"php"'; then
+    while true; do
+        PHP_PORT=$(${WHIPTAIL} --title 'GNU social PHP service port' --clear --backtitle 'GNU social' \
+                               --inputbox "\nWhich port should be used for PHP" 0 0 "9000" \
+                               3>&1 1>&2 2>&3)
+        validate_exit $?
+        if [ -n "${PHP_PORT}" ]; then break; fi
+    done
+fi
+# --------------------------------------------------------------------------
+
+
+
+PROFILE=$(${WHIPTAIL} --title 'GNU social site profile' --clear --backtitle 'GNU social' \
+                      --menu "\nPick one of the following node visibility presets:" 0 0 0 \
+                      public 'Make this node publicly accessible, with open registration' \
+                      community 'Make this node publicly accessible, but with invite-only registration' \
+                      isolated 'Make this node publicly accessible, with open registration but do not federate' \
+                      private 'Make this node publicly accessible, but with invite-only registration, only registered users can see timelines' \
+                      single_user 'Like public, but only allows registering one user' \
+                      3>&1 1>&2 2>&3)
+validate_exit $?
+
+
+
+# ------------ Mail server --------------
+if echo "${DOCKER}" | grep -Fq '"mail"'; then
+    while true; do
+        MAILER_DSN=$(${WHIPTAIL} --title 'GNU social mail server DSN' --clear --backtitle 'GNU social' \
+                                 --inputbox "\nEnter a DSN/URL social will use to connect to the mail server" 0 0 'sendmail://localhost' \
+                                 3>&1 1>&2 2>&3)
+        validate_exit $?
+        if [ -n "${MAILER_DSN}" ]; then break; fi
+    done
+fi
+
+if echo "${DOCKER}" | grep -Fvq '"mail"'; then
+    while true; do
+        MAIL_DOMAIN_ROOT=$(${WHIPTAIL} --title 'GNU social mail server domain' --clear --backtitle 'GNU social' \
+                                       --inputbox "\nEnter the root domain social will use to serve mail" 0 0 "${DOMAIN_ROOT}" \
+                                       3>&1 1>&2 2>&3)
+        validate_exit $?
+        if [ -n "${MAIL_DOMAIN_ROOT}" ]; then break; fi
+    done
+
+    MAIL_SUBDOMAIN=$(${WHIPTAIL} --title 'GNU social mail server subdomain' --clear --backtitle 'GNU social' \
+                                 --inputbox "\nEnter a subdomain social will send email from (optional, can be empty)" 0 0 \
+                                 3>&1 1>&2 2>&3)
+    validate_exit $?
+
+    while true; do
+        MAIL_SENDER_USER=$(${WHIPTAIL} --title 'GNU social mail sender user' --clear --backtitle 'GNU social' \
+                                       --inputbox "\nEnter the user emails should be sent from" 0 0 \
+                                       3>&1 1>&2 2>&3)
+        validate_exit $?
+        if [ -n "${MAIL_SENDER_USER}" ]; then break; fi
+    done
+
+    while true; do
+        MAIL_SENDER_NAME=$(${WHIPTAIL} --title 'GNU social mail sender name' --clear --backtitle 'GNU social' \
+                                       --inputbox "\nEnter the name emails should be sent from (name without @domain)" 0 0 \
+                                       3>&1 1>&2 2>&3)
+        validate_exit $?
+        if [ -n "${MAIL_SENDER_NAME}" ]; then break; fi
+    done
+
+    while true; do
+        MAIL_PASSWORD=$(${WHIPTAIL} --title 'GNU social mail password' --clear --backtitle 'GNU social' \
+                                    --passwordbox "\nEnter a password for the user in the mail server" 0 0 \
+                                    3>&1 1>&2 2>&3)
+        validate_exit $?
+        if [ -n "${MAIL_PASSWORD}" ]; then break; fi
+    done
+fi
+# --------------------------------------------------------------------------
+
+
+
+# --------------- Ensure we have the needed certificates -------------------
+mkdir -p "${INSTALL_DIR}/docker/bootstrap"
+cat > "${INSTALL_DIR}/docker/bootstrap/bootstrap.env" <<EOF
+#!/bin/sh
+DOMAIN="${DOMAIN}"
+DOMAIN_ROOT="${DOMAIN_ROOT}"
+SIGNED=${LE_CERT}
+EOF
+[ -n "${EMAIL}" ] && echo EMAIL="${EMAIL}" >> "${INSTALL_DIR}/docker/bootstrap/bootstrap.env"
+
+chmod +x ./docker/bootstrap/bootstrap.env
+docker-compose -f docker/bootstrap/bootstrap.yaml up
+validate_exit $?
+# --------------------------------------------------------------------------
+
+
+
+# ------------ Configure parameters for the creation of docker containers --------------
+mkdir -p "${INSTALL_DIR}/docker/db"
+if [ "${DBMS}" = 'postgres' ]; then
+    cat > "${INSTALL_DIR}/docker/db/db.env" <<EOF
+DBMS=${DBMS}
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=${DB_PASSWORD}
+EOF
+else
+    cat > "${INSTALL_DIR}/docker/db/db.env" <<EOF
+DBMS="${DBMS}"
+MYSQL_ROOT_PASSWORD="${DB_ROOT_PASSWORD}"
+MYSQL_DATABASE="${DB_NAME}"
+MYSQL_USER="${DB_USER}"
+MYSQL_PASSWORD="${DB_PASSWORD}"
+EOF
+fi
+
+touch .env.local
+sed -ri 's/DATABASE_URL=.*//' .env.local
+echo "DATABASE_URL=${DB_DSN}" >> .env.local
+sed -ri 's/MAILER_DSN=.*//' .env.local
+echo "MAILER_DSN=${MAILER_DSN}" >> .env.local
+
+mkdir -p "${INSTALL_DIR}/docker/social"
+cat > "${INSTALL_DIR}/docker/social/social.env" <<EOF
+SOCIAL_DBMS="${DBMS}"
+SOCIAL_DB="${DB_NAME}"
+SOCIAL_USER="${DB_USER}"
+SOCIAL_PASSWORD="${DB_PASSWORD}"
+SOCIAL_DOMAIN="${DOMAIN}"
+SOCIAL_SITENAME="${SITENAME}"
+SOCIAL_ADMIN_EMAIL="${EMAIL}"
+SOCIAL_SITE_PROFILE="${PROFILE}"
+MAILER_DSN="${MAILER_DSN}"
+EOF
+# --------------------------------------------------------------------------
+
+# TODO create admin user
+#SOCIAL_ADMIN_NICK="${ADMIN_NICK}"
+#SOCIAL_ADMIN_PASSWORD="${ADMIN_PASSWORD}"
+
+
+
+# --------------- Write mail configuration, and setup ----------------------
+mkdir -p "${INSTALL_DIR}/docker/mail"
+
+if [ -z "${MAIL_SUBDOMAIN}" ]; then
+    MAIL_DOMAIN="${MAIL_DOMAIN_ROOT}"
+else
+    MAIL_DOMAIN="${MAIL_SUBDOMAIN}.${MAIL_DOMAIN_ROOT}"
+fi
+
+
+cat > "${INSTALL_DIR}/docker/mail/mail.env" <<EOF
+MAIL_DOMAIN="${MAIL_DOMAIN}"
+MAIL_USER="${MAIL_SENDER_USER}"
+MAIL_NAME="${MAIL_SENDER_NAME}"
+MAIL="${MAIL_SENDER_USER}@${MAIL_DOMAIN}"
+SSL_CERT=/etc/letsencrypt/live/${MAIL_DOMAIN_ROOT}/fullchain.pem
+SSL_KEY=/etc/letsencrypt/live/${MAIL_DOMAIN_ROOT}/privkey.pem
 EOF
 
+HASHED_PASSWORD="{SHA512-CRYPT}"$(echo "${MAIL_PASSWORD}" | openssl passwd -6 -in -)
 
-exec 3>&1
-docker_compose=$(dialog \
-  --title "Services" \
-  --clear \
-  --ok-label "Ok" \
-  --cancel-label "Exit" \
-    --checklist "Services to include in docker-compose:" $HEIGHT $WIDTH 6 \
-    "nginx" "" on \
-    "certbot" "" on \
-    "php" "" on \
-    "db" "" on \
-    "redis" "" on \
-    "mail" "" on \
-  2>&1 1>&3)
-check_retval $?
-exec 3>&-
+# Config postfix
+sed -ri \
+    -e "s/^\s*myhostname\s*=.*/myhostname = ${MAILNAME}/" \
+    -e "s/^\s*mydomain\s*=.*/mydomain = ${DOMAINNAME}/" \
+    -e "s/^\s*smtpd_tls_cert_file\s*=.*/smtpd_tls_cert_file = ${SSL_CERT}/" \
+    -e "s/^\s*smtpd_tls_key_file\s*=.*/smtpd_tls_key_file = ${SSL_KEY}/" \
+    "${INSTALL_DIR}/docker/mail/config/postfix/main.cf"
 
-echo "version: '3.3'" > docker-compose.yaml
-echo "\nservices:" >> docker-compose.yaml
+# Config dovecot
+sed -ri \
+    -e "s/^\s*ssl_cert\s*=.*/ssl_cert = <${SSL_CERT}/" \
+    -e "s/^\s*ssl_key\s*=.*/ssl_key = <${SSL_KEY}/" \
+    -e "s/^\s*postmaster_address\s*=.*/postmaster_address = postmaster@${DOMAINNAME}/" \
+    "${INSTALL_DIR}/docker/mail/config/dovecot/dovecot.conf"
 
-case $docker_compose in *"nginx"*)
-  $ROOT/docker/social/nginx
-esac
+# Config dkim
+sed -i -e "s/^.*#HOSTNAME/${MAILNAME}#HOSTNAME/" "${INSTALL_DIR}/docker/mail/config/opendkim/TrustedHosts"
 
-case $docker_compose in *"certbot"*)
-  $ROOT/docker/social/certbot
-esac
+# Prepare mail user
+echo "${MAIL_DOMAIN_ROOT} #OK"                        > "${INSTALL_DIR}/docker/mail/config/domains"
+echo "${MAIL_USER} ${MAIL_USER}"                      > "${INSTALL_DIR}/docker/mail/config/aliases"
+echo "${MAIL_USER} ${MAIL_DOMAIN_ROOT}/${MAIL_USER}/" > "${INSTALL_DIR}/docker/mail/config/mailboxes"
+echo "${MAIL_USER}:${HASHED_PASSWORD}"                > "${INSTALL_DIR}/docker/mail/config/passwd"
+# --------------------------------------------------------------------------
 
-case $docker_compose in *"php"*)
-  $ROOT/docker/social/php
-esac
 
-case $docker_compose in *"db"*)
-  $ROOT/docker/social/db
-esac
 
-case $docker_compose in *"redis"*)
-  $ROOT/docker/social/redis
-esac
+# ------------------- Write docker-compose config file ---------------------
+cat > "${INSTALL_DIR}/docker-compose.yaml" <<EOF
+version: '3'
 
-case $docker_compose in *"mail"*)
-  $ROOT/docker/social/mail
-  exec 3>&1
-  mail_domain_root=$(dialog \
-    --title "Configure Mail" \
-    --clear \
-    --ok-label "Ok" \
-    --cancel-label "Exit" \
-    --inputbox "E-mail domain root:" $HEIGHT $WIDTH \
-    2>&1 1>&3)
-  check_retval $?
-  exec 3>&-
-  check_input $mail_domain_root
-
-  exec 3>&1
-  mail_subdomain=$(dialog \
-    --title "Configure Mail" \
-    --clear \
-    --ok-label "Ok" \
-    --cancel-label "Exit" \
-    --inputbox "E-mail subdomain (can be empty):" $HEIGHT $WIDTH \
-    2>&1 1>&3)
-  check_retval $?
-  exec 3>&-
-
-  exec 3>&1
-  mail_user=$(dialog \
-    --title "Configure Mail" \
-    --clear \
-    --ok-label "Ok" \
-    --cancel-label "Exit" \
-    --inputbox "E-mail user (name without @domain): " $HEIGHT $WIDTH \
-    2>&1 1>&3)
-  check_retval $?
-  exec 3>&-
-  check_input $mail_user
-
-  exec 3>&1
-  mail_pass=$(dialog \
-    --title "Configure Mail" \
-    --clear \
-    --ok-label "Ok" \
-    --cancel-label "Exit" \
-    --inputbox "E-mail user password: " $HEIGHT $WIDTH \
-    2>&1 1>&3)
-  check_retval $?
-  exec 3>&-
-  check_input $mail_pass
-  
-  mkdir -p $ROOT/docker/mail
-
-  cat > $ROOT/docker/mail/mail.env <<EOF
-  MAIL_DOMAIN_ROOT="${mail_domain_root}"
-  MAIL_SUBDOMAIN="${mail_subdomain}"
-  MAIL_USER="${mail_user}"
-  MAIL_PASSWORD="${mail_pass}"
+services:
 EOF
-  
-  $ROOT/docker/mail/setup.sh
 
-esac
+export DOCKER="${DOCKER}"
+export NGINX_HTTP_PORT="${NGINX_HTTP_PORT}"
+export NGINX_HTTPS_PORT="${NGINX_HTTPS_PORT}"
+export PHP_PORT="${PHP_PORT}"
+export DBMS="${DBMS}"
 
-echo "volumes:\n  database:" >> docker-compose.yaml
+for SERV in ${DOCKER}; do
+    SERV=$(echo "${SERV}" | sed -r 's/"([^"]*)"/\1/')
+    sh "${INSTALL_DIR}/docker/${SERV}/docker-compose.fragment.sh" >> "${INSTALL_DIR}/docker-compose.yaml"
+done
 
+if echo "${DOCKER}" | grep -Fq '"db"'; then
+    cat >> "${INSTALL_DIR}/docker-compose.yaml" <<EOF
+volumes:
+    database:
+EOF
+fi
+# --------------------------------------------------------------------------
 
-
-
-
+cd "${OLDPWD}" || exit 1

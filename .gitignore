@@ -29,8 +29,10 @@
 DOCUMENTATION/database/*
 !DOCUMENTATION/database/database.pdf
 
-docker/certbot
+docker/certbot/*
+!docker/certbot/docker-compose.fragment.sh
 docker/*/*.env
+docker/mail/config/*
 
 docker-compose.yaml
 composer.local.json

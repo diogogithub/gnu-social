@@ -3,8 +3,7 @@ FROM debian:buster-slim
 ENV DEBIAN_FRONTEND=noninteractive 
 
 # Install packages
-RUN \
-	apt-get update \
+RUN apt-get update \
 	&& apt-get upgrade -y \
 	&& apt-get install -y --no-install-recommends \
 		dovecot-core \
@@ -22,8 +21,7 @@ RUN \
 	&& apt-get autoremove
 
 # Setup folders and users
-RUN \
-	groupadd -g 2222 vmail \
+RUN groupadd -g 2222 vmail \
 	&& mkdir -p -m 751 "/var/mail/" \
 	&& mkdir -p -m 755 "/etc/mail/" \
 	&& mkdir -p "/var/opendkim/keys/" \
@@ -37,19 +35,17 @@ RUN \
 # Copy config files
 COPY rootfs/ /
 
-RUN \
-	chmod +x "/etc/service/postfix/run" \
+RUN chmod +x "/etc/service/postfix/run" \
 	&& chmod +x "/etc/service/dovecot/run" \
 	&& chmod +x "/etc/service/opendkim/run" \
 	&& chmod +x "/etc/service/rsyslog/run" \
 	&& chmod +x "/usr/bin/start.sh"
 
 # Prepare user
-RUN \
-	mkdir -p "/var/mail/${DOMAINNAME}" \
+RUN mkdir -p "/var/mail/${MAIL_DOMAIN}" \
 	&& mkdir -p "/var/mail/${DOMAINPART}/${USER%@*}" \
-	&& chown vmail:vmail "/var/mail/${DOMAINNAME}" \
-	&& chown vmail:vmail "/var/mail/${DOMAINPART}/${USER%@*}"
+	&& chown vmail:vmail "/var/mail/${MAIL_DOMAIN}" \
+	&& chown vmail:vmail "/var/mail/${MAIL_DOMAIN_ROOT}/${MAIL_USER%@*}"
 
 # Expose ports
 EXPOSE 25 110 143 587 993 995
