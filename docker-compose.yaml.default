@@ -1,0 +1,89 @@
+version: '3'
+
+services:
+    nginx:
+        image: nginx:alpine
+        depends_on:
+            - php
+        restart: always
+        tty: false
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            # Nginx
+            - ./docker/nginx/nginx.conf:/var/nginx/social.conf
+            - ./docker/nginx/domain.sh:/var/nginx/domain.sh
+            # Certbot
+            - ./docker/certbot/www:/var/www/certbot
+            - ./docker/certbot/.files:/etc/letsencrypt
+            # Social
+            - ./public:/var/www/social/public
+        env_file:
+            - ./docker/bootstrap/bootstrap.env
+            - ./docker/db/db.env
+        command: /bin/sh -c '/var/nginx/domain.sh;
+                             while :; do
+                                 sleep 6h & wait $${!};
+                                 nginx -s reload;
+                             done &
+                             nginx -g "daemon off;"'
+    certbot:
+        image: certbot/certbot
+        # Check for certificate renewal every 12h as
+        # recommended by Let's Encrypt
+        entrypoint: /bin/sh -c 'trap exit TERM;
+                                while :; do
+                                    certbot renew > /dev/null;
+                                    sleep 12h & wait 75845{!};
+                                done'
+        volumes:
+          - ./docker/certbot/www:/var/www/certbot
+          - ./docker/certbot/.files:/etc/letsencrypt
+    php:
+        build: docker/php
+        restart: always
+        tty: true
+        ports:
+            - 9000:9000
+        volumes:
+            # Entrypoint
+            - ./docker/php/entrypoint.sh:/entrypoint.sh
+            - ./docker/db/wait_for_db.sh:/wait_for_db.sh
+            - ./docker/social/install.sh:/var/entrypoint.d/social_install.sh
+            # Main files
+            - .:/var/www/social
+        env_file:
+            - ./docker/social/social.env
+            - ./docker/db/db.env
+        command: /entrypoint.sh
+    db:
+        image: mariadb
+        restart: always
+        tty: false
+        ports:
+            - 3306:3306
+        env_file:
+            - ./docker/db/db.env
+    redis:
+        image: redis:alpine
+        restart: always
+        tty: false
+        ports:
+            - 6379:6379
+    mail:
+        build: docker/mail
+        env_file:
+          - ./docker/mail/mail.env
+        ports:
+          - 25:25
+          - 110:110
+          - 143:143
+          - 587:587
+          - 993:993
+        volumes:
+          - ./docker/mail/mail:/var/mail
+          - ./docker/mail/config:/etc/mail
+          # Certbot
+          - ./docker/certbot/www:/var/www/certbot
+          - ./docker/certbot/.files:/etc/letsencrypt
