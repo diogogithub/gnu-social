@@ -12,7 +12,7 @@ lets_path="/etc/letsencrypt"
 
 echo "Starting bootstrap"
 
-if [ ! -e "$lets_path/live//options-ssl-nginx.conf" ] ||  [ ! -e "$lets_path/live/ssl-dhparams.pem" ];then
+if [ ! -e "${lets_path}/live/${DOMAIN}/options-ssl-nginx.conf" ] ||  [ ! -e "$lets_path/live/ssl-dhparams.pem" ];then
     echo "### Downloading recommended TLS parameters ..."
     mkdir -p "${lets_path}/live/${DOMAIN}"
 

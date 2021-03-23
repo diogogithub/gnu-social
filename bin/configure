@@ -280,8 +280,8 @@ fi
 mkdir -p "${INSTALL_DIR}/docker/bootstrap"
 cat > "${INSTALL_DIR}/docker/bootstrap/bootstrap.env" <<EOF
 #!/bin/sh
-DOMAIN="${DOMAIN}"
-DOMAIN_ROOT="${DOMAIN_ROOT}"
+DOMAIN=${DOMAIN}
+DOMAIN_ROOT=${DOMAIN_ROOT}
 SIGNED=${LE_CERT}
 EOF
 [ -n "${EMAIL}" ] && echo EMAIL="${EMAIL}" >> "${INSTALL_DIR}/docker/bootstrap/bootstrap.env"
@@ -303,11 +303,11 @@ POSTGRES_PASSWORD=${DB_PASSWORD}
 EOF
 else
     cat > "${INSTALL_DIR}/docker/db/db.env" <<EOF
-DBMS="${DBMS}"
-MYSQL_ROOT_PASSWORD="${DB_ROOT_PASSWORD}"
-MYSQL_DATABASE="${DB_NAME}"
-MYSQL_USER="${DB_USER}"
-MYSQL_PASSWORD="${DB_PASSWORD}"
+DBMS=${DBMS}
+MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+MYSQL_DATABASE=${DB_NAME}
+MYSQL_USER=${DB_USER}
+MYSQL_PASSWORD=${DB_PASSWORD}
 EOF
 fi
 
@@ -319,15 +319,15 @@ echo "MAILER_DSN=${MAILER_DSN}" >> .env.local
 
 mkdir -p "${INSTALL_DIR}/docker/social"
 cat > "${INSTALL_DIR}/docker/social/social.env" <<EOF
-SOCIAL_DBMS="${DBMS}"
-SOCIAL_DB="${DB_NAME}"
-SOCIAL_USER="${DB_USER}"
-SOCIAL_PASSWORD="${DB_PASSWORD}"
-SOCIAL_DOMAIN="${DOMAIN}"
-SOCIAL_SITENAME="${SITENAME}"
-SOCIAL_ADMIN_EMAIL="${EMAIL}"
-SOCIAL_SITE_PROFILE="${PROFILE}"
-MAILER_DSN="${MAILER_DSN}"
+SOCIAL_DBMS=${DBMS}
+SOCIAL_DB=${DB_NAME}
+SOCIAL_USER=${DB_USER}
+SOCIAL_PASSWORD=${DB_PASSWORD}
+SOCIAL_DOMAIN=${DOMAIN}
+SOCIAL_SITENAME=${SITENAME}
+SOCIAL_ADMIN_EMAIL=${EMAIL}
+SOCIAL_SITE_PROFILE=${PROFILE}
+MAILER_DSN=${MAILER_DSN}
 EOF
 # --------------------------------------------------------------------------
 
@@ -348,12 +348,12 @@ fi
 
 
 cat > "${INSTALL_DIR}/docker/mail/mail.env" <<EOF
-MAIL_DOMAIN="${MAIL_DOMAIN}"
-MAIL_USER="${MAIL_SENDER_USER}"
-MAIL_NAME="${MAIL_SENDER_NAME}"
-MAIL="${MAIL_SENDER_USER}@${MAIL_DOMAIN}"
-SSL_CERT=/etc/letsencrypt/live/${MAIL_DOMAIN_ROOT}/fullchain.pem
-SSL_KEY=/etc/letsencrypt/live/${MAIL_DOMAIN_ROOT}/privkey.pem
+MAIL_DOMAIN=${MAIL_DOMAIN}
+MAIL_USER=${MAIL_SENDER_USER}
+MAIL_NAME=${MAIL_SENDER_NAME}
+MAIL=${MAIL_SENDER_USER}@${MAIL_DOMAIN}
+SSL_CERT=/etc/letsencrypt/live/${MAIL_DOMAIN}/fullchain.pem
+SSL_KEY=/etc/letsencrypt/live/${MAIL_DOMAIN}/privkey.pem
 EOF
 
 HASHED_PASSWORD="{SHA512-CRYPT}"$(echo "${MAIL_PASSWORD}" | openssl passwd -6 -in -)
@@ -377,10 +377,10 @@ sed -ri \
 sed -i -e "s/^.*#HOSTNAME/${MAILNAME}#HOSTNAME/" "${INSTALL_DIR}/docker/mail/config/opendkim/TrustedHosts"
 
 # Prepare mail user
-echo "${MAIL_DOMAIN_ROOT} #OK"                        > "${INSTALL_DIR}/docker/mail/config/domains"
-echo "${MAIL_USER} ${MAIL_USER}"                      > "${INSTALL_DIR}/docker/mail/config/aliases"
-echo "${MAIL_USER} ${MAIL_DOMAIN_ROOT}/${MAIL_USER}/" > "${INSTALL_DIR}/docker/mail/config/mailboxes"
-echo "${MAIL_USER}:${HASHED_PASSWORD}"                > "${INSTALL_DIR}/docker/mail/config/passwd"
+echo "${MAIL_DOMAIN_ROOT} #OK"                   > "${INSTALL_DIR}/docker/mail/config/domains"
+echo "${MAIL_USER} ${MAIL_USER}"                 > "${INSTALL_DIR}/docker/mail/config/aliases"
+echo "${MAIL_USER} ${MAIL_DOMAIN}/${MAIL_USER}/" > "${INSTALL_DIR}/docker/mail/config/mailboxes"
+echo "${MAIL_USER}:${HASHED_PASSWORD}"           > "${INSTALL_DIR}/docker/mail/config/passwd"
 # --------------------------------------------------------------------------
 
 
