@@ -96,14 +96,15 @@ while true; do
 done
 
 if [ "${DBMS}" = 'postgres' ]; then DB_USER="postgres"; else DB_USER="social"; fi
-while true; do
-    DB_USER=$(${WHIPTAIL} --title 'GNU social DB user' --clear --backtitle 'GNU social' \
-                          --inputbox "\nEnter a user name for social to connect to the database under" 0 0 "${DB_USER}" \
-                          3>&1 1>&2 2>&3)
-    validate_exit $?
-    if [ -n "${DB_USER}" ]; then break; fi
-done
-
+if echo "${DOCKER}" | grep -Fvq '"db"'; then
+    while true; do
+        DB_USER=$(${WHIPTAIL} --title 'GNU social DB user' --clear --backtitle 'GNU social' \
+                              --inputbox "\nEnter a user name for social to connect to the database under" 0 0 "${DB_USER}" \
+                              3>&1 1>&2 2>&3)
+        validate_exit $?
+        if [ -n "${DB_USER}" ]; then break; fi
+    done
+fi
 while true; do
     DB_PASSWORD=$(${WHIPTAIL} --title 'GNU social DB password' --clear --backtitle 'GNU social' \
                               --passwordbox "\nEnter a password for social to connect to the database with" 0 0 \
@@ -224,17 +225,25 @@ validate_exit $?
 
 
 # ------------ Mail server --------------
-if echo "${DOCKER}" | grep -Fq '"mail"'; then
+MAILER_DSN='sendmail://localhost'
+if echo "${DOCKER}" | grep -Fvq '"mail"'; then
     while true; do
         MAILER_DSN=$(${WHIPTAIL} --title 'GNU social mail server DSN' --clear --backtitle 'GNU social' \
-                                 --inputbox "\nEnter a DSN/URL social will use to connect to the mail server" 0 0 'sendmail://localhost' \
+                                 --inputbox "\nEnter a DSN/URL social will use to connect to the mail server" 0 0 "${MAILER_DSN}" \
                                  3>&1 1>&2 2>&3)
         validate_exit $?
         if [ -n "${MAILER_DSN}" ]; then break; fi
     done
+    while true; do
+        MAIL_DOMAIN=$(${WHIPTAIL} --title 'GNU social mail server domain' --clear --backtitle 'GNU social' \
+                                  --inputbox "\nEnter the domain social will use to serve mail" 0 0 "${DOMAIN_ROOT}" \
+                                  3>&1 1>&2 2>&3)
+        validate_exit $?
+        if [ -n "${MAIL_DOMAIN}" ]; then break; fi
+    done
 fi
 
-if echo "${DOCKER}" | grep -Fvq '"mail"'; then
+if echo "${DOCKER}" | grep -Fq '"mail"'; then
     while true; do
         MAIL_DOMAIN_ROOT=$(${WHIPTAIL} --title 'GNU social mail server domain' --clear --backtitle 'GNU social' \
                                        --inputbox "\nEnter the root domain social will use to serve mail" 0 0 "${DOMAIN_ROOT}" \
@@ -256,7 +265,7 @@ if echo "${DOCKER}" | grep -Fvq '"mail"'; then
 
     while true; do
         MAIL_SENDER_USER=$(${WHIPTAIL} --title 'GNU social mail sender user' --clear --backtitle 'GNU social' \
-                                       --inputbox "\nEnter the user emails should be sent from" 0 0 \
+                                       --inputbox "\nEnter the user emails should be sent from (email without @domain)" 0 0 \
                                        3>&1 1>&2 2>&3)
         validate_exit $?
         if [ -n "${MAIL_SENDER_USER}" ]; then break; fi
@@ -264,7 +273,7 @@ if echo "${DOCKER}" | grep -Fvq '"mail"'; then
 
     while true; do
         MAIL_SENDER_NAME=$(${WHIPTAIL} --title 'GNU social mail sender name' --clear --backtitle 'GNU social' \
-                                       --inputbox "\nEnter the name emails should be sent from (name without @domain)" 0 0 \
+                                       --inputbox "\nEnter the name emails should be sent from" 0 0 "${NODE_NAME}" \
                                        3>&1 1>&2 2>&3)
         validate_exit $?
         if [ -n "${MAIL_SENDER_NAME}" ]; then break; fi
@@ -331,7 +340,7 @@ SOCIAL_DB=${DB_NAME}
 SOCIAL_USER=${DB_USER}
 SOCIAL_PASSWORD=${DB_PASSWORD}
 SOCIAL_DOMAIN=${DOMAIN}
-SOCIAL_SITENAME=${SITENAME}
+SOCIAL_NODE_NAME=${NODE_NAME}
 SOCIAL_ADMIN_EMAIL=${EMAIL}
 SOCIAL_SITE_PROFILE=${PROFILE}
 MAILER_DSN=${MAILER_DSN}
@@ -347,40 +356,18 @@ EOF
 # --------------- Write mail configuration, and setup ----------------------
 mkdir -p "${INSTALL_DIR}/docker/mail"
 
-cat > "${INSTALL_DIR}/docker/mail/mail.env" <<EOF
-MAIL_DOMAIN=${MAIL_DOMAIN}
-MAIL_USER=${MAIL_SENDER_USER}
-MAIL_NAME=${MAIL_SENDER_NAME}
-MAIL=${MAIL_SENDER_USER}@${MAIL_DOMAIN}
-SSL_CERT=/etc/letsencrypt/live/${MAIL_DOMAIN}/fullchain.pem
-SSL_KEY=/etc/letsencrypt/live/${MAIL_DOMAIN}/privkey.pem
-EOF
-
 HASHED_PASSWORD="{SHA512-CRYPT}"$(echo "${MAIL_PASSWORD}" | openssl passwd -6 -in -)
 
-# Config postfix
-sed -ri \
-    -e "s/^\s*myhostname\s*=.*/myhostname = ${MAILNAME}/" \
-    -e "s/^\s*mydomain\s*=.*/mydomain = ${DOMAINNAME}/" \
-    -e "s/^\s*smtpd_tls_cert_file\s*=.*/smtpd_tls_cert_file = ${SSL_CERT}/" \
-    -e "s/^\s*smtpd_tls_key_file\s*=.*/smtpd_tls_key_file = ${SSL_KEY}/" \
-    "${INSTALL_DIR}/docker/mail/config/postfix/main.cf"
-
-# Config dovecot
-sed -ri \
-    -e "s/^\s*ssl_cert\s*=.*/ssl_cert = <${SSL_CERT}/" \
-    -e "s/^\s*ssl_key\s*=.*/ssl_key = <${SSL_KEY}/" \
-    -e "s/^\s*postmaster_address\s*=.*/postmaster_address = postmaster@${DOMAINNAME}/" \
-    "${INSTALL_DIR}/docker/mail/config/dovecot/dovecot.conf"
-
-# Config dkim
-sed -i -e "s/^.*#HOSTNAME/${MAILNAME}#HOSTNAME/" "${INSTALL_DIR}/docker/mail/config/opendkim/TrustedHosts"
-
-# Prepare mail user
-echo "${MAIL_DOMAIN_ROOT} #OK"                   > "${INSTALL_DIR}/docker/mail/config/domains"
-echo "${MAIL_USER} ${MAIL_USER}"                 > "${INSTALL_DIR}/docker/mail/config/aliases"
-echo "${MAIL_USER} ${MAIL_DOMAIN}/${MAIL_USER}/" > "${INSTALL_DIR}/docker/mail/config/mailboxes"
-echo "${MAIL_USER}:${HASHED_PASSWORD}"           > "${INSTALL_DIR}/docker/mail/config/passwd"
+cat > "${INSTALL_DIR}/docker/mail/mail.env" <<EOF
+MAIL_DOMAIN=${MAIL_DOMAIN}
+MAIL_DOMAIN_ROOT=${MAIL_DOMAIN_ROOT}
+MAIL_USER=${MAIL_SENDER_USER}
+MAIL_NAME=${MAIL_SENDER_NAME}
+MAIL_ADDRESS=${MAIL_SENDER_USER}@${MAIL_DOMAIN}
+SSL_CERT=/etc/letsencrypt/live/${MAIL_DOMAIN}/fullchain.pem
+SSL_KEY=/etc/letsencrypt/live/${MAIL_DOMAIN}/privkey.pem
+HASHED_PASSWORD=${HASHED_PASSWORD}
+EOF
 # --------------------------------------------------------------------------
 
 

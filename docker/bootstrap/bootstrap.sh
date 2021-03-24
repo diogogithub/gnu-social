@@ -5,7 +5,7 @@
 
 . bootstrap.env
 
-sed -ri "s/%hostname%/${DOMAIN}/" /etc/nginx/conf.d/challenge.conf
+sed -ri "s/%hostname%/${MAIL_DOMAIN}/" /etc/nginx/conf.d/challenge.conf
 
 nginx
 

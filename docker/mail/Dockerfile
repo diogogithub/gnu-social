@@ -1,54 +1,12 @@
-FROM debian:buster-slim
+FROM alpine
 
-ENV DEBIAN_FRONTEND=noninteractive 
-
-# Install packages
-RUN apt-get update \
-	&& apt-get upgrade -y \
-	&& apt-get install -y --no-install-recommends \
-		dovecot-core \
-		dovecot-imapd \
-		dovecot-lmtpd \
-		dovecot-pop3d \
-		opendkim \
-		opendkim-tools \
-		openssl \
-		postfix \
-		procps \
-		rsyslog \
-		s6 \
-	&& apt-get autoclean \
-	&& apt-get autoremove
-
-# Setup folders and users
-RUN groupadd -g 2222 vmail \
-	&& mkdir -p -m 751 "/var/mail/" \
-	&& mkdir -p -m 755 "/etc/mail/" \
-	&& mkdir -p "/var/opendkim/keys/" \
-	&& useradd -d "/var/mail" -M -s "/usr/sbin/nologin" -u 2222 -g 2222 vmail \
-	&& usermod -aG vmail postfix \
-	&& usermod -aG vmail dovecot \
-	&& usermod -aG vmail opendkim \
-	&& chown vmail:vmail "/var/mail" \
-	&& chown opendkim:opendkim "/var/opendkim/keys/"
-
-# Copy config files
-COPY rootfs/ /
-
-RUN chmod +x "/etc/service/postfix/run" \
-	&& chmod +x "/etc/service/dovecot/run" \
-	&& chmod +x "/etc/service/opendkim/run" \
-	&& chmod +x "/etc/service/rsyslog/run" \
-	&& chmod +x "/usr/bin/start.sh"
-
-# Prepare user
-RUN mkdir -p "/var/mail/${MAIL_DOMAIN}" \
-	&& mkdir -p "/var/mail/${DOMAINPART}/${USER%@*}" \
-	&& chown vmail:vmail "/var/mail/${MAIL_DOMAIN}" \
-	&& chown vmail:vmail "/var/mail/${MAIL_DOMAIN_ROOT}/${MAIL_USER%@*}"
+RUN apk update && apk add postfix dovecot dovecot-pop3d opendkim s6
 
 # Expose ports
 EXPOSE 25 110 143 587 993 995
 
+# Fixes problem with s6 (s6 claims it's a docker bug)
+VOLUME ["/run"]
+
 # Run start script
-ENTRYPOINT /usr/bin/start.sh
+ENTRYPOINT /usr/bin/entrypoint.sh

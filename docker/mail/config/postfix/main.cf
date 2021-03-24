@@ -1,19 +1,39 @@
 ## STANDARD POSTFIX CONFIG PARAMS ###
 
+myhostname = %hostname%
+mydomain = %domain_root%
+myorigin = $myhostname
+mydestination = $myhostname, localhost.$mydomain, localhost
+# Intentianally blank
+relayhost =
+alias_maps = hash:/etc/mail/postfix/aliases
+alias_database = hash:/etc/mail/postfix/aliases
+
+smtpd_tls_cert_file = %cert_file%
+smtpd_tls_key_file = %key_file%
+smtpd_use_tls=yes
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+smtpd_tls_security_level=may
+#SSLv2 and SSLv3 are obsolete
+smtpd_tls_protocols = !SSLv2, !SSLv3
+smtp_tls_security_level = may
+smtp_tls_protocols = !SSLv2, !SSLv3
+smtp_tls_exclude_ciphers = EXPORT, LOW
+smtpd_tls_loglevel = 1
+smtpd_tls_session_cache_timeout = 3600s
+
+local_recipient_maps = proxy:unix:passwd.byname $alias_maps
+
 queue_directory = /var/spool/postfix
 command_directory = /usr/sbin
 daemon_directory = /usr/lib/postfix/sbin
 data_directory = /var/lib/postfix
 mail_owner = postfix
-myhostname = 
-mydomain = 
-myorigin = $myhostname
 inet_interfaces = all
 inet_protocols = all
-mydestination = $myhostname, localhost.$mydomain, localhost
 unknown_local_recipient_reject_code = 550
 mynetworks = 127.0.0.0/8, [::1]/128
-alias_maps = hash:/etc/mail/postfix/aliases
 
 mailbox_command = /usr/lib/dovecot/deliver
   
@@ -30,10 +50,6 @@ manpage_directory = /usr/share/man
 sample_directory = /usr/share/doc/postfix-2.10.1/samples
 readme_directory = /usr/share/doc/postfix-2.10.1/README_FILES
 
-smtp_tls_security_level = may
-smtp_tls_loglevel = 1
-smtp_tls_protocols = !SSLv2
-smtp_tls_exclude_ciphers = EXPORT, LOW
 
 ### VIRTUAL MAIL CONFIG PARAMS ###
 relay_domains = *
@@ -63,12 +79,7 @@ smtpd_sasl_local_domain = $mydomain
 broken_sasl_auth_clients = yes
 
 smtpd_tls_security_level = may
-smtpd_tls_key_file = 
-smtpd_tls_cert_file = 
-smtpd_tls_loglevel = 1
-smtpd_tls_session_cache_timeout = 3600s
-smtpd_tls_session_cache_database = btree:/var/lib/postfix/smtpd_tls_cache
-smtpd_tls_protocols = $smtp_tls_protocols
+
 tls_random_source = dev:/dev/urandom
 tls_random_exchange_name = /var/lib/postfix/prng_exch
 smtpd_tls_auth_only = yes

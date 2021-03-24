@@ -12,8 +12,12 @@ cat <<EOF
           - 587:587
           - 993:993
         volumes:
+          - ./docker/mail/etc:/etc
+          - ./docker/mail/entrypoint.sh:/usr/bin/entrypoint.sh
           - ./docker/mail/mail:/var/mail
           - ./docker/mail/config:/etc/mail
+          - ./docker/mail/config/postfix:/etc/postfix
+          - ./docker/mail/config/dovecot:/etc/dovecot
           # Certbot
           - ./docker/certbot/www:/var/www/certbot
           - ./docker/certbot/.files:/etc/letsencrypt
