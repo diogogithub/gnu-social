@@ -248,6 +248,12 @@ if echo "${DOCKER}" | grep -Fvq '"mail"'; then
                                  3>&1 1>&2 2>&3)
     validate_exit $?
 
+    if [ -z "${MAIL_SUBDOMAIN}" ]; then
+        MAIL_DOMAIN="${MAIL_DOMAIN_ROOT}"
+    else
+        MAIL_DOMAIN="${MAIL_SUBDOMAIN}.${MAIL_DOMAIN_ROOT}"
+    fi
+
     while true; do
         MAIL_SENDER_USER=$(${WHIPTAIL} --title 'GNU social mail sender user' --clear --backtitle 'GNU social' \
                                        --inputbox "\nEnter the user emails should be sent from" 0 0 \
@@ -280,8 +286,9 @@ fi
 mkdir -p "${INSTALL_DIR}/docker/bootstrap"
 cat > "${INSTALL_DIR}/docker/bootstrap/bootstrap.env" <<EOF
 #!/bin/sh
-DOMAIN=${DOMAIN}
 DOMAIN_ROOT=${DOMAIN_ROOT}
+WEB_DOMAIN=${DOMAIN}
+MAIL_DOMAIN=${MAIL_DOMAIN}
 SIGNED=${LE_CERT}
 EOF
 [ -n "${EMAIL}" ] && echo EMAIL="${EMAIL}" >> "${INSTALL_DIR}/docker/bootstrap/bootstrap.env"
@@ -339,13 +346,6 @@ EOF
 
 # --------------- Write mail configuration, and setup ----------------------
 mkdir -p "${INSTALL_DIR}/docker/mail"
-
-if [ -z "${MAIL_SUBDOMAIN}" ]; then
-    MAIL_DOMAIN="${MAIL_DOMAIN_ROOT}"
-else
-    MAIL_DOMAIN="${MAIL_SUBDOMAIN}.${MAIL_DOMAIN_ROOT}"
-fi
-
 
 cat > "${INSTALL_DIR}/docker/mail/mail.env" <<EOF
 MAIL_DOMAIN=${MAIL_DOMAIN}
