@@ -29,10 +29,19 @@
 DOCUMENTATION/database/*
 !DOCUMENTATION/database/database.pdf
 
-docker/certbot/*
-!docker/certbot/docker-compose.fragment.sh
+docker/certbot/.files
+docker/certbot/www
 docker/*/*.env
-docker/mail/config/*
+
+docker/mail/etc/hostname
+docker/mail/etc/hosts
+docker/mail/etc/resolv.conf
+docker/mail/config/aliases.db
+docker/mail/config/domains.db
+docker/mail/config/mailboxes.db
+docker/mail/config/passwd.db
+docker/mail/etc/service/*
+!docker/mail/etc/service/*/run
 
 docker-compose.yaml
 composer.local.json

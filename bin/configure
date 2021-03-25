@@ -47,7 +47,7 @@ Choose whether you prefer social to handle all the services it needs though dock
                        3>&1 1>&2 2>&3)
 validate_exit $?
 case ${SERVICES} in
-    'docker') DOCKER='"nginx" "certbot" "php" "db" "redis" "mail"' ;;
+    'docker') DOCKER='"nginx" "certbot" "php" "db" "redis"' ;; # TODO enable and configure "mail"
     'mixed')
         DOCKER=$(${WHIPTAIL} --title 'GNU social Docker services' --clear --backtitle 'GNU social' \
                              --checklist "\nPick which of the following services you'd like to add to docker-compose.\n* indicates a service that has extra configuration" 0 0 0 \
@@ -226,66 +226,68 @@ validate_exit $?
 
 # ------------ Mail server --------------
 MAILER_DSN='sendmail://localhost'
-if echo "${DOCKER}" | grep -Fvq '"mail"'; then
-    while true; do
-        MAILER_DSN=$(${WHIPTAIL} --title 'GNU social mail server DSN' --clear --backtitle 'GNU social' \
-                                 --inputbox "\nEnter a DSN/URL social will use to connect to the mail server" 0 0 "${MAILER_DSN}" \
-                                 3>&1 1>&2 2>&3)
-        validate_exit $?
-        if [ -n "${MAILER_DSN}" ]; then break; fi
-    done
-    while true; do
-        MAIL_DOMAIN=$(${WHIPTAIL} --title 'GNU social mail server domain' --clear --backtitle 'GNU social' \
-                                  --inputbox "\nEnter the domain social will use to serve mail" 0 0 "${DOMAIN_ROOT}" \
-                                  3>&1 1>&2 2>&3)
-        validate_exit $?
-        if [ -n "${MAIL_DOMAIN}" ]; then break; fi
-    done
-fi
-
-if echo "${DOCKER}" | grep -Fq '"mail"'; then
-    while true; do
-        MAIL_DOMAIN_ROOT=$(${WHIPTAIL} --title 'GNU social mail server domain' --clear --backtitle 'GNU social' \
-                                       --inputbox "\nEnter the root domain social will use to serve mail" 0 0 "${DOMAIN_ROOT}" \
-                                       3>&1 1>&2 2>&3)
-        validate_exit $?
-        if [ -n "${MAIL_DOMAIN_ROOT}" ]; then break; fi
-    done
-
-    MAIL_SUBDOMAIN=$(${WHIPTAIL} --title 'GNU social mail server subdomain' --clear --backtitle 'GNU social' \
-                                 --inputbox "\nEnter a subdomain social will send email from (optional, can be empty)" 0 0 \
-                                 3>&1 1>&2 2>&3)
-    validate_exit $?
-
-    if [ -z "${MAIL_SUBDOMAIN}" ]; then
-        MAIL_DOMAIN="${MAIL_DOMAIN_ROOT}"
-    else
-        MAIL_DOMAIN="${MAIL_SUBDOMAIN}.${MAIL_DOMAIN_ROOT}"
+if false; then
+    if echo "${DOCKER}" | grep -Fvq '"mail"'; then
+        while true; do
+            MAILER_DSN=$(${WHIPTAIL} --title 'GNU social mail server DSN' --clear --backtitle 'GNU social' \
+                                     --inputbox "\nEnter a DSN/URL social will use to connect to the mail server" 0 0 "${MAILER_DSN}" \
+                                     3>&1 1>&2 2>&3)
+            validate_exit $?
+            if [ -n "${MAILER_DSN}" ]; then break; fi
+        done
+        while true; do
+            MAIL_DOMAIN=$(${WHIPTAIL} --title 'GNU social mail server domain' --clear --backtitle 'GNU social' \
+                                      --inputbox "\nEnter the domain social will use to serve mail" 0 0 "${DOMAIN_ROOT}" \
+                                      3>&1 1>&2 2>&3)
+            validate_exit $?
+            if [ -n "${MAIL_DOMAIN}" ]; then break; fi
+        done
     fi
 
-    while true; do
-        MAIL_SENDER_USER=$(${WHIPTAIL} --title 'GNU social mail sender user' --clear --backtitle 'GNU social' \
-                                       --inputbox "\nEnter the user emails should be sent from (email without @domain)" 0 0 \
-                                       3>&1 1>&2 2>&3)
-        validate_exit $?
-        if [ -n "${MAIL_SENDER_USER}" ]; then break; fi
-    done
+    if echo "${DOCKER}" | grep -Fq '"mail"'; then
+        while true; do
+            MAIL_DOMAIN_ROOT=$(${WHIPTAIL} --title 'GNU social mail server domain' --clear --backtitle 'GNU social' \
+                                           --inputbox "\nEnter the root domain social will use to serve mail" 0 0 "${DOMAIN_ROOT}" \
+                                           3>&1 1>&2 2>&3)
+            validate_exit $?
+            if [ -n "${MAIL_DOMAIN_ROOT}" ]; then break; fi
+        done
 
-    while true; do
-        MAIL_SENDER_NAME=$(${WHIPTAIL} --title 'GNU social mail sender name' --clear --backtitle 'GNU social' \
-                                       --inputbox "\nEnter the name emails should be sent from" 0 0 "${NODE_NAME}" \
-                                       3>&1 1>&2 2>&3)
+        MAIL_SUBDOMAIN=$(${WHIPTAIL} --title 'GNU social mail server subdomain' --clear --backtitle 'GNU social' \
+                                     --inputbox "\nEnter a subdomain social will send email from (optional, can be empty)" 0 0 \
+                                     3>&1 1>&2 2>&3)
         validate_exit $?
-        if [ -n "${MAIL_SENDER_NAME}" ]; then break; fi
-    done
 
-    while true; do
-        MAIL_PASSWORD=$(${WHIPTAIL} --title 'GNU social mail password' --clear --backtitle 'GNU social' \
-                                    --passwordbox "\nEnter a password for the user in the mail server" 0 0 \
-                                    3>&1 1>&2 2>&3)
-        validate_exit $?
-        if [ -n "${MAIL_PASSWORD}" ]; then break; fi
-    done
+        if [ -z "${MAIL_SUBDOMAIN}" ]; then
+            MAIL_DOMAIN="${MAIL_DOMAIN_ROOT}"
+        else
+            MAIL_DOMAIN="${MAIL_SUBDOMAIN}.${MAIL_DOMAIN_ROOT}"
+        fi
+
+        while true; do
+            MAIL_SENDER_USER=$(${WHIPTAIL} --title 'GNU social mail sender user' --clear --backtitle 'GNU social' \
+                                           --inputbox "\nEnter the user emails should be sent from (email without @domain)" 0 0 \
+                                           3>&1 1>&2 2>&3)
+            validate_exit $?
+            if [ -n "${MAIL_SENDER_USER}" ]; then break; fi
+        done
+
+        while true; do
+            MAIL_SENDER_NAME=$(${WHIPTAIL} --title 'GNU social mail sender name' --clear --backtitle 'GNU social' \
+                                           --inputbox "\nEnter the name emails should be sent from" 0 0 "${NODE_NAME}" \
+                                           3>&1 1>&2 2>&3)
+            validate_exit $?
+            if [ -n "${MAIL_SENDER_NAME}" ]; then break; fi
+        done
+
+        while true; do
+            MAIL_PASSWORD=$(${WHIPTAIL} --title 'GNU social mail password' --clear --backtitle 'GNU social' \
+                                        --passwordbox "\nEnter a password for the user in the mail server" 0 0 \
+                                        3>&1 1>&2 2>&3)
+            validate_exit $?
+            if [ -n "${MAIL_PASSWORD}" ]; then break; fi
+        done
+    fi
 fi
 # --------------------------------------------------------------------------
 
