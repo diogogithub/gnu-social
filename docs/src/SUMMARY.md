@@ -1,3 +1,8 @@
 # Summary
 
-- [Chapter 1](./chapter_1.md)
+- [Installation](./installation.md)
+    - [Instal with Docker with shell access](./install/docker_shell.md)
+    - [Instal without Docker with shell access](./install/no_docker_shell.md)
+    - [Instal with Docker with web access](./install/docker_web.md)
+    - [Instal without Docker with only web access](./install/no_docker_web.md)
+
