@@ -1,0 +1,6 @@
+[book]
+authors = ["Diogo Peralta Cordeiro"]
+language = "en"
+multilingual = false
+src = "src"
+title = "GNU social"
