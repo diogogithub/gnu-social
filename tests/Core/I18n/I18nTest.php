@@ -19,14 +19,11 @@
 
 namespace App\Tests\Core\I18n;
 
-// require_once  '/home/hugo/software/social/config/bootstrap.php';
-// require_once  '/home/hugo/software/social/src/Core/I18n/I18n.php';
+require_once __DIR__ . '/../../../config/bootstrap.php';
 
 use function App\Core\I18n\_m;
 use App\Core\I18n\I18n;
-use App\Core\I18n\I18nHelper;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 // use Jchook\AssertThrows\AssertThrows;
 
@@ -37,8 +34,8 @@ class I18nTest extends WebTestCase
     public function testM()
     {
         static::bootKernel();
-        $translator = static::$container->get(TranslatorInterface::class);
-        I18nHelper::setTranslator($translator);
+        $translator = static::$container->get('translator');
+        I18n::setTranslator($translator);
 
         static::assertSame('test string', _m('test string'));
 
