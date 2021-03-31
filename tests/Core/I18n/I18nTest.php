@@ -19,15 +19,13 @@
 
 namespace App\Tests\Core\I18n;
 
-require_once __DIR__ . '/../../../config/bootstrap.php';
-
 use function App\Core\I18n\_m;
 use App\Core\I18n\I18n;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 // use Jchook\AssertThrows\AssertThrows;
 
-class I18nTest extends WebTestCase
+class I18nTest extends KernelTestCase
 {
     // use AssertThrows;
 

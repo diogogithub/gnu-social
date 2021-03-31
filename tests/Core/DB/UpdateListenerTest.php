@@ -26,12 +26,13 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\UnitOfWork;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class UpdateListenerTest extends WebTestCase
+class UpdateListenerTest extends KernelTestCase
 {
     public function testPreUpdate()
     {
+        static::bootKernel();
         $actor = new GSActor();
         $actor->setModified(new DateTime('1999-09-23'));
         static::assertSame($actor->getModified(), new DateTime('1999-09-23'));
@@ -39,13 +40,13 @@ class UpdateListenerTest extends WebTestCase
         $em  = $this->createMock(EntityManager::class);
         $uow = $this->createMock(UnitOfWork::class);
         $em->expects(static::once())
-            ->method('getUnitOfWork')
-            ->willReturn($uow);
+           ->method('getUnitOfWork')
+           ->willReturn($uow);
 
         $md = $this->createMock(ClassMetadata::class);
         $em->expects(static::once())
-            ->method('getClassMetadata')
-            ->willReturn($md);
+           ->method('getClassMetadata')
+           ->willReturn($md);
 
         $change_set = [];
         $args       = new PreUpdateEventArgs($actor, $em, $change_set);

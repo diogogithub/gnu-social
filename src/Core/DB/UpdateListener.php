@@ -17,7 +17,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\EventListener;
+namespace App\Core\DB;
 
 use DateTime;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
