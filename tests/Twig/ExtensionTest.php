@@ -53,12 +53,13 @@ class ExtensionTest extends KernelTestCase
 
         //Check if every icon file as a ".svg.twig" extension
         foreach ($icon_file_names as $icon_file_name) {
-            static::assertRegExp('/.svg.twig/', $icon_file_name);
+            static::assertMatchesRegularExpression('/.svg.twig/', $icon_file_name);
         }
 
         //Check if the function gives a valid HTML with a class attribute equal to the one passed
         static::bootKernel();
-        $twig = self::$kernel->getContainer()->get('twig');
+        $container = self::$kernel->getContainer()->get('test.service_container');
+        $twig      = $container->get('twig');
 
         foreach ($icon_file_names as $icon_file_name) {
             $icon_name = basename($icon_file_name, '.svg.twig');

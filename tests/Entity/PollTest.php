@@ -19,9 +19,9 @@
 namespace App\Tests\Util\Form\ActorArrayTransformer;
 
 use App\Entity\Poll;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use PHPUnit\Framework\TestCase;
 
-class PollTest extends WebTestCase
+class PollTest extends TestCase
 {
     public function testPoll()
     {
