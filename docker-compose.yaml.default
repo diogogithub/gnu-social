@@ -28,6 +28,7 @@ services:
                                  nginx -s reload;
                              done &
                              nginx -g "daemon off;"'
+
     certbot:
         image: certbot/certbot
         # Check for certificate renewal every 12h as
@@ -35,11 +36,12 @@ services:
         entrypoint: /bin/sh -c 'trap exit TERM;
                                 while :; do
                                     certbot renew > /dev/null;
-                                    sleep 12h & wait 75845{!};
+                                    sleep 12h & wait $${!};
                                 done'
         volumes:
           - ./docker/certbot/www:/var/www/certbot
           - ./docker/certbot/.files:/etc/letsencrypt
+
     php:
         build: docker/php
         restart: always
@@ -57,20 +59,23 @@ services:
             - ./docker/social/social.env
             - ./docker/db/db.env
         command: /entrypoint.sh
+
     db:
-        image: mariadb
+        image: postgres:alpine
         restart: always
         tty: false
         ports:
             - 3306:3306
         env_file:
             - ./docker/db/db.env
+
     redis:
         image: redis:alpine
         restart: always
         tty: false
         ports:
             - 6379:6379
+
     mail:
         build: docker/mail
         env_file:
@@ -87,3 +92,5 @@ services:
           # Certbot
           - ./docker/certbot/www:/var/www/certbot
           - ./docker/certbot/.files:/etc/letsencrypt
+volumes:
+    database:
