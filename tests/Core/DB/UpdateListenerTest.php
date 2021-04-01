@@ -17,7 +17,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Tests\EventListener;
+namespace App\Tests\Core\DB;
 
 use App\Core\DB\UpdateListener;
 use App\Entity\GSActor;
