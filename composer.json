@@ -14,7 +14,7 @@
         "php-ds/php-ds": "^1.2",
         "sensio/framework-extra-bundle": "^5.2",
         "someonewithpc/memcached-polyfill": "^1.0",
-        "someonewithpc/redis-polyfill": "^1.0",
+        "someonewithpc/redis-polyfill": "dev-master",
         "symfony/asset": "5.2.*",
         "symfony/cache": "5.2.*",
         "symfony/config": "5.2.*",
