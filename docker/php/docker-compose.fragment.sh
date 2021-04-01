@@ -1,10 +1,16 @@
 #!/usr/bin/sh
 
-cat <<EOF
+if [ $LE_CERT -ne 0 ]; then
+    cat <<EOF
     php:
         build: docker/php
 EOF
-
+else
+    cat <<EOF
+    php:
+        image: gsocial/php
+EOF
+fi
 
 # If the user wants a DB docker container
 if echo "${DOCKER}" | grep -Fvq '"db"'; then

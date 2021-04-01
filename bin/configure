@@ -137,6 +137,15 @@ fi
 # --------------------------------------------------------------------------
 
 
+# -------------------------------- PHP -------------------------------------
+if echo "${DOCKER}" | grep -Fq '"php"'; then
+    ${WHIPTAIL} --title "Build PHP container locally?" --clear --backtitle 'GNU social' \
+                --yesno "\nDo you want to use a compile the needed PHP extensions and build the container locally? (may provide better performance, needs more than 1GiB of RAM)" 0 0 \
+                3>&1 1>&2 2>&3
+    BUILD_PHP=$((1-$?)) # Invert output
+fi
+# --------------------------------------------------------------------------
+
 
 # ------------------------ Network configuration ----------------------------
 while true; do
@@ -386,6 +395,7 @@ export NGINX_HTTP_PORT="${NGINX_HTTP_PORT}"
 export NGINX_HTTPS_PORT="${NGINX_HTTPS_PORT}"
 export PHP_PORT="${PHP_PORT}"
 export DBMS="${DBMS}"
+export BUILD_PHP="${BUILD_PHP}"
 
 for SERV in ${DOCKER}; do
     SERV=$(echo "${SERV}" | sed -r 's/"([^"]*)"/\1/')
