@@ -22,10 +22,10 @@
 namespace App\Core;
 
 use App\Util\Common;
+use App\Util\Exception\ConfigurationException;
 use Functional as F;
 use Redis;
 use RedisCluster;
-use SplFixedArray;
 use Symfony\Component\Cache\Adapter;
 use Symfony\Component\Cache\Adapter\ChainAdapter;
 
@@ -42,7 +42,7 @@ abstract class Cache
     public static function setupCache()
     {
         self::$pools = [];
-        self::$redis = [];
+        self::$redis = null;
 
         $adapters = [];
         foreach (Common::config('cache', 'adapters') as $pool => $val) {
@@ -55,7 +55,7 @@ abstract class Cache
                 case 'redis':
                     // Redis can have multiple servers, but we want to take proper advantage of
                     // redis, not just as a key value store, but using it's datastructures
-                    $dsns = explode(',', $rest);
+                    $dsns = explode(';', $rest);
                     if (count($dsns) === 1) {
                         $class = Redis::class;
                         $r     = new Redis();
@@ -66,8 +66,11 @@ abstract class Cache
                             $r->pconnect($rest);
                         }
                     } else {
+                        if (strstr($rest, ':') == false) {
+                            throw new ConfigurationException('The configuration of a redis cluster requires specifying the ports to use');
+                        }
                         $class = RedisCluster::class; // true for persistent connection
-                        $r     = new RedisCluster(null, $dsns, null, null, true);
+                        $r     = new RedisCluster(null, $dsns, timeout: null, read_timeout: null, persistent: true);
                         // Distribute reads randomly
                         $r->setOption($class::OPT_SLAVE_FAILOVER, $class::FAILOVER_DISTRIBUTE);
                     }
@@ -103,6 +106,10 @@ abstract class Cache
                 }
             }
 
+            if (self::$redis[$pool] == null) {
+                unset(self::$redis[$pool]);
+            }
+
             if (count($adapters[$pool]) === 1) {
                 self::$pools[$pool] = array_pop($adapters[$pool]);
             } else {
@@ -131,7 +138,7 @@ abstract class Cache
      * Retrieve a list from the cache, with a different implementation
      * for redis and others, trimming to $max_count if given
      */
-    public static function getList(string $key, callable $calculate, string $pool = 'default', int $max_count = -1, float $beta = 1.0): array
+    public static function getList(string $key, callable $calculate, string $pool = 'default', ?int $max_count = null, float $beta = 1.0): array
     {
         if (isset(self::$redis[$pool])) {
             if (!($recompute = $beta === INF || !(self::$redis[$pool]->exists($key)))) {
@@ -151,71 +158,73 @@ abstract class Cache
                 $save = true; // Pass by reference
                 $res  = $calculate(null, $save);
                 if ($save) {
-                    self::$redis[$pool]->del($key);
-                    self::$redis[$pool]->lPush($key, ...$res);
+                    self::setList($key, $res, $pool, $max_count, $beta);
+                    return $res;
                 }
             }
-            self::$redis[$pool]->lTrim($key, 0, $max_count);
-            return self::$redis[$pool]->lRange($key, 0, $max_count);
+            return self::$redis[$pool]->lRange($key, 0, $max_count ?? -1);
         } else {
-            $keys = self::getKeyList($key, $max_count, $beta);
-            $list = new SplFixedArray($keys->count());
-            foreach ($keys as $k) {
-                $list[] = self::get($k, $calculate, $pool, $beta);
-            }
-            return $list->toArray();
+            return self::get($key, function () use ($calculate, $max_count) {
+                $res = $calculate(null);
+                if ($max_count != -1) {
+                    $res = array_slice($res, 0, $max_count);
+                }
+                return $res;
+            }, $pool, $beta);
         }
     }
 
     /**
-     * Push a value to the list, if not using redis, get, add to subkey and set
+     * Set the list
      */
-    public static function pushList(string $key, mixed $value, string $pool = 'default', int $max_count = 64, float $beta = 1.0): void
+    public static function setList(string $key, array $value, string $pool = 'default', ?int $max_count = null, float $beta = 1.0): void
+    {
+        if (isset(self::$redis[$pool])) {
+            self::$redis[$pool]
+                // Ensure atomic
+                ->multi(Redis::MULTI)
+                ->del($key)
+                ->rPush($key, ...$value)
+                // trim to $max_count, unless it's 0
+                ->lTrim($key, 0, $max_count != null ? $max_count : -1)
+                ->exec();
+        } else {
+            self::set($key, $value, $pool, $beta);
+        }
+    }
+
+    /**
+     * Push a value to the list
+     */
+    public static function pushList(string $key, mixed $value, string $pool = 'default', ?int $max_count = null, float $beta = 1.0): void
     {
         if (isset(self::$redis[$pool])) {
             self::$redis[$pool]
                 // doesn't need to be atomic, adding at one end, deleting at the other
                 ->multi(Redis::PIPELINE)
-                ->lPush($key, $value)
-                // trim to $max_count, unless it's 0
-                ->lTrim($key, 0, $max_count != 0 ? $max_count : -1)
+                ->rPush($key, $value)
+                // trim to $max_count, if given
+                ->lTrim($key, 0, $max_count ?? -1)
                 ->exec();
         } else {
-            $keys = self::getKeyList($key, $max_count, $beta);
-            $vkey = $key . ':' . count($keys);
-            self::set($vkey, $value);
-            $keys[] = $vkey;
-            self::set($key, $keys);
+            $res   = self::get($key, function () { return []; }, $pool, $beta);
+            $res[] = $value;
+            if ($max_count != null) {
+                $res = array_slice($res, 0, $max_count);
+            }
+            self::set($key, $res, $pool, $beta);
         }
     }
 
     /**
-     * Delete a whole list at $key, if not using redis, recurse into keys
+     * Delete a whole list at $key
      */
     public static function deleteList(string $key, string $pool = 'default'): bool
     {
         if (isset(self::$redis[$pool])) {
             return self::$redis[$pool]->del($key) == 1;
         } else {
-            $keys = self::getKeyList($key, $max_count, $beta);
-            if (!F\every($keys, function ($k) use ($pool) { return self::delete($k, $pool); })) {
-                Log::warning("Some element of the list associated with {$key} was not deleted. There may be some memory leakage in the cache process");
-            }
             return self::delete($key, $pool);
         }
-    }
-
-    /**
-     * On non-Redis, get the list of keys that store a list at $key
-     */
-    private static function getKeyList(string $key, int $max_count, string $pool, float $beta): RingBuffer
-    {
-        // Get the current keys associated with a list. If the cache
-        // is not primed, the function is called and returns an empty
-        // ring buffer
-        return self::get($key,
-                         function (ItemInterface $i) use ($max_count) {
-                             return new RingBuffer($max_count);
-                         }, $pool, $beta);
     }
 }
