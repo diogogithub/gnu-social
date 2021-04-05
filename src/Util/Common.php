@@ -91,11 +91,7 @@ abstract class Common
 
     public static function userNickname(): ?string
     {
-        if (($user = self::user()) == null) {
-            throw new NoLoggedInUser();
-        } else {
-            return $user->getNickname();
-        }
+        self::ensureLoggedIn()->getNickname();
     }
 
     public function getAllNotes(int $noteScope): array

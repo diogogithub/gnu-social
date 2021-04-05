@@ -33,7 +33,7 @@ class CacheTest extends KernelTestCase
         static::bootKernel();
 
         // Setup Common::config to have the values in $conf
-        $conf = ['cache' => ['adapters' => $adapters]];
+        $conf = ['cache' => ['adapters' => $adapters, 'early_recompute' => INF]];
         $cb   = $this->createMock(ContainerBagInterface::class);
         static::assertTrue($cb instanceof ContainerBagInterface);
         $cb->method('get')
