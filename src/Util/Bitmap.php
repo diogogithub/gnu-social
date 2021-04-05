@@ -24,11 +24,11 @@ use App\Util\Exception\ServerException;
 abstract class Bitmap
 {
     /**
-     * Convert an to or from an integer and an array of constants for
-     * each bit. If $instance, return an object with the corresponding
+     * Convert from an integer to an onject or an array of constants for
+     * set each bit. If $instance, return an object with the corresponding
      * properties set
      */
-    private static function _do(int $r, bool $instance)
+    private static function _to(int $r, bool $instance)
     {
         $init  = $r;
         $class = get_called_class();
@@ -38,8 +38,12 @@ abstract class Bitmap
             $vals = [];
         }
 
-        $consts = (new \ReflectionClass($class))->getConstants();
-        unset($consts['PREFIX']);
+        $consts      = (new \ReflectionClass($class))->getConstants();
+        $have_prefix = false;
+        if (isset($consts['PREFIX'])) {
+            $have_prefix = true;
+            unset($consts['PREFIX']);
+        }
 
         foreach ($consts as $c => $v) {
             $b = ($r & $v) !== 0;
@@ -50,7 +54,7 @@ abstract class Bitmap
             if ($b) {
                 $r -= $v;
                 if (!$instance) {
-                    $vals[] = $class::PREFIX . $c;
+                    $vals[] = ($have_prefix ? $class::PREFIX : '') . $c;
                 }
             }
         }
@@ -69,11 +73,11 @@ abstract class Bitmap
 
     public static function create(int $r): self
     {
-        return self::_do($r, true);
+        return self::_to($r, true);
     }
 
     public static function toArray(int $r): array
     {
-        return self::_do($r, false);
+        return self::_to($r, false);
     }
 }
