@@ -47,6 +47,8 @@ abstract class Log
      */
     public static function __callStatic(string $name, array $args)
     {
-        return self::$logger->{$name}(...$args);
+        if (isset(self::$logger)) {
+            return self::$logger->{$name}(...$args);
+        }
     }
 }
