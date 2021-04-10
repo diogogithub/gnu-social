@@ -22,6 +22,7 @@
 namespace App\Util;
 
 use App\Core\DB\DB;
+use App\Core\Log;
 use App\Entity\GSActor;
 use App\Entity\LocalGroup;
 use App\Entity\LocalUser;
@@ -138,7 +139,7 @@ class Nickname
      * @throws NicknameTooLongException
      * @throws NicknameTooShortException
      */
-    public static function normalize(string $nickname, bool $check_already_used = true, bool $check_reserved = true): string
+    public static function normalize(string $nickname, bool $check_already_used = true, bool $checking_reserved = true): string
     {
         if (mb_strlen($nickname) > self::MAX_LEN) {
             // Display forms must also fit!
@@ -151,18 +152,21 @@ class Nickname
         $nickname          = mb_strtolower($nickname);
         $nickname          = Normalizer::normalize($nickname, Normalizer::FORM_C);
 
-        if (mb_strlen($original_nickname) < 1) {
-            throw new NicknameEmptyException();
-        } elseif (mb_strlen($original_nickname) < Common::config('nickname', 'min_length')) {
-            throw new NicknameTooShortException();
-        } elseif (!self::isCanonical($original_nickname) && !filter_var($original_nickname, FILTER_VALIDATE_EMAIL)) {
-            throw new NicknameInvalidException();
-        } elseif ($check_reserved && self::isReserved($original_nickname) || Common::isSystemPath($original_nickname)) {
-            throw new NicknameReservedException();
-        } elseif ($check_already_used) {
-            $actor = self::isTaken($original_nickname);
-            if ($actor instanceof GSActor) {
-                throw new NicknameTakenException($actor);
+        if (!$checking_reserved) {
+            if (mb_strlen($original_nickname) < 1) {
+                throw new NicknameEmptyException();
+            } elseif (mb_strlen($original_nickname) < Common::config('nickname', 'min_length')) {
+                Log::critical(var_dump($original_nickname, mb_strlen($original_nickname), Common::config('nickname', 'min_length'), mb_strlen($original_nickname) < Common::config('nickname', 'min_length')));
+                throw new NicknameTooShortException();
+            } elseif (!self::isCanonical($original_nickname) && !filter_var($original_nickname, FILTER_VALIDATE_EMAIL)) {
+                throw new NicknameInvalidException();
+            } elseif (self::isReserved($original_nickname) || Common::isSystemPath($original_nickname)) {
+                throw new NicknameReservedException();
+            } elseif ($check_already_used) {
+                $actor = self::isTaken($original_nickname);
+                if ($actor instanceof GSActor) {
+                    throw new NicknameTakenException($actor);
+                }
             }
         }
 
