@@ -1,4 +1,5 @@
 <?php
+
 // {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
@@ -36,6 +37,7 @@ class ActorArrayTransformerTest extends WebTestCase
 
         static::assertSame('user1 user2 user3', (new ActorArrayTransformer)->transform($testArr));
     }
+
     public function testReverseTransform()
     {
         $testString = '';
