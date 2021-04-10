@@ -72,6 +72,7 @@ abstract class Router
         return self::$url_gen->generate($id, $args, $type);
     }
 
+    /** function match($url) throws Symfony\Component\Routing\Exception\ResourceNotFoundException */
     public static function __callStatic(string $name, array $args)
     {
         return self::$router->{$name}(...$args);

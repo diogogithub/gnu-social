@@ -37,9 +37,9 @@ use App\Core\Security;
 use App\Entity\GSActor;
 use App\Entity\LocalUser;
 use App\Util\Exception\NoLoggedInUser;
-use Exception;
 use Functional as F;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Yaml;
 
 abstract class Common
@@ -69,7 +69,7 @@ abstract class Common
     {
         self::$config[$section][$setting] = $value;
         $diff                             = self::array_diff_recursive(self::$config, self::$defaults);
-        $yaml                             = (new Yaml\Dumper(2))->dump(['parameters' => ['gnusocial' => $diff]], Yaml\Yaml::DUMP_OBJECT_AS_MAP);
+        $yaml                             = (new Yaml\Dumper(indentation: 2))->dump(['parameters' => ['gnusocial' => $diff]], Yaml\Yaml::DUMP_OBJECT_AS_MAP);
         rename(INSTALLDIR . '/social.local.yaml', INSTALLDIR . '/social.local.yaml.back');
         file_put_contents(INSTALLDIR . '/social.local.yaml', $yaml);
     }
@@ -132,32 +132,37 @@ abstract class Common
         try {
             Router::match('/' . $str);
             return true;
-        } catch (Exception $e) {
+        } catch (ResourceNotFoundException $e) {
             return false;
         }
     }
 
     /**
      * A recursive `array_diff`, while PHP itself doesn't provide one
+     *
+     * @param mixed $array1
+     * @param mixed $array2
      */
-    public function array_diff_recursive(array $array1, array $array2)
+    public static function array_diff_recursive($array1, $array2): array
     {
-        $difference = [];
+        $diff = [];
         foreach ($array1 as $key => $value) {
-            if (is_array($value)) {
-                if (!isset($array2[$key]) || !is_array($array2[$key])) {
-                    $difference[$key] = $value;
+            if (array_key_exists($key, $array2)) {
+                if (is_array($value)) {
+                    $recursive_diff = static::array_diff_recursive($value, $array2[$key]);
+                    if (count($recursive_diff)) {
+                        $diff[$key] = $recursive_diff;
+                    }
                 } else {
-                    $new_diff = self::array_diff_recursive($value, $array2[$key]);
-                    if (!empty($new_diff)) {
-                        $difference[$key] = $new_diff;
+                    if ($value != $array2[$key]) {
+                        $diff[$key] = $value;
                     }
                 }
-            } elseif ((!isset($array2[$key]) || $array2[$key] != $value) && !($array2[$key] === null && $value === null)) {
-                $difference[$key] = $value;
+            } else {
+                $diff[$key] = $value;
             }
         }
-        return $difference ?? false;
+        return $diff;
     }
 
     /**
@@ -223,14 +228,10 @@ abstract class Common
     /**
      * Clamps a value between 2 numbers
      *
-     * @param int $current
-     * @param int $min
-     * @param int $max
-     *
-     * @return int clamped value
+     * @return float|int clamped value
      */
-    public static function clamp(int $current,int $min,int $max): int
+    public static function clamp(int | float $value, int | float $min, int | float $max): int | float
     {
-        return min(max($current,$min),$max);
+        return min(max($value, $min), $max);
     }
 }
