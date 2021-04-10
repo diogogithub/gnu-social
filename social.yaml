@@ -144,6 +144,7 @@ parameters:
         - settings
         - admin
       featured: []
+      min_length: 4
 
     profile:
       bio_text_limit:

@@ -44,7 +44,7 @@ namespace App\Util\Exception;
 use function App\Core\I18n\_m;
 use App\Util\Nickname;
 
-class NicknameTooLongException extends NicknameInvalidException
+class NicknameTooShortException extends NicknameInvalidException
 {
     protected function defaultMessage(): string
     {

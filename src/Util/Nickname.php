@@ -25,6 +25,16 @@ use App\Core\DB\DB;
 use App\Entity\GSActor;
 use App\Entity\LocalGroup;
 use App\Entity\LocalUser;
+use App\Util\Exception\NicknameBlacklistedException;
+use App\Util\Exception\NicknameEmptyException;
+use App\Util\Exception\NicknameException;
+use App\Util\Exception\NicknameInvalidException;
+use App\Util\Exception\NicknamePathCollisionException;
+use App\Util\Exception\NicknameReservedException;
+use App\Util\Exception\NicknameTakenException;
+use App\Util\Exception\NicknameTooLongException;
+use App\Util\Exception\NicknameTooShortException;
+use Functional as F;
 use Normalizer;
 
 /**
@@ -101,7 +111,7 @@ class Nickname
     const CANONICAL_FMT = '[0-9a-z]{1,64}';
 
     /**
-     * Maximum number of characters in a canonical-form nickname.
+     * Maximum number of characters in a canonical-form nickname. Changes must validate regexs
      */
     const MAX_LEN = 64;
 
@@ -115,9 +125,6 @@ class Nickname
      */
     const BEFORE_MENTIONS = '(?:^|[\s\.\,\:\;\[\(]+)';
 
-    const CHECK_USED    = true;
-    const NO_CHECK_USED = false;
-
     /**
      * Normalize an input $nickname, and normalize it to its canonical form.
      * The canonical form will be returned, or an exception thrown if invalid.
@@ -129,8 +136,9 @@ class Nickname
      * @throws NicknamePathCollisionException
      * @throws NicknameTakenException
      * @throws NicknameTooLongException
+     * @throws NicknameTooShortException
      */
-    public static function normalize(string $nickname, bool $check_already_used = self::NO_CHECK_USED): string
+    public static function normalize(string $nickname, bool $check_already_used = true, bool $check_reserved = true): string
     {
         if (mb_strlen($nickname) > self::MAX_LEN) {
             // Display forms must also fit!
@@ -144,9 +152,11 @@ class Nickname
 
         if (mb_strlen($nickname) < 1) {
             throw new NicknameEmptyException();
+        } elseif (mb_strlen($nickname) < Common::config('nickname', 'min_length')) {
+            throw new NicknameTooShortException();
         } elseif (!self::isCanonical($nickname) && !filter_var($nickname, FILTER_VALIDATE_EMAIL)) {
             throw new NicknameInvalidException();
-        } elseif (self::isReserved($nickname) || Common::isSystemPath($nickname)) {
+        } elseif ($check_reserved && self::isReserved($nickname) || Common::isSystemPath($nickname)) {
             throw new NicknameReservedException();
         } elseif ($check_already_used) {
             $actor = self::isTaken($nickname);
@@ -166,7 +176,7 @@ class Nickname
      *
      * @return bool True if nickname is valid. False if invalid (or taken if $check_already_used == true).
      */
-    public static function isValid(string $nickname, bool $check_already_used = self::CHECK_USED): bool
+    public static function isValid(string $nickname, bool $check_already_used = true): bool
     {
         try {
             self::normalize($nickname, $check_already_used);
@@ -191,10 +201,12 @@ class Nickname
     public static function isReserved(string $nickname): bool
     {
         $reserved = Common::config('nickname', 'reserved');
-        if (!$reserved) {
+        if (empty($reserved)) {
             return false;
         }
-        return in_array($nickname, $reserved);
+        return in_array($nickname, array_merge($reserved, F\map($reserved, function ($n) {
+            return self::normalize($n, check_already_used: false, check_reserved: false);
+        })));
     }
 
     /**
