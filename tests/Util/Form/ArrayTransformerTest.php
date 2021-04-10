@@ -19,28 +19,20 @@
 
 namespace App\Tests\Util\Form;
 
-use App\Entity\GSActor;
-use App\Util\Form\ActorArrayTransformer;
+use App\Util\Form\ArrayTransformer;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class ActorArrayTransformerTest extends WebTestCase
+class ArrayTransformerTest extends WebTestCase
 {
     public function testTransform()
     {
-        static::assertSame('', (new ActorArrayTransformer)->transform([]));
-
-        $user1 = GSActor::create(['nickname' => 'user1']);
-        $user2 = GSActor::create(['nickname' => 'user2']);
-        $user3 = GSActor::create(['nickname' => 'user3']);
-
-        $testArr = [$user1, $user2, $user3];
-
-        static::assertSame('user1 user2 user3', (new ActorArrayTransformer)->transform($testArr));
+        static::assertSame('', (new ArrayTransformer)->transform([]));
+        static::assertSame('foo bar quux', (new ArrayTransformer)->transform(['foo', 'bar', 'quux']));
     }
 
     public function testReverseTransform()
     {
-        $testString = '';
-        static::assertSame([], (new ActorArrayTransformer)->reverseTransform($testString));
+        static::assertSame([], (new ArrayTransformer)->reverseTransform(''));
+        static::assertSame(['foo', 'bar', 'quux'], (new ArrayTransformer)->reverseTransform('foo bar quux'));
     }
 }

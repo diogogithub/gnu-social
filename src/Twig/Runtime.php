@@ -48,7 +48,7 @@ use Twig\Extension\RuntimeExtensionInterface;
 class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
 {
     private Request $request;
-    public function __constructor(Request $req)
+    public function setRequest(Request $req)
     {
         $this->request = $req;
     }
@@ -103,19 +103,6 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $styles;
     }
 
-    // ----------------------------------------------------------
-
-    // Request is not a service, can't find a better way to get it
-    public function onKernelRequest(RequestEvent $event)
-    {
-        $this->request = $event->getRequest();
-    }
-
-    public static function getSubscribedEvents()
-    {
-        return [KernelEvents::REQUEST => 'onKernelRequest'];
-    }
-
     /**
      * Renders the Svg Icon template and returns it.
      *
@@ -141,5 +128,18 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
             //return an empty string (a missing icon is not that important of an error)
             return '';
         }
+    }
+
+    // ----------------------------------------------------------
+
+    // Request is not a service, can't find a better way to get it
+    public function onKernelRequest(RequestEvent $event)
+    {
+        $this->request = $event->getRequest();
+    }
+
+    public static function getSubscribedEvents()
+    {
+        return [KernelEvents::REQUEST => 'onKernelRequest'];
     }
 }

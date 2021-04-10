@@ -68,7 +68,7 @@ abstract class Common
     public static function setConfig(string $section, string $setting, $value): void
     {
         self::$config[$section][$setting] = $value;
-        $diff                             = self::array_diff_recursive(self::$config, self::$defaults);
+        $diff                             = self::arrayDiffRecursive(self::$config, self::$defaults);
         $yaml                             = (new Yaml\Dumper(indentation: 2))->dump(['parameters' => ['gnusocial' => $diff]], Yaml\Yaml::DUMP_OBJECT_AS_MAP);
         rename(INSTALLDIR . '/social.local.yaml', INSTALLDIR . '/social.local.yaml.back');
         file_put_contents(INSTALLDIR . '/social.local.yaml', $yaml);
@@ -143,13 +143,13 @@ abstract class Common
      * @param mixed $array1
      * @param mixed $array2
      */
-    public static function array_diff_recursive($array1, $array2): array
+    public static function arrayDiffRecursive($array1, $array2): array
     {
         $diff = [];
         foreach ($array1 as $key => $value) {
             if (array_key_exists($key, $array2)) {
                 if (is_array($value)) {
-                    $recursive_diff = static::array_diff_recursive($value, $array2[$key]);
+                    $recursive_diff = static::arrayDiffRecursive($value, $array2[$key]);
                     if (count($recursive_diff)) {
                         $diff[$key] = $recursive_diff;
                     }
@@ -207,6 +207,10 @@ abstract class Common
         case 'K':
             $size *= 1024;
             break;
+        default:
+            if ($suffix >= '0' && $suffix <= '9') {
+                $size = (int) "{$size}{$suffix}";
+            }
         }
         return $size;
     }

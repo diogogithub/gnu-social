@@ -30,10 +30,10 @@
 
 namespace App\Util;
 
-use const DIRECTORY_SEPARATOR;
+use App\Core\Log;
+use App\Util\Exception\ServerException;
 use Functional as F;
 use InvalidArgumentException;
-use Symfony\Component\Config\Definition\Exception\Exception;
 
 abstract class Formatting
 {
@@ -46,10 +46,7 @@ abstract class Formatting
      */
     public static function normalizePath(string $path): string
     {
-        if (DIRECTORY_SEPARATOR !== '/') {
-            $path = strtr($path, DIRECTORY_SEPARATOR, '/');
-        }
-        return $path;
+        return str_replace(['/', '\\'], ['/', '/'], $path);
     }
 
     /**
@@ -59,22 +56,27 @@ abstract class Formatting
      *
      * @return null|string
      */
-    public static function pluginFromPath(string $path): ?string
+    public static function moduleFromPath(string $path): ?string
     {
-        $plug = strpos($path, '/plugins/');
-        if ($plug === false) {
-            return null;
+        foreach (['/plugins/', '/components/'] as $mod_p) {
+            $module = strpos($path, $mod_p);
+            if ($module === false) {
+                continue;
+            }
+            $cut  = $module + strlen($mod_p);
+            $cut2 = strpos($path, '/', $cut);
+            if ($cut2) {
+                $final = substr($path, $cut, $cut2 - $cut);
+            } else {
+                // We might be running directly from the plugins dir?
+                // If so, there's no place to store locale info.
+                $m = 'The GNU social install dir seems to contain a piece named \'plugin\' or \'component\'';
+                Log::critical($m);
+                throw new ServerException($m);
+            }
+            return $final;
         }
-        $cut  = $plug + strlen('/plugins/');
-        $cut2 = strpos($path, '/', $cut);
-        if ($cut2) {
-            $final = substr($path, $cut, $cut2 - $cut);
-        } else {
-            // We might be running directly from the plugins dir?
-            // If so, there's no place to store locale info.
-            throw new Exception('The GNU social install dir seems to contain a piece named plugin');
-        }
-        return $final;
+        return null;
     }
 
     /**
@@ -157,7 +159,9 @@ abstract class Formatting
     }
 
     const SPLIT_BY_SPACE = ' ';
+    const JOIN_BY_SPACE  = ' ';
     const SPLIT_BY_COMMA = ', ';
+    const JOIN_BY_COMMA  = ', ';
     const SPLIT_BY_BOTH  = '/[, ]/';
 
     /**
@@ -165,12 +169,16 @@ abstract class Formatting
      *
      * @param mixed $value
      */
-    public static function toString($value, string $split_type = self::SPLIT_BY_COMMA): string
+    public static function toString($value, string $join_type = self::JOIN_BY_COMMA): string
     {
-        if (!is_array($value)) {
-            return (string) $value;
+        if (!in_array($join_type, [static::JOIN_BY_SPACE, static::JOIN_BY_COMMA])) {
+            throw new \Exception('Formatting::toString received invalid join option');
         } else {
-            return implode($split_type, $value);
+            if (!is_array($value)) {
+                return (string) $value;
+            } else {
+                return implode($join_type, $value);
+            }
         }
     }
 
@@ -181,6 +189,13 @@ abstract class Formatting
      */
     public static function toArray(string $input, &$output, string $split_type = self::SPLIT_BY_COMMA): bool
     {
+        if (!in_array($split_type, [static::SPLIT_BY_SPACE, static::SPLIT_BY_COMMA, static::SPLIT_BY_BOTH])) {
+            throw new \Exception('Formatting::toArray received invalid split option');
+        }
+        if ($input == '') {
+            $output = [];
+            return true;
+        }
         $matches = [];
         if (preg_match('/^ *\[?([^,]+(, ?[^,]+)*)\]? *$/', $input, $matches)) {
             switch ($split_type) {

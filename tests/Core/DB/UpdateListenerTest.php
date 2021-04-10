@@ -34,8 +34,9 @@ class UpdateListenerTest extends KernelTestCase
     {
         static::bootKernel();
         $actor = new GSActor();
-        $actor->setModified(new DateTime('1999-09-23'));
-        static::assertSame($actor->getModified(), new DateTime('1999-09-23'));
+        $date  = new DateTime('1999-09-23');
+        $actor->setModified($date);
+        static::assertSame($actor->getModified(), $date);
 
         $em  = $this->createMock(EntityManager::class);
         $uow = $this->createMock(UnitOfWork::class);
@@ -53,6 +54,6 @@ class UpdateListenerTest extends KernelTestCase
         $ul         = new UpdateListener();
         $ul->preUpdate($args);
 
-        static::assertNotSame($actor->getModified(), new DateTime('1999-09-23'));
+        static::assertNotSame($actor->getModified(), $date);
     }
 }

@@ -17,7 +17,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Tests\Util\Common;
+namespace App\Tests\Util;
 
 use App\Core\Event;
 use App\Core\Router\Router;
@@ -29,14 +29,6 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class CommonTest extends WebTestCase
 {
-    public function testClamp()
-    {
-        static::assertSame(2, Common::clamp(value: 2, min: 0, max: 3));
-        static::assertSame(2, Common::clamp(value: 2, min: 2, max: 3));
-        static::assertSame(1, Common::clamp(value: 2, min: 0, max: 1));
-        static::assertSame(3, Common::clamp(value: 2, min: 3, max: 5));
-    }
-
     public function testSetConfig()
     {
         $conf = ['test' => ['hydrogen' => 'helium']];
@@ -78,16 +70,43 @@ class CommonTest extends WebTestCase
 
     public function testArrayDiffRecursive()
     {
-        static::assertSame(['foo'], Common::array_diff_recursive(['foo'], ['bar']));
-        static::assertSame([], Common::array_diff_recursive(['foo'], ['foo']));
+        static::assertSame(['foo'], Common::arrayDiffRecursive(['foo'], ['bar']));
+        static::assertSame([], Common::arrayDiffRecursive(['foo'], ['foo']));
         // array_diff(['foo' => []], ['foo' => 'bar']) >>> Array to string conversion
-        static::assertSame([], Common::array_diff_recursive(['foo' => []], ['foo' => 'bar']));
-        static::assertSame([], Common::array_diff_recursive(['foo' => ['bar']], ['foo' => ['bar']]));
-        static::assertSame(['foo' => [1 => 'quux']], Common::array_diff_recursive(['foo' => ['bar', 'quux']], ['foo' => ['bar']]));
-        static::assertSame([], Common::array_diff_recursive(['hydrogen' => ['helium' => ['lithium'], 'boron' => 'carbon']],
+        static::assertSame([], Common::arrayDiffRecursive(['foo' => []], ['foo' => 'bar']));
+        static::assertSame([], Common::arrayDiffRecursive(['foo' => ['bar']], ['foo' => ['bar']]));
+        static::assertSame(['foo' => [1 => 'quux']], Common::arrayDiffRecursive(['foo' => ['bar', 'quux']], ['foo' => ['bar']]));
+        static::assertSame([], Common::arrayDiffRecursive(['hydrogen' => ['helium' => ['lithium'], 'boron' => 'carbon']],
                                                               ['hydrogen' => ['helium' => ['lithium'], 'boron' => 'carbon']]));
         static::assertSame(['hydrogen' => ['helium' => ['lithium']]],
-                             Common::array_diff_recursive(['hydrogen' => ['helium' => ['lithium'], 'boron' => 'carbon']],
+                             Common::arrayDiffRecursive(['hydrogen' => ['helium' => ['lithium'], 'boron' => 'carbon']],
                                                           ['hydrogen' => ['helium' => ['beryllium'], 'boron' => 'carbon']]));
+    }
+
+    public function testArrayRemoveKeys()
+    {
+        static::assertSame([1 => 'helium'], Common::arrayRemoveKeys(['hydrogen', 'helium'], [0]));
+        static::assertSame(['helium' => 'bar'], Common::arrayRemoveKeys(['hydrogen' => 'foo', 'helium' => 'bar'], ['hydrogen']));
+    }
+
+    public function testSizeStrToInt()
+    {
+        static::assertSame(pow(1024, 0), Common::sizeStrToInt('1'));
+        static::assertSame(pow(1024, 1), Common::sizeStrToInt('1K'));
+        static::assertSame(pow(1024, 2), Common::sizeStrToInt('1M'));
+        static::assertSame(pow(1024, 3), Common::sizeStrToInt('1G'));
+        static::assertSame(pow(1024, 4), Common::sizeStrToInt('1T'));
+        static::assertSame(pow(1024, 5), Common::sizeStrToInt('1P'));
+        static::assertSame(128,          Common::sizeStrToInt('128'));
+        static::assertSame(128 * 1024,   Common::sizeStrToInt('128K'));
+        static::assertSame(128 * 1024,   Common::sizeStrToInt('128.5K'));
+    }
+
+    public function testClamp()
+    {
+        static::assertSame(2, Common::clamp(value: 2, min: 0, max: 3));
+        static::assertSame(2, Common::clamp(value: 2, min: 2, max: 3));
+        static::assertSame(1, Common::clamp(value: 2, min: 0, max: 1));
+        static::assertSame(3, Common::clamp(value: 2, min: 3, max: 5));
     }
 }

@@ -37,6 +37,7 @@ use App\Twig\Extension;
 use App\Twig\Runtime;
 use DirectoryIterator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\HttpFoundation\Request;
 
 class ExtensionTest extends KernelTestCase
 {
@@ -71,5 +72,21 @@ class ExtensionTest extends KernelTestCase
 
             static::assertSame($icon_template_render, $icon_extension_render);
         }
+    }
+
+    public function testIsCurrentRouteActive()
+    {
+        $req             = $this->createMock(Request::class);
+        $req->attributes = new class {
+            public function get(string $arg)
+            {
+                return 'current_route';
+            }
+        };
+        $runtime = new Runtime;
+        $runtime->setRequest($req);
+
+        static::assertSame('active', $runtime->isCurrentRouteActive('current_route'));
+        static::assertSame('', $runtime->isCurrentRouteActive('some_route', 'some_other_route'));
     }
 }

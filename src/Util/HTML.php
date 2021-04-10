@@ -61,7 +61,8 @@ abstract class HTML
         if (empty($content) || $empty_tag) {
             $html .= '>';
         } else {
-            $html .= ">\n" . Common::indent($content) . "\n" . Common::indent("</{$tag}>");
+            $inner = Formatting::indent($content);
+            $html .= ">\n" . ($inner == '' ? '' : $inner . "\n") . Formatting::indent("</{$tag}>");
         }
         return explode("\n", $html);
     }
@@ -92,13 +93,13 @@ abstract class HTML
         } elseif (is_array($html)) {
             $out = '';
             foreach ($html as $tag => $contents) {
-                if (isset($contents['empty'])) {
-                    $out .= "<{$tag}>";
+                if ($contents == 'empty' || isset($contents['empty'])) {
+                    $out .= "<{$tag}/>";
                 } else {
                     $attrs  = isset($contents['attrs']) ? self::attr(array_shift($contents)) : '';
                     $is_tag = preg_match('/[A-Za-z][A-Za-z0-9]*/', $tag);
                     $inner  = self::html($contents);
-                    $inner  = $is_tag ? Common::indent($inner) : $inner;
+                    $inner  = $is_tag ? Formatting::indent($inner) : $inner;
                     $out .= $is_tag ? "<{$tag}{$attrs}>\n{$inner}\n</{$tag}>\n" : $inner;
                 }
             }
