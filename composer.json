@@ -49,6 +49,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16",
+        "jchook/phpunit-assert-throws": "^1.0",
         "niels-de-blaauw/php-doc-check": "^0.2.2",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.14",
