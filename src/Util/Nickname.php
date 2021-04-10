@@ -145,21 +145,22 @@ class Nickname
             throw new NicknameTooLongException();
         }
 
-        $nickname = trim($nickname);
-        $nickname = str_replace('_', '', $nickname);
-        $nickname = mb_strtolower($nickname);
-        $nickname = Normalizer::normalize($nickname, Normalizer::FORM_C);
+        $original_nickname = $nickname;
+        $nickname          = trim($nickname);
+        $nickname          = str_replace('_', '', $nickname);
+        $nickname          = mb_strtolower($nickname);
+        $nickname          = Normalizer::normalize($nickname, Normalizer::FORM_C);
 
-        if (mb_strlen($nickname) < 1) {
+        if (mb_strlen($original_nickname) < 1) {
             throw new NicknameEmptyException();
-        } elseif (mb_strlen($nickname) < Common::config('nickname', 'min_length')) {
+        } elseif (mb_strlen($original_nickname) < Common::config('nickname', 'min_length')) {
             throw new NicknameTooShortException();
-        } elseif (!self::isCanonical($nickname) && !filter_var($nickname, FILTER_VALIDATE_EMAIL)) {
+        } elseif (!self::isCanonical($original_nickname) && !filter_var($original_nickname, FILTER_VALIDATE_EMAIL)) {
             throw new NicknameInvalidException();
-        } elseif ($check_reserved && self::isReserved($nickname) || Common::isSystemPath($nickname)) {
+        } elseif ($check_reserved && self::isReserved($original_nickname) || Common::isSystemPath($original_nickname)) {
             throw new NicknameReservedException();
         } elseif ($check_already_used) {
-            $actor = self::isTaken($nickname);
+            $actor = self::isTaken($original_nickname);
             if ($actor instanceof GSActor) {
                 throw new NicknameTakenException($actor);
             }

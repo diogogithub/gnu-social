@@ -42,13 +42,13 @@
 namespace App\Util\Exception;
 
 use function App\Core\I18n\_m;
-use App\Util\Nickname;
+use App\Util\Common;
 
 class NicknameTooShortException extends NicknameInvalidException
 {
     protected function defaultMessage(): string
     {
         // TRANS: Validation error in form for registration, profile and group settings, etc.
-        return _m('Nickname cannot be more than # character long.', ['count' => Nickname::MAX_LEN]);
+        return _m(['Nickname cannot be less than # character long.'], ['count' => Common::config('nickname', 'min_length')]);
     }
 }

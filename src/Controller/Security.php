@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Core\NoteScope;
 use App\Entity\Follow;
 use App\Entity\GSActor;
 use App\Entity\LocalUser;
@@ -40,7 +41,7 @@ class Security extends Controller
         // last username entered by the user
         $last_username = $authenticationUtils->getLastUsername();
 
-        return ['_template' => 'security/login.html.twig', 'last_username' => $last_username, 'error' => $error, 'notes' => Note::getAllNotes($this->instance_scope), ];
+        return ['_template' => 'security/login.html.twig', 'last_username' => $last_username, 'error' => $error, 'notes' => Note::getAllNotes(NoteScope::$instance_scope)];
     }
 
     public function logout()
@@ -61,10 +62,10 @@ class Security extends Controller
             ['nickname', TextType::class, [
                 'label'       => _m('Nickname'),
                 'constraints' => [new Length([
-                    'min'        => 1,
-                    'minMessage' => _m('Your password should be at least {{ limit }} characters long'),
-                    'max'        => 64,
-                    'maxMessage' => _m('Your password should be at most {{ limit }} characters long'), ]),
+                    'min'        => Common::config('nickname', 'min_length'),
+                    'minMessage' => _m(['Your nickname must be at least # characters long'], ['count' => Common::config('nickname', 'min_length')]),
+                    'max'        => Nickname::MAX_LEN,
+                    'maxMessage' => _m(['Your nickname must be at most # characters long'], ['count' => Nickname::MAX_LEN]), ]),
                 ],
             ]],
             ['email', EmailType::class, ['label' => _m('Email')]],
@@ -73,7 +74,8 @@ class Security extends Controller
                 'mapped'      => false,
                 'constraints' => [
                     new NotBlank(['message' => _m('Please enter a password')]),
-                    new Length(['min' => 6, 'minMessage' => _m('Your password should be at least {{ limit }} characters'), 'max' => 60]),
+                    new Length(['min' => 6,  'minMessage' => _m(['Your password should be at least # characters'], ['count' => 6]),
+                        'max'         => 60, 'maxMessage' => _m(['Your password should be at most # characters'], ['count' => 60]), ]),
                 ],
             ]],
             ['register', SubmitType::class, ['label' => _m('Register')]],
@@ -85,10 +87,7 @@ class Security extends Controller
             $data             = $form->getData();
             $data['password'] = $form->get('password')->getData();
 
-            $valid_nickname = Nickname::isValid($data['nickname'], Nickname::CHECK_USED);
-            if (!$valid_nickname) {
-                throw new \Exception(_m('Invalid nickname'));
-            }
+            $valid_nickname = Nickname::normalize($data['nickname'], check_already_used: true);
 
             $actor = GSActor::create(['nickname' => $data['nickname']]);
             DB::persist($actor);
@@ -134,7 +133,7 @@ class Security extends Controller
         return [
             '_template'         => 'security/register.html.twig',
             'registration_form' => $form->createView(),
-            'notes'             => Note::getAllNotes($this->instance_scope),
+            'notes'             => Note::getAllNotes(NoteScope::$instance_scope),
         ];
     }
 }

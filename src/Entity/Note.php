@@ -41,6 +41,7 @@ use DateTimeInterface;
 class Note extends Entity
 {
     // {{{ Autocode
+
     private int $id;
     private int $gsactor_id;
     private ?string $content;
@@ -199,7 +200,7 @@ class Note extends Entity
         Event::handle('GetAvatarUrl', [$this->getActorNickname(), &$url]);
         return $url;
     }
-    public function getAllNotes(int $noteScope): array
+    public static function getAllNotes(int $noteScope): array
     {
         return DB::sql('select * from note n ' .
             'where n.reply_to is null and (n.scope & :notescope) <> 0 ' .

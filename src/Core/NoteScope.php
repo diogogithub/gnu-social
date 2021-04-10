@@ -29,4 +29,6 @@ class NoteScope extends Bitmap
     public const GROUP     = 8;
     public const FOLLOWER  = 16;
     public const MESSAGE   = 32;
+
+    public static int $instance_scope = self::PUBLIC | self::SITE;
 }
