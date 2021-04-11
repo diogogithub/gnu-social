@@ -91,7 +91,7 @@ abstract class Common
 
     public static function userNickname(): ?string
     {
-        self::ensureLoggedIn()->getNickname();
+        return self::ensureLoggedIn()->getNickname();
     }
 
     public static function ensureLoggedIn(): LocalUser

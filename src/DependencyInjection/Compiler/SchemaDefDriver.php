@@ -109,7 +109,7 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
                 }
             }
 
-            if ($opts['foreign key'] ?? false) {
+            if (false && $opts['foreign key'] ?? false) {
                 foreach (['target', 'multiplicity'] as $f) {
                     if (!isset($opts[$f])) {
                         throw new \Exception("{$class_name}.{$name} doesn't have the required field `{$f}`");
