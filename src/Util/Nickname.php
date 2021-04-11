@@ -22,7 +22,6 @@
 namespace App\Util;
 
 use App\Core\DB\DB;
-use App\Core\Log;
 use App\Entity\GSActor;
 use App\Entity\LocalGroup;
 use App\Entity\LocalUser;
@@ -156,7 +155,6 @@ class Nickname
             if (mb_strlen($original_nickname) < 1) {
                 throw new NicknameEmptyException();
             } elseif (mb_strlen($original_nickname) < Common::config('nickname', 'min_length')) {
-                Log::critical(var_dump($original_nickname, mb_strlen($original_nickname), Common::config('nickname', 'min_length'), mb_strlen($original_nickname) < Common::config('nickname', 'min_length')));
                 throw new NicknameTooShortException();
             } elseif (!self::isCanonical($original_nickname) && !filter_var($original_nickname, FILTER_VALIDATE_EMAIL)) {
                 throw new NicknameInvalidException();
@@ -223,12 +221,12 @@ class Nickname
     {
         $found = DB::findBy('local_user', ['nickname' => $nickname]);
         if ($found instanceof LocalUser) {
-            return $found->getProfile();
+            return $found->getGSActor();
         }
 
         $found = DB::findBy('local_group', ['nickname' => $nickname]);
         if ($found instanceof LocalGroup) {
-            return $found->getProfile();
+            return $found->getGSActor();
         }
 
         return null;

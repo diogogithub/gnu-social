@@ -358,7 +358,7 @@ class LocalUser extends Entity implements UserInterface
             'description' => 'local users, bots, etc',
             'fields'      => [
                 'id'                => ['type' => 'int',          'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
-                'nickname'          => ['type' => 'varchar',      'foreign key' => true, 'target' => 'GSActor.nickname', 'multiplicity' => 'one to one', 'not null' => true, 'length' => 64, 'description' => 'nickname or username, foreign key to gsactor'],
+                'nickname'          => ['type' => 'varchar',      'not null' => true,    'length' => 64, 'description' => 'nickname or username, foreign key to gsactor'],
                 'password'          => ['type' => 'varchar',      'length' => 191,       'description' => 'salted password, can be null for users with federated authentication'],
                 'outgoing_email'    => ['type' => 'varchar',      'length' => 191,       'description' => 'email address for password recovery, notifications, etc.'],
                 'incoming_email'    => ['type' => 'varchar',      'length' => 191,       'description' => 'email address for post-by-email'],

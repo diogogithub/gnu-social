@@ -42,12 +42,13 @@
 namespace App\Util\Exception;
 
 use function App\Core\I18n\_m;
+use App\Entity\GSActor;
 
 class NicknameTakenException extends NicknameException
 {
-    public ?Profile $profile = null;    // the Profile which occupies the nickname
+    public ?GSActor $profile = null;    // the GSActor which occupies the nickname
 
-    public function __construct(Profile $profile, string $msg = null, int $code = 400)
+    public function __construct(?GSActor $profile = null, ?string $msg = null, int $code = 400)
     {
         $this->profile = $profile;
         parent::__construct($msg, $code);

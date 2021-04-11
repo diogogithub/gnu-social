@@ -149,6 +149,12 @@ abstract class DB
         }
     }
 
+    public static function count(string $table, array $criteria)
+    {
+        $repo = self::getRepository($table);
+        return $repo->count($table, $criteria);
+    }
+
     /**
      * Intercept static function calls to allow refering to entities
      * without writing the namespace (which is deduced from the call

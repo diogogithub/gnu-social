@@ -14,7 +14,9 @@ use App\Entity\Note;
 use App\Security\Authenticator;
 use App\Security\EmailVerifier;
 use app\Util\Common;
+use App\Util\Exception\NicknameTakenException;
 use App\Util\Nickname;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -89,18 +91,22 @@ class Security extends Controller
 
             $valid_nickname = Nickname::normalize($data['nickname'], check_already_used: true);
 
-            $actor = GSActor::create(['nickname' => $data['nickname']]);
-            DB::persist($actor);
-            DB::flush();
-            $id   = $actor->getId();
-            $user = LocalUser::create([
-                'id'             => $id,
-                'nickname'       => $data['nickname'],
-                'outgoing_email' => $data['email'],
-                'incoming_email' => $data['email'],
-                'password'       => LocalUser::hashPassword($data['password']),
-            ]);
-            DB::persist($user);
+            try {
+                $actor = GSActor::create(['nickname' => $data['nickname']]);
+                DB::persist($actor);
+                DB::flush();
+                $id   = $actor->getId();
+                $user = LocalUser::create([
+                    'id'             => $id,
+                    'nickname'       => $data['nickname'],
+                    'outgoing_email' => $data['email'],
+                    'incoming_email' => $data['email'],
+                    'password'       => LocalUser::hashPassword($data['password']),
+                ]);
+                DB::persist($user);
+            } catch (UniqueConstraintViolationException $e) {
+                throw new NicknameTakenException;
+            }
 
             // generate a signed url and email it to the user
             if (Common::config('site', 'use_email')) {

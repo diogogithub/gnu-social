@@ -296,10 +296,7 @@ class GSActor extends Entity
                 'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
-            'unique keys' => [
-                'gsactor_nickname_uniq' => ['nickname'],
-            ],
-            'indexes' => [
+            'indexes'     => [
                 'gsactor_nickname_idx' => ['nickname'],
             ],
             'fulltext indexes' => [
