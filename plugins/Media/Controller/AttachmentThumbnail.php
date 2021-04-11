@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('GNUSOCIAL') || die();
+namespace Plugin\Media\Controller;
 
 /**
  * Show notice attachments
@@ -27,9 +27,9 @@ defined('GNUSOCIAL') || die();
  */
 class Attachment_thumbnailAction extends Attachment_viewAction
 {
-    protected $thumb_w = null;  // max width
-    protected $thumb_h = null;  // max height
-    protected $thumb_c = null;  // crop?
+    protected $thumb_w;  // max width
+    protected $thumb_h;  // max height
+    protected $thumb_c;  // crop?
 
     protected function doPreparation()
     {
@@ -45,6 +45,7 @@ class Attachment_thumbnailAction extends Attachment_viewAction
      * requested in the GET variables (read in the constructor). Tries
      * to send the most appropriate file with the correct size and
      * headers or displays an error if it's not possible.
+     *
      * @throws ClientException
      * @throws ReflectionException
      * @throws ServerException
@@ -56,8 +57,7 @@ class Attachment_thumbnailAction extends Attachment_viewAction
         $filepath = $this->filepath;
         try {
             $thumbnail = $this->attachment->getThumbnail($this->thumb_w, $this->thumb_h, $this->thumb_c);
-            $filename = $thumbnail->getFilename();
-            $filepath = $thumbnail->getPath();
+            $file      = $thumbnail->getFile();
         } catch (UseFileAsThumbnailException $e) {
             // With this exception, the file exists locally $e->file;
         } catch (FileNotFoundException $e) {

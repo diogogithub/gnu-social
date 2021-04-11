@@ -1,7 +1,6 @@
 <?php
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -16,46 +15,33 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
 
-namespace Plugin\Directory;
+namespace Plugin\Media;
 
 use App\Core\Event;
 use App\Core\Module;
 use App\Core\Router\RouteLoader;
 
-class Directory extends Module
+class Media extends Module
 {
     /**
      * Map URLs to Controllers
      */
     public function onAddRoute(RouteLoader $r)
     {
-        $r->connect('actors', '/actors', [Controller\Directory::class, 'actors']);
-        $r->connect('groups', '/groups', [Controller\Directory::class, 'groups']);
-        return Event::next;
-    }
-
-    /**
-     * Populate twig vars
-     *
-     * @param array $vars
-     *
-     * @return bool hook value; true means continue processing, false means stop.
-     */
-    public function onStartTwigPopulateVars(array &$vars): bool
-    {
-        $vars['main_nav_tabs'] = [
-            [
-                'title' => 'Actors',
-                'route' => 'actors',
-            ],
-            [
-                'title' => 'Groups',
-                'route' => 'groups',
-            ],
-        ];
+        // foreach (['' => 'attachment',
+        //           '/view' => 'attachment_view',
+        //           '/download' => 'attachment_download',
+        //           '/thumbnail' => 'attachment_thumbnail'] as $postfix => $action) {
+        //     foreach (['filehash' => '[A-Za-z0-9._-]{64}',
+        //               'attachment' => '[0-9]+'] as $type => $match) {
+        //         $r->connect($action, "attachment/:{$type}{$postfix}",
+        //                     ['action' => $action],
+        //                     [$type => $match]);
+        //     }
+        // }
+        $r->connect('attachment', '/attachment/{filehash<[A-Za-z0-9._-]{64}>}', Controller\Attachment::class);
 
         return Event::next;
     }

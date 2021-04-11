@@ -21,14 +21,16 @@
  *
  * @category  UI
  * @package   StatusNet
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
  * @copyright 2008 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ *
+ * @see      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+namespace Plugin\Media\media;
 
 /**
  * widget for displaying a single notice
@@ -41,32 +43,35 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  *
  * @category UI
  * @package  StatusNet
+ *
  * @author   Evan Prodromou <evan@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ *
+ * @see     http://status.net/
  * @see      NoticeList
  * @see      ProfileNoticeListItem
  */
-class AttachmentListItem extends Widget
+class AttachmentListItem
 {
     /** The attachment this item will show. */
-
-    var $attachment = null;
+    public $attachment;
 
     /**
      * @param File $attachment the attachment we will display
      */
-    function __construct(File $attachment, $out=null)
-    {
-        parent::__construct($out);
-        $this->attachment  = $attachment;
-    }
+    // function __construct(File $attachment, $out=null)
+    // {
+    //     // parent::__construct($out);
+    //     $this->attachment  = $attachment;
+    // }
 
-    function title() {
+    public function title()
+    {
         return $this->attachment->getTitle() ?: MediaFile::getDisplayName($this->attachment);
     }
 
-    function linkTitle() {
+    public function linkTitle()
+    {
         return $this->title();
     }
 
@@ -78,13 +83,13 @@ class AttachmentListItem extends Widget
      *
      * @return void
      */
-    function show()
+    public function show()
     {
         $this->showStart();
         try {
             $this->showNoticeAttachment();
         } catch (Exception $e) {
-            $this->element('div', ['class'=>'error'], $e->getMessage());
+            $this->element('div', ['class' => 'error'], $e->getMessage());
             common_debug($e->getMessage());
         }
         $this->showEnd();
@@ -98,17 +103,19 @@ class AttachmentListItem extends Widget
         ];
     }
 
-    function showNoticeAttachment()
+    public function showNoticeAttachment()
     {
         $this->showRepresentation();
     }
 
-    function showRepresentation()
+    /**
+     * Show in HTML
+     */
+    public function showRepresentation()
     {
         $enclosure = $this->attachment->getEnclosure();
 
         if (Event::handle('StartShowAttachmentRepresentation', [$this->out, $this->attachment])) {
-
             $this->out->elementStart('label');
             $this->out->element('a', ['rel' => 'external', 'href' => $this->attachment->getAttachmentUrl()], $this->title());
             $this->out->elementEnd('label');
@@ -208,7 +215,7 @@ class AttachmentListItem extends Widget
                 }
             }
         }
-        Event::handle('EndShowAttachmentRepresentation', array($this->out, $this->attachment));
+        Event::handle('EndShowAttachmentRepresentation', [$this->out, $this->attachment]);
     }
 
     protected function showHtmlFile(File $attachment)
@@ -225,19 +232,19 @@ class AttachmentListItem extends Widget
     protected function scrubHtmlFile(File $attachment)
     {
         $path = $attachment->getPath();
-        $raw = file_get_contents($path);
+        $raw  = file_get_contents($path);
 
         // Normalize...
         $dom = new DOMDocument();
-        if(!$dom->loadHTML($raw)) {
-            common_log(LOG_ERR, "Bad HTML in local HTML attachment $path");
+        if (!$dom->loadHTML($raw)) {
+            common_log(LOG_ERR, "Bad HTML in local HTML attachment {$path}");
             return false;
         }
 
         // Remove <script>s or htmlawed will dump their contents into output!
         // Note: removing child nodes while iterating seems to mess things up,
         // hence the double loop.
-        $scripts = array();
+        $scripts = [];
         foreach ($dom->getElementsByTagName('script') as $script) {
             $scripts[] = $script;
         }
@@ -251,7 +258,7 @@ class AttachmentListItem extends Widget
         $body = preg_replace('/^.*<body[^>]*>/is', '', $body);
         $body = preg_replace('/<\/body[^>]*>.*$/is', '', $body);
 
-        require_once INSTALLDIR.'/extlib/HTMLPurifier/HTMLPurifier.auto.php';
+        require_once INSTALLDIR . '/extlib/HTMLPurifier/HTMLPurifier.auto.php';
         $purifier = new HTMLPurifier();
         return $purifier->purify($body);
     }
@@ -261,7 +268,7 @@ class AttachmentListItem extends Widget
      *
      * @return void
      */
-    function showStart()
+    public function showStart()
     {
         // XXX: RDFa
         // TODO: add notice_type class e.g., notice_video, notice_image
@@ -275,7 +282,7 @@ class AttachmentListItem extends Widget
      *
      * @return void
      */
-    function showEnd()
+    public function showEnd()
     {
         $this->out->elementEnd('li');
     }

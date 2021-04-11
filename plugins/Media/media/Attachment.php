@@ -21,16 +21,16 @@
  *
  * @category  UI
  * @package   StatusNet
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
  * @copyright 2008 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ *
+ * @see      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) {
-    exit(1);
-}
+namespace Plugin\Media\media;
 
 /**
  * used for one-off attachment action
@@ -41,7 +41,7 @@ class Attachment extends AttachmentListItem
     {
         if (Event::handle('StartShowAttachmentLink', [$this->out, $this->attachment])) {
             $this->out->elementStart('div', ['id' => 'attachment_view',
-                                                  'class' => 'h-entry']);
+                'class'                           => 'h-entry', ]);
             $this->out->elementStart('div', 'entry-title');
             $this->out->element('a', $this->linkAttr(), _m('Download link'));
             $this->out->elementEnd('div');
@@ -61,6 +61,6 @@ class Attachment extends AttachmentListItem
 
     public function linkAttr()
     {
-        return ['rel' => 'external', 'href' => $this->attachment->getUrl(null)];
+        return ['rel' => 'external', 'href' => $this->attachment->getAttachmentDownloadUrl()];
     }
 }

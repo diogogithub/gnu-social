@@ -21,13 +21,15 @@
  *
  * @category  UI
  * @package   StatusNet
+ *
  * @author    Brion Vibber <brion@status.net>
  * @copyright 2010 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ *
+ * @see      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+namespace Plugin\Media\media;
 
 class InlineAttachmentListItem extends AttachmentListItem
 {
@@ -36,7 +38,7 @@ class InlineAttachmentListItem extends AttachmentListItem
      *
      * @return void
      */
-    function showStart()
+    public function showStart()
     {
         // XXX: RDFa
         // TODO: add notice_type class e.g., notice_video, notice_image
@@ -55,7 +57,7 @@ class InlineAttachmentListItem extends AttachmentListItem
      *
      * @return void
      */
-    function showEnd()
+    public function showEnd()
     {
         $this->out->elementEnd('li');
     }

@@ -28,9 +28,8 @@
  * @copyright 2008-2009, 2019-2021 Free Software Foundation http://fsf.org
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  */
-defined('GNUSOCIAL') || die();
 
-require_once INSTALLDIR . '/lib/util/tempfile.php';
+namespace Plugin\Media\Util;
 
 /**
  * Class responsible for abstracting media files
@@ -45,46 +44,52 @@ class MediaFile
     public $short_fileurl;
     public $mimetype;
 
-    /**
-     * MediaFile constructor.
-     *
-     * @param string|null $filepath The path of the file this media refers to. Required
-     * @param string $mimetype The mimetype of the file. Required
-     * @param string|null $filehash The hash of the file, if known. Optional
-     * @param int|null $id The DB id of the file. Int if known, null if not.
-     *                     If null, it searches for it. If -1, it skips all DB
-     *                     interactions (useful for temporary objects)
-     * @param string|null $fileurl Provide if remote
-     * @throws ClientException
-     * @throws NoResultException
-     * @throws ServerException
-     */
-    public function __construct(?string $filepath = null, string $mimetype, ?string $filehash = null, ?int $id = null, ?string $fileurl = null)
-    {
-        $this->filepath = $filepath;
-        $this->filename = basename($this->filepath);
-        $this->mimetype = $mimetype;
-        $this->filehash = is_null($filepath) ? null : self::getHashOfFile($this->filepath, $filehash);
-        $this->id       = $id;
-        $this->fileurl  = $fileurl;
+    // /**
+    //  * MediaFile constructor.
+    //  *
+    //  * @param string $filepath The path of the file this media refers to. Required
+    //  * @param string $mimetype The mimetype of the file. Required
+    //  * @param string|null $filehash The hash of the file, if known. Optional
+    //  * @param int|null $id The DB id of the file. Int if known, null if not.
+    //  *                     If null, it searches for it. If -1, it skips all DB
+    //  *                     interactions (useful for temporary objects)
+    //  *
+    //  * @throws ClientException
+    //  * @throws NoResultException
+    //  * @throws ServerException
+    //  */
+    // public function __construct(string $filepath, string $mimetype, ?string $filehash = null, ?int $id = null)
+    // {
+    //     $this->filepath = $filepath;
+    //     $this->filename = basename($this->filepath);
+    //     $this->mimetype = $mimetype;
+    //     $this->filehash = self::getHashOfFile($this->filepath, $filehash);
+    //     $this->id = $id;
 
-        // If id is -1, it means we're dealing with a temporary object and don't want to store it in the DB,
-        // or add redirects
-        if ($this->id !== -1) {
-            if (!empty($this->id)) {
-                // If we have an id, load it
-                $this->fileRecord = new File();
-                $this->fileRecord->id = $this->id;
-                if (!$this->fileRecord->find(true)) {
-                    // If we have set an ID, we need that ID to exist!
-                    throw new NoResultException($this->fileRecord);
-                }
-            } else {
-                // Otherwise, store it
-                $this->fileRecord = $this->storeFile();
-            }
-        }
-    }
+    //     // If id is -1, it means we're dealing with a temporary object and don't want to store it in the DB,
+    //     // or add redirects
+    //     if ($this->id !== -1) {
+    //         if (!empty($this->id)) {
+    //             // If we have an id, load it
+    //             $this->fileRecord = new File();
+    //             $this->fileRecord->id = $this->id;
+    //             if (!$this->fileRecord->find(true)) {
+    //                 // If we have set an ID, we need that ID to exist!
+    //                 throw new NoResultException($this->fileRecord);
+    //             }
+    //         } else {
+    //             // Otherwise, store it
+    //             $this->fileRecord = $this->storeFile();
+    //         }
+
+    //         $this->fileurl = common_local_url(
+    //             'attachment',
+    //             ['attachment' => $this->fileRecord->id]
+    //         );
+
+    //         $this->short_fileurl = common_shorten_url($this->fileurl);
+    //     }
+    // }
 
     /**
      * Shortcut method to get a MediaFile from a File
@@ -177,11 +182,12 @@ class MediaFile
      *
      * This won't work for files >2GiB because PHP uses only 32bit.
      *
-     * @param string $filepath
+     * @param string      $filepath
      * @param null|string $filehash
      *
-     * @return string
      * @throws ServerException
+     *
+     * @return string
      *
      */
     public static function getHashOfFile(string $filepath, $filehash = null)
@@ -201,10 +207,11 @@ class MediaFile
     /**
      * Retrieve or insert as a file in the DB
      *
-     * @return object File
      * @throws ServerException
-     *
      * @throws ClientException
+     *
+     * @return object File
+     *
      */
     protected function storeFile()
     {
@@ -224,11 +231,11 @@ class MediaFile
         $file->url = $this->fileurl;
         $file->urlhash = is_null($file->url) ? null : File::hashurl($file->url);
         $file->filehash = $this->filehash;
-        $file->size = filesize($this->filepath);
+        $file->size     = filesize($this->filepath);
         if ($file->size === false) {
             throw new ServerException('Could not read file to get its size');
         }
-        $file->date = time();
+        $file->date     = time();
         $file->mimetype = $this->mimetype;
 
         $file_id = $file->insert();
@@ -297,13 +304,14 @@ class MediaFile
      * Encodes a file name and a file hash in the new file format, which is used to avoid
      * having an extension in the file, removing trust in extensions, while keeping the original name
      *
-     * @param null|string $original_name
-     * @param string $filehash
-     * @param null|string|bool $ext from File::getSafeExtension
+     * @param null|string      $original_name
+     * @param string           $filehash
+     * @param null|bool|string $ext           from File::getSafeExtension
      *
-     * @return string
      * @throws ClientException
      * @throws ServerException
+     *
+     * @return string
      */
     public static function encodeFilename($original_name, string $filehash, $ext = null): string
     {
@@ -322,7 +330,7 @@ class MediaFile
 
         if (!empty($ext)) {
             // Remove dots if we have them (make sure they're not repeated)
-            $ext = preg_replace('/^\.+/', '', $ext);
+            $ext           = preg_replace('/^\.+/', '', $ext);
             $original_name = preg_replace('/\.+.+$/i', ".{$ext}", $original_name);
         }
 
@@ -386,9 +394,9 @@ class MediaFile
      * This format should be respected. Notice the dash, which is important to distinguish it from the previous
      * format ("{$hash}.{$ext}")
      *
-     * @param string $param Form name
-     * @param Profile|null $scoped
-     * @return ImageFile|MediaFile
+     * @param string       $param  Form name
+     * @param null|Profile $scoped
+     *
      * @throws ClientException
      * @throws InvalidFilenameException
      * @throws NoResultException
@@ -396,6 +404,8 @@ class MediaFile
      * @throws ServerException
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
+     *
+     * @return ImageFile|MediaFile
      */
     public static function fromUpload(string $param = 'media', ?Profile $scoped = null)
     {
@@ -478,7 +488,7 @@ class MediaFile
             }
 
             $mimetype = self::getUploadedMimeType($_FILES[$param]['tmp_name'], $_FILES[$param]['name']);
-            $media = common_get_mime_media($mimetype);
+            $media    = common_get_mime_media($mimetype);
 
             $basename = basename($_FILES[$param]['name']);
 
@@ -488,7 +498,7 @@ class MediaFile
                 // Validate the image by re-encoding it. Additionally normalizes old formats to WebP,
                 // keeping GIF untouched if animated
                 $outpath = $img->resizeTo($img->filepath);
-                $ext = image_type_to_extension($img->preferredType(), false);
+                $ext     = image_type_to_extension($img->preferredType(), false);
             }
             $filename = self::encodeFilename($basename, $filehash, isset($ext) ? $ext : File::getSafeExtension($basename));
 
@@ -532,6 +542,8 @@ class MediaFile
      * @throws ServerException
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
+     *
+     * @return ImageFile|MediaFile
      */
     public static function fromUrl(string $url, ?Profile $scoped = null, ?string $name = null, ?int $file_id = null)
     {
@@ -622,7 +634,7 @@ class MediaFile
                 // Additionally normalises old formats to PNG,
                 // keeping JPEG and GIF untouched.
                 $outpath = $img->resizeTo($img->filepath);
-                $ext = image_type_to_extension($img->preferredType(), false);
+                $ext     = image_type_to_extension($img->preferredType(), false);
             }
             $filename = self::encodeFilename(
                 $basename,
@@ -655,6 +667,9 @@ class MediaFile
         return new self($filepath, $mimetype, $filehash, $file_id, $url);
     }
 
+    /**
+     * Construct media fiile from an upload
+     */
     public static function fromFileInfo(SplFileInfo $finfo, Profile $scoped = null)
     {
         $filehash = hash_file(File::FILEHASH_ALG, $finfo->getRealPath());
@@ -712,16 +727,17 @@ class MediaFile
     /**
      * Attempt to identify the content type of a given file.
      *
-     * @param string $filepath filesystem path as string (file must exist)
-     * @param bool $originalFilename (optional) for extension-based detection
+     * @param string $filepath         filesystem path as string (file must exist)
+     * @param bool   $originalFilename (optional) for extension-based detection
+     *
+     * @throws ServerException
+     * @throws ClientException if type is known, but not supported for local uploads
      *
      * @return string
      *
      * @fixme this seems to tie a front-end error message in, kinda confusing
      *
-     * @throws ServerException
      *
-     * @throws ClientException if type is known, but not supported for local uploads
      */
     public static function getUploadedMimeType(string $filepath, $originalFilename = false)
     {
@@ -821,7 +837,7 @@ class MediaFile
             'text/plain',
             'text/html',  // Ironically, Wikimedia Commons' SVG_logo.svg is identified as text/html
             // TODO: for XML we could do better content-based sniffing too
-            'text/xml',];
+            'text/xml', ];
 
         $supported = common_config('attachments', 'supported');
 

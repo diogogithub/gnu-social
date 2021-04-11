@@ -21,14 +21,16 @@
  *
  * @category  UI
  * @package   StatusNet
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @author    Sarven Capadisli <csarven@status.net>
  * @copyright 2008 StatusNet, Inc.
  * @license   http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link      http://status.net/
+ *
+ * @see      http://status.net/
  */
 
-if (!defined('GNUSOCIAL')) { exit(1); }
+namespace Plugin\Media\media;
 
 /**
  * widget for displaying a list of notice attachments
@@ -40,29 +42,30 @@ if (!defined('GNUSOCIAL')) { exit(1); }
  *
  * @category UI
  * @package  StatusNet
+ *
  * @author   Evan Prodromou <evan@status.net>
  * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
- * @link     http://status.net/
+ *
+ * @see     http://status.net/
  * @see      Notice
  * @see      NoticeListItem
  * @see      ProfileNoticeList
  */
-class AttachmentList extends Widget
+class AttachmentList
 {
     /** the current stream of notices being displayed. */
+    public $notice;
 
-    var $notice = null;
-
-    /**
-     * constructor
-     *
-     * @param Notice $notice stream of notices from DB_DataObject
-     */
-    function __construct(Notice $notice, $out=null)
-    {
-        parent::__construct($out);
-        $this->notice = $notice;
-    }
+    // /**
+    //  * constructor
+    //  *
+    //  * @param Notice $notice stream of notices from DB_DataObject
+    //  */
+    // function __construct(Notice $notice, $out=null)
+    // {
+    //     // parent::__construct($out);
+    //     $this->notice = $notice;
+    // }
 
     /**
      * show the list of attachments
@@ -72,16 +75,22 @@ class AttachmentList extends Widget
      *
      * @return int count of items listed.
      */
-    function show()
+    public function show()
     {
-    	$attachments = $this->notice->attachments();
+        $attachments = $this->notice->attachments();
+        foreach ($attachments as $key => $att) {
+            // Remove attachments which are not representable with neither a title nor thumbnail
+            if ($att->getTitle() === _('Untitled attachment') && !$att->hasThumbnail()) {
+                unset($attachments[$key]);
+            }
+        }
         if (!count($attachments)) {
             return 0;
         }
 
         if ($this->notice->getProfile()->isSilenced()) {
             // TRANS: Message for inline attachments list in notices when the author has been silenced.
-            $this->element('div', ['class'=>'error'],
+            $this->element('div', ['class' => 'error'],
                            _('Attachments are hidden because this profile has been silenced.'));
             return 0;
         }
@@ -98,12 +107,12 @@ class AttachmentList extends Widget
         return count($attachments);
     }
 
-    function showListStart()
+    public function showListStart()
     {
-        $this->out->elementStart('ol', array('class' => 'attachments'));
+        $this->out->elementStart('ol', ['class' => 'attachments']);
     }
 
-    function showListEnd()
+    public function showListEnd()
     {
         $this->out->elementEnd('ol');
     }
@@ -115,7 +124,7 @@ class AttachmentList extends Widget
      *
      * @return AttachmentListItem a list item for displaying the attachment
      */
-    function newListItem(File $attachment)
+    public function newListItem(File $attachment)
     {
         return new AttachmentListItem($attachment, $this->out);
     }

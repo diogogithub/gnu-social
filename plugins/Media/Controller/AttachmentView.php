@@ -14,17 +14,17 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('GNUSOCIAL') || die();
+namespace Plugin\Media\Controller;
 
 /**
  * View notice attachment
  *
- * @package   GNUsocial
- * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @copyright 2016 Free Software Foundation, Inc http://www.fsf.org
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ * @package  GNUsocial
+ *
+ * @author   Miguel Dantas <biodantasgs@gmail.com>
+ * @license  https://www.gnu.org/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
  */
-class Attachment_viewAction extends AttachmentAction
+class AttachmentView extends Attachment
 {
     public function showPage(): void
     {

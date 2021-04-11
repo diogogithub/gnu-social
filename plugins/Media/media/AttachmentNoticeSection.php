@@ -19,12 +19,13 @@
  *
  * @category  Widget
  * @package   GNUsocial
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-defined('GNUSOCIAL') || die();
+namespace Plugin\Media\media;
 
 /**
  * FIXME
@@ -33,15 +34,16 @@ defined('GNUSOCIAL') || die();
  *
  * @category  Widget
  * @package   GNUsocial
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2009 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class AttachmentNoticeSection extends NoticeSection
+class AttachmentNoticeSection // extends NoticeSection
 {
     public function showContent()
     {
-        parent::showContent();
+        // parent::showContent();
         return false;
     }
 
@@ -49,7 +51,7 @@ class AttachmentNoticeSection extends NoticeSection
     {
         $notice = new Notice;
 
-        $notice->joinAdd(array('id', 'file_to_post:post_id'));
+        $notice->joinAdd(['id', 'file_to_post:post_id']);
         $notice->whereAdd(sprintf('file_to_post.file_id = %d', $this->out->attachment->id));
 
         $notice->selectAdd('notice.id');

@@ -1,4 +1,6 @@
 <?php
+
+// {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -13,30 +15,41 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+// }}}
 
-defined('GNUSOCIAL') || die();
+namespace Plugin\Media\Controller;
+
+use App\Core\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Show notice attachments
+ * Show note attachments
  *
- * @category  Personal
- * @package   GNUsocial
- * @author    Evan Prodromou <evan@status.net>
- * @copyright 2008-2009 StatusNet, Inc.
- * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
+ * @author   Evan Prodromou <evan@status.net>
+ * @author   Hugo Sales <hugo@hsal.es>
+ * @license  http://www.fsf.org/licensing/licenses/agpl-3.0.html GNU Affero General Public License version 3.0
+ *
+ * @see     http://status.net/
  */
-class AttachmentAction extends ManagedAction
+class Attachment extends Controller
 {
+    public function handle(Request $request)
+    {
+        return [
+            '_template' => 'doc/tos.html.twig',
+        ];
+    }
+
     /**
      * Attachment File object to show
      */
-    public $attachment = null;
+    public $attachment;
 
-    public $filehash = null;
-    public $filepath = null;
-    public $filesize = null;
-    public $mimetype = null;
-    public $filename = null;
+    public $filehash;
+    public $filepath;
+    public $filesize;
+    public $mimetype;
+    public $filename;
 
     /**
      * Load attributes based on database arguments
@@ -45,16 +58,17 @@ class AttachmentAction extends ManagedAction
      *
      * @param array $args $_REQUEST array
      *
-     * @return bool flag
      * @throws ClientException
      * @throws FileNotFoundException
      * @throws FileNotStoredLocallyException
      * @throws InvalidFilenameException
      * @throws ServerException
+     *
+     * @return bool flag
      */
     protected function prepare(array $args = [])
     {
-        parent::prepare($args);
+        // parent::prepare($args);
 
         try {
             if (!empty($id = $this->trimmed('attachment'))) {
@@ -88,6 +102,8 @@ class AttachmentAction extends ManagedAction
     /**
      * Is this action read-only?
      *
+     * @param mixed $args
+     *
      * @return bool true
      */
     public function isReadOnly($args): bool
@@ -102,13 +118,18 @@ class AttachmentAction extends ManagedAction
      */
     public function title(): string
     {
-        $a = new Attachment($this->attachment);
+        $a = new self($this->attachment);
         return $a->title();
     }
 
     public function showPage(): void
     {
-        parent::showPage();
+        if (empty($this->filepath)) {
+            // if it's not a local file, gtfo
+            common_redirect($this->attachment->getUrl(), 303);
+        }
+
+        // parent::showPage();
     }
 
     /**
@@ -120,7 +141,7 @@ class AttachmentAction extends ManagedAction
      */
     public function showContent(): void
     {
-        $ali = new Attachment($this->attachment, $this);
+        $ali = new self($this->attachment, $this);
         $ali->show();
     }
 
@@ -147,8 +168,9 @@ class AttachmentAction extends ManagedAction
     /**
      * Last-modified date for file
      *
-     * @return int last-modified date as unix timestamp
      * @throws ServerException
+     *
+     * @return int last-modified date as unix timestamp
      */
     public function lastModified(): ?int
     {
@@ -169,8 +191,9 @@ class AttachmentAction extends ManagedAction
      * This returns the same data (inode, size, mtime) as Apache would,
      * but in decimal instead of hex.
      *
-     * @return string etag http header
      * @throws ServerException
+     *
+     * @return string etag http header
      */
     public function etag(): ?string
     {
@@ -185,7 +208,7 @@ class AttachmentAction extends ManagedAction
             if (empty($path)) {
                 return null;
             }
-            $key = Cache::key('attachments:etag:' . $path);
+            $key  = Cache::key('attachments:etag:' . $path);
             $etag = $cache->get($key);
             if ($etag === false) {
                 $etag = crc32(file_get_contents($path));
