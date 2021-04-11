@@ -23,7 +23,7 @@ if [ ${DB_EXISTS} -ne 0 ]; then
 
     cd /var/www/social || exit 1
 
-    composer install
+    composer -n install
 
     chmod g+w -R .
     chown -R :www-data .
