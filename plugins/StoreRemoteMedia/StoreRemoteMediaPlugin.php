@@ -47,8 +47,6 @@ class StoreRemoteMediaPlugin extends Plugin
     public $crop = null;
     public $max_size = null;
 
-    protected $imgData = [];
-
     /**
      * Initialize the StoreRemoteMedia plugin and set up the environment it needs for it.
      * Returns true if it initialized properly, the exception object if it
@@ -72,8 +70,8 @@ class StoreRemoteMediaPlugin extends Plugin
      * the database.  We glom onto this to fetch remote attachments.
      *
      * @param $file File the file of the created thumbnail
-     * @param &$imgPath string = the path to the created thumbnail
-     * @param $media string = media type
+     * @param &$imgPath null|string = out the path to the created thumbnail (output parameter)
+     * @param $media string = media type (unused)
      * @return bool
      * @throws AlreadyFulfilledException
      * @throws FileNotFoundException
@@ -81,7 +79,7 @@ class StoreRemoteMediaPlugin extends Plugin
      * @throws HTTP_Request2_Exception
      * @throws ServerException
      */
-    public function onCreateFileImageThumbnailSource(File $file, &$imgPath, string $media): bool
+    public function onCreateFileImageThumbnailSource(File $file, ?string &$imgPath = null, ?string $media=null): bool
     {
         // If we are on a private node, we won't do any remote calls (just as a precaution until
         // we can configure this from config.php for the private nodes)
@@ -156,7 +154,7 @@ class StoreRemoteMediaPlugin extends Plugin
                 }
             } catch (UnsupportedMediaException $e) {
                 // Couldn't find anything that looks like an image, nothing to do
-                common_debug("StoreRemoteMedia was not able to find an image for URL `{$url}`: " . $e->getMessage());
+                common_debug("StoreRemoteMedia was not able to find an image for URL `$url`: " . $e->getMessage());
                 return false;
             }
         }
@@ -220,7 +218,7 @@ class StoreRemoteMediaPlugin extends Plugin
                 $headers = $head->getHeader();
                 $headers = array_change_key_case($headers, CASE_LOWER);
             }
-            return isset($headers['content-length']) ? $headers['content-length'] : false;
+            return $headers['content-length'] ?? false;
         } catch (Exception $err) {
             common_log(LOG_ERR, __CLASS__.': getRemoteFileSize on URL : '._ve($url).
                 ' threw exception: '.$err->getMessage());
@@ -234,7 +232,7 @@ class StoreRemoteMediaPlugin extends Plugin
      *
      * @return bool true if the remote URL is an image, or false otherwise.
      */
-    private function isRemoteImage($url, $headers = null)
+    private function isRemoteImage($url, $headers = null): bool
     {
         if (empty($headers)) {
             if (!common_valid_http_url($url)) {
@@ -278,6 +276,13 @@ class StoreRemoteMediaPlugin extends Plugin
                 $original_name = HTTPClient::get_filename($url, $headers);
             }
             $filename = MediaFile::encodeFilename($original_name ?? _m('Untitled attachment'), $filehash);
+        } catch (Exception $err) {
+            common_log(LOG_ERR, "Went to write a thumbnail to disk in StoreRemoteMediaPlugin::storeRemoteThumbnail " .
+                "but encountered error: $err");
+            throw $err;
+        }
+
+        try {
             $fullpath = $this->store_original ? File::path($filename) : File_thumbnail::path($filename);
             // Write the file to disk. Throw Exception on failure
             if (!file_exists($fullpath)) {
@@ -318,7 +323,7 @@ class StoreRemoteMediaPlugin extends Plugin
             // Carry on
         } catch (Exception $err) {
             common_log(LOG_ERR, "Went to write a thumbnail to disk in StoreRemoteMediaPlugin::storeRemoteThumbnail " .
-                "but encountered error: {$err}");
+                "but encountered error: $err");
             throw $err;
         } finally {
             unset($imgData);
