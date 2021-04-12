@@ -118,11 +118,11 @@ class AttachmentListItem extends Widget
             try {
                 if (!empty($enclosure->mimetype)) {
                     // First, prepare a thumbnail if it exists.
-                    $thumb = null;
                     try {
                         // Tell getThumbnail that we can show an animated image if it has one (4th arg, "force_still")
                         $thumb = File_thumbnail::fromFileObject($this->attachment, null, null, false, false);
                     } catch (UseFileAsThumbnailException|UnsupportedMediaException|FileNotFoundException|ServerException $e) {
+                        common_debug("AttachmentListItem couldn't find a thumbnail for {$this->attachment->getID()} because {$e->getMessage()}");
                         // This remote file has no local thumbnail.
                         $thumb = null;
                     }

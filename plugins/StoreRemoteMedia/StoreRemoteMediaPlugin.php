@@ -159,6 +159,7 @@ class StoreRemoteMediaPlugin extends Plugin
             }
         }
 
+        $ft = null;
         if ($this->store_original) {
             try {
                 // Update our database for the file record
@@ -194,9 +195,12 @@ class StoreRemoteMediaPlugin extends Plugin
         }
 
         // Out
-        $imgPath = $file->getPath();
-
-        return !file_exists($imgPath);
+        try {
+            $imgPath = $file->getFileOrThumbnailPath($ft);
+            return !file_exists($imgPath);
+        } catch (Exception $e) {
+            return true;
+        }
     }
 
     /**
