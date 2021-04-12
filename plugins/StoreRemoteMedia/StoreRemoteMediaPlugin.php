@@ -300,20 +300,25 @@ class StoreRemoteMediaPlugin extends Plugin
 
                 // If the image is not of the desired size, resize it
                 if (!$this->store_original && $this->crop && ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height)) {
-                    // Temporary object, not stored in DB
-                    $img = new ImageFile(-1, $fullpath);
-                    list($width, $height, $x, $y, $w, $h) = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->crop);
+                    try {
+                        // Temporary object, not stored in DB
+                        $img = new ImageFile(-1, $fullpath);
+                        list($width, $height, $x, $y, $w, $h) = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->crop);
 
-                    // The boundary box for our resizing
-                    $box = [
-                        'width' => $width, 'height' => $height,
-                        'x' => $x, 'y' => $y,
-                        'w' => $w, 'h' => $h,
-                    ];
+                        // The boundary box for our resizing
+                        $box = [
+                            'width' => $width, 'height' => $height,
+                            'x' => $x, 'y' => $y,
+                            'w' => $w, 'h' => $h,
+                        ];
 
-                    $width = $box['width'];
-                    $height = $box['height'];
-                    $img->resizeTo($fullpath, $box);
+                        $width = $box['width'];
+                        $height = $box['height'];
+                        $img->resizeTo($fullpath, $box);
+                    } catch (\Intervention\Image\Exception\NotReadableException $e) {
+                        common_log(LOG_ERR, "StoreRemoteMediaPlugin::storeRemoteThumbnail was unable to decode image with Intervention: $e");
+                        // No need to interrupt processing
+                    }
                 }
             } else {
                 throw new AlreadyFulfilledException('A thumbnail seems to already exist for remote file' .
