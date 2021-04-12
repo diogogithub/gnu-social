@@ -124,10 +124,10 @@ class EmbedPlugin extends Plugin
      * @param $metadata stdClass class representing the metadata
      * @return bool true if successful, the exception object if it isn't.
      */
-    public function onGetRemoteUrlMetadataFromDom($url, DOMDocument $dom, stdClass &$metadata)
+    public function onGetRemoteUrlMetadataFromDom(string $url, DOMDocument $dom, stdClass &$metadata)
     {
         try {
-            common_log(LOG_INFO, "Trying to find Embed data for {$url} with 'oscarotero/Embed'");
+            common_log(LOG_INFO, "Trying to find Embed data for $url with 'oscarotero/Embed'");
             $info = Embed::create($url);
 
             $metadata->version = '1.0'; // Yes.
@@ -149,7 +149,7 @@ class EmbedPlugin extends Plugin
                 $metadata->thumbnail_url = $info->image;
             }
         } catch (Exception $e) {
-            common_log(LOG_INFO, "Failed to find Embed data for {$url} with 'oscarotero/Embed'" .
+            common_log(LOG_INFO, "Failed to find Embed data for $url with 'oscarotero/Embed'" .
                 ", got exception: " . get_class($e));
         }
 
@@ -160,7 +160,7 @@ class EmbedPlugin extends Plugin
             if ($metadata->thumbnail_url[0] == '/') {
                 $thumbnail_url_parsed = parse_url($metadata->url);
                 $metadata->thumbnail_url = "{$thumbnail_url_parsed['scheme']}://".
-                    "{$thumbnail_url_parsed['host']}{$metadata->thumbnail_url}";
+                    "{$thumbnail_url_parsed['host']}$metadata->thumbnail_url";
             }
 
             // some wordpress opengraph implementations sometimes return a white blank image
@@ -200,7 +200,7 @@ class EmbedPlugin extends Plugin
                     'link',
                     [
                         'rel'   =>'alternate',
-                        'type'  => "application/{$format}+oembed",
+                        'type'  => "application/$format+oembed",
                         'href'  => common_local_url('oembed', [], ['format' => $format, 'url' => $url]),
                         'title' => 'oEmbed'
                     ]
@@ -239,7 +239,7 @@ class EmbedPlugin extends Plugin
             try {
                 $embed_data = File_embed::getEmbed($file->url);
                 if ($embed_data === false) {
-                    throw new Exception("Did not get Embed data from URL {$file->url}");
+                    throw new Exception("Did not get Embed data from URL $file->url");
                 }
                 $file->setTitle($embed_data->title);
             } catch (Exception $e) {
@@ -281,6 +281,7 @@ class EmbedPlugin extends Plugin
             }
         }
         $out->elementEnd('div');
+        return false;
     }
 
     public function onFileEnclosureMetadata(File $file, &$enclosure)
@@ -397,7 +398,7 @@ class EmbedPlugin extends Plugin
      * object thumbnails.
      *
      * @param $file File the file of the created thumbnail
-     * @param &$imgPath string = the path to the created thumbnail
+     * @param &$imgPath null|string = the path to the created thumbnail (output)
      * @param $media string = media type
      * @return bool true if it succeeds (including non-action
      * states where it isn't oEmbed data, so it doesn't mess up the event handle
@@ -406,7 +407,7 @@ class EmbedPlugin extends Plugin
      * @throws NoResultException
      * @throws ServerException
      */
-    public function onCreateFileImageThumbnailSource(File $file, &$imgPath, string $media): bool
+    public function onCreateFileImageThumbnailSource(File $file, ?string &$imgPath, string $media): bool
     {
         // If we are on a private node, we won't do any remote calls (just as a precaution until
         // we can configure this from config.php for the private nodes)
@@ -496,7 +497,7 @@ class EmbedPlugin extends Plugin
                 $headers = $head->getHeader();
                 $headers = array_change_key_case($headers, CASE_LOWER);
             }
-            return isset($headers['content-length']) ? $headers['content-length'] : false;
+            return $headers['content-length'] ?? false;
         } catch (Exception $err) {
             common_log(LOG_ERR, __CLASS__.': getRemoteFileSize on URL : '._ve($url).
                 ' threw exception: '.$err->getMessage());
@@ -554,6 +555,13 @@ class EmbedPlugin extends Plugin
                 $original_name = HTTPClient::get_filename($url, $headers);
             }
             $filename = MediaFile::encodeFilename($original_name ?? _m('Untitled attachment'), $filehash);
+        } catch (Exception $err) {
+            common_log(LOG_ERR, "Went to write a thumbnail to disk in StoreRemoteMediaPlugin::storeRemoteThumbnail " .
+                "but encountered error: $err");
+            throw $err;
+        }
+
+        try {
             $fullpath = File_thumbnail::path($filename);
             // Write the file to disk. Throw Exception on failure
             if (!file_exists($fullpath)) {
@@ -571,20 +579,25 @@ class EmbedPlugin extends Plugin
 
                 // If the image is not of the desired size, resize it
                 if ($this->crop && ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height)) {
-                    // Temporary object, not stored in DB
-                    $img = new ImageFile(-1, $fullpath);
-                    list($width, $height, $x, $y, $w, $h) = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->crop);
+                    try {
+                        // Temporary object, not stored in DB
+                        $img = new ImageFile(-1, $fullpath);
+                        list($width, $height, $x, $y, $w, $h) = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->crop);
 
-                    // The boundary box for our resizing
-                    $box = [
-                        'width' => $width, 'height' => $height,
-                        'x' => $x, 'y' => $y,
-                        'w' => $w, 'h' => $h,
-                    ];
+                        // The boundary box for our resizing
+                        $box = [
+                            'width' => $width, 'height' => $height,
+                            'x' => $x, 'y' => $y,
+                            'w' => $w, 'h' => $h,
+                        ];
 
-                    $width = $box['width'];
-                    $height = $box['height'];
-                    $img->resizeTo($fullpath, $box);
+                        $width = $box['width'];
+                        $height = $box['height'];
+                        $img->resizeTo($fullpath, $box);
+                    } catch (\Intervention\Image\Exception\NotReadableException $e) {
+                        common_log(LOG_ERR, "StoreRemoteMediaPlugin::storeRemoteThumbnail was unable to decode image with Intervention: $e");
+                        // No need to interrupt processing
+                    }
                 }
             } else {
                 throw new AlreadyFulfilledException('A thumbnail seems to already exist for remote file' .
@@ -594,7 +607,7 @@ class EmbedPlugin extends Plugin
             // Carry on
         } catch (Exception $err) {
             common_log(LOG_ERR, "Went to write a thumbnail to disk in EmbedPlugin::storeRemoteThumbnail " .
-                "but encountered error: {$err}");
+                "but encountered error: $err");
             throw $err;
         } finally {
             unset($imgData);
@@ -670,7 +683,7 @@ class EmbedPlugin extends Plugin
                 }
             } catch (UnsupportedMediaException $e) {
                 // Couldn't find anything that looks like an image, nothing to do
-                common_debug("Embed was not able to find an image for URL `{$url}`: " . $e->getMessage());
+                common_debug("Embed was not able to find an image for URL `$url`: " . $e->getMessage());
                 return false;
             }
         }
