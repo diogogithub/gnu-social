@@ -88,38 +88,27 @@ class File_thumbnail extends Managed_DataObject
         bool $force_still = true,
         ?bool $upscale = null
     ): File_thumbnail {
-        if ($file->isStoredRemotely()) {  // Remote file
-            // If StoreRemoteMedia or Embed are enabled...
-            if (Event::handle('CreateFileImageThumbnailSource', [$file, &$imgPath, 'image'])) {
-                if (!file_exists($imgPath)) {
-                    throw new FileNotFoundException($imgPath);
-                }
+        // Is file stored remotely only?
+        $was_stored_remotely = $file->isStoredRemotely();
 
-                // First some mimetype specific exceptions
-                switch ($file->mimetype) {
-                    case 'image/svg+xml':
-                        throw new UseFileAsThumbnailException($file);
-                }
-            }
-        }
-        try {
-            $image = ImageFile::fromFileObject($file);
-        } catch (InvalidFilenameException $e) {
-            // Not having an original local file doesn't mean we don't have a thumbnail.
-            $existing_thumb = File_thumbnail::byFile($file);
-            $image = new ImageFile($file->getID(), $existing_thumb->getPath(), null, $existing_thumb->url);
-        }
-        $imgPath = $image->getPath();
+        // If StoreRemoteMedia or Embed are enabled (they will only act if appropriate btw)...
         $media = common_get_mime_media($file->mimetype);
-        if (Event::handle('CreateFileImageThumbnailSource', [$file, &$imgPath, $media])) {
-            if (!file_exists($imgPath)) {
-                throw new FileNotFoundException($imgPath);
-            }
+        Event::handle('CreateFileImageThumbnailSource', [$file, &$imgPath, $media]);
 
-            // First some mimetype specific exceptions
-            switch ($file->mimetype) {
-                case 'image/svg+xml':
-                    throw new UseFileAsThumbnailException($file);
+        // If it was stored remotely, we can now assume it was sufficiently retrieved
+        if ($was_stored_remotely) {
+            $file = File::getById($file->getID());
+        }
+
+        if (file_exists($imgPath)) {
+            $image = new ImageFile($file->getID(), $imgPath, null, $file->getUrl(false));
+        } else {
+            try {
+                $image = ImageFile::fromFileObject($file);
+            } catch (InvalidFilenameException $e) {
+                // Not having an original local file doesn't mean we don't have a thumbnail.
+                $existing_thumb = File_thumbnail::byFile($file);
+                $image = new ImageFile($file->getID(), $existing_thumb->getPath(), null, $existing_thumb->url);
             }
         }
 
