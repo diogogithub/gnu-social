@@ -19,7 +19,7 @@
 
 namespace Component\Bridge;
 
-use App\Core\Module;
+use App\Core\Modules\Module;
 
 class Bridge extends Module
 {

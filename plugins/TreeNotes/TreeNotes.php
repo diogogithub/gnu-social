@@ -19,10 +19,8 @@
 
 namespace Plugin\TreeNotes;
 
+use App\Core\Modules\Module;
 use App\Entity\Note;
-use App\Core\Event;
-use App\Core\Module;
-use Functional as F;
 
 class TreeNotes extends Module
 {
@@ -31,7 +29,7 @@ class TreeNotes extends Module
      */
     public function onFormatNoteList(array &$notes_in_trees_out)
     {
-        $roots = array_filter($notes_in_trees_out, function(Note $note) { return $note->getReplyTo() == null; }, ARRAY_FILTER_USE_BOTH);
+        $roots              = array_filter($notes_in_trees_out, function (Note $note) { return $note->getReplyTo() == null; }, ARRAY_FILTER_USE_BOTH);
         $notes_in_trees_out = $this->build_tree($roots, $notes_in_trees_out);
     }
 
@@ -46,7 +44,7 @@ class TreeNotes extends Module
 
     private function build_subtree(Note $parent, array $notes)
     {
-        $children = array_filter($notes, function(Note $n) use ($parent) { return $parent->getId() == $n->getReplyTo(); }, ARRAY_FILTER_USE_BOTH);
+        $children = array_filter($notes, function (Note $n) use ($parent) { return $parent->getId() == $n->getReplyTo(); }, ARRAY_FILTER_USE_BOTH);
         return ['note' => $parent, 'replies' => $this->build_tree($children, $notes)];
     }
 }

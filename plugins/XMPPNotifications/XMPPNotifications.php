@@ -33,7 +33,7 @@
 namespace Plugin\XMPPNotifications;
 
 use App\Core\Event;
-use App\Core\Module;
+use App\Core\Modules\Module;
 
 class XMPPNotifications extends Module
 {

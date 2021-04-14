@@ -28,7 +28,7 @@
 
 namespace Plugin\FFmpeg;
 
-use App\Core\Module;
+use App\Core\Modules\Module;
 use Plugin\Media\Util\ImageFile;
 
 class FFmpeg extends Module

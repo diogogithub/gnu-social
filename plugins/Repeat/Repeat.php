@@ -22,7 +22,7 @@ namespace Plugin\Repeat;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
-use App\Core\Module;
+use App\Core\Modules\Module;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\NotFoundException;

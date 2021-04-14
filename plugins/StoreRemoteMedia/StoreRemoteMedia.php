@@ -16,7 +16,7 @@
 
 namespace Plugin\StoreRemoteMedia;
 
-use App\Core\Module;
+use App\Core\Modules\Module;
 
 /**
  * The StoreRemoteMedia plugin downloads remotely attached files to local server.

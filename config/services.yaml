@@ -24,7 +24,7 @@ services:
     App\Core\Router\RouteLoader:
         tags: ['routing.loader']
 
-    # Wrapper arround Doctrine's StaticPHP metadata driver
+    # Wrapper around Doctrine's StaticPHP metadata driver
     app.schemadef_driver:
         class: App\DependencyInjection\Compiler\SchemaDefDriver
         arguments: 

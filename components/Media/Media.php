@@ -21,7 +21,7 @@ namespace Component\Media;
 
 use App\Core\Cache;
 use App\Core\Event;
-use App\Core\Module;
+use App\Core\Modules\Module;
 use App\Util\Common;
 use App\Util\Nickname;
 

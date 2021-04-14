@@ -32,7 +32,7 @@
 
 namespace Plugin\Embed;
 
-use App\Core\Module;
+use App\Core\Modules\Module;
 
 /**
  * Base class for the Embed plugin that does most of the heavy lifting to get
