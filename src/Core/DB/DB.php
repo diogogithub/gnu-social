@@ -162,14 +162,18 @@ abstract class DB
      */
     public static function __callStatic(string $name, array $args)
     {
-        // TODO Plugins
-        // If the method is one of the following and the first argument doesn't look like a FQCN, add the prefix
-        $pref = '\App\Entity\\';
-        if (in_array($name, ['find', 'getReference', 'getPartialReference', 'getRepository'])
-            && preg_match('/\\\\/', $args[0]) === 0
-            && Formatting::startsWith($args[0], $pref) === false) {
-            $args[0] = $pref . ucfirst(Formatting::snakeCaseToCamelCase($args[0]));
-            $args[0] = preg_replace('/Gsactor/', 'GSActor', $args[0]);
+        if (($args[0] ?? '') == 'favourite') {
+            $args[0] = 'Plugin\Favourite\Entity\Favourite';
+        } else {
+            // TODO Plugins
+            // If the method is one of the following and the first argument doesn't look like a FQCN, add the prefix
+            $pref = '\App\Entity\\';
+            if (in_array($name, ['find', 'getReference', 'getPartialReference', 'getRepository'])
+                && preg_match('/\\\\/', $args[0]) === 0
+                && Formatting::startsWith($args[0], $pref) === false) {
+                $args[0] = $pref . ucfirst(Formatting::snakeCaseToCamelCase($args[0]));
+                $args[0] = preg_replace('/Gsactor/', 'GSActor', $args[0]);
+            }
         }
 
         return self::$em->{$name}(...$args);
