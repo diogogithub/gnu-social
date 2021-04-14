@@ -18,22 +18,30 @@
  * Animated GIF resize support via PHP-FFMpeg
  *
  * @package   GNUsocial
+ *
  * @author    Bruno Casteleiro <up201505347@fc.up.pt>
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
- * @link      http://www.gnu.org/software/social/
+ *
+ * @see      http://www.gnu.org/software/social/
  */
 
-defined('GNUSOCIAL') || die();
+namespace Plugin\FFmpeg;
 
-class FFmpegPlugin extends Plugin
+use App\Core\Module;
+use Plugin\Media\Util\ImageFile;
+
+class FFmpeg extends Module
 {
     const PLUGIN_VERSION = '0.1.0';
 
+    /**
+     * Handle resizing GIF files
+     */
     public function onStartResizeImageFile(
         ImageFile $imagefile,
         string $outpath,
-        array  $box
+        array $box
     ): bool {
         switch ($imagefile->mimetype) {
         case 'image/gif':
@@ -57,8 +65,8 @@ class FFmpegPlugin extends Plugin
         // Create FFMpeg instance
         // Need to explictly tell the drivers location or it won't find them
         $ffmpeg = FFMpeg\FFMpeg::create([
-            'ffmpeg.binaries'  => exec("which ffmpeg"),
-            'ffprobe.binaries' => exec("which ffprobe")
+            'ffmpeg.binaries'  => exec('which ffmpeg'),
+            'ffprobe.binaries' => exec('which ffprobe'),
         ]);
 
         // FFmpeg can't edit existing files in place,
@@ -131,13 +139,14 @@ class FFmpegPlugin extends Plugin
     /**
      * Suffix version of tempnam.
      * Courtesy of tomas at slax dot org:
+     *
      * @see https://www.php.net/manual/en/function.tempnam.php#98232
      */
     private function tempnam_sfx(string $dir, string $suffix): string
     {
         do {
-            $file = $dir . "/" . mt_rand() . $suffix;
-            $fp = @fopen($file, 'x');
+            $file = $dir . '/' . mt_rand() . $suffix;
+            $fp   = @fopen($file, 'x');
         } while (!$fp);
 
         fclose($fp);
@@ -147,12 +156,11 @@ class FFmpegPlugin extends Plugin
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = ['name' => 'FFmpeg',
-                       'version' => self::PLUGIN_VERSION,
-                       'author' => 'Bruno Casteleiro',
-                       'homepage' => 'https://notabug.org/diogo/gnu-social/src/nightly/plugins/FFmpeg',
-                       'rawdescription' =>
-                       // TRANS: Plugin description.
-                       _m('Use PHP-FFMpeg for resizing animated GIFs')];
+            'version'         => self::PLUGIN_VERSION,
+            'author'          => 'Bruno Casteleiro',
+            'homepage'        => 'https://notabug.org/diogo/gnu-social/src/nightly/plugins/FFmpeg',
+            'rawdescription'  => // TRANS: Plugin description.
+            _m('Use PHP-FFMpeg for resizing animated GIFs'), ];
         return true;
     }
 }
