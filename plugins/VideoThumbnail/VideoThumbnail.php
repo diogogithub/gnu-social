@@ -26,12 +26,12 @@
  * @see      http://www.gnu.org/software/social/
  */
 
-namespace Plugin\FFmpeg;
+namespace Plugin\VideoThumbnail;
 
 use App\Core\Modules\Module;
 use Plugin\Media\Util\ImageFile;
 
-class FFmpeg extends Module
+class VideoThumbnail extends Module
 {
     const PLUGIN_VERSION = '0.1.0';
 
