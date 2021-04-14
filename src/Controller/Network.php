@@ -36,11 +36,11 @@ namespace App\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
+use function App\Core\I18n\_m;
 use App\Core\NoteScope;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
-use function App\Core\I18n\_m;
 use Symfony\Component\HttpFoundation\Request;
 
 class Network extends Controller
@@ -53,16 +53,13 @@ class Network extends Controller
 
     public function public(Request $request)
     {
-        $notes = DB::sql('select * from note n ' .
-                         "where (n.scope & {$this->instance_scope}) <> 0 " .
-                         'order by n.created DESC',
-                         ['n' => 'App\Entity\Note']);
+        $notes = Note::getAllNotes($this->instance_scope);
 
         Event::handle('FormatNoteList', [&$notes]);
 
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => Note::getAllNotes($this->instance_scope),
+            'notes'     => $notes,
         ];
     }
 
@@ -99,6 +96,8 @@ class Network extends Controller
 END;
         $notes = DB::sql($query, ['note' => 'App\Entity\Note'], ['target_actor_id' => $target->getId()]);
 
+        Event::handle('FormatNoteList', [&$notes]);
+
         return [
             '_template' => 'network/public.html.twig',
             'notes'     => $notes,
@@ -107,60 +106,28 @@ END;
 
     public function network(Request $request)
     {
+        $notes = Note::getAllNotes($this->instance_scope);
+
+        Event::handle('FormatNoteList', [&$notes]);
+
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => DB::dql('select n from App\Entity\Note n ' .
-                                   "where n.scope = {$this->public_scope} " .
-                                   'order by n.created DESC'
-            ),
+            'notes'     => $notes,
         ];
     }
 
     public function replies(Request $request)
     {
         $actor_id = Common::ensureLoggedIn()->getId();
+        $notes    = DB::dql('select n from App\Entity\Note n ' .
+                         'where n.reply_to is not null and n.gsactor_id = :id ' .
+                         'order by n.created DESC', ['id' => $actor_id]);
+
+        Event::handle('FormatNoteList', [&$notes]);
 
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => DB::dql('select n from App\Entity\Note n ' .
-                                   'where n.reply_to is not null and n.gsactor_id = :id ' .
-                                   'order by n.created DESC', ['id' => $actor_id]),
-        ];
-    }
-
-    public function favourites(Request $request)
-    {
-        $actor_id = Common::ensureLoggedIn()->getId();
-
-        return [
-            '_template' => 'network/public.html.twig',
-            'notes'     => DB::dql('select f from App\Entity\Favourite f ' .
-                                   'where f.gsactor_id = :id ' .
-                                   'order by f.created DESC', ['id' => $actor_id]),
-        ];
-    }
-
-    /**
-     *  Reverse favourites stream
-     *
-     * @param Request $request
-     *
-     * @throws \App\Util\Exception\NoLoggedInUser user not logged in
-     *
-     * @return array template
-     */
-    public function reversefavs(Request $request)
-    {
-        $actor_id = Common::ensureLoggedIn()->getId();
-
-        return [
-            '_template' => 'network/reversefavs.html.twig',
-            'notes'     => DB::dql('select n from App\Entity\Note n,  App\Entity\Favourite f ' .
-                'where n.id = f.note_id ' .
-                'and f.gsactor_id != :id ' .
-                'and n.gsactor_id = :id ' .
-                'order by f.created DESC' ,
-                ['id' => $actor_id]),
+            'notes'     => $notes,
         ];
     }
 }
