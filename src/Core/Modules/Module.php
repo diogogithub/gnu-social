@@ -17,7 +17,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Core;
+namespace App\Core\Modules;
 
 use App\Entity\Note;
 use App\Util\Common;

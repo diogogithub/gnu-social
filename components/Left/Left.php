@@ -21,7 +21,7 @@ namespace Component\Left;
 
 use App\Core\Event;
 use App\Core\Log;
-use App\Core\Module;
+use App\Core\Modules\Module;
 use App\Util\Common;
 use Exception;
 

@@ -154,17 +154,6 @@ class File extends Entity
         return $this->is_local;
     }
 
-    public function setIsNsfw(?bool $is_nsfw): self
-    {
-        $this->is_nsfw = $is_nsfw;
-        return $this;
-    }
-
-    public function getIsNsfw(): ?bool
-    {
-        return $this->is_nsfw;
-    }
-
     public function setIsUrlProtected(?bool $is_url_protected): self
     {
         $this->is_url_protected = $is_url_protected;
@@ -233,18 +222,17 @@ class File extends Entity
         return [
             'name'   => 'file',
             'fields' => [
-                'id'               => ['type' => 'serial',    'not null' => true],
-                'url'              => ['type' => 'text',      'description' => 'URL after following possible redirections'],
-                'url_hash'         => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of destination URL (url field)'],
-                'file_hash'        => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
-                'gsactor_id'       => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'description' => 'If set, used so each actor can have a version of this file (for avatars, for instance)'],
-                'mimetype'         => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
-                'title'            => ['type' => 'text',      'description' => 'title of resource when available'],
-                'filename'         => ['type' => 'varchar',   'length' => 191, 'description' => 'title of resource when available'],
-                'is_local'         => ['type' => 'bool',      'description' => 'whether the file is stored locally'],
-                'is_nsfw'          => ['type' => 'bool',      'default' => false, 'description' => 'whether the file is NSFW'],
-                'is_url_protected' => ['type' => 'bool',      'default' => false, 'description' => 'true when URL is private (needs login)'],
-                'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'              => ['type' => 'serial',    'not null' => true],
+                'remote_url'      => ['type' => 'text',      'description' => 'URL after following possible redirections'],
+                'remote_url_hash' => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of destination URL (url field)'],
+                'file_hash'       => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
+                'gsactor_id'      => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'description' => 'If set, used so each actor can have a version of this file (for avatars, for instance)'],
+                'mimetype'        => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
+                'title'           => ['type' => 'text',      'description' => 'title of resource when available'],
+                'filename'        => ['type' => 'varchar',   'length' => 191, 'description' => 'title of resource when available'],
+                'is_local'        => ['type' => 'bool',      'description' => 'whether the file is stored locally'],
+                'source'          => ['type' => 'int',       'default' => null, 'description' => 'Source of the Attachment (upload, TFN, embed)'],
+                'modified'        => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'unique keys' => [

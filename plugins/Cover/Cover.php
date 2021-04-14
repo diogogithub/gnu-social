@@ -22,7 +22,7 @@ namespace Plugin\Cover;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Core\Module;
+use App\Core\Modules\Module;
 use App\Core\Router\RouteLoader;
 use App\Util\Common;
 

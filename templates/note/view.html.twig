@@ -25,9 +25,10 @@
       {% for attachment in note.getAttachments() %}
         {% if attachment.mimetype starts with 'image/' %}
           <div>
-            <img src="{{ path('attachment_inline', {'id': attachment.getId()}) }}" alt="{{ attachment.getTitle() }}">
-            <i> {{ attachment.getTitle() }} </i>
-            </img>
+            <figure>
+              <img src="{{ path('attachment_inline', {'id': attachment.getId()}) }}" alt="{{ attachment.getTitle() }}">
+              <figcaption> {{ attachment.getTitle() }} </figcaption>
+            </figure>
           </div>
         {% elseif attachment.mimetype starts with 'video/' %}
           <div>
@@ -45,14 +46,16 @@
   </div>
   <div class="note-actions">
     {% if have_user %}
-      {% for act in get_note_actions(note) %}
-        {{ form(act) }}
-      {% endfor %}
+      {#{% for act in get_note_actions(note) %}#}
+        {#{{ form(act) }}#}
+      {#{% endfor %}#}
     {% endif %}
   </div>
-  <div class="replies">
-    {% for conversation in replies %}
-      {% include '/note/view.html.twig' with {'note': conversation['note'], 'skip_reply_to': true, 'have_user': have_user, 'replies': conversation['replies']} only %}
-    {% endfor %}
-  </div>
+  {% if replies is defined %}
+    <div class="replies">
+      {% for conversation in replies %}
+        {% include '/note/view.html.twig' with {'note': conversation['note'], 'skip_reply_to': true, 'have_user': have_user, 'replies': conversation['replies']} only %}
+      {% endfor %}
+    </div>
+  {% endif %}
 </div>
