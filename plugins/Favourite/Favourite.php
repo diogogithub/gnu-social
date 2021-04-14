@@ -23,6 +23,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use App\Core\Modules\Module;
+use App\Core\Router\RouteLoader;
 use App\Entity\Note;
 use App\Util\Common;
 use Plugin\Favourite\Entity\Favourite as Fave;
@@ -54,7 +55,7 @@ class Favourite extends Module
         $ret = self::noteActionHandle($request, $form, $note, 'favourite', function ($note, $data) use ($opts) {
             $fave = DB::find('favourite', $opts);
             if (!$data['is_set'] && ($fave == null)) {
-                DB::persist(Fave::create($opts));
+                DB::persist(Entity\Favourite::create($opts));
                 DB::flush();
             } else {
                 DB::remove($fave);
@@ -73,8 +74,8 @@ class Favourite extends Module
 
     public function onAddRoute(RouteLoader $r)
     {
-        $r->connect('actors', '/actors', [Controller\Directory::class, 'actors']);
-        $r->connect('groups', '/groups', [Controller\Directory::class, 'groups']);
+        $r->connect('favourites', '/favourites', [Controller\Favourite::class, 'favourites']);
+        $r->connect('reverse_favourites', '/reversefavs', [Controller\Favourite::class, 'reverseFavourites']);
         return Event::next;
     }
 }
