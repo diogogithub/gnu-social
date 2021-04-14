@@ -140,7 +140,7 @@ fi
 # -------------------------------- PHP -------------------------------------
 if echo "${DOCKER}" | grep -Fq '"php"'; then
     ${WHIPTAIL} --title "Build PHP container locally?" --clear --backtitle 'GNU social' \
-                --yesno "\nDo you want to use a compile the needed PHP extensions and build the container locally? (may provide better performance, needs more than 1GiB of RAM)" 0 0 \
+                --yesno "\nDo you want to compile the needed PHP extensions and build the container locally? (May provide better performance but requires more than 1GiB of RAM)" 0 0 \
                 3>&1 1>&2 2>&3
     BUILD_PHP=$((1-$?)) # Invert output
 fi
