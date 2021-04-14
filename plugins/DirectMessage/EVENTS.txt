@@ -1,9 +1,0 @@
-FillDirectMessageRecipients: after the plugin populates the recipients select-box; federation plugins must add their own recipients; note that only subscriptions should be added
-- User $current: Currently logged user
-- array &$recipeints: Profiles to be shown in the select-box
-
-DirectMessageProfilePageActions: when about to show the direct message button in someone's profile; federation plugins must validate their users otherwise the button is ommited
-- Profile $target: Profile receiving the message button
-
-SendDirectMessage: after storing a new private message; federation plugins must distribute the message to the remote profiles
-- Notice $message: Message to be distributed

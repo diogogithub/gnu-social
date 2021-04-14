@@ -1,8 +1,0 @@
-StartTFNLookup: tries to locate a duplicated remote profile by URI; federation plugins must trigger this event before profile insertion
-@param string $uri URI of the remote profile to be inserted
-@param string $class profile class of the federation protocol that triggered the event
-@param int|null &$profile_id profile ID associated with the duplicated remote profile found, throws AlreadyHandledException to warn that the duplicate has priority
-
-EndTFNLookup: deletes a previous duplicated remote profile found; federation plugins must trigget this event after successfully inserting a new profile
-@param string $class profile class of the federation protocol that triggered the event
-@param int &$profile_id profile ID associated with the duplicated remote profile

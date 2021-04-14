@@ -1,2 +1,0 @@
-NodeInfoProtocols: List of protocols to be reported on NodeInfo requests
-- &$protocols - Add protocol to the list so it is informed upon request
