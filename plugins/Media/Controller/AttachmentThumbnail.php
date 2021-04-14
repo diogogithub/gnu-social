@@ -21,11 +21,12 @@ namespace Plugin\Media\Controller;
  *
  * @category  Personal
  * @package   GNUsocial
+ *
  * @author    Evan Prodromou <evan@status.net>
  * @copyright 2008-2009 StatusNet, Inc.
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Attachment_thumbnailAction extends Attachment_viewAction
+class AttachmentThumbnail extends AttachmentView
 {
     protected $thumb_w;  // max width
     protected $thumb_h;  // max height

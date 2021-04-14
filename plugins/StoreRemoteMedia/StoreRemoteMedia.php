@@ -14,10 +14,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace Plugin\StoreRemoteMedia;
+
+use App\Core\Module;
+
 /**
  * The StoreRemoteMedia plugin downloads remotely attached files to local server.
  *
  * @package   GNUsocial
+ *
  * @author    Mikael Nordfeldth
  * @author    Stephen Paul Weber
  * @author    Mikael Nordfeldth
@@ -26,7 +31,7 @@
  * @copyright 2015-2016, 2019-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class StoreRemoteMediaPlugin extends Plugin
+class StoreRemoteMedia extends Module
 {
     const PLUGIN_VERSION = '3.0.0';
 
@@ -41,11 +46,11 @@ class StoreRemoteMediaPlugin extends Plugin
     public $append_whitelist = [];    // fill this array as domain_whitelist to add more trusted sources
     public $check_whitelist  = false; // security/abuse precaution
 
-    public $store_original   = false; // Whether to maintain a copy of the original media or only a thumbnail of it
-    public $thumbnail_width = null;
-    public $thumbnail_height = null;
-    public $crop = null;
-    public $max_size = null;
+    public $store_original = false; // Whether to maintain a copy of the original media or only a thumbnail of it
+    public $thumbnail_width;
+    public $thumbnail_height;
+    public $crop;
+    public $max_size;
 
     /**
      * Initialize the StoreRemoteMedia plugin and set up the environment it needs for it.
@@ -59,10 +64,10 @@ class StoreRemoteMediaPlugin extends Plugin
         $this->domain_whitelist = array_merge($this->domain_whitelist, $this->append_whitelist);
 
         // Load global configuration if specific not provided
-        $this->thumbnail_width = $this->thumbnail_width ?? common_config('thumbnail', 'width');
+        $this->thumbnail_width  = $this->thumbnail_width  ?? common_config('thumbnail', 'width');
         $this->thumbnail_height = $this->thumbnail_height ?? common_config('thumbnail', 'height');
-        $this->max_size = $this->max_size ?? common_config('attachments', 'file_quota');
-        $this->crop = $this->crop ?? common_config('thumbnail', 'crop');
+        $this->max_size         = $this->max_size         ?? common_config('attachments', 'file_quota');
+        $this->crop             = $this->crop             ?? common_config('thumbnail', 'crop');
     }
 
     /**
@@ -72,14 +77,16 @@ class StoreRemoteMediaPlugin extends Plugin
      * @param $file File the file of the created thumbnail
      * @param &$imgPath null|string = out the path to the created thumbnail (output parameter)
      * @param $media string = media type (unused)
-     * @return bool
+     *
      * @throws AlreadyFulfilledException
      * @throws FileNotFoundException
      * @throws FileNotStoredLocallyException
      * @throws HTTP_Request2_Exception
      * @throws ServerException
+     *
+     * @return bool
      */
-    public function onCreateFileImageThumbnailSource(File $file, ?string &$imgPath = null, ?string $media=null): bool
+    public function onCreateFileImageThumbnailSource(File $file, ?string &$imgPath = null, ?string $media = null): bool
     {
         // If we are on a private node, we won't do any remote calls (just as a precaution until
         // we can configure this from config.php for the private nodes)
@@ -89,7 +96,7 @@ class StoreRemoteMediaPlugin extends Plugin
 
         // If there is a local filename, it is either a local file already or has already been downloaded.
         if (!$file->isStoredRemotely()) {
-            common_debug(sprintf('File id==%d isn\'t a non-fetched remote file (%s), so nothing StoreRemoteMedia '.
+            common_debug(sprintf('File id==%d isn\'t a non-fetched remote file (%s), so nothing StoreRemoteMedia ' .
                 'should handle.', $file->getID(), _ve($file->filename)));
             return true;
         }
@@ -106,13 +113,13 @@ class StoreRemoteMediaPlugin extends Plugin
 
         if (substr($url, 0, 7) == 'file://') {
             $filename = substr($url, 7);
-            $info = getimagesize($filename);
+            $info     = getimagesize($filename);
             $filename = basename($filename);
-            $width = $info[0];
-            $height = $info[1];
+            $width    = $info[0];
+            $height   = $info[1];
         } else {
             $this->checkWhitelist($url);
-            $head = (new HTTPClient())->head($url);
+            $head    = (new HTTPClient())->head($url);
             $headers = $head->getHeader();
             $headers = array_change_key_case($headers, CASE_LOWER);
 
@@ -120,16 +127,16 @@ class StoreRemoteMediaPlugin extends Plugin
                 $is_image = $this->isRemoteImage($url, $headers);
                 if ($is_image == true) {
                     $file_size = $this->getRemoteFileSize($url, $headers);
-                    if (($file_size!=false) && ($file_size > $this->max_size)) {
-                        common_debug("Went to store remote thumbnail of size " . $file_size .
-                            " but the upload limit is " . $this->max_size . " so we aborted.");
+                    if (($file_size != false) && ($file_size > $this->max_size)) {
+                        common_debug('Went to store remote thumbnail of size ' . $file_size .
+                            ' but the upload limit is ' . $this->max_size . ' so we aborted.');
                         return false;
                     }
                 } else {
                     return false;
                 }
             } catch (Exception $err) {
-                common_debug("Could not determine size of remote image, aborted local storage.");
+                common_debug('Could not determine size of remote image, aborted local storage.');
                 throw $err;
             }
 
@@ -154,7 +161,7 @@ class StoreRemoteMediaPlugin extends Plugin
                 }
             } catch (UnsupportedMediaException $e) {
                 // Couldn't find anything that looks like an image, nothing to do
-                common_debug("StoreRemoteMedia was not able to find an image for URL `$url`: " . $e->getMessage());
+                common_debug("StoreRemoteMedia was not able to find an image for URL `{$url}`: " . $e->getMessage());
                 return false;
             }
         }
@@ -163,33 +170,33 @@ class StoreRemoteMediaPlugin extends Plugin
         if ($this->store_original) {
             try {
                 // Update our database for the file record
-                $orig = clone($file);
+                $orig           = clone $file;
                 $file->filename = $filename;
                 $file->filehash = $filehash;
-                $file->width = $width;
-                $file->height = $height;
+                $file->width    = $width;
+                $file->height   = $height;
                 // Throws exception on failure.
                 $file->updateWithKeys($orig);
             } catch (Exception $err) {
-                common_log(LOG_ERR, "Went to update a file entry on the database in " .
-                    "StoreRemoteMediaPlugin::storeRemoteThumbnail but encountered error: " . $err);
+                common_log(LOG_ERR, 'Went to update a file entry on the database in ' .
+                    'StoreRemoteMediaPlugin::storeRemoteThumbnail but encountered error: ' . $err);
                 throw $err;
             }
         } else {
             try {
                 // Insert a thumbnail record for this file
-                $data = new stdClass();
-                $data->thumbnail_url = $url;
-                $data->thumbnail_width = $width;
+                $data                   = new stdClass();
+                $data->thumbnail_url    = $url;
+                $data->thumbnail_width  = $width;
                 $data->thumbnail_height = $height;
                 File_thumbnail::saveNew($data, $file->getID());
-                $ft = File_thumbnail::byFile($file);
-                $orig = clone($ft);
+                $ft           = File_thumbnail::byFile($file);
+                $orig         = clone $ft;
                 $ft->filename = $filename;
                 $ft->updateWithKeys($orig);
             } catch (Exception $err) {
-                common_log(LOG_ERR, "Went to write a thumbnail entry to the database in " .
-                    "StoreRemoteMediaPlugin::storeRemoteThumbnail but encountered error: " . $err);
+                common_log(LOG_ERR, 'Went to write a thumbnail entry to the database in ' .
+                    'StoreRemoteMediaPlugin::storeRemoteThumbnail but encountered error: ' . $err);
                 throw $err;
             }
         }
@@ -208,24 +215,27 @@ class StoreRemoteMediaPlugin extends Plugin
      * the content-length variable returned.  This isn't 100% foolproof but is
      * reliable enough for our purposes.
      *
-     * @return string|bool the file size if it succeeds, false otherwise.
+     * @param mixed      $url
+     * @param null|mixed $headers
+     *
+     * @return bool|string the file size if it succeeds, false otherwise.
      */
     private function getRemoteFileSize($url, $headers = null)
     {
         try {
             if ($headers === null) {
                 if (!common_valid_http_url($url)) {
-                    common_log(LOG_ERR, "Invalid URL in StoreRemoteMedia::getRemoteFileSize()");
+                    common_log(LOG_ERR, 'Invalid URL in StoreRemoteMedia::getRemoteFileSize()');
                     return false;
                 }
-                $head = (new HTTPClient())->head($url);
+                $head    = (new HTTPClient())->head($url);
                 $headers = $head->getHeader();
                 $headers = array_change_key_case($headers, CASE_LOWER);
             }
             return $headers['content-length'] ?? false;
         } catch (Exception $err) {
-            common_log(LOG_ERR, __CLASS__.': getRemoteFileSize on URL : '._ve($url).
-                ' threw exception: '.$err->getMessage());
+            common_log(LOG_ERR, __CLASS__ . ': getRemoteFileSize on URL : ' . _ve($url) .
+                ' threw exception: ' . $err->getMessage());
             return false;
         }
     }
@@ -234,16 +244,19 @@ class StoreRemoteMediaPlugin extends Plugin
      * A private helper function that uses a CURL lookup to check the mime type
      * of a remote URL to see it it's an image.
      *
+     * @param mixed      $url
+     * @param null|mixed $headers
+     *
      * @return bool true if the remote URL is an image, or false otherwise.
      */
     private function isRemoteImage($url, $headers = null): bool
     {
         if (empty($headers)) {
             if (!common_valid_http_url($url)) {
-                common_log(LOG_ERR, "Invalid URL in StoreRemoteMedia::isRemoteImage()");
+                common_log(LOG_ERR, 'Invalid URL in StoreRemoteMedia::isRemoteImage()');
                 return false;
             }
-            $head = (new HTTPClient())->head($url);
+            $head    = (new HTTPClient())->head($url);
             $headers = $head->getHeader();
             $headers = array_change_key_case($headers, CASE_LOWER);
         }
@@ -256,11 +269,11 @@ class StoreRemoteMediaPlugin extends Plugin
      * by $this->thumbnail_height
      *
      * @param $imgData - The image data to validate. Taken by reference to avoid copying
-     * @param string|null $url - The url where the image came from, to fetch metadata
-     * @param array|null $headers - The headers possible previous request to $url
-     * @param int|null $file_id - The id of the file this image belongs to, used for logging
+     * @param null|string $url     - The url where the image came from, to fetch metadata
+     * @param null|array  $headers - The headers possible previous request to $url
+     * @param null|int    $file_id - The id of the file this image belongs to, used for logging
      */
-    protected function validateAndWriteImage(&$imgData, ?string $url = null, ?array $headers = null, ?int $file_id = null) : array
+    protected function validateAndWriteImage(&$imgData, ?string $url = null, ?array $headers = null, ?int $file_id = null): array
     {
         $info = @getimagesizefromstring($imgData);
         // array indexes documented on php.net:
@@ -271,8 +284,8 @@ class StoreRemoteMediaPlugin extends Plugin
             throw new UnsupportedMediaException(_m('Image file had impossible geometry (0 width or height)'));
         }
 
-        $width = min($info[0], $this->thumbnail_width);
-        $height = min($info[1], $this->thumbnail_height);
+        $width    = min($info[0], $this->thumbnail_width);
+        $height   = min($info[1], $this->thumbnail_height);
         $filehash = hash(File::FILEHASH_ALG, $imgData);
 
         try {
@@ -281,8 +294,8 @@ class StoreRemoteMediaPlugin extends Plugin
             }
             $filename = MediaFile::encodeFilename($original_name ?? _m('Untitled attachment'), $filehash);
         } catch (Exception $err) {
-            common_log(LOG_ERR, "Went to write a thumbnail to disk in StoreRemoteMediaPlugin::storeRemoteThumbnail " .
-                "but encountered error: $err");
+            common_log(LOG_ERR, 'Went to write a thumbnail to disk in StoreRemoteMediaPlugin::storeRemoteThumbnail ' .
+                "but encountered error: {$err}");
             throw $err;
         }
 
@@ -306,21 +319,21 @@ class StoreRemoteMediaPlugin extends Plugin
                 if (!$this->store_original && $this->crop && ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height)) {
                     try {
                         // Temporary object, not stored in DB
-                        $img = new ImageFile(-1, $fullpath);
+                        $img                                  = new ImageFile(-1, $fullpath);
                         list($width, $height, $x, $y, $w, $h) = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->crop);
 
                         // The boundary box for our resizing
                         $box = [
                             'width' => $width, 'height' => $height,
-                            'x' => $x, 'y' => $y,
-                            'w' => $w, 'h' => $h,
+                            'x'     => $x, 'y' => $y,
+                            'w'     => $w, 'h' => $h,
                         ];
 
-                        $width = $box['width'];
+                        $width  = $box['width'];
                         $height = $box['height'];
                         $img->resizeTo($fullpath, $box);
                     } catch (\Intervention\Image\Exception\NotReadableException $e) {
-                        common_log(LOG_ERR, "StoreRemoteMediaPlugin::storeRemoteThumbnail was unable to decode image with Intervention: $e");
+                        common_log(LOG_ERR, "StoreRemoteMediaPlugin::storeRemoteThumbnail was unable to decode image with Intervention: {$e}");
                         // No need to interrupt processing
                     }
                 }
@@ -331,8 +344,8 @@ class StoreRemoteMediaPlugin extends Plugin
         } catch (AlreadyFulfilledException $e) {
             // Carry on
         } catch (Exception $err) {
-            common_log(LOG_ERR, "Went to write a thumbnail to disk in StoreRemoteMediaPlugin::storeRemoteThumbnail " .
-                "but encountered error: $err");
+            common_log(LOG_ERR, 'Went to write a thumbnail to disk in StoreRemoteMediaPlugin::storeRemoteThumbnail ' .
+                "but encountered error: {$err}");
             throw $err;
         } finally {
             unset($imgData);
@@ -342,8 +355,11 @@ class StoreRemoteMediaPlugin extends Plugin
     }
 
     /**
-     * @return bool             false on no check made, provider name on success
-     * @throws ServerException  if check is made but fails
+     * @param mixed $url
+     *
+     * @throws ServerException if check is made but fails
+     *
+     * @return bool false on no check made, provider name on success
      */
     protected function checkWhitelist($url)
     {
@@ -353,7 +369,7 @@ class StoreRemoteMediaPlugin extends Plugin
 
         $host = parse_url($url, PHP_URL_HOST);
         foreach ($this->domain_whitelist as $regex => $provider) {
-            if (preg_match("/$regex/", $host)) {
+            if (preg_match("/{$regex}/", $host)) {
                 return $provider;    // we trust this source, return provider name
             }
         }
@@ -366,17 +382,17 @@ class StoreRemoteMediaPlugin extends Plugin
      * Adds this plugin's version information to $versions array
      *
      * @param &$versions array inherited from parent
+     *
      * @return bool true hook value
      */
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = ['name' => 'StoreRemoteMedia',
-                       'version' => self::PLUGIN_VERSION,
-                       'author' => 'Mikael Nordfeldth, Diogo Peralta Cordeiro',
-                       'homepage' => GNUSOCIAL_ENGINE_URL,
-                       'description' =>
-                       // TRANS: Plugin description.
-                       _m('Plugin for downloading remotely attached files to local server.')];
+            'version'         => self::PLUGIN_VERSION,
+            'author'          => 'Mikael Nordfeldth, Diogo Peralta Cordeiro',
+            'homepage'        => GNUSOCIAL_ENGINE_URL,
+            'description'     => // TRANS: Plugin description.
+            _m('Plugin for downloading remotely attached files to local server.'), ];
         return true;
     }
 }

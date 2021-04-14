@@ -147,7 +147,7 @@ class ImageFile extends MediaFile
      * Shortcut method to get an ImageFile from a File
      *
      * @param File $file
-     * @return ImageFile
+     *
      * @throws ClientException
      * @throws FileNotFoundException
      * @throws NoResultException
@@ -155,6 +155,7 @@ class ImageFile extends MediaFile
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
      *
+     * @return ImageFile
      * @return ImageFile
      */
     public static function fromFileObject(File $file)
@@ -172,14 +173,15 @@ class ImageFile extends MediaFile
                     throw new UseFileAsThumbnailException($file);
             }
 
-        // And we'll only consider it an image if it has such a media type
-        if ($media !== 'image') {
-            throw new UnsupportedMediaException(_m('Unsupported media format.'), $file->getPath());
+            // And we'll only consider it an image if it has such a media type
+            if ($media !== 'image') {
+                throw new UnsupportedMediaException(_m('Unsupported media format.'), $file->getPath());
+            }
+
+            $filepath = $file->getPath();
+
+            return new self($file->getID(), $filepath, $file->filehash);
         }
-
-        $filepath = $file->getPath();
-
-        return new self($file->getID(), $filepath, $file->filehash);
     }
 
     public function getPath()
@@ -232,11 +234,11 @@ class ImageFile extends MediaFile
      * Uses MediaFile's `fromUrl` to do the majority of the work
      * and ensures the uploaded file is in fact an image.
      *
-     * @param string $url Remote image URL
-     * @param Profile|null $scoped
-     * @param string|null $name
-     * @param int|null $file_id same as in this class constructor
-     * @return ImageFile
+     * @param string       $url     Remote image URL
+     * @param null|Profile $scoped
+     * @param null|string  $name
+     * @param null|int     $file_id same as in this class constructor
+     *
      * @throws ClientException
      * @throws HTTP_Request2_Exception
      * @throws InvalidFilenameException
@@ -245,6 +247,7 @@ class ImageFile extends MediaFile
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
      *
+     * @return ImageFile
      * @return ImageFile
      */
     public static function fromUrl(string $url, ?Profile $scoped = null, ?string $name = null, ?int $file_id = null): self
@@ -524,10 +527,10 @@ class ImageFile extends MediaFile
                 $rw = ceil($width * $rh / $height);
             }
         }
-        return [(int)$rw, (int)$rh,
-            (int)$cx, (int)$cy,
-            is_null($cw) ? $width : (int)$cw,
-            is_null($ch) ? $height : (int)$ch];
+        return [(int) $rw, (int) $rh,
+            (int) $cx, (int) $cy,
+            is_null($cw) ? $width : (int) $cw,
+            is_null($ch) ? $height : (int) $ch, ];
     }
 
     /**
@@ -570,7 +573,7 @@ class ImageFile extends MediaFile
      * @param $height
      * @param $crop
      * @param false $upscale
-     * @return File_thumbnail
+     *
      * @throws ClientException
      * @throws FileNotFoundException
      * @throws FileNotStoredLocallyException
@@ -578,6 +581,8 @@ class ImageFile extends MediaFile
      * @throws ServerException
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
+     *
+     * @return File_thumbnail
      */
     public function getFileThumbnail($width = null, $height = null, $crop = null, $upscale = false)
     {

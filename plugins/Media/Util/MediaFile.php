@@ -95,18 +95,21 @@ class MediaFile
      * Shortcut method to get a MediaFile from a File
      *
      * @param File $file
-     * @return MediaFile|ImageFile
+     *
      * @throws ClientException
      * @throws FileNotFoundException
      * @throws NoResultException
      * @throws ServerException
+     *
+     * @return ImageFile|MediaFile
      */
     public static function fromFileObject(File $file)
     {
         $filepath = null;
         try {
             $filepath = $file->getPath();
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
         return new self($filepath, common_get_mime_media($file->mimetype), $file->filehash, $file->getID());
     }
 
@@ -121,10 +124,11 @@ class MediaFile
     }
 
     /**
-     * @param bool|null $use_local true means require local, null means prefer original, false means use whatever is stored
+     * @param null|bool $use_local true means require local, null means prefer original, false means use whatever is stored
+     *
      * @return string
      */
-    public function getUrl(?bool $use_local=null): ?string
+    public function getUrl(?bool $use_local = null): ?string
     {
         if ($use_local !== false) {
             if (empty($this->fileurl)) {
@@ -147,7 +151,7 @@ class MediaFile
         return $this->getFile()->getEnclosure();
     }
 
-    public function delete($useWhere=false)
+    public function delete($useWhere = false)
     {
         if (!is_null($this->fileRecord)) {
             $this->fileRecord->delete($useWhere);
@@ -155,6 +159,9 @@ class MediaFile
         @unlink($this->filepath);
     }
 
+    /**
+     * Remove the file from filesystem
+     */
     public function unlink()
     {
         $this->filename = null;
@@ -228,8 +235,8 @@ class MediaFile
         $file = new File;
 
         $file->filename = $this->filename;
-        $file->url = $this->fileurl;
-        $file->urlhash = is_null($file->url) ? null : File::hashurl($file->url);
+        $file->url      = $this->fileurl;
+        $file->urlhash  = is_null($file->url) ? null : File::hashurl($file->url);
         $file->filehash = $this->filehash;
         $file->size     = filesize($this->filepath);
         if ($file->size === false) {
@@ -248,9 +255,9 @@ class MediaFile
 
         // Set file geometrical properties if available
         try {
-            $image = ImageFile::fromFileObject($file);
-            $orig = clone($file);
-            $file->width = $image->width;
+            $image        = ImageFile::fromFileObject($file);
+            $orig         = clone $file;
+            $file->width  = $image->width;
             $file->height = $image->height;
             $file->update($orig);
 
@@ -448,7 +455,7 @@ class MediaFile
         }
 
         $filehash = strtolower(self::getHashOfFile($_FILES[$param]['tmp_name']));
-        $fileid = null;
+        $fileid   = null;
         try {
             $file = File::getByHash($filehash);
             // There can be more than one file for the same filehash IF the url are different (due to different metadata).
@@ -460,7 +467,7 @@ class MediaFile
                 try {
                     return ImageFile::fromFileObject($file);
                 } catch (UnsupportedMediaException $e) {
-                    return MediaFile::fromFileObject($file);
+                    return self::fromFileObject($file);
                 }
             }
             // Assert: If we got to this line, then we only traversed URLs on the while loop above.
@@ -469,7 +476,7 @@ class MediaFile
                 $filepath = $file->getPath(); // This function will throw FileNotFoundException if not.
                 // Assert: If we got to this line, then we can use this file and just add redirections.
                 $mimetype = $file->mimetype;
-                $fileid = $file->getID();
+                $fileid   = $file->getID();
             } else {
                 throw new FileNotFoundException('This isn\'t a path.'); // A bit of dadaist art.
                 // It's natural that a sysadmin prefers to not add redirections to the first remote link of an
@@ -530,11 +537,11 @@ class MediaFile
      * In case the url is an image, this function returns an new ImageFile (which extends MediaFile)
      * The filename has the following format: bin2hex("{$original_name}.{$ext}")."-{$filehash}"
      *
-     * @param string $url Remote media URL
-     * @param Profile|null $scoped
-     * @param string|null $name
-     * @param int|null $file_id same as in this class constructor
-     * @return ImageFile|MediaFile
+     * @param string       $url     Remote media URL
+     * @param null|Profile $scoped
+     * @param null|string  $name
+     * @param null|int     $file_id same as in this class constructor
+     *
      * @throws ClientException
      * @throws HTTP_Request2_Exception
      * @throws InvalidFilenameException
@@ -543,6 +550,7 @@ class MediaFile
      * @throws UnsupportedMediaException
      * @throws UseFileAsThumbnailException
      *
+     * @return ImageFile|MediaFile
      * @return ImageFile|MediaFile
      */
     public static function fromUrl(string $url, ?Profile $scoped = null, ?string $name = null, ?int $file_id = null)
@@ -557,7 +565,7 @@ class MediaFile
             'unnecessarily downloading too large files. URL: %s',
             $url));
         $head = $http->head($url);
-        $url = $head->getEffectiveUrl();   // to avoid going through redirects again
+        $url  = $head->getEffectiveUrl();   // to avoid going through redirects again
         if (empty($url)) {
             throw new ServerException(sprintf('URL after redirects is somehow empty, for URL %s.', $url));
         }
@@ -565,7 +573,7 @@ class MediaFile
         $headers = array_change_key_case($headers, CASE_LOWER);
         if (array_key_exists('content-length', $headers)) {
             $fileQuota = common_config('attachments', 'file_quota');
-            $fileSize = $headers['content-length'];
+            $fileSize  = $headers['content-length'];
             if ($fileSize > $fileQuota) {
                 // TRANS: Message used to be inserted as %2$s in  the text "No file may
                 // TRANS: be larger than %1$d byte and the file you sent was %2$s.".
@@ -591,8 +599,7 @@ class MediaFile
         } else {
             throw new ServerException(sprintf('Invalid remote media URL headers %s.', $url));
         }
-        unset($head);
-        unset($headers);
+        unset($head, $headers);
 
         $tempfile = new TemporaryFile('gs-mediafile');
         fwrite($tempfile->getResource(), HTTPClient::quickGet($url));

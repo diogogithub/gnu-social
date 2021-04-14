@@ -26,6 +26,7 @@ namespace Plugin\Media\Controller;
  */
 class AttachmentView extends Attachment
 {
+    /** Placeholder */
     public function showPage(): void
     {
         // Disable errors, to not mess with the file contents (suppress errors in case access to this

@@ -18,6 +18,7 @@
  * OembedPlugin implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Craig Andrews <candrews@integralblue.com>
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @author    hannes
@@ -26,7 +27,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-defined('GNUSOCIAL') || die();
+namespace Plguin\Embed\actions;
 
 /**
  * Oembed provider implementation
@@ -38,12 +39,13 @@ defined('GNUSOCIAL') || die();
  */
 class OEmbedAction extends Action
 {
+    /** Placeholder */
     protected function handle()
     {
         parent::handle();
 
-        $url = $this->trimmed('url');
-        $tls = parse_url($url, PHP_URL_SCHEME) == 'https';
+        $url      = $this->trimmed('url');
+        $tls      = parse_url($url, PHP_URL_SCHEME) == 'https';
         $root_url = common_root_url($tls);
 
         if (substr(strtolower($url), 0, mb_strlen($root_url)) !== strtolower($root_url)) {
@@ -58,20 +60,20 @@ class OEmbedAction extends Action
         // $r->map will throw ClientException 404 if it fails to find a mapping
         $proxy_args = $r->map($path);
 
-        $oembed=array();
-        $oembed['version']='1.0';
-        $oembed['provider_name']=common_config('site', 'name');
-        $oembed['provider_url']=common_root_url();
+        $oembed                  = [];
+        $oembed['version']       = '1.0';
+        $oembed['provider_name'] = common_config('site', 'name');
+        $oembed['provider_url']  = common_root_url();
 
         switch ($proxy_args['action']) {
         case 'shownotice':
-            $oembed['type']='link';
+            $oembed['type'] = 'link';
             try {
                 $notice = Notice::getByID($proxy_args['notice']);
             } catch (NoResultException $e) {
                 throw new ClientException($e->getMessage(), 404);
             }
-            $profile = $notice->getProfile();
+            $profile    = $notice->getProfile();
             $authorname = $profile->getFancyName();
             // TRANS: oEmbed title. %1$s is the author name, %2$s is the creation date.
             $oembed['title'] = sprintf(
@@ -79,36 +81,34 @@ class OEmbedAction extends Action
                 $authorname,
                 common_exact_date($notice->created)
             );
-            $oembed['author_name']=$authorname;
-            $oembed['author_url']=$profile->profileurl;
-            $oembed['url']=$notice->getUrl();
-            $oembed['html']=$notice->getRendered();
+            $oembed['author_name'] = $authorname;
+            $oembed['author_url']  = $profile->profileurl;
+            $oembed['url']         = $notice->getUrl();
+            $oembed['html']        = $notice->getRendered();
 
             // maybe add thumbnail
             foreach ($notice->attachments() as $attachment) {
                 if (!$attachment instanceof File) {
-                    common_debug('ATTACHMENTS array entry from notice id=='._ve($notice->getID()).
-                                 ' is something else than a File dataobject: '._ve($attachment));
+                    common_debug('ATTACHMENTS array entry from notice id==' . _ve($notice->getID()) .
+                                 ' is something else than a File dataobject: ' . _ve($attachment));
                     continue;
                 }
                 try {
-                    $thumb = $attachment->getThumbnail();
-                    $thumb_url = $thumb->getUrl();
+                    $thumb                   = $attachment->getThumbnail();
+                    $thumb_url               = $thumb->getUrl();
                     $oembed['thumbnail_url'] = $thumb_url;
                     break;  // only first one
                 } catch (UseFileAsThumbnailException $e) {
                     $oembed['thumbnail_url'] = $attachment->getUrl();
                     break;  // we're happy with that
                 } catch (ServerException $e) {
-                    //
                 } catch (ClientException $e) {
-                    //
                 }
             }
             break;
 
         case 'attachment':
-            $id = $proxy_args['attachment'];
+            $id         = $proxy_args['attachment'];
             $attachment = File::getKV($id);
             if (empty($attachment)) {
                 // TRANS: Client error displayed in oEmbed action when attachment not found.
@@ -123,47 +123,47 @@ class OEmbedAction extends Action
                 ))
             ) {
                 // Proxy the existing oembed information
-                $oembed['type']=$file_oembed->type;
-                $oembed['provider']=$file_oembed->provider;
-                $oembed['provider_url']=$file_oembed->provider_url;
-                $oembed['width']=$file_oembed->width;
-                $oembed['height']=$file_oembed->height;
-                $oembed['html']=$file_oembed->html;
-                $oembed['title']=$file_oembed->title;
-                $oembed['author_name']=$file_oembed->author_name;
-                $oembed['author_url']=$file_oembed->author_url;
-                $oembed['url']=$file_oembed->getUrl();
-            } elseif (substr($attachment->mimetype, 0, strlen('image/'))==='image/') {
-                $oembed['type']='photo';
+                $oembed['type']         = $file_oembed->type;
+                $oembed['provider']     = $file_oembed->provider;
+                $oembed['provider_url'] = $file_oembed->provider_url;
+                $oembed['width']        = $file_oembed->width;
+                $oembed['height']       = $file_oembed->height;
+                $oembed['html']         = $file_oembed->html;
+                $oembed['title']        = $file_oembed->title;
+                $oembed['author_name']  = $file_oembed->author_name;
+                $oembed['author_url']   = $file_oembed->author_url;
+                $oembed['url']          = $file_oembed->getUrl();
+            } elseif (substr($attachment->mimetype, 0, strlen('image/')) === 'image/') {
+                $oembed['type'] = 'photo';
                 if ($attachment->filename) {
                     $filepath = File::path($attachment->filename);
-                    $gis = @getimagesize($filepath);
+                    $gis      = @getimagesize($filepath);
                     if ($gis) {
-                        $oembed['width'] = $gis[0];
+                        $oembed['width']  = $gis[0];
                         $oembed['height'] = $gis[1];
                     } else {
                         // TODO Either throw an error or find a fallback?
                     }
                 }
-                $oembed['url']=$attachment->getUrl();
+                $oembed['url'] = $attachment->getUrl();
                 try {
-                    $thumb = $attachment->getThumbnail();
-                    $oembed['thumbnail_url'] = $thumb->getUrl();
-                    $oembed['thumbnail_width'] = $thumb->width;
+                    $thumb                      = $attachment->getThumbnail();
+                    $oembed['thumbnail_url']    = $thumb->getUrl();
+                    $oembed['thumbnail_width']  = $thumb->width;
                     $oembed['thumbnail_height'] = $thumb->height;
                     unset($thumb);
                 } catch (UnsupportedMediaException $e) {
                     // No thumbnail data available
                 }
             } else {
-                $oembed['type']='link';
-                $oembed['url']=common_local_url(
+                $oembed['type'] = 'link';
+                $oembed['url']  = common_local_url(
                     'attachment',
-                    array('attachment' => $attachment->id)
+                    ['attachment' => $attachment->id]
                 );
             }
             if ($attachment->title) {
-                $oembed['title']=$attachment->title;
+                $oembed['title'] = $attachment->title;
             }
             break;
         default:
@@ -176,14 +176,14 @@ class OEmbedAction extends Action
         case 'xml':
             $this->init_document('xml');
             $this->elementStart('oembed');
-            foreach (array(
-                        'version', 'type', 'provider_name',
-                        'provider_url', 'title', 'author_name',
-                        'author_url', 'url', 'html', 'width',
-                        'height', 'cache_age', 'thumbnail_url',
-                        'thumbnail_width', 'thumbnail_height',
-                    ) as $key) {
-                if (isset($oembed[$key]) && $oembed[$key]!='') {
+            foreach ([
+                'version', 'type', 'provider_name',
+                'provider_url', 'title', 'author_name',
+                'author_url', 'url', 'html', 'width',
+                'height', 'cache_age', 'thumbnail_url',
+                'thumbnail_width', 'thumbnail_height',
+            ] as $key) {
+                if (isset($oembed[$key]) && $oembed[$key] != '') {
                     $this->element($key, null, $oembed[$key]);
                 }
             }
@@ -203,6 +203,7 @@ class OEmbedAction extends Action
         }
     }
 
+    /** Placeholder */
     public function init_document($type)
     {
         switch ($type) {
@@ -216,7 +217,7 @@ class OEmbedAction extends Action
             // Check for JSONP callback
             $callback = $this->arg('callback');
             if ($callback) {
-                print $callback . '(';
+                echo $callback . '(';
             }
             break;
         default:
@@ -226,6 +227,7 @@ class OEmbedAction extends Action
         }
     }
 
+    /** Placeholder */
     public function end_document($type)
     {
         switch ($type) {
@@ -236,7 +238,7 @@ class OEmbedAction extends Action
             // Check for JSONP callback
             $callback = $this->arg('callback');
             if ($callback) {
-                print ')';
+                echo ')';
             }
             break;
         default:
@@ -244,7 +246,6 @@ class OEmbedAction extends Action
             $this->serverError(_('Not a supported data format.'), 501);
             break;
         }
-        return;
     }
 
     /**
@@ -252,7 +253,7 @@ class OEmbedAction extends Action
      *
      * @param array $args other arguments
      *
-     * @return boolean is read only action?
+     * @return bool is read only action?
      */
     public function isReadOnly($args)
     {

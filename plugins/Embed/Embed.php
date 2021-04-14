@@ -18,6 +18,7 @@
  * OEmbed and OpenGraph implementation for GNU social
  *
  * @package   GNUsocial
+ *
  * @author    Mikael Nordfeldth
  * @author    Stephen Paul Weber
  * @author    hannes
@@ -29,9 +30,9 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-defined('GNUSOCIAL') || die();
+namespace Plugin\Embed;
 
-use Embed\Embed;
+use App\Core\Module;
 
 /**
  * Base class for the Embed plugin that does most of the heavy lifting to get
@@ -40,7 +41,7 @@ use Embed\Embed;
  * @copyright 2014-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class EmbedPlugin extends Plugin
+class Embed extends Module
 {
     const PLUGIN_VERSION = '2.1.0';
 
@@ -49,16 +50,16 @@ class EmbedPlugin extends Plugin
 
     public $domain_whitelist = [
         // hostname => service provider
-        '^i\d*\.ytimg\.com$' => 'YouTube',
+        '^i\d*\.ytimg\.com$'    => 'YouTube',
         '^i\d*\.vimeocdn\.com$' => 'Vimeo',
     ];
     public $append_whitelist = [];  // fill this array as domain_whitelist to add more trusted sources
     public $check_whitelist  = false;    // security/abuse precaution
 
-    public $thumbnail_width = 128;
+    public $thumbnail_width  = 128;
     public $thumbnail_height = 128;
-    public $crop = true;
-    public $max_size = null;
+    public $crop             = true;
+    public $max_size;
 
     protected $imgData = [];
 
@@ -74,10 +75,10 @@ class EmbedPlugin extends Plugin
         $this->domain_whitelist = array_merge($this->domain_whitelist, $this->append_whitelist);
 
         // Load global configuration if specific not provided
-        $this->thumbnail_width = $this->thumbnail_width ?? common_config('thumbnail', 'width');
+        $this->thumbnail_width  = $this->thumbnail_width  ?? common_config('thumbnail', 'width');
         $this->thumbnail_height = $this->thumbnail_height ?? common_config('thumbnail', 'height');
-        $this->max_size = $this->max_size ?? common_config('attachments', 'file_quota');
-        $this->crop = $this->crop ?? common_config('thumbnail', 'crop');
+        $this->max_size         = $this->max_size         ?? common_config('attachments', 'file_quota');
+        $this->crop             = $this->crop             ?? common_config('thumbnail', 'crop');
     }
 
     /**
@@ -106,8 +107,10 @@ class EmbedPlugin extends Plugin
      * on this event to add our action handler for Embed.
      *
      * @param $m URLMapper the router that was initialized.
-     * @return void true if successful, the exception object if it isn't.
+     *
      * @throws Exception
+     *
+     * @return void true if successful, the exception object if it isn't.
      */
     public function onRouterInitialized(URLMapper $m)
     {
@@ -122,35 +125,36 @@ class EmbedPlugin extends Plugin
      * @param $url string        the remote URL we're looking at
      * @param $dom DOMDocument   the document we're getting metadata from
      * @param $metadata stdClass class representing the metadata
+     *
      * @return bool true if successful, the exception object if it isn't.
      */
     public function onGetRemoteUrlMetadataFromDom(string $url, DOMDocument $dom, stdClass &$metadata)
     {
         try {
-            common_log(LOG_INFO, "Trying to find Embed data for $url with 'oscarotero/Embed'");
-            $info = Embed::create($url);
+            common_log(LOG_INFO, "Trying to find Embed data for {$url} with 'oscarotero/Embed'");
+            $info = self::create($url);
 
-            $metadata->version = '1.0'; // Yes.
-            $metadata->provider_name = $info->authorName;
-            $metadata->title = $info->title;
-            $metadata->html = common_purify($info->description);
-            $metadata->type = $info->type;
-            $metadata->url = $info->url;
+            $metadata->version          = '1.0'; // Yes.
+            $metadata->provider_name    = $info->authorName;
+            $metadata->title            = $info->title;
+            $metadata->html             = common_purify($info->description);
+            $metadata->type             = $info->type;
+            $metadata->url              = $info->url;
             $metadata->thumbnail_height = $info->imageHeight;
-            $metadata->thumbnail_width = $info->imageWidth;
+            $metadata->thumbnail_width  = $info->imageWidth;
 
             if (substr($info->image, 0, 4) === 'data') {
                 // Inline image
-                $imgData = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
-                list($filename, , ) = $this->validateAndWriteImage($imgData);
+                $imgData        = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
+                list($filename) = $this->validateAndWriteImage($imgData);
                 // Use a file URI for images, as file_embed can't store a filename
                 $metadata->thumbnail_url = 'file://' . File_thumbnail::path($filename);
             } else {
                 $metadata->thumbnail_url = $info->image;
             }
         } catch (Exception $e) {
-            common_log(LOG_INFO, "Failed to find Embed data for $url with 'oscarotero/Embed'" .
-                ", got exception: " . get_class($e));
+            common_log(LOG_INFO, "Failed to find Embed data for {$url} with 'oscarotero/Embed'" .
+                ', got exception: ' . get_class($e));
         }
 
         if (isset($metadata->thumbnail_url)) {
@@ -158,15 +162,15 @@ class EmbedPlugin extends Plugin
             // let's "be liberal in what you accept from others"!
             // add protocol and host if the thumbnail_url starts with /
             if ($metadata->thumbnail_url[0] == '/') {
-                $thumbnail_url_parsed = parse_url($metadata->url);
-                $metadata->thumbnail_url = "{$thumbnail_url_parsed['scheme']}://".
+                $thumbnail_url_parsed    = parse_url($metadata->url);
+                $metadata->thumbnail_url = "{$thumbnail_url_parsed['scheme']}://" .
                     "{$thumbnail_url_parsed['host']}$metadata->thumbnail_url";
             }
 
             // some wordpress opengraph implementations sometimes return a white blank image
             // no need for us to save that!
             if ($metadata->thumbnail_url == 'https://s0.wp.com/i/blank.jpg') {
-                unset($metadata->thumbnail_url);
+                $metadata->thumbnail_url = null;
             }
 
             // FIXME: this is also true of locally-installed wordpress so we should watch out for that.
@@ -174,6 +178,7 @@ class EmbedPlugin extends Plugin
         return true;
     }
 
+    /** Placeholder */
     public function onEndShowHeadElements(Action $action)
     {
         switch ($action->getActionName()) {
@@ -199,10 +204,10 @@ class EmbedPlugin extends Plugin
                 $action->element(
                     'link',
                     [
-                        'rel'   =>'alternate',
-                        'type'  => "application/$format+oembed",
+                        'rel'   => 'alternate',
+                        'type'  => "application/{$format}+oembed",
                         'href'  => common_local_url('oembed', [], ['format' => $format, 'url' => $url]),
-                        'title' => 'oEmbed'
+                        'title' => 'oEmbed',
                     ]
                 );
             }
@@ -210,6 +215,7 @@ class EmbedPlugin extends Plugin
         return true;
     }
 
+    /** Placeholder */
     public function onEndShowStylesheets(Action $action)
     {
         $action->cssLink($this->path('css/embed.css'));
@@ -221,9 +227,9 @@ class EmbedPlugin extends Plugin
      *
      * Normally this event is called through File::saveNew()
      *
-     * @param File $file  The newly inserted File object.
+     * @param File $file The newly inserted File object.
      *
-     * @return boolean success
+     * @return bool success
      */
     public function onEndFileSaveNew(File $file)
     {
@@ -234,17 +240,16 @@ class EmbedPlugin extends Plugin
         }
 
         if (isset($file->mimetype)
-            && (('text/html' === substr($file->mimetype, 0, 9) ||
-                'application/xhtml+xml' === substr($file->mimetype, 0, 21)))) {
+            && (('text/html' === substr($file->mimetype, 0, 9) || 'application/xhtml+xml' === substr($file->mimetype, 0, 21)))) {
             try {
                 $embed_data = File_embed::getEmbed($file->url);
                 if ($embed_data === false) {
-                    throw new Exception("Did not get Embed data from URL $file->url");
+                    throw new Exception("Did not get Embed data from URL {$file->url}");
                 }
                 $file->setTitle($embed_data->title);
             } catch (Exception $e) {
                 common_log(LOG_WARNING, sprintf(
-                    __METHOD__.': %s thrown when getting embed data: %s',
+                    __METHOD__ . ': %s thrown when getting embed data: %s',
                     get_class($e),
                     _ve($e->getMessage())
                 ));
@@ -256,25 +261,26 @@ class EmbedPlugin extends Plugin
         return true;
     }
 
+    /** Placeholder */
     public function onEndShowAttachmentLink(HTMLOutputter $out, File $file)
     {
         $embed = File_embed::getKV('file_id', $file->getID());
         if (empty($embed->author_name) && empty($embed->provider)) {
             return true;
         }
-        $out->elementStart('div', ['id'=>'oembed_info', 'class'=>'e-content']);
+        $out->elementStart('div', ['id' => 'oembed_info', 'class' => 'e-content']);
         foreach (['author_name' => ['class' => ' author', 'url' => 'author_url'],
-                     'provider' => ['class' => '',        'url' => 'provider_url']]
+            'provider'          => ['class' => '',        'url' => 'provider_url'], ]
                  as $field => $options) {
             if (!empty($embed->{$field})) {
-                $out->elementStart('div', "fn vcard" . $options['class']);
+                $out->elementStart('div', 'fn vcard' . $options['class']);
                 if (empty($embed->{$options['url']})) {
                     $out->text($embed->{$field});
                 } else {
                     $out->element(
                         'a',
-                        ['href' => $embed->{$options['url']},
-                            'class' => 'url'],
+                        ['href'     => $embed->{$options['url']},
+                            'class' => 'url', ],
                         $embed->{$field}
                     );
                 }
@@ -284,6 +290,7 @@ class EmbedPlugin extends Plugin
         return false;
     }
 
+    /** Placeholder */
     public function onFileEnclosureMetadata(File $file, &$enclosure)
     {
         // Never treat generic HTML links as an enclosure type!
@@ -301,6 +308,7 @@ class EmbedPlugin extends Plugin
         return true;
     }
 
+    /** Placeholder */
     public function onStartShowAttachmentRepresentation(HTMLOutputter $out, File $file)
     {
         try {
@@ -314,29 +322,29 @@ class EmbedPlugin extends Plugin
             return true;
         }
 
-        $out->elementStart('article', ['class'=>'h-entry embed']);
+        $out->elementStart('article', ['class' => 'h-entry embed']);
         $out->elementStart('header');
         try {
             $thumb = $file->getThumbnail($this->thumbnail_width, $this->thumbnail_height);
-            $out->element('img', $thumb->getHtmlAttrs(['class'=>'u-photo embed']));
+            $out->element('img', $thumb->getHtmlAttrs(['class' => 'u-photo embed']));
             unset($thumb);
         } catch (FileNotFoundException $e) {
             // Nothing to show
         } catch (Exception $e) {
-            $out->element('div', ['class'=>'error'], $e->getMessage());
+            $out->element('div', ['class' => 'error'], $e->getMessage());
         }
-        $out->elementStart('h5', ['class'=>'p-name embed']);
-        $out->element('a', ['class'=>'u-url', 'href'=>$file->getUrl()], common_strip_html($embed->title));
+        $out->elementStart('h5', ['class' => 'p-name embed']);
+        $out->element('a', ['class' => 'u-url', 'href' => $file->getUrl()], common_strip_html($embed->title));
         $out->elementEnd('h5');
-        $out->elementStart('div', ['class'=>'p-author embed']);
+        $out->elementStart('div', ['class' => 'p-author embed']);
         if (!empty($embed->author_name)) {
             // TRANS: text before the author name of embed attachment representation
             // FIXME: The whole "By x from y" should be i18n because of different language constructions.
             $out->text(_('By '));
-            $attrs = ['class'=>'h-card p-author'];
+            $attrs = ['class' => 'h-card p-author'];
             if (!empty($embed->author_url)) {
                 $attrs['href'] = $embed->author_url;
-                $tag = 'a';
+                $tag           = 'a';
             } else {
                 $tag = 'span';
             }
@@ -346,10 +354,10 @@ class EmbedPlugin extends Plugin
             // TRANS: text between the embed author name and provider url
             // FIXME: The whole "By x from y" should be i18n because of different language constructions.
             $out->text(_(' from '));
-            $attrs = ['class'=>'h-card'];
+            $attrs = ['class' => 'h-card'];
             if (!empty($embed->provider_url)) {
                 $attrs['href'] = $embed->provider_url;
-                $tag = 'a';
+                $tag           = 'a';
             } else {
                 $tag = 'span';
             }
@@ -357,7 +365,7 @@ class EmbedPlugin extends Plugin
         }
         $out->elementEnd('div');
         $out->elementEnd('header');
-        $out->elementStart('div', ['class'=>'p-summary embed']);
+        $out->elementStart('div', ['class' => 'p-summary embed']);
         $out->raw(common_purify($embed->html));
         $out->elementEnd('div');
         $out->elementStart('footer');
@@ -367,6 +375,7 @@ class EmbedPlugin extends Plugin
         return false;
     }
 
+    /** Placeholder */
     public function onShowUnsupportedAttachmentRepresentation(HTMLOutputter $out, File $file)
     {
         try {
@@ -400,12 +409,14 @@ class EmbedPlugin extends Plugin
      * @param $file File the file of the created thumbnail
      * @param &$imgPath null|string = the path to the created thumbnail (output)
      * @param $media string = media type
-     * @return bool true if it succeeds (including non-action
-     * states where it isn't oEmbed data, so it doesn't mess up the event handle
-     * for other things hooked into it), or the exception if it fails.
+     *
      * @throws FileNotFoundException
      * @throws NoResultException
      * @throws ServerException
+     *
+     * @return bool true if it succeeds (including non-action
+     *              states where it isn't oEmbed data, so it doesn't mess up the event handle
+     *              for other things hooked into it), or the exception if it fails.
      */
     public function onCreateFileImageThumbnailSource(File $file, ?string &$imgPath, string $media): bool
     {
@@ -417,7 +428,7 @@ class EmbedPlugin extends Plugin
 
         // All our remote Embed images lack a local filename property in the File object
         if ($file->isLocal()) {
-            common_debug(sprintf('File of id==%d is local (filename: %s), so nothing Embed '.
+            common_debug(sprintf('File of id==%d is local (filename: %s), so nothing Embed ' .
                 'should handle.', $file->getID(), _ve($file->filename)));
             return true;
         }
@@ -428,7 +439,7 @@ class EmbedPlugin extends Plugin
             $thumbnail = File_thumbnail::byFile($file);
         } catch (NoResultException $e) {
             // Not Embed data, or at least nothing we either can or want to use.
-            common_debug('No Embed data found for file id=='.$file->getID());
+            common_debug('No Embed data found for file id==' . $file->getID());
             return true;
         }
 
@@ -459,8 +470,11 @@ class EmbedPlugin extends Plugin
     }
 
     /**
-     * @return bool             false on no check made, provider name on success
-     * @throws ServerException  if check is made but fails
+     * @param mixed $url
+     *
+     * @throws ServerException if check is made but fails
+     *
+     * @return bool false on no check made, provider name on success
      */
     protected function checkWhitelist($url)
     {
@@ -470,7 +484,7 @@ class EmbedPlugin extends Plugin
 
         $host = parse_url($url, PHP_URL_HOST);
         foreach ($this->domain_whitelist as $regex => $provider) {
-            if (preg_match("/$regex/", $host)) {
+            if (preg_match("/{$regex}/", $host)) {
                 return $provider;    // we trust this source, return provider name
             }
         }
@@ -483,24 +497,27 @@ class EmbedPlugin extends Plugin
      * the content-length variable returned.  This isn't 100% foolproof but is
      * reliable enough for our purposes.
      *
-     * @return string|bool the file size if it succeeds, false otherwise.
+     * @param mixed      $url
+     * @param null|mixed $headers
+     *
+     * @return bool|string the file size if it succeeds, false otherwise.
      */
     private function getRemoteFileSize($url, $headers = null)
     {
         try {
             if ($headers === null) {
                 if (!common_valid_http_url($url)) {
-                    common_log(LOG_ERR, "Invalid URL in Embed::getRemoteFileSize()");
+                    common_log(LOG_ERR, 'Invalid URL in Embed::getRemoteFileSize()');
                     return false;
                 }
-                $head = (new HTTPClient())->head($url);
+                $head    = (new HTTPClient())->head($url);
                 $headers = $head->getHeader();
                 $headers = array_change_key_case($headers, CASE_LOWER);
             }
             return $headers['content-length'] ?? false;
         } catch (Exception $err) {
-            common_log(LOG_ERR, __CLASS__.': getRemoteFileSize on URL : '._ve($url).
-                ' threw exception: '.$err->getMessage());
+            common_log(LOG_ERR, __CLASS__ . ': getRemoteFileSize on URL : ' . _ve($url) .
+                ' threw exception: ' . $err->getMessage());
             return false;
         }
     }
@@ -509,16 +526,19 @@ class EmbedPlugin extends Plugin
      * A private helper function that uses a CURL lookup to check the mime type
      * of a remote URL to see it it's an image.
      *
+     * @param mixed      $url
+     * @param null|mixed $headers
+     *
      * @return bool true if the remote URL is an image, or false otherwise.
      */
     private function isRemoteImage($url, $headers = null)
     {
         if (empty($headers)) {
             if (!common_valid_http_url($url)) {
-                common_log(LOG_ERR, "Invalid URL in Embed::isRemoteImage()");
+                common_log(LOG_ERR, 'Invalid URL in Embed::isRemoteImage()');
                 return false;
             }
-            $head = (new HTTPClient())->head($url);
+            $head    = (new HTTPClient())->head($url);
             $headers = $head->getHeader();
             $headers = array_change_key_case($headers, CASE_LOWER);
         }
@@ -531,11 +551,11 @@ class EmbedPlugin extends Plugin
      * by $this->thumbnail_height
      *
      * @param $imgData - The image data to validate. Taken by reference to avoid copying
-     * @param string|null $url - The url where the image came from, to fetch metadata
-     * @param array|null $headers - The headers possible previous request to $url
-     * @param int|null $file_id - The id of the file this image belongs to, used for logging
+     * @param null|string $url     - The url where the image came from, to fetch metadata
+     * @param null|array  $headers - The headers possible previous request to $url
+     * @param null|int    $file_id - The id of the file this image belongs to, used for logging
      */
-    protected function validateAndWriteImage(&$imgData, ?string $url = null, ?array $headers = null, ?int $file_id = null) : array
+    protected function validateAndWriteImage(&$imgData, ?string $url = null, ?array $headers = null, ?int $file_id = null): array
     {
         $info = @getimagesizefromstring($imgData);
         // array indexes documented on php.net:
@@ -546,8 +566,8 @@ class EmbedPlugin extends Plugin
             throw new UnsupportedMediaException(_('Image file had impossible geometry (0 width or height)'));
         }
 
-        $width = min($info[0], $this->thumbnail_width);
-        $height = min($info[1], $this->thumbnail_height);
+        $width    = min($info[0], $this->thumbnail_width);
+        $height   = min($info[1], $this->thumbnail_height);
         $filehash = hash(File::FILEHASH_ALG, $imgData);
 
         try {
@@ -556,8 +576,8 @@ class EmbedPlugin extends Plugin
             }
             $filename = MediaFile::encodeFilename($original_name ?? _m('Untitled attachment'), $filehash);
         } catch (Exception $err) {
-            common_log(LOG_ERR, "Went to write a thumbnail to disk in StoreRemoteMediaPlugin::storeRemoteThumbnail " .
-                "but encountered error: $err");
+            common_log(LOG_ERR, 'Went to write a thumbnail to disk in StoreRemoteMediaPlugin::storeRemoteThumbnail ' .
+                "but encountered error: {$err}");
             throw $err;
         }
 
@@ -581,21 +601,21 @@ class EmbedPlugin extends Plugin
                 if ($this->crop && ($info[0] > $this->thumbnail_width || $info[1] > $this->thumbnail_height)) {
                     try {
                         // Temporary object, not stored in DB
-                        $img = new ImageFile(-1, $fullpath);
+                        $img                                  = new ImageFile(-1, $fullpath);
                         list($width, $height, $x, $y, $w, $h) = $img->scaleToFit($this->thumbnail_width, $this->thumbnail_height, $this->crop);
 
                         // The boundary box for our resizing
                         $box = [
                             'width' => $width, 'height' => $height,
-                            'x' => $x, 'y' => $y,
-                            'w' => $w, 'h' => $h,
+                            'x'     => $x, 'y' => $y,
+                            'w'     => $w, 'h' => $h,
                         ];
 
-                        $width = $box['width'];
+                        $width  = $box['width'];
                         $height = $box['height'];
                         $img->resizeTo($fullpath, $box);
                     } catch (\Intervention\Image\Exception\NotReadableException $e) {
-                        common_log(LOG_ERR, "StoreRemoteMediaPlugin::storeRemoteThumbnail was unable to decode image with Intervention: $e");
+                        common_log(LOG_ERR, "StoreRemoteMediaPlugin::storeRemoteThumbnail was unable to decode image with Intervention: {$e}");
                         // No need to interrupt processing
                     }
                 }
@@ -606,8 +626,8 @@ class EmbedPlugin extends Plugin
         } catch (AlreadyFulfilledException $e) {
             // Carry on
         } catch (Exception $err) {
-            common_log(LOG_ERR, "Went to write a thumbnail to disk in EmbedPlugin::storeRemoteThumbnail " .
-                "but encountered error: $err");
+            common_log(LOG_ERR, 'Went to write a thumbnail to disk in EmbedPlugin::storeRemoteThumbnail ' .
+                "but encountered error: {$err}");
             throw $err;
         } finally {
             unset($imgData);
@@ -620,8 +640,9 @@ class EmbedPlugin extends Plugin
      * Function to create and store a thumbnail representation of a remote image
      *
      * @param $thumbnail File_thumbnail object containing the file thumbnail
+     *
      * @return bool true if it succeeded, the exception if it fails, or false if it
-     * is limited by system limits (ie the file is too large.)
+     *              is limited by system limits (ie the file is too large.)
      */
     protected function storeRemoteFileThumbnail(File_thumbnail $thumbnail)
     {
@@ -635,13 +656,13 @@ class EmbedPlugin extends Plugin
 
         if (substr($url, 0, 7) == 'file://') {
             $filename = substr($url, 7);
-            $info = getimagesize($filename);
+            $info     = getimagesize($filename);
             $filename = basename($filename);
-            $width = $info[0];
-            $height = $info[1];
+            $width    = $info[0];
+            $height   = $info[1];
         } else {
             $this->checkWhitelist($url);
-            $head = (new HTTPClient())->head($url);
+            $head    = (new HTTPClient())->head($url);
             $headers = $head->getHeader();
             $headers = array_change_key_case($headers, CASE_LOWER);
 
@@ -649,16 +670,16 @@ class EmbedPlugin extends Plugin
                 $is_image = $this->isRemoteImage($url, $headers);
                 if ($is_image == true) {
                     $file_size = $this->getRemoteFileSize($url, $headers);
-                    if (($file_size!=false) && ($file_size > $this->max_size)) {
-                        common_debug("Went to store remote thumbnail of size " . $file_size .
-                            " but the upload limit is " . $this->max_size . " so we aborted.");
+                    if (($file_size != false) && ($file_size > $this->max_size)) {
+                        common_debug('Went to store remote thumbnail of size ' . $file_size .
+                            ' but the upload limit is ' . $this->max_size . ' so we aborted.');
                         return false;
                     }
                 } else {
                     return false;
                 }
             } catch (Exception $err) {
-                common_debug("Could not determine size of remote image, aborted local storage.");
+                common_debug('Could not determine size of remote image, aborted local storage.');
                 throw $err;
             }
 
@@ -683,22 +704,22 @@ class EmbedPlugin extends Plugin
                 }
             } catch (UnsupportedMediaException $e) {
                 // Couldn't find anything that looks like an image, nothing to do
-                common_debug("Embed was not able to find an image for URL `$url`: " . $e->getMessage());
+                common_debug("Embed was not able to find an image for URL `{$url}`: " . $e->getMessage());
                 return false;
             }
         }
 
         try {
             // Update our database for the thumbnail record
-            $orig = clone($thumbnail);
+            $orig                = clone $thumbnail;
             $thumbnail->filename = $filename;
-            $thumbnail->width = $width;
-            $thumbnail->height = $height;
+            $thumbnail->width    = $width;
+            $thumbnail->height   = $height;
             // Throws exception on failure.
             $thumbnail->updateWithKeys($orig);
         } catch (Exception $err) {
-            common_log(LOG_ERR, "Went to write a thumbnail entry to the database in " .
-                "EmbedPlugin::storeRemoteThumbnail but encountered error: ".$err);
+            common_log(LOG_ERR, 'Went to write a thumbnail entry to the database in ' .
+                'EmbedPlugin::storeRemoteThumbnail but encountered error: ' . $err);
             throw $err;
         }
         return true;
@@ -709,17 +730,17 @@ class EmbedPlugin extends Plugin
      * Adds this plugin's version information to $versions array
      *
      * @param &$versions array inherited from parent
+     *
      * @return bool true hook value
      */
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = ['name' => 'Embed',
-                       'version' => self::PLUGIN_VERSION,
-                       'author' => 'Mikael Nordfeldth',
-                       'homepage' => GNUSOCIAL_ENGINE_URL,
-                       'description' =>
-                       // TRANS: Plugin description.
-                       _m('Plugin for using and representing oEmbed, OpenGraph and other data.')];
+            'version'         => self::PLUGIN_VERSION,
+            'author'          => 'Mikael Nordfeldth',
+            'homepage'        => GNUSOCIAL_ENGINE_URL,
+            'description'     => // TRANS: Plugin description.
+            _m('Plugin for using and representing oEmbed, OpenGraph and other data.'), ];
         return true;
     }
 }
