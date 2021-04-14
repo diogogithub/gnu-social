@@ -396,6 +396,7 @@ export NGINX_HTTPS_PORT="${NGINX_HTTPS_PORT}"
 export PHP_PORT="${PHP_PORT}"
 export DBMS="${DBMS}"
 export BUILD_PHP="${BUILD_PHP}"
+export LE_CERT="${LE_CERT}"
 
 for SERV in ${DOCKER}; do
     SERV=$(echo "${SERV}" | sed -r 's/"([^"]*)"/\1/')

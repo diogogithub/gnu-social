@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 
-if [ $LE_CERT -ne 0 ]; then
+if [ "${LE_CERT}" -ne 0 ]; then
     cat <<EOF
     php:
         build: docker/php
