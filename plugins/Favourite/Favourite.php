@@ -70,4 +70,11 @@ class Favourite extends Module
         $actions[] = $form->createView();
         return Event::next;
     }
+
+    public function onAddRoute(RouteLoader $r)
+    {
+        $r->connect('actors', '/actors', [Controller\Directory::class, 'actors']);
+        $r->connect('groups', '/groups', [Controller\Directory::class, 'groups']);
+        return Event::next;
+    }
 }
