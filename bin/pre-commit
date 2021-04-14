@@ -1,4 +1,3 @@
-
 #!/usr/bin/env bash
 
 root="$(git rev-parse --show-toplevel)"
@@ -10,12 +9,14 @@ echo "Running php-cs-fixer on edited files"
 
 for staged in ${staged_files}; do
     # work only with existing files
-    if [[ -f ${staged} && ${staged} == *.php ]]; then
+    if [ -f "${staged}" ] && [[ "${staged}" = *.php ]]
+    then
         # use php-cs-fixer and get flag of correction
         "${root}/bin/php-cs-fixer" -q fix "${staged}"
 
         # if php-cs-fixer fix works, it returns 0
-        if [[ $? -eq 0 ]]; then
+        if [ "$?" -eq 0 ]
+        then
             git add "${staged}" # execute git add directly
         fi
     fi
