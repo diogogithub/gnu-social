@@ -112,6 +112,13 @@ class Kernel extends BaseKernel
         $loader->load($confDir . '/{services}' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
 
+        $module_templates = array_merge(glob(INSTALLDIR . '/components/*/templates'), glob(INSTALLDIR . '/plugins/*/templates'));
+        $templates        = ['%kernel.project_dir%/templates' => 'default_path', '%kernel.project_dir%/public' => 'public_path'];
+        foreach ($module_templates as $t) {
+            $templates[$t] = null;
+        }
+        $container->loadFromExtension('twig', ['paths' => $templates]);
+
         // Overriding doesn't work as we want, overrides the top-most key, do it manually
         $local_file = INSTALLDIR . '/social.local.yaml';
         if (!file_exists($local_file)) {

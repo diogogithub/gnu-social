@@ -62,7 +62,7 @@ abstract class Module
                     if (!$note->isVisibleTo($user)) {
                         // ^ Ensure user isn't trying to trip us up
                         Log::error('Suspicious activity: user ' . $user->getNickname() .
-                                   ' tried to repeat note ' . $note->getId() .
+                                   ' tried to interact with note ' . $note->getId() .
                                    ', but they shouldn\'t have access to it');
                         throw new NoSuchNoteException();
                     } else {
