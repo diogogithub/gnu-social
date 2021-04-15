@@ -37,6 +37,17 @@ use InvalidArgumentException;
 
 abstract class Formatting
 {
+    private static ?\Twig\Environment $twig;
+    public static function setTwig(\Twig\Environment $twig)
+    {
+        self::$twig = $twig;
+    }
+
+    public static function twigRender(string $template, array $context): string
+    {
+        return self::$twig->createTemplate($template, null)->render($context);
+    }
+
     /**
      * Normalize path by converting \ to /
      *

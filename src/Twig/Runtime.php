@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 /**
@@ -40,9 +42,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 use Twig\Extension\RuntimeExtensionInterface;
 
 class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
@@ -103,6 +102,14 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $styles;
     }
 
+    public function handleEvent(string $event, ...$args)
+    {
+        $res    = '';
+        $args[] = &$res;
+        Event::handle($event, $args);
+        return $res;
+    }
+
     /**
      * Renders the Svg Icon template and returns it.
      *
@@ -116,18 +123,7 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
      */
     public function embedSvgIcon(Environment $twig, string $icon_name = '', string $icon_css_class = '')
     {
-        try {
-            return $twig->render('@public_path/assets/icons/' . $icon_name . '.svg.twig', ['iconClass' => $icon_css_class]);
-        } catch (LoaderError $e) {
-            //return an empty string (a missing icon is not that important of an error)
-            return '';
-        } catch (RuntimeError $e) {
-            //return an empty string (a missing icon is not that important of an error)
-            return '';
-        } catch (SyntaxError $e) {
-            //return an empty string (a missing icon is not that important of an error)
-            return '';
-        }
+        return $twig->render('@public_path/assets/icons/' . $icon_name . '.svg.twig', ['iconClass' => $icon_css_class]);
     }
 
     // ----------------------------------------------------------

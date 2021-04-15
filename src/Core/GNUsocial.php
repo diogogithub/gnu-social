@@ -47,6 +47,7 @@ use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
 use App\Util\Common;
+use App\Util\Formatting;
 use Doctrine\ORM\EntityManagerInterface;
 use HtmlSanitizer\SanitizerInterface;
 use Psr\Log\LoggerInterface;
@@ -85,6 +86,7 @@ class GNUsocial implements EventSubscriberInterface
     protected HttpClientInterface      $client;
     protected SanitizerInterface       $sanitizer;
     protected ContainerBagInterface    $config;
+    protected \Twig\Environment        $twig;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -102,7 +104,8 @@ class GNUsocial implements EventSubscriberInterface
                                 ModuleManager $mm,
                                 HttpClientInterface $cl,
                                 SanitizerInterface $san,
-                                ContainerBagInterface $conf)
+                                ContainerBagInterface $conf,
+                                \Twig\Environment $twig)
     {
         $this->logger           = $logger;
         $this->translator       = $trans;
@@ -118,6 +121,7 @@ class GNUsocial implements EventSubscriberInterface
         $this->client           = $cl;
         $this->saniter          = $san;
         $this->config           = $conf;
+        $this->twig             = $twig;
 
         $this->initialize();
     }
@@ -140,6 +144,7 @@ class GNUsocial implements EventSubscriberInterface
             Security::setHelper($this->security, $this->saniter);
             Router::setRouter($this->router, $this->url_generator);
             HTTPClient::setClient($this->client);
+            Formatting::setTwig($this->twig);
             Cache::setupCache();
 
             // Events are proloaded on compilation, but set at runtime
