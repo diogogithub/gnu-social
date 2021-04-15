@@ -65,13 +65,13 @@ class RememberMeToken extends Entity
         return $this->value;
     }
 
-    public function setLastUsed(DateTimeInterface $lastused): self
+    public function setLastused(DateTimeInterface $lastused): self
     {
         $this->lastused = $lastused;
         return $this;
     }
 
-    public function getLastUsed(): DateTimeInterface
+    public function getLastused(): DateTimeInterface
     {
         return $this->lastused;
     }

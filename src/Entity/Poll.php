@@ -38,7 +38,6 @@ use DateTimeInterface;
 class Poll extends Entity
 {
     // {{{ Autocode
-
     private int $id;
     private ?string $uri;
     private ?int $gsactor_id;
@@ -70,13 +69,13 @@ class Poll extends Entity
         return $this->uri;
     }
 
-    public function setGsactorId(?int $gsactor_id): self
+    public function setGSActorId(?int $gsactor_id): self
     {
         $this->gsactor_id = $gsactor_id;
         return $this;
     }
 
-    public function getGsactorId(): ?int
+    public function getGSActorId(): ?int
     {
         return $this->gsactor_id;
     }

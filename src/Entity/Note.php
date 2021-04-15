@@ -41,7 +41,6 @@ use DateTimeInterface;
 class Note extends Entity
 {
     // {{{ Autocode
-
     private int $id;
     private int $gsactor_id;
     private ?string $content;
