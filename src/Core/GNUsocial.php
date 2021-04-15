@@ -147,6 +147,8 @@ class GNUsocial implements EventSubscriberInterface
             Formatting::setTwig($this->twig);
             Cache::setupCache();
 
+            DB::initTableMap();
+
             // Events are proloaded on compilation, but set at runtime
             $this->module_manager->loadModules();
 
