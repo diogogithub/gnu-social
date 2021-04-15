@@ -25,7 +25,7 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
-use App\Core\NoteScope;
+use App\Core\VisibilityScope;
 use DateTimeInterface;
 
 /**
@@ -213,9 +213,9 @@ class Note extends Entity
     {
         return Cache::get('note-attachments-' . $this->id, function () {
             return DB::dql(
-                    'select f from App\Entity\File f ' .
-                    'join App\Entity\FileToNote ftn with ftn.file_id = f.id ' .
-                    'where ftn.note_id = :note_id',
+                    'select att from App\Entity\Attachment att ' .
+                    'join App\Entity\AttachmentToNote atn with atn.attachment_id = att.id ' .
+                    'where atn.note_id = :note_id',
                     ['note_id' => $this->id]
                 );
         });
@@ -247,7 +247,7 @@ class Note extends Entity
      */
     public function isVisibleTo(/* GSActor|LocalUser */ $a): bool
     {
-        $scope = NoteScope::create($this->scope);
+        $scope = VisibilityScope::create($this->scope);
         return $scope->public
             || ($scope->follower
                 && null != DB::find('follow', ['follower' => $a->getId(), 'followed' => $this->gsactor_id]))
@@ -274,7 +274,7 @@ class Note extends Entity
                 'source'       => ['type' => 'varchar',   'foreign key' => true, 'length' => 32, 'target' => 'NoteSource.code', 'multiplicity' => 'many to one', 'description' => 'fkey to source of note, like "web", "im", or "clientname"'],
                 'conversation' => ['type' => 'int',       'foreign key' => true, 'target' => 'Conversation.id', 'multiplicity' => 'one to one', 'description' => 'the local conversation id'],
                 'repeat_of'    => ['type' => 'int',       'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'description' => 'note this is a repeat of'],
-                'scope'        => ['type' => 'int',       'not null' => true, 'default' => NoteScope::PUBLIC, 'description' => 'bit map for distribution scope; 0 = everywhere; 1 = this server only; 2 = addressees; 4 = groups; 8 = followers; 16 = messages; null = default'],
+                'scope'        => ['type' => 'int',       'not null' => true, 'default' => VisibilityScope::PUBLIC, 'description' => 'bit map for distribution scope; 0 = everywhere; 1 = this server only; 2 = addressees; 4 = groups; 8 = followers; 16 = messages; null = default'],
                 'created'      => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
                 'modified'     => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
