@@ -41,7 +41,6 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Entity\Avatar;
-use App\Entity\File;
 use App\Util\ClientException;
 use App\Util\Common;
 use App\Util\Form\ArrayTransformer;
@@ -147,7 +146,7 @@ class UserPanel extends AbstractController
             }
             $user     = Common::user();
             $actor_id = $user->getId();
-            $file     = Media::validateAndStoreFile($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $actor_id);
+            $file     = Media::validateAndStoreAttachment($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $actor_id);
             $old_file = null;
             $avatar   = DB::find('avatar', ['gsactor_id' => $actor_id]);
             // Must get old id before inserting another one

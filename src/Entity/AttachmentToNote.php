@@ -23,7 +23,7 @@ use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for relating a file to a post
+ * Entity for relating a attachment to a post
  *
  * @category  DB
  * @package   GNUsocial
@@ -36,22 +36,22 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class FileToNote extends Entity
+class AttachmentToNote extends Entity
 {
     // {{{ Autocode
-    private int $file_id;
+    private int $attachment_id;
     private int $note_id;
     private DateTimeInterface $modified;
 
-    public function setFileId(int $file_id): self
+    public function setAttachmentId(int $attachment_id): self
     {
-        $this->file_id = $file_id;
+        $this->attachment_id = $attachment_id;
         return $this;
     }
 
-    public function getFileId(): int
+    public function getAttachmentId(): int
     {
-        return $this->file_id;
+        return $this->attachment_id;
     }
 
     public function setNoteId(int $note_id): self
@@ -81,16 +81,16 @@ class FileToNote extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'file_to_note',
+            'name'   => 'attachment_to_note',
             'fields' => [
-                'file_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'File.id', 'multiplicity' => 'one to one', 'name' => 'file_to_note_file_id_fkey', 'not null' => true, 'description' => 'id of file'],
-                'note_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'name' => 'file_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_attachment_id_fkey', 'not null' => true, 'description' => 'id of attachment'],
+                'note_id'       => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['file_id', 'note_id'],
+            'primary key' => ['attachment_id', 'note_id'],
             'indexes'     => [
-                'file_id_idx' => ['file_id'],
-                'note_id_idx' => ['note_id'],
+                'attachment_id_idx' => ['attachment_id'],
+                'note_id_idx'       => ['note_id'],
             ],
         ];
     }

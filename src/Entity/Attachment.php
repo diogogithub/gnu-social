@@ -52,6 +52,7 @@ class Attachment extends Entity
     private ?string $filename;
     private ?bool $is_local;
     private ?int $source;
+    private ?int $scope;
     private DateTimeInterface $modified;
 
     public function setId(int $id): self
@@ -164,6 +165,17 @@ class Attachment extends Entity
         return $this->source;
     }
 
+    public function setScope(?int $scope): self
+    {
+        $this->scope = $scope;
+        return $this;
+    }
+
+    public function getScope(): ?int
+    {
+        return $this->scope;
+    }
+
     public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
@@ -217,9 +229,8 @@ class Attachment extends Entity
 
     public static function schemaDef(): array
     {
-        // TODO add scope
         return [
-            'name'   => 'file',
+            'name'   => 'attachment',
             'fields' => [
                 'id'              => ['type' => 'serial',    'not null' => true],
                 'remote_url'      => ['type' => 'text',      'description' => 'URL after following possible redirections'],
@@ -231,6 +242,7 @@ class Attachment extends Entity
                 'filename'        => ['type' => 'varchar',   'length' => 191, 'description' => 'title of resource when available'],
                 'is_local'        => ['type' => 'bool',      'description' => 'whether the file is stored locally'],
                 'source'          => ['type' => 'int',       'default' => null, 'description' => 'Source of the Attachment (upload, TFN, embed)'],
+                'scope'           => ['type' => 'int',       'default' => null, 'description' => 'visibility scope for this attachment'],
                 'modified'        => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],

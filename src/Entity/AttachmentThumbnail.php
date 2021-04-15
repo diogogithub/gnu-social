@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 namespace App\Entity;
@@ -23,7 +25,7 @@ use App\Core\Entity;
 use DateTimeInterface;
 
 /**
- * Entity for File thumbnails
+ * Entity for Attachment thumbnails
  *
  * @category  DB
  * @package   GNUsocial
@@ -39,20 +41,20 @@ use DateTimeInterface;
 class AttachmentThumbnail extends Entity
 {
     // {{{ Autocode
-    private int $file_id;
+    private int $attachment_id;
     private int $width;
     private int $height;
     private DateTimeInterface $modified;
 
-    public function setFileId(int $file_id): self
+    public function setAttachmentId(int $attachment_id): self
     {
-        $this->file_id = $file_id;
+        $this->attachment_id = $attachment_id;
         return $this;
     }
 
-    public function getFileId(): int
+    public function getAttachmentId(): int
     {
-        return $this->file_id;
+        return $this->attachment_id;
     }
 
     public function setWidth(int $width): self
@@ -91,28 +93,27 @@ class AttachmentThumbnail extends Entity
     // }}} Autocode
 
     /**
-     * Delete a file thumbnail. This table doesn't own all the files, only itself
+     * Delete a attachment thumbnail. This table doesn't own all the attachments, only itself
      */
-    public function delete(bool $flush = false, bool $delete_files_now = false, bool $cascading = false): string
+    public function delete(bool $flush = false, bool $delete_attachments_now = false, bool $cascading = false): string
     {
-        // TODO Implement deleting file thumbnails
+        // TODO Implement deleting attachment thumbnails
         return '';
     }
 
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'file_thumbnail',
+            'name'   => 'attachment_thumbnail',
             'fields' => [
-                'file_
-                id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'File.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what file'],
-                'width'    => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
-                'height'   => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what attachment'],
+                'width'         => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
+                'height'        => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['file_id', 'width', 'height'],
+            'primary key' => ['attachment_id', 'width', 'height'],
             'indexes'     => [
-                'file_thumbnail_file_id_idx' => ['file_id'],
+                'attachment_thumbnail_attachment_id_idx' => ['attachment_id'],
             ],
         ];
     }

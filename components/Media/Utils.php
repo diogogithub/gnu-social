@@ -25,8 +25,8 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Core\Log;
+use App\Entity\Attachment;
 use App\Entity\Avatar;
-use App\Entity\File;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use Component\Media\Exception\NoAvatarException;
@@ -43,20 +43,21 @@ abstract class Utils
     /**
      * Perform file validation (checks and normalization) and store the given file
      */
-    public static function validateAndStoreFile(SymfonyFile $sfile,
-                                                string $dest_dir,
-                                                ?string $title = null,
-                                                bool $is_local = true,
-                                                ?int $actor_id = null): File
+    public static function validateAndStoreAttachment(SymfonyFile $sfile,
+                                                      string $dest_dir,
+                                                      ?string $title = null,
+                                                      bool $is_local = true,
+                                                      ?int $actor_id = null): Attachment
     {
         // The following properly gets the mimetype with `file` or other
         // available methods, so should be safe
-        $hash = hash_file(File::FILEHASH_ALGO, $sfile->getPathname());
-        $file = File::create([
+        $hash = hash_file(Attachment::FILEHASH_ALGO, $sfile->getPathname());
+        $file = Attachment::create([
             'file_hash' => $hash,
             'actor_id'  => $actor_id,
             'mimetype'  => $sfile->getMimeType(),
             'title'     => $title ?: _m('Untitled attachment'),
+            'filename'  => $hash,
             'is_local'  => $is_local,
         ]);
         $sfile->move($dest_dir, $hash);
@@ -77,7 +78,7 @@ abstract class Utils
             [
                 'Content-Description' => 'File Transfer',
                 'Content-Type'        => $mimetype,
-                'Content-Disposition' => HeaderUtils::makeDisposition($disposition, $output_filename ?: _m('untitled')),
+                'Content-Disposition' => HeaderUtils::makeDisposition($disposition, $output_filename ?: _m('Untitled attachment')),
                 'Cache-Control'       => 'public',
             ],
             $public = true,
@@ -122,9 +123,9 @@ abstract class Utils
                            $id,
                            Cache::get("file-info-{$id}",
                                       function () use ($id) {
-                                          return DB::dql('select f.file_hash, f.mimetype, f.title ' .
-                                                         'from App\\Entity\\File f ' .
-                                                         'where f.id = :id',
+                                          return DB::dql('select at.file_hash, at.mimetype, at.title ' .
+                                                         'from App\\Entity\\Attachment at ' .
+                                                         'where at.id = :id',
                                                          ['id' => $id]);
                                       }));
     }
@@ -192,7 +193,7 @@ abstract class Utils
                                Cache::get("avatar-file-info-{$nickname}",
                                           function () use ($nickname) {
                                               return DB::dql('select f.file_hash, f.mimetype, f.title ' .
-                                                             'from App\\Entity\\File f ' .
+                                                             'from App\\Entity\\Attachment f ' .
                                                              'join App\\Entity\\Avatar a with f.id = a.file_id ' .
                                                              'join App\\Entity\\GSActor g with g.id = a.gsactor_id ' .
                                                              'where g.nickname = :nickname',
