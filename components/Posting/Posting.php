@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,17 +16,19 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 namespace Component\Posting;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Module;
 use App\Core\Security;
-use App\Entity\FileToNote;
+use App\Entity\AttachmentToNote;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exceptiion\InvalidFormException;
@@ -50,7 +53,10 @@ class Posting extends Module
 
         $actor_id = $user->getId();
         $to_tags  = [];
-        foreach (DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]) as $t) {
+        $tags     = Cache::get("actor-tags-{$actor_id}", function () use ($actor_id) {
+            return DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]);
+        });
+        foreach ($tags as $t) {
             $t           = $t['tag'];
             $to_tags[$t] = $t;
         }
@@ -97,20 +103,22 @@ class Posting extends Module
             'reply_to'   => $reply_to,
             'repeat_of'  => $repeat_of,
         ]);
-        $files = [];
+        $processed_attachments = [];
         foreach ($attachments as $f) {
-            $nf = Media::validateAndStoreFile($f, Common::config('attachments', 'dir'),
-                                              Security::sanitize($title = $f->getClientOriginalName()),
-                                              $is_local = true, $actor_id);
-            $files[] = $nf;
-            DB::persist($nf);
+            $na = Media::validateAndStoreAttachment(
+                $f, Common::config('attachments', 'dir'),
+                Security::sanitize($title = $f->getClientOriginalName()),
+                $is_local = true, $actor_id
+            );
+            $processed_attachments[] = $na;
+            DB::persist($na);
         }
         DB::persist($note);
         // Need file and note ids for the next step
         DB::flush();
-        if ($attachments != []) {
-            foreach ($files as $f) {
-                DB::persist(FileToNote::create(['file_id' => $f->getId(), 'note_id' => $note->getId()]));
+        if ($processed_attachments != []) {
+            foreach ($processed_attachments as $a) {
+                DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId()]));
             }
             DB::flush();
         }
