@@ -37,7 +37,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use function App\Core\I18n\_m;
-use App\Core\NoteScope;
+use App\Core\VisibilityScope;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -46,10 +46,10 @@ use Symfony\Component\HttpFoundation\Request;
 class Network extends Controller
 {
     // Can't have constanst inside herestring
-    private $public_scope   = NoteScope::PUBLIC;
-    private $instance_scope = NoteScope::PUBLIC | NoteScope::SITE;
-    private $message_scope  = NoteScope::MESSAGE;
-    private $follower_scope = NoteScope::PUBLIC | NoteScope::FOLLOWER;
+    private $public_scope   = VisibilityScope::PUBLIC;
+    private $instance_scope = VisibilityScope::PUBLIC | VisibilityScope::SITE;
+    private $message_scope  = VisibilityScope::MESSAGE;
+    private $follower_scope = VisibilityScope::PUBLIC | VisibilityScope::FOLLOWER;
 
     public function public(Request $request)
     {

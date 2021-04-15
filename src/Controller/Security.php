@@ -6,7 +6,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
-use App\Core\NoteScope;
+use App\Core\VisibilityScope;
 use App\Entity\Follow;
 use App\Entity\GSActor;
 use App\Entity\LocalUser;
@@ -43,7 +43,7 @@ class Security extends Controller
         // last username entered by the user
         $last_username = $authenticationUtils->getLastUsername();
 
-        return ['_template' => 'security/login.html.twig', 'last_username' => $last_username, 'error' => $error, 'notes' => Note::getAllNotes(NoteScope::$instance_scope)];
+        return ['_template' => 'security/login.html.twig', 'last_username' => $last_username, 'error' => $error, 'notes' => Note::getAllNotes(VisibilityScope::$instance_scope)];
     }
 
     public function logout()
@@ -139,7 +139,7 @@ class Security extends Controller
         return [
             '_template'         => 'security/register.html.twig',
             'registration_form' => $form->createView(),
-            'notes'             => Note::getAllNotes(NoteScope::$instance_scope),
+            'notes'             => Note::getAllNotes(VisibilityScope::$instance_scope),
         ];
     }
 }
