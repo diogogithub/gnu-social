@@ -49,6 +49,17 @@ abstract class DB
     }
 
     /**
+     * Table name to class map, used to allow specifying table names instead of classes in doctrine calls
+     */
+    private static array $table_map = [];
+    public static function initTableMap()
+    {
+        foreach (self::$em->getMetadataFactory()->getAllMetadata() as $meta) {
+            self::$table_map[$meta->getTableName()] = $meta->getMetadataValue('name');
+        }
+    }
+
+    /**
      * Perform a Doctrine Query Language query
      */
     public static function dql(string $query, array $params = [])
@@ -162,18 +173,9 @@ abstract class DB
      */
     public static function __callStatic(string $name, array $args)
     {
-        if (($args[0] ?? '') == 'favourite') {
-            $args[0] = 'Plugin\Favourite\Entity\Favourite';
-        } else {
-            // TODO Plugins
-            // If the method is one of the following and the first argument doesn't look like a FQCN, add the prefix
-            $pref = '\App\Entity\\';
-            if (in_array($name, ['find', 'getReference', 'getPartialReference', 'getRepository'])
-                && preg_match('/\\\\/', $args[0]) === 0
-                && Formatting::startsWith($args[0], $pref) === false) {
-                $args[0] = $pref . ucfirst(Formatting::snakeCaseToCamelCase($args[0]));
-                $args[0] = preg_replace('/Gsactor/', 'GSActor', $args[0]);
-            }
+        if (in_array($name, ['find', 'getReference', 'getPartialReference', 'getRepository'])
+            && !Formatting::startsWith($args[0], '\\')) {
+            $args[0] = self::$table_map[$args[0]];
         }
 
         return self::$em->{$name}(...$args);
