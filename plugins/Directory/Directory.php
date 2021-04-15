@@ -32,8 +32,9 @@ class Directory extends Module
      */
     public function onAddRoute(RouteLoader $r)
     {
-        $r->connect('actors', '/actors', [Controller\Directory::class, 'actors']);
-        $r->connect('groups', '/groups', [Controller\Directory::class, 'groups']);
+        $r->connect('directory_actors', '/actors', [Controller\Directory::class, 'actors']);
+        $r->connect('directory_groups', '/groups', [Controller\Directory::class, 'groups']);
+
         return Event::next;
     }
 
@@ -46,16 +47,8 @@ class Directory extends Module
      */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
-        $vars['main_nav_tabs'] = [
-            [
-                'title' => 'Actors',
-                'route' => 'actors',
-            ],
-            [
-                'title' => 'Groups',
-                'route' => 'groups',
-            ],
-        ];
+        $vars['main_nav_tabs'][] = ['title' => 'Actors', 'route' => 'directory_actors'];
+        $vars['main_nav_tabs'][] = ['title' => 'Groups', 'route' => 'directory_groups'];
 
         return Event::next;
     }
