@@ -39,6 +39,7 @@ use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
+use Functional as F;
 
 abstract class DB
 {
@@ -64,7 +65,8 @@ abstract class DB
      */
     public static function dql(string $query, array $params = [])
     {
-        $q = new Query(self::$em);
+        $query = preg_replace(F\map(self::$table_map, function ($_, $s) { return "/\\b{$s}\\b/"; }), self::$table_map, $query);
+        $q     = new Query(self::$em);
         $q->setDQL($query);
         foreach ($params as $k => $v) {
             $q->setParameter($k, $v);
