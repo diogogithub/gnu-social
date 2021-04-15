@@ -43,16 +43,15 @@ class Attachment extends Entity
 {
     // {{{ Autocode
     private int $id;
-    private ?string $url;
-    private ?string $url_hash;
+    private ?string $remote_url;
+    private ?string $remote_url_hash;
     private ?string $file_hash;
     private ?int $gsactor_id;
     private ?string $mimetype;
     private ?string $title;
     private ?string $filename;
     private ?bool $is_local;
-    private ?bool $is_nsfw;
-    private ?bool $is_url_protected;
+    private ?int $source;
     private DateTimeInterface $modified;
 
     public function setId(int $id): self
@@ -66,26 +65,26 @@ class Attachment extends Entity
         return $this->id;
     }
 
-    public function setUrl(?string $url): self
+    public function setRemoteUrl(?string $remote_url): self
     {
-        $this->url = $url;
+        $this->remote_url = $remote_url;
         return $this;
     }
 
-    public function getUrl(): ?string
+    public function getRemoteUrl(): ?string
     {
-        return $this->url;
+        return $this->remote_url;
     }
 
-    public function setUrlHash(?string $url_hash): self
+    public function setRemoteUrlHash(?string $remote_url_hash): self
     {
-        $this->url_hash = $url_hash;
+        $this->remote_url_hash = $remote_url_hash;
         return $this;
     }
 
-    public function getUrlHash(): ?string
+    public function getRemoteUrlHash(): ?string
     {
-        return $this->url_hash;
+        return $this->remote_url_hash;
     }
 
     public function setFileHash(?string $file_hash): self
@@ -154,15 +153,15 @@ class Attachment extends Entity
         return $this->is_local;
     }
 
-    public function setIsUrlProtected(?bool $is_url_protected): self
+    public function setSource(?int $source): self
     {
-        $this->is_url_protected = $is_url_protected;
+        $this->source = $source;
         return $this;
     }
 
-    public function getIsUrlProtected(): ?bool
+    public function getSource(): ?int
     {
-        return $this->is_url_protected;
+        return $this->source;
     }
 
     public function setModified(DateTimeInterface $modified): self

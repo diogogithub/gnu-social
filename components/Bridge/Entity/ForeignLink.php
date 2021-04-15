@@ -38,7 +38,6 @@ use DateTimeInterface;
 class ForeignLink
 {
     // {{{ Autocode
-
     private int $user_id;
     private int $foreign_id;
     private int $service;

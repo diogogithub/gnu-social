@@ -37,19 +37,18 @@ use DateTimeInterface;
 class ProfileColor extends Entity
 {
     // {{{ Autocode
-
     private int $gsactor_id;
     private string $color;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
-    public function setGsactorId(int $gsactor_id): self
+    public function setGSActorId(int $gsactor_id): self
     {
         $this->gsactor_id = $gsactor_id;
         return $this;
     }
 
-    public function getGsactorId(): int
+    public function getGSActorId(): int
     {
         return $this->gsactor_id;
     }

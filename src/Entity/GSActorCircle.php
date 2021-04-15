@@ -39,24 +39,12 @@ use DateTimeInterface;
 class GSActorCircle extends Entity
 {
     // {{{ Autocode
-    private int $id;
     private int $tagger;
     private string $tag;
     private ?string $description;
     private ?bool $private;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
-
-    public function setId(int $id): self
-    {
-        $this->id = $id;
-        return $this;
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
 
     public function setTagger(int $tagger): self
     {
