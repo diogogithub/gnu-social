@@ -22,6 +22,8 @@
 namespace Plugin\Favourite\Controller;
 
 use App\Core\DB\DB;
+use App\Core\Event;
+use App\Util\Common;
 use Symfony\Component\HttpFoundation\Request;
 
 class Favourite
@@ -29,9 +31,9 @@ class Favourite
     public function favourites(Request $request)
     {
         $actor_id = Common::ensureLoggedIn()->getId();
-        $notes    = DB::dql('select f from App\Entity\Favourite f ' .
-                         'where f.gsactor_id = :id ' .
-                         'order by f.created DESC', ['id' => $actor_id]);
+        $notes    = DB::dql('select f from Plugin\Favourite\Entity\Favourite f ' .
+                            'where f.gsactor_id = :id ' .
+                            'order by f.created DESC', ['id' => $actor_id]);
 
         Event::handle('FormatNoteList', [&$notes]);
 
@@ -53,12 +55,12 @@ class Favourite
     public function reverseFavourites(Request $request)
     {
         $actor_id = Common::ensureLoggedIn()->getId();
-        $notes    = DB::dql('select n from App\Entity\Note n,  App\Entity\Favourite f ' .
-                         'where n.id = f.note_id ' .
-                         'and f.gsactor_id != :id ' .
-                         'and n.gsactor_id = :id ' .
-                         'order by f.created DESC' ,
-                         ['id' => $actor_id]);
+        $notes    = DB::dql('select n from App\Entity\Note n, Plugin\Favourite\Entity\Favourite f ' .
+                            'where n.id = f.note_id ' .
+                            'and f.gsactor_id != :id ' .
+                            'and n.gsactor_id = :id ' .
+                            'order by f.created DESC' ,
+                            ['id' => $actor_id]);
 
         Event::handle('FormatNoteList', [&$notes]);
 

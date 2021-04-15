@@ -26,7 +26,8 @@ use App\Core\Modules\Module;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
 use App\Util\Common;
-use Plugin\Favourite\Entity\Favourite as Fave;
+use App\Util\Formatting;
+use App\Util\Nickname;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,10 +73,18 @@ class Favourite extends Module
         return Event::next;
     }
 
+    public function onInsertLeftPanelLink(string $user_nickname, &$res)
+    {
+        $res .= Formatting::twigRender(<<<END
+<a href="{{ path("favourites", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("favourites") }}'>Favourites</a>
+<a href="{{ path("reverse_favourites", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("reverse_favourites") }}'>Reverse Favs</a>
+END, ['user_nickname' => $user_nickname]);
+    }
+
     public function onAddRoute(RouteLoader $r)
     {
-        $r->connect('favourites', '/favourites', [Controller\Favourite::class, 'favourites']);
-        $r->connect('reverse_favourites', '/reversefavs', [Controller\Favourite::class, 'reverseFavourites']);
+        $r->connect('favourites', '/favourites/{nickname<' . Nickname::DISPLAY_FMT . '>}', [Controller\Favourite::class, 'favourites']);
+        $r->connect('reverse_favourites', '/reverse_favourites/{nickname<' . Nickname::DISPLAY_FMT . '>}', [Controller\Favourite::class, 'reverseFavourites']);
         return Event::next;
     }
 }
