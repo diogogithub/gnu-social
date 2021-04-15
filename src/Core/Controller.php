@@ -37,6 +37,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -44,12 +45,19 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class Controller extends AbstractController implements EventSubscriberInterface
 {
-    private array $vars = [];
+    private array $vars       = [];
+    private ?Request $request = null;
+
+    public function __construct(RequestStack $requestStack)
+    {
+        $this->request = $requestStack->getCurrentRequest();
+    }
 
     public function __invoke(Request $request)
     {
-        $class  = get_called_class();
-        $method = 'on' . ucfirst(strtolower($request->getMethod()));
+        $this->request = $request;
+        $class         = get_called_class();
+        $method        = 'on' . ucfirst(strtolower($request->getMethod()));
         if (method_exists($class, $method)) {
             return $class::$method($request, $this->vars);
         } else {
@@ -65,7 +73,8 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $controller = $event->getController();
         $request    = $event->getRequest();
 
-        $this->vars = ['controler' => $controller, 'request' => $request, 'have_user' => Common::user() !== null];
+        $this->request = $request;
+        $this->vars    = ['controler' => $controller, 'request' => $request, 'have_user' => Common::user() !== null];
         Event::handle('StartTwigPopulateVars', [&$this->vars]);
 
         $event->stopPropagation();
@@ -130,5 +139,27 @@ class Controller extends AbstractController implements EventSubscriberInterface
             KernelEvents::EXCEPTION  => 'onKernelException',
             KernelEvents::VIEW       => 'onKernelView',
         ];
+    }
+
+    /**
+     * Get and convert GET parameters. Can be called with `int`, `bool`, etc
+     *
+     * @param string $name
+     *
+     * @throws ValidatorException
+     */
+    public function __call(string $method, array $args)
+    {
+        $name  = $args[0];
+        $value = $this->request->query->get($name);
+        switch ($method) {
+        case 'int':
+            return (int) $value;
+        case 'bool':
+            return (bool) $value;
+        default:
+            Log::critical($m = "Method '{$method}' on class App\\Core\\Controller not found (__call)");
+            throw new \Exception($m);
+        }
     }
 }
