@@ -106,6 +106,12 @@
         "symfony": {
             "allow-contrib": false,
             "require": "5.2.*"
+        },
+        "merge-plugin": {
+            "include": [
+                "components/*/composer.json",
+                "plugins/*/composer.json"
+            ]
         }
     }
 }
