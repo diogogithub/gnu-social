@@ -36,7 +36,7 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class FileThumbnail extends Entity
+class AttachmentThumbnail extends Entity
 {
     // {{{ Autocode
     private int $file_id;
@@ -104,7 +104,8 @@ class FileThumbnail extends Entity
         return [
             'name'   => 'file_thumbnail',
             'fields' => [
-                'file_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'File.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what file'],
+                'file_
+                id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'File.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what file'],
                 'width'    => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
                 'height'   => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
                 'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],

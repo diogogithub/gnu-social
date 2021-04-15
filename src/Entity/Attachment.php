@@ -39,7 +39,7 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class File extends Entity
+class Attachment extends Entity
 {
     // {{{ Autocode
     private int $id;
