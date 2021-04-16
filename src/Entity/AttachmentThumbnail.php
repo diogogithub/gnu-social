@@ -129,6 +129,8 @@ class AttachmentThumbnail extends Entity
             $major_mime = GSFile::mimetypeMajor($attachment->getMimetype());
             if (in_array($major_mime, array_keys($event_map))) {
                 Event::handle($event_map[$major_mime], [$attachment, $thumbnail, $width, $height, $crop]);
+                DB::persist($thumbnail);
+                DB::flush();
                 return $thumbnail;
             } else {
                 Log::debug($m = ('Cannot resize attachment with mimetype ' . $attachment->getMimetype()));
