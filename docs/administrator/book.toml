@@ -1,0 +1,6 @@
+[book]
+authors = ["Diogo Peralta Cordeiro", "Hugo Sales"]
+language = "en"
+multilingual = false
+src = "src"
+title = "GNU social for System Administrators"
