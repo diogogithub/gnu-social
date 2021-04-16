@@ -113,7 +113,12 @@ abstract class DB
         foreach ($criteria as $op => $exp) {
             if ($op == 'or' || $op == 'and') {
                 $method = "{$op}X";
-                return $eb->{$method}(...self::buildExpression($eb, $exp));
+                $expr   = self::buildExpression($eb, $exp);
+                if (is_array($expr)) {
+                    return $eb->{$method}(...$expr);
+                } else {
+                    return $eb->{$method}($expr);
+                }
             } elseif ($op == 'is_null') {
                 $expressions[] = $eb->isNull($exp);
             } else {
