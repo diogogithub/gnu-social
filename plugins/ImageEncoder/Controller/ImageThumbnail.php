@@ -46,13 +46,11 @@ class ImageThumbnail extends Controller
 
         $max_width  = Common::config('thumbnail', 'width');
         $max_height = Common::config('thumbnail', 'height');
-        $width      = Common::clamp($this->int('w') ?? $max_width,  min: 0, max: $max_width);
-        $height     = Common::clamp($this->int('h') ?? $max_height, min: 0, max: $max_height);
-        $crop       = $this->bool('c') ?? false;
+        $width      = Common::clamp($this->int('w') ?: $max_width,  min: 0, max: $max_width);
+        $height     = Common::clamp($this->int('h') ?: $max_height, min: 0, max: $max_height);
+        $crop       = $this->bool('c') ?: false;
 
         $thumbnail = AttachmentThumbnail::getOrCreate(attachment: $attachment, width: $width, height: $height, crop: $crop);
-        DB::persist($thumbnail);
-        DB::flush();
 
         $filename = $thumbnail->getFilename();
         $path     = $thumbnail->getPath();
