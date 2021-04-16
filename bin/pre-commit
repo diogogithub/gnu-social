@@ -12,10 +12,7 @@ for staged in ${staged_files}; do
     if [ -f "${staged}" ] && [[ "${staged}" = *.php ]]
     then
         # use php-cs-fixer and get flag of correction
-        "${root}/bin/php-cs-fixer" -q fix "${staged}"
-
-        # if php-cs-fixer fix works, it returns 0
-        if [ "$?" -eq 0 ]
+        if "${root}/bin/php-cs-fixer" -q fix "${staged}"
         then
             git add "${staged}" # execute git add directly
         fi
@@ -24,7 +21,9 @@ done
 
 echo "Running php-doc-checker"
 
-"${root}/bin/php-doc-check" src plugins components
+if echo "${staged_files}" | grep -F ".php"; then
+    "${root}/bin/php-doc-check" src plugins components
+fi
 
 # Only commit if there wasn't an error
 exit $?
