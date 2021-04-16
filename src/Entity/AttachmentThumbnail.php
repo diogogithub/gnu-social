@@ -124,8 +124,7 @@ class AttachmentThumbnail extends Entity
                                   return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height]);
                               });
         } catch (NotFoundException $e) {
-            $thumbnail = self::create(['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height, 'attachment' => $attachment]);
-
+            $thumbnail  = self::create(['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height, 'attachment' => $attachment]);
             $event_map  = ['image' => 'ResizeImage', 'video' => 'ResizeVideo'];
             $major_mime = Media::mimetypeMajor($attachment->getMimetype());
             if (in_array($major_mime, array_keys($event_map))) {
