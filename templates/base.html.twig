@@ -1,55 +1,52 @@
 <!DOCTYPE html>
 <html>
-      <head>
-            {% block meta %}
-                  <meta charset="UTF-8">
-                  <meta name="viewport" content="width=device-width, initial-scale=1">
-            {% endblock %}
-            <title>
-                  {% block title %}{% endblock %}
-            </title>
-            {% block stylesheets %}
-                  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans&display=swap" rel="stylesheet">
-                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}" media="screen and (min-width: 1300px)">
-                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_mid.css') }}" media="screen and (max-width: 1300px)">
-                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_small.css') }}" media="screen and (max-width: 750px)">
-                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/reset.css') }}">
-                  {% for stylesheet in get_show_styles() %}
-                        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/' ~ stylesheet) }}">
-                  {% endfor %}
-            {% endblock %}
-      </head>
-      <body>
-
-      <div class="container">
-            {% block header %}
-                  <div id='header'>
-                        <div id='top'>
-                              {% block left %}
-                              {% endblock left %}
-                              <nav id='instance'>
-                                    <a href="{{ path('main_public') }}">
-                                          {{ icon('logo', 'icon icon-logo') | raw }}
-                                          <b> {{ config('site', 'name') }} </b>
-                                    </a>
-                              </nav>
-                              <div id="right-panel">
-                                    <input type="checkbox" id="toggle-right" class="larger">
-                                    <div class="arrow right">
-                                          <label for="toggle-right" id='right-panel'></label>
-                                    </div>
-                                    <div class='rss'>
-                                          <div>
-                                          </div>
-                                    </div>
-                              </div>
-                        </div>
+  <head>
+    {% block meta %}
+      <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+      {% endblock %}
+      <title>
+        {% block title %}{% endblock %}
+      </title>
+      {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+        {% for stylesheet in get_show_styles() %}
+          <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/' ~ stylesheet) }}">
+        {% endfor %}
+      {% endblock %}
+  </head>
+  <body>
+    <div class="container">
+      {% block header %}
+        <div id='header'>
+          <div id='top'>
+            {% block left %}
+            {% endblock left %}
+            <nav id='instance'>
+              <a href="{{ path('main_public') }}">
+                {{ icon('logo', 'icon icon-logo') | raw }}
+                <b> {{ config('site', 'name') }} </b>
+              </a>
+            </nav>
+            <div id="right-panel">
+              <input type="checkbox" id="toggle-right" class="larger">
+                <div class="arrow right">
+                  <label for="toggle-right" id='right-panel'></label>
+                </div>
+                <div class='rss'>
+                  <div>
                   </div>
-            {% endblock header%}
+                </div>
+            </div>
+          </div>
+        </div>
+      {% endblock header%}
 
-            {% block nav %}{% endblock %}
-            {% block body %}{% endblock %}
-            {% block javascripts %}{% endblock javascripts%}
-      </div>
-      </body>
+      {% block nav %}{% endblock %}
+      {% block body %}{% endblock %}
+      {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+      {% endblock javascripts%}
+    </div>
+  </body>
 </html>

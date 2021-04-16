@@ -43,6 +43,7 @@
         "symfony/twig-pack": "*",
         "symfony/validator": "5.2.*",
         "symfony/web-link": "5.2.*",
+        "symfony/webpack-encore-bundle": "^1.11",
         "symfony/yaml": "5.2.*",
         "symfonycasts/verify-email-bundle": "^1.0",
         "tgalopin/html-sanitizer-bundle": "^1.2",

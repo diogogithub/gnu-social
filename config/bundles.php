@@ -15,4 +15,5 @@ return [
     SymfonyCasts\Bundle\VerifyEmail\SymfonyCastsVerifyEmailBundle::class => ['all' => true],
     Misd\PhoneNumberBundle\MisdPhoneNumberBundle::class                  => ['all' => true],
     HtmlSanitizer\Bundle\HtmlSanitizerBundle::class                      => ['all' => true],
+    Symfony\WebpackEncoreBundle\WebpackEncoreBundle::class               => ['all' => true],
 ];
