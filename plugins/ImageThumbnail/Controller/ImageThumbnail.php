@@ -26,7 +26,6 @@ use App\Core\DB\DB;
 use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
 use Component\Media\Media;
-use Plugin\ImageThumbnail\ImageThumbnail as ThisPlugin;
 use Symfony\Component\HttpFoundation\Request;
 
 class ImageThumbnail extends Controller
@@ -51,12 +50,13 @@ class ImageThumbnail extends Controller
         $height     = Common::clamp($this->int('h') ?? $max_height, min: 0, max: $max_height);
         $crop       = $this->bool('c') ?? false;
 
-        $filename = $attachment->getFilename();
-        $filepath = ThisPlugin::getPath($attachment);
-
         $thumbnail = AttachmentThumbnail::getOrCreate(attachment: $attachment, width: $width, height: $height, crop: $crop);
-        dd($thumbnail);
+        DB::persist($thumbnail);
+        DB::flush();
 
-        return Media::sendFile(filepath: $filepath, mimetype: $attachment->getMimetype(), output_filename: $filename, disposition: 'inline');
+        $filename = $thumbnail->getFilename();
+        $path     = $thumbnail->getPath();
+
+        return Media::sendFile(filepath: $path, mimetype: $attachment->getMimetype(), output_filename: $filename, disposition: 'inline');
     }
 }

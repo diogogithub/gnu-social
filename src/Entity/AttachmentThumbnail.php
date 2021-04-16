@@ -25,6 +25,7 @@ use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
 use App\Core\Log;
+use App\Util\Common;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use Component\Media\Media;
@@ -98,22 +99,49 @@ class AttachmentThumbnail extends Entity
 
     // }}} Autocode
 
+    private Attachment $attachment;
+
+    public function setAttachment(Attachment $attachment)
+    {
+        $this->attachment = $attachment;
+    }
+
+    public function getAttachment()
+    {
+        if (isset($this->attachment)) {
+            return $this->attachment;
+        } else {
+            return $this->attachment = DB::findOneBy('attachment', ['id' => $this->attachment_id]);
+        }
+    }
+
     public static function getOrCreate(Attachment $attachment, ?int $width = null, ?int $height = null, ?bool $crop = null)
     {
         try {
             return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height]);
         } catch (NotFoundException $e) {
-            $outpath = $attachment->getFileHash() . '-' . $width . 'x' . $height;
+            $thumbnail = self::create(['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height, 'attachment' => $attachment]);
 
             $event_map  = ['image' => 'ResizeImage', 'video' => 'ResizeVideo'];
             $major_mime = Media::mimetypeMajor($attachment->getMimetype());
             if (in_array($major_mime, array_keys($event_map))) {
-                Event::handle($event_map[$major_mime], [$attachment, $outpath, $width, $height, $crop]);
+                Event::handle($event_map[$major_mime], [$attachment, $thumbnail, $width, $height, $crop]);
+                return $thumbnail;
             } else {
                 Log::debug($m = ('Cannot resize attachment with mimetype ' . $attachment->getMimetype()));
                 throw new ServerException($m);
             }
         }
+    }
+
+    public function getFilename()
+    {
+        return $this->getAttachment()->getFileHash() . "-{$this->width}x{$this->height}.webp";
+    }
+
+    public function getPath()
+    {
+        return Common::config('thumbnail', 'dir') . $this->getFilename();
     }
 
     /**
