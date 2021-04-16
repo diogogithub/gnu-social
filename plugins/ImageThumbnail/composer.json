@@ -1,5 +1,5 @@
 {
     "require": {
-        "intervention/image": "2.5.1"
+        "jcupitt/vips": "1.0.8"
     }
 }

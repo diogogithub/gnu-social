@@ -23,6 +23,7 @@ namespace App\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Util\Common;
 use DateTimeInterface;
 
 /**
@@ -225,6 +226,11 @@ class Attachment extends Entity
         foreach ($files as $f) {
             @unlink($f);
         }
+    }
+
+    public function getPath()
+    {
+        return Common::config('attachments', 'dir') . $this->getFilename();
     }
 
     public static function schemaDef(): array

@@ -24,8 +24,9 @@ use function App\Core\I18n\_m;
 use App\Core\Modules\Module;
 use App\Core\Router\RouteLoader;
 use App\Entity\Attachment;
+use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
-use Intervention\Image\Image;
+use Jcupitt\Vips;
 
 class ImageThumbnail extends Module
 {
@@ -33,11 +34,6 @@ class ImageThumbnail extends Module
     {
         $r->connect('thumbnail', '/thumbnail/{id<\d+>}', [Controller\ImageThumbnail::class, 'thumbnail']);
         return Event::next;
-    }
-
-    public static function getPath(Attachment $attachment)
-    {
-        return Common::config('attachments', 'dir') . $attachment->getFilename();
     }
 
     /**
@@ -51,32 +47,29 @@ class ImageThumbnail extends Module
      *
      * @throws Exception
      */
-    public function onResizeImage(Attachment $attachment, string $outpath, int $width, int $height, bool $crop)
+    public function onResizeImage(Attachment $attachment, AttachmentThumbnail $thumbnail, int $width, int $height, bool $crop)
     {
         $old_limit = ini_set('memory_limit', Common::config('attachments', 'memory_limit'));
 
-        // try {
-        //     $img = Image::make($this->filepath);
-        // } catch (Exception $e) {
-        //     Log::error(__METHOD__ . ' encountered exception: ' . print_r($e, true));
-        //     // TRANS: Exception thrown when trying to resize an unknown file type.
-        //     throw new Exception(_m('Unknown file type'));
-        // }
+        try {
+            // -1 means load all pages, 'sequential' access means decode pixels on demand
+            // $image = Vips\Image::newFromFile(self::getPath($attachment), ['n' => -1, 'access' => 'sequential']);
+            $image = Vips\Image::thumbnail($attachment->getPath(), $width, ['height' => $height]);
+        } catch (Exception $e) {
+            Log::error(__METHOD__ . ' encountered exception: ' . print_r($e, true));
+            // TRANS: Exception thrown when trying to resize an unknown file type.
+            throw new Exception(_m('Unknown file type'));
+        }
 
-        // if (self::getPath($attachment) === $outpath) {
-        //     @unlink($outpath);
-        // }
+        if ($attachment->getPath() === $thumbnail->getPath()) {
+            @unlink($thumbnail->getPath());
+        }
 
-        // // Fit image to dimensions and optionally prevent upscaling
-        // if (!$crop) $img->fit($width, $height, function ($constraint) { $constraint->upsize();});
-        // else        $img->crop($width, $height);
+        $image->writeToFile($thumbnail->getPath());
+        unset($image);
 
-        // $img->save($outpath, 100, 'webp');
-        // $img->destroy();
+        ini_set('memory_limit', $old_limit); // Restore the old memory limit
 
-        // ini_set('memory_limit', $old_limit); // Restore the old memory limit
-
-        // return $outpath;
         return Event::next;
     }
 }
