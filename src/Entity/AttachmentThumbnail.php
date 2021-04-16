@@ -21,7 +21,13 @@
 
 namespace App\Entity;
 
+use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Event;
+use App\Core\Log;
+use App\Util\Exception\NotFoundException;
+use App\Util\Exception\ServerException;
+use Component\Media\Media;
 use DateTimeInterface;
 
 /**
@@ -91,6 +97,24 @@ class AttachmentThumbnail extends Entity
     }
 
     // }}} Autocode
+
+    public static function getOrCreate(Attachment $attachment, ?int $width = null, ?int $height = null, ?bool $crop = null)
+    {
+        try {
+            return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height]);
+        } catch (NotFoundException $e) {
+            $outpath = $attachment->getFileHash() . '-' . $width . 'x' . $height;
+
+            $event_map  = ['image' => 'ResizeImage', 'video' => 'ResizeVideo'];
+            $major_mime = Media::mimetypeMajor($attachment->getMimetype());
+            if (in_array($major_mime, array_keys($event_map))) {
+                Event::handle($event_map[$major_mime], [$attachment, $outpath, $width, $height, $crop]);
+            } else {
+                Log::debug($m = ('Cannot resize attachment with mimetype ' . $attachment->getMimetype()));
+                throw new ServerException($m);
+            }
+        }
+    }
 
     /**
      * Delete a attachment thumbnail. This table doesn't own all the attachments, only itself

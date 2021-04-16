@@ -23,7 +23,10 @@ namespace Plugin\ImageThumbnail\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
+use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
+use Component\Media\Media;
+use Plugin\ImageThumbnail\ImageThumbnail as ThisPlugin;
 use Symfony\Component\HttpFoundation\Request;
 
 class ImageThumbnail extends Controller
@@ -33,9 +36,9 @@ class ImageThumbnail extends Controller
      */
     public function thumbnail(Request $request, int $id)
     {
-        $attachemnt = DB::findOneBy('attachment', ['id' => $id]);
-        if (!is_null($attachemnt->getScope())) {
-            // && ($attachemnt->scope | VisibilityScope::PUBLIC) != 0
+        $attachment = DB::findOneBy('attachment', ['id' => $id]);
+        if (!is_null($attachment->getScope())) {
+            // && ($attachment->scope | VisibilityScope::PUBLIC) != 0
             // $user = Common::ensureLoggedIn();
             assert(false, 'Attachment scope not implemented');
         }
@@ -48,6 +51,12 @@ class ImageThumbnail extends Controller
         $height     = Common::clamp($this->int('h') ?? $max_height, min: 0, max: $max_height);
         $crop       = $this->bool('c') ?? false;
 
-        dd($width, $height, $crop);
+        $filename = $attachment->getFilename();
+        $filepath = ThisPlugin::getPath($attachment);
+
+        $thumbnail = AttachmentThumbnail::getOrCreate(attachment: $attachment, width: $width, height: $height, crop: $crop);
+        dd($thumbnail);
+
+        return Media::sendFile(filepath: $filepath, mimetype: $attachment->getMimetype(), output_filename: $filename, disposition: 'inline');
     }
 }

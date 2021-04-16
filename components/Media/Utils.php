@@ -206,4 +206,34 @@ abstract class Utils
             return ['file_path' => $filepath, 'mimetype' => 'image/svg+xml', 'title' => null];
         }
     }
+
+    // ------------------------------
+
+    /**
+     * Get the minor part of a mimetype. image/webp -> image
+     */
+    public static function mimetypeMajor(string $mime)
+    {
+        return explode('/', self::mimeBare($mime))[0];
+    }
+
+    /**
+     * Get the minor part of a mimetype. image/webp -> webp
+     */
+    public static function mimetypeMinor(string $mime)
+    {
+        return explode('/', self::mimeBare($mime))[1];
+    }
+
+    /**
+     *  Get only the mimetype and not additional info (separated from bare mime with semi-colon)
+     */
+    public static function mimeBare(string $mimetype)
+    {
+        $mimetype = mb_strtolower($mimetype);
+        if (($semicolon = mb_strpos($mimetype, ';')) !== false) {
+            $mimetype = mb_substr($mimetype, 0, $semicolon);
+        }
+        return trim($mimetype);
+    }
 }
