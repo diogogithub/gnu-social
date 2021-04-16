@@ -21,6 +21,7 @@
 
 namespace App\Entity;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
@@ -118,7 +119,10 @@ class AttachmentThumbnail extends Entity
     public static function getOrCreate(Attachment $attachment, ?int $width = null, ?int $height = null, ?bool $crop = null)
     {
         try {
-            return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height]);
+            return Cache::get('thumb-' . $attachment->getId() . "-{$width}x{$height}",
+                              function () use ($attachment, $width, $height) {
+                                  return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height]);
+                              });
         } catch (NotFoundException $e) {
             $thumbnail = self::create(['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height, 'attachment' => $attachment]);
 
