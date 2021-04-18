@@ -88,7 +88,7 @@ input.larger {
 .icon-avatar {
       order: 1;
       height: calc(5 * var(--unit-size));
-calc(5 * var(--unit-size));
+      width: calc(5 * var(--unit-size));
       margin-right: var(--small-size);
 }
 
