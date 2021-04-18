@@ -26,12 +26,11 @@
  * @see      http://www.gnu.org/software/social/
  */
 
-namespace Plugin\VideoThumbnail;
+namespace Plugin\VideoEncoder;
 
-use App\Core\Modules\Module;
-use Plugin\Media\Util\ImageFile;
+use App\Core\Modules\Plugin;
 
-class VideoThumbnail extends Module
+class VideoEncoder extends Plugin
 {
     const PLUGIN_VERSION = '0.1.0';
 
@@ -39,7 +38,7 @@ class VideoThumbnail extends Module
      * Handle resizing GIF files
      */
     public function onStartResizeImageFile(
-        ImageFile $imagefile,
+        ImageValidate $imagefile,
         string $outpath,
         array $box
     ): bool {
@@ -60,7 +59,7 @@ class VideoThumbnail extends Module
      * @see http://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html
      * @see https://github.com/PHP-FFMpeg/PHP-FFMpeg/pull/592
      */
-    public function resizeImageFileAnimatedGif(ImageFile $imagefile, string $outpath, array $box): bool
+    public function resizeImageFileAnimatedGif(ImageValidate $imagefile, string $outpath, array $box): bool
     {
         // Create FFMpeg instance
         // Need to explictly tell the drivers location or it won't find them

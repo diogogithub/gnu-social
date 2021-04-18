@@ -26,19 +26,19 @@
         {% if attachment.mimetype starts with 'image/' %}
           <div>
             <figure>
-              <img src="{{ path('attachment_inline', {'id': attachment.getId()}) }}" alt="{{ attachment.getTitle() }}">
-              <figcaption> {{ attachment.getTitle() }} </figcaption>
+              <img src="{{ path('attachment_view', {'id': attachment.getId()}) }}" alt="{{ attachment.getTitle() }}">
+                <figcaption> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </figcaption>
             </figure>
           </div>
         {% elseif attachment.mimetype starts with 'video/' %}
           <div>
-            <video src="{{ path('attachment_inline', {'id': attachment.getId()}) }}">
-              <i> {{ attachment.getTitle() }} </i>
+            <video src="{{ path('attachment_view', {'id': attachment.getId()}) }}">
+              <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </i>
             </video>
           </div>
         {% else %}
           <div>
-            <i> {{ attachment.getTitle() }} </i>
+            <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </i>
           </div>
         {% endif %}
       {% endfor %}

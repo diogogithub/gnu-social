@@ -45,18 +45,32 @@ class GSFile
     {
         // The following properly gets the mimetype with `file` or other
         // available methods, so should be safe
-        $hash = hash_file(Attachment::FILEHASH_ALGO, $sfile->getPathname());
-        $file = Attachment::create([
+        $hash     = hash_file(Attachment::FILEHASH_ALGO, $sfile->getPathname());
+        $mimetype = $sfile->getMimeType();
+        Event::handle('AttachmentValidation', [&$sfile, &$mimetype]);
+        $attachment = Attachment::create([
             'file_hash'  => $hash,
             'gsactor_id' => $actor_id,
-            'mimetype'   => $sfile->getMimeType(),
+            'mimetype'   => $mimetype,
             'title'      => $title ?: _m('Untitled attachment'),
             'filename'   => $hash,
             'is_local'   => $is_local,
         ]);
         $sfile->move($dest_dir, $hash);
-        // TODO Normalize file types
-        return $file;
+        return $attachment;
+    }
+
+    /**
+     * Perform file validation (checks and normalization) and store the given file
+     */
+    public static function validateAndStoreAttachmentThumbnail(SymfonyFile $sfile,
+                                                      string $dest_dir,
+                                                      ?string $title = null,
+                                                      bool $is_local = true,
+                                                      int $actor_id = null): Attachment//Thumbnail
+    {
+        $attachment = self::validateAndStoreAttachment($sfile,$dest_dir,$title,$is_local,$actor_id);
+        return $attachment;
     }
 
     /**

@@ -27,9 +27,23 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Attachment extends Controller
 {
-    public function attachment_inline(Request $request, int $id)
+    public function attachment_show(Request $request, int $id)
+    {
+    }
+
+    public function attachment_view(Request $request, int $id)
     {
         $res = M::getAttachmentFileInfo($id);
-        return M::sendFile($res['file_path'], $res['mimetype'], $res['title']);
+        return M::sendFile($res['file_path'], $res['mimetype'], $res['title'], 'inline');
+    }
+
+    public function attachment_download(Request $request, int $id)
+    {
+        $res = M::getAttachmentFileInfo($id);
+        return M::sendFile($res['file_path'], $res['mimetype'], $res['title'], 'attachment');
+    }
+
+    public function attachment_thumbnail(Request $request, int $id)
+    {
     }
 }

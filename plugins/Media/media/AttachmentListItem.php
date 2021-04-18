@@ -95,11 +95,12 @@ class AttachmentListItem
         $this->showEnd();
     }
 
-    function linkAttr() {
+    public function linkAttr()
+    {
         return [
             'class' => 'u-url',
             'href'  => $this->attachment->getAttachmentDownloadUrl(),
-            'title' => $this->linkTitle()
+            'title' => $this->linkTitle(),
         ];
     }
 
@@ -128,7 +129,7 @@ class AttachmentListItem
                     try {
                         // Tell getThumbnail that we can show an animated image if it has one (4th arg, "force_still")
                         $thumb = File_thumbnail::fromFileObject($this->attachment, null, null, false, false);
-                    } catch (UseFileAsThumbnailException|UnsupportedMediaException|FileNotFoundException|ServerException $e) {
+                    } catch (UseFileAsThumbnailException | UnsupportedMediaException | FileNotFoundException | ServerException $e) {
                         common_debug("AttachmentListItem couldn't find a thumbnail for {$this->attachment->getID()} because {$e->getMessage()}");
                         // This remote file has no local thumbnail.
                         $thumb = null;
@@ -157,10 +158,10 @@ class AttachmentListItem
                                 try {
                                     // getUrl(true) because we don't want to hotlink, could be made configurable
                                     $this->out->element('img', ['class' => 'u-photo',
-                                        'src' => $this->attachment->getUrl(true),
-                                        'alt' => $this->attachment->getTitle()]);
+                                        'src'                           => $this->attachment->getUrl(true),
+                                        'alt'                           => $this->attachment->getTitle(), ]);
                                 } catch (FileNotStoredLocallyException $e) {
-                                    $url = $e->file->getUrl(false);
+                                    //$url = $e->file->getUrl(false);
                                     $this->out->element('a', ['href' => $url, 'rel' => 'external'], $url);
                                 }
                             }
@@ -178,12 +179,12 @@ class AttachmentListItem
                             }
 
                             $this->out->elementStart($mediatype,
-                                array('class' => "attachment_player u-{$mediatype}",
-                                    'poster' => $poster,
-                                    'controls' => 'controls'));
+                                ['class'       => "attachment_player u-{$mediatype}",
+                                    'poster'   => $poster,
+                                    'controls' => 'controls', ]);
                             $this->out->element('source',
-                                array('src' => $this->attachment->getUrl(),
-                                    'type' => $this->attachment->mimetype));
+                                ['src'     => $this->attachment->getUrl(),
+                                    'type' => $this->attachment->mimetype, ]);
                             $this->out->elementEnd($mediatype);
                             break;
 
@@ -202,12 +203,13 @@ class AttachmentListItem
                                         break;
                                     }
                                 // Fall through to default if it wasn't a _local_ text/html File object
+                                // no break
                                 default:
-                                    Event::handle('ShowUnsupportedAttachmentRepresentation', array($this->out, $this->attachment));
+                                    Event::handle('ShowUnsupportedAttachmentRepresentation', [$this->out, $this->attachment]);
                             }
                     }
                 } else {
-                    Event::handle('ShowUnsupportedAttachmentRepresentation', array($this->out, $this->attachment));
+                    Event::handle('ShowUnsupportedAttachmentRepresentation', [$this->out, $this->attachment]);
                 }
             } catch (FileNotFoundException $e) {
                 if (!$this->attachment->isLocal()) {

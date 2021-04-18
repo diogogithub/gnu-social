@@ -17,37 +17,75 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace Plugin\ImageThumbnail;
+namespace Plugin\ImageEncoder;
 
 use App\Core\Event;
 use function App\Core\I18n\_m;
-use App\Core\Modules\Module;
-use App\Core\Router\RouteLoader;
+use App\Core\Log;
+use App\Core\Modules\Plugin;
 use App\Entity\Attachment;
 use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
+use Exception;
 use Jcupitt\Vips;
+use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 
-class ImageThumbnail extends Module
+class ImageEncoder extends Plugin
 {
-    public function onAddRoute(RouteLoader $r)
+    /**
+     * Several obscure file types should be normalized to WebP on resize.
+     *
+     * Keeps only GIF (if animated) and WebP formats
+     *
+     * @return int
+     */
+    public function preferredType(): int
     {
-        $r->connect('thumbnail', '/thumbnail/{id<\d+>}', [Controller\ImageThumbnail::class, 'thumbnail']);
-        return Event::next;
+        if ($this->type == IMAGETYPE_GIF && $this->animated) {
+            return $this->type;
+        }
+
+        return IMAGETYPE_WEBP;
     }
 
     /**
-     * Resizes an image. It will reencode the image in the
-     * `self::prefferedType()` format. This only applies henceforward,
+     * Encodes the image to self::preferredType() format ensuring it's valid.
+     *
+     * @param SymfonyFile $sfile    i/o
+     * @param null|string $mimetype out
+     *
+     * @return bool
+     */
+    public function onAttachmentValidation(SymfonyFile &$sfile, ?string &$mimetype = null): bool
+    {
+        $original_mimetype = $mimetype ?? $sfile->getMimeType();
+        // TODO: Encode in place
+        $mimetype = self::preferredType();
+        return Event::stop;
+    }
+
+    /**
+     * Resizes an image. It will encode the image in the
+     * `self::preferredType()` format. This only applies henceforward,
      * not retroactively
      *
      * Increases the 'memory_limit' to the one in the 'attachments' section in the config, to
      * enable the handling of bigger images, which can cause a peak of memory consumption, while
      * encoding
      *
+     * @param Attachment          $attachment
+     * @param AttachmentThumbnail $thumbnail
+     * @param int                 $width
+     * @param int                 $height
+     * @param bool                $crop
+     *
      * @throws Exception
+     * @throws Vips\Exception
+     *
+     * @return bool
+     *
      */
-    public function onResizeImage(Attachment $attachment, AttachmentThumbnail $thumbnail, int $width, int $height, bool $crop)
+    public function onResizeImage(Attachment $attachment, AttachmentThumbnail $thumbnail, int $width, int $height, bool $crop): bool
     {
         $old_limit = ini_set('memory_limit', Common::config('attachments', 'memory_limit'));
 

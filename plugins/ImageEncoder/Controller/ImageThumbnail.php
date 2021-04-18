@@ -19,7 +19,7 @@
 
 // }}}
 
-namespace Plugin\ImageThumbnail\Controller;
+namespace Plugin\ImageEncoder\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
