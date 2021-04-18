@@ -90,6 +90,7 @@ input.larger {
       height: calc(5 * var(--unit-size));
       width: calc(5 * var(--unit-size));
       margin-right: var(--small-size);
+      border-radius: 50%;
 }
 
 .info {
