@@ -23,9 +23,9 @@ namespace Plugin\ImageThumbnail\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
+use App\Core\GSFile;
 use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
-use Component\Media\Media;
 use Symfony\Component\HttpFoundation\Request;
 
 class ImageThumbnail extends Controller
@@ -57,6 +57,6 @@ class ImageThumbnail extends Controller
         $filename = $thumbnail->getFilename();
         $path     = $thumbnail->getPath();
 
-        return Media::sendFile(filepath: $path, mimetype: $attachment->getMimetype(), output_filename: $filename, disposition: 'inline');
+        return GSFile::sendFile(filepath: $path, mimetype: $attachment->getMimetype(), output_filename: $filename, disposition: 'inline');
     }
 }

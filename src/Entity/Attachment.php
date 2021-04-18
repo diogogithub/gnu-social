@@ -201,12 +201,12 @@ class Attachment extends Entity
         $files = [];
         if ($cascade) {
             // An avatar can own a file, and it becomes invalid if the file is deleted
-            $avatar = DB::findBy('avatar', ['file_id' => $this->id]);
+            $avatar = DB::findBy('avatar', ['attachment_id' => $this->id]);
             foreach ($avatar as $a) {
                 $files[] = $a->getFilePath();
                 $a->delete($flush, $delete_files_now, $cascading = true);
             }
-            foreach (DB::findBy('file_thumbnail', ['file_id' => $this->id]) as $ft) {
+            foreach (DB::findBy('attachment_thumbnail', ['attachment_id' => $this->id]) as $ft) {
                 $files[] = $ft->delete($flush, $delete_files_now, $cascading);
             }
         }

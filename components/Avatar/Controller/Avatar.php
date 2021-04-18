@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,32 +16,29 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
-namespace Component\Left;
+namespace Component\Avatar\Controller;
 
-use App\Core\Event;
-use App\Core\Log;
-use App\Core\Modules\Component;
-use App\Util\Common;
+use App\Core\Controller;
+use App\Core\GSFile as M;
 use Exception;
+use Symfony\Component\HttpFoundation\Request;
 
-class Left extends Component
+class Avatar extends Controller
 {
-    public function onEndTwigPopulateVars(array &$vars)
+    /**
+     * @throws Exception
+     */
+    public function avatar(Request $request, int $gsactor_id, string $size)
     {
-        try {
-            $user = Common::user();
-            if ($user != null) {
-                $actor                  = $user->getActor();
-                $vars['user_nickname']  = $user->getNickname();
-                $vars['user_tags']      = $actor->getSelfTags();
-                $vars['user_followers'] = $actor->getFollowersCount();
-                $vars['user_followed']  = $actor->getFollowedCount();
-            }
-        } catch (Exception $e) {
-            Log::error('Got an exception while populating variables for the left panel: ' . $e);
+        switch ($size) {
+            case 'full':
+                $res = \Component\Avatar\Avatar::getAvatarFileInfo($gsactor_id);
+                return M::sendFile($res['file_path'], $res['mimetype'], $res['title']);
+            default:
+                throw new Exception('Not implemented');
         }
-        return Event::next;
     }
 }

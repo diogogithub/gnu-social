@@ -25,11 +25,11 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
+use App\Core\GSFile;
 use App\Core\Log;
 use App\Util\Common;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
-use Component\Media\Media;
 use DateTimeInterface;
 
 /**
@@ -126,7 +126,7 @@ class AttachmentThumbnail extends Entity
         } catch (NotFoundException $e) {
             $thumbnail  = self::create(['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height, 'attachment' => $attachment]);
             $event_map  = ['image' => 'ResizeImage', 'video' => 'ResizeVideo'];
-            $major_mime = Media::mimetypeMajor($attachment->getMimetype());
+            $major_mime = GSFile::mimetypeMajor($attachment->getMimetype());
             if (in_array($major_mime, array_keys($event_map))) {
                 Event::handle($event_map[$major_mime], [$attachment, $thumbnail, $width, $height, $crop]);
                 return $thumbnail;

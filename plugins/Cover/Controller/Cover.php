@@ -29,8 +29,8 @@ use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
-use Component\Media\Media;
-use Component\Media\Media as M;
+use Component\Media\Attachment;
+use Component\Media\Attachment as M;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -97,7 +97,7 @@ class Cover
             if (explode('/',$sfile->getMimeType())[0] != 'image') {
                 throw new ServerException('Invalid file type');
             }
-            $file     = Media::validateAndStoreFile($sfile, Common::config('cover', 'dir'), $title = null, $is_local = true, $use_unique = $actor_id);
+            $file     = Attachment::validateAndStoreFile($sfile, Common::config('cover', 'dir'), $title = null, $is_local = true, $use_unique = $actor_id);
             $old_file = null;
             $cover    = DB::find('cover', ['gsactor_id' => $actor_id]);
             // Must get old id before inserting another one

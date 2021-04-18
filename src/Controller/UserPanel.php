@@ -38,13 +38,13 @@ namespace App\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Entity\Avatar;
 use App\Util\ClientException;
 use App\Util\Common;
 use App\Util\Form\ArrayTransformer;
-use Component\Media\Media;
 use Doctrine\DBAL\Types\Types;
 use Exception;
 use Functional as F;
@@ -144,11 +144,11 @@ class UserPanel extends AbstractController
             } else {
                 throw new ClientException('Invalid form');
             }
-            $user     = Common::user();
-            $actor_id = $user->getId();
-            $file     = Media::validateAndStoreAttachment($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $actor_id);
-            $old_file = null;
-            $avatar   = DB::find('avatar', ['gsactor_id' => $actor_id]);
+            $user       = Common::user();
+            $gsactor_id = $user->getId();
+            $file       = GSFile::validateAndStoreAttachment($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $gsactor_id);
+            $old_file   = null;
+            $avatar     = DB::find('avatar', ['gsactor_id' => $gsactor_id]);
             // Must get old id before inserting another one
             if ($avatar != null) {
                 $old_file = $avatar->delete();
@@ -156,13 +156,13 @@ class UserPanel extends AbstractController
             DB::persist($file);
             // Can only get new id after inserting
             DB::flush();
-            DB::persist(Avatar::create(['gsactor_id' => $actor_id, 'file_id' => $file->getId()]));
+            DB::persist(Avatar::create(['gsactor_id' => $gsactor_id, 'attachment_id' => $file->getId()]));
             DB::flush();
             // Only delete files if the commit went through
             if ($old_file != null) {
                 @unlink($old_file);
             }
-            Event::handle('DeleteCachedAvatar', [$user->getNickname()]);
+            Event::handle('DeleteCachedAvatar', [$user->getId()]);
         }
 
         return ['_template' => 'settings/avatar.html.twig', 'avatar' => $form->createView()];

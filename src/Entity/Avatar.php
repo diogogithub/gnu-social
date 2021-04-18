@@ -45,7 +45,7 @@ class Avatar extends Entity
 {
     // {{{ Autocode
     private int $gsactor_id;
-    private int $file_id;
+    private int $attachment_id;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -60,15 +60,15 @@ class Avatar extends Entity
         return $this->gsactor_id;
     }
 
-    public function setFileId(int $file_id): self
+    public function setAttachmentId(int $attachment_id): self
     {
-        $this->file_id = $file_id;
+        $this->attachment_id = $attachment_id;
         return $this;
     }
 
-    public function getFileId(): int
+    public function getAttachmentId(): int
     {
-        return $this->file_id;
+        return $this->attachment_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -95,17 +95,17 @@ class Avatar extends Entity
 
     // }}} Autocode
 
-    private ?File $file = null;
+    private ?Attachment $attachment = null;
 
     public function getUrl(): string
     {
-        return Router::url('avatar', ['nickname' => GSActor::getNicknameFromId($this->gsactor_id)]);
+        return Router::url('avatar', ['gsactor_id' => $this->gsactor_id]);
     }
 
-    public function getFile(): File
+    public function getAttachment(): Attachment
     {
-        $this->file = $this->file ?: DB::find('file', ['id' => $this->file_id]);
-        return $this->file;
+        $this->attachment = $this->attachment ?: DB::find('attachment', ['id' => $this->attachment_id]);
+        return $this->attachment;
     }
 
     public static function getFilePathStatic(string $filename): string
@@ -115,7 +115,7 @@ class Avatar extends Entity
 
     public function getFilePath(): string
     {
-        return Common::config('avatar', 'dir') . $this->getFile()->getFileName();
+        return Common::config('avatar', 'dir') . $this->getAttachment()->getFileName();
     }
 
     /**
@@ -125,7 +125,7 @@ class Avatar extends Entity
     {
         // Don't go into a loop if we're deleting from File
         if (!$cascading) {
-            $files = $this->getFile()->delete($cascade = true, $file_flush = false, $delete_files_now);
+            $files = $this->getAttachment()->delete($cascade = true, $file_flush = false, $delete_files_now);
         } else {
             DB::remove(DB::getReference('avatar', ['gsactor_id' => $this->gsactor_id]));
             $file_path = $this->getFilePath();
@@ -143,14 +143,14 @@ class Avatar extends Entity
         return [
             'name'   => 'avatar',
             'fields' => [
-                'gsactor_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
-                'file_id'    => ['type' => 'int', 'foreign key' => true, 'target' => 'File.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to file table'],
-                'created'    => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
+                'gsactor_id'    => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'File.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to file table'],
+                'created'       => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
             'primary key' => ['gsactor_id'],
             'indexes'     => [
-                'avatar_file_id_idx' => ['file_id'],
+                'avatar_attachment_id_idx' => ['attachment_id'],
             ],
         ];
     }

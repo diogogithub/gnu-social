@@ -69,5 +69,8 @@ abstract class Main
         foreach (['personal_info', 'avatar', 'notifications', 'account'] as $s) {
             $r->connect('settings_' . $s, '/settings/' . $s, [C\UserPanel::class, $s]);
         }
+
+        // Attachments
+        $r->connect('attachment_inline', '/attachment/{id<\d+>}', [C\Attachment::class, 'attachment_inline']);
     }
 }

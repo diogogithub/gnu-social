@@ -19,10 +19,17 @@
 
 // }}}
 
-namespace Component\Media\Exception;
+namespace App\Controller;
 
-use Exception;
+use App\Core\Controller;
+use App\Core\GSFile as M;
+use Symfony\Component\HttpFoundation\Request;
 
-class NoAvatarException extends Exception
+class Attachment extends Controller
 {
+    public function attachment_inline(Request $request, int $id)
+    {
+        $res = M::getAttachmentFileInfo($id);
+        return M::sendFile($res['file_path'], $res['mimetype'], $res['title']);
+    }
 }

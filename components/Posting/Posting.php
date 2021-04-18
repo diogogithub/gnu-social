@@ -25,21 +25,21 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
+use App\Core\GSFile;
 use function App\Core\I18n\_m;
-use App\Core\Modules\Module;
+use App\Core\Modules\Component;
 use App\Core\Security;
 use App\Entity\AttachmentToNote;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Exceptiion\InvalidFormException;
+use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
-use Component\Media\Media;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
-class Posting extends Module
+class Posting extends Component
 {
     /**
      * HTML render event handler responsible for adding and handling
@@ -105,7 +105,7 @@ class Posting extends Module
         ]);
         $processed_attachments = [];
         foreach ($attachments as $f) {
-            $na = Media::validateAndStoreAttachment(
+            $na = GSFile::validateAndStoreAttachment(
                 $f, Common::config('attachments', 'dir'),
                 Security::sanitize($title = $f->getClientOriginalName()),
                 $is_local = true, $actor_id

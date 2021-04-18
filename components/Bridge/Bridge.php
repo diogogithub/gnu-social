@@ -19,8 +19,8 @@
 
 namespace Component\Bridge;
 
-use App\Core\Modules\Module;
+use App\Core\Modules\Component;
 
-class Bridge extends Module
+class Bridge extends Component
 {
 }

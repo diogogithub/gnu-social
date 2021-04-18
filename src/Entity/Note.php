@@ -196,7 +196,7 @@ class Note extends Entity
     public function getAvatarUrl()
     {
         $url = null;
-        Event::handle('GetAvatarUrl', [$this->getActorNickname(), &$url]);
+        Event::handle('GetAvatarUrl', [$this->getGSActorId(), &$url]);
         return $url;
     }
     public static function getAllNotes(int $noteScope): array
