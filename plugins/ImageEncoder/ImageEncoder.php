@@ -34,17 +34,9 @@ class ImageEncoder extends Plugin
 {
     /**
      * Several obscure file types should be normalized to WebP on resize.
-     *
-     * Keeps only GIF (if animated) and WebP formats
-     *
-     * @return int
      */
     public function preferredType(): int
     {
-        if ($this->type == IMAGETYPE_GIF && $this->animated) {
-            return $this->type;
-        }
-
         return IMAGETYPE_WEBP;
     }
 
