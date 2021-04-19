@@ -2,7 +2,7 @@
   <div class="note-info">
     {% set nickname = note.getActorNickname() %}
     <a href="{{ path('settings_avatar') }}">
-      <img src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
+      <img class="avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
     </a>
     <b>{{ nickname }}</b>
     {% set reply_to = note.getReplyToNickname() %}
