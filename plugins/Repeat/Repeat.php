@@ -22,7 +22,7 @@ namespace Plugin\Repeat;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
-use App\Core\Modules\Module;
+use App\Core\Modules\Plugin;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\NotFoundException;
@@ -30,7 +30,7 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
-class Repeat extends Module
+class Repeat extends Plugin
 {
     /**
      * HTML rendering event that adds the repeat form as a note

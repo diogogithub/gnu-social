@@ -22,7 +22,7 @@ namespace Plugin\ProfileColor;
 
 use App\Core\DB\DB;
 use App\Core\Event;
-use App\Core\Modules\Module;
+use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Util\Common;
 
@@ -36,7 +36,7 @@ use App\Util\Common;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class ProfileColor extends Module
+class ProfileColor extends Plugin
 {
     /**
      * Map URLs to actions

@@ -19,10 +19,10 @@
 
 namespace Plugin\TreeNotes;
 
-use App\Core\Modules\Module;
+use App\Core\Modules\Plugin;
 use App\Entity\Note;
 
-class TreeNotes extends Module
+class TreeNotes extends Plugin
 {
     /**
      * Format the given $notes_in_trees_out in a list of reply trees

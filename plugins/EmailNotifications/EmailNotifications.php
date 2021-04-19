@@ -33,9 +33,9 @@
 namespace Plugin\EmailNotifications;
 
 use App\Core\Event;
-use App\Core\Modules\Module;
+use App\Core\Modules\Plugin;
 
-class EmailNotifications extends Module
+class EmailNotifications extends Plugin
 {
     public function onAddNotificationTransport(&$form_defs): bool
     {

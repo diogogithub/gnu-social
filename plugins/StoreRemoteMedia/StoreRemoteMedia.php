@@ -1,4 +1,5 @@
 <?php
+// {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -13,10 +14,11 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+// }}}
 
 namespace Plugin\StoreRemoteMedia;
 
-use App\Core\Modules\Module;
+use App\Core\Modules\Plugin;
 
 /**
  * The StoreRemoteMedia plugin downloads remotely attached files to local server.
@@ -31,7 +33,7 @@ use App\Core\Modules\Module;
  * @copyright 2015-2016, 2019-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class StoreRemoteMedia extends Module
+class StoreRemoteMedia extends Plugin
 {
     const PLUGIN_VERSION = '3.0.0';
 

@@ -25,7 +25,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
-use App\Core\Modules\Module;
+use App\Core\Modules\Plugin;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exceptiion\InvalidFormException;
@@ -37,7 +37,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
 
-class Reply extends Module
+class Reply extends Plugin
 {
     public function onAddRoute($r)
     {

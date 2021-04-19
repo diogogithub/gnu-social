@@ -22,10 +22,10 @@
 namespace Plugin\Directory;
 
 use App\Core\Event;
-use App\Core\Modules\Module;
+use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 
-class Directory extends Module
+class Directory extends Plugin
 {
     /**
      * Map URLs to Controllers

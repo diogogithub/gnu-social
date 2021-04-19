@@ -24,7 +24,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
-use App\Core\Modules\Module;
+use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
 use App\Entity\PollResponse;
@@ -48,7 +48,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Poll extends Module
+class Poll extends Plugin
 {
     /**
      * Map URLs to actions

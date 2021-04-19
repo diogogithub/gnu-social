@@ -1,4 +1,6 @@
 <?php
+
+// {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -13,6 +15,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+// }}}
 
 /**
  * OEmbed and OpenGraph implementation for GNU social
@@ -23,16 +26,17 @@
  * @author    Stephen Paul Weber
  * @author    hannes
  * @author    Mikael Nordfeldth
- * @author    Diogo Peralta Cordeiro
  * @author    Miguel Dantas
- * @author    Diogo Peralta Cordeiro
+ * @author    Diogo Peralta Cordeiro <mail@diogo.site>
+ * @authir    Hugo Sales <hugo@hsal.es>
+ *
  * @copyright 2014-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 namespace Plugin\Embed;
 
-use App\Core\Modules\Module;
+use App\Core\Modules\Plugin;
 
 /**
  * Base class for the Embed plugin that does most of the heavy lifting to get
@@ -41,7 +45,7 @@ use App\Core\Modules\Module;
  * @copyright 2014-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Embed extends Module
+class Embed extends Plugin
 {
     const PLUGIN_VERSION = '2.1.0';
 

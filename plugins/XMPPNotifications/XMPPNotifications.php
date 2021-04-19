@@ -33,9 +33,9 @@
 namespace Plugin\XMPPNotifications;
 
 use App\Core\Event;
-use App\Core\Modules\Module;
+use App\Core\Modules\Plugin;
 
-class XMPPNotifications extends Module
+class XMPPNotifications extends Plugin
 {
     public function onAddNotificationTransport(&$form_defs): bool
     {
