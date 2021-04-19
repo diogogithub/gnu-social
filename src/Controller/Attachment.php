@@ -22,28 +22,55 @@
 namespace App\Controller;
 
 use App\Core\Controller;
-use App\Core\GSFile as M;
+use App\Core\DB\DB;
+use App\Core\GSFile;
+use App\Entity\AttachmentThumbnail;
+use App\Util\Common;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 
 class Attachment extends Controller
 {
     public function attachment_show(Request $request, int $id)
     {
+        $res = GSFile::getAttachmentFileInfo($id);
+        return GSFile::sendFile($res['file_path'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_INLINE);
     }
 
     public function attachment_view(Request $request, int $id)
     {
-        $res = M::getAttachmentFileInfo($id);
-        return M::sendFile($res['file_path'], $res['mimetype'], $res['title'], 'inline');
+        $res = GSFile::getAttachmentFileInfo($id);
+        return GSFile::sendFile($res['file_path'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_INLINE);
     }
 
     public function attachment_download(Request $request, int $id)
     {
-        $res = M::getAttachmentFileInfo($id);
-        return M::sendFile($res['file_path'], $res['mimetype'], $res['title'], 'attachment');
+        $res = GSFile::getAttachmentFileInfo($id);
+        return GSFile::sendFile($res['file_path'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_ATTACHMENT);
     }
 
     public function attachment_thumbnail(Request $request, int $id)
     {
+        $attachment = DB::findOneBy('attachment', ['id' => $id]);
+        if (!is_null($attachment->getScope())) {
+            // && ($attachment->scope | VisibilityScope::PUBLIC) != 0
+            // $user = Common::ensureLoggedIn();
+            assert(false, 'Attachment scope not implemented');
+        }
+
+        // TODO rate limit, limit to known sizes
+
+        $max_width  = Common::config('thumbnail', 'width');
+        $max_height = Common::config('thumbnail', 'height');
+        $width      = Common::clamp($this->int('w') ?: $max_width,  min: 0, max: $max_width);
+        $height     = Common::clamp($this->int('h') ?: $max_height, min: 0, max: $max_height);
+        $crop       = $this->bool('c') ?: false;
+
+        $thumbnail = AttachmentThumbnail::getOrCreate(attachment: $attachment, width: $width, height: $height, crop: $crop);
+
+        $filename = $thumbnail->getFilename();
+        $path     = $thumbnail->getPath();
+
+        return GSFile::sendFile(filepath: $path, mimetype: $attachment->getMimetype(), output_filename: $filename, disposition: 'inline');
     }
 }

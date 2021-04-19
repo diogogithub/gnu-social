@@ -86,7 +86,7 @@ class GSFile
             [
                 'Content-Description' => 'File Transfer',
                 'Content-Type'        => $mimetype,
-                'Content-Disposition' => HeaderUtils::makeDisposition($disposition, $output_filename ?: _m('Untitled attachment')),
+                'Content-Disposition' => HeaderUtils::makeDisposition($disposition, $output_filename ?: _m('Untitled attachment'), _m('Untitled attachment')),
                 'Cache-Control'       => 'public',
             ],
             $public = true,

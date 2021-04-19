@@ -80,25 +80,29 @@ class ImageEncoder extends Plugin
     public function onResizeImage(Attachment $attachment, AttachmentThumbnail $thumbnail, int $width, int $height, bool $crop): bool
     {
         $old_limit = ini_set('memory_limit', Common::config('attachments', 'memory_limit'));
-
         try {
-            // -1 means load all pages, 'sequential' access means decode pixels on demand
-            // $image = Vips\Image::newFromFile(self::getPath($attachment), ['n' => -1, 'access' => 'sequential']);
-            $image = Vips\Image::thumbnail($attachment->getPath(), $width, ['height' => $height]);
-        } catch (Exception $e) {
-            Log::error(__METHOD__ . ' encountered exception: ' . print_r($e, true));
-            // TRANS: Exception thrown when trying to resize an unknown file type.
-            throw new Exception(_m('Unknown file type'));
+            try {
+                // -1 means load all pages, 'sequential' access means decode pixels on demand
+                // $image = Vips\Image::newFromFile(self::getPath($attachment), ['n' => -1, 'access' => 'sequential']);
+                $image = Vips\Image::thumbnail($attachment->getPath(), $width, ['height' => $height]);
+            } catch (Exception $e) {
+                Log::error(__METHOD__ . ' encountered exception: ' . print_r($e, true));
+                // TRANS: Exception thrown when trying to resize an unknown file type.
+                throw new Exception(_m('Unknown file type'));
+            }
+
+            if ($attachment->getPath() === $thumbnail->getPath()) {
+                @unlink($thumbnail->getPath());
+            }
+
+            if ($crop) {
+                $image = $image->smartcrop($width, $height);
+            }
+            $image->writeToFile($thumbnail->getPath());
+            unset($image);
+        } finally {
+            ini_set('memory_limit', $old_limit); // Restore the old memory limit
         }
-
-        if ($attachment->getPath() === $thumbnail->getPath()) {
-            @unlink($thumbnail->getPath());
-        }
-
-        $image->writeToFile($thumbnail->getPath());
-        unset($image);
-
-        ini_set('memory_limit', $old_limit); // Restore the old memory limit
 
         return Event::next;
     }
