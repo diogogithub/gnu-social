@@ -26,8 +26,11 @@ use App\Core\DB\DB;
 use App\Core\GSFile;
 use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
+use App\Util\Exception\NotFoundException;
+use App\Util\Exception\ServerException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class Attachment extends Controller
 {
@@ -49,7 +52,18 @@ class Attachment extends Controller
         return GSFile::sendFile($res['file_path'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_ATTACHMENT);
     }
 
-    public function attachment_thumbnail(Request $request, int $id)
+    /**
+     * Controller to produce a thumbnail for a given attachment id
+     *
+     * @param Request $request
+     * @param int     $id      Attachment ID
+     *
+     * @throws NotFoundException
+     * @throws ServerException
+     *
+     * @return Response
+     */
+    public function attachment_thumbnail(Request $request, int $id): Response
     {
         $attachment = DB::findOneBy('attachment', ['id' => $id]);
         if (!is_null($attachment->getScope())) {

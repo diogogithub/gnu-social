@@ -52,7 +52,7 @@ class ImageEncoder extends Plugin
     {
         $original_mimetype = $mimetype ?? $sfile->getMimeType();
         // TODO: Encode in place
-        $mimetype = self::preferredType();
+        //$mimetype = self::preferredType();
         return Event::stop;
     }
 

@@ -23,16 +23,17 @@
       </div>
     <div class="note-attachments">
       {% for attachment in note.getAttachments() %}
+        {% set thumbnail_parameters = {'id': attachment.getId(), 'w': config('thumbnail','width'), 'h': config('thumbnail','height')} %}
         {% if attachment.mimetype starts with 'image/' %}
           <div>
             <figure>
-              <img src="{{ path('attachment_view', {'id': attachment.getId()}) }}" alt="{{ attachment.getTitle() }}">
+              <img src="{{ path('attachment_thumbnail', thumbnail_parameters) }}" alt="{{ attachment.getTitle() }}">
                 <figcaption> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </figcaption>
             </figure>
           </div>
         {% elseif attachment.mimetype starts with 'video/' %}
           <div>
-            <video src="{{ path('attachment_view', {'id': attachment.getId()}) }}">
+            <video src="{{ path('attachment_view', {'id': attachment.getId()}) }}" controls poster="{{ path('attachment_thumbnail') }}, thumbnail_parameters">
               <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </i>
             </video>
           </div>
