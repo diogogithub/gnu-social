@@ -16,7 +16,7 @@
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
 // }}}
 
-namespace App\Tests\Util\Form\ActorArrayTransformer;
+namespace App\Tests\Entity;
 
 use App\Entity\Poll;
 use PHPUnit\Framework\TestCase;

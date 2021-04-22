@@ -31,7 +31,7 @@
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace App\Tests\Templates\Icons;
+namespace App\Tests\Twig;
 
 use App\Twig\Extension;
 use App\Twig\Runtime;
