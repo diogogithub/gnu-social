@@ -18,8 +18,8 @@
 
 namespace App\Tests\Entity;
 
-use App\Entity\Poll;
 use PHPUnit\Framework\TestCase;
+use Plugin\Poll\Entity\Poll;
 
 class PollTest extends TestCase
 {

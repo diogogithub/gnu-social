@@ -138,30 +138,29 @@ class Nickname
      * @throws NicknameTooLongException
      * @throws NicknameTooShortException
      */
-    public static function normalize(string $nickname, bool $check_already_used = true, bool $checking_reserved = true): string
+    public static function normalize(string $nickname, bool $check_already_used = true, bool $checking_reserved = false): string
     {
         if (mb_strlen($nickname) > self::MAX_LEN) {
             // Display forms must also fit!
             throw new NicknameTooLongException();
         }
 
-        $original_nickname = $nickname;
-        $nickname          = trim($nickname);
-        $nickname          = str_replace('_', '', $nickname);
-        $nickname          = mb_strtolower($nickname);
-        $nickname          = Normalizer::normalize($nickname, Normalizer::FORM_C);
+        $nickname = trim($nickname);
+        $nickname = str_replace('_', '', $nickname);
+        $nickname = mb_strtolower($nickname);
+        $nickname = Normalizer::normalize($nickname, Normalizer::FORM_C);
 
         if (!$checking_reserved) {
-            if (mb_strlen($original_nickname) < 1) {
+            if (mb_strlen($nickname) < 1) {
                 throw new NicknameEmptyException();
-            } elseif (mb_strlen($original_nickname) < Common::config('nickname', 'min_length')) {
+            } elseif (mb_strlen($nickname) < Common::config('nickname', 'min_length')) {
                 throw new NicknameTooShortException();
-            } elseif (!self::isCanonical($original_nickname) && !filter_var($original_nickname, FILTER_VALIDATE_EMAIL)) {
+            } elseif (!self::isCanonical($nickname) && !filter_var($nickname, FILTER_VALIDATE_EMAIL)) {
                 throw new NicknameInvalidException();
-            } elseif (self::isReserved($original_nickname) || Common::isSystemPath($original_nickname)) {
+            } elseif (self::isReserved($nickname) || Common::isSystemPath($nickname)) {
                 throw new NicknameReservedException();
             } elseif ($check_already_used) {
-                $actor = self::isTaken($original_nickname);
+                $actor = self::isTaken($nickname);
                 if ($actor instanceof GSActor) {
                     throw new NicknameTakenException($actor);
                 }
@@ -208,7 +207,7 @@ class Nickname
             return false;
         }
         return in_array($nickname, array_merge($reserved, F\map($reserved, function ($n) {
-            return self::normalize($n, check_already_used: false, check_reserved: false);
+            return self::normalize($n, check_already_used: false, checking_reserved: true);
         })));
     }
 

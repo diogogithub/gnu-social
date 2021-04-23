@@ -36,6 +36,14 @@ class I18nTest extends KernelTestCase
         I18n::setTranslator($translator);
 
         static::assertSame('test string', _m('test string'));
+        static::assertSame('test string', _m('test {thing}', ['thing' => 'string']));
+    }
+
+    public function testICU()
+    {
+        static::bootKernel();
+        $translator = static::$container->get('translator');
+        I18n::setTranslator($translator);
 
         $apples = [1 => '1 apple', '# apples'];
         static::assertSame('-42 apples',  _m($apples, ['count' => -42]));
