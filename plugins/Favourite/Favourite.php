@@ -1,6 +1,7 @@
 <?php
 
 // {{{ License
+
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -15,6 +16,7 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+
 // }}}
 
 namespace Plugin\Favourite;
@@ -75,7 +77,7 @@ class Favourite extends Plugin
 
     public function onInsertLeftPanelLink(string $user_nickname, &$res)
     {
-        $res .= Formatting::twigRender(<<<END
+        $res[] = Formatting::twigRender(<<<END
 <a href="{{ path("favourites", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("favourites") }}'>Favourites</a>
 <a href="{{ path("reverse_favourites", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("reverse_favourites") }}'>Reverse Favs</a>
 END, ['user_nickname' => $user_nickname]);

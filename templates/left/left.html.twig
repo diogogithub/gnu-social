@@ -44,7 +44,9 @@
               </div>
               <a href='#'>Messages</a>
               <a href="{{ path("replies", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("replies") }}'>Replies</a>
-              {{ handle_event('InsertLeftPanelLink', user_nickname) | raw }}
+              {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
+                {{ link | raw }}
+              {% endfor %}
               <a href="{{ path('settings_personal_info') }}" class='hover-effect {{ active('settings_') }}'>Settings</a>
               <a href='{{ path('logout') }}'>Logout</a>
           </div>

@@ -1,7 +1,6 @@
 <?php
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -16,7 +15,6 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
 
 /**
@@ -95,16 +93,16 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
      *
      * @return array|mixed
      */
-    public function getShowStyles()
+    public function getShowStylesheets()
     {
         $styles = [];
-        Event::handle('start_show_styles',[&$styles]);
-        return $styles;
+        Event::handle('ShowStyles', [&$styles]);
+        return implode("\n", $styles);
     }
 
     public function handleEvent(string $event, ...$args)
     {
-        $res    = '';
+        $res    = [];
         $args[] = &$res;
         Event::handle($event, $args);
         return $res;
