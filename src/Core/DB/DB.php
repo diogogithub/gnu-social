@@ -174,6 +174,24 @@ abstract class DB
     }
 
     /**
+     * Insert all given objects with the generated ID of the first one
+     */
+    public static function persistWithSameId(object $owner, object | array $others, ?callable $extra = null)
+    {
+        $conn     = self::getConnection();
+        $metadata = self::getClassMetadata(get_class($owner));
+        $seqName  = $metadata->getSequenceName($conn->getDatabasePlatform());
+        self::persist($owner);
+        $id = $conn->lastInsertId($seqName);
+        F\map(is_array($others) ? $others : [$others], function ($o) use ($id) { $o->setId($id); self::persist($o); });
+        if (!is_null($extra)) {
+            $extra($id);
+        }
+        self::flush();
+        return $id;
+    }
+
+    /**
      * Intercept static function calls to allow refering to entities
      * without writing the namespace (which is deduced from the call
      * context)

@@ -93,17 +93,19 @@ class Security extends Controller
 
             try {
                 $actor = GSActor::create(['nickname' => $data['nickname']]);
-                DB::persist($actor);
-                DB::flush();
-                $id   = $actor->getId();
-                $user = LocalUser::create([
-                    'id'             => $id,
+                $user  = LocalUser::create([
                     'nickname'       => $data['nickname'],
                     'outgoing_email' => $data['email'],
                     'incoming_email' => $data['email'],
                     'password'       => LocalUser::hashPassword($data['password']),
                 ]);
-                DB::persist($user);
+                DB::persistWithSameId(
+                    $actor,
+                    $user,
+                    // Self follow
+                    fn (int $id) => DB::persist(Follow::create(['follower' => $id, 'followed' => $id]))
+                );
+                DB::flush();
             } catch (UniqueConstraintViolationException $e) {
                 throw new NicknameTakenException;
             }
@@ -122,11 +124,6 @@ class Security extends Controller
             } else {
                 $user->setIsEmailVerified(true);
             }
-
-            // Self follow
-            $follow = Follow::create(['follower' => $id, 'followed' => $id]);
-            DB::persist($follow);
-            DB::flush();
 
             return $guard_handler->authenticateUserAndHandleSuccess(
                 $user,
