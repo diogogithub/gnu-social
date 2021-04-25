@@ -233,6 +233,11 @@ class Attachment extends Entity
         return Common::config('attachments', 'dir') . $this->getFilename();
     }
 
+    public function getAttachmentUrl()
+    {
+        return Router::url('attachment_thumbnail', ['id' => $this->getAttachmentId(), 'w' => Common::config('attachment', 'width'), 'h' => Common::config('attachment', 'height')]);
+    }
+
     public static function schemaDef(): array
     {
         return [

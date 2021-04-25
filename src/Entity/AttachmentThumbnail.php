@@ -27,6 +27,7 @@ use App\Core\Entity;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\Log;
+use App\Core\Router;
 use App\Util\Common;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
@@ -147,6 +148,24 @@ class AttachmentThumbnail extends Entity
     public function getPath()
     {
         return Common::config('thumbnail', 'dir') . $this->getFilename();
+    }
+
+    public function getUrl()
+    {
+        return Router::url('attachment_thumbnail', ['id' => $this->getAttachmentId(), 'w' => $this->getWidth(), 'h' => $this->getHeight()]);
+    }
+
+    /**
+     * Get the HTML attributes for this thumbnail
+     */
+    public function getHTMLAttributes(array $orig = [], bool $overwrite = true)
+    {
+        $attrs = [
+            'height' => $this->getHeight(),
+            'width'  => $this->getWidth(),
+            'src'    => $this->getUrl(),
+        ];
+        return $overwrite ? array_merge($orig, $attrs) : array_merge($attrs, $orig);
     }
 
     /**
