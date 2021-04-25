@@ -1,4 +1,5 @@
 <?php
+// {{{ License
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -13,9 +14,10 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
+// }}}
 
 /**
- * OembedPlugin implementation for GNU social
+ * Embed plugin implementation for GNU social
  *
  * @package   GNUsocial
  *
@@ -23,27 +25,28 @@
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @author    hannes
  * @author    Diogo Cordeiro <diogo@fc.up.pt>
+ * @author    Hugo Sales <hugo@hsal.es>
  * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
-namespace Plguin\Embed\actions;
+namespace Plugin\Embed\Controller;
+
+use App\Core\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Oembed provider implementation
+ * Embed provider implementation
  *
  * This class handles all /main/oembed(.xml|.json)/ requests.
  *
- * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @copyright 2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class OEmbedAction extends Action
+class Embed extends Controller
 {
-    /** Placeholder */
-    protected function handle()
+    protected function handle(Request $request)
     {
-        parent::handle();
-
         $url      = $this->trimmed('url');
         $tls      = parse_url($url, PHP_URL_SCHEME) == 'https';
         $root_url = common_root_url($tls);
