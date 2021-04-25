@@ -32,6 +32,7 @@
 
 namespace App\Core\DB;
 
+use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Formatting;
 use Doctrine\Common\Collections\Criteria;
@@ -163,7 +164,11 @@ abstract class DB
         if (count($res) == 1) {
             return $res[0];
         } else {
-            throw new NotFoundException("No value in table {$table} matches the requested criteria");
+            if (count($res) == 0) {
+                throw new NotFoundException("No value in table {$table} matches the requested criteria");
+            } else {
+                throw new DuplicateFoundException("Multiple values in table {$table} match the requested criteria");
+            }
         }
     }
 
