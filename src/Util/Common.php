@@ -235,4 +235,19 @@ abstract class Common
     {
         return min(max($value, $min), $max);
     }
+
+    /**
+     * If $secure is true, only allow https URLs to pass
+     */
+    public function isValidHttpUrl(string $url, bool $ensure_secure = false)
+    {
+        if (empty($url)) {
+            return false;
+        }
+
+        // (if false, we use '?' in 'https?' to say the 's' is optional)
+        $regex = $secure ? '/^https$/' : '/^https?$/';
+        return filter_var($url, FILTER_VALIDATE_URL)
+            && preg_match($regex, parse_url($url, PHP_URL_SCHEME));
+    }
 }
