@@ -38,9 +38,15 @@
             </video>
           </div>
         {% else %}
-          <div>
-            <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </i>
-          </div>
+          {% for show in handle_event('ShowAttachment', attachment) %}
+            <div>
+              {{ show | raw }}
+            </div>
+          {% else %}
+            <div>
+              <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </i>
+            </div>
+          {% endfor %}
         {% endif %}
       {% endfor %}
     </div>
