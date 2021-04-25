@@ -31,6 +31,9 @@ abstract class HTTPClient
 
     public static function __callStatic(string $name, array $args)
     {
+        if (in_array(strtoupper($name), ['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'CONNECT', 'OPTIONS', 'TRACE', 'PATCH'])) {
+            return self::$client->request(strtoupper($name), ...$args);
+        }
         return self::$client->{$name}(...$args);
     }
 }
