@@ -28,7 +28,6 @@ use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
 use Exception;
 use Jcupitt\Vips;
-use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 
 class ImageEncoder extends Plugin
 {
@@ -48,9 +47,9 @@ class ImageEncoder extends Plugin
      *
      * @return bool
      */
-    public function onAttachmentValidation(SymfonyFile &$sfile, ?string &$mimetype = null): bool
+    public function onAttachmentValidation(\SplFileInfo &$file, ?string &$mimetype = null): bool
     {
-        $original_mimetype = $mimetype ?? $sfile->getMimeType();
+        $original_mimetype = $mimetype;
         // TODO: Encode in place
         //$mimetype = self::preferredType();
         return Event::stop;
