@@ -57,20 +57,33 @@ class GSFile
             'is_local'   => $is_local,
         ]);
         $sfile->move($dest_dir, $hash);
+        DB::persist($attachment);
+        Event::handle('AttachmentStoreNew', [&$attachment]);
         return $attachment;
     }
 
     /**
-     * Perform file validation (checks and normalization) and store the given file
+     * Create an attachment for the given URL, fetching the mimetype
+     *
+     * @throws \InvalidArgumentException
      */
-    public static function validateAndStoreAttachmentThumbnail(SymfonyFile $sfile,
-                                                      string $dest_dir,
-                                                      ?string $title = null,
-                                                      bool $is_local = true,
-                                                      int $actor_id = null): Attachment//Thumbnail
+    public static function validateAndStoreURL(string $url): Attachment
     {
-        $attachment = self::validateAndStoreAttachment($sfile,$dest_dir,$title,$is_local,$actor_id);
-        return $attachment;
+        if (Common::isValidHttpUrl($url)) {
+            HTTPClient::head($url);
+            $headers    = $head->getHeaders();
+            $headers    = array_change_key_case($headers, CASE_LOWER);
+            $attachment = Attachment::create([
+                'remote_url'      => $match[0],
+                'remote_url_hash' => hash('sha256', $match[0]),
+                'mimetype'        => $headers['content-type'],
+            ]);
+            DB::persist($attachment);
+            Event::handle('AttachmentStoreNew', [&$at]);
+            return $attachment;
+        } else {
+            throw new \InvalidArgumentException();
+        }
     }
 
     /**
@@ -159,7 +172,7 @@ class GSFile
      */
     public static function mimetypeMajor(string $mime)
     {
-        return explode('/', self::mimeBare($mime))[0];
+        return explode('/', self::mimetypeBare($mime))[0];
     }
 
     /**
@@ -167,13 +180,13 @@ class GSFile
      */
     public static function mimetypeMinor(string $mime)
     {
-        return explode('/', self::mimeBare($mime))[1];
+        return explode('/', self::mimetypeBare($mime))[1];
     }
 
     /**
      *  Get only the mimetype and not additional info (separated from bare mime with semi-colon)
      */
-    public static function mimeBare(string $mimetype)
+    public static function mimetypeBare(string $mimetype)
     {
         $mimetype = mb_strtolower($mimetype);
         if (($semicolon = mb_strpos($mimetype, ';')) !== false) {

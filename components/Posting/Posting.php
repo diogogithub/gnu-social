@@ -42,6 +42,13 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 class Posting extends Component
 {
     /**
+     * "Perfect URL Regex", courtesy of https://urlregex.com/
+     */
+    const URL_REGEX = <<<END
+%(?:(?:https?|ftp)://)(?:\\S+(?::\\S*)?@|\\d{1,3}(?:\\.\\d{1,3}){3}|(?:(?:[a-z\\d\\x{00a1}-\\x{ffff}]+-?)*[a-z\\d\\x{00a1}-\\x{ffff}]+)(?:\\.(?:[a-z\\d\\x{00a1}-\\x{ffff}]+-?)*[a-z\\d\\x{00a1}-\\x{ffff}]+)*(?:\\.[a-z\\x{00a1}-\\x{ffff}]{2,6}))(?::\\d+)?(?:[^\\s]*)?%iu
+END;
+
+    /**
      * HTML render event handler responsible for adding and handling
      * the result of adding the note submission form, only if a user is logged in
      */
@@ -96,24 +103,32 @@ class Posting extends Component
      */
     public static function storeNote(int $actor_id, ?string $content, array $attachments, bool $is_local, ?int $reply_to = null, ?int $repeat_of = null)
     {
-        $note = Note::create([
+        $content = Security::sanitize($content);
+        $note    = Note::create([
             'gsactor_id' => $actor_id,
-            'content'    => Security::sanitize($content),
+            'content'    => $content,
             'is_local'   => $is_local,
             'reply_to'   => $reply_to,
             'repeat_of'  => $repeat_of,
         ]);
+
         $processed_attachments = [];
         foreach ($attachments as $f) {
-            $na = GSFile::validateAndStoreAttachment(
+            $processed_attachments[] = GSFile::validateAndStoreAttachment(
                 $f, Common::config('attachments', 'dir'),
-                Security::sanitize($title = $f->getClientOriginalName()),
-                $is_local = true, $actor_id
+                Security::sanitize($f->getClientOriginalName()),
+                is_local: true, actor_id: $actor_id
             );
-            $processed_attachments[] = $na;
-            DB::persist($na);
         }
+
+        $matched_urls = [];
+        preg_match_all(self::URL_REGEX, $content, $matched_urls, PREG_SET_ORDER);
+        foreach ($matched_urls as $match) {
+            $processed_attachments[] = GSFile::validateAndStoreURL($url);
+        }
+
         DB::persist($note);
+
         // Need file and note ids for the next step
         DB::flush();
         if ($processed_attachments != []) {
