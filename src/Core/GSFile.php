@@ -43,9 +43,9 @@ class GSFile
                                                       bool $is_local = true,
                                                       int $actor_id = null): Attachment
     {
+        Event::handle('HashFile', [$file->getPathname(), &$hash]);
         // The following properly gets the mimetype with `file` or other
         // available methods, so should be safe
-        $hash     = hash_file(Attachment::FILEHASH_ALGO, $sfile->getPathname());
         $mimetype = $sfile->getMimeType();
         Event::handle('AttachmentValidation', [&$sfile, &$mimetype]);
         $attachment = Attachment::create([
@@ -70,16 +70,17 @@ class GSFile
     public static function validateAndStoreURL(string $url): Attachment
     {
         if (Common::isValidHttpUrl($url)) {
-            HTTPClient::head($url);
+            $head       = HTTPClient::head($url);
             $headers    = $head->getHeaders();
             $headers    = array_change_key_case($headers, CASE_LOWER);
             $attachment = Attachment::create([
-                'remote_url'      => $match[0],
-                'remote_url_hash' => hash('sha256', $match[0]),
-                'mimetype'        => $headers['content-type'],
+                'remote_url'      => $url,
+                'remote_url_hash' => hash(Attachment::URLHASH_ALGO, $url),
+                'mimetype'        => $headers['content-type'][0],
+                'is_local'        => false,
             ]);
             DB::persist($attachment);
-            Event::handle('AttachmentStoreNew', [&$at]);
+            Event::handle('AttachmentStoreNew', [&$attachment]);
             return $attachment;
         } else {
             throw new \InvalidArgumentException();

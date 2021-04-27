@@ -29,6 +29,7 @@ use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Core\Security;
+use App\Entity\Attachment;
 use App\Entity\AttachmentToNote;
 use App\Entity\Note;
 use App\Util\Common;
@@ -124,7 +125,7 @@ END;
         $matched_urls = [];
         preg_match_all(self::URL_REGEX, $content, $matched_urls, PREG_SET_ORDER);
         foreach ($matched_urls as $match) {
-            $processed_attachments[] = GSFile::validateAndStoreURL($url);
+            $processed_attachments[] = GSFile::validateAndStoreURL($match[0]);
         }
 
         DB::persist($note);
@@ -137,5 +138,16 @@ END;
             }
             DB::flush();
         }
+    }
+
+    /**
+     * Get a unique representation of a file on disk
+     *
+     * This can be used in the future to deduplicate images by visual content
+     */
+    public static function onHashFile(string $filename, ?string &$out_hash)
+    {
+        $out_hash = hash_file(Attachment::FILEHASH_ALGO, $filename);
+        return Event::stop;
     }
 }
