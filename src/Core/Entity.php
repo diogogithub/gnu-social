@@ -31,6 +31,15 @@ use DateTime;
  */
 abstract class Entity
 {
+    public function __call(string $name , array $arguments): mixed
+    {
+        if (Formatting::startsWith($name, 'have')) {
+            $prop = Formatting::camelCaseToSnakeCase(Formatting::removePrefix($name, 'have'));
+            return isset($this->{$prop});
+        }
+        throw new \Exception("Entity::{$name} called with bogus arguments: " . print_r($arguments, true));
+    }
+
     /**
      * Create an instance of the called class or fill in the
      * properties of $obj with the associative array $args. Doesn't
