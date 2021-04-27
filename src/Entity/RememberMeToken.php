@@ -39,7 +39,7 @@ class RememberMeToken extends Entity
     // {{{ Autocode
     private string $series;
     private string $value;
-    private DateTimeInterface $lastused;
+    private \DateTimeInterface $lastused;
     private string $class;
     private string $username;
 

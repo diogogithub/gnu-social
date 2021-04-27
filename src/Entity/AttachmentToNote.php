@@ -41,7 +41,7 @@ class AttachmentToNote extends Entity
     // {{{ Autocode
     private int $attachment_id;
     private int $note_id;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
     {

@@ -41,8 +41,8 @@ class Cover extends Entity
     // {{{ Autocode
     private int $gsactor_id;
     private int $file_id;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setGSActorId(int $gsactor_id): self
     {

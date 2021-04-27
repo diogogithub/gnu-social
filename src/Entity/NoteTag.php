@@ -41,7 +41,7 @@ class NoteTag extends Entity
     // {{{ Autocode
     private string $tag;
     private int $note_id;
-    private DateTimeInterface $created;
+    private \DateTimeInterface $created;
 
     public function setTag(string $tag): self
     {

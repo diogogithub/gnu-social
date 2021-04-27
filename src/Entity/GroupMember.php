@@ -43,8 +43,8 @@ class GroupMember extends Entity
     private int $gsactor_id;
     private ?bool $is_admin;
     private ?string $uri;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setGroupId(int $group_id): self
     {

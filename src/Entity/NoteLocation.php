@@ -44,7 +44,7 @@ class NoteLocation extends Entity
     private ?float $lon;
     private ?int $location_id;
     private ?int $location_service;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setNoteId(int $note_id): self
     {

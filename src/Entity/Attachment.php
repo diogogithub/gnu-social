@@ -54,7 +54,7 @@ class Attachment extends Entity
     private ?bool $is_local;
     private ?int $source;
     private ?int $scope;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {

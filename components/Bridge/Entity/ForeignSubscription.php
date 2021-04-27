@@ -41,7 +41,7 @@ class ForeignSubscription
     private int $service;
     private int $subscriber;
     private int $subscribed;
-    private DateTimeInterface $created;
+    private \DateTimeInterface $created;
 
     public function setService(int $service): self
     {

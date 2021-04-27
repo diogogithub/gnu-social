@@ -42,8 +42,8 @@ class ForeignUser
     private int $service;
     private string $uri;
     private ?string $nickname;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {

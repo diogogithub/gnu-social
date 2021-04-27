@@ -27,8 +27,8 @@ class Favourite extends Entity
     // {{{ Autocode
     private int $note_id;
     private int $gsactor_id;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setNoteId(int $note_id): self
     {

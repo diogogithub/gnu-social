@@ -41,8 +41,8 @@ class Conversation extends Entity
     // {{{ Autocode
     private int $id;
     private int $note_id;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {

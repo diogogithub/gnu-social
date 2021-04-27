@@ -44,8 +44,8 @@ class Poll extends Entity
     private int $note_id;
     private ?string $question;
     private ?string $options;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {

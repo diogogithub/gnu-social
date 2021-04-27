@@ -41,7 +41,7 @@ class GroupAlias extends Entity
     // {{{ Autocode
     private string $alias;
     private int $group_id;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setAlias(string $alias): self
     {

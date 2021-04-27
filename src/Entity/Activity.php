@@ -45,7 +45,7 @@ class Activity extends Entity
     private int $object_id;
     private bool $is_local;
     private ?string $source;
-    private DateTimeInterface $created;
+    private \DateTimeInterface $created;
 
     public function setId(int $id): self
     {

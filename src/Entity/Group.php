@@ -55,8 +55,8 @@ class Group extends Entity
     private ?string $mainpage;
     private ?int $join_policy;
     private ?int $force_scope;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {

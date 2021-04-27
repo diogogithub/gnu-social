@@ -42,7 +42,7 @@ class GroupBlock extends Entity
     private int $group_id;
     private int $blocked_gsactor;
     private int $blocker_user;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setGroupId(int $group_id): self
     {

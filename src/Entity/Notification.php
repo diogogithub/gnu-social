@@ -42,8 +42,8 @@ class Notification extends Entity
     private int $activity_id;
     private int $gsactor_id;
     private ?string $reason;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setActivityId(int $activity_id): self
     {

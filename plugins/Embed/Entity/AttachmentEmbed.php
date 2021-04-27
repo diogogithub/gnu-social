@@ -33,6 +33,7 @@
 namespace Plugin\Embed\Entity;
 
 use App\Core\Entity;
+use DateTimeInterface;
 
 /**
  * Table Definition for attachment_embed
@@ -55,7 +56,7 @@ class AttachmentEmbed extends Entity
     private ?string $author_name;
     private ?string $author_url;
     private ?string $url;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
     {

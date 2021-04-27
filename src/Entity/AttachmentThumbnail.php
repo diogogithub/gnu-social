@@ -53,7 +53,7 @@ class AttachmentThumbnail extends Entity
     private int $attachment_id;
     private int $width;
     private int $height;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
     {

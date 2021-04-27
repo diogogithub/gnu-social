@@ -43,8 +43,8 @@ class GSActorCircle extends Entity
     private string $tag;
     private ?string $description;
     private ?bool $private;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setTagger(int $tagger): self
     {

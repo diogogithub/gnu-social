@@ -43,8 +43,8 @@ class PollResponse extends Entity
     private int $poll_id;
     private ?int $gsactor_id;
     private ?int $selection;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {

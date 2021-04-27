@@ -39,8 +39,8 @@ class ProfileColor extends Entity
     // {{{ Autocode
     private int $gsactor_id;
     private string $color;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setGSActorId(int $gsactor_id): self
     {

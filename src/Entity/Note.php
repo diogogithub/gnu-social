@@ -51,8 +51,8 @@ class Note extends Entity
     private ?int $conversation;
     private ?int $repeat_of;
     private int $scope = 1;
-    private DateTimeInterface $created;
-    private DateTimeInterface $modified;
+    private \DateTimeInterface $created;
+    private \DateTimeInterface $modified;
 
     public function setId(int $id): self
     {
