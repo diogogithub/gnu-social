@@ -37,7 +37,7 @@ services:
     App\Core\Queue\MessageHandler:
       tags: ['messenger.message_handler']
 
-    App\EventListener\UpdateListener:
+    App\Core\DB\UpdateListener:
       tags:
         - { name: doctrine.event_listener , event: preUpdate }
 
