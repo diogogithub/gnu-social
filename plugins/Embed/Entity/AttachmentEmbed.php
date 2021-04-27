@@ -44,20 +44,151 @@ use App\Core\Entity;
 class AttachmentEmbed extends Entity
 {
     // {{{ Autocode
-    public $attachment_id;                         // int(4)  primary_key not_null
-    public $version;                         // varchar(20)
-    public $type;                            // varchar(20)
-    public $mimetype;                        // varchar(50)
-    public $provider;                        // varchar(50)
-    public $provider_url;                    // varchar(191)   not 255 because utf8mb4 takes more space
-    public $width;                           // int(4)
-    public $height;                          // int(4)
-    public $html;                            // text()
-    public $title;                           // varchar(191)
-    public $author_name;                     // varchar(50)
-    public $author_url;                      // varchar(191)   not 255 because utf8mb4 takes more space
-    public $url;                             // varchar(191)   not 255 because utf8mb4 takes more space
-    public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    private int $attachment_id;
+    private ?string $mimetype;
+    private ?string $provider;
+    private ?string $provider_url;
+    private ?int $width;
+    private ?int $height;
+    private ?string $html;
+    private ?string $title;
+    private ?string $author_name;
+    private ?string $author_url;
+    private ?string $url;
+    private DateTimeInterface $modified;
+
+    public function setAttachmentId(int $attachment_id): self
+    {
+        $this->attachment_id = $attachment_id;
+        return $this;
+    }
+
+    public function getAttachmentId(): int
+    {
+        return $this->attachment_id;
+    }
+
+    public function setMimetype(?string $mimetype): self
+    {
+        $this->mimetype = $mimetype;
+        return $this;
+    }
+
+    public function getMimetype(): ?string
+    {
+        return $this->mimetype;
+    }
+
+    public function setProvider(?string $provider): self
+    {
+        $this->provider = $provider;
+        return $this;
+    }
+
+    public function getProvider(): ?string
+    {
+        return $this->provider;
+    }
+
+    public function setProviderUrl(?string $provider_url): self
+    {
+        $this->provider_url = $provider_url;
+        return $this;
+    }
+
+    public function getProviderUrl(): ?string
+    {
+        return $this->provider_url;
+    }
+
+    public function setWidth(?int $width): self
+    {
+        $this->width = $width;
+        return $this;
+    }
+
+    public function getWidth(): ?int
+    {
+        return $this->width;
+    }
+
+    public function setHeight(?int $height): self
+    {
+        $this->height = $height;
+        return $this;
+    }
+
+    public function getHeight(): ?int
+    {
+        return $this->height;
+    }
+
+    public function setHtml(?string $html): self
+    {
+        $this->html = $html;
+        return $this;
+    }
+
+    public function getHtml(): ?string
+    {
+        return $this->html;
+    }
+
+    public function setTitle(?string $title): self
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setAuthorName(?string $author_name): self
+    {
+        $this->author_name = $author_name;
+        return $this;
+    }
+
+    public function getAuthorName(): ?string
+    {
+        return $this->author_name;
+    }
+
+    public function setAuthorUrl(?string $author_url): self
+    {
+        $this->author_url = $author_url;
+        return $this;
+    }
+
+    public function getAuthorUrl(): ?string
+    {
+        return $this->author_url;
+    }
+
+    public function setUrl(?string $url): self
+    {
+        $this->url = $url;
+        return $this;
+    }
+
+    public function getUrl(): ?string
+    {
+        return $this->url;
+    }
+
+    public function setModified(DateTimeInterface $modified): self
+    {
+        $this->modified = $modified;
+        return $this;
+    }
+
+    public function getModified(): DateTimeInterface
+    {
+        return $this->modified;
+    }
+
     // }}} Autocode
 
     public static function schemaDef()
