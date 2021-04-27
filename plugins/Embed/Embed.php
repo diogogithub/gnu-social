@@ -39,15 +39,20 @@ namespace Plugin\Embed;
 use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
+use App\Core\GSFile;
 use App\Core\HTTPClient;
 use App\Core\Log;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
+use App\Core\Security;
 use App\Entity\Attachment;
+use App\Entity\AttachmentThumbnail;
+use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
-use Plugin\Embed\Entity\FileEmbed;
+use App\Util\TemporaryFile;
+use Embed\Embed as LibEmbed;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -65,8 +70,7 @@ class Embed extends Plugin
      */
     public $domain_allowlist = [
         // hostname => service provider
-        '^i\d*\.ytimg\.com$'    => 'YouTube',
-        '^i\d*\.vimeocdn\.com$' => 'Vimeo',
+        '.*' => '', // Default to allowing any host
     ];
 
     /**
@@ -84,67 +88,6 @@ class Embed extends Plugin
         $m->connect('oembed', 'main/oembed', Controller\Embed::class);
         $m->connect('embed', 'main/embed', Controller\Embed::class);
         return Event::next;
-    }
-
-    /**
-     * This event executes when GNU social encounters a remote URL we then decide
-     * to interrogate for metadata. Embed gloms onto it to see if we have an
-     * oEmbed endpoint or image to try to represent in the post.
-     *
-     * @param $url string        the remote URL we're looking at
-     * @param $dom DOMDocument   the document we're getting metadata from
-     * @param $metadata stdClass class representing the metadata
-     *
-     * @return bool true if successful, the exception object if it isn't.
-     */
-    public function onGetRemoteUrlMetadataFromDom(string $url, DOMDocument $dom, stdClass &$metadata)
-    {
-        try {
-            common_log(LOG_INFO, "Trying to find Embed data for {$url} with 'oscarotero/Embed'");
-            $info = self::create($url);
-
-            $metadata->version          = '1.0'; // Yes.
-            $metadata->provider_name    = $info->authorName;
-            $metadata->title            = $info->title;
-            $metadata->html             = common_purify($info->description);
-            $metadata->type             = $info->type;
-            $metadata->url              = $info->url;
-            $metadata->thumbnail_height = $info->imageHeight;
-            $metadata->thumbnail_width  = $info->imageWidth;
-
-            if (substr($info->image, 0, 4) === 'data') {
-                // Inline image
-                $imgData        = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
-                list($filename) = $this->validateAndWriteImage($imgData);
-                // Use a file URI for images, as file_embed can't store a filename
-                $metadata->thumbnail_url = 'file://' . File_thumbnail::path($filename);
-            } else {
-                $metadata->thumbnail_url = $info->image;
-            }
-        } catch (Exception $e) {
-            common_log(LOG_INFO, "Failed to find Embed data for {$url} with 'oscarotero/Embed'" .
-                ', got exception: ' . get_class($e));
-        }
-
-        if (isset($metadata->thumbnail_url)) {
-            // sometimes sites serve the path, not the full URL, for images
-            // let's "be liberal in what you accept from others"!
-            // add protocol and host if the thumbnail_url starts with /
-            if ($metadata->thumbnail_url[0] == '/') {
-                $thumbnail_url_parsed    = parse_url($metadata->url);
-                $metadata->thumbnail_url = "{$thumbnail_url_parsed['scheme']}://" .
-                    "{$thumbnail_url_parsed['host']}$metadata->thumbnail_url";
-            }
-
-            // some wordpress opengraph implementations sometimes return a white blank image
-            // no need for us to save that!
-            if ($metadata->thumbnail_url == 'https://s0.wp.com/i/blank.jpg') {
-                $metadata->thumbnail_url = null;
-            }
-
-            // FIXME: this is also true of locally-installed wordpress so we should watch out for that.
-        }
-        return true;
     }
 
     /**
@@ -195,20 +138,16 @@ class Embed extends Plugin
 
         if (!is_null($attachment->getRemoteUrl()) || (!is_null($mimetype = $attachment->getMimetype()) && (('text/html' === substr($mimetype, 0, 9) || 'application/xhtml+xml' === substr($mimetype, 0, 21))))) {
             try {
-                $embed_data = EmbedHelper::getEmbed($attachment->getRemoteUrl());
-                dd($embed_data);
-                if ($embed_data === false) {
-                    throw new Exception("Did not get Embed data from URL {$attachment->url}");
-                }
-                $attachment->setTitle($embed_data['title']);
+                $embed_data                  = $this->getEmbed($attachment->getRemoteUrl(), $attachment);
+                $embed_data['attachment_id'] = $attachment->getId();
+                DB::persist(Entity\AttachmentEmbed::create($embed_data));
+                DB::flush();
             } catch (Exception $e) {
                 Log::warning($e);
-                return true;
+                return Event::next;
             }
-
-            FileEmbed::saveNew($embed_data, $attachment->getId());
         }
-        return true;
+        return Event::next;
     }
 
     /**
@@ -297,7 +236,7 @@ END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]
      */
     protected function checkAllowlist(string $url)
     {
-        if (!$this->check_allowlist) {
+        if ($this->check_allowlist ?? false) {
             return false;   // indicates "no check made"
         }
 
@@ -333,7 +272,7 @@ END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]
                 $headers = $head->getHeaders();
                 $headers = array_change_key_case($headers, CASE_LOWER);
             }
-            return $headers['content-length'] ?? false;
+            return $headers['content-length'][0] ?? false;
         } catch (Exception $e) {
             Loog::error($e);
             return false;
@@ -361,7 +300,7 @@ END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]
                 $headers = $head->getHeaders();
                 $headers = array_change_key_case($headers, CASE_LOWER);
             }
-            return !empty($headers['content-type']) && GSFile::mimetypeMajor($headers['content-type']) === 'image';
+            return !empty($headers['content-type']) && GSFile::mimetypeMajor($headers['content-type'][0]) === 'image';
         } catch (Exception $e) {
             Loog::error($e);
             return false;
@@ -380,34 +319,32 @@ END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]
         $file = new TemporaryFile();
         $file->write($imgData);
 
-        if (array_key_exists('content-disposition', $headers) && preg_match('/^.+; filename="(.+?)"$/', $headers['content-disposition'], $matches) === 1) {
-            $original_name = $matches[1];
-        }
+        $mimetype = $headers['content-type'][0];
+        Event::handle('AttachmentValidation', [&$file, &$mimetype]);
 
-        $mimetype = $headers['content-type'];
-        Event::handle('AttachmentValidation', [$file, &$mimetype]);
-
-        $hash     = hash_file(Attachment::FILEHASH_ALGO, $file->getPathname());
+        Event::handle('HashFile', [$file->getPathname(), &$hash]);
         $filename = Common::config('attachments', 'dir') . "embed/{$hash}";
         $file->commit($filename);
         unset($file);
 
-        return [$filename, $width, $height, $original_name, $mimetype];
+        if (array_key_exists('content-disposition', $headers) && preg_match('/^.+; filename="(.+?)"$/', $headers['content-disposition'][0], $matches) === 1) {
+            $original_name = $matches[1];
+        }
+
+        $info   = getimagesize($filename);
+        $width  = $info[0];
+        $height = $info[1];
+
+        return [$filename, $width, $height, $original_name ?? null, $mimetype];
     }
 
     /**
-     * Function to create and store a thumbnail representation of a remote image
-     *
-     * @param $thumbnail FileThumbnail object containing the file thumbnail
-     *
-     * @return bool true if it succeeded, the exception if it fails, or false if it
-     *              is limited by system limits (ie the file is too large.)
+     * Create and store a thumbnail representation of a remote image
      */
-    protected function storeRemoteThumbnail(Attachment $attachment): bool
+    protected function storeRemoteThumbnail(Attachment $attachment): array | bool
     {
-        $path = $attachment->getPath();
-        if (file_exists($path)) {
-            throw new AlreadyFulfilledException(_m('A thumbnail seems to already exist for remote file with id=={id}', ['id' => $attachment->id]));
+        if ($attachment->haveFilename() && file_exists($attachment->getPath())) {
+            throw new AlreadyFulfilledException(_m('A thumbnail seems to already exist for remote file with id=={id}', ['id' => $attachment->getId()]));
         }
 
         $url = $attachment->getRemoteUrl();
@@ -430,8 +367,7 @@ END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]
                     $file_size = $this->getRemoteFileSize($url, $headers);
                     $max_size  = Common::config('attachments', 'file_quota');
                     if (($file_size != false) && ($file_size > $max_size)) {
-                        Log::debug("Wanted to store remote thumbnail of size {$file_size} but the upload limit is {$max_size} so we aborted.");
-                        return false;
+                        throw new \Exception("Wanted to store remote thumbnail of size {$file_size} but the upload limit is {$max_size} so we aborted.");
                     }
                 } else {
                     return false;
@@ -442,9 +378,9 @@ END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]
             }
 
             // First we download the file to memory and test whether it's actually an image file
-            Log::debug("Downloading remote thumbnail for file id=={$attachment->id} with thumbnail URL: {$url}");
+            Log::debug('Downloading remote thumbnail for file id==' . $attachment->getId() . " with thumbnail URL: {$url}");
             try {
-                $imgData = HTTPClient::get($url);
+                $imgData = HTTPClient::get($url)->getContent();
                 if (isset($imgData)) {
                     [$filename, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData, $url, $headers);
                 } else {
@@ -457,10 +393,92 @@ END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]
             }
         }
 
-        DB::persist(AttachmentThumbnail::create(['attachment_id' => $attachment->id, 'width' => $width, 'height' => $height]));
+        DB::persist(AttachmentThumbnail::create(['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height]));
         $attachment->setFilename($filename);
         DB::flush();
 
-        return true;
+        return [$filename, $width, $height, $original_name, $mimetype];
+    }
+
+    /**
+     * Perform an oEmbed or OpenGraph lookup for the given $url.
+     *
+     * Some known hosts are allowlisted with API endpoints where we
+     * know they exist but autodiscovery data isn't available.
+     *
+     * Throws exceptions on failure.
+     *
+     * @param string $url
+     *
+     * @throws EmbedHelper_BadHtmlException
+     * @throws HTTP_Request2_Exception
+     *
+     * @return object
+     */
+    public function getEmbed(string $url, Attachment $attachment): array
+    {
+        Log::info('Checking for remote URL metadata for ' . $url);
+
+        try {
+            Log::info("Trying to find Embed data for {$url} with 'oscarotero/Embed'");
+            $embed                     = new LibEmbed();
+            $info                      = $embed->get($url);
+            $metadata['title']         = $info->title;
+            $metadata['html']          = Security::sanitize($info->description);
+            $metadata['url']           = $info->url;
+            $metadata['author_name']   = $info->authorName;
+            $metadata['author_url']    = $info->authorUrl;
+            $metadata['provider_name'] = $info->providerName;
+            $metadata['provider_url']  = $info->providerUrl;
+
+            if (!is_null($info->image)) {
+                if (substr($info->image, 0, 4) === 'data') {
+                    // Inline image
+                    $imgData                                                = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
+                    [$filename, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData);
+                } else {
+                    $attachment->setRemoteUrl((string) $info->image);
+                    [$filename, $width, $height, $original_name, $mimetype] = $this->storeRemoteThumbnail($attachment);
+                }
+                $metadata['width']    = $height;
+                $metadata['height']   = $width;
+                $metadata['mimetype'] = $mimetype;
+            }
+        } catch (Exception $e) {
+            Log::info("Failed to find Embed data for {$url} with 'oscarotero/Embed', got exception: " . get_class($e));
+        }
+
+        $metadata = self::normalize($metadata);
+        $attachment->setTitle($metadata['title']);
+        return $metadata;
+    }
+
+    /**
+     * Normalize fetched info.
+     */
+    public static function normalize(array $data): array
+    {
+        if (isset($metadata['url'])) {
+            // sometimes sites serve the path, not the full URL, for images
+            // let's "be liberal in what you accept from others"!
+            // add protocol and host if the thumbnail_url starts with /
+            if ($metadata['url'][0] == '/') {
+                $thumbnail_url_parsed = parse_url($metadata['url']);
+                $metadata['url']      = "{$thumbnail_url_parsed['scheme']}://{$thumbnail_url_parsed['host']}{$metadata['url']}";
+            }
+
+            // Some wordpress opengraph implementations sometimes return a white blank image
+            // no need for us to save that!
+            if ($metadata['url'] == 'https://s0.wp.com/i/blank.jpg') {
+                $metadata['url'] = null;
+            }
+
+            if (!isset($data['width'])) {
+                $data['width']  = Common::config('thumbnail', 'width');
+                $data['height'] = Common::config('thumbnail', 'height');
+            }
+        }
+
+        return $data;
     }
 }

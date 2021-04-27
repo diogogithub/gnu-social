@@ -35,13 +35,15 @@ namespace Plugin\Embed\Entity;
 use App\Core\Entity;
 
 /**
- * Table Definition for file_embed
+ * Table Definition for attachment_embed
  *
- * @copyright 2019 Free Software Foundation, Inc http://www.fsf.org
+ * @author Hugo Sales <hugo@hsal.es>
+ * @copyright 2019, 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class AttachmentEmbed extends Entity
 {
+    // {{{ Autocode
     public $attachment_id;                         // int(4)  primary_key not_null
     public $version;                         // varchar(20)
     public $type;                            // varchar(20)
@@ -56,6 +58,7 @@ class AttachmentEmbed extends Entity
     public $author_url;                      // varchar(191)   not 255 because utf8mb4 takes more space
     public $url;                             // varchar(191)   not 255 because utf8mb4 takes more space
     public $modified;                        // timestamp()   not_null default_CURRENT_TIMESTAMP
+    // }}} Autocode
 
     public static function schemaDef()
     {
@@ -63,8 +66,6 @@ class AttachmentEmbed extends Entity
             'name'   => 'attachment_embed',
             'fields' => [
                 'attachment_id' => ['type' => 'int', 'not null' => true, 'description' => 'oEmbed for that URL/file'],
-                'version'       => ['type' => 'varchar', 'length' => 20, 'description' => 'oEmbed spec. version'],
-                'type'          => ['type' => 'varchar', 'length' => 20, 'description' => 'oEmbed type: photo, video, link, rich'],
                 'mimetype'      => ['type' => 'varchar', 'length' => 50, 'description' => 'mime type of resource'],
                 'provider'      => ['type' => 'text', 'description' => 'name of this oEmbed provider'],
                 'provider_url'  => ['type' => 'text', 'description' => 'URL of this oEmbed provider'],
@@ -79,102 +80,8 @@ class AttachmentEmbed extends Entity
             ],
             'primary key'  => ['attachment_id'],
             'foreign keys' => [
-                'file_embed_file_id_fkey' => ['file', ['file_id' => 'id']],
+                'attachment_embed_attachment_id_fkey' => ['attachment', ['attachment_id' => 'id']],
             ],
         ];
-    }
-
-    /**
-     * Fetch an entry by using a File's id
-     */
-    public static function getByFile(File $file)
-    {
-        $fo          = new File_embed();
-        $fo->file_id = $file->id;
-        if (!$fo->find(true)) {
-            throw new NoResultException($fo);
-        }
-        return $fo;
-    }
-
-    public function getUrl()
-    {
-        return $this->url;
-    }
-
-    /**
-     * Save embedding info for a new file.
-     *
-     * @param object $data    Services_oEmbed_Object_*
-     * @param int    $file_id
-     */
-    public static function saveNew($data, $file_id)
-    {
-        $file_embed          = new File_embed;
-        $file_embed->file_id = $file_id;
-        if (!isset($data->version)) {
-            common_debug('Embed: data->version undefined in variable $data: ' . var_export($data, true));
-        }
-        $file_embed->version = $data->version;
-        $file_embed->type    = $data->type;
-        if (!empty($data->provider)) {
-            $file_embed->provider = $data->provider;
-        }
-        if (!empty($data->provider_name)) {
-            $file_embed->provider = $data->provider_name;
-        }
-        if (!empty($data->provider_url)) {
-            $file_embed->provider_url = $data->provider_url;
-        }
-        if (!empty($data->width)) {
-            $file_embed->width = (int) ($data->width);
-        }
-        if (!empty($data->height)) {
-            $file_embed->height = (int) ($data->height);
-        }
-        if (!empty($data->html)) {
-            $file_embed->html = $data->html;
-        }
-        if (!empty($data->title)) {
-            $file_embed->title = $data->title;
-        }
-        if (!empty($data->author_name)) {
-            $file_embed->author_name = $data->author_name;
-        }
-        if (!empty($data->author_url)) {
-            $file_embed->author_url = $data->author_url;
-        }
-        if (!empty($data->url)) {
-            $file_embed->url = $data->url;
-            $given_url       = File_redirection::_canonUrl($file_embed->url);
-            if (!empty($given_url)) {
-                try {
-                    $file                 = File::getByUrl($given_url);
-                    $file_embed->mimetype = $file->mimetype;
-                } catch (NoResultException $e) {
-                    // File_redirection::where argument 'discover' is false to avoid loops
-                    $redir = File_redirection::where($given_url, false);
-                    if (!empty($redir->file_id)) {
-                        $file_id = $redir->file_id;
-                    }
-                }
-            }
-        }
-        $result = $file_embed->insert();
-        if ($result === false) {
-            throw new ServerException('Failed to insert File_embed data into database!');
-        }
-        if (!empty($data->thumbnail_url) || ($data->type == 'photo')) {
-            $ft = File_thumbnail::getKV('file_id', $file_id);
-            if ($ft instanceof File_thumbnail) {
-                common_log(
-                    LOG_WARNING,
-                    "Strangely, a File_thumbnail object exists for new file {$file_id}",
-                    __FILE__
-                );
-            } else {
-                File_thumbnail::saveNew($data, $file_id);
-            }
-        }
     }
 }
