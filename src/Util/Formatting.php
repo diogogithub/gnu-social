@@ -133,6 +133,16 @@ abstract class Formatting
             });
     }
 
+    public static function removePrefix(string $haystack, string $needle)
+    {
+        return substr($haystack, strlen($needle));
+    }
+
+    public static function removeSuffix(string $haystack, string $needle)
+    {
+        return substr($haystack, -strlen($needle));
+    }
+
     public static function camelCaseToSnakeCase(string $str): string
     {
         return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $str));
