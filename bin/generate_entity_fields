@@ -11,8 +11,8 @@ const types = [
     'blob'         => '',
     'bool'         => 'bool',
     'char'         => 'string',
-    'datetime'     => 'DateTimeInterface',
-    'timestamp'    => 'DateTimeInterface',
+    'datetime'     => '\DateTimeInterface',
+    'timestamp'    => '\DateTimeInterface',
     'html'         => 'string',
     'int'          => 'int',
     'numeric'      => 'float',
@@ -53,7 +53,7 @@ foreach ($files as $file) {
         $method_name    = str_replace([' ', 'Gsactor'], ['', 'GSActor'], ucwords(str_replace('_', ' ', $field)));
         $default        = @$schema['fields'][$field]['default'];
 
-        if (isset($default) && $nullable != '?' && $type != 'DateTimeInterface') {
+        if (isset($default) && $nullable != '?' && $type != '\DateTimeInterface') {
             if (is_string($default)) {
                 $default = "'{$default}'";
             } elseif ($type == 'bool') {
