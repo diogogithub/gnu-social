@@ -39,6 +39,9 @@ parameters:
       adapters:
         default: redis://redis
 
+    storage:
+      dir: '%kernel.project_dir%/file/'
+
     avatar:
       server:
       ssl:
@@ -109,12 +112,11 @@ parameters:
       server:
       ssl:
       dir: "%kernel.project_dir%/file/thumbnails/"
-      crop: false
+      smart_crop: false
       max_size_px: 1000
       width: 450
       height: 600
-      upscale: false
-      animated: false
+      extension: '.webp'
 
     theme:
       server:
