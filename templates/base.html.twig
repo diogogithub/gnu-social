@@ -18,8 +18,11 @@
                         <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/' ~ stylesheet) }}">
                   {% endfor %}
             {% endblock %}
-            {% for type, element in handle_event('ShowHeadElements', app.request) %}
-              <{{type}} rel="{{element['rel']}}" type="{{element['type']}}" href="{{element['href']}}" title="{{element['title']}}">
+            {% for arr in handle_event('ShowHeadElements', app.request) %}
+              {# Only one element, but has dynamic value, can't access it directly #}
+              {% for type, element in arr %}
+                <{{type}} rel="{{element['rel']}}" type="{{element['type']}}" href="{{element['href']}}" title="{{element['title']}}">  
+              {% endfor %}
             {% endfor %}
       </head>
       <body>

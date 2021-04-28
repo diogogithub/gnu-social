@@ -43,7 +43,7 @@ class GSFile
                                                       bool $is_local = true,
                                                       int $actor_id = null): Attachment
     {
-        Event::handle('HashFile', [$file->getPathname(), &$hash]);
+        Event::handle('HashFile', [$sfile->getPathname(), &$hash]);
         // The following properly gets the mimetype with `file` or other
         // available methods, so should be safe
         $mimetype = $sfile->getMimeType();
