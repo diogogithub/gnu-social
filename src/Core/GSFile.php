@@ -161,8 +161,8 @@ class GSFile
      */
     public static function getAttachmentFileInfo(int $id): array
     {
-        $res              = self::getFileInfo($id);
-        $res['file_path'] = Common::config('attachments', 'dir') . $res['file_hash'];
+        $res             = self::getFileInfo($id);
+        $res['filepath'] = Common::config('attachments', 'dir') . $res['file_hash'];
         return $res;
     }
 

@@ -23,9 +23,11 @@ namespace App\Controller;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
+use App\Core\Event;
 use App\Core\GSFile;
 use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -36,20 +38,27 @@ class Attachment extends Controller
 {
     public function attachment_show(Request $request, int $id)
     {
-        $res = GSFile::getAttachmentFileInfo($id);
-        return GSFile::sendFile($res['file_path'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_INLINE);
+        // If no one else claims this attachment, use the default representation
+        if (Event::handle('AttachmentFileInfo', [$id, &$res]) != Event::stop) {
+            $res = GSFile::getAttachmentFileInfo($id);
+        }
+        if (!empty($res)) {
+            return GSFile::sendFile($res['filepath'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_INLINE);
+        } else {
+            throw new ClientException('No such attachment', 404);
+        }
     }
 
     public function attachment_view(Request $request, int $id)
     {
         $res = GSFile::getAttachmentFileInfo($id);
-        return GSFile::sendFile($res['file_path'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_INLINE);
+        return GSFile::sendFile($res['filepath'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_INLINE);
     }
 
     public function attachment_download(Request $request, int $id)
     {
         $res = GSFile::getAttachmentFileInfo($id);
-        return GSFile::sendFile($res['file_path'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_ATTACHMENT);
+        return GSFile::sendFile($res['filepath'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_ATTACHMENT);
     }
 
     /**
