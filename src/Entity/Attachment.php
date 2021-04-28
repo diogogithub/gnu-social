@@ -250,7 +250,7 @@ class Attachment extends Entity
                 'gsactor_id'      => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'description' => 'If set, used so each actor can have a version of this file (for avatars, for instance)'],
                 'mimetype'        => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
                 'title'           => ['type' => 'text',      'description' => 'title of resource when available'],
-                'filename'        => ['type' => 'varchar',   'length' => 191, 'description' => 'title of resource when available'],
+                'filename'        => ['type' => 'varchar',   'length' => 191, 'description' => 'file name of resource when available'],
                 'is_local'        => ['type' => 'bool',      'description' => 'whether the file is stored locally'],
                 'source'          => ['type' => 'int',       'default' => null, 'description' => 'Source of the Attachment (upload, TFN, embed)'],
                 'scope'           => ['type' => 'int',       'default' => null, 'description' => 'visibility scope for this attachment'],

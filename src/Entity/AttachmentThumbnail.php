@@ -142,7 +142,9 @@ class AttachmentThumbnail extends Entity
 
     public function getFilename()
     {
-        return $this->getAttachment()->getFileHash() . "-{$this->width}x{$this->height}.webp";
+        // TODO only for images
+        $ext = image_type_to_extension(IMAGETYPE_WEBP, include_dot: true);
+        return $this->getAttachment()->getFileHash() . "-{$this->width}x{$this->height}{$ext}";
     }
 
     public function getPath()

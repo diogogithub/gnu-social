@@ -55,6 +55,11 @@ class ImageEncoder extends Plugin
         return Event::stop;
     }
 
+    public function onResizeImage(Attachment $attachment, AttachmentThumbnail $thumbnail, int $width, int $height, bool $smart_crop): bool
+    {
+        return $this->onResizeImagePath($attachment->getPath(), $thumbnail->getPath(), $width, $height, $smart_crop, $__mimetype);
+    }
+
     /**
      * Resizes an image. It will encode the image in the
      * `self::preferredType()` format. This only applies henceforward,
@@ -76,33 +81,35 @@ class ImageEncoder extends Plugin
      * @return bool
      *
      */
-    public function onResizeImage(Attachment $attachment, AttachmentThumbnail $thumbnail, int $width, int $height, bool $crop): bool
+    public function onResizeImagePath(string $source, string $destination, int $width, int $height, bool $smart_crop, ?string &$mimetype)
     {
         $old_limit = ini_set('memory_limit', Common::config('attachments', 'memory_limit'));
         try {
             try {
                 // -1 means load all pages, 'sequential' access means decode pixels on demand
                 // $image = Vips\Image::newFromFile(self::getPath($attachment), ['n' => -1, 'access' => 'sequential']);
-                $image = Vips\Image::thumbnail($attachment->getPath(), $width, ['height' => $height]);
+                $image = Vips\Image::thumbnail($source, $width, ['height' => $height]);
             } catch (Exception $e) {
                 Log::error(__METHOD__ . ' encountered exception: ' . print_r($e, true));
                 // TRANS: Exception thrown when trying to resize an unknown file type.
                 throw new Exception(_m('Unknown file type'));
             }
 
-            if ($attachment->getPath() === $thumbnail->getPath()) {
-                @unlink($thumbnail->getPath());
+            if ($source === $destination) {
+                @unlink($destination);
             }
 
-            if ($crop) {
+            $type     = self::preferredType();
+            $mimetype = image_type_to_mime_type($type);
+
+            if ($smart_crop) {
                 $image = $image->smartcrop($width, $height);
             }
-            $image->writeToFile($thumbnail->getPath());
+            $image->writeToFile($destination);
             unset($image);
         } finally {
             ini_set('memory_limit', $old_limit); // Restore the old memory limit
         }
-
         return Event::next;
     }
 }

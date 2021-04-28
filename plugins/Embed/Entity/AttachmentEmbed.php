@@ -33,6 +33,9 @@
 namespace Plugin\Embed\Entity;
 
 use App\Core\Entity;
+use App\Core\GSFile;
+use App\Core\Router\Router;
+use App\Util\Common;
 use DateTimeInterface;
 
 /**
@@ -47,6 +50,7 @@ class AttachmentEmbed extends Entity
     // {{{ Autocode
     private int $attachment_id;
     private ?string $mimetype;
+    private ?string $filename;
     private ?string $provider;
     private ?string $provider_url;
     private ?int $width;
@@ -78,6 +82,17 @@ class AttachmentEmbed extends Entity
     public function getMimetype(): ?string
     {
         return $this->mimetype;
+    }
+
+    public function setFilename(?string $filename): self
+    {
+        $this->filename = $filename;
+        return $this;
+    }
+
+    public function getFilename(): ?string
+    {
+        return $this->filename;
     }
 
     public function setProvider(?string $provider): self
@@ -192,6 +207,38 @@ class AttachmentEmbed extends Entity
 
     // }}} Autocode
 
+    public function getAttachmentUrl()
+    {
+        return Router::url('attachment_show', ['id' => $this->getAttachmentId()]);
+    }
+
+    public function isImage()
+    {
+        return isset($this->mimetype) && GSFile::mimetypeMajor($this->mimetype) == 'image';
+    }
+
+    /**
+     * Get the HTML attributes for this attachment
+     */
+    public function getImageHTMLAttributes(array $orig = [], bool $overwrite = true)
+    {
+        if ($this->isImage()) {
+            $attrs = [
+                'height' => $this->getHeight(),
+                'width'  => $this->getWidth(),
+                'src'    => $this->getAttachmentUrl(),
+            ];
+            return $overwrite ? array_merge($orig, $attrs) : array_merge($attrs, $orig);
+        } else {
+            return false;
+        }
+    }
+
+    public function getFilepath()
+    {
+        return Common::config('storage', 'dir') . $this->filename;
+    }
+
     public static function schemaDef()
     {
         return [
@@ -199,6 +246,7 @@ class AttachmentEmbed extends Entity
             'fields' => [
                 'attachment_id' => ['type' => 'int', 'not null' => true, 'description' => 'oEmbed for that URL/file'],
                 'mimetype'      => ['type' => 'varchar', 'length' => 50, 'description' => 'mime type of resource'],
+                'filename'      => ['type' => 'varchar', 'length' => 191, 'description' => 'file name of resource when available'],
                 'provider'      => ['type' => 'text', 'description' => 'name of this oEmbed provider'],
                 'provider_url'  => ['type' => 'text', 'description' => 'URL of this oEmbed provider'],
                 'width'         => ['type' => 'int', 'description' => 'width of oEmbed resource when available'],

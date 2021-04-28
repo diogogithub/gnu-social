@@ -51,6 +51,7 @@ use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
+use App\Util\Formatting;
 use App\Util\TemporaryFile;
 use Embed\Embed as LibEmbed;
 use Symfony\Component\HttpFoundation\Request;
@@ -152,28 +153,37 @@ class Embed extends Plugin
 
     /**
      * Replace enclosure representation of an attachment with the data from embed
-     *
-     * @param mixed $enclosure
      */
-    public function onFileEnclosureMetadata(Attachment $attachment, &$enclosure)
+    public function onAttachmentFileInfo(int $attachment_id, ?array &$enclosure)
     {
-        // Never treat generic HTML links as an enclosure type!
-        // But if we have embed info, we'll consider it golden.
         try {
-            $embed = DB::findOneBy('attachment_embed', ['attachment_id' => $attachment->getId()]);
+            $embed = DB::findOneBy('attachment_embed', ['attachment_id' => $attachment_id]);
         } catch (NotFoundException) {
             return Event::next;
         }
 
-        foreach (['mimetype', 'url', 'title', 'modified', 'width', 'height'] as $key) {
-            if (isset($embed->{$key}) && !empty($embed->{$key})) {
-                $enclosure->{$key} = $embed->{$key};
-            }
+        // We know about this attachment, so we 'own' it, but know
+        // that it doesn't have an image
+        if (!$embed->isImage()) {
+            $enclosure = null;
+            return Event::stop;
         }
-        return true;
+
+        $enclosure = [
+            'filepath' => $embed->getFilepath(),
+            'mimetype' => $embed->getMimetype(),
+            'title'    => $embed->getTitle(),
+            'width'    => $embed->getWidth(),
+            'height'   => $embed->getHeight(),
+            'url'      => $embed->getUrl(),
+        ];
+
+        return Event::stop;
     }
 
-    /** Placeholder */
+    /**
+     * Show this attachment enhanced with the corresponing Embed data, if available
+     */
     public function onShowAttachment(Attachment $attachment, array &$res)
     {
         try {
@@ -186,18 +196,23 @@ class Embed extends Plugin
             return Event::next;
         }
         if (is_null($embed) && empty($embed->getAuthorName()) && empty($embed->getProvider())) {
+            Log::debug('Embed doesn\'t have a representation for the attachment #' . $attachment->getId());
             return Event::next;
         }
 
-        $thumbnail  = AttachmentThumbnail::getOrCreate(attachment: $attachment, width: $width, height: $height, crop: $smart_crop);
-        $attributes = $thumbnail->getHTMLAttributes(['class' => 'u-photo embed']);
+        $width      = Common::config('thumbnail', 'width');
+        $height     = Common::config('thumbnail', 'height');
+        $smart_crop = Common::config('thumbnail', 'smart_crop');
+        $attributes = $embed->getImageHTMLAttributes(['class' => 'u-photo embed']);
 
         $res[] = Formatting::twigRender(<<<END
 <article class="h-entry embed">
     <header>
-        <img class="u-photo embed" width="{{attributes['width']}}" height="{{attributes['height']}}" src="{{attributes['src']}}" />
+        {% if attributes != false %}
+            <img class="u-photo embed" width="{{attributes['width']}}" height="{{attributes['height']}}" src="{{attributes['src']}}" />
+        {% endif %}
         <h5 class="p-name embed">
-             <a class="u-url" href="{{attachment.getUrl()}}">{{embed.getTitle() | escape}}</a>
+             <a class="u-url" href="{{embed.getUrl()}}">{{embed.getTitle() | escape}}</a>
         </h5>
         <div class="p-author embed">
              {% if embed.getAuthorName() is not null %}
@@ -224,7 +239,7 @@ class Embed extends Plugin
         {{ embed.getHtml() | escape }}
     </div>
 </article>
-END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]);
+END, ['embed' => $embed, 'attributes' => $attributes]);
 
         return Event::stop;
     }
@@ -319,23 +334,20 @@ END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]
         $file = new TemporaryFile();
         $file->write($imgData);
 
-        $mimetype = $headers['content-type'][0];
-        Event::handle('AttachmentValidation', [&$file, &$mimetype]);
-
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
-        $filename = Common::config('attachments', 'dir') . "embed/{$hash}";
-        $file->commit($filename);
+        $filepath   = Common::config('storage', 'dir') . "embed/{$hash}" . Common::config('thumbnail', 'extension');
+        $width      = Common::config('thumbnail', 'width');
+        $height     = Common::config('thumbnail', 'height');
+        $smart_crop = Common::config('thumbnail', 'smart_crop');
+        Event::handle('ResizeImagePath', [$file->getPathname(), $filepath, $width, $height, $smart_crop, &$mimetype]);
+
         unset($file);
 
         if (array_key_exists('content-disposition', $headers) && preg_match('/^.+; filename="(.+?)"$/', $headers['content-disposition'][0], $matches) === 1) {
             $original_name = $matches[1];
         }
 
-        $info   = getimagesize($filename);
-        $width  = $info[0];
-        $height = $info[1];
-
-        return [$filename, $width, $height, $original_name ?? null, $mimetype];
+        return [$filepath, $width, $height, $original_name ?? null, $mimetype];
     }
 
     /**
@@ -382,7 +394,7 @@ END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]
             try {
                 $imgData = HTTPClient::get($url)->getContent();
                 if (isset($imgData)) {
-                    [$filename, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData, $url, $headers);
+                    [$filepath, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData, $url, $headers);
                 } else {
                     throw new UnsupportedMediaException(_m('HTTPClient returned an empty result'));
                 }
@@ -394,10 +406,9 @@ END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]
         }
 
         DB::persist(AttachmentThumbnail::create(['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height]));
-        $attachment->setFilename($filename);
         DB::flush();
 
-        return [$filename, $width, $height, $original_name, $mimetype];
+        return [$filepath, $width, $height, $original_name, $mimetype];
     }
 
     /**
@@ -435,14 +446,15 @@ END, ['embed' => $embed, 'thumbnail' => $thumbnail, 'attributes' => $attributes]
                 if (substr($info->image, 0, 4) === 'data') {
                     // Inline image
                     $imgData                                                = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
-                    [$filename, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData);
+                    [$filepath, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData);
                 } else {
                     $attachment->setRemoteUrl((string) $info->image);
-                    [$filename, $width, $height, $original_name, $mimetype] = $this->storeRemoteThumbnail($attachment);
+                    [$filepath, $width, $height, $original_name, $mimetype] = $this->storeRemoteThumbnail($attachment);
                 }
-                $metadata['width']    = $height;
-                $metadata['height']   = $width;
+                $metadata['width']    = $width;
+                $metadata['height']   = $height;
                 $metadata['mimetype'] = $mimetype;
+                $metadata['filename'] = Formatting::removePrefix($filepath, Common::config('storage', 'dir'));
             }
         } catch (Exception $e) {
             Log::info("Failed to find Embed data for {$url} with 'oscarotero/Embed', got exception: " . get_class($e));
