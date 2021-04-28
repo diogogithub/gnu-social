@@ -21,7 +21,7 @@
               {% include '/'~ other.name ~ '/view.html.twig' with {'vars': other.vars} only %}
           {% endfor %}
       </div>
-      {% if hide_attachments is not defined and hide_attachments != true %}
+      {% if hide_attachments is not defined %}
         <div class="note-attachments">
           {% for attachment in note.getAttachments() %}
             {% include '/attachments/view.html.twig' with {'attachment': attachment} %}
