@@ -10,16 +10,30 @@
           media="screen and (max-width: 750px)">
 {% endblock %}
 
-{# {% block header %} #}
-{#     {{ parent() }} #}
-{# {% endblock %} #}
-
-{# {% block left %} #}
-{#     {{ parent() }} #}
-{# {% endblock %} #}
-
 {% block body %}
   <div class="content">
-    yooo
+    <div style="display: block">
+      <p> {{ title | escape }} </p>
+      <a href="{{download}}"> {{ 'Download link' | trans }}</a>
+      {% include '/attachments/view.html.twig' with {'attachment': attachment} only %}
+    </div>
   </div>
 {% endblock body %}
+
+{% block right %}
+  <div id="related-notes">
+    {{ 'Notes where this attachment appears' | trans }}
+    {% for note in related_notes %}
+      {% include '/note/view.html.twig' with {'note' : note, 'hide_attachments': true} only %}
+    {% endfor %}
+  </div>
+  <div id="related-tags">
+    {{ 'Tags for this attachment' | trans }}
+    <br/>
+    {% for tag in related_tags %}
+      <i>#{{tag['tag']}}</i>
+    {% else %}
+      {{ 'No tags' | trans }}
+    {% endfor %}
+  </div>
+{% endblock right %}

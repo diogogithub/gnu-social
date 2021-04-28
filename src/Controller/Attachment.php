@@ -25,6 +25,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
+use App\Core\Router\Router;
 use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -36,29 +37,56 @@ use Symfony\Component\HttpFoundation\Response;
 
 class Attachment extends Controller
 {
-    public function attachment_show(Request $request, int $id)
+    private function attachment(int $id, callable $handle)
     {
-        // If no one else claims this attachment, use the default representation
         if (Event::handle('AttachmentFileInfo', [$id, &$res]) != Event::stop) {
+            // If no one else claims this attachment, use the default representation
             $res = GSFile::getAttachmentFileInfo($id);
         }
         if (!empty($res)) {
-            return GSFile::sendFile($res['filepath'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_INLINE);
+            return $handle($res);
         } else {
             throw new ClientException('No such attachment', 404);
         }
     }
 
+    /**
+     * The page where the attachment and it's info is shown
+     */
+    public function attachment_show(Request $request, int $id)
+    {
+        try {
+            $attachment = DB::findOneBy('attachment', ['id' => $id]);
+            return $this->attachment($id, function ($res) use ($id, $attachment) {
+                return [
+                    '_template'     => 'attachments/show.html.twig',
+                    'title'         => $res['title'],
+                    'download'      => Router::url('attachment_download', ['id' => $id]),
+                    'attachment'    => $attachment,
+                    'related_notes' => DB::dql('select n from attachment_to_note an ' .
+                                               'join note n with n.id = an.note_id ' .
+                                               'where an.attachment_id = :attachment_id', ['attachment_id' => $id]),
+                    'related_tags' => DB::dql('select distinct t.tag ' .
+                                              'from attachment_to_note an join note_tag t with an.note_id = t.note_id ' .
+                                              'where an.attachment_id = :attachment_id', ['attachment_id' => $id]),
+                ];
+            });
+        } catch (NotFoundException) {
+            throw new ClientException('No such attachment', 404);
+        }
+    }
+
+    /**
+     * Display the attachment inline
+     */
     public function attachment_view(Request $request, int $id)
     {
-        $res = GSFile::getAttachmentFileInfo($id);
-        return GSFile::sendFile($res['filepath'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_INLINE);
+        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_INLINE));
     }
 
     public function attachment_download(Request $request, int $id)
     {
-        $res = GSFile::getAttachmentFileInfo($id);
-        return GSFile::sendFile($res['filepath'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_ATTACHMENT);
+        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_ATTACHMENT));
     }
 
     /**
