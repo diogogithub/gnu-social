@@ -94,10 +94,10 @@ class Embed extends Plugin
     /**
      * Insert oembed and opengraph tags in all HTML head elements
      */
-    public function onShowHeadElements(Request $request, array $result)
+    public function onShowHeadElements(Request $request, array &$result)
     {
         $matches = [];
-        preg_match(',/?([^/]+)/?.*,', $request->getPathInfo(), $matches);
+        preg_match(',/?([^/]+)/?(.*),', $request->getPathInfo(), $matches);
         switch ($matches[1]) {
         case 'attachment':
             $url = "{$matches[1]}/{$matches[2]}";
@@ -137,15 +137,18 @@ class Embed extends Plugin
             return Event::next;
         }
 
-        if (!is_null($attachment->getRemoteUrl()) || (!is_null($mimetype = $attachment->getMimetype()) && (('text/html' === substr($mimetype, 0, 9) || 'application/xhtml+xml' === substr($mimetype, 0, 21))))) {
-            try {
-                $embed_data                  = $this->getEmbed($attachment->getRemoteUrl(), $attachment);
-                $embed_data['attachment_id'] = $attachment->getId();
-                DB::persist(Entity\AttachmentEmbed::create($embed_data));
-                DB::flush();
-            } catch (Exception $e) {
-                Log::warning($e);
-                return Event::next;
+        if ($attachment->hasRemoteUrl() && $attachment->hasMimetype()) {
+            $mimetype = $attachment->getMimetype();
+            if (Formatting::startsWith($mimetype, 'text/html') || Formatting::startsWith($mimetype, 'application/xhtml+xml')) {
+                try {
+                    $embed_data                  = $this->getEmbed($attachment->getRemoteUrl(), $attachment);
+                    $embed_data['attachment_id'] = $attachment->getId();
+                    DB::persist(Entity\AttachmentEmbed::create($embed_data));
+                    DB::flush();
+                } catch (Exception $e) {
+                    Log::warning($e);
+                    return Event::next;
+                }
             }
         }
         return Event::next;
@@ -355,7 +358,7 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
      */
     protected function storeRemoteThumbnail(Attachment $attachment): array | bool
     {
-        if ($attachment->haveFilename() && file_exists($attachment->getPath())) {
+        if ($attachment->hasFilename() && file_exists($attachment->getPath())) {
             throw new AlreadyFulfilledException(_m('A thumbnail seems to already exist for remote file with id=={id}', ['id' => $attachment->getId()]));
         }
 

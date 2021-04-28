@@ -33,8 +33,8 @@ abstract class Entity
 {
     public function __call(string $name , array $arguments): mixed
     {
-        if (Formatting::startsWith($name, 'have')) {
-            $prop = Formatting::camelCaseToSnakeCase(Formatting::removePrefix($name, 'have'));
+        if (Formatting::startsWith($name, 'has')) {
+            $prop = Formatting::camelCaseToSnakeCase(Formatting::removePrefix($name, 'has'));
             return isset($this->{$prop});
         }
         throw new \Exception("Entity::{$name} called with bogus arguments: " . print_r($arguments, true));

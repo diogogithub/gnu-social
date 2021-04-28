@@ -209,7 +209,7 @@ class AttachmentEmbed extends Entity
 
     public function getAttachmentUrl()
     {
-        return Router::url('attachment_show', ['id' => $this->getAttachmentId()]);
+        return Router::url('attachment_view', ['id' => $this->getAttachmentId()]);
     }
 
     public function isImage()
