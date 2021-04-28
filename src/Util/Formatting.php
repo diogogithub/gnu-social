@@ -133,14 +133,20 @@ abstract class Formatting
             });
     }
 
+    /**
+     * If $haystack starts with $needle, remove it from the beginning
+     */
     public static function removePrefix(string $haystack, string $needle)
     {
-        return substr($haystack, strlen($needle));
+        return self::startsWith($haystack, $needle) ? substr($haystack, strlen($needle)) : $haystack;
     }
 
+    /**
+     * If $haystack ends with $needle, remove it from the end
+     */
     public static function removeSuffix(string $haystack, string $needle)
     {
-        return substr($haystack, -strlen($needle));
+        return self::startsWith($haystack, $needle) ? substr($haystack, -strlen($needle)) : $haystack;
     }
 
     public static function camelCaseToSnakeCase(string $str): string
