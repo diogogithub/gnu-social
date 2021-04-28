@@ -109,13 +109,16 @@ class Attachment extends Controller
             assert(false, 'Attachment scope not implemented');
         }
 
-        // TODO rate limit, limit to known sizes
+        $default_width  = Common::config('thumbnail', 'width');
+        $default_height = Common::config('thumbnail', 'height');
+        $width          = $this->int('w') ?: $default_width;
+        $height         = $this->int('h') ?: $default_height;
+        $crop           = $this->bool('c') ?: false;
 
-        $max_width  = Common::config('thumbnail', 'width');
-        $max_height = Common::config('thumbnail', 'height');
-        $width      = Common::clamp($this->int('w') ?: $max_width,  min: 0, max: $max_width);
-        $height     = Common::clamp($this->int('h') ?: $max_height, min: 0, max: $max_height);
-        $crop       = $this->bool('c') ?: false;
+        Event::handle('GetAllowedThumbnailSizes', [&$sizes]);
+        if (!in_array(['width' => $width, 'height' => $height], $sizes)) {
+            throw new ClientException('The requested thumbnail dimensions are not allowed', 400); // 400 Bad Request
+        }
 
         $thumbnail = AttachmentThumbnail::getOrCreate(attachment: $attachment, width: $width, height: $height, crop: $crop);
 

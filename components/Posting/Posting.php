@@ -145,9 +145,18 @@ END;
      *
      * This can be used in the future to deduplicate images by visual content
      */
-    public static function onHashFile(string $filename, ?string &$out_hash)
+    public function onHashFile(string $filename, ?string &$out_hash)
     {
         $out_hash = hash_file(Attachment::FILEHASH_ALGO, $filename);
         return Event::stop;
+    }
+
+    /**
+     * Fill the list of allowed sizes for an attachment, to prevent potential DoS'ing by requesting thousands of different thumbnail sizes
+     */
+    public function onGetAllowedThumbnailSizes(?array &$sizes)
+    {
+        $sizes[] = ['width' => Common::config('thumbnail', 'width'), 'height' => Common::config('thumbnail', 'height')];
+        return Event::next;
     }
 }
