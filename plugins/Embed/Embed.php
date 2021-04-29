@@ -364,8 +364,8 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
 
         $url = $attachment->getRemoteUrl();
 
-        if (substr($url, 0, 7) == 'file://') {
-            $filename = substr($url, 7);
+        if (Formatting::startsWith($url, 'file://')) {
+            $filename = Formatting::removePrefix($url, 'file://');
             $info     = getimagesize($filename);
             $filename = basename($filename);
             $width    = $info[0];
@@ -446,7 +446,7 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
             $metadata['provider_url']  = $info->providerUrl;
 
             if (!is_null($info->image)) {
-                if (substr($info->image, 0, 4) === 'data') {
+                if (Formatting::startsWith($info->image, 'data')) {
                     // Inline image
                     $imgData                                                = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
                     [$filepath, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData);
