@@ -34,7 +34,8 @@ class Avatar extends Component
 {
     public function onAddRoute($r)
     {
-        $r->connect('avatar', '/{gsactor_id<\d+>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'avatar']);
+        $r->connect('avatar', '/{gsactor_id<\d+>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'avatar_view']);
+        $r->connect('settings_avatar', '/settings/avatar', [Controller\Avatar::class, 'settings_avatar']);
         return Event::next;
     }
 

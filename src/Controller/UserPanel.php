@@ -38,11 +38,7 @@ namespace App\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
-use App\Core\GSFile;
 use function App\Core\I18n\_m;
-use App\Core\Log;
-use App\Entity\Avatar;
-use App\Util\ClientException;
 use App\Util\Common;
 use App\Util\Form\ArrayTransformer;
 use Doctrine\DBAL\Types\Types;
@@ -51,13 +47,10 @@ use Functional as F;
 use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\LanguageType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 use Symfony\Component\HttpFoundation\Request;
 
 // }}} Imports
@@ -106,66 +99,6 @@ class UserPanel extends AbstractController
         $form = Form::handle($form_definition, $request, $user);
 
         return ['_template' => 'settings/account.html.twig', 'acc' => $form->createView()];
-    }
-
-    /**
-     * Local user avatar panel
-     */
-    public function avatar(Request $request)
-    {
-        $form = Form::create([
-            ['avatar', FileType::class,   ['label' => _m('Avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 2MB.')]],
-            ['hidden', HiddenType::class, []],
-            ['save',   SubmitType::class, ['label' => _m('Submit')]],
-        ]);
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data  = $form->getData();
-            $sfile = null;
-            if (isset($data['hidden'])) {
-                // Cropped client side
-                $matches = [];
-                if (!empty(preg_match('/data:([^;]*)(;(base64))?,(.*)/', $data['hidden'], $matches))) {
-                    list(, $mimetype_user, , $encoding_user, $data_user) = $matches;
-                    if ($encoding_user == 'base64') {
-                        $data_user = base64_decode($data_user);
-                        $filename  = tempnam('/tmp/', 'avatar');
-                        file_put_contents($filename, $data_user);
-                        $sfile = new SymfonyFile($filename);
-                    } else {
-                        Log::info('Avatar upload got an invalid encoding, something\'s fishy and/or wrong');
-                    }
-                }
-            } elseif (isset($data['avatar'])) {
-                // Cropping failed (e.g. disabled js), have file as uploaded
-                $sfile = $data['avatar'];
-            } else {
-                throw new ClientException('Invalid form');
-            }
-            $user       = Common::user();
-            $gsactor_id = $user->getId();
-            $file       = GSFile::validateAndStoreAttachment($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $gsactor_id);
-            $old_file   = null;
-            $avatar     = DB::find('avatar', ['gsactor_id' => $gsactor_id]);
-            // Must get old id before inserting another one
-            if ($avatar != null) {
-                $old_file = $avatar->delete();
-            }
-            DB::persist($file);
-            // Can only get new id after inserting
-            DB::flush();
-            DB::persist(Avatar::create(['gsactor_id' => $gsactor_id, 'attachment_id' => $file->getId()]));
-            DB::flush();
-            // Only delete files if the commit went through
-            if ($old_file != null) {
-                @unlink($old_file);
-            }
-            Event::handle('DeleteCachedAvatar', [$user->getId()]);
-        }
-
-        return ['_template' => 'settings/avatar.html.twig', 'avatar' => $form->createView()];
     }
 
     /**
