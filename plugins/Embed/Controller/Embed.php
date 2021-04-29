@@ -45,6 +45,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class Embed extends Controller
 {
+    /**
+     * Handle OEmbed server requests
+     *
+     * @param Request $request
+     */
     protected function handle(Request $request)
     {
         $url      = $this->trimmed('url');
