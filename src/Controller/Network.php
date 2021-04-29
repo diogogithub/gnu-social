@@ -45,7 +45,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Network extends Controller
 {
-    // Can't have constanst inside herestring
+    // Can't have constants inside herestring
     private $public_scope   = VisibilityScope::PUBLIC;
     private $instance_scope = VisibilityScope::PUBLIC | VisibilityScope::SITE;
     private $message_scope  = VisibilityScope::MESSAGE;

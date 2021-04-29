@@ -208,7 +208,7 @@ class GSActor extends Entity
     public function getAvatarUrl()
     {
         $url = null;
-        Event::handle('get_avatar_url', [$this->getNickname(), &$url]);
+        Event::handle('GetAvatarUrl', [$this->getId(), &$url]);
         return $url;
     }
 
