@@ -104,7 +104,7 @@ class Avatar extends Entity
 
     public function getAttachment(): Attachment
     {
-        $this->attachment = $this->attachment ?: DB::find('attachment', ['id' => $this->attachment_id]);
+        $this->attachment = $this->attachment ?: DB::findOneBy('attachment', ['id' => $this->attachment_id]);
         return $this->attachment;
     }
 
@@ -113,29 +113,34 @@ class Avatar extends Entity
         return Common::config('avatar', 'dir') . $filename;
     }
 
-    public function getFilePath(): string
+    public function getPath(): string
     {
         return Common::config('avatar', 'dir') . $this->getAttachment()->getFileName();
     }
 
     /**
      * Delete this avatar and the corresponding file and thumbnails, which this owns
+     *
+     * Inefficient implementation, but there are plenty of edge cases and this is supposed to be a rare operation
      */
-    public function delete(bool $flush = false, bool $delete_files_now = false, bool $cascading = false): array
+    public function delete(bool $cascade = true, bool $flush = true): void
     {
-        // Don't go into a loop if we're deleting from File
-        if (!$cascading) {
-            $files = $this->getAttachment()->delete($cascade = true, $file_flush = false, $delete_files_now);
-        } else {
-            DB::remove(DB::getReference('avatar', ['gsactor_id' => $this->gsactor_id]));
-            $file_path = $this->getFilePath();
-            $files[]   = $file_path;
-            if ($flush) {
-                DB::flush();
+        if ($cascade) {
+            // Avatar doesn't own the file, but it's stored in a different place than Attachment
+            // would think, so we need to handle it ourselves. Since the attachment could be shared,
+            // can only delete if cascading
+            $filepath = $this->getPath();
+            if (file_exists($filepath)) {
+                if (@unlink($filepath) === false) {
+                    Log::warning("Failed deleting attachment for avatar with id={$id} at {$filepath}");
+                }
             }
-            return $delete_files_now ? [] : $files;
+            $this->attachment->delete(cascade: true, flush: false);
         }
-        return [];
+        DB::remove($this);
+        if ($flush) {
+            DB::flush();
+        }
     }
 
     public static function schemaDef(): array

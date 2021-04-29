@@ -22,15 +22,23 @@
 namespace Component\Avatar\Controller;
 
 use App\Core\Controller;
+use App\Core\DB\DB;
+use App\Core\Event;
 use App\Core\Form;
+use App\Core\GSFile;
 use App\Core\GSFile as M;
 use function App\Core\I18n\_m;
+use App\Entity\Avatar as AvatarEntity;
+use App\Util\Common;
+use App\Util\Exception\NotFoundException;
 use App\Util\TemporaryFile;
 use Exception;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 use Symfony\Component\HttpFoundation\Request;
 
 class Avatar extends Controller
@@ -56,7 +64,7 @@ class Avatar extends Controller
     {
         $form = Form::create([
             ['avatar', FileType::class,     ['label' => _m('Avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 2MB.'), 'multiple' => false, 'required' => false]],
-            ['remove', CheckboxType::class, ['label' => _m('Remove avatar'), 'help' => _m('Remove your avatar and use the default one')]],
+            ['remove', CheckboxType::class, ['label' => _m('Remove avatar'), 'help' => _m('Remove your avatar and use the default one'), 'required' => false, 'value' => false]],
             ['hidden', HiddenType::class,   []],
             ['save',   SubmitType::class,   ['label' => _m('Submit')]],
         ]);
@@ -64,8 +72,17 @@ class Avatar extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
+            $data       = $form->getData();
+            $user       = Common::user();
+            $gsactor_id = $user->getId();
             if ($data['remove'] == true) {
+                try {
+                    $avatar = DB::findOneBy('avatar', ['gsactor_id' => $gsactor_id]);
+                    $avatar->delete();
+                    Event::handle('DeleteCachedAvatar', [$user->getId()]);
+                } catch (NotFoundException) {
+                    $form->addError(new FormError(_m('No avatar set, so cannot delete')));
+                }
             } else {
                 $sfile = null;
                 if (isset($data['hidden'])) {
@@ -89,26 +106,24 @@ class Avatar extends Controller
                 } else {
                     throw new ClientException('Invalid form');
                 }
-                $user       = Common::user();
-                $gsactor_id = $user->getId();
-                $file       = GSFile::validateAndStoreAttachment($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $gsactor_id);
-                $old_file   = null;
-                $avatar     = DB::find('avatar', ['gsactor_id' => $gsactor_id]);
+                $attachment     = GSFile::validateAndStoreAttachment($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $gsactor_id);
+                $old_attachment = null;
+                $avatar         = DB::find('avatar', ['gsactor_id' => $gsactor_id]);
                 // Must get old id before inserting another one
                 if ($avatar != null) {
-                    $old_file = $avatar->delete();
+                    $old_attachment = $avatar->delete();
                 }
-                DB::persist($file);
+                DB::persist($attachment);
                 // Can only get new id after inserting
                 DB::flush();
-                DB::persist(self::create(['gsactor_id' => $gsactor_id, 'attachment_id' => $file->getId()]));
+                DB::persist(AvatarEntity::create(['gsactor_id' => $gsactor_id, 'attachment_id' => $attachment->getId()]));
                 DB::flush();
                 // Only delete files if the commit went through
-                if ($old_file != null) {
-                    @unlink($old_file);
+                if ($old_attachment != null) {
+                    @unlink($old_attachment);
                 }
+                Event::handle('DeleteCachedAvatar', [$user->getId()]);
             }
-            Event::handle('DeleteCachedAvatar', [$user->getId()]);
         }
 
         return ['_template' => 'settings/avatar.html.twig', 'avatar' => $form->createView()];

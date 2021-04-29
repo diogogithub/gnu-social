@@ -171,12 +171,20 @@ class AttachmentThumbnail extends Entity
     }
 
     /**
-     * Delete a attachment thumbnail. This table doesn't own all the attachments, only itself
+     * Delete an attachment thumbnail
      */
-    public function delete(bool $flush = false, bool $delete_attachments_now = false, bool $cascading = false): string
+    public function delete(bool $flush = true): void
     {
-        // TODO Implement deleting attachment thumbnails
-        return '';
+        $filepath = $this->getPath();
+        if (file_exists($filepath)) {
+            if (@unlink($filepath) === false) {
+                Log::warning("Failed deleting file for attachment thumbnail with id={$this->attachment_id}, width={$this->width}, height={$this->height} at {$filepath}");
+            }
+        }
+        DB::remove($this);
+        if ($flush) {
+            DB::flush();
+        }
     }
 
     public static function schemaDef(): array

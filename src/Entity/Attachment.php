@@ -194,38 +194,43 @@ class Attachment extends Entity
     const FILEHASH_ALGO = 'sha256';
 
     /**
-     * Delete this file and by default all the associated entities (avatar and/or thumbnails, which this owns)
+     * Delete this attachment and optianlly all the associated entities (avatar and/or thumbnails, which this owns)
      */
-    public function delete(bool $cascade = true, bool $flush = false, bool $delete_files_now = false): array
+    public function delete(bool $cascade = true, bool $flush = true): void
     {
         $files = [];
         if ($cascade) {
             // An avatar can own a file, and it becomes invalid if the file is deleted
             $avatar = DB::findBy('avatar', ['attachment_id' => $this->id]);
             foreach ($avatar as $a) {
-                $files[] = $a->getFilePath();
-                $a->delete($flush, $delete_files_now, $cascading = true);
+                $files[] = $a->getPath();
+                $a->delete(cascade: false, flush: false);
             }
-            foreach (DB::findBy('attachment_thumbnail', ['attachment_id' => $this->id]) as $ft) {
-                $files[] = $ft->delete($flush, $delete_files_now, $cascading);
+            foreach ($this->getThumbnails() as $at) {
+                $files[] = $at->getPath();
+                $at->delete(flush: false);
             }
         }
+        $files[] = $this->getPath();
         DB::remove($this);
         if ($flush) {
             DB::flush();
         }
-        if ($delete_files_now) {
-            self::deleteFiles($files);
-            return [];
+        foreach ($files as $f) {
+            if (file_exists($f)) {
+                if (@unlink($f) === false) {
+                    Log::warning("Failed deleting file for attachment with id={$this->id} at {$f}");
+                }
+            }
         }
-        return $files;
     }
 
-    public static function deleteFiles(array $files)
+    /**
+     * Find all thumbnails associated with this attachment. Don't bother caching as this is not supposed to be a common operation
+     */
+    public function getThumbnails()
     {
-        foreach ($files as $f) {
-            @unlink($f);
-        }
+        return DB::findBy('attachment_thumbnail', ['attachment_id' => $this->id]);
     }
 
     public function getPath()
