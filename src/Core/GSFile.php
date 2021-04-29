@@ -47,7 +47,7 @@ class GSFile
         // The following properly gets the mimetype with `file` or other
         // available methods, so should be safe
         $mimetype = $sfile->getMimeType();
-        Event::handle('AttachmentValidation', [&$sfile, &$mimetype]);
+        Event::handle('AttachmentValidation', [&$sfile, &$mimetype, &$title]);
         $attachment = Attachment::create([
             'file_hash'  => $hash,
             'gsactor_id' => $actor_id,
@@ -55,6 +55,7 @@ class GSFile
             'title'      => $title ?: _m('Untitled attachment'),
             'filename'   => $hash,
             'is_local'   => $is_local,
+            'size'       => $sfile->getSize(),
         ]);
         $sfile->move($dest_dir, $hash);
         DB::persist($attachment);

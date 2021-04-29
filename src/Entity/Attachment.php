@@ -54,6 +54,7 @@ class Attachment extends Entity
     private ?bool $is_local;
     private ?int $source;
     private ?int $scope;
+    private ?int $size;
     private \DateTimeInterface $modified;
 
     public function setId(int $id): self
@@ -177,6 +178,17 @@ class Attachment extends Entity
         return $this->scope;
     }
 
+    public function setSize(?int $size): self
+    {
+        $this->size = $size;
+        return $this;
+    }
+
+    public function getSize(): ?int
+    {
+        return $this->size;
+    }
+
     public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
@@ -259,6 +271,7 @@ class Attachment extends Entity
                 'is_local'        => ['type' => 'bool',      'description' => 'whether the file is stored locally'],
                 'source'          => ['type' => 'int',       'default' => null, 'description' => 'Source of the Attachment (upload, TFN, embed)'],
                 'scope'           => ['type' => 'int',       'default' => null, 'description' => 'visibility scope for this attachment'],
+                'size'            => ['type' => 'int',       'description' => 'size of resource when available'],
                 'modified'        => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
