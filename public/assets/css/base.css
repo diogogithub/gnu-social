@@ -232,7 +232,7 @@ input.larger {
 .content input[type="checkbox"]:focus + label::before,
 .content input[type="checkbox"]:hover + label::before{
       border-radius: 10%;
-      box-shadow: 0 0px 8px var(--accent);
+      box-shadow: 0 0 8px var(--accent);
 }
 .content input[type="checkbox"] {
       position: absolute;
@@ -269,7 +269,7 @@ input.larger {
 .content input[type="radio"]:focus + label::before,
 .content input[type="radio"]:hover + label::before{
       border-radius: 50%;
-      box-shadow: 0 0px 8px var(--accent);
+      box-shadow: 0 0 8px var(--accent);
 }
 .content input[type="radio"] {
       position: absolute;
@@ -294,7 +294,7 @@ input.larger {
 .create-notice button[type=submit]:focus,
 .create-notice button[type=submit]:hover {
       border-radius: var(--unit-size);
-      box-shadow: 0 0px 8px var(--accent);
+      box-shadow: 0 0 8px var(--accent);
 }
 
 .avatar {

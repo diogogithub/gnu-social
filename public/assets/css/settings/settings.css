@@ -63,7 +63,7 @@
       font-weight: 700;
 }
 
-.secundary {
+.secondary {
       display: flex;
       flex-wrap: wrap;
       background-color: var(--bg3);
@@ -264,7 +264,7 @@ input[type=radio] {
       margin-left: 0;
       margin-right: 0;
       margin-top: 0;
-      box-shadow: 0;
+      box-shadow: none;
       border-radius: 0 0 var(--unit-size) var(--unit-size);
       font-size: var(--unit-size);
 }
@@ -275,7 +275,7 @@ input[type=radio] {
       margin-bottom: calc(var(--unit-size) * 0.5);
 }
 
-.secundary button[type=submit] {
+.secondary button[type=submit] {
       background: var(--bg1);
       padding: 0.6em 1.2em;
       color: var(--fg);
@@ -286,8 +286,8 @@ input[type=radio] {
       font-family: 'Montserrat', sans-serif;
       font-weight: 700;
 }
-.secundary button[type=submit]:focus,
-.secundary button[type=submit]:hover {
+.secondary button[type=submit]:focus,
+.secondary button[type=submit]:hover {
       border-radius: var(--unit-size);
-      box-shadow: 0 0px 8px var(--accent);
+      box-shadow: 0 0 8px var(--accent);
 }

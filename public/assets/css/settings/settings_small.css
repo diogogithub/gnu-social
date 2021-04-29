@@ -63,10 +63,9 @@
       font-weight: 700;
 }
 
-.secundary {
+.secondary {
       display: flex;
       flex-wrap: wrap;
-      border-radius: 0 0 var(--unit-size) var(--unit-size);
       background-color: var(--bg3);
       margin: 2%;
       border: solid 2px var(--accent-low);
@@ -255,7 +254,7 @@ input[type=radio] {
       margin-left: 0;
       margin-right: 0;
       margin-top: 0;
-      box-shadow: 0;
+      box-shadow: none;
       border-radius: 0 0 var(--unit-size) var(--unit-size);
       font-size: var(--unit-size);
 }

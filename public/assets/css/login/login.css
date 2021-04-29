@@ -63,13 +63,13 @@ form button[type=submit] {
 form button[type=submit]:focus,
 form button[type=submit]:hover {
     border-radius: var(--unit-size);
-    box-shadow: 0 0px 8px var(--accent);
+    box-shadow: 0 0 8px var(--accent);
 }
 
 #login-notes {
-    margin: 0px;
+    margin: 0;
 }
 
 #login-main {
-    border: 0px;
+    border: 0;
 }

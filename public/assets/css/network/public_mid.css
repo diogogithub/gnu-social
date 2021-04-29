@@ -378,8 +378,8 @@
 }
 
 #post_attachments {
-    width: 0.1px;
-    height: 0.1px;
+    width: 0;
+    height: 0;
     opacity: 0;
     overflow: hidden;
     position: absolute;
@@ -391,7 +391,7 @@
 #post_attachments:focus + label,
 #post_attachments + label:hover {
     border-radius: var(--unit-size);
-    box-shadow: 0 0px 8px var(--accent);
+    box-shadow: 0 0 8px var(--accent);
 }
 .icon-attach {
     width: var(--main-size);

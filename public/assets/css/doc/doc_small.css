@@ -6,7 +6,7 @@
       align-items: center;
       margin-left: 0;
       margin-right: 0;
-      box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
+      box-shadow: 0 0 60px -20px rgba(0, 0, 0, 0.75);
       height: 100%;
 }
 
@@ -61,13 +61,12 @@
       order: 2;
       background-color: #00000050;
       font-size: var(--small-size);
-      padding: calc(3*var(--unit-size));
-      padding-top: var(--unit-size);
+      padding: var(--unit-size) calc(3 * var(--unit-size)) calc(3 * var(--unit-size));
       border-radius: var(--unit-size);
       margin-top: calc(2 * var(--unit-size));
       margin-right: 1%;
       margin-left: 1%;
-      box-shadow: 0px 0px 60px -20px rgba(0, 0, 0, 0.75);
+      box-shadow: 0 0 60px -20px rgba(0, 0, 0, 0.75);
 }
 
 .markd h2 {
