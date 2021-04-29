@@ -1,0 +1,11 @@
+{% extends '/base.html.twig' %}
+{% block stylesheets %}
+    {{ parent() }}
+    {% include '/sidepanel/left/left_stylesheets.html.twig' %}
+{% endblock %}
+{% block leftpanel %}
+    {% include '/sidepanel/left/left.html.twig' %}
+{% endblock %}
+{% block rightpanel %}
+    {% include '/sidepanel/right/right.html.twig' %}
+{% endblock %}
