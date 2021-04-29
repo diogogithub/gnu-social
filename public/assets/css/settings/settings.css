@@ -115,6 +115,7 @@ input[type=text] {
 .form input[type=checkbox] {
       float: left;
       margin-right: calc(var(--unit-size) * 0.5);
+      margin-top: calc(var(--unit-size) * 0.2);
 }
 
 button[type=submit] {
