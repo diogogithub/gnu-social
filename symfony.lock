@@ -190,6 +190,9 @@
             "ref": "4388686329b81291918a948cd42891829fb1de71"
         }
     },
+    "oro/doctrine-extensions": {
+        "version": "2.0.0"
+    },
     "oscarotero/html-parser": {
         "version": "v0.1.6"
     },
