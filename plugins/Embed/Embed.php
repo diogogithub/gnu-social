@@ -337,12 +337,12 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
         $file = new TemporaryFile();
         $file->write($imgData);
 
-        Event::handle('HashFile', [$file->getPathname(), &$hash]);
+        Event::handle('HashFile', [$file->getRealPath(), &$hash]);
         $filepath   = Common::config('storage', 'dir') . "embed/{$hash}" . Common::config('thumbnail', 'extension');
         $width      = Common::config('thumbnail', 'width');
         $height     = Common::config('thumbnail', 'height');
         $smart_crop = Common::config('thumbnail', 'smart_crop');
-        Event::handle('ResizeImagePath', [$file->getPathname(), $filepath, $width, $height, $smart_crop, &$mimetype]);
+        Event::handle('ResizeImagePath', [$file->getRealPath(), $filepath, $width, $height, $smart_crop, &$mimetype]);
 
         unset($file);
 
