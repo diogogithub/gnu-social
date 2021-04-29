@@ -19,6 +19,8 @@
 
 namespace App\Util;
 
+use App\Util\Exception\TemporaryFileException;
+
 /**
  * Class oriented at providing automatic temporary file handling.
  *
@@ -39,9 +41,10 @@ class TemporaryFile extends \SplFileInfo
      */
     public function __construct(
         ?string $prefix = null,
+        ?string $suffix = null,
         ?string $mode = null
     ) {
-        $filename = tempnam(sys_get_temp_dir(), $prefix ?? 'gs-php');
+        $filename = tempnam(sys_get_temp_dir(), $prefix ?? 'gs-php') . ($suffix ?? '');
 
         if ($filename === false) {
             throw new TemporaryFileException('Could not create file: ' . $filename);
