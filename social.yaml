@@ -60,6 +60,8 @@ parameters:
       ssl:
 
     attachments:
+      max_width: 4096
+      max_height: 4096
       server:
       ssl:
       dir: "%kernel.project_dir%/file/attachments/"
