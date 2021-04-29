@@ -1,14 +1,12 @@
 .content {
     display: flex;
     flex-wrap: wrap;
+    margin-top: calc(4 * var(--main-size));
     justify-content: center;
     align-items: center;
-    margin-right: var(--small-size);
-    margin-left: var(--small-size);
-    margin-bottom: var(--unit-size);
-}
-.navbar .left-nav > a {
-    font-size: var(--unit-size);
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-bottom: 1%;
 }
 form {
     font-size: var(--medium-size);
