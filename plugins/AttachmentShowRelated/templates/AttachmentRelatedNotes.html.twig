@@ -1,0 +1,6 @@
+<div id="related-notes" style="margin: var(--unit-size);">
+    {{ 'Notes where this attachment appears' | trans }}
+    {% for note in related_notes %}
+        {% include '/note/view.html.twig' with {'note' : note, 'hide_attachments': true} only %}
+    {% endfor %}
+</div>

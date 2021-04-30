@@ -40,7 +40,7 @@ class Favourite extends Plugin
      * HTML rendering event that adds the favourite form as a note
      * action, if a user is logged in
      */
-    public function onAddNoteActions(Request $request, Note $note, array &$actions)
+    public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
         if (($user = Common::user()) == null) {
             return Event::next;
@@ -75,15 +75,16 @@ class Favourite extends Plugin
         return Event::next;
     }
 
-    public function onInsertLeftPanelLink(string $user_nickname, &$res)
+    public function onInsertLeftPanelLink(string $user_nickname, &$res): bool
     {
         $res[] = Formatting::twigRender(<<<END
 <a href="{{ path("favourites", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("favourites") }}'>Favourites</a>
 <a href="{{ path("reverse_favourites", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("reverse_favourites") }}'>Reverse Favs</a>
 END, ['user_nickname' => $user_nickname]);
+        return Event::next;
     }
 
-    public function onAddRoute(RouteLoader $r)
+    public function onAddRoute(RouteLoader $r): bool
     {
         $r->connect('favourites', '/favourites/{nickname<' . Nickname::DISPLAY_FMT . '>}', [Controller\Favourite::class, 'favourites']);
         $r->connect('reverse_favourites', '/reverse_favourites/{nickname<' . Nickname::DISPLAY_FMT . '>}', [Controller\Favourite::class, 'reverseFavourites']);

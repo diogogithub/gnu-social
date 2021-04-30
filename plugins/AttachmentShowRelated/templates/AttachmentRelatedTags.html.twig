@@ -1,0 +1,9 @@
+<div id="related-tags" style="margin: var(--unit-size);">
+    {{ 'Tags for this attachment' | trans }}
+    <br/>
+    {% for tag in related_tags %}
+        <i>#{{ tag['tag'] }}</i>
+    {% else %}
+        {{ 'No tags' | trans }}
+    {% endfor %}
+</div>
