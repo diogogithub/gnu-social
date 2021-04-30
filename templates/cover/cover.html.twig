@@ -3,17 +3,17 @@
 {% block title %}Cover Settings{% endblock %}
 
 {% block body %}
-  {{ parent() }}
+    {{ parent() }}
 {% endblock body %}
 
 {% block form %}
-  <div class='form-single'>
-    {{ form(form) }}
-  </div>
-
-  {% if remove_form is not null %}
     <div class='form-single'>
-      {{ form(remove_form) }}
+        {{ form(form) }}
     </div>
-  {% endif %}
+
+    {% if remove_form is not null %}
+        <div class='form-single'>
+            {{ form(remove_form) }}
+        </div>
+    {% endif %}
 {% endblock form %}

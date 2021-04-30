@@ -1,25 +1,28 @@
 {% set thumbnail_parameters = {'id': attachment.getId(), 'w': config('thumbnail','width'), 'h': config('thumbnail','height')} %}
 {% if attachment.mimetype starts with 'image/' %}
-  <div>
-    <figure>
-      <img src="{{ path('attachment_thumbnail', thumbnail_parameters) }}" alt="{{ attachment.getTitle() }}">
-        <figcaption> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </figcaption>
-    </figure>
-  </div>
+    <div>
+        <figure>
+            <img src="{{ path('attachment_thumbnail', thumbnail_parameters) }}" alt="{{ attachment.getTitle() }}">
+            <figcaption><a
+                        href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a>
+            </figcaption>
+        </figure>
+    </div>
 {% elseif attachment.mimetype starts with 'video/' %}
-  <div>
-    <video src="{{ path('attachment_view', {'id': attachment.getId()}) }}" controls poster="{{ path('attachment_thumbnail') }}, thumbnail_parameters">
-      <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </i>
-    </video>
-  </div>
+    <div>
+        <video src="{{ path('attachment_view', {'id': attachment.getId()}) }}" controls
+               poster="{{ path('attachment_thumbnail') }}, thumbnail_parameters">
+            <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </i>
+        </video>
+    </div>
 {% else %}
-  {% for show in handle_event('ShowAttachment', attachment) %}
-    <div>
-      {{ show | raw }}
-    </div>
-  {% else %}
-    <div>
-      <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </i>
-    </div>
-  {% endfor %}
+    {% for show in handle_event('ShowAttachment', attachment) %}
+        <div>
+            {{ show | raw }}
+        </div>
+    {% else %}
+        <div>
+            <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </i>
+        </div>
+    {% endfor %}
 {% endif %}

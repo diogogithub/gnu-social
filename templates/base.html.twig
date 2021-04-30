@@ -1,54 +1,58 @@
 <!DOCTYPE html>
 <html>
-      <head>
-            {% block meta %}
-                  <meta charset="UTF-8">
-                  <meta name="viewport" content="width=device-width, initial-scale=1">
-            {% endblock %}
-            <title>
-                  {% block title %}{% endblock %}
-            </title>
-            {% block stylesheets %}
-                  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans&display=swap" rel="stylesheet">
-                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}" media="screen and (min-width: 1300px)">
-                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_mid.css') }}" media="screen and (max-width: 1300px)">
-                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_small.css') }}" media="screen and (max-width: 750px)">
-                  <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/reset.css') }}">
-                  {% for stylesheet in show_stylesheets() %}
-                        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/' ~ stylesheet) }}">
-                  {% endfor %}
-            {% endblock %}
-            {% for arr in handle_event('ShowHeadElements', app.request) %}
-              {# Only one element, but has dynamic value, can't access it directly #}
-              {% for type, element in arr %}
-                <{{type}} rel="{{element['rel']}}" type="{{element['type']}}" href="{{element['href']}}" title="{{element['title']}}">  
-              {% endfor %}
-            {% endfor %}
-      </head>
-      <body>
+<head>
+    {% block meta %}
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% endblock %}
+    <title>
+        {% block title %}{% endblock %}
+    </title>
+    {% block stylesheets %}
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans&display=swap"
+              rel="stylesheet">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}"
+              media="screen and (min-width: 1300px)">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_mid.css') }}"
+              media="screen and (max-width: 1300px)">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_small.css') }}"
+              media="screen and (max-width: 750px)">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/reset.css') }}">
+        {% for stylesheet in show_stylesheets() %}
+            <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/' ~ stylesheet) }}">
+        {% endfor %}
+    {% endblock %}
+    {% for arr in handle_event('ShowHeadElements', app.request) %}
+        {# Only one element, but has dynamic value, can't access it directly #}
+        {% for type, element in arr %}
+            <{{ type }} rel="{{ element['rel'] }}" type="{{ element['type'] }}" href="{{ element['href'] }}" title="{{ element['title'] }}">
+        {% endfor %}
+    {% endfor %}
+</head>
+<body>
 
-      <div class="container">
-            {% block header %}
-                  <div id='header'>
-                        <div id='top'>
-                              {% block leftpanel %}
-                              {% endblock leftpanel %}
-                              <nav id='instance'>
-                                    <a href="{{ path('main_public') }}">
-                                          {{ icon('logo', 'icon icon-logo') | raw }}
-                                          <b> {{ config('site', 'name') }} </b>
-                                    </a>
-                              </nav>
-                              {% block rightpanel %}
-                              {% endblock rightpanel %}
-                        </div>
-                  </div>
-            {% endblock header%}
+<div class="container">
+    {% block header %}
+        <div id='header'>
+            <div id='top'>
+                {% block leftpanel %}
+                {% endblock leftpanel %}
+                <nav id='instance'>
+                    <a href="{{ path('main_public') }}">
+                        {{ icon('logo', 'icon icon-logo') | raw }}
+                        <b> {{ config('site', 'name') }} </b>
+                    </a>
+                </nav>
+                {% block rightpanel %}
+                {% endblock rightpanel %}
+            </div>
+        </div>
+    {% endblock header %}
 
-            {% block nav %}{% endblock %}
-            {% block body %}{% endblock %}
-            {% block javascripts %}{% endblock javascripts%}
-      </div>
-      </body>
+    {% block nav %}{% endblock %}
+    {% block body %}{% endblock %}
+    {% block javascripts %}{% endblock javascripts %}
+</div>
+</body>
 </html>
 

@@ -18,11 +18,13 @@
                                    class='hover-effect {{ active('settings_personal_info') }}'>Personal Info</a>
                             </li>
                             <li>
-                                <a href="{{ path('settings_avatar') }}" class='hover-effect {{ active('settings_avatar') }}'>Avatar</a>
+                                <a href="{{ path('settings_avatar') }}"
+                                   class='hover-effect {{ active('settings_avatar') }}'>Avatar</a>
                             </li>
                             {% for tab in profile_tabs %}
                                 <li>
-                                    <a href="{{ path(tab['route']) }}" class='hover-effect {{ active(tab['route']) }}' >{{ tab['title'] }}</a>
+                                    <a href="{{ path(tab['route']) }}"
+                                       class='hover-effect {{ active(tab['route']) }}'>{{ tab['title'] }}</a>
                                 </li>
                             {% endfor %}
                         </ul>

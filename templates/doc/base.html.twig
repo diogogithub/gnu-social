@@ -1,24 +1,27 @@
 {% extends 'stdgrid.html.twig' %}
 
 {% block meta %}
-      {{ parent() }}
+    {{ parent() }}
 {% endblock %}
 
 {% block title %}{% endblock %}
 
 {% block stylesheets %}
-      {{ parent() }}
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/doc/doc.css') }}" media="screen and (min-width: 1300px)">
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/doc/doc_mid.css') }}" media="screen and (max-width: 1300px)">
-      <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/doc/doc_small.css') }}" media="screen and (max-width: 750px)">
+    {{ parent() }}
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/doc/doc.css') }}"
+          media="screen and (min-width: 1300px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/doc/doc_mid.css') }}"
+          media="screen and (max-width: 1300px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/doc/doc_small.css') }}"
+          media="screen and (max-width: 750px)">
 {% endblock %}
 
 {% block header %}
-      {{ parent() }}
+    {{ parent() }}
 {% endblock %}
 
 {% block left %}
-      {{ parent() }}
+    {{ parent() }}
 {% endblock %}
 
 

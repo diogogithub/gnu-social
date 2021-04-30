@@ -1,72 +1,74 @@
-  {% if app.user %}
+{% if app.user %}
     <div id='left-panel'>
-      <input type="checkbox" id="toggle" class="larger" autofocus>
+        <input type="checkbox" id="toggle" class="larger" autofocus>
         <div class="icon-menu">
-          <label for="toggle" id='menu' tabindex="0"></label>
+            <label for="toggle" id='menu' tabindex="0"></label>
         </div>
         <div class='navbar'>
-          <div class="left-nav">
-              <div class='profile'>
-                  {% for extra in profile_extras %}
-                      {% include '/'~ extra.name ~ '/view.html.twig' with {'vars': extra.vars} only %}
-                  {% endfor %}
-                <a href="{{ path('settings_avatar') }}">
-                  <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
-                </a>
-                <a href="{{ path('settings_personal_info') }}">
-                  <div class="info">
-                    <b id="nick">{{ user_nickname }}</b>
-                    <div class="tags">
-                      {% if user_tags %}
-                        {% for tag in user_tags %}
-                          <a href='#'><i> #{{ tag }} </i></a>
-                        {% endfor %}
-                      {% else %}
-                        <i> {{ '(No tags)' | trans }} </i>
-                      {% endif %}
-                    </div>
-                    <div class="stats">
-                      <span> <b> {{ user_followers }} </b> {{'Followers' | trans}} </span>
-                      <span> <b> {{ user_followed }} </b> {{'Followed' | trans}} </span>
-                    </div>
-                  </div>
-                </a>
-              </div>
-              <a href='#'>Messages</a>
-              <a href="{{ path("replies", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("replies") }}'>Replies</a>
-              {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
-                {{ link | raw }}
-              {% endfor %}
-              <a href="{{ path('settings_personal_info') }}" class='hover-effect {{ active('settings_') }}'>Settings</a>
-              <a href='{{ path('logout') }}'>Logout</a>
-          </div>
-          <div class="footer">
-            <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
-            <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
-            <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
-            <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
-            <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
-          </div>
+            <div class="left-nav">
+                <div class='profile'>
+                    {% for extra in profile_extras %}
+                        {% include '/'~ extra.name ~ '/view.html.twig' with {'vars': extra.vars} only %}
+                    {% endfor %}
+                    <a href="{{ path('settings_avatar') }}">
+                        <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
+                    </a>
+                    <a href="{{ path('settings_personal_info') }}">
+                        <div class="info">
+                            <b id="nick">{{ user_nickname }}</b>
+                            <div class="tags">
+                                {% if user_tags %}
+                                    {% for tag in user_tags %}
+                                        <a href='#'><i> #{{ tag }} </i></a>
+                                    {% endfor %}
+                                {% else %}
+                                    <i> {{ '(No tags)' | trans }} </i>
+                                {% endif %}
+                            </div>
+                            <div class="stats">
+                                <span> <b> {{ user_followers }} </b> {{ 'Followers' | trans }} </span>
+                                <span> <b> {{ user_followed }} </b> {{ 'Followed' | trans }} </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <a href='#'>Messages</a>
+                <a href="{{ path("replies", {'nickname' : user_nickname}) }}"
+                   class='hover-effect {{ active("replies") }}'>Replies</a>
+                {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
+                    {{ link | raw }}
+                {% endfor %}
+                <a href="{{ path('settings_personal_info') }}"
+                   class='hover-effect {{ active('settings_') }}'>Settings</a>
+                <a href='{{ path('logout') }}'>Logout</a>
+            </div>
+            <div class="footer">
+                <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
+                <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
+                <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
+                <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
+                <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
+            </div>
         </div>
     </div>
-  {% else %}
+{% else %}
     <div id='left-panel'>
-      <input type="checkbox" id="toggle">
+        <input type="checkbox" id="toggle">
         <div class="icon-menu">
-          <label for="toggle" id='menu'></label>
+            <label for="toggle" id='menu'></label>
         </div>
         <div class='navbar'>
-          <div class="left-nav">
-            <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
-            <a href="{{ path('register') }}">Register</a>
-          </div>
-          <div class="footer">
-            <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
-            <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
-            <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
-            <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
-            <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
-          </div>
+            <div class="left-nav">
+                <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
+                <a href="{{ path('register') }}">Register</a>
+            </div>
+            <div class="footer">
+                <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
+                <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
+                <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
+                <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
+                <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
+            </div>
         </div>
     </div>
-  {% endif %}
+{% endif %}

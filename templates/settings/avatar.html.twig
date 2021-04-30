@@ -3,24 +3,24 @@
 {% block title %}Avatar Settings{% endblock %}
 
 {% block stylesheets %}
-      {{ parent() }}
-      <link  href="{{ asset('assets/css/cropperjs/cropper.css') }}" rel="stylesheet">
-      <script src="{{ asset('assets/javascript/cropperjs/cropper.js') }}"></script>
+    {{ parent() }}
+    <link href="{{ asset('assets/css/cropperjs/cropper.css') }}" rel="stylesheet">
+    <script src="{{ asset('assets/javascript/cropperjs/cropper.js') }}"></script>
 {% endblock %}
 
 {% block body %}
-      {{ parent() }}
+    {{ parent() }}
 {% endblock body %}
 
 {% block form %}
-      <div class='form'>
-            {{ form(avatar) }}
-            <div id="img-container">
-                  <img id="img-cropped">
-            </div>
-      </div>
+    <div class='form'>
+        {{ form(avatar) }}
+        <div id="img-container">
+            <img id="img-cropped">
+        </div>
+    </div>
 {% endblock form %}
 
 {% block javascripts %}
-      <script type="text/javascript" src="{{ asset('assets/javascript/cropping.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('assets/javascript/cropping.js') }}"></script>
 {% endblock javascripts %}

@@ -32,7 +32,9 @@
                 <nav class='main-nav'>
                     <ul>
                         <li>
-                            <a href="{{ path('main_public') }}" class='hover-effect {{ active('main_public', 'main_all', "home_all") }}'><p>Reverse Favourites</p></a>
+                            <a href="{{ path('main_public') }}"
+                               class='hover-effect {{ active('main_public', 'main_all', "home_all") }}'><p>Reverse
+                                    Favourites</p></a>
                         </li>
                     </ul>
                 </nav>
@@ -40,11 +42,12 @@
                     <div class="timeline">
                         {% if notes is defined and notes is not empty %}
                             {% for note in notes %}
-                              {% set id = note.getId() - 1 %}
-                              {% include '/note/view.html.twig' with {'note': note, 'have_user': have_user} only %}
+                                {% set id = note.getId() - 1 %}
+                                {% include '/note/view.html.twig' with {'note': note, 'have_user': have_user} only %}
                             {% endfor %}
                         {% else %}
-                            <h1>This is {{ user_nickname }}'s reverse favorites stream, but nobody favored {{ user_nickname }}'s notes yet.</h1>
+                            <h1>This is {{ user_nickname }}'s reverse favorites stream, but nobody
+                                favored {{ user_nickname }}'s notes yet.</h1>
                         {% endif %}
                     </div>
                 </div>

@@ -1,46 +1,46 @@
 <div class="note">
-  <div class="note-info">
-    {% set nickname = note.getActorNickname() %}
-    <a href="{{ path('settings_avatar') }}">
-      <img class="avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
-    </a>
-    <b>{{ nickname }}</b>
-    {% set reply_to = note.getReplyToNickname() %}
-    {% if reply_to is not null and not skip_reply_to is defined %}
-      {% trans with {'%name%': reply_to}%} in reply to %name% {% endtrans %}
-    {% endif %}
-  </div>
-  <div class="note-content">
-      {% block markdown %}
-          {% apply markdown_to_html %}
-            {{ note.getContent() }}
-          {% endapply %}
-      {% endblock %}
-      <div class="note-other-content">
-          {% for other in get_note_other_content(note) %}
-              {% include '/'~ other.name ~ '/view.html.twig' with {'vars': other.vars} only %}
-          {% endfor %}
-      </div>
-      {% if hide_attachments is not defined %}
-        <div class="note-attachments">
-          {% for attachment in note.getAttachments() %}
-            {% include '/attachments/view.html.twig' with {'attachment': attachment} %}
-          {% endfor %}
-        </div>
-      {% endif %}
-  </div>
-  <div class="note-actions">
-    {# {% if have_user %} #}
-    {#   {\#{% for act in get_note_actions(note) %}#\} #}
-    {#     {\#{{ form(act) }}#\} #}
-    {#   {\#{% endfor %}#\} #}
-    {# {% endif %} #}
-  </div>
-  {% if replies is defined %}
-    <div class="replies">
-      {% for conversation in replies %}
-        {% include '/note/view.html.twig' with {'note': conversation['note'], 'skip_reply_to': true, 'have_user': have_user, 'replies': conversation['replies']} only %}
-      {% endfor %}
+    <div class="note-info">
+        {% set nickname = note.getActorNickname() %}
+        <a href="{{ path('settings_avatar') }}">
+            <img class="avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
+        </a>
+        <b>{{ nickname }}</b>
+        {% set reply_to = note.getReplyToNickname() %}
+        {% if reply_to is not null and not skip_reply_to is defined %}
+            {% trans with {'%name%': reply_to} %} in reply to %name% {% endtrans %}
+        {% endif %}
     </div>
-  {% endif %}
+    <div class="note-content">
+        {% block markdown %}
+            {% apply markdown_to_html %}
+                {{ note.getContent() }}
+            {% endapply %}
+        {% endblock %}
+        <div class="note-other-content">
+            {% for other in get_note_other_content(note) %}
+                {% include '/'~ other.name ~ '/view.html.twig' with {'vars': other.vars} only %}
+            {% endfor %}
+        </div>
+        {% if hide_attachments is not defined %}
+            <div class="note-attachments">
+                {% for attachment in note.getAttachments() %}
+                    {% include '/attachments/view.html.twig' with {'attachment': attachment} %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    <div class="note-actions">
+        {# {% if have_user %} #}
+        {# {\#{% for act in get_note_actions(note) %}#\} #}
+        {# {\#{{ form(act) }}#\} #}
+        {# {\#{% endfor %}#\} #}
+        {# {% endif %} #}
+    </div>
+    {% if replies is defined %}
+        <div class="replies">
+            {% for conversation in replies %}
+                {% include '/note/view.html.twig' with {'note': conversation['note'], 'skip_reply_to': true, 'have_user': have_user, 'replies': conversation['replies']} only %}
+            {% endfor %}
+        </div>
+    {% endif %}
 </div>
