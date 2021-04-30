@@ -17,6 +17,7 @@
 /* left navigation */
 .navbar .left-nav {
       flex: 1;
+      overflow-y: auto;
 }
 .navbar .left-nav > a {
       display: block;
