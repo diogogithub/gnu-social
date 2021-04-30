@@ -151,9 +151,7 @@
     justify-self: left;
     text-align: center;
 }
-.note-attachments div {
-    width: 40%;
-}
+
 .note-attachments img {
     order: 1;
     width: 100%;
