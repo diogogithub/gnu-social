@@ -38,8 +38,6 @@
     text-align: center;
     width: 100%;
     font-size: var(--medium-size);
-    margin-left: calc(2 * var(--side-margin));
-    margin-right: calc(2 * var(--side-margin));
     padding: 0;
 }
 .main-nav li {
