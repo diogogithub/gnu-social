@@ -77,7 +77,7 @@ class Favourite extends Plugin
 
     public function onInsertLeftPanelLink(string $user_nickname, &$res): bool
     {
-        $res[] = Formatting::twigRender(<<<END
+        $res[] = Formatting::twigRenderString(<<<END
 <a href="{{ path("favourites", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("favourites") }}'>Favourites</a>
 <a href="{{ path("reverse_favourites", {'nickname' : user_nickname}) }}" class='hover-effect {{ active("reverse_favourites") }}'>Reverse Favs</a>
 END, ['user_nickname' => $user_nickname]);

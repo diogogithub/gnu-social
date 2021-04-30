@@ -37,8 +37,8 @@ class AttachmentShowRelated extends Plugin
             $related_tags = DB::dql('select distinct t.tag ' .
         'from attachment_to_note an join note_tag t with an.note_id = t.note_id ' .
         'where an.attachment_id = :attachment_id', ['attachment_id' => $vars['vars']['attachment_id']]);
-            $res[] = Formatting::twigRender(file_get_contents(__DIR__ . '/templates/AttachmentRelatedNotes.html.twig'), ['related_notes' => $related_notes]);
-            $res[] = Formatting::twigRender(file_get_contents(__DIR__ . '/templates/AttachmentRelatedTags.html.twig'), ['related_tags' => $related_tags]);
+            $res[] = Formatting::twigRenderFile('attachmentShowRelated/attachmentRelatedNotes.html.twig', ['related_notes' => $related_notes]);
+            $res[] = Formatting::twigRenderFile('attachmentShowRelated/attachmentRelatedTags.html.twig', ['related_tags' => $related_tags]);
         }
         return Event::next;
     }

@@ -43,9 +43,14 @@ abstract class Formatting
         self::$twig = $twig;
     }
 
-    public static function twigRender(string $template, array $context): string
+    public static function twigRenderString(string $template, array $context): string
     {
         return self::$twig->createTemplate($template, null)->render($context);
+    }
+
+    public static function twigRenderFile(string $template, array $context): string
+    {
+        return self::$twig->render($template, $context);
     }
 
     /**

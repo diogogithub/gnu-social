@@ -208,7 +208,7 @@ class Embed extends Plugin
         $smart_crop = Common::config('thumbnail', 'smart_crop');
         $attributes = $embed->getImageHTMLAttributes(['class' => 'u-photo embed']);
 
-        $res[] = Formatting::twigRender(<<<END
+        $res[] = Formatting::twigRenderString(<<<END
 <article class="h-entry embed">
     <header>
         {% if attributes != false %}
