@@ -3,10 +3,7 @@
     <div class="arrow right">
         <label for="toggle-right" id='right-panel'></label>
     </div>
-    <div class='rss'>
-        <div> </div>
-    </div>
-    <div>
+    <div id='right-container'>
         {% set current_path = app.request.get('_route') %}
         {% if right_panel_vars is defined %}
             {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'vars': right_panel_vars}) %}
