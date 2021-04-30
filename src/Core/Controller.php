@@ -106,7 +106,7 @@ class Controller extends AbstractController implements EventSubscriberInterface
             break;
         case 'json':
             $event->setResponse(new JsonResponse($this->vars));
-            // no break
+            break;
         default:
             throw new BadRequestHttpException('Unsupported format', null, 406);
         }
