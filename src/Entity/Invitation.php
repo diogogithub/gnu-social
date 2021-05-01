@@ -101,16 +101,17 @@ class Invitation extends Entity
         return $this->registered_user_id;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
+
 
     // }}} Autocode
 

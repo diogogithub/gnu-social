@@ -101,16 +101,17 @@ class NoteLocation extends Entity
         return $this->location_service;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }
+
 
     // }}} Autocode
 

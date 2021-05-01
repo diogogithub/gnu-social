@@ -65,13 +65,13 @@ class RememberMeToken extends Entity
         return $this->value;
     }
 
-    public function setLastused(DateTimeInterface $lastused): self
+    public function setLastused(\DateTimeInterface $lastused): self
     {
         $this->lastused = $lastused;
         return $this;
     }
 
-    public function getLastused(): DateTimeInterface
+    public function getLastused(): \DateTimeInterface
     {
         return $this->lastused;
     }
@@ -97,6 +97,7 @@ class RememberMeToken extends Entity
     {
         return $this->username;
     }
+
 
     // }}} Autocode
 

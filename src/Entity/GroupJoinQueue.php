@@ -63,6 +63,7 @@ class GroupJoinQueue extends Entity
         return $this->group_id;
     }
 
+
     // }}} Autocode
 
     public static function schemaDef(): array
