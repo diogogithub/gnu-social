@@ -27,6 +27,7 @@ use App\Entity\Attachment;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NoSuchFileException;
+use App\Util\Exception\ServerException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -95,24 +96,28 @@ class GSFile
      */
     public static function sendFile(string $filepath, string $mimetype, ?string $output_filename, string $disposition = 'inline'): Response
     {
-        $response = new BinaryFileResponse(
-            $filepath,
-            Response::HTTP_OK,
-            [
-                'Content-Description' => 'File Transfer',
-                'Content-Type'        => $mimetype,
-                'Content-Disposition' => HeaderUtils::makeDisposition($disposition, $output_filename ?: _m('Untitled attachment'), _m('Untitled attachment')),
-                'Cache-Control'       => 'public',
-            ],
-            $public = true,
-            $disposition = null,
-            $add_etag = true,
-            $add_last_modified = true
-        );
-        if (Common::config('site', 'x_static_delivery')) {
-            $response->trustXSendfileTypeHeader();
+        if (is_file($filepath)) {
+            $response = new BinaryFileResponse(
+                $filepath,
+                Response::HTTP_OK,
+                [
+                    'Content-Description' => 'File Transfer',
+                    'Content-Type'        => $mimetype,
+                    'Content-Disposition' => HeaderUtils::makeDisposition($disposition, $output_filename ?: _m('Untitled attachment'), _m('Untitled attachment')),
+                    'Cache-Control'       => 'public',
+                ],
+                $public = true,
+                $disposition = null,
+                $add_etag = true,
+                $add_last_modified = true
+            );
+            if (Common::config('site', 'x_static_delivery')) {
+                $response->trustXSendfileTypeHeader();
+            }
+            return $response;
+        } else {
+            throw new ServerException(_m('This attachment is not stored locally'));
         }
-        return $response;
     }
 
     /**
