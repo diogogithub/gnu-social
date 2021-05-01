@@ -106,9 +106,10 @@ class Attachment extends Controller
 
         $default_width  = Common::config('thumbnail', 'width');
         $default_height = Common::config('thumbnail', 'height');
+        $default_crop   = Common::config('thumbnail', 'smart_crop');
         $width          = $this->int('w') ?: $default_width;
         $height         = $this->int('h') ?: $default_height;
-        $crop           = $this->bool('c') ?: false;
+        $crop           = $this->bool('c') ?: $default_crop;
 
         Event::handle('GetAllowedThumbnailSizes', [&$sizes]);
         if (!in_array(['width' => $width, 'height' => $height], $sizes)) {
