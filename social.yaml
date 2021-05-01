@@ -120,6 +120,13 @@ parameters:
       height: 600
       extension: '.webp'
 
+    plugin_embed:
+      width: 128
+      height: 128
+      smart_crop: false
+      dir: "%kernel.project_dir%/file/embed/"
+
+
     theme:
       server:
       ssl:

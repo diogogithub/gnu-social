@@ -54,6 +54,7 @@ use App\Util\Exception\NotFoundException;
 use App\Util\Formatting;
 use App\Util\TemporaryFile;
 use Embed\Embed as LibEmbed;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -203,9 +204,6 @@ class Embed extends Plugin
             return Event::next;
         }
 
-        $width      = Common::config('thumbnail', 'width');
-        $height     = Common::config('thumbnail', 'height');
-        $smart_crop = Common::config('thumbnail', 'smart_crop');
         $attributes = $embed->getImageHTMLAttributes(['class' => 'u-photo embed']);
 
         $res[] = Formatting::twigRenderString(<<<END
@@ -339,10 +337,11 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
 
         Event::handle('HashFile', [$file->getRealPath(), &$hash]);
         $filepath   = Common::config('storage', 'dir') . "embed/{$hash}" . Common::config('thumbnail', 'extension');
-        $width      = Common::config('thumbnail', 'width');
-        $height     = Common::config('thumbnail', 'height');
-        $smart_crop = Common::config('thumbnail', 'smart_crop');
-        Event::handle('ResizeImagePath', [$file->getRealPath(), $filepath, $width, $height, $smart_crop, &$mimetype]);
+        $width      = Common::config('plugin_embed', 'width');
+        $height     = Common::config('plugin_embed', 'height');
+        $smart_crop = Common::config('plugin_embed', 'smart_crop');
+
+        Event::handle('ResizeImagePath', [$file->getRealPath(), $filepath, &$width, &$height, $smart_crop, &$mimetype]);
 
         unset($file);
 
@@ -489,8 +488,8 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
             }
 
             if (!isset($data['width'])) {
-                $data['width']  = Common::config('thumbnail', 'width');
-                $data['height'] = Common::config('thumbnail', 'height');
+                $data['width']  = Common::config('plugin_embed', 'width');
+                $data['height'] = Common::config('plugin_embed', 'height');
             }
         }
 
