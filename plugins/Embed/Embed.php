@@ -350,13 +350,14 @@ END, ['embed' => $embed, 'attributes' => $attributes, 'attachment' => $attachmen
     }
 
     /**
-     * Create and store a thumbnail representation of a remote image
+     * Fetch, Validate and Write a remote image from url to temporary file
      *
      * @param Attachment $attachment
      * @param string $media_url URL for the actual media representation
      * @return array|bool
+     * @throws Exception
      */
-    protected function storeRemoteThumbnail(Attachment $attachment, string $media_url): array|bool
+    protected function fetchValidateWriteRemoteImage(Attachment $attachment, string $media_url): array|bool
     {
         if ($attachment->hasFilename() && file_exists($attachment->getPath())) {
             throw new AlreadyFulfilledException(_m('A thumbnail seems to already exist for remote file with id=={id}', ['id' => $attachment->getId()]));
@@ -407,9 +408,6 @@ END, ['embed' => $embed, 'attributes' => $attributes, 'attachment' => $attachmen
             }
         }
 
-        DB::persist(AttachmentThumbnail::create(['attachment_id' => $attachment->getId(), 'width' => $width, 'height' => $height]));
-        DB::flush();
-
         return [$filepath, $width, $height, $original_name, $mimetype];
     }
 
@@ -448,7 +446,7 @@ END, ['embed' => $embed, 'attributes' => $attributes, 'attachment' => $attachmen
                     $imgData = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
                     [$filepath, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData);
                 } else {
-                    [$filepath, $width, $height, $original_name, $mimetype] = $this->storeRemoteThumbnail($attachment, $image_url);
+                    [$filepath, $width, $height, $original_name, $mimetype] = $this->fetchValidateWriteRemoteImage($attachment, $image_url);
                 }
                 $metadata['width'] = $width;
                 $metadata['height'] = $height;
@@ -457,7 +455,7 @@ END, ['embed' => $embed, 'attributes' => $attributes, 'attachment' => $attachmen
                 $metadata['filename'] = Formatting::removePrefix($filepath, Common::config('storage', 'dir'));
             }
         } catch (Exception $e) {
-            Log::info("Failed to find Embed data for {$url} with 'oscarotero/Embed', got exception: " . $e);
+            Log::info("Failed to find Embed data for {$url} with 'oscarotero/Embed', got exception: " . $e->getMessage());
         }
 
         $metadata = self::normalize($metadata);
