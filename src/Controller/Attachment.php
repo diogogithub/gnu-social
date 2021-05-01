@@ -34,6 +34,7 @@ use App\Util\Exception\ServerException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use function App\Core\I18n\_m;
 
 class Attachment extends Controller
 {
@@ -46,7 +47,7 @@ class Attachment extends Controller
         if (!empty($res)) {
             return $handle($res);
         } else {
-            throw new ClientException('No such attachment', 404);
+            throw new ClientException(_m('No such attachment'), 404);
         }
     }
 
@@ -67,7 +68,7 @@ class Attachment extends Controller
                 ];
             });
         } catch (NotFoundException) {
-            throw new ClientException('No such attachment', 404);
+            throw new ClientException(_m('No such attachment'), 404);
         }
     }
 
@@ -88,16 +89,20 @@ class Attachment extends Controller
      * Controller to produce a thumbnail for a given attachment id
      *
      * @param Request $request
-     * @param int     $id      Attachment ID
-     *
-     * @throws NotFoundException
-     * @throws ServerException
+     * @param int $id Attachment ID
      *
      * @return Response
+     * @throws ClientException
+     * @throws NotFoundException
+     * @throws ServerException
+     * @throws \App\Util\Exception\DuplicateFoundException
      */
     public function attachment_thumbnail(Request $request, int $id): Response
     {
         $attachment = DB::findOneBy('attachment', ['id' => $id]);
+        if (preg_match('/^(image|video)/', $attachment->getMimeType()) !== 1) {
+            throw new ClientException(_m('Can not generate thumbnail for attachment with id={id}', ['id' => $id]));
+        }
         if (!is_null($attachment->getScope())) {
             // && ($attachment->scope | VisibilityScope::PUBLIC) != 0
             // $user = Common::ensureLoggedIn();
@@ -113,7 +118,7 @@ class Attachment extends Controller
 
         Event::handle('GetAllowedThumbnailSizes', [&$sizes]);
         if (!in_array(['width' => $width, 'height' => $height], $sizes)) {
-            throw new ClientException('The requested thumbnail dimensions are not allowed', 400); // 400 Bad Request
+            throw new ClientException(_m('The requested thumbnail dimensions are not allowed'), 400); // 400 Bad Request
         }
 
         $thumbnail = AttachmentThumbnail::getOrCreate(attachment: $attachment, width: $width, height: $height, crop: $crop);
