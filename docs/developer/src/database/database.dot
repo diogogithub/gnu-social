@@ -1,0 +1,1525 @@
+
+graph database {
+
+    activity [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'activity'>
+            activity
+          </td>
+        </tr>
+        <tr>
+          <td port = 'id'>
+            id: serial
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_id'>
+            gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'verb'>
+            verb: varchar(32)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'object_type'>
+            object_type: varchar(32)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'object_id'>
+            object_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'is_local'>
+            is_local: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'source'>
+            source: varchar(32)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+      </table>
+    >]
+    attachment [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'attachment'>
+            attachment
+          </td>
+        </tr>
+        <tr>
+          <td port = 'id'>
+            id: serial
+          </td>
+        </tr>
+        <tr>
+          <td port = 'remote_url'>
+            remote_url: text
+          </td>
+        </tr>
+        <tr>
+          <td port = 'remote_url_hash'>
+            remote_url_hash: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'file_hash'>
+            file_hash: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_id'>
+            gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'mimetype'>
+            mimetype: varchar(50)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'title'>
+            title: text
+          </td>
+        </tr>
+        <tr>
+          <td port = 'filename'>
+            filename: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'is_local'>
+            is_local: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'source'>
+            source: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'scope'>
+            scope: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'size'>
+            size: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    attachment_thumbnail [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'attachment_thumbnail'>
+            attachment_thumbnail
+          </td>
+        </tr>
+        <tr>
+          <td port = 'attachment_id'>
+            attachment_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'width'>
+            width: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'height'>
+            height: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    attachment_to_note [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'attachment_to_note'>
+            attachment_to_note
+          </td>
+        </tr>
+        <tr>
+          <td port = 'attachment_id'>
+            attachment_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'note_id'>
+            note_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    avatar [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'avatar'>
+            avatar
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_id'>
+            gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'attachment_id'>
+            attachment_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    confirm_address [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'confirm_address'>
+            confirm_address
+          </td>
+        </tr>
+        <tr>
+          <td port = 'code'>
+            code: varchar(32)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'user_id'>
+            user_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'address'>
+            address: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'address_extra'>
+            address_extra: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'address_type'>
+            address_type: varchar(8)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'claimed'>
+            claimed: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'sent'>
+            sent: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    conversation [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'conversation'>
+            conversation
+          </td>
+        </tr>
+        <tr>
+          <td port = 'id'>
+            id: serial
+          </td>
+        </tr>
+        <tr>
+          <td port = 'note_id'>
+            note_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    cover [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'cover'>
+            cover
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_id'>
+            gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'attachment_id'>
+            attachment_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    follow [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'follow'>
+            follow
+          </td>
+        </tr>
+        <tr>
+          <td port = 'follower'>
+            follower: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'followed'>
+            followed: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    follow_queue [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'follow_queue'>
+            follow_queue
+          </td>
+        </tr>
+        <tr>
+          <td port = 'follower'>
+            follower: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'followed'>
+            followed: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+      </table>
+    >]
+    gsactor [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'gsactor'>
+            gsactor
+          </td>
+        </tr>
+        <tr>
+          <td port = 'id'>
+            id: serial
+          </td>
+        </tr>
+        <tr>
+          <td port = 'nickname'>
+            nickname: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'fullname'>
+            fullname: text
+          </td>
+        </tr>
+        <tr>
+          <td port = 'roles'>
+            roles: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'homepage'>
+            homepage: text
+          </td>
+        </tr>
+        <tr>
+          <td port = 'bio'>
+            bio: text
+          </td>
+        </tr>
+        <tr>
+          <td port = 'location'>
+            location: text
+          </td>
+        </tr>
+        <tr>
+          <td port = 'lat'>
+            lat: numeric
+          </td>
+        </tr>
+        <tr>
+          <td port = 'lon'>
+            lon: numeric
+          </td>
+        </tr>
+        <tr>
+          <td port = 'location_id'>
+            location_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'location_service'>
+            location_service: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    gsactor_block [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'gsactor_block'>
+            gsactor_block
+          </td>
+        </tr>
+        <tr>
+          <td port = 'blocker'>
+            blocker: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'blocked'>
+            blocked: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    gsactor_circle [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'gsactor_circle'>
+            gsactor_circle
+          </td>
+        </tr>
+        <tr>
+          <td port = 'tagger'>
+            tagger: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'tag'>
+            tag: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'description'>
+            description: text
+          </td>
+        </tr>
+        <tr>
+          <td port = 'private'>
+            private: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    gsactor_tag [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'gsactor_tag'>
+            gsactor_tag
+          </td>
+        </tr>
+        <tr>
+          <td port = 'tagger'>
+            tagger: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'tagged'>
+            tagged: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'tag'>
+            tag: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    gsactor_tag_follow [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'gsactor_tag_follow'>
+            gsactor_tag_follow
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_id'>
+            gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_tag'>
+            gsactor_tag: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    group [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'group'>
+            group
+          </td>
+        </tr>
+        <tr>
+          <td port = 'id'>
+            id: serial
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_id'>
+            gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'nickname'>
+            nickname: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'fullname'>
+            fullname: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'homepage'>
+            homepage: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'description'>
+            description: text
+          </td>
+        </tr>
+        <tr>
+          <td port = 'is_local'>
+            is_local: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'location'>
+            location: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'original_logo'>
+            original_logo: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'homepage_logo'>
+            homepage_logo: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'stream_logo'>
+            stream_logo: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'mini_logo'>
+            mini_logo: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'uri'>
+            uri: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'mainpage'>
+            mainpage: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'join_policy'>
+            join_policy: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'force_scope'>
+            force_scope: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    group_alias [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'group_alias'>
+            group_alias
+          </td>
+        </tr>
+        <tr>
+          <td port = 'alias'>
+            alias: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'group_id'>
+            group_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    group_block [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'group_block'>
+            group_block
+          </td>
+        </tr>
+        <tr>
+          <td port = 'group_id'>
+            group_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'blocked_gsactor'>
+            blocked_gsactor: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'blocker_user'>
+            blocker_user: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    group_inbox [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'group_inbox'>
+            group_inbox
+          </td>
+        </tr>
+        <tr>
+          <td port = 'group_id'>
+            group_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'activity_id'>
+            activity_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+      </table>
+    >]
+    group_join_queue [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'group_join_queue'>
+            group_join_queue
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_id'>
+            gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'group_id'>
+            group_id: int
+          </td>
+        </tr>
+      </table>
+    >]
+    group_member [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'group_member'>
+            group_member
+          </td>
+        </tr>
+        <tr>
+          <td port = 'group_id'>
+            group_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_id'>
+            gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'is_admin'>
+            is_admin: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'uri'>
+            uri: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    invitation [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'invitation'>
+            invitation
+          </td>
+        </tr>
+        <tr>
+          <td port = 'code'>
+            code: varchar(32)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'user_id'>
+            user_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'address'>
+            address: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'address_type'>
+            address_type: varchar(8)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'registered_user_id'>
+            registered_user_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+      </table>
+    >]
+    local_group [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'local_group'>
+            local_group
+          </td>
+        </tr>
+        <tr>
+          <td port = 'group_id'>
+            group_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'nickname'>
+            nickname: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: datetime
+          </td>
+        </tr>
+      </table>
+    >]
+    local_user [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'local_user'>
+            local_user
+          </td>
+        </tr>
+        <tr>
+          <td port = 'id'>
+            id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'nickname'>
+            nickname: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'password'>
+            password: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'outgoing_email'>
+            outgoing_email: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'incoming_email'>
+            incoming_email: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'is_email_verified'>
+            is_email_verified: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'language'>
+            language: varchar(50)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'timezone'>
+            timezone: varchar(50)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'phone_number'>
+            phone_number: phone_number
+          </td>
+        </tr>
+        <tr>
+          <td port = 'sms_carrier'>
+            sms_carrier: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'sms_email'>
+            sms_email: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'uri'>
+            uri: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'auto_follow_back'>
+            auto_follow_back: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'follow_policy'>
+            follow_policy: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'is_stream_private'>
+            is_stream_private: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    location_service [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'location_service'>
+            location_service
+          </td>
+        </tr>
+        <tr>
+          <td port = 'id'>
+            id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'description'>
+            description: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    note [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'note'>
+            note
+          </td>
+        </tr>
+        <tr>
+          <td port = 'id'>
+            id: serial
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_id'>
+            gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'content'>
+            content: text
+          </td>
+        </tr>
+        <tr>
+          <td port = 'rendered'>
+            rendered: text
+          </td>
+        </tr>
+        <tr>
+          <td port = 'reply_to'>
+            reply_to: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'is_local'>
+            is_local: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'source'>
+            source: varchar(32)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'conversation'>
+            conversation: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'repeat_of'>
+            repeat_of: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'scope'>
+            scope: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    activity_location [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'activity_location'>
+            activity_location
+          </td>
+        </tr>
+        <tr>
+          <td port = 'note_id'>
+            note_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'lat'>
+            lat: numeric
+          </td>
+        </tr>
+        <tr>
+          <td port = 'lon'>
+            lon: numeric
+          </td>
+        </tr>
+        <tr>
+          <td port = 'location_id'>
+            location_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'location_service'>
+            location_service: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    note_source [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'note_source'>
+            note_source
+          </td>
+        </tr>
+        <tr>
+          <td port = 'code'>
+            code: varchar(32)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'name'>
+            name: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'url'>
+            url: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    note_tag [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'note_tag'>
+            note_tag
+          </td>
+        </tr>
+        <tr>
+          <td port = 'tag'>
+            tag: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'note_id'>
+            note_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+      </table>
+    >]
+    notification [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'notification'>
+            notification
+          </td>
+        </tr>
+        <tr>
+          <td port = 'activity_id'>
+            activity_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_id'>
+            gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'reason'>
+            reason: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    profile_color [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'profile_color'>
+            profile_color
+          </td>
+        </tr>
+        <tr>
+          <td port = 'gsactor_id'>
+            gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'color'>
+            color: text
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    related_group [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'related_group'>
+            related_group
+          </td>
+        </tr>
+        <tr>
+          <td port = 'group_id'>
+            group_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'related_group_id'>
+            related_group_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+      </table>
+    >]
+    rememberme_token [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'rememberme_token'>
+            rememberme_token
+          </td>
+        </tr>
+        <tr>
+          <td port = 'series'>
+            series: char
+          </td>
+        </tr>
+        <tr>
+          <td port = 'value'>
+            value: char
+          </td>
+        </tr>
+        <tr>
+          <td port = 'lastused'>
+            lastused: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'class'>
+            class: varchar(100)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'username'>
+            username: varchar(64)
+          </td>
+        </tr>
+      </table>
+    >]
+    reserved_nickname [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'reserved_nickname'>
+            reserved_nickname
+          </td>
+        </tr>
+        <tr>
+          <td port = 'nickname'>
+            nickname: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+      </table>
+    >]
+    sms_carrier [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'sms_carrier'>
+            sms_carrier
+          </td>
+        </tr>
+        <tr>
+          <td port = 'id'>
+            id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'name'>
+            name: varchar(64)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'email_pattern'>
+            email_pattern: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    user_location_prefs [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'user_location_prefs'>
+            user_location_prefs
+          </td>
+        </tr>
+        <tr>
+          <td port = 'user_id'>
+            user_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'share_location'>
+            share_location: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    user_notification_prefs [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'user_notification_prefs'>
+            user_notification_prefs
+          </td>
+        </tr>
+        <tr>
+          <td port = 'user_id'>
+            user_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'transport'>
+            transport: varchar(191)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'target_gsactor_id'>
+            target_gsactor_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'activity_by_followed'>
+            activity_by_followed: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'mention'>
+            mention: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'reply'>
+            reply: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'follow'>
+            follow: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'favorite'>
+            favorite: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'nudge'>
+            nudge: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'dm'>
+            dm: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'post_on_status_change'>
+            post_on_status_change: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'enable_posting'>
+            enable_posting: bool
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+    user_url_shortener_prefs [shape=none, label=<
+      <table border = '0' cellborder = '1' cellspacing = '0'>
+        <tr>
+          <td port = 'user_url_shortener_prefs'>
+            user_url_shortener_prefs
+          </td>
+        </tr>
+        <tr>
+          <td port = 'user_id'>
+            user_id: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'url_shortening_service'>
+            url_shortening_service: varchar(50)
+          </td>
+        </tr>
+        <tr>
+          <td port = 'max_url_length'>
+            max_url_length: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'max_notice_length'>
+            max_notice_length: int
+          </td>
+        </tr>
+        <tr>
+          <td port = 'created'>
+            created: datetime
+          </td>
+        </tr>
+        <tr>
+          <td port = 'modified'>
+            modified: timestamp
+          </td>
+        </tr>
+      </table>
+    >]
+
+  attachment:gsactor_id -- gsactor:id
+  attachment_thumbnail:attachment_id -- attachment:id
+  attachment_to_note:attachment_id -- attachment:id
+  attachment_to_note:note_id -- note:id
+  avatar:gsactor_id -- gsactor:id
+  avatar:attachment_id -- attachment:id
+  confirm_address:user_id -- local_user:id
+  conversation:note_id -- note:id
+  cover:gsactor_id -- gsactor:id
+  cover:attachment_id -- attachment:id
+  follow:follower -- gsactor:id
+  follow:followed -- gsactor:id
+  follow_queue:follower -- gsactor:id
+  follow_queue:followed -- gsactor:id
+  gsactor_block:blocker -- gsactor:id
+  gsactor_block:blocked -- gsactor:id
+  gsactor_circle:tagger -- gsactor:id
+  gsactor_tag:tagger -- gsactor:id
+  gsactor_tag:tagged -- gsactor:id
+  gsactor_tag_follow:gsactor_id -- gsactor:id
+  group:gsactor_id -- gsactor:id
+  group_alias:group_id -- group:id
+  group_block:group_id -- group:id
+  group_block:blocked_gsactor -- gsactor:id
+  group_block:blocker_user -- local_user:id
+  group_inbox:group_id -- group:id
+  group_inbox:activity_id -- activity:id
+  group_join_queue:gsactor_id -- gsactor:id
+  group_join_queue:group_id -- group:id
+  group_member:group_id -- group:id
+  group_member:gsactor_id -- gsactor:id
+  invitation:user_id -- local_user:id
+  invitation:registered_user_id -- local_user:id
+  local_group:group_id -- group:id
+  local_user:id -- gsactor:id
+  local_user:sms_carrier -- sms_carrier:id
+  note:gsactor_id -- gsactor:id
+  note:reply_to -- note:id
+  note:source -- note_source:code
+  note:conversation -- conversation:id
+  note:repeat_of -- note:id
+  activity_location:note_id -- note:id
+  note_tag:note_id -- note:id
+  notification:activity_id -- activity:id
+  notification:gsactor_id -- gsactor:id
+  profile_color:gsactor_id -- gsactor:id
+  related_group:group_id -- group:id
+  related_group:related_group_id -- group:id
+  user_location_prefs:user_id -- local_user:id
+  user_notification_prefs:user_id -- local_user:id
+  user_notification_prefs:target_gsactor_id -- gsactor:id
+  user_url_shortener_prefs:user_id -- local_user:id
+
+}

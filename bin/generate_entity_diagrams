@@ -1,4 +1,4 @@
-#!/usr/local/bin/php
+#!/usr/bin/env php
 
 <?php
 
@@ -6,7 +6,7 @@ define('INSTALL_DIR', dirname(__DIR__));
 
 require INSTALL_DIR . '/vendor/autoload.php';
 
-use App\Util\Common;
+use App\Util\Formatting;
 use App\Util\HTML as H;
 use Functional as F;
 
@@ -24,13 +24,22 @@ $files = glob(INSTALL_DIR . '/src/Entity/*.php');
 
 $tables = [];
 $edges  = [];
+$classes = [];
 foreach ($files as $file) {
     require_once $file;
 
+    $class = '';
     $declared = get_declared_classes();
-    $class    = end($declared);
+    foreach ($declared as $dc) {
+        if (preg_match('/^(App|(Component|Plugin)\\\\[^\\\\]+)\\\\Entity/', $dc) && !in_array($dc, $classes)) {
+            $class = $dc;
+            $classes[] = $class;
+            break;
+        }
+    }
+
     $schema   = $class::schemaDef();
-    $table    = $schema['name'];
+    $table    = preg_replace(',`?([^`]+)`?,', '$1', $schema['name']);
     $fields   = [['name' => $table, 'type' => '']];
     foreach ($schema['fields'] as $name => $opts) {
         $fields[] = [
@@ -39,14 +48,11 @@ foreach ($files as $file) {
         ];
     }
 
-    if (isset($schema['foreign keys'])) {
-        foreach ($schema['foreign keys'] as $name => $map) {
-            // Patern matching like above would be nice
-            list($foreign_table,
-                 $keys)  = $map;
-            $local_key   = array_keys($keys)[0];
-            $foreign_key = $keys[$local_key];
-            $edges[]     = "{$table}:{$local_key} -- {$foreign_table}:{$foreign_key}";
+    foreach ($schema['fields'] as $field => $opts) {
+        if (isset($opts['foreign key'])) {
+            [$foreign_entity, $foreign_key] = explode('.', $opts['target']);
+            $foreign_table = Formatting::camelCaseToSnakeCase(preg_replace('/GSActor/', 'gsactor', $foreign_entity));
+            $edges[]     = "{$table}:{$field} -- {$foreign_table}:{$foreign_key}";
         }
     }
 
@@ -59,12 +65,12 @@ foreach ($files as $file) {
               F\map($fields, $cell)),
     ];
 
-    $tables[] = Common::indent("{$table} [shape=none, label=<\n" . Common::indent(H::html($html)) . "\n>]");
+    $tables[] = Formatting::indent("{$table} [shape=none, label=<\n" . Formatting::indent(H::html($html)) . "\n>]");
 }
 
 $replace = [
-    '/%tables%/' => Common::indent(implode("\n", $tables)),
-    '/%edges%/'  => Common::indent(implode("\n", $edges)),
+    '/%tables%/' => Formatting::indent(implode("\n", $tables)),
+    '/%edges%/'  => Formatting::indent(implode("\n", $edges)),
     // '/_/'        => '\textunderscore ',
 ];
 
@@ -73,7 +79,7 @@ foreach ($replace as $from => $to) {
     $out = preg_replace($from, $to, $out);
 }
 
-$path = dirname(__DIR__) . '/DOCUMENTATION/database';
+$path = dirname(__DIR__) . '/docs/developer/src/database';
 
 $outfile = $path . '/database.dot';
 file_put_contents($outfile, $out);

@@ -2,6 +2,7 @@
 
 - [High level view](./high_level.md)
 - [Architecture and Paradigms](./architecture.md)
+- [Database](./database.md)
 - [Plugins](./plugins.md)
     - [Event Handlers](./plugins/no_docker_shell.md)
     - [Installation](./plugins/docker_web.md)
