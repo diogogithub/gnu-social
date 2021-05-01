@@ -56,12 +56,18 @@ class ImageEncoder extends Plugin
     /**
      * Encodes the image to self::preferredType() format ensuring it's valid.
      *
-     * @param SymfonyFile $sfile    i/o
-     * @param null|string $mimetype out
+     * @param \SplFileInfo $file
+     * @param null|string  $mimetype in/out
+     * @param null|string  $title    in/out
+     * @param null|int     $width    out
+     * @param null|int     $height   out
+     *
+     * @throws Vips\Exception
+     * @throws \App\Util\Exception\TemporaryFileException
      *
      * @return bool
      */
-    public function onAttachmentValidation(\SplFileInfo &$file, ?string &$mimetype, ?string &$title): bool
+    public function onAttachmentValidation(\SplFileInfo &$file, ?string &$mimetype, ?string &$title, ?int &$width, ?int &$height): bool
     {
         $original_mimetype = $mimetype;
         if (GSFile::mimetypeMajor($original_mimetype) != 'image') {
@@ -97,11 +103,6 @@ class ImageEncoder extends Plugin
         return Event::stop;
     }
 
-    public function onResizeImage(Attachment $attachment, AttachmentThumbnail $thumbnail, int $width, int $height, bool $smart_crop): bool
-    {
-        return $this->onResizeImagePath($attachment->getPath(), $thumbnail->getPath(), $width, $height, $smart_crop, $__mimetype);
-    }
-
     /**
      * Resizes an image. It will encode the image in the
      * `self::preferredType()` format. This only applies henceforward,
@@ -123,7 +124,7 @@ class ImageEncoder extends Plugin
      * @return bool
      *
      */
-    public function onResizeImagePath(string $source, string $destination, int $width, int $height, bool $smart_crop, ?string &$mimetype)
+    public function onResizeImagePath(string $source, string $destination, int &$width, int &$height, bool $smart_crop, ?string &$mimetype)
     {
         $old_limit = ini_set('memory_limit', Common::config('attachments', 'memory_limit'));
         try {
@@ -145,6 +146,10 @@ class ImageEncoder extends Plugin
             if ($smart_crop) {
                 $image = $image->smartcrop($width, $height);
             }
+
+            $width  = $image->width;
+            $height = $image->height;
+
             $image->writeToFile($destination);
             unset($image);
         } finally {

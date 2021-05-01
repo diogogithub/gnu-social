@@ -55,6 +55,8 @@ class Attachment extends Entity
     private ?int $source;
     private ?int $scope;
     private ?int $size;
+    private ?int $width;
+    private ?int $height;
     private \DateTimeInterface $modified;
 
     public function setId(int $id): self
@@ -189,16 +191,39 @@ class Attachment extends Entity
         return $this->size;
     }
 
-    public function setModified(DateTimeInterface $modified): self
+    public function setWidth(?int $width): self
+    {
+        $this->width = $width;
+        return $this;
+    }
+
+    public function getWidth(): ?int
+    {
+        return $this->width;
+    }
+
+    public function setHeight(?int $height): self
+    {
+        $this->height = $height;
+        return $this;
+    }
+
+    public function getHeight(): ?int
+    {
+        return $this->height;
+    }
+
+    public function setModified(\DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): DateTimeInterface
+    public function getModified(): \DateTimeInterface
     {
         return $this->modified;
     }
+
 
     // }}} Autocode
 
@@ -272,6 +297,8 @@ class Attachment extends Entity
                 'source'          => ['type' => 'int',       'default' => null, 'description' => 'Source of the Attachment (upload, TFN, embed)'],
                 'scope'           => ['type' => 'int',       'default' => null, 'description' => 'visibility scope for this attachment'],
                 'size'            => ['type' => 'int',       'description' => 'size of resource when available'],
+                'width'           => ['type' => 'int',       'description' => 'width in pixels, if it can be described as such and data is available'],
+                'height'          => ['type' => 'int',       'description' => 'height in pixels, if it can be described as such and data is available'],
                 'modified'        => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
