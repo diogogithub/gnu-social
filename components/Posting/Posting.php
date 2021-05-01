@@ -104,7 +104,6 @@ END;
      */
     public static function storeNote(int $actor_id, ?string $content, array $attachments, bool $is_local, ?int $reply_to = null, ?int $repeat_of = null)
     {
-        $content = Security::sanitize($content);
         $note    = Note::create([
             'gsactor_id' => $actor_id,
             'content'    => $content,
