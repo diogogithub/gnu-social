@@ -92,15 +92,12 @@ class ProfileColor extends Entity
         return [
             'name'   => 'profile_color',
             'fields' => [
-                'gsactor_id' => ['type' => 'int',       'not null' => true, 'description' => 'foreign key to gsactor table'],
-                'color'      => ['type' => 'text',       'not null' => true, 'description' => 'color hex code'],
+                'gsactor_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'color'      => ['type' => 'text',      'not null' => true, 'description' => 'color hex code'],
                 'created'    => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
                 'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
-            'primary key'  => ['gsactor_id'],
-            'foreign keys' => [
-                'cover_gsactor_id_fkey' => ['gsactor', ['gsactor_id' => 'id']],
-            ],
+            'primary key' => ['gsactor_id'],
         ];
     }
 }

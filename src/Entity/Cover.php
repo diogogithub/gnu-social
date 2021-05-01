@@ -40,7 +40,7 @@ class Cover extends Entity
 {
     // {{{ Autocode
     private int $gsactor_id;
-    private int $file_id;
+    private int $attachment_id;
     private \DateTimeInterface $created;
     private \DateTimeInterface $modified;
 
@@ -55,15 +55,15 @@ class Cover extends Entity
         return $this->gsactor_id;
     }
 
-    public function setFileId(int $file_id): self
+    public function setAttachmentId(int $attachment_id): self
     {
-        $this->file_id = $file_id;
+        $this->attachment_id = $attachment_id;
         return $this;
     }
 
-    public function getFileId(): int
+    public function getAttachmentId(): int
     {
-        return $this->file_id;
+        return $this->attachment_id;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -90,51 +90,51 @@ class Cover extends Entity
 
     // }}} Autocode
 
-    private ?File $file = null;
+    private ?Attachment $attachment = null;
 
     /**
-     * get cover file
+     * get cover attachment
      *
-     * @return File
+     * @return Attachment
      */
-    public function getFile(): File
+    public function getAttachment(): Attachment
     {
-        $this->file = $this->file ?: DB::find('file', ['id' => $this->file_id]);
-        return $this->file;
+        $this->attachment = $this->attachment ?: DB::find('attachment', ['id' => $this->attachment_id]);
+        return $this->attachment;
     }
 
     /**
-     * get cover file path
+     * get cover attachment path
      *
      * @return string
      */
-    public function getFilePath(): string
+    public function getAttachmentPath(): string
     {
-        return Common::config('cover', 'dir') . $this->getFile()->getFileName();
+        return Common::config('cover', 'dir') . $this->getAttachment()->getAttachmentName();
     }
 
     /**
-     * Delete this cover and the corresponding file and thumbnails, which this owns
+     * Delete this cover and the corresponding attachment and thumbnails, which this owns
      *
      * @param bool $flush
-     * @param bool $delete_files_now
+     * @param bool $delete_attachments_now
      * @param bool $cascading
      *
-     * @return array files deleted (if delete_files_now is true)
+     * @return array attachments deleted (if delete_attachments_now is true)
      */
-    public function delete(bool $flush = false, bool $delete_files_now = false, bool $cascading = false): array
+    public function delete(bool $flush = false, bool $delete_attachments_now = false, bool $cascading = false): array
     {
-        // Don't go into a loop if we're deleting from File
+        // Don't go into a loop if we're deleting from Attachment
         if (!$cascading) {
-            $files = $this->getFile()->delete($cascade = true, $file_flush = false, $delete_files_now);
+            $attachments = $this->getAttachment()->delete($cascade = true, $attachment_flush = false, $delete_attachments_now);
         } else {
             DB::remove(DB::getReference('cover', ['gsactor_id' => $this->gsactor_id]));
-            $file_path = $this->getFilePath();
-            $files[]   = $file_path;
+            $attachment_path = $this->getAttachmentPath();
+            $attachments[]   = $attachment_path;
             if ($flush) {
                 DB::flush();
             }
-            return $delete_files_now ? [] : $files;
+            return $delete_attachments_now ? [] : $attachments;
         }
         return [];
     }
@@ -144,18 +144,14 @@ class Cover extends Entity
         return [
             'name'   => 'cover',
             'fields' => [
-                'gsactor_id' => ['type' => 'int',       'not null' => true, 'description' => 'foreign key to gsactor table'],
-                'file_id'    => ['type' => 'int',       'not null' => true, 'description' => 'foreign key to file table'],
-                'created'    => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
-                'modified'   => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
+                'gsactor_id'    => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'onne to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
+                'attachment_id' => ['type' => 'int',       'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to attachment table'],
+                'created'       => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
-            'primary key'  => ['gsactor_id'],
-            'foreign keys' => [
-                'cover_gsactor_id_fkey' => ['gsactor', ['gsactor_id' => 'id']],
-                'cover_file_id_fkey'    => ['file', ['file_id' => 'id']],
-            ],
-            'indexes' => [
-                'cover_file_id_idx' => ['file_id'],
+            'primary key' => ['gsactor_id'],
+            'indexes'     => [
+                'cover_attachment_id_idx' => ['attachment_id'],
             ],
         ];
     }
