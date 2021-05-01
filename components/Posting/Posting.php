@@ -115,7 +115,7 @@ END;
 
         $processed_attachments = [];
         foreach ($attachments as $f) {
-            $processed_attachments[] = GSFile::validateAndStoreAttachment(
+            $processed_attachments[] = GSFile::validateAndStoreFileAsAttachment(
                 $f, Common::config('attachments', 'dir'),
                 Security::sanitize($f->getClientOriginalName()),
                 is_local: true, actor_id: $actor_id
@@ -125,7 +125,7 @@ END;
         $matched_urls = [];
         preg_match_all(self::URL_REGEX, $content, $matched_urls, PREG_SET_ORDER);
         foreach ($matched_urls as $match) {
-            $processed_attachments[] = GSFile::validateAndStoreURL($match[0]);
+            $processed_attachments[] = GSFile::validateAndStoreURLAsAttachment($match[0]);
         }
 
         DB::persist($note);

@@ -106,7 +106,7 @@ class Avatar extends Controller
                 } else {
                     throw new ClientException('Invalid form');
                 }
-                $attachment     = GSFile::validateAndStoreAttachment($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $gsactor_id);
+                $attachment     = GSFile::validateAndStoreFileAsAttachment($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $gsactor_id);
                 $old_attachment = null;
                 $avatar         = DB::find('avatar', ['gsactor_id' => $gsactor_id]);
                 // Must get old id before inserting another one

@@ -38,11 +38,11 @@ class GSFile
     /**
      * Perform file validation (checks and normalization) and store the given file
      */
-    public static function validateAndStoreAttachment(SymfonyFile $sfile,
-                                                      string $dest_dir,
-                                                      ?string $title = null,
-                                                      bool $is_local = true,
-                                                      int $actor_id = null): Attachment
+    public static function validateAndStoreFileAsAttachment(SymfonyFile $sfile,
+                                                            string $dest_dir,
+                                                            ?string $title = null,
+                                                            bool $is_local = true,
+                                                            int $actor_id = null): Attachment
     {
         Event::handle('HashFile', [$sfile->getPathname(), &$hash]);
         // The following properly gets the mimetype with `file` or other
@@ -69,7 +69,7 @@ class GSFile
      *
      * @throws \InvalidArgumentException
      */
-    public static function validateAndStoreURL(string $url): Attachment
+    public static function validateAndStoreURLAsAttachment(string $url): Attachment
     {
         if (Common::isValidHttpUrl($url)) {
             $head       = HTTPClient::head($url);
