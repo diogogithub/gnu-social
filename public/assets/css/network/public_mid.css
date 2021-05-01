@@ -147,14 +147,13 @@
     flex-wrap: wrap;
     width: 100%;
     margin-top: var(--small-size);
-    justify-content: left;
-    justify-self: left;
+    justify-content: center;
     text-align: center;
 }
 
 .note-attachments img {
     order: 1;
-    width: 100%;
+    max-width: 100%;
     height: auto;
 }
 .note-attachments i {
