@@ -35,7 +35,10 @@ abstract class Entity
     {
         if (Formatting::startsWith($name, 'has')) {
             $prop = Formatting::camelCaseToSnakeCase(Formatting::removePrefix($name, 'has'));
-            return isset($this->{$prop});
+            // https://wiki.php.net/rfc/closure_apply#proposal
+            $private_property_accessor = function($prop) { return isset($this->{$prop}); };
+            $private_property_accessor = $private_property_accessor->bindTo($this, get_called_class());
+            return $private_property_accessor($prop);
         }
         throw new \Exception("Entity::{$name} called with bogus arguments: " . print_r($arguments, true));
     }
