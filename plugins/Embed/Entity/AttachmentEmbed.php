@@ -59,7 +59,7 @@ class AttachmentEmbed extends Entity
     private ?string $title;
     private ?string $author_name;
     private ?string $author_url;
-    private ?string $url;
+    private ?string $media_url;
     private \DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
@@ -183,15 +183,15 @@ class AttachmentEmbed extends Entity
         return $this->author_url;
     }
 
-    public function setUrl(?string $url): self
+    public function setMediaUrl(?string $media_url): self
     {
-        $this->url = $url;
+        $this->media_url = $media_url;
         return $this;
     }
 
-    public function getUrl(): ?string
+    public function getMediaUrl(): ?string
     {
-        return $this->url;
+        return $this->media_url;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -244,18 +244,18 @@ class AttachmentEmbed extends Entity
         return [
             'name'   => 'attachment_embed',
             'fields' => [
-                'attachment_id' => ['type' => 'int', 'not null' => true, 'description' => 'oEmbed for that URL/file'],
+                'attachment_id' => ['type' => 'int', 'not null' => true, 'description' => 'Embed for that URL/file'],
                 'mimetype'      => ['type' => 'varchar', 'length' => 50, 'description' => 'mime type of resource'],
                 'filename'      => ['type' => 'varchar', 'length' => 191, 'description' => 'file name of resource when available'],
                 'provider'      => ['type' => 'text', 'description' => 'name of this oEmbed provider'],
                 'provider_url'  => ['type' => 'text', 'description' => 'URL of this oEmbed provider'],
                 'width'         => ['type' => 'int', 'description' => 'width of oEmbed resource when available'],
                 'height'        => ['type' => 'int', 'description' => 'height of oEmbed resource when available'],
-                'html'          => ['type' => 'text', 'description' => 'html representation of this oEmbed resource when applicable'],
-                'title'         => ['type' => 'text', 'description' => 'title of oEmbed resource when available'],
-                'author_name'   => ['type' => 'text', 'description' => 'author name for this oEmbed resource'],
-                'author_url'    => ['type' => 'text', 'description' => 'author URL for this oEmbed resource'],
-                'url'           => ['type' => 'text', 'description' => 'URL for this oEmbed resource when applicable (photo, link)'],
+                'html'          => ['type' => 'text', 'description' => 'html representation of this Embed resource when applicable'],
+                'title'         => ['type' => 'text', 'description' => 'title of Embed resource when available'],
+                'author_name'   => ['type' => 'text', 'description' => 'author name for this Embed resource'],
+                'author_url'    => ['type' => 'text', 'description' => 'author URL for this Embed resource'],
+                'media_url'     => ['type' => 'text', 'description' => 'URL for this Embed resource when applicable (photo, link)'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['attachment_id'],

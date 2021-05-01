@@ -45,7 +45,6 @@ use App\Core\Log;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
-use App\Core\Security;
 use App\Entity\Attachment;
 use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
@@ -81,11 +80,11 @@ class Embed extends Plugin
      *
      * @param $m URLMapper the router that was initialized.
      *
+     * @return bool true if successful, the exception object if it isn't.
      * @throws Exception
      *
-     * @return void true if successful, the exception object if it isn't.
      */
-    public function onAddRoute(RouteLoader $m)
+    public function onAddRoute(RouteLoader $m): bool
     {
         $m->connect('oembed', 'main/oembed', Controller\Embed::class);
         $m->connect('embed', 'main/embed', Controller\Embed::class);
@@ -100,20 +99,20 @@ class Embed extends Plugin
         $matches = [];
         preg_match(',/?([^/]+)/?(.*),', $request->getPathInfo(), $matches);
         switch ($matches[1]) {
-        case 'attachment':
-            $url = "{$matches[1]}/{$matches[2]}";
-            break;
+            case 'attachment':
+                $url = "{$matches[1]}/{$matches[2]}";
+                break;
         }
 
         if (isset($url)) {
             foreach (['xml', 'json'] as $format) {
                 $result[] = [
                     'link' => [
-                        'rel'   => 'alternate',
-                        'type'  => "application/{$format}+oembed",
-                        'href'  => Router::url('embed', ['format' => $format, 'url' => $url]),
+                        'rel' => 'alternate',
+                        'type' => "application/{$format}+oembed",
+                        'href' => Router::url('embed', ['format' => $format, 'url' => $url]),
                         'title' => 'oEmbed',
-                    ], ];
+                    ],];
             }
         }
         return Event::next;
@@ -128,29 +127,26 @@ class Embed extends Plugin
      *
      * @return bool success
      */
-    public function onAttachmentStoreNew(Attachment $attachment)
+    public function onAttachmentStoreNew(Attachment $attachment): bool
     {
         try {
             DB::findOneBy('attachment_embed', ['attachment_id' => $attachment->getId()]);
         } catch (NotFoundException) {
-        } catch (DuplicateFoundException) {
-            Log::warning("Strangely, an attachment_embed object exists for new file {$attachment->getID()}");
-            return Event::next;
-        }
-
-        if ($attachment->hasRemoteUrl() && $attachment->hasMimetype()) {
-            $mimetype = $attachment->getMimetype();
-            if (Formatting::startsWith($mimetype, 'text/html') || Formatting::startsWith($mimetype, 'application/xhtml+xml')) {
-                try {
-                    $embed_data                  = $this->getEmbed($attachment->getRemoteUrl(), $attachment);
-                    $embed_data['attachment_id'] = $attachment->getId();
-                    DB::persist(Entity\AttachmentEmbed::create($embed_data));
-                    DB::flush();
-                } catch (Exception $e) {
-                    Log::warning($e);
-                    return Event::next;
+            if ($attachment->hasRemoteUrl() && $attachment->hasMimetype()) {
+                $mimetype = $attachment->getMimetype();
+                if (Formatting::startsWith($mimetype, 'text/html') || Formatting::startsWith($mimetype, 'application/xhtml+xml')) {
+                    try {
+                        $embed_data = $this->getEmbed($attachment->getRemoteUrl(), $attachment);
+                        $embed_data['attachment_id'] = $attachment->getId();
+                        DB::persist(Entity\AttachmentEmbed::create($embed_data));
+                        DB::flush();
+                    } catch (Exception $e) {
+                        Log::warning($e);
+                    }
                 }
             }
+        } catch (DuplicateFoundException) {
+            Log::warning("Strangely, an attachment_embed object exists for new file {$attachment->getID()}");
         }
         return Event::next;
     }
@@ -176,10 +172,10 @@ class Embed extends Plugin
         $enclosure = [
             'filepath' => $embed->getFilepath(),
             'mimetype' => $embed->getMimetype(),
-            'title'    => $embed->getTitle(),
-            'width'    => $embed->getWidth(),
-            'height'   => $embed->getHeight(),
-            'url'      => $embed->getUrl(),
+            'title' => $embed->getTitle(),
+            'width' => $embed->getWidth(),
+            'height' => $embed->getHeight(),
+            'url' => $embed->getMediaUrl(),
         ];
 
         return Event::stop;
@@ -192,7 +188,7 @@ class Embed extends Plugin
     {
         try {
             $embed = Cache::get('attachment-embed-' . $attachment->getId(),
-                                fn () => DB::findOneBy('attachment_embed', ['attachment_id' => $attachment->getId()]));
+                fn() => DB::findOneBy('attachment_embed', ['attachment_id' => $attachment->getId()]));
         } catch (DuplicateFoundException $e) {
             Log::waring($e);
             return Event::next;
@@ -213,7 +209,7 @@ class Embed extends Plugin
             <img class="u-photo embed" width="{{attributes['width']}}" height="{{attributes['height']}}" src="{{attributes['src']}}" />
         {% endif %}
         <h5 class="p-name embed">
-             <a class="u-url" href="{{embed.getUrl()}}">{{embed.getTitle() | escape}}</a>
+             <a class="u-url" href="{{attachment.getRemoteUrl()}}">{{embed.getTitle() | escape}}</a>
         </h5>
         <div class="p-author embed">
              {% if embed.getAuthorName() is not null %}
@@ -240,17 +236,19 @@ class Embed extends Plugin
         {{ embed.getHtml() | escape }}
     </div>
 </article>
-END, ['embed' => $embed, 'attributes' => $attributes]);
+END, ['embed' => $embed, 'attributes' => $attributes, 'attachment' => $attachment]);
 
         return Event::stop;
     }
 
     /**
+     * @return bool false on no check made, provider name on success
+     * @return string|false on no check made, provider name on success
+     *
      * @throws ServerException if check is made but fails
      *
-     * @return bool false on no check made, provider name on success
      */
-    protected function checkAllowlist(string $url)
+    protected function checkAllowlist(string $url): string|bool
     {
         if ($this->check_allowlist ?? false) {
             return false;   // indicates "no check made"
@@ -272,9 +270,9 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
      * reliable enough for our purposes.
      *
      * @param string $url
-     * @param array  $headers - if we already made a request
+     * @param array|null $headers - if we already made a request
      *
-     * @return bool|string the file size if it succeeds, false otherwise.
+     * @return int|null the file size if it succeeds, false otherwise.
      */
     private function getRemoteFileSize(string $url, ?array $headers = null): ?int
     {
@@ -284,7 +282,7 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
                     Log::error('Invalid URL in Embed::getRemoteFileSize()');
                     return false;
                 }
-                $head    = HTTPClient::head($url);
+                $head = HTTPClient::head($url);
                 $headers = $head->getHeaders();
                 $headers = array_change_key_case($headers, CASE_LOWER);
             }
@@ -299,12 +297,12 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
      * A private helper function that uses a HEAD request to check the mime type
      * of a remote URL to see it it's an image.
      *
-     * @param mixed      $url
+     * @param mixed $url
      * @param null|mixed $headers
      *
      * @return bool true if the remote URL is an image, or false otherwise.
      */
-    private function isRemoteImage(string $url, ?array $headers = null): ?int
+    private function isRemoteImage(string $url, ?array $headers = null): bool
     {
         try {
             if ($headers === null) {
@@ -312,13 +310,13 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
                     Log::error('Invalid URL in Embed::getRemoteFileSize()');
                     return false;
                 }
-                $head    = HTTPClient::head($url);
+                $head = HTTPClient::head($url);
                 $headers = $head->getHeaders();
                 $headers = array_change_key_case($headers, CASE_LOWER);
             }
             return !empty($headers['content-type']) && GSFile::mimetypeMajor($headers['content-type'][0]) === 'image';
         } catch (Exception $e) {
-            Loog::error($e);
+            Log::error($e);
             return false;
         }
     }
@@ -327,25 +325,24 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
      * Validate that $imgData is a valid image, place it in it's folder and resize
      *
      * @param $imgData - The image data to validate
-     * @param null|string $url     - The url where the image came from, to fetch metadata
-     * @param null|array  $headers - The headers possible previous request to $url
+     * @param null|array $headers - The headers possible previous request to $url
      */
-    protected function validateAndWriteImage($imgData, string $url, array $headers): array
+    protected function validateAndWriteImage($imgData, ?array $headers = null): array
     {
         $file = new TemporaryFile();
         $file->write($imgData);
 
         Event::handle('HashFile', [$file->getRealPath(), &$hash]);
-        $filepath   = Common::config('storage', 'dir') . "embed/{$hash}" . Common::config('thumbnail', 'extension');
-        $width      = Common::config('plugin_embed', 'width');
-        $height     = Common::config('plugin_embed', 'height');
+        $filepath = Common::config('storage', 'dir') . "embed/{$hash}" . Common::config('thumbnail', 'extension');
+        $width = Common::config('plugin_embed', 'width');
+        $height = Common::config('plugin_embed', 'height');
         $smart_crop = Common::config('plugin_embed', 'smart_crop');
 
         Event::handle('ResizeImagePath', [$file->getRealPath(), $filepath, &$width, &$height, $smart_crop, &$mimetype]);
 
         unset($file);
 
-        if (array_key_exists('content-disposition', $headers) && preg_match('/^.+; filename="(.+?)"$/', $headers['content-disposition'][0], $matches) === 1) {
+        if (!is_null($headers) && array_key_exists('content-disposition', $headers) && preg_match('/^.+; filename="(.+?)"$/', $headers['content-disposition'][0], $matches) === 1) {
             $original_name = $matches[1];
         }
 
@@ -354,32 +351,34 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
 
     /**
      * Create and store a thumbnail representation of a remote image
+     *
+     * @param Attachment $attachment
+     * @param string $media_url URL for the actual media representation
+     * @return array|bool
      */
-    protected function storeRemoteThumbnail(Attachment $attachment): array | bool
+    protected function storeRemoteThumbnail(Attachment $attachment, string $media_url): array|bool
     {
         if ($attachment->hasFilename() && file_exists($attachment->getPath())) {
             throw new AlreadyFulfilledException(_m('A thumbnail seems to already exist for remote file with id=={id}', ['id' => $attachment->getId()]));
         }
 
-        $url = $attachment->getRemoteUrl();
-
-        if (Formatting::startsWith($url, 'file://')) {
-            $filename = Formatting::removePrefix($url, 'file://');
-            $info     = getimagesize($filename);
+        if (Formatting::startsWith($media_url, 'file://')) {
+            $filename = Formatting::removePrefix($media_url, 'file://');
+            $info = getimagesize($filename);
             $filename = basename($filename);
-            $width    = $info[0];
-            $height   = $info[1];
+            $width = $info[0];
+            $height = $info[1];
         } else {
-            $this->checkAllowlist($url);
-            $head    = HTTPClient::head($url);
+            $this->checkAllowlist($media_url);
+            $head = HTTPClient::head($media_url);
             $headers = $head->getHeaders();
             $headers = array_change_key_case($headers, CASE_LOWER);
 
             try {
-                $is_image = $this->isRemoteImage($url, $headers);
+                $is_image = $this->isRemoteImage($media_url, $headers);
                 if ($is_image == true) {
-                    $file_size = $this->getRemoteFileSize($url, $headers);
-                    $max_size  = Common::config('attachments', 'file_quota');
+                    $file_size = $this->getRemoteFileSize($media_url, $headers);
+                    $max_size = Common::config('attachments', 'file_quota');
                     if (($file_size != false) && ($file_size > $max_size)) {
                         throw new \Exception("Wanted to store remote thumbnail of size {$file_size} but the upload limit is {$max_size} so we aborted.");
                     }
@@ -392,11 +391,12 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
             }
 
             // First we download the file to memory and test whether it's actually an image file
-            Log::debug('Downloading remote thumbnail for file id==' . $attachment->getId() . " with thumbnail URL: {$url}");
+            Log::debug('Downloading remote thumbnail for file id==' . $attachment->getId() . " with thumbnail URL: {$media_url}");
+
             try {
-                $imgData = HTTPClient::get($url)->getContent();
+                $imgData = HTTPClient::get($media_url)->getContent();
                 if (isset($imgData)) {
-                    [$filepath, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData, $url, $headers);
+                    [$filepath, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData, $headers);
                 } else {
                     throw new UnsupportedMediaException(_m('HTTPClient returned an empty result'));
                 }
@@ -422,11 +422,8 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
      * Throws exceptions on failure.
      *
      * @param string $url
-     *
-     * @throws EmbedHelper_BadHtmlException
-     * @throws HTTP_Request2_Exception
-     *
-     * @return object
+     * @param Attachment $attachment
+     * @return array
      */
     public function getEmbed(string $url, Attachment $attachment): array
     {
@@ -434,32 +431,33 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
 
         try {
             Log::info("Trying to find Embed data for {$url} with 'oscarotero/Embed'");
-            $embed                     = new LibEmbed();
-            $info                      = $embed->get($url);
-            $metadata['title']         = $info->title;
-            $metadata['html']          = Security::sanitize($info->description);
-            $metadata['url']           = $info->url;
-            $metadata['author_name']   = $info->authorName;
-            $metadata['author_url']    = $info->authorUrl;
+            $embed = new LibEmbed();
+            $info = $embed->get($url);
+            $metadata['title'] = $info->title;
+            $metadata['html'] = $info->description;
+            $metadata['author_name'] = $info->authorName;
+            $metadata['author_url'] = $info->authorUrl;
             $metadata['provider_name'] = $info->providerName;
-            $metadata['provider_url']  = $info->providerUrl;
+            $metadata['provider_url'] = $info->providerUrl;
 
             if (!is_null($info->image)) {
-                if (Formatting::startsWith($info->image, 'data')) {
+                $image_url = (string)$info->image;
+
+                if (Formatting::startsWith($image_url, 'data')) {
                     // Inline image
-                    $imgData                                                = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
+                    $imgData = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
                     [$filepath, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData);
                 } else {
-                    $attachment->setRemoteUrl((string) $info->image);
-                    [$filepath, $width, $height, $original_name, $mimetype] = $this->storeRemoteThumbnail($attachment);
+                    [$filepath, $width, $height, $original_name, $mimetype] = $this->storeRemoteThumbnail($attachment, $image_url);
                 }
-                $metadata['width']    = $width;
-                $metadata['height']   = $height;
+                $metadata['width'] = $width;
+                $metadata['height'] = $height;
                 $metadata['mimetype'] = $mimetype;
+                $metadata['media_url'] = $image_url;
                 $metadata['filename'] = Formatting::removePrefix($filepath, Common::config('storage', 'dir'));
             }
         } catch (Exception $e) {
-            Log::info("Failed to find Embed data for {$url} with 'oscarotero/Embed', got exception: " . get_class($e));
+            Log::info("Failed to find Embed data for {$url} with 'oscarotero/Embed', got exception: " . $e);
         }
 
         $metadata = self::normalize($metadata);
@@ -478,7 +476,7 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
             // add protocol and host if the thumbnail_url starts with /
             if ($metadata['url'][0] == '/') {
                 $thumbnail_url_parsed = parse_url($metadata['url']);
-                $metadata['url']      = "{$thumbnail_url_parsed['scheme']}://{$thumbnail_url_parsed['host']}{$metadata['url']}";
+                $metadata['url'] = "{$thumbnail_url_parsed['scheme']}://{$thumbnail_url_parsed['host']}{$metadata['url']}";
             }
 
             // Some wordpress opengraph implementations sometimes return a white blank image
@@ -488,7 +486,7 @@ END, ['embed' => $embed, 'attributes' => $attributes]);
             }
 
             if (!isset($data['width'])) {
-                $data['width']  = Common::config('plugin_embed', 'width');
+                $data['width'] = Common::config('plugin_embed', 'width');
                 $data['height'] = Common::config('plugin_embed', 'height');
             }
         }
