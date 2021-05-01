@@ -22,6 +22,7 @@
 namespace App\Core;
 
 use App\Core\DB\DB;
+use App\Util\Exception\NotFoundException;
 use function App\Core\I18n\_m;
 use App\Entity\Attachment;
 use App\Util\Common;
@@ -75,17 +76,24 @@ class GSFile
     {
         if (Common::isValidHttpUrl($url)) {
             $head       = HTTPClient::head($url);
-            $headers    = $head->getHeaders();
-            $headers    = array_change_key_case($headers, CASE_LOWER);
-            $attachment = Attachment::create([
-                'remote_url'      => $url,
-                'remote_url_hash' => hash(Attachment::URLHASH_ALGO, $url),
-                'mimetype'        => $headers['content-type'][0],
-                'is_local'        => false,
-            ]);
-            DB::persist($attachment);
-            Event::handle('AttachmentStoreNew', [&$attachment]);
-            return $attachment;
+            // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
+            $headers = $head->getHeaders();
+            $url = $head->getInfo('url'); // The last effective url (after getHeaders so it follows redirects)
+            $url_hash = hash(Attachment::URLHASH_ALGO, $url);
+            try {
+                return DB::findOneBy('attachment', ['remote_url_hash' => $url_hash]);
+            } catch (NotFoundException) {
+                $headers    = array_change_key_case($headers, CASE_LOWER);
+                $attachment = Attachment::create([
+                    'remote_url'      => $url,
+                    'remote_url_hash' => $url_hash,
+                    'mimetype'        => $headers['content-type'][0],
+                    'is_local'        => false,
+                ]);
+                DB::persist($attachment);
+                Event::handle('AttachmentStoreNew', [&$attachment]);
+                return $attachment;
+            }
         } else {
             throw new \InvalidArgumentException();
         }
