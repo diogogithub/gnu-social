@@ -22,12 +22,12 @@
 namespace App\Core;
 
 use App\Core\DB\DB;
-use App\Util\Exception\NotFoundException;
 use function App\Core\I18n\_m;
 use App\Entity\Attachment;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NoSuchFileException;
+use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
@@ -46,25 +46,29 @@ class GSFile
                                                             int $actor_id = null): Attachment
     {
         Event::handle('HashFile', [$sfile->getPathname(), &$hash]);
-        // The following properly gets the mimetype with `file` or other
-        // available methods, so should be safe
-        $mimetype = $sfile->getMimeType();
-        Event::handle('AttachmentValidation', [&$sfile, &$mimetype, &$title, &$width, &$height]);
-        $attachment = Attachment::create([
-            'file_hash'  => $hash,
-            'gsactor_id' => $actor_id,
-            'mimetype'   => $mimetype,
-            'title'      => $title ?: _m('Untitled attachment'),
-            'filename'   => $hash,
-            'is_local'   => $is_local,
-            'size'       => $sfile->getSize(),
-            'width'      => $width,
-            'height'     => $height,
-        ]);
-        $sfile->move($dest_dir, $hash);
-        DB::persist($attachment);
-        Event::handle('AttachmentStoreNew', [&$attachment]);
-        return $attachment;
+        try {
+            return DB::findOneBy('attachment', ['file_hash' => $hash]);
+        } catch (NotFoundException) {
+            // The following properly gets the mimetype with `file` or other
+            // available methods, so should be safe
+            $mimetype = $sfile->getMimeType();
+            Event::handle('AttachmentValidation', [&$sfile, &$mimetype, &$title, &$width, &$height]);
+            $attachment = Attachment::create([
+                'file_hash'  => $hash,
+                'gsactor_id' => $actor_id,
+                'mimetype'   => $mimetype,
+                'title'      => $title ?: _m('Untitled attachment'),
+                'filename'   => $hash,
+                'is_local'   => $is_local,
+                'size'       => $sfile->getSize(),
+                'width'      => $width,
+                'height'     => $height,
+            ]);
+            $sfile->move($dest_dir, $hash);
+            DB::persist($attachment);
+            Event::handle('AttachmentStoreNew', [&$attachment]);
+            return $attachment;
+        }
     }
 
     /**
@@ -75,10 +79,10 @@ class GSFile
     public static function validateAndStoreURLAsAttachment(string $url): Attachment
     {
         if (Common::isValidHttpUrl($url)) {
-            $head       = HTTPClient::head($url);
+            $head = HTTPClient::head($url);
             // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
-            $headers = $head->getHeaders();
-            $url = $head->getInfo('url'); // The last effective url (after getHeaders so it follows redirects)
+            $headers  = $head->getHeaders();
+            $url      = $head->getInfo('url'); // The last effective url (after getHeaders so it follows redirects)
             $url_hash = hash(Attachment::URLHASH_ALGO, $url);
             try {
                 return DB::findOneBy('attachment', ['remote_url_hash' => $url_hash]);
