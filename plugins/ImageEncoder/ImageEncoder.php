@@ -77,7 +77,7 @@ class ImageEncoder extends Plugin
 
         $type      = self::preferredType();
         $extension = image_type_to_extension($type, include_dot: true);
-        $temp      = new TemporaryFile(prefix: null, suffix: $extension); // This handles deleting the file if some error occurs
+        $temp      = new TemporaryFile(['prefix' => 'image', 'suffix' => $extension]); // This handles deleting the file if some error occurs
         $mimetype  = image_type_to_mime_type($type);
         if ($mimetype != $original_mimetype) {
             // If title seems to be a filename with an extension

@@ -72,7 +72,7 @@ class VideoEncoder extends Plugin
 
         // FFmpeg can't edit existing files in place,
         // generate temporary output file to avoid that
-        $tempfile = new TemporaryFile('gs-outpath');
+        $tempfile = new TemporaryFile(['prefix' => 'video']);
 
         // Generate palette file. FFmpeg explictly needs to be told the
         // extension for PNG files outputs

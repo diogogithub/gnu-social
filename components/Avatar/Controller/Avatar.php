@@ -92,7 +92,7 @@ class Avatar extends Controller
                         list(, $mimetype_user, , $encoding_user, $data_user) = $matches;
                         if ($encoding_user == 'base64') {
                             $data_user = base64_decode($data_user);
-                            $tempfile  = new TemporaryFile('avatar');
+                            $tempfile  = new TemporaryFile(['prefix' => 'avatar']);
                             $path      = $tempfile->getRealPath();
                             file_put_contents($path, $data_user);
                             $sfile = new SymfonyFile($path);

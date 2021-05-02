@@ -35,27 +35,25 @@ class TemporaryFile extends \SplFileInfo
     protected $resource;
 
     /**
-     * @param null|string $prefix The file name will begin with that prefix
-     *                            ("php" by default)
-     * @param null|string $mode   File open mode ("w+b" by default)
+     * @param array $options - ['prefix' => ?string, 'suffix' => ?string, 'mode' => ?string, 'directory' => ?string]
      */
-    public function __construct(
-        ?string $prefix = null,
-        ?string $suffix = null,
-        ?string $mode = null
-    ) {
-        $filename = tempnam(sys_get_temp_dir(), $prefix ?? 'gs-php') . ($suffix ?? '');
+    public function __construct(array $options)
+    {
+        $attempts = 16;
+        for ($count = 0; $count < $attempts; ++$count) {
+            $filename = uniqid(($options['directory'] ?? (sys_get_temp_dir() . '/')) . ($options['prefix'] ?? 'gs-php')) . ($options['suffix'] ?? '');
 
-        if ($filename === false) {
-            throw new TemporaryFileException('Could not create file: ' . $filename);
+            $this->resource = @fopen($filename, $options['mode'] ?? 'w+b');
+            if ($this->resource !== false) {
+                break;
+            }
         }
-
-        parent::__construct($filename);
-
-        if (($this->resource = fopen($filename, $mode ?? 'w+b')) === false) {
+        if ($count == $attempts) {
             $this->cleanup();
             throw new TemporaryFileException('Could not open file: ' . $filename);
         }
+
+        parent::__construct($filename);
     }
 
     public function __destruct()
@@ -100,7 +98,7 @@ class TemporaryFile extends \SplFileInfo
         $path = $this->getRealPath();
         $this->close();
         if (file_exists($path)) {
-            unlink($path);
+            @unlink($path);
         }
     }
 

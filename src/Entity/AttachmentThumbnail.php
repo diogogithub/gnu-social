@@ -100,17 +100,16 @@ class AttachmentThumbnail extends Entity
         return $this->filename;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
-
 
     // }}} Autocode
 
@@ -139,10 +138,10 @@ class AttachmentThumbnail extends Entity
                     return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'width' => $predicted_width, 'height' => $predicted_height]);
                 });
         } catch (NotFoundException $e) {
-            $ext = image_type_to_extension(IMAGETYPE_WEBP, include_dot: true);
-            $temp = new TemporaryFile(prefix: null, suffix: $ext);
-            $thumbnail = self::create(['attachment_id' => $attachment->getId()]);
-            $event_map = ['image' => 'ResizeImagePath', 'video' => 'ResizeVideoPath'];
+            $ext        = image_type_to_extension(IMAGETYPE_WEBP, include_dot: true);
+            $temp       = new TemporaryFile(['prefix' => 'thumbnail', 'suffix' => $ext]);
+            $thumbnail  = self::create(['attachment_id' => $attachment->getId()]);
+            $event_map  = ['image' => 'ResizeImagePath', 'video' => 'ResizeVideoPath'];
             $major_mime = GSFile::mimetypeMajor($attachment->getMimetype());
             if (in_array($major_mime, array_keys($event_map))) {
                 Event::handle($event_map[$major_mime], [$attachment->getPath(), $temp->getRealPath(), &$width, &$height, $crop, &$mimetype]);
@@ -178,8 +177,8 @@ class AttachmentThumbnail extends Entity
     {
         $attrs = [
             'height' => $this->getHeight(),
-            'width' => $this->getWidth(),
-            'src' => $this->getUrl(),
+            'width'  => $this->getWidth(),
+            'src'    => $this->getUrl(),
         ];
         return $overwrite ? array_merge($orig, $attrs) : array_merge($attrs, $orig);
     }
@@ -221,8 +220,7 @@ class AttachmentThumbnail extends Entity
         int $maxW,
         int $maxH,
         bool $crop
-    ): array
-    {
+    ): array {
         // Cropping data (for original image size). Default values, 0 and null,
         // imply no cropping and with preserved aspect ratio (per axis).
         $cx = 0;    // crop x
@@ -232,7 +230,7 @@ class AttachmentThumbnail extends Entity
 
         if ($crop) {
             $s_ar = $width / $height;
-            $t_ar = $maxW / $maxH;
+            $t_ar = $maxW  / $maxH;
 
             $rw = $maxW;
             $rh = $maxH;
@@ -255,22 +253,22 @@ class AttachmentThumbnail extends Entity
                 $rw = ceil($width * $rh / $height);
             }
         }
-        return [(int)$rw, (int)$rh];
+        return [(int) $rw, (int) $rh];
     }
 
     public static function schemaDef(): array
     {
         return [
-            'name' => 'attachment_thumbnail',
+            'name'   => 'attachment_thumbnail',
             'fields' => [
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what attachment'],
-                'width' => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
-                'height' => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
-                'filename' => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'thubmnail filename'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'width'         => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
+                'height'        => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
+                'filename'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'thubmnail filename'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['attachment_id', 'width', 'height'],
-            'indexes' => [
+            'indexes'     => [
                 'attachment_thumbnail_attachment_id_idx' => ['attachment_id'],
             ],
         ];
