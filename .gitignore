@@ -53,3 +53,6 @@ config.php
 /file
 
 notes
+
+
+.test_coverage_report
