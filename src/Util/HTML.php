@@ -28,6 +28,7 @@
 namespace App\Util;
 
 use Functional as F;
+use InvalidArgumentException;
 
 abstract class HTML
 {
@@ -37,12 +38,13 @@ abstract class HTML
      * @param string       $tag
      * @param array|string $content
      * @param bool         $empty_tag
+     * @param null|mixed   $attrs
      *
      * @return array
      */
-    private static function tag(string $tag, $content = '', bool $empty_tag = false): array
+    public static function tag(string $tag, $attrs = null,  $content = null, bool $empty_tag = false): array
     {
-        return self::attr_tag($tag, '', $content);
+        return self::attr_tag($tag, $attrs ?? '', $content ?? '', $empty_tag);
     }
 
     /**
@@ -58,11 +60,11 @@ abstract class HTML
     private static function attr_tag(string $tag, $attrs, $content = '', bool $empty_tag = false): array
     {
         $html = '<' . $tag . (is_string($attrs) ? ($attrs ? ' ' : '') . $attrs : self::attr($attrs));
-        if (empty($content) || $empty_tag) {
-            $html .= '>';
+        if ($empty_tag) {
+            $html .= '/>';
         } else {
             $inner = Formatting::indent($content);
-            $html .= ">\n" . ($inner == '' ? '' : $inner . "\n") . Formatting::indent("</{$tag}>");
+            $html .= ">\n" . ($inner == '' ? '' : $inner . "\n") . "</{$tag}>";
         }
         return explode("\n", $html);
     }
@@ -77,7 +79,7 @@ abstract class HTML
     private static function attr(array $attrs): string
     {
         return ' ' . implode(' ', F\map($attrs, function ($val, $key, $_) {
-            return "{$key} = '{$val}'";
+            return "{$key}=\"{$val}\"";
         }));
     }
 
@@ -105,7 +107,7 @@ abstract class HTML
             }
             return $out;
         } else {
-            return '';
+            throw new InvalidArgumentException('HTML::html argument must be of type string or array');
         }
     }
 }

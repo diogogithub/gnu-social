@@ -20,15 +20,22 @@
 namespace App\Tests\Util;
 
 use App\Util\HTML;
+use Jchook\AssertThrows\AssertThrows;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class HTMLTest extends WebTestCase
 {
+    use AssertThrows;
+
     public function testHTML()
     {
         static::assertSame('', HTML::html(''));
         static::assertSame("<a>\n\n</a>\n", HTML::html(['a' => '']));
         static::assertSame("<a>\n  <p>\n  </p>\n</a>\n", HTML::html(['a' => ['p' => '']]));
+        static::assertSame("<a href=\"test\">\n  <p>\n  </p>\n</a>\n", HTML::html(['a' => ['attrs' => ['href' => 'test'], 'p' => '']]));
         static::assertSame("<a>\n  <p>\n    foo\n  </p>\n  <br/>\n</a>\n", HTML::html(['a' => ['p' => 'foo', 'br' => 'empty']]));
+        static::assertThrows(\InvalidArgumentException::class, fn () => HTML::html(1));
+        static::assertSame("<a href=\"test\">\n  foo\n</a>", implode("\n", HTML::tag('a', ['href' => 'test'], content: 'foo', empty_tag: false)));
+        static::assertSame('<br/>', implode("\n", HTML::tag('br', attrs: null, content: null, empty_tag: true)));
     }
 }
