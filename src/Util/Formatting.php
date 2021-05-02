@@ -48,9 +48,9 @@ abstract class Formatting
         return self::$twig->createTemplate($template, null)->render($context);
     }
 
-    public static function twigRenderFile(string $template, array $context): string
+    public static function twigRenderFile(string $template_path, array $context): string
     {
-        return self::$twig->render($template, $context);
+        return self::$twig->render($template_path, $context);
     }
 
     /**
@@ -62,7 +62,7 @@ abstract class Formatting
      */
     public static function normalizePath(string $path): string
     {
-        return str_replace(['/', '\\'], ['/', '/'], $path);
+        return preg_replace(',(/|\\\\)+,', '/', $path);
     }
 
     /**
@@ -151,7 +151,7 @@ abstract class Formatting
      */
     public static function removeSuffix(string $haystack, string $needle)
     {
-        return self::startsWith($haystack, $needle) ? substr($haystack, -strlen($needle)) : $haystack;
+        return self::endsWith($haystack, $needle) && !empty($needle) ? substr($haystack, 0, -strlen($needle)) : $haystack;
     }
 
     public static function camelCaseToSnakeCase(string $str): string
