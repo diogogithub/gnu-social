@@ -19,7 +19,10 @@
 
 namespace App\Tests\Util;
 
+use App\Util\Exception\ServerException;
 use App\Util\Formatting;
+use App\Util\TemporaryFile;
+use InvalidArgumentException;
 use Jchook\AssertThrows\AssertThrows;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -27,8 +30,38 @@ class FormattingTest extends WebTestCase
 {
     use AssertThrows;
 
+    public function testTwigRenderString()
+    {
+        static::bootKernel();
+        // test container allows us to get the private twig service
+        $container = self::$kernel->getContainer()->get('test.service_container');
+        $twig      = $container->get('twig');
+        Formatting::setTwig($twig);
+        static::assertSame('<a href="/test"></a>', Formatting::twigRenderString('<a href="{{ref}}"></a>', ['ref' => '/test']));
+    }
+
+    public function testTwigRenderFile()
+    {
+        try {
+            static::bootKernel();
+            // test container allows us to get the private twig service
+            $container = self::$kernel->getContainer()->get('test.service_container');
+            $twig      = $container->get('twig');
+            Formatting::setTwig($twig);
+            $dir  = INSTALLDIR . '/templates/';
+            $temp = new TemporaryFile(['directory' => $dir, 'prefix' => '', 'suffix' => '.html.twig', 'permission' => 0777]);
+            $temp->write('<a href="{{ref}}"></a>');
+            static::assertSame('<a href="/test"></a>', Formatting::twigRenderFile(Formatting::removePrefix($temp->getRealPath(), $dir), ['ref' => '/test']));
+        } finally {
+            unset($temp);
+        }
+    }
+
     public function testNormalizePath()
     {
+        static::assertSame('', Formatting::normalizePath(''));
+        static::assertSame('foo', Formatting::normalizePath('foo'));
+        static::assertSame('foo/', Formatting::normalizePath('foo//'));
         static::assertSame('/foo/bar', Formatting::normalizePath('/foo/bar'));
         static::assertSame('/foo/bar', Formatting::normalizePath('\\foo\\bar'));
         static::assertSame('/foo/bar', Formatting::normalizePath('\\foo/bar'));
@@ -37,9 +70,12 @@ class FormattingTest extends WebTestCase
 
     public function testModuleFromPath()
     {
+        static::assertNull(Formatting::moduleFromPath(''));
+        static::assertNull(Formatting::moduleFromPath('/'));
         static::assertNull(Formatting::moduleFromPath('/var/www/social/src/Kernel.php'));
         static::assertSame('foo', Formatting::moduleFromPath('/var/www/social/plugins/foo/Foo.php'));
         static::assertSame('foo', Formatting::moduleFromPath('/var/www/social/components/foo/Foo.php'));
+        static::assertThrows(ServerException::class, fn () => Formatting::moduleFromPath('/components/'));
     }
 
     public function testStartsWithString()
@@ -84,6 +120,30 @@ class FormattingTest extends WebTestCase
         static::assertFalse(Formatting::endsWith(['oo', 'oo'], 'foo'));
     }
 
+    public function testRemovePrefix()
+    {
+        static::assertSame('', Formatting::removePrefix('', ''));
+        static::assertSame('', Formatting::removePrefix('', 'foo'));
+        static::assertSame('foo', Formatting::removePrefix('foo', ''));
+        static::assertSame('', Formatting::removePrefix('foo', 'foo'));
+        static::assertSame('foo', Formatting::removePrefix('foo', 'bar'));
+        static::assertSame('foo', Formatting::removePrefix('barfoo', 'bar'));
+        static::assertSame('foobar', Formatting::removePrefix('foobar', 'bar'));
+        static::assertSame('foobar', Formatting::removePrefix('barfoobar', 'bar'));
+    }
+
+    public function testRemoveSuffix()
+    {
+        static::assertSame('', Formatting::removeSuffix('', ''));
+        static::assertSame('', Formatting::removeSuffix('', 'foo'));
+        static::assertSame('foo', Formatting::removeSuffix('foo', ''));
+        static::assertSame('', Formatting::removeSuffix('foo', 'foo'));
+        static::assertSame('foo', Formatting::removeSuffix('foo', 'bar'));
+        static::assertSame('barfoo', Formatting::removeSuffix('barfoo', 'bar'));
+        static::assertSame('foo', Formatting::removeSuffix('foobar', 'bar'));
+        static::assertSame('barfoo', Formatting::removeSuffix('barfoobar', 'bar'));
+    }
+
     public function testCamelCaseToSnakeCase()
     {
         static::assertSame('foo_bar', Formatting::camelCaseToSnakeCase('FooBar'));
@@ -106,6 +166,7 @@ class FormattingTest extends WebTestCase
         static::assertSame('  foo', Formatting::indent('foo', level: 1, count: 2));
         static::assertSame("  foo\n  bar", Formatting::indent("foo\nbar"));
         static::assertSame("  foo\n  bar", Formatting::indent(['foo', 'bar']));
+        static::assertThrows(InvalidArgumentException::class, fn () => Formatting::indent(1));
     }
 
     public function testToString()
