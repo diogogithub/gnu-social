@@ -94,7 +94,7 @@ abstract class Common
         return self::ensureLoggedIn()->getNickname();
     }
 
-    public static function userId(): ?string
+    public static function userId(): ?int
     {
         return self::ensureLoggedIn()->getId();
     }
