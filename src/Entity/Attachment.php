@@ -213,17 +213,16 @@ class Attachment extends Entity
         return $this->height;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
-
 
     // }}} Autocode
 
@@ -303,7 +302,7 @@ class Attachment extends Entity
             ],
             'primary key' => ['id'],
             'unique keys' => [
-                // 'file_file_key' => ['file_hash', 'actor_id'],
+                'attachment_file_hash_uniq' => ['file_hash'],
             ],
             'indexes' => [
                 'file_filehash_idx' => ['file_hash'],
