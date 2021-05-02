@@ -43,6 +43,10 @@ docker/mail/config/passwd.db
 docker/mail/etc/service/*
 !docker/mail/etc/service/*/run
 
+!docker/testing/*
+!docker/testing/docker-compose.yaml
+docker/testing/*~
+
 docker-compose.yaml
 composer.local.json
 

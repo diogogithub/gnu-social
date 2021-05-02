@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+    php:
+        build: .
+        depends_on:
+          - db
+          - redis
+        volumes:
+            # Entrypoint
+            - ../php/entrypoint.sh:/entrypoint.sh
+            - ../db/wait_for_db.sh:/wait_for_db.sh
+            - ../social/install.sh:/var/entrypoint.d/0_social_install.sh
+            - ./coverage.sh:/var/entrypoint.d/8_coverage.sh
+            # Main files
+            - ../../:/var/www/social
+            - ./xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+        env_file:
+            - social.env
+            - db.env
+        command: /entrypoint.sh
+
+    db:
+        image: postgres:alpine
+        ports:
+            - 54320:5432
+        environment:
+            - PGDATA=/var/lib/postgres/data
+        env_file:
+            - db.env
+        volumes:
+            - database:/var/lib/postgres/data
+
+    redis:
+        image: redis:alpine
+        tty: false
+        ports:
+            - 63790:6379
+
+volumes:
+    database:
