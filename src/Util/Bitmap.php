@@ -19,6 +19,7 @@
 
 namespace App\Util;
 
+use App\Core\Log;
 use App\Util\Exception\ServerException;
 
 abstract class Bitmap

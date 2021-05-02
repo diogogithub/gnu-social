@@ -19,6 +19,8 @@
 
 namespace App\Tests\Util;
 
+use App\Util\Exception\ServerException;
+use Jchook\AssertThrows\AssertThrows;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 class FooBitmap extends \App\Util\Bitmap
@@ -35,8 +37,15 @@ class BarBitmap extends \App\Util\Bitmap
     public const PREFIX   = 'BAR_';
 }
 
+class QuuxBitmap extends \App\Util\Bitmap
+{
+    public const HELIUM = 2;
+}
+
 class BitmapTest extends KernelTestCase
 {
+    use AssertThrows;
+
     public function testObj()
     {
         $a = FooBitmap::create(FooBitmap::FOO | FooBitmap::BAR);
@@ -55,5 +64,10 @@ class BitmapTest extends KernelTestCase
     {
         $b = BarBitmap::toArray(BarBitmap::HYDROGEN | BarBitmap::HELIUM);
         static::assertSame(['BAR_HYDROGEN', 'BAR_HELIUM'], $b);
+    }
+
+    public function testThrows()
+    {
+        static::assertThrows(ServerException::class, fn () => QuuxBitmap::create(1));
     }
 }
