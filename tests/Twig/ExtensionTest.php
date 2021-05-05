@@ -33,10 +33,13 @@
 
 namespace App\Tests\Twig;
 
+use App\Core\DB\DB;
+use App\Core\Event;
 use App\Twig\Extension;
 use App\Twig\Runtime;
 use DirectoryIterator;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class ExtensionTest extends KernelTestCase
@@ -88,5 +91,20 @@ class ExtensionTest extends KernelTestCase
 
         static::assertSame('active', $runtime->isCurrentRouteActive('current_route'));
         static::assertSame('', $runtime->isCurrentRouteActive('some_route', 'some_other_route'));
+    }
+
+    public function testGetNoteActions()
+    {
+        static::bootKernel();
+        DB::setManager(self::$kernel->getContainer()->get('doctrine.orm.entity_manager'));
+        DB::initTableMap();
+
+        $container = self::$kernel->getContainer()->get('test.service_container');
+        $edi       = $container->get(EventDispatcherInterface::class);
+        Event::setDispatcher($edi);
+        $req     = $this->createMock(Request::class);
+        $runtime = new Runtime;
+        $runtime->setRequest($req);
+        static::assertSame([], $runtime->getNoteActions(DB::dql('select n from note n where n.content = \'some content\'')[0]));
     }
 }

@@ -32,6 +32,9 @@ namespace App\Util\Notification;
 
 use function App\Core\I18n\_m;
 
+/**
+ * @codeCoverageIgnore
+ */
 abstract class AbstractTransport
 {
     /**

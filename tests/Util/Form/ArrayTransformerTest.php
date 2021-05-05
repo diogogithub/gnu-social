@@ -20,19 +20,25 @@
 namespace App\Tests\Util\Form;
 
 use App\Util\Form\ArrayTransformer;
+use Jchook\AssertThrows\AssertThrows;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Form\Exception\TransformationFailedException;
 
 class ArrayTransformerTest extends WebTestCase
 {
+    use AssertThrows;
+
     public function testTransform()
     {
         static::assertSame('', (new ArrayTransformer)->transform([]));
         static::assertSame('foo bar quux', (new ArrayTransformer)->transform(['foo', 'bar', 'quux']));
+        static::assertThrows(TransformationFailedException::class, fn () => (new ArrayTransformer)->transform(''));
     }
 
     public function testReverseTransform()
     {
         static::assertSame([], (new ArrayTransformer)->reverseTransform(''));
         static::assertSame(['foo', 'bar', 'quux'], (new ArrayTransformer)->reverseTransform('foo bar quux'));
+        static::assertThrows(TransformationFailedException::class, fn () => (new ArrayTransformer)->reverseTransform(1));
     }
 }

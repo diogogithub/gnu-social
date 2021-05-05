@@ -30,7 +30,7 @@
 
 namespace App\Util\Notification;
 
-use App\Entity\Profile;
+use App\Entity\Gsactor;
 
 class Notification
 {
@@ -50,11 +50,11 @@ class Notification
     /**
      * Who caused this notification
      */
-    private Profile $profile;
+    private GSActor $gsactor;
 
-    public function __construct(int $type, Profile $profile)
+    public function __construct(int $type, GSActor $gsactor)
     {
         $this->type    = $type;
-        $this->profile = $profile;
+        $this->gsactor = $gsactor;
     }
 }
