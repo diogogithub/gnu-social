@@ -37,7 +37,7 @@ class TemporaryFile extends \SplFileInfo
     /**
      * @param array $options - ['prefix' => ?string, 'suffix' => ?string, 'mode' => ?string, 'directory' => ?string]
      */
-    public function __construct(array $options)
+    public function __construct(array $options = [])
     {
         $attempts = 16;
         for ($count = 0; $count < $attempts; ++$count) {
@@ -49,8 +49,10 @@ class TemporaryFile extends \SplFileInfo
             }
         }
         if ($count == $attempts) {
+            // @codeCoverageIgnoreStart
             $this->cleanup();
             throw new TemporaryFileException('Could not open file: ' . $filename);
+            // @codeCoverageIgnoreEnd
         }
 
         parent::__construct($filename);
@@ -67,7 +69,9 @@ class TemporaryFile extends \SplFileInfo
         if (!is_null($this->resource)) {
             return fwrite($this->resource, $data);
         } else {
+            // @codeCoverageIgnoreStart
             return null;
+            // @codeCoverageIgnoreEnd
         }
     }
 
@@ -134,7 +138,7 @@ class TemporaryFile extends \SplFileInfo
 
         // Memorise if the file was there and see if there is access
         $exists = file_exists($destpath);
-        if (!touch($destpath)) {
+        if (!@touch($destpath)) {
             throw new TemporaryFileException(
                 'Insufficient permissions for destination: "' . $destpath . '"'
             );
@@ -143,7 +147,9 @@ class TemporaryFile extends \SplFileInfo
             unlink($destpath);
         }
         if (!$this->close()) {
+            // @codeCoverageIgnoreStart
             throw new TemporaryFileException('Could not close the resource');
+            // @codeCoverageIgnoreEnd
         }
 
         rename($temppath, $destpath);
