@@ -16,11 +16,11 @@
                 {{ note.getContent() }}
             {% endapply %}
         {% endblock %}
-        <div class="note-other-content">
-            {% for other in get_note_other_content(note) %}
-                {% include '/'~ other.name ~ '/view.html.twig' with {'vars': other.vars} only %}
-            {% endfor %}
-        </div>
+        {# <div class="note-other-content"> #}
+        {#     {% for other in get_note_other_content(note) %} #}
+        {#         {% include '/'~ other.name ~ '/view.html.twig' with {'vars': other.vars} only %} #}
+        {#     {% endfor %} #}
+        {# </div> #}
         {% if hide_attachments is not defined %}
             <div class="note-attachments">
                 {% for attachment in note.getAttachments() %}

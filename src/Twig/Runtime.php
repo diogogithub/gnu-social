@@ -68,21 +68,6 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $actions;
     }
 
-    /**
-     * get extra note content
-     *
-     * @param Note $note
-     *
-     * @return array|mixed note content
-     */
-    public function getNoteOtherContent(Note $note)
-    {
-        $other = [];
-        Event::handle('show_note_content', [$this->request, $note, &$other]);
-
-        return $other;
-    }
-
     public function getConfig(...$args)
     {
         return Common::config(...$args);
