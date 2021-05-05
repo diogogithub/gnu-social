@@ -19,10 +19,14 @@
 
 namespace App\Tests\Util;
 
+use App\Core\DB\DB;
+use App\Entity\GSActor;
 use App\Util\Common;
 use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameInvalidException;
 use App\Util\Exception\NicknameReservedException;
+use App\Util\Exception\NicknameTakenException;
+use App\Util\Exception\NicknameTooLongException;
 use App\Util\Exception\NicknameTooShortException;
 use App\Util\Nickname;
 use Jchook\AssertThrows\AssertThrows;
@@ -42,14 +46,27 @@ class NicknameTest extends WebTestCase
            ->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
         Common::setupConfig($cb);
 
+        static::assertThrows(NicknameTooLongException::class, fn () => Nickname::normalize(serialize(random_bytes(128)), check_already_used: false));
         static::assertSame('foobar', Nickname::normalize('foobar', check_already_used: false));
         static::assertSame('foobar', Nickname::normalize('  foobar  ', check_already_used: false));
         static::assertSame('foobar', Nickname::normalize('foo_bar', check_already_used: false));
         static::assertSame('foobar', Nickname::normalize('FooBar', check_already_used: false));
-        static::assertThrows(NicknameTooShortException::class, function () { return Nickname::normalize('foo', check_already_used: false); });
-        static::assertThrows(NicknameEmptyException::class, function () { return Nickname::normalize('', check_already_used: false); });
-        static::assertThrows(NicknameInvalidException::class, function () { return Nickname::normalize('FóóBár', check_already_used: false); });
-        static::assertThrows(NicknameReservedException::class, function () { return Nickname::normalize('this_nickname_is_reserved', check_already_used: false); });
+        static::assertThrows(NicknameTooShortException::class, fn () => Nickname::normalize('foo', check_already_used: false));
+        static::assertThrows(NicknameEmptyException::class,    fn () => Nickname::normalize('', check_already_used: false));
+        static::assertThrows(NicknameInvalidException::class,  fn () => Nickname::normalize('FóóBár', check_already_used: false));
+        static::assertThrows(NicknameReservedException::class, fn () => Nickname::normalize('this_nickname_is_reserved', check_already_used: false));
+
+        static::bootKernel();
+        DB::setManager(self::$kernel->getContainer()->get('doctrine.orm.entity_manager'));
+        DB::initTableMap();
+        static::assertSame('foobar', Nickname::normalize('foobar', check_already_used: true));
+        static::assertThrows(NicknameTakenException::class, fn () => Nickname::normalize('taken_user', check_already_used: true));
+    }
+
+    public function testIsValid()
+    {
+        static::assertTrue(Nickname::isValid('nick', check_already_used: false));
+        static::assertFalse(Nickname::isValid('', check_already_used: false));
     }
 
     public function testIsCanonical()
@@ -63,11 +80,27 @@ class NicknameTest extends WebTestCase
         $conf = ['nickname' => ['min_length' => 4, 'reserved' => ['this_nickname_is_reserved']]];
         $cb   = $this->createMock(ContainerBagInterface::class);
         static::assertTrue($cb instanceof ContainerBagInterface);
-        $cb->method('get')
-           ->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
+        $cb->method('get')->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
         Common::setupConfig($cb);
-
         static::assertTrue(Nickname::isReserved('this_nickname_is_reserved'));
         static::assertFalse(Nickname::isReserved('this_nickname_is_not_reserved'));
+
+        $conf = ['nickname' => ['min_length' => 4, 'reserved' => []]];
+        $cb   = $this->createMock(ContainerBagInterface::class);
+        $cb->method('get')->willReturnMap([['gnusocial', $conf], ['gnusocial_defaults', $conf]]);
+        Common::setupConfig($cb);
+        static::assertFalse(Nickname::isReserved('this_nickname_is_reserved'));
+    }
+
+    public function testCheckTaken()
+    {
+        static::bootKernel();
+        DB::setManager(self::$kernel->getContainer()->get('doctrine.orm.entity_manager'));
+        DB::initTableMap();
+
+        static::assertNull(Nickname::checkTaken('not_taken_user'));
+        static::assertTrue(Nickname::checkTaken('taken_user') instanceof GSActor);
+        static::assertNull(Nickname::checkTaken('not_taken_group'));
+        static::assertTrue(Nickname::checkTaken('taken_group') instanceof GSActor);
     }
 }
