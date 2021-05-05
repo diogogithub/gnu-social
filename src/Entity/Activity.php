@@ -38,6 +38,7 @@ use DateTimeInterface;
 class Activity extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $id;
     private int $gsactor_id;
     private string $verb;
@@ -124,18 +125,18 @@ class Activity extends Entity
         return $this->source;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

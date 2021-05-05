@@ -48,6 +48,7 @@ use DateTimeInterface;
 class AttachmentEmbed extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $attachment_id;
     private ?string $mimetype;
     private ?string $filename;
@@ -205,6 +206,7 @@ class AttachmentEmbed extends Entity
         return $this->modified;
     }
 
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public function getAttachmentUrl()

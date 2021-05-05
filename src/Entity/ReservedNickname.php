@@ -39,6 +39,7 @@ use DateTimeInterface;
 class ReservedNickname extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private string $nickname;
     private \DateTimeInterface $created;
 
@@ -53,18 +54,18 @@ class ReservedNickname extends Entity
         return $this->nickname;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

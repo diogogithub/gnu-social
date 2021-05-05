@@ -39,6 +39,7 @@ use DateTimeInterface;
 class RelatedGroup extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $group_id;
     private int $related_group_id;
     private \DateTimeInterface $created;
@@ -65,18 +66,18 @@ class RelatedGroup extends Entity
         return $this->related_group_id;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

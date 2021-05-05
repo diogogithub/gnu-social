@@ -46,6 +46,7 @@ use Functional as F;
 class GSActor extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $id;
     private string $nickname;
     private string $normalized_nickname;
@@ -215,6 +216,7 @@ class GSActor extends Entity
         return $this->modified;
     }
 
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public function getAvatarUrl()

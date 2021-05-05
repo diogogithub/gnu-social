@@ -37,6 +37,7 @@ use DateTimeInterface;
 class RememberMeToken extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private string $series;
     private string $value;
     private \DateTimeInterface $lastused;
@@ -65,13 +66,13 @@ class RememberMeToken extends Entity
         return $this->value;
     }
 
-    public function setLastused(\DateTimeInterface $lastused): self
+    public function setLastused(DateTimeInterface $lastused): self
     {
         $this->lastused = $lastused;
         return $this;
     }
 
-    public function getLastused(): \DateTimeInterface
+    public function getLastused(): DateTimeInterface
     {
         return $this->lastused;
     }
@@ -98,7 +99,7 @@ class RememberMeToken extends Entity
         return $this->username;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

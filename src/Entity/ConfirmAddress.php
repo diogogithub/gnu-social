@@ -39,6 +39,7 @@ use DateTimeInterface;
 class ConfirmAddress extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private string $code;
     private ?int $user_id;
     private string $address;
@@ -103,40 +104,40 @@ class ConfirmAddress extends Entity
         return $this->address_type;
     }
 
-    public function setClaimed(?\DateTimeInterface $claimed): self
+    public function setClaimed(?DateTimeInterface $claimed): self
     {
         $this->claimed = $claimed;
         return $this;
     }
 
-    public function getClaimed(): ?\DateTimeInterface
+    public function getClaimed(): ?DateTimeInterface
     {
         return $this->claimed;
     }
 
-    public function setSent(\DateTimeInterface $sent): self
+    public function setSent(DateTimeInterface $sent): self
     {
         $this->sent = $sent;
         return $this;
     }
 
-    public function getSent(): \DateTimeInterface
+    public function getSent(): DateTimeInterface
     {
         return $this->sent;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

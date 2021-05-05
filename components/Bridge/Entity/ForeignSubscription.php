@@ -38,6 +38,7 @@ use DateTimeInterface;
 class ForeignSubscription
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $service;
     private int $subscriber;
     private int $subscribed;
@@ -76,18 +77,18 @@ class ForeignSubscription
         return $this->subscribed;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

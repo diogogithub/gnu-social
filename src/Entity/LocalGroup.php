@@ -41,6 +41,7 @@ use DateTimeInterface;
 class LocalGroup extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $group_id;
     private ?string $nickname;
     private \DateTimeInterface $created;
@@ -90,6 +91,7 @@ class LocalGroup extends Entity
         return $this->modified;
     }
 
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public function getActor()

@@ -39,6 +39,7 @@ use DateTimeInterface;
 class NoteTag extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private string $tag;
     private int $note_id;
     private \DateTimeInterface $created;
@@ -65,18 +66,18 @@ class NoteTag extends Entity
         return $this->note_id;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

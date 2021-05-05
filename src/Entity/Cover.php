@@ -39,6 +39,7 @@ use DateTimeInterface;
 class Cover extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $gsactor_id;
     private int $attachment_id;
     private \DateTimeInterface $created;
@@ -66,29 +67,29 @@ class Cover extends Entity
         return $this->attachment_id;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     private ?Attachment $attachment = null;

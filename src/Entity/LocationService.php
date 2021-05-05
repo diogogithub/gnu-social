@@ -39,6 +39,7 @@ use DateTimeInterface;
 class LocationService extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $id;
     private ?string $description;
     private \DateTimeInterface $created;
@@ -66,29 +67,29 @@ class LocationService extends Entity
         return $this->description;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

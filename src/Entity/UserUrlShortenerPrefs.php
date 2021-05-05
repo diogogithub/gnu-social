@@ -39,6 +39,7 @@ use DateTimeInterface;
 class UserUrlShortenerPrefs extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $user_id;
     private ?string $url_shortening_service;
     private int $max_url_length;
@@ -90,29 +91,29 @@ class UserUrlShortenerPrefs extends Entity
         return $this->max_notice_length;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

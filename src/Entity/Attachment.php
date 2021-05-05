@@ -43,6 +43,7 @@ use DateTimeInterface;
 class Attachment extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $id;
     private ?string $remote_url;
     private ?string $remote_url_hash;
@@ -224,6 +225,7 @@ class Attachment extends Entity
         return $this->modified;
     }
 
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     const URLHASH_ALGO  = 'sha256';

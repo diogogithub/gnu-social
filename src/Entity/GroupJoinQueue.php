@@ -38,6 +38,7 @@ use App\Core\Entity;
 class GroupJoinQueue extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $gsactor_id;
     private int $group_id;
 
@@ -63,7 +64,7 @@ class GroupJoinQueue extends Entity
         return $this->group_id;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

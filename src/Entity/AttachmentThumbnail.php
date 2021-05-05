@@ -50,6 +50,7 @@ use DateTimeInterface;
 class AttachmentThumbnail extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $attachment_id;
     private int $width;
     private int $height;
@@ -111,6 +112,7 @@ class AttachmentThumbnail extends Entity
         return $this->modified;
     }
 
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     private Attachment $attachment;

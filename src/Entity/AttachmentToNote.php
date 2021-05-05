@@ -39,6 +39,7 @@ use DateTimeInterface;
 class AttachmentToNote extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $attachment_id;
     private int $note_id;
     private \DateTimeInterface $modified;
@@ -65,18 +66,18 @@ class AttachmentToNote extends Entity
         return $this->note_id;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

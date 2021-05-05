@@ -56,7 +56,8 @@ abstract class DB
     private static array $table_map = [];
     public static function initTableMap()
     {
-        foreach (self::$em->getMetadataFactory()->getAllMetadata() as $meta) {
+        $all = self::$em->getMetadataFactory()->getAllMetadata();
+        foreach ($all as $meta) {
             self::$table_map[$meta->getTableName()] = $meta->getMetadataValue('name');
         }
     }

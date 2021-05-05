@@ -39,6 +39,7 @@ use DateTimeInterface;
 class GroupInbox extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $group_id;
     private int $activity_id;
     private \DateTimeInterface $created;
@@ -65,18 +66,18 @@ class GroupInbox extends Entity
         return $this->activity_id;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

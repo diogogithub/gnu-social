@@ -39,6 +39,7 @@ use DateTimeInterface;
 class GroupAlias extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private string $alias;
     private int $group_id;
     private \DateTimeInterface $modified;
@@ -65,18 +66,18 @@ class GroupAlias extends Entity
         return $this->group_id;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

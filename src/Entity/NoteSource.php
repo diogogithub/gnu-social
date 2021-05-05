@@ -39,6 +39,7 @@ use DateTimeInterface;
 class NoteSource extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private string $code;
     private string $name;
     private string $url;
@@ -77,18 +78,18 @@ class NoteSource extends Entity
         return $this->url;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

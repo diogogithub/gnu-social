@@ -38,6 +38,7 @@ use DateTimeInterface;
 class ForeignLink
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private int $user_id;
     private int $foreign_id;
     private int $service;
@@ -127,51 +128,51 @@ class ForeignLink
         return $this->profilesync;
     }
 
-    public function setLastNoticesync(?\DateTimeInterface $last_noticesync): self
+    public function setLastNoticesync(?DateTimeInterface $last_noticesync): self
     {
         $this->last_noticesync = $last_noticesync;
         return $this;
     }
 
-    public function getLastNoticesync(): ?\DateTimeInterface
+    public function getLastNoticesync(): ?DateTimeInterface
     {
         return $this->last_noticesync;
     }
 
-    public function setLastFriendsync(?\DateTimeInterface $last_friendsync): self
+    public function setLastFriendsync(?DateTimeInterface $last_friendsync): self
     {
         $this->last_friendsync = $last_friendsync;
         return $this;
     }
 
-    public function getLastFriendsync(): ?\DateTimeInterface
+    public function getLastFriendsync(): ?DateTimeInterface
     {
         return $this->last_friendsync;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array

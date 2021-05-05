@@ -39,6 +39,7 @@ use DateTimeInterface;
 class Invitation extends Entity
 {
     // {{{ Autocode
+    // @codeCoverageIgnoreStart
     private string $code;
     private int $user_id;
     private string $address;
@@ -101,18 +102,18 @@ class Invitation extends Entity
         return $this->registered_user_id;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-
+    // @codeCoverageIgnoreEnd
     // }}} Autocode
 
     public static function schemaDef(): array
