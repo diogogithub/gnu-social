@@ -1,6 +1,10 @@
 #!/bin/sh
 
-if /var/www/social/bin/phpunit --coverage-html .test_coverage_report; then
+cd /var/www/social || exit 65
+
+yes yes | php bin/console doctrine:fixtures:load || exit 65
+
+if bin/phpunit --coverage-html .test_coverage_report; then
     exit 64
 else
     exit 65
