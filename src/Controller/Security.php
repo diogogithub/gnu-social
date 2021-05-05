@@ -92,7 +92,7 @@ class Security extends Controller
             $valid_nickname = Nickname::normalize($data['nickname'], check_already_used: true);
 
             try {
-                $actor = GSActor::create(['nickname' => $data['nickname']]);
+                $actor = GSActor::create(['nickname' => $data['nickname'], 'normalized_nickname' => Nickname::normalize($data['nickname'], check_already_used: true)]);
                 $user  = LocalUser::create([
                     'nickname'       => $data['nickname'],
                     'outgoing_email' => $data['email'],

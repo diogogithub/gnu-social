@@ -48,6 +48,7 @@ class GSActor extends Entity
     // {{{ Autocode
     private int $id;
     private string $nickname;
+    private string $normalized_nickname;
     private ?string $fullname;
     private int $roles = 4;
     private ?string $homepage;
@@ -80,6 +81,17 @@ class GSActor extends Entity
     public function getNickname(): string
     {
         return $this->nickname;
+    }
+
+    public function setNormalizedNickname(string $normalized_nickname): self
+    {
+        $this->normalized_nickname = $normalized_nickname;
+        return $this;
+    }
+
+    public function getNormalizedNickname(): string
+    {
+        return $this->normalized_nickname;
     }
 
     public function setFullname(?string $fullname): self
@@ -181,28 +193,27 @@ class GSActor extends Entity
         return $this->location_service;
     }
 
-    public function setCreated(\DateTimeInterface $created): self
+    public function setCreated(DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): \DateTimeInterface
+    public function getCreated(): DateTimeInterface
     {
         return $this->created;
     }
 
-    public function setModified(\DateTimeInterface $modified): self
+    public function setModified(DateTimeInterface $modified): self
     {
         $this->modified = $modified;
         return $this;
     }
 
-    public function getModified(): \DateTimeInterface
+    public function getModified(): DateTimeInterface
     {
         return $this->modified;
     }
-
 
     // }}} Autocode
 
@@ -282,23 +293,25 @@ class GSActor extends Entity
             'name'        => 'gsactor',
             'description' => 'local and remote users, groups and bots are gsactors, for instance',
             'fields'      => [
-                'id'               => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
-                'nickname'         => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
-                'fullname'         => ['type' => 'text', 'description' => 'display name'],
-                'roles'            => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this gsactor has'],
-                'homepage'         => ['type' => 'text', 'description' => 'identifying URL'],
-                'bio'              => ['type' => 'text', 'description' => 'descriptive biography'],
-                'location'         => ['type' => 'text', 'description' => 'physical location'],
-                'lat'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
-                'lon'              => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
-                'location_id'      => ['type' => 'int', 'description' => 'location id if possible'],
-                'location_service' => ['type' => 'int', 'description' => 'service used to obtain location id'],
-                'created'          => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
-                'modified'         => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'                  => ['type' => 'serial', 'not null' => true, 'description' => 'unique identifier'],
+                'nickname'            => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'nickname or username'],
+                'normalized_nickname' => ['type' => 'varchar', 'length' => 64, 'not null' => true, 'description' => 'normalized (as per Nickanme::normalize) nickname or username'],
+                'fullname'            => ['type' => 'text', 'description' => 'display name'],
+                'roles'               => ['type' => 'int', 'not null' => true, 'default' => UserRoles::USER, 'description' => 'Bitmap of permissions this gsactor has'],
+                'homepage'            => ['type' => 'text', 'description' => 'identifying URL'],
+                'bio'                 => ['type' => 'text', 'description' => 'descriptive biography'],
+                'location'            => ['type' => 'text', 'description' => 'physical location'],
+                'lat'                 => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'latitude'],
+                'lon'                 => ['type' => 'numeric', 'precision' => 10, 'scale' => 7, 'description' => 'longitude'],
+                'location_id'         => ['type' => 'int', 'description' => 'location id if possible'],
+                'location_service'    => ['type' => 'int', 'description' => 'service used to obtain location id'],
+                'created'             => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
+                'modified'            => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'indexes'     => [
-                'gsactor_nickname_idx' => ['nickname'],
+                'gsactor_nickname_idx'            => ['nickname'],
+                'gsactor_normalized_nickname_idx' => ['normalized_nickname'],
             ],
             'fulltext indexes' => [
                 'gsactor_fulltext_idx' => ['nickname', 'fullname', 'location', 'bio', 'homepage'],
