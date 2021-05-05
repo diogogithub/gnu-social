@@ -23,8 +23,6 @@ namespace App\Util;
 
 use App\Core\DB\DB;
 use App\Entity\GSActor;
-use App\Entity\LocalGroup;
-use App\Entity\LocalUser;
 use App\Util\Exception\NicknameBlacklistedException;
 use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameException;
@@ -160,7 +158,7 @@ class Nickname
             } elseif (self::isReserved($nickname) || Common::isSystemPath($nickname)) {
                 throw new NicknameReservedException();
             } elseif ($check_already_used) {
-                $actor = self::isTaken($nickname);
+                $actor = self::checkTaken($nickname);
                 if ($actor instanceof GSActor) {
                     throw new NicknameTakenException($actor);
                 }
@@ -216,18 +214,16 @@ class Nickname
      *
      * @return null|GSActor Returns GSActor if nickname found
      */
-    public static function isTaken(string $nickname): ?GSActor
+    public static function checkTaken(string $nickname): ?GSActor
     {
-        $found = DB::findBy('local_user', ['nickname' => $nickname]);
-        if ($found instanceof LocalUser) {
-            return $found->getGSActor();
-        }
+        foreach (['local_user' => 'id', 'local_group' => 'group_id'] as $table => $id_field) {
+            $ret = DB::dql("select a from gsactor a join {$table} t with a.id = t.{$id_field} " .
+                           'where a.normalized_nickname = :nick', ['nick' => self::normalize($nickname, check_already_used: false)]);
 
-        $found = DB::findBy('local_group', ['nickname' => $nickname]);
-        if ($found instanceof LocalGroup) {
-            return $found->getGSActor();
+            if (!empty($ret)) {
+                return $ret[0];
+            }
         }
-
         return null;
     }
 }
