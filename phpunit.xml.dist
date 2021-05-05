@@ -5,6 +5,11 @@
     <include>
       <directory suffix=".php">src</directory>
     </include>
+    <exclude>
+      <directory>src/Util/Exception</directory>
+      <file>src/Kernel.php</file>
+      <file>src/CacheKernel.php</file>
+    </exclude>
   </coverage>
   <php>
     <ini name="error_reporting" value="-1"/>
