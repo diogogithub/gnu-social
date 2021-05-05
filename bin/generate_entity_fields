@@ -78,9 +78,11 @@ foreach ($files as $file) {
     $end   = '// }}} Autocode';
     $code  = "
     {$begin}
+    // @codeCoverageIgnoreStart
 {$fields_code}
 
 {$methods_code}
+    // @codeCoverageIgnoreEnd
     {$end}";
 
     foreach (['/\\//' => '\\/', '/ /' => '\\ '] as $from => $to) {
