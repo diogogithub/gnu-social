@@ -34,15 +34,13 @@
 namespace App\Tests\Twig;
 
 use App\Core\DB\DB;
-use App\Core\Event;
 use App\Twig\Extension;
 use App\Twig\Runtime;
+use App\Util\GNUsocialTestCase;
 use DirectoryIterator;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class ExtensionTest extends KernelTestCase
+class ExtensionTest extends GNUsocialTestCase
 {
     public function testIconsExtension()
     {
@@ -96,12 +94,7 @@ class ExtensionTest extends KernelTestCase
     public function testGetNoteActions()
     {
         static::bootKernel();
-        DB::setManager(self::$kernel->getContainer()->get('doctrine.orm.entity_manager'));
-        DB::initTableMap();
 
-        $container = self::$kernel->getContainer()->get('test.service_container');
-        $edi       = $container->get(EventDispatcherInterface::class);
-        Event::setDispatcher($edi);
         $req     = $this->createMock(Request::class);
         $runtime = new Runtime;
         $runtime->setRequest($req);

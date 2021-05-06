@@ -20,24 +20,20 @@
 namespace App\Tests\Util;
 
 use App\Core\DB\DB;
-use App\Core\Event;
-use App\Core\Router\Router;
 use App\Core\Security;
 use App\Entity\GSActor;
 use App\Entity\LocalUser;
 use App\Util\Common;
 use App\Util\Exception\NoLoggedInUser;
+use App\Util\GNUsocialTestCase;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Jchook\AssertThrows\AssertThrows;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security as SSecurity;
 
-class CommonTest extends WebTestCase
+class CommonTest extends GNUsocialTestCase
 {
     use AssertThrows;
 
@@ -73,8 +69,6 @@ class CommonTest extends WebTestCase
     public function testUserAndActorGetters()
     {
         $client = static::createClient();
-        $sec    = $this->getMockBuilder(SSecurity::class)->setConstructorArgs([self::$kernel->getContainer()])->getMock();
-        Security::setHelper($sec, null);
         static::assertNull(Common::user());
         static::assertThrows(NoLoggedInUser::class, fn () => Common::ensureLoggedIn());
         static::assertFalse(Common::isLoggedIn());
@@ -111,12 +105,6 @@ class CommonTest extends WebTestCase
     public function testIsSystemPath()
     {
         static::bootKernel();
-
-        $router           = static::$container->get('router');
-        $url_gen          = static::$container->get(UrlGeneratorInterface::class);
-        $event_dispatcher = static::$container->get(EventDispatcherInterface::class);
-        Router::setRouter($router, $url_gen);
-        Event::setDispatcher($event_dispatcher);
 
         static::assertTrue(Common::isSystemPath('login'));
         static::assertFalse(Common::isSystemPath('non-existent-path'));

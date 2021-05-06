@@ -19,7 +19,6 @@
 
 namespace App\Tests\Util;
 
-use App\Core\DB\DB;
 use App\Entity\GSActor;
 use App\Util\Common;
 use App\Util\Exception\NicknameEmptyException;
@@ -28,12 +27,12 @@ use App\Util\Exception\NicknameReservedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
 use App\Util\Exception\NicknameTooShortException;
+use App\Util\GNUsocialTestCase;
 use App\Util\Nickname;
 use Jchook\AssertThrows\AssertThrows;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
-class NicknameTest extends WebTestCase
+class NicknameTest extends GNUsocialTestCase
 {
     use AssertThrows;
 
@@ -57,8 +56,6 @@ class NicknameTest extends WebTestCase
         static::assertThrows(NicknameReservedException::class, fn () => Nickname::normalize('this_nickname_is_reserved', check_already_used: false));
 
         static::bootKernel();
-        DB::setManager(self::$kernel->getContainer()->get('doctrine.orm.entity_manager'));
-        DB::initTableMap();
         static::assertSame('foobar', Nickname::normalize('foobar', check_already_used: true));
         static::assertThrows(NicknameTakenException::class, fn () => Nickname::normalize('taken_user', check_already_used: true));
     }
@@ -95,8 +92,6 @@ class NicknameTest extends WebTestCase
     public function testCheckTaken()
     {
         static::bootKernel();
-        DB::setManager(self::$kernel->getContainer()->get('doctrine.orm.entity_manager'));
-        DB::initTableMap();
 
         static::assertNull(Nickname::checkTaken('not_taken_user'));
         static::assertTrue(Nickname::checkTaken('taken_user') instanceof GSActor);
