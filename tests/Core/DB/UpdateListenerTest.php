@@ -19,41 +19,42 @@
 
 namespace App\Tests\Core\DB;
 
+use App\Core\DB\DB;
 use App\Core\DB\UpdateListener;
-use App\Entity\GSActor;
+use App\Util\GNUsocialTestCase;
 use DateTime;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
-use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\UnitOfWork;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-class UpdateListenerTest extends KernelTestCase
+class UpdateListenerTest extends GNUsocialTestCase
 {
-    public function testPreUpdate()
+    public function testPreUpdateExists()
     {
         static::bootKernel();
-        $actor = new GSActor();
+        $actor = DB::findOneBy('gsactor', ['nickname' => 'taken_user']);
         $date  = new DateTime('1999-09-23');
         $actor->setModified($date);
         static::assertSame($actor->getModified(), $date);
 
-        $em  = $this->createMock(EntityManager::class);
-        $uow = $this->createMock(UnitOfWork::class);
-        $em->expects(static::once())
-           ->method('getUnitOfWork')
-           ->willReturn($uow);
-
-        $md = $this->createMock(ClassMetadata::class);
-        $em->expects(static::once())
-           ->method('getClassMetadata')
-           ->willReturn($md);
-
+        $em         = static::$container->get(EntityManagerInterface::class);
         $change_set = [];
         $args       = new PreUpdateEventArgs($actor, $em, $change_set);
         $ul         = new UpdateListener();
         $ul->preUpdate($args);
 
         static::assertNotSame($actor->getModified(), $date);
+    }
+
+    public function testPreUpdateDoesNotExist()
+    {
+        static::bootKernel();
+        $group_inbox = DB::dql('select gi from group_inbox gi join local_group lg with gi.group_id = lg.group_id where lg.nickname = :nickname', ['nickname' => 'taken_group'])[0];
+        static::assertTrue(!method_exists($group_inbox, 'setModified'));
+
+        $em         = static::$container->get(EntityManagerInterface::class);
+        $change_set = [];
+        $args       = new PreUpdateEventArgs($group_inbox, $em, $change_set);
+        $ul         = new UpdateListener();
+        static::assertFalse($ul->preUpdate($args));
     }
 }
