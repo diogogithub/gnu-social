@@ -36,6 +36,7 @@ use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Formatting;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query;
@@ -109,7 +110,7 @@ abstract class DB
      *
      * @see self::findBy for the syntax
      */
-    private static function buildExpression(ExpressionBuilder $eb, array $criteria)
+    private static function buildExpression(ExpressionBuilder $eb, array $criteria): array
     {
         $expressions = [];
         foreach ($criteria as $op => $exp) {
@@ -117,16 +118,17 @@ abstract class DB
                 $method = "{$op}X";
                 $expr   = self::buildExpression($eb, $exp);
                 if (is_array($expr)) {
-                    return $eb->{$method}(...$expr);
+                    $expressions[] = $eb->{$method}(...$expr);
                 } else {
-                    return $eb->{$method}($expr);
+                    $expressions[] = $eb->{$method}($expr);
                 }
             } elseif ($op == 'is_null') {
                 $expressions[] = $eb->isNull($exp);
             } else {
                 if (in_array($op, self::$find_by_ops)) {
-                    $method        = Formatting::snakeCaseToCamelCase($op);
-                    $expressions[] = $eb->{$method}(...$exp);
+                    foreach ($exp as $field => $value) {
+                        $expressions[] = $eb->{$op}($field, $value);
+                    }
                 } else {
                     $expressions[] = $eb->eq($op, $exp);
                 }
@@ -151,7 +153,8 @@ abstract class DB
         if (empty($ops)) {
             return $repo->findBy($criteria, $orderBy, $limit, $offset);
         } else {
-            $criteria = new Criteria(self::buildExpression(Criteria::expr(), $criteria), $orderBy, $offset, $limit);
+            $eb       = Criteria::expr();
+            $criteria = new Criteria($eb->andX(...self::buildExpression($eb, $criteria)), $orderBy, $offset, $limit);
             return $repo->matching($criteria)->toArray(); // Always work with array or it becomes really complicated
         }
     }
@@ -161,7 +164,7 @@ abstract class DB
      */
     public static function findOneBy(string $table, array $criteria, ?array $orderBy = null, ?int $offset = null)
     {
-        $res = self::findBy($table, $criteria, $orderBy, 1, $offset);
+        $res = self::findBy($table, $criteria, $orderBy, 2, $offset);
         if (count($res) == 1) {
             return $res[0];
         } else {
@@ -176,7 +179,7 @@ abstract class DB
     public static function count(string $table, array $criteria)
     {
         $repo = self::getRepository($table);
-        return $repo->count($table, $criteria);
+        return $repo->count($criteria);
     }
 
     /**
