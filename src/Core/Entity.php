@@ -40,7 +40,7 @@ abstract class Entity
             $private_property_accessor = $private_property_accessor->bindTo($this, get_called_class());
             return $private_property_accessor($prop);
         }
-        throw new \Exception('Non existent method ' . get_called_class() . "::{$name} called with arguments: " . print_r($arguments, true));
+        throw new \BadMethodCallException('Non existent method ' . get_called_class() . "::{$name} called with arguments: " . print_r($arguments, true));
     }
 
     /**

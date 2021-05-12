@@ -49,7 +49,11 @@ abstract class Security
         if (method_exists(self::$security, $name)) {
             return self::$security->{$name}(...$args);
         } else {
-            return self::$sanitizer->{$name}(...$args);
+            if (method_exists(self::$sanitizer, $name)) {
+                return self::$sanitizer->{$name}(...$args);
+            } else {
+                throw new \BadMethodCallException("Method Security::{$name} doesn't exist");
+            }
         }
     }
 }
