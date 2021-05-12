@@ -56,6 +56,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -87,6 +89,7 @@ class GNUsocial implements EventSubscriberInterface
     protected SanitizerInterface       $sanitizer;
     protected ContainerBagInterface    $config;
     protected \Twig\Environment        $twig;
+    protected Request                  $request;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -105,7 +108,8 @@ class GNUsocial implements EventSubscriberInterface
                                 HttpClientInterface $cl,
                                 SanitizerInterface $san,
                                 ContainerBagInterface $conf,
-                                \Twig\Environment $twig)
+                                \Twig\Environment $twig,
+                                RequestStack $request_stack)
     {
         $this->logger           = $logger;
         $this->translator       = $trans;
@@ -122,6 +126,7 @@ class GNUsocial implements EventSubscriberInterface
         $this->saniter          = $san;
         $this->config           = $conf;
         $this->twig             = $twig;
+        $this->request          = $request_stack->getCurrentRequest();
 
         $this->initialize();
     }
@@ -135,6 +140,7 @@ class GNUsocial implements EventSubscriberInterface
     {
         if (!$this->initialized) {
             Common::setupConfig($this->config);
+            Common::setRequest($this->request);
             Log::setLogger($this->logger);
             Event::setDispatcher($this->event_dispatcher);
             I18n::setTranslator($this->translator);
@@ -169,11 +175,11 @@ class GNUsocial implements EventSubscriberInterface
     public function onKernelRequest(RequestEvent $event,
                                     string $event_name): RequestEvent
     {
-        $request = $event->getRequest();
+        $this->request = $event->getRequest();
 
         // Save the target path, so we can redirect back after logging in
-        if (!(!$event->isMasterRequest() || $request->isXmlHttpRequest() || in_array($request->attributes->get('_route'), ['login', 'register', 'logout']))) {
-            $this->saveTargetPath($this->session, 'main', $request->getBaseUrl());
+        if (!(!$event->isMasterRequest() || $this->request->isXmlHttpRequest() || Common::isRoute(['login', 'register', 'logout']))) {
+            $this->saveTargetPath($this->session, 'main', $this->request->getBaseUrl());
         }
 
         $this->initialize();
@@ -188,6 +194,7 @@ class GNUsocial implements EventSubscriberInterface
      * @param EventDispatcherInterface $event_dispatcher
      *
      * @return ConsoleCommandEvent
+     * @codeCoverageIgnore
      */
     public function onCommand(ConsoleCommandEvent $event,
                               string $event_name): ConsoleCommandEvent
@@ -199,6 +206,8 @@ class GNUsocial implements EventSubscriberInterface
     /**
      * Tell Symfony which events we want to listen to, which Symfony detects and autowires
      * due to this implementing the `EventSubscriberInterface`
+     *
+     * @codeCoverageIgnore
      */
     public static function getSubscribedEvents()
     {

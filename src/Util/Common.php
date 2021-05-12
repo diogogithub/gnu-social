@@ -39,6 +39,7 @@ use App\Entity\LocalUser;
 use App\Util\Exception\NoLoggedInUser;
 use Functional as F;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Yaml;
 
@@ -50,6 +51,22 @@ abstract class Common
     {
         self::$config   = $config->get('gnusocial');
         self::$defaults = $config->get('gnusocial_defaults');
+    }
+
+    private static ?Request $request = null;
+    public static function setRequest(Request $req)
+    {
+        self::$request = $req;
+    }
+
+    public static function route()
+    {
+        return self::$request->attributes->get('_route');
+    }
+
+    public static function isRoute(string | array $routes)
+    {
+        return in_array(self::route(), is_array($routes) ? $routes : [$routes]);
     }
 
     /**
