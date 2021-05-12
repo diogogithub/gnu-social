@@ -75,11 +75,6 @@
     display: flex;
     flex-wrap: wrap;
     font-size: var(--medium-size);
-    border-radius: var(--unit-size);
-    background-color: var(--bg3);
-    box-shadow: var(--shadow);
-    margin: var(--unit-size);
-    border: solid 2px var(--accent-low);
 }
 .notes-wrap .timeline {
     order: 3;
@@ -96,6 +91,7 @@
 .notes-wrap .main-nav {
     width: 100%;
     font-size: var(--unit-size);
+    border-radius: 0;
 }
 
 .note {
