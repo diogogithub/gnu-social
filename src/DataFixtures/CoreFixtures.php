@@ -2,6 +2,7 @@
 
 namespace App\DataFixtures;
 
+use App\Core\VisibilityScope;
 use App\Entity\GroupInbox;
 use App\Entity\GSActor;
 use App\Entity\LocalGroup;
@@ -27,8 +28,13 @@ class CoreFixtures extends Fixture
             $actors[$nick] = $actor;
         }
 
-        $note = Note::create(['gsactor_id' => $actors['taken_user']->getId(), 'content' => 'some content']);
-        $manager->persist($note);
+        $n = Note::create(['gsactor_id' => $actors['taken_user']->getId(), 'content' => 'some content']);
+        $manager->persist($n);
+        $notes[] = Note::create(['gsactor_id' => $actors['taken_user']->getId(), 'content' => 'some other content', 'reply_to' => $n->getId()]);
+        $notes[] = Note::create(['gsactor_id' => $actors['taken_user']->getId(), 'content' => 'private note', 'scope' => VisibilityScope::FOLLOWER]);
+        foreach ($notes as $note) {
+            $manager->persist($note);
+        }
 
         $manager->persist(GroupInbox::create(['group_id' => $local_entities['taken_group']->getGroupId(), 'activity_id' => $note->getId()]));
         $manager->flush();
