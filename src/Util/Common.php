@@ -267,4 +267,19 @@ abstract class Common
         return filter_var($url, FILTER_VALIDATE_URL)
             && preg_match($regex, parse_url($url, PHP_URL_SCHEME));
     }
+
+    /**
+     * Flatten an array of ['note' => note, 'replies' => [notes]] to an array of notes
+     */
+    public static function flattenNoteArray(array $a): array
+    {
+        $notes = [];
+        foreach ($a as $n) {
+            $notes[] = $n['note'];
+            if (isset($n['replies'])) {
+                $notes = array_merge($notes, static::flattenNoteArray($n['replies']));
+            }
+        }
+        return $notes;
+    }
 }
