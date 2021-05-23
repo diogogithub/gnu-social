@@ -247,7 +247,7 @@ class Note extends Entity
      *
      * @param mixed $a
      */
-    public function isVisibleTo(/* GSActor|LocalUser */ $a): bool
+    public function isVisibleTo(GSActor | LocalUser $a): bool
     {
         $scope = VisibilityScope::create($this->scope);
         return $scope->public

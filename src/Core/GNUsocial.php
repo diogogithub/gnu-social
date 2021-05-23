@@ -89,7 +89,7 @@ class GNUsocial implements EventSubscriberInterface
     protected SanitizerInterface       $sanitizer;
     protected ContainerBagInterface    $config;
     protected \Twig\Environment        $twig;
-    protected Request                  $request;
+    protected ?Request                 $request;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -140,7 +140,9 @@ class GNUsocial implements EventSubscriberInterface
     {
         if (!$this->initialized) {
             Common::setupConfig($this->config);
-            Common::setRequest($this->request);
+            if (!is_null($this->request)) {
+                Common::setRequest($this->request);
+            }
             Log::setLogger($this->logger);
             Event::setDispatcher($this->event_dispatcher);
             I18n::setTranslator($this->translator);

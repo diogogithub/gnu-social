@@ -41,6 +41,7 @@ use App\Core\VisibilityScope;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
+use App\Util\Exception\NotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 
 class Network extends Controller
@@ -65,8 +66,9 @@ class Network extends Controller
 
     public function home(Request $request, string $nickname)
     {
-        $target = DB::findOneBy('gsactor', ['nickname' => $nickname]);
-        if ($target == null) {
+        try {
+            $target = DB::findOneBy('gsactor', ['nickname' => $nickname]);
+        } catch (NotFoundException) {
             throw new ClientException(_m('User {nickname} doesn\'t exist', ['{nickname}' => $nickname]));
         }
 
@@ -106,7 +108,7 @@ END;
 
     public function network(Request $request)
     {
-        $notes = Note::getAllNotes($this->instance_scope);
+        $notes = Note::getAllNotes($this->public_scope);
 
         Event::handle('FormatNoteList', [&$notes]);
 
