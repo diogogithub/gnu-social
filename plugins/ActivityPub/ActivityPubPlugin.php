@@ -42,7 +42,7 @@ const ACTIVITYPUB_PUBLIC_TO = ['https://www.w3.org/ns/activitystreams#Public',
                               ];
 const ACTIVITYPUB_HTTP_CLIENT_HEADERS = [
     'Accept: application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-    'User-Agent: GNUsocialBot ' . GNUSOCIAL_VERSION . ' - https://gnusocial.network'
+    'User-Agent: GNUsocialBot ' . GNUSOCIAL_VERSION . ' - https://gnusocial.rocks'
 ];
 
 /**
