@@ -240,7 +240,7 @@ class DirectMessagePlugin extends Plugin
             'name' => 'Direct Message',
             'version' => self::PLUGIN_VERSION,
             'author' => 'Mikael Nordfeldth, Bruno Casteleiro',
-            'homepage' => 'https://gnu.social/',
+            'homepage' => 'https://gnusocial.rocks/',
             'rawdescription' =>
             // TRANS: Plugin description.
             _m('Direct Message to other local users.')

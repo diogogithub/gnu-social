@@ -42,7 +42,7 @@ yourself, as these are for the development team to assign priority and area of
 coverage to a subject. Please only submit something here if you are certain it
 is a bug or represents a feature enhancement that we do not presently have. If
 you are uncertain whether it's a bug, please feel free to ask
-at #social IRC channel on freenode.net https://www.freenode.net/.
+at #social IRC channel at irc.libera.chat https://libera.chat/.
 
 When reporting a bug, please try to include as much information as possible,
 including the environment being run on (if it's a common LAMP stack just give

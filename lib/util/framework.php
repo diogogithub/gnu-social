@@ -31,7 +31,7 @@
 defined('GNUSOCIAL') || die();
 
 define('GNUSOCIAL_ENGINE', 'GNU social');
-define('GNUSOCIAL_ENGINE_URL', 'https://gnusocial.network/'); // Change to https://gnu.io/social/
+define('GNUSOCIAL_ENGINE_URL', 'https://gnusocial.rocks/');
 define('GNUSOCIAL_ENGINE_REPO_URL', 'https://notabug.org/diogo/gnu-social/'); // Change to https://git.gnu.io/gnu/gnu-social
 
 define('GNUSOCIAL_BASE_VERSION', '2.0.0');

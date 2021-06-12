@@ -135,9 +135,10 @@ As in any upgrade, do __not__ forget to run `/scripts/upgrade.php`.
 
 There are several ways to get more information about GNU social.
 
-* The #social IRC channel on freenode.net <https://www.freenode.net/>.
-* The unofficial XMPP room linked to IRC on <xmpp:gnusocial@conference.bka.li>
-* The GNU social website <https://gnu.io/social/>
+* The #social IRC channel at irc.libera.chat <https://libera.chat/>.
+* The #social:libera.chat Matrix room
+* The bridged XMPP room at <xmpp:gnusocial@conference.bka.li?join>
+* The GNU social website <https://gnusocial.rocks/>
 
 * GNU social has a bug tracker for any defects you may find, or ideas for
   making things better. <https://notabug.org/diogo/gnu-social/issues>
