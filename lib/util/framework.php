@@ -89,15 +89,16 @@ set_include_path(get_include_path() . PATH_SEPARATOR . INSTALLDIR . '/extlib/');
 
 // global configuration object
 
-require_once 'PEAR.php';
-require_once 'PEAR/Exception.php';
+// This is awful but system's PEAR always gives us issues, we've patched it
+require_once INSTALLDIR . '/extlib/' . 'PEAR.php';
+require_once INSTALLDIR . '/extlib/' . 'PEAR/Exception.php';
 global $_PEAR;
 $_PEAR = new PEAR;
 $_PEAR->setErrorHandling(PEAR_ERROR_CALLBACK, 'PEAR_ErrorToPEAR_Exception');
 
-require_once 'MDB2.php';
-require_once 'DB/DataObject.php';
-require_once 'DB/DataObject/Cast.php';  // for dates
+require_once INSTALLDIR . '/extlib/' . 'MDB2.php';
+require_once INSTALLDIR . '/extlib/' . 'DB/DataObject.php';
+require_once INSTALLDIR . '/extlib/' . 'DB/DataObject/Cast.php';  // for dates
 
 require_once INSTALLDIR . '/lib/util/language.php';
 
