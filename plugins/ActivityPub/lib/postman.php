@@ -87,7 +87,7 @@ class Activitypub_postman
      * @param string $method request method
      * @return GNUsocial_HTTPResponse
      * @throws HTTP_Request2_Exception
-     * @throws Exception
+     * @throws HTTP_Request2_LogicException
      * @author Diogo Cordeiro <diogo@fc.up.pt>
      */
     public function send($data, $inbox, $method = 'POST')
@@ -224,13 +224,16 @@ class Activitypub_postman
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
         foreach ($this->to_inbox() as $inbox) {
-            $res = $this->send($data, $inbox);
-
-            // accumulate errors for later use, if needed
-            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
-                $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body['error']) ?
-                          $res_body['error'] : "An unknown error occurred.";
+            try {
+                $res = $this->send($data, $inbox);
+                // accumulate errors for later use, if needed
+                if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                    $res_body = json_decode($res->getBody(), true);
+                    $errors[] = isset($res_body['error']) ?
+                        $res_body['error'] : "An unknown error occurred.";
+                    $to_failed[$inbox] = $notice;
+                }
+            } catch (Exception $e){
                 $to_failed[$inbox] = $notice;
             }
         }
@@ -260,13 +263,17 @@ class Activitypub_postman
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
         foreach ($this->to_inbox() as $inbox) {
-            $res = $this->send($data, $inbox);
+            try {
+                $res = $this->send($data, $inbox);
 
-            // accummulate errors for later use, if needed
-            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
-                $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body['error']) ?
-                          $res_body['error'] : "An unknown error occurred.";
+                // accummulate errors for later use, if needed
+                if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                    $res_body = json_decode($res->getBody(), true);
+                    $errors[] = isset($res_body['error']) ?
+                        $res_body['error'] : "An unknown error occurred.";
+                    $to_failed[$inbox] = $notice;
+                }
+            } catch (Exception $e) {
                 $to_failed[$inbox] = $notice;
             }
         }
@@ -296,13 +303,17 @@ class Activitypub_postman
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
 
         foreach ($this->to_inbox() as $inbox) {
-            $res = $this->send($data, $inbox);
+            try {
+                $res = $this->send($data, $inbox);
 
-            // accummulate errors for later use, if needed
-            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
-                $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body['error']) ?
-                          $res_body['error'] : "An unknown error occurred.";
+                // accummulate errors for later use, if needed
+                if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                    $res_body = json_decode($res->getBody(), true);
+                    $errors[] = isset($res_body['error']) ?
+                        $res_body['error'] : "An unknown error occurred.";
+                    $to_failed[$inbox] = $notice;
+                }
+            } catch (Exception $e) {
                 $to_failed[$inbox] = $notice;
             }
         }
@@ -361,13 +372,17 @@ class Activitypub_postman
         );
 
         foreach ($this->to_inbox() as $inbox) {
-            $res = $this->send($data, $inbox);
+            try {
+                $res = $this->send($data, $inbox);
 
-            // accummulate errors for later use, if needed
-            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
-                $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body['error']) ?
-                          $res_body['error'] : "An unknown error occurred.";
+                // accummulate errors for later use, if needed
+                if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                    $res_body = json_decode($res->getBody(), true);
+                    $errors[] = isset($res_body['error']) ?
+                        $res_body['error'] : "An unknown error occurred.";
+                    $to_failed[$inbox] = $notice;
+                }
+            } catch (Exception $e) {
                 $to_failed[$inbox] = $notice;
             }
         }
@@ -392,11 +407,15 @@ class Activitypub_postman
         $errors = [];
         $data = json_encode($data, JSON_UNESCAPED_SLASHES);
         foreach ($this->to_inbox() as $inbox) {
-            $res = $this->send($data, $inbox);
-            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
-                $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body['error']) ?
-                          $res_body['error'] : "An unknown error occurred.";
+            try {
+                $res = $this->send($data, $inbox);
+                if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                    $res_body = json_decode($res->getBody(), true);
+                    $errors[] = isset($res_body['error']) ?
+                        $res_body['error'] : "An unknown error occurred.";
+                    $to_failed[$inbox] = $notice;
+                }
+            } catch (Exception $e) {
                 $to_failed[$inbox] = $notice;
             }
         }
@@ -419,13 +438,17 @@ class Activitypub_postman
 
         $errors = [];
         foreach ($this->to_inbox() as $inbox) {
-            $res = $this->send($data, $inbox);
+            try {
+                $res = $this->send($data, $inbox);
 
-            // accumulate errors for later use, if needed
-            if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
-                $res_body = json_decode($res->getBody(), true);
-                $errors[] = isset($res_body['error']) ?
-                          $res_body['error'] : "An unknown error occurred.";
+                // accumulate errors for later use, if needed
+                if (!($res->getStatus() == 200 || $res->getStatus() == 202 || $res->getStatus() == 409)) {
+                    $res_body = json_decode($res->getBody(), true);
+                    $errors[] = isset($res_body['error']) ?
+                        $res_body['error'] : "An unknown error occurred.";
+                }
+            } catch (Exception $e) {
+                $to_failed[$inbox] = $notice;
             }
         }
 
