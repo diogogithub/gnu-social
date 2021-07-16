@@ -107,25 +107,18 @@ class RawInboxNoticeStream extends FullNoticeStream
         $notice->whereAdd(sprintf('notice.created > "%s"', $notice->escape($this->target->created)));
         // Reply:: is a table of mentions
         // Subscription:: is a table of subscriptions (every user is subscribed to themselves)
-        $notice->_join .= sprintf(
-            "\n" . <<<'END'
-            LEFT JOIN (
-              SELECT id FROM notice
-                WHERE profile_id
-                IN (SELECT subscribed FROM subscription WHERE subscriber = %1$d)
-              UNION ALL
-              SELECT notice_id AS id FROM reply WHERE profile_id = %1$d
-              UNION ALL
-              SELECT notice_id AS id FROM attention WHERE profile_id = %1$d
-              UNION ALL
-              SELECT notice_id AS id FROM group_inbox INNER JOIN group_member USING (group_id)
-                WHERE group_member.profile_id = %1$d
-            ) AS t1 USING (id)
-            END,
-            $this->target->getID()
+        // Sort in descending order as id will give us even really old posts,
+        // which were recently imported. For example, if a remote instance had
+        // problems and just managed to post here.
+        $notice->whereAdd(
+            sprintf('id IN (SELECT DISTINCT id FROM (' .
+                '(SELECT id FROM notice WHERE profile_id IN (SELECT subscribed FROM subscription WHERE subscriber = %1$d)) UNION ' .
+                '(SELECT notice_id AS id FROM reply WHERE profile_id = %1$d) UNION ' .
+                '(SELECT notice_id AS id FROM attention WHERE profile_id = %1$d) UNION ' .
+                '(SELECT notice_id AS id FROM group_inbox WHERE group_id IN (SELECT group_id FROM group_member WHERE profile_id = %1$d)) ' .
+                'ORDER BY id DESC) AS T)',
+                $this->target->getID())
         );
-
-        $notice->whereAdd('t1.id IS NOT NULL');
 
         if (!empty($since_id)) {
             $notice->whereAdd(sprintf('notice.id > %d', $since_id));
@@ -135,11 +128,6 @@ class RawInboxNoticeStream extends FullNoticeStream
         }
 
         self::filterVerbs($notice, $this->selectVerbs);
-
-        // notice.id will give us even really old posts, which were recently
-        // imported. For example if a remote instance had problems and just
-        // managed to post here.
-        $notice->orderBy('id DESC');
 
         $notice->limit($offset, $limit);
 
