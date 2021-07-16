@@ -62,7 +62,7 @@ $fn->query(sprintf(
       FROM file_to_post
       INNER JOIN file ON file_to_post.file_id = file.id
       INNER JOIN notice ON file_to_post.post_id = notice.id
-      WHERE notice.is_local = 0 AND notice.modified <= '%3$s'
+      WHERE notice.is_local = 0 AND notice.modified <= '%1$s'
       GROUP BY file_to_post.file_id
       ORDER BY MAX(notice.modified)
     END,
