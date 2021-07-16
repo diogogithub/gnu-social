@@ -326,7 +326,10 @@ class MediaFile
             $original_name = preg_replace('/\.+.+$/i', ".{$ext}", $original_name);
         }
 
-        $enc_name = bin2hex($original_name);
+        // Avoid unnecessarily large file names
+        $pretty_name = substr(trim($original_name), 0, 30); // 30 seems like a sensible limit for a file name
+
+        $enc_name = bin2hex($pretty_name);
         return "{$enc_name}-{$filehash}";
     }
 
