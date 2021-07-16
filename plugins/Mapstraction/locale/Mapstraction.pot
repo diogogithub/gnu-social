@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-16 19:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,6 +31,13 @@ msgstr ""
 msgid "%1$s friends map, page %2$d"
 msgstr ""
 
+#. TRANS: Title for map widget.
+#. TRANS: %s is a user name.
+#: actions/usermap.php:66
+#, php-format
+msgid "%s map"
+msgstr ""
+
 #. TRANS: Client error displayed when referring to a non-existing user.
 #: actions/map.php:72
 msgid "No such user."
@@ -39,13 +46,6 @@ msgstr ""
 #. TRANS: Error message displayed when referring to a user without a profile.
 #: actions/map.php:79
 msgid "User has no profile."
-msgstr ""
-
-#. TRANS: Title for map widget.
-#. TRANS: %s is a user name.
-#: actions/usermap.php:66
-#, php-format
-msgid "%s map"
 msgstr ""
 
 #. TRANS: Header for Map widget that displays a map with geodata for notices.

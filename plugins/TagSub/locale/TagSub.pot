@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-16 19:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,32 +17,35 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Form legend.
-#: forms/tagsub.php:109
-msgid "Subscribe to this tag"
+#. TRANS: Client error displayed trying to perform any request method other than POST.
+#. TRANS: Do not translate POST.
+#: actions/tagsub.php:79
+msgid "This action only accepts POST requests."
 msgstr ""
 
-#: forms/tagsub.php:137
-msgctxt "BUTTON"
-msgid "Subscribe"
+#. TRANS: Client error displayed when the session token is not okay.
+#: actions/tagsub.php:88
+msgid "There was a problem with your session token. Try again, please."
 msgstr ""
 
-#: forms/tagsub.php:141
-msgid "Subscribe to this tag."
+#. TRANS: Error message displayed when trying to perform an action that requires a logged in user.
+#: actions/tagsub.php:98
+msgid "Not logged in."
 msgstr ""
 
-#. TRANS: Form legend.
-#: forms/tagunsub.php:91
-msgid "Unsubscribe from this tag"
+#. TRANS: Client error displayed trying to subscribe to a non-existing profile.
+#: actions/tagsub.php:107
+msgid "No such profile."
 msgstr ""
 
-#: forms/tagunsub.php:105
-msgctxt "BUTTON"
-msgid "Unsubscribe"
+#. TRANS: Page title when tag subscription succeeded.
+#: actions/tagsub.php:134
+msgid "Subscribed"
 msgstr ""
 
-#: forms/tagunsub.php:109
-msgid "Unsubscribe from this tag."
+#. TRANS: Page title when tag unsubscription succeeded.
+#: actions/tagunsub.php:77
+msgid "Unsubscribed"
 msgstr ""
 
 #. TRANS: Header for subscriptions overview for a user (first page).
@@ -95,35 +98,32 @@ msgstr ""
 msgid "#<a href=\"%1$s\">%2$s</a> since %3$s"
 msgstr ""
 
-#. TRANS: Client error displayed trying to perform any request method other than POST.
-#. TRANS: Do not translate POST.
-#: actions/tagsub.php:79
-msgid "This action only accepts POST requests."
+#. TRANS: Form legend.
+#: forms/tagsub.php:109
+msgid "Subscribe to this tag"
 msgstr ""
 
-#. TRANS: Client error displayed when the session token is not okay.
-#: actions/tagsub.php:88
-msgid "There was a problem with your session token. Try again, please."
+#: forms/tagsub.php:137
+msgctxt "BUTTON"
+msgid "Subscribe"
 msgstr ""
 
-#. TRANS: Error message displayed when trying to perform an action that requires a logged in user.
-#: actions/tagsub.php:98
-msgid "Not logged in."
+#: forms/tagsub.php:141
+msgid "Subscribe to this tag."
 msgstr ""
 
-#. TRANS: Client error displayed trying to subscribe to a non-existing profile.
-#: actions/tagsub.php:107
-msgid "No such profile."
+#. TRANS: Form legend.
+#: forms/tagunsub.php:91
+msgid "Unsubscribe from this tag"
 msgstr ""
 
-#. TRANS: Page title when tag subscription succeeded.
-#: actions/tagsub.php:134
-msgid "Subscribed"
+#: forms/tagunsub.php:105
+msgctxt "BUTTON"
+msgid "Unsubscribe"
 msgstr ""
 
-#. TRANS: Page title when tag unsubscription succeeded.
-#: actions/tagunsub.php:77
-msgid "Unsubscribed"
+#: forms/tagunsub.php:109
+msgid "Unsubscribe from this tag."
 msgstr ""
 
 #. TRANS: Plugin description.

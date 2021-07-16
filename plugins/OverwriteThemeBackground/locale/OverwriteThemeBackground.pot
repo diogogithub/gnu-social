@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-16 19:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,18 +17,13 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Plugin description for OverwriteThemeBackground plugin.
-#: OverwriteThemeBackgroundPlugin.php:69
-msgid "A friendly plugin for overwriting your theme's background style."
-msgstr ""
-
-#: OverwriteThemeBackgroundPlugin.php:100
 #: actions/overwritethemebackgroundadminpanel.php:44
+#: OverwriteThemeBackgroundPlugin.php:100
 msgid "Overwrite Theme Background"
 msgstr ""
 
-#: OverwriteThemeBackgroundPlugin.php:101
 #: actions/overwritethemebackgroundadminpanel.php:54
+#: OverwriteThemeBackgroundPlugin.php:101
 msgid "Customize your theme's background easily"
 msgstr ""
 
@@ -97,4 +92,9 @@ msgstr ""
 #. TRANS: Button title for saving site settings.
 #: actions/overwritethemebackgroundadminpanel.php:301
 msgid "Save the site settings."
+msgstr ""
+
+#. TRANS: Plugin description for OverwriteThemeBackground plugin.
+#: OverwriteThemeBackgroundPlugin.php:69
+msgid "A friendly plugin for overwriting your theme's background style."
 msgstr ""

@@ -1,5 +1,5 @@
 # GNU social 2.0.x
-(c) 2010-2019 Free Software Foundation, Inc
+(c) 2010-2021 Free Software Foundation, Inc
 
 This is the README file for GNU social, the free
 software social networking platform. It includes
@@ -36,7 +36,7 @@ XMPP), and specially-designed desktop clients that
 support the Twitter API.
 
 GNU social supports open standards (such as OStatus
-<https://www.w3.org/community/ostatus/>) that lets users in
+<https://www.w3.org/community/ostatus/> and ActivityPub <https://activitypub.rocks/>) that lets users in
 different networks follow each other. It enables a
 distributed social network spread all across the
 Web.
@@ -102,34 +102,7 @@ unless you configured a separate logfile. This is
 probably the first place to look if you're getting
 weird behaviour from GNU social.
 
-If you're tracking the unstable version of
-GNU social in the git repository (see below), and you
-get a compilation error ("unexpected T_STRING") in
-the browser, check to see that you don't have any
-conflicts in your code.
-
-### Unstable version
-
-If you're adventurous or impatient, you may want
-to install the development version of GNU social.
-To get it, use the git version control tool
-<http://git-scm.com/> like so:
-
-    git clone https://notabug.org/diogo/gnu-social.git
-
-In the current phase of development it is probably
-recommended to use git as a means to stay up to date
-with the source code. You can choose between these
-branches:
-* 1.20.x    "oldstable", few updates, well tested coded ( **recommended** )
-* master    "stable", usually working well (should be safe)
-* nightly   "testing", most updates, not always working as expected (can be dangerous)
-
-**IMPORTANT: We force push to the nightly branch, the nightly branch is intended for GNU social developers only.**
-
-To keep it up-to-date, use `git pull`. Watch for conflicts!
-
-As in any upgrade, do __not__ forget to run `/scripts/upgrade.php`.
+Do __not__ forget to run `/scripts/upgrade.php` if you're upgrading to this release.
 
 ## Further information
 
@@ -142,7 +115,7 @@ There are several ways to get more information about GNU social.
 
 * GNU social has a bug tracker for any defects you may find, or ideas for
   making things better. <https://notabug.org/diogo/gnu-social/issues>
-* Patches are welcome, preferrably to our repository on notabug.org. <https://notabug.org/diogo/gnu-social>
+* Patches are welcome, preferably to our repository on notabug.org. <https://notabug.org/diogo/gnu-social>
 
 ## Credits
 
@@ -150,11 +123,9 @@ An incomplete list of developers who've worked on GNU social,
 or its predecessors StatusNet and Free Social has been made available
 in `CREDITS.md`.
 
-### Current team
+### Release development team
 
-* Matt Lee
-* Mikael Nordfeldth
 * Diogo Cordeiro
-* Bruno Casteleiro
-* Miguel Dantas
 * Alexei Sorokin
+* Many important contributions from GNU social Summer of Code students such as Bruno Casteleiro and Hugo Sales.
+

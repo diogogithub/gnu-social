@@ -55,7 +55,7 @@ const ACTIVITYPUB_HTTP_CLIENT_HEADERS = [
  */
 class ActivityPubPlugin extends Plugin
 {
-    const PLUGIN_VERSION = '0.4.0alpha0';
+    const PLUGIN_VERSION = '0.5.0beta0';
 
     /**
      * Returns a Actor's URI from its local $profile

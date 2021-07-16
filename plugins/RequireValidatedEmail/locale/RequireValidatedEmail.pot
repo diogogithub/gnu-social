@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-16 19:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -100,20 +100,20 @@ msgid "Save"
 msgstr ""
 
 #. TRANS: Client exception thrown when trying to post notices before validating an e-mail address.
-#: RequireValidatedEmailPlugin.php:100
+#: RequireValidatedEmailPlugin.php:108
 msgid "You must validate your email address before posting."
 msgstr ""
 
 #. TRANS: Client exception thrown when trying to register without providing an e-mail address.
-#: RequireValidatedEmailPlugin.php:120
+#: RequireValidatedEmailPlugin.php:128
 msgid "You must provide an email address to register."
 msgstr ""
 
 #. TRANS: Plugin description.
-#: RequireValidatedEmailPlugin.php:221
+#: RequireValidatedEmailPlugin.php:234
 msgid "Disables posting without a validated email address."
 msgstr ""
 
-#: RequireValidatedEmailPlugin.php:240
+#: RequireValidatedEmailPlugin.php:253
 msgid "You must validate an email address before posting!"
 msgstr ""

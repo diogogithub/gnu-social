@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-16 19:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,12 +17,92 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: classes/GNUsocialProfileExtensionResponse.php:74
-msgid "Error creating new response."
+#. TRANS: Title for extended profile entry deletion dialog.
+#: lib/extendedprofilewidget.php:84
+msgid "Confirmation Required"
 msgstr ""
 
-#: classes/GNUsocialProfileExtensionField.php:75
-msgid "Error creating new field."
+#. TRANS: Confirmation text for extended profile entry deletion dialog.
+#: lib/extendedprofilewidget.php:87
+msgid "Really delete this entry?"
+msgstr ""
+
+#. TRANS: Value between parentheses (phone number, website, or IM address).
+#: lib/extendedprofilewidget.php:171 lib/extendedprofilewidget.php:185
+#: lib/extendedprofilewidget.php:206
+#, php-format
+msgid "(%s)"
+msgstr ""
+
+#. TRANS: Field label in experience area of extended profile.
+#. TRANS: Field label in experience edit area of extended profile (which company does one work for).
+#: lib/extendedprofilewidget.php:329 lib/extendedprofilewidget.php:380
+msgid "Company"
+msgstr ""
+
+#. TRANS: Field label in extended profile (when did one start a position or education).
+#: lib/extendedprofilewidget.php:335 lib/extendedprofilewidget.php:388
+#: lib/extendedprofilewidget.php:434 lib/extendedprofilewidget.php:494
+msgid "Start"
+msgstr ""
+
+#. TRANS: Field label in extended profile (when did one end a position or education).
+#: lib/extendedprofilewidget.php:345 lib/extendedprofilewidget.php:396
+#: lib/extendedprofilewidget.php:444 lib/extendedprofilewidget.php:503
+msgid "End"
+msgstr ""
+
+#. TRANS: Field value in experience area of extended profile (one still holds a position).
+#: lib/extendedprofilewidget.php:360
+msgid "(Current)"
+msgstr ""
+
+#. TRANS: Checkbox label in experience edit area of extended profile (one still works at a company).
+#: lib/extendedprofilewidget.php:411
+msgid "Current"
+msgstr ""
+
+#. TRANS: Field label in education area of extended profile.
+#. TRANS: Field label in education edit area of extended profile.
+#. TRANS: Field label for extended profile properties.
+#: lib/extendedprofilewidget.php:424 lib/extendedprofilewidget.php:469
+#: lib/extendedprofile.php:254 lib/extendedprofile.php:267
+msgid "Institution"
+msgstr ""
+
+#. TRANS: Field label in extended profile for specifying an academic degree.
+#: lib/extendedprofilewidget.php:428 lib/extendedprofilewidget.php:477
+msgid "Degree"
+msgstr ""
+
+#. TRANS: Field label in education area of extended profile.
+#. TRANS: Field label in education edit area of extended profile.
+#: lib/extendedprofilewidget.php:431 lib/extendedprofilewidget.php:485
+#: actions/profilefieldsadminpanel.php:196
+msgid "Description"
+msgstr ""
+
+#. TRANS: Link description in extended profile page to add another profile element.
+#: lib/extendedprofilewidget.php:535
+msgid "Add another item"
+msgstr ""
+
+#. TRANS: Field label for undefined field in extended profile.
+#: lib/extendedprofilewidget.php:650
+#, php-format
+msgid "TYPE: %s"
+msgstr ""
+
+#. TRANS: Button text for saving extended profile properties.
+#: lib/extendedprofilewidget.php:665 actions/profilefieldsadminpanel.php:224
+msgctxt "BUTTON"
+msgid "Save"
+msgstr ""
+
+#. TRANS: .
+#. TRANS: Button title for saving extended profile properties.
+#: lib/extendedprofilewidget.php:670
+msgid "Save details"
 msgstr ""
 
 #. TRANS: Field label for extended profile properties.
@@ -43,14 +123,6 @@ msgstr ""
 #. TRANS: Field label for extended profile properties.
 #: lib/extendedprofile.php:215 lib/extendedprofile.php:227
 msgid "Employer"
-msgstr ""
-
-#. TRANS: Field label for extended profile properties.
-#. TRANS: Field label in education area of extended profile.
-#. TRANS: Field label in education edit area of extended profile.
-#: lib/extendedprofile.php:254 lib/extendedprofile.php:267
-#: lib/extendedprofilewidget.php:426 lib/extendedprofilewidget.php:471
-msgid "Institution"
 msgstr ""
 
 #. TRANS: Field label for extended profile properties.
@@ -120,86 +192,6 @@ msgstr ""
 
 #: lib/extendedprofile.php:398
 msgid "Additional information"
-msgstr ""
-
-#. TRANS: Title for extended profile entry deletion dialog.
-#: lib/extendedprofilewidget.php:85
-msgid "Confirmation Required"
-msgstr ""
-
-#. TRANS: Confirmation text for extended profile entry deletion dialog.
-#: lib/extendedprofilewidget.php:88
-msgid "Really delete this entry?"
-msgstr ""
-
-#. TRANS: Value between parentheses (phone number, website, or IM address).
-#: lib/extendedprofilewidget.php:172 lib/extendedprofilewidget.php:185
-#: lib/extendedprofilewidget.php:209
-#, php-format
-msgid "(%s)"
-msgstr ""
-
-#. TRANS: Field label in experience area of extended profile.
-#. TRANS: Field label in experience edit area of extended profile (which company does one work for).
-#: lib/extendedprofilewidget.php:331 lib/extendedprofilewidget.php:382
-msgid "Company"
-msgstr ""
-
-#. TRANS: Field label in extended profile (when did one start a position or education).
-#: lib/extendedprofilewidget.php:337 lib/extendedprofilewidget.php:390
-#: lib/extendedprofilewidget.php:436 lib/extendedprofilewidget.php:496
-msgid "Start"
-msgstr ""
-
-#. TRANS: Field label in extended profile (when did one end a position or education).
-#: lib/extendedprofilewidget.php:347 lib/extendedprofilewidget.php:398
-#: lib/extendedprofilewidget.php:446 lib/extendedprofilewidget.php:505
-msgid "End"
-msgstr ""
-
-#. TRANS: Field value in experience area of extended profile (one still holds a position).
-#: lib/extendedprofilewidget.php:362
-msgid "(Current)"
-msgstr ""
-
-#. TRANS: Checkbox label in experience edit area of extended profile (one still works at a company).
-#: lib/extendedprofilewidget.php:413
-msgid "Current"
-msgstr ""
-
-#. TRANS: Field label in extended profile for specifying an academic degree.
-#: lib/extendedprofilewidget.php:430 lib/extendedprofilewidget.php:479
-msgid "Degree"
-msgstr ""
-
-#. TRANS: Field label in education area of extended profile.
-#. TRANS: Field label in education edit area of extended profile.
-#: lib/extendedprofilewidget.php:433 lib/extendedprofilewidget.php:487
-#: actions/profilefieldsadminpanel.php:196
-msgid "Description"
-msgstr ""
-
-#. TRANS: Link description in extended profile page to add another profile element.
-#: lib/extendedprofilewidget.php:537
-msgid "Add another item"
-msgstr ""
-
-#. TRANS: Field label for undefined field in extended profile.
-#: lib/extendedprofilewidget.php:652
-#, php-format
-msgid "TYPE: %s"
-msgstr ""
-
-#. TRANS: Button text for saving extended profile properties.
-#: lib/extendedprofilewidget.php:667 actions/profilefieldsadminpanel.php:224
-msgctxt "BUTTON"
-msgid "Save"
-msgstr ""
-
-#. TRANS: .
-#. TRANS: Button title for saving extended profile properties.
-#: lib/extendedprofilewidget.php:672
-msgid "Save details"
 msgstr ""
 
 #: actions/profilefieldsadminpanel.php:39
@@ -283,16 +275,6 @@ msgstr ""
 msgid "Remove field"
 msgstr ""
 
-#. TRANS: Link title for link on user profile.
-#: actions/profiledetail.php:54
-msgid "Edit extended profile settings"
-msgstr ""
-
-#. TRANS: Link text for link on user profile.
-#: actions/profiledetail.php:56
-msgid "Edit"
-msgstr ""
-
 #. TRANS: Title for extended profile settings.
 #. TRANS: %%site.name%% is the name of the site.
 #: actions/profiledetailsettings.php:35
@@ -347,6 +329,16 @@ msgstr ""
 msgid "Could not save profile."
 msgstr ""
 
+#. TRANS: Link title for link on user profile.
+#: actions/profiledetail.php:54
+msgid "Edit extended profile settings"
+msgstr ""
+
+#. TRANS: Link text for link on user profile.
+#: actions/profiledetail.php:56
+msgid "Edit"
+msgstr ""
+
 #. TRANS: Module description.
 #: ExtendedProfilePlugin.php:46
 msgid "UI extensions for additional profile fields."
@@ -374,4 +366,12 @@ msgstr ""
 
 #: ExtendedProfilePlugin.php:207
 msgid "Custom profile fields"
+msgstr ""
+
+#: classes/GNUsocialProfileExtensionResponse.php:74
+msgid "Error creating new response."
+msgstr ""
+
+#: classes/GNUsocialProfileExtensionField.php:75
+msgid "Error creating new field."
 msgstr ""

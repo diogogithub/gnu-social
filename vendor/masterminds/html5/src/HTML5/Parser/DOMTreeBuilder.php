@@ -175,7 +175,7 @@ class DOMTreeBuilder implements EventHandler
             // documents, and attempting to up-convert any older DTDs to HTML5.
             $dt = $impl->createDocumentType('html');
             // $this->doc = \DOMImplementation::createDocument(NULL, 'html', $dt);
-            $this->doc = $impl->createDocument(null, null, $dt);
+            $this->doc = $impl->createDocument(null, '', $dt);
             $this->doc->encoding = !empty($options['encoding']) ? $options['encoding'] : 'UTF-8';
         }
 
@@ -406,6 +406,8 @@ class DOMTreeBuilder implements EventHandler
                 $aName = Elements::normalizeMathMlAttribute($aName);
             }
 
+            $aVal = (string) $aVal;
+
             try {
                 $prefix = ($pos = strpos($aName, ':')) ? substr($aName, 0, $pos) : false;
 
@@ -475,7 +477,7 @@ class DOMTreeBuilder implements EventHandler
         $lname = $this->normalizeTagName($name);
 
         // Special case within 12.2.6.4.7: An end tag whose tag name is "br" should be treated as an opening tag
-        if ($name === 'br') {
+        if ('br' === $name) {
             $this->parseError('Closing tag encountered for void element br.');
 
             $this->startTag('br');

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-16 19:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,18 +18,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. TRANS: Column header in table for user nickname.
-#: lib/sortablegrouplist.php:51 lib/sortablesubscriptionlist.php:51
+#: lib/sortablesubscriptionlist.php:51 lib/sortablegrouplist.php:51
 msgid "Nickname"
 msgstr ""
 
 #. TRANS: Column header in table for timestamp when user was created.
-#: lib/sortablegrouplist.php:53 lib/sortablesubscriptionlist.php:53
+#: lib/sortablesubscriptionlist.php:53 lib/sortablegrouplist.php:53
 msgid "Created"
-msgstr ""
-
-#. TRANS: Column header in table for members of a group.
-#: lib/sortablegrouplist.php:99
-msgid "Members"
 msgstr ""
 
 #. TRANS: Column header for number of subscriptions.
@@ -42,33 +37,38 @@ msgstr ""
 msgid "Notices"
 msgstr ""
 
+#. TRANS: Column header in table for members of a group.
+#: lib/sortablegrouplist.php:99
+msgid "Members"
+msgstr ""
+
 #. TRANS: Title for group directory page. %d is a page number.
-#: actions/groupdirectory.php:95
+#: actions/groupdirectory.php:89
 #, php-format
 msgid "Group Directory, page %d"
 msgstr ""
 
 #. TRANS: Title for group directory page.
-#: actions/groupdirectory.php:98
+#: actions/groupdirectory.php:92
 msgid "Group directory"
 msgstr ""
 
 #. TRANS: Title for group directory page when it is filtered.
 #. TRANS: %s is the filter string.
-#: actions/groupdirectory.php:103
+#: actions/groupdirectory.php:97
 #, php-format
 msgid "Group directory - %s"
 msgstr ""
 
 #. TRANS: Title for group directory page when it is filtered.
 #. TRANS: %1$s is the filter string, %2$d is a page number.
-#: actions/groupdirectory.php:110
+#: actions/groupdirectory.php:104
 #, php-format
 msgid "Group directory - %1$s, page %2$d"
 msgstr ""
 
 #. TRANS: Page instructions.
-#: actions/groupdirectory.php:125
+#: actions/groupdirectory.php:119
 msgid ""
 "After you join a group you can send messages to all other members\n"
 "using the syntax \"!groupname\".\n"
@@ -78,44 +78,44 @@ msgid ""
 msgstr ""
 
 #. TRANS: Link to create a new group on the group list page.
-#: actions/groupdirectory.php:184
+#: actions/groupdirectory.php:180
 msgid "Create a new group"
 msgstr ""
 
 #. TRANS: Fieldset legend.
-#: actions/groupdirectory.php:244
+#: actions/groupdirectory.php:242
 msgid "Search groups"
 msgstr ""
 
 #. TRANS: Field label for input of one or more keywords.
 #. TRANS: Field label for user directory filter.
-#: actions/groupdirectory.php:249 actions/userdirectory.php:241
+#: actions/groupdirectory.php:247 actions/userdirectory.php:241
 msgid "Keyword(s)"
 msgstr ""
 
 #. TRANS: Button text for searching group directory.
 #. TRANS: Button text.
-#: actions/groupdirectory.php:252 actions/userdirectory.php:244
+#: actions/groupdirectory.php:250 actions/userdirectory.php:244
 msgctxt "BUTTON"
 msgid "Search"
 msgstr ""
 
 #. TRANS: Empty list message for searching group directory.
 #. TRANS: %s is the search string.
-#: actions/groupdirectory.php:355
+#: actions/groupdirectory.php:360
 #, php-format
 msgid "No groups starting with %s."
 msgstr ""
 
 #. TRANS: Empty list message for searching group directory.
 #. TRANS: Empty list message for user directory.
-#: actions/groupdirectory.php:359 actions/userdirectory.php:353
+#: actions/groupdirectory.php:365 actions/userdirectory.php:353
 msgid "No results."
 msgstr ""
 
 #. TRANS: Help text for searching group directory.
 #. TRANS: Standard search suggestions shown when a search does not give any results.
-#: actions/groupdirectory.php:361 actions/userdirectory.php:355
+#: actions/groupdirectory.php:367 actions/userdirectory.php:355
 msgid ""
 "* Make sure all words are spelled correctly.\n"
 "* Try different keywords.\n"
