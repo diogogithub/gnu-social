@@ -265,7 +265,6 @@ class Activitypub_notice
                             }
                         }
                         $file->saveFile();
-                        $act->enclosures[] = $file->getEnclosure();
                         $attachments[] = $file;
                     } catch (Exception $e) {
                         // Whatever.
