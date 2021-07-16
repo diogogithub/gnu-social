@@ -36,14 +36,14 @@ class MessageCommand extends Command
 
         $this->text = $this->user->shortenLinks($this->text);
 
-        if (Message::contentTooLong($this->text)) {
+        if (MessageModel::contentTooLong($this->text)) {
             // XXX: i18n. Needs plural support.
             // TRANS: Message given if content is too long. %1$sd is used for plural.
             // TRANS: %1$d is the maximum number of characters, %2$d is the number of submitted characters.
             $channel->error($this->user, sprintf(_m('Message too long - maximum is %1$d character, you sent %2$d.',
                                                     'Message too long - maximum is %1$d characters, you sent %2$d.',
-                                                    Message::maxContent()),
-                                                 Message::maxContent(), mb_strlen($this->text)));
+                                                    MessageModel::maxContent()),
+                                                 MessageModel::maxContent(), mb_strlen($this->text)));
             return;
         }
 
@@ -61,7 +61,7 @@ class MessageCommand extends Command
             return;
         }
         try {
-            $message = Message::saveNew($this->user->id, $other->id, $this->text, $channel->source());
+            $message = MessageModel::saveNew(Profile::getByID($this->user->id), $this->text, $channel->source());
             $message->notify();
             // TRANS: Message given have sent a direct message to another user.
             // TRANS: %s is the name of the other user.

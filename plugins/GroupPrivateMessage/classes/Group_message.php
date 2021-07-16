@@ -98,16 +98,16 @@ class Group_message extends Managed_DataObject
 
         // We use the same limits as for 'regular' private messages.
 
-        if (Message::contentTooLong($text)) {
+        if (MessageModel::contentTooLong($text)) {
             // TRANS: Exception thrown when trying to send group private message that is too long.
             // TRANS: %d is the maximum meggage length.
             throw new Exception(sprintf(
                 _m(
                     'That\'s too long. Maximum message size is %d character.',
                     'That\'s too long. Maximum message size is %d characters.',
-                    Message::maxContent()
+                    MessageModel::maxContent()
                 ),
-                Message::maxContent()
+                MessageModel::maxContent()
             ));
         }
 

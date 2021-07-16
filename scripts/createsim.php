@@ -207,7 +207,7 @@ function newMessage($i)
     
     $other = $friends[$j];
 
-    $message = Message::saveNew($user->id, $other->id, $content, 'createsim');
+    $message = MessageModel::saveNew(Profile::getByID($user->id), $content, 'createsim');
 }*/
 
 function newSub($i)
