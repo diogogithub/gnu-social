@@ -277,7 +277,7 @@ class Activitypub_notice
 
         $actobj = new ActivityObject();
         $actobj->type = ActivityObject::NOTE;
-        $actobj->content = strip_tags($content, '<p><b><i><u><a><ul><ol><li>');
+        $actobj->content = strip_tags($content, '<p><b><i><u><a><ul><ol><li><br>');
 
         // Finally add the activity object to our activity
         $act->objects[] = $actobj;
