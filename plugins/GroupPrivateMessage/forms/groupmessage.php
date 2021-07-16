@@ -133,7 +133,7 @@ class GroupMessageForm extends Form
                                               'name' => 'content'),
                             ($this->content) ? $this->content : '');
 
-        $contentLimit = Message::maxContent();
+        $contentLimit = MessageModel::maxContent();
 
         if ($contentLimit > 0) {
             $this->out->elementStart('dl', 'form_note');
