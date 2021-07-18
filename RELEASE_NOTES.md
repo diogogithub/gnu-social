@@ -7,7 +7,7 @@ proceeded by the killing of the other Persian messengers.
 ## For users/sysadmins
 
 ### Web server changes
-- GS is now structurely divided in includes and public
+- GS is now structurally divided in includes and public
 - New media handling system, new important settings, refer to CONFIGURE doc and web server conf
   - `$config['site']['x-static-delivery']`
   - You must also review the [attachments section of CONFIGURE](https://notabug.org/diogo/gnu-social/src/new_modules_system/DOCUMENTATION/SYSTEM_ADMINISTRATORS/CONFIGURE.md#attachments).
@@ -21,12 +21,9 @@ proceeded by the killing of the other Persian messengers.
 ### Federation
 - Added ActivityPub support
 - Enabled the search box to import remote notices and profiles
-- Direct messages
+- Direct messages are now via ActivityPub only
 
 ### Load and Storage
-- Improved Cronish
-  - Run session garbage collection
-  - Cleanup Email Registration
 - New queues system
 - Support for Redis was added
 - Support for PostgreSQL was added

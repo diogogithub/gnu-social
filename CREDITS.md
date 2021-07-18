@@ -3,20 +3,22 @@ Credits for GNU social
 The following is an incomplete list of developers
 who've worked on GNU social, or its predecessors
 StatusNet and Free Social. Apologies for any
-oversight; please let mattl@gnu.org know if
+oversight; please let mail@diogo.site know if
 anyone's been overlooked in error.
 
-Current team
-------------
-* Matt Lee
-* Mikael Nordfeldth
+V2 team
+-------
 * Diogo Cordeiro
-* Bruno Casteleiro
-* Miguel Dantas
 * Alexei Sorokin
+* Bruno Casteleiro
+
+Credits for GNU social v1
+------------------------
+Leads
+* Mikael Nordfeldth
+* Matt Lee
 
 Additional Contributors
------------------------
 * Ciaran Gultnieks
 * Michael Landers
 * Ori Avtalion
@@ -46,7 +48,7 @@ Additional Contributors
 * Blaine Cook
 * Henry Story
 * Melvin Carvalho
-* Stéphane Bérubé
+* Stéphane Bérubé (chimo)
 * Akio
 * Maiyannah Bishop
 * Bob Mottram
@@ -55,7 +57,9 @@ Additional Contributors
 * Moonman
 * Normandy
 * Verius
+* Diogo Peralta Cordeiro
 * Daniel Supernault
+* Miguel Dantas
 
 Credits for StatusNet
 --------------

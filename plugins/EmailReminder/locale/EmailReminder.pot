@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-18 12:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,11 +50,11 @@ msgstr ""
 msgid "Final reminder - you have been invited to join %s!"
 msgstr ""
 
-#: scripts/sendemailreminder.php:68
-msgid "Unknown reminder type: "
-msgstr ""
-
 #. TRANS: Plugin description.
 #: EmailReminderPlugin.php:192
 msgid "Send email reminders for various things."
+msgstr ""
+
+#: scripts/sendemailreminder.php:68
+msgid "Unknown reminder type: "
 msgstr ""

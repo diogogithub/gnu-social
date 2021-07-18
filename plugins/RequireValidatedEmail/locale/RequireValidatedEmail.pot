@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-18 12:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,25 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#. TRANS: Client exception thrown when trying to post notices before validating an e-mail address.
+#: RequireValidatedEmailPlugin.php:108
+msgid "You must validate your email address before posting."
+msgstr ""
+
+#. TRANS: Client exception thrown when trying to register without providing an e-mail address.
+#: RequireValidatedEmailPlugin.php:128
+msgid "You must provide an email address to register."
+msgstr ""
+
+#. TRANS: Plugin description.
+#: RequireValidatedEmailPlugin.php:234
+msgid "Disables posting without a validated email address."
+msgstr ""
+
+#: RequireValidatedEmailPlugin.php:253
+msgid "You must validate an email address before posting!"
+msgstr ""
 
 #. TRANS: Client exception thrown when trying to register while already logged in.
 #: actions/confirmfirstemail.php:70
@@ -97,23 +116,4 @@ msgstr ""
 #: actions/confirmfirstemail.php:232
 msgctxt "BUTTON"
 msgid "Save"
-msgstr ""
-
-#. TRANS: Client exception thrown when trying to post notices before validating an e-mail address.
-#: RequireValidatedEmailPlugin.php:100
-msgid "You must validate your email address before posting."
-msgstr ""
-
-#. TRANS: Client exception thrown when trying to register without providing an e-mail address.
-#: RequireValidatedEmailPlugin.php:120
-msgid "You must provide an email address to register."
-msgstr ""
-
-#. TRANS: Plugin description.
-#: RequireValidatedEmailPlugin.php:221
-msgid "Disables posting without a validated email address."
-msgstr ""
-
-#: RequireValidatedEmailPlugin.php:240
-msgid "You must validate an email address before posting!"
 msgstr ""

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-18 12:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,16 +17,16 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: E-mail subject in case of an error.
-#: lib/imapmailhandler.php:31
-msgid "Error"
-msgstr ""
-
 #. TRANS: Exception thrown when the ImapManager is used incorrectly in the code.
 #: lib/imapmanager.php:52
 msgid ""
 "ImapManager should be created using its constructor, not using the static "
 "\"get()\" method."
+msgstr ""
+
+#. TRANS: E-mail subject in case of an error.
+#: lib/imapmailhandler.php:31
+msgid "Error"
 msgstr ""
 
 #. TRANS: Exception thrown when configuration of the IMAP plugin is incorrect.

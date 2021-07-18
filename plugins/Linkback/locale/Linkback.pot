@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-18 12:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,62 +16,6 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
-
-#: lib/util.php:211
-msgid "linked to this from <a href=\""
-msgstr ""
-
-#: lib/util.php:426
-msgid "Favor"
-msgstr ""
-
-#. TRANS: Title of Linkback settings page for a user.
-#: actions/linkbacksettings.php:47
-msgctxt "TITLE"
-msgid "Linkback settings"
-msgstr ""
-
-#. TRANS: Form instructions for Linkback settings.
-#: actions/linkbacksettings.php:58
-msgid ""
-"Linkbacks inform post authors when you link to them. You can disable this "
-"feature here."
-msgstr ""
-
-#: actions/linkbacksettings.php:71
-msgctxt "LEGEND"
-msgid "Preferences"
-msgstr ""
-
-#. TRANS: Button text to save OpenID prefs
-#: actions/linkbacksettings.php:74
-msgctxt "BUTTON"
-msgid "Save"
-msgstr ""
-
-#: actions/linkbacksettings.php:89
-msgid "Linkback preferences saved."
-msgstr ""
-
-#: actions/webmention.php:42 actions/webmention.php:43
-msgid "\"source\" is missing"
-msgstr ""
-
-#: actions/webmention.php:47 actions/webmention.php:48
-msgid "\"target\" is missing"
-msgstr ""
-
-#: actions/webmention.php:53 actions/webmention.php:54
-msgid "Source does not link to target."
-msgstr ""
-
-#: actions/webmention.php:59 actions/webmention.php:60
-msgid "Target not found"
-msgstr ""
-
-#: actions/webmention.php:65 actions/webmention.php:66
-msgid "An error occured while saving."
-msgstr ""
 
 #. TRANS: Trackback title.
 #. TRANS: %1$s is a profile nickname, %2$s is a timestamp.
@@ -104,4 +48,60 @@ msgstr ""
 #: LinkbackPlugin.php:412
 #, php-format
 msgid "Sent from %s via Linkback"
+msgstr ""
+
+#: lib/util.php:276
+msgid "linked to this from <a href=\""
+msgstr ""
+
+#: lib/util.php:522
+msgid "Favor"
+msgstr ""
+
+#: actions/webmention.php:42 actions/webmention.php:43
+msgid "\"source\" is missing"
+msgstr ""
+
+#: actions/webmention.php:47 actions/webmention.php:48
+msgid "\"target\" is missing"
+msgstr ""
+
+#: actions/webmention.php:53 actions/webmention.php:54
+msgid "Source does not link to target."
+msgstr ""
+
+#: actions/webmention.php:59 actions/webmention.php:60
+msgid "Target not found"
+msgstr ""
+
+#: actions/webmention.php:65 actions/webmention.php:66
+msgid "An error occured while saving."
+msgstr ""
+
+#. TRANS: Title of Linkback settings page for a user.
+#: actions/linkbacksettings.php:47
+msgctxt "TITLE"
+msgid "Linkback settings"
+msgstr ""
+
+#. TRANS: Form instructions for Linkback settings.
+#: actions/linkbacksettings.php:58
+msgid ""
+"Linkbacks inform post authors when you link to them. You can disable this "
+"feature here."
+msgstr ""
+
+#: actions/linkbacksettings.php:71
+msgctxt "LEGEND"
+msgid "Preferences"
+msgstr ""
+
+#. TRANS: Button text to save OpenID prefs
+#: actions/linkbacksettings.php:74
+msgctxt "BUTTON"
+msgid "Save"
+msgstr ""
+
+#: actions/linkbacksettings.php:89
+msgid "Linkback preferences saved."
 msgstr ""

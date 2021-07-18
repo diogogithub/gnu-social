@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-18 12:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,16 +59,16 @@ msgid "Add to favorites"
 msgstr ""
 
 #. TRANS: Label for tally for number of times a notice was favored.
-#: AnonymousFavePlugin.php:165
+#: AnonymousFavePlugin.php:157
 msgid "Favored"
 msgstr ""
 
 #. TRANS: Server exception.
-#: AnonymousFavePlugin.php:198 AnonymousFavePlugin.php:209
+#: AnonymousFavePlugin.php:206 AnonymousFavePlugin.php:217
 msgid "Could not create anonymous user session."
 msgstr ""
 
 #. TRANS: Plugin description.
-#: AnonymousFavePlugin.php:284
+#: AnonymousFavePlugin.php:291
 msgid "Allow anonymous users to favorite notices."
 msgstr ""

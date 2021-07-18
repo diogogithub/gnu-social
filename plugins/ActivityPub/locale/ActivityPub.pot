@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-18 12:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,34 +18,63 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. TRANS: Exception.
-#: classes/Activitypub_profile.php:393
+#: classes/Activitypub_profile.php:391
 msgid "Not a valid WebFinger address (via cache)."
 msgstr ""
 
 #. TRANS: Exception.
-#: classes/Activitypub_profile.php:414
+#: classes/Activitypub_profile.php:412
 msgid "Not a valid WebFinger address."
 msgstr ""
 
 #. TRANS: Exception. %s is a WebFinger address.
-#: classes/Activitypub_profile.php:454
+#: classes/Activitypub_profile.php:452
 #, php-format
 msgid "Could not find a valid profile for \"%s\"."
 msgstr ""
 
+#. TRANS: Client error displayed when trying to mark a notice as favorite that already is a favorite.
+#: lib/models/Activitypub_like.php:75
+msgid "You have already favorited this!"
+msgstr ""
+
+#: lib/models/Activitypub_like.php:83
+msgid "Favor"
+msgstr ""
+
+#: lib/models/Activitypub_like.php:87
+#, php-format
+msgid "%1$s favorited something by %2$s: %3$s"
+msgstr ""
+
+#. TRANS: Client exception thrown when trying a view a notice the user has no access to.
+#: actions/apnotice.php:88
+msgid "Access restricted."
+msgstr ""
+
+#. TRANS: Server error displayed trying to show a notice without a connected profile.
+#: actions/apnotice.php:95
+msgid "Notice has no profile."
+msgstr ""
+
+#. TRANS: Client error displayed trying to show a deleted notice.
+#: actions/apnotice.php:176
+msgid "Notice deleted."
+msgstr ""
+
 #. TRANS: Plugin description.
-#: ActivityPubPlugin.php:241
+#: ActivityPubPlugin.php:255
 msgid ""
 "Follow people across social networks that implement <a href=\"https://"
 "activitypub.rocks/\">ActivityPub</a>."
 msgstr ""
 
-#: ActivityPubPlugin.php:415
+#: ActivityPubPlugin.php:431
 msgid "Remote Profile"
 msgstr ""
 
 #. TRANS: Title. %s is a domain name.
-#: ActivityPubPlugin.php:920
+#: ActivityPubPlugin.php:998
 #, php-format
 msgid "Sent from %s via ActivityPub"
 msgstr ""

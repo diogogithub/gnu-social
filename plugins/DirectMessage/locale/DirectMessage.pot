@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-18 12:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,33 +95,6 @@ msgid_plural "Message too long - maximum is %1$d characters, you sent %2$d."
 msgstr[0] ""
 msgstr[1] ""
 
-#. TRANS: Form validation error displayed when message content is too long.
-#. TRANS: %d is the maximum number of characters for a message.
-#: actions/newmessage.php:99 actions/apidirectmessagenew.php:99
-#, php-format
-msgid "That's too long. Maximum message size is %d character."
-msgid_plural "That's too long. Maximum message size is %d characters."
-msgstr[0] ""
-msgstr[1] ""
-
-#. TRANS: Title for outbox for any but the fist page.
-#. TRANS: %1$s is the user nickname, %2$d is the page number.
-#: actions/outbox.php:50
-#, php-format
-msgid "Outbox for %1$s - page %2$d"
-msgstr ""
-
-#. TRANS: Title for first page of outbox.
-#: actions/outbox.php:54
-#, php-format
-msgid "Outbox for %s"
-msgstr ""
-
-#. TRANS: Instructions for outbox.
-#: actions/outbox.php:84
-msgid "This is your outbox, which lists private messages you have sent."
-msgstr ""
-
 #. TRANS: Client error displayed requesting a single message that does not exist.
 #: actions/showmessage.php:63
 msgid "No such message."
@@ -169,6 +142,33 @@ msgstr ""
 #: actions/inbox.php:85
 msgid "This is your inbox, which lists your incoming private messages."
 msgstr ""
+
+#. TRANS: Title for outbox for any but the fist page.
+#. TRANS: %1$s is the user nickname, %2$d is the page number.
+#: actions/outbox.php:50
+#, php-format
+msgid "Outbox for %1$s - page %2$d"
+msgstr ""
+
+#. TRANS: Title for first page of outbox.
+#: actions/outbox.php:54
+#, php-format
+msgid "Outbox for %s"
+msgstr ""
+
+#. TRANS: Instructions for outbox.
+#: actions/outbox.php:84
+msgid "This is your outbox, which lists private messages you have sent."
+msgstr ""
+
+#. TRANS: Form validation error displayed when message content is too long.
+#. TRANS: %d is the maximum number of characters for a message.
+#: actions/apidirectmessagenew.php:99 actions/newmessage.php:99
+#, php-format
+msgid "That's too long. Maximum message size is %d character."
+msgid_plural "That's too long. Maximum message size is %d characters."
+msgstr[0] ""
+msgstr[1] ""
 
 #. TRANS: Menu item in personal group navigation menu.
 #: DirectMessagePlugin.php:149

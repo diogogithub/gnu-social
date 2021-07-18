@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-18 12:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,79 +17,20 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Module description.
-#: SearchSubPlugin.php:91
-msgid "Module to allow following all messages with a given search."
+#. TRANS: Error text shown a user tries to disable all a search subscriptions with track off command, but has none.
+#: lib/searchsubtrackingcommand.php:30 lib/searchsubtrackoffcommand.php:30
+msgid "You are not tracking any searches."
 msgstr ""
 
-#. TRANS: SearchSub plugin menu item on user settings page.
-#. TRANS: Sub menu for searches.
-#: SearchSubPlugin.php:198 SearchSubPlugin.php:262
-msgctxt "MENU"
-msgid "Searches"
+#. TRANS: Separator for list of tracked searches.
+#: lib/searchsubtrackingcommand.php:40
+msgctxt "SEPARATOR"
+msgid "\", \""
 msgstr ""
 
-#. TRANS: SearchSub plugin tooltip for user settings menu item.
-#: SearchSubPlugin.php:200
-msgid "Configure search subscriptions"
-msgstr ""
-
-#. TRANS: Help message for IM/SMS command "track <word>"
-#: SearchSubPlugin.php:239
-msgctxt "COMMANDHELP"
-msgid "Start following notices matching the given search query."
-msgstr ""
-
-#. TRANS: Help message for IM/SMS command "untrack <word>"
-#: SearchSubPlugin.php:241
-msgctxt "COMMANDHELP"
-msgid "Stop following notices matching the given search query."
-msgstr ""
-
-#. TRANS: Help message for IM/SMS command "track off"
-#. TRANS: Help message for IM/SMS command "untrack all"
-#: SearchSubPlugin.php:243 SearchSubPlugin.php:245
-msgctxt "COMMANDHELP"
-msgid "Disable all tracked search subscriptions."
-msgstr ""
-
-#. TRANS: Help message for IM/SMS command "tracks"
-#. TRANS: Help message for IM/SMS command "tracking"
-#: SearchSubPlugin.php:247 SearchSubPlugin.php:249
-msgctxt "COMMANDHELP"
-msgid "List all your search subscriptions."
-msgstr ""
-
-#. TRANS: Form legend.
-#: forms/searchsub.php:94
-msgid "Subscribe to this search"
-msgstr ""
-
-#. TRANS: Button text for subscribing to a search.
-#: forms/searchsub.php:122
-msgctxt "BUTTON"
-msgid "Subscribe"
-msgstr ""
-
-#. TRANS: Button title for subscribing to a search.
-#: forms/searchsub.php:126
-msgid "Subscribe to this search."
-msgstr ""
-
-#. TRANS: Form legend.
-#: forms/searchunsub.php:74
-msgid "Unsubscribe from this search"
-msgstr ""
-
-#. TRANS: Button text for unsubscribing from a text search.
-#: forms/searchunsub.php:88
-msgctxt "BUTTON"
-msgid "Unsubscribe"
-msgstr ""
-
-#. TRANS: Button title for unsubscribing from a text search.
-#: forms/searchunsub.php:92
-msgid "Unsubscribe from this search."
+#: lib/searchsubtrackingcommand.php:45
+#, php-format
+msgid "You are tracking searches for: \"%s\"."
 msgstr ""
 
 #. TRANS: Error text shown a user tries to track a search query they're already subscribed to.
@@ -108,32 +49,6 @@ msgstr ""
 msgid "You are subscribed to the search \"%s\"."
 msgstr ""
 
-#. TRANS: Error text shown a user tries to disable all a search subscriptions with track off command, but has none.
-#: lib/searchsubtrackoffcommand.php:30 lib/searchsubtrackingcommand.php:30
-msgid "You are not tracking any searches."
-msgstr ""
-
-#: lib/searchsubtrackoffcommand.php:42
-#, php-format
-msgid "Error disabling search subscription for query \"%s\"."
-msgstr ""
-
-#. TRANS: Message given having disabled all search subscriptions with 'track off'.
-#: lib/searchsubtrackoffcommand.php:50
-msgid "Disabled all your search subscriptions."
-msgstr ""
-
-#. TRANS: Separator for list of tracked searches.
-#: lib/searchsubtrackingcommand.php:40
-msgctxt "SEPARATOR"
-msgid "\", \""
-msgstr ""
-
-#: lib/searchsubtrackingcommand.php:45
-#, php-format
-msgid "You are tracking searches for: \"%s\"."
-msgstr ""
-
 #. TRANS: Error text shown a user tries to untrack a search query they're not subscribed to.
 #. TRANS: %s is the keyword for the search.
 #: lib/searchsubuntrackcommand.php:38
@@ -149,6 +64,21 @@ msgstr ""
 #: lib/searchsubuntrackcommand.php:57
 #, php-format
 msgid "You are no longer subscribed to the search \"%s\"."
+msgstr ""
+
+#: lib/searchsubtrackoffcommand.php:42
+#, php-format
+msgid "Error disabling search subscription for query \"%s\"."
+msgstr ""
+
+#. TRANS: Message given having disabled all search subscriptions with 'track off'.
+#: lib/searchsubtrackoffcommand.php:50
+msgid "Disabled all your search subscriptions."
+msgstr ""
+
+#. TRANS: Page title when search unsubscription succeeded.
+#: actions/searchunsub.php:59
+msgid "Unsubscribed"
 msgstr ""
 
 #. TRANS: Client error displayed trying to perform any request method other than POST.
@@ -227,7 +157,77 @@ msgstr ""
 msgid "\"<a href=\"%1$s\">%2$s</a>\" since %3$s"
 msgstr ""
 
-#. TRANS: Page title when search unsubscription succeeded.
-#: actions/searchunsub.php:59
-msgid "Unsubscribed"
+#. TRANS: Form legend.
+#: forms/searchunsub.php:74
+msgid "Unsubscribe from this search"
+msgstr ""
+
+#. TRANS: Button text for unsubscribing from a text search.
+#: forms/searchunsub.php:88
+msgctxt "BUTTON"
+msgid "Unsubscribe"
+msgstr ""
+
+#. TRANS: Button title for unsubscribing from a text search.
+#: forms/searchunsub.php:92
+msgid "Unsubscribe from this search."
+msgstr ""
+
+#. TRANS: Form legend.
+#: forms/searchsub.php:94
+msgid "Subscribe to this search"
+msgstr ""
+
+#. TRANS: Button text for subscribing to a search.
+#: forms/searchsub.php:122
+msgctxt "BUTTON"
+msgid "Subscribe"
+msgstr ""
+
+#. TRANS: Button title for subscribing to a search.
+#: forms/searchsub.php:126
+msgid "Subscribe to this search."
+msgstr ""
+
+#. TRANS: Module description.
+#: SearchSubPlugin.php:91
+msgid "Module to allow following all messages with a given search."
+msgstr ""
+
+#. TRANS: SearchSub plugin menu item on user settings page.
+#. TRANS: Sub menu for searches.
+#: SearchSubPlugin.php:198 SearchSubPlugin.php:262
+msgctxt "MENU"
+msgid "Searches"
+msgstr ""
+
+#. TRANS: SearchSub plugin tooltip for user settings menu item.
+#: SearchSubPlugin.php:200
+msgid "Configure search subscriptions"
+msgstr ""
+
+#. TRANS: Help message for IM/SMS command "track <word>"
+#: SearchSubPlugin.php:239
+msgctxt "COMMANDHELP"
+msgid "Start following notices matching the given search query."
+msgstr ""
+
+#. TRANS: Help message for IM/SMS command "untrack <word>"
+#: SearchSubPlugin.php:241
+msgctxt "COMMANDHELP"
+msgid "Stop following notices matching the given search query."
+msgstr ""
+
+#. TRANS: Help message for IM/SMS command "track off"
+#. TRANS: Help message for IM/SMS command "untrack all"
+#: SearchSubPlugin.php:243 SearchSubPlugin.php:245
+msgctxt "COMMANDHELP"
+msgid "Disable all tracked search subscriptions."
+msgstr ""
+
+#. TRANS: Help message for IM/SMS command "tracks"
+#. TRANS: Help message for IM/SMS command "tracking"
+#: SearchSubPlugin.php:247 SearchSubPlugin.php:249
+msgctxt "COMMANDHELP"
+msgid "List all your search subscriptions."
 msgstr ""
