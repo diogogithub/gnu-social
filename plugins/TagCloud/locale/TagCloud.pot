@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-18 12:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,16 +17,16 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. TRANS: Title for inbox tag cloud section.
-#: lib/publictagcloudsection.php:45 lib/inboxtagcloudsection.php:50
-msgctxt "TITLE"
-msgid "Trends"
-msgstr ""
-
 #. TRANS: Content displayed in a tag cloud section if there are no tags.
 #: lib/tagcloudsection.php:56 lib/tagcloudsection.php:72
 msgctxt "NOTAGS"
 msgid "None"
+msgstr ""
+
+#. TRANS: Title for inbox tag cloud section.
+#: lib/inboxtagcloudsection.php:50 lib/publictagcloudsection.php:45
+msgctxt "TITLE"
+msgid "Trends"
 msgstr ""
 
 #. TRANS: Title for personal tag cloud section.

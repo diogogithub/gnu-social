@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-18 12:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,82 +18,38 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. TRANS: Client exception thrown when a bookmark is formatted incorrectly.
-#: classes/Bookmark.php:172
+#: classes/Bookmark.php:170
 msgid "Expected exactly 1 link rel=related in a Bookmark, got more than that."
 msgstr ""
 
 #. TRANS: Client exception thrown when a bookmark is formatted incorrectly.
-#: classes/Bookmark.php:177
+#: classes/Bookmark.php:175
 msgid "Expected exactly 1 link rel=related in a Bookmark, got 0."
 msgstr ""
 
-#: classes/Bookmark.php:181
+#: classes/Bookmark.php:179
 msgid "You must provide a non-empty title."
 msgstr ""
 
-#: classes/Bookmark.php:184
+#: classes/Bookmark.php:182
 msgid "Only web bookmarks can be posted (HTTP or HTTPS)."
 msgstr ""
 
-#: classes/Bookmark.php:189
+#: classes/Bookmark.php:187
 msgid "You have already bookmarked this URL."
 msgstr ""
 
 #. TRANS: Server exception thrown when a bookmark has multiple attachments.
-#: classes/Bookmark.php:230
+#: classes/Bookmark.php:228
 msgid "Bookmark notice with the wrong number of attachments."
 msgstr ""
 
-#. TRANS: Rendered bookmark content.
-#. TRANS: %1$s is a URL, %2$s the bookmark title, %3$s is the bookmark description,
-#. TRANS: %4$s is space separated list of hash tags.
-#: classes/Bookmark.php:339
+#: classes/Bookmark.php:344
 #, php-format
 msgid ""
 "<span class=\"xfolkentry\"><a class=\"taggedlink\" href=\"%1$s\">%2$s</a> "
 "<span class=\"description\">%3$s</span> <span class=\"meta\">%4$s</span></"
 "span>"
-msgstr ""
-
-#. TRANS: Field label on form for adding a new bookmark.
-#: forms/initialbookmark.php:78 forms/bookmark.php:121
-msgctxt "LABEL"
-msgid "URL"
-msgstr ""
-
-#. TRANS: Button text for action to save a new bookmark.
-#: forms/initialbookmark.php:92
-msgctxt "BUTTON"
-msgid "Add"
-msgstr ""
-
-#. TRANS: Field label on form for adding a new bookmark.
-#: forms/bookmark.php:143
-msgctxt "LABEL"
-msgid "Title"
-msgstr ""
-
-#. TRANS: Field label on form for adding a new bookmark.
-#: forms/bookmark.php:153
-msgctxt "LABEL"
-msgid "Notes"
-msgstr ""
-
-#. TRANS: Field label on form for adding a new bookmark.
-#: forms/bookmark.php:162
-msgctxt "LABEL"
-msgid "Tags"
-msgstr ""
-
-#. TRANS: Field title on form for adding a new bookmark.
-#: forms/bookmark.php:165
-msgid "Comma- or space-separated list of tags."
-msgstr ""
-
-#. TRANS: Button text for action to save a new bookmark.
-#: forms/bookmark.php:188
-msgctxt "BUTTON"
-msgid "Save"
 msgstr ""
 
 #. TRANS: Client exception thrown when a bookmark in an import file is incorrectly formatted.
@@ -106,39 +62,6 @@ msgstr ""
 msgid "Skipping private bookmark."
 msgstr ""
 
-#. TRANS: Exception thrown when a file upload cannot be found.
-#. TRANS: %s is the file that could not be found.
-#. TRANS: Server exception thrown when a file upload cannot be found.
-#. TRANS: %s is the file that could not be found.
-#: scripts/importbookmarks.php:64 actions/importdelicious.php:170
-#, php-format
-msgid "No such file \"%s\"."
-msgstr ""
-
-#. TRANS: Exception thrown when a file upload is incorrect.
-#. TRANS: %s is the irregular file.
-#. TRANS: Server exception thrown when a file upload is incorrect.
-#. TRANS: %s is the irregular file.
-#: scripts/importbookmarks.php:70 actions/importdelicious.php:176
-#, php-format
-msgid "Not a regular file: \"%s\"."
-msgstr ""
-
-#. TRANS: Exception thrown when a file upload is not readable.
-#. TRANS: %s is the file that could not be read.
-#. TRANS: Server exception thrown when a file upload is not readable.
-#. TRANS: %s is the file that could not be read.
-#: scripts/importbookmarks.php:76 actions/importdelicious.php:182
-#, php-format
-msgid "File \"%s\" not readable."
-msgstr ""
-
-#. TRANS: %s is the filename that contains a backup for a user.
-#: scripts/importbookmarks.php:80
-#, php-format
-msgid "Getting backup from file \"%s\"."
-msgstr ""
-
 #. TRANS: Client exception thrown when referring to a non-existing bookmark.
 #: actions/showbookmark.php:59 actions/showbookmark.php:67
 msgid "No such bookmark."
@@ -149,6 +72,24 @@ msgstr ""
 #: actions/showbookmark.php:84
 #, php-format
 msgid "%1$s's bookmark for \"%2$s\""
+msgstr ""
+
+#. TRANS: Title for mini-posting window loaded from bookmarklet.
+#. TRANS: %s is the StatusNet site name.
+#: actions/bookmarkpopup.php:57
+#, php-format
+msgid "Bookmark on %s"
+msgstr ""
+
+#. TRANS: Page title for sample plugin.
+#: actions/bookmarks.php:128
+msgid "Log in"
+msgstr ""
+
+#. TRANS: Page title for sample plugin. %s is a user nickname.
+#: actions/bookmarks.php:131
+#, php-format
+msgid "%s's bookmarks"
 msgstr ""
 
 #. TRANS: Client exception thrown when an unknown URL is provided.
@@ -168,39 +109,6 @@ msgstr ""
 #: actions/noticebyurl.php:97
 #, php-format
 msgid "Notices linking to %1$s, page %2$d"
-msgstr ""
-
-#. TRANS: Title for action to create a new bookmark.
-#: actions/newbookmark.php:57
-msgid "New bookmark"
-msgstr ""
-
-#. TRANS: Client exception thrown when trying to create a new bookmark without a title.
-#: actions/newbookmark.php:79
-msgid "Bookmark must have a title."
-msgstr ""
-
-#. TRANS: Client exception thrown when trying to create a new bookmark without a URL.
-#: actions/newbookmark.php:84
-msgid "Bookmark must have an URL."
-msgstr ""
-
-#. TRANS: Page title for sample plugin.
-#: actions/bookmarks.php:128
-msgid "Log in"
-msgstr ""
-
-#. TRANS: Page title for sample plugin. %s is a user nickname.
-#: actions/bookmarks.php:131
-#, php-format
-msgid "%s's bookmarks"
-msgstr ""
-
-#. TRANS: Title for mini-posting window loaded from bookmarklet.
-#. TRANS: %s is the StatusNet site name.
-#: actions/bookmarkpopup.php:57
-#, php-format
-msgid "Bookmark on %s"
 msgstr ""
 
 #. TRANS: Title for page to import del.icio.us bookmark backups on.
@@ -262,6 +170,33 @@ msgstr ""
 msgid "System error uploading file."
 msgstr ""
 
+#. TRANS: Server exception thrown when a file upload cannot be found.
+#. TRANS: %s is the file that could not be found.
+#. TRANS: Exception thrown when a file upload cannot be found.
+#. TRANS: %s is the file that could not be found.
+#: actions/importdelicious.php:170 scripts/importbookmarks.php:64
+#, php-format
+msgid "No such file \"%s\"."
+msgstr ""
+
+#. TRANS: Server exception thrown when a file upload is incorrect.
+#. TRANS: %s is the irregular file.
+#. TRANS: Exception thrown when a file upload is incorrect.
+#. TRANS: %s is the irregular file.
+#: actions/importdelicious.php:176 scripts/importbookmarks.php:70
+#, php-format
+msgid "Not a regular file: \"%s\"."
+msgstr ""
+
+#. TRANS: Server exception thrown when a file upload is not readable.
+#. TRANS: %s is the file that could not be read.
+#. TRANS: Exception thrown when a file upload is not readable.
+#. TRANS: %s is the file that could not be read.
+#: actions/importdelicious.php:182 scripts/importbookmarks.php:76
+#, php-format
+msgid "File \"%s\" not readable."
+msgstr ""
+
 #. TRANS: Success message after importing bookmarks.
 #: actions/importdelicious.php:221
 msgid ""
@@ -290,6 +225,21 @@ msgstr ""
 msgid "Upload the file."
 msgstr ""
 
+#. TRANS: Title for action to create a new bookmark.
+#: actions/newbookmark.php:57
+msgid "New bookmark"
+msgstr ""
+
+#. TRANS: Client exception thrown when trying to create a new bookmark without a title.
+#: actions/newbookmark.php:79
+msgid "Bookmark must have a title."
+msgstr ""
+
+#. TRANS: Client exception thrown when trying to create a new bookmark without a URL.
+#: actions/newbookmark.php:84
+msgid "Bookmark must have an URL."
+msgstr ""
+
 #. TRANS: Plugin description.
 #: BookmarkPlugin.php:189
 msgid "Plugin for posting bookmarks. "
@@ -309,4 +259,51 @@ msgstr ""
 #: BookmarkPlugin.php:346
 msgctxt "TITLE"
 msgid "Bookmark"
+msgstr ""
+
+#. TRANS: %s is the filename that contains a backup for a user.
+#: scripts/importbookmarks.php:80
+#, php-format
+msgid "Getting backup from file \"%s\"."
+msgstr ""
+
+#. TRANS: Field label on form for adding a new bookmark.
+#: forms/initialbookmark.php:78 forms/bookmark.php:118
+msgctxt "LABEL"
+msgid "URL"
+msgstr ""
+
+#. TRANS: Button text for action to save a new bookmark.
+#: forms/initialbookmark.php:92
+msgctxt "BUTTON"
+msgid "Add"
+msgstr ""
+
+#. TRANS: Field label on form for adding a new bookmark.
+#: forms/bookmark.php:144
+msgctxt "LABEL"
+msgid "Title"
+msgstr ""
+
+#. TRANS: Field label on form for adding a new bookmark.
+#: forms/bookmark.php:156
+msgctxt "LABEL"
+msgid "Notes"
+msgstr ""
+
+#. TRANS: Field label on form for adding a new bookmark.
+#: forms/bookmark.php:167
+msgctxt "LABEL"
+msgid "Tags"
+msgstr ""
+
+#. TRANS: Field title on form for adding a new bookmark.
+#: forms/bookmark.php:170
+msgid "Comma- or space-separated list of tags."
+msgstr ""
+
+#. TRANS: Button text for action to save a new bookmark.
+#: forms/bookmark.php:196
+msgctxt "BUTTON"
+msgid "Save"
 msgstr ""

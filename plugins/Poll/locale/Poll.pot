@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-04 01:05+0100\n"
+"POT-Creation-Date: 2021-07-18 12:38+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -42,35 +42,6 @@ msgstr ""
 msgid "Poll: %s"
 msgstr ""
 
-#. TRANS: Field label on the page to create a poll.
-#: forms/newpoll.php:109
-msgid "Question"
-msgstr ""
-
-#. TRANS: Field title on the page to create a poll.
-#: forms/newpoll.php:112
-msgid "What question are people answering?"
-msgstr ""
-
-#. TRANS: Field label for an answer option on the page to create a poll.
-#. TRANS: %d is the option number.
-#: forms/newpoll.php:134
-#, php-format
-msgid "Option %d"
-msgstr ""
-
-#. TRANS: Button text for saving a new poll.
-#: forms/newpoll.php:163
-msgctxt "BUTTON"
-msgid "Save"
-msgstr ""
-
-#. TRANS: Button text for submitting a poll response.
-#: forms/pollresponse.php:126
-msgctxt "BUTTON"
-msgid "Submit"
-msgstr ""
-
 #. TRANS: Title for poll page.
 #: actions/newpoll.php:64
 msgid "New poll"
@@ -93,25 +64,6 @@ msgstr ""
 #. TRANS: Page title after sending a notice.
 #: actions/newpoll.php:175
 msgid "Notice posted"
-msgstr ""
-
-#. TRANS: Page title for poll response.
-#: actions/respondpoll.php:64
-msgid "Poll response"
-msgstr ""
-
-#: actions/respondpoll.php:89
-msgid "You must be logged in to respond to a poll."
-msgstr ""
-
-#. TRANS: Client exception thrown trying to respond to a non-existing poll.
-#: actions/respondpoll.php:102
-msgid "Invalid or missing poll."
-msgstr ""
-
-#. TRANS: Page title after sending a poll response.
-#: actions/respondpoll.php:162
-msgid "Poll results"
 msgstr ""
 
 #. TRANS: Client exception thrown trying to view a non-existing poll.
@@ -137,6 +89,25 @@ msgstr ""
 #. TRANS: Page instructions.
 #: actions/pollsettings.php:56
 msgid "Set your poll preferences"
+msgstr ""
+
+#. TRANS: Page title for poll response.
+#: actions/respondpoll.php:64
+msgid "Poll response"
+msgstr ""
+
+#: actions/respondpoll.php:89
+msgid "You must be logged in to respond to a poll."
+msgstr ""
+
+#. TRANS: Client exception thrown trying to respond to a non-existing poll.
+#: actions/respondpoll.php:102
+msgid "Invalid or missing poll."
+msgstr ""
+
+#. TRANS: Page title after sending a poll response.
+#: actions/respondpoll.php:162
+msgid "Poll results"
 msgstr ""
 
 #. TRANS: Plugin description.
@@ -185,4 +156,33 @@ msgstr ""
 #. TRANS: Error text displayed if no poll data could be found.
 #: PollPlugin.php:471
 msgid "Poll data is missing"
+msgstr ""
+
+#. TRANS: Field label on the page to create a poll.
+#: forms/newpoll.php:109
+msgid "Question"
+msgstr ""
+
+#. TRANS: Field title on the page to create a poll.
+#: forms/newpoll.php:112
+msgid "What question are people answering?"
+msgstr ""
+
+#. TRANS: Field label for an answer option on the page to create a poll.
+#. TRANS: %d is the option number.
+#: forms/newpoll.php:134
+#, php-format
+msgid "Option %d"
+msgstr ""
+
+#. TRANS: Button text for saving a new poll.
+#: forms/newpoll.php:163
+msgctxt "BUTTON"
+msgid "Save"
+msgstr ""
+
+#. TRANS: Button text for submitting a poll response.
+#: forms/pollresponse.php:126
+msgctxt "BUTTON"
+msgid "Submit"
 msgstr ""
