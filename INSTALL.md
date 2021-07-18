@@ -27,7 +27,7 @@ PHP modules
 The following software packages are *required* for this software to
 run correctly.
 
-- PHP 7.3+
+- PHP 7.4+
 - MariaDB 10.3+
 - Web server    Apache, lighttpd and nginx will all work. CGI mode is
                 recommended and also some variant of 'suexec' (or a

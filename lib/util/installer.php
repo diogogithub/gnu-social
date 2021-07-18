@@ -112,8 +112,8 @@ abstract class Installer
             }
         }
 
-        if (version_compare(PHP_VERSION, '7.3.0', '<')) {
-            $this->warning('Require PHP version 7.3.0 or greater.');
+        if (version_compare(PHP_VERSION, '7.4.0', '<')) {
+            $this->warning('Require PHP version 7.4.0 or greater.');
             $pass = false;
         }
 

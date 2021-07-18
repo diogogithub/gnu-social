@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => 'cd3a9ec6a9a22fb3b46a293be7223f86b0006f24',
+    'reference' => '7d8988d50ce24639daaf48608ce14d91291a519d',
     'name' => 'gnusocial/gnusocial',
   ),
   'versions' => 
@@ -90,7 +90,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => 'cd3a9ec6a9a22fb3b46a293be7223f86b0006f24',
+      'reference' => '7d8988d50ce24639daaf48608ce14d91291a519d',
     ),
     'guzzlehttp/psr7' => 
     array (
