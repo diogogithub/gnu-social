@@ -27,16 +27,6 @@
 
 defined('GNUSOCIAL') || die;
 
-if (version_compare(PHP_VERSION, '7.4.0', '<')) {
-    function password_algos(): array
-    {
-        $algos = [PASSWORD_BCRYPT];
-        defined('PASSWORD_ARGON2I')  && $algos[] = PASSWORD_ARGON2I;
-        defined('PASSWORD_ARGON2ID') && $algos[] = PASSWORD_ARGON2ID;
-        return $algos;
-    }
-}
-
 class AuthCryptModule extends AuthenticationModule
 {
     const MODULE_VERSION = '2.0.0';
