@@ -4,12 +4,12 @@
     flex-wrap: wrap;
 }
 
-.notes-wrap .timeline .actors > div {
+.nav-content .timeline .actors > div {
     margin:  var(--unit-size) var(--unit-size) 0 var(--unit-size);
     border-radius: var(--unit-size);
     width: 100%;
 }
-.notes-wrap .timeline .actors > div:last-child {
+.nav-content .timeline .actors > div:last-child {
     margin:  var(--unit-size) var(--unit-size) var(--unit-size) var(--unit-size);
 }
 

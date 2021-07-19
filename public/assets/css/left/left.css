@@ -1,3 +1,17 @@
+.icon-avatar {
+      border-radius: 50%;
+      width: var(--main-size);
+}
+
+/* left panel z-index fix */
+.form {
+      position: relative;
+      z-index: 0;
+}
+#header {
+      z-index: 1;
+}
+
 /* CHECKBOX TRICK */
 .icon-menu label {
       opacity: 0;
@@ -19,8 +33,12 @@
 #left-panel {
       display: flex;
       flex-direction: column;
-      position: fixed;
-
       left: 0;
-      flex-basis: border-box;
+
+      width: calc(2 * var(--unit-size-w));
+      padding: var(--small-size);
+      box-sizing: border-box;
+
+      font-size: var(--medium-size);
+      background-image: linear-gradient(var(--bg1), transparent);
 }
