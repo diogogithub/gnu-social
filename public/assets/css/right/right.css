@@ -1,7 +1,3 @@
-#right-panel {
-    order: 3;
-}
-
 .arrow {
     border: solid var(--fg);
     border-width: 0 3px 3px 0;
@@ -13,24 +9,17 @@
     -webkit-transform: rotate(135deg);
 }
 
-#right-container {
+#right-panel {
     display: flex;
     flex-direction: column;
-    width: var(--nav-size);
-    height: calc(100vh - (3 * var(--unit-size)));
     position: fixed;
-    background-color: var(--bg1);
-    margin-top: calc(3 * var(--main-size));
-    z-index: 0;
-    border-left: solid 1px var(--accent-low);
+
+    right: 0;
+    top: var(--unit-size);
+    margin: 0;
 }
 
-input.larger {
-    width: var(--main-size);
-    height: calc( 2 * var(--main-size));
-}
-
-/* untoggled */
+/* UNTOGGLED */
 #right-container {
     right: 0;
     top: 0;
@@ -51,7 +40,7 @@ input.larger {
     transition: 0.3s ease;
 }
 
-/* toggled */
+/* TOGGLED */
 #toggle-right:checked~#right-container {
     display: flex;
     right: 0;

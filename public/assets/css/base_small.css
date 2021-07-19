@@ -1,6 +1,6 @@
 :root {
       /* fonts */
-      --head-font: 'Montserrat', sans-serif;
+      --main-font: 'Montserrat', sans-serif;
       --main-font: 'Open Sans', sans-serif;
 
       /* font and margin sizes */
@@ -70,7 +70,7 @@ a:focus {
 }
 
 b {
-      font-family: var(--head-font);
+      font-family: var(--main-font);
       font-weight: 800;
 }
 

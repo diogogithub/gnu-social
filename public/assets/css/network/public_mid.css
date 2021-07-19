@@ -26,7 +26,7 @@
     flex: 1;
     background-color: var(--bg1);
     padding: var(--medium-size);
-    font-family: var(--head-font);
+    font-family: var(--main-font);
     border-radius: var(--unit-size) var(--unit-size) 0 0;
     border-bottom: solid 2px var(--accent-low);
 }
@@ -263,7 +263,7 @@
 }
 .target .required {
     font-weight: 800;
-    font-family: var(--head-font);
+    font-family: var(--main-font);
 }
 .target #post_to {
     font-weight: 400;
@@ -310,7 +310,7 @@
 .scope .required {
     order: 1;
     font-weight: 800;
-    font-family: var(--head-font);
+    font-family: var(--main-font);
 }
 #post_visibility .required {
     font-family: var(--main-font);

@@ -9,14 +9,15 @@
         {% block title %}{% endblock %}
     </title>
     {% block stylesheets %}
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Open+Sans&display=swap"
-              rel="stylesheet">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/fonts/inter/inter.css') }}">
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/fonts/manrope/manrope.css') }}">
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}"
               media="screen and (min-width: 1300px)">
-        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_mid.css') }}"
-              media="screen and (max-width: 1300px)">
-        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_small.css') }}"
-              media="screen and (max-width: 750px)">
+
+{#        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_mid.css') }}"#}
+{#              media="screen and (max-width: 1300px)">#}
+{#        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base_small.css') }}"#}
+{#              media="screen and (max-width: 750px)">#}
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/reset.css') }}">
         {% for stylesheet in show_stylesheets() %}
             <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/' ~ stylesheet) }}">
@@ -35,16 +36,19 @@
     {% block header %}
         <div id='header'>
             <div id='top'>
-                {% block leftpanel %}
-                {% endblock leftpanel %}
                 <nav id='instance'>
                     <a href="{{ path('main_public') }}">
                         {{ icon('logo', 'icon icon-logo') | raw }}
-                        <b> {{ config('site', 'name') }} </b>
+                        <h1> {{ config('site', 'name') }} </h1>
                     </a>
                 </nav>
-                {% block rightpanel %}
-                {% endblock rightpanel %}
+                <div id="panels">
+                    {% block leftpanel %}
+                    {% endblock leftpanel %}
+                    {% block rightpanel %}
+                    {% endblock rightpanel %}
+                </div>
+
             </div>
         </div>
     {% endblock header %}
