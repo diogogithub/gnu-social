@@ -24,9 +24,11 @@
  * @category Framework
  *
  * @author    Hugo Sales <hugo@hsal.es>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Diogo Peralta Cordeiro <mail@diogo.site>
+ * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
+
 use App\CacheKernel;
 use App\Kernel;
 use Symfony\Component\ErrorHandler\Debug;
@@ -40,12 +42,19 @@ if ($_SERVER['APP_DEBUG']) {
     Debug::enable();
 }
 
-if ($trustedProxies = $_SERVER['TRUSTED_PROXIES'] ?? $_ENV['TRUSTED_PROXIES'] ?? false) {
-    Request::setTrustedProxies(\explode(',', $trustedProxies),
-                               Request::HEADER_X_FORWARDED_ALL ^ Request::HEADER_X_FORWARDED_HOST);
+// When a request passes through a proxy, certain request information is sent using either
+// the standard Forwarded header or X-Forwarded-* headers.
+// Therefore, if the user configures trusted proxy IPs, we trust these headers.
+if ($trustedProxies = $_ENV['TRUSTED_PROXIES'] ?? $_SERVER['TRUSTED_PROXIES'] ?? false) {
+    Request::setTrustedProxies(explode(',', $trustedProxies),
+        Request::HEADER_FORWARDED | Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST | Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO
+    );
 }
 
-if ($trustedHosts = $_SERVER['TRUSTED_HOSTS'] ?? $_ENV['TRUSTED_HOSTS'] ?? false) {
+// For enhanced security while using Request, here we define the trusted hosts.
+// If the incoming request’s hostname doesn't match one of the regular expressions in
+// this list, the application won’t respond and the user will receive a 400 response.
+if ($trustedHosts = $_ENV['TRUSTED_HOSTS'] ?? $_SERVER['TRUSTED_HOSTS'] ?? false) {
     Request::setTrustedHosts([$trustedHosts]);
 }
 

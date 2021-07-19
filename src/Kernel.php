@@ -56,9 +56,9 @@ class Kernel extends BaseKernel
             define('PUBLICDIR', INSTALLDIR . '/public');
             define('GNUSOCIAL_ENGINE_NAME', 'GNU social');
             // MERGE Change to https://gnu.io/social/
-            define('GNUSOCIAL_PROJECT_URL', 'https://gnusocial.network/');
+            define('GNUSOCIAL_PROJECT_URL', 'https://gnusocial.rocks/');
             // MERGE Change to https://git.gnu.io/gnu/gnu-social
-            define('GNUSOCIAL_REPOSITORY_URL', 'https://notabug.org/diogo/gnu-social/');
+            define('GNUSOCIAL_REPOSITORY_URL', 'https://code.undefinedhackers.net/GNUsocial/gnu-social');
             // Current base version, major.minor.patch
             define('GNUSOCIAL_BASE_VERSION', '3.0.0');
             // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'
