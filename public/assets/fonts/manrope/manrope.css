@@ -1,13 +1,13 @@
 @font-face {
     font-family: 'Manrope';
-    font-style: normal;
+    font-style:  normal;
     src: url(Manrope-Regular.woff2),
     url(Manrope-Regular.woff);
 }
 
 @font-face {
     font-family: 'Manrope-ExtraBold';
-    font-style: normal;
+    font-style:  normal;
     src: url(Manrope-ExtraBold.woff2),
     url(Manrope-ExtraBold.woff2);
 }
