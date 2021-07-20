@@ -28,12 +28,12 @@ use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 
 class CacheTest extends KernelTestCase
 {
-    private function doTest(array $adapters, $result_pool, $throws = null)
+    private function doTest(array $adapters, $result_pool, $throws = null, $recompute = INF)
     {
         static::bootKernel();
 
         // Setup Common::config to have the values in $conf
-        $conf = ['cache' => ['adapters' => $adapters, 'early_recompute' => INF]];
+        $conf = ['cache' => ['adapters' => $adapters, 'early_recompute' => $recompute]];
         $cb   = $this->createMock(ContainerBagInterface::class);
         static::assertTrue($cb instanceof ContainerBagInterface);
         $cb->method('get')
@@ -53,12 +53,32 @@ class CacheTest extends KernelTestCase
         }
     }
 
-    public function testConfigurationParsing()
+    public function testConfigurationParsingSingle()
     {
         self::doTest(['default' => 'redis://redis'], ['default' => \Symfony\Component\Cache\Adapter\RedisAdapter::class]);
+    }
+
+    public function testConfigurationParsingCluster1()
+    {
         self::doTest(['default' => 'redis://redis;redis://redis'], ['default' => \Symfony\Component\Cache\Adapter\RedisAdapter::class], \App\Util\Exception\ConfigurationException::class);
-        self::doTest(['default' => 'redis://redis:6379;redis://redis:6379'], ['default' => \Symfony\Component\Cache\Adapter\RedisAdapter::class]);
+    }
+
+    // /**
+    // * This requires extra server configuration, but the code was tested
+    // * manually and works, so it'll be excluded from automatic tests, for now, at least
+    // */
+    // public function testConfigurationParsingCluster2()
+    // {
+    //     self::doTest(['default' => 'redis://redis:6379;redis://redis:6379'], ['default' => \Symfony\Component\Cache\Adapter\RedisAdapter::class]);
+    // }
+
+    public function testConfigurationParsingFallBack()
+    {
         self::doTest(['default' => 'redis://redis,filesystem'], ['default' => \Symfony\Component\Cache\Adapter\ChainAdapter::class]);
+    }
+
+    public function testConfigurationParsingMultiple()
+    {
         self::doTest(['default' => 'redis://redis', 'file' => 'filesystem://test'], ['default' => \Symfony\Component\Cache\Adapter\RedisAdapter::class, 'file' => \Symfony\Component\Cache\Adapter\FilesystemAdapter::class]);
     }
 
@@ -73,15 +93,28 @@ class CacheTest extends KernelTestCase
         static::assertTrue(Cache::delete('test'));
     }
 
-    public function testRedisImplementation()
+    private function _testRedis($recompute = INF)
     {
-        self::doTest(['default' => 'redis://redis'], ['default' => \Symfony\Component\Cache\Adapter\RedisAdapter::class]);
+        self::doTest(['default' => 'redis://redis'], ['default' => \Symfony\Component\Cache\Adapter\RedisAdapter::class], throws: null, recompute: $recompute);
 
         // Redis supports lists directly, uses different implementation
-        static::assertSame(['foo', 'bar'], Cache::getList('test', function ($i) { return ['foo', 'bar']; }));
-        Cache::pushList('test', 'quux');
-        static::assertSame(['foo', 'bar', 'quux'], Cache::getList('test', function ($i) { return ['foo', 'bar']; }));
-        static::assertTrue(Cache::deleteList('test'));
+        $key = 'test' . time();
+        static::assertSame(['foo', 'bar'], Cache::getList($key, function ($i) { return ['foo', 'bar']; }));
+        Cache::pushList($key, 'quux');
+        static::assertSame(['foo', 'bar', 'quux'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }));
+        Cache::pushList($key, 'foobar', pool: 'default', max_count: 2);
+        static::assertSame(['quux', 'foobar'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }));
+        static::assertTrue(Cache::deleteList($key));
+    }
+
+    public function testRedisImplementation()
+    {
+        $this->_testRedis();
+    }
+
+    public function testRedisImplementationNoEarlyRecompute()
+    {
+        $this->_testRedis(null);
     }
 
     public function testNonRedisImplementation()
@@ -89,9 +122,13 @@ class CacheTest extends KernelTestCase
         self::doTest(['file' => 'filesystem://test'], ['file' => \Symfony\Component\Cache\Adapter\FilesystemAdapter::class]);
 
         $key = 'test' . time();
-        static::assertSame(['foo', 'bar'], Cache::getList($key, function ($i) { return ['foo', 'bar']; }, pool: 'file'));
+        Cache::setList("{$key}-other", ['foo', 'bar'], pool: 'file');
+        static::assertSame(['foo', 'bar'], Cache::getList("{$key}-other", function ($i) { $this->assertFalse('should not be called'); }, pool: 'file'));
+        static::assertSame(['foo', 'bar'], Cache::getList($key, fn ($i) => ['foo', 'bar'], pool: 'file'));
         Cache::pushList($key, 'quux', pool: 'file');
-        static::assertSame(['foo', 'bar', 'quux'], Cache::getList($key, function ($i) { return ['foo', 'bar']; }, pool: 'file'));
+        static::assertSame(['foo', 'bar', 'quux'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }, pool: 'file'));
+        Cache::pushList($key, 'foobar', pool: 'file', max_count: 2);
+        static::assertSame(['quux', 'foobar'], Cache::getList($key, function ($i) { $this->assertFalse('should not be called'); }, pool: 'file'));
         static::assertTrue(Cache::deleteList($key, pool: 'file'));
     }
 }
