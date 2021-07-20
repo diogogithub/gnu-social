@@ -1,61 +1,60 @@
-<div id="right-panel">
-    <input type="checkbox" id="toggle-right" class="larger">
-    <div class="arrow right">
-        <label for="toggle-right" id='right-panel'></label>
-    </div>
-    <div id='right-container'>
-        {% if post_form is defined %}
-            {{ form_start(post_form) }}
-            <div class="create-notice">
-                <div class="target">
-                    <div class="target-top">
-                        {{ form_label(post_form.to) }}
+<details>
+    <summary>{{ icon('menu', 'icon icon-right') | raw }}</summary>
+    <div id="right-panel">
+        <div id='right-container'>
+            {% if post_form is defined %}
+                {{ form_start(post_form) }}
+                <div class="create-notice">
+                    <div class="target">
+                        <div class="target-top">
+                            {{ form_label(post_form.to) }}
+                        </div>
+                        <div class="target-bot">
+                            {{ form_widget(post_form.to) }}
+                        </div>
                     </div>
-                    <div class="target-bot">
-                        {{ form_widget(post_form.to) }}
+                    <div class="create-right">
+                        <div class="create-top-right">
+                            <div class="scope">
+                                {{ form_row(post_form.visibility) }}
+                            </div>
+                            <div class="tabs">
+                                {% for tab in tabs %}
+                                    <a href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="input-wrapper">
+                            <div class="content-input">
+                                {{ form_row(post_form.content) }}
+                            </div>
+                        </div>
+                        <div class="notice-options">
+                            <div class="attachments">
+                                {{ form_widget(post_form.attachments) }}
+                                <label for="{{ post_form.attachments.vars.id }}">
+                                    {{ icon('attach', 'icon icon-attach') | raw }}
+                                </label>
+                            </div>
+                            <div class="post">
+                                {{ form_row(post_form.post) }}
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="create-right">
-                    <div class="create-top-right">
-                        <div class="scope">
-                            {{ form_row(post_form.visibility) }}
-                        </div>
-                        <div class="tabs">
-                            {% for tab in tabs %}
-                                <a href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
-                            {% endfor %}
-                        </div>
-                    </div>
-                    <div class="input-wrapper">
-                        <div class="content-input">
-                            {{ form_row(post_form.content) }}
-                        </div>
-                    </div>
-                    <div class="notice-options">
-                        <div class="attachments">
-                            {{ form_widget(post_form.attachments) }}
-                            <label for="{{ post_form.attachments.vars.id }}">
-                                {{ icon('attach', 'icon icon-attach') | raw }}
-                            </label>
-                        </div>
-                        <div class="post">
-                            {{ form_row(post_form.post) }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {{ form_end(post_form) }}
-        {% endif %}
+                {{ form_end(post_form) }}
+            {% endif %}
 
-        {% set current_path = app.request.get('_route') %}
-        {% if right_panel_vars is defined %}
-            {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'vars': right_panel_vars}) %}
-                {{ block | raw }}
-            {% endfor %}
-        {% else %}
-            {% for block in handle_event('AppendRightPanelBlock', {'path': current_path}) %}
-                {{ block | raw }}
-            {% endfor %}
-        {% endif %}
+            {% set current_path = app.request.get('_route') %}
+            {% if right_panel_vars is defined %}
+                {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'vars': right_panel_vars}) %}
+                    {{ block | raw }}
+                {% endfor %}
+            {% else %}
+                {% for block in handle_event('AppendRightPanelBlock', {'path': current_path}) %}
+                    {{ block | raw }}
+                {% endfor %}
+            {% endif %}
+        </div>
     </div>
-</div>
+</details>
