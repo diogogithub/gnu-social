@@ -49,30 +49,34 @@ abstract class Cache
             self::$pools[$pool] = [];
             self::$redis[$pool] = [];
             foreach (explode(',', $val) as $dsn) {
-                list($scheme, $rest) = explode('://', $dsn);
-                $partial_to_dsn      = function ($r) use ($scheme) { return $scheme . '://' . $r; };
+                if (str_contains($dsn, '://')) {
+                    [$scheme, $rest] = explode('://', $dsn);
+                } else {
+                    $scheme = $dsn;
+                    $rest   = '';
+                }
                 switch ($scheme) {
                 case 'redis':
                     // Redis can have multiple servers, but we want to take proper advantage of
                     // redis, not just as a key value store, but using it's datastructures
-                    $dsns = explode(';', $rest);
+                    $dsns = explode(';', $dsn);
                     if (count($dsns) === 1) {
                         $class = Redis::class;
                         $r     = new Redis();
-                        if ($rest[0] != '/' && strstr($rest, ':') != false) {
-                            list($host, $port) = explode(':', $rest);
-                            $r->pconnect($host, $port);
-                        } else {
-                            $r->pconnect($rest);
-                        }
+                        $r->pconnect($rest);
                     } else {
-                        if (strstr($rest, ':') == false) {
+                        // @codeCoverageIgnoreStart
+                        // This requires extra server configuration, but the code was tested
+                        // manually and works, so it'll be excluded from automatic tests, for now, at least
+                        if (F\Every($dsns, function ($str) { [$scheme, $rest] = explode('://', $str); return str_contains($rest, ':'); }) == false) {
                             throw new ConfigurationException('The configuration of a redis cluster requires specifying the ports to use');
                         }
                         $class = RedisCluster::class; // true for persistent connection
-                        $r     = new RedisCluster(null, $dsns, timeout: null, read_timeout: null, persistent: true);
+                        $seeds = F\Map($dsns, fn ($str) => explode('://', $str)[1]);
+                        $r     = new RedisCluster(name: null, seeds: $seeds, timeout: null, read_timeout: null, persistent: true);
                         // Distribute reads randomly
                         $r->setOption($class::OPT_SLAVE_FAILOVER, $class::FAILOVER_DISTRIBUTE);
+                        // @codeCoverageIgnoreEnd
                     }
                     // Improved serializer
                     $r->setOption($class::OPT_SERIALIZER, $class::SERIALIZER_MSGPACK);
@@ -84,8 +88,11 @@ abstract class Cache
                     $adapters[$pool][]  = new Adapter\RedisAdapter($r);
                     break;
                 case 'memcached':
+                    // @codeCoverageIgnoreStart
+                    // These all are excluded from automatic testing, as they require an unreasonable amount
+                    // of configuration in the testing environment. The code is really simple, so it should work
                     // memcached can also have multiple servers
-                    $dsns              = F\map(explode(',', $rest), $partial_to_dsn);
+                    $dsns              = explode(';', $dsn);
                     $adapters[$pool][] = new Adapter\MemcachedAdapter($dsns);
                     break;
                 case 'filesystem':
@@ -103,6 +110,7 @@ abstract class Cache
                 default:
                     Log::error("Unknown or discouraged cache scheme '{$scheme}'");
                     return;
+                    // @codeCoverageIgnoreEnd
                 }
             }
 
@@ -113,7 +121,7 @@ abstract class Cache
             if (count($adapters[$pool]) === 1) {
                 self::$pools[$pool] = array_pop($adapters[$pool]);
             } else {
-                self::$pools[$pool] = new ChainAdapter($adapters);
+                self::$pools[$pool] = new ChainAdapter($adapters[$pool]);
             }
         }
     }
@@ -147,10 +155,12 @@ abstract class Cache
                     Log::info('Item "{key}" elected for early recomputation', ['key' => $key]);
                 } else {
                     if ($recompute = ($idletime = self::$redis[$pool]->object('idletime', $key) ?? false) && ($expiry = self::$redis[$pool]->ttl($key) ?? false) && $expiry <= $idletime / 1000 * $beta * log(random_int(1, PHP_INT_MAX) / PHP_INT_MAX)) {
+                        // @codeCoverageIgnoreStart
                         Log::info('Item "{key}" elected for early recomputation {delta}s before its expiration', [
                             'key'   => $key,
                             'delta' => sprintf('%.1f', $expiry - microtime(true)),
                         ]);
+                        // @codeCoverageIgnoreEnd
                     }
                 }
             }
@@ -186,7 +196,7 @@ abstract class Cache
                 ->del($key)
                 ->rPush($key, ...$value)
                 // trim to $max_count, unless it's 0
-                ->lTrim($key, 0, $max_count != null ? $max_count : -1)
+                ->lTrim($key, -$max_count ?? 0, -1)
                 ->exec();
         } else {
             self::set($key, $value, $pool, $beta);
@@ -204,13 +214,14 @@ abstract class Cache
                 ->multi(Redis::PIPELINE)
                 ->rPush($key, $value)
                 // trim to $max_count, if given
-                ->lTrim($key, 0, $max_count ?? -1)
+                ->lTrim($key, -$max_count ?? 0, -1)
                 ->exec();
         } else {
             $res   = self::get($key, function () { return []; }, $pool, $beta);
             $res[] = $value;
             if ($max_count != null) {
-                $res = array_slice($res, 0, $max_count);
+                $count = count($res);
+                $res   = array_slice($res, $count - $max_count, $count); // Trim the older values
             }
             self::set($key, $res, $pool, $beta);
         }
