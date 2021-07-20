@@ -45,6 +45,8 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
 {
     /**
      * Register `app.schemadef_driver` (this class instantiated with argument src/Entity) as a metadata driver
+     *
+     * @codeCoverageIgnore
      */
     public function process(ContainerBuilder $container)
     {
@@ -110,6 +112,8 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
             }
 
             if (false && $opts['foreign key'] ?? false) {
+                // @codeCoverageIgnoreStart
+                // TODO: Get foreign keys working
                 foreach (['target', 'multiplicity'] as $f) {
                     if (!isset($opts[$f])) {
                         throw new \Exception("{$class_name}.{$name} doesn't have the required field `{$f}`");
@@ -120,8 +124,8 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
 
                 // TODO still need to map nullability, comment, fk name and such, but
                 // the interface doesn't seem to support it currently
-                list($target_entity, $target_field) = explode('.', $opts['target']);
-                $map                                = [
+                [$target_entity, $target_field] = explode('.', $opts['target']);
+                $map                            = [
                     'fieldName'    => $name,
                     'targetEntity' => $target_entity,
                     'joinColumns'  => [[
@@ -147,8 +151,9 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
                     $metadata->mapManyToMany($map);
                     break;
                 default:
-                    throw new \Exception('Invalid multiplicity specified: ' . $opts['multiplicity']);
+                    throw new \Exception("Invalid multiplicity specified: '${opts['multiplicity']}' in class: {$class_name}");
                 }
+                // @codeCoverageIgnoreEnd
             } else {
                 // Convert old to new types
                 // For ints, prepend the size (smallint)

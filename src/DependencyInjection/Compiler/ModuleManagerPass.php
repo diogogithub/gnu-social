@@ -39,6 +39,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class ModuleManagerPass implements CompilerPassInterface
 {
+    /**
+     * @codeCoverageIgnore
+     */
     public function process(ContainerBuilder $container)
     {
         ModuleManager::process($container);
