@@ -1,4 +1,4 @@
-# GNU social at a high level
+# Overview of GNU social's Core Internals
 
 GNU social's execution begins at `public/index.php`, which gets
 called by the webserver for all requests. This is handled by the
@@ -30,7 +30,7 @@ The latter, is launched when the `bin/console` script is used.
 
 In both cases, these events call the `register` function, which
 creates static references for the services such as logging, event and
-translation. This is done so these services can be used via static
+translation. This is done, so these services can be used via static
 function calls, which is much less verbose and more accessible than
 the way the framework recommends. This function also loads all the
 Components and Plugins, which like in V2, are modules that aren't
@@ -51,7 +51,7 @@ as in V2, where each 'Entity' has a `schemaDef` static function which
 returns an array with the database definition. The latter handles the
 loading of modules (components and plugins).
 
-This datbase definition is handled by the `SchemaDefPass` class, which
+This database definition is handled by the `SchemaDefPass` class, which
 extends `Doctrine\Persistence\Mapping\Driver\StaticPHPDriver`. The
 function `loadMetadataForClass` is called by the Symfony
 framework for each file in `src/Entity/`. It allows us to call the
@@ -62,17 +62,17 @@ to load the entity definitions from each plugin.
 ### Routing
 
 Next, we'll look at the `RouteLoader`, defined in
-`src/Util/RoutLoader.php`, which loads all the files from
+`src/Core/Router/RouteLoader.php`, which loads all the files from
 `src/Routes/*.php` and calls the static `load` method, which defines
 routes with an interface similar to V2's `connect`, except it requires
-an extra identifier as the first argument. This identifier is used,
-for instance, to generate URLs for each route. Each route connects an
+an additional identifier as the first argument. This identifier is used,
+for instance, to generate URLs for each route. Each route connects a
 URL path to a Controller, with the possibility of taking arguments,
 which are passed to the `__invoke` method of the respective controller
 or the given method. The controllers are defined in `src/Controller/`
 or `plugins/*/Controller` or `components/*/Controller` and are
 responsible for handling a request and return a Symfony `Response`
-object or an array that gets converted to one (subject to change, in
+object, or an array that gets converted to one (subject to change, in
 order to abstract HTML vs JSON output).
 
 This array conversion is handled by `App\Core\Controller`, along with
@@ -85,11 +85,11 @@ JSON, with what the controller returned.
 The next steps are handled by the Symfony framework which creates a
 `Request` object from the HTTP request, and then a corresponding
 `Response` is created by `App\Core\Controller`, which matches the
-appropriate route and thus calls it's controller.
+appropriate route and thus calls its controller.
 
 ### Performance
 
-All this happens on each request, which seems like a lot to handle,
+All of this happens on each request, which seems like a lot to handle,
 and would be too slow. Fortunately, Symfony has a 'compiler' which
 caches and optimizes the code paths. In production mode, this can be
 done through a command, while in development mode, it's handled on
