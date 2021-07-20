@@ -1,5 +1,5 @@
 [book]
-authors = ["Diogo Peralta Cordeiro", "Hugo Sales"]
+authors = ["Thomas Karpiniec", "Diogo Peralta Cordeiro", "Hugo Sales"]
 language = "en"
 multilingual = false
 src = "src"
