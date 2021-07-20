@@ -4,7 +4,7 @@ cd /var/www/social || exit 65
 
 yes yes | php bin/console doctrine:fixtures:load || exit 65
 
-if runuser -u www-data -- bin/phpunit --coverage-html .test_coverage_report; then
+if runuser -u www-data -- vendor/bin/simple-phpunit -vvv --coverage-html .test_coverage_report; then
     exit 64
 else
     exit 65
