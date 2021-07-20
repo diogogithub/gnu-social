@@ -8,12 +8,7 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}"
-          media="screen and (min-width: 1300px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_mid.css') }}"
-          media="screen and (max-width: 1300px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public_small.css') }}"
-          media="screen and (max-width: 750px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}">
 {% endblock %}
 
 {% block header %}
@@ -27,7 +22,7 @@
 {% block body %}
     <div class="content">
 
-        <div class="main">
+        <div class="navigation">
             <nav class='main-nav'>
                 <ul>
                     <li>
@@ -62,19 +57,20 @@
                     {% endif %}
                 </ul>
             </nav>
+        </div>
 
-            <div class="timeline">
-                <div class="notes">
-                    {% if notes is defined and notes is not empty %}
-                        {% for conversation in notes %}
-                            {% include '/note/view.html.twig' with {'note': conversation['note'], 'have_user': have_user, 'replies': conversation['replies']} only %}
-                        {% endfor %}
-                    {% else %}
-                        <h1>{% trans %}No notes here.{% endtrans %}</h1>
-                    {% endif %}
-                </div>
+        <div class="timeline">
+            <div class="notes">
+                {% if notes is defined and notes is not empty %}
+                    {% for conversation in notes %}
+                        {% include '/note/view.html.twig' with {'note': conversation['note'], 'have_user': have_user, 'replies': conversation['replies']} only %}
+                    {% endfor %}
+                {% else %}
+                    <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
+                {% endif %}
             </div>
         </div>
+
     </div>
 {% endblock body %}
 

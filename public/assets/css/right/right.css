@@ -1,78 +1,13 @@
-#right-panel {
-    display: flex;
-    flex-direction: column;
+.icon-right {
     position: fixed;
+    top: 0;
     right: 0;
+    padding: calc(3 * var(--unit-size));
 
-    width: calc(2 * var(--unit-size-w));
-    padding: var(--small-size);
-    box-sizing: border-box;
-
-    font-size: var(--medium-size);
-    background-image: linear-gradient(var(--bg1), transparent);
-}
-
-.icon-attach {
     width: var(--main-size);
-    height: var(--main-size);
-    font-size: var(--medium-size);
-    fill: var(--fg);
-    cursor: pointer;
-}
+    height: auto;
 
-#replyform {
-    margin: var(--small-size);
-}
-#replyform div {
-    display: inline-flex;
-    justify-content: flex-start;
-    width: 100%;
-    box-sizing: border-box;
-}
-#replyform div textarea {
-    width: 100%;
-}
-
-/* UNTOGGLED */
-.arrow {
-    border: solid var(--fg);
-    border-width: 0 3px 3px 0;
-    display: none;
-    padding: 0.3em;
-}
-.right {
-    transform: rotate(135deg);
-    -webkit-transform: rotate(135deg);
-}
-
-#right-container {
-    right: 0;
-    top: 0;
-    transition: 0.3s ease;
-}
-.arrow label {
-    display: block;
-    cursor: pointer;
-}
-#toggle-right {
-    position: absolute;
-    z-index: 2;
-    cursor: pointer;
-    opacity: 0;
-}
-#toggle-right:not(:checked)+.arrow {
-    transform: rotate(135deg);
-    transition: 0.3s ease;
-}
-
-/* TOGGLED */
-#toggle-right:checked~#right-container {
-    display: flex;
-    right: 0;
-    top: 0;
-    transition: 0.3s ease;
-}
-#toggle-right:checked+.arrow {
-    transform: rotate(-45deg);
-    transition: 0.3s ease;
+    fill: var(--white);
+    stroke-width: 0;
+    vertical-align: middle;
 }
