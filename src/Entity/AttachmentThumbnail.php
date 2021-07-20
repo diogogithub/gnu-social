@@ -145,9 +145,12 @@ class AttachmentThumbnail extends Entity
      */
     public static function getOrCreate(Attachment $attachment, int $width, int $height, bool $crop)
     {
+        // We need to keep these in mind for DB indexing
+        $predicted_width  = null;
+        $predicted_height = null;
         try {
             return Cache::get('thumb-' . $attachment->getId() . "-{$width}x{$height}",
-                function () use ($crop, $attachment, $width, $height) {
+                function () use ($crop, $attachment, $width, $height, &$predicted_width, &$predicted_height) {
                     [$predicted_width, $predicted_height] = self::predictScalingValues($attachment->getWidth(),$attachment->getHeight(), $width, $height, $crop);
                     return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'width' => $predicted_width, 'height' => $predicted_height]);
                 });
@@ -158,8 +161,8 @@ class AttachmentThumbnail extends Entity
             $event_map  = ['image' => 'ResizeImagePath', 'video' => 'ResizeVideoPath'];
             $major_mime = GSFile::mimetypeMajor($attachment->getMimetype());
             if (in_array($major_mime, array_keys($event_map)) && !Event::handle($event_map[$major_mime], [$attachment->getPath(), $temp->getRealPath(), &$width, &$height, $crop, &$mimetype])) {
-                $thumbnail->setWidth($width);
-                $thumbnail->setHeight($height);
+                $thumbnail->setWidth($predicted_width);
+                $thumbnail->setHeight($predicted_height);
                 $filename = "{$width}x{$height}{$ext}-" . $attachment->getFileHash();
                 $temp->move(Common::config('thumbnail', 'dir'), $filename);
                 $thumbnail->setFilename($filename);
@@ -277,7 +280,7 @@ class AttachmentThumbnail extends Entity
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what attachment'],
                 'width'         => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
                 'height'        => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
-                'filename'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'thubmnail filename'],
+                'filename'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'thumbnail filename'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['attachment_id', 'width', 'height'],
