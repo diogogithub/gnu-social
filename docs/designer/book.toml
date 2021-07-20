@@ -1,0 +1,6 @@
+[book]
+authors = ["Diogo Peralta Cordeiro", "Eliseu Amaro", "Hugo Sales"]
+language = "en"
+multilingual = false
+src = "src"
+title = "GNU social for Designers"
