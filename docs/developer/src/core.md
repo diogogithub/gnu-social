@@ -14,5 +14,5 @@ The `core` tries to be minimal. The essence of it being various wrappers around 
 - [Utils](./core/util.md);
 - [Queues](./core/queues.md);
 - [Files](./core/files.md);
-- [Security](./core/security.md);
+- [Sessions and Security](./core/security.md);
 - [HTTP Client](./core/http.md).

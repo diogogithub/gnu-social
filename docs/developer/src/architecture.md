@@ -12,10 +12,11 @@ which is elaborated in [Database](./database.md);
 - [Routes and Controllers](./routes_and_controllers.md);
 - [Templates](./templates.md);
 - [Internationalization (i18n)](https://en.wikipedia.org/wiki/Internationalization_and_localization), elaborated in [Internationalization](internationalization.md);
+- [Exceptions](./exceptions.md);
 - [Log](./log.md);
 - [Queues](./queues.md);
 - [Files](./files.md);
-- [Security](./security.md);
+- [Sessions and Security](./sessions_and_security.md);
 - [HTTP Client](./http.md).
 
 Everything else uses most of this.
@@ -47,6 +48,13 @@ Currently, GNU social has the following components:
 
 - Avatar
 - Posting
+
+#### Design principles
+
+- Components are independent so do not interfere with each other;
+- Component implementations are hidden;
+- Communication is through well-defined events and interfaces (for models);
+- One component can be replaced by another if its events are maintained.
 
 ### Plugins (Unix Tools Design Philosophy)
 

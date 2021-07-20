@@ -2,6 +2,7 @@
 
 - [Architecture: Modules](./architecture.md)
     - [Programming Style](./paradigms.md)
+    - [Exceptions](./exceptions.md)
     - [Events](./events.md)
     - [Database](./database.md)
     - [Cache](./cache.md)
@@ -34,3 +35,4 @@
     - [Files](./core/files.md)
     - [Security](./core/security.md)
     - [HTTP Client](./core/http.md)
+    - [Exception handling](./core/exception_handler.md)

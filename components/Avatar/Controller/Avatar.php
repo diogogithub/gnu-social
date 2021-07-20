@@ -38,7 +38,6 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormError;
-use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 use Symfony\Component\HttpFoundation\Request;
 
 class Avatar extends Controller
@@ -84,32 +83,29 @@ class Avatar extends Controller
                     $form->addError(new FormError(_m('No avatar set, so cannot delete')));
                 }
             } else {
-                $sfile = null;
                 if (isset($data['hidden'])) {
                     // Cropped client side
                     $matches = [];
                     if (!empty(preg_match('/data:([^;]*)(;(base64))?,(.*)/', $data['hidden'], $matches))) {
-                        list(, $mimetype_user, , $encoding_user, $data_user) = $matches;
-                        if ($encoding_user == 'base64') {
+                        list(, , , $encoding_user, $data_user) = $matches;
+                        if ($encoding_user === 'base64') {
                             $data_user = base64_decode($data_user);
-                            $tempfile  = new TemporaryFile(['prefix' => 'avatar']);
-                            $path      = $tempfile->getRealPath();
-                            file_put_contents($path, $data_user);
-                            $sfile = new SymfonyFile($path);
+                            $tempfile  = new TemporaryFile(['prefix' => 'gs-avatar']);
+                            $tempfile->write($data_user);
                         } else {
                             Log::info('Avatar upload got an invalid encoding, something\'s fishy and/or wrong');
                         }
                     }
                 } elseif (isset($data['avatar'])) {
                     // Cropping failed (e.g. disabled js), have file as uploaded
-                    $sfile = $data['avatar'];
+                    $file = $data['avatar'];
                 } else {
                     throw new ClientException('Invalid form');
                 }
-                $attachment     = GSFile::validateAndStoreFileAsAttachment($sfile, Common::config('avatar', 'dir'), $title = null, $is_local = true, $use_unique = $gsactor_id);
+                $attachment = GSFile::validateAndStoreFileAsAttachment($file, dest_dir: Common::config('avatar', 'dir'), is_local: true, actor_id: $gsactor_id);
+                // Must get old id before inserting another one
                 $old_attachment = null;
                 $avatar         = DB::find('avatar', ['gsactor_id' => $gsactor_id]);
-                // Must get old id before inserting another one
                 if ($avatar != null) {
                     $old_attachment = $avatar->delete();
                 }

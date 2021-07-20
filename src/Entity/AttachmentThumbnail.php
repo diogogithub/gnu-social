@@ -44,6 +44,7 @@ use DateTimeInterface;
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
  * @author    Hugo Sales <hugo@hsal.es>
+ * @author    Diogo Peralta Cordeiro <mail@diogo.site>
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -131,6 +132,17 @@ class AttachmentThumbnail extends Entity
         }
     }
 
+    /**
+     * @param Attachment $attachment
+     * @param int        $width
+     * @param int        $height
+     * @param bool       $crop
+     *
+     * @throws ServerException
+     * @throws \App\Util\Exception\TemporaryFileException
+     *
+     * @return mixed
+     */
     public static function getOrCreate(Attachment $attachment, int $width, int $height, bool $crop)
     {
         try {
@@ -141,16 +153,15 @@ class AttachmentThumbnail extends Entity
                 });
         } catch (NotFoundException $e) {
             $ext        = image_type_to_extension(IMAGETYPE_WEBP, include_dot: true);
-            $temp       = new TemporaryFile(['prefix' => 'thumbnail', 'suffix' => $ext]);
+            $temp       = new TemporaryFile(['prefix' => 'gs-thumbnail', 'suffix' => $ext]);
             $thumbnail  = self::create(['attachment_id' => $attachment->getId()]);
             $event_map  = ['image' => 'ResizeImagePath', 'video' => 'ResizeVideoPath'];
             $major_mime = GSFile::mimetypeMajor($attachment->getMimetype());
-            if (in_array($major_mime, array_keys($event_map))) {
-                Event::handle($event_map[$major_mime], [$attachment->getPath(), $temp->getRealPath(), &$width, &$height, $crop, &$mimetype]);
+            if (in_array($major_mime, array_keys($event_map)) && !Event::handle($event_map[$major_mime], [$attachment->getPath(), $temp->getRealPath(), &$width, &$height, $crop, &$mimetype])) {
                 $thumbnail->setWidth($width);
                 $thumbnail->setHeight($height);
                 $filename = "{$width}x{$height}{$ext}-" . $attachment->getFileHash();
-                $temp->commit(Common::config('thumbnail', 'dir') . $filename);
+                $temp->move(Common::config('thumbnail', 'dir'), $filename);
                 $thumbnail->setFilename($filename);
                 DB::persist($thumbnail);
                 DB::flush();

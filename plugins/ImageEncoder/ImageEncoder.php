@@ -21,6 +21,8 @@ namespace Plugin\ImageEncoder;
 
 use App\Core\Event;
 use App\Core\GSFile;
+use App\Util\Exception\TemporaryFileException;
+use SplFileInfo;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Plugin;
@@ -56,18 +58,18 @@ class ImageEncoder extends Plugin
     /**
      * Encodes the image to self::preferredType() format ensuring it's valid.
      *
-     * @param \SplFileInfo $file
-     * @param null|string  $mimetype in/out
-     * @param null|string  $title    in/out
-     * @param null|int     $width    out
-     * @param null|int     $height   out
+     * @param SplFileInfo $file
+     * @param null|string   $mimetype in/out
+     * @param null|string   $title    in/out
+     * @param null|int      $width    out
+     * @param null|int      $height   out
      *
      * @throws Vips\Exception
-     * @throws \App\Util\Exception\TemporaryFileException
+     * @throws TemporaryFileException
      *
      * @return bool
      */
-    public function onAttachmentValidation(\SplFileInfo &$file, ?string &$mimetype, ?string &$title, ?int &$width, ?int &$height): bool
+    public function onAttachmentValidation(SplFileInfo &$file, ?string &$mimetype, ?string &$title, ?int &$width, ?int &$height): bool
     {
         $original_mimetype = $mimetype;
         if (GSFile::mimetypeMajor($original_mimetype) != 'image') {
@@ -77,14 +79,12 @@ class ImageEncoder extends Plugin
 
         $type      = self::preferredType();
         $extension = image_type_to_extension($type, include_dot: true);
-        $temp      = new TemporaryFile(['prefix' => 'image', 'suffix' => $extension]); // This handles deleting the file if some error occurs
-        $mimetype  = image_type_to_mime_type($type);
-        if ($mimetype != $original_mimetype) {
-            // If title seems to be a filename with an extension
-            if (preg_match('/\.[a-z0-9]/i', $title) === 1) {
-                $title = substr($title, 0, strrpos($title, '.')) . $extension;
-            }
+        // If title seems to be a filename with an extension
+        if (preg_match('/\.[a-z0-9]/i', $title) === 1) {
+            $title = substr($title, 0, strrpos($title, '.')) . $extension;
         }
+        // TemporaryFile handles deleting the file if some error occurs
+        $temp = new TemporaryFile(['prefix' => 'image', 'suffix' => $extension]);
 
         $image  = Vips\Image::newFromFile($file->getRealPath(), ['access' => 'sequential']);
         $width  = Common::clamp($image->width, 0, Common::config('attachments', 'max_width'));
@@ -93,12 +93,8 @@ class ImageEncoder extends Plugin
         $image->writeToFile($temp->getRealPath());
 
         $filesize = $temp->getSize();
-        $filepath = $file->getRealPath();
-        @unlink($filepath);
 
         Event::handle('EnforceQuota', [$filesize]);
-
-        $temp->commit($filepath);
 
         return Event::stop;
     }
@@ -155,6 +151,6 @@ class ImageEncoder extends Plugin
         } finally {
             ini_set('memory_limit', $old_limit); // Restore the old memory limit
         }
-        return Event::next;
+        return Event::stop;
     }
 }
