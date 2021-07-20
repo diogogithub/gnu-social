@@ -31,6 +31,8 @@ use Doctrine\ORM\Mapping\ClassMetadataFactory;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Jchook\AssertThrows\AssertThrows;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security as SSecurity;
 
 class CommonTest extends GNUsocialTestCase
@@ -61,6 +63,16 @@ class CommonTest extends GNUsocialTestCase
         if ($exists) {
             rename(INSTALLDIR . '/social.local.yaml.back_test', INSTALLDIR . '/social.local.yaml');
         }
+    }
+
+    public function testSetRequestAndRoute()
+    {
+        $req             = $this->createMock(Request::class);
+        $req->attributes = $this->createMock(ParameterBag::class);
+        $req->attributes->method('get')->willReturn('test_route');
+        Common::setRequest($req);
+        static::assertSame('test_route', Common::route());
+        static::assertTrue(Common::isRoute('test_route'));
     }
 
     /**
