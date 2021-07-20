@@ -7,6 +7,8 @@
     </include>
     <exclude>
       <directory>src/Util/Exception</directory>
+      <directory>src/Routes</directory>
+      <directory>src/Security</directory> <!-- TODO: Should be tested in the future -->
       <file>src/Kernel.php</file>
       <file>src/CacheKernel.php</file>
     </exclude>
