@@ -28,7 +28,6 @@
     {% endfor %}
 </head>
 <body>
-
     {% block header %}
     <div id='header'>
         <nav id='instance'>
@@ -44,12 +43,12 @@
         {% block leftpanel %}
         {% endblock leftpanel %}
 
-        {% block rightpanel %}
-        {% endblock rightpanel %}
-
         {% block nav %}{% endblock %}
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock javascripts %}
+
+        {% block rightpanel %}
+        {% endblock rightpanel %}
     </div>
 
 </body>
