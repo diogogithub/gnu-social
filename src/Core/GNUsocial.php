@@ -47,6 +47,7 @@ use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
 use App\Util\Common;
+use App\Util\Exception\ConfigurationException;
 use App\Util\Formatting;
 use Doctrine\ORM\EntityManagerInterface;
 use HtmlSanitizer\SanitizerInterface;
@@ -68,28 +69,29 @@ use Symfony\Component\Security\Core\Security as SSecurity;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Twig\Environment;
 
 class GNUsocial implements EventSubscriberInterface
 {
     use TargetPathTrait;
 
-    protected bool                     $initialized = false;
-    protected LoggerInterface          $logger;
-    protected TranslatorInterface      $translator;
-    protected EntityManagerInterface   $entity_manager;
-    protected RouterInterface          $router;
-    protected UrlGeneratorInterface    $url_generator;
-    protected FormFactoryInterface     $form_factory;
-    protected MessageBusInterface      $message_bus;
+    protected bool $initialized = false;
+    protected LoggerInterface $logger;
+    protected TranslatorInterface $translator;
+    protected EntityManagerInterface $entity_manager;
+    protected RouterInterface $router;
+    protected UrlGeneratorInterface $url_generator;
+    protected FormFactoryInterface $form_factory;
+    protected MessageBusInterface $message_bus;
     protected EventDispatcherInterface $event_dispatcher;
-    protected SessionInterface         $session;
-    protected SSecurity                $security;
-    protected ModuleManager            $module_manager;
-    protected HttpClientInterface      $client;
-    protected SanitizerInterface       $sanitizer;
-    protected ContainerBagInterface    $config;
-    protected \Twig\Environment        $twig;
-    protected ?Request                 $request;
+    protected SessionInterface $session;
+    protected SSecurity $security;
+    protected ModuleManager $module_manager;
+    protected HttpClientInterface $client;
+    protected SanitizerInterface $sanitizer;
+    protected ContainerBagInterface $config;
+    protected Environment $twig;
+    protected ?Request $request;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -108,7 +110,7 @@ class GNUsocial implements EventSubscriberInterface
                                 HttpClientInterface $cl,
                                 SanitizerInterface $san,
                                 ContainerBagInterface $conf,
-                                \Twig\Environment $twig,
+                                Environment $twig,
                                 RequestStack $request_stack)
     {
         $this->logger           = $logger;
@@ -123,7 +125,7 @@ class GNUsocial implements EventSubscriberInterface
         $this->security         = $sec;
         $this->module_manager   = $mm;
         $this->client           = $cl;
-        $this->saniter          = $san;
+        $this->sanitizer        = $san;
         $this->config           = $conf;
         $this->twig             = $twig;
         $this->request          = $request_stack->getCurrentRequest();
@@ -134,7 +136,7 @@ class GNUsocial implements EventSubscriberInterface
     /**
      * Store these services to be accessed statically and load modules
      *
-     * @param EventDispatcherInterface $event_dispatcher
+     * @throws ConfigurationException
      */
     public function initialize(): void
     {
@@ -149,7 +151,7 @@ class GNUsocial implements EventSubscriberInterface
             DB::setManager($this->entity_manager);
             Form::setFactory($this->form_factory);
             Queue::setMessageBus($this->message_bus);
-            Security::setHelper($this->security, $this->saniter);
+            Security::setHelper($this->security, $this->sanitizer);
             Router::setRouter($this->router, $this->url_generator);
             HTTPClient::setClient($this->client);
             Formatting::setTwig($this->twig);
@@ -165,17 +167,14 @@ class GNUsocial implements EventSubscriberInterface
     }
 
     /**
-     * Event very early on in the Symfony HTTP lifecycle, but after everyting is registered
+     * Event very early on in the Symfony HTTP lifecycle, but after everything is registered
      * where we get access to the event dispatcher
      *
-     * @param RequestEvent             $event
-     * @param string                   $event_name
-     * @param EventDispatcherInterface $event_dispatcher
+     * @param RequestEvent $event
      *
      * @return RequestEvent
      */
-    public function onKernelRequest(RequestEvent $event,
-                                    string $event_name): RequestEvent
+    public function onKernelRequest(RequestEvent $event): RequestEvent
     {
         $this->request = $event->getRequest();
 
@@ -191,27 +190,26 @@ class GNUsocial implements EventSubscriberInterface
     /**
      * Event after everything is initialized when using the `bin/console` command
      *
-     * @param ConsoleCommandEvent      $event
-     * @param string                   $event_name
-     * @param EventDispatcherInterface $event_dispatcher
+     * @param ConsoleCommandEvent $event
+     *
+     * @throws ConfigurationException
      *
      * @return ConsoleCommandEvent
      * @codeCoverageIgnore
      */
-    public function onCommand(ConsoleCommandEvent $event,
-                              string $event_name): ConsoleCommandEvent
+    public function onCommand(ConsoleCommandEvent $event): ConsoleCommandEvent
     {
         $this->initialize();
         return $event;
     }
 
     /**
-     * Tell Symfony which events we want to listen to, which Symfony detects and autowires
+     * Tell Symfony which events we want to listen to, which Symfony detects and auto-wires
      * due to this implementing the `EventSubscriberInterface`
      *
      * @codeCoverageIgnore
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             KernelEvents::REQUEST => 'onKernelRequest',
