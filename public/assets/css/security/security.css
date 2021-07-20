@@ -1,66 +1,81 @@
-form {
-    width: 50%;
-    margin-left: auto;
-    margin-right: auto;
-
-    padding: var(--main-size);
-    background-image: radial-gradient(ellipse at 10% 10%, var(--bg3), var(--accent-blue)),
-    url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAElBMVEUAAACUkpSEhoSMioyMjoyEgoRr6djFAAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAU1JREFUKJEVUcl1xTAIpAVLSgECXIAYUoCAX0Bi919LlCPLm5ValiOUUe2+ZRVFuYpKXFsUX9aIp0V6GtC8VRhNL0X2fikvswhKrNDhes7pbpPkufFAtI0B76LEjfc2bgdHDk6RX4A/sjt6LCylfoYpNYYJx/9COhIugsjluzN9VGZ/Hnl51jIH2ba+Ywsy2RJCFdoDe8Obw61TXGAv+ewExMRJs7gd7YcimPuk42uMqY2VJ1fK+bDL32rb7kwok/la/u7Mrz7Xf0DTssSP2Btp1ZS0zw35tM/SsJKgWNLcRh+/th1QqntwtM3Tx0LNosoBYbM3qjJFiMeLsMH2i5BcQdU3n9sJHOE1Hoqn1GA/bm4s0YkVB/y4r0PbltF32FpljXmdlOOwbDvFWkoDYLppSG4pnM6UxX3Src1lhXeU36FOu3o+R2vNaHME/wESUl9/3zMniwAAAABJRU5ErkJggg==);
-    background-blend-mode: multiply;
-    border-radius: var(--unit-size);
-}
-
-fieldset {
+.content {
     display: flex;
-    flex-direction: column;
-
-    font-family: var(--display-font);
-    font-size: var(--main-size);
+    flex-wrap: wrap;
+    margin-top: calc(4 * var(--main-size));
+    justify-content: center;
+    align-items: center;
+    margin-left: 1%;
+    margin-right: 1%;
+    margin-bottom: 1%;
 }
 
-fieldset legend {
-    margin-bottom: var(--main-size);
-}
-
-br {
-    margin-bottom: var(--unit-size);
+form {
+    font-size: var(--medium-size);
+    background-color: var(--bg2);
+    padding: calc(2 * var(--unit-size));
+    border-radius: var(--unit-size);
+    border: solid 2px var(--accent-low);
 }
 
 label {
-    font-family: var(--display-font);
-    font-size: var(--medium-size);
-}
-
-input[type="text"]:hover,
-input[type="password"]:hover,
-input[type="email"]:hover,
-input[type="text"]:focus,
-input[type="password"]:focus,
-input[type="email"]:focus {
-    background: var(--white) !important;
-    color: var(--bg1) !important;
-    transition: all 0.4s ease;
-}
-
-input[type="text"],
-input[type="password"],
-input[type="email"] {
-    all: unset;
-    background: var(--translucent);
-    padding: var(--unit-size) var(--small-size);
-    box-sizing: border-box;
-    border-radius: var(--unit-size);
-    font-size: var(--medium-size);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
     width: 100%;
 }
 
 button {
-    font-family: var(--display-font);
-    font-size: var(--medium-size);
-    align-self: flex-end;
-    padding: var(--unit-size) var(--small-size);
+    margin-top: var(--unit-size);
 }
 
-fieldset div:last-child {
-    text-align: end;
+input[type=text],
+input[type=password],
+input[type=email] {
+    margin-top: calc(var(--unit-size) * 0.5);
+    background-color: var(--bg1);
+    color: var(--fg);
+    border-style: none;
+    padding: calc(var(--unit-size) * 0.5);
+    border-radius: calc(var(--unit-size) * 0.5);
+    font-size: var(--unit-size);
+    margin-bottom: var(--unit-size);
+    width: calc(100% - var(--unit-size));
+}
+
+.active {
+    color: var(--fg) !important;
+    font-weight: 700;
+}
+
+input {
+    filter: none;
+}
+
+form input[type="checkbox"] {
+    position: unset !important;
+}
+
+form button[type=submit] {
+    background: var(--bg1);
+    padding: 0.3em 1em;
+    color: var(--fg);
+    border-style: solid;
+    border-color: var(--accent);
+    border-radius: var(--unit-size);
+    border-width: 2px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+
+form button[type=submit]:focus,
+form button[type=submit]:hover {
+    border-radius: var(--unit-size);
+    box-shadow: 0 0 8px var(--accent);
+}
+
+#login-notes {
+    margin: 0;
+}
+
+#login-main {
+    border: 0;
 }
