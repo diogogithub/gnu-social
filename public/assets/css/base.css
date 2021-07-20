@@ -208,3 +208,15 @@ details[open] > div {
         transform: none;
     }
 }
+
+/* SIDE PANELS OPEN BY DEFAULT ON DESKTOP */
+@media (min-width: 900px) {
+    .panel-mobile {
+        display: none;
+    }
+}
+@media (max-width: 900px) {
+    .panel-desktop {
+        display: none;
+    }
+}

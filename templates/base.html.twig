@@ -40,15 +40,34 @@
     {% endblock header %}
 
     <div class="container">
-        {% block leftpanel %}
-        {% endblock leftpanel %}
+        <details class="panel" id="left-container">
+            <summary>
+                {{ icon('menu', 'icon icon-left') | raw }}
+                <div class="panel-desktop">
+                    {{ block("leftpanel", "stdgrid.html.twig") }}
+                </div>
+            </summary>
+            <div class="panel-mobile">
+                {{ block("leftpanel", "stdgrid.html.twig") }}
+            </div>
+        </details>
+
 
         {% block nav %}{% endblock %}
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock javascripts %}
 
-        {% block rightpanel %}
-        {% endblock rightpanel %}
+        <details class="panel" id="right-container">
+            <summary>
+                {{ icon('drop', 'icon icon-right') | raw }}
+                <div class="panel-desktop">
+                    {{ block("rightpanel", "stdgrid.html.twig") }}
+                </div>
+            </summary>
+            <div class="panel-mobile">
+                {{ block("rightpanel", "stdgrid.html.twig") }}
+            </div>
+        </details>
     </div>
 
 </body>
