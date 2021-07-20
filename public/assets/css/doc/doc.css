@@ -1,86 +1,89 @@
 .content {
-      display: flex;
-      flex-wrap: wrap;
-      margin-top: calc(4 * var(--main-size));
-      justify-content: center;
-      align-items: center;
-      margin-left: calc(var(--nav-size) + var(--unit-size));
-      margin-right: calc(var(--nav-size) + var(--unit-size));
-      margin-bottom: var(--unit-size);
-      border: solid 2px var(--accent-low);
-      border-radius: var(--small-size);
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: calc(4 * var(--main-size));
+    justify-content: center;
+    align-items: center;
+    margin-left: calc(var(--nav-size) + var(--unit-size));
+    margin-right: calc(var(--nav-size) + var(--unit-size));
+    margin-bottom: var(--unit-size);
+    border: solid 2px var(--accent-low);
+    border-radius: var(--small-size);
 }
 
 .faq-nav {
-      order: 1;
-      display: flex;
-      justify-content: space-evenly;
-      flex-wrap: wrap;
-      flex: 1;
-      background-color: var(--bg1);
-      padding: var(--medium-size);
-      font-size: var(--medium-size);
-      font-family: var(--head-font);
-      border-radius: var(--small-size) var(--small-size) 0 0;
+    order: 1;
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    flex: 1;
+    background-color: var(--bg1);
+    padding: var(--medium-size);
+    font-size: var(--medium-size);
+    font-family: var(--head-font);
+    border-radius: var(--small-size) var(--small-size) 0 0;
 }
 
 .faq-nav ul {
-      display: flex;
-      align-items: stretch;
-      justify-content: space-evenly;
-      width: 100%;
-      margin-left: calc(2 * var(--side-margin));
-      margin-right: calc(2 * var(--side-margin));
-      padding: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-evenly;
+    width: 100%;
+    margin-left: calc(2 * var(--side-margin));
+    margin-right: calc(2 * var(--side-margin));
+    padding: 0;
 }
 
 .faq-nav li {
-      display: block;
-      flex: 0 1 auto;
-      list-style-type: none;
-      font-weight: 700;
+    display: block;
+    flex: 0 1 auto;
+    list-style-type: none;
+    font-weight: 700;
 }
 
 .active {
-      color: #F6F6F6 !important;
-      font-weight: 700;
+    color: #F6F6F6 !important;
+    font-weight: 700;
 }
 
 .faq-nav a {
-      color: #91B9D0;
+    color: #91B9D0;
 }
+
 .faq-nav a:hover {
-      color: #F6F6F6;
-      transition: all 0.8s ease;
+    color: #F6F6F6;
+    transition: all 0.8s ease;
 }
+
 .faq-nav a:focus {
-      color: #F6F6F6;
-      transition: all 0.8s ease;
+    color: #F6F6F6;
+    transition: all 0.8s ease;
 }
 
 .markd {
-      order: 2;
-      background-color: var(--bg2);
-      font-size: var(--medium-size);
-      padding: calc(3*var(--unit-size));
-      padding-top: var(--unit-size);
-      border-radius: 0 0 var(--small-size) var(--small-size);
+    order: 2;
+    background-color: var(--bg2);
+    font-size: var(--medium-size);
+    padding: calc(3 * var(--unit-size));
+    padding-top: var(--unit-size);
+    border-radius: 0 0 var(--small-size) var(--small-size);
 }
+
 .markd-single {
-      border-radius: var(--small-size) !important;
+    border-radius: var(--small-size) !important;
 }
 
 .markd h2 {
-      margin-top: var(--unit-size);
+    margin-top: var(--unit-size);
 }
 
 .markd p {
-      margin-top: var(--unit-size);
-      margin-left: calc(0.5 * var(--unit-size));
+    margin-top: var(--unit-size);
+    margin-left: calc(0.5 * var(--unit-size));
 }
 
 .markd ul {
-      list-style-type: disc;
-      margin-left: calc(2 * var(--unit-size));
-      margin-top: var(--unit-size);
+    list-style-type: disc;
+    margin-left: calc(2 * var(--unit-size));
+    margin-top: var(--unit-size);
 }

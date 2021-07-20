@@ -8,6 +8,7 @@
     margin-right: 1%;
     margin-bottom: 1%;
 }
+
 form {
     font-size: var(--medium-size);
     background-color: var(--bg2);
@@ -15,18 +16,20 @@ form {
     border-radius: var(--unit-size);
     border: solid 2px var(--accent-low);
 }
+
 label {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     width: 100%;
 }
+
 button {
     margin-top: var(--unit-size);
 }
+
 input[type=text],
 input[type=password],
-input[type=email]
-{
+input[type=email] {
     margin-top: calc(var(--unit-size) * 0.5);
     background-color: var(--bg1);
     color: var(--fg);
@@ -37,16 +40,20 @@ input[type=email]
     margin-bottom: var(--unit-size);
     width: calc(100% - var(--unit-size));
 }
+
 .active {
     color: var(--fg) !important;
     font-weight: 700;
 }
+
 input {
     filter: none;
 }
+
 form input[type="checkbox"] {
     position: unset !important;
 }
+
 form button[type=submit] {
     background: var(--bg1);
     padding: 0.3em 1em;
@@ -58,6 +65,7 @@ form button[type=submit] {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
 }
+
 form button[type=submit]:focus,
 form button[type=submit]:hover {
     border-radius: var(--unit-size);

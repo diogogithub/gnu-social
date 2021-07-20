@@ -1,22 +1,27 @@
 .main {
-      font-size: var(--medium-size);
-      border: none !important;
+    font-size: var(--medium-size);
+    border: none !important;
 }
+
 .note {
-      margin-bottom: 0 !important;
+    margin-bottom: 0 !important;
 }
+
 #save {
-      display: flex;
+    display: flex;
 }
+
 #save div:nth-of-type(1) {
-      padding: var(--unit-size);
+    padding: var(--unit-size);
 }
+
 #save div:nth-of-type(1) textarea {
-      padding: var(--unit-size);
-      border-radius: var(--unit-size);
-      background-color: var(--bg1);
-      font-size: var(--unit-size);
-      width: 100%;
-      box-sizing: border-box;
+    padding: var(--unit-size);
+    border-radius: var(--unit-size);
+    background-color: var(--bg1);
+    font-size: var(--unit-size);
+    width: 100%;
+    box-sizing: border-box;
 }
+
 #save div:nth-of-type(2)
