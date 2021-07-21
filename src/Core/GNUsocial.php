@@ -71,6 +71,9 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
+/**
+ * @codeCoverageIgnore
+ */
 class GNUsocial implements EventSubscriberInterface
 {
     use TargetPathTrait;
@@ -195,7 +198,6 @@ class GNUsocial implements EventSubscriberInterface
      * @throws ConfigurationException
      *
      * @return ConsoleCommandEvent
-     * @codeCoverageIgnore
      */
     public function onCommand(ConsoleCommandEvent $event): ConsoleCommandEvent
     {
@@ -207,7 +209,6 @@ class GNUsocial implements EventSubscriberInterface
      * Tell Symfony which events we want to listen to, which Symfony detects and auto-wires
      * due to this implementing the `EventSubscriberInterface`
      *
-     * @codeCoverageIgnore
      */
     public static function getSubscribedEvents(): array
     {
