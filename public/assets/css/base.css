@@ -170,7 +170,6 @@ html {
 
 /* CONTAINS ALL ELEMENTS BESIDES HEADER */
 .container {
-    order: 2;
     display: flex;
     justify-content: space-evenly;
     width: 100%;
