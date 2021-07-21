@@ -31,6 +31,7 @@
 
 namespace App\Core;
 
+use ReflectionFunction;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
@@ -85,15 +86,17 @@ abstract class Event
             function ($event, $event_name, $dispatcher) use ($handler) {
                 // Old style of events (preferred)
                 if ($event instanceof GenericEvent) {
-                    if (call_user_func_array($handler, $event->getArguments()) == self::stop) {
+                    if (call_user_func_array($handler, $event->getArguments()) === self::stop) {
                         $event->stopPropagation();
                     }
                     return $event;
                 }
+                // @codeCoverageIgnoreStart
                 // Symfony style of events
+                Log::warning("Event::addHandler for {$name} doesn't Conform to GNU social guidelines. Use of this style of event is discouraged");
                 call_user_func($handler, $event, $event_name, $dispatcher);
-
                 return null;
+            // @codeCoverageIgnoreEnd
             },
             $priority
         );
@@ -132,12 +135,13 @@ abstract class Event
      *
      * @return bool flag saying whether such a handler exists
      */
-    public static function hasHandler(string $name, ?string $plugin = null): bool
+    public static function hasHandler(string $name, ?string $plugin = null, string $ns = 'GNUsocial.'): bool
     {
-        $listeners = self::$dispatcher->getListeners($name);
+        $listeners = self::$dispatcher->getListeners($ns . $name);
         if (isset($plugin)) {
-            foreach ($listeners as $handler) {
-                if (get_class($handler[0]) == $plugin) {
+            foreach ($listeners as $event_handler) {
+                $class = (new ReflectionFunction((new ReflectionFunction($event_handler))->getStaticVariables()['handler']))->getClosureScopeClass()->getName();
+                if ($class === $plugin) {
                     return true;
                 }
             }
@@ -155,8 +159,8 @@ abstract class Event
      * @return array
      * @return array
      */
-    public static function getHandlers(string $name): array
+    public static function getHandlers(string $name, string $ns = 'GNUsocial.'): array
     {
-        return self::$dispatcher->getListeners($name);
+        return self::$dispatcher->getListeners($ns . $name);
     }
 }
