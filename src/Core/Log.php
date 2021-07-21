@@ -49,6 +49,10 @@ abstract class Log
     {
         if (isset(self::$logger)) {
             return self::$logger->{$name}(...$args);
+        } else {
+            // @codeCoverageIgnoreStart
+            return null;
+            // @codeCoverageIgnoreEnd
         }
     }
 }
