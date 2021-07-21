@@ -18,7 +18,7 @@
 // }}}
 
 /**
- * Handle network public feed
+ * Convert a Form from our declarative to Symfony's representation
  *
  * @package  GNUsocial
  * @category Wrapper
@@ -37,6 +37,38 @@ use Symfony\Component\Form\Form as SymfForm;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * This class converts our own form representation to Symfony's
+ *
+ * Example:
+ * ```
+ * $form = Form::create([
+ * ['content',     TextareaType::class, ['label' => ' ', 'data' => '', 'attr' => ['placeholder' => _m($placeholder_string[$rand_key])]]],
+ * ['attachments', FileType::class,     ['label' => ' ', 'data' => null, 'multiple' => true, 'required' => false]],
+ * ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'expanded' => true, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
+ * ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => true, 'expanded' => true, 'choices' => $to_tags]],
+ * ['post',        SubmitType::class,   ['label' => _m('Post')]],
+ * ]);
+ * ```
+ * turns into
+ * ```
+ * \Symfony\Component\Form\Form {
+ * config: Symfony\Component\Form\FormBuilder { ... }
+ * ...
+ * children: Symfony\Component\Form\Util\OrderedHashMap {
+ * elements: array:5 [
+ * "content" => Symfony\Component\Form\Form { ... }
+ * "attachments" => Symfony\Component\Form\Form { ... }
+ * "visibility" => Symfony\Component\Form\Form { ... }
+ * "to" => Symfony\Component\Form\Form { ... }
+ * "post" => Symfony\Component\Form\SubmitButton { ... }
+ * ]
+ * ...
+ * }
+ * ...
+ * }
+ * ```
+ */
 abstract class Form
 {
     private static ?FormFactoryInterface $form_factory;
@@ -57,7 +89,7 @@ abstract class Form
     {
         $name = $form[array_key_last($form)][0];
         $fb   = self::$form_factory->createNamedBuilder($name, $type, array_merge($builder_options, ['translation_domain' => false]));
-        foreach ($form as list($key, $class, $options)) {
+        foreach ($form as [$key, $class, $options]) {
             if ($target != null && empty($options['data']) && (strstr($key, 'password') == false) && $class != SubmitType::class) {
                 if (isset($extra_data[$key])) {
                     $options['data'] = $extra_data[$key];
