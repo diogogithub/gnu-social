@@ -108,8 +108,11 @@ a:active {
 }
 
 hr {
-    color: var(--bg3) !important;
-    border-radius: var(--main-size);
+    all: unset;
+    display: block;
+    height: 1px;
+    background-image: linear-gradient(var(--bg1), var(--bg2));
+    margin-top: var(--unit-size);
     margin-bottom: var(--main-size);
 }
 
@@ -132,7 +135,6 @@ html {
 }
 
 #header {
-    order: 1;
     display: flex;
     justify-content: center;
     position: fixed;
@@ -170,18 +172,18 @@ html {
 
 /* CONTAINS ALL ELEMENTS BESIDES HEADER */
 .container {
+    order: 2;
     display: flex;
     justify-content: space-evenly;
     width: 100%;
+    margin-top: calc(3 * var(--small-size) + var(--main-size));
 }
 
 /* THE FOCUSED (middle) DIV */
 .content {
-    order: 2;
     display: flex;
     flex-direction: column;
     width: calc(3 * (100%/5));
-    padding: calc(2 * var(--main-size)) var(--small-size) var(--small-size) var(--small-size);
 }
 
 /* NAVIGATION */
@@ -193,7 +195,6 @@ html {
 }
 .navigation nav {
     padding: var(--small-size);
-    background: radial-gradient(ellipse at 50% 100%, var(--bg1), transparent 35%);
 }
 .navigation a {
     font-family: var(--display-font);
@@ -203,12 +204,15 @@ html {
 .active {
     color: var(--white) !important;
 }
-
+.main-nav {
+    background: radial-gradient(ellipse at 50% 100%, var(--bg1), transparent 30%);
+}
+.sec-nav {
+    background: radial-gradient(ellipse at 50% 100%, var(--bg1), transparent 50%);
+}
 .sec-nav ul {
     display: flex;
     justify-content: space-around;
-    padding-left: 20%;
-    padding-right: 20%;
 }
 .sec-nav a {
     font-size: var(--medium-size);
