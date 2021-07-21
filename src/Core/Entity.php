@@ -52,15 +52,22 @@ abstract class Entity
      */
     public static function create(array $args, $obj = null)
     {
-        $class           = get_called_class();
-        $obj             = $obj ?: new $class();
-        $args['created'] = $args['modified'] = new DateTime();
+        $class = get_called_class();
+        $obj   = $obj ?: new $class();
+        $date  = new DateTime();
+        foreach (['created', 'modified'] as $prop) {
+            if (property_exists($class, $prop)) {
+                $args[$prop] = $date;
+            }
+        }
+
         foreach ($args as $prop => $val) {
             if (property_exists($class, $prop) && $val != null) {
                 $set = 'set' . Formatting::snakeCaseToCamelCase($prop);
                 $obj->{$set}($val);
             } else {
-                Log::error("Property {$class}::{$prop} doesn't exist");
+                Log::error($m = "Property {$class}::{$prop} doesn't exist");
+                throw new \InvalidArgumentException($m);
             }
         }
         return $obj;
@@ -69,40 +76,35 @@ abstract class Entity
     /**
      * Create a new instance, but check for duplicates
      */
-    public static function createOrUpdate(array $args, array $find_by)
+    public static function createOrUpdate(array $args, array $find_by_keys = [])
     {
-        $table = Formatting::camelCaseToSnakeCase(get_called_class());
+        $table   = DB::getTableForClass(get_called_class());
+        $find_by = $find_by_keys == [] ? $args : array_intersect_key($args, array_flip($find_by_keys));
         return self::create($args, DB::findOneBy($table, $find_by));
     }
 
     /**
-     * Remove a given $obj or whatever is found by `DB::findBy(..., $args)`
-     * from the database. Doesn't flush
-     *
-     * @param null|mixed $obj
-     */
-    public static function remove(array $args, $obj = null)
-    {
-        $class = '\\' . get_called_class();
-        if ($obj == null) {
-            $obj = DB::findBy($class, $args);
-        }
-        DB::remove($obj);
-    }
-
-    /**
-     * Get an Entity from its id
+     * Get an Entity from its primary key
      *
      * @param int $id
      *
      * @return null|static
      */
-    public static function getFromId(int $id): ?self
+    public static function getWithPK(mixed $values): ?self
     {
-        $array = explode('\\', get_called_class());
-        $class = end($array);
+        $values  = is_array($values) ? $values : [$values];
+        $class   = get_called_class();
+        $keys    = DB::getPKForClass($class);
+        $find_by = [];
+        foreach ($values as $k => $v) {
+            if (is_string($k)) {
+                $find_by[$k] = $v;
+            } else {
+                $find_by[$keys[$k]] = $v;
+            }
+        }
         try {
-            return DB::findOneBy($class, ['id' => $id]);
+            return DB::findOneBy($class, $find_by);
         } catch (NotFoundException $e) {
             return null;
         }
