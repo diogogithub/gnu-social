@@ -109,6 +109,8 @@ a:focus {
 /* DEFAULTS */
 body,
 html {
+    display: flex;
+    flex-direction: column;
     height: 100%;
     width: auto;
     color: var(--white);
@@ -122,10 +124,10 @@ html {
 }
 
 #header {
+    order: 1;
     display: flex;
     justify-content: center;
     position: fixed;
-    pointer-events: none;
 
     width: 100%;
     height: calc(5 * var(--unit-size));
@@ -159,29 +161,32 @@ html {
 
 /* CONTAINS ALL ELEMENTS BESIDES HEADER */
 .container {
-    padding-top: calc(3 * var(--small-size) + var(--main-size));
+    order: 2;
     display: flex;
+    justify-content: space-evenly;
+
+    width: 100%;
+    max-height: calc(100% - (3 * var(--small-size) + var(--main-size)));
+    margin-top: auto;
 }
 
 /* THE FOCUSED (middle) DIV */
 .content {
     order: 2;
-    max-width: calc(100vw / 2);
-    margin-left: auto;
-    margin-right: auto;
+    display: flex;
+    flex-direction: column;
+    width: calc(3 * (100%/5));
+    padding: var(--small-size);
 }
 
 /* EVERY SIDE PANEL DETAIL ELEMENT */
 .panel {
     all: unset;
+    width: calc(1 * (100%/5));
 }
 
 .panel[open] {
-    width: calc((100vw / 4) - var(--small-size));
-    display: flex;
-    flex-direction: column;
-    padding: var(--small-size);
-    box-sizing: border-box;
+    height: 100%;
 }
 
 /*

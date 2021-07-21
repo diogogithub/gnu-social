@@ -1,9 +1,7 @@
 <div id='right-panel'>
 
     {% if post_form is defined %}
-        {{ post_form }}
-
-        {#{{ form_start(post_form) }}
+        {{ form_start(post_form) }}
         <div class="create-notice">
             <div class="target">
                 <div class="target-top">
@@ -42,7 +40,8 @@
                 </div>
             </div>
         </div>
-        {{ form_end(post_form) }}#}
+        {{ form_end(post_form) }}
+
     {% endif %}
 
     {% set current_path = app.request.get('_route') %}
