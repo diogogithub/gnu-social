@@ -1,10 +1,12 @@
 <div class="note">
     <div class="note-info">
         {% set nickname = note.getActorNickname() %}
+
         <a href="{{ path('settings_avatar') }}">
             <img class="avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
+            <b>{{ nickname }}</b>
         </a>
-        <b>{{ nickname }}</b>
+
         {% set reply_to = note.getReplyToNickname() %}
         {% if reply_to is not null and not skip_reply_to is defined %}
             {% trans with {'%name%': reply_to} %} in reply to %name% {% endtrans %}
@@ -44,3 +46,5 @@
         </div>
     {% endif %}
 </div>
+
+<hr>

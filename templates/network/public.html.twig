@@ -27,7 +27,7 @@
                 <ul>
                     <li>
                         <a href="{{ path('main_public') }}"
-                           class='hover-effect {{ active('main_public', 'main_all', "home_all") }}'>Timeline</a>
+                           class='{{ active('main_public', 'main_all', "home_all") }}'>Timeline</a>
                     </li>
                 </ul>
             </nav>
@@ -36,12 +36,12 @@
                 <ul>
                     <li>
                         <a href="{{ path('main_public') }}"
-                           class='hover-effect {{ active('main_public') }}'>Public</a>
+                           class='{{ active('main_public') }}'>Public</a>
                     </li>
                     {% if user_nickname is defined %}
                         <li>
                             <a href="{{ path("home_all", {'nickname' : user_nickname}) }}"
-                               class='hover-effect {{ active("home_all") }}'>Home</a>
+                               class='{{ active("home_all") }}'>Home</a>
                         </li>
                     {% endif %}
                     <li>
@@ -51,7 +51,7 @@
                         {% for tab in main_nav_tabs %}
                             <li>
                                 <a href="{{ path(tab['route']) }}"
-                                   class='hover-effect {{ active(tab['route']) }}'>{{ tab['title'] }}</a>
+                                   class='{{ active(tab['route']) }}'>{{ tab['title'] }}</a>
                             </li>
                         {% endfor %}
                     {% endif %}
