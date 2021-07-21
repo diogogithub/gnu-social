@@ -34,7 +34,6 @@ namespace App\Core\DB;
 
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
-use App\Util\Formatting;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\Common\Collections\ExpressionBuilder;
@@ -55,12 +54,24 @@ abstract class DB
      * Table name to class map, used to allow specifying table names instead of classes in doctrine calls
      */
     private static array $table_map = [];
+    private static array $class_pk  = [];
     public static function initTableMap()
     {
         $all = self::$em->getMetadataFactory()->getAllMetadata();
         foreach ($all as $meta) {
-            self::$table_map[$meta->getTableName()] = $meta->getMetadataValue('name');
+            self::$table_map[$meta->getTableName()]          = $meta->getMetadataValue('name');
+            self::$class_pk[$meta->getMetadataValue('name')] = $meta->getIdentifier();
         }
+    }
+
+    public static function getTableForClass(string $class)
+    {
+        return array_search($class, self::$table_map);
+    }
+
+    public static function getPKForClass(string $class)
+    {
+        return self::$class_pk[$class];
     }
 
     /**
@@ -208,7 +219,7 @@ abstract class DB
     public static function __callStatic(string $name, array $args)
     {
         if (in_array($name, ['find', 'getReference', 'getPartialReference', 'getRepository'])
-            && !Formatting::startsWith($args[0], '\\')) {
+            && !str_contains($args[0], '\\')) {
             $args[0] = self::$table_map[$args[0]];
         }
 
