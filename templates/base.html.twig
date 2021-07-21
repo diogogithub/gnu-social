@@ -42,16 +42,10 @@
     <div class="container">
         <details class="panel" id="left-container">
             <summary>
-                {{ icon('menu', 'icon icon-left') | raw }}
-                <div class="panel-desktop">
-                    {{ block("leftpanel", "stdgrid.html.twig") }}
-                </div>
+                {{ icon('person', 'icon icon-left') | raw }}
             </summary>
-            <div class="panel-mobile">
-                {{ block("leftpanel", "stdgrid.html.twig") }}
-            </div>
+            {{ block("leftpanel", "stdgrid.html.twig") }}
         </details>
-
 
         {% block nav %}{% endblock %}
         {% block body %}{% endblock %}
@@ -59,14 +53,9 @@
 
         <details class="panel" id="right-container">
             <summary>
-                {{ icon('drop', 'icon icon-right') | raw }}
-                <div class="panel-desktop">
-                    {{ block("rightpanel", "stdgrid.html.twig") }}
-                </div>
+                {{ icon('notes', 'icon icon-right') | raw }}
             </summary>
-            <div class="panel-mobile">
-                {{ block("rightpanel", "stdgrid.html.twig") }}
-            </div>
+            {{ block("rightpanel", "stdgrid.html.twig") }}
         </details>
     </div>
 

@@ -12,8 +12,8 @@
     vertical-align: middle;
 }
 
-#right-container > div {
-    opacity: 0;
+#right-container {
+    order: 3;
 }
 
 #right-container[open] > div {
@@ -21,7 +21,7 @@
 }
 
 #right-container[open] {
-    order: 3;
+    width: calc(100vw / 4);
     border-left: solid 1px var(--bg2);
 }
 
@@ -29,4 +29,7 @@
     position: fixed;
     display: flex;
     flex-direction: column;
+
+    width: 100%;
+    padding: var(--small-size);
 }

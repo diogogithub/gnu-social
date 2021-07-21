@@ -17,17 +17,25 @@
     height: auto;
 }
 
+#right-container {
+    order: 1;
+}
+
 #left-container[open] > div {
     opacity: 100%;
 }
 
 #left-container[open] {
     order: 1;
+    width: calc(100vw / 4);
     border-right: solid 1px var(--bg2);
 }
 
-#left-panel {
+#left-container[open] > #left-panel {
     position: fixed;
     display: flex;
     flex-direction: column;
+
+    width: 100%;
+    padding: var(--small-size);
 }
