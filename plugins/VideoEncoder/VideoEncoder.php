@@ -30,7 +30,9 @@
 
 namespace Plugin\VideoEncoder;
 
+use App\Core\Event;
 use App\Core\Modules\Plugin;
+use App\Util\Formatting;
 
 class VideoEncoder extends Plugin
 {
@@ -53,6 +55,19 @@ class VideoEncoder extends Plugin
             break;
         }
         return true;
+    }
+
+    /**
+     * Generates the view for attachments of type Video
+     *
+     * @param array $vars
+     * @param array $res
+     * @return bool
+     */
+    public function onViewAttachmentVideo(array $vars, array &$res): bool
+    {
+        $res[] = Formatting::twigRenderFile('videoEncoder/videoEncoderView.html.twig', ['attachment' => $vars['attachment'], 'thumbnail_parameters' => $vars['thumbnail_parameters']]);
+        return Event::stop;
     }
 
     /**

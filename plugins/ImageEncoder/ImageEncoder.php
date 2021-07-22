@@ -21,17 +21,18 @@ namespace Plugin\ImageEncoder;
 
 use App\Core\Event;
 use App\Core\GSFile;
-use App\Util\Exception\TemporaryFileException;
-use SplFileInfo;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Plugin;
 use App\Entity\Attachment;
 use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
+use App\Util\Exception\TemporaryFileException;
+use App\Util\Formatting;
 use App\Util\TemporaryFile;
 use Exception;
 use Jcupitt\Vips;
+use SplFileInfo;
 
 /**
  * Create thumbnails and validate image attachments
@@ -56,20 +57,21 @@ class ImageEncoder extends Plugin
     }
 
     /**
-     * Encodes the image to self::preferredType() format ensuring it's valid.
+     * Re-encodes the image ensuring it's valid.
+     * Also ensures that the image is not greater than the max width and height configured.
      *
      * @param SplFileInfo $file
-     * @param null|string   $mimetype in/out
-     * @param null|string   $title    in/out
-     * @param null|int      $width    out
-     * @param null|int      $height   out
+     * @param null|string $mimetype in/out
+     * @param null|string $title    in/out
+     * @param null|int    $width    out
+     * @param null|int    $height   out
      *
      * @throws Vips\Exception
      * @throws TemporaryFileException
      *
      * @return bool
      */
-    public function onAttachmentValidation(SplFileInfo &$file, ?string &$mimetype, ?string &$title, ?int &$width, ?int &$height): bool
+    public function onAttachmentSanitization(SplFileInfo &$file, ?string &$mimetype, ?string &$title, ?int &$width, ?int &$height): bool
     {
         $original_mimetype = $mimetype;
         if (GSFile::mimetypeMajor($original_mimetype) != 'image') {
@@ -77,13 +79,18 @@ class ImageEncoder extends Plugin
             return Event::next;
         }
 
-        $type      = self::preferredType();
-        $extension = image_type_to_extension($type, include_dot: true);
-        // If title seems to be a filename with an extension
-        if (preg_match('/\.[a-z0-9]/i', $title) === 1) {
-            $title = substr($title, 0, strrpos($title, '.')) . $extension;
-        }
+        // Try to maintain original mimetype extension, otherwise default to preferred.
+        $extension = image_type_to_extension($this->preferredType(), include_dot: true);
+        GSFile::titleToFilename(
+            title: $title,
+            mimetype: $original_mimetype,
+            ext: $extension,
+            force: false
+        );
+
         // TemporaryFile handles deleting the file if some error occurs
+        // IMPORTANT: We have to specify the extension for the temporary file
+        // in order to have a format conversion
         $temp = new TemporaryFile(['prefix' => 'image', 'suffix' => $extension]);
 
         $image  = Vips\Image::newFromFile($file->getRealPath(), ['access' => 'sequential']);
@@ -92,10 +99,33 @@ class ImageEncoder extends Plugin
         $image  = $image->crop(0, 0, $width, $height);
         $image->writeToFile($temp->getRealPath());
 
-        $filesize = $temp->getSize();
+        // Replace original file with the sanitized one
+        $temp->commit($file->getRealPath());
 
-        Event::handle('EnforceQuota', [$filesize]);
+        return Event::stop;
+    }
 
+    /**
+     * @param $event_map
+     *
+     * @return bool
+     */
+    public function onResizerAvailable(&$event_map): bool
+    {
+        $event_map['image'] = 'ResizeImagePath';
+        return Event::next;
+    }
+
+    /**
+     * Generates the view for attachments of type Image
+     *
+     * @param array $vars
+     * @param array $res
+     * @return bool
+     */
+    public function onViewAttachmentImage(array $vars, array &$res): bool
+    {
+        $res[] = Formatting::twigRenderFile('imageEncoder/imageEncoderView.html.twig', ['attachment' => $vars['attachment'], 'thumbnail_parameters' => $vars['thumbnail_parameters']]);
         return Event::stop;
     }
 
@@ -120,7 +150,7 @@ class ImageEncoder extends Plugin
      * @return bool
      *
      */
-    public function onResizeImagePath(string $source, string $destination, int &$width, int &$height, bool $smart_crop, ?string &$mimetype)
+    public function onResizeImagePath(string $source, ?TemporaryFile &$destination, int &$width, int &$height, bool $smart_crop, ?string &$mimetype): bool
     {
         $old_limit = ini_set('memory_limit', Common::config('attachments', 'memory_limit'));
         try {
@@ -132,8 +162,13 @@ class ImageEncoder extends Plugin
                 throw new Exception(_m('Unknown file type'));
             }
 
-            if ($source === $destination) {
-                @unlink($destination);
+            if (is_null($destination)) {
+                // IMPORTANT: We have to specify the extension for the temporary file
+                // in order to have a format conversion
+                $ext         = image_type_to_extension($this->preferredType(), include_dot: true);
+                $destination = new TemporaryFile(['prefix' => 'gs-thumbnail', 'suffix' => $ext]);
+            } elseif ($source === $destination->getRealPath()) {
+                @unlink($destination->getRealPath());
             }
 
             $type     = self::preferredType();
@@ -146,7 +181,7 @@ class ImageEncoder extends Plugin
             $width  = $image->width;
             $height = $image->height;
 
-            $image->writeToFile($destination);
+            $image->writeToFile($destination->getRealPath());
             unset($image);
         } finally {
             ini_set('memory_limit', $old_limit); // Restore the old memory limit
