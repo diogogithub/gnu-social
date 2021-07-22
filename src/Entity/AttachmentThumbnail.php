@@ -186,6 +186,7 @@ class AttachmentThumbnail extends Entity
                     $ext      = '.' . MimeTypes::getDefault()->getExtensions($temp->getMimeType())[0];
                     $filename = "{$predicted_width}x{$predicted_height}{$ext}-" . $attachment->getFileHash();
                     $thumbnail->setFilename($filename);
+                    $thumbnail->setMimetype($mimetype);
                     DB::persist($thumbnail);
                     DB::flush();
                     $temp->move(Common::config('thumbnail', 'dir'), $filename);
@@ -302,11 +303,11 @@ class AttachmentThumbnail extends Entity
             'name'   => 'attachment_thumbnail',
             'fields' => [
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what attachment'],
-                // 'mimetype'      => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
-                'width'    => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
-                'height'   => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
-                'filename' => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'thumbnail filename'],
-                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'mimetype'      => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
+                'width'         => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
+                'height'        => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
+                'filename'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'thumbnail filename'],
+                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['attachment_id', 'width', 'height'],
             'indexes'     => [

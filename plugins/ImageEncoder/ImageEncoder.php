@@ -106,11 +106,11 @@ class ImageEncoder extends Plugin
     }
 
     /**
-     * @param $event_map
+     * @param array $event_map
      *
      * @return bool
      */
-    public function onResizerAvailable(&$event_map): bool
+    public function onResizerAvailable(array &$event_map): bool
     {
         $event_map['image'] = 'ResizeImagePath';
         return Event::next;
@@ -121,6 +121,7 @@ class ImageEncoder extends Plugin
      *
      * @param array $vars
      * @param array $res
+     *
      * @return bool
      */
     public function onViewAttachmentImage(array $vars, array &$res): bool

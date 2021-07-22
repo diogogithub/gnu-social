@@ -58,10 +58,22 @@ class VideoEncoder extends Plugin
     }
 
     /**
+     * @param array $event_map
+     *
+     * @return bool
+     */
+    public function onResizerAvailable(array &$event_map): bool
+    {
+        //$event_map['video'] = 'ResizeVideoPath';
+        return Event::next;
+    }
+
+    /**
      * Generates the view for attachments of type Video
      *
      * @param array $vars
      * @param array $res
+     *
      * @return bool
      */
     public function onViewAttachmentVideo(array $vars, array &$res): bool
