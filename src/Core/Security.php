@@ -33,6 +33,12 @@ namespace App\Core;
 use HtmlSanitizer\SanitizerInterface;
 use Symfony\Component\Security\Core\Security as SSecurity;
 
+/**
+ * Forwards method calls to either Symfony\Component\Security\Core\Security or
+ * HtmlSanitizer\SanitizerInterface, calling the first existing method, in that order
+ *
+ * @codeCoverageIgnore
+ */
 abstract class Security
 {
     private static ?SSecurity $security;
