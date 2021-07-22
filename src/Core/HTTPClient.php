@@ -21,6 +21,9 @@ namespace App\Core;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+/**
+ * @codeCoverageIgnore
+ */
 abstract class HTTPClient
 {
     private static ?Httpclientinterface $client;
