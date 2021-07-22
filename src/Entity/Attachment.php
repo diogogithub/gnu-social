@@ -23,6 +23,7 @@ namespace App\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\GSFile;
 use App\Util\Common;
 use DateTimeInterface;
 
@@ -124,6 +125,18 @@ class Attachment extends Entity
     public function getMimetype(): ?string
     {
         return $this->mimetype;
+    }
+
+    public function getMimetypeMajor(): ?string
+    {
+        $mime = $this->getMimetype();
+        return is_null($mime) ? $mime : GSFile::mimetypeMajor($mime);
+    }
+
+    public function getMimetypeMinor(): ?string
+    {
+        $mime = $this->getMimetype();
+        return is_null($mime) ? $mime : GSFile::mimetypeMinor($mime);
     }
 
     public function setTitle(?string $title): self

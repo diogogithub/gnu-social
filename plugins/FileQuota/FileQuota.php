@@ -45,7 +45,7 @@ class FileQuota extends Plugin
      * quotas. Handles per file, per user and per user-month quotas.
      * Throws on quota violations
      */
-    public function onEnforceQuota(int $filesize)
+    public function onEnforceQuota(int $user_id, int $filesize)
     {
         $file_quota = Common::config('attachments', 'file_quota');
         if ($filesize > $file_quota) {
@@ -54,7 +54,6 @@ class FileQuota extends Plugin
                                          'Try to upload a smaller version.', ['quota' => $file_quota, 'size' => $filesize]));
         }
 
-        $user  = Common::user();
         $query = <<<END
 select sum(at.size) as total
     from attachment at
@@ -65,8 +64,8 @@ END;
 
         $user_quota = Common::config('attachments', 'user_quota');
         if ($user_quota != false) {
-            $cache_key_user_total = 'user-' . $user->getId() . 'file-quota';
-            $user_total           = Cache::get($cache_key_user_total, fn () => DB::dql($query, ['actor_id' => $user->getId()])[0]['total']);
+            $cache_key_user_total = 'user-' . $user_id . 'file-quota';
+            $user_total           = Cache::get($cache_key_user_total, fn () => DB::dql($query, ['actor_id' => $user_id])[0]['total']);
             Cache::set($cache_key_user_total, $user_total + $filesize);
 
             if ($user_total + $filesize > $user_quota) {
@@ -80,8 +79,8 @@ END;
 
         $monthly_quota = Common::config('attachments', 'monthly_quota');
         if ($monthly_quota != false) {
-            $cache_key_user_monthly = 'user-' . $user->getId() . 'monthly-file-quota';
-            $monthly_total          = Cache::get($cache_key_user_monthly, fn () => DB::dql($query, ['actor_id' => $user->getId()])[0]['total']);
+            $cache_key_user_monthly = 'user-' . $user_id . 'monthly-file-quota';
+            $monthly_total          = Cache::get($cache_key_user_monthly, fn () => DB::dql($query, ['actor_id' => $user_id])[0]['total']);
             Cache::set($cache_key_user_monthly, $monthly_total + $filesize);
 
             if ($monthly_total + $filesize > $monthly_quota) {
