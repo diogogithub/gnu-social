@@ -52,6 +52,7 @@ class ModuleManager
     }
 
     protected static $loader;
+    /** @codeCoverageIgnore */
     public static function setLoader($l)
     {
         self::$loader = $l;
@@ -65,7 +66,7 @@ class ModuleManager
      */
     public function add(string $fqcn, string $path)
     {
-        list($type, $module) = preg_split('/\\\\/', $fqcn, 0, PREG_SPLIT_NO_EMPTY);
+        [$type, $module] = preg_split('/\\\\/', $fqcn, 0, PREG_SPLIT_NO_EMPTY);
         self::$loader->addPsr4("\\{$type}\\{$module}\\", dirname($path));
         $id                 = Formatting::camelCaseToSnakeCase($type . '.' . $module);
         $obj                = new $fqcn();
@@ -104,17 +105,23 @@ class ModuleManager
             $fqcn   = "\\{$type}\\{$module}\\{$module}";
             $module_manager->add($fqcn, $path);
             if (!is_null($container) && file_exists($dir = $dir . '/Entity') && is_dir($dir)) {
+                // Happens at compile time, so it's hard to do integration testing. However,
+                // everything would break if this did :')
+                // @codeCoverageIgnoreStart
                 $entity_paths[] = $dir;
                 $container->findDefinition('doctrine.orm.default_metadata_driver')->addMethodCall(
                     'addDriver',
                     [new Reference('app.schemadef_driver'), "{$type}\\{$module}\\Entity"]
                 );
+                // @codeCoverageIgnoreEnd
             }
         }
 
         if (!is_null($container)) {
+            // @codeCoverageIgnoreStart
             $container->findDefinition('app.schemadef_driver')
                       ->addMethodCall('addPaths', ['$paths' => $entity_paths]);
+            // @codeCoverageIgnoreEnd
         }
 
         $module_manager->preRegisterEvents();
@@ -141,15 +148,17 @@ class ModuleManager
      */
     public function loadModules()
     {
-        if ($_ENV['APP_ENV'] == 'prod' && !file_exists(CACHE_FILE)) {
+        if ($_ENV['APP_ENV'] === 'prod' && !file_exists(CACHE_FILE)) {
+            // @codeCoverageIgnoreStart
             throw new Exception('The application needs to be compiled before using in production');
+        // @codeCoverageIgnoreEnd
         } else {
             $rdi = new AppendIterator();
             $rdi->append(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(INSTALLDIR . '/components', FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS)));
             $rdi->append(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(INSTALLDIR . '/plugins',    FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS)));
             $time = file_exists(CACHE_FILE) ? filemtime(CACHE_FILE) : 0;
 
-            if (F\some($rdi, function ($e) use ($time) { return $e->getMTime() > $time; })) {
+            if ($_ENV['APP_ENV'] === 'test' || F\some($rdi, function ($e) use ($time) { return $e->getMTime() > $time; })) {
                 Log::info('Rebuilding plugin cache at runtime. This means we can\'t update DB definitions');
                 self::process();
             }
