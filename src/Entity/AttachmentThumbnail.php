@@ -163,7 +163,7 @@ class AttachmentThumbnail extends Entity
             if (in_array($major_mime, array_keys($event_map)) && !Event::handle($event_map[$major_mime], [$attachment->getPath(), $temp->getRealPath(), &$width, &$height, $crop, &$mimetype])) {
                 $thumbnail->setWidth($predicted_width);
                 $thumbnail->setHeight($predicted_height);
-                $filename = "{$width}x{$height}{$ext}-" . $attachment->getFileHash();
+                $filename = "{$predicted_width}x{$predicted_height}{$ext}-" . $attachment->getFileHash();
                 $temp->move(Common::config('thumbnail', 'dir'), $filename);
                 $thumbnail->setFilename($filename);
                 DB::persist($thumbnail);

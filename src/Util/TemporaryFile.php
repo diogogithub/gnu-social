@@ -145,7 +145,7 @@ class TemporaryFile extends \SplFileInfo
      *
      * @return void
      */
-    public function move(string $directory, string $filename, int $dirmode = 0655, int $filemode = 0644): void
+    public function move(string $directory, string $filename, int $dirmode = 0755, int $filemode = 0644): void
     {
         if (!is_dir($directory)) {
             if (false === @mkdir($directory, $dirmode, true) && !is_dir($directory)) {
