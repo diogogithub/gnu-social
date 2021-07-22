@@ -70,7 +70,8 @@ END;
         }
 
         $placeholder_string = ['How are you feeling?', 'Have something to share?', 'How was your day?'];
-        $rand_key           = array_rand($placeholder_string);
+        Event::handle('PostingPlaceHolderString', [&$placeholder_string]);
+        $rand_key = array_rand($placeholder_string);
 
         $request = $vars['request'];
         $form    = Form::create([
@@ -104,7 +105,7 @@ END;
      */
     public static function storeNote(int $actor_id, ?string $content, array $attachments, bool $is_local, ?int $reply_to = null, ?int $repeat_of = null)
     {
-        $note    = Note::create([
+        $note = Note::create([
             'gsactor_id' => $actor_id,
             'content'    => $content,
             'is_local'   => $is_local,
