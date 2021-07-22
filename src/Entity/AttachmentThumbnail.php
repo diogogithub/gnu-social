@@ -26,12 +26,14 @@ use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
 use App\Core\GSFile;
+use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
-use App\Util\TemporaryFile;
 use DateTimeInterface;
+use Symfony\Component\Mime\MimeTypes;
 
 /**
  * Entity for Attachment thumbnails
@@ -53,6 +55,7 @@ class AttachmentThumbnail extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $attachment_id;
+    private ?string $mimetype;
     private int $width;
     private int $height;
     private string $filename;
@@ -67,6 +70,17 @@ class AttachmentThumbnail extends Entity
     public function getAttachmentId(): int
     {
         return $this->attachment_id;
+    }
+
+    public function setMimetype(?string $mimetype): self
+    {
+        $this->mimetype = $mimetype;
+        return $this;
+    }
+
+    public function getMimetype(): ?string
+    {
+        return $this->mimetype;
     }
 
     public function setWidth(int $width): self
@@ -151,27 +165,37 @@ class AttachmentThumbnail extends Entity
         try {
             return Cache::get('thumb-' . $attachment->getId() . "-{$width}x{$height}",
                 function () use ($crop, $attachment, $width, $height, &$predicted_width, &$predicted_height) {
-                    [$predicted_width, $predicted_height] = self::predictScalingValues($attachment->getWidth(),$attachment->getHeight(), $width, $height, $crop);
+                    [$predicted_width, $predicted_height] = self::predictScalingValues($attachment->getWidth(), $attachment->getHeight(), $width, $height, $crop);
                     return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'width' => $predicted_width, 'height' => $predicted_height]);
                 });
         } catch (NotFoundException $e) {
-            $ext        = image_type_to_extension(IMAGETYPE_WEBP, include_dot: true);
-            $temp       = new TemporaryFile(['prefix' => 'gs-thumbnail', 'suffix' => $ext]);
-            $thumbnail  = self::create(['attachment_id' => $attachment->getId()]);
-            $event_map  = ['image' => 'ResizeImagePath', 'video' => 'ResizeVideoPath'];
-            $major_mime = GSFile::mimetypeMajor($attachment->getMimetype());
-            if (in_array($major_mime, array_keys($event_map)) && !Event::handle($event_map[$major_mime], [$attachment->getPath(), $temp->getRealPath(), &$width, &$height, $crop, &$mimetype])) {
-                $thumbnail->setWidth($predicted_width);
-                $thumbnail->setHeight($predicted_height);
-                $filename = "{$predicted_width}x{$predicted_height}{$ext}-" . $attachment->getFileHash();
-                $temp->move(Common::config('thumbnail', 'dir'), $filename);
-                $thumbnail->setFilename($filename);
-                DB::persist($thumbnail);
-                DB::flush();
-                return $thumbnail;
+            $thumbnail = self::create(['attachment_id' => $attachment->getId()]);
+            Event::handle('ResizerAvailable', [&$event_map]);
+            $mimetype   = $attachment->getMimetype();
+            $major_mime = GSFile::mimetypeMajor($mimetype);
+
+            if (in_array($major_mime, array_keys($event_map))) {
+                $temp = null; // Let the EncoderPlugin create a temporary file for us
+                if (!Event::handle(
+                    $event_map[$major_mime],
+                    [$attachment->getPath(), &$temp, &$width, &$height, $crop, &$mimetype]
+                )
+                ) {
+                    $thumbnail->setWidth($predicted_width);
+                    $thumbnail->setHeight($predicted_height);
+                    $ext      = '.' . MimeTypes::getDefault()->getExtensions($temp->getMimeType())[0];
+                    $filename = "{$predicted_width}x{$predicted_height}{$ext}-" . $attachment->getFileHash();
+                    $thumbnail->setFilename($filename);
+                    DB::persist($thumbnail);
+                    DB::flush();
+                    $temp->move(Common::config('thumbnail', 'dir'), $filename);
+                    return $thumbnail;
+                } else {
+                    Log::debug($m = ('Somehow the EncoderPlugin didn\'t handle ' . $attachment->getMimetype()));
+                    throw new ServerException($m);
+                }
             } else {
-                Log::debug($m = ('Cannot resize attachment with mimetype ' . $attachment->getMimetype()));
-                throw new ServerException($m);
+                throw new ClientException(_m('Can not generate thumbnail for attachment with id={id}', ['id' => $attachment->getId()]));
             }
         }
     }
@@ -278,10 +302,11 @@ class AttachmentThumbnail extends Entity
             'name'   => 'attachment_thumbnail',
             'fields' => [
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what attachment'],
-                'width'         => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
-                'height'        => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
-                'filename'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'thumbnail filename'],
-                'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                // 'mimetype'      => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
+                'width'    => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
+                'height'   => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
+                'filename' => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'thumbnail filename'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['attachment_id', 'width', 'height'],
             'indexes'     => [

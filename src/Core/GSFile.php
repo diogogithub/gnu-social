@@ -22,6 +22,7 @@
 namespace App\Core;
 
 use App\Core\DB\DB;
+use function App\Core\I18n\_m;
 use App\Entity\Attachment;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -34,7 +35,7 @@ use SplFileInfo;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
-use function App\Core\I18n\_m;
+use Symfony\Component\Mime\MimeTypes;
 
 /**
  * GNU social's File Abstraction
@@ -53,13 +54,14 @@ class GSFile
      * Perform file validation (checks and normalization) and store the given file
      *
      * @param SplFileInfo $file
-     * @param string $dest_dir
+     * @param string      $dest_dir
      * @param null|string $title
-     * @param bool $is_local
-     * @param null|int $actor_id
+     * @param bool        $is_local
+     * @param null|int    $actor_id
+     *
+     * @throws DuplicateFoundException
      *
      * @return Attachment
-     * @throws DuplicateFoundException
      */
     public static function validateAndStoreFileAsAttachment(SplFileInfo $file,
                                                             string $dest_dir,
@@ -75,18 +77,22 @@ class GSFile
             // The following properly gets the mimetype with `file` or other
             // available methods, so should be safe
             $mimetype = $file->getMimeType();
-            $title = $width = $height = null;
-            Event::handle('AttachmentValidation', [&$file, &$mimetype, &$title, &$width, &$height]);
+            $width    = $height    = null;
+            Event::handle('AttachmentSanitization', [&$file, &$mimetype, &$title, &$width, &$height]);
+            if ($is_local) {
+                $filesize = $file->getSize();
+                Event::handle('EnforceQuota', [$actor_id, $filesize]);
+            }
             $attachment = Attachment::create([
-                'file_hash' => $hash,
+                'file_hash'  => $hash,
                 'gsactor_id' => $actor_id,
-                'mimetype' => $mimetype,
-                'title' => $title ?: _m('Untitled attachment'),
-                'filename' => $hash,
-                'is_local' => $is_local,
-                'size' => $file->getSize(),
-                'width' => $width,
-                'height' => $height,
+                'mimetype'   => $mimetype,
+                'title'      => $title,
+                'filename'   => $hash,
+                'is_local'   => $is_local,
+                'size'       => $file->getSize(),
+                'width'      => $width,
+                'height'     => $height,
             ]);
             $file->move($dest_dir, $hash);
             DB::persist($attachment);
@@ -105,18 +111,18 @@ class GSFile
         if (Common::isValidHttpUrl($url)) {
             $head = HTTPClient::head($url);
             // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
-            $headers = $head->getHeaders();
-            $url = $head->getInfo('url'); // The last effective url (after getHeaders so it follows redirects)
+            $headers  = $head->getHeaders();
+            $url      = $head->getInfo('url'); // The last effective url (after getHeaders so it follows redirects)
             $url_hash = hash(Attachment::URLHASH_ALGO, $url);
             try {
                 return DB::findOneBy('attachment', ['remote_url_hash' => $url_hash]);
             } catch (NotFoundException) {
-                $headers = array_change_key_case($headers, CASE_LOWER);
+                $headers    = array_change_key_case($headers, CASE_LOWER);
                 $attachment = Attachment::create([
-                    'remote_url' => $url,
+                    'remote_url'      => $url,
                     'remote_url_hash' => $url_hash,
-                    'mimetype' => $headers['content-type'][0],
-                    'is_local' => false,
+                    'mimetype'        => $headers['content-type'][0],
+                    'is_local'        => false,
                 ]);
                 DB::persist($attachment);
                 Event::handle('AttachmentStoreNew', [&$attachment]);
@@ -140,14 +146,14 @@ class GSFile
                 Response::HTTP_OK,
                 [
                     'Content-Description' => 'File Transfer',
-                    'Content-Type' => $mimetype,
-                    'Content-Disposition' => HeaderUtils::makeDisposition($disposition, $output_filename ?: _m('Untitled attachment'), _m('Untitled attachment')),
-                    'Cache-Control' => 'public',
+                    'Content-Type'        => $mimetype,
+                    'Content-Disposition' => HeaderUtils::makeDisposition($disposition, $output_filename ?? _m('Untitled attachment') . '.' . MimeTypes::getDefault()->getExtensions($mimetype)[0]),
+                    'Cache-Control'       => 'public',
                 ],
-                $public = true,
-                $disposition = null,
-                $add_etag = true,
-                $add_last_modified = true
+                public: true,
+                // contentDisposition: $disposition,
+                autoEtag: true,
+                autoLastModified: true
             );
             if (Common::config('site', 'x_static_delivery')) {
                 $response->trustXSendfileTypeHeader();
@@ -205,7 +211,7 @@ class GSFile
      */
     public static function getAttachmentFileInfo(int $id): array
     {
-        $res = self::getFileInfo($id);
+        $res             = self::getFileInfo($id);
         $res['filepath'] = Common::config('attachments', 'dir') . $res['file_hash'];
         return $res;
     }
@@ -238,5 +244,43 @@ class GSFile
             $mimetype = mb_substr($mimetype, 0, $semicolon);
         }
         return trim($mimetype);
+    }
+
+    /**
+     * Given an attachment title and mimetype allows to generate the most appropriate filename.
+     *
+     * @param string      $title
+     * @param string      $mimetype
+     * @param null|string $ext
+     * @param bool        $force
+     *
+     * @return null|string
+     */
+    public static function titleToFilename(string $title, string $mimetype, ?string &$ext = null, bool $force = false): string | null
+    {
+        $valid_extensions = MimeTypes::getDefault()->getExtensions($mimetype);
+
+        // If title seems to be a filename with an extension
+        if (preg_match('/\.[a-z0-9]/i', $title) === 1) {
+            $title_without_extension = substr($title, 0, strrpos($title, '.'));
+            $original_extension      = substr($title, strrpos($title, '.') + 1);
+            if (empty(MimeTypes::getDefault()->getMimeTypes($original_extension)) || !in_array($original_extension, $valid_extensions)) {
+                unset($title_without_extension, $original_extension);
+            }
+        }
+
+        if ($force) {
+            return ($title_without_extension ?? $title) . ".{$ext}";
+        } else {
+            if (isset($original_extension)) {
+                return $title;
+            } else {
+                if (!empty($valid_extensions)) {
+                    return "{$title}.{$valid_extensions[0]}";
+                } else {
+                    return null;
+                }
+            }
+        }
     }
 }

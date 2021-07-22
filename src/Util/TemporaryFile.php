@@ -41,9 +41,9 @@ class TemporaryFile extends \SplFileInfo
      * @param array $options - ['prefix' => ?string, 'suffix' => ?string, 'mode' => ?string, 'directory' => ?string]
      *                       Description of options:
      *                       > prefix: The file name will begin with that prefix, default is 'gs-php'
-     *                       > suffix: The file name will begin with that prefix, default is ''
-     *                       > mode: The file name will begin with that prefix, default is 'w+b'
-     *                       > directory: The file name will begin with that prefix, default is the system's temporary
+     *                       > suffix: The file name will end with that suffix, default is ''
+     *                       > mode: Operation mode, default is 'w+b'
+     *                       > directory: Directory where the file will be used, default is the system's temporary
      *
      * @throws TemporaryFileException
      */
@@ -157,6 +157,23 @@ class TemporaryFile extends \SplFileInfo
 
         $destpath = rtrim($directory, '/\\') . DIRECTORY_SEPARATOR . $this->getName($filename);
 
+        $this->commit($destpath, $dirmode, $filemode);
+    }
+
+    /**
+     * Release the hold on the temporary file and move it to the desired
+     * location, setting file permissions in the process.
+     *
+     * @param string $destpath Full path of destination file
+     * @param int    $dirmode  New directory permissions (in octal mode)
+     * @param int    $filemode New file permissions (in octal mode)
+     *
+     * @throws TemporaryFileException
+     *
+     * @return void
+     */
+    public function commit(string $destpath, int $dirmode = 0755, int $filemode = 0644): void
+    {
         $temppath = $this->getRealPath();
 
         // Might be attempted, and won't end well

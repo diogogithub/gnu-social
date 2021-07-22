@@ -25,6 +25,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
+use function App\Core\I18n\_m;
 use App\Core\Router\Router;
 use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
@@ -34,7 +35,7 @@ use App\Util\Exception\ServerException;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use function App\Core\I18n\_m;
+use Symfony\Component\Mime\MimeTypes;
 
 class Attachment extends Controller
 {
@@ -77,32 +78,31 @@ class Attachment extends Controller
      */
     public function attachment_view(Request $request, int $id)
     {
-        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_INLINE));
+        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], GSFile::titleToFilename($res['title'], $res['mimetype']), HeaderUtils::DISPOSITION_INLINE));
     }
 
     public function attachment_download(Request $request, int $id)
     {
-        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], $res['title'], HeaderUtils::DISPOSITION_ATTACHMENT));
+        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], GSFile::titleToFilename($res['title'], $res['mimetype']), HeaderUtils::DISPOSITION_ATTACHMENT));
     }
 
     /**
      * Controller to produce a thumbnail for a given attachment id
      *
      * @param Request $request
-     * @param int $id Attachment ID
+     * @param int     $id      Attachment ID
      *
-     * @return Response
      * @throws ClientException
      * @throws NotFoundException
      * @throws ServerException
      * @throws \App\Util\Exception\DuplicateFoundException
+     *
+     * @return Response
      */
     public function attachment_thumbnail(Request $request, int $id): Response
     {
         $attachment = DB::findOneBy('attachment', ['id' => $id]);
-        if (preg_match('/^(image|video)/', $attachment->getMimeType()) !== 1) {
-            throw new ClientException(_m('Can not generate thumbnail for attachment with id={id}', ['id' => $id]));
-        }
+
         if (!is_null($attachment->getScope())) {
             // && ($attachment->scope | VisibilityScope::PUBLIC) != 0
             // $user = Common::ensureLoggedIn();
@@ -125,7 +125,8 @@ class Attachment extends Controller
 
         $filename = $thumbnail->getFilename();
         $path     = $thumbnail->getPath();
+        $mimetype = $attachment->getMimetype();
 
-        return GSFile::sendFile(filepath: $path, mimetype: $attachment->getMimetype(), output_filename: $filename, disposition: 'inline');
+        return GSFile::sendFile(filepath: $path, mimetype: $mimetype, output_filename: $filename . '.' . MimeTypes::getDefault()->getExtensions($mimetype)[0], disposition: HeaderUtils::DISPOSITION_INLINE);
     }
 }

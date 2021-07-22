@@ -114,7 +114,7 @@ END;
         ]);
 
         $processed_attachments = [];
-        foreach ($attachments as $f) {
+        foreach ($attachments as $f) { // where $f is a Symfony\Component\HttpFoundation\File\UploadedFile
             $processed_attachments[] = GSFile::validateAndStoreFileAsAttachment(
                 $f, Common::config('attachments', 'dir'),
                 Security::sanitize($f->getClientOriginalName()),
