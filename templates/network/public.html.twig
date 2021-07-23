@@ -20,6 +20,7 @@
 {% endblock %}
 
 {% block body %}
+
     <div class="content">
 
         <div class="navigation">
@@ -59,7 +60,8 @@
             </nav>
         </div>
 
-        <div class="timeline">
+        {# Backwards compatibility with hAtom 0.1 #}
+        <div class="h-feed hfeed timeline">
             <div class="notes">
                 {% if notes is defined and notes is not empty %}
                     {% for conversation in notes %}

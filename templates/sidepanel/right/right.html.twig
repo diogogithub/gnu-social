@@ -29,9 +29,8 @@
                 </div>
                 <div class="notice-options">
                     <div class="attachments">
-                        {{ form_widget(post_form.attachments) }}
-                        <label for="{{ post_form.attachments.vars.id }}">
-                            {{ icon('attach', 'icon icon-attach') | raw }}
+                        <label for="{{ post_form.attachments.vars.id }}" class="custom-file-upload">
+                            {{ form_widget(post_form.attachments) }}
                         </label>
                     </div>
                     <div class="post">
