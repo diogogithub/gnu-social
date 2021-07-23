@@ -17,27 +17,29 @@
 }
 
 #right-container[open] {
-    width: calc(100vw / 4);
-    border-left: solid 1px var(--bg2);
-    margin-left: var(--main-size);
+    width: calc(100vw / 5);
 }
 
 #right-panel {
-    position: fixed;
-    display: flex;
-    flex-direction: column;
+    font-size: var(--main-size);
+    width: inherit;
+    height: inherit;
+    padding: var(--small-size);
+    box-sizing: border-box;
+}
 
-    width: 100%;
+.create-notice {
+    border-radius: var(--unit-size);
     padding: var(--small-size);
 }
 
-input[type="file"] {
-    font-family: var(--display-font);
+.custom-file-upload {
+    display: inline-block;
+    padding: var(--small-size) var(--medium-size);
 }
 
-.custom-file-upload {
-    border: 1px solid #ccc;
-    display: inline-block;
-    padding: 6px 12px;
+#post_attachments {
+    font-family: var(--display-font);
+    font-size: var(--medium-size);
     cursor: pointer;
 }
