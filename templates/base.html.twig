@@ -29,19 +29,19 @@
 </head>
 <body>
     {% block header %}
-    <div id='header'>
-        <nav id='instance'>
-            <a href="{{ path('main_public') }}">
-                {{ icon('logo', 'icon icon-logo') | raw }}
-                <h1> {{ config('site', 'name') }} </h1>
-            </a>
-        </nav>
-    </div>
+        <div id='header'>
+            <nav id='instance'>
+                <a href="{{ path('main_public') }}" tabindex="2">
+                    {{ icon('logo', 'icon icon-logo') | raw }}
+                    <h1> {{ config('site', 'name') }} </h1>
+                </a>
+            </nav>
+        </div>
     {% endblock header %}
 
     <div class="container">
         <details class="panel" id="left-container">
-            <summary>
+            <summary tabindex="1">
                 {{ icon('person', 'icon icon-left') | raw }}
             </summary>
             {{ block("leftpanel", "stdgrid.html.twig") }}
@@ -52,7 +52,7 @@
         {% block javascripts %}{% endblock javascripts %}
 
         <details class="panel" id="right-container">
-            <summary>
+            <summary tabindex="3">
                 {{ icon('notes', 'icon icon-right') | raw }}
             </summary>
             {{ block("rightpanel", "stdgrid.html.twig") }}
