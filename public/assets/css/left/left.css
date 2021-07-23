@@ -21,6 +21,10 @@
     opacity: 100%;
 }
 
+#left-container[open] a {
+    tab-index: 0;
+}
+
 #left-container[open] {
     width: calc(100vw / 4);
     border-right: solid 1px var(--bg2);
