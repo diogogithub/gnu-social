@@ -28,26 +28,34 @@
                     </div>
                 </a>
             </div>
-            <a href='#'>Messages</a>
-            <a href="{{ path("replies", {'nickname' : user_nickname}) }}"
-               class='hover-effect {{ active("replies") }}'>Replies</a>
-            {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
-                {{ link | raw }}
-            {% endfor %}
-            <a href="{{ path('settings_personal_info') }}"
-               class='hover-effect {{ active('settings_') }}'>Settings</a>
-            <a href='{{ path('logout') }}'>Logout</a>
-            </ul>
+
+            <nav>
+                <a href='#'>Messages</a>
+                <a href="{{ path("replies", {'nickname' : user_nickname}) }}"
+                   class='hover-effect {{ active("replies") }}'>Replies</a>
+                {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
+                    {{ link | raw }}
+                {% endfor %}
+                <a href="{{ path('settings_personal_info') }}"
+                   class='hover-effect {{ active('settings_') }}'>Settings</a>
+                <a href='{{ path('logout') }}'>Logout</a>
+            </nav>
+
         {% else %}
             <div class="profile">
-                <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
-                <a href="{{ path('register') }}">Register</a>
+                <nav>
+                    <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
+                    <a href="{{ path('register') }}">Register</a>
+                </nav>
             </div>
         {% endif %}
 
         <div class="timeline-nav">
-            <a href="{{ path('main_public') }}"
-               class='{{ active('main_public', 'main_all', "home_all") }}'>Timeline</a>
+            <h1>
+                <a href="{{ path('main_public') }}"
+                   class='{{ active('main_public', 'main_all', "home_all") }}'>Timeline</a>
+            </h1>
+
             <hr>
 
             <nav class='sec-nav'>
