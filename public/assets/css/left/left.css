@@ -24,12 +24,12 @@
 
 /* PROFILE */
 .profile-nav {
-
+    display: flex;
+    flex-direction: column;
     font-family: var(--display-font);
 }
 
 .profile {
-    width: 100%;
     margin-bottom: var(--main-size);
 
     background-image: radial-gradient(ellipse at 10% 10%, var(--bg3), var(--accent-blue)),
@@ -67,16 +67,13 @@
     color: var(--white);
 }
 
-.main-nav ul {
+.main-nav a {
     display: flex;
     flex-direction: column;
 }
 
-.sec-nav a {
+.sec-nav {
     font-size: var(--medium-size);
-}
-
-.sec-nav ul {
     display: flex;
     flex-direction: column;
 }

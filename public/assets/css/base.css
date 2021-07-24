@@ -123,8 +123,8 @@ summary:focus > svg {
 }
 
 hr {
+    all: unset;
     display: block;
-    border: none;
     height: 2px;
     background-image: linear-gradient(to right, var(--bg1), transparent 90%);
 }
@@ -194,9 +194,8 @@ html {
 
 /* THE FOCUSED (middle) DIV */
 .content {
-    margin: var(--main-size);
-    margin-left: calc(2 * var(--main-size));
-    margin-right: calc(2 * var(--main-size));
+    box-sizing: border-box;
+    padding: calc(2 * var(--main-size));
     display: flex;
     flex-direction: column;
     width: calc(3 * (100% / 5));
@@ -267,6 +266,15 @@ figcaption a:link {
 
 /* MEDIA QUERIES */
 @media (min-width: 1200px) {
+    .icon-left,
+    .icon-right {
+        display: none;
+    }
+
+    summary {
+        cursor: none;
+    }
+
     .panel aside {
         position: fixed;
         display: flex !important;
@@ -279,18 +287,19 @@ figcaption a:link {
         height: calc(100vh - (3 * var(--small-size) + var(--main-size)));
         animation: fadeIn 300ms cubic-bezier(0, 0.55, 0.45, 1);
     }
-
-    .panel[open] aside {
-        display: none !important;
-    }
 }
 
 @media (max-width: 1200px) {
     .content {
-        margin: var(--main-size);
+        padding: var(--main-size);
         display: flex;
         flex-direction: column;
         width: 100%;
+    }
+
+    .icon-left,
+    .icon-right {
+        display: flow;
     }
 
     .panel aside {
