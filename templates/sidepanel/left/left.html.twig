@@ -28,36 +28,20 @@
                     </div>
                 </a>
             </div>
-
-            <ul>
-                <li>
-                    <a href='#'>Messages</a>
-                </li>
-                <li>
-                    <a href="{{ path("replies", {'nickname' : user_nickname}) }}"
-                       class='hover-effect {{ active("replies") }}'>Replies</a>
-                </li>
-                {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
-                    <li>{{ link | raw }}</li>
-                {% endfor %}
-                <li>
-                    <a href="{{ path('settings_personal_info') }}"
-                       class='hover-effect {{ active('settings_') }}'>Settings</a>
-                </li>
-                <li>
-                    <a href='{{ path('logout') }}'>Logout</a>
-                </li>
+            <a href='#'>Messages</a>
+            <a href="{{ path("replies", {'nickname' : user_nickname}) }}"
+               class='hover-effect {{ active("replies") }}'>Replies</a>
+            {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
+                {{ link | raw }}
+            {% endfor %}
+            <a href="{{ path('settings_personal_info') }}"
+               class='hover-effect {{ active('settings_') }}'>Settings</a>
+            <a href='{{ path('logout') }}'>Logout</a>
             </ul>
         {% else %}
             <div class="profile">
-                <ul>
-                    <li>
-                        <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
-                    </li>
-                    <li>
-                        <a href="{{ path('register') }}">Register</a>
-                    </li>
-                </ul>
+                <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
+                <a href="{{ path('register') }}">Register</a>
             </div>
         {% endif %}
 
@@ -67,29 +51,22 @@
             <hr>
 
             <nav class='sec-nav'>
-                <ul>
-                    <li>
-                        <a href="{{ path('main_public') }}"
-                           class='{{ active('main_public') }}'>Public</a>
-                    </li>
-                    {% if user_nickname is defined %}
-                        <li>
-                            <a href="{{ path("home_all", {'nickname' : user_nickname}) }}"
-                               class='{{ active("home_all") }}'>Home</a>
-                        </li>
-                    {% endif %}
-                    <li>
-                        <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
-                    </li>
-                    {% if main_nav_tabs is defined %}
-                        {% for tab in main_nav_tabs %}
-                            <li>
-                                <a href="{{ path(tab['route']) }}"
-                                   class='{{ active(tab['route']) }}'>{{ tab['title'] }}</a>
-                            </li>
-                        {% endfor %}
-                    {% endif %}
-                </ul>
+                <a href="{{ path('main_public') }}"
+                   class='{{ active('main_public') }}'>Public</a>
+
+                {% if user_nickname is defined %}
+                    <a href="{{ path("home_all", {'nickname' : user_nickname}) }}"
+                       class='{{ active("home_all") }}'>Home</a>
+                {% endif %}
+
+                <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
+
+                {% if main_nav_tabs is defined %}
+                    {% for tab in main_nav_tabs %}
+                        <a href="{{ path(tab['route']) }}"
+                           class='{{ active(tab['route']) }}'>{{ tab['title'] }}</a>
+                    {% endfor %}
+                {% endif %}
             </nav>
         </div>
 
