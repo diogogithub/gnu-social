@@ -17,28 +17,9 @@
     height: auto;
 }
 
-#left-container[open] {
-    height: calc(100vh - (3 * var(--small-size) + var(--main-size)));
-    width: calc(100vw / 5);
-}
-
-#left-container[open] > div {
-    opacity: 100%;
-}
-
-#left-container[open] a {
-    tab-index: 0;
-}
-
 #left-panel {
-    position: fixed;
-    display: flex;
-    flex-direction: column;
-    font-size: var(--main-size);
-    width: inherit;
-    height: inherit;
-    padding: var(--small-size);
-    box-sizing: border-box;
+    top: inherit;
+    left: 0;
 }
 
 /* PROFILE */

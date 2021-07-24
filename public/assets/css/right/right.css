@@ -12,20 +12,10 @@
     vertical-align: middle;
 }
 
-#right-container[open] > div {
-    opacity: 100%;
-}
-
-#right-container[open] {
-    width: calc(100vw / 5);
-}
-
 #right-panel {
     font-size: var(--main-size);
-    width: inherit;
-    height: inherit;
-    padding: var(--small-size);
-    box-sizing: border-box;
+    top: inherit;
+    right: 0;
 }
 
 .create-notice {
