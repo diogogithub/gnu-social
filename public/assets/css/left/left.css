@@ -29,6 +29,11 @@
     font-family: var(--display-font);
 }
 
+.profile-nav nav {
+    display: flex;
+    flex-direction: column;
+}
+
 .profile {
     margin-bottom: var(--main-size);
 
