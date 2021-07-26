@@ -19,6 +19,7 @@
     --bg1: #383E51;
     --bg2: #434A60;
     --bg3: #5C6684;
+    --translucent: #00000033;
     --white: #EEDFD4;
 
     --accent-blue: #8E8DBE;
@@ -251,7 +252,7 @@ html {
 .note-attachments > div {
     margin: var(--small-size) 0 0 0;
     border-radius: var(--unit-size);
-    background-color: #00000033;
+    background-color: var(--translucent);
 }
 
 .note-attachments > div figure {
