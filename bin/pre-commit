@@ -3,7 +3,7 @@
 root="$(git rev-parse --show-toplevel)"
 
 # get the list of changed files
-staged_files="$(git diff --cached --name-only)"
+staged_files="$(git status --porcelain | sed -rn "s/^[^ ][ ] (.*)/\1/p")"
 
 echo "Running php-cs-fixer on edited files"
 
