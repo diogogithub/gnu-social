@@ -170,6 +170,7 @@ class AttachmentThumbnail extends Entity
                 });
         } catch (NotFoundException $e) {
             $thumbnail = self::create(['attachment_id' => $attachment->getId()]);
+            $event_map = [];
             Event::handle('ResizerAvailable', [&$event_map]);
             $mimetype   = $attachment->getMimetype();
             $major_mime = GSFile::mimetypeMajor($mimetype);
