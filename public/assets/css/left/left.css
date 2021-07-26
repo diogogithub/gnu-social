@@ -30,6 +30,7 @@
 }
 
 .profile-nav nav {
+    margin-bottom: var(--main-size);
     display: flex;
     flex-direction: column;
 }
@@ -60,7 +61,6 @@
 /* TIMELINE NAVIGATION / PLUGINS */
 .timeline-nav,
 .timeline-nav h1 {
-    margin-top: var(--main-size);
     display: flex;
     flex-direction: column;
 }

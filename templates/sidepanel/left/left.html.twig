@@ -42,40 +42,39 @@
             </nav>
 
         {% else %}
-            <div class="profile">
-                <nav>
-                    <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
-                    <a href="{{ path('register') }}">Register</a>
-                </nav>
-            </div>
+            <nav>
+                <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
+                <a href="{{ path('register') }}">Register</a>
+            </nav>
         {% endif %}
 
         <div class="timeline-nav">
-            <h1>
+            <nav>
                 <a href="{{ path('main_public') }}"
                    class='{{ active('main_public', 'main_all', "home_all") }}'>Timeline</a>
-            </h1>
 
-            <hr>
+                <hr>
 
-            <nav class='sec-nav'>
-                <a href="{{ path('main_public') }}"
-                   class='{{ active('main_public') }}'>Public</a>
+                <nav class='sec-nav'>
+                    <a href="{{ path('main_public') }}"
+                       class='{{ active('main_public') }}'>Public</a>
 
-                {% if user_nickname is defined %}
-                    <a href="{{ path("home_all", {'nickname' : user_nickname}) }}"
-                       class='{{ active("home_all") }}'>Home</a>
-                {% endif %}
+                    {% if user_nickname is defined %}
+                        <a href="{{ path("home_all", {'nickname' : user_nickname}) }}"
+                           class='{{ active("home_all") }}'>Home</a>
+                    {% endif %}
 
-                <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
+                    <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
 
-                {% if main_nav_tabs is defined %}
-                    {% for tab in main_nav_tabs %}
-                        <a href="{{ path(tab['route']) }}"
-                           class='{{ active(tab['route']) }}'>{{ tab['title'] }}</a>
-                    {% endfor %}
-                {% endif %}
+                    {% if main_nav_tabs is defined %}
+                        {% for tab in main_nav_tabs %}
+                            <a href="{{ path(tab['route']) }}"
+                               class='{{ active(tab['route']) }}'>{{ tab['title'] }}</a>
+                        {% endfor %}
+                    {% endif %}
+                </nav>
             </nav>
+
         </div>
 
     </div>
