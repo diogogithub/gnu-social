@@ -25,7 +25,7 @@
 
         {# Backwards compatibility with hAtom 0.1 #}
         <div class="timeline">
-            <div class="h-feed hfeed notes">
+            <main class="h-feed hfeed notes">
                 {% if notes is defined and notes is not empty %}
                     {% for conversation in notes %}
                         {% include '/note/view.html.twig' with {'note': conversation['note'], 'have_user': have_user, 'replies': conversation['replies']} only %}
@@ -33,7 +33,7 @@
                 {% else %}
                     <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
                 {% endif %}
-            </div>
+            </main>
         </div>
 
     </div>

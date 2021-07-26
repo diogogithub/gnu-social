@@ -86,6 +86,10 @@ li {
     padding: 0;
 }
 
+summary {
+    cursor: default !important;
+}
+
 a:link {
     text-decoration: none;
     color: var(--white);
@@ -102,8 +106,8 @@ a:visited {
 
 a:focus,
 a:hover {
-    border-radius: var(--unit-size);
-    padding: var(--unit-size) var(--small-size) var(--unit-size) var(--small-size);
+    border-radius: var(--unit-size) !important;
+    padding: var(--unit-size) var(--small-size) var(--unit-size) var(--small-size) !important;
     background: var(--white) !important;
     color: var(--bg1) !important;
     transition: all 0.4s ease;

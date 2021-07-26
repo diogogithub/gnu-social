@@ -47,10 +47,41 @@
     box-sizing: border-box;
 }
 
-.profile a:focus,
-.profile a:hover {
-    all: unset;
-    color: var(--white) !important;
+#profile-links {
+    width: 100%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    margin-bottom: var(--unit-size);
+}
+
+#user-avatar {
+    box-sizing: border-box;
+    max-width: 50%;
+    margin-right: var(--unit-size);
+}
+
+#user-avatar img {
+    border-radius: 50%;
+    width: calc(3 * var(--main-size));
+    height: auto;
+}
+
+#user-avatar:hover img,
+#user-avatar:focus img {
+    border-radius: 50% !important;
+    box-shadow: var(--shadow-light) !important;
+}
+
+#user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+#user-tags {
+    font-family: var(--main-font);
+    font-size: var(--medium-size);
 }
 
 .footer {

@@ -1,33 +1,38 @@
 <aside id='left-panel'>
-    <div class='profile-nav'>
+    <nav class='profile-nav'>
 
         {% if app.user %}
-            <div class='profile'>
+            <section class='profile'>
+                <section id="profile-links">
+                    <a id="user-avatar" href="{{ path('settings_avatar') }}">
+                        <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
+                    </a>
+
+                    <span id="user-info">
+                        <a id="user-nick" href="{{ path('settings_personal_info') }}">
+                            <h2>{{ user_nickname }}</h2>
+                        </a>
+                        <div id="user-tags">
+                            {% if user_tags %}
+                                {% for tag in user_tags %}
+                                    <a href='#'> #{{ tag }}</a>
+                                {% endfor %}
+                            {% else %}
+                                {{ '(No tags)' | trans }}
+                            {% endif %}
+                        </div>
+                    </span>
+                </section>
+
+                <span id="stats">
+                    <h2>{{ 'Followers' | trans }} {{ user_followers }}</h2>
+                    <h2>{{ 'Followed' | trans }} {{ user_followed }}</h2>
+                </span>
+
                 {% for extra in profile_extras %}
                     {% include '/'~ extra.name ~ '/view.html.twig' with {'vars': extra.vars} only %}
                 {% endfor %}
-                <a href="{{ path('settings_avatar') }}">
-                    <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
-                </a>
-                <a href="{{ path('settings_personal_info') }}">
-                    <div class="info">
-                        <b id="nick">{{ user_nickname }}</b>
-                        <div class="tags">
-                            {% if user_tags %}
-                                {% for tag in user_tags %}
-                                    <a href='#'><i> #{{ tag }} </i></a>
-                                {% endfor %}
-                            {% else %}
-                                <i> {{ '(No tags)' | trans }} </i>
-                            {% endif %}
-                        </div>
-                        <div class="stats">
-                            <span> <b> {{ user_followers }} </b> {{ 'Followers' | trans }} </span>
-                            <span> <b> {{ user_followed }} </b> {{ 'Followed' | trans }} </span>
-                        </div>
-                    </div>
-                </a>
-            </div>
+            </section>
 
             <nav>
                 <a href='#'>Messages</a>
@@ -77,7 +82,7 @@
 
         </div>
 
-    </div>
+    </nav>
 
     <div class="footer">
         <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
