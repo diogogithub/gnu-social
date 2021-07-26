@@ -1,58 +1,64 @@
 <aside id='right-panel'>
 
     {% if post_form is defined %}
-        {{ form_start(post_form) }}
-        <section class="create-notice">
-            <form>
-                <fieldset class="section-title">
-                    <legend>Create a note</legend>
-                </fieldset>
 
-                <fieldset class="section-content">
-                    <span class="target">
-                        <div class="target-top">
-                            {{ form_label(post_form.to) }}
-                        </div>
-                        <div class="target-bot">
-                            {{ form_widget(post_form.to) }}
-                        </div>
-                    </span>
+        <section class="create-notice">
+            {{ form_start(post_form) }}
+            <fieldset>
+                <legend class="section-title">Create a note</legend>
+
+                <div class="section-content">
+                        <span class="target">
+                            <div class="target-top">
+                                {{ form_label(post_form.to) }}
+                            </div>
+                            <div class="target-bot">
+                                {{ form_widget(post_form.to) }}
+                            </div>
+                        </span>
 
                     <hr>
 
                     <span class="scope">
-                        <div class="visibility">
-                            {{ form_row(post_form.visibility) }}
-                        </div>
-                    </span>
+                            <div class="visibility">
+                                {{ form_row(post_form.visibility) }}
+                            </div>
+                        </span>
 
                     <hr>
 
-                    <span id="tabs">
-                        {% for tab in tabs %}
-                            <a href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
-                        {% endfor %}
-
-                        <div class="input-wrapper">
-                            <div class="content-input">
-                                {{ form_row(post_form.content) }}
-                            </div>
-                        </div>
-
-                        <div class="notice-options">
-                            <div class="attachments">
-                                <label for="{{ post_form.attachments.vars.id }}" class="custom-file-upload">
-                                    {{ form_widget(post_form.attachments) }}
-                                </label>
+                    <span id="input">
+                            <div class="input-wrapper">
+                                <div class="content-input">
+                                    {{ form_row(post_form.content) }}
+                                </div>
                             </div>
 
-                            {{ form_row(post_form.post) }}
-                        </div>
-                    </span>
-                </fieldset>
-            </form>
+                            <div class="notice-options">
+                                <div class="attachments">
+                                    <label for="{{ post_form.attachments.vars.id }}" class="custom-file-upload">
+                                        {{ form_widget(post_form.attachments) }}
+                                    </label>
+                                </div>
+
+                                {{ form_row(post_form.post) }}
+                            </div>
+                        </span>
+                </div>
+            </fieldset>
+            {{ form_end(post_form) }}
+
+            <details>
+                <summary>Other notes...</summary>
+                <div id="note-types">
+                    {% for tab in tabs %}
+                        <a href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
+                    {% endfor %}
+                </div>
+            </details>
+
         </section>
-        {{ form_end(post_form) }}
+
 
     {% endif %}
 
