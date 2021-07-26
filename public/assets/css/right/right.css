@@ -25,7 +25,7 @@
     border-radius: var(--unit-size);
 }
 
-.section-title legend {
+.section-title {
     display: flex;
     width: 100%;
     border-radius: var(--unit-size);
@@ -39,8 +39,7 @@
 }
 
 .section-content {
-    padding: var(--unit-size);
-    box-sizing: border-box;
+    margin: var(--unit-size);
 }
 
 .section-content hr {
@@ -63,10 +62,14 @@
 
 #post_visibility {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: flex-start;
     font-size: var(--medium-size);
     padding: var(--unit-size);
     box-sizing: border-box;
+}
+
+#post_visibility input[type="radio"] {
+    margin-right: 5px;
 }
 
 #post_visibility label {
@@ -80,21 +83,13 @@
 }
 
 .notice-options {
+    margin-top: var(--unit-size);
     display: flex;
-    font-family: var(--display-font);
-    padding: var(--unit-size);
+    flex-wrap: wrap;
     box-sizing: border-box;
-}
 
-.notice-options button {
-    font-size: var(--medium-size);
-    padding: var(--unit-size) var(--small-size);
-    border-radius: var(--unit-size);
-    border: none;
-}
-
-.attachments {
-    flex: 1;
+    font-family: var(--display-font);
+    width: 100%;
 }
 
 .post {
@@ -117,12 +112,65 @@
     box-sizing: border-box;
 }
 
+
 #post_attachments,
 #post_post {
     cursor: pointer;
 }
 
-.custom-file-upload {
-    display: inline-block;
-    font-size: var(--main-size);
+#post_post {
+    font-family: var(--display-font);
+    font-size: var(--medium-size);
+    padding: .2em .4em;
+
+    border-radius: var(--unit-size);
+    border: 2px solid var(--bg3);
+
+    background-color: var(--translucent);
+    color: var(--white);
+    transition: 0.4s;
+}
+
+.attachments {
+    flex: 1;
+}
+
+input[type=file]::file-selector-button {
+    font-family: var(--display-font);
+    font-size: var(--medium-size);
+    padding: .2em .4em;
+
+    border-radius: var(--unit-size);
+    border: 2px solid var(--bg3);
+
+    background-color: var(--translucent);
+    color: var(--white);
+    transition: 0.4s;
+}
+
+#post_post:hover {
+    border: 2px solid var(--white);
+    background-color: var(--white);
+    color: var(--bg1);
+}
+
+input[type=file]::file-selector-button:hover,
+input[type=button]:hover {
+    border: 2px solid var(--white);
+    background-color: var(--white);
+    color: var(--bg1);
+}
+
+.create-notice details {
+    font-family: var(--display-font);
+    padding: var(--unit-size);
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+#note-types {
+    padding: var(--unit-size);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
