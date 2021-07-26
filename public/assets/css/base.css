@@ -20,6 +20,7 @@
     --bg2: #434A60;
     --bg3: #5C6684;
     --translucent: #00000033;
+    --translucent-light: #FFFFFF33;
     --white: #EEDFD4;
 
     --accent-blue: #8E8DBE;
@@ -231,14 +232,14 @@ html {
     border-radius: var(--unit-size);
     box-sizing: border-box;
 
-    background-color: #00000022;
+    background-color: var(--translucent);
     font-size: var(--main-size);
     padding: var(--unit-size);
 }
 
 .note-info .avatar {
-    width: var(--main-size);
-    height: auto;
+    width: auto;
+    height: var(--main-size);
 }
 
 .note-content {
