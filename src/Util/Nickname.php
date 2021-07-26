@@ -144,9 +144,9 @@ class Nickname
         }
 
         $nickname = trim($nickname);
-        $nickname = str_replace('_', '', $nickname);
-        $nickname = mb_strtolower($nickname);
-        $nickname = Normalizer::normalize($nickname, Normalizer::FORM_C);
+        // $nickname = str_replace('_', '', $nickname);
+        // $nickname = mb_strtolower($nickname);
+        // $nickname = Normalizer::normalize($nickname, Normalizer::FORM_C);
 
         if (!$checking_reserved) {
             if (mb_strlen($nickname) < 1) {

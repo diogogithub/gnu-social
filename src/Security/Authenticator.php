@@ -90,7 +90,8 @@ class Authenticator extends AbstractFormLoginAuthenticator
             throw new InvalidCsrfTokenException();
         }
 
-        $nick = Nickname::normalize($credentials['nickname']);
+        // $nick = Nickname::normalize($credentials['nickname']);
+        $nick = $credentials['nickname'];
         $user = null;
         try {
             $user = DB::findOneBy('local_user', ['or' => ['nickname' => $nick, 'outgoing_email' => $nick]]);
