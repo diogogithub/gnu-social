@@ -46,6 +46,10 @@ address {
     border: 0;
 }
 
+form {
+    all: unset;
+}
+
 /* details element arrow */
 details > summary {
     list-style: none;
@@ -60,9 +64,5 @@ details > summary::-webkit-details-marker {
 
     details summary {
         cursor: pointer;
-    }
-
-    details summary > * {
-        display: inline;
     }
 }

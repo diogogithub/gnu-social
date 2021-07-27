@@ -12,12 +12,6 @@
     vertical-align: middle;
 }
 
-#right-panel {
-    font-size: var(--main-size);
-    top: inherit;
-    right: 0;
-}
-
 .create-notice {
     background-image: radial-gradient(ellipse at 10% 10%, var(--bg3), var(--accent-blue)),
     url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAElBMVEUAAACUkpSEhoSMioyMjoyEgoRr6djFAAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAU1JREFUKJEVUcl1xTAIpAVLSgECXIAYUoCAX0Bi919LlCPLm5ValiOUUe2+ZRVFuYpKXFsUX9aIp0V6GtC8VRhNL0X2fikvswhKrNDhes7pbpPkufFAtI0B76LEjfc2bgdHDk6RX4A/sjt6LCylfoYpNYYJx/9COhIugsjluzN9VGZ/Hnl51jIH2ba+Ywsy2RJCFdoDe8Obw61TXGAv+ewExMRJs7gd7YcimPuk42uMqY2VJ1fK+bDL32rb7kwok/la/u7Mrz7Xf0DTssSP2Btp1ZS0zw35tM/SsJKgWNLcRh+/th1QqntwtM3Tx0LNosoBYbM3qjJFiMeLsMH2i5BcQdU3n9sJHOE1Hoqn1GA/bm4s0YkVB/y4r0PbltF32FpljXmdlOOwbDvFWkoDYLppSG4pnM6UxX3Src1lhXeU36FOu3o+R2vNaHME/wESUl9/3zMniwAAAABJRU5ErkJggg==);
@@ -25,8 +19,12 @@
     border-radius: var(--unit-size);
 }
 
-.section-title {
+.create-notice form fielset {
     display: flex;
+    flex-direction: column;
+}
+
+.section-title {
     width: 100%;
     border-radius: var(--unit-size);
 
@@ -35,16 +33,16 @@
 
     background-color: var(--translucent);
     font-family: var(--display-font);
-    font-size: var(--main-size);
 }
-
 .section-content {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
     margin: var(--unit-size);
 }
-
 .section-content hr {
     all: unset;
-    display: block;
+    display: inline;
     height: 2px;
     background-image: linear-gradient(to left, var(--translucent-light), transparent 90%);
     margin-bottom: var(--unit-size);
@@ -62,18 +60,18 @@
 
 #post_visibility {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-start;
     font-size: var(--medium-size);
-    padding: var(--unit-size);
-    box-sizing: border-box;
+    margin: var(--unit-size);
 }
 
 #post_visibility input[type="radio"] {
-    margin-right: 5px;
+    margin-right: 0.1em;
 }
 
 #post_visibility label {
-    margin-right: var(--main-size);
+    margin-right: var(--small-size);
 }
 
 #tabs {
@@ -118,6 +116,10 @@
     cursor: pointer;
 }
 
+#post_attachments {
+    margin-bottom: var(--unit-size);
+}
+
 #post_post {
     font-family: var(--display-font);
     font-size: var(--medium-size);
@@ -129,6 +131,7 @@
     background-color: var(--translucent);
     color: var(--white);
     transition: 0.4s;
+
 }
 
 .attachments {
