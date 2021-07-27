@@ -4,49 +4,47 @@
 
         <section class="create-notice">
             {{ form_start(post_form) }}
-            <fieldset>
-                <legend class="section-title">Create a note</legend>
+            <legend class="section-title">Create a note</legend>
 
-                <div class="section-content">
-                        <span class="target">
-                            <div class="target-top">
-                                {{ form_label(post_form.to) }}
+            <div class="section-content">
+                    <span class="target">
+                        <div class="target-top">
+                            {{ form_label(post_form.to) }}
+                        </div>
+                        <div class="target-bot">
+                            {{ form_widget(post_form.to) }}
+                        </div>
+                    </span>
+
+                <hr>
+
+                <span class="scope">
+                        <div class="visibility">
+                            {{ form_row(post_form.visibility) }}
+                        </div>
+                    </span>
+
+                <hr>
+
+                <span id="input">
+                        <div class="input-wrapper">
+                            <div class="content-input">
+                                {{ form_row(post_form.content) }}
                             </div>
-                            <div class="target-bot">
-                                {{ form_widget(post_form.to) }}
-                            </div>
-                        </span>
+                        </div>
 
-                    <hr>
-
-                    <span class="scope">
-                            <div class="visibility">
-                                {{ form_row(post_form.visibility) }}
-                            </div>
-                        </span>
-
-                    <hr>
-
-                    <span id="input">
-                            <div class="input-wrapper">
-                                <div class="content-input">
-                                    {{ form_row(post_form.content) }}
-                                </div>
+                        <div class="notice-options">
+                            <div class="attachments">
+                                <label for="{{ post_form.attachments.vars.id }}" class="custom-file-upload">
+                                    {{ form_widget(post_form.attachments) }}
+                                </label>
                             </div>
 
-                            <div class="notice-options">
-                                <div class="attachments">
-                                    <label for="{{ post_form.attachments.vars.id }}" class="custom-file-upload">
-                                        {{ form_widget(post_form.attachments) }}
-                                    </label>
-                                </div>
-
-                                <br>
-                                {{ form_row(post_form.post) }}
-                            </div>
-                        </span>
-                </div>
-            </fieldset>
+                            <br>
+                            {{ form_row(post_form.post) }}
+                        </div>
+                    </span>
+            </div>
             {{ form_end(post_form) }}
 
             <details>

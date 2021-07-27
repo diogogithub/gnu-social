@@ -188,20 +188,21 @@ html {
 /* CONTAINS ALL ELEMENTS BESIDES HEADER */
 .container {
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    justify-content: space-around;
     margin-top: calc(3 * var(--small-size) + var(--main-size));
 }
 
 /* THE FOCUSED (middle) DIV */
 .content {
     margin: var(--main-size);
-    box-sizing: border-box;
 
     display: flex;
     flex-direction: column;
     flex: 1;
 
-    max-width: calc(3 * (100vw / 5));
+    width: 100%;
+    max-width: calc(3 * (100% / 5));
 }
 
 /* NOTES */
@@ -258,8 +259,16 @@ html {
 }
 
 .note-attachments > div figure {
+    display: flex;
+    flex-direction: column;
     margin: 0;
     padding: var(--small-size);
+}
+
+.note-attachments > div figure img,
+.note-attachments > div figure video {
+    width: 100%;
+    height: auto;
 }
 
 figcaption a:link {
@@ -269,14 +278,15 @@ figcaption a:link {
 
 /* SIDE PANELS */
 .panel {
+    width: 100%;
+    max-width: calc(100% / 5);
     margin: var(--unit-size);
     font-size: var(--main-size);
-    max-width: calc((100vw / 5));
 }
 
 .panel aside {
-    display: flex;
-    flex-direction: column;
+    position: sticky;
+    display: contents;
 }
 
 .icon-left,
@@ -284,46 +294,41 @@ figcaption a:link {
     display: none;
 }
 
-@media (min-width: 1200px) {
-    .panel {
-        width: 100%;
-    }
-}
-
 @media (max-width: 1200px) {
     .icon-left,
     .icon-right {
-        display: flex !important;
-    }
-
-    .panel {
-        max-width: 100vw !important;
-    }
-
-    .panel div ~ {
-        all: unset;
-        display: none;
-    }
-
-    .panel aside {
-        display: none !important;
-    }
-
-    .panel[open] {
-        display: block !important;
-        width: 100% !important; /* Full width */
-        height: 100% !important; /* Full height */
-        overflow: auto !important; /* Enable scroll if needed */
-    }
-
-    .panel[open] aside {
-        display: block !important;
-        animation: fadeIn 300ms cubic-bezier(0, 0.55, 0.45, 1);
+        display: flex;
     }
 
     .content {
-        max-width: 100vw;
+        order: 1;
+        max-width: 100% !important;
     }
+
+    .panel {
+        all: unset;
+        width: 0;
+    }
+
+    .panel aside {
+        display: none;
+    }
+
+    .panel[open] {
+        width: 100%;
+        font-size: var(--main-size);
+        margin: var(--unit-size);
+    }
+
+    .panel[open] {
+        width: 100%;
+    }
+
+    .panel[open] aside {
+        display: contents;
+    }
+
+
 }
 
 /* ANIMATIONS */
