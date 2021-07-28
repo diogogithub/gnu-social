@@ -63,21 +63,26 @@ class Security extends Controller
         $form = Form::create([
             ['nickname', TextType::class, [
                 'label'       => _m('Nickname'),
-                'constraints' => [new Length([
+                'constraints' => [
+                    new NotBlank(['message' => _m('Please enter a nickname')]),
+                    new Length([
                     'min'        => Common::config('nickname', 'min_length'),
                     'minMessage' => _m(['Your nickname must be at least # characters long'], ['count' => Common::config('nickname', 'min_length')]),
                     'max'        => Nickname::MAX_LEN,
                     'maxMessage' => _m(['Your nickname must be at most # characters long'], ['count' => Nickname::MAX_LEN]), ]),
                 ],
             ]],
-            ['email', EmailType::class, ['label' => _m('Email')]],
+            ['email', EmailType::class, [
+                'label' => _m('Email'),
+                'constraints' => [ new NotBlank(['message' => _m('Please enter an email') ])]
+            ]],
             ['password', PasswordType::class, [
                 'label'       => _m('Password'),
                 'mapped'      => false,
                 'constraints' => [
                     new NotBlank(['message' => _m('Please enter a password')]),
-                    new Length(['min' => 6,  'minMessage' => _m(['Your password should be at least # characters'], ['count' => 6]),
-                        'max'         => 60, 'maxMessage' => _m(['Your password should be at most # characters'], ['count' => 60]), ]),
+                    new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
+                                'max' => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'],  ['count' => Common::config('password', 'max_length')]), ]),
                 ],
             ]],
             ['register', SubmitType::class, ['label' => _m('Register')]],

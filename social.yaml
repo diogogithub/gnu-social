@@ -157,6 +157,10 @@ parameters:
       featured: []
       min_length: 4
 
+    password:
+      min_length: 6
+      max_length: 60
+
     profile:
       bio_text_limit:
       allow_nick_change: false
