@@ -28,6 +28,9 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class MessageHandler implements MessageHandlerInterface
 {
+    /**
+     * @codeCoverageIgnore
+     */
     public function __invoke(Message $message)
     {
         Event::handle($message->queue, [$message->content]);

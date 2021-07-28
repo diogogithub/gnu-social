@@ -28,6 +28,11 @@ class Message
     public $content;
     public string $queue;
 
+    /**
+     * @codeCoverageIgnore
+     *
+     * @param mixed $content
+     */
     public function __construct($content, string $queue)
     {
         $this->queue   = $queue;
