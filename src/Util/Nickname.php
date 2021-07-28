@@ -21,8 +21,7 @@
 
 namespace App\Util;
 
-use App\Core\DB\DB;
-use App\Entity\GSActor;
+use App\Entity\LocalUser;
 use App\Util\Exception\NicknameBlacklistedException;
 use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameException;
@@ -123,6 +122,48 @@ class Nickname
      */
     const BEFORE_MENTIONS = '(?:^|[\s\.\,\:\;\[\(]+)';
 
+    const CHECK_LOCAL_USER  = 1;
+    const CHECK_LOCAL_GROUP = 2;
+
+    /**
+     * Check if a nickname is valid or throw exceptions if it's not.
+     * Can optionally check if the nickname is currently in use
+     */
+    public static function validate(string $nickname, bool $check_already_used = false, int $which = self::CHECK_LOCAL_USER)
+    {
+        $nickname = trim($nickname);
+        $length   = mb_strlen($nickname);
+
+        if ($length < 1) {
+            throw new NicknameEmptyException();
+        } elseif ($length < Common::config('nickname', 'min_length')) {
+            // dd($nickname, $length, Common::config('nickname', 'min_length'));
+            throw new NicknameTooShortException();
+        } else {
+            if ($length > self::MAX_LEN) {
+                throw new NicknameTooLongException();
+            } elseif (self::isReserved($nickname) || Common::isSystemPath($nickname)) {
+                throw new NicknameReservedException();
+            } elseif ($check_already_used) {
+                switch ($which) {
+            case self::CHECK_LOCAL_USER:
+                $lu = LocalUser::findByNicknameOrEmail($nickname, email: '');
+                if ($lu !== null) {
+                    throw new NicknameTakenException($lu->getActor());
+                }
+                break;
+            case self::CHECK_LOCAL_GROUP:
+                throw new \NotImplementedException();
+                break;
+            default:
+                throw new \InvalidArgumentException();
+            }
+            }
+        }
+
+        return $nickname;
+    }
+
     /**
      * Normalize an input $nickname, and normalize it to its canonical form.
      * The canonical form will be returned, or an exception thrown if invalid.
@@ -138,31 +179,16 @@ class Nickname
      */
     public static function normalize(string $nickname, bool $check_already_used = true, bool $checking_reserved = false): string
     {
-        if (mb_strlen($nickname) > self::MAX_LEN) {
-            // Display forms must also fit!
-            throw new NicknameTooLongException();
+        if (!$checking_reserved) {
+            $nickname = self::validate($nickname, $check_already_used);
         }
 
         $nickname = trim($nickname);
-        // $nickname = str_replace('_', '', $nickname);
-        // $nickname = mb_strtolower($nickname);
-        // $nickname = Normalizer::normalize($nickname, Normalizer::FORM_C);
-
-        if (!$checking_reserved) {
-            if (mb_strlen($nickname) < 1) {
-                throw new NicknameEmptyException();
-            } elseif (mb_strlen($nickname) < Common::config('nickname', 'min_length')) {
-                throw new NicknameTooShortException();
-            } elseif (!self::isCanonical($nickname) && !filter_var($nickname, FILTER_VALIDATE_EMAIL)) {
-                throw new NicknameInvalidException();
-            } elseif (self::isReserved($nickname) || Common::isSystemPath($nickname)) {
-                throw new NicknameReservedException();
-            } elseif ($check_already_used) {
-                $actor = self::checkTaken($nickname);
-                if ($actor instanceof GSActor) {
-                    throw new NicknameTakenException($actor);
-                }
-            }
+        $nickname = str_replace('_', '', $nickname);
+        $nickname = mb_strtolower($nickname);
+        $nickname = Normalizer::normalize($nickname, Normalizer::FORM_C);
+        if (!self::isCanonical($nickname) && !filter_var($nickname, FILTER_VALIDATE_EMAIL)) {
+            throw new NicknameInvalidException();
         }
 
         return $nickname;
@@ -207,23 +233,5 @@ class Nickname
         return in_array($nickname, array_merge($reserved, F\map($reserved, function ($n) {
             return self::normalize($n, check_already_used: false, checking_reserved: true);
         })));
-    }
-
-    /**
-     * Is the nickname already in use locally? Checks the User table.
-     *
-     * @return null|GSActor Returns GSActor if nickname found
-     */
-    public static function checkTaken(string $nickname): ?GSActor
-    {
-        foreach (['local_user' => 'id', 'local_group' => 'group_id'] as $table => $id_field) {
-            $ret = DB::dql("select a from gsactor a join {$table} t with a.id = t.{$id_field} " .
-                           'where a.normalized_nickname = :nick', ['nick' => self::normalize($nickname, check_already_used: false)]);
-
-            if (!empty($ret)) {
-                return $ret[0];
-            }
-        }
-        return null;
     }
 }
