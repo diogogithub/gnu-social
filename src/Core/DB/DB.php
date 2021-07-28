@@ -176,14 +176,13 @@ abstract class DB
     public static function findOneBy(string $table, array $criteria, ?array $orderBy = null, ?int $offset = null)
     {
         $res = self::findBy($table, $criteria, $orderBy, 2, $offset);
-        if (count($res) == 1) {
+        switch (count($res)) {
+        case 0:
+            throw new NotFoundException("No value in table {$table} matches the requested criteria");
+        case 1:
             return $res[0];
-        } else {
-            if (count($res) == 0) {
-                throw new NotFoundException("No value in table {$table} matches the requested criteria");
-            } else {
-                throw new DuplicateFoundException("Multiple values in table {$table} match the requested criteria");
-            }
+        default:
+            throw new DuplicateFoundException("Multiple values in table {$table} match the requested criteria");
         }
     }
 
