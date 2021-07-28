@@ -32,17 +32,17 @@ class TemporaryFileTest extends WebTestCase
     {
         $temp = new TemporaryFile();
         static::assertNotNull($temp->getResource());
-        $filename = uniqid(sys_get_temp_dir() . '/');
-        $temp->move($filename);
-        static::assertTrue(file_exists($filename));
-        @unlink($filename);
+        $filepath = uniqid(sys_get_temp_dir() . '/');
+        $temp->commit($filepath);
+        static::assertTrue(file_exists($filepath));
+        @unlink($filepath);
     }
 
     public function testError()
     {
         $temp     = new TemporaryFile();
-        $filename = $temp->getRealPath();
-        static::assertThrows(TemporaryFileException::class, fn () => $temp->move($filename));
-        static::assertThrows(TemporaryFileException::class, fn () => $temp->move('/root/cannot_write_here'));
+        $filepath = $temp->getRealPath();
+        static::assertThrows(TemporaryFileException::class, fn () => $temp->commit($filepath));
+        static::assertThrows(TemporaryFileException::class, fn () => $temp->commit('/root/cannot_write_here'));
     }
 }
