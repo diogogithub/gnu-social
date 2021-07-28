@@ -83,10 +83,10 @@ class RouteLoader extends Loader
         $this->rc->add($id,
             new Route(
                 // path -- URI path
-                $uri_path,
+                path: $uri_path,
                 // defaults = []     -- param default values,
                 // and special configuration options
-                array_merge(
+                defaults: array_merge(
                     [
                         '_controller' => is_array($target) ? $target : [$target, '__invoke'],
                         '_format'     => $options['format'] ?? 'html',
@@ -97,21 +97,21 @@ class RouteLoader extends Loader
                     $options['defaults'] ?? []
                 ),
                 // requirements = [] -- param => regex
-                $param_reqs,
+                requirements: $param_reqs,
                 // options = []      -- possible keys: compiler_class:, utf8
                 // No need for a special compiler class for now,
                 // Enforce UTF8
-                ['utf8' => true],
+                options: ['utf8' => true],
                 // host = ''         -- hostname (subdomain, for instance) to match,
                 // we don't want this
-                '',
+                host: '',
                 // schemes = []      -- URI schemes (https, ftp and such)
-                $options['schemes'] ?? [],
+                schemes: $options['schemes'] ?? [],
                 // methods = []      -- HTTP methods
-                $options['http-methods'] ?? $options['methods'] ?? [],
+                methods: $options['http-methods'] ?? $options['methods'] ?? [],
                 // condition = ''    -- Symfony condition expression,
                 // see https://symfony.com/doc/current/routing.html#matching-expressions
-                $options['condition'] ?? ''
+                condition: $options['condition'] ?? ''
             )
         );
     }
@@ -122,6 +122,7 @@ class RouteLoader extends Loader
      * `config/routes.php`
      *
      * @param mixed $resource
+     * @codeCoverageIgnore
      */
     public function supports($resource, ?string $type = null): bool
     {
