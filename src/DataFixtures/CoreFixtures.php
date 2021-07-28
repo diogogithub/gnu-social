@@ -18,10 +18,11 @@ class CoreFixtures extends Fixture
     {
         $actors         = [];
         $local_entities = [];
-        foreach ([LocalUser::class => ['taken_user', 'setId'], LocalGroup::class => ['taken_group', 'setGroupId']] as $entity => [$nick, $method]) {
+        foreach ([LocalUser::class => ['taken_user', 'setId', ['password' => LocalUser::hashPassword('foobar'), 'outgoing_email' => 'email@provider']], LocalGroup::class => ['taken_group', 'setGroupId', []]]
+                 as $entity => [$nick, $method, $extra_create]) {
             $actor = GSActor::create(['nickname' => $nick, 'normalized_nickname' => Nickname::normalize($nick, check_already_used: false)]);
             $manager->persist($actor);
-            $ent = $entity::create(['nickname' => $nick]);
+            $ent = $entity::create(array_merge(['nickname' => $nick], $extra_create)); // cannot use array spread for arrays with string keys
             $ent->{$method}($actor->getId());
             $local_entities[$nick] = $ent;
             $manager->persist($ent);
