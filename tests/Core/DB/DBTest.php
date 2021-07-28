@@ -54,7 +54,7 @@ class DBTest extends GNUsocialTestCase
         static::assertTrue(is_array($actor));
         static::assertTrue($actor[0] instanceof GSActor);
 
-        $actor = DB::findBy('gsactor', ['and' => ['nickname' => 'taken_user', 'is_null' => 'bio', 'gte' => ['id' => 0], 'or' => ['normalized_nickname' => 'takenuser']]]);
+        $actor = DB::findBy('gsactor', ['and' => ['is_null' => 'bio', 'or' => ['nickname' => 'user does not exist', 'gte' => ['id' => 0]]]]);
         static::assertTrue(is_array($actor));
         static::assertTrue($actor[0] instanceof GSActor);
     }
