@@ -20,22 +20,13 @@
 // }}}
 
 /**
- * Nickname taken exception
+ * Email taken exception
  *
  * @category  Exception
  * @package   GNUsocial
  *
- * @author    Zach Copley <zach@status.net>
- * @copyright 2010 StatusNet Inc.
- * @author    Brion Vibber <brion@pobox.com>
- * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @author    Nym Coy <nymcoy@gmail.com>
- * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
- * @auuthor   Daniel Supernault <danielsupernault@gmail.com>
- * @auuthor   Diogo Cordeiro <diogo@fc.up.pt>
- *
  * @author    Hugo Sales <hugo@hsal.es>
- * @copyright 2018-2021 Free Software Foundation, Inc http://www.fsf.org
+ * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
@@ -44,9 +35,9 @@ namespace App\Util\Exception;
 use function App\Core\I18n\_m;
 use App\Entity\GSActor;
 
-class NicknameTakenException extends NicknameException
+class EmailTakenException extends EmailException
 {
-    public ?GSActor $profile = null;    // the GSActor which occupies the nickname
+    public ?GSActor $profile = null;    // the GSActor which occupies the email
 
     public function __construct(?GSActor $profile = null, ?string $msg = null, int $code = 400)
     {
@@ -57,6 +48,6 @@ class NicknameTakenException extends NicknameException
     protected function defaultMessage(): string
     {
         // TRANS: Validation error in form for registration, profile and group settings, etc.
-        return _m('Nickname is already in use on this server.');
+        return _m('Email is already in use on this server.');
     }
 }

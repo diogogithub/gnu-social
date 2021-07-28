@@ -1,7 +1,6 @@
 <?php
 
 // {{{ License
-
 // This file is part of GNU social - https://www.gnu.org/software/social
 //
 // GNU social is free software: you can redistribute it and/or modify
@@ -16,47 +15,33 @@
 //
 // You should have received a copy of the GNU Affero General Public License
 // along with GNU social.  If not, see <http://www.gnu.org/licenses/>.
-
 // }}}
 
 /**
- * Nickname taken exception
+ * Email base exception
  *
  * @category  Exception
  * @package   GNUsocial
  *
- * @author    Zach Copley <zach@status.net>
- * @copyright 2010 StatusNet Inc.
- * @author    Brion Vibber <brion@pobox.com>
- * @author    Mikael Nordfeldth <mmn@hethane.se>
- * @author    Nym Coy <nymcoy@gmail.com>
- * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
- * @auuthor   Daniel Supernault <danielsupernault@gmail.com>
- * @auuthor   Diogo Cordeiro <diogo@fc.up.pt>
- *
  * @author    Hugo Sales <hugo@hsal.es>
- * @copyright 2018-2021 Free Software Foundation, Inc http://www.fsf.org
+ * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 
 namespace App\Util\Exception;
 
-use function App\Core\I18n\_m;
-use App\Entity\GSActor;
-
-class NicknameTakenException extends NicknameException
+class EmailException extends ClientException
 {
-    public ?GSActor $profile = null;    // the GSActor which occupies the nickname
-
-    public function __construct(?GSActor $profile = null, ?string $msg = null, int $code = 400)
+    public function __construct(string $msg = null, int $code = 400)
     {
-        $this->profile = $profile;
+        if ($msg === null) {
+            $msg = $this->defaultMessage();
+        }
         parent::__construct($msg, $code);
     }
 
     protected function defaultMessage(): string
     {
-        // TRANS: Validation error in form for registration, profile and group settings, etc.
-        return _m('Nickname is already in use on this server.');
+        return '';
     }
 }
