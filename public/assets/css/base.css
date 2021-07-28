@@ -120,8 +120,8 @@ summary:hover > svg,
 summary:focus > svg {
     border-radius: var(--unit-size);
     padding: var(--small-size) !important;
-    background: var(--white);
-    fill: var(--bg1);
+    background: var(--white) !important;
+    fill: var(--bg1) !important;
     transition: all 0.4s ease;
 }
 
@@ -255,6 +255,11 @@ html {
     flex-direction: column;
     margin: 0;
     padding: var(--small-size);
+}
+
+.note-attachments > div figure figcaption {
+    display: flex;
+    padding-top: var(--small-size);
 }
 
 .note-attachments > div figure img,
