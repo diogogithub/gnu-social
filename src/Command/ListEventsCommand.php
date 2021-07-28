@@ -40,6 +40,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * Get a list of event registered in GNU social
+ *
+ * Testing unfeasable, since it outputs stuff
+ *
+ * @codeCoverageIgnore
+ */
 class ListEventsCommand extends Command
 {
     protected static $defaultName = 'app:events';
