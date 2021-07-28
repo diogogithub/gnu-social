@@ -100,8 +100,9 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $template = $this->vars['_template'];
         unset($this->vars['_template'], $this->vars['request']);
 
-        // Respond in the most preferred acceptable content type
-        $format = $request->getFormat($request->getAcceptableContentTypes()[0]);
+        // Respond in the the most preffered acceptable content type
+        $accept = $request->getAcceptableContentTypes() ?: ['text/html'];
+        $format = $request->getFormat($accept[0]);
         switch ($format) {
         case 'html':
             $event->setResponse($this->render($template, $this->vars));
