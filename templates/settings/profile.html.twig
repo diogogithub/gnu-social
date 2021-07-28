@@ -2,41 +2,11 @@
 
 {% block title %}Profile Settings{% endblock %}
 
-{% block body %}
-    <div class='content'>
-        <div class="main">
-            {% block primary_nav %}
-                {{ parent() }}
-            {% endblock primary_nav %}
+{% block form %}
+    <div class='form'>
+        <h1>Settings / Profile</h1>
 
-            <div class="secondary">
-                {% block secundary_nav %}
-                    <nav class='set-nav'>
-                        <ul>
-                            <li>
-                                <a href="{{ path('settings_personal_info') }}"
-                                   class='hover-effect {{ active('settings_personal_info') }}'>Personal Info</a>
-                            </li>
-                            <li>
-                                <a href="{{ path('settings_avatar') }}"
-                                   class='hover-effect {{ active('settings_avatar') }}'>Avatar</a>
-                            </li>
-                            {% for tab in profile_tabs %}
-                                <li>
-                                    <a href="{{ path(tab['route']) }}"
-                                       class='hover-effect {{ active(tab['route']) }}'>{{ tab['title'] }}</a>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </nav>
-                {% endblock secundary_nav %}
-
-                {% block form %}
-                    <div class='form'>
-                        {{ form(prof) }}
-                    </div>
-                {% endblock form %}
-            </div>
-        </div>
+        {{ form(prof) }}
     </div>
-{% endblock body %}
+{% endblock form %}
+

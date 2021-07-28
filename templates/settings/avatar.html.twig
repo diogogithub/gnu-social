@@ -8,12 +8,9 @@
     <script src="{{ asset('assets/javascript/cropperjs/cropper.js') }}"></script>
 {% endblock %}
 
-{% block body %}
-    {{ parent() }}
-{% endblock body %}
-
 {% block form %}
     <div class='form'>
+        <h1>Settings / Profile</h1>
         {{ form(avatar) }}
         <div id="img-container">
             <img id="img-cropped">

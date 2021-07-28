@@ -6,32 +6,21 @@
     {{ parent() }}
 {% endblock %}
 
-{% block body %}
-    <div class='content'>
-        <div class="main">
-            {% block primary_nav %}
-                {{ parent() }}
-            {% endblock primary_nav %}
+{% block form %}
+    <div id='form-tabs'>
+        <h1>Settings / Notifications </h1>
 
-            <div class="secondary">
-                {% block form %}
-                    <div id='form-tabs'>
-                        <ul>
-                            {% for transport, form in tabbed_forms %}
-                                <input type="radio" id="toggle-{{ transport }}" name="tabs"
-                                       value="toggle-{{ transport }}" {% if transport == "email" %} checked {% endif %}>
-                                <label for="toggle-{{ transport }}" id='tabs'>
-                                    {{ transport }}
-                                </label>
-                                <div id="form_{{ transport }}" class='form'>
-                                    {{ form(form) }}
-                                </div>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% endblock form %}
-            </div>
-        </div>
+        <ul>
+            {% for transport, form in tabbed_forms %}
+                <input type="radio" id="toggle-{{ transport }}" name="tabs"
+                       value="toggle-{{ transport }}" {% if transport == "email" %} checked {% endif %}>
+                <label for="toggle-{{ transport }}" id='tabs'>
+                    {{ transport }}
+                </label>
+                <div id="form_{{ transport }}" class='form'>
+                    {{ form(form) }}
+                </div>
+            {% endfor %}
+        </ul>
     </div>
-
-{% endblock body %}
+{% endblock form %}

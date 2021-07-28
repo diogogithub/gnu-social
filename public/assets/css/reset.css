@@ -61,7 +61,6 @@ details > summary::-webkit-details-marker {
 
 /* have IE ignore the detail elements altogether */
 @supports not (-ms-ime-align: auto) {
-
     details summary {
         cursor: pointer;
     }

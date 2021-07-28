@@ -361,3 +361,15 @@ figcaption a:link {
         transform: none;
     }
 }
+
+@keyframes fadeOut {
+    100% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    0% {
+        opacity: unset;
+        transform: none;
+    }
+}

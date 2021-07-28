@@ -1,22 +1,12 @@
 {% extends 'settings/base.html.twig' %}
 
-{% block title %}Notification Settings{% endblock %}
+{% block title %}Account Settings{% endblock %}
 
-{% block body %}
+{% block page_name %}Account{% endblock %}
 
-    <div class='content'>
-        <div class="main">
-            {% block primary_nav %}
-                {{ parent() }}
-            {% endblock primary_nav %}
-            <div class="secondary">
-                {% block form %}
-                    <div class='form-single'>
-                        {{ form(acc) }}
-                    </div>
-                {% endblock form %}
-            </div>
-        </div>
+{% block form %}
+    <div class='form-single'>
+        <h1>Settings / Profile</h1>
+        {{ form(acc) }}
     </div>
-
-{% endblock body %}
+{% endblock form %}

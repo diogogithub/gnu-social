@@ -2,18 +2,14 @@
 
 {% block meta %}
     {{ parent() }}
+    <link href="{{ asset('assets/icons/arrow-down.svg.twig') }}" rel="icon"/>
 {% endblock %}
 
 {% block title %}{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings.css') }}"
-          media="screen and (min-width: 1300px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings_mid.css') }}"
-          media="screen and (max-width: 1300px)">
-    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings_small.css') }}"
-          media="screen and (max-width: 750px)">
+    <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/settings/settings.css') }}">
 {% endblock %}
 
 {% block header %}
@@ -21,37 +17,83 @@
 {% endblock %}
 
 {% block body %}
-    {% block left %}
-        {{ parent() }}
-    {% endblock %}
-
     <div class="content">
-        <div class="main">
-            {% block primary_nav %}
-                <nav class='set-nav'>
-                    <ul>
-                        <li>
-                            <a href="{{ path('settings_personal_info') }}"
-                               class='hover-effect {{ active('settings_personal_info', 'settings_avatar', 'settings_profile_') }}'>Profile</a>
-                        </li>
-                        <li>
+        <nav class='main-nav'>
+            <h1>Settings</h1>
+            <ul>
+                <li>
+                    <details class="section-title-settings">
+                        <summary>
+                            <h1>Profile {{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
+
+                            <em>Personal Information, Avatar and Profile</em>
+                        </summary>
+
+                        <section>
+                            <nav class='set-nav'>
+                                <ul>
+                                    <li>
+                                        <a href="{{ path('settings_personal_info') }}"
+                                           class='hover-effect {{ active('settings_personal_info') }}'>Personal Info</a>
+                                    </li>
+                                    <li>
+                                        <a href="{{ path('settings_avatar') }}"
+                                           class='hover-effect {{ active('settings_avatar') }}'>Avatar</a>
+                                    </li>
+                                    {% for tab in profile_tabs %}
+                                        <li>
+                                            <a href="{{ path(tab['route']) }}"
+                                               class='hover-effect {{ active(tab['route']) }}'>{{ tab['title'] }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </nav>
+                        </section>
+                    </details>
+                    {# <a href="{{ path('settings_personal_info') }}" #}
+                    {# class='hover-effect {{ active('settings_personal_info', 'settings_avatar', 'settings_profile_') }}'>Profile</a> #}
+                </li>
+
+                <li>
+                    <details class="section-title-settings">
+                        <summary>
                             <a href="{{ path('settings_account') }}"
-                               class='hover-effect {{ active('settings_account') }}'>Account</a>
-                        </li>
-                        <li>
+                               class='hover-effect {{ active('settings_account') }}'>
+                                <h1>Account</h1>
+                                <em>Email, Password and Language</em>
+                            </a>
+                        </summary>
+
+                        <section>
+
+                        </section>
+                    </details>
+                </li>
+
+                <li>
+                    <details class="section-title-settings">
+                        <summary>
                             <a href="{{ path('settings_notifications') }}"
-                               class='hover-effect {{ active('settings_notifications') }}'>Notifications</a>
-                        </li>
-                    </ul>
-                </nav>
-            {% endblock primary_nav %}
+                               class='hover-effect {{ active('settings_notifications') }}'>
+                                <h1>Notifications</h1>
+                                <em>Enable/disable notifications (Email, XMPP, Replies...)</em>
+                            </a>
+                        </summary>
 
-            {% block secundary_nav %}
-            {% endblock secundary_nav %}
+                        <section>
 
-            {% block form %}
-            {% endblock form %}
-        </div>
+                        </section>
+                    </details>
+                    {# <a href="{{ path('settings_notifications') }}"
+                       class='hover-effect {{ active('settings_notifications') }}'>Notifications</a> #}
+                </li>
+            </ul>
+        </nav>
+
+        <hr>
+
+        {% block form %}
+        {% endblock %}
     </div>
 {% endblock body %}
 
