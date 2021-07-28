@@ -68,6 +68,9 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $actions;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function getConfig(...$args)
     {
         return Common::config(...$args);
@@ -77,6 +80,7 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
      * get stylesheets
      *
      * @return array|mixed
+     * @codeCoverageIgnore
      */
     public function getShowStylesheets()
     {
@@ -85,6 +89,9 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return implode("\n", $styles);
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function handleEvent(string $event, ...$args)
     {
         $res    = [];
@@ -111,12 +118,18 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
 
     // ----------------------------------------------------------
 
-    // Request is not a service, can't find a better way to get it
+    /**
+     * @codeCoverageIgnore
+     */
     public function onKernelRequest(RequestEvent $event)
     {
+        // Request is not a service, can't find a better way to get it
         $this->request = $event->getRequest();
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public static function getSubscribedEvents()
     {
         return [KernelEvents::REQUEST => 'onKernelRequest'];
