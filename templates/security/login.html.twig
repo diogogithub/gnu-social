@@ -11,10 +11,10 @@
     <div class='content'>
         <form method="post">
             <fieldset>
-                <legend>Login</legend>
+                <legend>{{ "Login" | trans }}</legend>
 
                 {% if error %}
-                    <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                    <div class="alert alert-danger">{{ error.messageKey | trans(error.messageData, 'security') }}</div>
                 {% endif %}
 
                 <p>
@@ -23,19 +23,20 @@
                     You are logged in as {{ app.user.username }}.
                     <br>
                     <button class="btn btn-lg btn-primary">
-                        <a href="{{ path('app_logout') }}">Logout</a>
+                        <a href="{{ path('app_logout') }}">{{ "Logout" | trans }}</a>
                     </button>
                 </h1>
-            {% else %}
-                <label for="inputNickname">Nickname</label>
+              {% else %}
+                {# TODO: Login can be done with email, so the id's and stuff should reflect that, along with using the translation facilities #}
+                <label for="inputNickname">{{ "Nickname or Email" | trans }}</label>
                 <br>
-                <input type="text" value="{{ last_username }}" name="nickname" id="inputNickname"
+                <input type="text" value="{{ last_login_id }}" name="nickname" id="inputNickname"
                        class="form-control" required autofocus>
                 {% endif %}
                 </p>
 
                 <p>
-                    <label for="inputPassword">Password</label>
+                    <label for="inputPassword">{{ "Password" | trans }}</label>
                     <br>
                     <input type="password" name="password" id="inputPassword" class="form-control" required>
                 </p>
@@ -43,7 +44,7 @@
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
                 <p class="checkbox mb-3">
-                    <label>Remember me</label>
+                    <label>{{ "Remember me" | trans}}</label>
                     <input type="checkbox" name="_remember_me">
                 </p>
 
