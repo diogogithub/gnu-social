@@ -47,6 +47,10 @@ abstract class Module
     /**
      * Handle the $form submission for the note action for note if
      * $note->getId() == $data['note_id']
+     *
+     * This function is called when a user interacts with a note, such as through favouriting or commenting
+     *
+     * @codeCoverageIgnore
      */
     public static function noteActionHandle(Request $request, Form $form, Note $note, string $form_name, callable $handle)
     {
