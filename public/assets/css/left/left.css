@@ -1,20 +1,14 @@
-#left-container {
-    top: inherit;
-    left: 0;
-}
-
 .icon-left {
-    position: fixed;
-    top: 0;
-    left: 0;
-    padding: calc(3 * var(--unit-size));
-
     width: var(--main-size);
     height: auto;
 
     fill: var(--white);
     stroke-width: 0;
     vertical-align: middle;
+}
+
+#left-panel {
+    left: 0;
 }
 
 /* PROFILE */

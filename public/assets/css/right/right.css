@@ -1,20 +1,14 @@
-#right-container {
-    top: inherit;
-    right: 0;
-}
-
 .icon-right {
-    position: fixed;
-    top: 0;
-    right: 0;
-    padding: calc(3 * var(--unit-size));
-
     width: var(--main-size);
     height: auto;
 
     fill: var(--white);
     stroke-width: 0;
     vertical-align: middle;
+}
+
+#right-panel {
+    right: 0;
 }
 
 .create-notice {
