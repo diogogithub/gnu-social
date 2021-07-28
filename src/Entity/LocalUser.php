@@ -25,6 +25,7 @@ use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\UserRoles;
 use App\Util\Common;
+use App\Util\Exception\DuplicateFoundException;
 use DateTimeInterface;
 use Exception;
 use libphonenumber\PhoneNumber;
@@ -300,6 +301,24 @@ class LocalUser extends Entity implements UserInterface
      */
     public function eraseCredentials()
     {
+    }
+
+    /**
+     * Is the nickname or email already in use locally?
+     *
+     * @return self Returns self if nickname or email found
+     */
+    public static function findByNicknameOrEmail(string $nickname, string $email): ?self
+    {
+        $users = DB::findBy('local_user', ['or' => ['nickname' => $nickname, 'outgoing_email' => $email, 'incoming_email' => $email]]);
+        switch (count($users)) {
+        case 0:
+            return null;
+        case 1:
+            return $users[0];
+        default:
+            throw new DuplicateFoundException('Multiple values in table local_user match the requested criteria');
+        }
     }
 
     public function checkPassword(string $new_password): bool
