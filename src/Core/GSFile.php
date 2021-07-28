@@ -221,7 +221,7 @@ class GSFile
     /**
      * Get the minor part of a mimetype. image/webp -> image
      */
-    public static function mimetypeMajor(string $mime)
+    public static function mimetypeMajor(string $mime): string
     {
         return explode('/', self::mimetypeBare($mime))[0];
     }
@@ -229,7 +229,7 @@ class GSFile
     /**
      * Get the minor part of a mimetype. image/webp -> webp
      */
-    public static function mimetypeMinor(string $mime)
+    public static function mimetypeMinor(string $mime): string
     {
         return explode('/', self::mimetypeBare($mime))[1];
     }
@@ -237,7 +237,7 @@ class GSFile
     /**
      *  Get only the mimetype and not additional info (separated from bare mime with semi-colon)
      */
-    public static function mimetypeBare(string $mimetype)
+    public static function mimetypeBare(string $mimetype): string
     {
         $mimetype = mb_strtolower($mimetype);
         if (($semicolon = mb_strpos($mimetype, ';')) !== false) {
