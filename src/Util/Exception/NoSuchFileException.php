@@ -21,7 +21,7 @@ namespace App\Util\Exception;
 
 use function App\Core\I18n\_m;
 
-class NoSuchFileException extends ClientException
+class NoSuchFileException extends NotFoundException
 {
     public function __construct()
     {

@@ -20,7 +20,8 @@
 // }}}
 
 /**
- * Class for server exceptions
+ * Class for server exceptions.
+ * HTTP code 500
  *
  * Subclass of PHP Exception for server errors.
  * The user typically can't fix these.
@@ -40,6 +41,7 @@ namespace App\Util\Exception;
 
 use function App\Core\I18n\_m;
 use Exception;
+use Throwable;
 
 class ServerException extends Exception
 {
