@@ -45,6 +45,12 @@ use Symfony\Component\Translation\Extractor\ExtractorInterface;
 use Symfony\Component\Translation\Extractor\PhpStringTokenParser;
 use Symfony\Component\Translation\MessageCatalogue;
 
+/**
+ * Since this happens outside the normal request life-cycle (through a
+ * command, usually), it unfeasible to test this
+ *
+ * @codeCoverageIgnore
+ */
 class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
 {
     /**

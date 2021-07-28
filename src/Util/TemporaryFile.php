@@ -35,36 +35,37 @@ use Symfony\Component\Mime\MimeTypes;
  */
 class TemporaryFile extends \SplFileInfo
 {
+    // Cannot type annotate currently. `resource` is the expected type, but it's not a builtin type
     protected $resource;
 
     /**
-     * @param array $options - ['prefix' => ?string, 'suffix' => ?string, 'mode' => ?string, 'directory' => ?string]
+     * @param array $options - ['prefix' => ?string, 'suffix' => ?string, 'mode' => ?string, 'directory' => ?string, 'attempts' => ?int]
      *                       Description of options:
      *                       > prefix: The file name will begin with that prefix, default is 'gs-php'
      *                       > suffix: The file name will end with that suffix, default is ''
      *                       > mode: Operation mode, default is 'w+b'
      *                       > directory: Directory where the file will be used, default is the system's temporary
+     *                       > attempts: Default 16, how many times to attempt to find a unique file
      *
      * @throws TemporaryFileException
      */
     public function __construct(array $options = [])
     {
-        $attempts = 16;
-        $filename = uniqid(($options['directory'] ?? (sys_get_temp_dir() . '/')) . ($options['prefix'] ?? 'gs-php')) . ($options['suffix'] ?? '');
+        // todo options permission
+        $attempts = $options['attempts'] ?? 16;
+        $filepath = uniqid(($options['directory'] ?? (sys_get_temp_dir() . '/')) . ($options['prefix'] ?? 'gs-php')) . ($options['suffix'] ?? '');
         for ($count = 0; $count < $attempts; ++$count) {
-            $this->resource = @fopen($filename, $options['mode'] ?? 'w+b');
+            $this->resource = @fopen($filepath, $options['mode'] ?? 'w+b');
             if ($this->resource !== false) {
                 break;
             }
         }
-        if ($count == $attempts && $this->resource !== false) {
-            // @codeCoverageIgnoreStart
+        if ($this->resource === false) {
             $this->cleanup();
-            throw new TemporaryFileException('Could not open file: ' . $filename);
-            // @codeCoverageIgnoreEnd
+            throw new TemporaryFileException('Could not open file: ' . $filepath);
         }
 
-        parent::__construct($filename);
+        parent::__construct($filepath);
     }
 
     public function __destruct()
@@ -99,7 +100,7 @@ class TemporaryFile extends \SplFileInfo
     protected function close(): bool
     {
         $ret = true;
-        if (!is_null($this->resource)) {
+        if (!is_null($this->resource) && $this->resource !== false) {
             $ret = fclose($this->resource);
         }
         if ($ret) {
@@ -115,10 +116,12 @@ class TemporaryFile extends \SplFileInfo
      */
     protected function cleanup(): void
     {
-        $path = $this->getRealPath();
-        $this->close();
-        if (file_exists($path)) {
-            @unlink($path);
+        if ($this->resource !== false) {
+            $path = $this->getRealPath();
+            $this->close();
+            if (file_exists($path)) {
+                @unlink($path);
+            }
         }
     }
 
@@ -182,7 +185,7 @@ class TemporaryFile extends \SplFileInfo
         }
 
         // Memorise if the file was there and see if there is access
-        $exists = file_exists($destpath);
+        $existed = file_exists($destpath);
 
         if (!$this->close()) {
             // @codeCoverageIgnoreStart
@@ -192,10 +195,10 @@ class TemporaryFile extends \SplFileInfo
 
         set_error_handler(function ($type, $msg) use (&$error) { $error = $msg; });
         $renamed = rename($this->getPathname(), $destpath);
+        $chmoded = chmod($destpath, $filemode);
         restore_error_handler();
-        chmod($destpath, $filemode);
-        if (!$renamed) {
-            if (!$exists) {
+        if (!$renamed || !$chmoded) {
+            if (!$existed && file_exists($destpath)) {
                 // If the file wasn't there, clean it up in case of a later failure
                 unlink($destpath);
             }

@@ -21,13 +21,12 @@ namespace App\Tests\Core\I18n;
 
 use function App\Core\I18n\_m;
 use App\Core\I18n\I18n;
+use Jchook\AssertThrows\AssertThrows;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-
-// use Jchook\AssertThrows\AssertThrows;
 
 class I18nTest extends KernelTestCase
 {
-    // use AssertThrows;
+    use AssertThrows;
 
     public function testM()
     {
@@ -62,8 +61,7 @@ class I18nTest extends KernelTestCase
         static::assertSame('her apple',   _m($pronouns, ['pronoun' => 'she']));
         static::assertSame('his apple',   _m($pronouns, ['pronoun' => 'he']));
         static::assertSame('their apple', _m($pronouns, ['pronoun' => 'they']));
-        // $this->assertThrows(\Exception::class,
-        //                     function () use ($pronouns) { _m($pronouns, ['pronoun' => 'unknown']); });
+        static::assertSame('their apple', _m($pronouns, ['pronoun' => 'unkown'])); // a bit odd, not sure if we want this
 
         $pronouns = ['she' => 'her apple', 'he' => 'his apple', 'they' => 'their apple', 'someone\'s apple'];
         static::assertSame('someone\'s apple', _m($pronouns, ['pronoun' => 'unknown']));
@@ -92,5 +90,30 @@ class I18nTest extends KernelTestCase
         static::assertSame('her 42 apples',  _m($complex, ['pronoun' => 'she',  'count' => 42]));
         static::assertSame('their apple',    _m($complex, ['pronoun' => 'they', 'count' => 1]));
         static::assertSame('their 3 apples', _m($complex, ['pronoun' => 'they', 'count' => 3]));
+
+        static::assertThrows(\InvalidArgumentException::class, fn () => _m($apples, ['count' => []]));
+        static::assertThrows(\InvalidArgumentException::class, fn () => _m([1], ['foo' => 'bar']));
+    }
+
+    public function testIsRTL()
+    {
+        static::assertFalse(I18n::isRTL('af'));
+        static::assertTrue(I18n::isRTL('ar'));
+        static::assertThrows(\InvalidArgumentException::class, fn () => I18n::isRTL(''));
+        static::assertThrows(\InvalidArgumentException::class, fn () => I18n::isRTL('not a language'));
+    }
+
+    public function testGetNiceList()
+    {
+        static::assertIsArray(I18n::getNiceLanguageList());
+    }
+
+    public function testClientPreferredLanguage()
+    {
+        static::assertSame('fr', I18n::clientPreferredLanguage('Accept-Language: fr-CH, fr;q=0.9, en;q=0.8, de;q=0.7, *;q=0.5'));
+        static::assertSame('de', I18n::clientPreferredLanguage('Accept-Language: de'));
+        static::assertSame('de', I18n::clientPreferredLanguage('Accept-Language: de-CH'));
+        static::assertSame('en', I18n::clientPreferredLanguage('Accept-Language: en-US,en;q=0.5'));
+        static::assertFalse(I18n::clientPreferredLanguage('Accept-Language: some-language'));
     }
 }

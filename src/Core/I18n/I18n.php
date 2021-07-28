@@ -36,11 +36,9 @@
 
 namespace App\Core\I18n;
 
-use App\Util\Common;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
-use Exception;
-use Symfony\Component\Translation\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 // Locale category constants are usually predefined, but may not be
@@ -100,19 +98,19 @@ abstract class I18n
     }
 
     /**
-     * Content negotiation for language codes
+     * Content negotiation for language codes. Gets our highest rated translation language that the client accepts
      *
      * @param string $http_accept_lang_header HTTP Accept-Language header
      *
      * @return string language code for best language match, false otherwise
      */
-    public static function clientPreferredLanguage(string $http_accept_lang_header): string
+    public static function clientPreferredLanguage(string $http_accept_lang_header): string | bool
     {
         $client_langs  = [];
-        $all_languages = Common::config('site', 'languages');
+        $all_languages = self::getAllLanguages();
 
         preg_match_all('"(((\S\S)-?(\S\S)?)(;q=([0-9.]+))?)\s*(,\s*|$)"',
-            strtolower($http_accept_lang_header), $http_langs);
+                       mb_strtolower($http_accept_lang_header), $http_langs);
 
         for ($i = 0; $i < count($http_langs); ++$i) {
             if (!empty($http_langs[2][$i])) {
@@ -143,7 +141,7 @@ abstract class I18n
     public static function getNiceLanguageList(): array
     {
         $nice_lang     = [];
-        $all_languages = Common::config('site', 'languages');
+        $all_languages = self::getAllLanguages();
 
         foreach ($all_languages as $lang) {
             $nice_lang[$lang['lang']] = $lang['name'];
@@ -158,9 +156,9 @@ abstract class I18n
      *
      * @return bool true if language is rtl
      */
-    public static function isRtl(string $lang_value): bool
+    public static function isRTL(string $lang_value): bool
     {
-        foreach (Common::config('site', 'languages') as $code => $info) {
+        foreach (self::getAllLanguages() as $code => $info) {
             if ($lang_value == $info['lang']) {
                 return $info['direction'] == 'rtl';
             }
@@ -263,7 +261,7 @@ abstract class I18n
                 $pref = '';
                 $op   = 'select';
             } else {
-                throw new ServerException('Invalid variable type. (int|string) only');
+                throw new InvalidArgumentException('Invalid variable type. (int|string) only');
             }
 
             $res = "{$var}, {$op}, ";
@@ -281,7 +279,7 @@ abstract class I18n
                 } elseif (is_string($m)) {
                     $res .= " {{$m}} ";
                 } else {
-                    throw new Exception('Invalid message array');
+                    throw new InvalidArgumentException('Invalid message array');
                 }
                 ++$i;
             }
@@ -320,14 +318,16 @@ function _m(...$args): string
     // and only 2 frames (this and previous)
     $domain = I18n::_mdomain(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[0]['file'], 2);
     switch (count($args)) {
-        case 1:
-            // Empty parameters, simple message
-            return I18n::$translator->trans($args[0], [], $domain);
-        case 3:
-            if (is_int($args[2])) {
-                throw new Exception('Calling `_m()` with an explicit number is deprecated, ' .
-                    'use an explicit parameter');
-            }
+    case 1:
+        // Empty parameters, simple message
+        return I18n::$translator->trans($args[0], [], $domain);
+    case 3:
+        // @codeCoverageIgnoreStart
+        if (is_int($args[2])) {
+            throw new InvalidArgumentException('Calling `_m()` with a number for pluralization is deprecated, ' .
+                                                'use an explicit parameter');
+        }
+        // @codeCoverageIgnoreEnd
         // Falthrough
         // no break
         case 2:
@@ -342,7 +342,9 @@ function _m(...$args): string
             }
         // Fallthrough
         // no break
-        default:
-            throw new InvalidArgumentException('Bad parameters to `_m()`');
+    default:
+        // @codeCoverageIgnoreStart
+        throw new InvalidArgumentException("Bad parameters to `_m()` for domain {$domain}");
+        // @codeCoverageIgnoreEnd
     }
 }
