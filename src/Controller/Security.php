@@ -6,6 +6,7 @@ use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Core\Log;
 use App\Core\VisibilityScope;
 use App\Entity\Follow;
 use App\Entity\GSActor;
@@ -14,7 +15,9 @@ use App\Entity\Note;
 use App\Security\Authenticator;
 use App\Security\EmailVerifier;
 use app\Util\Common;
+use App\Util\Exception\EmailTakenException;
 use App\Util\Exception\NicknameTakenException;
+use App\Util\Exception\ServerException;
 use App\Util\Nickname;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -41,11 +44,19 @@ class Security extends Controller
         // get the login error if there is one
         $error = $authenticationUtils->getLastAuthenticationError();
         // last username entered by the user
-        $last_username = $authenticationUtils->getLastUsername();
+        $last_login_id = $authenticationUtils->getLastUsername();
 
-        return ['_template' => 'security/login.html.twig', 'last_username' => $last_username, 'error' => $error, 'notes' => Note::getAllNotes(VisibilityScope::$instance_scope)];
+        return [
+            '_template'     => 'security/login.html.twig',
+            'last_login_id' => $last_login_id,
+            'error'         => $error,
+            'notes_fn'      => fn ()      => Note::getAllNotes(VisibilityScope::$instance_scope),
+        ];
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function logout()
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
@@ -66,15 +77,15 @@ class Security extends Controller
                 'constraints' => [
                     new NotBlank(['message' => _m('Please enter a nickname')]),
                     new Length([
-                    'min'        => Common::config('nickname', 'min_length'),
-                    'minMessage' => _m(['Your nickname must be at least # characters long'], ['count' => Common::config('nickname', 'min_length')]),
-                    'max'        => Nickname::MAX_LEN,
-                    'maxMessage' => _m(['Your nickname must be at most # characters long'], ['count' => Nickname::MAX_LEN]), ]),
+                        'min'        => Common::config('nickname', 'min_length'),
+                        'minMessage' => _m(['Your nickname must be at least # characters long'], ['count' => Common::config('nickname', 'min_length')]),
+                        'max'        => Nickname::MAX_LEN,
+                        'maxMessage' => _m(['Your nickname must be at most # characters long'], ['count' => Nickname::MAX_LEN]), ]),
                 ],
             ]],
             ['email', EmailType::class, [
-                'label' => _m('Email'),
-                'constraints' => [ new NotBlank(['message' => _m('Please enter an email') ])]
+                'label'       => _m('Email'),
+                'constraints' => [ new NotBlank(['message' => _m('Please enter an email') ])],
             ]],
             ['password', PasswordType::class, [
                 'label'       => _m('Password'),
@@ -82,7 +93,7 @@ class Security extends Controller
                 'constraints' => [
                     new NotBlank(['message' => _m('Please enter a password')]),
                     new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
-                                'max' => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'],  ['count' => Common::config('password', 'max_length')]), ]),
+                        'max'         => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'],  ['count' => Common::config('password', 'max_length')]), ]),
                 ],
             ]],
             ['register', SubmitType::class, ['label' => _m('Register')]],
@@ -94,12 +105,24 @@ class Security extends Controller
             $data             = $form->getData();
             $data['password'] = $form->get('password')->getData();
 
-            $valid_nickname = Nickname::normalize($data['nickname'], check_already_used: true);
+            // This will throw the appropriate errors, result ignored
+            $user = LocalUser::findByNicknameOrEmail($data['nickname'], $data['email']);
+            if ($user !== null) {
+                // If we do find something, there's a duplicate
+                if ($user->getNickname() == $data['nickname']) {
+                    throw new NicknameTakenException;
+                } else {
+                    throw new EmailTakenException;
+                }
+            }
+
+            $valid_nickname = Nickname::validate($data['nickname'], check_already_used: false);
 
             try {
-                $actor = GSActor::create(['nickname' => $data['nickname'], 'normalized_nickname' => Nickname::normalize($data['nickname'], check_already_used: true)]);
+                // This already checks if the nickname is being used
+                $actor = GSActor::create(['nickname' => $valid_nickname]);
                 $user  = LocalUser::create([
-                    'nickname'       => $data['nickname'],
+                    'nickname'       => $valid_nickname,
                     'outgoing_email' => $data['email'],
                     'incoming_email' => $data['email'],
                     'password'       => LocalUser::hashPassword($data['password']),
@@ -112,7 +135,10 @@ class Security extends Controller
                 );
                 DB::flush();
             } catch (UniqueConstraintViolationException $e) {
-                throw new NicknameTakenException;
+                // _something_ was duplicated, but since we already check if nickname is in use, we can't tell what went wrong
+                $e = 'An error occurred while trying to register';
+                Log::critical($e . " with nickname: '{$valid_nickname}' and email '{$data['email']}'");
+                throw new ServerException(_m($e));
             }
 
             // generate a signed url and email it to the user
@@ -141,7 +167,7 @@ class Security extends Controller
         return [
             '_template'         => 'security/register.html.twig',
             'registration_form' => $form->createView(),
-            'notes'             => Note::getAllNotes(VisibilityScope::$instance_scope),
+            'notes_fn'          => fn ()          => Note::getAllNotes(VisibilityScope::$instance_scope),
         ];
     }
 }
