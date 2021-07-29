@@ -9,27 +9,75 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private string $nickname;
+    private int $id;
+    private int $user_id;
+    private ?string $selector;
+    private ?string $token;
+    private \DateTimeInterface $expires;
     private \DateTimeInterface $created;
 
-    public function setNickname(string $nickname): self
+    public function setId(int $id): self
     {
-        $this->nickname = $nickname;
+        $this->id = $id;
         return $this;
     }
 
-    public function getNickname(): string
+    public function getId(): int
     {
-        return $this->nickname;
+        return $this->id;
     }
 
-    public function setCreated(DateTimeInterface $created): self
+    public function setUserId(int $user_id): self
+    {
+        $this->user_id = $user_id;
+        return $this;
+    }
+
+    public function getUserId(): int
+    {
+        return $this->user_id;
+    }
+
+    public function setSelector(?string $selector): self
+    {
+        $this->selector = $selector;
+        return $this;
+    }
+
+    public function getSelector(): ?string
+    {
+        return $this->selector;
+    }
+
+    public function setToken(?string $token): self
+    {
+        $this->token = $token;
+        return $this;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setExpires(\DateTimeInterface $expires): self
+    {
+        $this->expires = $expires;
+        return $this;
+    }
+
+    public function getExpires(): \DateTimeInterface
+    {
+        return $this->expires;
+    }
+
+    public function setCreated(\DateTimeInterface $created): self
     {
         $this->created = $created;
         return $this;
     }
 
-    public function getCreated(): DateTimeInterface
+    public function getCreated(): \DateTimeInterface
     {
         return $this->created;
     }
