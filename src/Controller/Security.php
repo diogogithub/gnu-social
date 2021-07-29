@@ -20,7 +20,6 @@ use App\Util\Exception\ServerException;
 use App\Util\Nickname;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
@@ -85,15 +84,7 @@ class Security extends Controller
                 'label'       => _m('Email'),
                 'constraints' => [ new NotBlank(['message' => _m('Please enter an email') ])],
             ]],
-            ['password', PasswordType::class, [
-                'label'       => _m('Password'),
-                'mapped'      => false,
-                'constraints' => [
-                    new NotBlank(['message' => _m('Please enter a password')]),
-                    new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
-                        'max'         => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'],  ['count' => Common::config('password', 'max_length')]), ]),
-                ],
-            ]],
+            FormFields::password(),
             ['register', SubmitType::class, ['label' => _m('Register')]],
         ]);
 
