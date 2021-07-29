@@ -29,9 +29,9 @@
                     <h2>{{ 'Followed' | trans }} {{ user_followed }}</h2>
                 </span>
 
-                {% for extra in profile_extras %}
+                {# {% for extra in profile_extras %}
                     {% include '/'~ extra.name ~ '/view.html.twig' with {'vars': extra.vars} only %}
-                {% endfor %}
+                {% endfor %} #}
             </section>
 
             <nav>

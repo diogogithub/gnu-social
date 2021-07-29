@@ -61,14 +61,14 @@ class Cover
      *
      * @return array template
      */
-    public function coverSettings(Request $request)
+    public static function coverSettings(Request $request)
     {
         $user     = Common::user();
         $actor_id = $user->getId();
 
         $form = Form::create([
-            ['cover', FileType::class,   ['label' => _m('Cover'), 'help' => _m('You can upload your personal cover. The maximum file size is 2MB.'),
-                'constraints'                     => [
+            ['cover', FileType::class, ['label' => _m('Cover'), 'help' => _m('You can upload your personal cover. The maximum file size is 2MB.'),
+                'constraints'                   => [
                     new F([
                         'maxSize'   => '2048k',
                         'mimeTypes' => [

@@ -50,15 +50,25 @@
 
                                     <hr>
 
-                                    <li>
-                                        <a href="{{ path('settings_avatar') }}"
-                                           class='hover-effect {{ active('settings_avatar') }}'>Avatar</a>
-                                    </li>
+                                    {% set profile_tabs = handle_event('PopulateProfileSettingsTabs', app.request) %}
                                     {% for tab in profile_tabs %}
                                         <li>
-                                            <a href="{{ path(tab['route']) }}"
-                                               class='hover-effect {{ active(tab['route']) }}'>{{ tab['title'] }}</a>
+                                            <details class="section-title-settings">
+                                                <summary>
+                                                    <h1>{{ tab['title'] }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
+
+                                                    <em>{{ tab['desc'] }}</em>
+                                                </summary>
+
+                                                {% include tab['controller']['_template'] with tab['controller'] only %}
+
+                                                {# <a href="{{ path(tab['route']) }}"
+                                                   class='hover-effect {{ active(tab['route']) }}'>{{ tab['title'] }}</a> #}
+
+                                            </details>
                                         </li>
+
+                                        <hr>
                                     {% endfor %}
                                 </ul>
                             </nav>

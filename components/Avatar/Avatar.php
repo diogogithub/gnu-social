@@ -25,10 +25,12 @@ use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\Modules\Component;
 use App\Util\Common;
+use Component\Avatar\Controller as C;
 use Component\Avatar\Exception\NoAvatarException;
 use Exception;
 use Symfony\Component\Asset\Package;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
+use Symfony\Component\HttpFoundation\Request;
 
 class Avatar extends Component
 {
@@ -39,7 +41,18 @@ class Avatar extends Component
         return Event::next;
     }
 
-    public function onEndTwigPopulateVars(array &$vars)
+    public function onPopulateProfileSettingsTabs(Request $request, &$tabs)
+    {
+        // TODO avatar template shouldn't be on settings folder
+        $tabs[] = ['title' => 'Avatar',
+            'desc'         => 'Change your avatar.',
+            'controller'   => C\Avatar::settings_avatar($request),
+        ];
+
+        return Event::next;
+    }
+
+    public function onStartTwigPopulateVars(array &$vars)
     {
         if (Common::user() != null) {
             $vars['user_avatar'] = self::getAvatarUrl();

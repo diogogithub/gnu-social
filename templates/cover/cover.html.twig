@@ -1,19 +1,9 @@
-{% extends 'settings/profile.html.twig' %}
+<div class='form'>
+    {{ form(form) }}
+</div>
 
-{% block title %}Cover Settings{% endblock %}
-
-{% block body %}
-    {{ parent() }}
-{% endblock body %}
-
-{% block form %}
-    <div class='form-single'>
-        {{ form(form) }}
+{% if remove_form is not null %}
+    <div class='form'>
+        {{ form(remove_form) }}
     </div>
-
-    {% if remove_form is not null %}
-        <div class='form-single'>
-            {{ form(remove_form) }}
-        </div>
-    {% endif %}
-{% endblock form %}
+{% endif %}

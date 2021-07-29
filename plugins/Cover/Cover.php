@@ -25,6 +25,8 @@ use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Util\Common;
+use Plugin\Cover\Controller as C;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Cover plugin main class
@@ -52,6 +54,17 @@ class Cover extends Plugin
         return Event::next;
     }
 
+    public function onPopulateProfileSettingsTabs(Request $request, &$tabs)
+    {
+        $tabs[] = [
+            'title'      => 'Cover',
+            'desc'       => 'Change your cover.',
+            'controller' => C\Cover::coverSettings($request),
+        ];
+
+        return Event::next;
+    }
+
     /**
      * Populate twig vars
      *
@@ -61,18 +74,14 @@ class Cover extends Plugin
      */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
-        $vars['profile_tabs'][] = ['title' => 'Cover',
-            'route'                        => 'settings_profile_cover',
-        ];
-
-        if (Common::user() != null) {
+        /*if (Common::user() != null) {
             $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);
             if ($cover != null) {
                 $vars['profile_extras'][] = ['name' => 'cover', 'vars' => ['img' => '/cover']];
             } else {
                 $vars['profile_extras'][] = ['name' => 'cover', 'vars' => []];
             }
-        }
+        }*/
         return Event::next;
     }
 

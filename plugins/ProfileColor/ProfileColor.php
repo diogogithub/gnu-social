@@ -25,6 +25,8 @@ use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Util\Common;
+use Plugin\ProfileColor\Controller as C;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Profile Color plugin main class
@@ -51,6 +53,18 @@ class ProfileColor extends Plugin
         return Event::next;
     }
 
+    public function onPopulateProfileSettingsTabs(Request $request, &$tabs)
+    {
+        // TODO avatar template shouldn't be on settings folder
+        $tabs[] = [
+            'title'      => 'Color',
+            'desc'       => 'Change your profile color.',
+            'controller' => C\ProfileColor::profileColorSettings($request),
+        ];
+
+        return Event::next;
+    }
+
     /**
      * Populate twig vars
      *
@@ -60,9 +74,11 @@ class ProfileColor extends Plugin
      */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
-        $vars['profile_tabs'][] = ['title' => 'Color',
-            'route'                        => 'settings_profile_color',
-        ];
+        /*$vars['profile_tabs'][] = [
+            'title' => 'Color',
+            'desc'                         => 'Change your profile color.',
+            'path'                        => 'profilecolor/profilecolor.html.twig',
+        ];*/
         if (Common::user() != null) {
             $color = DB::find('profile_color', ['gsactor_id' => Common::user()->getId()]);
             if ($color != null) {

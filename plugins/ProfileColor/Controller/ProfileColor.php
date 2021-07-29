@@ -53,7 +53,7 @@ class ProfileColor
      *
      * @return array template
      */
-    public function profileColorSettings(Request $request)
+    public static function profileColorSettings(Request $request)
     {
         $user     = Common::user();
         $actor_id = $user->getId();
