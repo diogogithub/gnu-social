@@ -6,6 +6,7 @@
     "require": {
         "php": "^8.0",
         "ext-ctype": "*",
+        "ext-curl": "*",
         "ext-iconv": "*",
         "ext-vips": "*",
         "alchemy/zippy": "v0.5.x-dev",
@@ -48,11 +49,11 @@
         "symfony/validator": "5.2.*",
         "symfony/web-link": "5.2.*",
         "symfony/yaml": "5.2.*",
+        "symfonycasts/reset-password-bundle": "^1.9",
         "symfonycasts/verify-email-bundle": "^1.0",
         "tgalopin/html-sanitizer-bundle": "^1.2",
         "twig/markdown-extra": "^3.0",
-        "wikimedia/composer-merge-plugin": "^2.0",
-      "ext-curl": "*"
+        "wikimedia/composer-merge-plugin": "^2.0"
     },
     "require-dev": {
         "doctrine/doctrine-fixtures-bundle": "^3.4",
