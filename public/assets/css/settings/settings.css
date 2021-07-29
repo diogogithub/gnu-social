@@ -40,11 +40,47 @@
 .form #save {
     margin-top: var(--main-size);
 
+    display: flex;
+    flex-direction: column;
     font-size: var(--medium-size);
     border-radius: var(--unit-size);
     padding: var(--unit-size);
     box-sizing: border-box;
     background-color: var(--translucent);
+}
+
+.form #save div {
+    display: contents;
+}
+
+.form #save div label {
+    display: inline-block;
+    font-family: var(--display-font);
+}
+
+.form #save div input,
+.form #save div textarea {
+    display: inline-block;
+    position: relative;
+
+    color: var(--white);
+    font-size: var(--medium-size);
+    border-radius: var(--unit-size);
+    padding: var(--unit-size);
+    box-sizing: border-box;
+    background-color: var(--translucent);
+}
+
+.form #save div textarea {
+    resize: vertical;
+}
+
+.form #save div p {
+    font-style: italic;
+}
+
+.form #save div:last-of-type {
+    text-align: end;
 }
 
 .icon-details-open {

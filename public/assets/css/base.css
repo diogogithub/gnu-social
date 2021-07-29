@@ -115,6 +115,31 @@ a:hover {
     transition: var(--cubic-transition);
 }
 
+button,
+input[type=file]::file-selector-button {
+    font-family: var(--display-font);
+    font-size: var(--medium-size);
+    padding: .2em .4em;
+
+    border-radius: var(--unit-size);
+    border: 2px solid var(--bg3);
+
+    background-color: var(--translucent);
+    color: var(--white);
+    transition: var(--cubic-transition);
+}
+
+input[type=file]::file-selector-button:hover,
+button:hover {
+    border: 2px solid var(--white) !important;
+    background-color: var(--white) !important;
+    color: var(--bg1) !important;
+}
+
+button {
+    align-self: flex-end;
+}
+
 #instance:focus svg,
 #instance:hover svg {
     fill: var(--bg1);

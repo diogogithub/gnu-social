@@ -137,32 +137,6 @@
     flex: 1;
 }
 
-input[type=file]::file-selector-button {
-    font-family: var(--display-font);
-    font-size: var(--medium-size);
-    padding: .2em .4em;
-
-    border-radius: var(--unit-size);
-    border: 2px solid var(--bg3);
-
-    background-color: var(--translucent);
-    color: var(--white);
-    transition: 0.4s;
-}
-
-#post_post:hover {
-    border: 2px solid var(--white);
-    background-color: var(--white);
-    color: var(--bg1);
-}
-
-input[type=file]::file-selector-button:hover,
-input[type=button]:hover {
-    border: 2px solid var(--white);
-    background-color: var(--white);
-    color: var(--bg1);
-}
-
 .create-notice details {
     font-family: var(--display-font);
     padding: var(--unit-size);

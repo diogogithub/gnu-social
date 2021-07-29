@@ -54,13 +54,6 @@ input[type="email"] {
     width: 100%;
 }
 
-button {
-    font-family: var(--display-font);
-    font-size: var(--medium-size);
-    align-self: flex-end;
-    padding: var(--unit-size) var(--small-size);
-}
-
 fieldset div:last-child {
     text-align: end;
 }
