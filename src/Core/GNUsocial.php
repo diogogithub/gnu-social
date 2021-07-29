@@ -46,6 +46,7 @@ use App\Core\DB\DB;
 use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
+use App\Security\EmailVerifier;
 use App\Util\Common;
 use App\Util\Exception\ConfigurationException;
 use App\Util\Formatting;
@@ -62,6 +63,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
@@ -69,6 +71,7 @@ use Symfony\Component\Security\Core\Security as SSecurity;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Twig\Environment;
 
@@ -96,7 +99,9 @@ class GNUsocial implements EventSubscriberInterface
     protected ContainerBagInterface $config;
     protected Environment $twig;
     protected ?Request $request;
+    protected MailerInterface $mailer_helper;
     protected VerifyEmailHelperInterface $email_verify_helper;
+    protected ResetPasswordHelperInterface $reset_password_helper;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -117,25 +122,29 @@ class GNUsocial implements EventSubscriberInterface
                                 ContainerBagInterface $conf,
                                 Environment $twig,
                                 RequestStack $request_stack,
-                                VerifyEmailHelperInterface $email_helper)
+                                MailerInterface $mailer,
+                                VerifyEmailHelperInterface $email_verify_helper,
+                                ResetPasswordHelperInterface $reset_helper)
     {
-        $this->logger              = $logger;
-        $this->translator          = $trans;
-        $this->entity_manager      = $em;
-        $this->router              = $router;
-        $this->url_generator       = $url_gen;
-        $this->form_factory        = $ff;
-        $this->message_bus         = $mb;
-        $this->event_dispatcher    = $ed;
-        $this->session             = $sess;
-        $this->security            = $sec;
-        $this->module_manager      = $mm;
-        $this->client              = $cl;
-        $this->sanitizer           = $san;
-        $this->config              = $conf;
-        $this->twig                = $twig;
-        $this->request             = $request_stack->getCurrentRequest();
-        $this->email_verify_helper = $email_helper;
+        $this->logger                = $logger;
+        $this->translator            = $trans;
+        $this->entity_manager        = $em;
+        $this->router                = $router;
+        $this->url_generator         = $url_gen;
+        $this->form_factory          = $ff;
+        $this->message_bus           = $mb;
+        $this->event_dispatcher      = $ed;
+        $this->session               = $sess;
+        $this->security              = $sec;
+        $this->module_manager        = $mm;
+        $this->client                = $cl;
+        $this->sanitizer             = $san;
+        $this->config                = $conf;
+        $this->twig                  = $twig;
+        $this->request               = $request_stack->getCurrentRequest();
+        $this->mailer_helper         = $mailer;
+        $this->email_verify_helper   = $email_verify_helper;
+        $this->reset_password_helper = $reset_helper;
 
         $this->initialize();
     }
@@ -163,7 +172,7 @@ class GNUsocial implements EventSubscriberInterface
             HTTPClient::setClient($this->client);
             Formatting::setTwig($this->twig);
             Cache::setupCache();
-            EmailVerifier::setVerifyEmailHelper($this->email_verify_helper);
+            EmailVerifier::setEmailHelpers($this->mailer_helper, $this->email_verify_helper, $this->reset_password_helper);
 
             DB::initTableMap();
 

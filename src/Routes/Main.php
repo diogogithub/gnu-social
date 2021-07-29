@@ -45,6 +45,9 @@ abstract class Main
         $r->connect('login', '/login', [C\Security::class, 'login']);
         $r->connect('logout', '/logout', [C\Security::class, 'logout']);
         $r->connect('register', '/register', [C\Security::class, 'register']);
+        $r->connect('check_email', '/check-email', [C\ResetPassword::class, 'checkEmail']);
+        $r->connect('request_reset_password', '/request-reset-password', [C\ResetPassword::class, 'requestPasswordReset']);
+        $r->connect('reset_password', '/reset/{token?}', [C\ResetPassword::class, 'reset']);
 
         $r->connect('root', '/', RedirectController::class, ['defaults' => ['route' => 'main_all']]);
         $r->connect('main_public', '/main/public', [C\Network::class, 'public']);
