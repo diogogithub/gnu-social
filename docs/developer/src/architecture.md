@@ -1,4 +1,4 @@
-# Architecture: Modules
+# Architecture
 
 ## Core
 

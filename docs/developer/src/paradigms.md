@@ -35,6 +35,7 @@ Things to note in the example above:
 
 It's also common to have [functional code](https://en.wikipedia.org/wiki/Functional_programming) snippets
 in the middle of otherwise entirely imperative blocks (e.g., for handling list manipulation).
+For this we often use the library [Functional PHP](https://github.com/lstrojny/functional-php/). 
 
 Use of [reflective programming](https://en.wikipedia.org/wiki/Reflective_programming#PHP),
 [variable functions](https://www.php.net/manual/en/functions.variable-functions.php), and
@@ -46,8 +47,7 @@ Unless contributing to the core, you most likely _shouldn't_ use these.
 PHP allows for a high level of code expression. In GNU social we have conventions for when each programming style
 should be adopted as well as methods for handling some common operations. Such an example is string parsing: We never
 chain various `substring` calls. We write a [regex](https://en.wikipedia.org/wiki/Regular_expression) pattern and then
-call `preg_match` instead.  All of this consistency highly contributes for a more readable code and of easier
-maintenance code.
+call `preg_match` instead.  All of this consistency highly contributes for a more readable and easier of maintaining code.
 
 Strings
 -------------------------------------------------------------------------------
@@ -331,3 +331,33 @@ value.
 
 A vast majority of programming errors come down to not checking your inputs
 and outputs properly, so please try to do so as best and thoroughly as you can.
+
+NULL, VOID and SET
+-------------------------------------------------------------------------------
+
+On the discussion of whether to **use `=== null` vs [`is_null()`](https://www.php.net/manual/en/function.is-null.php)**,
+the literature online is diverse and divided.
+
+Some facts to consider:
+* [null is both a data type, and a value](https://www.php.net/manual/en/language.types.null.php);
+* As noted in PHP's documentation, the constant null forces a variable to be of type null;
+* A variable with null value returns false in an [isset()](https://www.php.net/manual/en/function.isset.php) test,
+  despite that, assigning a variable to NULL is _not_ the same as [unsetting](https://www.php.net/manual/en/function.unset.php) it.
+  To actually test whether a variable is set or not [requires adopting different strategies per context](https://stackoverflow.com/a/18646568). 
+* The [void return type](https://wiki.php.net/rfc/void_return_type) doesn't return NULL, but if used as
+  an expression, it evaluates to null.
+  
+Therefore, in GNU social we would expect you to use one, or the other in function of context.
+This is better illustrated with two example situations:
+
+* If you're testing if a function returned null, then you're not testing a variable's data type, you're testing
+whether it evaluated to null or not. So, as you normally would with a `=== true` or `=== false`, we prefer
+that you test as `=== null` in this situation.
+
+* If you're testing whether a variable is of type null, then you should use `is_null($var)`. Just as you normally
+would with a `is_int($var)`  or `is_countable($var)`.
+  
+About [nullable types](https://www.php.net/manual/en/language.types.declarations.php#language.types.declarations.union.nullable),
+we prefer that you _use_ the shorthand `?T` instead of the full form `T|null` as it suggests that you're considering the
+possibility of not having the value of a certain variable. This is reinforced by the fact that NULL can not be a
+standalone type in PHP. 
