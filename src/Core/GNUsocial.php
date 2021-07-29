@@ -69,6 +69,7 @@ use Symfony\Component\Security\Core\Security as SSecurity;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
 use Twig\Environment;
 
 /**
@@ -95,6 +96,7 @@ class GNUsocial implements EventSubscriberInterface
     protected ContainerBagInterface $config;
     protected Environment $twig;
     protected ?Request $request;
+    protected VerifyEmailHelperInterface $email_verify_helper;
 
     /**
      * Symfony dependency injection gives us access to these services
@@ -114,24 +116,26 @@ class GNUsocial implements EventSubscriberInterface
                                 SanitizerInterface $san,
                                 ContainerBagInterface $conf,
                                 Environment $twig,
-                                RequestStack $request_stack)
+                                RequestStack $request_stack,
+                                VerifyEmailHelperInterface $email_helper)
     {
-        $this->logger           = $logger;
-        $this->translator       = $trans;
-        $this->entity_manager   = $em;
-        $this->router           = $router;
-        $this->url_generator    = $url_gen;
-        $this->form_factory     = $ff;
-        $this->message_bus      = $mb;
-        $this->event_dispatcher = $ed;
-        $this->session          = $sess;
-        $this->security         = $sec;
-        $this->module_manager   = $mm;
-        $this->client           = $cl;
-        $this->sanitizer        = $san;
-        $this->config           = $conf;
-        $this->twig             = $twig;
-        $this->request          = $request_stack->getCurrentRequest();
+        $this->logger              = $logger;
+        $this->translator          = $trans;
+        $this->entity_manager      = $em;
+        $this->router              = $router;
+        $this->url_generator       = $url_gen;
+        $this->form_factory        = $ff;
+        $this->message_bus         = $mb;
+        $this->event_dispatcher    = $ed;
+        $this->session             = $sess;
+        $this->security            = $sec;
+        $this->module_manager      = $mm;
+        $this->client              = $cl;
+        $this->sanitizer           = $san;
+        $this->config              = $conf;
+        $this->twig                = $twig;
+        $this->request             = $request_stack->getCurrentRequest();
+        $this->email_verify_helper = $email_helper;
 
         $this->initialize();
     }
@@ -159,6 +163,7 @@ class GNUsocial implements EventSubscriberInterface
             HTTPClient::setClient($this->client);
             Formatting::setTwig($this->twig);
             Cache::setupCache();
+            EmailVerifier::setVerifyEmailHelper($this->email_verify_helper);
 
             DB::initTableMap();
 

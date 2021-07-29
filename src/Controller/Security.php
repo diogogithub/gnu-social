@@ -13,7 +13,6 @@ use App\Entity\GSActor;
 use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Security\Authenticator;
-use App\Security\EmailVerifier;
 use app\Util\Common;
 use App\Util\Exception\EmailTakenException;
 use App\Util\Exception\NicknameTakenException;
@@ -67,7 +66,6 @@ class Security extends Controller
      * possibly sending a confirmation email
      */
     public function register(Request $request,
-                             EmailVerifier $email_verifier,
                              GuardAuthenticatorHandler $guard_handler,
                              Authenticator $authenticator)
     {
@@ -142,16 +140,8 @@ class Security extends Controller
             }
 
             // generate a signed url and email it to the user
-            if (Common::config('site', 'use_email')) {
-                $email_verifier->sendEmailConfirmation(
-                    'verify_email',
-                    $user,
-                    (new TemplatedEmail())
-                    ->from(new Address(Common::config('site', 'email'), Common::config('site', 'nickname')))
-                    ->to($user->getOutgoingEmail())
-                    ->subject(_m('Please Confirm your Email'))
-                    ->htmlTemplate('security/confirmation_email.html.twig')
-                );
+            if ($_ENV['APP_ENV'] === 'dev' || Common::config('site', 'use_email')) {
+                Common::sendVerificationEmail();
             } else {
                 $user->setIsEmailVerified(true);
             }
