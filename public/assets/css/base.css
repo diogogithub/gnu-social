@@ -29,6 +29,11 @@
 
     --shadow: 0px 0px 16px 0px #383E51;
     --shadow-light: 0px 0px 16px 0px #8E8DBE;
+
+    /* transitions and animations */
+    --cubic-transition: all 200ms cubic-bezier(0, 0.55, 0.45, 1);
+    --fade-in: fadeIn 200ms cubic-bezier(0, 0.55, 0.45, 1);
+    --fade-out: fadeOut 200ms cubic-bezier(0, 0.55, 0.45, 1);
 }
 
 /* TYPOGRAPHY */
@@ -104,10 +109,10 @@ a:visited {
 a:focus,
 a:hover {
     border-radius: var(--unit-size) !important;
-    padding: var(--unit-size) var(--small-size) var(--unit-size) var(--small-size) !important;
     background: var(--white) !important;
     color: var(--bg1) !important;
-    transition: all 0.4s ease;
+    padding: 0 var(--unit-size) 0 var(--unit-size) !important;
+    transition: var(--cubic-transition);
 }
 
 #instance:focus svg,
@@ -119,10 +124,10 @@ a:hover {
 summary:hover > svg,
 summary:focus > svg {
     border-radius: var(--unit-size);
-    padding: var(--small-size) !important;
+    padding: var(--unit-size) !important;
     background: var(--white) !important;
     fill: var(--bg1) !important;
-    transition: all 0.4s ease;
+    transition: var(--cubic-transition);
 }
 
 hr {
@@ -279,7 +284,7 @@ figcaption a:link {
 }
 
 .panel aside {
-    animation: fadeIn 300ms cubic-bezier(0, 0.55, 0.45, 1);
+    animation: var(--fade-in);
 }
 
 .icon-left,

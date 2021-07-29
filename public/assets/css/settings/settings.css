@@ -54,22 +54,25 @@
 .section-title-settings summary:focus,
 .section-title-settings summary:hover {
     border-radius: var(--unit-size) !important;
-    padding: var(--unit-size) var(--small-size) var(--unit-size) var(--small-size) !important;
     background: var(--white) !important;
     color: var(--bg1) !important;
-    transition: all 0.4s ease;
+    transition: var(--cubic-transition);
+}
+
+.section-title-settings summary:focus {
+    padding: var(--unit-size) var(--small-size) var(--unit-size) var(--small-size) !important;
 }
 
 .section-title-settings summary:focus .icon-details-open,
 .section-title-settings summary:hover .icon-details-open {
     fill: var(--bg1);
-    transition: all 0.4s ease;
+    transition: var(--cubic-transition);
 }
 
 /* SECTION DETAILS OPENED */
 .section-title-settings[open] svg {
     transform: rotate(180deg);
-    animation: fadeOut 300ms;
+    animation: var(--fade-out)
 }
 
 .section-title-settings[open] .set-nav li:first-of-type {
@@ -83,5 +86,5 @@
 /* SECTION DETAILS CLOSED */
 .section-title-settings:not([open]) svg {
     transform: initial;
-    animation: fadeIn 300ms;
+    animation: var(--fade-in);
 }
