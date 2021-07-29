@@ -12,10 +12,7 @@
 
 {% block body %}
     <div class="content">
-        <div style="display: block">
-            <p> {{ title | escape }} </p>
-            <a href="{{ download }}"> {{ 'Download link' | trans }}</a>
-            {% include '/attachments/view.html.twig' with {'attachment': attachment} only %}
-        </div>
+        <a href="{{ download }}"> {{ 'Download link' | trans }}</a>
+        {% include '/attachments/view.html.twig' with {'attachment': attachment} only %}
     </div>
 {% endblock body %}

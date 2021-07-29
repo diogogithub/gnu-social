@@ -58,6 +58,28 @@ use Symfony\Component\HttpFoundation\Request;
 class UserPanel extends AbstractController
 {
     /**
+     * Return main settings page forms
+     *
+     * @param Request $request
+     *
+     * @throws Exception
+     *
+     * @return array
+     */
+    public function all_settings(Request $request)
+    {
+        $personal_form      = $this->personal_info($request);
+        $account_form       = $this->account($request);
+        $notifications_form = $this->notifications($request);
+
+        return ['_template'       => 'settings/base.html.twig',
+            'prof'                => $personal_form->createView(),
+            'acc'                 => $account_form->createView(),
+            'tabbed_forms_notify' => $notifications_form,
+        ];
+    }
+
+    /**
      * Local user personal information panel
      */
     public function personal_info(Request $request)
@@ -67,17 +89,20 @@ class UserPanel extends AbstractController
         $extra           = ['self_tags' => $user->getSelfTags()];
         $form_definition = [
             ['nickname',  TextType::class,     ['label' => _m('Nickname'),  'required' => true,  'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
-            ['full_name', TextType::class,     ['label' => _m('Full Name'), 'required' => false, 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
-            ['homepage',  TextType::class,     ['label' => _m('Homepage'),  'required' => false, 'help' => _m('URL of your homepage, blog, or profile on another site.')]],
-            ['bio',       TextareaType::class, ['label' => _m('Bio'),       'required' => false, 'help' => _m('Describe yourself and your interests.')]],
-            ['location',  TextType::class,     ['label' => _m('Location'),  'required' => false, 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
-            ['self_tags', TextType::class,     ['label' => _m('Self Tags'), 'required' => false, 'transformer' => ArrayTransformer::class, 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.')]],
-            ['save',      SubmitType::class,   ['label' => _m('Save')]],
+            ['full_name', TextType::class, ['label' => _m('Full Name'), 'required' => false, 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
+            ['homepage', TextType::class, ['label' => _m('Homepage'), 'required' => false, 'help' => _m('URL of your homepage, blog, or profile on another site.')]],
+            ['bio', TextareaType::class, ['label' => _m('Bio'), 'required' => false, 'help' => _m('Describe yourself and your interests.')]],
+            ['location', TextType::class, ['label' => _m('Location'), 'required' => false, 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
+            ['self_tags', TextType::class, ['label' => _m('Self Tags'), 'required' => false, 'transformer' => ArrayTransformer::class, 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.')]],
+            ['save', SubmitType::class, ['label' => _m('Save')]],
         ];
-        $extra_step = function ($data, $extra_args) use ($user) { $user->setNickname($data['nickname']); };
+        $extra_step = function ($data, $extra_args) use ($user) {
+            $user->setNickname($data['nickname']);
+        };
         $form = Form::handle($form_definition, $request, $user, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
 
-        return ['_template' => 'settings/profile.html.twig', 'prof' => $form->createView()];
+        return $form;
+        //return ['_template' => 'settings/profile.html.twig', 'prof' => $form->createView()];
     }
 
     /**
@@ -88,17 +113,18 @@ class UserPanel extends AbstractController
         $user            = Common::user();
         $form_definition = [
             ['outgoing_email',  TextType::class,        ['label' => _m('Outgoing email'), 'required' => true,  'help' => _m('Change the email we use to contact you')]],
-            ['incoming_email',  TextType::class,        ['label' => _m('Incoming email'), 'required' => true,  'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
-            ['password',        TextType::class,        ['label' => _m('Password'),       'required' => false, 'help' => _m('Change your password'), 'attr' => ['placeholder' => '********']]],
-            ['old_password',    TextType::class,        ['label' => _m('Old password'),   'required' => false, 'help' => _m('Enter your old password for verification'), 'attr' => ['placeholder' => '********']]],
-            ['language',        LanguageType::class,    ['label' => _m('Language'),       'required' => false, 'help' => _m('Your preferred language')]],
-            ['phone_number',    PhoneNumberType::class, ['label' => _m('Phone number'),   'required' => false, 'help' => _m('Your phone number'), 'data_class' => null]],
-            ['save',            SubmitType::class,      ['label' => _m('Save')]],
+            ['incoming_email', TextType::class, ['label' => _m('Incoming email'), 'required' => true, 'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
+            ['password', TextType::class, ['label' => _m('Password'), 'required' => false, 'help' => _m('Change your password'), 'attr' => ['placeholder' => '********']]],
+            ['old_password', TextType::class, ['label' => _m('Old password'), 'required' => false, 'help' => _m('Enter your old password for verification'), 'attr' => ['placeholder' => '********']]],
+            ['language', LanguageType::class, ['label' => _m('Language'), 'required' => false, 'help' => _m('Your preferred language')]],
+            ['phone_number', PhoneNumberType::class, ['label' => _m('Phone number'), 'required' => false, 'help' => _m('Your phone number'), 'data_class' => null]],
+            ['save', SubmitType::class, ['label' => _m('Save')]],
         ];
 
         $form = Form::handle($form_definition, $request, $user);
 
-        return ['_template' => 'settings/account.html.twig', 'acc' => $form->createView()];
+        return $form;
+        //return ['_template' => 'settings/account.html.twig', 'acc' => $form->createView()];
     }
 
     /**
@@ -157,10 +183,13 @@ class UserPanel extends AbstractController
             $tabbed_forms[$transport_name] = Form::create($f);
         }
 
-        $tabbed_forms = F\map($tabbed_forms, function ($f) { return $f->createView(); });
-        return [
+        $tabbed_forms = F\map($tabbed_forms, function ($f) {
+            return $f->createView();
+        });
+        return $tabbed_forms;
+        /*return [
             '_template'    => 'settings/notifications.html.twig',
             'tabbed_forms' => $tabbed_forms,
-        ];
+        ];*/
     }
 }

@@ -1,26 +1,17 @@
-{% extends 'settings/base.html.twig' %}
-
-{% block title %}Notification Settings{% endblock %}
-
-{% block stylesheets %}
-    {{ parent() }}
-{% endblock %}
-
-{% block form %}
+{% block form_notify %}
     <div class='form'>
-        <h1>Settings / Notifications </h1>
-
+        <div class="separator"></div>
         <ul>
-            {% for transport, form in tabbed_forms %}
+            {% for transport, form_transport in tabbed_forms_notify %}
                 <input type="radio" id="toggle-{{ transport }}" name="tabs"
                        value="toggle-{{ transport }}" {% if transport == "email" %} checked {% endif %}>
                 <label for="toggle-{{ transport }}" id='tabs'>
                     {{ transport }}
                 </label>
                 <div id="form_{{ transport }}" class='form'>
-                    {{ form(form) }}
+                    {{ form(form_transport) }}
                 </div>
             {% endfor %}
         </ul>
     </div>
-{% endblock form %}
+{% endblock %}

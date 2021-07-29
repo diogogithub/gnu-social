@@ -1,22 +1,10 @@
 {% extends 'stdgrid.html.twig' %}
 
-{% block meta %}
-    {{ parent() }}
-{% endblock %}
-
 {% block title %}Welcome!{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
     <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/network/public.css') }}">
-{% endblock %}
-
-{% block header %}
-    {{ parent() }}
-{% endblock %}
-
-{% block left %}
-    {{ parent() }}
 {% endblock %}
 
 {% block body %}

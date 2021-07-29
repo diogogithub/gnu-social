@@ -4,12 +4,12 @@
         {% if app.user %}
             <section class='profile'>
                 <section id="profile-links">
-                    <a id="user-avatar" href="{{ path('settings_avatar') }}">
+                    <a id="user-avatar" href="{{ path('settings') }}">
                         <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
                     </a>
 
                     <span id="user-info">
-                        <a id="user-nick" href="{{ path('settings_personal_info') }}">
+                        <a id="user-nick" href="{{ path('settings') }}">
                             <h2>{{ user_nickname }}</h2>
                         </a>
                         <div id="user-tags">
@@ -41,7 +41,7 @@
                 {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
                     {{ link | raw }}
                 {% endfor %}
-                <a href="{{ path('settings_personal_info') }}"
+                <a href="{{ path('settings') }}"
                    class='hover-effect {{ active('settings_') }}'>Settings</a>
                 <a href='{{ path('logout') }}'>Logout</a>
             </nav>

@@ -1,8 +1,7 @@
-<div>
-    <figure>
-        <img class="u-photo" src="{{ path('attachment_thumbnail', thumbnail_parameters) }}" alt="{{ attachment.getTitle() }}">
-        <figcaption><a
+<figure>
+    <img class="u-photo" src="{{ path('attachment_thumbnail', thumbnail_parameters) }}"
+         alt="{{ attachment.getTitle() }}">
+    <figcaption><a
                 href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a>
-        </figcaption>
-    </figure>
-</div>
+    </figcaption>
+</figure>

@@ -274,26 +274,23 @@ html {
 .note-attachments {
     display: flex;
 }
-.note-attachments > div {
-    margin: var(--small-size) 0 0 0;
-    border-radius: var(--unit-size);
-    background-color: var(--translucent);
-}
 
-.note-attachments > div figure {
+.note-attachments > figure {
     display: flex;
     flex-direction: column;
     margin: 0;
+    border-radius: var(--unit-size);
+    background-color: var(--translucent);
     padding: var(--small-size);
 }
 
-.note-attachments > div figure figcaption {
+.note-attachments > figure figcaption {
     display: flex;
     padding-top: var(--small-size);
 }
 
-.note-attachments > div figure img,
-.note-attachments > div figure video {
+.note-attachments > figure img,
+.note-attachments > figure video {
     width: 100%;
     height: auto;
 }
