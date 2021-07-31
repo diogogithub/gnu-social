@@ -6,11 +6,11 @@ to start developing third party plugins. To contribute to GNU social's core, on 
 The `core` tries to be minimal. The essence of it being various wrappers around Symfony. It is divided in:
 
 - [Modules](./core/modules.md);
-- [Event dispatcher](./core/event-dispatcher.md);
+- [Event dispatcher](core/events.md);
 - [ORM and Caching](./core/orm_and_caching.md);
 - [Interfaces](./core/interfaces.md);
 - [UI](./core/ui.md);
-- [Internationalization](./core/internationalization.md);
+- [Internationalization](core/i18n.md);
 - [Utils](./core/util.md);
 - [Queues](./core/queues.md);
 - [Files](./core/files.md);
