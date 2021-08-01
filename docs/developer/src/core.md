@@ -16,3 +16,4 @@ The `core` tries to be minimal. The essence of it being various wrappers around 
 - [Files](./core/files.md);
 - [Sessions and Security](./core/security.md);
 - [HTTP Client](./core/http.md).
+- [Exceptions](./core/exception_handler.md).

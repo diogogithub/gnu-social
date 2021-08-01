@@ -35,10 +35,13 @@
 namespace App\Core\I18n;
 
 use App\Util\Formatting;
+use ArrayIterator;
+use function count;
+use InvalidArgumentException;
+use Iterator;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Translation\Extractor\AbstractFileExtractor;
 use Symfony\Component\Translation\Extractor\ExtractorInterface;
-use Symfony\Component\Translation\Extractor\PhpExtractor;
 use Symfony\Component\Translation\Extractor\PhpStringTokenParser;
 use Symfony\Component\Translation\MessageCatalogue;
 
@@ -135,7 +138,7 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
     /**
      * Seeks to a non-whitespace token.
      */
-    private function seekToNextRelevantToken(\Iterator $tokenIterator)
+    private function seekToNextRelevantToken(Iterator $tokenIterator)
     {
         for (; $tokenIterator->valid(); $tokenIterator->next()) {
             $t = $tokenIterator->current();
@@ -148,7 +151,7 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
     /**
      * {@inheritdoc}
      */
-    private function skipMethodArgument(\Iterator $tokenIterator)
+    private function skipMethodArgument(Iterator $tokenIterator)
     {
         $openBraces = 0;
 
@@ -170,9 +173,10 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
     }
 
     /**
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      *
      * @return bool
+     *
      *
      */
     protected function canBeExtracted(string $file)
@@ -195,7 +199,7 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
      * Extracts the message from the iterator while the tokens
      * match allowed message tokens.
      */
-    private function getValue(\Iterator $tokenIterator)
+    private function getValue(Iterator $tokenIterator)
     {
         $message  = '';
         $docToken = '';
@@ -245,7 +249,7 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
      */
     protected function parseTokens(array $tokens, MessageCatalogue $catalog, string $filename)
     {
-        $tokenIterator = new \ArrayIterator($tokens);
+        $tokenIterator = new ArrayIterator($tokens);
 
         for ($key = 0; $key < $tokenIterator->count(); ++$key) {
             foreach ($this->sequences as $sequence) {
@@ -262,7 +266,7 @@ class TransExtractor extends AbstractFileExtractor implements ExtractorInterface
                     } elseif (self::MESSAGE_TOKEN === $item) {
                         $message = $this->getValue($tokenIterator);
 
-                        if (\count($sequence) === ($sequenceKey + 1)) {
+                        if (count($sequence) === ($sequenceKey + 1)) {
                             break;
                         }
                     } elseif (self::METHOD_ARGUMENTS_TOKEN === $item) {

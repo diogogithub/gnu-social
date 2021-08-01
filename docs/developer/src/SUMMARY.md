@@ -28,7 +28,7 @@
     - [ORM and Caching](./core/orm_and_caching.md)
     - [Interfaces](./core/interfaces.md)
     - [UI](./core/ui.md)
-    - [Internationalization](./core/i18n.md)
+    - [Internationalisation](./core/i18n.md)
     - [Utils](./core/util.md)
     - [Queues](./core/queues.md)
     - [Files](./core/files.md)

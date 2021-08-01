@@ -36,7 +36,10 @@
 
 namespace App\Core\I18n;
 
+use App\Util\Common;
+use App\Util\Exception\ServerException;
 use App\Util\Formatting;
+use Exception;
 use Symfony\Component\Translation\Exception\InvalidArgumentException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -69,6 +72,10 @@ abstract class I18n
     /**
      * Looks for which plugin we've been called from to get the gettext domain;
      * if not in a plugin subdirectory, we'll use the default 'core+intl-icu'.
+     *
+     * @param string $path
+     *
+     * @throws ServerException
      *
      * @return string
      */
@@ -105,7 +112,7 @@ abstract class I18n
         $all_languages = Common::config('site', 'languages');
 
         preg_match_all('"(((\S\S)-?(\S\S)?)(;q=([0-9.]+))?)\s*(,\s*|$)"',
-                       strtolower($http_accept_lang_header), $http_langs);
+            strtolower($http_accept_lang_header), $http_langs);
 
         for ($i = 0; $i < count($http_langs); ++$i) {
             if (!empty($http_langs[2][$i])) {
@@ -256,7 +263,7 @@ abstract class I18n
                 $pref = '';
                 $op   = 'select';
             } else {
-                throw new Exception('Invalid variable type. (int|string) only');
+                throw new ServerException('Invalid variable type. (int|string) only');
             }
 
             $res = "{$var}, {$op}, ";
@@ -298,7 +305,9 @@ abstract class I18n
  *    _m(string|string[] $msg, array $params)              -- message
  *    _m(string $ctx, string|string[] $msg, array $params) -- combination of the previous two
  *
- * @throws InvalidArgumentException
+ * @param mixed ...$args
+ *
+ * @throws ServerException
  *
  * @return string
  *
@@ -307,33 +316,33 @@ abstract class I18n
 function _m(...$args): string
 {
     // Get the file where this function was called from, reducing the
-    // memory and performance inpact by not returning the arguments,
+    // memory and performance impact by not returning the arguments,
     // and only 2 frames (this and previous)
     $domain = I18n::_mdomain(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[0]['file'], 2);
     switch (count($args)) {
-    case 1:
-        // Empty parameters, simple message
-        return I18n::$translator->trans($args[0], [], $domain);
-    case 3:
-        if (is_int($args[2])) {
-            throw new Exception('Calling `_m()` with an explicit number is deprecated, ' .
-                                'use an explicit parameter');
-        }
+        case 1:
+            // Empty parameters, simple message
+            return I18n::$translator->trans($args[0], [], $domain);
+        case 3:
+            if (is_int($args[2])) {
+                throw new Exception('Calling `_m()` with an explicit number is deprecated, ' .
+                    'use an explicit parameter');
+            }
         // Falthrough
         // no break
-    case 2:
-        if (is_array($args[0])) {
-            $args[0] = I18n::formatICU($args[0], $args[1]);
-        }
+        case 2:
+            if (is_array($args[0])) {
+                $args[0] = I18n::formatICU($args[0], $args[1]);
+            }
 
-        if (is_string($args[0])) {
-            $msg    = $args[0];
-            $params = $args[1] ?? [];
-            return I18n::$translator->trans($msg, $params, $domain);
-        }
+            if (is_string($args[0])) {
+                $msg    = $args[0];
+                $params = $args[1] ?? [];
+                return I18n::$translator->trans($msg, $params, $domain);
+            }
         // Fallthrough
         // no break
-    default:
-        throw new InvalidArgumentException('Bad parameters to `_m()`');
+        default:
+            throw new InvalidArgumentException('Bad parameters to `_m()`');
     }
 }
