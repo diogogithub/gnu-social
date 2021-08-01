@@ -32,6 +32,7 @@ namespace App\Core;
 
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -41,6 +42,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class Controller extends AbstractController implements EventSubscriberInterface
@@ -98,7 +100,7 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $template = $this->vars['_template'];
         unset($this->vars['_template'], $this->vars['request']);
 
-        // Respond in the the most preffered acceptable content type
+        // Respond in the most preferred acceptable content type
         $format = $request->getFormat($request->getAcceptableContentTypes()[0]);
         switch ($format) {
         case 'html':
@@ -159,7 +161,7 @@ class Controller extends AbstractController implements EventSubscriberInterface
             return (bool) $value;
         default:
             Log::critical($m = "Method '{$method}' on class App\\Core\\Controller not found (__call)");
-            throw new \Exception($m);
+            throw new Exception($m);
         }
     }
 }
