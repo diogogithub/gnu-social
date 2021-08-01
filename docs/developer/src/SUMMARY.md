@@ -9,7 +9,7 @@
 - [Routes and Controllers](./routes_and_controllers.md)
 - [Templates](./templates.md)
 - [Internationalization](./i18n.md)
-- [Log](./log.md)
+- [Logging](./log.md)
 - [Queue](./queue.md)
 - [Files](./files.md)
 - [Security](./security.md)
