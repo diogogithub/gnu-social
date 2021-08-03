@@ -13,7 +13,7 @@
 - [Queue](./queue.md)
 - [Attachments, Files and Thumbnails](./attachments.md)
 - [Security](./security.md)
-- [HTTP](./http.md)
+- [HTTP Client](./httpclient.md)
 - [Plugins](./plugins.md)
     - [Configuration](./plugins/configuration.md)
     - [Initialization and Clean Up](./plugins/lifetime.md)
