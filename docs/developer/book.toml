@@ -4,3 +4,18 @@ language = "en"
 multilingual = false
 src = "src"
 title = "GNU social for Developers"
+
+[output.html]
+mathjax-support = true
+
+[output.html.playpen]
+copy-js = true
+
+[output.html.search]
+limit-results = 20
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 2
+boost-paragraph = 1
+expand = true
+heading-split-level = 2
