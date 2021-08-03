@@ -42,10 +42,12 @@ abstract class Queue
     }
 
     /**
-     * Enqueue a $message in a configured trasnport, to be handled by the $queue handler
+     * Enqueue a $message in a configured transport, to be handled by the $queue handler
      *
-     * @param object|string
-     * @param mixed $message
+     * @param mixed  $message
+     * @param string $queue
+     * @param bool   $high
+     * @param array  $stamps
      */
     public static function enqueue($message, string $queue, bool $high = false, array $stamps = [])
     {
