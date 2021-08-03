@@ -39,12 +39,20 @@ use Symfony\Component\Mime\MimeTypes;
 
 class Attachment extends Controller
 {
+    /**
+     * Generic function that handles getting a representation for an attachment
+     */
     private function attachment(int $id, callable $handle)
     {
-        if (Event::handle('AttachmentFileInfo', [$id, &$res]) != Event::stop) {
-            // If no one else claims this attachment, use the default representation
-            $res = GSFile::getAttachmentFileInfo($id);
+        if ($id <= 0) {
+            throw new ClientException(_m('No such attachment'), 404);
+        } else {
+            if (Event::handle('AttachmentFileInfo', [$id, &$res]) != Event::stop) {
+                // If no one else claims this attachment, use the default representation
+                $res = GSFile::getAttachmentFileInfo($id);
+            }
         }
+
         if (!empty($res)) {
             return $handle($res);
         } else {
