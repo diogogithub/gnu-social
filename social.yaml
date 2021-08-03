@@ -85,10 +85,10 @@ parameters:
         application/x-go-sgf: sgf
         application/xml: xml
         application/gpx+xml: gpx
-        image/png: ".png"
-        image/jpeg: ".jpeg"
-        image/gif: ".gif"
-        image/vnd.microsoft.icon: ".ico"
+        image/png: png
+        image/jpeg: jpeg
+        image/gif: gif
+        image/vnd.microsoft.icon: ico
         image/svg+xml: svg
         audio/ogg: ogg
         audio/mpeg: mpg
