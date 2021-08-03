@@ -44,8 +44,11 @@ class Attachment extends Controller
      */
     private function attachment(int $id, callable $handle)
     {
-        if ($id <= 0) {
+        if ($id <= 0) { // This should never happen coming from the router, but let's bail if it does
+            // @codeCoverageIgnoreStart
+            Log::critical("Attachment controller called with {$id}, which should not be possible");
             throw new ClientException(_m('No such attachment'), 404);
+        // @codeCoverageIgnoreEnd
         } else {
             if (Event::handle('AttachmentFileInfo', [$id, &$res]) != Event::stop) {
                 // If no one else claims this attachment, use the default representation
@@ -56,7 +59,9 @@ class Attachment extends Controller
         if (!empty($res)) {
             return $handle($res);
         } else {
+            // @codeCoverageIgnoreStart
             throw new ClientException(_m('No such attachment'), 404);
+            // @codeCoverageIgnoreEnd
         }
     }
 
@@ -112,9 +117,11 @@ class Attachment extends Controller
         $attachment = DB::findOneBy('attachment', ['id' => $id]);
 
         if (!is_null($attachment->getScope())) {
+            // @codeCoverageIgnoreStart
             // && ($attachment->scope | VisibilityScope::PUBLIC) != 0
             // $user = Common::ensureLoggedIn();
             assert(false, 'Attachment scope not implemented');
+            // @codeCoverageIgnoreEnd
         }
 
         $default_width  = Common::config('thumbnail', 'width');
