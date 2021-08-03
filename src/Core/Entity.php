@@ -62,7 +62,7 @@ abstract class Entity
         }
 
         foreach ($args as $prop => $val) {
-            if (property_exists($class, $prop) && $val != null) {
+            if (property_exists($class, $prop)) {
                 $set = 'set' . Formatting::snakeCaseToCamelCase($prop);
                 $obj->{$set}($val);
             } else {
