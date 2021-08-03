@@ -39,6 +39,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -123,6 +124,10 @@ class Controller extends AbstractController implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event)
     {
         $except = $event->getThrowable();
+        if ($_ENV['APP_ENV'] !== 'dev') {
+            // TODO: This is where our custom exception pages could go
+            // $event->setResponse((new Response())->setStatusCode(455));
+        }
         do {
             if ($except instanceof RedirectException) {
                 if (($redir = $except->redirect_response) != null) {
