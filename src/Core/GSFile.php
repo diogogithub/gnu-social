@@ -70,8 +70,8 @@ class GSFile
                                                             ?string $title = null,
                                                             bool $is_local = true): Attachment
     {
-        if (!Formatting::startsWith($dest_dir, INSTALLDIR)) {
-            throw new \InvalidArgumentException("Attempted to store an attachment to a folder outside the GNU social installation: {$dest_dir}");
+        if (!Formatting::startsWith($dest_dir, Common::config('attachments', 'dir'))) {
+            throw new \InvalidArgumentException("Attempted to store an attachment to a folder outside the GNU social attachment location: {$dest_dir}");
         }
 
         $hash = null;
@@ -93,7 +93,7 @@ class GSFile
                 'gsactor_id' => $actor_id,
                 'mimetype'   => $mimetype,
                 'title'      => $title,
-                'filename'   => Formatting::removePrefix($dest_dir, INSTALLDIR . DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $hash,
+                'filename'   => Formatting::removePrefix($dest_dir, Common::config('attachments', 'dir')) . $hash,
                 'is_local'   => $is_local,
                 'size'       => $file->getSize(),
                 'width'      => $width,
@@ -200,7 +200,7 @@ class GSFile
             $id,
             Cache::get("file-info-{$id}",
                 function () use ($id) {
-                    return DB::dql('select at.file_hash, at.mimetype, at.title ' .
+                    return DB::dql('select at.filename, at.mimetype, at.title ' .
                         'from App\\Entity\\Attachment at ' .
                         'where at.id = :id',
                         ['id' => $id]);
@@ -217,7 +217,7 @@ class GSFile
     public static function getAttachmentFileInfo(int $id): array
     {
         $res             = self::getFileInfo($id);
-        $res['filepath'] = Common::config('attachments', 'dir') . $res['file_hash'];
+        $res['filepath'] = Common::config('attachments', 'dir') . $res['filename'];
         return $res;
     }
 
