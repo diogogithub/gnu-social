@@ -22,6 +22,11 @@ namespace App\Controller;
 use App\Core\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * Can be used to implement static routes that simply require rendering a Twig template
+ *
+ * @codeCoverageIgnore
+ */
 class TemplateController extends Controller
 {
     public function handle(Request $req)

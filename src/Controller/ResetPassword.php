@@ -11,6 +11,12 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 
+/**
+ * Send password reset emails to users
+ * TODO: As we don't have email services setup yet, this won't be tested right now
+ *
+ * @codeCoverageIgnore
+ */
 class ResetPassword extends Controller
 {
     use ResetPasswordControllerTrait;
@@ -78,7 +84,7 @@ class ResetPassword extends Controller
 
         // The token is valid; allow the user to change their password.
         $form = From::create([
-            FormFields::password(),
+            FormFields::repeated_password(),
             ['password_reset', SubmitType::class, ['label' => _m('Change password')]],
         ]);
 
