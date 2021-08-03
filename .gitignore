@@ -60,3 +60,4 @@ notes
 
 
 .test_coverage_report
+.phpunit_cache
