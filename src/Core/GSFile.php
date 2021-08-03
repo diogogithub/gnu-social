@@ -65,9 +65,9 @@ class GSFile
      */
     public static function validateAndStoreFileAsAttachment(SplFileInfo $file,
                                                             string $dest_dir,
+                                                            int $actor_id,
                                                             ?string $title = null,
-                                                            bool $is_local = true,
-                                                            int $actor_id = null): Attachment
+                                                            bool $is_local = true): Attachment
     {
         $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);

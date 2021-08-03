@@ -116,9 +116,11 @@ END;
         $processed_attachments = [];
         foreach ($attachments as $f) { // where $f is a Symfony\Component\HttpFoundation\File\UploadedFile
             $processed_attachments[] = GSFile::validateAndStoreFileAsAttachment(
-                $f, Common::config('attachments', 'dir'),
-                Security::sanitize($f->getClientOriginalName()),
-                is_local: true, actor_id: $actor_id
+                $f,
+                dest_dir: Common::config('attachments', 'dir'),
+                actor_id: $actor_id,
+                title: Security::sanitize($f->getClientOriginalName()),
+                is_local: true
             );
         }
 
