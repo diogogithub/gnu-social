@@ -10,8 +10,8 @@
      * small size     - used in common text, borders
      */
     --unit-size: 0.5rem;
-    --main-size: 1.5rem;
-    --medium-size: 1.125rem;
+    --main-size: 1.3rem;
+    --medium-size: 1.15rem;
     --small-size: 1rem;
 
     /* colours and shadows */
@@ -37,20 +37,21 @@
 }
 
 .bg {
-    background-image: url(bg-over.png),
-    url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAElBMVEUAAACUkpSEhoSMioyMjoyEgoRr6djFAAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAU1JREFUKJEVUcl1xTAIpAVLSgECXIAYUoCAX0Bi919LlCPLm5ValiOUUe2+ZRVFuYpKXFsUX9aIp0V6GtC8VRhNL0X2fikvswhKrNDhes7pbpPkufFAtI0B76LEjfc2bgdHDk6RX4A/sjt6LCylfoYpNYYJx/9COhIugsjluzN9VGZ/Hnl51jIH2ba+Ywsy2RJCFdoDe8Obw61TXGAv+ewExMRJs7gd7YcimPuk42uMqY2VJ1fK+bDL32rb7kwok/la/u7Mrz7Xf0DTssSP2Btp1ZS0zw35tM/SsJKgWNLcRh+/th1QqntwtM3Tx0LNosoBYbM3qjJFiMeLsMH2i5BcQdU3n9sJHOE1Hoqn1GA/bm4s0YkVB/y4r0PbltF32FpljXmdlOOwbDvFWkoDYLppSG4pnM6UxX3Src1lhXeU36FOu3o+R2vNaHME/wESUl9/3zMniwAAAABJRU5ErkJggg==);
+    background-color: var(--bg1);
+    background-image: url(bg.png);
     background-size: cover;
+    background-repeat: no-repeat;
     border: solid 2px var(--bg2);
 }
 
 /* TYPOGRAPHY */
 html {
-    background-image: url(bg-bellow.png),
-    url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAElBMVEUAAACUkpSEhoSMioyMjoyEgoRr6djFAAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAU1JREFUKJEVUcl1xTAIpAVLSgECXIAYUoCAX0Bi919LlCPLm5ValiOUUe2+ZRVFuYpKXFsUX9aIp0V6GtC8VRhNL0X2fikvswhKrNDhes7pbpPkufFAtI0B76LEjfc2bgdHDk6RX4A/sjt6LCylfoYpNYYJx/9COhIugsjluzN9VGZ/Hnl51jIH2ba+Ywsy2RJCFdoDe8Obw61TXGAv+ewExMRJs7gd7YcimPuk42uMqY2VJ1fK+bDL32rb7kwok/la/u7Mrz7Xf0DTssSP2Btp1ZS0zw35tM/SsJKgWNLcRh+/th1QqntwtM3Tx0LNosoBYbM3qjJFiMeLsMH2i5BcQdU3n9sJHOE1Hoqn1GA/bm4s0YkVB/y4r0PbltF32FpljXmdlOOwbDvFWkoDYLppSG4pnM6UxX3Src1lhXeU36FOu3o+R2vNaHME/wESUl9/3zMniwAAAABJRU5ErkJggg==);
-    background-size: cover;
-
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+body {
+    background-image: url(bg.png);
+    background-size: cover;
 }
 
 h1 {
@@ -216,19 +217,20 @@ html {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
-    margin-top: calc(3 * var(--small-size) + var(--main-size));
+    /*margin-top: calc(3 * var(--small-size) + var(--main-size));*/
+    margin-top: 4.3rem;
 }
 
 /* THE FOCUSED (middle) DIV */
 .content {
     display: flex;
     flex-direction: column;
-    margin-left: calc(100% / 5);
-    margin-right: calc(100% / 5);
+    margin-left: 20%;
+    margin-right: 20%;
     padding: var(--small-size);
 
     width: 100%;
-    max-width: calc(3 * (100% / 5));
+    max-width: 60%;
 }
 
 /* NOTES */
@@ -308,6 +310,21 @@ figcaption a:link {
 
 .panel aside {
     animation: var(--fade-in);
+    padding: var(--unit-size);
+
+
+    box-sizing: border-box;
+    width: 20%;
+
+    display: flex;
+    flex-direction: column;
+
+    position: absolute;
+    top: 100%;
+}
+
+.panel aside .footer {
+    margin-top: auto;
 }
 
 .icon-left,
@@ -317,22 +334,7 @@ figcaption a:link {
 
 
 /* MEDIA RESIZE */
-@media (min-width: 1200px) {
-    .panel aside {
-        padding: var(--unit-size);
-        box-sizing: border-box;
-        width: calc(100% / 5);
-        height: border-box;
-
-        display: flex !important;
-        flex-direction: column !important;
-        position: absolute !important;
-        top: 100% !important;
-    }
-}
-
 @media (max-width: 1200px) {
-
     .icon-left,
     .icon-right {
         display: flex;
@@ -355,25 +357,23 @@ figcaption a:link {
 
     .panel[open] {
         all: unset;
-        display: block;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .panel aside {
+        display: none !important;
     }
 
     .panel[open] aside {
         padding: var(--unit-size);
         box-sizing: border-box;
         width: 100%;
-        height: border-box;
+        height: 100vh;
+        background: url("bg.png") !important;
+        background-size: cover !important;
 
-        display: flex !important;
-        flex-direction: column !important;
-        position: absolute !important;
-        top: 100% !important;
-        left: 0 !important;
-
-        background-image: radial-gradient(ellipse at 50% 5%, var(--bg1), var(--bg2)),
-        url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAElBMVEUAAACUkpSEhoSMioyMjoyEgoRr6djFAAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAU1JREFUKJEVUcl1xTAIpAVLSgECXIAYUoCAX0Bi919LlCPLm5ValiOUUe2+ZRVFuYpKXFsUX9aIp0V6GtC8VRhNL0X2fikvswhKrNDhes7pbpPkufFAtI0B76LEjfc2bgdHDk6RX4A/sjt6LCylfoYpNYYJx/9COhIugsjluzN9VGZ/Hnl51jIH2ba+Ywsy2RJCFdoDe8Obw61TXGAv+ewExMRJs7gd7YcimPuk42uMqY2VJ1fK+bDL32rb7kwok/la/u7Mrz7Xf0DTssSP2Btp1ZS0zw35tM/SsJKgWNLcRh+/th1QqntwtM3Tx0LNosoBYbM3qjJFiMeLsMH2i5BcQdU3n9sJHOE1Hoqn1GA/bm4s0YkVB/y4r0PbltF32FpljXmdlOOwbDvFWkoDYLppSG4pnM6UxX3Src1lhXeU36FOu3o+R2vNaHME/wESUl9/3zMniwAAAABJRU5ErkJggg==);
-        background-blend-mode: multiply;
-        background-attachment: fixed;
+        display: block !important;
     }
 }
 

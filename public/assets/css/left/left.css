@@ -1,14 +1,14 @@
+#left-panel {
+    left: 0;
+
+}
+
 .icon-left {
     width: var(--main-size);
     height: auto;
 
     fill: var(--white);
-    stroke-width: 0;
     vertical-align: middle;
-}
-
-#left-panel {
-    left: 0;
 }
 
 /* PROFILE */
