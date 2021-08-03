@@ -11,7 +11,7 @@
 - [Internationalization](./i18n.md)
 - [Logging](./log.md)
 - [Queue](./queue.md)
-- [Files](./files.md)
+- [Attachments, Files and Thumbnails](./attachments.md)
 - [Security](./security.md)
 - [HTTP](./http.md)
 - [Plugins](./plugins.md)
