@@ -17,6 +17,7 @@ use app\Util\Common;
 use App\Util\Exception\EmailTakenException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\ServerException;
+use App\Util\FormFields;
 use App\Util\Nickname;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -84,7 +85,7 @@ class Security extends Controller
                 'label'       => _m('Email'),
                 'constraints' => [ new NotBlank(['message' => _m('Please enter an email') ])],
             ]],
-            FormFields::password(),
+            FormFields::repeated_password(),
             ['register', SubmitType::class, ['label' => _m('Register')]],
         ]);
 
@@ -123,16 +124,20 @@ class Security extends Controller
                     fn (int $id) => DB::persist(Follow::create(['follower' => $id, 'followed' => $id]))
                 );
                 DB::flush();
+                // @codeCoverageIgnoreStart
             } catch (UniqueConstraintViolationException $e) {
                 // _something_ was duplicated, but since we already check if nickname is in use, we can't tell what went wrong
                 $e = 'An error occurred while trying to register';
                 Log::critical($e . " with nickname: '{$valid_nickname}' and email '{$data['email']}'");
                 throw new ServerException(_m($e));
             }
+            // @codeCoverageIgnoreEnd
 
             // generate a signed url and email it to the user
             if ($_ENV['APP_ENV'] === 'dev' || Common::config('site', 'use_email')) {
+                // @codeCoverageIgnoreStart
                 Common::sendVerificationEmail();
+            // @codeCoverageIgnoreEnd
             } else {
                 $user->setIsEmailVerified(true);
             }
