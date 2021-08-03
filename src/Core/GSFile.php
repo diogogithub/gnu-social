@@ -30,6 +30,7 @@ use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NoSuchFileException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
+use App\Util\Formatting;
 use InvalidArgumentException;
 use SplFileInfo;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -69,6 +70,10 @@ class GSFile
                                                             ?string $title = null,
                                                             bool $is_local = true): Attachment
     {
+        if (!Formatting::startsWith($dest_dir, INSTALLDIR)) {
+            throw new \InvalidArgumentException("Attempted to store an attachment to a folder outside the GNU social installation: {$dest_dir}");
+        }
+
         $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         try {
@@ -88,7 +93,7 @@ class GSFile
                 'gsactor_id' => $actor_id,
                 'mimetype'   => $mimetype,
                 'title'      => $title,
-                'filename'   => $hash,
+                'filename'   => Formatting::removePrefix($dest_dir, INSTALLDIR . DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $hash,
                 'is_local'   => $is_local,
                 'size'       => $file->getSize(),
                 'width'      => $width,
