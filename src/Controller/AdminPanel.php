@@ -36,7 +36,7 @@ use App\Core\Controller;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Util\Common;
-use App\Util\Exceptiion\InvalidFormException;
+use App\Util\Exception\InvalidFormException;
 use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -71,19 +71,28 @@ class AdminPanel extends Controller
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid() && array_key_exists('setting', $data)) {
-                list($section, $setting) = explode(':', $data['setting']);
-                $value                   = $data['value'];
-                if (preg_match('/^[0-9]+$/', $value)) {
-                    $value = (int) $value;
-                } elseif (strstr($value, ',') === false) {
-                    // empty, string
-                } elseif (Formatting::toArray($value, $value)) {
-                    // empty
-                } elseif (preg_match('/true|false/i', $value)) {
-                    $value = ($value == 'true');
+                [$section, $setting] = explode(':', $data['setting']);
+                foreach ([
+                    'int'    => FILTER_VALIDATE_INT,
+                    'bool'   => FILTER_VALIDATE_BOOL,
+                    'string' => [fn ($v) => strstr($v, ',') === false, fn ($v) => $v],
+                    'array'  => [fn ($v) => strstr($v, ',') !== false, function ($v) { Formatting::toArray($v, $v); return $v; }],
+                ] as $type => $validator) {
+                    if (!is_array($validator)) {
+                        $value = filter_var($data['value'], $validator, FILTER_NULL_ON_FAILURE);
+                        if ($value !== null) {
+                            break;
+                        }
+                    } else {
+                        [$check, $convert] = $validator;
+                        if ($check($data['value'])) {
+                            $value = $convert($data['value']);
+                        }
+                    }
                 }
 
                 $default = $defaults[$section][$setting];
+
                 // Sanity check
                 if (gettype($default) === gettype($value)) {
                     $old_value = Common::config($section, $setting);
