@@ -158,7 +158,7 @@ class ImageEncoder extends Plugin
             try {
                 $image = Vips\Image::thumbnail($source, $width, ['height' => $height]);
             } catch (Exception $e) {
-                Log::error(__METHOD__ . ' encountered exception: ' . print_r($e, true));
+                Log::error(__METHOD__ . ' encountered exception: ' . get_class($e));
                 // TRANS: Exception thrown when trying to resize an unknown file type.
                 throw new Exception(_m('Unknown file type'));
             }
