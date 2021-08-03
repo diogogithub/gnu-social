@@ -49,7 +49,7 @@ class SecurityTest extends GNUsocialTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
         $this->assertRouteSame('main_all');
-        $this->assertSelectorTextContains('.info b', $nickname);
+        $this->assertSelectorTextContains('#user-nick', $nickname);
     }
 
     public function testLoginAttemptAlreadyLoggedIn()
@@ -74,7 +74,7 @@ class SecurityTest extends GNUsocialTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
         $this->assertRouteSame('main_all');
-        $this->assertSelectorTextContains('.info b', 'taken_user');
+        $this->assertSelectorTextContains('#user-nick', 'taken_user');
     }
 
     // --------- Register --------------
@@ -101,7 +101,7 @@ class SecurityTest extends GNUsocialTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
         $this->assertRouteSame('main_all');
-        $this->assertSelectorTextContains('.info b', 'new_nickname');
+        $this->assertSelectorTextContains('#user-nick', 'new_nickname');
     }
 
     public function testRegisterDifferentPassword()
@@ -124,11 +124,11 @@ class SecurityTest extends GNUsocialTestCase
     {
         self::testRegister('new_nickname', 'email@provider', $password);
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('#register > div:nth-child(3) > ul > li', $error);
+        $this->assertSelectorTextContains('ul > li', $error);
         $this->assertRouteSame('register');
     }
 
-    public function testRegisterPassowrdEmpty()
+    public function testRegisterPasswordEmpty()
     {
         self::testRegisterPasswordLength('', error: 'Please enter a password');
     }
@@ -147,7 +147,7 @@ class SecurityTest extends GNUsocialTestCase
     {
         self::testRegister('new_nickname', '', 'foobar');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('#register > div:nth-child(2) > ul > li', 'Please enter an email');
+        $this->assertSelectorTextContains('ul > li', 'Please enter an email');
         $this->assertRouteSame('register');
     }
 
@@ -155,7 +155,7 @@ class SecurityTest extends GNUsocialTestCase
     {
         self::testRegister($nickname, 'email@provider', 'foobar');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('#register > div:nth-child(1) > ul > li', $error);
+        $this->assertSelectorTextContains('ul > li', $error);
         $this->assertRouteSame('register');
     }
 
