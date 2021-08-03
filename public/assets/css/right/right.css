@@ -23,15 +23,29 @@
 }
 
 .section-title {
-    flex: 1;
+    display: flex;
+    flex-direction: column;
     border-radius: var(--unit-size);
-
     padding: var(--unit-size);
     box-sizing: border-box;
 
     background-color: var(--translucent);
     font-family: var(--display-font);
 }
+
+.section-title-plus {
+    fill: var(--white);
+    width: var(--main-size);
+    height: auto;
+}
+.section-title-plus summary {
+    display: block;
+    position: absolute;
+    top: var(--unit-size);
+    right: var(--unit-size);
+    padding: var(--unit-size);
+}
+
 .section-content {
     margin: var(--unit-size);
 }
@@ -137,14 +151,6 @@
 
 .create-notice details {
     font-family: var(--display-font);
-    padding: var(--unit-size);
     box-sizing: border-box;
     cursor: pointer;
-}
-
-#note-types {
-    padding: var(--unit-size);
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
 }

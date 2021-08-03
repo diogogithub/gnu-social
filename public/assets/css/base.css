@@ -126,6 +126,7 @@ a:hover {
     transition: var(--cubic-transition);
 }
 
+
 button,
 input[type=file]::file-selector-button {
     font-family: var(--display-font);
@@ -154,15 +155,16 @@ button {
 #instance:focus svg,
 #instance:hover svg {
     fill: var(--bg1);
-    transition: all 0.4s ease;
+    transition: all 400ms ease;
 }
 
 summary:hover > svg,
 summary:focus > svg {
     border-radius: var(--unit-size);
-    padding: var(--unit-size) !important;
-    background: var(--white) !important;
+    background-color: var(--white);
     fill: var(--bg1) !important;
+    stroke: var(--bg1) !important;
+    border: unset !important;
     transition: var(--cubic-transition);
 }
 

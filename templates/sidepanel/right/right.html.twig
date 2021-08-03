@@ -4,7 +4,20 @@
 
         <section class="create-notice bg">
             {{ form_start(post_form) }}
-            <legend class="section-title">Create a note</legend>
+            <legend class="section-title">
+                <h1>Create a note</h1>
+
+                <details class="section-title-plus">
+                    <summary>
+                        {{ icon('plus-circle', 'icon icon-plus') | raw }}
+                    </summary>
+                    <div id="note-types">
+                        {% for tab in tabs %}
+                            <a href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
+                        {% endfor %}
+                    </div>
+                </details>
+            </legend>
 
             <div class="section-content">
                     <span class="target">
@@ -47,14 +60,7 @@
             </div>
             {{ form_end(post_form) }}
 
-            <details>
-                <summary>Other notes...</summary>
-                <div id="note-types">
-                    {% for tab in tabs %}
-                        <a href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
-                    {% endfor %}
-                </div>
-            </details>
+
 
         </section>
 
