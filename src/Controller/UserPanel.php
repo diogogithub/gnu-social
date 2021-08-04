@@ -41,6 +41,8 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Entity\UserNotificationPrefs;
 use App\Util\Common;
+use App\Util\Exception\AuthenticationException;
+use App\Util\Exception\ServerException;
 use App\Util\Form\ArrayTransformer;
 use App\Util\Form\FormFields;
 use App\Util\Formatting;
@@ -50,7 +52,7 @@ use Functional as F;
 use Misd\PhoneNumberBundle\Form\Type\PhoneNumberType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\LanguageType;
+use Symfony\Component\Form\Extension\Core\Type\LocaleType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -71,14 +73,15 @@ class UserPanel extends AbstractController
      */
     public function all_settings(Request $request)
     {
-        $personal_form      = $this->personal_info($request);
-        $account_form       = $this->account($request);
-        $notifications_form = $this->notifications($request);
+        $account_form             = $this->account($request);
+        $personal_form            = $this->personal_info($request);
+        $notifications_form_array = $this->notifications($request);
 
-        return ['_template'       => 'settings/base.html.twig',
+        return [
+            '_template'           => 'settings/base.html.twig',
             'prof'                => $personal_form->createView(),
             'acc'                 => $account_form->createView(),
-            'tabbed_forms_notify' => $notifications_form,
+            'tabbed_forms_notify' => $notifications_form_array,
         ];
     }
 
@@ -88,24 +91,23 @@ class UserPanel extends AbstractController
     public function personal_info(Request $request)
     {
         $user            = Common::user();
-        $user            = $user->getActor();
-        $extra           = ['self_tags' => $user->getSelfTags()];
+        $actor           = $user->getActor();
+        $extra           = ['self_tags' => $actor->getSelfTags()];
         $form_definition = [
-            ['nickname',  TextType::class,     ['label' => _m('Nickname'),  'required' => true,  'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
-            ['full_name', TextType::class, ['label' => _m('Full Name'), 'required' => false, 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
-            ['homepage', TextType::class, ['label' => _m('Homepage'), 'required' => false, 'help' => _m('URL of your homepage, blog, or profile on another site.')]],
-            ['bio', TextareaType::class, ['label' => _m('Bio'), 'required' => false, 'help' => _m('Describe yourself and your interests.')]],
-            ['location', TextType::class, ['label' => _m('Location'), 'required' => false, 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
-            ['self_tags', TextType::class, ['label' => _m('Self Tags'), 'required' => false, 'transformer' => ArrayTransformer::class, 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.')]],
-            ['save', SubmitType::class, ['label' => _m('Save')]],
+            ['nickname',   TextType::class,      ['label' => _m('Nickname'),  'required' => true,  'help' => _m('1-64 lowercase letters or numbers, no punctuation or spaces.')]],
+            ['full_name',  TextType::class,      ['label' => _m('Full Name'), 'required' => false, 'help' => _m('A full name is required, if empty it will be set to your nickname.')]],
+            ['homepage',   TextType::class,      ['label' => _m('Homepage'),  'required' => false, 'help' => _m('URL of your homepage, blog, or profile on another site.')]],
+            ['bio',        TextareaType::class,  ['label' => _m('Bio'),       'required' => false, 'help' => _m('Describe yourself and your interests.')]],
+            ['location',   TextType::class,      ['label' => _m('Location'),  'required' => false, 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
+            ['self_tags',  TextType::class,      ['label' => _m('Self Tags'), 'required' => false, 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.'), 'transformer' => ArrayTransformer::class]],
+            ['save',       SubmitType::class,    ['label' => _m('Save personal info')]],
         ];
         $extra_step = function ($data, $extra_args) use ($user) {
             $user->setNickname($data['nickname']);
         };
-        $form = Form::handle($form_definition, $request, $user, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
+        $form = Form::handle($form_definition, $request, $actor, $extra, $extra_step, [['self_tags' => $extra['self_tags']]]);
 
         return $form;
-        //return ['_template' => 'settings/profile.html.twig', 'prof' => $form->createView()];
     }
 
     /**
@@ -113,21 +115,41 @@ class UserPanel extends AbstractController
      */
     public function account(Request $request)
     {
-        $user            = Common::user();
-        $form_definition = [
-            ['outgoing_email',  TextType::class,        ['label' => _m('Outgoing email'), 'required' => true,  'help' => _m('Change the email we use to contact you')]],
-            ['incoming_email', TextType::class, ['label' => _m('Incoming email'), 'required' => true, 'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
-            ['password', TextType::class, ['label' => _m('Password'), 'required' => false, 'help' => _m('Change your password'), 'attr' => ['placeholder' => '********']]],
-            ['old_password', TextType::class, ['label' => _m('Old password'), 'required' => false, 'help' => _m('Enter your old password for verification'), 'attr' => ['placeholder' => '********']]],
-            ['language', LanguageType::class, ['label' => _m('Language'), 'required' => false, 'help' => _m('Your preferred language')]],
-            ['phone_number', PhoneNumberType::class, ['label' => _m('Phone number'), 'required' => false, 'help' => _m('Your phone number'), 'data_class' => null]],
-            ['save', SubmitType::class, ['label' => _m('Save')]],
-        ];
+        $user = Common::user();
+        // TODO Add support missing settings
+        $form = Form::create([
+            ['outgoing_email', TextType::class,        ['label' => _m('Outgoing email'), 'required' => true,  'help' => _m('Change the email we use to contact you')]],
+            ['incoming_email', TextType::class,        ['label' => _m('Incoming email'), 'required' => true,  'help' => _m('Change the email you use to contact us (for posting, for instance)')]],
+            ['old_password',   TextType::class,        ['label' => _m('Old password'),   'required' => false, 'help' => _m('Enter your old password for verification'), 'attr' => ['placeholder' => '********']]],
+            FormFields::repeated_password(['required' => false]),
+            ['language',       LocaleType::class,      ['label' => _m('Language'),       'required' => false, 'help' => _m('Your preferred language')]],
+            ['phone_number',   PhoneNumberType::class, ['label' => _m('Phone number'),   'required' => false, 'help' => _m('Your phone number'),                        'data_class' => null]],
+            ['save',           SubmitType::class,      ['label' => _m('Save account info')]],
+        ]);
 
-        $form = Form::handle($form_definition, $request, $user);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            if (!is_null($data['old_password'])) {
+                $data['password'] = $form->get('password')->getData();
+                if (!($user->changePassword($data['old_password'], $data['password']))) {
+                    throw new AuthenticationException(_m('The provided password is incorrect'));
+                }
+            }
+
+            unset($data['old_password'], $data['password']);
+
+            foreach ($data as $key => $val) {
+                $method = 'set' . ucfirst(Formatting::snakeCaseToCamelCase($key));
+                if (method_exists($user, $method)) {
+                    $user->{$method}($val);
+                }
+            }
+            DB::flush();
+        }
 
         return $form;
-        //return ['_template' => 'settings/account.html.twig', 'acc' => $form->createView()];
     }
 
     /**
@@ -147,12 +169,12 @@ class UserPanel extends AbstractController
             $label    = str_replace('_', ' ', ucfirst($name));
 
             $labels = [
-                'target_actor_id' => 'Target Actors',
-                'dm'              => 'DM',
+                'target_gsactor_id' => 'Target Actors',
+                'dm'                => 'DM',
             ];
 
             $help = [
-                'target_actor_id'       => 'If specified, these settings apply only to these profiles (comma- or space-separated list)',
+                'target_gsactor_id'     => 'If specified, these settings apply only to these profiles (comma- or space-separated list)',
                 'activity_by_followed'  => 'Notify me when someone I follow has new activity',
                 'mention'               => 'Notify me when mentions me in a notice',
                 'reply'                 => 'Notify me when someone replies to a notice made by me',
@@ -169,18 +191,20 @@ class UserPanel extends AbstractController
                 $form_defs['placeholder'][$name] = [$name, CheckboxType::class, ['data' => $val, 'label' => _m($labels[$name] ?? $label), 'help' => _m($help[$name])]];
                 break;
             case Types::INTEGER:
-                if ($name == 'target_actor_id') {
-                    $form_defs['placeholder'][$name] = ['target_actors', TextType::class, ['data' => $val, 'label' => _m($labels[$name]), 'help' => _m($help[$name])], 'transformer' => ActorArrayTransformer::class];
+                if ($name == 'target_gsactor_id') {
+                    $form_defs['placeholder'][$name] = [$name, TextType::class, ['data' => $val, 'label' => _m($labels[$name]), 'help' => _m($help[$name])], 'transformer' => ActorArrayTransformer::class];
                 }
                 break;
             default:
-                dd($type_str);
-                throw new Exception("Structure of table user_notification_prefs changed in a way not accounted to in notification settings ({$name})", 500);
+                // @codeCoverageIgnoreStart
+                throw new ServerException(_m('Internal server error'));
+                Log::critical("Structure of table user_notification_prefs changed in a way not accounted to in notification settings ({$name}): " . $type_str);
+                // @codeCoverageIgnoreEnd
             }
         }
 
         $form_defs['placeholder']['save'] = fn (string $transport, string $form_name) => [$form_name, SubmitType::class,
-                                              ['label' => _m('Save notification settings for {transport}', ['transport' => $transport])], ];
+            ['label' => _m('Save notification settings for {transport}', ['transport' => $transport])], ];
 
         Event::handle('AddNotificationTransport', [&$form_defs]);
         unset($form_defs['placeholder']);
@@ -195,14 +219,21 @@ class UserPanel extends AbstractController
             if ($form->isSubmitted() && $form->isValid()) {
                 $data = $form->getData();
                 unset($data['translation_domain']);
-                [$ent, $is_update] = UserNotificationPrefs::createOrUpdate(
-                    array_merge(['user_id' => $user->getId(), 'transport' => $transport_name], $data),
-                    find_by_keys: ['user_id', 'transport']
-                );
-                if (!$is_update) {
-                    DB::persist($ent);
+                try {
+                    [$ent, $is_update] = UserNotificationPrefs::createOrUpdate(
+                        array_merge(['user_id' => $user->getId(), 'transport' => $transport_name], $data),
+                        find_by_keys: ['user_id', 'transport']
+                    );
+                    if (!$is_update) {
+                        DB::persist($ent);
+                    }
+                    DB::flush();
+                    // @codeCoverageIgnoreStart
+                } catch (\Exception $e) {
+                    // Somehow, the exception doesn't bubble up in phpunit
+                    dd($data, $e);
+                    // @codeCoverageIgnoreEnd
                 }
-                DB::flush();
             }
         }
 
@@ -210,9 +241,5 @@ class UserPanel extends AbstractController
             return $f->createView();
         });
         return $tabbed_forms;
-        /*return [
-            '_template'    => 'settings/notifications.html.twig',
-            'tabbed_forms' => $tabbed_forms,
-        ];*/
     }
 }

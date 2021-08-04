@@ -23,24 +23,127 @@ namespace App\Tests\Core;
 
 use App\Core\DB\DB;
 use App\Util\GNUsocialTestCase;
-use Symfony\Component\HttpFoundation\Request;
+use Functional as F;
+use Jchook\AssertThrows\AssertThrows;
 
 class UserPanelTest extends GNUsocialTestCase
 {
-    // public function testPersonalInfo()
-    // {
-    //     $client = static::createClient();
-    //     $user = DB::findOneBy('local_user', ['nickname' => 'form_test_user']);
-    //     $client->loginUser($user);
+    use AssertThrows;
 
-    //     $client->request('GET', '/settings');
-    //     $client->followRedirect();
-    //     $this->assertResponseIsSuccessful();
-    //     $this->assertRouteSame('settings_personal_info');
-    //     $crawler = $client->submitForm('Save', [
-    //         'nickname' => 'form_test_user_new_nickname',
-    //         'full_name' => 'Form User',
-    //         'homepage' => '',
-    //     ]);
-    // }
+    /**
+     * @covers \App\Controller\UserPanel::all_settings
+     * @covers \App\Controller\UserPanel::personal_info
+     */
+    public function testPersonalInfo()
+    {
+        $client = static::createClient();
+        $user   = DB::findOneBy('local_user', ['nickname' => 'form_personal_info_test_user']);
+        $client->loginUser($user);
+
+        $client->request('GET', '/settings');
+        $this->assertResponseIsSuccessful();
+        $crawler = $client->submitForm('Save personal info', [
+            'save[nickname]'  => 'form_test_user_new_nickname',
+            'save[full_name]' => 'Form User',
+            'save[homepage]'  => 'https://gnu.org',
+            'save[bio]'       => 'I was born at a very young age',
+            'save[location]'  => 'right here',
+            'save[self_tags]' => 'foo bar',
+        ]);
+        $changed_user = DB::findOneBy('local_user', ['id' => $user->getId()]);
+        $actor        = $changed_user->getActor();
+        static::assertSame($changed_user->getNickname(), 'form_test_user_new_nickname');
+        static::assertSame($actor->getNickname(), 'form_test_user_new_nickname');
+        static::assertSame($actor->getFullName(), 'Form User');
+        static::assertSame($actor->getHomepage(), 'https://gnu.org');
+        static::assertSame($actor->getBio(), 'I was born at a very young age');
+        static::assertSame($actor->getLocation(), 'right here');
+        $tags = F\map($actor->getSelfTags(), fn ($tag) => $tag->getTag());
+        sort($tags);
+        static::assertSame($tags, ['bar', 'foo']);
+    }
+
+    /**
+     * @covers \App\Controller\UserPanel::account
+     * @covers \App\Controller\UserPanel::all_settings
+     */
+    public function testAccount()
+    {
+        $client = static::createClient();
+        $user   = DB::findOneBy('local_user', ['nickname' => 'form_account_test_user']);
+        $client->loginUser($user);
+
+        $client->request('GET', '/settings');
+        $this->assertResponseIsSuccessful();
+        $crawler = $client->submitForm('Save account info', [
+            'save[outgoing_email]'   => 'outgoing@provider',
+            'save[incoming_email]'   => 'incoming@provider',
+            'save[old_password]'     => 'some password',
+            'save[password][first]'  => 'this is some test password',
+            'save[password][second]' => 'this is some test password',
+            'save[language]'         => 'pt',
+            'save[phone_number]'     => '+351908555842', // from fakenumber.net
+        ]);
+
+        $changed_user = DB::findOneBy('local_user', ['id' => $user->getId()]);
+        static::assertSame($changed_user->getOutgoingEmail(), 'outgoing@provider');
+        static::assertSame($changed_user->getIncomingEmail(), 'incoming@provider');
+        static::assertTrue($changed_user->checkPassword('this is some test password'));
+        static::assertSame($changed_user->getLanguage(), 'pt');
+        static::assertSame($changed_user->getPhoneNumber()->getNationalNumber(), '908555842');
+    }
+
+    /**
+     * @covers \App\Controller\UserPanel::account
+     * @covers \App\Controller\UserPanel::all_settings
+     */
+    public function testAccountWrongPassword()
+    {
+        $client = static::createClient();
+        $user   = DB::findOneBy('local_user', ['nickname' => 'form_account_test_user']);
+        $client->loginUser($user);
+
+        $client->request('GET', '/settings');
+        $this->assertResponseIsSuccessful();
+        $crawler = $client->submitForm('Save account info', [
+            'save[old_password]'     => 'some wrong password',
+            'save[password][first]'  => 'this is some test password',
+            'save[password][second]' => 'this is some test password',
+        ]);
+        $this->assertResponseStatusCodeSame(500); // 401 in future
+        $this->assertSelectorTextContains('.stacktrace', 'AuthenticationException');
+    }
+
+    /**
+     * @covers \App\Controller\UserPanel::all_settings
+     * @covers \App\Controller\UserPanel::notifications
+     */
+    public function testNotifications()
+    {
+        $client = static::createClient();
+        $user   = DB::findOneBy('local_user', ['nickname' => 'form_account_test_user']);
+        $client->loginUser($user);
+
+        $client->request('GET', '/settings');
+        $this->assertResponseIsSuccessful();
+        $crawler = $client->submitForm('Save notification settings for Email', [
+            'save_email[activity_by_followed]' => false,
+            'save_email[mention]'              => true,
+            'save_email[reply]'                => false,
+            'save_email[follow]'               => true,
+            'save_email[favorite]'             => false,
+            'save_email[nudge]'                => true,
+            'save_email[dm]'                   => false,
+            'save_email[enable_posting]'       => true,
+        ]);
+        $settings = DB::findOneBy('user_notification_prefs', ['user_id' => $user->getId(), 'transport' => 'email']);
+        static::assertSame($settings->getActivityByFollowed(), false);
+        static::assertSame($settings->getMention(), true);
+        static::assertSame($settings->getReply(), false);
+        static::assertSame($settings->getFollow(), true);
+        static::assertSame($settings->getFavorite(), false);
+        static::assertSame($settings->getNudge(), true);
+        static::assertSame($settings->getDm(), false);
+        static::assertSame($settings->getEnablePosting(), true);
+    }
 }
