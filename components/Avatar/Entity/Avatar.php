@@ -19,11 +19,13 @@
 
 // }}}
 
-namespace App\Entity;
+namespace Component\Avatar\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Log;
 use App\Core\Router\Router;
+use App\Entity\Attachment;
 use App\Util\Common;
 use DateTimeInterface;
 
@@ -47,8 +49,8 @@ class Avatar extends Entity
     // @codeCoverageIgnoreStart
     private int $gsactor_id;
     private int $attachment_id;
-    private \DateTimeInterface $created;
-    private \DateTimeInterface $modified;
+    private DateTimeInterface $created;
+    private DateTimeInterface $modified;
 
     public function setGSActorId(int $gsactor_id): self
     {
@@ -134,7 +136,7 @@ class Avatar extends Entity
             $filepath = $this->getPath();
             if (file_exists($filepath)) {
                 if (@unlink($filepath) === false) {
-                    Log::warning("Failed deleting attachment for avatar with id={$id} at {$filepath}");
+                    Log::warning("Failed deleting attachment for avatar with id={$this->attachment_id} at {$filepath}");
                 }
             }
             $this->attachment->delete(cascade: true, flush: false);
@@ -152,7 +154,7 @@ class Avatar extends Entity
             'fields' => [
                 'gsactor_id'    => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to attachment table'],
-                'created'       => ['type' => 'datetime',  'not null' => true, 'description' => 'date this record was created',  'default' => 'CURRENT_TIMESTAMP'],
+                'created'       => ['type' => 'datetime', 'not null' => true, 'description' => 'date this record was created', 'default' => 'CURRENT_TIMESTAMP'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
             'primary key' => ['gsactor_id'],

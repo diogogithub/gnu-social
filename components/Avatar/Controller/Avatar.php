@@ -28,10 +28,12 @@ use App\Core\Form;
 use App\Core\GSFile;
 use App\Core\GSFile as M;
 use function App\Core\I18n\_m;
-use App\Entity\Avatar as AvatarEntity;
+use App\Core\Log;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
 use App\Util\TemporaryFile;
+use Component\Avatar\Entity\Avatar as AvatarEntity;
 use Exception;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -39,13 +41,14 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class Avatar extends Controller
 {
     /**
      * @throws Exception
      */
-    public function avatar_view(Request $request, int $gsactor_id, string $size)
+    public function avatar_view(Request $request, int $gsactor_id, string $size): Response
     {
         switch ($size) {
             case 'full':
@@ -59,7 +62,7 @@ class Avatar extends Controller
     /**
      * Local user avatar panel
      */
-    public static function settings_avatar(Request $request)
+    public static function settings_avatar(Request $request): array
     {
         $form = Form::create([
             ['avatar', FileType::class, ['label' => _m('Avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 2MB.'), 'multiple' => false, 'required' => false]],
@@ -97,7 +100,7 @@ class Avatar extends Controller
                         }
                     }
                 } elseif (isset($data['avatar'])) {
-                    // Cropping failed (e.g. disabled js), have file as uploaded
+                    // Cropping failed (e.g. disabled js), use file as uploaded
                     $file = $data['avatar'];
                 } else {
                     throw new ClientException('Invalid form');
@@ -112,9 +115,7 @@ class Avatar extends Controller
                 // Must get old id before inserting another one
                 $old_attachment = null;
                 $avatar         = DB::find('avatar', ['gsactor_id' => $gsactor_id]);
-                if ($avatar != null) {
-                    $old_attachment = $avatar->delete();
-                }
+                $old_attachment = $avatar?->delete();
                 DB::persist($attachment);
                 // Can only get new id after inserting
                 DB::flush();

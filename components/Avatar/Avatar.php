@@ -34,25 +34,26 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Avatar extends Component
 {
-    public function onAddRoute($r)
+    public function onAddRoute($r): bool
     {
         $r->connect('avatar', '/{gsactor_id<\d+>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'avatar_view']);
         $r->connect('settings_avatar', '/settings/avatar', [Controller\Avatar::class, 'settings_avatar']);
         return Event::next;
     }
 
-    public function onPopulateProfileSettingsTabs(Request $request, &$tabs)
+    public function onPopulateProfileSettingsTabs(Request $request, &$tabs): bool
     {
         // TODO avatar template shouldn't be on settings folder
-        $tabs[] = ['title' => 'Avatar',
-            'desc'         => 'Change your avatar.',
-            'controller'   => C\Avatar::settings_avatar($request),
+        $tabs[] = [
+            'title'      => 'Avatar',
+            'desc'       => 'Change your avatar.',
+            'controller' => C\Avatar::settings_avatar($request),
         ];
 
         return Event::next;
     }
 
-    public function onStartTwigPopulateVars(array &$vars)
+    public function onStartTwigPopulateVars(array &$vars): bool
     {
         if (Common::user() != null) {
             $vars['user_avatar'] = self::getAvatarUrl();
@@ -60,7 +61,7 @@ class Avatar extends Component
         return Event::next;
     }
 
-    public function onGetAvatarUrl(int $gsactor_id, ?string &$url)
+    public function onGetAvatarUrl(int $gsactor_id, ?string &$url): bool
     {
         $url = self::getAvatarUrl($gsactor_id);
         return Event::next;
@@ -78,14 +79,14 @@ class Avatar extends Component
     /**
      * Get the avatar associated with the given nickname
      */
-    public static function getAvatar(?int $gsactor_id = null): \App\Entity\Avatar
+    public static function getAvatar(?int $gsactor_id = null): Entity\Avatar
     {
         $gsactor_id = $gsactor_id ?: Common::userNickname();
         return GSFile::error(NoAvatarException::class,
             $gsactor_id,
             Cache::get("avatar-{$gsactor_id}",
                 function () use ($gsactor_id) {
-                    return DB::dql('select a from App\Entity\Avatar a ' .
+                    return DB::dql('select a from Component\Avatar\Entity\Avatar a ' .
                         'where a.gsactor_id = :gsactor_id',
                         ['gsactor_id' => $gsactor_id]);
                 }));
@@ -122,11 +123,11 @@ class Avatar extends Component
                     function () use ($gsactor_id) {
                         return DB::dql('select f.file_hash, f.mimetype, f.title ' .
                             'from App\Entity\Attachment f ' .
-                            'join App\Entity\Avatar a with f.id = a.attachment_id ' .
+                            'join Component\Avatar\Entity\Avatar a with f.id = a.attachment_id ' .
                             'where a.gsactor_id = :gsactor_id',
                             ['gsactor_id' => $gsactor_id]);
                     }));
-            $res['file_path'] = \App\Entity\Avatar::getFilePathStatic($res['file_hash']);
+            $res['file_path'] = Entity\Avatar::getFilePathStatic($res['file_hash']);
             return $res;
         } catch (Exception $e) {
             $filepath = INSTALLDIR . '/public/assets/default-avatar.svg';

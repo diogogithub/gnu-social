@@ -24,6 +24,7 @@ namespace App\Entity;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\GSFile;
+use App\Core\Log;
 use App\Util\Common;
 use DateTimeInterface;
 
