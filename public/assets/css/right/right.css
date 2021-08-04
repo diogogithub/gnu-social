@@ -15,7 +15,10 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+
+    background-color: var(--translucent);
     border-radius: var(--unit-size);
+    border: solid 2px var(--bg2);
 }
 
 .create-notice textarea {
@@ -53,7 +56,7 @@
     all: unset;
     display: inline;
     height: 2px;
-    background-image: linear-gradient(to left, var(--translucent-light), transparent 90%);
+    background-image: linear-gradient(to left, var(--translucent), transparent 90%);
     margin-bottom: var(--unit-size);
 }
 
@@ -137,9 +140,9 @@
     padding: .2em .4em;
 
     border-radius: var(--unit-size);
-    border: 2px solid var(--bg3);
+    border: 2px solid var(--bg2);
 
-    background-color: var(--bg1);
+    background-color: var(--translucent);
     color: var(--white);
     transition: 0.4s;
 

@@ -1,6 +1,5 @@
 #left-panel {
     left: 0;
-
 }
 
 .icon-left {
@@ -22,7 +21,9 @@
 }
 
 .profile {
+    background-color: var(--translucent);
     margin-bottom: var(--main-size);
+    border: solid 2px var(--bg2);
     border-radius: var(--unit-size);
 
     padding: var(--unit-size);
@@ -58,7 +59,7 @@
 #user-avatar:hover img,
 #user-avatar:focus img {
     border-radius: 50% !important;
-    box-shadow: var(--shadow-light) !important;
+    box-shadow: var(--shadow) !important;
 }
 
 #user-info {

@@ -4,9 +4,6 @@ form {
     margin-right: auto;
 
     padding: var(--main-size);
-    background-image: radial-gradient(ellipse at 10% 10%, var(--bg3), var(--accent-blue)),
-    url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgBAMAAACBVGfHAAAAElBMVEUAAACUkpSEhoSMioyMjoyEgoRr6djFAAAAAXRSTlMAQObYZgAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAU1JREFUKJEVUcl1xTAIpAVLSgECXIAYUoCAX0Bi919LlCPLm5ValiOUUe2+ZRVFuYpKXFsUX9aIp0V6GtC8VRhNL0X2fikvswhKrNDhes7pbpPkufFAtI0B76LEjfc2bgdHDk6RX4A/sjt6LCylfoYpNYYJx/9COhIugsjluzN9VGZ/Hnl51jIH2ba+Ywsy2RJCFdoDe8Obw61TXGAv+ewExMRJs7gd7YcimPuk42uMqY2VJ1fK+bDL32rb7kwok/la/u7Mrz7Xf0DTssSP2Btp1ZS0zw35tM/SsJKgWNLcRh+/th1QqntwtM3Tx0LNosoBYbM3qjJFiMeLsMH2i5BcQdU3n9sJHOE1Hoqn1GA/bm4s0YkVB/y4r0PbltF32FpljXmdlOOwbDvFWkoDYLppSG4pnM6UxX3Src1lhXeU36FOu3o+R2vNaHME/wESUl9/3zMniwAAAABJRU5ErkJggg==);
-    background-blend-mode: multiply;
     border-radius: var(--unit-size);
 }
 

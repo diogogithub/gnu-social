@@ -17,5 +17,11 @@ The same is true for a good UI, it shouldn't be explained, there should be an in
 Web technologies as a whole contain a set of constraints for organizing web pages. This implies that all web pages have
 a common structural basis.
 
-Users accustomed to one social platform know which user interactions are acceptable in that platform and which aren't. 
+Users accustomed to surfing the Web know which user interactions are acceptable and which aren't. 
 The key puzzle is how users come to know these restrictions of their Web UI.
+
+### Canons of page construction
+The aforementioned comparison between books and Web pages isn't just a coincidence, given the resemblance between the
+two mediums. From their presentation to fundamental theory, it's only natural to apply core book design ideas to the Web.
+
+ 
