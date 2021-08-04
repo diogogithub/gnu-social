@@ -10,12 +10,14 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 
 abstract class FormFields
 {
-    public static function repeated_password()
+    public static function repeated_password(array $options = []): array
     {
         return ['password', RepeatedType::class,
             ['type'             => PasswordType::class,
                 'first_options' => [
                     'label'       => _m('Password'),
+                    'attr'        => ['placeholder' => '********'],
+                    'required'    => $options['required'] ?? true,
                     'constraints' => [
                         new NotBlank(['message' => _m('Please enter a password')]),
                         new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
@@ -24,6 +26,7 @@ abstract class FormFields
                 ],
                 'second_options' => [
                     'label' => _m('Repeat Password'),
+                    'attr'  => ['placeholder' => '********'],
                 ],
                 'mapped'          => false,
                 'invalid_message' => _m('The password fields must match'),
@@ -31,10 +34,12 @@ abstract class FormFields
         ];
     }
 
-    public static function password()
+    public static function password(array $options = []): array
     {
         ['password', PasswordType::class, [
             'label'       => _m('Password'),
+            'attr'        => ['placeholder' => '********'],
+            'required'    => $options['required'] ?? true,
             'mapped'      => false,
             'constraints' => [
                 new NotBlank(['message' => _m('Please enter a password')]),
