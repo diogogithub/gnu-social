@@ -11,7 +11,6 @@ use App\Entity\LocalGroup;
 use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Nickname;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\HttpFoundation\File\File;
@@ -22,9 +21,12 @@ class CoreFixtures extends Fixture
     {
         $actors         = [];
         $local_entities = [];
-        foreach ([LocalUser::class => ['taken_user', 'setId', ['password' => LocalUser::hashPassword('foobar'), 'outgoing_email' => 'email@provider']], LocalGroup::class => ['taken_group', 'setGroupId', []]]
-                 as $entity => [$nick, $method, $extra_create]) {
-            $actor = GSActor::create(['nickname' => $nick, 'normalized_nickname' => Nickname::normalize($nick, check_already_used: false)]);
+        foreach (['taken_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('foobar'), 'outgoing_email' => 'email@provider']],
+            'form_personal_info_test_user' => [LocalUser::class, 'setId', []],
+            'form_account_test_user' => [LocalUser::class, 'setId', ['password' => LocalUser::hashPassword('some password')]],
+            'taken_group' => [LocalGroup::class, 'setGroupId', []], ]
+                 as $nick => [$entity, $method, $extra_create]) {
+            $actor = GSActor::create(['nickname' => $nick]);
             $manager->persist($actor);
             $ent = $entity::create(array_merge(['nickname' => $nick], $extra_create)); // cannot use array spread for arrays with string keys
             $ent->{$method}($actor->getId());
