@@ -134,7 +134,7 @@ class Security extends Controller
             // @codeCoverageIgnoreEnd
 
             // generate a signed url and email it to the user
-            if ($_ENV['APP_ENV'] === 'dev' || Common::config('site', 'use_email')) {
+            if ($_ENV['APP_ENV'] !== 'dev' && Common::config('site', 'use_email')) {
                 // @codeCoverageIgnoreStart
                 Common::sendVerificationEmail();
             // @codeCoverageIgnoreEnd
