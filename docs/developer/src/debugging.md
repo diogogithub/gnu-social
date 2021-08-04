@@ -32,3 +32,6 @@ Debugging
 Because we are using Symfony, we recall that a useful tool for debugging
 is [Symfony's VarDumper component](https://symfony.com/doc/current/components/var_dumper.html),
 as a more friendly alternative to PHP's `var_dump` and `print_r`.
+
+There's also a [PsySH](https://psysh.org/) REPL that you can access
+with `bin/console psysh` and experiment with direct calling of GNU social functions.

@@ -17,4 +17,5 @@ return [
     HtmlSanitizer\Bundle\HtmlSanitizerBundle::class                          => ['all' => true],
     Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle::class             => ['dev' => true, 'test' => true],
     SymfonyCasts\Bundle\ResetPassword\SymfonyCastsResetPasswordBundle::class => ['all' => true],
+    Fidry\PsyshBundle\PsyshBundle::class                                     => ['dev' => true, 'test' => true],
 ];
