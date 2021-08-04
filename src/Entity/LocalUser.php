@@ -321,28 +321,34 @@ class LocalUser extends Entity implements UserInterface
         }
     }
 
-    public function checkPassword(string $new_password): bool
+    /**
+     * When authenticating, check a user's password in a timing safe
+     * way. Will update the password by rehashing if deemed necessary
+     */
+    public function checkPassword(string $password_plain_text): bool
     {
         // Timing safe password verification
-        if (password_verify($new_password, $this->password)) {
+        if (password_verify($password_plain_text, $this->password)) {
             // Update old formats
             if (password_needs_rehash($this->password,
                                       self::algoNameToConstant(Common::config('security', 'algorithm')),
                                       Common::config('security', 'options'))
             ) {
-                $this->changePassword($new_password, true);
+                $this->changePassword(null, $password_plain_text, override: true);
             }
             return true;
         }
         return false;
     }
 
-    public function changePassword(string $new_password, bool $override = false): void
+    public function changePassword(?string $old_password_plain_text, string $new_password_plain_text, bool $override = false): bool
     {
-        if ($override || $this->checkPassword($new_password)) {
-            $this->setPassword(self::hashPassword($new_password));
+        if ($override || $this->checkPassword($old_password_plain_text)) {
+            $this->setPassword(self::hashPassword($new_password_plain_text));
             DB::flush();
+            return true;
         }
+        return false;
     }
 
     public static function hashPassword(string $password)

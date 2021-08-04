@@ -247,12 +247,12 @@ class GSActor extends Entity
         });
     }
 
-    public function getSelfTags(): array
+    public function getSelfTags(bool $_test_force_recompute = false): array
     {
         return Cache::get('selftags-' . $this->id,
                           function () {
                               return DB::findBy('gsactor_tag', ['tagger' => $this->id, 'tagged' => $this->id]);
-                          });
+                          }, beta: $_test_force_recompute ? INF : 1.0);
     }
 
     public function setSelfTags(array $tags, array $existing): void
