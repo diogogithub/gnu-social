@@ -105,7 +105,9 @@ class AdminPanel extends Controller
                     ];
                 }
             } else {
+                // @codeCoverageIgnoreStart
                 throw new InvalidFormException();
+                // @codeCoverageIgnoreEnd
             }
         }
 
