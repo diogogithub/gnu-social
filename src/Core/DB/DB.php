@@ -158,7 +158,7 @@ abstract class DB
      */
     public static function findBy(string $table, array $criteria, ?array $orderBy = null, ?int $limit = null, ?int $offset = null): array
     {
-        $criteria = array_change_key_case($criteria);
+        $criteria = array_change_key_case($criteria, CASE_LOWER);
         $ops      = array_intersect(array_keys($criteria), self::$find_by_ops);
         $repo     = self::getRepository($table);
         if (empty($ops)) {
