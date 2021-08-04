@@ -67,11 +67,6 @@ abstract class Main
             $r->connect('doc_' . $s, '/doc/' . $s, C\TemplateController::class, ['template' => 'doc/' . $s . '.html.twig']);
         }
 
-        // Settings pages
-        //$r->connect('settings', '/settings', RedirectController::class, ['defaults' => ['route' => 'settings']]);
-        $r->connect('settings', '/settings/', [C\UserPanel::class, 'all_settings']);
-        /*foreach (['personal_info', 'notifications', 'account'] as $s) {
-            $r->connect('settings', '/settings/', [C\UserPanel::class, $s]);
-        }*/
+        $r->connect('settings', '/settings', [C\UserPanel::class, 'all_settings']);
     }
 }
