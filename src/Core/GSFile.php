@@ -70,8 +70,8 @@ class GSFile
                                                             ?string $title = null,
                                                             bool $is_local = true): Attachment
     {
-        if (!Formatting::startsWith($dest_dir, Common::config('attachments', 'dir'))) {
-            throw new \InvalidArgumentException("Attempted to store an attachment to a folder outside the GNU social attachment location: {$dest_dir}");
+        if (!Formatting::startsWith($dest_dir, Common::config('storage', 'dir'))) {
+            throw new \InvalidArgumentException("Attempted to store a file in a directory outside the GNU social files location: {$dest_dir}");
         }
 
         $hash = null;
