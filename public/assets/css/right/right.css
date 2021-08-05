@@ -55,25 +55,9 @@
     border-radius: var(--unit-size);
 }
 
-.target label,
-.scope label {
+.target label:first-child,
+.scope label:first-child {
     font-family: var(--display-font);
-}
-
-#post_visibility {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    font-size: var(--medium-size);
-    margin: var(--unit-size);
-}
-
-#post_visibility input[type="radio"] {
-    margin-right: 2px;
-}
-
-#post_visibility label {
-    margin-right: var(--small-size);
 }
 
 #tabs {
@@ -83,15 +67,7 @@
 }
 
 .notice-options {
-    margin-top: var(--unit-size);
-    display: inline-block;
-
-    font-family: var(--display-font);
     width: 100%;
-}
-
-.post {
-    align-self: flex-end;
 }
 
 #post_content {
@@ -103,6 +79,7 @@
 
     border: 2px solid var(--bg2);
     margin-top: var(--unit-size);
+    margin-bottom: var(--unit-size);
     padding: var(--unit-size);
     resize: vertical;
 
@@ -113,7 +90,4 @@
 
 .attachments {
     margin-bottom: var(--unit-size);
-}
-.attachments > * {
-    cursor: pointer !important;
 }

@@ -66,226 +66,6 @@ details > summary::-webkit-details-marker {
     }
 }
 
-abbr[title] {
-    -webkit-text-decoration: underline dotted;
-    text-decoration: underline dotted;
-}
-
-code,
-kbd,
-samp,
-pre {
-    font-family: monospace, monospace;
-    font-size: 1em;
-}
-
-sub,
-sup {
-    font-size: 75%;
-    line-height: 0;
-    position: relative;
-    vertical-align: baseline;
-}
-
-sub {
-    bottom: -0.25em;
-}
-
-sup {
-    top: -0.5em;
-}
-
-button,
-input,
-optgroup,
-select,
-textarea {
-    line-height: inherit;
-    border: unset;
-}
-
-button {
-    overflow: visible;
-    text-transform: none;
-}
-
-button,
-[type=button],
-[type=reset],
-[type=submit] {
-    -webkit-appearance: button;
-    padding: 0.1em 0.5em;
-    float: right;
-}
-
-input {
-    overflow: visible;
-}
-
-input,
-textarea {
-    padding: 1px;
-}
-
-fieldset {
-    border: unset;
-    margin: 0 2px;
-}
-
-legend {
-    color: inherit;
-    display: table;
-    max-width: 100%;
-    white-space: normal;
-}
-
-progress {
-    display: inline-block;
-    vertical-align: baseline;
-}
-
-select {
-    text-transform: none;
-}
-
-textarea {
-    overflow: auto;
-    vertical-align: top;
-}
-textarea:hover,
-textarea:focus {
-    border: solid 2px var(--bg3) !important;
-}
-
-[type=search] {
-    -webkit-appearance: textfield;
-    outline-offset: -2px;
-}
-
-[type=color] {
-    background: inherit;
-}
-
-::-webkit-inner-spin-button,
-::-webkit-outer-spin-button {
-    height: auto;
-}
-
-::-webkit-input-placeholder {
-    color: inherit;
-    opacity: 0.5;
-}
-
-::-webkit-search-decoration,
-::-webkit-file-upload-button {
-    -webkit-appearance: button;
-    font: inherit;
-}
-
-::-moz-focus-inner {
-    border: 0;
-}
-
-:-moz-focusring {
-    outline: 1px dotted ButtonText;
-}
-
-:-moz-ui-invalid {
-    box-shadow: none;
-}
-
-hr {
-    box-sizing: content-box;
-    height: 0;
-    color: inherit;
-    overflow: visible;
-}
-
-dl,
-ol,
-ul {
-    margin: 1em 0;
-}
-
-ol ol,
-ol ul,
-ol dl,
-ul ol,
-ul ul,
-ul dl,
-dl ol,
-dl ul,
-dl dl {
-    margin: 0;
-}
-
-b,
-strong {
-    font-weight: bolder;
-}
-
-audio,
-video {
-    display: inline-block;
-}
-
-audio:not([controls]) {
-    display: none;
-    height: 0;
-}
-
-img {
-    border: 0;
-}
-
-svg:not(:root) {
-    overflow: hidden;
-}
-
-table {
-    text-indent: 0;
-    border-color: inherit;
-}
-
-details {
-    display: block;
-}
-
-dialog {
-    background-color: inherit;
-    border: solid;
-    color: inherit;
-    display: block;
-    height: -webkit-fit-content;
-    height: -moz-fit-content;
-    height: fit-content;
-    left: 0;
-    margin: auto;
-    padding: 1em;
-    position: absolute;
-    right: 0;
-    width: -webkit-fit-content;
-    width: -moz-fit-content;
-    width: fit-content;
-}
-
-dialog:not([open]) {
-    display: none;
-}
-
-summary {
-    cursor: default !important;
-    display: list-item;
-}
-
-canvas {
-    display: inline-block;
-}
-
-template {
-    display: none;
-}
-
 [hidden] {
     display: none;
 }
@@ -299,6 +79,7 @@ body,
 html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 
     background-attachment: fixed;
     color: var(--white);
@@ -383,67 +164,6 @@ figcaption a:link {
     color: var(--white);
 }
 
-input[type=file] {
-    max-width: 100%;
-}
-
-button,
-input[type=file]::file-selector-button {
-    font-family: var(--display-font) ;
-    font-size: var(--medium-size);
-    padding: .2em .4em;
-
-    border-radius: var(--unit-size);
-    border: 2px solid var(--bg2);
-
-    background-color: var(--translucent);
-    color: var(--white);
-    transition: var(--cubic-transition);
-    cursor: pointer;
-}
-input[type=file]::-ms-browse,
-input[type=file]::-webkit-file-upload-button {
-    font-family: var(--display-font);
-    font-size: var(--medium-size);
-    padding: .2em .4em;
-
-    border-radius: var(--unit-size);
-    border: 2px solid var(--bg2);
-
-    background-color: var(--translucent);
-    color: var(--white);
-    transition: var(--cubic-transition);
-}
-button:hover,
-button:focus,
-input[type=file]:hover,
-input[type=file]:focus,
-input[type=file]:hover::file-selector-button,
-input[type=file]:focus::file-selector-button {
-    border-radius: var(--unit-size);
-    border: 2px solid var(--white);
-    background-color: var(--white);
-    color: var(--bg2);
-}
-input[type=file]::-webkit-file-upload-button:hover,
-input[type=file]::-ms-browse:hover,
-input[type=file]::-webkit-file-upload-button:focus,
-input[type=file]::-ms-browse:focus {
-    border: 2px solid var(--white);
-    background-color: var(--white);
-    color: var(--bg2);
-}
-
-button {
-    align-self: end;
-}
-
-input[type=file],
-input[type="checkbox"],
-input[type="radio"] {
-    cursor: pointer;
-}
-
 summary:hover > svg,
 summary:focus > svg {
     border-radius: var(--unit-size);
@@ -458,4 +178,97 @@ hr {
     display: block;
     height: 2px;
     background: var(--translucent);
+}
+
+/* BUTTONS AND FILEPICKER */
+button,
+input:not([type=text]) {
+    all: unset;
+
+    cursor: pointer;
+    font-size: var(--medium-size);
+
+    background: linear-gradient(135deg, var(--bg2), transparent);
+    color: var(--white);
+
+    border: solid 2px var(--bg2);
+    border-radius: var(--unit-size);
+    padding: var(--unit-size) var(--small-size);
+}
+
+*|*::-moz-button-content {
+    all: unset;
+}
+
+/* TODO: hover and focus feedback, checkbox */
+input[type=radio] {
+    all: unset;
+    display: inline-block;
+    width: var(--unit-size);
+    height: var(--unit-size);
+    border: solid 5px var(--bg2) !important;
+    border-radius: 50%;
+    margin: 3px 3px 0px 5px;
+    background-color: var(--bg1);
+}
+input[type=radio]:checked {
+    background-color: var(--white);
+}
+
+button:hover,
+button:focus,
+input:hover,
+input:focus {
+    border: solid 2px var(--bg3);
+    color: var(--white);
+}
+
+button:hover,
+input:is([type=reset], [type=button], [type=submit]):hover {
+    color: var(--white);
+}
+
+:focus-visible::-moz-focus-inner {
+    border-color: var(--bg3) !important;
+}
+
+:is(:disabled, :disabled:active)::file-selector-button,
+button:is(:disabled, :disabled:active),
+input:is([type=reset], [type=button], [type=submit]):is(:disabled, :disabled:active),
+select:is(:disabled, :disabled:active) > button {
+    color: var(--white);
+}
+
+/* file selector */
+input[type=file] {
+    all: unset;
+    display: block;
+    max-width: 100%;
+    background: linear-gradient(135deg, var(--bg2), transparent);
+
+    font-family: var(--main-font);
+    font-size: var(--medium-size);
+
+    border-radius: var(--unit-size);
+}
+input[type=file]:focus,
+input[type=file]:hover {
+    background: linear-gradient(135deg, var(--bg2), var(--bg3) 200%);
+}
+
+input + label {
+    all: unset;
+    align-self: center;
+}
+
+/* button part of file selector */
+::file-selector-button {
+    font-family: var(--display-font);
+    cursor: pointer;
+
+    background-color: unset;
+    color: var(--white);
+
+    border: unset;
+    margin: 5px;
 }

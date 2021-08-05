@@ -10,9 +10,9 @@
      * small size     - used in common text, borders
      */
     --unit-size: 0.5rem;
-    --main-size: 1.3rem;
-    --medium-size: 1.15rem;
-    --small-size: 1rem;
+    --main-size: 1.15rem;
+    --medium-size: 0.9rem;
+    --small-size: 0.8rem;
 
     /* colours and shadows */
     --bg1: #242434;
