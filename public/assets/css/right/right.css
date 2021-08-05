@@ -21,7 +21,6 @@
     flex-direction: column;
     border-radius: var(--unit-size);
     padding: var(--unit-size);
-    box-sizing: border-box;
 
     background-color: var(--translucent);
     font-family: var(--display-font);
@@ -70,7 +69,7 @@
 }
 
 #post_visibility input[type="radio"] {
-    margin-right: 0.1em;
+    margin-right: 2px;
 }
 
 #post_visibility label {
@@ -85,9 +84,7 @@
 
 .notice-options {
     margin-top: var(--unit-size);
-    display: flex;
-    flex-wrap: wrap;
-    box-sizing: border-box;
+    display: inline-block;
 
     font-family: var(--display-font);
     width: 100%;
@@ -112,33 +109,11 @@
     font-family: var(--main-font);
     font-size: var(--medium-size);
     color: var(--white);
-    box-sizing: border-box;
-}
-
-
-#post_attachments,
-#post_post {
-    cursor: pointer;
-}
-
-#post_attachments {
-    margin-bottom: var(--unit-size);
-}
-
-#post_post {
-    font-family: var(--display-font);
-    font-size: var(--medium-size);
-    padding: .2em .4em;
-
-    border-radius: var(--unit-size);
-    border: 2px solid var(--bg2);
-
-    background-color: var(--translucent);
-    color: var(--white);
-    transition: 0.4s;
-
 }
 
 .attachments {
-    flex: 1;
+    margin-bottom: var(--unit-size);
+}
+.attachments > * {
+    cursor: pointer !important;
 }

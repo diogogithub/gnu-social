@@ -46,6 +46,8 @@
 }
 
 #header {
+    z-index: 1;
+
     font-size: var(--main-size);
     display: flex;
     justify-content: space-between;
@@ -205,7 +207,6 @@
 
     .panel aside {
         display: none;
-        cursor: default;
     }
 
     .panel[open] {

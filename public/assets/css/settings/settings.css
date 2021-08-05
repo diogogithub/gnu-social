@@ -107,6 +107,7 @@
 
 .section-title-settings summary:focus,
 .section-title-settings summary:hover {
+    cursor: pointer !important;
     border-radius: var(--unit-size);
     background: var(--white);
     color: var(--bg1);
