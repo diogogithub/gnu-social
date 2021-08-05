@@ -30,127 +30,10 @@
     --fade-out: fadeOut 200ms cubic-bezier(0, 0.55, 0.45, 1);
 }
 
-/* TYPOGRAPHY */
-h1 {
-    font-family: var(--display-font);
-    font-size: var(--main-size);
-    font-weight: 900;
-    opacity: 1.00;
-    letter-spacing: -0.40px;
-    word-spacing: 4.00px;
-}
-
-h2 {
-    font-family: var(--display-font);
-    font-size: var(--medium-size);
-    font-weight: 800;
-    letter-spacing: -0.75px;
-    word-spacing: 3.00px;
-    text-transform: none;
-}
-
-h3 {
-    font-family: var(--display-font);
-    font-size: var(--medium-size);
-    font-weight: 600;
-    line-height: 1.00;
-    letter-spacing: -0.20px;
-    word-spacing: 1.00px;
-    text-transform: none;
-}
-
-p {
-    font-family: var(--main-font);
-    font-size: var(--medium-size);
-    font-weight: 400;
-    letter-spacing: -0.30px;
-    word-spacing: -0.10px;
-    margin-bottom: var(--small-size) !important;
-    text-transform: none;
-}
-
-ul {
-    text-decoration: none;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-li {
-    margin: 0;
-    padding: 0;
-}
-
-a:link {
-    text-decoration: none;
-    color: var(--white);
-    outline: 0;
-}
-
-a:visited {
-    text-decoration: none;
-    color: var(--white);
-    outline: 0;
-    margin: 0;
-    padding: 0;
-}
-
-a:focus,
-a:hover {
-    border-radius: var(--unit-size) !important;
-    background: var(--white) !important;
-    color: var(--bg1) !important;
-    padding: 0 var(--unit-size) 0 var(--unit-size) !important;
-    transition: var(--cubic-transition);
-}
-
-
-button,
-input[type=file]::file-selector-button {
-    font-family: var(--display-font);
-    font-size: var(--medium-size);
-    padding: .2em .4em;
-
-    border-radius: var(--unit-size);
-    border: 2px solid var(--bg2);
-
-    background-color: var(--translucent);
-    color: var(--white);
-    transition: var(--cubic-transition);
-}
-
-input[type=file]::file-selector-button:hover,
-button:hover {
-    border: 2px solid var(--white) !important;
-    background-color: var(--white) !important;
-    color: var(--bg2) !important;
-}
-
-button {
-    align-self: flex-end;
-}
-
 #instance:focus svg,
 #instance:hover svg {
     fill: var(--bg1);
-    transition: all 400ms ease;
-}
-
-summary:hover > svg,
-summary:focus > svg {
-    border-radius: var(--unit-size);
-    background-color: var(--white);
-    fill: var(--bg1) !important;
-    stroke: var(--bg1) !important;
-    border: unset !important;
     transition: var(--cubic-transition);
-}
-
-hr {
-    all: unset;
-    display: block;
-    height: 2px;
-    background: var(--translucent);
 }
 
 /* DEFAULTS */
@@ -160,18 +43,6 @@ hr {
     background-position: center;
     background-repeat: no-repeat;
     background-size: 100% 100%;
-    min-height: 100%;
-}
-
-body,
-html {
-    height: 100%;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-
-    background-attachment: fixed;
-    color: var(--white);
-    font-family: var(--main-font);
 }
 
 #header {
@@ -183,9 +54,7 @@ html {
     background-color: var(--bg1);
 
     padding: var(--unit-size);
-    box-sizing: border-box;
-    width: 100vw;
-    max-width: 100%;
+    width: 100%;
     align-items: center;
 
     box-shadow: var(--shadow);
@@ -207,7 +76,7 @@ html {
     flex-wrap: wrap;
     justify-content: space-around;
     /*margin-top: calc(3 * var(--small-size) + var(--main-size));*/
-    margin-top: 4.3rem;
+    margin-top: 3.3rem;
 }
 
 /* THE FOCUSED (middle) DIV */
@@ -216,7 +85,7 @@ html {
     flex-direction: column;
     margin-left: 20%;
     margin-right: 20%;
-    padding: var(--small-size);
+    padding: 0 var(--unit-size) 0 var(--unit-size);
 
     width: 100%;
     max-width: 60%;
@@ -289,11 +158,6 @@ html {
     height: auto;
 }
 
-figcaption a:link {
-    font-size: var(--small-size);
-    color: var(--white);
-}
-
 /* SIDE PANELS */
 .panel {
     font-size: var(--main-size);
@@ -318,27 +182,30 @@ figcaption a:link {
     margin-top: auto;
 }
 
+.icon {
+    fill: var(--white);
+    vertical-align: middle;
+}
 .icon-left,
 .icon-right {
     display: none;
 }
-
 
 /* MEDIA RESIZE */
 @media (max-width: 1200px) {
     .icon-left,
     .icon-right {
         display: flex;
-        padding: var(--unit-size);
     }
 
     .content {
         margin: unset;
-        max-width: 100% !important;
+        max-width: 100%;
     }
 
     .panel aside {
         display: none;
+        cursor: default;
     }
 
     .panel[open] {
@@ -353,7 +220,7 @@ figcaption a:link {
     }
 
     .panel aside {
-        display: none !important;
+        display: none;
     }
 
     .panel[open] aside {

@@ -12,11 +12,11 @@ ul, ol {
 /* avoid browser default inconsistent heading font-sizes */
 /* and pre/code too */
 h1, h2, h3, h4, h5, h6, pre, code {
-    font-size: 1em;
+    font-size: 1rem;
 }
 
 /* remove the inconsistent (among browsers) default ul,ol padding or margin  */
-/* the default spacing on headings does not match nor align with 
+/* the default spacing on headings does not match nor align with
    normal interline spacing at all, so let's get rid of it. */
 /* zero out the spacing around pre, form, body, html, p, blockquote as well */
 /* form elements are oddly inconsistent, and not quite CSS emulatable. */
@@ -29,12 +29,12 @@ ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, body, html, p, blockquote, fields
 
 /* whoever thought blue linked image borders were a good idea? */
 a img, :link img, :visited img {
-    border: none
+    border: none;
 }
 
 /* de-italicize address */
 address {
-    font-style: normal
+    font-style: normal;
 }
 
 /* firefox focus outline */
@@ -64,4 +64,381 @@ details > summary::-webkit-details-marker {
     details summary {
         cursor: pointer;
     }
+}
+
+abbr[title] {
+    -webkit-text-decoration: underline dotted;
+    text-decoration: underline dotted;
+}
+
+code,
+kbd,
+samp,
+pre {
+    font-family: monospace, monospace;
+    font-size: 1em;
+}
+
+sub,
+sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+}
+
+sub {
+    bottom: -0.25em;
+}
+
+sup {
+    top: -0.5em;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+    line-height: inherit;
+    border: unset;
+}
+
+button {
+    overflow: visible;
+    text-transform: none;
+}
+
+button,
+[type=button],
+[type=reset],
+[type=submit] {
+    -webkit-appearance: button;
+    padding: 1px 6px;
+}
+
+input {
+    overflow: visible;
+}
+
+input,
+textarea {
+    padding: 1px;
+}
+
+fieldset {
+    border: 1px solid currentColor;
+    margin: 0 2px;
+}
+
+legend {
+    color: inherit;
+    display: table;
+    max-width: 100%;
+    white-space: normal;
+}
+
+progress {
+    display: inline-block;
+    vertical-align: baseline;
+}
+
+select {
+    text-transform: none;
+}
+
+textarea {
+    overflow: auto;
+    vertical-align: top;
+}
+
+[type=search] {
+    -webkit-appearance: textfield;
+    outline-offset: -2px;
+}
+
+[type=color] {
+    background: inherit;
+}
+
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+    height: auto;
+}
+
+::-webkit-input-placeholder {
+    color: inherit;
+    opacity: 0.5;
+}
+
+::-webkit-search-decoration,
+::-webkit-file-upload-button {
+    -webkit-appearance: button;
+    font: inherit;
+}
+
+::-moz-focus-inner {
+    border: 0;
+}
+
+:-moz-focusring {
+    outline: 1px dotted ButtonText;
+}
+
+:-moz-ui-invalid {
+    box-shadow: none;
+}
+
+hr {
+    box-sizing: content-box;
+    height: 0;
+    color: inherit;
+    overflow: visible;
+}
+
+dl,
+ol,
+ul {
+    margin: 1em 0;
+}
+
+ol ol,
+ol ul,
+ol dl,
+ul ol,
+ul ul,
+ul dl,
+dl ol,
+dl ul,
+dl dl {
+    margin: 0;
+}
+
+b,
+strong {
+    font-weight: bolder;
+}
+
+audio,
+video {
+    display: inline-block;
+}
+
+audio:not([controls]) {
+    display: none;
+    height: 0;
+}
+
+img {
+    border: 0;
+}
+
+svg:not(:root) {
+    overflow: hidden;
+}
+
+table {
+    text-indent: 0;
+    border-color: inherit;
+}
+
+details {
+    display: block;
+}
+
+dialog {
+    background-color: inherit;
+    border: solid;
+    color: inherit;
+    display: block;
+    height: -webkit-fit-content;
+    height: -moz-fit-content;
+    height: fit-content;
+    left: 0;
+    margin: auto;
+    padding: 1em;
+    position: absolute;
+    right: 0;
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content;
+}
+
+dialog:not([open]) {
+    display: none;
+}
+
+summary {
+    display: list-item;
+}
+
+canvas {
+    display: inline-block;
+}
+
+template {
+    display: none;
+}
+
+[hidden] {
+    display: none;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* TYPOGRAPHY AND GENERAL SELECTORS */
+body,
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    background-attachment: fixed;
+    color: var(--white);
+    font-family: var(--main-font);
+}
+
+h1 {
+    font-family: var(--display-font);
+    font-size: var(--main-size);
+    font-weight: 900;
+    opacity: 1.00;
+    letter-spacing: -0.40px;
+    word-spacing: 4.00px;
+}
+
+h2 {
+    font-family: var(--display-font);
+    font-size: var(--medium-size);
+    font-weight: 800;
+    letter-spacing: -0.75px;
+    word-spacing: 3.00px;
+    text-transform: none;
+}
+
+h3 {
+    font-family: var(--display-font);
+    font-size: var(--medium-size);
+    font-weight: 600;
+    line-height: 1.00;
+    letter-spacing: -0.20px;
+    word-spacing: 1.00px;
+    text-transform: none;
+}
+
+p {
+    font-family: var(--main-font);
+    font-size: var(--medium-size);
+    font-weight: 400;
+    letter-spacing: -0.30px;
+    word-spacing: -0.10px;
+    margin-bottom: var(--small-size);
+    text-transform: none;
+}
+
+ul {
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+li {
+    margin: 0;
+    padding: 0;
+}
+
+a:link {
+    text-decoration: none;
+    color: var(--white);
+    outline: 0;
+}
+
+a:visited {
+    text-decoration: none;
+    color: var(--white);
+    outline: 0;
+    margin: 0;
+    padding: 0;
+}
+
+a:focus,
+a:hover {
+    border-radius: var(--unit-size);
+    background: var(--white);
+    color: var(--bg1) !important;
+    padding: 0 var(--unit-size) 0 var(--unit-size);
+    transition: var(--cubic-transition);
+}
+
+figcaption a:link {
+    font-size: var(--small-size);
+    color: var(--white);
+}
+
+button,
+input[type=file]::file-selector-button {
+    font-family: var(--display-font) ;
+    font-size: var(--medium-size);
+    padding: .2em .4em;
+
+    border-radius: var(--unit-size);
+    border: 2px solid var(--bg2);
+
+    background-color: var(--translucent);
+    color: var(--white);
+    transition: var(--cubic-transition);
+    cursor: pointer;
+}
+input[type=file]::-ms-browse,
+input[type=file]::-webkit-file-upload-button {
+    font-family: var(--display-font);
+    font-size: var(--medium-size);
+    padding: .2em .4em;
+
+    border-radius: var(--unit-size);
+    border: 2px solid var(--bg2);
+
+    background-color: var(--translucent);
+    color: var(--white);
+    transition: var(--cubic-transition);
+}
+button:hover,
+input[type=file]::file-selector-button:hover
+{
+    border: 2px solid var(--white) !important;
+    background-color: var(--white) !important;
+    color: var(--bg2) !important;
+}
+input[type=file]::-webkit-file-upload-button:hover,
+input[type=file]::-ms-browse:hover {
+    border: 2px solid var(--white);
+    background-color: var(--white);
+    color: var(--bg2);
+}
+
+button {
+    align-self: flex-end;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+    cursor: pointer;
+}
+
+summary:hover > svg,
+summary:focus > svg {
+    border-radius: var(--unit-size);
+    background-color: var(--white);
+    fill: var(--bg1);
+    border: 2px solid var(--white);
+    transition: var(--cubic-transition);
+}
+
+hr {
+    all: unset;
+    display: block;
+    height: 2px;
+    background: var(--translucent);
 }

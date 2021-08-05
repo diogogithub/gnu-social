@@ -1,12 +1,3 @@
-.icon-right {
-    width: var(--main-size);
-    height: auto;
-
-    fill: var(--white);
-    stroke-width: 0;
-    vertical-align: middle;
-}
-
 #right-panel {
     right: 0;
 }
@@ -150,10 +141,4 @@
 
 .attachments {
     flex: 1;
-}
-
-.create-notice details {
-    font-family: var(--display-font);
-    box-sizing: border-box;
-    cursor: pointer;
 }

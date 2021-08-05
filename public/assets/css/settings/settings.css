@@ -1,4 +1,5 @@
 .main-nav {
+    background-color: var(--translucent);
     margin-bottom: var(--unit-size);
     font-size: var(--main-size);
     border-radius: var(--unit-size);
@@ -31,9 +32,6 @@
 .main-nav ul li {
     font-size: var(--medium-size);
     border-radius: var(--unit-size);
-    box-sizing: border-box;
-
-    padding: var(--unit-size);
 }
 
 .form {
@@ -48,7 +46,7 @@
     all: unset;
     display: flex;
     width: 2px;
-    background-image: linear-gradient(to bottom, var(--bg3), transparent 90%);
+    background-image: linear-gradient(to bottom, var(--bg2), transparent 90%);
     margin-right: var(--unit-size);
 }
 
@@ -109,10 +107,11 @@
 
 .section-title-settings summary:focus,
 .section-title-settings summary:hover {
-    border-radius: var(--unit-size) !important;
-    background: var(--white) !important;
-    color: var(--bg1) !important;
-    padding: var(--unit-size) var(--small-size) var(--unit-size) var(--small-size) !important;
+    border-radius: var(--unit-size);
+    background: var(--white);
+    color: var(--bg1);
+    padding-left: var(--unit-size);
+    padding-right: var(--unit-size);
     transition: var(--cubic-transition);
 }
 
