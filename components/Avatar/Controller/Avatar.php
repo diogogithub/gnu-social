@@ -29,6 +29,7 @@ use App\Core\GSFile;
 use App\Core\GSFile as M;
 use function App\Core\I18n\_m;
 use App\Core\Log;
+use App\Core\Security;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
@@ -81,7 +82,7 @@ class Avatar extends Controller
                 try {
                     $avatar = DB::findOneBy('avatar', ['gsactor_id' => $gsactor_id]);
                     $avatar->delete();
-                    Event::handle('DeleteCachedAvatar', [$user->getId()]);
+                    Event::handle('AvatarUpdate', [$user->getId()]);
                 } catch (NotFoundException) {
                     $form->addError(new FormError(_m('No avatar set, so cannot delete')));
                 }
@@ -107,25 +108,20 @@ class Avatar extends Controller
                 }
                 $attachment = GSFile::validateAndStoreFileAsAttachment(
                     $file,
-                    dest_dir: Common::config('avatar', 'dir'),
+                    dest_dir: Common::config('attachments', 'dir'),
                     actor_id: $gsactor_id,
-                    title: _m("Avatar for Actor {$gsactor_id}"),
+                    title: Security::sanitize($file->getClientOriginalName()),
                     is_local: true
                 );
-                // Must get old id before inserting another one
-                $old_attachment = null;
-                $avatar         = DB::find('avatar', ['gsactor_id' => $gsactor_id]);
-                $old_attachment = $avatar?->delete();
+                // Delete current avatar if there's one
+                $avatar = DB::find('avatar', ['gsactor_id' => $gsactor_id]);
+                $avatar?->delete();
                 DB::persist($attachment);
                 // Can only get new id after inserting
                 DB::flush();
                 DB::persist(AvatarEntity::create(['gsactor_id' => $gsactor_id, 'attachment_id' => $attachment->getId()]));
                 DB::flush();
-                // Only delete files if the commit went through
-                if ($old_attachment != null) {
-                    @unlink($old_attachment);
-                }
-                Event::handle('DeleteCachedAvatar', [$user->getId()]);
+                Event::handle('AvatarUpdate', [$user->getId()]);
             }
         }
 
