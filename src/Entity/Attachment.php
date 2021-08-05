@@ -23,6 +23,7 @@ namespace App\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\Log;
 use App\Util\Common;
@@ -246,18 +247,36 @@ class Attachment extends Entity
     const FILEHASH_ALGO = 'sha256';
 
     /**
-     * Delete this attachment and optianlly all the associated entities (avatar and/or thumbnails, which this owns)
+     *
+     * Warning: Underlying DB::findBy doesn't respect remove persistence
+     * @return int
+     */
+    public function countDependencies(): int
+    {
+        $attachment_id = $this->getId();
+        $notes         = DB::findBy('attachment_to_note', ['attachment_id' => $attachment_id]);
+        $dependencies  = count($notes);
+        Event::handle('AttachmentCountDependencies', [$attachment_id, &$dependencies]);
+        return $dependencies;
+    }
+
+    /**
+     *
+     * @depends Attachment->countDependencies()
+     * @return bool
+     */
+    public function isSafeDelete(): bool
+    {
+        return $this->countDependencies() === 0;
+    }
+
+    /**
+     * Delete this attachment and optionally all the associated entities (avatar and/or thumbnails, which this owns)
      */
     public function delete(bool $cascade = true, bool $flush = true): void
     {
         $files = [];
         if ($cascade) {
-            // An avatar can own a file, and it becomes invalid if the file is deleted
-            $avatar = DB::findBy('avatar', ['attachment_id' => $this->id]);
-            foreach ($avatar as $a) {
-                $files[] = $a->getPath();
-                $a->delete(cascade: false, flush: false);
-            }
             foreach ($this->getThumbnails() as $at) {
                 $files[] = $at->getPath();
                 $at->delete(flush: false);
