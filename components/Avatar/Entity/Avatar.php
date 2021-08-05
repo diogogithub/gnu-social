@@ -23,7 +23,6 @@ namespace Component\Avatar\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
-use App\Core\Log;
 use App\Core\Router\Router;
 use App\Entity\Attachment;
 use App\Util\Common;
@@ -123,25 +122,21 @@ class Avatar extends Entity
     }
 
     /**
-     * Delete this avatar and the corresponding file and thumbnails, which this owns
+     * Delete this avatar and, if safe, the corresponding file and thumbnails, which this owns
      *
-     * Inefficient implementation, but there are plenty of edge cases and this is supposed to be a rare operation
+     * @param bool $cascade
+     * @param bool $flush
      */
     public function delete(bool $cascade = true, bool $flush = true): void
     {
-        if ($cascade) {
-            // Avatar doesn't own the file, but it's stored in a different place than Attachment
-            // would think, so we need to handle it ourselves. Since the attachment could be shared,
-            // can only delete if cascading
-            $filepath = $this->getPath();
-            if (file_exists($filepath)) {
-                if (@unlink($filepath) === false) {
-                    Log::warning("Failed deleting attachment for avatar with id={$this->attachment_id} at {$filepath}");
-                }
-            }
-            $this->attachment->delete(cascade: true, flush: false);
-        }
         DB::remove($this);
+        if ($cascade) {
+            $attachment = $this->getAttachment();
+            // We can't use $attachment->isSafeDelete() because underlying findBy doesn't respect remove persistence
+            if ($attachment->countDependencies() - 1 === 0) {
+                $attachment->delete(cascade: true, flush: false);
+            }
+        }
         if ($flush) {
             DB::flush();
         }
