@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Util;
+namespace App\Util\Form;
 
 use function App\Core\I18n\_m;
+use App\Util\Common;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Validator\Constraints\Length;

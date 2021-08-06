@@ -17,7 +17,7 @@ use app\Util\Common;
 use App\Util\Exception\EmailTakenException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\ServerException;
-use App\Util\FormFields;
+use App\Util\Form\FormFields;
 use App\Util\Nickname;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;

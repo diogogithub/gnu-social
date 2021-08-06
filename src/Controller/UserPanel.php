@@ -41,6 +41,8 @@ use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Util\Common;
 use App\Util\Form\ArrayTransformer;
+use App\Util\Form\FormFields;
+use App\Util\Formatting;
 use Doctrine\DBAL\Types\Types;
 use Exception;
 use Functional as F;
