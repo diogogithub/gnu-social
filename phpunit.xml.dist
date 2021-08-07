@@ -8,7 +8,8 @@
          stopOnFailure="true"
          stopOnError="true"
          cacheResult="true"
-         cacheResultFile=".phpunit_cache">
+         cacheResultFile=".phpunit_cache"
+         executionOrder="defects">
   <coverage processUncoveredFiles="true">
     <include>
       <directory suffix=".php">src</directory>
