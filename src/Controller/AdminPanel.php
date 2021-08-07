@@ -72,11 +72,17 @@ class AdminPanel extends Controller
             $data = $form->getData();
             if ($form->isValid() && array_key_exists('setting', $data)) {
                 [$section, $setting] = explode(':', $data['setting']);
+                if (!isset($defaults[$section]) && !isset($defaults[$section][$setting])) {
+                    // @codeCoverageIgnoreStart
+                    throw new ClientException(_m('The supplied field doesn\'t exist'));
+                    // @codeCoverageIgnoreEnd
+                }
+
                 foreach ([
-                    'int'    => FILTER_VALIDATE_INT,
-                    'bool'   => FILTER_VALIDATE_BOOL,
+                    'int' => FILTER_VALIDATE_INT,
+                    'bool' => FILTER_VALIDATE_BOOL,
                     'string' => [fn ($v) => strstr($v, ',') === false, fn ($v) => $v],
-                    'array'  => [fn ($v) => strstr($v, ',') !== false, function ($v) { Formatting::toArray($v, $v); return $v; }],
+                    'array' => [fn ($v) => strstr($v, ',') !== false, function ($v) { Formatting::toArray($v, $v); return $v; }],
                 ] as $type => $validator) {
                     if (!is_array($validator)) {
                         $value = filter_var($data['value'], $validator, FILTER_NULL_ON_FAILURE);
