@@ -31,6 +31,7 @@
 
 namespace App\Core;
 
+use App\Util\Exception\ServerException;
 use Psr\Log\LoggerInterface;
 
 abstract class Log
@@ -40,6 +41,13 @@ abstract class Log
     public static function setLogger($l): void
     {
         self::$logger = $l;
+    }
+
+    public static function unexpected_exception(\Exception $e)
+    {
+        $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+        self::critical('Unexpected exception of class: "' . get_class($e) . '" was thrown in ' . get_called_class() . '::' . $backtrace[1]['function']);
+        throw new ServerException('Unexpected exception', 500, $e);
     }
 
     /**
