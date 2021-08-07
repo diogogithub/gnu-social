@@ -23,7 +23,6 @@ namespace App\Tests\Core;
 
 use App\Core\DB\DB;
 use App\Entity\LocalUser;
-use App\Util\Exception\NotFoundException;
 use App\Util\GNUsocialTestCase;
 use Jchook\AssertThrows\AssertThrows;
 
@@ -48,11 +47,14 @@ class EntityTest extends GNUsocialTestCase
 
     public function testCreateOrUpdate()
     {
-        $user = LocalUser::createOrUpdate(['nickname' => 'taken_user']);
+        [$user, $is_update] = LocalUser::createOrUpdate(['nickname' => 'taken_user']);
         static::assertNotNull($user);
-        static::assertThrows(NotFoundException::class, fn () => LocalUser::createOrUpdate(['nickname' => 'taken_user', 'outgoing_email' => 'foo@bar']));
-        $user = LocalUser::createOrUpdate(['nickname' => 'taken_user', 'outgoing_email' => 'foo@bar'], find_by_keys: ['nickname']);
+        static::assertTrue($is_update);
+        [, $is_update] = LocalUser::createOrUpdate(['nickname' => 'taken_user', 'outgoing_email' => 'foo@bar']);
+        static::assertFalse($is_update);
+        [$user, $is_update] = LocalUser::createOrUpdate(['nickname' => 'taken_user', 'outgoing_email' => 'foo@bar'], find_by_keys: ['nickname']);
         static::assertSame('foo@bar', $user->getOutgoingEmail());
+        static::assertTrue($is_update);
     }
 
     public function testGetWithPK()
