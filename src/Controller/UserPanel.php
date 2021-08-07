@@ -177,12 +177,24 @@ class UserPanel extends AbstractController
             }
         }
 
+        $form_defs['placeholder']['save'] = fn(string $transport, string $form_name) =>
+                                          [$form_name, SubmitType::class,
+                                           ['label' => _m('Save notification settings for {transport}', ['transport' => $transport])]];
+
         Event::handle('AddNotificationTransport', [&$form_defs]);
         unset($form_defs['placeholder']);
 
         $tabbed_forms = [];
         foreach ($form_defs as $transport_name => $f) {
-            $tabbed_forms[$transport_name] = Form::create($f);
+            unset($f['save']);
+            $form                          = Form::create($f);
+            $tabbed_forms[$transport_name] = $form;
+
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $data = $form->getData();
+                dd($data, $transport_name);
+            }
         }
 
         $tabbed_forms = F\map($tabbed_forms, function ($f) {
