@@ -39,6 +39,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
+use App\Entity\UserNotificationPrefs;
 use App\Util\Common;
 use App\Util\Form\ArrayTransformer;
 use App\Util\Form\FormFields;
@@ -134,6 +135,7 @@ class UserPanel extends AbstractController
      */
     public function notifications(Request $request)
     {
+        $user      = Common::user();
         $schema    = DB::getConnection()->getSchemaManager();
         $platform  = $schema->getDatabasePlatform();
         $columns   = Common::arrayRemoveKeys($schema->listTableColumns('user_notification_prefs'), ['user_id', 'transport', 'created', 'modified']);
@@ -177,9 +179,8 @@ class UserPanel extends AbstractController
             }
         }
 
-        $form_defs['placeholder']['save'] = fn(string $transport, string $form_name) =>
-                                          [$form_name, SubmitType::class,
-                                           ['label' => _m('Save notification settings for {transport}', ['transport' => $transport])]];
+        $form_defs['placeholder']['save'] = fn (string $transport, string $form_name) => [$form_name, SubmitType::class,
+                                              ['label' => _m('Save notification settings for {transport}', ['transport' => $transport])], ];
 
         Event::handle('AddNotificationTransport', [&$form_defs]);
         unset($form_defs['placeholder']);
@@ -193,7 +194,15 @@ class UserPanel extends AbstractController
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 $data = $form->getData();
-                dd($data, $transport_name);
+                unset($data['translation_domain']);
+                [$ent, $is_update] = UserNotificationPrefs::createOrUpdate(
+                    array_merge(['user_id' => $user->getId(), 'transport' => $transport_name], $data),
+                    find_by_keys: ['user_id', 'transport']
+                );
+                if (!$is_update) {
+                    DB::persist($ent);
+                }
+                DB::flush();
             }
         }
 
