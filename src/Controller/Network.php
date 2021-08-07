@@ -56,11 +56,11 @@ class Network extends Controller
     {
         $notes = Note::getAllNotes($this->instance_scope);
 
-        Event::handle('FormatNoteList', [&$notes]);
+        Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => $notes,
+            'notes'     => $notes_out,
         ];
     }
 
@@ -98,11 +98,11 @@ class Network extends Controller
 END;
         $notes = DB::sql($query, ['note' => 'App\Entity\Note'], ['target_actor_id' => $target->getId()]);
 
-        Event::handle('FormatNoteList', [&$notes]);
+        Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => $notes,
+            'notes'     => $notes_out,
         ];
     }
 
@@ -110,11 +110,11 @@ END;
     {
         $notes = Note::getAllNotes($this->public_scope);
 
-        Event::handle('FormatNoteList', [&$notes]);
+        Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => $notes,
+            'notes'     => $notes_out,
         ];
     }
 
@@ -125,11 +125,11 @@ END;
                          'where n.reply_to is not null and n.gsactor_id = :id ' .
                          'order by n.created DESC', ['id' => $actor_id]);
 
-        Event::handle('FormatNoteList', [&$notes]);
+        Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => $notes,
+            'notes'     => $notes_out,
         ];
     }
 }

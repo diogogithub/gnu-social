@@ -27,10 +27,10 @@ class TreeNotes extends Plugin
     /**
      * Format the given $notes_in_trees_out in a list of reply trees
      */
-    public function onFormatNoteList(array &$notes_in_trees_out)
+    public function onFormatNoteList(array $notes_in, ?array &$notes_out)
     {
-        $roots              = array_filter($notes_in_trees_out, function (Note $note) { return $note->getReplyTo() == null; }, ARRAY_FILTER_USE_BOTH);
-        $notes_in_trees_out = $this->build_tree($roots, $notes_in_trees_out);
+        $roots     = array_filter($notes_in, function (Note $note) { return $note->getReplyTo() == null; });
+        $notes_out = $this->build_tree($roots, $notes_in);
     }
 
     private function build_tree(array $parents, array $notes)
@@ -44,7 +44,7 @@ class TreeNotes extends Plugin
 
     private function build_subtree(Note $parent, array $notes)
     {
-        $children = array_filter($notes, function (Note $n) use ($parent) { return $parent->getId() == $n->getReplyTo(); }, ARRAY_FILTER_USE_BOTH);
+        $children = array_filter($notes, function (Note $n) use ($parent) { return $parent->getId() == $n->getReplyTo(); });
         return ['note' => $parent, 'replies' => $this->build_tree($children, $notes)];
     }
 }

@@ -35,11 +35,11 @@ class Favourite
                             'where f.gsactor_id = :id ' .
                             'order by f.created DESC', ['id' => $actor_id]);
 
-        Event::handle('FormatNoteList', [&$notes]);
+        Event::handle('FormatNoteList', [$notes, &$note_out]);
 
         return [
             '_template' => 'network/public.html.twig',
-            'notes'     => $notes,
+            'notes'     => $notes_out,
         ];
     }
 
@@ -62,7 +62,7 @@ class Favourite
                             'order by f.created DESC' ,
                             ['id' => $actor_id]);
 
-        Event::handle('FormatNoteList', [&$notes]);
+        Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
             '_template' => 'network/reversefavs.html.twig',
