@@ -63,7 +63,7 @@ abstract class Entity
 
         foreach ($args as $prop => $val) {
             if (property_exists($class, $prop)) {
-                $set = 'set' . Formatting::snakeCaseToCamelCase($prop);
+                $set = 'set' . ucfirst(Formatting::snakeCaseToCamelCase($prop));
                 $obj->{$set}($val);
             } else {
                 Log::error($m = "Property {$class}::{$prop} doesn't exist");
@@ -75,12 +75,22 @@ abstract class Entity
 
     /**
      * Create a new instance, but check for duplicates
+     *
+     * @return [$obj, $is_update]
      */
     public static function createOrUpdate(array $args, array $find_by_keys = [])
     {
         $table   = DB::getTableForClass(get_called_class());
         $find_by = $find_by_keys == [] ? $args : array_intersect_key($args, array_flip($find_by_keys));
-        return self::create($args, DB::findOneBy($table, $find_by));
+        try {
+            $obj = DB::findOneBy($table, $find_by);
+        } catch (NotFoundException) {
+            $obj = null;
+        } catch (\Exception $e) {
+            Log::unexpected_exception($e);
+        }
+        $is_update = $obj !== null;
+        return [self::create($args, $obj), $is_update];
     }
 
     /**
