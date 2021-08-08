@@ -43,6 +43,12 @@ abstract class Log
         self::$logger = $l;
     }
 
+    /**
+     * Log a critical error when a really unexpected exception occured. This indicates a bug in the software
+     *
+     * @throws ServerException
+     * @codeCoverageIgnore
+     */
     public static function unexpected_exception(\Exception $e)
     {
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);

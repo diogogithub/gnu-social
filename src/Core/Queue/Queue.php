@@ -48,6 +48,7 @@ abstract class Queue
      * @param string $queue
      * @param bool   $high
      * @param array  $stamps
+     * @codeCoverageIgnore
      */
     public static function enqueue($message, string $queue, bool $high = false, array $stamps = [])
     {

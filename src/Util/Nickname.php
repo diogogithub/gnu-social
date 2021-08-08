@@ -146,18 +146,20 @@ class Nickname
                 throw new NicknameReservedException();
             } elseif ($check_already_used) {
                 switch ($which) {
-            case self::CHECK_LOCAL_USER:
-                $lu = LocalUser::findByNicknameOrEmail($nickname, email: '');
-                if ($lu !== null) {
-                    throw new NicknameTakenException($lu->getActor());
+                case self::CHECK_LOCAL_USER:
+                    $lu = LocalUser::findByNicknameOrEmail($nickname, email: '');
+                    if ($lu !== null) {
+                        throw new NicknameTakenException($lu->getActor());
+                    }
+                    break;
+                    // @codeCoverageIgnoreStart
+                case self::CHECK_LOCAL_GROUP:
+                    throw new \NotImplementedException();
+                    break;
+                default:
+                    throw new \InvalidArgumentException();
+                    // @codeCoverageIgnoreEnd
                 }
-                break;
-            case self::CHECK_LOCAL_GROUP:
-                throw new \NotImplementedException();
-                break;
-            default:
-                throw new \InvalidArgumentException();
-            }
             }
         }
 

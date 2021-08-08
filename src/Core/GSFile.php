@@ -25,7 +25,6 @@ use App\Core\DB\DB;
 use function App\Core\I18n\_m;
 use App\Entity\Attachment;
 use App\Util\Common;
-use App\Util\Exception\ClientException;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NoSuchFileException;
 use App\Util\Exception\NotFoundException;
@@ -161,7 +160,9 @@ class GSFile
                 autoLastModified: true
             );
             if (Common::config('site', 'x_static_delivery')) {
+                // @codeCoverageIgnoreStart
                 $response->trustXSendfileTypeHeader();
+                // @codeCoverageIgnoreEnd
             }
             return $response;
         } else {
@@ -184,8 +185,10 @@ class GSFile
             case 1:
                 return $res[0];
             default:
+                // @codeCoverageIgnoreStart
                 Log::error('Media query returned more than one result for identifier: \"' . $id . '\"');
-                throw new ClientException(_m('Internal server error'));
+                throw new ServerException(_m('Internal server error'));
+                // @codeCoverageIgnoreEnd
         }
     }
 

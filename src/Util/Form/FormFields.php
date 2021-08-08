@@ -35,6 +35,9 @@ abstract class FormFields
         ];
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public static function password(array $options = []): array
     {
         ['password', PasswordType::class, [
