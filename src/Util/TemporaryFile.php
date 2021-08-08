@@ -61,8 +61,10 @@ class TemporaryFile extends \SplFileInfo
             }
         }
         if ($this->resource === false) {
+            // @codeCoverageIgnoreStart
             $this->cleanup();
             throw new TemporaryFileException('Could not open file: ' . $filepath);
+            // @codeCoverageIgnoreEnd
         }
 
         parent::__construct($filepath);
@@ -81,14 +83,18 @@ class TemporaryFile extends \SplFileInfo
      *
      * @param string $data The string that is to be written.
      *
-     * @return null|false|int the number of bytes written, false on error, null on null resource/stream
+     * @throws ServerException when the resource is null
+     *
+     * @return false|int the number of bytes written, false on error
      */
-    public function write(string $data): int | false | null
+    public function write(string $data): int | false
     {
         if (!is_null($this->resource)) {
             return fwrite($this->resource, $data);
         } else {
-            return null;
+            // @codeCoverageIgnoreStart
+            throw new TemporaryFileException(_m('Temporary file attempted to write to a null resource'));
+            // @codeCoverageIgnoreEnd
         }
     }
 
@@ -152,10 +158,14 @@ class TemporaryFile extends \SplFileInfo
     {
         if (!is_dir($directory)) {
             if (false === @mkdir($directory, $dirmode, true) && !is_dir($directory)) {
+                // @codeCoverageIgnoreStart
                 throw new TemporaryFileException(sprintf('Unable to create the "%s" directory.', $directory));
+                // @codeCoverageIgnoreEnd
             }
         } elseif (!is_writable($directory)) {
+            // @codeCoverageIgnoreStart
             throw new TemporaryFileException(sprintf('Unable to write in the "%s" directory.', $directory));
+            // @codeCoverageIgnoreEnd
         }
 
         $destpath = rtrim($directory, '/\\') . DIRECTORY_SEPARATOR . $this->getName($filename);
@@ -200,7 +210,9 @@ class TemporaryFile extends \SplFileInfo
         if (!$renamed || !$chmoded) {
             if (!$existed && file_exists($destpath)) {
                 // If the file wasn't there, clean it up in case of a later failure
+                // @codeCoverageIgnoreStart
                 unlink($destpath);
+                // @codeCoverageIgnoreEnd
             }
             throw new TemporaryFileException(sprintf('Could not move the file "%s" to "%s" (%s).', $this->getPathname(), $destpath, strip_tags($error)));
         }
@@ -220,9 +232,11 @@ class TemporaryFile extends \SplFileInfo
      */
     public function getMimeType()
     {
+        // @codeCoverageIgnoreStart
         if (!class_exists(MimeTypes::class)) {
             throw new \LogicException('You cannot guess the mime type as the Mime component is not installed. Try running "composer require symfony/mime".');
         }
+        // @codeCoverageIgnoreEnd
 
         return MimeTypes::getDefault()->guessMimeType($this->getPathname());
     }
