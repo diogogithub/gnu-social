@@ -30,7 +30,9 @@
 
 namespace App\Core;
 
+use function App\Core\I18n\_m;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,7 +45,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class Controller extends AbstractController implements EventSubscriberInterface
@@ -56,6 +57,11 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $this->request = $requestStack->getCurrentRequest();
     }
 
+    /**
+     * TODO: Not currently used, so not tested, but should be
+     *
+     * @codeCoverageIgnore
+     */
     public function __invoke(Request $request)
     {
         $this->request = $request;
@@ -92,14 +98,17 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $request  = $event->getRequest();
         $response = $event->getControllerResult();
         if (!is_array($response)) {
+            // This means it's not one of our custom format responses, nothing to do
+            // @codeCoverageIgnoreStart
             return $event;
+            // @codeCoverageIgnoreEnd
         }
 
         $this->vars = array_merge_recursive($this->vars, $response);
         Event::handle('EndTwigPopulateVars', [&$this->vars]);
 
         $template = $this->vars['_template'];
-        unset($this->vars['_template'], $this->vars['request']);
+        unset($this->vars['_template'], $this->vars['request'], $response['_template']);
 
         // Respond in the the most preffered acceptable content type
         $accept = $request->getAcceptableContentTypes() ?: ['text/html'];
@@ -109,10 +118,10 @@ class Controller extends AbstractController implements EventSubscriberInterface
             $event->setResponse($this->render($template, $this->vars));
             break;
         case 'json':
-            $event->setResponse(new JsonResponse($this->vars));
+            $event->setResponse(new JsonResponse($response));
             break;
         default:
-            throw new BadRequestHttpException('Unsupported format', null, 406);
+            throw new ClientException(_m('Unsupported format'), 406); // 406 Not Acceptable
         }
 
         return $event;
@@ -120,6 +129,8 @@ class Controller extends AbstractController implements EventSubscriberInterface
 
     /**
      * Symfony event when the controller throws an exception
+     *
+     * @codeCoverageIgnore
      */
     public function onKernelException(ExceptionEvent $event)
     {
@@ -140,6 +151,9 @@ class Controller extends AbstractController implements EventSubscriberInterface
         return $event;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public static function getSubscribedEvents()
     {
         return [
@@ -166,8 +180,10 @@ class Controller extends AbstractController implements EventSubscriberInterface
         case 'bool':
             return (bool) $value;
         default:
+            // @codeCoverageIgnoreStart
             Log::critical($m = "Method '{$method}' on class App\\Core\\Controller not found (__call)");
             throw new Exception($m);
+            // @codeCoverageIgnoreEnd
         }
     }
 }
