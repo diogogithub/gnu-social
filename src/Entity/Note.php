@@ -262,6 +262,14 @@ class Note extends Entity
                                    [], ['id' => $this->id]));
     }
 
+    public function jsonSerialize()
+    {
+        return [
+            'content' => $this->getContent(),
+            'author'  => $this->getGSActorId(),
+        ];
+    }
+
     public static function schemaDef(): array
     {
         return [

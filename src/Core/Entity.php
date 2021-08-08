@@ -23,13 +23,14 @@ namespace App\Core;
 
 use App\Core\DB\DB;
 use App\Util\Exception\NotFoundException;
+use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use DateTime;
 
 /**
  * Base class to all entities, with some utilities
  */
-abstract class Entity
+abstract class Entity implements \JsonSerializable
 {
     public function __call(string $name , array $arguments): mixed
     {
@@ -86,8 +87,10 @@ abstract class Entity
             $obj = DB::findOneBy($table, $find_by);
         } catch (NotFoundException) {
             $obj = null;
+            // @codeCoverageIgnoreStart
         } catch (\Exception $e) {
             Log::unexpected_exception($e);
+            // @codeCoverageIgnoreEnd
         }
         $is_update = $obj !== null;
         return [self::create($args, $obj), $is_update];
@@ -118,5 +121,18 @@ abstract class Entity
         } catch (NotFoundException $e) {
             return null;
         }
+    }
+
+    /**
+     * Called when json_encode encounters this object. Not all
+     * entities will need json encoding, so it doesn't make sense to
+     * make this abstract
+     *
+     * @throw ServerException
+     * @codeCoverageIgnore
+     */
+    public function jsonSerialize()
+    {
+        throw new ServerException(_m('Unimplemented method'));
     }
 }
