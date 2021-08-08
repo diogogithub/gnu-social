@@ -38,6 +38,16 @@ class ControllerTest extends GNUsocialTestCase
         static::assertTrue($response->headers->contains('Content-Type', 'application/json'));
         static::assertJson($response->getContent());
         $json = json_decode($response->getContent(), associative: true);
-        dd($json);
+        static::assertTrue(isset($json['notes']));
+        static::assertTrue(isset($json['notes'][0]['note']));
+        static::assertSame($json['notes'][0]['note']['content'], 'some content');
+    }
+
+    public function testUnsupported()
+    {
+        $client = static::createClient(options: [], server: ['HTTP_ACCEPT' => 'application/xml']);
+        $client->request('GET', '/main/all');
+        // $this->assertResponseStatusCodeSame(406);
+        $this->assertSelectorTextContains('.stacktrace', 'ClientException');
     }
 }
