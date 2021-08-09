@@ -3,14 +3,14 @@
 
         {% if app.user %}
             <section class='profile'>
-                <section id="profile-links">
+                <div id="profile-links">
                     <a id="user-avatar" href="{{ path('settings') }}">
                         <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
                     </a>
 
                     <span id="user-info">
                         <a id="user-nick" href="{{ path('settings') }}">
-                            <h2>{{ user_nickname }}</h2>
+                            <h1>{{ user_nickname }}</h1>
                         </a>
                         <div id="user-tags">
                             {% if user_tags %}
@@ -22,7 +22,7 @@
                             {% endif %}
                         </div>
                     </span>
-                </section>
+                </div>
 
                 <span id="stats">
                     <h2>{{ 'Followers' | trans }} {{ user_followers }}</h2>

@@ -67,6 +67,13 @@
     align-items: center;
 }
 
+.active {
+    border-radius: var(--unit-size);
+    background: var(--white);
+    color: var(--bg1) !important;
+    transition: var(--cubic-transition);
+}
+
 .icon-logo {
     margin-right: var(--small-size);
     fill: var(--white);
@@ -138,7 +145,7 @@
 .note {
     background-color: var(--translucent);
     border: solid 2px var(--bg2);
-    border-top: solid 2px var(--bg3);
+    /*border-top: solid 2px var(--bg3);*/
     border-radius: var(--unit-size);
 }
 

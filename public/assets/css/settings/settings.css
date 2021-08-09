@@ -105,14 +105,16 @@
     margin-top: var(--unit-size);
 }
 
+.section-title-settings summary {
+    padding: var(--unit-size) var(--small-size);
+}
+
 .section-title-settings summary:focus,
 .section-title-settings summary:hover {
     cursor: pointer !important;
     border-radius: var(--unit-size);
     background: var(--white);
     color: var(--bg1);
-    padding-left: var(--unit-size);
-    padding-right: var(--unit-size);
     transition: var(--cubic-transition);
 }
 

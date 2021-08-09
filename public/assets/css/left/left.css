@@ -32,6 +32,7 @@
 #user-avatar {
     box-sizing: border-box;
     border-radius: 50%;
+    padding: 0;
 }
 
 #user-avatar img {
@@ -44,8 +45,8 @@
 
 #user-avatar:hover,
 #user-avatar:focus {
-    all: unset !important;
     cursor: pointer;
+    background: none !important;
 }
 
 #user-avatar:hover img,
@@ -62,6 +63,7 @@
 #user-tags {
     font-family: var(--main-font);
     font-size: var(--medium-size);
+    padding-left: var(--unit-size);
 }
 
 .footer {
