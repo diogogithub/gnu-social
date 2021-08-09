@@ -1,7 +1,11 @@
 {% extends 'doc/faq/faq.html.twig' %}
 
-{% block title %}Help{% endblock %}
+{% block title %}Groups{% endblock %}
 {% block body %}
+    {{ parent() }}
+{% endblock %}
+
+{% block nav %}
     {{ parent() }}
 {% endblock %}
 

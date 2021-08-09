@@ -17,101 +17,98 @@
 {% endblock %}
 
 {% block body %}
-    <div class="content">
+    <nav class='main-nav fg'>
+        <h1>Settings</h1>
+        <ul>
+            <li>
+                <details class="section-title-settings">
+                    <summary>
+                        <h1>Profile {{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
 
-        <nav class='main-nav fg'>
-            <h1>Settings</h1>
-            <ul>
-                <li>
-                    <details class="section-title-settings">
-                        <summary>
-                            <h1>Profile {{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
+                        <em>Personal Information, Avatar and Profile</em>
+                    </summary>
 
-                            <em>Personal Information, Avatar and Profile</em>
-                        </summary>
+                    <section>
+                        <nav class='set-nav'>
+                            <ul>
+                                <li>
+                                    <details class="section-title-settings">
+                                        <summary>
+                                            <h1>Personal
+                                                Info{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
 
-                        <section>
-                            <nav class='set-nav'>
-                                <ul>
+                                            <em>Nickname, Homepage, Bio, Self Tags and more.</em>
+                                        </summary>
+
+                                        {% block form_profile %}
+                                            {% include '/settings/profile.html.twig' %}
+                                        {% endblock %}
+                                    </details>
+                                </li>
+
+                                <hr>
+
+                                {% set profile_tabs = handle_event('PopulateProfileSettingsTabs', app.request) %}
+                                {% for tab in profile_tabs %}
                                     <li>
                                         <details class="section-title-settings">
                                             <summary>
-                                                <h1>Personal
-                                                    Info{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
+                                                <h1>{{ tab['title'] }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
 
-                                                <em>Nickname, Homepage, Bio, Self Tags and more.</em>
+                                                <em>{{ tab['desc'] }}</em>
                                             </summary>
 
-                                            {% block form_profile %}
-                                                {% include '/settings/profile.html.twig' %}
-                                            {% endblock %}
+                                            {% include tab['controller']['_template'] with tab['controller'] only %}
+
+                                            {# <a href="{{ path(tab['route']) }}"
+                                                   class='hover-effect {{ active(tab['route']) }}'>{{ tab['title'] }}</a> #}
+
                                         </details>
                                     </li>
 
                                     <hr>
+                                {% endfor %}
+                            </ul>
+                        </nav>
+                    </section>
+                </details>
+            </li>
 
-                                    {% set profile_tabs = handle_event('PopulateProfileSettingsTabs', app.request) %}
-                                    {% for tab in profile_tabs %}
-                                        <li>
-                                            <details class="section-title-settings">
-                                                <summary>
-                                                    <h1>{{ tab['title'] }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
+            <hr>
 
-                                                    <em>{{ tab['desc'] }}</em>
-                                                </summary>
+            <li>
+                <details class="section-title-settings">
+                    <summary>
+                        <h1>Account{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
+                        <em>Email, Password and Language</em>
+                    </summary>
 
-                                                {% include tab['controller']['_template'] with tab['controller'] only %}
+                    <section>
+                        {% block form_account %}
+                            {% include '/settings/account.html.twig' %}
+                        {% endblock %}
+                    </section>
+                </details>
+            </li>
 
-                                                {# <a href="{{ path(tab['route']) }}"
-                                                   class='hover-effect {{ active(tab['route']) }}'>{{ tab['title'] }}</a> #}
+            <hr>
 
-                                            </details>
-                                        </li>
+            <li>
+                <details class="section-title-settings">
+                    <summary>
+                        <h1>Notifications{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
+                        <em>Enable/disable notifications (Email, XMPP, Replies...)</em>
+                    </summary>
 
-                                        <hr>
-                                    {% endfor %}
-                                </ul>
-                            </nav>
-                        </section>
-                    </details>
-                </li>
-
-                <hr>
-
-                <li>
-                    <details class="section-title-settings">
-                        <summary>
-                            <h1>Account{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
-                            <em>Email, Password and Language</em>
-                        </summary>
-
-                        <section>
-                            {% block form_account %}
-                                {% include '/settings/account.html.twig' %}
-                            {% endblock %}
-                        </section>
-                    </details>
-                </li>
-
-                <hr>
-
-                <li>
-                    <details class="section-title-settings">
-                        <summary>
-                            <h1>Notifications{{ icon('arrow-down', 'icon icon-details-open') | raw }}</h1>
-                            <em>Enable/disable notifications (Email, XMPP, Replies...)</em>
-                        </summary>
-
-                        <section>
-                            {% block form_notify %}
-                                {% include '/settings/notifications.html.twig' %}
-                            {% endblock %}
-                        </section>
-                    </details>
-                </li>
-            </ul>
-        </nav>
-    </div>
+                    <section>
+                        {% block form_notify %}
+                            {% include '/settings/notifications.html.twig' %}
+                        {% endblock %}
+                    </section>
+                </details>
+            </li>
+        </ul>
+    </nav>
 {% endblock body %}
 
 {% block javascripts %}{% endblock %}

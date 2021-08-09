@@ -1,24 +1,22 @@
-{% extends 'base.html.twig' %}
+{% extends 'doc/privacy.html.twig' %}
 
 {% block title %}Source{% endblock %}
+
 {% block body %}
     {{ parent() }}
-    <div class='content'>
-        <div class='markd markd-single'>
-            {% block markdown %}
-                {% apply markdown_to_html %}
-                    ## Source
+{% endblock %}
 
-                    This service uses a Free microblogging tool called GNU social. GNU social is available under the GNU Affero General Public License Version 3.0, a Free Software license for network services.
+{% block markdown %}
+    {% apply markdown_to_html %}
+        ## Source
 
-                    You can get a copy of the software by following links from the GNU social main site¹. The version of the software that runs on this site is unmodified from that version. The site also depends on certain libraries and other software; these are all bundled in the GNU social repository² and release archive files.
+        This service uses a Free microblogging tool called GNU social. GNU social is available under the GNU Affero General Public License Version 3.0, a Free Software license for network services.
 
-                    ## References
+        You can get a copy of the software by following links from the GNU social main site¹. The version of the software that runs on this site is unmodified from that version. The site also depends on certain libraries and other software; these are all bundled in the GNU social repository² and release archive files.
 
-                    - GNU social main site, https://gnu.io
-                    - GNU social repository, https://notabug.org/gnu/gnu-social
-                {% endapply %}
-            {% endblock %}
-        </div>
-    </div>
+        ## References
+
+        - GNU social main site, https://gnu.io
+        - GNU social repository, https://notabug.org/gnu/gnu-social
+    {% endapply %}
 {% endblock %}

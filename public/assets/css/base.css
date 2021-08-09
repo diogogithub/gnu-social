@@ -10,9 +10,9 @@
      * small size     - used in common text, borders
      */
     --unit-size: 0.5rem;
-    --main-size: 1.15rem;
-    --medium-size: 0.9rem;
-    --small-size: 0.8rem;
+    --main-size: 1.4rem;
+    --medium-size: 1.2rem;
+    --small-size: 1rem;
 
     /* colours and shadows */
     --bg1: #242434;
@@ -78,7 +78,7 @@
     flex-wrap: wrap;
     justify-content: space-around;
     /*margin-top: calc(3 * var(--small-size) + var(--main-size));*/
-    margin-top: 3.3rem;
+    margin-top: 4.3rem;
 }
 
 /* THE FOCUSED (middle) DIV */
@@ -92,6 +92,35 @@
     width: 100%;
     max-width: 60%;
 }
+
+.markdown-blocks {
+    background-color: var(--translucent);
+    border-radius: 0 0 var(--unit-size) var(--unit-size);
+    border: solid 2px var(--bg2);
+    border-top: solid 2px var(--bg3);
+    padding: var(--unit-size);
+}
+.markdown-blocks ul {
+    margin-left: 1em;
+    list-style: disc;
+}
+.markdown-blocks ul li {
+    margin-bottom: 0.2em;
+}
+.doc-navigation {
+    background-color: var(--translucent);
+    border-radius: var(--unit-size) var(--unit-size) 0 0;
+    border: solid 2px var(--bg2);
+    border-bottom: none;
+    padding: var(--unit-size);
+}
+.doc-navigation ul {
+    display: flex;
+    justify-content: space-evenly;
+    font-size: var(--main-size);
+    font-family: var(--display-font);
+}
+
 
 /* NOTES */
 .h-feed,
@@ -109,6 +138,7 @@
 .note {
     background-color: var(--translucent);
     border: solid 2px var(--bg2);
+    border-top: solid 2px var(--bg3);
     border-radius: var(--unit-size);
 }
 

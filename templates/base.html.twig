@@ -27,6 +27,7 @@
         {% endfor %}
     {% endfor %}
 </head>
+
 <body class="bg">
     {% block header %}
         <div id='header'>
@@ -52,9 +53,11 @@
     {% endblock header %}
 
     <div class="container">
-        {% block nav %}{% endblock %}
-        {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock javascripts %}
+        <div class='content'>
+            {% block nav %}{% endblock %}
+            {% block body %}{% endblock %}
+            {% block javascripts %}{% endblock javascripts %}
+        </div>
     </div>
 
 </body>
