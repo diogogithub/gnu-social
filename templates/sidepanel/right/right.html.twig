@@ -3,7 +3,7 @@
     {% if post_form is defined %}
 
         <section class="create-notice">
-            {{ form_start(post_form) }}
+
             <legend class="section-title">
                 <h1>Create a note</h1>
 
@@ -20,6 +20,7 @@
             </legend>
 
             <div class="section-content">
+                {{ form_start(post_form) }}
                     <span class="target">
                         <div class="target-top">
                             {{ form_label(post_form.to) }}
@@ -32,35 +33,33 @@
                 <hr>
 
                 <span class="scope">
-                        <div class="visibility">
-                            {{ form_row(post_form.visibility) }}
-                        </div>
-                    </span>
+                    <div class="visibility">
+                        {{ form_row(post_form.visibility) }}
+                    </div>
+                </span>
 
                 <hr>
 
                 <span id="input">
-                        <div class="input-wrapper">
-                            <div class="content-input">
-                                {{ form_row(post_form.content) }}
-                            </div>
+                    <div class="input-wrapper">
+                        <div class="content-input">
+                            {{ form_row(post_form.content) }}
                         </div>
+                    </div>
 
-                        <div class="notice-options">
-                            <div class="attachments">
-                                <label for="{{ post_form.attachments.vars.id }}" class="custom-file-upload">
-                                    {{ form_widget(post_form.attachments) }}
-                                </label>
-                            </div>
-
-                            {{ form_row(post_form.post) }}
+                    <div class="notice-options">
+                        <div class="attachments">
+                            <label for="{{ post_form.attachments.vars.id }}" class="custom-file-upload">
+                                {{ form_widget(post_form.attachments) }}
+                            </label>
                         </div>
-                    </span>
+                    </div>
+                </span>
+
+                {{ form_row(post_form.post) }}
+
+                {{ form_end(post_form) }}
             </div>
-            {{ form_end(post_form) }}
-
-
-
         </section>
 
 

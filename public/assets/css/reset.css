@@ -184,6 +184,12 @@ hr {
 }
 
 /* BUTTONS AND FILEPICKER */
+button {
+    float: right !important;
+    width: min-content !important;
+    align-self: end !important;
+}
+
 button,
 input:not([type=text]) {
     all: unset;
@@ -191,12 +197,12 @@ input:not([type=text]) {
     cursor: pointer;
     font-size: var(--medium-size);
 
-    background: linear-gradient(135deg, var(--bg2), transparent);
+    background-image: linear-gradient(180deg, var(--bg2), transparent);
     color: var(--white);
 
     border: solid 2px var(--bg2);
     border-radius: var(--unit-size);
-    padding: var(--unit-size) var(--small-size);
+    padding: 6px 12px;
 }
 
 *|*::-moz-button-content {

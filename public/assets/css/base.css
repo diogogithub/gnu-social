@@ -23,6 +23,7 @@
     --white: #FFFFFF;
 
     --shadow: 0px 0px 32px 0px #00000066;
+    --shadow-light: 0px 0px 32px 0px #FFFFFF66;
 
     /* transitions and animations */
     --cubic-transition: all 200ms cubic-bezier(0, 0.55, 0.45, 1);
@@ -127,7 +128,6 @@
     font-size: var(--main-size);
     font-family: var(--display-font);
 }
-
 
 /* NOTES */
 .h-feed,
