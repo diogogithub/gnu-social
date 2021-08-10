@@ -62,7 +62,6 @@
 
 #user-tags {
     font-family: var(--main-font);
-    font-size: var(--medium-size);
     padding-left: var(--unit-size);
 }
 
@@ -91,8 +90,3 @@
     flex-direction: column;
 }
 
-.sec-nav {
-    font-size: var(--medium-size);
-    display: flex;
-    flex-direction: column;
-}

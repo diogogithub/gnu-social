@@ -71,7 +71,8 @@ details > summary::-webkit-details-marker {
 }
 
 * {
-    box-sizing: border-box;
+    vertical-align: middle !important;
+    box-sizing: border-box !important;
 }
 
 /* TYPOGRAPHY AND GENERAL SELECTORS */
@@ -84,6 +85,7 @@ html {
     background-attachment: fixed;
     color: var(--white);
     font-family: var(--main-font);
+    font-size: var(--small-size);
 }
 
 h1 {
@@ -106,8 +108,8 @@ h2 {
 
 h3 {
     font-family: var(--display-font);
-    font-size: var(--medium-size);
-    font-weight: 600;
+    font-size: var(--small-size);
+    font-weight: 700;
     line-height: 1.00;
     letter-spacing: -0.20px;
     word-spacing: 1.00px;
@@ -116,11 +118,19 @@ h3 {
 
 p {
     font-family: var(--main-font);
-    font-size: var(--medium-size);
+    font-size: var(--small-size);
     font-weight: 400;
     letter-spacing: -0.30px;
     word-spacing: -0.10px;
     margin-bottom: var(--small-size);
+    text-transform: none;
+}
+
+textarea {
+    font-family: var(--main-font);
+    font-weight: 400;
+    letter-spacing: -0.30px;
+    word-spacing: -0.10px;
     text-transform: none;
 }
 
@@ -197,82 +207,34 @@ input:not([type=text]) {
     cursor: pointer;
     font-size: var(--medium-size);
 
-    background-image: linear-gradient(180deg, var(--bg2), transparent);
-    color: var(--white);
-
-    border: solid 2px var(--bg2);
     border-radius: var(--unit-size);
     padding: 6px 12px;
-}
-
-textarea:hover,
-textarea:focus {
-    border: solid 2px var(--bg3) !important;
 }
 
 *|*::-moz-button-content {
     all: unset;
 }
 
-/* TODO: hover and focus feedback, checkbox */
-input[type=radio]:hover,
-input[type=radio]:focus {
-    border: solid 5px var(--bg3) !important;
-}
-
 input[type=radio] {
     all: unset;
     display: inline-block;
-    width: var(--unit-size);
-    height: var(--unit-size);
-    border: solid 5px var(--bg2);
+    width: 1em;
+    height: 1em;
     border-radius: 50%;
     margin: 3px 3px 0px 5px;
-    background-color: var(--bg1);
-}
-input[type=radio]:checked {
-    background-color: var(--white);
-}
-
-button:hover,
-button:focus,
-input:hover,
-input:focus {
-    border: solid 2px var(--bg3);
-    color: var(--white);
-}
-
-button:hover,
-input:is([type=reset], [type=button], [type=submit]):hover {
-    color: var(--white);
-}
-
-:focus-visible::-moz-focus-inner {
-    border-color: var(--bg3) !important;
-}
-
-:is(:disabled, :disabled:active)::file-selector-button,
-button:is(:disabled, :disabled:active),
-input:is([type=reset], [type=button], [type=submit]):is(:disabled, :disabled:active),
-select:is(:disabled, :disabled:active) > button {
-    color: var(--white);
 }
 
 /* file selector */
 input[type=file] {
     all: unset;
-    display: block;
-    max-width: 100%;
-    background: linear-gradient(135deg, var(--bg2), transparent);
+
+    display: block !important;
+    width: 100%;
 
     font-family: var(--main-font);
     font-size: var(--medium-size);
 
     border-radius: var(--unit-size);
-}
-input[type=file]:focus,
-input[type=file]:hover {
-    background: linear-gradient(135deg, var(--bg2), var(--bg3) 200%);
 }
 
 input + label {
@@ -286,8 +248,7 @@ input + label {
     cursor: pointer;
 
     background-color: unset;
-    color: var(--white);
 
     border: unset;
-    margin: 5px;
+    margin: 3px;
 }

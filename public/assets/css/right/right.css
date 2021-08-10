@@ -2,7 +2,7 @@
     right: 0;
 }
 
-.create-notice {
+.section-widget {
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -10,84 +10,52 @@
     background-color: var(--translucent);
     border-radius: var(--unit-size);
     border: solid 2px var(--bg2);
-}
 
-.create-notice textarea {
-    width: 100%;
+    font-family: var(--main-font);
+    font-weight: 400;
+    color: var(--white);
 }
 
 .section-title {
-    display: flex;
-    flex-direction: column;
+    font-family: var(--display-font);
+    font-weight: 900;
+    font-size: var(--main-size);
+
     border-radius: var(--unit-size);
-    padding: var(--unit-size);
+    padding: 2px var(--unit-size);
 
     background-color: var(--translucent);
-    font-family: var(--display-font);
+}
+.section-title-hamburger {
+    display: flex;
+    justify-content: space-between;
+}
+.section-title-hamburger svg {
+    align-self: center;
+    fill: var(--white);
 }
 
-.section-title-plus {
-    fill: var(--white);
-    width: var(--main-size);
-    height: auto;
-}
-.section-title-plus summary {
-    display: block;
-    position: absolute;
-    top: var(--unit-size);
-    right: var(--unit-size);
+.section-form {
     padding: var(--unit-size);
 }
 
-.section-content {
-    margin: var(--unit-size);
-}
-.section-content hr {
-    all: unset;
-    display: inline;
-    height: 2px;
-    background-image: linear-gradient(to left, var(--translucent), transparent 90%);
+.form-options {
+    display: block !important;
     margin-bottom: var(--unit-size);
 }
 
-.target,
-.scope {
-    border-radius: var(--unit-size);
-}
-
-.target label:first-child,
-.scope label:first-child {
-    font-family: var(--display-font);
-}
-
-#tabs {
-    display: flex;
-    flex-direction: column;
-    font-family: var(--display-font);
-}
-
-.notice-options {
-    width: 100%;
-}
-
-#post_content {
+.form-input {
     border-radius: var(--unit-size);
     background-color: var(--translucent);
+    color: var(--white);
 
+    width: 100%;
     max-width: 100%;
     height: calc(6 * var(--main-size));
 
-    border: 2px solid var(--bg2);
+    border: 2px solid transparent;
     margin-top: var(--unit-size);
     margin-bottom: var(--unit-size);
     padding: var(--unit-size);
     resize: vertical;
-
-    font-family: var(--main-font);
-    font-size: var(--medium-size);
-    color: var(--white);
-}
-
-.attachments {
-    margin-bottom: var(--unit-size);
 }

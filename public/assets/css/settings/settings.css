@@ -1,7 +1,6 @@
 .main-nav {
     background-color: var(--translucent);
     margin-bottom: var(--unit-size);
-    font-size: var(--main-size);
     border-radius: var(--unit-size);
     padding: var(--unit-size);
     box-sizing: border-box;
@@ -30,13 +29,11 @@
 }
 
 .main-nav ul li {
-    font-size: var(--medium-size);
     border-radius: var(--unit-size);
 }
 
 .form {
     display: flex;
-    font-size: var(--main-size);
     border-radius: var(--unit-size);
     padding: var(--unit-size);
     box-sizing: border-box;
@@ -57,7 +54,6 @@
 .form #save {
     display: flex;
     flex-direction: column;
-    font-size: var(--medium-size);
     padding: var(--unit-size);
     box-sizing: border-box;
 }
@@ -77,7 +73,6 @@
     position: relative;
 
     color: var(--white);
-    font-size: var(--medium-size);
     border-radius: var(--unit-size);
     padding: var(--unit-size);
     box-sizing: border-box;

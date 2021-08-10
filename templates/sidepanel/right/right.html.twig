@@ -1,78 +1,53 @@
 <aside id='right-panel'>
-
     {% if post_form is defined %}
-
-        <section class="create-notice">
-
+        <section class="section-widget">
             <legend class="section-title">
-                <h1>Create a note</h1>
-
-                <details class="section-title-plus">
-                    <summary>
-                        {{ icon('plus-circle', 'icon icon-plus') | raw }}
+                <details>
+                    <summary class="section-title-hamburger">
+                        Create a note {{ icon('plus-circle', 'icon icon-plus') | raw }}
                     </summary>
-                    <div id="note-types">
-                        {% for tab in tabs %}
-                            <a href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
-                        {% endfor %}
-                    </div>
+
+                    {% for tab in tabs %}
+                        <a class="section-title-hamburger-element" href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
+                    {% endfor %}
                 </details>
             </legend>
 
-            <div class="section-content">
+            <div class="section-form">
                 {{ form_start(post_form) }}
-                    <span class="target">
-                        <div class="target-top">
-                            {{ form_label(post_form.to) }}
-                        </div>
-                        <div class="target-bot">
-                            {{ form_widget(post_form.to) }}
-                        </div>
-                    </span>
 
-                <hr>
-
-                <span class="scope">
-                    <div class="visibility">
-                        {{ form_row(post_form.visibility) }}
-                    </div>
+                <span class="form-target">
+                    {{ form_label(post_form.to) }}
+                    {{ form_widget(post_form.to) }}
                 </span>
 
-                <hr>
+                {{ form_row(post_form.visibility, {'attr': {'class': 'form-scope'}}) }}
 
-                <span id="input">
-                    <div class="input-wrapper">
-                        <div class="content-input">
-                            {{ form_row(post_form.content) }}
-                        </div>
-                    </div>
+                {{ form_row(post_form.content, {'attr': {'class': 'form-input'}}) }}
 
-                    <div class="notice-options">
-                        <div class="attachments">
-                            <label for="{{ post_form.attachments.vars.id }}" class="custom-file-upload">
-                                {{ form_widget(post_form.attachments) }}
-                            </label>
-                        </div>
-                    </div>
-                </span>
+                <label for="{{ post_form.attachments.vars.id }}" class="form-options">
+                    {{ form_widget(post_form.attachments) }}
+                </label>
 
-                {{ form_row(post_form.post) }}
+                {{ form_row(post_form.post, {'attr': {'class': 'form-send'}}) }}
 
                 {{ form_end(post_form) }}
             </div>
         </section>
-
-
     {% endif %}
 
     {% set current_path = app.request.get('_route') %}
     {% if right_panel_vars is defined %}
         {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'vars': right_panel_vars}) %}
-            {{ block | raw }}
+            <section class="section-widget">
+                {{ block | raw }}
+            </section>
         {% endfor %}
     {% else %}
         {% for block in handle_event('AppendRightPanelBlock', {'path': current_path}) %}
-            {{ block | raw }}
+            <section class="section-widget">
+                {{ block | raw }}
+            </section>
         {% endfor %}
     {% endif %}
 </aside>
