@@ -75,10 +75,9 @@ class Avatar extends Component
         return Event::next;
     }
 
-    public function onAttachmentCountDependencies(int $attachment_id, int &$dependencies): bool
+    public function onAttachmentRefCount(int $attachment_id, int &$dependencies): bool
     {
-        $avatars = DB::findBy('avatar', ['attachment_id' => $attachment_id]);
-        $dependencies += count($avatars);
+        $dependencies += DB::count('avatar', ['attachment_id' => $attachment_id]);
         return Event::next;
     }
 

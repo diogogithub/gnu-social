@@ -133,7 +133,7 @@ class Avatar extends Entity
         if ($cascade) {
             $attachment = $this->getAttachment();
             // We can't use $attachment->isSafeDelete() because underlying findBy doesn't respect remove persistence
-            if ($attachment->countDependencies() - 1 === 0) {
+            if ($attachment->refCount() - 1 === 0) {
                 $attachment->delete(cascade: true, flush: false);
             }
         }

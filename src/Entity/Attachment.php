@@ -246,28 +246,22 @@ class Attachment extends Entity
     const URLHASH_ALGO  = 'sha256';
     const FILEHASH_ALGO = 'sha256';
 
-    /**
-     *
-     * Warning: Underlying DB::findBy doesn't respect remove persistence
-     * @return int
-     */
-    public function countDependencies(): int
+    public function refCount(): int
     {
         $attachment_id = $this->getId();
-        $notes         = DB::findBy('attachment_to_note', ['attachment_id' => $attachment_id]);
-        $dependencies  = count($notes);
-        Event::handle('AttachmentCountDependencies', [$attachment_id, &$dependencies]);
+        $dependencies  = DB::count('attachment_to_note', ['attachment_id' => $attachment_id]);
+        Event::handle('AttachmentRefCount', [$attachment_id, &$dependencies]);
         return $dependencies;
     }
 
     /**
+     * @depends Attachment->refCount()
      *
-     * @depends Attachment->countDependencies()
      * @return bool
      */
     public function isSafeDelete(): bool
     {
-        return $this->countDependencies() === 0;
+        return $this->refCount() === 0;
     }
 
     /**
