@@ -106,8 +106,7 @@ class Avatar extends Controller
                     throw new ClientException('Invalid form');
                 }
                 $attachment = GSFile::sanitizeAndStoreFileAsAttachment(
-                    $file,
-                    dest_dir: Common::config('attachments', 'dir')
+                    $file
                 );
                 // Delete current avatar if there's one
                 $avatar = DB::find('avatar', ['gsactor_id' => $gsactor_id]);

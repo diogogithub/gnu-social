@@ -10,7 +10,6 @@ use App\Entity\GSActor;
 use App\Entity\LocalGroup;
 use App\Entity\LocalUser;
 use App\Entity\Note;
-use App\Util\Common;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Component\HttpFoundation\File\File;
@@ -51,7 +50,7 @@ class CoreFixtures extends Fixture
         $copy_filepath = $filepath . '.copy';
         copy($filepath, $copy_filepath);
         $file = new File($copy_filepath, checkPath: true);
-        GSFile::sanitizeAndStoreFileAsAttachment($file, dest_dir: Common::config('attachments', 'dir') . 'test/');
+        GSFile::sanitizeAndStoreFileAsAttachment($file);
         $manager->flush();
     }
 }

@@ -122,8 +122,7 @@ END;
             $filesize = $f->getSize();
             Event::handle('EnforceQuota', [$actor_id, $filesize]);
             $processed_attachments[] = GSFile::sanitizeAndStoreFileAsAttachment(
-                $f,
-                dest_dir: Common::config('attachments', 'dir')
+                $f
             );
         }
 

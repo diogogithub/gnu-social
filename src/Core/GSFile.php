@@ -29,7 +29,6 @@ use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NoSuchFileException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
-use App\Util\Formatting;
 use SplFileInfo;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -62,13 +61,8 @@ class GSFile
      *
      * @return Attachment
      */
-    public static function sanitizeAndStoreFileAsAttachment(SplFileInfo $file,
-                                                            string $dest_dir): Attachment
+    public static function sanitizeAndStoreFileAsAttachment(SplFileInfo $file): Attachment
     {
-        if (!Formatting::startsWith($dest_dir, Common::config('storage', 'dir'))) {
-            throw new \InvalidArgumentException("Attempted to store a file in a directory outside the GNU social files location: {$dest_dir}");
-        }
-
         $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         try {
@@ -83,12 +77,12 @@ class GSFile
             $attachment = Attachment::create([
                 'filehash' => $hash,
                 'mimetype' => $mimetype,
-                'filename' => Formatting::removePrefix($dest_dir, Common::config('attachments', 'dir')) . $hash,
+                'filename' => $hash,
                 'size'     => $file->getSize(),
                 'width'    => $width,
                 'height'   => $height,
             ]);
-            $file->move($dest_dir, $hash);
+            $file->move(Common::config('attachments', 'dir'), $hash);
             DB::persist($attachment);
             Event::handle('AttachmentStoreNew', [&$attachment]);
         }
