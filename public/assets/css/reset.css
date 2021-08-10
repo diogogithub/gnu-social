@@ -205,17 +205,27 @@ input:not([type=text]) {
     padding: 6px 12px;
 }
 
+textarea:hover,
+textarea:focus {
+    border: solid 2px var(--bg3) !important;
+}
+
 *|*::-moz-button-content {
     all: unset;
 }
 
 /* TODO: hover and focus feedback, checkbox */
+input[type=radio]:hover,
+input[type=radio]:focus {
+    border: solid 5px var(--bg3) !important;
+}
+
 input[type=radio] {
     all: unset;
     display: inline-block;
     width: var(--unit-size);
     height: var(--unit-size);
-    border: solid 5px var(--bg2) !important;
+    border: solid 5px var(--bg2);
     border-radius: 50%;
     margin: 3px 3px 0px 5px;
     background-color: var(--bg1);

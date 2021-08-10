@@ -1,7 +1,7 @@
 :root {
     /* FONTS */
-    --display-font: 'Manrope-ExtraBold', sans-serif;
-    --main-font: 'Inter', sans-serif;
+    --display-font: 'Manrope', sans-serif;
+    --main-font: 'Inter var', sans-serif;
 
     /* UNITS
      * unit size      - every element should be a multiplier of this
@@ -49,6 +49,7 @@
 #header {
     z-index: 1;
 
+    height: 3rem;
     font-size: var(--main-size);
     display: flex;
     justify-content: space-between;
@@ -61,6 +62,9 @@
     align-items: center;
 
     box-shadow: var(--shadow);
+}
+#header + * {
+    margin-top: 3rem;
 }
 
 #instance {
@@ -85,8 +89,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
-    /*margin-top: calc(3 * var(--small-size) + var(--main-size));*/
-    margin-top: 4.3rem;
+    padding: var(--unit-size);
 }
 
 /* THE FOCUSED (middle) DIV */
@@ -95,7 +98,6 @@
     flex-direction: column;
     margin-left: 20%;
     margin-right: 20%;
-    padding: 0 var(--unit-size) 0 var(--unit-size);
 
     width: 100%;
     max-width: 60%;
@@ -130,12 +132,6 @@
 }
 
 /* NOTES */
-.h-feed,
-.notes {
-    margin-top: var(--main-size);
-}
-
-.h-feed,
 .notes hr {
     margin-top: var(--unit-size);
     margin-bottom: var(--main-size);
@@ -198,6 +194,7 @@
 }
 
 /* SIDE PANELS */
+
 .panel {
     font-size: var(--main-size);
 }
@@ -210,15 +207,21 @@
     box-sizing: border-box;
     width: 20%;
 
-    display: flex;
-    flex-direction: column;
+    display: block;
 
     position: absolute;
     top: 100%;
 }
 
 .panel aside .footer {
-    margin-top: auto;
+    max-width: 20%;
+
+    display: inline-block;
+    position: fixed;
+
+    bottom: var(--unit-size);
+    left: var(--unit-size);
+    font-size: var(--small-size);
 }
 
 .icon {
@@ -275,6 +278,10 @@
         min-height: 100%;
 
         display: block !important;
+    }
+
+    .panel[open] aside .footer {
+        max-width: 100%;
     }
 }
 

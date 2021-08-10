@@ -66,16 +66,13 @@
     padding-left: var(--unit-size);
 }
 
-.footer {
-    font-size: var(--small-size);
-    margin-top: auto;
-    padding: var(--unit-size);
-}
-
 /* TIMELINE NAVIGATION / PLUGINS */
 .timeline-nav a,
 .timeline-nav h1 {
     display: flex;
+}
+.timeline-nav h1 {
+    padding-left: var(--unit-size);
 }
 .timeline-nav hr {
     flex: 1;
