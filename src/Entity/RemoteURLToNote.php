@@ -19,7 +19,9 @@
 
 namespace App\Entity;
 
+use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Event;
 use DateTimeInterface;
 
 /**
@@ -71,6 +73,22 @@ class RemoteURLToNote extends Entity
     public function getModified(): DateTimeInterface
     {
         return $this->modified;
+    }
+
+    /**
+     * Create an instance of RemoteURLToNote or fill in the
+     * properties of $obj with the associative array $args. Doesn't
+     * persist the result
+     *
+     * @param null|mixed $obj
+     */
+    public static function create(array $args, $obj = null)
+    {
+        $remoteURL = DB::find('remoteurl', ['id' => $args['remoteurl_id']]);
+        $note      = DB::find('note', ['id' => $args['note_id']]);
+        Event::handle('NewRemoteURLFromNote', [$remoteURL, $note]);
+        $obj = new self();
+        return parent::create($args, $obj);
     }
 
     // @codeCoverageIgnoreEnd

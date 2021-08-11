@@ -22,6 +22,7 @@ namespace App\Entity;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
+use App\Core\GSFile;
 use App\Core\HTTPClient;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
@@ -137,7 +138,7 @@ class RemoteURL extends Entity
             $head = HTTPClient::head($url);
             // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
             $headers  = $head->getHeaders();
-            $url      = $head->getInfo('url'); // The last effective url (after getHeaders so it follows redirects)
+            $url      = $head->getInfo('url'); // The last effective url (after getHeaders, so it follows redirects)
             $url_hash = hash(self::URLHASH_ALGO, $url);
             try {
                 return DB::findOneBy('remoteurl', ['remote_url_hash' => $url_hash]);
@@ -149,7 +150,7 @@ class RemoteURL extends Entity
                     'mimetype'        => $headers['content-type'][0],
                 ]);
                 DB::persist($remoteurl);
-                Event::handle('RemoteURLStoreNew', [&$remoteurl]);
+                Event::handle('RemoteURLStoredNew', [&$remoteurl]);
                 return $remoteurl;
             }
         } else {
