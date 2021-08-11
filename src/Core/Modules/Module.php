@@ -33,6 +33,14 @@ use Symfony\Component\HttpFoundation\Request;
  */
 abstract class Module
 {
+    public function __construct()
+    {
+        // Load Module settings
+        foreach (Common::config(static::class) as $aname => $avalue) {
+            $this->{$aname} = $avalue;
+        }
+    }
+
     /**
      * Serialize the class to store in the cache
      *
