@@ -27,9 +27,8 @@
  * @author    hannes
  * @author    Mikael Nordfeldth
  * @author    Miguel Dantas
+ * @author    Hugo Sales <hugo@hsal.es>
  * @author    Diogo Peralta Cordeiro <mail@diogo.site>
- * @authir    Hugo Sales <hugo@hsal.es>
- *
  * @copyright 2014-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -41,14 +40,19 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
+use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Attachment;
+use App\Entity\Note;
+use App\Entity\RemoteURL;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
+use App\Util\Exception\ServerException;
+use App\Util\Exception\TemporaryFileException;
 use App\Util\Formatting;
 use App\Util\TemporaryFile;
 use Embed\Embed as LibEmbed;
@@ -64,11 +68,16 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class Embed extends Plugin
 {
+    public function version(): string
+    {
+        return '3.0.0';
+    }
+
     /**
      *  Settings which can be set in social.local.yaml
      *  WARNING, these are _regexps_ (slashes added later). Always escape your dots and end ('$') your strings
      */
-    public $domain_allowlist = [
+    public array $domain_whitelist = [
         // hostname => service provider
         '.*' => '', // Default to allowing any host
     ];
@@ -77,11 +86,11 @@ class Embed extends Plugin
      * This code executes when GNU social creates the page routing, and we hook
      * on this event to add our action handler for Embed.
      *
-     * @param $m URLMapper the router that was initialized.
+     * @param $m RouteLoader the router that was initialized.
      *
      * @throws Exception
      *
-     * @return bool true if successful, the exception object if it isn't.
+     * @return bool
      *
      */
     public function onAddRoute(RouteLoader $m): bool
@@ -121,73 +130,125 @@ class Embed extends Plugin
     /**
      * Save embedding information for an Attachment, if applicable.
      *
-     * Normally this event is called through File::saveNew()
+     * @param RemoteURL $remote_url
+     * @param Note      $note
      *
-     * @param Attachment $attachment The newly inserted Attachment object.
+     * @throws DuplicateFoundException
+     * @throws ServerException
+     * @throws TemporaryFileException
      *
-     * @return bool success
+     * @return bool
      */
-    public function onAttachmentStoreNew(Attachment $attachment): bool
+    public function onNewRemoteURLFromNote(RemoteURL $remote_url, Note $note): bool
     {
-        try {
-            DB::findOneBy('attachment_embed', ['attachment_id' => $attachment->getId()]);
-        } catch (NotFoundException) {
-            if ($attachment->hasRemoteUrl() && $attachment->hasMimetype()) {
-                $mimetype = $attachment->getMimetype();
-                if (Formatting::startsWith($mimetype, 'text/html') || Formatting::startsWith($mimetype, 'application/xhtml+xml')) {
-                    try {
-                        $embed_data                  = $this->getEmbed($attachment->getRemoteUrl(), $attachment);
-                        $embed_data['attachment_id'] = $attachment->getId();
-                        DB::persist(Entity\AttachmentEmbed::create($embed_data));
-                        DB::flush();
-                    } catch (Exception $e) {
-                        Log::warning($e);
-                    }
-                }
+        // Only handle text mime
+        if ($remote_url->getMimetypeMajor() !== 'text') {
+            return Event::next;
+        }
+
+        // Ignore if already handled
+        $attachment_embed = DB::find('attachment_embed', ['remoteurl_id' => $remote_url->getId()]);
+        if (!is_null($attachment_embed)) {
+            return Event::next;
+        }
+
+        $mimetype = $remote_url->getMimetype();
+
+        if (Formatting::startsWith($mimetype, 'text/html') || Formatting::startsWith($mimetype, 'application/xhtml+xml')) {
+            try {
+                $embed_data                 = $this->getEmbed($remote_url->getRemoteUrl());
+                $embed_data['remoteurl_id'] = $remote_url->getId();
+                // Create attachment
+                $embed_data['attachment_id'] = $attachment->getId();
+                DB::persist(Entity\AttachmentEmbed::create($embed_data));
+                DB::flush();
+            } catch (Exception $e) {
+                Log::warning($e);
             }
-        } catch (DuplicateFoundException) {
-            Log::warning("Strangely, an attachment_embed object exists for new file {$attachment->getID()}");
         }
         return Event::next;
     }
 
     /**
-     * Replace enclosure representation of an attachment with the data from embed
+     * Perform an oEmbed or OpenGraph lookup for the given $url.
+     *
+     * Some known hosts are whitelisted with API endpoints where we
+     * know they exist but autodiscovery data isn't available.
+     *
+     * Throws exceptions on failure.
+     *
+     * @param string $url
+     *
+     * @return array
      */
-    public function onAttachmentFileInfo(int $attachment_id, ?array &$enclosure)
+    public function getEmbed(string $url): array
     {
+        Log::info('Checking for remote URL metadata for ' . $url);
+
         try {
-            $embed = DB::findOneBy('attachment_embed', ['attachment_id' => $attachment_id]);
-        } catch (NotFoundException) {
-            return Event::next;
+            Log::info("Trying to find Embed data for {$url} with 'oscarotero/Embed'");
+            $embed                     = new LibEmbed();
+            $info                      = $embed->get($url);
+            $metadata['title']         = $info->title;
+            $metadata['description']   = $info->description;
+            $metadata['author_name']   = $info->authorName;
+            $metadata['author_url']    = (string) $info->authorUrl;
+            $metadata['provider_name'] = $info->providerName;
+            $metadata['provider_url']  = (string) $info->providerUrl;
+
+            if (!is_null($info->image)) {
+                $thumbnail_url = (string) $info->image;
+            } else {
+                $thumbnail_url = (string) $info->favicon;
+            }
+
+            // Check thumbnail URL validity
+            $metadata['thumbnail_url'] = $thumbnail_url;
+        } catch (Exception $e) {
+            Log::info("Failed to find Embed data for {$url} with 'oscarotero/Embed', got exception: " . $e->getMessage());
         }
 
-        // We know about this attachment, so we 'own' it, but know
-        // that it doesn't have an image
-        if (!$embed->isImage()) {
-            $enclosure = null;
-            return Event::stop;
+        $metadata = self::normalize($metadata);
+        return $metadata;
+    }
+
+    /**
+     * Normalize fetched info.
+     *
+     * @param array $metadata
+     *
+     * @return array
+     */
+    public static function normalize(array $metadata): array
+    {
+        if (isset($metadata['thumbnail_url'])) {
+            // sometimes sites serve the path, not the full URL, for images
+            // let's "be liberal in what you accept from others"!
+            // add protocol and host if the thumbnail_url starts with /
+            if ($metadata['thumbnail_url'][0] == '/') {
+                $thumbnail_url_parsed      = parse_url($metadata['thumbnail_url']);
+                $metadata['thumbnail_url'] = "{$thumbnail_url_parsed['scheme']}://{$thumbnail_url_parsed['host']}{$metadata['url']}";
+            }
+
+            // Some wordpress opengraph implementations sometimes return a white blank image
+            // no need for us to save that!
+            if ($metadata['thumbnail_url'] == 'https://s0.wp.com/i/blank.jpg') {
+                $metadata['thumbnail_url'] = null;
+            }
         }
 
-        $enclosure = [
-            'filepath' => $embed->getFilepath(),
-            'mimetype' => $embed->getMimetype(),
-            'title'    => $embed->getTitle(),
-            'width'    => $embed->getWidth(),
-            'height'   => $embed->getHeight(),
-            'url'      => $embed->getMediaUrl(),
-        ];
-
-        return Event::stop;
+        return $metadata;
     }
 
     /**
      * Show this attachment enhanced with the corresponding Embed data, if available
+     *
      * @param array $vars
      * @param array $res
+     *
      * @return bool
      */
-    public function onViewRemoteAttachment(array $vars, array &$res): bool
+    public function onViewAttachmentText(array $vars, array &$res): bool
     {
         $attachment = $vars['attachment'];
         try {
@@ -199,7 +260,7 @@ class Embed extends Plugin
         } catch (NotFoundException) {
             return Event::next;
         }
-        if (is_null($embed) && empty($embed->getAuthorName()) && empty($embed->getProvider())) {
+        if (is_null($embed) && empty($embed->getAuthorName()) && empty($embed->getProviderName())) {
             Log::debug('Embed doesn\'t have a representation for the attachment #' . $attachment->getId());
             return Event::next;
         }
@@ -225,12 +286,12 @@ class Embed extends Plugin
                       {% endif %}
                   </div>
              {% endif %}
-             {% if embed.getProvider() is not null %}
+             {% if embed.getProviderName() is not null %}
                   <div class="fn vcard">
                       {% if embed.getProviderUrl() is null %}
-                          <p>{{embed.getProvider()}}</p>
+                          <p>{{embed.getProviderName()}}</p>
                       {% else %}
-                          <a href="{{embed.getProviderUrl()}}" class="url">{{embed.getProvider()}}</a>
+                          <a href="{{embed.getProviderUrl()}}" class="url">{{embed.getProviderName()}}</a>
                       {% endif %}
                   </div>
              {% endif %}
@@ -253,20 +314,20 @@ END, ['embed' => $embed, 'attributes' => $attributes, 'attachment' => $attachmen
      *
      *
      */
-    protected function checkAllowlist(string $url): string | bool
+    protected function checkWhitelist(string $url): string | bool
     {
-        if ($this->check_allowlist ?? false) {
+        if ($this->check_whitelist ?? false) {
             return false;   // indicates "no check made"
         }
 
         $host = parse_url($url, PHP_URL_HOST);
-        foreach ($this->domain_allowlist as $regex => $provider) {
+        foreach ($this->domain_whitelist as $regex => $provider) {
             if (preg_match("/{$regex}/", $host)) {
                 return $provider;    // we trust this source, return provider name
             }
         }
 
-        throw new ServerException(_m('Domain not in remote thumbnail source allowlist: {host}', ['host' => $host]));
+        throw new ServerException(_m('Domain not in remote thumbnail source whitelist: {host}', ['host' => $host]));
     }
 
     /**
@@ -299,8 +360,8 @@ END, ['embed' => $embed, 'attributes' => $attributes, 'attachment' => $attachmen
     }
 
     /**
-     * A private helper function that uses a HEAD request to check the mime type
-     * of a remote URL to see it it's an image.
+     * A private helper function that uses a HEAD request to check the mimetype
+     * of a remote URL to see if it's an image.
      *
      * @param mixed      $url
      * @param null|mixed $headers
@@ -327,7 +388,7 @@ END, ['embed' => $embed, 'attributes' => $attributes, 'attachment' => $attachmen
     }
 
     /**
-     * Validate that $imgData is a valid image, place it in it's folder and resize
+     * Validate that $imgData is a valid image, place it in its folder and resize
      *
      * @param $imgData - The image data to validate
      * @param null|array $headers - The headers possible previous request to $url
@@ -377,7 +438,7 @@ END, ['embed' => $embed, 'attributes' => $attributes, 'attachment' => $attachmen
             $width    = $info[0];
             $height   = $info[1];
         } else {
-            $this->checkAllowlist($media_url);
+            $this->checkWhitelist($media_url);
             $head    = HTTPClient::head($media_url);
             $headers = $head->getHeaders();
             $headers = array_change_key_case($headers, CASE_LOWER);
@@ -419,84 +480,23 @@ END, ['embed' => $embed, 'attributes' => $attributes, 'attachment' => $attachmen
     }
 
     /**
-     * Perform an oEmbed or OpenGraph lookup for the given $url.
+     * Event raised when GNU social polls the plugin for information about it.
+     * Adds this plugin's version information to $versions array
      *
-     * Some known hosts are allowlisted with API endpoints where we
-     * know they exist but autodiscovery data isn't available.
+     * @param &$versions array inherited from parent
      *
-     * Throws exceptions on failure.
-     *
-     * @param string     $url
-     * @param Attachment $attachment
-     *
-     * @return array
+     * @return bool true hook value
      */
-    public function getEmbed(string $url, Attachment $attachment): array
+    public function onPluginVersion(array &$versions): bool
     {
-        Log::info('Checking for remote URL metadata for ' . $url);
-
-        try {
-            Log::info("Trying to find Embed data for {$url} with 'oscarotero/Embed'");
-            $embed                     = new LibEmbed();
-            $info                      = $embed->get($url);
-            $metadata['title']         = $info->title;
-            $metadata['html']          = $info->description;
-            $metadata['author_name']   = $info->authorName;
-            $metadata['author_url']    = $info->authorUrl;
-            $metadata['provider_name'] = $info->providerName;
-            $metadata['provider_url']  = $info->providerUrl;
-
-            if (!is_null($info->image)) {
-                $image_url = (string) $info->image;
-
-                if (Formatting::startsWith($image_url, 'data')) {
-                    // Inline image
-                    $imgData                                                = base64_decode(substr($info->image, stripos($info->image, 'base64,') + 7));
-                    [$filepath, $width, $height, $original_name, $mimetype] = $this->validateAndWriteImage($imgData);
-                } else {
-                    [$filepath, $width, $height, $original_name, $mimetype] = $this->fetchValidateWriteRemoteImage($attachment, $image_url);
-                }
-                $metadata['width']     = $width;
-                $metadata['height']    = $height;
-                $metadata['mimetype']  = $mimetype;
-                $metadata['media_url'] = $image_url;
-                $metadata['filename']  = Formatting::removePrefix($filepath, Common::config('storage', 'dir'));
-            }
-        } catch (Exception $e) {
-            Log::info("Failed to find Embed data for {$url} with 'oscarotero/Embed', got exception: " . $e->getMessage());
-        }
-
-        $metadata = self::normalize($metadata);
-        $attachment->setTitle($metadata['title']);
-        return $metadata;
-    }
-
-    /**
-     * Normalize fetched info.
-     */
-    public static function normalize(array $data): array
-    {
-        if (isset($metadata['url'])) {
-            // sometimes sites serve the path, not the full URL, for images
-            // let's "be liberal in what you accept from others"!
-            // add protocol and host if the thumbnail_url starts with /
-            if ($metadata['url'][0] == '/') {
-                $thumbnail_url_parsed = parse_url($metadata['url']);
-                $metadata['url']      = "{$thumbnail_url_parsed['scheme']}://{$thumbnail_url_parsed['host']}{$metadata['url']}";
-            }
-
-            // Some wordpress opengraph implementations sometimes return a white blank image
-            // no need for us to save that!
-            if ($metadata['url'] == 'https://s0.wp.com/i/blank.jpg') {
-                $metadata['url'] = null;
-            }
-
-            if (!isset($data['width'])) {
-                $data['width']  = Common::config('plugin_embed', 'width');
-                $data['height'] = Common::config('plugin_embed', 'height');
-            }
-        }
-
-        return $data;
+        $versions[] = [
+            'name'        => 'Embed',
+            'version'     => $this->version(),
+            'author'      => 'Mikael Nordfeldth, Hugo Sales, Diogo Peralta Cordeiro',
+            'homepage'    => GNUSOCIAL_PROJECT_URL,
+            'description' => // TRANS: Plugin description.
+                _m('Plugin for using and representing oEmbed, OpenGraph and other data.'),
+        ];
+        return Event::next;
     }
 }

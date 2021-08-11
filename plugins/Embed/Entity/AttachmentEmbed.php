@@ -33,9 +33,6 @@
 namespace Plugin\Embed\Entity;
 
 use App\Core\Entity;
-use App\Core\GSFile;
-use App\Core\Router\Router;
-use App\Util\Common;
 use DateTimeInterface;
 
 /**
@@ -49,62 +46,53 @@ class AttachmentEmbed extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
+    private int $remoteurl_id;
     private int $attachment_id;
-    private ?string $mimetype;
-    private ?string $filename;
-    private ?string $provider;
-    private ?string $provider_url;
-    private ?int $width;
-    private ?int $height;
-    private ?string $html;
     private ?string $title;
+    private ?string $description;
+    private ?string $provider_name;
+    private ?string $provider_url;
     private ?string $author_name;
     private ?string $author_url;
-    private ?string $media_url;
+    private ?string $thumbnail_url;
     private \DateTimeInterface $modified;
 
-    public function setAttachmentId(int $attachment_id): self
+    public function setRemoteUrlId(int $remoteurl_id): self
     {
-        $this->attachment_id = $attachment_id;
+        $this->remoteurl_id = $remoteurl_id;
         return $this;
     }
 
+    public function getRemoteUrlId(): int
+    {
+        return $this->remoteurl_id;
+    }
+
+    /**
+     * @return int
+     */
     public function getAttachmentId(): int
     {
         return $this->attachment_id;
     }
 
-    public function setMimetype(?string $mimetype): self
+    /**
+     * @param int $attachment_id
+     */
+    public function setAttachmentId(int $attachment_id): void
     {
-        $this->mimetype = $mimetype;
+        $this->attachment_id = $attachment_id;
+    }
+
+    public function setProviderName(?string $provider_name): self
+    {
+        $this->provider_name = $provider_name;
         return $this;
     }
 
-    public function getMimetype(): ?string
+    public function getProviderName(): ?string
     {
-        return $this->mimetype;
-    }
-
-    public function setFilename(?string $filename): self
-    {
-        $this->filename = $filename;
-        return $this;
-    }
-
-    public function getFilename(): ?string
-    {
-        return $this->filename;
-    }
-
-    public function setProvider(?string $provider): self
-    {
-        $this->provider = $provider;
-        return $this;
-    }
-
-    public function getProvider(): ?string
-    {
-        return $this->provider;
+        return $this->provider_name;
     }
 
     public function setProviderUrl(?string $provider_url): self
@@ -118,37 +106,15 @@ class AttachmentEmbed extends Entity
         return $this->provider_url;
     }
 
-    public function setWidth(?int $width): self
+    public function setDescription(?string $description): self
     {
-        $this->width = $width;
+        $this->description = $description;
         return $this;
     }
 
-    public function getWidth(): ?int
+    public function getDescription(): ?string
     {
-        return $this->width;
-    }
-
-    public function setHeight(?int $height): self
-    {
-        $this->height = $height;
-        return $this;
-    }
-
-    public function getHeight(): ?int
-    {
-        return $this->height;
-    }
-
-    public function setHtml(?string $html): self
-    {
-        $this->html = $html;
-        return $this;
-    }
-
-    public function getHtml(): ?string
-    {
-        return $this->html;
+        return $this->description;
     }
 
     public function setTitle(?string $title): self
@@ -184,15 +150,15 @@ class AttachmentEmbed extends Entity
         return $this->author_url;
     }
 
-    public function setMediaUrl(?string $media_url): self
+    public function setThumbnailUrl(?string $thumbnail_url): self
     {
-        $this->media_url = $media_url;
+        $this->thumbnail_url = $thumbnail_url;
         return $this;
     }
 
-    public function getMediaUrl(): ?string
+    public function getThumbnailUrl(): ?string
     {
-        return $this->media_url;
+        return $this->thumbnail_url;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -209,59 +175,24 @@ class AttachmentEmbed extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    public function getAttachmentUrl()
-    {
-        return Router::url('attachment_view', ['id' => $this->getAttachmentId()]);
-    }
-
-    public function isImage()
-    {
-        return isset($this->mimetype) && GSFile::mimetypeMajor($this->mimetype) == 'image';
-    }
-
-    /**
-     * Get the HTML attributes for this attachment
-     */
-    public function getImageHTMLAttributes(array $orig = [], bool $overwrite = true)
-    {
-        if ($this->isImage()) {
-            $attrs = [
-                'height' => $this->getHeight(),
-                'width'  => $this->getWidth(),
-                'src'    => $this->getAttachmentUrl(),
-            ];
-            return $overwrite ? array_merge($orig, $attrs) : array_merge($attrs, $orig);
-        } else {
-            return false;
-        }
-    }
-
-    public function getFilepath()
-    {
-        return Common::config('storage', 'dir') . $this->filename;
-    }
-
     public static function schemaDef()
     {
         return [
             'name'   => 'attachment_embed',
             'fields' => [
-                'attachment_id' => ['type' => 'int', 'not null' => true, 'description' => 'Embed for that URL/file'],
-                'mimetype'      => ['type' => 'varchar', 'length' => 50, 'description' => 'mime type of resource'],
-                'filename'      => ['type' => 'varchar', 'length' => 191, 'description' => 'file name of resource when available'],
-                'provider'      => ['type' => 'text', 'description' => 'name of this oEmbed provider'],
-                'provider_url'  => ['type' => 'text', 'description' => 'URL of this oEmbed provider'],
-                'width'         => ['type' => 'int', 'description' => 'width of oEmbed resource when available'],
-                'height'        => ['type' => 'int', 'description' => 'height of oEmbed resource when available'],
-                'html'          => ['type' => 'text', 'description' => 'html representation of this Embed resource when applicable'],
+                'remoteurl_id'  => ['type' => 'int', 'not null' => true, 'description' => 'Embed for that URL/file'],
+                'attachment_id' => ['type' => 'int', 'not null' => true, 'description' => 'Attachment relation, used to show previews'],
+                'provider_name' => ['type' => 'text', 'description' => 'name of this Embed provider'],
+                'provider_url'  => ['type' => 'text', 'description' => 'URL of this Embed provider'],
                 'title'         => ['type' => 'text', 'description' => 'title of Embed resource when available'],
                 'author_name'   => ['type' => 'text', 'description' => 'author name for this Embed resource'],
                 'author_url'    => ['type' => 'text', 'description' => 'author URL for this Embed resource'],
-                'media_url'     => ['type' => 'text', 'description' => 'URL for this Embed resource when applicable (photo, link)'],
+                'thumbnail_url' => ['type' => 'text', 'description' => 'URL for this Embed resource when applicable (photo, link)'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['attachment_id'],
+            'primary key'  => ['remoteurl_id'],
             'foreign keys' => [
+                'attachment_embed_remoteurl_id_fkey'  => ['remoteurl', ['remoteurl_id' => 'id']],
                 'attachment_embed_attachment_id_fkey' => ['attachment', ['attachment_id' => 'id']],
             ],
         ];
