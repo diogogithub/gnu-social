@@ -12,6 +12,16 @@
         {% if reply_to is not null and not skip_reply_to is defined %}
             {% trans with {'%name%': reply_to} %} in reply to %name% {% endtrans %}
         {% endif %}
+
+        <div class="note-actions">
+
+            {% if have_user %}
+                {% for act in get_note_actions(note) %}
+                    {{ form(act) }}
+                {% endfor %}
+            {% endif %}
+        </div>
+
     </div>
     <div class="e-content entry-content note-content">
         {% block markdown %}
@@ -32,13 +42,7 @@
             </div>
         {% endif %}
     </div>
-    <div class="note-actions">
-        {# {% if have_user %} #}
-        {# {\#{% for act in get_note_actions(note) %}#\} #}
-        {# {\#{{ form(act) }}#\} #}
-        {# {\#{% endfor %}#\} #}
-        {# {% endif %} #}
-    </div>
+
     {% if replies is defined %}
         <div class="u-in-reply-to replies">
             {% for conversation in replies %}

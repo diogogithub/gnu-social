@@ -19,8 +19,12 @@
 
 namespace App\Core\Modules;
 
+use App\Core\Event;
+use App\Core\Log;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\NoSuchNoteException;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -51,6 +55,17 @@ abstract class Module
      * This function is called when a user interacts with a note, such as through favouriting or commenting
      *
      * @codeCoverageIgnore
+     *
+     * @param Request  $request
+     * @param Form     $form
+     * @param Note     $note
+     * @param string   $form_name
+     * @param callable $handle
+     *
+     * @throws InvalidFormException
+     * @throws NoSuchNoteException
+     *
+     * @return bool|void
      */
     public static function noteActionHandle(Request $request, Form $form, Note $note, string $form_name, callable $handle)
     {
@@ -65,7 +80,7 @@ abstract class Module
                     $user = Common::user();
                     if (!$note->isVisibleTo($user)) {
                         // ^ Ensure user isn't trying to trip us up
-                        Log::error('Suspicious activity: user ' . $user->getNickname() .
+                        Log::warning('Suspicious activity: user ' . $user->getNickname() .
                                    ' tried to interact with note ' . $note->getId() .
                                    ', but they shouldn\'t have access to it');
                         throw new NoSuchNoteException();

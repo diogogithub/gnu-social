@@ -28,6 +28,7 @@ use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exception\RedirectException;
 use App\Util\Formatting;
 use App\Util\Nickname;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -39,33 +40,58 @@ class Favourite extends Plugin
     /**
      * HTML rendering event that adds the favourite form as a note
      * action, if a user is logged in
+     *
+     * @param Request $request
+     * @param Note    $note
+     * @param array   $actions
+     *
+     * @throws RedirectException
+     * @throws \App\Util\Exception\InvalidFormException
+     * @throws \App\Util\Exception\NoSuchNoteException
+     *
+     * @return bool Event hook
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions): bool
     {
-        if (($user = Common::user()) == null) {
+        if (($user = Common::user()) === null) {
             return Event::next;
         }
 
+        // if note is favourited, "is_set" is 1
         $opts   = ['note_id' => $note->getId(), 'gsactor_id' => $user->getId()];
         $is_set = DB::find('favourite', $opts) != null;
         $form   = Form::create([
             ['is_set',    HiddenType::class, ['data' => $is_set ? '1' : '0']],
             ['note_id',   HiddenType::class, ['data' => $note->getId()]],
-            ['favourite', SubmitType::class, ['label' => ' ']],
+            ["favourite-{$note->getId()}", SubmitType::class, ['label' => ' ', 'attr' => ['class' => $is_set ? 'favourite-button-on' : 'favourite-button-off']]],
         ]);
 
         // Form handler
-        $ret = self::noteActionHandle($request, $form, $note, 'favourite', function ($note, $data) use ($opts) {
-            $fave = DB::find('favourite', $opts);
-            if (!$data['is_set'] && ($fave == null)) {
-                DB::persist(Entity\Favourite::create($opts));
-                DB::flush();
-            } else {
-                DB::remove($fave);
-                DB::flush();
-            }
-            return Event::stop;
-        });
+        $ret = self::noteActionHandle(
+         $request, $form, $note, "favourite-{$note->getId()}",          /**
+         * Called from form handler
+         *
+         * @param $note Note to be favourited
+         * @param $data Form input
+         *
+         * @throws RedirectException Always thrown in order to prevent accidental form re-submit from browser
+         */ function ($note, $data) use ($opts, $request) {
+             $fave = DB::find('favourite', $opts);
+             if ($data['is_set'] === '0' && $fave === null) {
+                 DB::persist(Entity\Favourite::create($opts));
+                 DB::flush();
+             } else {
+                 if ($data['is_set'] === '1' && $fave !== null) {
+                     DB::remove($fave);
+                     DB::flush();
+                 }
+             }
+
+             // Prevent accidental refreshes from resubmitting the form
+             throw new RedirectException();
+
+             return Event::stop;
+         });
 
         if ($ret != null) {
             return $ret;

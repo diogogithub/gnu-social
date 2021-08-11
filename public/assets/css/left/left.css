@@ -37,7 +37,7 @@
 
 #user-avatar img {
     border-radius: 50%;
-    max-width: calc(3 * var(--main-size));
+    width: calc(3 * var(--main-size));
     height: auto;
 
     margin-right: var(--unit-size);
