@@ -72,9 +72,13 @@ abstract class Common
     /**
      * Access sysadmin's configuration preferences for GNU social
      */
-    public static function config(string $section, string $setting)
+    public static function config(string $section, ?string $setting = null)
     {
-        return self::$config[$section][$setting];
+        if ($setting !== null) {
+            return self::$config[$section][$setting];
+        } else {
+            return self::$config[$section] ?? [];
+        }
     }
 
     /**
