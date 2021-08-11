@@ -71,7 +71,6 @@ class Attachment extends Entity
     /**
      * @return int
      */
-
     public function getLives(): int
     {
         return $this->lives;
@@ -201,6 +200,28 @@ class Attachment extends Entity
     {
         if ($this->livesDecrementAndGet() <= 0) {
             return $this->delete();
+        }
+        return true;
+    }
+
+    /**
+     * Attachment delete always removes dependencies, cleanups and flushes
+     */
+    public function deleteStorage(): bool
+    {
+        if (!is_null($filepath = $this->getPath())) {
+            if (file_exists($filepath)) {
+                if (@unlink($filepath) === false) {
+                    Log::error("Failed deleting file for attachment with id={$this->getId()} at {$filepath}.");
+                    return false;
+                } else {
+                    $this->setFilename(null);
+                    DB::persist($this);
+                    DB::flush();
+                }
+            } else {
+                Log::warning("File for attachment with id={$this->getId()} at {$filepath} was already deleted when I was going to handle it.");
+            }
         }
         return true;
     }
