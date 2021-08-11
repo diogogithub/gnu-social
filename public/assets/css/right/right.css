@@ -26,11 +26,11 @@
 
     background-color: var(--translucent);
 }
-.section-title-hamburger {
+.section-title-menu {
     display: flex;
     justify-content: space-between;
 }
-.section-title-hamburger svg {
+.section-title-menu svg {
     align-self: center;
     fill: var(--white);
 }

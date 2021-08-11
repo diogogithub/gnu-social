@@ -14,10 +14,15 @@
         {% endif %}
 
         <div class="note-actions">
-
             {% if have_user %}
-                {% for act in get_note_actions(note) %}
-                    {{ form(act) }}
+                {% for current_action in get_note_actions(note) %}
+                    {{ form_start(current_action) }}
+                        {% if current_action.submit_fav is defined %}
+                            <span title="Favourite this note." class="favourite-button-container">
+                                {{ form_widget(current_action.submit_fav) }}
+                            </span>
+                        {% endif %}
+                    {{ form_end(current_action) }}
                 {% endfor %}
             {% endif %}
         </div>

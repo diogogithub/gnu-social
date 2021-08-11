@@ -58,17 +58,24 @@ class Favourite extends Plugin
         }
 
         // if note is favourited, "is_set" is 1
-        $opts   = ['note_id' => $note->getId(), 'gsactor_id' => $user->getId()];
-        $is_set = DB::find('favourite', $opts) != null;
-        $form   = Form::create([
-            ['is_set',    HiddenType::class, ['data' => $is_set ? '1' : '0']],
+        $opts     = ['note_id' => $note->getId(), 'gsactor_id' => $user->getId()];
+        $is_set   = DB::find('favourite', $opts) != null;
+        $form_fav = Form::create([
+            ['submit_fav', SubmitType::class,
+                [
+                    'label' => ' ',
+                    'attr'  => [
+                        'class' => $is_set ? 'favourite-button-on' : 'favourite-button-off',
+                    ],
+                ],
+            ],
             ['note_id',   HiddenType::class, ['data' => $note->getId()]],
-            ["favourite-{$note->getId()}", SubmitType::class, ['label' => ' ', 'attr' => ['class' => $is_set ? 'favourite-button-on' : 'favourite-button-off']]],
+            ["favourite-{$note->getId()}",   HiddenType::class, ['data' => $is_set ? '1' : '0']],
         ]);
 
         // Form handler
         $ret = self::noteActionHandle(
-         $request, $form, $note, "favourite-{$note->getId()}",          /**
+         $request, $form_fav, $note, "favourite-{$note->getId()}",          /**
          * Called from form handler
          *
          * @param $note Note to be favourited
@@ -77,11 +84,11 @@ class Favourite extends Plugin
          * @throws RedirectException Always thrown in order to prevent accidental form re-submit from browser
          */ function ($note, $data) use ($opts, $request) {
              $fave = DB::find('favourite', $opts);
-             if ($data['is_set'] === '0' && $fave === null) {
+             if ($data["favourite-{$note->getId()}"] === '0' && $fave === null) {
                  DB::persist(Entity\Favourite::create($opts));
                  DB::flush();
              } else {
-                 if ($data['is_set'] === '1' && $fave !== null) {
+                 if ($data["favourite-{$note->getId()}"] === '1' && $fave !== null) {
                      DB::remove($fave);
                      DB::flush();
                  }
@@ -97,7 +104,7 @@ class Favourite extends Plugin
             return $ret;
         }
 
-        $actions[] = $form->createView();
+        $actions[] = $form_fav->createView();
         return Event::next;
     }
 

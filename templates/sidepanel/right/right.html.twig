@@ -1,17 +1,16 @@
 <aside id='right-panel'>
     {% if post_form is defined %}
         <section class="section-widget">
-            <legend class="section-title">
-                <details>
-                    <summary class="section-title-hamburger">
-                        Create a note {{ icon('plus-circle', 'icon icon-plus') | raw }}
-                    </summary>
+            <details class="section-title">
+                <summary class="section-title-menu">
+                    {{ "Create a note" | trans }}
+                    {{ icon('plus-circle', 'icon icon-plus') | raw }}
+                </summary>
 
-                    {% for tab in tabs %}
-                        <a class="section-title-hamburger-element" href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
-                    {% endfor %}
-                </details>
-            </legend>
+                {% for tab in tabs %}
+                    <a class="section-title-menu-element" href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
+                {% endfor %}
+            </details>
 
             <div class="section-form">
                 {{ form_start(post_form) }}

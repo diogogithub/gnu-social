@@ -195,27 +195,18 @@
     display: block;
 }
 
-.favourite-button-off {
-    all: unset;
-
-    cursor: pointer !important;
-    border: none !important;
+.favourite-button-container button {
     width: 1em !important;
     height: 1em !important;
-    background-size: cover !important;
-    background-image: url(../icons/heart.svg) !important;
-    filter: invert(26%) sepia(21%) saturate(580%) hue-rotate(201deg) brightness(96%) contrast(93%);
+    border: unset !important;
+    padding: unset !important;
+    mask-image: url("../icons/heart.svg") !important;
+}
+.favourite-button-off {
+    background: var(--bg2) !important;
 }
 .favourite-button-on {
-    all: unset;
-
-    cursor: pointer !important;
-    border: none !important;
-    width: 1em !important;
-    height: 1em !important;
-    background-size: cover !important;
-    background-image: url(../icons/heart.svg) !important;
-    filter: invert(100%);
+    background: var(--white) !important;
 }
 
 .note-content {
