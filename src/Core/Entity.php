@@ -63,7 +63,7 @@ abstract class Entity implements \JsonSerializable
         }
 
         foreach ($args as $prop => $val) {
-            if (property_exists($class, $prop)) {
+            if (property_exists($obj, $prop)) {
                 $set = 'set' . ucfirst(Formatting::snakeCaseToCamelCase($prop));
                 $obj->{$set}($val);
             } else {
