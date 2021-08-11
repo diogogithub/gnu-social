@@ -83,7 +83,7 @@ abstract class Event
     {
         self::$dispatcher->addListener(
             $ns . $name,
-            function ($event, $event_name, $dispatcher) use ($handler) {
+            function ($event, $event_name, $dispatcher) use ($handler, $name) {
                 // Old style of events (preferred)
                 if ($event instanceof GenericEvent) {
                     if (call_user_func_array($handler, $event->getArguments()) === self::stop) {
@@ -93,7 +93,7 @@ abstract class Event
                 }
                 // @codeCoverageIgnoreStart
                 // Symfony style of events
-                Log::warning("Event::addHandler for {$name} doesn't Conform to GNU social guidelines. Use of this style of event is discouraged");
+                Log::warning("Event::addHandler for {$name} doesn't Conform to GNU social guidelines. Use of this style of event is discouraged.");
                 call_user_func($handler, $event, $event_name, $dispatcher);
                 return null;
             // @codeCoverageIgnoreEnd
