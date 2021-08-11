@@ -24,6 +24,7 @@ namespace Plugin\AttachmentShowRelated;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Modules\Plugin;
+use App\Util\Common;
 use App\Util\Formatting;
 
 class AttachmentShowRelated extends Plugin
@@ -37,7 +38,7 @@ class AttachmentShowRelated extends Plugin
             $related_tags = DB::dql('select distinct t.tag ' .
         'from attachment_to_note an join note_tag t with an.note_id = t.note_id ' .
         'where an.attachment_id = :attachment_id', ['attachment_id' => $vars['vars']['attachment_id']]);
-            $res[] = Formatting::twigRenderFile('attachmentShowRelated/attachmentRelatedNotes.html.twig', ['related_notes' => $related_notes]);
+            $res[] = Formatting::twigRenderFile('attachmentShowRelated/attachmentRelatedNotes.html.twig', ['related_notes' => $related_notes, 'have_user' => Common::user() !== null]);
             $res[] = Formatting::twigRenderFile('attachmentShowRelated/attachmentRelatedTags.html.twig', ['related_tags' => $related_tags]);
         }
         return Event::next;
