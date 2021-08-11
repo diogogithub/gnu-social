@@ -31,7 +31,6 @@ use App\Core\Modules\Component;
 use App\Entity\Attachment;
 use App\Entity\AttachmentToNote;
 use App\Entity\GSActorToAttachment;
-use App\Entity\GSActorToRemoteURL;
 use App\Entity\Note;
 use App\Entity\RemoteURL;
 use App\Entity\RemoteURLToNote;
@@ -121,9 +120,7 @@ END;
         foreach ($attachments as $f) { // where $f is a Symfony\Component\HttpFoundation\File\UploadedFile
             $filesize = $f->getSize();
             Event::handle('EnforceQuota', [$actor_id, $filesize]);
-            $processed_attachments[] = GSFile::sanitizeAndStoreFileAsAttachment(
-                $f
-            );
+            $processed_attachments[] = GSFile::sanitizeAndStoreFileAsAttachment($f);
         }
 
         DB::persist($note);
@@ -144,8 +141,7 @@ END;
         foreach ($matched_urls as $match) {
             try {
                 $remoteurl_id = RemoteURL::getOrCreate($match[0])->getId();
-                DB::persist(GSActorToRemoteURL::create(['remoteurl_id' => $remoteurl_id, 'gsactor_id' => $actor_id]));
-                DB::persist(RemoteURLToNote::create(['remoteurl_id' => $a->getId(), 'note_id' => $note->getId()]));
+                DB::persist(RemoteURLToNote::create(['remoteurl_id' => $remoteurl_id, 'note_id' => $note->getId()]));
                 $processed_urls = true;
             } catch (InvalidArgumentException) {
                 continue;
