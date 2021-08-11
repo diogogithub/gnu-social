@@ -92,11 +92,6 @@
 }
 
 .panel aside .footer {
-    display: inline-block;
-    position: fixed;
-
-    max-width: 20%;
-
     bottom: var(--unit-size);
     left: var(--unit-size);
     font-size: var(--small-size);
@@ -177,27 +172,33 @@
 
 .note-info {
     display: flex;
+    justify-content: space-between;
+    vertical-align: middle;
     border-radius: var(--unit-size);
     box-sizing: border-box;
 
     background-color: var(--translucent);
-    font-size: var(--main-size);
+    font-size: var(--medium-size);
     padding: 4px;
 }
 
 .note-info .avatar {
     width: auto;
-    height: var(--main-size);
+    height: var(--medium-size);
 }
 
 /* TODO: icons */
 .note-actions {
-    display: block;
+    display: flex;
+    vertical-align: middle;
 }
-
+.favourite-button-container {
+    width: var(--medium-size) !important;
+    height: var(--medium-size) !important;
+}
 .favourite-button-container button {
-    width: 1em !important;
-    height: 1em !important;
+    width: inherit !important;
+    height: inherit !important;
     border: unset !important;
     padding: unset !important;
     mask-image: url("../icons/heart.svg") !important;
