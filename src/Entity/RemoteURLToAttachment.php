@@ -85,7 +85,7 @@ class RemoteURLToAttachment extends Entity
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_attachment_id_fkey', 'not null' => true, 'description' => 'id of attachment'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['remoteurl_id', 'attachment_id'],
+            'primary key' => ['remoteurl_id'],
             'indexes'     => [
                 'remoteurl_id_idx'  => ['remoteurl_id'],
                 'attachment_id_idx' => ['attachment_id'],
