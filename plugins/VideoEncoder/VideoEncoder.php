@@ -22,7 +22,8 @@
  * @package   GNUsocial
  *
  * @author    Bruno Casteleiro <up201505347@fc.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Diogo Peralta Cordeiro <mail@diogo.site>
+ * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  *
  * @see      http://www.gnu.org/software/social/
@@ -31,41 +32,122 @@
 namespace Plugin\VideoEncoder;
 
 use App\Core\Event;
+use App\Core\GSFile;
+use function App\Core\I18n\_m;
+use App\Core\Log;
 use App\Core\Modules\Plugin;
+use App\Util\Exception\ServerException;
+use App\Util\Exception\TemporaryFileException;
 use App\Util\Formatting;
+use App\Util\TemporaryFile;
+use Exception;
+use FFMpeg\FFMpeg as ffmpeg;
+use FFMpeg\FFProbe as ffprobe;
+use SplFileInfo;
 
 class VideoEncoder extends Plugin
 {
-    const PLUGIN_VERSION = '0.1.0';
+    /**
+     * @return string
+     */
+    public function version(): string
+    {
+        return '1.0.0';
+    }
 
     /**
-     * Handle resizing GIF files
+     * @param array  $event_map
+     * @param string $mimetype
+     *
+     * @return bool
      */
-    public function onStartResizeImageFile(
-        ImageValidate $imagefile,
-        string $outpath,
-        array $box
-    ): bool {
-        switch ($imagefile->mimetype) {
-        case 'image/gif':
-            // resize only if an animated GIF
-            if ($imagefile->animated) {
-                return !$this->resizeImageFileAnimatedGif($imagefile, $outpath, $box);
-            }
-            break;
+    public function onFileSanitizerAvailable(array &$event_map, string $mimetype): bool
+    {
+        if (GSFile::mimetypeMajor($mimetype) !== 'video' && $mimetype !== 'image/gif') {
+            return Event::next;
         }
+        $event_map['video'][]     = [$this, 'fileSanitize'];
+        $event_map['image/gif'][] = [$this, 'fileSanitize'];
+        return Event::next;
+    }
+
+    /**
+     * @param array  $event_map
+     * @param string $mimetype
+     *
+     * @return bool
+     */
+    public function onFileResizerAvailable(array &$event_map, string $mimetype): bool
+    {
+        if (GSFile::mimetypeMajor($mimetype) !== 'video' && $mimetype !== 'image/gif') {
+            return Event::next;
+        }
+        $event_map['video'][]     = [$this, 'resizeVideoPath'];
+        $event_map['image/gif'][] = [$this, 'resizeVideoPath'];
+        return Event::next;
+    }
+
+    /**
+     * Adds width and height metadata to gifs
+     *
+     * @param SplFileInfo $file
+     * @param null|string $mimetype in/out
+     * @param null|int    $width    out
+     * @param null|int    $height   out
+     *
+     * @return bool true if sanitized
+     */
+    public function fileSanitize(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
+    {
+        if (//GSFile::mimetypeMajor($mimetype) !== 'video' &&
+            $mimetype !== 'image/gif') {
+            return false;
+        }
+
+        // Create FFProbe instance
+        // Need to explicitly tell the drivers' location, or it won't find them
+        $ffprobe = ffprobe::create([
+            'ffmpeg.binaries'  => exec('which ffmpeg'),
+            'ffprobe.binaries' => exec('which ffprobe'),
+        ]);
+
+        $metadata = $ffprobe->streams($file->getRealPath()) // extracts streams informations
+        ->videos()                      // filters video streams
+        ->first();                       // returns the first video stream
+        $width  = $metadata->get('width');
+        $height = $metadata->get('height');
+
+        // Only one plugin can handle sanitization
+        $mimetype = 'image/gif';
         return true;
     }
 
     /**
-     * @param array $event_map
+     * Resizes GIF files.
+     *
+     * @param string             $source
+     * @param null|TemporaryFile $destination
+     * @param int                $width
+     * @param int                $height
+     * @param bool               $smart_crop
+     * @param null|string        $mimetype
+     *
+     * @throws TemporaryFileException
      *
      * @return bool
+     *
      */
-    public function onResizerAvailable(array &$event_map): bool
+    public function resizeVideoPath(string $source, ?TemporaryFile &$destination, int &$width, int &$height, bool $smart_crop, ?string &$mimetype): bool
     {
-        //$event_map['video'] = 'ResizeVideoPath';
-        return Event::next;
+        switch ($mimetype) {
+            case 'image/gif':
+                // resize only if an animated GIF
+                if ($this->isAnimatedGif($source)) {
+                    return $this->resizeImageFileAnimatedGif($source, $destination, $width, $height, $smart_crop, $mimetype);
+                }
+                break;
+        }
+        return false;
     }
 
     /**
@@ -79,11 +161,50 @@ class VideoEncoder extends Plugin
     public function onViewAttachmentVideo(array $vars, array &$res): bool
     {
         $res[] = Formatting::twigRenderFile('videoEncoder/videoEncoderView.html.twig',
-        ['attachment'              => $vars['attachment'],
-            'thumbnail_parameters' => $vars['thumbnail_parameters'],
-            'note'                 => $vars['note'],
-        ]);
+            ['attachment'              => $vars['attachment'],
+                'thumbnail_parameters' => $vars['thumbnail_parameters'],
+                'note'                 => $vars['note'],
+            ]);
         return Event::stop;
+    }
+
+    /**
+     * Animated GIF test, courtesy of frank at huddler dot com et al:
+     * http://php.net/manual/en/function.imagecreatefromgif.php#104473
+     * Modified so avoid landing inside of a header (and thus not matching our regexp).
+     *
+     * @param string $filepath
+     *
+     * @return bool
+     */
+    public function isAnimatedGif(string $filepath)
+    {
+        if (!($fh = @fopen($filepath, 'rb'))) {
+            return false;
+        }
+
+        $count = 0;
+        //an animated gif contains multiple "frames", with each frame having a
+        //header made up of:
+        // * a static 4-byte sequence (\x00\x21\xF9\x04)
+        // * 4 variable bytes
+        // * a static 2-byte sequence (\x00\x2C)
+        // In total the header is maximum 10 bytes.
+
+        // We read through the file til we reach the end of the file, or we've found
+        // at least 2 frame headers
+        while (!feof($fh) && $count < 2) {
+            $chunk = fread($fh, 1024 * 100); //read 100kb at a time
+            $count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00\x2C#s', $chunk, $matches);
+            // rewind in case we ended up in the middle of the header, but avoid
+            // infinite loop (i.e. don't rewind if we're already in the end).
+            if (!feof($fh) && ftell($fh) >= 9) {
+                fseek($fh, -9, SEEK_CUR);
+            }
+        }
+
+        fclose($fh);
+        return $count >= 1; // number of animated frames apart from the original image
     }
 
     /**
@@ -91,34 +212,47 @@ class VideoEncoder extends Plugin
      *
      * @see http://blog.pkh.me/p/21-high-quality-gif-with-ffmpeg.html
      * @see https://github.com/PHP-FFMpeg/PHP-FFMpeg/pull/592
+     *
+     * @param string             $source
+     * @param null|TemporaryFile $destination
+     * @param int                $width
+     * @param int                $height
+     * @param bool               $smart_crop
+     * @param null|string        $mimetype
+     *
+     * @throws TemporaryFileException
+     *
+     * @return bool
      */
-    public function resizeImageFileAnimatedGif(ImageValidate $imagefile, string $outpath, array $box): bool
+    public function resizeImageFileAnimatedGif(string $source, ?TemporaryFile &$destination, int &$width, int &$height, bool $smart_crop, ?string &$mimetype): bool
     {
         // Create FFMpeg instance
-        // Need to explictly tell the drivers location or it won't find them
-        $ffmpeg = FFMpeg\FFMpeg::create([
+        // Need to explicitly tell the drivers' location, or it won't find them
+        $ffmpeg = ffmpeg::create([
             'ffmpeg.binaries'  => exec('which ffmpeg'),
             'ffprobe.binaries' => exec('which ffprobe'),
         ]);
 
         // FFmpeg can't edit existing files in place,
         // generate temporary output file to avoid that
-        $tempfile = new TemporaryFile(['prefix' => 'video']);
+        $destination = $destination ?? new TemporaryFile(['prefix' => 'video']);
 
-        // Generate palette file. FFmpeg explictly needs to be told the
+        // Generate palette file. FFmpeg explicitly needs to be told the
         // extension for PNG files outputs
         $palette = $this->tempnam_sfx(sys_get_temp_dir(), '.png');
 
         // Build filters
         $filters = 'fps=30';
-        $filters .= ",crop={$box['w']}:{$box['h']}:{$box['x']}:{$box['y']}";
-        $filters .= ",scale={$box['width']}:{$box['height']}:flags=lanczos";
+//        if ($crop) {
+//            $filters .= ",crop={$width}:{$height}:{$x}:{$y}";
+//        }
+        $filters .= ",scale={$width}:{$height}:flags=lanczos";
 
         // Assemble commands for palette generation
         $commands[] = $commands_2[] = '-f';
         $commands[] = $commands_2[] = 'gif';
         $commands[] = $commands_2[] = '-i';
-        $commands[] = $commands_2[] = $imagefile->filepath;
+        $commands[] = $commands_2[] = $source;
         $commands[] = '-vf';
         $commands[] = $filters . ',palettegen';
         $commands[] = '-y';
@@ -132,7 +266,7 @@ class VideoEncoder extends Plugin
         $commands_2[] = '-f';
         $commands_2[] = 'gif';
         $commands_2[] = '-y';
-        $commands_2[] = $tempfile->getRealPath();
+        $commands_2[] = $destination->getRealPath();
 
         $success = true;
 
@@ -140,7 +274,7 @@ class VideoEncoder extends Plugin
         try {
             $ffmpeg->getFFMpegDriver()->command($commands);
         } catch (Exception $e) {
-            $this->log(LOG_ERR, 'Unable to generate the palette image');
+            Log::error('Unable to generate the palette image');
             $success = false;
         }
 
@@ -150,21 +284,13 @@ class VideoEncoder extends Plugin
                 $ffmpeg->getFFMpegDriver()->command($commands_2);
             }
         } catch (Exception $e) {
-            $this->log(LOG_ERR, 'Unable to generate the GIF image');
+            Log::error('Unable to generate the GIF image');
             $success = false;
-        }
-
-        if ($success) {
-            try {
-                $tempfile->commit($outpath);
-            } catch (TemporaryFileException $e) {
-                $this->log(LOG_ERR, 'Unable to save the GIF image');
-                $success = false;
-            }
         }
 
         @unlink($palette);
 
+        $mimetype = 'image/gif';
         return $success;
     }
 
@@ -173,6 +299,11 @@ class VideoEncoder extends Plugin
      * Courtesy of tomas at slax dot org:
      *
      * @see https://www.php.net/manual/en/function.tempnam.php#98232
+     *
+     * @param string $dir
+     * @param string $suffix
+     *
+     * @return string
      */
     private function tempnam_sfx(string $dir, string $suffix): string
     {
@@ -185,14 +316,22 @@ class VideoEncoder extends Plugin
         return $file;
     }
 
+    /**
+     * @param array $versions
+     *
+     * @throws ServerException
+     *
+     * @return bool
+     */
     public function onPluginVersion(array &$versions): bool
     {
         $versions[] = ['name' => 'FFmpeg',
-            'version'         => self::PLUGIN_VERSION,
-            'author'          => 'Bruno Casteleiro',
+            'version'         => self::version(),
+            'author'          => 'Bruno Casteleiro, Diogo Peralta Cordeiro',
             'homepage'        => 'https://notabug.org/diogo/gnu-social/src/nightly/plugins/FFmpeg',
             'rawdescription'  => // TRANS: Plugin description.
-            _m('Use PHP-FFMpeg for resizing animated GIFs'), ];
-        return true;
+                _m('Use PHP-FFMpeg for some more video support.'),
+        ];
+        return Event::next;
     }
 }
