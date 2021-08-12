@@ -53,17 +53,24 @@ class ExtensionTest extends GNUsocialTestCase
             $icon_file_names[] = $file->getFilename();
         }
 
-        //Check if every icon file as a ".svg.twig" extension
+        // Check if every icon file has either ".svg.twig" extension or ".svg"
+        $twig_icon_file_names = [];
         foreach ($icon_file_names as $icon_file_name) {
-            static::assertMatchesRegularExpression('/.svg.twig/', $icon_file_name);
+            static::assertMatchesRegularExpression('/\.svg\.twig$|\.svg$/', $icon_file_name);
+
+            if (preg_match('/\.svg\.twig$/', $icon_file_name, $matches, PREG_OFFSET_CAPTURE, 0)) {
+                unset($matches);
+                $twig_icon_file_names[] = $icon_file_name;
+            }
         }
+        unset($icon_file_names);
 
         //Check if the function gives a valid HTML with a class attribute equal to the one passed
         static::bootKernel();
         $container = self::$kernel->getContainer()->get('test.service_container');
         $twig      = $container->get('twig');
 
-        foreach ($icon_file_names as $icon_file_name) {
+        foreach ($twig_icon_file_names as $icon_file_name) {
             $icon_name = basename($icon_file_name, '.svg.twig');
 
             $icon_template_render = $twig->render('@public_path/assets/icons/' . $icon_file_name, ['iconClass' => 'icon icon-' . $icon_name]);
