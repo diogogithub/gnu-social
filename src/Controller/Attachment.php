@@ -90,12 +90,22 @@ class Attachment extends Controller
      */
     public function attachment_view(Request $request, int $id)
     {
-        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'], HeaderUtils::DISPOSITION_INLINE));
+        return $this->attachment($id, function (array $res) {
+            if (!array_key_exists('filepath', $res)) {
+                throw new ServerException('This attachment is not stored locally.');
+            }
+            return GSFile::sendFile($res['filepath'], $res['mimetype'], GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'], HeaderUtils::DISPOSITION_INLINE);
+        });
     }
 
     public function attachment_download(Request $request, int $id)
     {
-        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'], HeaderUtils::DISPOSITION_ATTACHMENT));
+        return $this->attachment($id, function (array $res) {
+            if (!array_key_exists('filepath', $res)) {
+                throw new ServerException('This attachment is not stored locally.');
+            }
+            return GSFile::sendFile($res['filepath'], $res['mimetype'], GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'], HeaderUtils::DISPOSITION_ATTACHMENT);
+        });
     }
 
     /**

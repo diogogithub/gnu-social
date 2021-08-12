@@ -133,7 +133,7 @@ class GSFile
             }
             return $response;
         } else {
-            throw new ServerException(_m('This attachment is not stored locally'));
+            throw new ServerException(_m('This attachment is not stored locally.'));
         }
     }
 
@@ -186,8 +186,10 @@ class GSFile
      */
     public static function getAttachmentFileInfo(int $id): array
     {
-        $res             = self::getFileInfo($id);
-        $res['filepath'] = Common::config('attachments', 'dir') . $res['filename'];
+        $res = self::getFileInfo($id);
+        if (!is_null($res['filename'])) {
+            $res['filepath'] = Common::config('attachments', 'dir') . $res['filename'];
+        }
         return $res;
     }
 
