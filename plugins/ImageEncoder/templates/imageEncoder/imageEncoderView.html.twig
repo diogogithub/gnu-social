@@ -2,6 +2,6 @@
     <img class="u-photo" src="{{ path('attachment_thumbnail', thumbnail_parameters) }}"
          alt="{{ attachment.getFilename() }}">
     <figcaption><a
-                href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getFilename() }}</a>
+                href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>
     </figcaption>
 </figure>

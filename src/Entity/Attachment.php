@@ -24,6 +24,7 @@ namespace App\Entity;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\GSFile;
+use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Util\Common;
 use DateTimeInterface;
@@ -127,6 +128,39 @@ class Attachment extends Entity
     public function getFilename(): ?string
     {
         return $this->filename;
+    }
+
+    /**
+     * TODO: Maybe this isn't the best way of handling titles
+     *
+     * @param null|Note $note
+     *
+     * @throws \App\Util\Exception\DuplicateFoundException
+     * @throws \App\Util\Exception\NotFoundException
+     * @throws \App\Util\Exception\ServerException
+     *
+     * @return string
+     */
+    public function getBestTitle(?Note $note = null): string
+    {
+        // If we have a note, then the best title is the title itself
+        if (!is_null(($note))) {
+            $attachment_to_note = DB::findOneBy('attachment_to_note', [
+                'attachment_id' => $this->getId(),
+                'note_id'       => $note->getId(),
+            ]);
+            if (!is_null($attachment_to_note->getTitle())) {
+                return $attachment_to_note->getTitle();
+            }
+        }
+        // Else
+        if (!is_null($filename = $this->getFilename())) {
+            // A filename would do just as well
+            return $filename;
+        } else {
+            // Welp
+            return _m('Untitled Attachment.');
+        }
     }
 
     public function setSize(?int $size): self

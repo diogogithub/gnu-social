@@ -42,7 +42,7 @@
         {% if hide_attachments is not defined %}
             <div class="note-attachments">
                 {% for attachment in note.getAttachments() %}
-                    {% include '/attachments/view.html.twig' with {'attachment': attachment} %}
+                    {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
                 {% endfor %}
             </div>
         {% endif %}

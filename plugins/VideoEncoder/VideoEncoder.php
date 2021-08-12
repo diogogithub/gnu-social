@@ -78,7 +78,11 @@ class VideoEncoder extends Plugin
      */
     public function onViewAttachmentVideo(array $vars, array &$res): bool
     {
-        $res[] = Formatting::twigRenderFile('videoEncoder/videoEncoderView.html.twig', ['attachment' => $vars['attachment'], 'thumbnail_parameters' => $vars['thumbnail_parameters']]);
+        $res[] = Formatting::twigRenderFile('videoEncoder/videoEncoderView.html.twig',
+        ['attachment'              => $vars['attachment'],
+            'thumbnail_parameters' => $vars['thumbnail_parameters'],
+            'note'                 => $vars['note'],
+        ]);
         return Event::stop;
     }
 

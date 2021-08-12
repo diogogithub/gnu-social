@@ -13,6 +13,6 @@
 {% block body %}
     <div class="content">
         <a href="{{ download }}"> {{ 'Download link' | trans }}</a>
-        {% include '/attachments/view.html.twig' with {'attachment': attachment} only %}
+        {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': null} only %}
     </div>
 {% endblock body %}

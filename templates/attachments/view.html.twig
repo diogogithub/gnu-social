@@ -1,12 +1,12 @@
 {% set thumbnail_parameters = {'id': attachment.getId(), 'w': config('thumbnail','width'), 'h': config('thumbnail','height')} %}
 {% set handled = false %}
-{% for block in handle_event('ViewAttachment' ~ attachment.getMimetypeMajor() | capitalize , {'attachment': attachment, 'thumbnail_parameters': thumbnail_parameters}) %}
+{% for block in handle_event('ViewAttachment' ~ attachment.getMimetypeMajor() | capitalize , {'attachment': attachment, 'thumbnail_parameters': thumbnail_parameters, 'note': note}) %}
     {% set handled = true %}
     {{ block | raw }}
 {% endfor %}
 {% if not handled %}
     <div>
-        <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getFilename() }}</a> </i>
+        <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a> </i>
     </div>
 {% endif %}
 

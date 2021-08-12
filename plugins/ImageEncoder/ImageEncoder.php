@@ -126,7 +126,11 @@ class ImageEncoder extends Plugin
      */
     public function onViewAttachmentImage(array $vars, array &$res): bool
     {
-        $res[] = Formatting::twigRenderFile('imageEncoder/imageEncoderView.html.twig', ['attachment' => $vars['attachment'], 'thumbnail_parameters' => $vars['thumbnail_parameters']]);
+        $res[] = Formatting::twigRenderFile('imageEncoder/imageEncoderView.html.twig',
+            ['attachment'              => $vars['attachment'],
+                'thumbnail_parameters' => $vars['thumbnail_parameters'],
+                'note'                 => $vars['note'],
+            ]);
         return Event::stop;
     }
 
