@@ -67,8 +67,23 @@ class GSFile
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         try {
             $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
+            // Attachment Exists
             $attachment->livesIncrementAndGet();
+            if (is_null($attachment->getFilename())) {
+                $mimetype = $attachment->getMimetype();
+                $width    = $attachment->getWidth();
+                $height   = $attachment->getHeight();
+                Event::handle('AttachmentSanitization', [&$file, &$mimetype, &$width, &$height]);
+                $attachment->setFilename($hash);
+                $attachment->setMimetype($mimetype);
+                $attachment->setWidth($width);
+                $attachment->setHeight($height);
+                $attachment->setSize($file->getSize());
+                $file->move(Common::config('attachments', 'dir'), $hash);
+                DB::persist($attachment);
+            }
         } catch (NotFoundException) {
+            // Create an Attachment
             // The following properly gets the mimetype with `file` or other
             // available methods, so should be safe
             $mimetype = $file->getMimeType();
