@@ -46,7 +46,7 @@ class AttachmentEmbed extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $remoteurl_id;
+    private int $link_id;
     private int $attachment_id;
     private ?string $title;
     private ?string $description;
@@ -57,15 +57,15 @@ class AttachmentEmbed extends Entity
     private ?string $thumbnail_url;
     private \DateTimeInterface $modified;
 
-    public function setRemoteUrlId(int $remoteurl_id): self
+    public function setLinkId(int $link_id): self
     {
-        $this->remoteurl_id = $remoteurl_id;
+        $this->link_id = $link_id;
         return $this;
     }
 
-    public function getRemoteUrlId(): int
+    public function getLinkId(): int
     {
-        return $this->remoteurl_id;
+        return $this->link_id;
     }
 
     /**
@@ -180,7 +180,7 @@ class AttachmentEmbed extends Entity
         return [
             'name'   => 'attachment_embed',
             'fields' => [
-                'remoteurl_id'  => ['type' => 'int', 'not null' => true, 'description' => 'Embed for that URL/file'],
+                'link_id'       => ['type' => 'int', 'not null' => true, 'description' => 'Embed for that URL/file'],
                 'attachment_id' => ['type' => 'int', 'not null' => true, 'description' => 'Attachment relation, used to show previews'],
                 'provider_name' => ['type' => 'text', 'description' => 'name of this Embed provider'],
                 'provider_url'  => ['type' => 'text', 'description' => 'URL of this Embed provider'],
@@ -190,9 +190,9 @@ class AttachmentEmbed extends Entity
                 'thumbnail_url' => ['type' => 'text', 'description' => 'URL for this Embed resource when applicable (photo, link)'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
-            'primary key'  => ['remoteurl_id'],
+            'primary key'  => ['link_id'],
             'foreign keys' => [
-                'attachment_embed_remoteurl_id_fkey'  => ['remoteurl', ['remoteurl_id' => 'id']],
+                'attachment_embed_link_id_fkey'       => ['link', ['link_id' => 'id']],
                 'attachment_embed_attachment_id_fkey' => ['attachment', ['attachment_id' => 'id']],
             ],
         ];

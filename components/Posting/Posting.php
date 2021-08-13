@@ -31,9 +31,9 @@ use App\Core\Modules\Component;
 use App\Entity\Attachment;
 use App\Entity\AttachmentToNote;
 use App\Entity\GSActorToAttachment;
+use App\Entity\Link;
 use App\Entity\Note;
-use App\Entity\RemoteURL;
-use App\Entity\RemoteURLToNote;
+use App\Entity\NoteToLink;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
@@ -142,8 +142,8 @@ END;
         preg_match_all(self::URL_REGEX, $content, $matched_urls, PREG_SET_ORDER);
         foreach ($matched_urls as $match) {
             try {
-                $remoteurl_id = RemoteURL::getOrCreate($match[0])->getId();
-                DB::persist(RemoteURLToNote::create(['remoteurl_id' => $remoteurl_id, 'note_id' => $note->getId()]));
+                $link_id = Link::getOrCreate($match[0])->getId();
+                DB::persist(NoteToLink::create(['link_id' => $link_id, 'note_id' => $note->getId()]));
                 $processed_urls = true;
             } catch (InvalidArgumentException) {
                 continue;

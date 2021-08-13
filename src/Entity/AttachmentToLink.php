@@ -32,12 +32,12 @@ use DateTimeInterface;
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class RemoteURLToAttachment extends Entity
+class AttachmentToLink extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $attachment_id;
-    private int $remoteurl_id;
+    private int $link_id;
     private \DateTimeInterface $modified;
 
     public function setAttachmentId(int $attachment_id): self
@@ -51,15 +51,15 @@ class RemoteURLToAttachment extends Entity
         return $this->attachment_id;
     }
 
-    public function setRemoteURLId(int $remoteurl_id): self
+    public function setLinkId(int $link_id): self
     {
-        $this->remoteurl_id = $remoteurl_id;
+        $this->link_id = $link_id;
         return $this;
     }
 
-    public function getRemoteURLId(): int
+    public function getLinkId(): int
     {
-        return $this->remoteurl_id;
+        return $this->link_id;
     }
 
     public function setModified(DateTimeInterface $modified): self
@@ -79,15 +79,15 @@ class RemoteURLToAttachment extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'remoteurl_to_attachment',
+            'name'   => 'attachment_to_link',
             'fields' => [
-                'remoteurl_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'RemoteURL.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
+                'link_id'       => ['type' => 'int', 'foreign key' => true, 'target' => 'Link.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'name' => 'attachment_to_note_attachment_id_fkey', 'not null' => true, 'description' => 'id of attachment'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['remoteurl_id'],
+            'primary key' => ['link_id'],
             'indexes'     => [
-                'remoteurl_id_idx'  => ['remoteurl_id'],
+                'link_id_idx'       => ['link_id'],
                 'attachment_id_idx' => ['attachment_id'],
             ],
         ];

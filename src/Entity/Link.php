@@ -31,7 +31,7 @@ use DateTimeInterface;
 use InvalidArgumentException;
 
 /**
- * Entity for representing a RemoteURL
+ * Entity for representing a Link
  *
  * @category  DB
  * @package   GNUsocial
@@ -40,13 +40,13 @@ use InvalidArgumentException;
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class RemoteURL extends Entity
+class Link extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private ?string $remote_url;
-    private ?string $remote_url_hash;
+    private ?string $url;
+    private ?string $url_hash;
     private ?string $mimetype;
     private DateTimeInterface $modified;
 
@@ -61,26 +61,26 @@ class RemoteURL extends Entity
         return $this->id;
     }
 
-    public function getRemoteUrl(): ?string
+    public function getUrl(): ?string
     {
-        return $this->remote_url;
+        return $this->url;
     }
 
-    public function setRemoteUrl(?string $remote_url): self
+    public function setUrl(?string $url): self
     {
-        $this->remote_url = $remote_url;
+        $this->url = $url;
         return $this;
     }
 
-    public function setRemoteUrlHash(?string $remote_url_hash): self
+    public function setUrlHash(?string $url_hash): self
     {
-        $this->remote_url_hash = $remote_url_hash;
+        $this->url_hash = $url_hash;
         return $this;
     }
 
-    public function getRemoteUrlHash(): ?string
+    public function getUrlHash(): ?string
     {
-        return $this->remote_url_hash;
+        return $this->url_hash;
     }
 
     public function setMimetype(?string $mimetype): self
@@ -127,10 +127,11 @@ class RemoteURL extends Entity
      *
      * @param string $url
      *
+     *@throws InvalidArgumentException
      * @throws DuplicateFoundException
-     * @throws InvalidArgumentException
      *
-     * @return RemoteURL
+     * @return Link
+     *
      */
     public static function getOrCreate(string $url): self
     {
@@ -141,17 +142,17 @@ class RemoteURL extends Entity
             $url      = $head->getInfo('url'); // The last effective url (after getHeaders, so it follows redirects)
             $url_hash = hash(self::URLHASH_ALGO, $url);
             try {
-                return DB::findOneBy('remoteurl', ['remote_url_hash' => $url_hash]);
+                return DB::findOneBy('link', ['url_hash' => $url_hash]);
             } catch (NotFoundException) {
-                $headers   = array_change_key_case($headers, CASE_LOWER);
-                $remoteurl = self::create([
-                    'remote_url'      => $url,
-                    'remote_url_hash' => $url_hash,
-                    'mimetype'        => $headers['content-type'][0],
+                $headers = array_change_key_case($headers, CASE_LOWER);
+                $link    = self::create([
+                    'url'      => $url,
+                    'url_hash' => $url_hash,
+                    'mimetype' => $headers['content-type'][0],
                 ]);
-                DB::persist($remoteurl);
-                Event::handle('RemoteURLStoredNew', [&$remoteurl]);
-                return $remoteurl;
+                DB::persist($link);
+                Event::handle('LinkStoredNew', [&$link]);
+                return $link;
             }
         } else {
             throw new InvalidArgumentException();
@@ -161,17 +162,17 @@ class RemoteURL extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'remoteurl',
+            'name'   => 'link',
             'fields' => [
-                'id'              => ['type' => 'serial',    'not null' => true],
-                'remote_url'      => ['type' => 'text',      'description' => 'URL after following possible redirections'],
-                'remote_url_hash' => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of destination URL (url field)'],
-                'mimetype'        => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
-                'modified'        => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'       => ['type' => 'serial',    'not null' => true],
+                'url'      => ['type' => 'text',      'description' => 'URL after following possible redirections'],
+                'url_hash' => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of destination URL (url field)'],
+                'mimetype' => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'indexes'     => [
-                'gsactor_remote_url_hash_idx' => ['remote_url_hash'],
+                'gsactor_url_hash_idx' => ['url_hash'],
             ],
         ];
     }

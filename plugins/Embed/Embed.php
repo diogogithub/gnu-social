@@ -46,8 +46,8 @@ use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use App\Core\Router\Router;
 use App\Entity\Attachment;
+use App\Entity\Link;
 use App\Entity\Note;
-use App\Entity\RemoteURL;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
@@ -134,24 +134,24 @@ class Embed extends Plugin
      *
      * @return bool
      */
-    public function onViewRemoteUrl(array $vars, array &$res): bool
+    public function onViewLink(array $vars, array &$res): bool
     {
-        $remote_url = $vars['remote_url'];
+        $link = $vars['link'];
         try {
-            $embed = Cache::get('attachment-embed-' . $remote_url->getId(),
-                fn () => DB::findOneBy('attachment_embed', ['remoteurl_id' => $remote_url->getId()]));
+            $embed = Cache::get('attachment-embed-' . $link->getId(),
+                fn () => DB::findOneBy('attachment_embed', ['link_id' => $link->getId()]));
         } catch (DuplicateFoundException $e) {
             Log::warning($e);
             return Event::next;
         } catch (NotFoundException) {
-            Log::debug("Embed doesn\\'t have a representation for the remote_url id={$remote_url->getId()}. Must have been stored before the plugin was enabled.");
+            Log::debug("Embed doesn't have a representation for the link id={$link->getId()}. Must have been stored before the plugin was enabled.");
             return Event::next;
         }
 
         $attributes = $embed->getImageHTMLAttributes(['class' => 'u-photo embed']);
 
         $res[] = Formatting::twigRenderFile('embed/embedView.html.twig',
-            ['embed' => $embed, 'attributes' => $attributes, 'remote_url' => $remote_url]);
+            ['embed' => $embed, 'attributes' => $attributes, 'link' => $link]);
 
         return Event::stop;
     }
@@ -159,31 +159,32 @@ class Embed extends Plugin
     /**
      * Save embedding information for an Attachment, if applicable.
      *
-     * @param RemoteURL $remote_url
-     * @param Note      $note
+     * @param Link $link
+     * @param Note $note
      *
-     * @throws DuplicateFoundException
+     *@throws DuplicateFoundException
      *
      * @return bool
+     *
      */
-    public function onNewRemoteURLFromNote(RemoteURL $remote_url, Note $note): bool
+    public function onNewLinkFromNote(Link $link, Note $note): bool
     {
         // Only handle text mime
-        $mimetype = $remote_url->getMimetype();
+        $mimetype = $link->getMimetype();
         if (!(Formatting::startsWith($mimetype, 'text/html') || Formatting::startsWith($mimetype, 'application/xhtml+xml'))) {
             return Event::next;
         }
 
         // Ignore if already handled
-        $attachment_embed = DB::find('attachment_embed', ['remoteurl_id' => $remote_url->getId()]);
+        $attachment_embed = DB::find('attachment_embed', ['link_id' => $link->getId()]);
         if (!is_null($attachment_embed)) {
             return Event::next;
         }
 
         // If an attachment already exist, do not create an Embed for it. Some other plugin must have done things
-        $remote_url_to_attachment = DB::find('remoteurl_to_attachment', ['remoteurl_id' => $remote_url->getId()]);
-        if (!is_null($remote_url_to_attachment)) {
-            $attachment_id = $remote_url_to_attachment->getAttachmentId();
+        $link_to_attachment = DB::find('link_to_attachment', ['link_id' => $link->getId()]);
+        if (!is_null($link_to_attachment)) {
+            $attachment_id = $link_to_attachment->getAttachmentId();
             try {
                 $attachment = DB::findOneBy('attachment', ['id' => $attachment_id]);
                 $attachment->livesIncrementAndGet();
@@ -194,15 +195,15 @@ class Embed extends Plugin
         }
 
         // Create an Embed representation for this URL
-        $embed_data                 = $this->getEmbedLibMetadata($remote_url->getRemoteUrl());
-        $embed_data['remoteurl_id'] = $remote_url->getId();
-        $img_data                   = $this->downloadThumbnail($embed_data['thumbnail_url']);
+        $embed_data            = $this->getEmbedLibMetadata($link->getUrl());
+        $embed_data['link_id'] = $link->getId();
+        $img_data              = $this->downloadThumbnail($embed_data['thumbnail_url']);
         switch ($img_data) {
             case null: // URL isn't usable
                 $embed_data['thumbnail_url'] = null;
             // no break
             case false: // Thumbnail isn't acceptable
-                DB::persist($attachment = Attachment::create(['mimetype' => $remote_url->getMimetype()]));
+                DB::persist($attachment = Attachment::create(['mimetype' => $link->getMimetype()]));
                 Event::handle('AttachmentStoreNew', [&$attachment]);
                 break;
             default: // String is valid image data
@@ -286,7 +287,7 @@ class Embed extends Plugin
      *
      * @return bool true if allowed by the lists, false otherwise
      */
-    private function allowedRemoteUrl(string $url): bool
+    private function allowedLink(string $url): bool
     {
         return true;
         if ($this->check_whitelist ?? false) {
@@ -309,30 +310,30 @@ class Embed extends Plugin
      * - checks if respects file quota and whitelist/blacklist, returns false if not;
      * - downloads the thumbnail, returns a string if successful.
      *
-     * @param string $remote_url URL to the remote thumbnail
+     * @param string $url URL to the remote thumbnail
      *
      * @return null|bool|string
      */
-    private function downloadThumbnail(string $remote_url): bool|string|null
+    private function downloadThumbnail(string $url): bool|string|null
     {
         // Is this a valid URL?
-        if (!Common::isValidHttpUrl($remote_url)) {
-            Log::debug("Invalid URL ({$remote_url}) in Embed->downloadThumbnail.");
+        if (!Common::isValidHttpUrl($url)) {
+            Log::debug("Invalid URL ({$url}) in Embed->downloadThumbnail.");
             return null;
         }
 
         // Is this URL trusted?
-        if (!$this->allowedRemoteUrl($remote_url)) {
-            Log::info("Blocked URL ({$remote_url}) in Embed->downloadThumbnail.");
+        if (!$this->allowedLink($url)) {
+            Log::info("Blocked URL ({$url}) in Embed->downloadThumbnail.");
             return false;
         }
 
         // Validate if the URL really does point to a remote image
-        $head    = HTTPClient::head($remote_url);
+        $head    = HTTPClient::head($url);
         $headers = $head->getHeaders();
         $headers = array_change_key_case($headers, CASE_LOWER);
         if (empty($headers['content-type']) || GSFile::mimetypeMajor($headers['content-type'][0]) !== 'image') {
-            Log::debug("URL ({$remote_url}) doesn't point to an image (content-type: " . (!empty($headers['content-type'][0]) ? $headers['content-type'][0] : 'not available') . ') in Embed->downloadThumbnail.');
+            Log::debug("URL ({$url}) doesn't point to an image (content-type: " . (!empty($headers['content-type'][0]) ? $headers['content-type'][0] : 'not available') . ') in Embed->downloadThumbnail.');
             return null;
         }
 
@@ -345,8 +346,8 @@ class Embed extends Plugin
         }
 
         // Download and return the file
-        Log::debug("Downloading remote thumbnail from URL: {$remote_url} in Embed->downloadThumbnail.");
-        return HTTPClient::get($remote_url)->getContent();
+        Log::debug("Downloading remote thumbnail from URL: {$url} in Embed->downloadThumbnail.");
+        return HTTPClient::get($url)->getContent();
     }
 
     /**

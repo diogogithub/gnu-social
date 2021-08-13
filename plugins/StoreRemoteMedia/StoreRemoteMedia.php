@@ -24,11 +24,14 @@ use App\Core\GSFile;
 use App\Core\HTTPClient;
 use App\Core\Modules\Plugin;
 use App\Entity\AttachmentThumbnail;
+use App\Entity\AttachmentToLink;
 use App\Entity\AttachmentToNote;
+use App\Entity\Link;
 use App\Entity\Note;
-use App\Entity\RemoteURL;
-use App\Entity\RemoteURLToAttachment;
 use App\Util\Common;
+use App\Util\Exception\DuplicateFoundException;
+use App\Util\Exception\ServerException;
+use App\Util\Exception\TemporaryFileException;
 use App\Util\TemporaryFile;
 
 /**
@@ -82,43 +85,48 @@ class StoreRemoteMedia extends Plugin
     }
 
     /**
-     * @param RemoteURL $remote_url
+     * @param Link $link
+     * @param Note $note
+     *
+     * @throws DuplicateFoundException
+     * @throws ServerException
+     * @throws TemporaryFileException
      *
      * @return bool
      */
-    public function onNewRemoteURLFromNote(RemoteURL $remote_url, Note $note): bool
+    public function onNewLinkFromNote(Link $link, Note $note): bool
     {
         // Embed is the plugin to handle these
-        if ($remote_url->getMimetypeMajor() === 'text') {
+        if ($link->getMimetypeMajor() === 'text') {
             return Event::next;
         }
 
         // Have we handled it already?
-        $remoteurl_to_attachment = DB::find('remoteurl_to_attachment',
-            ['remoteurl_id' => $remote_url->getId()]);
+        $attachment_to_link = DB::find('attachment_to_link',
+            ['link_id' => $link->getId()]);
 
         // If it was handled already
-        if (!is_null($remoteurl_to_attachment)) {
+        if (!is_null($attachment_to_link)) {
             // Relate the note with the existing attachment
             DB::persist(AttachmentToNote::create([
-                'attachment_id' => $remoteurl_to_attachment->getAttachmentId(),
+                'attachment_id' => $attachment_to_link->getAttachmentId(),
                 'note_id'       => $note->getId(),
             ]));
             DB::flush();
             return Event::stop;
         } else {
             // Retrieve media
-            $get_response = HTTPClient::get($remote_url->getRemoteUrl());
+            $get_response = HTTPClient::get($link->getUrl());
             $media        = $get_response->getContent();
             $mimetype     = $get_response->getHeaders()['content-type'][0];
             unset($get_response);
 
             // Ensure we still want to handle it
-            if ($mimetype != $remote_url->getMimetype()) {
-                $remote_url->setMimetype($mimetype);
-                DB::persist($remote_url);
+            if ($mimetype != $link->getMimetype()) {
+                $link->setMimetype($mimetype);
+                DB::persist($link);
                 DB::flush();
-                if ($remote_url->getMimetypeMajor() === 'text') {
+                if ($link->getMimetypeMajor() === 'text') {
                     return Event::next;
                 }
             }
@@ -128,9 +136,9 @@ class StoreRemoteMedia extends Plugin
             $temp_file->write($media);
             $attachment = GSFile::sanitizeAndStoreFileAsAttachment($temp_file);
 
-            // Relate the remoteurl with the attachment
-            DB::persist(RemoteURLToAttachment::create([
-                'remoteurl_id'  => $remote_url->getId(),
+            // Relate the link with the attachment
+            DB::persist(AttachmentToLink::create([
+                'link_id'       => $link->getId(),
                 'attachment_id' => $attachment->getId(),
             ]));
 

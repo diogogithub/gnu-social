@@ -4,7 +4,7 @@
             <img class="u-photo embed" width="{{attributes['width']}}" height="{{attributes['height']}}" src="{{attributes['src']}}" />
         {% endif %}
         <h5 class="p-name embed">
-            <a class="u-url" href="{{attachment.getRemoteUrl()}}">{{embed.getTitle() | escape}}</a>
+            <a class="u-url" href="{{link.getUrl()}}">{{embed.getTitle() | escape}}</a>
         </h5>
         <div class="p-author embed">
             {% if embed.getAuthorName() is not null %}

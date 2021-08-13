@@ -25,7 +25,7 @@ use App\Core\Event;
 use DateTimeInterface;
 
 /**
- * Entity for relating a RemoteURL to a post
+ * Entity for relating a Link to a post
  *
  * @category  DB
  * @package   GNUsocial
@@ -34,23 +34,23 @@ use DateTimeInterface;
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class RemoteURLToNote extends Entity
+class NoteToLink extends Entity
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
-    private int $remoteurl_id;
+    private int $link_id;
     private int $note_id;
     private \DateTimeInterface $modified;
 
-    public function setRemoteURLId(int $remoteurl_id): self
+    public function setLinkId(int $link_id): self
     {
-        $this->remoteurl_id = $remoteurl_id;
+        $this->link_id = $link_id;
         return $this;
     }
 
-    public function getRemoteURLId(): int
+    public function getLinkId(): int
     {
-        return $this->remoteurl_id;
+        return $this->link_id;
     }
 
     public function setNoteId(int $note_id): self
@@ -76,7 +76,7 @@ class RemoteURLToNote extends Entity
     }
 
     /**
-     * Create an instance of RemoteURLToNote or fill in the
+     * Create an instance of NoteToLink or fill in the
      * properties of $obj with the associative array $args. Doesn't
      * persist the result
      *
@@ -84,9 +84,9 @@ class RemoteURLToNote extends Entity
      */
     public static function create(array $args, $obj = null)
     {
-        $remoteURL = DB::find('remoteurl', ['id' => $args['remoteurl_id']]);
-        $note      = DB::find('note', ['id' => $args['note_id']]);
-        Event::handle('NewRemoteURLFromNote', [$remoteURL, $note]);
+        $link = DB::find('link', ['id' => $args['link_id']]);
+        $note = DB::find('note', ['id' => $args['note_id']]);
+        Event::handle('NewLinkFromNote', [$link, $note]);
         $obj = new self();
         return parent::create($args, $obj);
     }
@@ -97,16 +97,16 @@ class RemoteURLToNote extends Entity
     public static function schemaDef(): array
     {
         return [
-            'name'   => 'remoteurl_to_note',
+            'name'   => 'note_to_link',
             'fields' => [
-                'remoteurl_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'remoteurl.id', 'multiplicity' => 'one to one', 'name' => 'remoteurl_to_note_remoteurl_id_fkey', 'not null' => true, 'description' => 'id of remoteurl'],
-                'note_id'      => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'name' => 'remoteurl_to_note_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
-                'modified'     => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'link_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'link.id', 'multiplicity' => 'one to one', 'name' => 'note_to_link_link_id_fkey', 'not null' => true, 'description' => 'id of link'],
+                'note_id'  => ['type' => 'int', 'foreign key' => true, 'target' => 'Note.id', 'multiplicity' => 'one to one', 'name' => 'note_to_link_note_id_fkey', 'not null' => true, 'description' => 'id of the note it belongs to'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
-            'primary key' => ['remoteurl_id', 'note_id'],
+            'primary key' => ['link_id', 'note_id'],
             'indexes'     => [
-                'remoteurl_id_idx' => ['remoteurl_id'],
-                'note_id_idx'      => ['note_id'],
+                'link_id_idx' => ['link_id'],
+                'note_id_idx' => ['note_id'],
             ],
         ];
     }
