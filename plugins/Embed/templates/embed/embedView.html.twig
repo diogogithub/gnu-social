@@ -1,0 +1,33 @@
+<article class="h-entry embed">
+    <header>
+        {% if attributes != false %}
+            <img class="u-photo embed" width="{{attributes['width']}}" height="{{attributes['height']}}" src="{{attributes['src']}}" />
+        {% endif %}
+        <h5 class="p-name embed">
+            <a class="u-url" href="{{attachment.getRemoteUrl()}}">{{embed.getTitle() | escape}}</a>
+        </h5>
+        <div class="p-author embed">
+            {% if embed.getAuthorName() is not null %}
+                <div class="fn vcard author">
+                    {% if embed.getAuthorUrl() is null %}
+                        <p>{{embed.getAuthorName()}}</p>
+                    {% else %}
+                        <a href="{{embed.getAuthorUrl()}}" class="url">{{embed.getAuthorName()}}</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% if embed.getProviderName() is not null %}
+                <div class="fn vcard">
+                    {% if embed.getProviderUrl() is null %}
+                        <p>{{embed.getProviderName()}}</p>
+                    {% else %}
+                        <a href="{{embed.getProviderUrl()}}" class="url">{{embed.getProviderName()}}</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </header>
+    <div class="p-summary embed">
+        {{ embed.getHtml() | escape }}
+    </div>
+</article>
