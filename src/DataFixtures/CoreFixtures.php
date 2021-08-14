@@ -2,8 +2,6 @@
 
 namespace App\DataFixtures;
 
-use App\Core\DB\DB;
-use App\Core\GSFile;
 use App\Core\VisibilityScope;
 use App\Entity\GroupInbox;
 use App\Entity\GSActor;
@@ -12,7 +10,6 @@ use App\Entity\LocalUser;
 use App\Entity\Note;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
-use Symfony\Component\HttpFoundation\File\File;
 
 class CoreFixtures extends Fixture
 {
@@ -43,14 +40,6 @@ class CoreFixtures extends Fixture
         }
 
         $manager->persist(GroupInbox::create(['group_id' => $local_entities['taken_group']->getGroupId(), 'activity_id' => $note->getId()]));
-        $manager->flush();
-
-        DB::setManager($manager);
-        $filepath      = INSTALLDIR . '/tests/Media/sample-uploads/image.jpeg';
-        $copy_filepath = $filepath . '.copy';
-        copy($filepath, $copy_filepath);
-        $file = new File($copy_filepath, checkPath: true);
-        GSFile::sanitizeAndStoreFileAsAttachment($file);
         $manager->flush();
     }
 }
