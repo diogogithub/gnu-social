@@ -70,7 +70,7 @@ class GSFile
             // Attachment Exists
             $attachment->livesIncrementAndGet();
             if (is_null($attachment->getFilename())) {
-                $mimetype = $attachment->getMimetype();
+                $mimetype = mb_substr($attachment->getMimetype(), 0, 64);
                 $width    = $attachment->getWidth();
                 $height   = $attachment->getHeight();
                 Event::handle('AttachmentSanitization', [&$file, &$mimetype, &$width, &$height]);
@@ -86,7 +86,7 @@ class GSFile
             // Create an Attachment
             // The following properly gets the mimetype with `file` or other
             // available methods, so should be safe
-            $mimetype = $file->getMimeType();
+            $mimetype = mb_substr($file->getMimeType(), 0, 64);
             $width    = $height    = null;
             Event::handle('AttachmentSanitization', [&$file, &$mimetype, &$width, &$height]);
             $attachment = Attachment::create([

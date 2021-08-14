@@ -24,12 +24,12 @@ namespace App\Entity;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\GSFile;
-use App\Util\Exception\DuplicateFoundException;
-use App\Util\Exception\NotFoundException;
-use App\Util\Exception\ServerException;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Util\Common;
+use App\Util\Exception\DuplicateFoundException;
+use App\Util\Exception\NotFoundException;
+use App\Util\Exception\ServerException;
 use DateTimeInterface;
 
 /**
@@ -323,7 +323,7 @@ class Attachment extends Entity
                 'id'       => ['type' => 'serial',    'not null' => true],
                 'lives'    => ['type' => 'int',       'not null' => true, 'description' => 'RefCount'],
                 'filehash' => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
-                'mimetype' => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
+                'mimetype' => ['type' => 'varchar',   'length' => 64,  'description' => 'mime type of resource'],
                 'filename' => ['type' => 'varchar',   'length' => 191, 'description' => 'file name of resource when available'],
                 'size'     => ['type' => 'int',       'description' => 'size of resource when available'],
                 'width'    => ['type' => 'int',       'description' => 'width in pixels, if it can be described as such and data is available'],
