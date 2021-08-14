@@ -32,7 +32,9 @@
 
 namespace Plugin\Embed\Entity;
 
+use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Entity\Attachment;
 use DateTimeInterface;
 
 /**
@@ -55,6 +57,8 @@ class AttachmentEmbed extends Entity
     private ?string $author_name;
     private ?string $author_url;
     private ?string $thumbnail_url;
+    private ?int $thumbnail_width;
+    private ?int $thumbnail_height;
     private \DateTimeInterface $modified;
 
     public function setLinkId(int $link_id): self
@@ -175,6 +179,25 @@ class AttachmentEmbed extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    /**
+     * Generate the Embed thumbnail HTML attributes
+     *
+     * @return string[] ['class' => "string", 'has_attachment' => "bool", 'height' => "int|null", 'width' => "int|null"]
+     */
+    public function getImageHTMLAttributes(): array
+    {
+        $attr       = ['class' => 'u-photo embed'];
+        $attachment = DB::find('attachment', ['id' => $this->getAttachmentId()]);
+        if (is_null($attachment) || is_null($attachment->getWidth()) || is_null($attachment->getHeight())) {
+            $attr['has_attachment'] = false;
+        } else {
+            $attr['has_attachment'] = true;
+            $attr['width']          = $attachment->getWidth();
+            $attr['height']         = $attachment->getHeight();
+        }
+        return $attr;
+    }
+
     public static function schemaDef()
     {
         return [
@@ -182,12 +205,13 @@ class AttachmentEmbed extends Entity
             'fields' => [
                 'link_id'       => ['type' => 'int', 'not null' => true, 'description' => 'Embed for that URL/file'],
                 'attachment_id' => ['type' => 'int', 'not null' => true, 'description' => 'Attachment relation, used to show previews'],
-                'provider_name' => ['type' => 'text', 'description' => 'name of this Embed provider'],
+                'provider_name' => ['type' => 'text', 'description' => 'Name of this Embed provider'],
                 'provider_url'  => ['type' => 'text', 'description' => 'URL of this Embed provider'],
-                'title'         => ['type' => 'text', 'description' => 'title of Embed resource when available'],
-                'author_name'   => ['type' => 'text', 'description' => 'author name for this Embed resource'],
-                'author_url'    => ['type' => 'text', 'description' => 'author URL for this Embed resource'],
-                'thumbnail_url' => ['type' => 'text', 'description' => 'URL for this Embed resource when applicable (photo, link)'],
+                'title'         => ['type' => 'text', 'description' => 'Title of Embed resource when available'],
+                'description'   => ['type' => 'text', 'description' => 'Description of Embed resource when available'],
+                'author_name'   => ['type' => 'text', 'description' => 'Author name for this Embed resource'],
+                'author_url'    => ['type' => 'text', 'description' => 'Author URL for this Embed resource'],
+                'thumbnail_url' => ['type' => 'text', 'description' => 'URL for this Embed resource when applicable (image)'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['link_id'],
