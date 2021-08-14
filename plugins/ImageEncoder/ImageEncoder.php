@@ -25,29 +25,36 @@ use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Plugin;
 use App\Entity\Attachment;
-use App\Entity\AttachmentThumbnail;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
+use App\Util\Exception\ServerException;
 use App\Util\Exception\TemporaryFileException;
 use App\Util\Formatting;
 use App\Util\TemporaryFile;
 use Exception;
 use Jcupitt\Vips;
+use Plugin\ImageEncoder\Exception\UnsupportedFileTypeException;
 use SplFileInfo;
 
 /**
  * Create thumbnails and validate image attachments
  *
  * @package   GNUsocial
- * @ccategory Attachment
+ * @category Attachment
  *
  * @author    Diogo Peralta Cordeiro <mail@diogo.site>
- * @authir    Hugo Sales <hugo@hsal.es>
+ * @author    Hugo Sales <hugo@hsal.es>
  *
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
 class ImageEncoder extends Plugin
 {
+    public function version(): string
+    {
+        return '3.0.0';
+    }
+
     /**
      * Several obscure file types should be normalized to WebP on resize.
      */
@@ -62,12 +69,13 @@ class ImageEncoder extends Plugin
      *
      * @param SplFileInfo $file
      * @param null|string $mimetype in/out
-     * @param null|string $title    in/out
      * @param null|int    $width    out
      * @param null|int    $height   out
      *
-     * @throws Vips\Exception
+     * @throws ClientException        When vips doesn't understand the given mimetype
+     * @throws ServerException
      * @throws TemporaryFileException
+     * @throws Vips\Exception
      *
      * @return bool
      */
@@ -81,19 +89,24 @@ class ImageEncoder extends Plugin
 
         // Try to maintain original mimetype extension, otherwise default to preferred.
         $extension = image_type_to_extension($this->preferredType(), include_dot: true);
-        GSFile::ensureFilenameWithProperExtension(
+        $extension = GSFile::ensureFilenameWithProperExtension(
             title: $file->getFilename(),
             mimetype: $original_mimetype,
             ext: $extension,
             force: false
-        );
+        ) ?? $extension;
 
         // TemporaryFile handles deleting the file if some error occurs
         // IMPORTANT: We have to specify the extension for the temporary file
         // in order to have a format conversion
         $temp = new TemporaryFile(['prefix' => 'image', 'suffix' => $extension]);
 
-        $image  = Vips\Image::newFromFile($file->getRealPath(), ['access' => 'sequential']);
+        try {
+            $image = Vips\Image::newFromFile($file->getRealPath(), ['access' => 'sequential']);
+        } catch (Vips\Exception $e) {
+            Log::debug("ImageEncoder's Vips couldn't handle the image file, failed with {$e}.");
+            throw new UnsupportedFileTypeException(_m("Unsupported image file with {$mimetype}.", previous: $e));
+        }
         $width  = Common::clamp($image->width, 0, Common::config('attachments', 'max_width'));
         $height = Common::clamp($image->height, 0, Common::config('attachments', 'max_height'));
         $image  = $image->crop(0, 0, $width, $height);
@@ -102,6 +115,7 @@ class ImageEncoder extends Plugin
         // Replace original file with the sanitized one
         $temp->commit($file->getRealPath());
 
+        // Only one plugin can handle sanitization
         return Event::stop;
     }
 
@@ -143,13 +157,14 @@ class ImageEncoder extends Plugin
      * enable the handling of bigger images, which can cause a peak of memory consumption, while
      * encoding
      *
-     * @param Attachment          $attachment
-     * @param AttachmentThumbnail $thumbnail
-     * @param int                 $width
-     * @param int                 $height
-     * @param bool                $crop
+     * @param string             $source
+     * @param null|TemporaryFile $destination
+     * @param int                $width
+     * @param int                $height
+     * @param bool               $smart_crop
+     * @param null|string        $mimetype
      *
-     * @throws Exception
+     * @throws TemporaryFileException
      * @throws Vips\Exception
      *
      * @return bool
@@ -192,5 +207,26 @@ class ImageEncoder extends Plugin
             ini_set('memory_limit', $old_limit); // Restore the old memory limit
         }
         return Event::stop;
+    }
+
+    /**
+     * Event raised when GNU social polls the plugin for information about it.
+     * Adds this plugin's version information to $versions array
+     *
+     * @param &$versions array inherited from parent
+     *
+     * @return bool true hook value
+     */
+    public function onPluginVersion(array &$versions): bool
+    {
+        $versions[] = [
+            'name'        => 'ImageEncoder',
+            'version'     => $this->version(),
+            'author'      => 'Hugo Sales, Diogo Peralta Cordeiro',
+            'homepage'    => GNUSOCIAL_PROJECT_URL,
+            'description' => // TRANS: Plugin description.
+                _m('Use VIPS for some additional image support.'),
+        ];
+        return Event::next;
     }
 }
