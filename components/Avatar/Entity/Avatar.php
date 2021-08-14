@@ -122,24 +122,17 @@ class Avatar extends Entity
     }
 
     /**
-     * Delete this avatar and, if safe, the corresponding file and thumbnails, which this owns
+     * Delete this avatar and kill corresponding attachment
      *
-     * @param bool $cascade
-     * @param bool $flush
+     * @return bool
      */
-    public function delete(bool $cascade = true, bool $flush = true): void
+    public function delete(): bool
     {
         DB::remove($this);
-        if ($cascade) {
-            $attachment = $this->getAttachment();
-            // We can't use $attachment->isSafeDelete() because underlying findBy doesn't respect remove persistence
-            if ($attachment->refCount() - 1 === 0) {
-                $attachment->delete(cascade: true, flush: false);
-            }
-        }
-        if ($flush) {
-            DB::flush();
-        }
+        $attachment = $this->getAttachment();
+        $attachment->kill();
+        DB::flush();
+        return true;
     }
 
     public static function schemaDef(): array

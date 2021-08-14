@@ -71,7 +71,7 @@ class ImageEncoder extends Plugin
      *
      * @return bool
      */
-    public function onAttachmentSanitization(SplFileInfo &$file, ?string &$mimetype, ?string &$title, ?int &$width, ?int &$height): bool
+    public function onAttachmentSanitization(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
     {
         $original_mimetype = $mimetype;
         if (GSFile::mimetypeMajor($original_mimetype) != 'image') {
@@ -81,8 +81,8 @@ class ImageEncoder extends Plugin
 
         // Try to maintain original mimetype extension, otherwise default to preferred.
         $extension = image_type_to_extension($this->preferredType(), include_dot: true);
-        GSFile::titleToFilename(
-            title: $title,
+        GSFile::ensureFilenameWithProperExtension(
+            title: $file->getFilename(),
             mimetype: $original_mimetype,
             ext: $extension,
             force: false

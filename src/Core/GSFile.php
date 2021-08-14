@@ -30,7 +30,6 @@ use App\Util\Exception\NoSuchFileException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use App\Util\Formatting;
-use InvalidArgumentException;
 use SplFileInfo;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -51,7 +50,7 @@ use Symfony\Component\Mime\MimeTypes;
 class GSFile
 {
     /**
-     * Perform file validation (checks and normalization) and store the given file
+     * Perform file validation (checks and normalization), store the given file if needed and increment lives
      *
      * @param SplFileInfo $file
      * @param string      $dest_dir
@@ -63,11 +62,8 @@ class GSFile
      *
      * @return Attachment
      */
-    public static function validateAndStoreFileAsAttachment(SplFileInfo $file,
-                                                            string $dest_dir,
-                                                            int $actor_id,
-                                                            ?string $title = null,
-                                                            bool $is_local = true): Attachment
+    public static function sanitizeAndStoreFileAsAttachment(SplFileInfo $file,
+                                                            string $dest_dir): Attachment
     {
         if (!Formatting::startsWith($dest_dir, Common::config('storage', 'dir'))) {
             throw new \InvalidArgumentException("Attempted to store a file in a directory outside the GNU social files location: {$dest_dir}");
@@ -76,65 +72,27 @@ class GSFile
         $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         try {
-            return DB::findOneBy('attachment', ['file_hash' => $hash]);
+            $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
+            $attachment->livesIncrementAndGet();
         } catch (NotFoundException) {
             // The following properly gets the mimetype with `file` or other
             // available methods, so should be safe
             $mimetype = $file->getMimeType();
             $width    = $height    = null;
-            Event::handle('AttachmentSanitization', [&$file, &$mimetype, &$title, &$width, &$height]);
-            if ($is_local) {
-                $filesize = $file->getSize();
-                Event::handle('EnforceQuota', [$actor_id, $filesize]);
-            }
+            Event::handle('AttachmentSanitization', [&$file, &$mimetype, &$width, &$height]);
             $attachment = Attachment::create([
-                'file_hash'  => $hash,
-                'gsactor_id' => $actor_id,
-                'mimetype'   => $mimetype,
-                'title'      => $title,
-                'filename'   => Formatting::removePrefix($dest_dir, Common::config('attachments', 'dir')) . $hash,
-                'is_local'   => $is_local,
-                'size'       => $file->getSize(),
-                'width'      => $width,
-                'height'     => $height,
+                'filehash' => $hash,
+                'mimetype' => $mimetype,
+                'filename' => Formatting::removePrefix($dest_dir, Common::config('attachments', 'dir')) . $hash,
+                'size'     => $file->getSize(),
+                'width'    => $width,
+                'height'   => $height,
             ]);
             $file->move($dest_dir, $hash);
             DB::persist($attachment);
             Event::handle('AttachmentStoreNew', [&$attachment]);
-            return $attachment;
         }
-    }
-
-    /**
-     * Create an attachment for the given URL, fetching the mimetype
-     *
-     * @throws InvalidArgumentException
-     */
-    public static function validateAndStoreURLAsAttachment(string $url): Attachment
-    {
-        if (Common::isValidHttpUrl($url)) {
-            $head = HTTPClient::head($url);
-            // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
-            $headers  = $head->getHeaders();
-            $url      = $head->getInfo('url'); // The last effective url (after getHeaders so it follows redirects)
-            $url_hash = hash(Attachment::URLHASH_ALGO, $url);
-            try {
-                return DB::findOneBy('attachment', ['remote_url_hash' => $url_hash]);
-            } catch (NotFoundException) {
-                $headers    = array_change_key_case($headers, CASE_LOWER);
-                $attachment = Attachment::create([
-                    'remote_url'      => $url,
-                    'remote_url_hash' => $url_hash,
-                    'mimetype'        => $headers['content-type'][0],
-                    'is_local'        => false,
-                ]);
-                DB::persist($attachment);
-                Event::handle('AttachmentStoreNew', [&$attachment]);
-                return $attachment;
-            }
-        } else {
-            throw new InvalidArgumentException();
-        }
+        return $attachment;
     }
 
     /**
@@ -203,7 +161,7 @@ class GSFile
             $id,
             Cache::get("file-info-{$id}",
                 function () use ($id) {
-                    return DB::dql('select at.filename, at.mimetype, at.title ' .
+                    return DB::dql('select at.filename, at.mimetype ' .
                         'from App\\Entity\\Attachment at ' .
                         'where at.id = :id',
                         ['id' => $id]);
@@ -255,16 +213,16 @@ class GSFile
     }
 
     /**
-     * Given an attachment title and mimetype allows to generate the most appropriate filename.
+     * Given an attachment filename and mimetype allows to generate the most appropriate filename.
      *
-     * @param string      $title
-     * @param string      $mimetype
-     * @param null|string $ext
-     * @param bool        $force
+     * @param string      $title    Original filename with or without extension
+     * @param string      $mimetype Original mimetype of the file
+     * @param null|string $ext      Extension we believe to be best
+     * @param bool        $force    Should we force the extension we believe to be best? Defaults to false
      *
      * @return null|string
      */
-    public static function titleToFilename(string $title, string $mimetype, ?string &$ext = null, bool $force = false): string | null
+    public static function ensureFilenameWithProperExtension(string $title, string $mimetype, ?string &$ext = null, bool $force = false): string | null
     {
         $valid_extensions = MimeTypes::getDefault()->getExtensions($mimetype);
 
@@ -286,6 +244,9 @@ class GSFile
                 if (!empty($valid_extensions)) {
                     return "{$title}.{$valid_extensions[0]}";
                 } else {
+                    if (!is_null($ext)) {
+                        return ($title_without_extension ?? $title) . ".{$ext}";
+                    }
                     return null;
                 }
             }

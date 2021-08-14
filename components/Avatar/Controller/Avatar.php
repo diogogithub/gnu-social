@@ -29,7 +29,6 @@ use App\Core\GSFile;
 use App\Core\GSFile as M;
 use function App\Core\I18n\_m;
 use App\Core\Log;
-use App\Core\Security;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
@@ -106,12 +105,9 @@ class Avatar extends Controller
                 } else {
                     throw new ClientException('Invalid form');
                 }
-                $attachment = GSFile::validateAndStoreFileAsAttachment(
+                $attachment = GSFile::sanitizeAndStoreFileAsAttachment(
                     $file,
-                    dest_dir: Common::config('attachments', 'dir'),
-                    actor_id: $gsactor_id,
-                    title: Security::sanitize($file->getClientOriginalName()),
-                    is_local: true
+                    dest_dir: Common::config('attachments', 'dir')
                 );
                 // Delete current avatar if there's one
                 $avatar = DB::find('avatar', ['gsactor_id' => $gsactor_id]);

@@ -46,7 +46,7 @@ class AttachmentTest extends GNUsocialTestCase
     private function testAttachment(string $suffix)
     {
         $client     = static::createClient();
-        $attachment = DB::findOneBy('attachment', ['title' => '1x1 JPEG image title']);
+        $attachment = DB::findOneBy('attachment', ['filehash' => '5d8ee7ead51a28803b4ee5cb2306a0b90b6ba570f1e5bcc2209926f6ab08e7ea']);
         $crawler    = $client->request('GET', "/attachment/{$attachment->getId()}{$suffix}");
     }
 
@@ -54,7 +54,7 @@ class AttachmentTest extends GNUsocialTestCase
     {
         $this->testAttachment('');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('figure figcaption', '1x1 JPEG image title');
+        $this->assertSelectorTextContains('figure figcaption', '5d8ee7ead51a28803b4ee5cb2306a0b90b6ba570f1e5bcc2209926f6ab08e7ea');
     }
 
     public function testAttachmentView()

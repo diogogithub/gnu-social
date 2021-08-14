@@ -1,17 +1,12 @@
 {% set thumbnail_parameters = {'id': attachment.getId(), 'w': config('thumbnail','width'), 'h': config('thumbnail','height')} %}
-{% if attachment.getIsLocal() %}
-    {% set handled = false %}
-    {% for block in handle_event('ViewAttachment' ~ attachment.getMimetypeMajor() | capitalize , {'attachment': attachment, 'thumbnail_parameters': thumbnail_parameters}) %}
-        {% set handled = true %}
-        {{ block | raw }}
-    {% endfor %}
-    {% if not handled %}
-        <div>
-            <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a> </i>
-        </div>
-    {% endif %}
-{% else %}
-    {% for block in handle_event('ViewRemoteAttachment', {'attachment': attachment, 'thumbnail_parameters': thumbnail_parameters}) %}
-        {{ block | raw }}
-    {% endfor %}
+{% set handled = false %}
+{% for block in handle_event('ViewAttachment' ~ attachment.getMimetypeMajor() | capitalize , {'attachment': attachment, 'thumbnail_parameters': thumbnail_parameters}) %}
+    {% set handled = true %}
+    {{ block | raw }}
+{% endfor %}
+{% if not handled %}
+    <div>
+        <i> <a href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getFilename() }}</a> </i>
+    </div>
 {% endif %}
+

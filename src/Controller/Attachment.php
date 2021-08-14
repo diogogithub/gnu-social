@@ -75,7 +75,6 @@ class Attachment extends Controller
             return $this->attachment($id, function ($res) use ($id, $attachment) {
                 return [
                     '_template'        => 'attachments/show.html.twig',
-                    'title'            => $res['title'],
                     'download'         => Router::url('attachment_download', ['id' => $id]),
                     'attachment'       => $attachment,
                     'right_panel_vars' => ['attachment_id' => $id],
@@ -91,12 +90,12 @@ class Attachment extends Controller
      */
     public function attachment_view(Request $request, int $id)
     {
-        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], GSFile::titleToFilename($res['title'], $res['mimetype']), HeaderUtils::DISPOSITION_INLINE));
+        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'], HeaderUtils::DISPOSITION_INLINE));
     }
 
     public function attachment_download(Request $request, int $id)
     {
-        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], GSFile::titleToFilename($res['title'], $res['mimetype']), HeaderUtils::DISPOSITION_ATTACHMENT));
+        return $this->attachment($id, fn (array $res) => GSFile::sendFile($res['filepath'], $res['mimetype'], GSFile::ensureFilenameWithProperExtension($res['filename'], $res['mimetype']) ?? $res['filename'], HeaderUtils::DISPOSITION_ATTACHMENT));
     }
 
     /**
@@ -116,14 +115,6 @@ class Attachment extends Controller
     {
         $attachment = DB::findOneBy('attachment', ['id' => $id]);
 
-        if (!is_null($attachment->getScope())) {
-            // @codeCoverageIgnoreStart
-            // && ($attachment->scope | VisibilityScope::PUBLIC) != 0
-            // $user = Common::ensureLoggedIn();
-            assert(false, 'Attachment scope not implemented');
-            // @codeCoverageIgnoreEnd
-        }
-
         $default_width  = Common::config('thumbnail', 'width');
         $default_height = Common::config('thumbnail', 'height');
         $default_crop   = Common::config('thumbnail', 'smart_crop');
@@ -140,7 +131,7 @@ class Attachment extends Controller
 
         $filename = $thumbnail->getFilename();
         $path     = $thumbnail->getPath();
-        $mimetype = $attachment->getMimetype();
+        $mimetype = $thumbnail->getMimetype();
 
         return GSFile::sendFile(filepath: $path, mimetype: $mimetype, output_filename: $filename . '.' . MimeTypes::getDefault()->getExtensions($mimetype)[0], disposition: HeaderUtils::DISPOSITION_INLINE);
     }

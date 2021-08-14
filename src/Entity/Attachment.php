@@ -23,7 +23,6 @@ namespace App\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;
-use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\Log;
 use App\Util\Common;
@@ -40,6 +39,7 @@ use DateTimeInterface;
  * @author    Mikael Nordfeldth <mmn@hethane.se>
  * @copyright 2009-2014 Free Software Foundation, Inc http://www.fsf.org
  * @author    Hugo Sales <hugo@hsal.es>
+ * @author    Diogo Peralta Cordeiro <mail@diogo.site>
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -48,16 +48,10 @@ class Attachment extends Entity
     // {{{ Autocode
     // @codeCoverageIgnoreStart
     private int $id;
-    private ?string $remote_url;
-    private ?string $remote_url_hash;
-    private ?string $file_hash;
-    private ?int $gsactor_id;
+    private int $lives = 1;
+    private ?string $filehash;
     private ?string $mimetype;
-    private ?string $title;
     private ?string $filename;
-    private ?bool $is_local;
-    private ?int $source;
-    private ?int $scope;
     private ?int $size;
     private ?int $width;
     private ?int $height;
@@ -74,48 +68,32 @@ class Attachment extends Entity
         return $this->id;
     }
 
-    public function setRemoteUrl(?string $remote_url): self
+    /**
+     * @return int
+     */
+
+    public function getLives(): int
     {
-        $this->remote_url = $remote_url;
+        return $this->lives;
+    }
+
+    /**
+     * @param int $lives
+     */
+    public function setLives(int $lives): void
+    {
+        $this->lives = $lives;
+    }
+
+    public function setFilehash(?string $filehash): self
+    {
+        $this->filehash = $filehash;
         return $this;
     }
 
-    public function getRemoteUrl(): ?string
+    public function getFilehash(): ?string
     {
-        return $this->remote_url;
-    }
-
-    public function setRemoteUrlHash(?string $remote_url_hash): self
-    {
-        $this->remote_url_hash = $remote_url_hash;
-        return $this;
-    }
-
-    public function getRemoteUrlHash(): ?string
-    {
-        return $this->remote_url_hash;
-    }
-
-    public function setFileHash(?string $file_hash): self
-    {
-        $this->file_hash = $file_hash;
-        return $this;
-    }
-
-    public function getFileHash(): ?string
-    {
-        return $this->file_hash;
-    }
-
-    public function setGSActorId(?int $gsactor_id): self
-    {
-        $this->gsactor_id = $gsactor_id;
-        return $this;
-    }
-
-    public function getGSActorId(): ?int
-    {
-        return $this->gsactor_id;
+        return $this->filehash;
     }
 
     public function setMimetype(?string $mimetype): self
@@ -141,17 +119,6 @@ class Attachment extends Entity
         return is_null($mime) ? $mime : GSFile::mimetypeMinor($mime);
     }
 
-    public function setTitle(?string $title): self
-    {
-        $this->title = $title;
-        return $this;
-    }
-
-    public function getTitle(): ?string
-    {
-        return $this->title;
-    }
-
     public function setFilename(?string $filename): self
     {
         $this->filename = $filename;
@@ -161,39 +128,6 @@ class Attachment extends Entity
     public function getFilename(): ?string
     {
         return $this->filename;
-    }
-
-    public function setIsLocal(?bool $is_local): self
-    {
-        $this->is_local = $is_local;
-        return $this;
-    }
-
-    public function getIsLocal(): ?bool
-    {
-        return $this->is_local;
-    }
-
-    public function setSource(?int $source): self
-    {
-        $this->source = $source;
-        return $this;
-    }
-
-    public function getSource(): ?int
-    {
-        return $this->source;
-    }
-
-    public function setScope(?int $scope): self
-    {
-        $this->scope = $scope;
-        return $this;
-    }
-
-    public function getScope(): ?int
-    {
-        return $this->scope;
     }
 
     public function setSize(?int $size): self
@@ -243,51 +177,63 @@ class Attachment extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    const URLHASH_ALGO  = 'sha256';
+    /**
+     * @return int
+     */
+    public function livesIncrementAndGet(): int
+    {
+        ++$this->lives;
+        return $this->lives;
+    }
+
+    /**
+     * @return int
+     */
+    public function livesDecrementAndGet(): int
+    {
+        --$this->lives;
+        return $this->lives;
+    }
+
     const FILEHASH_ALGO = 'sha256';
 
-    public function refCount(): int
+    public function kill(): bool
     {
-        $attachment_id = $this->getId();
-        $dependencies  = DB::count('attachment_to_note', ['attachment_id' => $attachment_id]);
-        Event::handle('AttachmentRefCount', [$attachment_id, &$dependencies]);
-        return $dependencies;
+        if ($this->livesDecrementAndGet() <= 0) {
+            return $this->delete();
+        }
+        return true;
     }
 
     /**
-     * @depends Attachment->refCount()
-     *
-     * @return bool
+     * Attachment delete always removes dependencies, cleanups and flushes
      */
-    public function isSafeDelete(): bool
+    public function delete(): bool
     {
-        return $this->refCount() === 0;
-    }
-
-    /**
-     * Delete this attachment and optionally all the associated entities (avatar and/or thumbnails, which this owns)
-     */
-    public function delete(bool $cascade = true, bool $flush = true): void
-    {
+        if ($this->getLives() > 0) {
+            Log::warning("Deleting file {$this->getId()} with {$this->getLives()} lives. Why are you killing it so young?");
+        }
+        // Delete related files from storage
         $files = [];
-        if ($cascade) {
-            foreach ($this->getThumbnails() as $at) {
-                $files[] = $at->getPath();
-                $at->delete(flush: false);
-            }
+        if (!is_null($filepath = $this->getPath())) {
+            $files[] = $filepath;
         }
-        $files[] = $this->getPath();
+        foreach ($this->getThumbnails() as $at) {
+            $files[] = $at->getPath();
+            $at->delete(flush: false);
+        }
         DB::remove($this);
-        if ($flush) {
-            DB::flush();
-        }
         foreach ($files as $f) {
             if (file_exists($f)) {
                 if (@unlink($f) === false) {
-                    Log::warning("Failed deleting file for attachment with id={$this->id} at {$f}");
+                    Log::error("Failed deleting file for attachment with id={$this->getId()} at {$f}.");
                 }
+            } else {
+                Log::warning("File for attachment with id={$this->getId()} at {$f} was already deleted when I was going to handle it.");
             }
         }
+        DB::flush();
+        return true;
     }
 
     /**
@@ -300,7 +246,8 @@ class Attachment extends Entity
 
     public function getPath()
     {
-        return Common::config('attachments', 'dir') . $this->getFilename();
+        $filename = $this->getFilename();
+        return is_null($filename) ? null : Common::config('attachments', 'dir') . $filename;
     }
 
     public function getAttachmentUrl()
@@ -313,28 +260,23 @@ class Attachment extends Entity
         return [
             'name'   => 'attachment',
             'fields' => [
-                'id'              => ['type' => 'serial',    'not null' => true],
-                'remote_url'      => ['type' => 'text',      'description' => 'URL after following possible redirections'],
-                'remote_url_hash' => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of destination URL (url field)'],
-                'file_hash'       => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
-                'gsactor_id'      => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'description' => 'If set, used so each actor can have a version of this file (for avatars, for instance)'],
-                'mimetype'        => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
-                'title'           => ['type' => 'text',      'description' => 'title of resource when available'],
-                'filename'        => ['type' => 'varchar',   'length' => 191, 'description' => 'file name of resource when available'],
-                'is_local'        => ['type' => 'bool',      'description' => 'whether the file is stored locally'],
-                'source'          => ['type' => 'int',       'default' => null, 'description' => 'Source of the Attachment (upload, TFN, embed)'],
-                'scope'           => ['type' => 'int',       'default' => null, 'description' => 'visibility scope for this attachment'],
-                'size'            => ['type' => 'int',       'description' => 'size of resource when available'],
-                'width'           => ['type' => 'int',       'description' => 'width in pixels, if it can be described as such and data is available'],
-                'height'          => ['type' => 'int',       'description' => 'height in pixels, if it can be described as such and data is available'],
-                'modified'        => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
+                'id'       => ['type' => 'serial',    'not null' => true],
+                'lives'    => ['type' => 'int',       'not null' => true, 'description' => 'RefCount'],
+                'filehash' => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
+                'mimetype' => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
+                'filename' => ['type' => 'varchar',   'length' => 191, 'description' => 'file name of resource when available'],
+                'size'     => ['type' => 'int',       'description' => 'size of resource when available'],
+                'width'    => ['type' => 'int',       'description' => 'width in pixels, if it can be described as such and data is available'],
+                'height'   => ['type' => 'int',       'description' => 'height in pixels, if it can be described as such and data is available'],
+                'modified' => ['type' => 'timestamp', 'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was modified'],
             ],
             'primary key' => ['id'],
             'unique keys' => [
-                'attachment_file_hash_uniq' => ['file_hash'],
+                'attachment_filehash_uniq' => ['filehash'],
+                'attachment_filename_uniq' => ['filename'],
             ],
             'indexes' => [
-                'file_filehash_idx' => ['file_hash'],
+                'file_filehash_idx' => ['filehash'],
             ],
         ];
     }

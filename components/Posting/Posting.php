@@ -28,13 +28,17 @@ use App\Core\Form;
 use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
-use App\Core\Security;
 use App\Entity\Attachment;
 use App\Entity\AttachmentToNote;
+use App\Entity\GSActorToAttachment;
+use App\Entity\GSActorToRemoteURL;
 use App\Entity\Note;
+use App\Entity\RemoteURL;
+use App\Entity\RemoteURLToNote;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
+use InvalidArgumentException;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -115,19 +119,12 @@ END;
 
         $processed_attachments = [];
         foreach ($attachments as $f) { // where $f is a Symfony\Component\HttpFoundation\File\UploadedFile
-            $processed_attachments[] = GSFile::validateAndStoreFileAsAttachment(
+            $filesize = $f->getSize();
+            Event::handle('EnforceQuota', [$actor_id, $filesize]);
+            $processed_attachments[] = GSFile::sanitizeAndStoreFileAsAttachment(
                 $f,
-                dest_dir: Common::config('attachments', 'dir'),
-                actor_id: $actor_id,
-                title: Security::sanitize($f->getClientOriginalName()),
-                is_local: true
+                dest_dir: Common::config('attachments', 'dir')
             );
-        }
-
-        $matched_urls = [];
-        preg_match_all(self::URL_REGEX, $content, $matched_urls, PREG_SET_ORDER);
-        foreach ($matched_urls as $match) {
-            $processed_attachments[] = GSFile::validateAndStoreURLAsAttachment($match[0]);
         }
 
         DB::persist($note);
@@ -136,8 +133,26 @@ END;
         DB::flush();
         if ($processed_attachments != []) {
             foreach ($processed_attachments as $a) {
+                DB::persist(GSActorToAttachment::create(['attachment_id' => $a->getId(), 'gsactor_id' => $actor_id]));
                 DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId()]));
             }
+            DB::flush();
+        }
+
+        $matched_urls   = [];
+        $processed_urls = false;
+        preg_match_all(self::URL_REGEX, $content, $matched_urls, PREG_SET_ORDER);
+        foreach ($matched_urls as $match) {
+            try {
+                $remoteurl_id = RemoteURL::getOrCreate($match[0])->getId();
+                DB::persist(GSActorToRemoteURL::create(['remoteurl_id' => $remoteurl_id, 'gsactor_id' => $actor_id]));
+                DB::persist(RemoteURLToNote::create(['remoteurl_id' => $a->getId(), 'note_id' => $note->getId()]));
+                $processed_urls = true;
+            } catch (InvalidArgumentException) {
+                continue;
+            }
+        }
+        if ($processed_urls) {
             DB::flush();
         }
     }

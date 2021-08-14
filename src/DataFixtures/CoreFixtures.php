@@ -51,7 +51,7 @@ class CoreFixtures extends Fixture
         $copy_filepath = $filepath . '.copy';
         copy($filepath, $copy_filepath);
         $file = new File($copy_filepath, checkPath: true);
-        GSFile::validateAndStoreFileAsAttachment($file, dest_dir: Common::config('attachments', 'dir') . 'test/', title: '1x1 JPEG image title', actor_id: $actors['taken_user']->getId());
+        GSFile::sanitizeAndStoreFileAsAttachment($file, dest_dir: Common::config('attachments', 'dir') . 'test/');
         $manager->flush();
     }
 }

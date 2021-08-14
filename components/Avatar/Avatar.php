@@ -75,12 +75,6 @@ class Avatar extends Component
         return Event::next;
     }
 
-    public function onAttachmentRefCount(int $attachment_id, int &$dependencies): bool
-    {
-        $dependencies += DB::count('avatar', ['attachment_id' => $attachment_id]);
-        return Event::next;
-    }
-
     // UTILS ----------------------------------
 
     /**
@@ -126,7 +120,7 @@ class Avatar extends Component
     {
         $res = Cache::get("avatar-file-info-{$gsactor_id}",
             function () use ($gsactor_id) {
-                return DB::dql('select f.id, f.filename, f.mimetype, f.title ' .
+                return DB::dql('select f.id, f.filename, f.mimetype ' .
                     'from App\Entity\Attachment f ' .
                     'join Component\Avatar\Entity\Avatar a with f.id = a.attachment_id ' .
                     'where a.gsactor_id = :gsactor_id',

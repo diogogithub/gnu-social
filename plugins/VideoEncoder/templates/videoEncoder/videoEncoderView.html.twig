@@ -3,7 +3,7 @@
         <video class="u-video" src="{{ path('attachment_view', {'id': attachment.getId()}) }}" controls poster="{{ path('attachment_thumbnail', thumbnail_parameters) }}">
         </video>
         <figcaption><a
-                href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getTitle() }}</a>
+                href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getFilename() }}</a>
         </figcaption>
     </figure>
 </div>

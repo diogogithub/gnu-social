@@ -185,7 +185,7 @@ class AttachmentThumbnail extends Entity
                     $thumbnail->setWidth($predicted_width);
                     $thumbnail->setHeight($predicted_height);
                     $ext      = '.' . MimeTypes::getDefault()->getExtensions($temp->getMimeType())[0];
-                    $filename = "{$predicted_width}x{$predicted_height}{$ext}-" . $attachment->getFileHash();
+                    $filename = "{$predicted_width}x{$predicted_height}{$ext}-" . $attachment->getFilehash();
                     $thumbnail->setFilename($filename);
                     $thumbnail->setMimetype($mimetype);
                     DB::persist($thumbnail);
