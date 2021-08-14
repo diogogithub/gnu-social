@@ -223,6 +223,18 @@ class Note extends Entity
         });
     }
 
+    public function getLinks(): array
+    {
+        return Cache::get('note-links-' . $this->id, function () {
+            return DB::dql(
+                'select l from App\Entity\Link l ' .
+                'join App\Entity\NoteToLink ntl with ntl.link_id = l.id ' .
+                'where ntl.note_id = :note_id',
+                ['note_id' => $this->id]
+            );
+        });
+    }
+
     public function getReplies(): array
     {
         return Cache::getList('note-replies-' . $this->id, function () {
