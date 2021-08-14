@@ -99,7 +99,15 @@ abstract class Entity implements \JsonSerializable
     /**
      * Get an Entity from its primary key
      *
-     * @param int $id
+     * Support multiple formats:
+     *  - mixed $values - convert to array and check next
+     *  - array[int => mixed] $values - get keys for entity and set them in order and proceed to next case
+     *  - array[string => mixed] $values - Perform a regular find
+     *
+     * Examples:
+     *     Entity::getWithPK(42);
+     *     Entity::getWithPK([42, 'foo']);
+     *     Entity::getWithPK(['key1' => 42, 'key2' => 'foo'])
      *
      * @return null|static
      */
