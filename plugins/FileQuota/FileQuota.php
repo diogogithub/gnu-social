@@ -23,6 +23,7 @@ namespace Plugin\FileQuota;
 
 use App\Core\Cache;
 use App\Core\DB\DB;
+use App\Core\Event;
 use App\Core\Modules\Plugin;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
@@ -45,8 +46,10 @@ class FileQuota extends Plugin
      * quotas. Handles per file, per user and per user-month quotas.
      * Throws on quota violations
      */
-    public function onEnforceQuota(int $user_id, int $filesize)
+    public function onEnforceQuota(int $user_id, int $filesize): bool
     {
+        return Event::stop;
+        /*
         $file_quota = Common::config('attachments', 'file_quota');
         if ($filesize > $file_quota) {
             // TRANS: Message given if an upload is larger than the configured maximum.
@@ -87,6 +90,6 @@ END;
                 // TRANS: Message given if an upload would exceed user quota.
                 throw new ClientException(_m('A file this large would exceed your monthly quota of {quota} bytes.', ['quota' => $monthly_quota]));
             }
-        }
+        }*/
     }
 }
