@@ -163,12 +163,19 @@ class AttachmentThumbnail extends Entity
         $predicted_width  = null;
         $predicted_height = null;
         try {
+            if (is_null($attachment->getWidth()) || is_null($attachment->getHeight())) {
+                // TODO: check if we can generate from an existing thumbnail
+                throw new ClientException(_m('Invalid dimensions requested for thumbnail.'));
+            }
             return Cache::get('thumb-' . $attachment->getId() . "-{$width}x{$height}",
                 function () use ($crop, $attachment, $width, $height, &$predicted_width, &$predicted_height) {
                     [$predicted_width, $predicted_height] = self::predictScalingValues($attachment->getWidth(), $attachment->getHeight(), $width, $height, $crop);
                     return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'width' => $predicted_width, 'height' => $predicted_height]);
                 });
         } catch (NotFoundException $e) {
+            if (is_null($attachment->getPath())) {
+                throw new NotFoundException('Can\'t generate a thumbnail for this attachment given the requested dimensions');
+            }
             $thumbnail = self::create(['attachment_id' => $attachment->getId()]);
             $event_map = [];
             Event::handle('ResizerAvailable', [&$event_map]);

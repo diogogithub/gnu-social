@@ -221,6 +221,7 @@ class Attachment extends Entity
                 } else {
                     $this->setFilename(null);
                     $this->setSize(null);
+                    // Important not to null neither width nor height
                     DB::persist($this);
                     DB::flush();
                 }
