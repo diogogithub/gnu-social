@@ -46,6 +46,13 @@
                 {% endfor %}
             </div>
         {% endif %}
+        <div class="note-links">
+            {% for link in note.getLinks() %}
+                {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
+                    {{ block | raw }}
+                {% endfor %}
+            {% endfor %}
+        </div>
     </div>
 
     {% if replies is defined %}
