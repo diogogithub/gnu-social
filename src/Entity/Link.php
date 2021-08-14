@@ -29,6 +29,7 @@ use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
 use DateTimeInterface;
 use InvalidArgumentException;
+use Symfony\Component\HttpClient\Exception\ClientException;
 
 /**
  * Entity for representing a Link
@@ -138,7 +139,11 @@ class Link extends Entity
         if (Common::isValidHttpUrl($url)) {
             $head = HTTPClient::head($url);
             // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
-            $headers  = $head->getHeaders();
+            try {
+                $headers = $head->getHeaders();
+            } catch (ClientException $e) {
+                throw new InvalidArgumentException(previous: $e);
+            }
             $url      = $head->getInfo('url'); // The last effective url (after getHeaders, so it follows redirects)
             $url_hash = hash(self::URLHASH_ALGO, $url);
             try {
