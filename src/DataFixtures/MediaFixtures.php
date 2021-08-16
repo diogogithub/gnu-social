@@ -22,8 +22,9 @@ class MediaFixtures extends Fixture
                   try {
                       GSFile::sanitizeAndStoreFileAsAttachment($file);
                   } catch (\Jcupitt\Vips\Exception $e) {
-                      echo "Could not save file {$copy_filepath}";
+                      echo "Could not save file {$copy_filepath}\n";
                   }
+                  @unlink($copy_filepath);
               });
         $manager->flush();
     }
