@@ -1,0 +1,2 @@
+twig:
+  form_themes: ['form_div_layout.html.twig']

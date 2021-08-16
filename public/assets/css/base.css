@@ -242,9 +242,6 @@
     height: auto;
 }
 
-/* BUTTONS AND INPUT */
-
-
 /* MEDIA RESIZE */
 @media (min-width: 1200px) {
     /* no need to make the panels disappear at this size */
@@ -307,9 +304,96 @@
     }
 }
 
+/* SECTIONS */
+.section-widget {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: var(--unit-size);
+
+    background-color: var(--translucent);
+    border-radius: var(--unit-size);
+    border: solid 2px var(--bg2);
+
+    font-family: var(--main-font);
+    font-weight: 400;
+    color: var(--white);
+}
+
+.section-title {
+    font-family: var(--display-font);
+    font-weight: 900;
+    font-size: var(--main-size);
+
+    border-radius: var(--unit-size);
+    padding: 2px var(--unit-size);
+
+    background-color: var(--translucent);
+}
+.section-title-menu {
+    display: flex;
+    justify-content: space-between;
+}
+.section-title-menu svg {
+    align-self: center;
+    fill: var(--white);
+}
+
+.section-form {
+    display: flex;
+    flex-direction: column;
+    padding: var(--unit-size);
+}
+.section-form-legend {
+    padding: unset;
+    margin-bottom: var(--unit-size);
+}
+
+.section-form-label {
+    display: block;
+
+    font-family: var(--display-font);
+    font-size: var(--small-size);
+    font-weight: 700;
+    line-height: 1.00;
+    letter-spacing: -0.20px;
+    word-spacing: 1.00px;
+    text-transform: none;
+
+    margin-bottom: 2px;
+}
+.section-form-label + input {
+    width: 100%;
+}
+.help-text {
+    font-style: italic;
+    font-size: var(--small-size);
+}
+
+.section-form-options {
+    display: block !important;
+    margin-bottom: var(--unit-size);
+}
+
+.section-form-textarea {
+    border-radius: var(--unit-size);
+    background-color: var(--translucent);
+    color: var(--white);
+
+    width: 100%;
+    max-width: 100%;
+    height: calc(6 * var(--main-size));
+
+    border: 2px solid transparent;
+    margin-top: var(--unit-size);
+    margin-bottom: var(--unit-size);
+    padding: var(--unit-size);
+    resize: vertical;
+}
+
 /* BUTTONS AND INPUT SHENANIGANS */
 button,
-input:not([type=text]) {
+input:not([type=radio]):not([type=checkbox]) {
     font-size: var(--small-size) !important;
     background-image: linear-gradient(180deg, var(--bg2), transparent) !important;
     color: var(--white) !important;
@@ -322,17 +406,31 @@ textarea:focus {
     border-color: var(--bg3) !important;
 }
 
-/* TODO: hover and focus feedback, checkbox */
-input[type=radio]:hover,
-input[type=radio]:focus {
-    border-color: var(--bg3) !important;
-}
 input[type=radio] {
     border: solid 0.25em var(--bg2) !important;
     background-color: var(--bg1) !important;
 }
+input[type=radio]:hover,
+input[type=radio]:focus {
+    border-color: var(--bg3) !important;
+}
 input[type=radio]:checked {
     background-color: var(--white) !important;
+}
+
+input[type=checkbox] {
+    background-color: var(--bg2) !important;
+    background-size: cover;
+    mask-image: url("../icons/check-off.svg") !important;
+
+}
+input[type=checkbox]:hover,
+input[type=checkbox]:focus {
+    background-color: var(--bg3) !important;
+}
+input[type=checkbox]:checked {
+    background-color: var(--bg3) !important;
+    mask-image: url("../icons/check-on.svg") !important;
 }
 
 button:hover,

@@ -9,22 +9,24 @@
 
 {% block body %}
     <div class='content'>
-        {% for flashError in app.flashes('verify_email_error') %}
-            <div class="alert alert-danger" role="alert">{{ flashError }}</div>
-        {% endfor %}
-
-        {{ form_start(registration_form) }}
-        <fieldset>
-            <legend>Register a new account</legend>
-            {{ form_row(registration_form.nickname) }}
-            <p></p>
-            {{ form_row(registration_form.email) }}
-            <p></p>
-            {{ form_row(registration_form.password) }}
-            <p></p>
-            {{ form_row(registration_form.register) }}
-        </fieldset>
-        {{ form_end(registration_form) }}
+        <section class="section-widget">
+            {{ form_start(registration_form) }}
+                <fieldset class="section-widget-form">
+                    <legend class="section-form-legend">
+                        <h1>{{ "Register a new account" | trans }}</h1>
+                    </legend>
+                    <ul>
+                        {% for flashError in app.flashes('verify_email_error') %}
+                            <li class="alert alert-danger" role="alert">{{ flashError }}</li>
+                        {% endfor %}
+                    </ul>
+                    {{ form_row(registration_form.nickname) }}
+                    {{ form_row(registration_form.email) }}
+                    {{ form_row(registration_form.password) }}
+                    {{ form_row(registration_form.register) }}
+                </fieldset>
+            {{ form_end(registration_form) }}
+        </section>
     </div>
 {% endblock body %}
 

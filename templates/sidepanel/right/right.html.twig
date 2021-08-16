@@ -15,20 +15,20 @@
             <div class="section-form">
                 {{ form_start(post_form) }}
 
-                <span class="form-target">
+                <span class="section-form-target">
                     {{ form_label(post_form.to) }}
                     {{ form_widget(post_form.to) }}
                 </span>
 
-                {{ form_row(post_form.visibility, {'attr': {'class': 'form-scope'}}) }}
+                {{ form_row(post_form.visibility, {'attr': {'class': 'section-form-scope'}}) }}
 
-                {{ form_row(post_form.content, {'attr': {'class': 'form-input'}}) }}
+                {{ form_row(post_form.content, {'attr': {'class': 'section-form-textarea'}}) }}
 
-                <label for="{{ post_form.attachments.vars.id }}" class="form-options">
+                <label for="{{ post_form.attachments.vars.id }}" class="section-form-options">
                     {{ form_widget(post_form.attachments) }}
                 </label>
 
-                {{ form_row(post_form.post, {'attr': {'class': 'form-send'}}) }}
+                {{ form_row(post_form.post, {'attr': {'class': 'section-form-send'}}) }}
 
                 {{ form_end(post_form) }}
             </div>

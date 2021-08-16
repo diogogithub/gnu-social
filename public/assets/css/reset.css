@@ -196,18 +196,19 @@ hr {
 
 /* BUTTONS AND FILEPICKER */
 button {
+    cursor: pointer !important;
     float: right !important;
-    width: min-content !important;
+    /*width: min-content !important;*/
     align-self: end !important;
+}
+input {
+    cursor: text !important;
 }
 
 button,
-input:not([type=text]) {
+input {
     all: unset;
-
-    cursor: pointer;
     font-size: var(--medium-size);
-
     border-radius: var(--unit-size);
     padding: 6px 12px;
 }
@@ -216,8 +217,18 @@ input:not([type=text]) {
     all: unset;
 }
 
+input[type=checkbox] {
+    all: unset;
+    cursor: pointer !important;
+
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+}
 input[type=radio] {
     all: unset;
+    cursor: pointer !important;
+
     display: inline-block;
     width: 1em;
     height: 1em;
