@@ -27,6 +27,7 @@ use App\Entity\Attachment;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NoSuchFileException;
+use App\Util\Exception\NotStoredLocallyException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\ServerException;
 use SplFileInfo;
@@ -133,7 +134,9 @@ class GSFile
             }
             return $response;
         } else {
-            throw new ServerException(_m('This attachment is not stored locally.'));
+            // @codeCoverageIgnoreStart
+            throw new NotStoredLocallyException;
+            // @codeCoverageIgnoreEnd
         }
     }
 
