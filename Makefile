@@ -19,7 +19,7 @@ psql-shell: .PHONY
 	docker exec -it $(strip $(DIR))_db_1 sh -c "psql -U postgres social"
 
 test: .PHONY
-	cd docker/testing && docker-compose run php && docker-compose down
+	cd docker/testing && docker-compose run php; docker-compose down
 
 stop-test: .PHONY
 	cd docker/testing && docker-compose down
