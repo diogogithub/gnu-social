@@ -21,11 +21,60 @@
 
 namespace App\Tests\Core;
 
+use App\Core\DB\DB;
 use App\Core\GSFile;
 use App\Util\GNUsocialTestCase;
+use App\Util\TemporaryFile;
 
 class GSFileTest extends GNUsocialTestCase
 {
+    public function testSanitizeAndStoreFileAsAttachment()
+    {
+        $file       = new TemporaryFile();
+        $attachment = GSFile::sanitizeAndStoreFileAsAttachment($file);
+        static::assertSame('application/x-empty', $attachment->getMimetype());
+        static::assertSame(0, $attachment->getSize());
+        static::assertNull($attachment->getWidth());
+        static::assertNull($attachment->getHeight());
+        $hash = $attachment->getFilehash();
+        $path = $attachment->getPath();
+        static::assertTrue(file_exists($path));
+        static::assertSame(1, $attachment->getLives());
+        DB::flush($attachment);
+
+        static::assertTrue($attachment->deleteStorage());
+        static::assertFalse(file_exists($path));
+        static::assertNull($attachment->getPath());
+
+        $file                = new TemporaryFile();
+        $repeated_attachment = GSFile::sanitizeAndStoreFileAsAttachment($file);
+        $path                = $attachment->getPath();
+        static::assertSame(2, $repeated_attachment->getLives());
+        static::assertTrue(file_exists($path));
+
+        $attachment->kill();
+
+        static::assertTrue(file_exists($path));
+        static::assertSame(1, $repeated_attachment->getLives());
+
+        $repeated_attachment->kill();
+
+        static::assertSame(0, $repeated_attachment->getLives());
+        static::assertFalse(file_exists($path));
+        static::assertSame([], DB::findBy('attachment', ['filehash' => $hash]));
+    }
+
+    public function testEnsureFilenameWithProperExtension()
+    {
+        static::assertSame('image.jpeg', GSFile::ensureFilenameWithProperExtension('image.jpeg', 'image/jpeg'));
+        static::assertSame('image.jpg', GSFile::ensureFilenameWithProperExtension('image.jpg', 'image/jpeg'));
+        static::assertSame('image.jpeg.png', GSFile::ensureFilenameWithProperExtension('image.jpeg', 'image/png'));
+        static::assertSame('image.png', GSFile::ensureFilenameWithProperExtension('image', 'image/png'));
+        static::assertSame('image.gif', GSFile::ensureFilenameWithProperExtension('image', 'image/gif'));
+        static::assertSame('image.jpg.png', GSFile::ensureFilenameWithProperExtension('image.jpg', 'image/gif', ext: 'png', force: true));
+        static::assertNull(GSFile::ensureFilenameWithProperExtension('image.jpg', 'image/gif', ext: null, force: true));
+    }
+
     public function testMimetype()
     {
         static::assertSame('image', GSFile::mimetypeMajor('image/png'));
