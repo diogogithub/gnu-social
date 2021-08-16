@@ -19,7 +19,7 @@
 
 // }}}
 
-namespace App\Entity;
+namespace Plugin\Cover\Entity;
 
 use App\Core\DB\DB;
 use App\Core\Entity;

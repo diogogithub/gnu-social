@@ -19,7 +19,7 @@
 
 // }}}
 
-namespace App\Entity;
+namespace Plugin\ProfileColor\Entity;
 
 use App\Core\Entity;
 use DateTimeInterface;
