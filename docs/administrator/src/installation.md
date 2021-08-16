@@ -12,10 +12,10 @@ services in Docker containers.
 
 Pick one of the following installation methods:
 
- - [Instal with Docker with shell access](./install/docker_shell.md)
- - [Instal without Docker with shell access](./install/no_docker_shell.md)
- - [Instal with Docker with web access](./install/docker_web.md) (requires access to PHP's `system()`, which may be disabled)
- - [Instal without Docker with only web access](./install/no_docker_web.md)
+ - [Install with Docker with shell access](./install/docker_shell.md)
+ - [Install without Docker with shell access](./install/no_docker_shell.md)
+ - [Install with Docker with web access](./install/docker_web.md) (requires access to PHP's `system()`, which may be disabled)
+ - [Install without Docker with only web access](./install/no_docker_web.md)
 
 Installation with Docker without shell access, such as in some shared hosting environments is
 possible by configuring social locally and copying the files over, however this is not a supported
