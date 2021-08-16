@@ -27,8 +27,8 @@ use App\Entity\Attachment;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NoSuchFileException;
-use App\Util\Exception\NotStoredLocallyException;
 use App\Util\Exception\NotFoundException;
+use App\Util\Exception\NotStoredLocallyException;
 use App\Util\Exception\ServerException;
 use SplFileInfo;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -81,7 +81,6 @@ class GSFile
                 $attachment->setHeight($height);
                 $attachment->setSize($file->getSize());
                 $file->move(Common::config('attachments', 'dir'), $hash);
-                DB::persist($attachment);
             }
         } catch (NotFoundException) {
             // Create an Attachment
@@ -241,16 +240,24 @@ class GSFile
         $valid_extensions = MimeTypes::getDefault()->getExtensions($mimetype);
 
         // If title seems to be a filename with an extension
-        if (preg_match('/\.[a-z0-9]/i', $title) === 1) {
-            $title_without_extension = substr($title, 0, strrpos($title, '.'));
-            $original_extension      = substr($title, strrpos($title, '.') + 1);
+        $pathinfo = pathinfo($title);
+        if ($pathinfo['extension'] ?? '' != '') {
+            $title_without_extension = $pathinfo['filename'];
+            $original_extension      = $pathinfo['extension'];
             if (empty(MimeTypes::getDefault()->getMimeTypes($original_extension)) || !in_array($original_extension, $valid_extensions)) {
                 unset($title_without_extension, $original_extension);
             }
         }
 
+        $fallback = function ($title) use ($ext) {
+            if (!is_null($ext)) {
+                return ($title) . ".{$ext}";
+            }
+            return null;
+        };
+
         if ($force) {
-            return ($title_without_extension ?? $title) . ".{$ext}";
+            return $fallback($title_without_extension ?? $title);
         } else {
             if (isset($original_extension)) {
                 return $title;
@@ -258,10 +265,9 @@ class GSFile
                 if (!empty($valid_extensions)) {
                     return "{$title}.{$valid_extensions[0]}";
                 } else {
-                    if (!is_null($ext)) {
-                        return ($title_without_extension ?? $title) . ".{$ext}";
-                    }
-                    return null;
+                    // @codeCoverageIgnoreStart
+                    return $fallback($title_without_extension ?? $title);
+                    // @codeCoverageIgnoreEnd
                 }
             }
         }
