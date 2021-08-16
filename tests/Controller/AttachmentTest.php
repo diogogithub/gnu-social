@@ -43,16 +43,16 @@ class AttachmentTest extends GNUsocialTestCase
         $this->assertSelectorTextContains('.stacktrace', 'ClientException');
     }
 
-    private function testAttachment(string $suffix)
+    private function testAttachment(string $suffix = '')
     {
-        $client     = static::createClient();
-        $attachment = DB::findOneBy('attachment', ['filehash' => '5d8ee7ead51a28803b4ee5cb2306a0b90b6ba570f1e5bcc2209926f6ab08e7ea']);
-        $crawler    = $client->request('GET', "/attachment/{$attachment->getId()}{$suffix}");
+        $client  = static::createClient();
+        $id      = DB::findOneBy('attachment', ['filehash' => '5d8ee7ead51a28803b4ee5cb2306a0b90b6ba570f1e5bcc2209926f6ab08e7ea'])->getId();
+        $crawler = $client->request('GET', "/attachment/{$id}{$suffix}");
     }
 
     public function testAttachmentShow()
     {
-        $this->testAttachment('');
+        $this->testAttachment();
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('figure figcaption', '5d8ee7ead51a28803b4ee5cb2306a0b90b6ba570f1e5bcc2209926f6ab08e7ea');
     }
@@ -61,6 +61,16 @@ class AttachmentTest extends GNUsocialTestCase
     {
         $this->testAttachment('/view');
         $this->assertResponseIsSuccessful();
+    }
+
+    public function testAttachmentViewNotStored()
+    {
+        $client          = static::createClient();
+        $last_attachment = DB::findBy('attachment', [], orderBy: ['id' => 'DESC'], limit: 1)[0];
+        $id              = $last_attachment->getId() + 1;
+        $crawler         = $client->request('GET', "/attachment/{$id}/view");
+        $this->assertResponseStatusCodeSame(500); // TODO (exception page) 404
+        $this->assertSelectorTextContains('.stacktrace', 'ClientException');
     }
 
     public function testAttachmentDownload()
