@@ -175,7 +175,7 @@ abstract class DB
      */
     public static function findOneBy(string $table, array $criteria, ?array $orderBy = null, ?int $offset = null)
     {
-        $res = self::findBy($table, $criteria, $orderBy, 2, $offset);
+        $res = self::findBy($table, $criteria, $orderBy, 2, $offset); // Use limit 2 to check for consistency
         switch (count($res)) {
         case 0:
             throw new NotFoundException("No value in table {$table} matches the requested criteria");
