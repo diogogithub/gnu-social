@@ -72,6 +72,7 @@ class Security extends Controller
         $form = Form::create([
             ['nickname', TextType::class, [
                 'label'       => _m('Nickname'),
+                'help'        => _m('Your desired nickname (e.g., j0hnD03)'),
                 'constraints' => [
                     new NotBlank(['message' => _m('Please enter a nickname')]),
                     new Length([
@@ -80,14 +81,19 @@ class Security extends Controller
                         'max'        => Nickname::MAX_LEN,
                         'maxMessage' => _m(['Your nickname must be at most # characters long'], ['count' => Nickname::MAX_LEN]), ]),
                 ],
+                'block_name' => 'nickname',
+                'label_attr' => ['class' => 'section-form-label'],
             ]],
             ['email', EmailType::class, [
                 'label'       => _m('Email'),
+                'help'        => _m('Desired email for this account (e.g., john@provider.com)'),
                 'constraints' => [ new NotBlank(['message' => _m('Please enter an email') ])],
+                'block_name'  => 'email',
+                'label_attr'  => ['class' => 'section-form-label'],
             ]],
             FormFields::repeated_password(),
             ['register', SubmitType::class, ['label' => _m('Register')]],
-        ]);
+        ], builder_options: ['block_prefix' => 'register']);
 
         $form->handleRequest($request);
 
