@@ -4,6 +4,11 @@ namespace App\Core\Modules;
 
 use App\Core\Event;
 
+/**
+ * TODO Plugins aren't tested yet
+ *
+ * @codeCoverageIgnore
+ */
 abstract class Plugin extends Module
 {
     public function __construct()
@@ -13,8 +18,7 @@ abstract class Plugin extends Module
 
     public function name()
     {
-        $cls = get_class($this);
-        return mb_substr($cls, 0, -6);
+        return mb_substr(static::class, 0, -6);
     }
 
     public function version()

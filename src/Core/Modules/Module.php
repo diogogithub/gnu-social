@@ -33,6 +33,11 @@ use Symfony\Component\HttpFoundation\Request;
  */
 abstract class Module
 {
+    /**
+     * TODO Handle configuration
+     *
+     * @codeCoverageIgnore
+     */
     public function __construct()
     {
         // Load Module settings
