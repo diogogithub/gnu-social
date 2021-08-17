@@ -14,10 +14,10 @@ which is elaborated in [Database](./database.md);
 - [Internationalization (i18n)](https://en.wikipedia.org/wiki/Internationalization_and_localization), elaborated in [Internationalization](internationalization.md);
 - [Exceptions](./exceptions.md);
 - [Log](./log.md);
-- [Queues](./queues.md);
-- [Files](./files.md);
-- [Sessions and Security](./sessions_and_security.md);
-- [HTTP Client](./http.md).
+- [Queues](./queue.md);
+- [Storage](./storage.md);
+- [Sessions and Security](./security.md);
+- [HTTP Client](./httpclient.md).
 
 Everything else uses most of this.
 
