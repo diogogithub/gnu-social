@@ -124,7 +124,7 @@ neccesary, except for enumerations and arrays.
 Use switch statements where many else if's are going to be used. Switch/case is faster.
 
 ```php
- if ($var == 'example') {
+ if ($var === 'example') {
      echo 'This is only an example';
  } else {
      echo 'This is not a test.  This is the real thing';
@@ -134,13 +134,13 @@ Use switch statements where many else if's are going to be used. Switch/case is 
 Do NOT make if statements like this:
 
 ```php
- if ($var == 'example'){ echo 'An example'; }
+ if ($var === 'example'){ echo 'An example'; }
 ```
 
  OR this
 
 ```php
- if ($var == 'example')
+ if ($var === 'example')
          echo "An {$var}";
 ```
 
@@ -226,8 +226,8 @@ operators (and, or) in an "if" clause as they are evaluated in different order
 and at different speeds.
 This is will prevent any confusion or strange results.
 
-Prefer using `===` instead of `==` when possible. Version 3 started with PHP 8
-uses strict typing whenever possible. Using strict comparisons takes good
+Prefer using `===` instead of `==` when possible. Version 3 started with PHP 8,
+use strict typing whenever possible. Using strict comparisons takes good
 advantage of that.
 
 
@@ -252,7 +252,7 @@ closing tag is sent to the browser and cause errors, so don't include them.
 Nesting Functions
 -------------------------------------------------------------------------------
 Avoid, if at all possible.  When not possible, document the living daylights
-out of why you're nesting it.  It's not always avoidable, but PHP 5 has a lot
+out of why you're nesting it.  It's not always avoidable, but PHP has a lot
 of obscure problems that come up with using nested functions.
 
 If you must use a nested function, be sure to have robust error-handling.
@@ -311,26 +311,6 @@ to the log using `Log::level(message)`.
 Ensure all possible control flows of a function have exception handling and
 cleanup, where appropriate.  Don't leave endpoints with unhandled exceptions.
 Try not to leave something in an error state if it's avoidable.
-
-
-Return values
--------------------------------------------------------------------------------
-All functions must return a value.  Every single one.  This is not optional.
-
-If you are simply making a procedure call, for example as part of a helper
-function, then return boolean TRUE on success, and the exception on failure.
-
-When returning the exception, return the whole nine yards, which is to say the
-actual PHP exception object, not just an error message.
-
-All return values not the above should be type cast, and you should sanitize
-anything returned to ensure it fits into the cast.  You might technically make
-an integer a string, for instance, but you should be making sure that integer
-SHOULD be a string, if you're returning it, and that it is a valid return
-value.
-
-A vast majority of programming errors come down to not checking your inputs
-and outputs properly, so please try to do so as best and thoroughly as you can.
 
 NULL, VOID and SET
 -------------------------------------------------------------------------------
