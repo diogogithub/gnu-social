@@ -120,7 +120,7 @@ END;
         foreach ($attachments as $f) { // where $f is a Symfony\Component\HttpFoundation\File\UploadedFile
             $filesize = $f->getSize();
             Event::handle('EnforceQuota', [$actor_id, $filesize]);
-            $processed_attachments[] = GSFile::sanitizeAndStoreFileAsAttachment($f);
+            $processed_attachments[] = [GSFile::sanitizeAndStoreFileAsAttachment($f), $f->getClientOriginalName()];
         }
 
         DB::persist($note);
@@ -128,11 +128,11 @@ END;
         // Need file and note ids for the next step
         DB::flush();
         if ($processed_attachments != []) {
-            foreach ($processed_attachments as $a) {
+            foreach ($processed_attachments as [$a, $fname]) {
                 if (is_null(DB::findBy('gsactor_to_attachment', ['attachment_id' => $a->getId(), 'gsactor_id' => $actor_id]))) {
                     DB::persist(GSActorToAttachment::create(['attachment_id' => $a->getId(), 'gsactor_id' => $actor_id]));
                 }
-                DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId()]));
+                DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId(), 'title' => $fname]));
             }
             DB::flush();
         }
