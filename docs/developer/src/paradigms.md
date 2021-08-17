@@ -315,29 +315,47 @@ Try not to leave something in an error state if it's avoidable.
 NULL, VOID and SET
 -------------------------------------------------------------------------------
 
+When programming in PHP it's common having to represent the absence of value.
+A variable that wasn't initialized yet or a function that could not produce a value.
+On the latter, one could be tempted to throw an exception in these scenarios, but not always that kind
+of failure fits the panic/exception/crash category.
+
 On the discussion of whether to **use `=== null` vs [`is_null()`](https://www.php.net/manual/en/function.is-null.php)**,
-the literature online is diverse and divided.
+the literature online is diverse and divided. We conducted an [internal poll](https://agile.gnusocial.rocks/doku.php?id=php_null)
+and the winner was `is_null()`.
 
 Some facts to consider:
-* [null is both a data type, and a value](https://www.php.net/manual/en/language.types.null.php);
-* As noted in PHP's documentation, the constant null forces a variable to be of type null;
-* A variable with null value returns false in an [isset()](https://www.php.net/manual/en/function.isset.php) test,
+1. [null is both a data type, and a value](https://www.php.net/manual/en/language.types.null.php);
+2. As noted in PHP's documentation, the constant null forces a variable to be of type null;
+3. A variable with null value returns false in an [isset()](https://www.php.net/manual/en/function.isset.php) test,
   despite that, assigning a variable to NULL is _not_ the same as [unsetting](https://www.php.net/manual/en/function.unset.php) it.
-  To actually test whether a variable is set or not [requires adopting different strategies per context](https://stackoverflow.com/a/18646568). 
-* The [void return type](https://wiki.php.net/rfc/void_return_type) doesn't return NULL, but if used as
+  To actually test whether a variable is set or not [requires adopting different strategies per context (https://stackoverflow.com/a/18646568)](https://web.archive.org/web/20161001180951/https://stackoverflow.com/questions/418066/best-way-to-test-for-a-variables-existence-in-php-isset-is-clearly-broken/18646568#answer-18646568). 
+4. The [void return type](https://wiki.php.net/rfc/void_return_type) doesn't return NULL, but if used as
   an expression, it evaluates to null.
   
-Therefore, in GNU social we would expect you to use one, or the other in function of context.
-This is better illustrated with two example situations:
+Considering union types and what we use `null` to represent, we believe that our use of null is always akin to that of
+a [Option type](https://en.wikipedia.org/wiki/Option_type). Here's an example:
 
-* If you're testing if a function returned null, then you're not testing a variable's data type, you're testing
-whether it evaluated to null or not. So, as you normally would with a `=== true` or `=== false`, we prefer
-that you test as `=== null` in this situation.
+```php
+function sometimes_has_answer(): ?int
+{
+    return random_int(1, 100) < 50 ? 42 : null;
+}
 
-* If you're testing whether a variable is of type null, then you should use `is_null($var)`. Just as you normally
-would with a `is_int($var)`  or `is_countable($var)`.
+$answer = sometimes_has_answer();
+if (!is_null($answer)) {
+    echo "Hey, we've got an {$answer}!";
+} else {
+    echo 'Sorry, no value. Better luck next time!';
+}
+```
+
+A non-void function, by definition, is expected to return a value.
+If it couldn't and didn't run on an exceptional scenario, then you should test in a different style from that of regular
+strict comparison. Hence, as you're testing whether a variable is of type null, then you should use `is_null($var)`.
+Just as you normally would with an `is_int($var)`  or `is_countable($var)`.
   
 About [nullable types](https://www.php.net/manual/en/language.types.declarations.php#language.types.declarations.union.nullable),
 we prefer that you _use_ the shorthand `?T` instead of the full form `T|null` as it suggests that you're considering the
-possibility of not having the value of a certain variable. This is reinforced by the fact that NULL can not be a
-standalone type in PHP. 
+possibility of not having the value of a certain variable. This apparent intent is reinforced by the fact that NULL can
+not be a standalone type in PHP.
