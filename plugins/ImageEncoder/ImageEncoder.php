@@ -44,7 +44,6 @@ use SplFileInfo;
  *
  * @author    Diogo Peralta Cordeiro <mail@diogo.site>
  * @author    Hugo Sales <hugo@hsal.es>
- *
  * @copyright 2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
@@ -107,9 +106,12 @@ class ImageEncoder extends Plugin
             Log::debug("ImageEncoder's Vips couldn't handle the image file, failed with {$e}.");
             throw new UnsupportedFileTypeException(_m("Unsupported image file with {$mimetype}.", previous: $e));
         }
-        $width  = Common::clamp($image->width, 0, Common::config('attachments', 'max_width'));
-        $height = Common::clamp($image->height, 0, Common::config('attachments', 'max_height'));
-        $image  = $image->crop(0, 0, $width, $height);
+        $width  = $image->width;
+        $height = $image->height;
+        $image  = $image->crop(left: 0,
+                               top: 0,
+                               width: $width,
+                               height: $height);
         $image->writeToFile($temp->getRealPath());
 
         // Replace original file with the sanitized one
