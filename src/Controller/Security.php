@@ -93,7 +93,7 @@ class Security extends Controller
             ]],
             FormFields::repeated_password(),
             ['register', SubmitType::class, ['label' => _m('Register')]],
-        ], builder_options: ['block_prefix' => 'register']);
+        ], form_options: ['block_prefix' => 'register']);
 
         $form->handleRequest($request);
 
