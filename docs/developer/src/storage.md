@@ -1,5 +1,6 @@
-# Attachments, Files and Thumbnails
-An attachment in GNU social can represent both file or an url.
+# Attachments, Files, Thumbnails and Links
+
+An attachment in GNU social can represent both a file or a link with a thumbnail.
 
 ## Files
 
@@ -14,8 +15,7 @@ working with forms that have file upload as inputs. The
 `TemporaryFile` is how GNU social handles/represents any file that isn't
 in a permanent state, i.e., not yet ready to be moved to storage.
 
-So, as with the URL, the `Attachment` entity won't store
-the information, only link to it.
+So, the `Attachment` entity won't store the information, only point to it.
 
 #### Example
 Here's how the `ImageEncoder` plugin creates a temporary file to manipulate an
@@ -57,37 +57,43 @@ generated to the client. For that, GNU social has
 public function avatar_view(Request $request, int $gsactor_id)
 {
     $res = \Component\Avatar\Avatar::getAvatarFileInfo($gsactor_id);
-    return M::sendFile($res['file_path'], $res['mimetype'], $res['title']);
+    return \App\Core\GSFile::sendFile(filepath: $res['filepath'],
+                                      mimetype: $res['mimetype'],
+                                      output_filename: $res['title'],
+                                      disposition: 'inline');
 }
 ```
 
 Simple enough.
 
-### Storing a reference in database
+### Attachments: Storing a reference in database
 Finally, you need a way to refer to previous files.
 GNU social calls that representation of `App\Entity\Attachment`.
 If a note refers to an `Attachment` then you can link them
 using the entity `AttachmentToNote`. 
 
-> **Important:** Unless your plugin has its own file space,
-> the core hashes the files and reuses `Attachment`s.
-> Therefore, if you're deleting a file, you must ensure
-> it is not being used somewhere you're not considering
-> (like a note). You should only delete the file
-> from storage when there are no notes linked with it in
-> AttachmentToNote.
+> **Important:** The core hashes the files and reuses
+> `Attachment`s. Therefore, if you're deleting a file from
+> storage, you must ensure it is really intended and safe.
 
 Call the functions `Attachment::validateAndStoreFileAsAttachment`
 and `Attachment::validateAndStoreURLAsAttachment`.
 
+#### Killing an attachment
+
+Because deleting an attachment is different from deleting your
+regular entity, to delete an attachment you should call the
+member function `kill()`. It will decrease the lives count and
+only remove it if it has lost all its lives.
+
 ## Thumbnails
 
-Both files and urls can have an `AttachmentThumbnail`.
+Both _files_ and _links_ can have an `AttachmentThumbnail`.
 You can have an `AttachmentThumbnail` for every `Attachment`.
 You can only have an `AttachmentThumbnail` if you have an
 attachment first.
 Read a plugin such as `ImageEncoder` to understand how thumbnails
-can be generated from files. And `Embed` to understand how to generate
+can be generated from files. And `StoreRemoteMedia` to understand how to generate
 them from URLs.
 
 The controller asking for them is the `App\Controller\Attachment::attachment_thumbnail` with
@@ -99,7 +105,7 @@ This kind of questions are deepened in our [wiki](https://agile.gnusocial.rocks/
 Despite that, in this case it is relevant enough to walk
 a little through in the documentation. You'll note that
 the Attachment entity has fairly specific fields such
-as `remote_url` and `width`. Maybe for an Attachment
+as `width` and `height`. Maybe for an Attachment
 you could use the width field for the cover image of a
 song, or not and just leave it null. And for a song
 preview you could use width for duration and leave `height`
@@ -107,6 +113,14 @@ as null. The point is, we could have the entities
 ImageAttachment and an ImageAttachmentThumbnail being
 created by the ImageEncoder plugin and move these
 specificities to the plugin. But the end code would
-require far more database requests, become heavier,
+require more database requests, become heavier,
 and become harder to read. And maybe we're wasting a
-bit more space (maybe!). but it's far from significant.
+bit more space (maybe!). But if that's the case, it's
+far from significant. The processing cost and ease of
+understanding outweighs the storage cost.
+
+## Links
+
+We have Links entities for representing links, these are
+used by the Posting component to represent remote urls.
+These are fairly similar to the attachment entities.

@@ -200,6 +200,11 @@ class Attachment extends Entity
 
     const FILEHASH_ALGO = 'sha256';
 
+    /**
+     * Delete a file if safe, removes dependencies, cleanups and flushes
+     *
+     * @return bool
+     */
     public function kill(): bool
     {
         if ($this->livesDecrementAndGet() <= 0) {
@@ -209,7 +214,7 @@ class Attachment extends Entity
     }
 
     /**
-     * Attachment delete always removes dependencies, cleanups and flushes
+     * Remove the respective file from disk
      */
     public function deleteStorage(): bool
     {
@@ -235,7 +240,7 @@ class Attachment extends Entity
     /**
      * Attachment delete always removes dependencies, cleanups and flushes
      */
-    public function delete(): bool
+    protected function delete(): bool
     {
         if ($this->getLives() > 0) {
             Log::warning("Deleting file {$this->getId()} with {$this->getLives()} lives. Why are you killing it so young?");

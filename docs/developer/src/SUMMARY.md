@@ -12,7 +12,7 @@
 - [Internationalization](./i18n.md)
 - [Logging](./log.md)
 - [Queue](./queue.md)
-- [Attachments, Files and Thumbnails](./storage.md)
+- [Attachments, Files, Thumbnails and Links](./storage.md)
 - [Security](./security.md)
 - [HTTP Client](./httpclient.md)
 - [Plugins](./plugins.md)
