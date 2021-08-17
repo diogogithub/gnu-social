@@ -28,8 +28,6 @@ use App\Core\Router\Router;
 use App\Util\Common;
 use Component\Avatar\Controller as C;
 use Component\Avatar\Exception\NoAvatarException;
-use Symfony\Component\Asset\Package;
-use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\HttpFoundation\Request;
 
 class Avatar extends Component
@@ -96,17 +94,11 @@ class Avatar extends Component
     /**
      * Get the cached avatar associated with the given GSActor id, or the current user if not given
      */
-    public static function getAvatarUrl(?int $gsactor_id = null): string
+    public static function getAvatarUrl(?int $gsactor_id = null, string $size = 'full'): string
     {
         $gsactor_id = $gsactor_id ?: Common::userId();
         return Cache::get("avatar-url-{$gsactor_id}", function () use ($gsactor_id) {
-            $attachment_id = self::getAvatarFileInfo($gsactor_id)['id'];
-            if ($attachment_id !== null) {
-                return Router::url('attachment_view', ['id' => $attachment_id]);
-            } else {
-                $package = new Package(new EmptyVersionStrategy());
-                return $package->getUrl(Common::config('avatar', 'default'));
-            }
+            return Router::url('avatar', ['gsactor_id' => $gsactor_id, 'size' => 'full']);
         });
     }
 
@@ -120,7 +112,7 @@ class Avatar extends Component
     {
         $res = Cache::get("avatar-file-info-{$gsactor_id}",
             function () use ($gsactor_id) {
-                return DB::dql('select f.id, f.filename, f.mimetype ' .
+                return DB::dql('select f.id, f.filename, a.filename title, f.mimetype ' .
                     'from App\Entity\Attachment f ' .
                     'join Component\Avatar\Entity\Avatar a with f.id = a.attachment_id ' .
                     'where a.gsactor_id = :gsactor_id',
@@ -129,10 +121,16 @@ class Avatar extends Component
         );
         if ($res === []) { // Avatar not found
             $filepath = INSTALLDIR . '/public/assets/default-avatar.svg';
-            return ['id' => null, 'file_path' => $filepath, 'mimetype' => 'image/svg+xml', 'title' => null];
+            return [
+                'id'       => null,
+                'filepath' => $filepath,
+                'mimetype' => 'image/svg+xml',
+                'filename' => null,
+                'title'    => 'default_avatar.svg',
+            ];
         } else {
-            $res              = $res[0]; // A user must always only have one avatar.
-            $res['file_path'] = DB::findOneBy('attachment', ['id' => $res['id']])->getPath();
+            $res             = $res[0]; // A user must always only have one avatar.
+            $res['filepath'] = DB::findOneBy('attachment', ['id' => $res['id']])->getPath();
             return $res;
         }
     }

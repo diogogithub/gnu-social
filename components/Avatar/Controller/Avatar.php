@@ -53,7 +53,7 @@ class Avatar extends Controller
         switch ($size) {
             case 'full':
                 $res = \Component\Avatar\Avatar::getAvatarFileInfo($gsactor_id);
-                return M::sendFile($res['file_path'], $res['mimetype'], $res['title']);
+                return M::sendFile($res['filepath'], $res['mimetype'], $res['title']);
             default:
                 throw new Exception('Not implemented');
         }
@@ -114,7 +114,7 @@ class Avatar extends Controller
                 DB::persist($attachment);
                 // Can only get new id after inserting
                 DB::flush();
-                DB::persist(AvatarEntity::create(['gsactor_id' => $gsactor_id, 'attachment_id' => $attachment->getId()]));
+                DB::persist(AvatarEntity::create(['gsactor_id' => $gsactor_id, 'attachment_id' => $attachment->getId(), 'filename' => $file->getClientOriginalName()]));
                 DB::flush();
                 Event::handle('AvatarUpdate', [$user->getId()]);
             }

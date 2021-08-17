@@ -48,6 +48,7 @@ class Avatar extends Entity
     // @codeCoverageIgnoreStart
     private int $gsactor_id;
     private int $attachment_id;
+    private ?string $filename;
     private DateTimeInterface $created;
     private DateTimeInterface $modified;
 
@@ -71,6 +72,22 @@ class Avatar extends Entity
     public function getAttachmentId(): int
     {
         return $this->attachment_id;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getFilename(): ?string
+    {
+        return $this->filename;
+    }
+
+    /**
+     * @param null|string $filename
+     */
+    public function setFilename(?string $filename): void
+    {
+        $this->filename = $filename;
     }
 
     public function setCreated(DateTimeInterface $created): self
@@ -142,6 +159,7 @@ class Avatar extends Entity
             'fields' => [
                 'gsactor_id'    => ['type' => 'int', 'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to gsactor table'],
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'foreign key to attachment table'],
+                'filename'      => ['type' => 'varchar',   'length' => 191, 'description' => 'file name of resource when available'],
                 'created'       => ['type' => 'datetime', 'not null' => true, 'description' => 'date this record was created', 'default' => 'CURRENT_TIMESTAMP'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified', 'default' => 'CURRENT_TIMESTAMP'],
             ],
