@@ -5,7 +5,7 @@ the art of contributing to the GNU social codebase.
 
 It starts by introducing the Modules system and architecture,
 then the plugin development process and finally the exciting internals
-of GNU social for those looking forward to make the most advanced contributions.
+of GNU social for those looking forward to making the most advanced contributions.
 
 # What you need to dive in
 
@@ -25,3 +25,8 @@ The [User](/user) one is intended to illustrate the various common use cases, po
 The [Administrator](/administrator) one explains the step by step of how to install and maintain a GNU social instance, be it as node of The Free Network or as an intranet social network in a company setting.
 
 The [Designer](/designer) one is an in-depth overview of the design motifs, and the design language used. Useful for creating new plugins and help as a basis for new themes.
+
+# Tests
+
+When what you're looking for (usage instructions of anything), refer to the `tests` directory.
+The unit tests are properly commented and are very extensive, they try to cover every use scenario.
