@@ -96,6 +96,9 @@
     left: var(--unit-size);
     font-size: var(--small-size);
 }
+#header:above-level.panel[open] ~ * {
+    display: none;
+}
 
 .icon {
     fill: var(--white);
@@ -261,6 +264,7 @@
     .icon-left,
     .icon-right {
         display: flex;
+        width: 100%;
     }
 
     /* by default they are hidden */
@@ -268,21 +272,15 @@
         display: none;
     }
 
-    .panel[open] {
-        width: 100%;
-        font-size: var(--main-size);
-    }
-
-    .panel[open] {
-        all: unset;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .panel aside {
+    .panel:not(:focus-within or :not[open]) aside {
         display: none;
     }
-
+    .panel[open]:focus-within aside,
+    .panel[open] {
+        display: flex;
+        flex-direction: column;
+        font-size: var(--main-size);
+    }
     .panel[open] aside {
         padding: var(--unit-size);
         box-sizing: border-box;
@@ -296,7 +294,6 @@
         background-size: 100% 100%;
         min-height: 100%;
 
-        display: block !important;
     }
 
     .panel[open] aside .footer {

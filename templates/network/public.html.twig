@@ -10,7 +10,7 @@
 {% block body %}
 
     {# Backwards compatibility with hAtom 0.1 #}
-    <div class="timeline">
+    <div class="timeline" tabindex="0">
         <main class="h-feed hfeed notes">
             {% if notes is defined and notes is not empty %}
                 {% for conversation in notes %}

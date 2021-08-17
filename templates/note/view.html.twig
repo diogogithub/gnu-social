@@ -2,7 +2,8 @@
     <div class="note-info">
         {% set nickname = note.getActorNickname() %}
 
-        <a class="u-url" href="{{ path('settings_avatar') }}">
+        {# TODO: this should link to the note's user profile? #}
+        <a class="u-url" href="#">
             {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
             <img class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
             <b class="p-nickname">{{ nickname }}</b>

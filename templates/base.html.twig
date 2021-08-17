@@ -32,19 +32,19 @@
     {% block header %}
         <div id='header'>
             <details class="panel" id="left-container">
-                <summary tabindex="1">
+                <summary tabindex="0" aria-haspopup="true" role="button" aria-expanded="false">
                     {{ icon('menu', 'icon icon-left') | raw }}
                     {{ block("leftpanel", "stdgrid.html.twig") }}
                 </summary>
             </details>
 
-            <a id='instance' href="{{ path('main_public') }}" tabindex="2">
+            <a id='instance' href="{{ path('main_public') }}" tabindex="0">
                 {{ icon('logo', 'icon icon-logo') | raw }}
                 <h1> {{ config('site', 'name') }} </h1>
             </a>
 
             <details class="panel" id="right-container">
-                <summary tabindex="3">
+                <summary tabindex="0" aria-haspopup="true" role="button" aria-expanded="false">
                     {{ icon('notes', 'icon icon-right') | raw }}
                     {{ block("rightpanel", "stdgrid.html.twig") }}
                 </summary>
