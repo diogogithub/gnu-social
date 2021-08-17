@@ -1,5 +1,6 @@
 # Summary
 
+- [Introduction](./introduction.md)
 - [Architecture](./architecture.md)
 - [Programming Style](./paradigms.md)
 - [Exceptions](./exceptions.md)
