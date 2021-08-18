@@ -59,7 +59,7 @@ class AdminTest extends GNUsocialTestCase
 
     public function testSiteInt()
     {
-        $this->test(['attachments', 'max_width'], fn () => 1024);
+        $this->test(['attachments', 'file_quota'], fn () => 8388608); // 1MB in bits
     }
 
     public function testSiteArray()
