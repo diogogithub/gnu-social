@@ -71,10 +71,22 @@ class GSFile
             // Attachment Exists
             $attachment->livesIncrementAndGet();
             if (is_null($attachment->getFilename())) {
-                $mimetype = mb_substr($attachment->getMimetype(), 0, 64);
+                $mimetype = $attachment->getMimetype();
                 $width    = $attachment->getWidth();
                 $height   = $attachment->getHeight();
-                Event::handle('AttachmentSanitization', [&$file, &$mimetype, &$width, &$height]);
+                if (Common::config('attachments', 'sanitize')) {
+                    $event_map[$mimetype]   = [];
+                    $major_mime             = self::mimetypeMajor($mimetype);
+                    $event_map[$major_mime] = [];
+                    Event::handle('FileSanitizerAvailable', [&$event_map, $mimetype]);
+                    // Always prefer specific encoders
+                    $encoders = array_merge($event_map[$mimetype], $event_map[$major_mime]);
+                    foreach ($encoders as $encoder) {
+                        if ($encoder($file, $mimetype, $width, $height)) {
+                            break; // One successful sanitizer is enough
+                        }
+                    }
+                }
                 $attachment->setFilename($hash);
                 $attachment->setMimetype($mimetype);
                 $attachment->setWidth($width);
@@ -88,7 +100,19 @@ class GSFile
             // available methods, so should be safe
             $mimetype = mb_substr($file->getMimeType(), 0, 64);
             $width    = $height    = null;
-            Event::handle('AttachmentSanitization', [&$file, &$mimetype, &$width, &$height]);
+            if (Common::config('attachments', 'sanitize')) {
+                $event_map[$mimetype]   = [];
+                $major_mime             = self::mimetypeMajor($mimetype);
+                $event_map[$major_mime] = [];
+                Event::handle('FileSanitizerAvailable', [&$event_map, $mimetype]);
+                // Always prefer specific encoders
+                $encoders = array_merge($event_map[$mimetype], $event_map[$major_mime]);
+                foreach ($encoders as $encoder) {
+                    if ($encoder($file, $mimetype, $width, $height)) {
+                        break; // One successful sanitizer is enough
+                    }
+                }
+            }
             $attachment = Attachment::create([
                 'filehash' => $hash,
                 'mimetype' => $mimetype,
