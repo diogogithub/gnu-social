@@ -67,6 +67,7 @@
 #instance {
     display: flex;
     align-items: center;
+    align-self: center;
 }
 
 #instance:focus svg,
@@ -176,18 +177,22 @@
 .note-info {
     display: flex;
     justify-content: space-between;
-    vertical-align: middle;
-    border-radius: var(--unit-size);
-    box-sizing: border-box;
+    align-items: center;
+    border-radius: var(--unit-size) var(--unit-size) 0 0;
 
     background-color: var(--translucent);
     font-size: var(--medium-size);
     padding: 4px;
 }
+.note-info a {
+    align-items: center;
+    align-self: center;
+}
 
 .note-info .avatar {
     width: auto;
     height: var(--medium-size);
+    border-radius: var(--unit-size);
 }
 
 /* TODO: icons */
@@ -196,15 +201,25 @@
     vertical-align: middle;
 }
 .favourite-button-container {
-    width: var(--medium-size) !important;
-    height: var(--medium-size) !important;
+    width: 1em !important;
+    height: 1em !important;
 }
 .favourite-button-container button {
+    all: unset;
+    border: none !important;
     width: inherit !important;
     height: inherit !important;
-    border: unset !important;
-    padding: unset !important;
+    background-size: cover !important;
+
+    -webkit-mask-image: url("../icons/heart.svg") !important;
+    -o-mask-image: url("../icons/heart.svg") !important;
+    -moz-mask-image: url("../icons/heart.svg") !important;
     mask-image: url("../icons/heart.svg") !important;
+}
+.favourite-button-container button:hover,
+.favourite-button-container button:focus {
+    border: none !important;
+    background: var(--bg3) !important;
 }
 .favourite-button-off {
     background: var(--bg2) !important;
@@ -223,12 +238,12 @@
 
 .note-attachments {
     display: flex;
+    max-width: 100%;
 }
 
 .note-attachments > figure {
     display: flex;
     flex-direction: column;
-    width: 100%;
     margin: 0;
     border-radius: var(--unit-size);
     background-color: var(--translucent);
@@ -264,8 +279,8 @@
     /* we need to control panel's view at this size */
     .icon-left,
     .icon-right {
-        display: flex;
-        width: 100%;
+        display: block;
+
     }
 
     /* by default they are hidden */
@@ -391,12 +406,17 @@
 
 /* BUTTONS AND INPUT SHENANIGANS */
 button,
-input:not([type=radio]):not([type=checkbox]) {
+input:not([type=radio]):not([type=checkbox]):not([type=text]) {
     font-size: var(--small-size) !important;
     background-image: linear-gradient(180deg, var(--bg2), transparent) !important;
     color: var(--white) !important;
 
     border: solid 2px var(--bg2) !important;
+}
+
+textarea,
+input[type=text] {
+    font-size: inherit !important;
 }
 
 textarea:hover,

@@ -1,3 +1,7 @@
 #right-panel {
     right: 0;
 }
+
+#right-container .section-form {
+    font-size: var(--small-size) !important;
+}
