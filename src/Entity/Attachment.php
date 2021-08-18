@@ -111,18 +111,6 @@ class Attachment extends Entity
         return $this->mimetype;
     }
 
-    public function getMimetypeMajor(): ?string
-    {
-        $mime = $this->getMimetype();
-        return is_null($mime) ? $mime : GSFile::mimetypeMajor($mime);
-    }
-
-    public function getMimetypeMinor(): ?string
-    {
-        $mime = $this->getMimetype();
-        return is_null($mime) ? $mime : GSFile::mimetypeMinor($mime);
-    }
-
     public function setFilename(?string $filename): self
     {
         $this->filename = $filename;
@@ -180,6 +168,18 @@ class Attachment extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    public function getMimetypeMajor(): ?string
+    {
+        $mime = $this->getMimetype();
+        return is_null($mime) ? $mime : GSFile::mimetypeMajor($mime);
+    }
+
+    public function getMimetypeMinor(): ?string
+    {
+        $mime = $this->getMimetype();
+        return is_null($mime) ? $mime : GSFile::mimetypeMinor($mime);
+    }
 
     /**
      * @return int
@@ -344,7 +344,7 @@ class Attachment extends Entity
                 'id'       => ['type' => 'serial',    'not null' => true],
                 'lives'    => ['type' => 'int',       'not null' => true, 'description' => 'RefCount'],
                 'filehash' => ['type' => 'varchar',   'length' => 64,  'description' => 'sha256 of the file contents, if the file is stored locally'],
-                'mimetype' => ['type' => 'varchar',   'length' => 64,  'description' => 'mime type of resource'],
+                'mimetype' => ['type' => 'varchar',   'length' => 255,  'description' => 'resource mime type 127+1+127 as per rfc6838#section-4.2'],
                 'filename' => ['type' => 'varchar',   'length' => 191, 'description' => 'file name of resource when available'],
                 'size'     => ['type' => 'int',       'description' => 'size of resource when available'],
                 'width'    => ['type' => 'int',       'description' => 'width in pixels, if it can be described as such and data is available'],
