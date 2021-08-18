@@ -77,12 +77,15 @@ class Embed extends Plugin
      *  Settings which can be set in social.local.yaml
      *  WARNING, these are _regexps_ (slashes added later). Always escape your dots and end ('$') your strings
      */
+    public bool $check_whitelist   = false;
+    public bool $check_blacklist   = false;
     public array $domain_whitelist = [
-        // hostname => service provider
-        '.*' => '', // Default to allowing any host
+        // hostname
+        '.*', // Default to allowing any host
     ];
-
-    public bool $store_image = true; // Whether to maintain a copy of the original media or only a thumbnail of it
+    public array $domain_blacklist = [];
+    // Whether to maintain a copy of the original media or only a thumbnail of it
+    public bool $store_image = true;
     public ?int $thumbnail_width;
     public ?int $thumbnail_height;
     public ?int $max_size;
@@ -199,28 +202,6 @@ class Embed extends Plugin
     }
 
     /**
-     * @param string $url
-     *
-     * @return bool true if allowed by the lists, false otherwise
-     */
-    private function allowedLink(string $url): bool
-    {
-        return true;
-        if ($this->check_whitelist ?? false) {
-            return false;   // indicates "no check made"
-        }
-
-        $host = parse_url($url, PHP_URL_HOST);
-        foreach ($this->domain_whitelist as $regex => $provider) {
-            if (preg_match("/{$regex}/", $host)) {
-                return $provider;    // we trust this source, return provider name
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * This code executes when GNU social creates the page routing, and we hook
      * on this event to add our action handler for Embed.
      *
@@ -229,6 +210,7 @@ class Embed extends Plugin
      * @throws Exception
      *
      * @return bool
+     *
      *
      *
      */
@@ -301,9 +283,10 @@ class Embed extends Plugin
      * @param Link $link
      * @param Note $note
      *
-     *@throws DuplicateFoundException
+     * @throws DuplicateFoundException
      *
      * @return bool
+     *
      *
      */
     public function onNewLinkFromNote(Link $link, Note $note): bool
@@ -360,6 +343,39 @@ class Embed extends Plugin
         DB::persist(Entity\AttachmentEmbed::create($embed_data));
         DB::flush();
         return Event::stop;
+    }
+
+    /**
+     * @param string $url
+     *
+     * @return bool true if allowed by the lists, false otherwise
+     */
+    private function allowedLink(string $url): bool
+    {
+        $passed_whitelist = !$this->check_whitelist;
+        $passed_blacklist = !$this->check_blacklist;
+
+        if ($this->check_whitelist) {
+            $passed_whitelist = false; // don't trust be default
+            $host             = parse_url($url, PHP_URL_HOST);
+            foreach ($this->domain_whitelist as $regex => $provider) {
+                if (preg_match("/{$regex}/", $host)) {
+                    $passed_whitelist = true; // we trust this source
+                }
+            }
+        }
+
+        if ($this->check_blacklist) {
+            // assume it passed by default
+            $host = parse_url($url, PHP_URL_HOST);
+            foreach ($this->domain_blacklist as $regex => $provider) {
+                if (preg_match("/{$regex}/", $host)) {
+                    $passed_blacklist = false; // we blocked this source
+                }
+            }
+        }
+
+        return $passed_whitelist && $passed_blacklist;
     }
 
     /**
@@ -481,6 +497,7 @@ class Embed extends Plugin
      * @throws ServerException
      *
      * @return bool true hook value
+     *
      */
     public function onPluginVersion(array &$versions): bool
     {

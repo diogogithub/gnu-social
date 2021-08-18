@@ -22,6 +22,8 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
+use function App\Core\I18n\_m;
+use App\Core\Log;
 use App\Core\Modules\Plugin;
 use App\Entity\AttachmentThumbnail;
 use App\Entity\AttachmentToLink;
@@ -54,7 +56,19 @@ class StoreRemoteMedia extends Plugin
         return '3.0.0';
     }
 
-    public bool $store_original = false; // Whether to maintain a copy of the original media or only a thumbnail of it
+    /**
+     *  Settings which can be set in social.local.yaml
+     *  WARNING, these are _regexps_ (slashes added later). Always escape your dots and end ('$') your strings
+     */
+    public bool $check_whitelist   = false;
+    public bool $check_blacklist   = false;
+    public array $domain_whitelist = [
+        // hostname
+        '.*', // Default to allowing any host
+    ];
+    public array $domain_blacklist = [];
+    // Whether to maintain a copy of the original media or only a thumbnail of it
+    public bool $store_original = false;
     public ?int $thumbnail_width;
     public ?int $thumbnail_height;
     public ?int $max_size;
@@ -64,6 +78,7 @@ class StoreRemoteMedia extends Plugin
     {
         return $this->store_original;
     }
+
     private function getThumbnailWidth(): int
     {
         return $this->thumbnail_width ?? Common::config('thumbnail', 'width');
@@ -88,16 +103,23 @@ class StoreRemoteMedia extends Plugin
      * @param Link $link
      * @param Note $note
      *
-     * @throws DuplicateFoundException
      * @throws ServerException
      * @throws TemporaryFileException
+     * @throws DuplicateFoundException
      *
      * @return bool
+     *
      */
     public function onNewLinkFromNote(Link $link, Note $note): bool
     {
         // Embed is the plugin to handle these
         if ($link->getMimetypeMajor() === 'text') {
+            return Event::next;
+        }
+
+        // Is this URL trusted?
+        if (!$this->allowedLink($link->getUrl())) {
+            Log::info("Blocked URL ({$link->getUrl()}) in StoreRemoteMedia->onNewLinkFromNote.");
             return Event::next;
         }
 
@@ -163,6 +185,39 @@ class StoreRemoteMedia extends Plugin
 
             return Event::stop;
         }
+    }
+
+    /**
+     * @param string $url
+     *
+     * @return bool true if allowed by the lists, false otherwise
+     */
+    private function allowedLink(string $url): bool
+    {
+        $passed_whitelist = !$this->check_whitelist;
+        $passed_blacklist = !$this->check_blacklist;
+
+        if ($this->check_whitelist) {
+            $passed_whitelist = false; // don't trust be default
+            $host             = parse_url($url, PHP_URL_HOST);
+            foreach ($this->domain_whitelist as $regex => $provider) {
+                if (preg_match("/{$regex}/", $host)) {
+                    $passed_whitelist = true; // we trust this source
+                }
+            }
+        }
+
+        if ($this->check_blacklist) {
+            // assume it passed by default
+            $host = parse_url($url, PHP_URL_HOST);
+            foreach ($this->domain_blacklist as $regex => $provider) {
+                if (preg_match("/{$regex}/", $host)) {
+                    $passed_blacklist = false; // we blocked this source
+                }
+            }
+        }
+
+        return $passed_whitelist && $passed_blacklist;
     }
 
     /**
