@@ -24,7 +24,6 @@ use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\Modules\Plugin;
-use App\Entity\Attachment;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\ServerException;
@@ -55,11 +54,33 @@ class ImageEncoder extends Plugin
     }
 
     /**
-     * Several obscure file types should be normalized to WebP on resize.
+     * @param array  $event_map
+     * @param string $mimetype
+     *
+     * @return bool
      */
-    public function preferredType(): int
+    public function onFileSanitizerAvailable(array &$event_map, string $mimetype): bool
     {
-        return IMAGETYPE_WEBP;
+        if (GSFile::mimetypeMajor($mimetype) !== 'image') {
+            return Event::next;
+        }
+        $event_map['image'][] = [$this, 'fileSanitize'];
+        return Event::next;
+    }
+
+    /**
+     * @param array  $event_map
+     * @param string $mimetype
+     *
+     * @return bool
+     */
+    public function onFileResizerAvailable(array &$event_map, string $mimetype): bool
+    {
+        if (GSFile::mimetypeMajor($mimetype) !== 'image') {
+            return Event::next;
+        }
+        $event_map['image'][] = [$this, 'resizeImagePath'];
+        return Event::next;
     }
 
     /**
@@ -71,29 +92,30 @@ class ImageEncoder extends Plugin
      * @param null|int    $width    out
      * @param null|int    $height   out
      *
-     * @throws ClientException        When vips doesn't understand the given mimetype
      * @throws ServerException
      * @throws TemporaryFileException
      * @throws Vips\Exception
+     * @throws ClientException        When vips doesn't understand the given mimetype
      *
-     * @return bool
+     * @return bool true if sanitized
+     *
      */
-    public function onAttachmentSanitization(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
+    public function fileSanitize(SplFileInfo &$file, ?string &$mimetype, ?int &$width, ?int &$height): bool
     {
         $original_mimetype = $mimetype;
         if (GSFile::mimetypeMajor($original_mimetype) != 'image') {
             // Nothing concerning us
-            return Event::next;
+            return false;
         }
 
         // Try to maintain original mimetype extension, otherwise default to preferred.
-        $extension = image_type_to_extension($this->preferredType(), include_dot: true);
+        $extension = '.' . Common::config('thumbnail', 'extension');
         $extension = GSFile::ensureFilenameWithProperExtension(
-            title: $file->getFilename(),
-            mimetype: $original_mimetype,
-            ext: $extension,
-            force: false
-        ) ?? $extension;
+                title: $file->getFilename(),
+                mimetype: $original_mimetype,
+                ext: $extension,
+                force: false
+            ) ?? $extension;
 
         // TemporaryFile handles deleting the file if some error occurs
         // IMPORTANT: We have to specify the extension for the temporary file
@@ -109,27 +131,16 @@ class ImageEncoder extends Plugin
         $width  = $image->width;
         $height = $image->height;
         $image  = $image->crop(left: 0,
-                               top: 0,
-                               width: $width,
-                               height: $height);
+            top: 0,
+            width: $width,
+            height: $height);
         $image->writeToFile($temp->getRealPath());
 
         // Replace original file with the sanitized one
         $temp->commit($file->getRealPath());
 
         // Only one plugin can handle sanitization
-        return Event::stop;
-    }
-
-    /**
-     * @param array $event_map
-     *
-     * @return bool
-     */
-    public function onResizerAvailable(array &$event_map): bool
-    {
-        $event_map['image'] = 'ResizeImagePath';
-        return Event::next;
+        return true;
     }
 
     /**
@@ -140,8 +151,11 @@ class ImageEncoder extends Plugin
      *
      * @return bool
      */
-    public function onViewAttachmentImage(array $vars, array &$res): bool
+    public function onViewAttachment(array $vars, array &$res): bool
     {
+        if ($vars['attachment']->getMimetypeMajor() !== 'image') {
+            return Event::next;
+        }
         $res[] = Formatting::twigRenderFile('imageEncoder/imageEncoderView.html.twig',
             [
                 'attachment' => $vars['attachment'],
@@ -152,7 +166,7 @@ class ImageEncoder extends Plugin
 
     /**
      * Resizes an image. It will encode the image in the
-     * `self::preferredType()` format. This only applies henceforward,
+     * preferred thumbnail extension. This only applies henceforward,
      * not retroactively
      *
      * Increases the 'memory_limit' to the one in the 'attachments' section in the config, to
@@ -166,13 +180,14 @@ class ImageEncoder extends Plugin
      * @param bool               $smart_crop
      * @param null|string        $mimetype
      *
-     * @throws TemporaryFileException
      * @throws Vips\Exception
+     * @throws TemporaryFileException
      *
      * @return bool
      *
+     *
      */
-    public function onResizeImagePath(string $source, ?TemporaryFile &$destination, int &$width, int &$height, bool $smart_crop, ?string &$mimetype): bool
+    public function resizeImagePath(string $source, ?TemporaryFile &$destination, int &$width, int &$height, bool $smart_crop, ?string &$mimetype): bool
     {
         $old_limit = ini_set('memory_limit', Common::config('attachments', 'memory_limit'));
         try {
@@ -192,14 +207,13 @@ class ImageEncoder extends Plugin
             if (is_null($destination)) {
                 // IMPORTANT: We have to specify the extension for the temporary file
                 // in order to have a format conversion
-                $ext         = image_type_to_extension($this->preferredType(), include_dot: true);
+                $ext         = '.' . Common::config('thumbnail', 'extension');
                 $destination = new TemporaryFile(['prefix' => 'gs-thumbnail', 'suffix' => $ext]);
             } elseif ($source === $destination->getRealPath()) {
                 @unlink($destination->getRealPath());
             }
 
-            $type     = self::preferredType();
-            $mimetype = image_type_to_mime_type($type);
+            $mimetype = Common::config('thumbnail', 'mimetype');
 
             $width  = $image->width;
             $height = $image->height;
@@ -209,7 +223,7 @@ class ImageEncoder extends Plugin
         } finally {
             ini_set('memory_limit', $old_limit); // Restore the old memory limit
         }
-        return Event::stop;
+        return true;
     }
 
     /**
