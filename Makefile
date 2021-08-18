@@ -1,7 +1,7 @@
 DIR=$(strip $(notdir $(CURDIR))) # Seems a bit hack-ish, but `basename` works differently
 
 .PHONY:
-	if ! docker info > /dev/null; then echo "Docker does not seem to be running"; exit 1; fi
+	@if ! docker info > /dev/null; then echo "Docker does not seem to be running"; exit 1; fi
 
 up: .PHONY
 	docker-compose up -d
