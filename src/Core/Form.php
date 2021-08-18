@@ -31,6 +31,7 @@
 namespace App\Core;
 
 use App\Core\DB\DB;
+use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Form as SymfForm;
@@ -90,6 +91,10 @@ abstract class Form
         $name = $form[array_key_last($form)][0];
         $fb   = self::$form_factory->createNamedBuilder($name, $type, data: null, options: array_merge($form_options, ['translation_domain' => false]));
         foreach ($form as [$key, $class, $options]) {
+            if ($class == SubmitType::class && in_array($key, ['save', 'publish', 'post'])) {
+                Log::critical($m = "It's generally a bad idea to use {$key} as a form name, because it can conflict with other forms in the same page");
+                throw new ServerException($m);
+            }
             if ($target != null && empty($options['data']) && (strstr($key, 'password') == false) && $class != SubmitType::class) {
                 if (isset($extra_data[$key])) {
                     // @codeCoverageIgnoreStart
