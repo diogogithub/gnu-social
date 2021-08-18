@@ -21,7 +21,6 @@
 
 namespace App\Tests\Core;
 
-use App\Core\DB\DB;
 use App\Core\GSFile;
 use App\Util\GNUsocialTestCase;
 use App\Util\TemporaryFile;
@@ -30,38 +29,16 @@ class GSFileTest extends GNUsocialTestCase
 {
     public function testSanitizeAndStoreFileAsAttachment()
     {
-        $file       = new TemporaryFile();
+        static::bootKernel();
+        $file = new TemporaryFile();
+        $file->write('foo');
         $attachment = GSFile::sanitizeAndStoreFileAsAttachment($file);
-        static::assertSame('application/x-empty', $attachment->getMimetype());
-        static::assertSame(0, $attachment->getSize());
+        static::assertSame('text/plain', $attachment->getMimetype());
+        static::assertSame(3, $attachment->getSize());
         static::assertNull($attachment->getWidth());
         static::assertNull($attachment->getHeight());
-        $hash = $attachment->getFilehash();
-        $path = $attachment->getPath();
-        static::assertTrue(file_exists($path));
+        static::assertTrue(file_exists($attachment->getPath()));
         static::assertSame(1, $attachment->getLives());
-        DB::flush($attachment);
-
-        static::assertTrue($attachment->deleteStorage());
-        static::assertFalse(file_exists($path));
-        static::assertNull($attachment->getPath());
-
-        $file                = new TemporaryFile();
-        $repeated_attachment = GSFile::sanitizeAndStoreFileAsAttachment($file);
-        $path                = $attachment->getPath();
-        static::assertSame(2, $repeated_attachment->getLives());
-        static::assertTrue(file_exists($path));
-
-        $attachment->kill();
-
-        static::assertTrue(file_exists($path));
-        static::assertSame(1, $repeated_attachment->getLives());
-
-        $repeated_attachment->kill();
-
-        static::assertSame(0, $repeated_attachment->getLives());
-        static::assertFalse(file_exists($path));
-        static::assertSame([], DB::findBy('attachment', ['filehash' => $hash]));
     }
 
     public function testEnsureFilenameWithProperExtension()
