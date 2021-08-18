@@ -33,11 +33,7 @@ class GSActorTest extends GNUsocialTestCase
     public function testGetAvatarUrl()
     {
         $actor = DB::findOneBy('gsactor', ['nickname' => 'taken_user']);
-        static::assertSame('/assets/default-avatar.svg', $actor->getAvatarUrl());
-
-        // $actor = DB::findOneBy('gsactor', ['nickname' => 'taken_user']);
-        // $id = $actor->getId();
-        // static::assertSame("/avatar/{$id}", $actor->getAvatarUrl());
+        static::assertSame("/{$actor->getId()}/avatar", $actor->getAvatarUrl());
     }
 
     public function testGetFromNickname()

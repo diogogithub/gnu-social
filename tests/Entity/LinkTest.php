@@ -32,5 +32,7 @@ class LinkTest extends GNUsocialTestCase
         static::assertThrows(\InvalidArgumentException::class, fn () => Link::getOrCreate('not a url'));
         $link = Link::getOrCreate('https://gnu.org');
         static::assertNotNull($link->getUrl());
+
+        static::assertThrows(\InvalidArgumentException::class, fn () => Link::getOrCreate('https://' . $_ENV['SOCIAL_DOMAIN']));
     }
 }
