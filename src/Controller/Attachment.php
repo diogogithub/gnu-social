@@ -147,7 +147,9 @@ class Attachment extends Controller
             throw new ClientException(_m('The requested thumbnail dimensions are not allowed'), 400); // 400 Bad Request
         }
 
-        [$width, $height] = AttachmentThumbnail::predictScalingValues($attachment->getWidth(), $attachment->getHeight(), $width, $height, $crop);
+        if (!is_null($attachment->getWidth()) && !is_null($attachment->getHeight())) {
+            [$width, $height] = AttachmentThumbnail::predictScalingValues($attachment->getWidth(), $attachment->getHeight(), $width, $height, $crop);
+        }
 
         $thumbnail = AttachmentThumbnail::getOrCreate(attachment: $attachment, width: $width, height: $height, crop: $crop);
 
