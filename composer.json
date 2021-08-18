@@ -10,7 +10,6 @@
         "ext-iconv": "*",
         "ext-vips": "*",
         "alchemy/zippy": "v0.5.x-dev",
-        "embed/embed": "^4.3",
         "erusev/parsedown": "^1.7",
         "lstrojny/functional-php": "^1.11",
         "nyholm/psr7": "^1.4",
