@@ -24,7 +24,7 @@ namespace Plugin\Favourite;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
-use App\Core\Modules\Plugin;
+use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
 use App\Util\Common;
@@ -35,7 +35,7 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 
-class Favourite extends Plugin
+class Favourite extends NoteHandlerPlugin
 {
     /**
      * HTML rendering event that adds the favourite form as a note

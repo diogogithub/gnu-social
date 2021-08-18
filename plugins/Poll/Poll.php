@@ -24,7 +24,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use function App\Core\I18n\_m;
-use App\Core\Modules\Plugin;
+use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
 use App\Entity\PollResponse;
@@ -45,10 +45,11 @@ use Symfony\Component\HttpFoundation\Request;
  * @category Poll
  *
  * @author    Daniel Brandao <up201705812@fe.up.pt>
- * @copyright 2020 Free Software Foundation, Inc http://www.fsf.org
+ * @author    Hugo Sales <hugo@hsal.es>
+ * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Poll extends Plugin
+class Poll extends NoteHandlerPlugin
 {
     /**
      * Map URLs to actions

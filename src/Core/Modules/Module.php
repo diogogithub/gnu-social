@@ -19,14 +19,7 @@
 
 namespace App\Core\Modules;
 
-use App\Core\Event;
-use App\Core\Log;
-use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Exception\InvalidFormException;
-use App\Util\Exception\NoSuchNoteException;
-use Symfony\Component\Form\Form;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Base class for all GNU social modules (plugins and components)
@@ -59,56 +52,5 @@ abstract class Module
             $obj->{$k} = $v;
         }
         return $obj;
-    }
-
-    /**
-     * Handle the $form submission for the note action for note if
-     * $note->getId() == $data['note_id']
-     *
-     * This function is called when a user interacts with a note, such as through favouriting or commenting
-     *
-     * @codeCoverageIgnore
-     *
-     * @param Request  $request
-     * @param Form     $form
-     * @param Note     $note
-     * @param string   $form_name
-     * @param callable $handle
-     *
-     * @throws InvalidFormException
-     * @throws NoSuchNoteException
-     *
-     * @return bool|void
-     */
-    public static function noteActionHandle(Request $request, Form $form, Note $note, string $form_name, callable $handle)
-    {
-        if ('POST' === $request->getMethod() && $request->request->has($form_name)) {
-            $form->handleRequest($request);
-            if ($form->isSubmitted()) {
-                $data = $form->getData();
-                // Loose comparison
-                if ($data['note_id'] != $note->getId()) {
-                    return Event::next;
-                } else {
-                    $user = Common::user();
-                    if (!$note->isVisibleTo($user)) {
-                        // ^ Ensure user isn't trying to trip us up
-                        Log::warning('Suspicious activity: user ' . $user->getNickname() .
-                                   ' tried to interact with note ' . $note->getId() .
-                                   ', but they shouldn\'t have access to it');
-                        throw new NoSuchNoteException();
-                    } else {
-                        if ($form->isValid()) {
-                            $ret = $handle($note, $data, $user);
-                            if ($ret != null) {
-                                return $ret;
-                            }
-                        } else {
-                            throw new InvalidFormException();
-                        }
-                    }
-                }
-            }
-        }
     }
 }
