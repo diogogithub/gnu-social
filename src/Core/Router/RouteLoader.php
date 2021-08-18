@@ -75,7 +75,7 @@ class RouteLoader extends Loader
      * @param mixed      $target     Some kind of callable, typically class with `__invoke` or [object, method]
      * @param null|array $param_reqs Array of {param} => regex
      * @param null|array $options    Possible keys are ['condition', 'defaults', 'format',
-     *                               'fragment', 'http-methods', 'locale', 'methods', 'schemes']
+     *                               'fragment', 'http-methods', 'locale', 'methods', 'schemes', 'accept']
      *                               'http-methods' and 'methods' are aliases
      */
     public function connect(string $id, string $uri_path, $target, ?array $options = [], ?array $param_reqs = [])
@@ -111,7 +111,7 @@ class RouteLoader extends Loader
                 methods: $options['http-methods'] ?? $options['methods'] ?? [],
                 // condition = ''    -- Symfony condition expression,
                 // see https://symfony.com/doc/current/routing.html#matching-expressions
-                condition: $options['condition'] ?? ''
+                condition: isset($options['accept']) ? "request.headers.get('Accept') in " . json_encode($options['accept']) : ($options['condition'] ?? '')
             )
         );
     }

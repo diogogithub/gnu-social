@@ -118,10 +118,11 @@ class Controller extends AbstractController implements EventSubscriberInterface
             $event->setResponse($this->render($template, $this->vars));
             break;
         case 'json':
+        case 'jsonld':
             $event->setResponse(new JsonResponse($response));
             break;
         default:
-            throw new ClientException(_m('Unsupported format'), 406); // 406 Not Acceptable
+            throw new ClientException(_m('Unsupported format: {format}', ['format' => $format]), 406); // 406 Not Acceptable
         }
 
         return $event;
