@@ -60,8 +60,6 @@ parameters:
       ssl:
 
     attachments:
-      max_width: 4096
-      max_height: 4096
       server:
       ssl:
       dir: "%kernel.project_dir%/file/attachments/"
@@ -104,9 +102,9 @@ parameters:
       user_quota: 209715200
       monthly_quota: 20971520
       uploads: true
-      show_html: true
       show_thumbs: true
       process_links: true
+      sanitize: true
       ext_blacklist: []
       memory_limit: 1024M
 
@@ -118,6 +116,7 @@ parameters:
       max_size_px: 1000
       width: 450
       height: 600
+      mimetype: 'image/webp'
       extension: '.webp'
 
     plugin_embed:
