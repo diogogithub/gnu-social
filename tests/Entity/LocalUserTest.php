@@ -46,6 +46,7 @@ class LocalUserTest extends GNUsocialTestCase
 
     public function testChangePassword()
     {
+        parent::bootKernel();
         $user = LocalUser::findByNicknameOrEmail('form_personal_info_test_user', 'some@email');
         static::assertTrue($user->changePassword(old_password_plain_text: '', new_password_plain_text: 'password', override: true));
         static::assertTrue($user->changePassword(old_password_plain_text: 'password', new_password_plain_text: 'new_password', override: false));
