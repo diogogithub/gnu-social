@@ -1,7 +1,7 @@
 FROM php:8-fpm-alpine
 
 RUN apk update && apk add git autoconf make gcc g++ file gettext-dev icu-dev zlib-dev libpng-dev gmp-dev \
-        mariadb-dev mariadb-client postgresql-dev postgresql-client vips-dev composer > /dev/null
+        mariadb-dev mariadb-client postgresql-dev postgresql-client vips-dev composer ffmpeg > /dev/null
 
 ARG MAKEFLAGS="-j$(cat /proc/cpuinfo | grep processor | wc -l)"
 
