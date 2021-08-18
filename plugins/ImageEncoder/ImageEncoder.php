@@ -177,7 +177,12 @@ class ImageEncoder extends Plugin
         $old_limit = ini_set('memory_limit', Common::config('attachments', 'memory_limit'));
         try {
             try {
-                $image = Vips\Image::thumbnail($source, $width, ['height' => $height]);
+                if (!$smart_crop) {
+                    $image = Vips\Image::thumbnail($source, $width, ['height' => $height]);
+                } else {
+                    $image = Vips\Image::newFromFile($source, ['access' => 'sequential']);
+                    $image = $image->smartcrop($width, $height, [Vips\Interesting::ATTENTION]);
+                }
             } catch (Exception $e) {
                 Log::error(__METHOD__ . ' encountered exception: ' . get_class($e));
                 // TRANS: Exception thrown when trying to resize an unknown file type.
@@ -195,10 +200,6 @@ class ImageEncoder extends Plugin
 
             $type     = self::preferredType();
             $mimetype = image_type_to_mime_type($type);
-
-            if ($smart_crop) {
-                $image = $image->smartcrop($width, $height);
-            }
 
             $width  = $image->width;
             $height = $image->height;
