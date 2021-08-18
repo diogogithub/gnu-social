@@ -267,11 +267,11 @@ class Note extends Entity
                 && null != DB::find('follow', ['follower' => $a->getId(), 'followed' => $this->gsactor_id]))
             || ($scope->addressee
                 && null != DB::find('notification', ['activity_id' => $this->id, 'gsactor_id' => $a->getId()]))
-            || ($scope->group
-                && [] != DB::sql('select m.gsactor_id from group_member m ' .
-                                   'inner join group_inbox i on m.group_id = i.group_id ' .
-                                   'inner join note n on i.activity_id = n.id where n.id = :id',
-                                   [], ['id' => $this->id]));
+            || ($scope->group && [] != DB::dql('select m from group_member m ' .
+                                               'join group_inbox i with m.group_id = i.group_id ' .
+                                               'join note n with i.activity_id = n.id ' .
+                                               'where n.id = :note_id and m.gsactor_id = :actor_id',
+                                               ['note_id' => $this->id, 'actor_id' => $a->getId()]));
     }
 
     public function jsonSerialize()
