@@ -24,6 +24,7 @@ use App\Core\Entity;
 use App\Core\Event;
 use App\Core\GSFile;
 use App\Core\HTTPClient;
+use App\Core\Log;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
@@ -137,6 +138,12 @@ class Link extends Entity
     public static function getOrCreate(string $url): self
     {
         if (Common::isValidHttpUrl($url)) {
+            // If the URL is a local one, do not create a Link to it
+            if (parse_url($url, PHP_URL_HOST) === $_ENV['SOCIAL_DOMAIN']) {
+                Log::warning("It was attempted to create a Link to a local location {$url}.");
+                // Forbidden
+                throw new InvalidArgumentException(message: "A Link can't point to a local location ({$url}), it must be a remote one", code: 400);
+            }
             $head = HTTPClient::head($url);
             // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
             try {
