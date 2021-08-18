@@ -148,8 +148,10 @@ class Link extends Entity
             // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
             try {
                 $headers = $head->getHeaders();
+                // @codeCoverageIgnoreStart
             } catch (ClientException $e) {
                 throw new InvalidArgumentException(previous: $e);
+                // @codeCoverageIgnoreEnd
             }
             $url      = $head->getInfo('url'); // The last effective url (after getHeaders, so it follows redirects)
             $url_hash = hash(self::URLHASH_ALGO, $url);

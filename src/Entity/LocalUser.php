@@ -317,7 +317,9 @@ class LocalUser extends Entity implements UserInterface
         case 1:
             return $users[0];
         default:
+            // @codeCoverageIgnoreStart
             throw new DuplicateFoundException('Multiple values in table local_user match the requested criteria');
+            // @codeCoverageIgnoreEnd
         }
     }
 
@@ -334,7 +336,9 @@ class LocalUser extends Entity implements UserInterface
                                       self::algoNameToConstant(Common::config('security', 'algorithm')),
                                       Common::config('security', 'options'))
             ) {
+                // @codeCoverageIgnoreStart
                 $this->changePassword(null, $password_plain_text, override: true);
+                // @codeCoverageIgnoreEnd
             }
             return true;
         }
@@ -359,11 +363,13 @@ class LocalUser extends Entity implements UserInterface
         return password_hash($password, $algorithm, $options);
     }
 
-    private static function algoNameToConstant(string $algo)
+    /**
+     * Public for testing
+     */
+    public static function algoNameToConstant(string $algo)
     {
         switch ($algo) {
         case 'bcrypt':
-            return PASSWORD_BCRYPT;
         case 'argon2i':
         case 'argon2d':
         case 'argon2id':

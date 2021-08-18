@@ -21,12 +21,12 @@
 
 namespace App\Entity;
 
-use App\Core\Router\Router;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Log;
+use App\Core\Router\Router;
 use App\Util\Common;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
@@ -222,8 +222,10 @@ class Attachment extends Entity
         if (!is_null($filepath = $this->getPath())) {
             if (file_exists($filepath)) {
                 if (@unlink($filepath) === false) {
+                    // @codeCoverageIgnoreStart
                     Log::error("Failed deleting file for attachment with id={$this->getId()} at {$filepath}.");
                     return false;
+                // @codeCoverageIgnoreEnd
                 } else {
                     $this->setFilename(null);
                     $this->setSize(null);
@@ -232,7 +234,9 @@ class Attachment extends Entity
                     DB::flush();
                 }
             } else {
+                // @codeCoverageIgnoreStart
                 Log::warning("File for attachment with id={$this->getId()} at {$filepath} was already deleted when I was going to handle it.");
+                // @codeCoverageIgnoreEnd
             }
         }
         return true;
@@ -244,7 +248,9 @@ class Attachment extends Entity
     protected function delete(): bool
     {
         if ($this->getLives() > 0) {
+            // @codeCoverageIgnoreStart
             Log::warning("Deleting file {$this->getId()} with {$this->getLives()} lives. Why are you killing it so young?");
+            // @codeCoverageIgnoreEnd
         }
         // Delete related files from storage
         $files = [];
@@ -259,10 +265,14 @@ class Attachment extends Entity
         foreach ($files as $f) {
             if (file_exists($f)) {
                 if (@unlink($f) === false) {
+                    // @codeCoverageIgnoreStart
                     Log::error("Failed deleting file for attachment with id={$this->getId()} at {$f}.");
+                    // @codeCoverageIgnoreEnd
                 }
             } else {
+                // @codeCoverageIgnoreStart
                 Log::warning("File for attachment with id={$this->getId()} at {$f} was already deleted when I was going to handle it.");
+                // @codeCoverageIgnoreEnd
             }
         }
         DB::flush();
@@ -298,7 +308,7 @@ class Attachment extends Entity
             return $filename;
         } else {
             // Welp
-            return _m('Untitled Attachment.');
+            return _m('Untitled attachment');
         }
     }
 
@@ -323,7 +333,7 @@ class Attachment extends Entity
 
     public function getThumbnailUrl()
     {
-        return Router::url('attachment_thumbnail', ['id' => $this->getId(), 'w' => Common::config('thumbnail', 'width'), 'h' => Common::config('thumbnail', 'height')]);;
+        return Router::url('attachment_thumbnail', ['id' => $this->getId(), 'w' => Common::config('thumbnail', 'width'), 'h' => Common::config('thumbnail', 'height')]);
     }
 
     public static function schemaDef(): array

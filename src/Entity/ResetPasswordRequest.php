@@ -85,6 +85,8 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
+    // {{{ Interface
+    // @codeCoverageIgnoreStart
     public function __construct(object $user, \DateTimeInterface $expiresAt, string $selector, string $hashedToken)
     {
         $this->user_id  = $user->getId();
@@ -117,6 +119,8 @@ class ResetPasswordRequest extends Entity implements ResetPasswordRequestInterfa
     {
         return $this->token;
     }
+    // @codeCoverageIgnoreEnd
+    // }}}
 
     public static function schemaDef(): array
     {
