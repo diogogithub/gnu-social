@@ -1,6 +1,5 @@
-{% set thumbnail_parameters = {'id': attachment.getId(), 'w': config('thumbnail','width'), 'h': config('thumbnail','height')} %}
 {% set handled = false %}
-{% for block in handle_event('ViewAttachment' ~ attachment.getMimetypeMajor() | capitalize , {'attachment': attachment, 'thumbnail_parameters': thumbnail_parameters, 'note': note}) %}
+{% for block in handle_event('ViewAttachment' ~ attachment.getMimetypeMajor() | capitalize , {'attachment': attachment, 'note': note}) %}
     {% set handled = true %}
     {{ block | raw }}
 {% endfor %}

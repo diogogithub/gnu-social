@@ -1,6 +1,6 @@
 <div>
     <figure>
-        <video class="u-video" src="{{ path('attachment_view', {'id': attachment.getId()}) }}" controls poster="{{ path('attachment_thumbnail', thumbnail_parameters) }}">
+        <video class="u-video" src="{{ attachment.getUrl() }}" controls poster="{{ attachment.getThumbnailUrl()}}">
         </video>
         <figcaption><a
                 href="{{ path('attachment_show', {'id': attachment.getId()}) }}">{{ attachment.getBestTitle(note) }}</a>

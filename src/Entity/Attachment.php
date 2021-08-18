@@ -21,6 +21,7 @@
 
 namespace App\Entity;
 
+use App\Core\Router\Router;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\GSFile;
@@ -315,9 +316,14 @@ class Attachment extends Entity
         return is_null($filename) ? null : Common::config('attachments', 'dir') . $filename;
     }
 
-    public function getAttachmentUrl()
+    public function getUrl()
     {
-        return Router::url('attachment_thumbnail', ['id' => $this->getAttachmentId(), 'w' => Common::config('attachment', 'width'), 'h' => Common::config('attachment', 'height')]);
+        return Router::url('attachment_view', ['id' => $this->getId()]);
+    }
+
+    public function getThumbnailUrl()
+    {
+        return Router::url('attachment_thumbnail', ['id' => $this->getId(), 'w' => Common::config('thumbnail', 'width'), 'h' => Common::config('thumbnail', 'height')]);;
     }
 
     public static function schemaDef(): array
