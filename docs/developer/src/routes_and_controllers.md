@@ -11,22 +11,20 @@ You create routes by handling the `AddRoute` event.
 public function onAddRoute(RouteLoader $r)
 {
     $r->connect('avatar', '/{gsactor_id<\d+>}/avatar/{size<full|big|medium|small>?full}',
-    [Controller\Avatar::class, 'avatar_view']);
+                [Controller\Avatar::class, 'avatar_view']);
     $r->connect('settings_avatar', '/settings/avatar',
-    [Controller\Avatar::class, 'settings_avatar']);
+                [Controller\Avatar::class, 'settings_avatar']);
     return Event::next;
 }
 ```
 
-The magic goes on `$r->connect((string $id, string $uri_path, array|string $target, array $param_reqs = [], array $accept_headers = [], array $options = []))`.
+The magic goes on `$r->connect(string $id, string $uri_path, $target, ?array $options = [], ?array $param_reqs = [])`.
 Here how it works:
-* `id`: an identifier for your route so that you can easily refer to it later;
-* `uri_path`: the url to be matched, can be static or have parameters;
-   The variable parts are wrapped in `{...}` and they must have a unique name;
+* `id`: a unique identifier for your route so that you can easily refer to it later, for instance when generating URLs;
+* `uri_path`: the url to be matched, can be static or have parameters. The variable parts are wrapped in `{...}` and they must have a unique name;
 * `target`: Can be an array _[Class, Method to invoke]_ or a string with _Class_ to __invoke;
 * `param_reqs`: You can either do `['parameter_name' => 'regex']` or write the requirement inline `{parameter_name<regex>}`;
-* `accept_headers`: If `[]` then the route will accept any [HTTP Accept](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept).
-   If the route should only be used for certain Accept headers, then specify an array of the form: `['content type' => q-factor weighting]`;
+* `options['accept']`: The Accept header values this route will match with;
 * `options['format']`: Response content-type;
 * `options['conditions']`: https://symfony.com/doc/current/routing.html#matching-expressions ; 
 * `options['template']`: Render a twig template directly from the route.
@@ -36,19 +34,20 @@ Here how it works:
 * The special parameter `_format` can be used to set the "request format" of the Request object. This is used for such things as setting the Content-Type of the response (e.g. a json format translates into a Content-Type of application/json).
   This does _not_ override the `options['format']` nor the `HTTP Accept header` information.
 ```php
-$r->connect(id: 'article_show', uri_path: '/articles/search.{_format}',
+$r->connect(id: 'article_show', uri_path: '/articles/search.{format}',
     target: [ArticleController::class, 'search'],
-    param_reqs: ['_format' => 'html|xml']
+    param_reqs: ['format' => 'html|xml']
 );
 ```
 * An example of a suitable accept headers array would be:
 ```php
-$acceptHeaders = [
-    'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' => 0,
-    'application/activity+json' => 1,
-    'application/json' => 2,
-    'application/ld+json' => 3
-];
+$r->connect('json_test', '/json_only', [C\JSON::class, 'test'], options: [
+    'accept' => [
+        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+        'application/activity+json',
+        'application/json',
+        'application/ld+json'
+    ]]);
 ```
 
 ## Controllers
