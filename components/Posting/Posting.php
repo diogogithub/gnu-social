@@ -129,7 +129,7 @@ END;
         DB::flush();
         if ($processed_attachments != []) {
             foreach ($processed_attachments as [$a, $fname]) {
-                if (is_null(DB::findBy('gsactor_to_attachment', ['attachment_id' => $a->getId(), 'gsactor_id' => $actor_id]))) {
+                if (empty(DB::findBy('gsactor_to_attachment', ['attachment_id' => $a->getId(), 'gsactor_id' => $actor_id]))) {
                     DB::persist(GSActorToAttachment::create(['attachment_id' => $a->getId(), 'gsactor_id' => $actor_id]));
                 }
                 DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId(), 'title' => $fname]));
