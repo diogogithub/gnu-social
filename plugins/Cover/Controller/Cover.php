@@ -82,7 +82,7 @@ class Cover
                         'mimeTypesMessage' => 'Please upload a valid image',
                     ]), ], ]],
             ['hidden', HiddenType::class, []],
-            ['save',   SubmitType::class, ['label' => _m('Submit')]],
+            ['save_color',   SubmitType::class, ['label' => _m('Submit')]],
         ]);
 
         $form->handleRequest($request);

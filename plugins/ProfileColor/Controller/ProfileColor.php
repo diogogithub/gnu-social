@@ -66,7 +66,7 @@ class ProfileColor
         $form = Form::create([
             ['color',   ColorType::class,   ['data' => $color, 'label' => _m('Profile Color'), 'help' => _m('Choose your Profile Color')] ],
             ['hidden', HiddenType::class, []],
-            ['save',   SubmitType::class, ['label' => _m('Submit')]],
+            ['save_profile_color',   SubmitType::class, ['label' => _m('Submit')]],
         ]);
 
         $form->handleRequest($request);

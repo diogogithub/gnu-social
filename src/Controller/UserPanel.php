@@ -100,7 +100,7 @@ class UserPanel extends AbstractController
             ['bio',        TextareaType::class,  ['label' => _m('Bio'),       'required' => false, 'help' => _m('Describe yourself and your interests.')]],
             ['location',   TextType::class,      ['label' => _m('Location'),  'required' => false, 'help' => _m('Where you are, like "City, State (or Region), Country".')]],
             ['self_tags',  TextType::class,      ['label' => _m('Self Tags'), 'required' => false, 'help' => _m('Tags for yourself (letters, numbers, -, ., and _), comma- or space-separated.'), 'transformer' => ArrayTransformer::class]],
-            ['save',       SubmitType::class,    ['label' => _m('Save personal info')]],
+            ['save_personal_info',       SubmitType::class,    ['label' => _m('Save personal info')]],
         ];
         $extra_step = function ($data, $extra_args) use ($user) {
             $user->setNickname($data['nickname']);
@@ -124,7 +124,7 @@ class UserPanel extends AbstractController
             FormFields::repeated_password(['required' => false]),
             ['language',       LocaleType::class,      ['label' => _m('Language'),       'required' => false, 'help' => _m('Your preferred language')]],
             ['phone_number',   PhoneNumberType::class, ['label' => _m('Phone number'),   'required' => false, 'help' => _m('Your phone number'),                        'data_class' => null]],
-            ['save',           SubmitType::class,      ['label' => _m('Save account info')]],
+            ['save_account_info',           SubmitType::class,      ['label' => _m('Save account info')]],
         ]);
 
         $form->handleRequest($request);

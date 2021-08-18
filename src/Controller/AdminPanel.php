@@ -64,7 +64,7 @@ class AdminPanel extends Controller
         $form = Form::create([
             ['setting', ChoiceType::class, ['label' => _m('Setting'), 'choices' => $options]],
             ['value',   TextType::class,   ['label' => _m('Value')]],
-            ['save',    SubmitType::class, ['label' => _m('Set site setting')]],
+            ['save_admin',    SubmitType::class, ['label' => _m('Set site setting')]],
         ]);
 
         $form->handleRequest($request);

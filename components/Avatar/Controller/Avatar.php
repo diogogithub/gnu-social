@@ -68,7 +68,7 @@ class Avatar extends Controller
             ['avatar', FileType::class, ['label' => _m('Avatar'), 'help' => _m('You can upload your personal avatar. The maximum file size is 2MB.'), 'multiple' => false, 'required' => false]],
             ['remove', CheckboxType::class, ['label' => _m('Remove avatar'), 'help' => _m('Remove your avatar and use the default one'), 'required' => false, 'value' => false]],
             ['hidden', HiddenType::class, []],
-            ['save', SubmitType::class, ['label' => _m('Submit')]],
+            ['save_avatar', SubmitType::class, ['label' => _m('Submit')]],
         ]);
 
         $form->handleRequest($request);
