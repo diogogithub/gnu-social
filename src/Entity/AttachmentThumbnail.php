@@ -28,9 +28,11 @@ use App\Core\Event;
 use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Log;
+use App\Core\Router\Router;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
+use App\Util\Exception\NotStoredLocallyException;
 use App\Util\Exception\ServerException;
 use DateTimeInterface;
 use Symfony\Component\Mime\MimeTypes;
@@ -130,16 +132,16 @@ class AttachmentThumbnail extends Entity
     // @codeCoverageIgnoreEnd
     // }}} Autocode
 
-    private Attachment $attachment;
+    private ?Attachment $attachment = null;
 
-    public function setAttachment(Attachment $attachment)
+    public function setAttachment(?Attachment $attachment)
     {
         $this->attachment = $attachment;
     }
 
     public function getAttachment()
     {
-        if (isset($this->attachment)) {
+        if (isset($this->attachment) && !is_null($this->attachment)) {
             return $this->attachment;
         } else {
             return $this->attachment = DB::findOneBy('attachment', ['id' => $this->attachment_id]);
@@ -164,8 +166,10 @@ class AttachmentThumbnail extends Entity
         $predicted_height = null;
         try {
             if (is_null($attachment->getWidth()) || is_null($attachment->getHeight())) {
+                // @codeCoverageIgnoreStart
                 // TODO: check if we can generate from an existing thumbnail
                 throw new ClientException(_m('Invalid dimensions requested for thumbnail.'));
+                // @codeCoverageIgnoreEnd
             }
             return Cache::get('thumb-' . $attachment->getId() . "-{$width}x{$height}",
                 function () use ($crop, $attachment, $width, $height, &$predicted_width, &$predicted_height) {
@@ -173,8 +177,8 @@ class AttachmentThumbnail extends Entity
                     return DB::findOneBy('attachment_thumbnail', ['attachment_id' => $attachment->getId(), 'width' => $predicted_width, 'height' => $predicted_height]);
                 });
         } catch (NotFoundException $e) {
-            if (is_null($attachment->getPath())) {
-                throw new NotFoundException('Can\'t generate a thumbnail for this attachment given the requested dimensions');
+            if (!file_exists($attachment->getPath())) {
+                throw new NotStoredLocallyException();
             }
             $thumbnail = self::create(['attachment_id' => $attachment->getId()]);
             $event_map = [];
@@ -189,6 +193,7 @@ class AttachmentThumbnail extends Entity
                     [$attachment->getPath(), &$temp, &$width, &$height, $crop, &$mimetype]
                 )
                 ) {
+                    $thumbnail->setAttachment($attachment);
                     $thumbnail->setWidth($predicted_width);
                     $thumbnail->setHeight($predicted_height);
                     $ext      = '.' . MimeTypes::getDefault()->getExtensions($temp->getMimeType())[0];
@@ -200,11 +205,13 @@ class AttachmentThumbnail extends Entity
                     $temp->move(Common::config('thumbnail', 'dir'), $filename);
                     return $thumbnail;
                 } else {
+                    // @codeCoverageIgnoreStart
                     Log::debug($m = ('Somehow the EncoderPlugin didn\'t handle ' . $attachment->getMimetype()));
-                    throw new ServerException($m);
+                    throw new ServerException(_m($m));
                 }
             } else {
                 throw new ClientException(_m('Can not generate thumbnail for attachment with id={id}', ['id' => $attachment->getId()]));
+                // @codeCoverageIgnoreEnd
             }
         }
     }
@@ -240,7 +247,9 @@ class AttachmentThumbnail extends Entity
         $filepath = $this->getPath();
         if (file_exists($filepath)) {
             if (@unlink($filepath) === false) {
+                // @codeCoverageIgnoreStart
                 Log::warning("Failed deleting file for attachment thumbnail with id={$this->attachment_id}, width={$this->width}, height={$this->height} at {$filepath}");
+                // @codeCoverageIgnoreEnd
             }
         }
         DB::remove($this);
@@ -264,44 +273,25 @@ class AttachmentThumbnail extends Entity
      * @return array [predicted width, predicted height]
      */
     public static function predictScalingValues(
-        int $width,
-        int $height,
-        int $maxW,
-        int $maxH,
+        int $existing_width,
+        int $existing_height,
+        int $requested_width,
+        int $requested_height,
         bool $crop
     ): array {
-        // Cropping data (for original image size). Default values, 0 and null,
-        // imply no cropping and with preserved aspect ratio (per axis).
-        $cx = 0;    // crop x
-        $cy = 0;    // crop y
-        $cw = null; // crop area width
-        $ch = null; // crop area height
-
         if ($crop) {
-            $s_ar = $width / $height;
-            $t_ar = $maxW  / $maxH;
-
-            $rw = $maxW;
-            $rh = $maxH;
-
-            // Source aspect ratio differs from target, recalculate crop points!
-            if ($s_ar > $t_ar) {
-                $cx = floor($width / 2 - $height * $t_ar / 2);
-                $cw = ceil($height * $t_ar);
-            } elseif ($s_ar < $t_ar) {
-                $cy = floor($height / 2 - $width / $t_ar / 2);
-                $ch = ceil($width / $t_ar);
-            }
+            $rw = min($existing_width, $requested_width);
+            $rh = min($existing_height, $requested_height);
         } else {
-            $rw = $maxW;
-            $rh = ceil($height * $rw / $width);
-
-            // Scaling caused too large height, decrease to max accepted value
-            if ($rh > $maxH) {
-                $rh = $maxH;
-                $rw = ceil($width * $rh / $height);
+            if ($existing_width > $existing_height) {
+                $rw = min($existing_width, $requested_width);
+                $rh = ceil($existing_height * $rw / $existing_width);
+            } else {
+                $rh = min($existing_height, $requested_height);
+                $rw = ceil($existing_width * $rh / $existing_height);
             }
         }
+
         return [(int) $rw, (int) $rh];
     }
 
