@@ -154,8 +154,9 @@ class AttachmentThumbnail extends Entity
      * @param int        $height
      * @param bool       $crop
      *
+     * @throws ClientException
+     * @throws NotFoundException
      * @throws ServerException
-     * @throws \App\Util\Exception\TemporaryFileException
      *
      * @return mixed
      */
@@ -180,19 +181,17 @@ class AttachmentThumbnail extends Entity
             if (!file_exists($attachment->getPath())) {
                 throw new NotStoredLocallyException();
             }
-            $thumbnail = self::create(['attachment_id' => $attachment->getId()]);
-            $event_map = [];
-            Event::handle('ResizerAvailable', [&$event_map]);
-            $mimetype   = $attachment->getMimetype();
-            $major_mime = GSFile::mimetypeMajor($mimetype);
-
-            if (in_array($major_mime, array_keys($event_map))) {
+            $thumbnail              = self::create(['attachment_id' => $attachment->getId()]);
+            $mimetype               = $attachment->getMimetype();
+            $event_map[$mimetype]   = [];
+            $major_mime             = GSFile::mimetypeMajor($mimetype);
+            $event_map[$major_mime] = [];
+            Event::handle('FileResizerAvailable', [&$event_map, $mimetype]);
+            // Always prefer specific encoders
+            $encoders = array_merge($event_map[$mimetype], $event_map[$major_mime]);
+            foreach ($encoders as $encoder) {
                 $temp = null; // Let the EncoderPlugin create a temporary file for us
-                if (!Event::handle(
-                    $event_map[$major_mime],
-                    [$attachment->getPath(), &$temp, &$width, &$height, $crop, &$mimetype]
-                )
-                ) {
+                if ($encoder($attachment->getPath(), $temp, $width, $height, $crop, $mimetype)) {
                     $thumbnail->setAttachment($attachment);
                     $thumbnail->setWidth($predicted_width);
                     $thumbnail->setHeight($predicted_height);
@@ -204,15 +203,9 @@ class AttachmentThumbnail extends Entity
                     DB::flush();
                     $temp->move(Common::config('thumbnail', 'dir'), $filename);
                     return $thumbnail;
-                } else {
-                    // @codeCoverageIgnoreStart
-                    Log::debug($m = ('Somehow the EncoderPlugin didn\'t handle ' . $attachment->getMimetype()));
-                    throw new ServerException(_m($m));
                 }
-            } else {
-                throw new ClientException(_m('Can not generate thumbnail for attachment with id={id}', ['id' => $attachment->getId()]));
-                // @codeCoverageIgnoreEnd
             }
+            throw new ClientException(_m('Can not generate thumbnail for attachment with id={id}', ['id' => $attachment->getId()]));
         }
     }
 
@@ -301,7 +294,7 @@ class AttachmentThumbnail extends Entity
             'name'   => 'attachment_thumbnail',
             'fields' => [
                 'attachment_id' => ['type' => 'int', 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'not null' => true, 'description' => 'thumbnail for what attachment'],
-                'mimetype'      => ['type' => 'varchar',   'length' => 50,  'description' => 'mime type of resource'],
+                'mimetype'      => ['type' => 'varchar',   'length' => 129,  'description' => 'resource mime type 64+1+64, images hardly will show up with long mimetypes, this is probably safe considering rfc6838#section-4.2'],
                 'width'         => ['type' => 'int', 'not null' => true, 'description' => 'width of thumbnail'],
                 'height'        => ['type' => 'int', 'not null' => true, 'description' => 'height of thumbnail'],
                 'filename'      => ['type' => 'varchar', 'length' => 191, 'not null' => true, 'description' => 'thumbnail filename'],
