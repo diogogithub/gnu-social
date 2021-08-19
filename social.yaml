@@ -45,14 +45,12 @@ parameters:
     avatar:
       server:
       ssl:
-      dir: "%kernel.project_dir%/file/avatar/"
       default: "/assets/default-avatar.svg"
       max_size_px: 300
 
     cover:
       server:
       ssl:
-      dir: "%kernel.project_dir%/file/cover/"
       max_size_px: 300
 
     javascript:
@@ -123,7 +121,6 @@ parameters:
       width: 128
       height: 128
       smart_crop: false
-      dir: "%kernel.project_dir%/file/embed/"
 
 
     theme:

@@ -35,7 +35,7 @@ class AttachmentThumbnailTest extends GNUsocialTestCase
     {
         parent::bootKernel();
 
-        // Data fixture already loaded this file, but we need to get it's hash to find it
+        // Data fixture already loaded this file, but we need to get its hash to find it
         $file = new \SplFileInfo(INSTALLDIR . '/tests/sample-uploads/attachment-lifecycle-target.jpg');
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
@@ -61,7 +61,7 @@ class AttachmentThumbnailTest extends GNUsocialTestCase
 
         $attachment->deleteStorage();
 
-        // This was deleted earlier, an the backed storage as well, so we can't generate another thumbnail
+        // This was deleted earlier, and the backed storage as well, so we can't generate another thumbnail
         static::assertThrows(NotStoredLocallyException::class, fn () => AttachmentThumbnail::getOrCreate($attachment, width: 4, height: 4, crop: false));
 
         $attachment->kill();

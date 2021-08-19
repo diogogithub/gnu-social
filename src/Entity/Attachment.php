@@ -323,7 +323,7 @@ class Attachment extends Entity
     public function getPath()
     {
         $filename = $this->getFilename();
-        return is_null($filename) ? null : Common::config('attachments', 'dir') . $filename;
+        return is_null($filename) ? null : Common::config('attachments', 'dir') . DIRECTORY_SEPARATOR . $filename;
     }
 
     public function getUrl()

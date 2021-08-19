@@ -211,7 +211,7 @@ class AttachmentThumbnail extends Entity
 
     public function getPath()
     {
-        return Common::config('thumbnail', 'dir') . $this->getFilename();
+        return Common::config('thumbnail', 'dir') . DIRECTORY_SEPARATOR . $this->getFilename();
     }
 
     public function getUrl()

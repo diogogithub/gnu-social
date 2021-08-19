@@ -19,12 +19,10 @@
 
 namespace App\Util\Exception;
 
-use function App\Core\I18n\_m;
-
 class NoSuchFileException extends NotFoundException
 {
-    public function __construct()
+    public function __construct(string $m = 'No such file found.')
     {
-        parent::__construct(_m('No such file found'));
+        parent::__construct($m);
     }
 }

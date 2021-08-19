@@ -54,7 +54,7 @@ class AdminTest extends GNUsocialTestCase
 
     public function testSiteString()
     {
-        $this->test(['attachments', 'dir'], fn () => INSTALLDIR . '/foo');
+        $this->test(['attachments', 'dir'], fn () => Common::config('storage', 'dir') . 'foo' . DIRECTORY_SEPARATOR);
     }
 
     public function testSiteInt()

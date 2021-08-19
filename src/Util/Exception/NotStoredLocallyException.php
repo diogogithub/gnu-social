@@ -25,6 +25,6 @@ class NotStoredLocallyException extends NoSuchFileException
 {
     public function __construct()
     {
-        parent::__construct(_m('This attachment is not stored locally'));
+        parent::__construct(_m('This attachment is not stored locally.'));
     }
 }
