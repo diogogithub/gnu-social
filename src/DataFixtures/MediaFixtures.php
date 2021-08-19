@@ -6,6 +6,7 @@ use App\Core\DB\DB;
 use App\Core\GSFile;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Exception;
 use Functional as F;
 use Symfony\Component\HttpFoundation\File\File;
 
@@ -21,8 +22,8 @@ class MediaFixtures extends Fixture
                   $file = new File($copy_filepath, checkPath: true);
                   try {
                       GSFile::sanitizeAndStoreFileAsAttachment($file);
-                  } catch (\Jcupitt\Vips\Exception $e) {
-                      echo "Could not save file {$copy_filepath}\n";
+                  } catch (Exception $e) {
+                      echo "Could not save file {$copy_filepath}, failed with {$e}\n";
                   }
                   @unlink($copy_filepath);
               });
