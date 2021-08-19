@@ -26,7 +26,6 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use App\Core\GSFile;
-use App\Util\Exception\ClientException;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Entity\Attachment;
@@ -36,6 +35,7 @@ use App\Entity\Link;
 use App\Entity\Note;
 use App\Entity\NoteToLink;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
 use InvalidArgumentException;
@@ -119,7 +119,7 @@ END;
 
         $processed_attachments = [];
         foreach ($attachments as $f) { // where $f is a Symfony\Component\HttpFoundation\File\UploadedFile
-            $filesize = $f->getSize();
+            $filesize      = $f->getSize();
             $max_file_size = Common::config('attachments', 'file_quota');
             if ($max_file_size < $filesize) {
                 throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. ' .
@@ -143,20 +143,22 @@ END;
             DB::flush();
         }
 
-        $matched_urls   = [];
-        $processed_urls = false;
-        preg_match_all(self::URL_REGEX, $content, $matched_urls, PREG_SET_ORDER);
-        foreach ($matched_urls as $match) {
-            try {
-                $link_id = Link::getOrCreate($match[0])->getId();
-                DB::persist(NoteToLink::create(['link_id' => $link_id, 'note_id' => $note->getId()]));
-                $processed_urls = true;
-            } catch (InvalidArgumentException) {
-                continue;
+        if (Common::config('attachments', 'process_links')) {
+            $matched_urls   = [];
+            $processed_urls = false;
+            preg_match_all(self::URL_REGEX, $content, $matched_urls, PREG_SET_ORDER);
+            foreach ($matched_urls as $match) {
+                try {
+                    $link_id = Link::getOrCreate($match[0])->getId();
+                    DB::persist(NoteToLink::create(['link_id' => $link_id, 'note_id' => $note->getId()]));
+                    $processed_urls = true;
+                } catch (InvalidArgumentException) {
+                    continue;
+                }
             }
-        }
-        if ($processed_urls) {
-            DB::flush();
+            if ($processed_urls) {
+                DB::flush();
+            }
         }
     }
 
