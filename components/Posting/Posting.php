@@ -26,6 +26,7 @@ use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
 use App\Core\GSFile;
+use App\Util\Exception\ClientException;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Entity\Attachment;
@@ -119,7 +120,12 @@ END;
         $processed_attachments = [];
         foreach ($attachments as $f) { // where $f is a Symfony\Component\HttpFoundation\File\UploadedFile
             $filesize = $f->getSize();
-            Event::handle('EnforceQuota', [$actor_id, $filesize]);
+            $max_file_size = Common::config('attachments', 'file_quota');
+            if ($max_file_size < $filesize) {
+                throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. ' .
+                    'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize]));
+            }
+            Event::handle('EnforceUserFileQuota', [$filesize, $actor_id]);
             $processed_attachments[] = [GSFile::sanitizeAndStoreFileAsAttachment($f), $f->getClientOriginalName()];
         }
 
