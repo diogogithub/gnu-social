@@ -64,6 +64,12 @@
     font-family: var(--main-font);
     padding-left: var(--unit-size);
 }
+#stats {
+    display: flex;
+    flex-direction: column;
+    font-size: var(--medium-size);
+    font-weight: bold;
+}
 
 /* TIMELINE NAVIGATION / PLUGINS */
 .timeline-nav a,

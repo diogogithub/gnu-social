@@ -1,25 +1,27 @@
-<div class="h-entry hentry note">
-    <div class="note-info">
+<article class="h-entry hentry note">
+    <div class="note-info" role="complementary">
         {% set nickname = note.getActorNickname() %}
 
         {# TODO: this should link to the note's user profile? #}
-        <a class="u-url" href="#">
+        <header class="note-author u-url" href="#" >
             {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
-            <img class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
-            <b class="p-nickname">{{ nickname }}</b>
-        </a>
+            <img class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar" aria-hidden="true">
+            <label aria-roledescription={{ 'This note author nickname.' | trans }}>
+                {{ nickname }}
+            </label>
+        </header>
 
         {% set reply_to = note.getReplyToNickname() %}
         {% if reply_to is not null and not skip_reply_to is defined %}
             {% trans with {'%name%': reply_to} %} in reply to %name% {% endtrans %}
         {% endif %}
 
-        <div class="note-actions">
+        <div class="note-actions" aria-roledescription={{ 'Favourite, reply and recycle this note' | trans }}>
             {% if have_user %}
                 {% for current_action in get_note_actions(note) %}
                     {{ form_start(current_action) }}
                         {% if current_action.submit_fav is defined %}
-                            <span title="Favourite this note." class="favourite-button-container">
+                            <span title="Favourite this note." class="favourite-button-container" aria-atomic="true">
                                 {{ form_widget(current_action.submit_fav) }}
                             </span>
                         {% endif %}
@@ -27,9 +29,8 @@
                 {% endfor %}
             {% endif %}
         </div>
-
     </div>
-    <div class="e-content entry-content note-content">
+    <div class="e-content entry-content note-content" aria-roledescription="">
         {% block markdown %}
             {% apply markdown_to_html %}
                 {{ note.getContent() }}
@@ -63,6 +64,6 @@
             {% endfor %}
         </div>
     {% endif %}
-</div>
+</article>
 
 <hr>

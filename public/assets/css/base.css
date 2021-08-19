@@ -184,7 +184,12 @@
     font-size: var(--medium-size);
     padding: 4px;
 }
-.note-info a {
+
+.note-author {
+    font-family: var(--display-font);
+    font-size: var(--medium-size);
+    font-weight: bold;
+    display: flex;
     align-items: center;
     align-self: center;
 }
@@ -193,6 +198,7 @@
     width: auto;
     height: var(--medium-size);
     border-radius: var(--unit-size);
+    margin-right: 4px;
 }
 
 /* TODO: icons */
@@ -266,8 +272,9 @@
     /* no need to make the panels disappear at this size */
     .icon-left,
     .icon-right {
-        display: none;
+        visibility: hidden;
     }
+
 }
 @media (max-width: 1200px) {
     /* content should occupy the entire width at this size */
@@ -406,7 +413,7 @@
 
 /* BUTTONS AND INPUT SHENANIGANS */
 button,
-input:not([type=radio]):not([type=checkbox]):not([type=text]) {
+input:not([type=radio]):not([type=checkbox]):not([type=text]):not([type=password]) {
     font-size: var(--small-size) !important;
     background-image: linear-gradient(180deg, var(--bg2), transparent) !important;
     color: var(--white) !important;
@@ -415,8 +422,17 @@ input:not([type=radio]):not([type=checkbox]):not([type=text]) {
 }
 
 textarea,
-input[type=text] {
+input[type=text],
+input[type=password] {
     font-size: inherit !important;
+    display: inline-block;
+    position: relative;
+    color: var(--white);
+    border-radius: var(--unit-size);
+    padding: var(--unit-size);
+    box-sizing: border-box;
+    border: 2px solid var(--bg2);
+    background-color: var(--translucent);
 }
 
 textarea:hover,
@@ -428,8 +444,8 @@ input[type=radio] {
     border: solid 0.25em var(--bg2) !important;
     background-color: var(--bg1) !important;
 }
-input[type=radio]:hover,
-input[type=radio]:focus {
+input:hover,
+input:focus {
     border-color: var(--bg3) !important;
 }
 input[type=radio]:checked {
@@ -439,8 +455,11 @@ input[type=radio]:checked {
 input[type=checkbox] {
     background-color: var(--bg2) !important;
     background-size: cover;
-    mask-image: url("../icons/check-off.svg") !important;
 
+    -webkit-mask-image: url("../icons/check-off.svg") !important;
+    -o-mask-image: url("../icons/check-off.svg") !important;
+    -moz-mask-image: url("../icons/check-off.svg") !important;
+    mask-image: url("../icons/check-off.svg") !important;
 }
 input[type=checkbox]:hover,
 input[type=checkbox]:focus {
@@ -448,6 +467,9 @@ input[type=checkbox]:focus {
 }
 input[type=checkbox]:checked {
     background-color: var(--bg3) !important;
+    -webkit-mask-image: url("../icons/check-on.svg") !important;
+    -o-mask-image: url("../icons/check-on.svg") !important;
+    -moz-mask-image: url("../icons/check-on.svg") !important;
     mask-image: url("../icons/check-on.svg") !important;
 }
 

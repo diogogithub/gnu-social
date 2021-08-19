@@ -1,8 +1,8 @@
-<aside id='left-panel' tabindex="-1">
+<aside id='left-panel' tabindex="-1" role="feed" aria-label={{ 'Left page panel.' | trans }}>
     <nav class='profile-nav'>
 
         {% if app.user %}
-            <section class='profile'>
+            <section class='profile' role="complementary">
                 <div id="profile-links">
                     <a id="user-avatar" href="{{ path('settings') }}">
                         <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
@@ -24,17 +24,17 @@
                     </span>
                 </div>
 
-                <span id="stats">
-                    <h2>{{ 'Followers' | trans }} {{ user_followers }}</h2>
-                    <h2>{{ 'Followed' | trans }} {{ user_followed }}</h2>
-                </span>
+                <section id="stats">
+                    <label>{{ 'Followers' | trans }} {{ user_followers }}</label>
+                    <label>{{ 'Followed' | trans }} {{ user_followed }}</label>
+                </section>
 
                 {# {% for extra in profile_extras %}
                     {% include '/'~ extra.name ~ '/view.html.twig' with {'vars': extra.vars} only %}
                 {% endfor %} #}
             </section>
 
-            <nav>
+            <nav role="navigation">
                 <a href='#'>Messages</a>
                 <a href="{{ path("replies", {'nickname' : user_nickname}) }}"
                    class='hover-effect {{ active("replies") }}'>Replies</a>
@@ -53,11 +53,11 @@
             </nav>
         {% endif %}
 
-        <div class="timeline-nav">
+        <div class="timeline-nav" role="menu">
             <nav>
-                <h1>Timeline</h1>
+                <h1 role="tab">Timeline</h1>
 
-                <nav class='sec-nav'>
+                <nav class='sec-nav' role="navigation">
                     <a href="{{ path('main_public') }}"
                        class='{{ active('main_public') }}'>Public</a>
 
@@ -81,7 +81,7 @@
 
     </nav>
 
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
         <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
         <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>

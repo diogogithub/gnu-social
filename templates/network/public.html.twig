@@ -1,6 +1,6 @@
 {% extends 'stdgrid.html.twig' %}
 
-{% block title %}Welcome!{% endblock %}
+{% block title %}{{ 'Welcome! - Public Timeline' | trans }}{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -8,10 +8,9 @@
 {% endblock %}
 
 {% block body %}
-
     {# Backwards compatibility with hAtom 0.1 #}
-    <div class="timeline" tabindex="0">
-        <main class="h-feed hfeed notes">
+    <main class="timeline" tabindex="0" role="main" aria-label={{ 'Main public timeline feed.' | trans }}>
+        <div class="h-feed hfeed notes" role="feed">
             {% if notes is defined and notes is not empty %}
                 {% for conversation in notes %}
                     {% include '/note/view.html.twig' with {'note': conversation['note'], 'have_user': have_user, 'replies': conversation['replies']} only %}
@@ -19,8 +18,8 @@
             {% else %}
                 <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
             {% endif %}
-        </main>
-    </div>
+        </div>
+    </main>
 
 {% endblock body %}
 

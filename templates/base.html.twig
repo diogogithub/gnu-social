@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html xml:lang="en" lang="en">
 <head>
     {% block meta %}
         <meta charset="UTF-8">
@@ -30,26 +30,26 @@
 
 <body class="bg">
     {% block header %}
-        <div id='header'>
-            <details class="panel" id="left-container">
-                <summary tabindex="0" aria-haspopup="true" role="button" aria-expanded="false">
+        <header id='header' role="banner">
+            <details class="panel" id="left-container" role="group" aria-hidden="true">
+                <summary tabindex="0">
                     {{ icon('menu', 'icon icon-left') | raw }}
                     {{ block("leftpanel", "stdgrid.html.twig") }}
                 </summary>
             </details>
 
             <a id='instance' href="{{ path('main_public') }}" tabindex="0">
-                {{ icon('logo', 'icon icon-logo') | raw }}
+                <div aria-hidden="true">{{ icon('logo', 'icon icon-logo') | raw }}</div>
                 <h1> {{ config('site', 'name') }} </h1>
             </a>
 
-            <details class="panel" id="right-container">
-                <summary tabindex="0" aria-haspopup="true" role="button" aria-expanded="false">
+            <details class="panel" id="right-container" role="group" aria-hidden="true">
+                <summary tabindex="0">
                     {{ icon('notes', 'icon icon-right') | raw }}
                     {{ block("rightpanel", "stdgrid.html.twig") }}
                 </summary>
             </details>
-        </div>
+        </header>
     {% endblock header %}
 
     <div class="container">
