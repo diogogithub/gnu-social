@@ -4,11 +4,11 @@ namespace App\DataFixtures;
 
 use App\Core\DB\DB;
 use App\Core\GSFile;
+use App\Util\TemporaryFile;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use Exception;
 use Functional as F;
-use Symfony\Component\HttpFoundation\File\File;
 
 class MediaFixtures extends Fixture
 {
@@ -17,15 +17,15 @@ class MediaFixtures extends Fixture
         DB::setManager($manager);
         F\map(glob(INSTALLDIR . '/tests/sample-uploads/*'),
               function (string $filepath) {
-                  $copy_filepath = str_replace('.', '.copy.', $filepath);
-                  copy($filepath, $copy_filepath);
-                  $file = new File($copy_filepath, checkPath: true);
+                  $file = new TemporaryFile();
+                  $file->write(file_get_contents($filepath));
                   try {
                       GSFile::sanitizeAndStoreFileAsAttachment($file);
                   } catch (Exception $e) {
-                      echo "Could not save file {$copy_filepath}, failed with {$e}\n";
+                      echo "Could not save file {$filepath}, failed with {$e}\n";
+                  } finally {
+                      unset($file);
                   }
-                  @unlink($copy_filepath);
               });
         $manager->flush();
     }
