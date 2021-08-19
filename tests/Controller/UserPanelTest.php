@@ -43,12 +43,12 @@ class UserPanelTest extends GNUsocialTestCase
         $client->request('GET', '/settings');
         $this->assertResponseIsSuccessful();
         $crawler = $client->submitForm('Save personal info', [
-            'save[nickname]'  => 'form_test_user_new_nickname',
-            'save[full_name]' => 'Form User',
-            'save[homepage]'  => 'https://gnu.org',
-            'save[bio]'       => 'I was born at a very young age',
-            'save[location]'  => 'right here',
-            'save[self_tags]' => 'foo bar',
+            'save_personal_info[nickname]'  => 'form_test_user_new_nickname',
+            'save_personal_info[full_name]' => 'Form User',
+            'save_personal_info[homepage]'  => 'https://gnu.org',
+            'save_personal_info[bio]'       => 'I was born at a very young age',
+            'save_personal_info[location]'  => 'right here',
+            'save_personal_info[self_tags]' => 'foo bar',
         ]);
         $changed_user = DB::findOneBy('local_user', ['id' => $user->getId()]);
         $actor        = $changed_user->getActor();
@@ -76,13 +76,13 @@ class UserPanelTest extends GNUsocialTestCase
         $client->request('GET', '/settings');
         $this->assertResponseIsSuccessful();
         $crawler = $client->submitForm('Save account info', [
-            'save[outgoing_email]'   => 'outgoing@provider',
-            'save[incoming_email]'   => 'incoming@provider',
-            'save[old_password]'     => 'some password',
-            'save[password][first]'  => 'this is some test password',
-            'save[password][second]' => 'this is some test password',
-            'save[language]'         => 'pt',
-            'save[phone_number]'     => '+351908555842', // from fakenumber.net
+            'save_account_info[outgoing_email]'   => 'outgoing@provider',
+            'save_account_info[incoming_email]'   => 'incoming@provider',
+            'save_account_info[old_password]'     => 'some password',
+            'save_account_info[password][first]'  => 'this is some test password',
+            'save_account_info[password][second]' => 'this is some test password',
+            'save_account_info[language]'         => 'pt',
+            'save_account_info[phone_number]'     => '+351908555842', // from fakenumber.net
         ]);
 
         $changed_user = DB::findOneBy('local_user', ['id' => $user->getId()]);
@@ -106,9 +106,9 @@ class UserPanelTest extends GNUsocialTestCase
         $client->request('GET', '/settings');
         $this->assertResponseIsSuccessful();
         $crawler = $client->submitForm('Save account info', [
-            'save[old_password]'     => 'some wrong password',
-            'save[password][first]'  => 'this is some test password',
-            'save[password][second]' => 'this is some test password',
+            'save_account_info[old_password]'     => 'some wrong password',
+            'save_account_info[password][first]'  => 'this is some test password',
+            'save_account_info[password][second]' => 'this is some test password',
         ]);
         $this->assertResponseStatusCodeSame(500); // 401 in future
         $this->assertSelectorTextContains('.stacktrace', 'AuthenticationException');

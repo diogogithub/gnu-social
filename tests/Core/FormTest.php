@@ -39,11 +39,11 @@ class FormTest extends GNUsocialTestCase
         $form = Form::create($form_array = [
             ['content',     TextareaType::class, ['label' => ' ', 'data' => '', 'attr' => ['placeholder' => 'placeholder']]],
             ['array_trans', TextareaType::class, ['data' => ['foo', 'bar'], 'transformer' => ArrayTransformer::class]],
-            ['post',        SubmitType::class,   ['label' => 'Post']],
+            ['testpost',        SubmitType::class,   ['label' => 'Post']],
         ]);
         static::assertSame(get_class($form), 'Symfony\\Component\\Form\\Form');
         foreach ($form as $name => $f) {
-            if ($name == 'post') {
+            if ($name == 'testpost') {
                 static::assertSame(get_class($f), 'Symfony\Component\Form\SubmitButton');
             } else {
                 static::assertSame(get_class($f), 'Symfony\Component\Form\Form');
@@ -84,7 +84,7 @@ class FormTest extends GNUsocialTestCase
         $form = Form::create([
             ['nickname',            TextareaType::class, []],
             ['normalized_nickname', TextareaType::class, []],
-            ['post',                SubmitType::class,   []],
+            ['testpost',                SubmitType::class,   []],
         ], target: $user);
         $options = $form['nickname']->getConfig()->getOptions();
         static::assertSame($nick, $options['data']);

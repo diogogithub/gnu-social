@@ -38,15 +38,15 @@ class AdminTest extends GNUsocialTestCase
         $value = $get_value();
         $client->request('GET', '/panel');
         $crawler = $client->submitForm('Set site setting', [
-            'save[setting]' => implode(':', $setting),
+            'save_admin[setting]' => implode(':', $setting),
             // False gets converted to "", which HTTP doesn't send, so we get null on the other side
-            'save[value]' => $value == false ? 'fAlse' : Formatting::toString($value),
+            'save_admin[value]' => $value == false ? 'false' : Formatting::toString($value),
         ]);
         static::assertSame($value, Common::config(...$setting));
         // $client->request('GET', '/panel');
         $crawler = $client->submitForm('Set site setting', [
-            'save[setting]' => implode(':', $setting),
-            'save[value]'   => Formatting::toString($old),
+            'save_admin[setting]' => implode(':', $setting),
+            'save_admin[value]'   => Formatting::toString($old),
         ]);
         static::assertSame($old, Common::config(...$setting));
         rename(INSTALLDIR . '/social.local.yaml.back', INSTALLDIR . '/social.local.yaml');
@@ -83,8 +83,8 @@ class AdminTest extends GNUsocialTestCase
         $client->request('GET', '/panel');
         $this->assertThrows(\InvalidArgumentException::class,
                             fn () => $client->submitForm('Set site setting', [
-                                'save[setting]' => 'invalid:section',
-                                'save[value]'   => 'false',
+                                'save_admin[setting]' => 'invalid:section',
+                                'save_admin[value]'   => 'false',
                             ]));
     }
 }
