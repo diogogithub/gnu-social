@@ -19,7 +19,7 @@
 
 // }}}
 
-namespace App\Tests\Core;
+namespace App\Tests\Controller;
 
 use App\Util\GNUsocialTestCase;
 
