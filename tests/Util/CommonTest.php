@@ -159,14 +159,16 @@ class CommonTest extends GNUsocialTestCase
 
     public function testGetPreferredPhpUploadLimit()
     {
-        $post_max_size       = ini_set('post_max_size', 1);
-        $upload_max_filesize = ini_set('upload_max_filesize', 1);
-        $memory_limit        = ini_set('memory_limit', 1);
+        // These limits can only be set in the config files
+        // $post_max_size       = ini_set('post_max_size', Common::sizeStrToInt('6M'));
+        // $upload_max_filesize = ini_set('upload_max_filesize', Common::sizeStrToInt('1M'));
+        $memory_limit = ini_set('memory_limit', Common::sizeStrToInt('128M'));
 
-        static::assertSame(1, Common::getPreferredPhpUploadLimit());
+        // 2M is the default for upload_max_filesize, the lowest considered
+        static::assertSame(Common::sizeStrToInt('2M'), Common::getPreferredPhpUploadLimit());
 
-        ini_set('post_max_size', $post_max_size);
-        ini_set('upload_max_filesize', $upload_max_filesize);
+        // ini_set('post_max_size', $post_max_size);
+        // ini_set('upload_max_filesize', $upload_max_filesize);
         ini_set('memory_limit', $memory_limit);
     }
 
