@@ -24,8 +24,10 @@ namespace App\Tests\Core;
 use App\Core\DB\DB;
 use App\Core\Form;
 use App\Entity\GSActor;
+use App\Util\Exception\ServerException;
 use App\Util\Form\ArrayTransformer;
 use App\Util\GNUsocialTestCase;
+use Jchook\AssertThrows\AssertThrows;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Form as SymfForm;
@@ -33,13 +35,15 @@ use Symfony\Component\HttpFoundation\Request;
 
 class FormTest extends GNUsocialTestCase
 {
+    use AssertThrows;
+
     public function testCreate()
     {
         parent::bootKernel();
         $form = Form::create($form_array = [
             ['content',     TextareaType::class, ['label' => ' ', 'data' => '', 'attr' => ['placeholder' => 'placeholder']]],
             ['array_trans', TextareaType::class, ['data' => ['foo', 'bar'], 'transformer' => ArrayTransformer::class]],
-            ['testpost',        SubmitType::class,   ['label' => 'Post']],
+            ['testpost',    SubmitType::class,   ['label' => 'Post']],
         ]);
         static::assertSame(get_class($form), 'Symfony\\Component\\Form\\Form');
         foreach ($form as $name => $f) {
@@ -72,6 +76,15 @@ class FormTest extends GNUsocialTestCase
             static::assertSame(get_class($f->getParent()), 'Symfony\\Component\\Form\\Form');
         }
         static::assertTrue(Form::isRequired($form_array, 'content'));
+    }
+
+    /**
+     * Using 'save' or 'submit' as a form name is not allowed, becuase then they're likely to
+     * collide with other forms in the same page
+     */
+    public function testDisallowedGenericFormName()
+    {
+        static::assertThrows(ServerException::class, fn () => Form::create([['save', SubmitType::class, []]]));
     }
 
     /**

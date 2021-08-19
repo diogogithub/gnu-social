@@ -20,12 +20,14 @@
 namespace App\Tests\Entity;
 
 use App\Core\DB\DB;
+use App\Core\Event;
 use App\Core\GSFile;
 use App\Entity\AttachmentToNote;
 use App\Entity\Note;
 use App\Util\GNUsocialTestCase;
 use App\Util\TemporaryFile;
 use Jchook\AssertThrows\AssertThrows;
+use Symfony\Component\HttpFoundation\File\File;
 
 class AttachmentTest extends GNUsocialTestCase
 {
@@ -69,6 +71,26 @@ class AttachmentTest extends GNUsocialTestCase
         static::assertSame([], DB::findBy('attachment', ['filehash' => $hash]));
     }
 
+    public function testSanitizeAndStoreFileAsAttachment()
+    {
+        $test = function (string $method) {
+            $temp_file = new TemporaryFile();
+            $temp_file->write(file_get_contents(INSTALLDIR . '/tests/sample-uploads/gnu-logo.png'));
+            Event::handle('HashFile', [$temp_file->getPathname(), &$hash]);
+            $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
+            $attachment->{$method}();
+            DB::flush();
+
+            $file = new File($temp_file->getRealPath());
+            GSFile::sanitizeAndStoreFileAsAttachment($file);
+            static::assertNotNull($attachment->getFilename());
+            static::assertTrue(file_exists($attachment->getPath()));
+        };
+
+        $test('deleteStorage');
+        $test('kill');
+    }
+
     public function testGetBestTitle()
     {
         $attachment = DB::findBy('attachment', ['mimetype' => 'image/png'], limit: 1)[0];
@@ -91,5 +113,21 @@ class AttachmentTest extends GNUsocialTestCase
         $attachment = DB::findBy('attachment', ['mimetype' => 'image/png'], limit: 1)[0];
         $id         = $attachment->getId();
         static::assertSame("/attachment/{$id}/view", $attachment->getUrl());
+    }
+
+    public function testMimetype()
+    {
+        $file = new \SplFileInfo(INSTALLDIR . '/tests/sample-uploads/image.jpg');
+        Event::handle('HashFile', [$file->getPathname(), &$hash]);
+        $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
+
+        static::assertSame('image', $attachment->getMimetypeMajor());
+        static::assertSame('jpeg', $attachment->getMimetypeMinor());
+
+        $mimetype = $attachment->getMimetype();
+        $attachment->setMimetype(null);
+        static::assertNull($attachment->getMimetypeMajor());
+        static::assertNull($attachment->getMimetypeMinor());
+        $attachment->setMimetype($mimetype);
     }
 }

@@ -22,6 +22,7 @@ namespace App\Tests\Entity;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Entity\AttachmentThumbnail;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\NotStoredLocallyException;
 use App\Util\GNUsocialTestCase;
 use Functional as F;
@@ -65,6 +66,17 @@ class AttachmentThumbnailTest extends GNUsocialTestCase
         static::assertThrows(NotStoredLocallyException::class, fn () => AttachmentThumbnail::getOrCreate($attachment, width: 4, height: 4, crop: false));
 
         $attachment->kill();
+    }
+
+    public function testInvalidThumbnail()
+    {
+        parent::bootKernel();
+
+        $file = new \SplFileInfo(INSTALLDIR . '/tests/sample-uploads/spreadsheet.ods');
+        Event::handle('HashFile', [$file->getPathname(), &$hash]);
+        $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
+
+        static::assertThrows(ClientException::class, fn () => AttachmentThumbnail::getOrCreate($attachment, width: 1, height: 1, crop: false));
     }
 
     public function testPredictScalingValues()
