@@ -51,7 +51,7 @@
 
 #user-avatar:hover img,
 #user-avatar:focus img {
-    border-radius: var(--unit-size) !important;
+    border-radius: 50% !important;
     box-shadow: var(--shadow-light) !important;
 }
 

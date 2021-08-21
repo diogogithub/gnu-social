@@ -28,32 +28,34 @@
     {% endfor %}
 </head>
 
-<body class="bg">
+<body class="bg" aria-atomic="true">
     {% block header %}
         <header id='header' role="banner">
-            <details class="panel" id="left-container" role="group" aria-hidden="true">
-                <summary tabindex="0">
+            <details class="panel" id="left-container" aria-live="polite">
+                <summary tabindex="0" aria-roledescription="Left Panel. Expand to login, register or navigate this instance.">
                     {{ icon('menu', 'icon icon-left') | raw }}
-                    {{ block("leftpanel", "stdgrid.html.twig") }}
                 </summary>
+                {{ block("leftpanel", "stdgrid.html.twig") }}
             </details>
 
-            <a id='instance' href="{{ path('main_public') }}" tabindex="0">
+            <a id='instance' href="{{ path('main_public') }}" tabindex="0" aria-roledescription="This instance name.">
                 <div aria-hidden="true">{{ icon('logo', 'icon icon-logo') | raw }}</div>
                 <h1> {{ config('site', 'name') }} </h1>
             </a>
 
-            <details class="panel" id="right-container" role="group" aria-hidden="true">
-                <summary tabindex="0">
+            {% if app.user %}
+            <details class="panel" id="right-container" aria-live="polite">
+                <summary tabindex="0" aria-roledescription="Right Panel. Expand to create a new note.">
                     {{ icon('notes', 'icon icon-right') | raw }}
-                    {{ block("rightpanel", "stdgrid.html.twig") }}
                 </summary>
+                {{ block("rightpanel", "stdgrid.html.twig") }}
             </details>
+            {% endif %}
         </header>
     {% endblock header %}
 
     <div class="container">
-        <div class='content'>
+        <div class='content' aria-roledescription="Main content.">
             {% block nav %}{% endblock %}
             {% block body %}{% endblock %}
             {% block javascripts %}{% endblock javascripts %}

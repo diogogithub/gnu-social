@@ -16,12 +16,13 @@
             {% trans with {'%name%': reply_to} %} in reply to %name% {% endtrans %}
         {% endif %}
 
+        {% if app.user %}
         <div class="note-actions" aria-roledescription={{ 'Favourite, reply and recycle this note' | trans }}>
             {% if have_user %}
                 {% for current_action in get_note_actions(note) %}
                     {{ form_start(current_action) }}
                         {% if current_action.submit_fav is defined %}
-                            <span title="Favourite this note." class="favourite-button-container" aria-atomic="true">
+                            <span title="Favourite this note." class="favourite-button-container">
                                 {{ form_widget(current_action.submit_fav) }}
                             </span>
                         {% endif %}
@@ -29,8 +30,9 @@
                 {% endfor %}
             {% endif %}
         </div>
+        {% endif %}
     </div>
-    <div class="e-content entry-content note-content" aria-roledescription="">
+    <div class="e-content entry-content note-content" aria-roledescription={{ 'This note content.' | trans }}>
         {% block markdown %}
             {% apply markdown_to_html %}
                 {{ note.getContent() }}
