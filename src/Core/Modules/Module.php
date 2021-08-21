@@ -42,9 +42,9 @@ abstract class Module
         }
     }
 
-    public function name(): string
+    public static function name()
     {
-        return Formatting::camelCaseToSnakeCase(explode('\\', static::class)[2]);
+        return mb_strtolower(explode('\\', static::class)[2]);
     }
 
     /**

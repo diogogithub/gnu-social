@@ -179,7 +179,7 @@ class GNUsocial implements EventSubscriberInterface
 
             DB::initTableMap();
 
-            // Events are proloaded on compilation, but set at runtime
+            // Events are preloaded on compilation, but set at runtime, along with configuration
             $this->module_manager->loadModules();
 
             $this->initialized = true;
