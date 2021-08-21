@@ -224,6 +224,10 @@ class GNUsocial implements EventSubscriberInterface
 
     /**
      * Load configuration files
+     *
+     * Happens at "compile time"
+     *
+     * @codeCoverageIgnore
      */
     public static function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
     {
@@ -241,8 +245,27 @@ class GNUsocial implements EventSubscriberInterface
         $loader->load(INSTALLDIR . '/social' . Kernel::CONFIG_EXTS, 'glob');
         $container->setParameter('gnusocial_defaults', $container->getParameter('gnusocial'));
 
-        $configs = array_replace_recursive($container->getParameter('gnusocial'), $locals['gnusocial']);
-        $container->setParameter('gnusocial', $configs);
+        // Load module config
+        $parameters = ModuleManager::configureContainer($container, $loader);
+
+        // Merge parameter $from with values already set in $to
+        $merge_config = function ($from, $to = null) use ($container, $locals) {
+            $to      = $to ?? $from;
+            $wrapper = $container->hasParameter($to) ? $container->getParameter($to) : [];
+            $content = [$from => $container->getParameter($from)];
+            $container->getParameterBag()->remove($from);
+            $locals  = isset($locals[$from]) ? [$from => $locals[$from]] : [];
+            $configs = array_replace_recursive($wrapper, $content, $locals);
+            $container->setParameter($to, $configs);
+        };
+
+        // Override and merge any of the previous settings from the locals
+        if (is_array($locals)) {
+            $merge_config('gnusocial');
+            foreach ($parameters as $mod => $type) {
+                $merge_config($mod, $type);
+            }
+        }
     }
 
     /**

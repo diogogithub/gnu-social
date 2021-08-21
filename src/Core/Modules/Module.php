@@ -27,16 +27,23 @@ use App\Util\Common;
 abstract class Module
 {
     /**
-     * TODO Handle configuration
-     *
-     * @codeCoverageIgnore
+     * Load values from the config and set them as properties on each module object
      */
-    public function __construct()
+    public function loadConfig()
     {
         // Load Module settings
-        foreach (Common::config(static::class) as $aname => $avalue) {
-            $this->{$aname} = $avalue;
+        foreach (Common::config(static::MODULE_TYPE . 's') as $module => $values) {
+            if ($module == $this->name()) {
+                foreach ($values as $property => $value) {
+                    $this->{$property} = $value;
+                }
+            }
         }
+    }
+
+    public static function name()
+    {
+        return mb_strtolower(explode('\\', static::class)[2]);
     }
 
     /**

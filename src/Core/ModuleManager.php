@@ -33,12 +33,14 @@
 
 namespace App\Core;
 
+use App\Kernel;
 use App\Util\Formatting;
 use AppendIterator;
 use FilesystemIterator;
 use Functional as F;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -166,10 +168,47 @@ class ModuleManager
 
         $obj = require CACHE_FILE;
 
+        foreach ($obj->modules as $module) {
+            $module->loadConfig();
+        }
+
         foreach ($obj->events as $event => $callables) {
             foreach ($callables as $callable) {
                 Event::addHandler($event, $callable);
             }
         }
+    }
+
+    /**
+     * Load Module settings and setup Twig template load paths
+     *
+     * Happens at "compile time"
+     *
+     * @codeCoverageIgnore
+     */
+    public static function configureContainer(ContainerBuilder $container, LoaderInterface $loader): array
+    {
+        $template_modules = array_merge(glob(INSTALLDIR . '/components/*/templates'), glob(INSTALLDIR . '/plugins/*/templates'));
+        // Regular template location
+        $templates = ['%kernel.project_dir%/templates' => 'default_path', '%kernel.project_dir%/public' => 'public_path'];
+        // Path => alias
+        foreach ($template_modules as $mod) {
+            $templates[$mod] = null;
+        }
+        $container->loadFromExtension('twig', ['paths' => $templates]);
+
+        $modules    = array_merge(glob(INSTALLDIR . '/components/*'), glob(INSTALLDIR . '/plugins/*'));
+        $parameters = [];
+        foreach ($modules as $mod) {
+            $path = "{$mod}/config" . Kernel::CONFIG_EXTS;
+            $loader->load($path, 'glob'); // Is supposed to, but doesn't return anything that would let us identify if loading worked
+            foreach (explode(',', substr(Kernel::CONFIG_EXTS, 2, -1)) as $ext) {
+                if (file_exists("{$mod}/config.{$ext}")) {
+                    $parameters[basename(strtolower($mod))] = basename(dirname(strtolower($mod)));
+                    break;
+                }
+            }
+        }
+        return $parameters;
     }
 }

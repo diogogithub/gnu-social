@@ -11,15 +11,7 @@ use App\Core\Event;
  */
 abstract class Plugin extends Module
 {
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    public function name()
-    {
-        return mb_substr(static::class, 0, -6);
-    }
+    const MODULE_TYPE = 'plugin';
 
     public function version()
     {
