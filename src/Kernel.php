@@ -30,6 +30,7 @@
 
 namespace App;
 
+use App\Core\GNUsocial;
 use App\DependencyInjection\Compiler\ModuleManagerPass;
 use App\DependencyInjection\Compiler\SchemaDefDriver;
 use const PHP_VERSION_ID;
@@ -44,7 +45,7 @@ class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
-    private const CONFIG_EXTS = '.{php,xml,yaml,yml}';
+    public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
     public function __construct(string $environment, bool $debug)
     {
@@ -112,26 +113,7 @@ class Kernel extends BaseKernel
         $loader->load($confDir . '/{services}' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services}_' . $this->environment . self::CONFIG_EXTS, 'glob');
 
-        $module_templates = array_merge(glob(INSTALLDIR . '/components/*/templates'), glob(INSTALLDIR . '/plugins/*/templates'));
-        $templates        = ['%kernel.project_dir%/templates' => 'default_path', '%kernel.project_dir%/public' => 'public_path'];
-        foreach ($module_templates as $t) {
-            $templates[$t] = null;
-        }
-        $container->loadFromExtension('twig', ['paths' => $templates]);
-
-        // Overriding doesn't work as we want, overrides the top-most key, do it manually
-        $local_file = INSTALLDIR . '/social.local.yaml';
-        if (!file_exists($local_file)) {
-            file_put_contents($local_file, "parameters:\n  gnusocial:\n");
-        }
-        $loader->load($local_file);
-        $locals = $container->getParameter('gnusocial');
-        $loader->load(INSTALLDIR . '/social' . self::CONFIG_EXTS, 'glob');
-        $container->setParameter('gnusocial_defaults', $defaults = $container->getParameter('gnusocial'));
-        if (is_array($locals)) {
-            $configs = array_replace_recursive($defaults, $locals);
-            $container->setParameter('gnusocial', $configs);
-        }
+        GNUsocial::configureContainer($container, $loader);
     }
 
     /**

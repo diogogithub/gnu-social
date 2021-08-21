@@ -46,6 +46,7 @@ use App\Core\DB\DB;
 use App\Core\I18n\I18n;
 use App\Core\Queue\Queue;
 use App\Core\Router\Router;
+use App\Kernel;
 use App\Security\EmailVerifier;
 use App\Util\Common;
 use App\Util\Exception\ConfigurationException;
@@ -53,7 +54,9 @@ use App\Util\Formatting;
 use Doctrine\ORM\EntityManagerInterface;
 use HtmlSanitizer\SanitizerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Console\Event\ConsoleCommandEvent;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -217,6 +220,29 @@ class GNUsocial implements EventSubscriberInterface
     {
         $this->initialize();
         return $event;
+    }
+
+    /**
+     * Load configuration files
+     */
+    public static function configureContainer(ContainerBuilder $container, LoaderInterface $loader): void
+    {
+        // Overriding doesn't work as we want, overrides the top-most key, do it manually
+        $local_file = INSTALLDIR . '/social.local.yaml';
+        if (!file_exists($local_file)) {
+            file_put_contents($local_file, "parameters:\n  locals:\n  gnusocial:\n");
+        }
+
+        // Load .local
+        $loader->load($local_file);
+        $locals = $container->getParameter('locals');
+
+        // Load normal config
+        $loader->load(INSTALLDIR . '/social' . Kernel::CONFIG_EXTS, 'glob');
+        $container->setParameter('gnusocial_defaults', $container->getParameter('gnusocial'));
+
+        $configs = array_replace_recursive($container->getParameter('gnusocial'), $locals['gnusocial']);
+        $container->setParameter('gnusocial', $configs);
     }
 
     /**
