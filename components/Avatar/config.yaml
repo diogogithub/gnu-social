@@ -1,0 +1,3 @@
+parameters:
+  avatar:
+    use_avatar: true
