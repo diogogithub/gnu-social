@@ -150,7 +150,7 @@ li {
 a {
     text-decoration: none;
     color: var(--white);
-    border-radius: var(--unit-size);
+    border-radius: 4px;
 
     padding-left: var(--unit-size);
     padding-right: var(--unit-size);
@@ -180,10 +180,9 @@ figcaption a:link {
 
 summary:hover > svg,
 summary:focus > svg {
-    border-radius: var(--unit-size);
+    border-radius: 4px;
     background-color: var(--white);
     fill: var(--bg1);
-    border: 2px solid var(--white);
     transition: var(--cubic-transition);
 }
 

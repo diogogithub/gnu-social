@@ -45,7 +45,6 @@
     z-index: 1;
 
     height: 3rem;
-    font-size: var(--main-size);
     display: flex;
     position: fixed;
     top: 0;
@@ -71,20 +70,18 @@
     margin-right: auto;
 }
 
+#instance h1 {
+    margin-left: 4px;
+}
+
 #instance:focus svg,
 #instance:hover svg {
     fill: var(--bg1);
     transition: var(--cubic-transition);
 }
 
-.icon-logo {
-    margin-right: var(--small-size);
-    fill: var(--white);
-}
-
 .panel aside {
     font-size: var(--medium-size);
-    display: block;
     position: absolute;
     top: 100%;
 
@@ -93,22 +90,15 @@
     padding: var(--unit-size);
 }
 
-.panel aside .footer {
-    bottom: var(--unit-size);
-    left: var(--unit-size);
-    font-size: var(--small-size);
-}
-#header:above-level.panel[open] ~ * {
-    display: none;
-}
-
 .icon {
     fill: var(--white);
+    width: 1em;
+    height: 1em;
 }
 
 /* CURRENT PAGE LINK */
 .active {
-    border-radius: var(--unit-size);
+    border-radius: 4px;
     background: var(--white);
     color: var(--bg1) !important;
     transition: var(--cubic-transition);
@@ -284,16 +274,6 @@
         max-width: 100%;
     }
 
-    /* we need to control panel's view at this size */
-    .icon-left,
-    .icon-right {
-        display: flex;
-        align-self: center;
-        align-items: center;
-        width: 1em;
-        height: 1em;
-    }
-
     /* by default they are hidden */
     .panel aside {
         display: none;
@@ -306,7 +286,6 @@
     .panel[open] {
         display: flex;
         flex-direction: column;
-        font-size: var(--main-size);
     }
     .panel[open] aside {
         padding: var(--unit-size);
@@ -320,7 +299,6 @@
         background-repeat: no-repeat;
         background-size: 100% 100%;
         min-height: 100%;
-
     }
 
     .panel[open] aside .footer {
