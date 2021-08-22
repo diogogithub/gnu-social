@@ -20,6 +20,7 @@
 namespace App\Core\Modules;
 
 use App\Util\Common;
+use App\Util\Formatting;
 
 /**
  * Base class for all GNU social modules (plugins and components)
@@ -41,9 +42,9 @@ abstract class Module
         }
     }
 
-    public static function name(): string
+    public function name(): string
     {
-        return mb_strtolower(explode('\\', static::class)[2]);
+        return Formatting::camelCaseToSnakeCase(explode('\\', static::class)[2]);
     }
 
     /**
