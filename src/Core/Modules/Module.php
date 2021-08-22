@@ -60,4 +60,25 @@ abstract class Module
         }
         return $obj;
     }
+
+    // ------- Module initialize and cleanup ----------
+
+    private function defer(string $cycle)
+    {
+        $type = ucfirst(static::MODULE_TYPE);
+        if (method_exists($this, $method = "on{$cycle}{$type}")) {
+            $this->{$method}();
+        }
+    }
+
+    // Can't use __call or it won't be found by our event function finder
+    public function onInitializeModule()
+    {
+        $this->defer('Initialize');
+    }
+
+    public function onCleanupModule()
+    {
+        $this->defer('Cleanup');
+    }
 }

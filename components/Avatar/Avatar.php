@@ -32,6 +32,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Avatar extends Component
 {
+    public function onInitializeComponent()
+    {
+    }
+
     public function onAddRoute($r): bool
     {
         $r->connect('avatar', '/{gsactor_id<\d+>}/avatar/{size<full|big|medium|small>?full}', [Controller\Avatar::class, 'avatar_view']);
