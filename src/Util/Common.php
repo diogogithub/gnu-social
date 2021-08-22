@@ -51,7 +51,7 @@ abstract class Common
     {
         $components     = $config->has('components') ? $config->get('components') : [];
         $plugins        = $config->has('plugins') ? $config->get('plugins') : [];
-        self::$config   = array_merge($config->get('gnusocial'), ['components' => $components], ['plugins' => $plugins]);
+        self::$config   = array_merge_recursive($config->get('gnusocial'), ['components' => $components], ['plugins' => $plugins]);
         self::$defaults = $config->get('gnusocial_defaults');
     }
 
