@@ -204,6 +204,7 @@ class GNUsocial implements EventSubscriberInterface
         }
 
         $this->initialize();
+        Event::handle('InitializeModule');
         return $event;
     }
 

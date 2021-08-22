@@ -125,6 +125,8 @@ class Controller extends AbstractController implements EventSubscriberInterface
             throw new ClientException(_m('Unsupported format: {format}', ['format' => $format]), 406); // 406 Not Acceptable
         }
 
+        Event::handle('CleanupModule');
+
         return $event;
     }
 
@@ -149,6 +151,9 @@ class Controller extends AbstractController implements EventSubscriberInterface
                 }
             }
         } while ($except != null && ($except = $except->getPrevious()) != null);
+
+        Event::handle('CleanupModule');
+
         return $event;
     }
 
