@@ -70,7 +70,7 @@ GNU social is true to the Unix-philosophy of small programs to do a small job.
 >
 > Brian W. Kernighan, Rob Pike: The Unix Programming Environment. Prentice-Hall, 1984.
 
-For instructions on how to implement a plugin and use the core functionality check the [Plugins chapter](./plugins.md).
+For instructions on how to implement a plugin and use the core functionality check the [Plugins chapter](./modules.md).
 
 ## Dependencies
 

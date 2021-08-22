@@ -3,6 +3,7 @@
 namespace App\Core\Modules;
 
 use App\Core\Event;
+use function App\Core\I18n\_m;
 
 /**
  * TODO Plugins aren't tested yet
@@ -13,7 +14,7 @@ abstract class Plugin extends Module
 {
     const MODULE_TYPE = 'plugin';
 
-    public function version()
+    public function version(): string
     {
         return GNUSOCIAL_BASE_VERSION;
     }

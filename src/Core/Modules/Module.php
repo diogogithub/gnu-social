@@ -41,7 +41,7 @@ abstract class Module
         }
     }
 
-    public static function name()
+    public static function name(): string
     {
         return mb_strtolower(explode('\\', static::class)[2]);
     }

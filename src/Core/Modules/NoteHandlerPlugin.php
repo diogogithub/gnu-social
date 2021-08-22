@@ -19,12 +19,15 @@
 
 namespace App\Core\Modules;
 
+use App\Core\Log;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\NoSuchNoteException;
 use Symfony\Component\Form\Form;
 use Symfony\Component\HttpFoundation\Request;
 
-class NoteHandlerPlugin extends Plugin
+abstract class NoteHandlerPlugin extends Plugin
 {
     /**
      * Handle the $form submission for the note action for note if

@@ -28,6 +28,8 @@ use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
 use App\Util\Common;
+use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
 use App\Util\Formatting;
 use App\Util\Nickname;
@@ -46,8 +48,8 @@ class Favourite extends NoteHandlerPlugin
      * @param array   $actions
      *
      * @throws RedirectException
-     * @throws \App\Util\Exception\InvalidFormException
-     * @throws \App\Util\Exception\NoSuchNoteException
+     * @throws InvalidFormException
+     * @throws NoSuchNoteException
      *
      * @return bool Event hook
      */
