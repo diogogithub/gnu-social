@@ -1,6 +1,8 @@
 # Summary
 
 - [What is GNU social](./what_is.md)
+- [The IndieWeb](./indieweb.md)
+- [Timelines](./timelines.md)
 - [Getting Started]()
   - [Choosing an instance](./getting_started/choosing_an_instance.md)
   - [Registering an account](./getting_started/register.md)
@@ -9,6 +11,6 @@
   - [Hashtags and Mentions](./getting_started/hashtags_and_mentions.md)
   - [Groups](./getting_started/groups.md)
   - [Referring to your account](./getting_started/nickname_and_handle.md)
-- [Exploring the free network](./the_free_network.md)
-- [More on Groups](./groups.md)
-- [More on Tags](./tags.md)
+  - [Subscribe to someone](./indieweb/subscribe.md)
+- [Groups](./groups.md)
+- [Tags](./tags.md)
