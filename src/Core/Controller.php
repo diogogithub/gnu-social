@@ -37,11 +37,9 @@ use App\Util\Exception\RedirectException;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
@@ -50,7 +48,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class Controller extends AbstractController implements EventSubscriberInterface
 {
     private array $vars       = [];
-    private ?Request $request = null;
+    protected ?Request $request = null;
 
     public function __construct(RequestStack $requestStack)
     {
@@ -83,7 +81,7 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $request    = $event->getRequest();
 
         $this->request = $request;
-        $this->vars    = ['controler' => $controller, 'request' => $request, 'have_user' => Common::user() !== null];
+        $this->vars    = ['controller' => $controller, 'request' => $request, 'have_user' => Common::user() !== null];
         Event::handle('StartTwigPopulateVars', [&$this->vars]);
 
         $event->stopPropagation();
@@ -110,19 +108,25 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $template = $this->vars['_template'];
         unset($this->vars['_template'], $this->vars['request'], $response['_template']);
 
-        // Respond in the the most preffered acceptable content type
+        // Respond in the most preferred acceptable content type
         $accept = $request->getAcceptableContentTypes() ?: ['text/html'];
         $format = $request->getFormat($accept[0]);
         switch ($format) {
         case 'html':
             $event->setResponse($this->render($template, $this->vars));
             break;
-        case 'json':
-        case 'jsonld':
-            $event->setResponse(new JsonResponse($response));
-            break;
         default:
-            throw new ClientException(_m('Unsupported format: {format}', ['format' => $format]), 406); // 406 Not Acceptable
+            $potential_response = null;
+            if (Event::handle('RouteInFormat', [
+                'route' => $this->vars['controller'][1],
+                'accept' => $accept,
+                'vars' => $this->vars,
+                'response' => &$potential_response,
+            ])) {
+                throw new ClientException(_m('Unsupported format: {format}', ['format' => $format]), 406); // 406 Not Acceptable
+            } else {
+                $event->setResponse($potential_response);
+            }
         }
 
         Event::handle('CleanupModule');

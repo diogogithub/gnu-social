@@ -30,7 +30,7 @@ use DateTime;
 /**
  * Base class to all entities, with some utilities
  */
-abstract class Entity implements \JsonSerializable
+abstract class Entity
 {
     public function __call(string $name , array $arguments): mixed
     {
@@ -129,18 +129,5 @@ abstract class Entity implements \JsonSerializable
         } catch (NotFoundException $e) {
             return null;
         }
-    }
-
-    /**
-     * Called when json_encode encounters this object. Not all
-     * entities will need json encoding, so it doesn't make sense to
-     * make this abstract
-     *
-     * @throw ServerException
-     * @codeCoverageIgnore
-     */
-    public function jsonSerialize()
-    {
-        throw new ServerException(_m('Unimplemented method'));
     }
 }
