@@ -24,7 +24,7 @@ class ActivityStreamsTwo extends Plugin
 
     /**
      * @param string            $route
-     * @param array             $accept_header
+     * @param array             $accept
      * @param array             $vars
      * @param null|TypeResponse $response
      *
@@ -32,9 +32,9 @@ class ActivityStreamsTwo extends Plugin
      *
      * @return bool
      */
-    public function onControllerResponseInFormat(string $route, array $accept_header, array $vars, ?TypeResponse &$response = null): bool
+    public function onRouteInFormat(string $route, array $accept, array $vars, ?TypeResponse &$response = null): bool
     {
-        if (empty(array_intersect($this->accept, $accept_header))) {
+        if (empty(array_intersect($this->accept, $accept))) {
             return Event::next;
         }
         switch ($route) {
