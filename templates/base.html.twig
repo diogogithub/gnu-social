@@ -31,12 +31,7 @@
 <body class="bg" aria-atomic="true">
     {% block header %}
         <header id='header' role="banner">
-            <details class="panel" id="left-container" aria-live="polite">
-                <summary tabindex="0" aria-roledescription="Left Panel. Expand to login, register or navigate this instance.">
-                    {{ icon('menu', 'icon icon-left') | raw }}
-                </summary>
-                {{ block("leftpanel", "stdgrid.html.twig") }}
-            </details>
+            {{ block("leftpanel", "stdgrid.html.twig") }}
 
             <a id='instance' href="{{ path('main_public') }}" tabindex="0" aria-roledescription="This instance name.">
                 <div aria-hidden="true">{{ icon('logo', 'icon icon-logo') | raw }}</div>
@@ -44,12 +39,7 @@
             </a>
 
             {% if app.user %}
-            <details class="panel" id="right-container" aria-live="polite">
-                <summary tabindex="0" aria-roledescription="Right Panel. Expand to create a new note.">
-                    {{ icon('notes', 'icon icon-right') | raw }}
-                </summary>
                 {{ block("rightpanel", "stdgrid.html.twig") }}
-            </details>
             {% endif %}
         </header>
     {% endblock header %}

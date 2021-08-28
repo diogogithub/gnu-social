@@ -80,16 +80,6 @@
     transition: var(--cubic-transition);
 }
 
-.panel aside {
-    font-size: var(--medium-size);
-    position: absolute;
-    top: 100%;
-
-    width: 20%;
-    animation: var(--fade-in);
-    padding: var(--unit-size);
-}
-
 .icon {
     fill: var(--white);
     width: 1em;
@@ -109,6 +99,9 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: space-around;
+
+    margin-left: 20%;
+    margin-right: 20%;
     padding: var(--unit-size);
 }
 
@@ -116,11 +109,8 @@
 .content {
     display: flex;
     flex-direction: column;
-    margin-left: 20%;
-    margin-right: 20%;
 
     width: 100%;
-    max-width: 60%;
 }
 
 .markdown-blocks {
@@ -256,54 +246,6 @@
 .note-attachments > figure video {
     width: 100%;
     height: auto;
-}
-
-/* MEDIA RESIZE */
-@media (min-width: 1200px) {
-    /* no need to make the panels disappear at this size */
-    /*.icon-left,
-    .icon-right {
-        visibility: hidden;
-    }*/
-
-}
-@media (max-width: 1200px) {
-    /* content should occupy the entire width at this size */
-    .content {
-        margin: unset;
-        max-width: 100%;
-    }
-
-    /* by default they are hidden */
-    .panel aside {
-        display: none;
-    }
-
-    .panel:not(:focus-within or :not[open]) aside {
-        display: none;
-    }
-    .panel[open]:focus-within aside,
-    .panel[open] {
-        display: flex;
-        flex-direction: column;
-    }
-    .panel[open] aside {
-        padding: var(--unit-size);
-        box-sizing: border-box;
-        width: 100%;
-        height: 100vh;
-
-        background-color: var(--bg3);
-        background-image: url(../images/bg.png);
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: 100% 100%;
-        min-height: 100%;
-    }
-
-    .panel[open] aside .footer {
-        max-width: 100%;
-    }
 }
 
 /* SECTIONS */
@@ -494,6 +436,62 @@ input[type=file]:hover {
     color: var(--white) !important;
 }
 
+/* MEDIA QUERIES */
+
+/* sidepanels need to be shown by default on desktop, hidden on mobile */
+.panel .panel-content {
+    display: flex;
+    flex-direction: column;
+
+    /* should remain in place for the user */
+    position: fixed;
+    top: 0;
+
+    /* should be bellow header */
+    margin-top: 3rem;
+
+    /* should occupy the entire vertical real estate */
+    height: 100%;
+
+
+    padding: var(--unit-size);
+}
+
+@media (min-width: 1200px) {
+    .panel label {
+        display: none;
+    }
+    .panel .panel-content {
+        width: 100%;
+        max-width: 20%;
+    }
+}
+@media (max-width: 1200px) {
+    /* content should occupy the entire width at this size */
+    .container {
+        margin: unset;
+    }
+    .content {
+        max-width: 100%;
+    }
+
+    #panel-left-toggle:not(:checked) ~ .panel-content,
+    #panel-right-toggle:not(:checked) ~ .panel-content {
+        display: none;
+    }
+
+    #panel-left-toggle:checked ~ .panel-content,
+    #panel-right-toggle:checked ~ .panel-content {
+        display: flex;
+
+        width: 100%;
+        background-color: var(--bg2);
+        background-image: url(../images/bg.png);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+    }
+}
 
 /* ANIMATIONS */
 @keyframes fadeIn {

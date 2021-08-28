@@ -1,7 +1,9 @@
-#right-panel {
+.panel-right .panel-content {
     right: 0;
 }
 
-#right-container .section-form {
-    font-size: var(--small-size) !important;
+#panel-right-toggle:not(:checked),
+#panel-right-toggle:checked {
+    position: absolute;
+    opacity: 0;
 }

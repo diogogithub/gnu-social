@@ -1,52 +1,57 @@
-<aside id='right-panel' role="region" tabindex="-1">
-    {% if post_form is defined %}
-        <section class="section-widget" role="complementary" aria-label={{ 'Create a new note.' | trans }}>
-            <details class="section-title">
-                <summary class="section-title-menu">
-                    {{ "Create a note" | trans }}
-                    {{ icon('plus-circle', 'icon icon-plus') | raw }}
-                </summary>
+<div class="panel panel-right">
+    <input type="checkbox" id="panel-right-toggle">
+    <label for="panel-right-toggle">{{ icon('notes', 'icon icon-right') | raw }}</label>
 
-                {% for tab in tabs %}
-                    <a class="section-title-menu-element" href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
-                {% endfor %}
-            </details>
+    <aside class="panel-content">
+        {% if post_form is defined %}
+            <section class="section-widget" role="complementary" aria-label={{ 'Create a new note.' | trans }}>
+                <details class="section-title">
+                    <summary class="section-title-menu">
+                        {{ "Create a note" | trans }}
+                        {{ icon('plus-circle', 'icon icon-plus') | raw }}
+                    </summary>
 
-            <div class="section-form">
-                {{ form_start(post_form) }}
+                    {% for tab in tabs %}
+                        <a class="section-title-menu-element" href={{ path(tab['href']) }}>{{ tab['title'] }}</a>
+                    {% endfor %}
+                </details>
 
-                <span class="section-form-target">
+                <div class="section-form">
+                    {{ form_start(post_form) }}
+
+                    <span class="section-form-target">
                     {{ form_label(post_form.to) }}
-                    {{ form_widget(post_form.to) }}
+                        {{ form_widget(post_form.to) }}
                 </span>
 
-                {{ form_row(post_form.visibility, {'attr': {'class': 'section-form-scope'}}) }}
+                    {{ form_row(post_form.visibility, {'attr': {'class': 'section-form-scope'}}) }}
 
-                {{ form_row(post_form.content, {'attr': {'class': 'section-form-textarea'}}) }}
+                    {{ form_row(post_form.content, {'attr': {'class': 'section-form-textarea'}}) }}
 
-                <label for="{{ post_form.attachments.vars.id }}" class="section-form-options">
-                    {{ form_widget(post_form.attachments) }}
-                </label>
+                    <label for="{{ post_form.attachments.vars.id }}" class="section-form-options">
+                        {{ form_widget(post_form.attachments) }}
+                    </label>
 
-                {{ form_row(post_form.post_note, {'attr': {'class': 'section-form-send'}}) }}
+                    {{ form_row(post_form.post_note, {'attr': {'class': 'section-form-send'}}) }}
 
-                {{ form_end(post_form) }}
-            </div>
-        </section>
-    {% endif %}
-
-    {% set current_path = app.request.get('_route') %}
-    {% if right_panel_vars is defined %}
-        {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'vars': right_panel_vars}) %}
-            <section class="section-widget">
-                {{ block | raw }}
+                    {{ form_end(post_form) }}
+                </div>
             </section>
-        {% endfor %}
-    {% else %}
-        {% for block in handle_event('AppendRightPanelBlock', {'path': current_path}) %}
-            <section class="section-widget">
-                {{ block | raw }}
-            </section>
-        {% endfor %}
-    {% endif %}
-</aside>
+        {% endif %}
+
+        {% set current_path = app.request.get('_route') %}
+        {% if right_panel_vars is defined %}
+            {% for block in handle_event('AppendRightPanelBlock', {'path': current_path, 'vars': right_panel_vars}) %}
+                <section class="section-widget">
+                    {{ block | raw }}
+                </section>
+            {% endfor %}
+        {% else %}
+            {% for block in handle_event('AppendRightPanelBlock', {'path': current_path}) %}
+                <section class="section-widget">
+                    {{ block | raw }}
+                </section>
+            {% endfor %}
+        {% endif %}
+    </aside>
+</div>

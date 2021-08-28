@@ -1,5 +1,11 @@
-#left-panel {
+.panel-left .panel-content {
     left: 0;
+}
+
+#panel-left-toggle:not(:checked),
+#panel-left-toggle:checked {
+    position: absolute;
+    opacity: 0;
 }
 
 /* PROFILE */
@@ -99,6 +105,6 @@
     padding-left: var(--unit-size);
 }
 
-.footer * {
-    font-size: var(--small-size);
+.footer {
+
 }
