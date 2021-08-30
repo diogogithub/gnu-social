@@ -5,20 +5,30 @@
 #panel-left-toggle:not(:checked),
 #panel-left-toggle:checked {
     position: absolute;
-    opacity: 0;
+    top: -100%;
+}
+#panel-left-toggle:focus + * {
+    border-radius: 4px;
+    border: 2px solid var(--white);
+}
+#panel-left-icon {
+    cursor: pointer !important;
+    border: 2px solid transparent;
+
+    height: 100%;
+    width: auto;
+}
+
+.panel-left nav {
+    font-size: var(--medium-size);
 }
 
 /* PROFILE */
-.profile-nav {
-    font-family: var(--display-font);
-}
-
-.profile-nav nav {
-    display: inline-grid;
-    margin-bottom: var(--main-size);
-}
-
 .profile {
+    display: flex;
+    flex-direction: column;
+    font-family: var(--display-font);
+
     background-color: var(--translucent);
     margin-bottom: var(--main-size);
     border: solid 2px var(--bg2);
@@ -28,56 +38,27 @@
     box-sizing: border-box;
 }
 
-#profile-links {
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
-    margin-bottom: var(--unit-size);
+#user {
+    align-content: center;
 }
-
-#user-avatar {
-    box-sizing: border-box;
-    border-radius: 50%;
-    padding: 0;
-}
-
-#user-avatar img {
-    border-radius: var(--unit-size);
-    width: calc(3 * var(--main-size));
+#user img {
+    float: left;
+    width: 5rem;
     height: auto;
-
-    margin-right: var(--unit-size);
+    margin-right: 5px;
 }
 
-#user-avatar:hover,
-#user-avatar:focus {
-    cursor: pointer;
-    background: none !important;
+.profile-navigation {
+    margin-bottom: var(--main-size);
 }
-
-#user-avatar:hover img,
-#user-avatar:focus img {
-    border-radius: 50% !important;
-    box-shadow: var(--shadow-light) !important;
-}
-
-#user-info {
-    display: flex;
-    flex-direction: column;
-}
-
-#user-tags {
-    font-family: var(--main-font);
-    padding-left: var(--unit-size);
-}
-#stats {
-    display: flex;
-    flex-direction: column;
-    font-size: var(--medium-size);
-    font-weight: bold;
+.profile-navigation > * {
+    display: block;
 }
 
 /* TIMELINE NAVIGATION / PLUGINS */
+.timeline-nav {
+    margin-bottom: var(--main-size);
+}
 .timeline-nav a,
 .timeline-nav h1 {
     display: flex;
@@ -106,5 +87,5 @@
 }
 
 .footer {
-
+    font-size: var(--small-size);
 }

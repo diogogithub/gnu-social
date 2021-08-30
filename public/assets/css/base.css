@@ -11,7 +11,7 @@
      */
     --unit-size: 0.5rem;
     --main-size: 1.4rem;
-    --medium-size: 1.2rem;
+    --medium-size: 1.15rem;
     --small-size: 1rem;
 
     /* colours and shadows */
@@ -40,9 +40,14 @@
     background-size: 100% 100%;
 }
 
+.anchor-hidden {
+    display: none;
+}
+
 /* HEADER AND SIDEPANELS */
 #header {
     z-index: 1;
+    font-size: var(--main-size);
 
     height: 3rem;
     display: flex;
@@ -50,16 +55,11 @@
     top: 0;
     background-color: var(--bg1);
 
-    padding: var(--unit-size);
     width: 100%;
     align-items: center;
+    padding: var(--unit-size);
 
     box-shadow: var(--shadow);
-}
-
-/* content should be rendered after the header, not bellow */
-#header + * {
-    margin-top: 3rem;
 }
 
 #instance {
@@ -96,10 +96,7 @@
 
 /* CONTAINS ALL ELEMENTS BESIDES HEADER */
 .container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-
+    margin-top: 3rem;
     margin-left: 20%;
     margin-right: 20%;
     padding: var(--unit-size);
@@ -457,11 +454,11 @@ input[type=file]:hover {
 }
 
 /* MEDIA QUERIES */
-
 /* sidepanels need to be shown by default on desktop, hidden on mobile */
 .panel .panel-content {
     display: flex;
     flex-direction: column;
+    font-size: var(--small-size);
 
     /* should remain in place for the user */
     position: fixed;
@@ -472,7 +469,6 @@ input[type=file]:hover {
 
     /* should occupy the entire vertical real estate */
     height: 100%;
-
 
     padding: var(--unit-size);
 }
@@ -486,12 +482,19 @@ input[type=file]:hover {
         width: 100%;
         max-width: 20%;
     }
+
+    a[id|="anchor"]:target + * {
+        animation-name: highlight;
+        animation-duration: 500ms;
+        animation-timing-function: ease;
+    }
 }
 
 @media (max-width: 1200px) {
     /* content should occupy the entire width at this size */
     .container {
-        margin: unset;
+        margin-left: unset;
+        margin-right: unset;
     }
 
     .content {
@@ -504,8 +507,9 @@ input[type=file]:hover {
     }
 
     #panel-left-toggle:checked ~ .panel-content,
-    #panel-right-toggle:checked ~ .panel-content {
-        display: flex;
+    #panel-right-toggle:checked ~ .panel-content,
+    a[id|="anchor"]:target ~ .panel-content {
+        display: flex !important;
 
         width: 100%;
         background-color: var(--bg2);
@@ -594,10 +598,4 @@ input[type=file]:hover {
         border-radius: var(--unit-size);
         box-shadow: initial;
     }
-}
-
-[id|="anchor"]:target + * {
-    animation-name: highlight;
-    animation-duration: 500ms;
-    animation-timing-function: ease;
 }

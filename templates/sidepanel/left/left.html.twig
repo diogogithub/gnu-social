@@ -1,22 +1,17 @@
 <div class="panel panel-left">
     <input type="checkbox" id="panel-left-toggle">
-    <label for="panel-left-toggle">{{ icon('menu', 'icon icon-left') | raw }}</label>
+    <label id="panel-left-icon" for="panel-left-toggle">{{ icon('menu', 'icon icon-left') | raw }}</label>
 
     <a id="anchor-left-panel" class="anchor-hidden"></a>
     <aside class="panel-content">
-        <nav class='profile-nav'>
-            {% if app.user %}
-                <section class='profile' role="complementary">
-                    <div id="profile-links">
-                        <a id="user-avatar" href="{{ path('settings') }}">
-                            <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
-                        </a>
+        {% if app.user %}
+            <section class='profile'>
+                <a id="user" href="{{ path('settings') }}">
+                    <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
+                    <div id="user-info">
+                        <h1>{{ user_nickname }}</h1>
 
-                        <span id="user-info">
-                        <a id="user-nick" href="{{ path('settings') }}">
-                            <h1>{{ user_nickname }}</h1>
-                        </a>
-                        <div id="user-tags">
+                        <nav id="user-tags">
                             {% if user_tags %}
                                 {% for tag in user_tags %}
                                     <a href='#'> #{{ tag }}</a>
@@ -24,65 +19,60 @@
                             {% else %}
                                 {{ '(No tags)' | trans }}
                             {% endif %}
-                        </div>
-                    </span>
+                        </nav>
+
+                        <section id="user-stats">
+                            {% if user_followers %}<h2>{{ 'Followers' | trans }} {{ user_followers }}</h2> {% endif %}
+                            {% if user_followed %}<h2>{{ 'Followed' | trans }} {{ user_followed }}</h2> {% endif %}
+                        </section>
                     </div>
+                </a>
 
-                    <section id="stats">
-                        <label>{{ 'Followers' | trans }} {{ user_followers }}</label>
-                        <label>{{ 'Followed' | trans }} {{ user_followed }}</label>
-                    </section>
-
-                    {# {% for extra in profile_extras %}
-                    {% include '/'~ extra.name ~ '/view.html.twig' with {'vars': extra.vars} only %}
+                {# {% for extra in profile_extras %}
+                {% include '/'~ extra.name ~ '/view.html.twig' with {'vars': extra.vars} only %}
                 {% endfor %} #}
-                </section>
+            </section>
 
-                <nav role="navigation">
-                    <a href='#'>Messages</a>
-                    <a href="{{ path("replies", {'nickname' : user_nickname}) }}"
-                       class='hover-effect {{ active("replies") }}'>Replies</a>
-                    {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
-                        {{ link | raw }}
+            <nav class="profile-navigation">
+                <a href='#'>Messages</a>
+                <a href="{{ path("replies", {'nickname' : user_nickname}) }}"
+                   class='hover-effect {{ active("replies") }}'>Replies</a>
+                {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
+                    {{ link | raw }}
+                {% endfor %}
+                <a href="{{ path('settings') }}"
+                   class='hover-effect {{ active('settings_') }}'>Settings</a>
+                <a href='{{ path('logout') }}'>Logout</a>
+            </nav>
+
+        {% else %}
+            <nav class="profile-navigation">
+                <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
+                <a href="{{ path('register') }}">Register</a>
+            </nav>
+        {% endif %}
+
+        <nav class="timeline-nav" role="menu">
+            <h1 role="tab">Timeline</h1>
+
+            <nav class='sec-nav' role="navigation">
+                <a href="{{ path('main_public') }}"
+                   class='{{ active('main_public') }}'>Public</a>
+
+                {% if user_nickname is defined %}
+                    <a href="{{ path("home_all", {'nickname' : user_nickname}) }}"
+                       class='{{ active("home_all") }}'>Home</a>
+                {% endif %}
+
+                <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
+
+                {% if main_nav_tabs is defined %}
+                    {% for tab in main_nav_tabs %}
+                        <a href="{{ path(tab['route']) }}"
+                           class='{{ active(tab['route']) }}'>{{ tab['title'] }}</a>
                     {% endfor %}
-                    <a href="{{ path('settings') }}"
-                       class='hover-effect {{ active('settings_') }}'>Settings</a>
-                    <a href='{{ path('logout') }}'>Logout</a>
-                </nav>
-
-            {% else %}
-                <nav>
-                    <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
-                    <a href="{{ path('register') }}">Register</a>
-                </nav>
-            {% endif %}
-
-            <div class="timeline-nav" role="menu">
-                <nav>
-                    <h1 role="tab">Timeline</h1>
-
-                    <nav class='sec-nav' role="navigation">
-                        <a href="{{ path('main_public') }}"
-                           class='{{ active('main_public') }}'>Public</a>
-
-                        {% if user_nickname is defined %}
-                            <a href="{{ path("home_all", {'nickname' : user_nickname}) }}"
-                               class='{{ active("home_all") }}'>Home</a>
-                        {% endif %}
-
-                        <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
-
-                        {% if main_nav_tabs is defined %}
-                            {% for tab in main_nav_tabs %}
-                                <a href="{{ path(tab['route']) }}"
-                                   class='{{ active(tab['route']) }}'>{{ tab['title'] }}</a>
-                            {% endfor %}
-                        {% endif %}
-                    </nav>
-                </nav>
-
-            </div>
-
+                {% endif %}
+            </nav>
         </nav>
 
         <div class="footer" role="contentinfo">
