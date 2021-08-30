@@ -517,3 +517,36 @@ input[type=file]:hover {
         transform: none;
     }
 }
+
+.accessibility-menu {
+    position: absolute;
+    left: -1000px;
+    top: -1000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    z-index: 5000;
+    background-color: var(--bg1);
+    padding: var(--unit-size);
+    border: solid 2px var(--bg3);
+    border-radius: var(--unit-size);
+    box-shadow: var(--shadow);
+}
+.accessibility-menu ul {
+    list-style-type: disc;
+}
+#anchor-menu:target + .accessibility-menu,
+.accessibility-menu:focus {
+    top: var(--unit-size) !important;
+    left: var(--unit-size) !important;
+    width: 30% !important;
+    height: min-content !important;
+}
+.anchor-hidden {
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+*:target + * {
+    border: 2px solid var(--bg3) !important;
+}

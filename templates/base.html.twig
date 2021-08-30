@@ -29,28 +29,48 @@
 </head>
 
 <body class="bg" aria-atomic="true">
-    {% block header %}
-        <header id='header' role="banner">
-            {{ block("leftpanel", "stdgrid.html.twig") }}
+<a id="anchor-menu" class="anchor-hidden"></a>
+<aside class="accessibility-menu" accesskey="o" tabindex="0">
+    <h2>{{ 'Select page section:' | trans }}</h2>
+    <br>
+    <em>{{ 'Firefox based browser - <Alt> + <Shift> + \"access key\"' | trans }}</em>
+    <br>
+    <em>{{ 'Others - <Alt> + \"access key\"' | trans }}</em>
+    <br>
 
-            <a id='instance' href="{{ path('main_public') }}" tabindex="0" aria-roledescription="This instance name.">
-                <div aria-hidden="true">{{ icon('logo', 'icon icon-logo') | raw }}</div>
-                <h1> {{ config('site', 'name') }} </h1>
-            </a>
+    <ul>
+        <li><a href="#anchor-menu" accesskey="m">{{ 'This menu (press \'m\' to access).' | trans }}</a></li>
+        <li><a href="#anchor-main-page" accesskey="i">{{ 'Main page (press \'i\' to access).' | trans }}</a></li>
+        <li><a href="#anchor-left-panel" accesskey="j">{{ 'Left panel (press \'j\' to access).' | trans }}</a></li>
+        <li><a href="#anchor-main-content" accesskey="k">{{ 'Main content (press \'k\' to access).' | trans }}</a></li>
+        <li><a href="#anchor-right-panel" accesskey="l">{{ 'Right panel (press \'l\' to access).' | trans }}</a></li>
+    </ul>
+</aside>
 
-            {% if app.user %}
-                {{ block("rightpanel", "stdgrid.html.twig") }}
-            {% endif %}
-        </header>
-    {% endblock header %}
+{% block header %}
+    <header id='header' role="banner">
+        {{ block("leftpanel", "stdgrid.html.twig") }}
 
-    <div class="container">
-        <div class='content' aria-roledescription="Main content.">
-            {% block nav %}{% endblock %}
-            {% block body %}{% endblock %}
-            {% block javascripts %}{% endblock javascripts %}
-        </div>
+        <a id="anchor-main-page" class="anchor-hidden"></a>
+        <a id='instance' href="{{ path('main_public') }}" tabindex="0" aria-roledescription="This instance name.">
+            <div aria-hidden="true">{{ icon('logo', 'icon icon-logo') | raw }}</div>
+            <h1> {{ config('site', 'name') }} </h1>
+        </a>
+
+        {% if app.user %}
+            {{ block("rightpanel", "stdgrid.html.twig") }}
+        {% endif %}
+    </header>
+{% endblock header %}
+
+<div class="container">
+    <a id="anchor-main-content" class="anchor-hidden"></a>
+    <div class='content' aria-roledescription="Main content.">
+        {% block nav %}{% endblock %}
+        {% block body %}{% endblock %}
+        {% block javascripts %}{% endblock javascripts %}
     </div>
+</div>
 </body>
 </html>
 
