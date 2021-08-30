@@ -120,13 +120,16 @@
     border-top: solid 2px var(--bg3);
     padding: var(--unit-size);
 }
+
 .markdown-blocks ul {
     margin-left: 1em;
     list-style: disc;
 }
+
 .markdown-blocks ul li {
     margin-bottom: 0.2em;
 }
+
 .doc-navigation {
     background-color: var(--translucent);
     border-radius: var(--unit-size) var(--unit-size) 0 0;
@@ -134,6 +137,7 @@
     border-bottom: none;
     padding: var(--unit-size);
 }
+
 .doc-navigation ul {
     display: flex;
     justify-content: space-evenly;
@@ -187,10 +191,12 @@
     display: flex;
     vertical-align: middle;
 }
+
 .favourite-button-container {
     width: 1em !important;
     height: 1em !important;
 }
+
 .favourite-button-container button {
     all: unset;
     border: none !important;
@@ -203,14 +209,17 @@
     -moz-mask-image: url("../icons/heart.svg") !important;
     mask-image: url("../icons/heart.svg") !important;
 }
+
 .favourite-button-container button:hover,
 .favourite-button-container button:focus {
     border: none !important;
     background: var(--bg3) !important;
 }
+
 .favourite-button-off {
     background: var(--bg2) !important;
 }
+
 .favourite-button-on {
     background: var(--white) !important;
 }
@@ -218,6 +227,7 @@
 .note-content {
     padding: var(--small-size);
 }
+
 .note-content p {
     padding-left: var(--small-size);
     padding-right: var(--small-size);
@@ -274,10 +284,12 @@
 
     background-color: var(--translucent);
 }
+
 .section-title-menu {
     display: flex;
     justify-content: space-between;
 }
+
 .section-title-menu svg {
     align-self: center;
     fill: var(--white);
@@ -288,6 +300,7 @@
     flex-direction: column;
     padding: var(--unit-size);
 }
+
 .section-form-legend {
     padding: unset;
     margin-bottom: var(--unit-size);
@@ -306,9 +319,11 @@
 
     margin-bottom: 2px;
 }
+
 .section-form-label + input {
     width: 100%;
 }
+
 .help-text {
     font-style: italic;
     font-size: var(--small-size);
@@ -369,10 +384,12 @@ input[type=radio] {
     border: solid 0.25em var(--bg2) !important;
     background-color: var(--bg1) !important;
 }
+
 input:hover,
 input:focus {
     border-color: var(--bg3) !important;
 }
+
 input[type=radio]:checked {
     background-color: var(--white) !important;
 }
@@ -386,10 +403,12 @@ input[type=checkbox] {
     -moz-mask-image: url("../icons/check-off.svg") !important;
     mask-image: url("../icons/check-off.svg") !important;
 }
+
 input[type=checkbox]:hover,
 input[type=checkbox]:focus {
     background-color: var(--bg3) !important;
 }
+
 input[type=checkbox]:checked {
     background-color: var(--bg3) !important;
     -webkit-mask-image: url("../icons/check-on.svg") !important;
@@ -426,6 +445,7 @@ select:is(:disabled, :disabled:active) > button {
 input[type=file] {
     background: linear-gradient(180deg, var(--bg2), transparent) !important;
 }
+
 input[type=file]:focus,
 input[type=file]:hover {
     background: linear-gradient(180deg, var(--bg2), var(--bg3) 200%) !important;
@@ -461,16 +481,19 @@ input[type=file]:hover {
     .panel label {
         display: none;
     }
+
     .panel .panel-content {
         width: 100%;
         max-width: 20%;
     }
 }
+
 @media (max-width: 1200px) {
     /* content should occupy the entire width at this size */
     .container {
         margin: unset;
     }
+
     .content {
         max-width: 100%;
     }
@@ -532,9 +555,11 @@ input[type=file]:hover {
     border-radius: var(--unit-size);
     box-shadow: var(--shadow);
 }
+
 .accessibility-menu ul {
     list-style-type: disc;
 }
+
 #anchor-menu:target + .accessibility-menu,
 .accessibility-menu:focus {
     top: var(--unit-size) !important;
@@ -542,11 +567,37 @@ input[type=file]:hover {
     width: 30% !important;
     height: min-content !important;
 }
+
 .anchor-hidden {
     width: 1px;
     height: 1px;
     overflow: hidden;
 }
-*:target + * {
-    border: 2px solid var(--bg3) !important;
+
+@keyframes highlight {
+    0% {
+        border-radius: var(--unit-size);
+        box-shadow: initial;
+    }
+    50% {
+        border-radius: var(--unit-size);
+        box-shadow: inset 0 0 10px var(--white),
+        inset 10px 0 20px var(--bg3),
+        inset -10px 0 20px var(--bg2),
+        inset 10px 0 20px var(--bg3),
+        inset -10px 0 20px var(--bg2),
+        0 0 10px var(--white),
+        -10px 0 10px var(--bg3),
+        10px 0 10px var(--bg2);
+    }
+    100% {
+        border-radius: var(--unit-size);
+        box-shadow: initial;
+    }
+}
+
+[id|="anchor"]:target + * {
+    animation-name: highlight;
+    animation-duration: 500ms;
+    animation-timing-function: ease;
 }
