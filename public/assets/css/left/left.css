@@ -14,9 +14,6 @@
 #panel-left-icon {
     cursor: pointer !important;
     border: 2px solid transparent;
-
-    height: 100%;
-    width: auto;
 }
 
 .panel-left nav {
@@ -36,6 +33,10 @@
 
     padding: var(--unit-size);
     box-sizing: border-box;
+}
+
+.profile ~ * {
+    padding: var(--unit-size);
 }
 
 #user {
@@ -63,9 +64,7 @@
 .timeline-nav h1 {
     display: flex;
 }
-.timeline-nav h1 {
-    padding-left: var(--unit-size);
-}
+
 .timeline-nav hr {
     flex: 1;
     background: linear-gradient(90deg, var(--bg3), transparent);
@@ -87,5 +86,6 @@
 }
 
 .footer {
+    margin-top: auto;
     font-size: var(--small-size);
 }

@@ -125,9 +125,6 @@
     animation: var(--fade-out)
 }
 
-.section-title-settings[open] .set-nav li:first-of-type {
-}
-
 .section-title-settings[open] .set-nav li:last-of-type {
     margin-bottom: 0;
 }

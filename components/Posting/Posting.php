@@ -36,8 +36,10 @@ use App\Entity\Note;
 use App\Entity\NoteToLink;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
+use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
+use App\Util\Exception\ServerException;
 use InvalidArgumentException;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -56,6 +58,10 @@ END;
     /**
      * HTML render event handler responsible for adding and handling
      * the result of adding the note submission form, only if a user is logged in
+     *
+     * @throws ClientException
+     * @throws RedirectException
+     * @throws ServerException
      */
     public function onStartTwigPopulateVars(array &$vars): bool
     {
@@ -81,8 +87,8 @@ END;
         $form    = Form::create([
             ['content',     TextareaType::class, ['label' => ' ', 'data' => '', 'attr' => ['placeholder' => _m($placeholder_string[$rand_key])]]],
             ['attachments', FileType::class,     ['label' => ' ', 'data' => null, 'multiple' => true, 'required' => false]],
-            ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'expanded' => true, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
-            ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => true, 'expanded' => true, 'choices' => $to_tags]],
+            ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
+            ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
             ['post_note',   SubmitType::class,   ['label' => _m('Post')]],
         ]);
 
@@ -106,6 +112,9 @@ END;
      * Store the given note with $content and $attachments, created by
      * $actor_id, possibly as a reply to note $reply_to and with flag
      * $is_local. Sanitizes $content and $attachments
+     *
+     * @throws DuplicateFoundException
+     * @throws ClientException|ServerException
      */
     public static function storeNote(int $actor_id, ?string $content, array $attachments, bool $is_local, ?int $reply_to = null, ?int $repeat_of = null)
     {
@@ -166,17 +175,26 @@ END;
      * Get a unique representation of a file on disk
      *
      * This can be used in the future to deduplicate images by visual content
+     *
+     * @param string      $filename
+     * @param null|string $out_hash
+     *
+     * @return bool
      */
-    public function onHashFile(string $filename, ?string &$out_hash)
+    public function onHashFile(string $filename, ?string &$out_hash): bool
     {
         $out_hash = hash_file(Attachment::FILEHASH_ALGO, $filename);
         return Event::stop;
     }
 
     /**
-     * Fill the list of allowed sizes for an attachment, to prevent potential DoS'ing by requesting thousands of different thumbnail sizes
+     * Fill the list with allowed sizes for an attachment, to prevent potential DoS'ing by requesting thousands of different thumbnail sizes
+     *
+     * @param null|array $sizes
+     *
+     * @return bool
      */
-    public function onGetAllowedThumbnailSizes(?array &$sizes)
+    public function onGetAllowedThumbnailSizes(?array &$sizes): bool
     {
         $sizes[] = ['width' => Common::config('thumbnail', 'width'), 'height' => Common::config('thumbnail', 'height')];
         return Event::next;

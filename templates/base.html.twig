@@ -11,10 +11,12 @@
     </title>
 
     {% block stylesheets %}
+        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/reset.css') }}">
+
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/fonts/inter/inter.css') }}">
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/fonts/manrope/manrope.css') }}">
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}">
-        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/reset.css') }}">
+
         {% for stylesheet in show_stylesheets() %}
             <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/' ~ stylesheet) }}">
         {% endfor %}
@@ -33,10 +35,12 @@
 <aside class="accessibility-menu" accesskey="o" tabindex="0">
     <h2>{{ 'Select page section:' | trans }}</h2>
     <br>
-    <em>{{ 'Firefox based browser - <Alt> + <Shift> + \"access key\"' | trans }}</em>
-    <br>
-    <em>{{ 'Others - <Alt> + \"access key\"' | trans }}</em>
-    <br>
+
+    <p>
+        <em><b>Firefox based browser - </b> <kbd>Alt</kbd> + <kbd>Shift</kbd> + "access key"</em>
+        <br>
+        <em><b>Others - </b> <kbd>Alt</kbd> + "access key"</em>
+    </p>
 
     <ul>
         <li><a href="#anchor-menu" accesskey="m">{{ 'This menu (press \'m\' to access).' | trans }}</a></li>

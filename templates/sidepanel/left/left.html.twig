@@ -41,7 +41,7 @@
                     {{ link | raw }}
                 {% endfor %}
                 <a href="{{ path('settings') }}"
-                   class='hover-effect {{ active('settings_') }}'>Settings</a>
+                   class='{{ active('settings') }}'>Settings</a>
                 <a href='{{ path('logout') }}'>Logout</a>
             </nav>
 

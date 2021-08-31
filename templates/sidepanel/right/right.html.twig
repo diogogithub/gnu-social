@@ -7,10 +7,9 @@
 
         {% if post_form is defined %}
             <section class="section-widget" role="complementary" aria-label={{ 'Create a new note.' | trans }}>
-                <details class="section-title">
-                    <summary class="section-title-menu">
-                        {{ "Create a note" | trans }}
-                        {{ icon('plus-circle', 'icon icon-plus') | raw }}
+                <details class="section-title-details">
+                    <summary class="section-title-summary">
+                        {{ "Create a note" | trans }} {{ icon('arrow-down', 'icon icon-details-open') | raw }}
                     </summary>
 
                     {% for tab in tabs %}
@@ -22,8 +21,7 @@
                     {{ form_start(post_form) }}
 
                     <span class="section-form-target">
-                    {{ form_label(post_form.to) }}
-                        {{ form_widget(post_form.to) }}
+                    {{ form_label(post_form.to) }}{{ form_widget(post_form.to) }}
                 </span>
 
                     {{ form_row(post_form.visibility, {'attr': {'class': 'section-form-scope'}}) }}

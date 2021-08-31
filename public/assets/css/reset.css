@@ -46,10 +46,6 @@ address {
     border: 0;
 }
 
-form {
-    all: unset;
-}
-
 /* details element arrow */
 details > summary {
     list-style: none;
@@ -147,52 +143,6 @@ li {
     padding: 0;
 }
 
-a {
-    text-decoration: none;
-    color: var(--white);
-    border-radius: 4px;
-
-    padding-left: var(--unit-size);
-    padding-right: var(--unit-size);
-    margin-bottom: 1px;
-    outline: 0;
-}
-
-a:visited {
-    color: var(--white);
-    padding-left: var(--unit-size);
-    padding-right: var(--unit-size);
-    outline: 0;
-    margin: 0;
-}
-
-a:focus,
-a:hover {
-    background: var(--white);
-    color: var(--bg1) !important;
-    transition: var(--cubic-transition);
-}
-
-figcaption a:link {
-    font-size: var(--small-size);
-    color: var(--white);
-}
-
-summary:hover > svg,
-summary:focus > svg {
-    border-radius: 4px;
-    background-color: var(--white);
-    fill: var(--bg1);
-    transition: var(--cubic-transition);
-}
-
-hr {
-    all: unset;
-    display: block;
-    height: 2px;
-    background: var(--translucent);
-}
-
 /* BUTTONS AND FILEPICKER */
 button {
     cursor: pointer !important;
@@ -207,11 +157,10 @@ input {
 button,
 input {
     all: unset;
-    font-size: var(--medium-size);
-    border-radius: var(--unit-size);
-    padding: 6px 12px;
+    padding: 5px 10px;
 }
 
+/*noinspection CssInvalidPseudoSelector*/
 *|*::-moz-button-content {
     all: unset;
 }
@@ -232,7 +181,7 @@ input[type=radio] {
     width: 1em;
     height: 1em;
     border-radius: 50%;
-    margin: 3px 3px 0px 5px;
+    margin: 3px 3px 0 5px;
 }
 
 /* file selector */
@@ -241,9 +190,6 @@ input[type=file] {
 
     display: block !important;
     width: 100%;
-
-    font-family: var(--main-font);
-    font-size: var(--medium-size);
 
     border-radius: var(--unit-size);
 }
@@ -255,7 +201,6 @@ input + label {
 
 /* button part of file selector */
 ::file-selector-button {
-    font-family: var(--display-font);
     cursor: pointer;
 
     background-color: unset;
