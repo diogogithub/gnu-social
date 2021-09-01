@@ -47,7 +47,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 
 class Controller extends AbstractController implements EventSubscriberInterface
 {
-    private array $vars       = [];
+    private array $vars         = [];
     protected ?Request $request = null;
 
     public function __construct(RequestStack $requestStack)
@@ -117,9 +117,9 @@ class Controller extends AbstractController implements EventSubscriberInterface
             break;
         default:
             $potential_response = null;
-            if (Event::handle('RouteInFormat', [
-                'route' => $this->vars['controller'][1],
-                'accept' => $accept,
+            if (Event::handle('ControllerResponseInFormat', [
+                'route' => $request->get('_route'),
+                'accept_header' => $accept,
                 'vars' => $this->vars,
                 'response' => &$potential_response,
             ])) {

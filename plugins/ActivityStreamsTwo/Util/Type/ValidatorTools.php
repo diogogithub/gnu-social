@@ -147,31 +147,33 @@ abstract class ValidatorTools implements ValidatorInterface
      */
     protected function getLinkOrNamedObjectValidator(): callable
     {
-        return static function ($item): bool {
-            if (is_string($item)) {
-                return Util::validateUrl($item);
-            }
-
-            if (is_array($item)) {
-                $item = Util::arrayToType($item);
-            }
-
-            if (is_object($item)) {
-                Util::hasProperties($item, ['type'], true);
-
-                // Validate Link type
-                if ($item->type === 'Link') {
-                    return Util::validateLink($item);
+        return
+            /** The implementation lambda */
+            static function ($item): bool {
+                if (is_string($item)) {
+                    return Util::validateUrl($item);
                 }
 
-                // Validate Object type
-                Util::hasProperties($item, ['name'], true);
+                if (is_array($item)) {
+                    $item = Util::arrayToType($item);
+                }
 
-                return is_string($item->name);
-            }
+                if (is_object($item)) {
+                    Util::hasProperties($item, ['type'], true);
 
-            return false;
-        };
+                    // Validate Link type
+                    if ($item->type === 'Link') {
+                        return Util::validateLink($item);
+                    }
+
+                    // Validate Object type
+                    Util::hasProperties($item, ['name'], true);
+
+                    return is_string($item->name);
+                }
+
+                return false;
+            };
     }
 
     /**
@@ -181,22 +183,24 @@ abstract class ValidatorTools implements ValidatorInterface
      */
     protected function getLinkOrUrlObjectValidator(): callable
     {
-        return static function ($item): bool {
-            if (is_array($item)) {
-                $item = Util::arrayToType($item);
-            }
+        return
+            /** The implementation lambda */
+            static function ($item): bool {
+                if (is_array($item)) {
+                    $item = Util::arrayToType($item);
+                }
 
-            if (is_object($item)
+                if (is_object($item)
                 && Util::isLinkOrUrlObject($item)) {
-                return true;
-            }
+                    return true;
+                }
 
-            if (Util::validateUrl($item)) {
-                return true;
-            }
+                if (Util::validateUrl($item)) {
+                    return true;
+                }
 
-            return false;
-        };
+                return false;
+            };
     }
 
     /**
@@ -207,25 +211,27 @@ abstract class ValidatorTools implements ValidatorInterface
      */
     protected function getAttachmentValidator(): callable
     {
-        return static function ($item): bool {
-            if (is_array($item)) {
-                $item = Util::arrayToType($item);
-            }
+        return
+            /** The implementation lambda */
+            static function ($item): bool {
+                if (is_array($item)) {
+                    $item = Util::arrayToType($item);
+                }
 
-            if (is_object($item)) {
-                if (Util::isLinkOrUrlObject($item)) {
+                if (is_object($item)) {
+                    if (Util::isLinkOrUrlObject($item)) {
+                        return true;
+                    }
+
+                    return $item instanceof ObjectType;
+                }
+
+                if (Util::validateUrl($item)) {
                     return true;
                 }
 
-                return $item instanceof ObjectType;
-            }
-
-            if (Util::validateUrl($item)) {
-                return true;
-            }
-
-            return false;
-        };
+                return false;
+            };
     }
 
     /**
@@ -233,20 +239,22 @@ abstract class ValidatorTools implements ValidatorInterface
      */
     protected function getQuestionAnswerValidator(): callable
     {
-        return static function ($item): bool {
-            if (is_array($item)) {
-                $item = Util::arrayToType($item);
-            }
+        return
+            /** The implementation lambda */
+            static function ($item): bool {
+                if (is_array($item)) {
+                    $item = Util::arrayToType($item);
+                }
 
-            if (!is_object($item)) {
-                return false;
-            }
+                if (!is_object($item)) {
+                    return false;
+                }
 
-            Util::hasProperties($item, ['type', 'name'], true);
+                Util::hasProperties($item, ['type', 'name'], true);
 
-            return $item->type === 'Note'
+                return $item->type === 'Note'
                 && is_scalar($item->name);
-        };
+            };
     }
 
     /**
@@ -254,21 +262,23 @@ abstract class ValidatorTools implements ValidatorInterface
      */
     protected function getCollectionItemsValidator(): callable
     {
-        return static function ($item): bool {
-            if (is_string($item)) {
-                return Util::validateUrl($item);
-            }
+        return
+            /** The implementation lambda */
+            static function ($item): bool {
+                if (is_string($item)) {
+                    return Util::validateUrl($item);
+                }
 
-            if (is_array($item)) {
-                $item = Util::arrayToType($item);
-            }
+                if (is_array($item)) {
+                    $item = Util::arrayToType($item);
+                }
 
-            if (!is_object($item)) {
-                return false;
-            }
+                if (!is_object($item)) {
+                    return false;
+                }
 
-            return Util::hasProperties($item, ['type'], true);
-        };
+                return Util::hasProperties($item, ['type'], true);
+            };
     }
 
     /**
@@ -276,24 +286,26 @@ abstract class ValidatorTools implements ValidatorInterface
      */
     protected function getCollectionActorsValidator(): callable
     {
-        return static function ($item): bool {
-            if (is_string($item)) {
-                return Util::validateUrl($item);
-            }
+        return
+            /** The implementation lambda */
+            static function ($item): bool {
+                if (is_string($item)) {
+                    return Util::validateUrl($item);
+                }
 
-            if (is_array($item)) {
-                $item = Util::arrayToType($item);
-            }
+                if (is_array($item)) {
+                    $item = Util::arrayToType($item);
+                }
 
-            if (!is_object($item)) {
-                return false;
-            }
-            // id must be filled
-            if ($item instanceof AbstractActor) {
-                return !is_null($item->id);
-            }
+                if (!is_object($item)) {
+                    return false;
+                }
+                // id must be filled
+                if ($item instanceof AbstractActor) {
+                    return !is_null($item->id);
+                }
 
-            return Util::validateLink($item);
-        };
+                return Util::validateLink($item);
+            };
     }
 }

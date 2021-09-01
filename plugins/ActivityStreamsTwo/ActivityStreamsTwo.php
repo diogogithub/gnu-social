@@ -24,7 +24,7 @@ class ActivityStreamsTwo extends Plugin
 
     /**
      * @param string            $route
-     * @param array             $accept
+     * @param array             $accept_header
      * @param array             $vars
      * @param null|TypeResponse $response
      *
@@ -32,9 +32,9 @@ class ActivityStreamsTwo extends Plugin
      *
      * @return bool
      */
-    public function onRouteInFormat(string $route, array $accept, array $vars, ?TypeResponse &$response = null): bool
+    public function onControllerResponseInFormat(string $route, array $accept_header, array $vars, ?TypeResponse &$response = null): bool
     {
-        if (empty(array_intersect($this->accept, $accept))) {
+        if (empty(array_intersect($this->accept, $accept_header))) {
             return Event::next;
         }
         switch ($route) {
@@ -53,15 +53,14 @@ class ActivityStreamsTwo extends Plugin
      * @param $r RouteLoader the router that was initialized.
      *
      * @return bool
-     *
-     * public function onAddRoute(RouteLoader $r): bool
-     * {
-     * $r->connect(
-     * 'note_view',
-     * '/note/{id<\d+>}',
-     * [NoteResponse::class, 'handle'],
-     * options: ['accept' => $this->accept]
-     * );
-     * return Event::next;
-     * }*/
+     */
+    public function onAddRoute(RouteLoader $r): bool
+    {
+        $r->connect('note_view_as2',
+                    '/note/{id<\d+>}',
+                    [NoteResponse::class, 'handle'],
+                    options: ['accept' => $this->accept]
+        );
+        return Event::next;
+    }
 }
