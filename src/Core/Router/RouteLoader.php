@@ -64,6 +64,16 @@ class RouteLoader extends Loader
 
         Event::handle('AddRoute', [&$this]);
 
+        // Sort routes so that whichever route has the smallest accept option matches first, as it's more specific
+        // This requires a copy, sadly, as it doesn't seem to be possible to modify the collection in-place
+        // However, this is fine since this gets cached
+        $it = $this->rc->getIterator();
+        $it->uasort(fn (Route $left, Route $right) => count($left->getDefaults()['accept']) <=> count($right->getDefaults()['accept']));
+        $this->rc = new RouteCollection();
+        foreach ($it as $id => $route) {
+            $this->rc->add($id, $route);
+        }
+
         return $this->rc;
     }
 
@@ -93,6 +103,7 @@ class RouteLoader extends Loader
                         '_fragment'   => $options['fragment'] ?? '',
                         '_locale'     => $options['locale'] ?? 'en',
                         'template'    => $options['template'] ?? '',
+                        'accept'      => $options['accept'] ?? [],
                     ],
                     $options['defaults'] ?? []
                 ),
