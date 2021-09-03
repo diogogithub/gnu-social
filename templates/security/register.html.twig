@@ -9,9 +9,10 @@
 
 {% block body %}
     <div class='content'>
-        <section class="section-widget">
-            {{ form_start(registration_form) }}
-                <fieldset class="section-widget-form">
+        <div class="section-container">
+            <section class="section-widget">
+                {{ form_start(registration_form) }}
+                <fieldset class="section-form">
                     <legend class="section-form-legend">
                         <h1>{{ "Register a new account" | trans }}</h1>
                     </legend>
@@ -25,8 +26,10 @@
                     {{ form_row(registration_form.password) }}
                     {{ form_row(registration_form.register) }}
                 </fieldset>
-            {{ form_end(registration_form) }}
-        </section>
+                {{ form_end(registration_form) }}
+            </section>
+        </div>
+
     </div>
 {% endblock body %}
 

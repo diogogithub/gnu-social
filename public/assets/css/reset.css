@@ -187,10 +187,7 @@ input[type=radio] {
 /* file selector */
 input[type=file] {
     all: unset;
-
     display: block !important;
-    width: 100%;
-
     border-radius: var(--unit-size);
 }
 

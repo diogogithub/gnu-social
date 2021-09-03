@@ -20,9 +20,7 @@
                 <div class="section-form">
                     {{ form_start(post_form) }}
 
-                    <span class="section-form-target">
-                    {{ form_label(post_form.to) }}{{ form_widget(post_form.to) }}
-                </span>
+                    {{ form_row(post_form.to, {'attr': {'class': 'section-form-scope'}}) }}
 
                     {{ form_row(post_form.visibility, {'attr': {'class': 'section-form-scope'}}) }}
 

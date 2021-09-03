@@ -55,7 +55,7 @@ hr {
     all: unset;
     display: block;
     height: 2px;
-    background: var(--translucent);
+    background: var(--bg2);
 }
 
 summary:focus {
@@ -338,6 +338,10 @@ summary:focus {
     font-size: var(--small-size);
 }
 
+.section-form-scope {
+    margin-left: 5px;
+}
+
 .section-form-options {
     display: block !important;
     margin-bottom: var(--unit-size);
@@ -360,6 +364,11 @@ summary:focus {
 }
 
 /* BUTTONS AND INPUT SHENANIGANS */
+label {
+    font-family: var(--display-font);
+    font-weight: bold;
+}
+
 button {
     font-size: var(--small-size) !important;
     font-family: var(--display-font) !important;
@@ -407,6 +416,7 @@ input[type=radio]:checked {
 input[type=checkbox] {
     background-color: var(--bg2) !important;
     background-size: cover;
+    margin-left: 5px;
 
     -webkit-mask-image: url("../icons/check-off.svg") !important;
     -o-mask-image: url("../icons/check-off.svg") !important;
@@ -463,6 +473,20 @@ input[type=file]:hover {
     color: var(--white) !important;
 }
 
+select {
+    font-family: var(--display-font) !important;
+    font-size: var(--small-size);
+    font-weight: normal !important;
+    background: linear-gradient(180deg, var(--bg2), transparent) !important;
+    color: var(--white);
+    border: 2px solid var(--bg2);
+    border-radius: var(--unit-size);
+}
+select:hover,
+select:focus {
+    border-color: var(--bg3);
+}
+
 /* MEDIA QUERIES */
 /* sidepanels need to be shown by default on desktop, hidden on mobile */
 .panel .panel-content {
@@ -481,10 +505,6 @@ input[type=file]:hover {
     height: calc(100% - 3rem);
 
     padding: var(--unit-size);
-}
-.panel label {
-    font-family: var(--display-font);
-    font-weight: bold;
 }
 
 @media (min-width: 1200px) {
