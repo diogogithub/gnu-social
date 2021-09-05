@@ -25,7 +25,6 @@ use App\Core\Form;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -36,6 +35,7 @@ class Repeat extends NoteHandlerPlugin
     /**
      * HTML rendering event that adds the repeat form as a note
      * action, if a user is logged in
+     *
      * @throws RedirectException
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
@@ -44,13 +44,8 @@ class Repeat extends NoteHandlerPlugin
             return Event::next;
         }
 
-        $opts = ['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId()];
-        try {
-            $is_set = DB::findOneBy('note', $opts) != null;
-        } catch (NotFoundException $e) {
-            // Not found
-            $is_set = false;
-        }
+        $opts        = ['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId()];
+        $is_set      = DB::count('note', $opts) == 1;
         $form_repeat = Form::create([
             ['submit_repeat', SubmitType::class,
                 [
@@ -67,7 +62,6 @@ class Repeat extends NoteHandlerPlugin
         // Handle form
         $ret = self::noteActionHandle(
             $request, $form_repeat, $note, "repeat-{$note->getId()}", function ($note, $data, $user) use ($opts) {
-
                 if ($data["repeat-{$note->getId()}"] === '0') {
                     DB::persist(Note::create([
                         'gsactor_id' => $user->getId(),
@@ -76,7 +70,7 @@ class Repeat extends NoteHandlerPlugin
                         'is_local'   => true,
                     ]));
                 } else {
-                    DB::remove($note);
+                    DB::remove(DB::findOneBy('note', ['gsactor_id' => $user->getId(), 'repeat_of' => $note->getId()]));
                 }
                 DB::flush();
 
@@ -84,7 +78,7 @@ class Repeat extends NoteHandlerPlugin
                 throw new RedirectException();
 
                 return Event::stop;
-        });
+            });
 
         if ($ret !== null) {
             return $ret;
