@@ -168,15 +168,24 @@ summary:focus {
 }
 
 /* NOTES */
-.notes hr {
+.h-entry hr {
+    margin-top: 5px;
+}
+
+.h-entry {
     margin-top: var(--unit-size);
-    margin-bottom: var(--small-size);
 }
 
 .h-entry,
 .note {
     background-color: var(--translucent);
     border-radius: var(--unit-size);
+}
+
+.h-entry .replies .h-entry {
+    background-color: unset;
+    padding: 0 var(--unit-size) var(--unit-size) 0;
+    margin-left: var(--medium-size);
 }
 
 .note-info {

@@ -17,7 +17,7 @@
         {% endif %}
 
         {% if app.user %}
-        <div class="note-actions" aria-roledescription={{ 'Favourite, reply and recycle this note' | trans }}>
+        <div class="note-actions" aria-roledescription="{{ 'Favourite, reply and recycle this note.' | trans }}">
             {% if have_user %}
                 {% for current_action in get_note_actions(note) %}
                     {{ form_start(current_action) }}
@@ -42,7 +42,7 @@
         </div>
         {% endif %}
     </div>
-    <div class="e-content entry-content note-content" aria-roledescription={{ 'This note content.' | trans }}>
+    <div class="e-content entry-content note-content" aria-roledescription="{{ 'The note content.'  | trans }}">
         {% block markdown %}
             {% apply markdown_to_html %}
                 {{ note.getContent() }}
@@ -69,13 +69,14 @@
         </div>
     </div>
 
-    {% if replies is defined %}
+    {% if replies is defined and replies is not empty %}
         <div class="u-in-reply-to replies">
             {% for conversation in replies %}
                 {% include '/note/view.html.twig' with {'note': conversation['note'], 'skip_reply_to': true, 'have_user': have_user, 'replies': conversation['replies']} only %}
             {% endfor %}
         </div>
     {% endif %}
+    {% if reply_to is not empty %}
+        <hr>
+    {% endif %}
 </article>
-
-<hr>
