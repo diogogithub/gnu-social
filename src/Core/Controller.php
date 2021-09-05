@@ -65,10 +65,11 @@ class Controller extends AbstractController implements EventSubscriberInterface
         $this->request = $request;
         $class         = get_called_class();
         $method        = 'on' . ucfirst(strtolower($request->getMethod()));
+        $attributes    = array_diff_key($request->attributes->get('_route_params'), array_flip(['_format', '_fragment', '_locale', 'template', 'accept']));
         if (method_exists($class, $method)) {
-            return $class::$method($request, $this->vars);
+            return $class::$method($request, ...$attributes);
         } else {
-            return $class::handle($request, $this->vars);
+            return $class::handle($request, ...$attributes);
         }
     }
 
@@ -174,11 +175,15 @@ class Controller extends AbstractController implements EventSubscriberInterface
     }
 
     /**
-     * Get and convert GET parameters. Can be called with `int`, `bool`, etc
+     * Get and convert GET parameters. Can be called with `int`, `bool`, `string`, etc
      *
      * @param string $name
      *
      * @throws ValidatorException
+     * @throws Exception
+     *
+     * @return the value or null if no paramter exists
+     *
      */
     public function __call(string $method, array $args)
     {
@@ -189,6 +194,8 @@ class Controller extends AbstractController implements EventSubscriberInterface
             return (int) $value;
         case 'bool':
             return (bool) $value;
+        case 'string':
+            return (string) $value;
         default:
             // @codeCoverageIgnoreStart
             Log::critical($m = "Method '{$method}' on class App\\Core\\Controller not found (__call)");
