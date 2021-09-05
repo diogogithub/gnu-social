@@ -214,39 +214,51 @@ summary:focus {
     display: flex;
     vertical-align: middle;
 }
-.note-actions button {
-    margin-left: 5px;
-}
 
-.favourite-button-container {
+.button-container {
     width: 1em !important;
     height: 1em !important;
 }
 
-.favourite-button-container button {
+.button-container button {
     all: unset;
     border: none !important;
     width: inherit !important;
     height: inherit !important;
     background-size: cover !important;
+    margin-left: 5px;
+}
 
+.button-container button:hover,
+.button-container button:focus {
+    border: none !important;
+    background: var(--bg3) !important;
+}
+
+.favourite-button-container button {
     -webkit-mask-image: url("../icons/heart.svg") !important;
     -o-mask-image: url("../icons/heart.svg") !important;
     -moz-mask-image: url("../icons/heart.svg") !important;
     mask-image: url("../icons/heart.svg") !important;
 }
-
-.favourite-button-container button:hover,
-.favourite-button-container button:focus {
-    border: none !important;
-    background: var(--bg3) !important;
+.reply-button-container button {
+    -webkit-mask-image: url("../icons/reply.svg") !important;
+    -o-mask-image: url("../icons/reply.svg") !important;
+    -moz-mask-image: url("../icons/reply.svg") !important;
+    mask-image: url("../icons/reply.svg") !important;
+}
+.repeat-button-container button {
+    -webkit-mask-image: url("../icons/repeat.svg") !important;
+    -o-mask-image: url("../icons/repeat.svg") !important;
+    -moz-mask-image: url("../icons/repeat.svg") !important;
+    mask-image: url("../icons/repeat.svg") !important;
 }
 
-.favourite-button-off {
+.note-actions-unset {
     background: var(--bg2) !important;
 }
 
-.favourite-button-on {
+.note-actions-set {
     background: var(--white) !important;
 }
 

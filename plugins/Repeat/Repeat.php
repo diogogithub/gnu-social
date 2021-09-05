@@ -50,9 +50,15 @@ class Repeat extends NoteHandlerPlugin
             $is_set = false;
         }
         $form = Form::create([
-            ['is_set',  HiddenType::class, ['data' => $is_set ? '1' : '0']],
             ['note_id', HiddenType::class, ['data' => $note->getId()]],
-            ['repeat',  SubmitType::class, ['label' => ' ']],
+            ['repeat', SubmitType::class,
+                [
+                    'label' => ' ',
+                    'attr'  => [
+                        'class' => $is_set ? 'note-actions-set' : 'note-actions-unset',
+                    ],
+                ],
+            ],
         ]);
 
         // Handle form

@@ -67,7 +67,7 @@ class Favourite extends NoteHandlerPlugin
                 [
                     'label' => ' ',
                     'attr'  => [
-                        'class' => $is_set ? 'favourite-button-on' : 'favourite-button-off',
+                        'class' => $is_set ? 'note-actions-set' : 'note-actions-unset',
                     ],
                 ],
             ],

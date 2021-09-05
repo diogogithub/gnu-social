@@ -60,7 +60,14 @@ class Reply extends NoteHandlerPlugin
             ['content',     HiddenType::class, ['label' => ' ', 'required' => false]],
             ['attachments', HiddenType::class, ['label' => ' ', 'required' => false]],
             ['note_id',     HiddenType::class, ['data' => $note->getId()]],
-            ['reply',       SubmitType::class, ['label' => ' ']],
+            ['reply', SubmitType::class,
+                [
+                    'label' => ' ',
+                    'attr'  => [
+                        'class' => 'note-actions-unset',
+                    ],
+                ],
+            ],
         ]);
 
         // Handle form
