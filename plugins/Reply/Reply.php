@@ -28,7 +28,7 @@ use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Entity\Note;
 use App\Util\Common;
-use App\Util\Exceptiion\InvalidFormException;
+use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
 use Component\Posting\Posting;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -49,10 +49,11 @@ class Reply extends NoteHandlerPlugin
     /**
      * HTML rendering event that adds the reply form as a note action,
      * if a user is logged in
+     * @throws RedirectException
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
-        if (($user = Common::user()) == null) {
+        if (($user = Common::user()) === null) {
             return Event::next;
         }
 
@@ -71,7 +72,7 @@ class Reply extends NoteHandlerPlugin
         ]);
 
         // Handle form
-        $ret = self::noteActionHandle($request, $form, $note, 'reply', function ($note, $data) {
+        $ret = self::noteActionHandle($request, $form, $note, 'reply', function ($note, $data, $user) {
             if ($data['content'] !== null) {
                 // JS submitted
                 // TODO Implement in JS
@@ -87,10 +88,12 @@ class Reply extends NoteHandlerPlugin
             } else {
                 // JS disabled, redirect
                 throw new RedirectException('note_reply', ['reply_to' => $note->getId()]);
+
+                return Event::stop;
             }
         });
 
-        if ($ret != null) {
+        if ($ret !== null) {
             return $ret;
         }
         $actions[] = $form->createView();
@@ -105,7 +108,7 @@ class Reply extends NoteHandlerPlugin
         $user     = Common::ensureLoggedIn();
         $actor_id = $user->getId();
         $note     = DB::find('note', ['id' => (int) $reply_to]);
-        if ($note == null || !$note->isVisibleTo($user)) {
+        if ($note === null || !$note->isVisibleTo($user)) {
             throw new NoSuchNoteException();
         }
 
