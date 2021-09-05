@@ -304,9 +304,9 @@ class Embed extends Plugin
         }
 
         // If an attachment already exist, do not create an Embed for it. Some other plugin must have done things
-        $link_to_attachment = DB::find('link_to_attachment', ['link_id' => $link->getId()]);
-        if (!is_null($link_to_attachment)) {
-            $attachment_id = $link_to_attachment->getAttachmentId();
+        $attachment_to_link = DB::find('attachment_to_link', ['link_id' => $link->getId()]);
+        if (!is_null($attachment_to_link)) {
+            $attachment_id = $attachment_to_link->getAttachmentId();
             try {
                 $attachment = DB::findOneBy('attachment', ['id' => $attachment_id]);
                 $attachment->livesIncrementAndGet();
