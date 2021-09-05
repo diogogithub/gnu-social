@@ -19,6 +19,7 @@
 
 namespace App\Core\Modules;
 
+use App\Core\Event;
 use App\Core\Log;
 use App\Entity\Note;
 use App\Util\Common;
