@@ -61,12 +61,22 @@ abstract class Router
     public static ?SRouter $router                = null;
     public static ?UrlGeneratorInterface $url_gen = null;
 
-    public static function setRouter($rtr, $gen): void
+    public static function setServices($rtr, $gen): void
     {
         self::$router  = $rtr;
         self::$url_gen = $gen;
     }
 
+    public static function isAbsolute(string $url)
+    {
+        return isset(parse_url($url)['host']);
+    }
+
+    /**
+     * Generate a URL for route $id with $args replacing the
+     * placeholder route values. Extra params are added as query
+     * string to the URL
+     */
     public static function url(string $id, array $args, int $type = self::ABSOLUTE_PATH): string
     {
         return self::$url_gen->generate($id, $args, $type);

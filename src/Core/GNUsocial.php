@@ -171,7 +171,7 @@ class GNUsocial implements EventSubscriberInterface
             Form::setFactory($this->form_factory);
             Queue::setMessageBus($this->message_bus);
             Security::setHelper($this->security, $this->sanitizer);
-            Router::setRouter($this->router, $this->url_generator);
+            Router::setServices($this->router, $this->url_generator);
             HTTPClient::setClient($this->client);
             Formatting::setTwig($this->twig);
             Cache::setupCache();
