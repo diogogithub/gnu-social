@@ -61,9 +61,9 @@ class Favourite extends NoteHandlerPlugin
 
         // if note is favourited, "is_set" is 1
         $opts     = ['note_id' => $note->getId(), 'gsactor_id' => $user->getId()];
-        $is_set   = DB::find('favourite', $opts) != null;
+        $is_set   = DB::find('favourite', $opts) !== null;
         $form_fav = Form::create([
-            ['submit_fav', SubmitType::class,
+            ['submit_favourite', SubmitType::class,
                 [
                     'label' => ' ',
                     'attr'  => [
@@ -71,8 +71,8 @@ class Favourite extends NoteHandlerPlugin
                     ],
                 ],
             ],
-            ['note_id',   HiddenType::class, ['data' => $note->getId()]],
-            ["favourite-{$note->getId()}",   HiddenType::class, ['data' => $is_set ? '1' : '0']],
+            ['note_id', HiddenType::class, ['data' => $note->getId()]],
+            ["favourite-{$note->getId()}", HiddenType::class, ['data' => $is_set ? '1' : '0']],
         ]);
 
         // Form handler
@@ -85,24 +85,22 @@ class Favourite extends NoteHandlerPlugin
          *
          * @throws RedirectException Always thrown in order to prevent accidental form re-submit from browser
          */ function ($note, $data) use ($opts, $request) {
-             $fave = DB::find('favourite', $opts);
-             if ($data["favourite-{$note->getId()}"] === '0' && $fave === null) {
-                 DB::persist(Entity\Favourite::create($opts));
-                 DB::flush();
-             } else {
-                 if ($data["favourite-{$note->getId()}"] === '1' && $fave !== null) {
-                     DB::remove($fave);
+                 $favourite_note = DB::find('favourite', $opts);
+                 if ($data["favourite-{$note->getId()}"] === '0' && $favourite_note === null) {
+                     DB::persist(Entity\Favourite::create($opts));
+                     DB::flush();
+                 } else if ($data["favourite-{$note->getId()}"] === '1' && $favourite_note !== null) {
+                     DB::remove($favourite_note);
                      DB::flush();
                  }
-             }
 
-             // Prevent accidental refreshes from resubmitting the form
-             throw new RedirectException();
+                 // Prevent accidental refreshes from resubmitting the form
+                 throw new RedirectException();
 
-             return Event::stop;
+                 return Event::stop;
          });
 
-        if ($ret != null) {
+        if ($ret !== null) {
             return $ret;
         }
 

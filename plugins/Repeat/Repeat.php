@@ -26,6 +26,7 @@ use App\Core\Modules\NoteHandlerPlugin;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\NotFoundException;
+use App\Util\Exception\RedirectException;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,10 +36,11 @@ class Repeat extends NoteHandlerPlugin
     /**
      * HTML rendering event that adds the repeat form as a note
      * action, if a user is logged in
+     * @throws RedirectException
      */
     public function onAddNoteActions(Request $request, Note $note, array &$actions)
     {
-        if (($user = Common::user()) == null) {
+        if (($user = Common::user()) === null) {
             return Event::next;
         }
 
@@ -49,9 +51,8 @@ class Repeat extends NoteHandlerPlugin
             // Not found
             $is_set = false;
         }
-        $form = Form::create([
-            ['note_id', HiddenType::class, ['data' => $note->getId()]],
-            ['repeat', SubmitType::class,
+        $form_repeat = Form::create([
+            ['submit_repeat', SubmitType::class,
                 [
                     'label' => ' ',
                     'attr'  => [
@@ -59,30 +60,36 @@ class Repeat extends NoteHandlerPlugin
                     ],
                 ],
             ],
+            ['note_id', HiddenType::class, ['data' => $note->getId()]],
+            ["repeat-{$note->getId()}", HiddenType::class, ['data' => $is_set ? '1' : '0']],
         ]);
 
         // Handle form
-        $ret = self::noteActionHandle($request, $form, $note, 'repeat', function ($note, $data, $user) use ($opts) {
-            $note = DB::findOneBy('note', $opts);
-            if (!$data['is_set'] && $note == null) {
-                DB::persist(Note::create([
-                    'gsactor_id' => $user->getId(),
-                    'repeat_of'  => $note->getId(),
-                    'content'    => $note->getContent(),
-                    'is_local'   => true,
-                ]));
+        $ret = self::noteActionHandle(
+            $request, $form_repeat, $note, "repeat-{$note->getId()}", function ($note, $data, $user) use ($opts) {
+
+                if ($data["repeat-{$note->getId()}"] === '0') {
+                    DB::persist(Note::create([
+                        'gsactor_id' => $user->getId(),
+                        'repeat_of'  => $note->getId(),
+                        'content'    => $note->getContent(),
+                        'is_local'   => true,
+                    ]));
+                } else {
+                    DB::remove($note);
+                }
                 DB::flush();
-            } else {
-                DB::remove($note);
-                DB::flush();
-            }
-            return Event::stop;
+
+                // Prevent accidental refreshes from resubmitting the form
+                throw new RedirectException();
+
+                return Event::stop;
         });
 
-        if ($ret != null) {
+        if ($ret !== null) {
             return $ret;
         }
-        $actions[] = $form->createView();
+        $actions[] = $form_repeat->createView();
         return Event::next;
     }
 }

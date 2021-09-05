@@ -21,14 +21,14 @@
             {% if have_user %}
                 {% for current_action in get_note_actions(note) %}
                     {{ form_start(current_action) }}
-                        {% if current_action.submit_fav is defined %}
+                        {% if current_action.submit_favourite is defined %}
                             <span title="Favourite this note." class="button-container favourite-button-container">
-                                {{ form_widget(current_action.submit_fav) }}
+                                {{ form_widget(current_action.submit_favourite) }}
                             </span>
                         {% endif %}
-                        {% if current_action.repeat is defined %}
+                        {% if current_action.submit_repeat is defined %}
                             <span title="Repeat this note." class="button-container repeat-button-container">
-                                {{ form_widget(current_action.repeat) }}
+                                {{ form_widget(current_action.submit_repeat) }}
                             </span>
                         {% endif %}
                         {% if current_action.reply is defined %}
