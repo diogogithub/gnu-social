@@ -27,9 +27,23 @@ class RedirectException extends Exception
 {
     public ?RedirectResponse $redirect_response = null;
 
-    public function __construct(string $url_id = '', array $args = [], $message = '', $code = 302, ?string $url = null, ?Exception $previous_exception = null)
+    /**
+     * Used for responding to a request with a redirect. Either
+     * generates a url from a $route_id and $params or fully formed,
+     * from $url. Prevents open redirects, unless $allow_open_redirect
+     */
+    public function __construct(string $route_id = '', array $params = [], string $message = '', int $code = 302, ?string $url = null, bool $allow_open_redirect = false, ?Exception $previous_exception = null)
     {
-        $this->redirect_response = new RedirectResponse($url ?? Router::url($url_id, $args));
+        if (!empty($route_id) || !empty($url)) {
+            $url = $url ?? Router::url($route_id, $params, Router::ABSOLUTE_PATH); // Absolute path doesn't include host
+            if (!$allow_open_redirect) {
+                if (Router::isAbsolute($url)) {
+                    Log::warning("A RedirectException that shouldn't allow open redirects attempted to redirect to {$url}");
+                    throw new ServerException(_m('Can not redirect to outside the website from here'), 5400); // 500 Internal server error (likely a bug)
+                }
+            }
+            $this->redirect_response = new RedirectResponse($url);
+        }
         parent::__construct($message, $code, $previous_exception);
     }
 }
