@@ -56,7 +56,13 @@ class Reply extends Controller
         }
 
         $form = Form::create([
-            ['content',     TextareaType::class, ['label' => ' ']],
+
+            ['content',     TextareaType::class, [
+                    'label'       => _m('Reply'),
+                    'label_attr' => ['class' => 'section-form-label'],
+                    'help'        => _m('Please input your reply.'),
+                ]
+            ],
             ['attachments', FileType::class,     ['label' => ' ', 'multiple' => true, 'required' => false]],
             ['replyform',   SubmitType::class,   ['label' => _m('Submit')]],
         ]);

@@ -31,6 +31,7 @@ use Plugin\Reply\Controller\Reply as ReplyController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
+use function App\Core\I18n\_m;
 
 class Reply extends NoteHandlerPlugin
 {
@@ -57,6 +58,7 @@ class Reply extends NoteHandlerPlugin
             ['content',     HiddenType::class, ['label' => ' ', 'required' => false]],
             ['attachments', HiddenType::class, ['label' => ' ', 'required' => false]],
             ['note_id',     HiddenType::class, ['data' => $note->getId()]],
+
             ['reply',       SubmitType::class,
                 [
                     'label' => ' ',

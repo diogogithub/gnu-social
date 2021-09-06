@@ -51,7 +51,7 @@
         --bg1: #F4F2E8;
         --bg2: #B5BBB4;
         --bg3: #6C766B;
-        --bg-button: #C0C5BC66 !important;
+        --bg-button: #F4F2E866 !important;
 
         --translucent: #F4F2E866;
         --white: #002B36;
@@ -215,6 +215,22 @@ summary:hover .icon-details-open {
 }
 
 /* NOTES */
+#replyform {
+    padding: var(--unit-size);
+    margin-top: var(--unit-size);
+    background-color: var(--translucent);
+    border-radius: var(--unit-size);
+    display: flex;
+    flex-direction: column;
+    font-size: var(--small-size);
+}
+#replyform textarea {
+    width: 100%;
+    resize: vertical;
+    margin-top: var(--unit-size);
+    padding: var(--unit-size);
+}
+
 .h-entry {
     margin-top: var(--unit-size);
 }
@@ -230,6 +246,12 @@ summary:hover .icon-details-open {
     animation-timing-function: ease-in-out;
 }
 
+.h-entry .embed header {
+    padding: var(--unit-size);
+}
+.h-entry .embed .p-summary {
+    padding: var(--unit-size);
+}
 .h-entry,
 .note {
     background-color: var(--translucent);
@@ -412,10 +434,6 @@ summary:hover .icon-details-open {
     font-size: var(--small-size);
 }
 
-.section-form-scope {
-    margin-left: 5px;
-}
-
 .section-form-options {
     display: block !important;
     margin-bottom: var(--unit-size);
@@ -453,9 +471,10 @@ input {
     padding: 2px 8px;
     border: 2px solid var(--bg2) !important;
     border-radius: var(--unit-size) !important;
-    background-color: var(--translucent) !important;
+    background-color: var(--translucent);
 }
 button {
+    background: var(--bg-button);
     padding: 5px 10px;
 }
 
@@ -686,6 +705,7 @@ input[type=file] {
         background-position: center;
         background-repeat: no-repeat;
         background-size: 100% 100%;
+        z-index: auto;
     }
 
     @media (prefers-color-scheme: dark) {
