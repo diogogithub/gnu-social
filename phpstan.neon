@@ -1,0 +1,7 @@
+parameters:
+    level: 1
+    bootstrapFiles:
+        - config/bootstrap.php
+    earlyTerminatingMethodCalls:
+        App\Core\Log:
+            - unexpected_exception
