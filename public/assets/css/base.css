@@ -450,10 +450,13 @@ input {
     display: block;
     position: relative;
     color: var(--white);
-    padding: 5px 10px;
+    padding: 2px 8px;
     border: 2px solid var(--bg2) !important;
     border-radius: var(--unit-size) !important;
     background-color: var(--translucent) !important;
+}
+button {
+    padding: 5px 10px;
 }
 
 select {
@@ -683,5 +686,20 @@ input[type=file] {
         background-position: center;
         background-repeat: no-repeat;
         background-size: 100% 100%;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        #panel-left-toggle:checked ~ .panel-content,
+        #panel-right-toggle:checked ~ .panel-content,
+        a[id|="anchor"]:target ~ .panel-content {
+            background-image: url(../images/bg.png);
+        }
+    }
+    @media (prefers-color-scheme: light) {
+        #panel-left-toggle:checked ~ .panel-content,
+        #panel-right-toggle:checked ~ .panel-content,
+        a[id|="anchor"]:target ~ .panel-content {
+            background-image: url(../images/bg-light.png);
+        }
     }
 }
