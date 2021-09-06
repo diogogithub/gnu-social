@@ -20,13 +20,14 @@
 namespace App\Core\Modules;
 
 use App\Util\Common;
-use App\Util\Formatting;
 
 /**
  * Base class for all GNU social modules (plugins and components)
  */
 abstract class Module
 {
+    const MODULE_TYPE = 'module';
+
     /**
      * Load values from the config and set them as properties on each module object
      */
@@ -54,8 +55,7 @@ abstract class Module
      */
     public static function __set_state($state)
     {
-        $class = get_called_class();
-        $obj   = new $class();
+        $obj = new (static::class);
         foreach ($state as $k => $v) {
             $obj->{$k} = $v;
         }

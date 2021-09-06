@@ -47,35 +47,6 @@ class Kernel extends BaseKernel
 
     public const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
-    public function __construct(string $environment, bool $debug)
-    {
-        parent::__construct($environment, $debug);
-
-        if (!defined('INSTALLDIR')) {
-            define('INSTALLDIR', dirname(__DIR__));
-            define('SRCDIR', INSTALLDIR . '/src');
-            define('PUBLICDIR', INSTALLDIR . '/public');
-            define('GNUSOCIAL_ENGINE_NAME', 'GNU social');
-            // MERGE Change to https://gnu.io/social/
-            define('GNUSOCIAL_PROJECT_URL', 'https://gnusocial.rocks/');
-            // MERGE Change to https://git.gnu.io/gnu/gnu-social
-            define('GNUSOCIAL_REPOSITORY_URL', 'https://code.undefinedhackers.net/GNUsocial/gnu-social');
-            // Current base version, major.minor.patch
-            define('GNUSOCIAL_BASE_VERSION', '3.0.0');
-            // 'dev', 'alpha[0-9]+', 'beta[0-9]+', 'rc[0-9]+', 'release'
-            define('GNUSOCIAL_LIFECYCLE', 'dev');
-            define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
-            define('GNUSOCIAL_CODENAME', 'Big bang');
-            define('URL_REGEX_DOMAIN_NAME', '(?:(?!-)[A-Za-z0-9\-]{1,63}(?<!-)\.)+[A-Za-z]{2,10}');
-
-            // Work internally in UTC
-            date_default_timezone_set('UTC');
-
-            // Work internally with UTF-8
-            mb_internal_encoding('UTF-8');
-        }
-    }
-
     /**
      * Symfony framework function override responsible for registering
      * bundles (similar to our modules)

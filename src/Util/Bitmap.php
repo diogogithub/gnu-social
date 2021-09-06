@@ -32,7 +32,7 @@ abstract class Bitmap
     private static function _to(int $r, bool $instance)
     {
         $init  = $r;
-        $class = get_called_class();
+        $class = static::class;
         if ($instance) {
             $obj = new $class;
         } else {

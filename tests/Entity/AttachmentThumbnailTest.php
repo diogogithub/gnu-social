@@ -38,6 +38,7 @@ class AttachmentThumbnailTest extends GNUsocialTestCase
 
         // Data fixture already loaded this file, but we need to get its hash to find it
         $file = new \SplFileInfo(INSTALLDIR . '/tests/sample-uploads/attachment-lifecycle-target.jpg');
+        $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
 
@@ -73,6 +74,7 @@ class AttachmentThumbnailTest extends GNUsocialTestCase
         parent::bootKernel();
 
         $file = new \SplFileInfo(INSTALLDIR . '/tests/sample-uploads/spreadsheet.ods');
+        $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
 

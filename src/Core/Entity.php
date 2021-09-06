@@ -23,7 +23,6 @@ namespace App\Core;
 
 use App\Core\DB\DB;
 use App\Util\Exception\NotFoundException;
-use App\Util\Exception\ServerException;
 use App\Util\Formatting;
 use DateTime;
 
@@ -53,7 +52,7 @@ abstract class Entity
      */
     public static function create(array $args, $obj = null)
     {
-        $class = get_called_class();
+        $class = static::class;
         $obj   = $obj ?: new $class();
         $date  = new DateTime();
         foreach (['created', 'modified'] as $prop) {

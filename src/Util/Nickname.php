@@ -31,6 +31,7 @@ use App\Util\Exception\NicknameReservedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
 use App\Util\Exception\NicknameTooShortException;
+use App\Util\Exception\NotImplementedException;
 use Functional as F;
 use Normalizer;
 
@@ -154,7 +155,7 @@ class Nickname
                     break;
                     // @codeCoverageIgnoreStart
                 case self::CHECK_LOCAL_GROUP:
-                    throw new \NotImplementedException();
+                    throw new NotImplementedException();
                     break;
                 default:
                     throw new \InvalidArgumentException();

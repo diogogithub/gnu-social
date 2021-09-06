@@ -19,6 +19,8 @@
 
 namespace App\Util\Exception;
 
+use function App\Core\I18n\_m;
+use App\Core\Log;
 use App\Core\Router\Router;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;

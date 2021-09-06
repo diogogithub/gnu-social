@@ -76,6 +76,7 @@ class AttachmentTest extends GNUsocialTestCase
         $test = function (string $method) {
             $temp_file = new TemporaryFile();
             $temp_file->write(file_get_contents(INSTALLDIR . '/tests/sample-uploads/gnu-logo.png'));
+            $hash = null;
             Event::handle('HashFile', [$temp_file->getPathname(), &$hash]);
             $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
             $attachment->{$method}();
@@ -118,6 +119,7 @@ class AttachmentTest extends GNUsocialTestCase
     public function testMimetype()
     {
         $file = new \SplFileInfo(INSTALLDIR . '/tests/sample-uploads/image.jpg');
+        $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);
         $attachment = DB::findOneBy('attachment', ['filehash' => $hash]);
 

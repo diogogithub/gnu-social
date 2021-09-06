@@ -27,7 +27,6 @@ use function App\Core\I18n\_m;
 use App\Core\Modules\NoteHandlerPlugin;
 use App\Core\Router\RouteLoader;
 use App\Entity\Note;
-use App\Entity\PollResponse;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NotFoundException;
@@ -117,7 +116,7 @@ class Poll extends NoteHandlerPlugin
             return Event::next;
         }
 
-        if (Common::isLoggedIn() && !PollResponse::exits($poll->getId(), Common::ensureLoggedIn()->getId())) {
+        if (Common::isLoggedIn() && !Entity\PollResponse::exits($poll->getId(), Common::ensureLoggedIn()->getId())) {
             $opts    = $poll->getOptionsArr();
             $options = [];
             for ($i = 1; $i <= count($opts); ++$i) {
@@ -143,7 +142,7 @@ class Poll extends NoteHandlerPlugin
                     return Event::next;
                 }
 
-                if (PollResponse::exits($poll->getId(), $user->getId())) {
+                if (Entity\PollResponse::exits($poll->getId(), $user->getId())) {
                     return Event::next;
                 }
 
@@ -151,10 +150,10 @@ class Poll extends NoteHandlerPlugin
                 if (!$poll->isValidSelection($selection)) {
                     throw new InvalidFormException();
                 }
-                if (PollResponse::exits($poll->getId(), $user->getId())) {
+                if (Entity\PollResponse::exits($poll->getId(), $user->getId())) {
                     throw new ServerException('User already responded to poll');
                 }
-                $pollResponse = PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
+                $pollResponse = Entity\PollResponse::create(['poll_id' => $poll->getId(), 'gsactor_id' => $user->getId(), 'selection' => $selection]);
                 DB::persist($pollResponse);
                 DB::flush();
 

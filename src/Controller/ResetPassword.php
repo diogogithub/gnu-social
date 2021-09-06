@@ -3,9 +3,16 @@
 namespace App\Controller;
 
 use App\Core\Controller;
+use App\Core\DB\DB;
+use App\Core\Form;
+use function App\Core\I18n\_m;
 use App\Entity\LocalUser;
+use App\Security\EmailVerifier;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
+use App\Util\Form\FormFields;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
@@ -26,7 +33,7 @@ class ResetPassword extends Controller
      */
     public function requestPasswordReset(Request $request)
     {
-        $from = Form::create([
+        $form = Form::create([
             ['email', EmailType::class,  ['label' => _m('Email'), 'constraints' => [ new NotBlank(['message' => _m('Please enter an email') ]) ]]],
             ['password_reset_request', SubmitType::class, ['label' => _m('Submit request')]],
         ]);
@@ -38,7 +45,7 @@ class ResetPassword extends Controller
 
         return [
             '_template'           => 'reset_password/request.html.twig',
-            'password_reset_form' => $from->createView(),
+            'password_reset_form' => $form->createView(),
         ];
     }
 
@@ -83,7 +90,7 @@ class ResetPassword extends Controller
         }
 
         // The token is valid; allow the user to change their password.
-        $form = From::create([
+        $form = Form::create([
             FormFields::repeated_password(),
             ['password_reset', SubmitType::class, ['label' => _m('Change password')]],
         ]);

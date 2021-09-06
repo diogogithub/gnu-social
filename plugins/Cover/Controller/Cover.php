@@ -23,14 +23,13 @@ namespace Plugin\Cover\Controller;
 
 use App\Core\DB\DB;
 use App\Core\Form;
+use App\Core\GSFile;
 use function App\Core\I18n\_m;
-use App\Entity\Cover as CoverEntity;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
-use Component\Media\Attachment;
-use Component\Media\Attachment as M;
+use Plugin\Cover\Entity\Cover as CoverEntity;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -97,7 +96,7 @@ class Cover
             if (explode('/',$sfile->getMimeType())[0] != 'image') {
                 throw new ServerException('Invalid file type');
             }
-            $file     = Attachment::validateAndStoreFile($sfile, Common::config('cover', 'dir'), $title = null, $is_local = true, $use_unique = $actor_id);
+            $file     = GSFile::sanitizeAndStoreFileAsAttachment($sfile);
             $old_file = null;
             $cover    = DB::find('cover', ['gsactor_id' => $actor_id]);
             // Must get old id before inserting another one
@@ -152,6 +151,6 @@ class Cover
         if ($file == null) {
             return  new Response('Cover File not found',Response::HTTP_NOT_FOUND);
         }
-        return M::sendFile($cover->getFilePath(), $file->getMimetype(), $file->getTitle());
+        return GSFile::sendFile($cover->getFilePath(), $file->getMimetype(), $file->getTitle());
     }
 }

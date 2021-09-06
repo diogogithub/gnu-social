@@ -24,9 +24,9 @@ namespace Plugin\ProfileColor\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
 use function App\Core\I18n\_m;
-use App\Entity\ProfileColor as PColor;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
+use Plugin\ProfileColor\Entity;
 use Symfony\Component\Form\Extension\Core\Type\ColorType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -78,7 +78,7 @@ class ProfileColor
                 DB::flush();
             }
 
-            $pcolor = PColor::create(['gsactor_id' => $actor_id, 'color' => $data['color']]);
+            $pcolor = Entity\ProfileColor::create(['gsactor_id' => $actor_id, 'color' => $data['color']]);
             DB::persist($pcolor);
             DB::flush();
             throw new RedirectException();

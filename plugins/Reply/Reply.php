@@ -27,6 +27,7 @@ use App\Core\Modules\NoteHandlerPlugin;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\RedirectException;
+use Component\Posting\Posting;
 use Plugin\Reply\Controller\Reply as ReplyController;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;

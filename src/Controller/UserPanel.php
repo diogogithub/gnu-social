@@ -43,6 +43,7 @@ use App\Entity\UserNotificationPrefs;
 use App\Util\Common;
 use App\Util\Exception\AuthenticationException;
 use App\Util\Exception\ServerException;
+use App\Util\Form\ActorArrayTransformer;
 use App\Util\Form\ArrayTransformer;
 use App\Util\Form\FormFields;
 use App\Util\Formatting;

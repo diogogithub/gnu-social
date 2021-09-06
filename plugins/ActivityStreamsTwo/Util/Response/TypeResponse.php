@@ -14,7 +14,7 @@ class TypeResponse extends JsonResponse
      */
     public function __construct($data = null, int $status = 202, array $headers = [], bool $json = false)
     {
-        return parent::__construct(
+        parent::__construct(
             data: !is_null($data) ? $data->toJson() : null,
             status: $status,
             headers: ['content-type' => 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"'],

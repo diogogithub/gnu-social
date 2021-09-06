@@ -30,7 +30,7 @@
 
 namespace App\Util\Notification;
 
-use App\Entity\Gsactor;
+use App\Entity\GSActor;
 
 class Notification
 {

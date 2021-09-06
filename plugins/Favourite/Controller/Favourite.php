@@ -35,7 +35,8 @@ class Favourite
                             'where f.gsactor_id = :id ' .
                             'order by f.created DESC', ['id' => $actor_id]);
 
-        Event::handle('FormatNoteList', [$notes, &$note_out]);
+        $notes_out = null;
+        Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
             '_template' => 'network/public.html.twig',
@@ -62,6 +63,7 @@ class Favourite
                             'order by f.created DESC' ,
                             ['id' => $actor_id]);
 
+        $notes_out = null;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [

@@ -34,6 +34,7 @@ use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\InvalidFormException;
+use App\Util\Exception\NoSuchNoteException;
 use App\Util\Exception\RedirectException;
 use Component\Posting\Posting;
 use Symfony\Component\Form\Extension\Core\Type\FileType;

@@ -4,6 +4,8 @@ namespace App\Security;
 
 use App\Core\Controller;
 use App\Core\DB\DB;
+use function App\Core\I18n\_m;
+use App\Util\Common;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -11,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Security\Core\User\UserInterface;
+use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 use SymfonyCasts\Bundle\VerifyEmail\VerifyEmailHelperInterface;
@@ -61,7 +64,7 @@ abstract class EmailVerifier
         self::send($email);
     }
 
-    public function send($email)
+    public static function send($email)
     {
         return self::$mailer_helper->send($email);
     }
@@ -77,7 +80,7 @@ abstract class EmailVerifier
         DB::flush();
     }
 
-    public function processSendingPasswordResetEmail(string $emailFormData, Controller $controller)
+    public static function processSendingPasswordResetEmail(string $emailFormData, Controller $controller)
     {
         try {
             $user        = DB::findOneBy('local_user', ['outgoing_email' => $emailFormData]);

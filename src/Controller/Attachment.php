@@ -52,6 +52,7 @@ class Attachment extends Controller
             throw new ClientException(_m('No such attachment'), 404);
         // @codeCoverageIgnoreEnd
         } else {
+            $res = null;
             if (Event::handle('AttachmentFileInfo', [$id, &$res]) != Event::stop) {
                 // If no one else claims this attachment, use the default representation
                 try {
@@ -142,6 +143,7 @@ class Attachment extends Controller
         $height         = $this->int('h') ?: $default_height;
         $crop           = $this->bool('c') ?: $default_crop;
 
+        $sizes = null;
         Event::handle('GetAllowedThumbnailSizes', [&$sizes]);
         if (!in_array(['width' => $width, 'height' => $height], $sizes)) {
             throw new ClientException(_m('The requested thumbnail dimensions are not allowed'), 400); // 400 Bad Request

@@ -56,6 +56,7 @@ class Network extends Controller
     {
         $notes = Note::getAllNotes($this->instance_scope);
 
+        $notes_out = null;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
@@ -98,6 +99,7 @@ class Network extends Controller
 END;
         $notes = DB::sql($query, ['note' => 'App\Entity\Note'], ['target_actor_id' => $target->getId()]);
 
+        $notes_out = null;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
@@ -110,6 +112,7 @@ END;
     {
         $notes = Note::getAllNotes($this->public_scope);
 
+        $notes_out = null;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [
@@ -125,6 +128,7 @@ END;
                          'where n.reply_to is not null and n.gsactor_id = :id ' .
                          'order by n.created DESC', ['id' => $actor_id]);
 
+        $notes_out = null;
         Event::handle('FormatNoteList', [$notes, &$notes_out]);
 
         return [

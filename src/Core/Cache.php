@@ -73,7 +73,7 @@ abstract class Cache
                         }
                         $class = RedisCluster::class; // true for persistent connection
                         $seeds = F\Map($dsns, fn ($str) => explode('://', $str)[1]);
-                        $r     = new RedisCluster(name: null, seeds: $seeds, timeout: null, read_timeout: null, persistent: true);
+                        $r     = new RedisCluster(name: null, seeds: $seeds, timeout: null, readTimeout: null, persistent: true);
                         // Distribute reads randomly
                         $r->setOption($class::OPT_SLAVE_FAILOVER, $class::FAILOVER_DISTRIBUTE);
                         // @codeCoverageIgnoreEnd
@@ -102,7 +102,7 @@ abstract class Cache
                     $adapters[$pool][] = new Adapter\ApcuAdapter();
                     break;
                 case 'opcache':
-                    $adapters[$pool][] = new Adapter\PhpArrayAdapter($rest, new FilesystemAdapter($rest . '.fallback'));
+                    $adapters[$pool][] = new Adapter\PhpArrayAdapter($rest, new Adapter\FilesystemAdapter($rest . '.fallback'));
                     break;
                 case 'doctrine':
                     $adapters[$pool][] = new Adapter\PdoAdapter($dsn);

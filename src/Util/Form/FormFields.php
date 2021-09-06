@@ -45,17 +45,18 @@ abstract class FormFields
      */
     public static function password(array $options = []): array
     {
-        ['password', PasswordType::class, [
-            'label'       => _m('Password'),
-            'label_attr'  => ['class' => 'section-form-label'],
-            'attr'        => ['placeholder' => '********'],
-            'required'    => $options['required'] ?? true,
-            'mapped'      => false,
-            'constraints' => [
-                new NotBlank(['message' => _m('Please enter a password')]),
-                new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
-                    'max'         => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'],  ['count' => Common::config('password', 'max_length')]), ]),
-            ], ],
+        return [
+            'password', PasswordType::class, [
+                'label'       => _m('Password'),
+                'label_attr'  => ['class' => 'section-form-label'],
+                'attr'        => ['placeholder' => '********'],
+                'required'    => $options['required'] ?? true,
+                'mapped'      => false,
+                'constraints' => [
+                    new NotBlank(['message' => _m('Please enter a password')]),
+                    new Length(['min' => Common::config('password', 'min_length'), 'minMessage' => _m(['Your password should be at least # characters'], ['count' => Common::config('password', 'min_length')]),
+                        'max'         => Common::config('password', 'max_length'), 'maxMessage' => _m(['Your password should be at most # characters'],  ['count' => Common::config('password', 'max_length')]), ]),
+                ], ],
         ];
     }
 }

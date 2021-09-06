@@ -13,7 +13,8 @@ use App\Entity\GSActor;
 use App\Entity\LocalUser;
 use App\Entity\Note;
 use App\Security\Authenticator;
-use app\Util\Common;
+use App\Security\EmailVerifier;
+use App\Util\Common;
 use App\Util\Exception\EmailTakenException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\ServerException;
@@ -142,7 +143,7 @@ class Security extends Controller
             // generate a signed url and email it to the user
             if ($_ENV['APP_ENV'] !== 'dev' && Common::config('site', 'use_email')) {
                 // @codeCoverageIgnoreStart
-                Common::sendVerificationEmail();
+                EmailVerifier::sendEmailConfirmation($user);
             // @codeCoverageIgnoreEnd
             } else {
                 $user->setIsEmailVerified(true);

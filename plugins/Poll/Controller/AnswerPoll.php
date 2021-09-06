@@ -22,13 +22,14 @@
 namespace Plugin\Poll\Controller;
 
 use App\Core\DB\DB;
-use App\Entity\Poll;
-use App\Entity\PollResponse;
+use App\Core\Form;
 use App\Util\Common;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
+use Plugin\Poll\Entity\Poll;
+use Plugin\Poll\Entity\PollResponse;
 use Plugin\Poll\Forms\PollResponseForm;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -62,14 +63,14 @@ class AnswerPoll
     {
         $user = Common::ensureLoggedIn();
 
-        $poll = Poll::getFromId((int) $id);
+        $poll = Poll::getWithPk((int) $id);
         if ($poll == null) {
             throw new NotFoundException('Poll does not exist');
         }
 
         $question = $poll->getQuestion();
         $opts     = $poll->getOptionsArr();
-        $form     = PollResponseForm::make($poll, $poll->getNoteId());
+        $form     = Form::create([]); //PollResponseForm::make($poll, $poll->getNoteId());
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             if ($form->isValid()) {

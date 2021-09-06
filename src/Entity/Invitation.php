@@ -125,7 +125,7 @@ class Invitation extends Entity
                 'user_id'            => ['type' => 'int',     'foreign key' => true, 'target' => 'LocalUser.id', 'multiplicity' => 'many to one', 'name' => 'invitation_user_id_fkey', 'not null' => true, 'description' => 'who sent the invitation'],
                 'address'            => ['type' => 'varchar', 'length' => 191,       'not null' => true, 'description' => 'invitation sent to'],
                 'address_type'       => ['type' => 'varchar', 'length' => 8,         'not null' => true, 'description' => 'address type ("email", "xmpp", "sms")'],
-                'registered_user_id' => ['type' => 'int',     'foreign key' => true, 'target' => 'LocalUser.id', 'multiplicity' => 'one to one', 'name' => 'invitation_registered_user_id_fkey', 'type' => 'int', 'not null' => false, 'description' => 'if the invitation is converted, who the new user is'],
+                'registered_user_id' => ['type' => 'int',     'foreign key' => true, 'target' => 'LocalUser.id', 'multiplicity' => 'one to one', 'name' => 'invitation_registered_user_id_fkey', 'not null' => false, 'description' => 'if the invitation is converted, who the new user is'],
                 'created'            => ['type' => 'datetime', 'not null' => true,   'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],
             ],
             'primary key' => ['code'],
