@@ -36,6 +36,7 @@ use App\Util\Nickname;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
+use function App\Core\I18n\_m;
 
 class Favourite extends NoteHandlerPlugin
 {
@@ -65,7 +66,7 @@ class Favourite extends NoteHandlerPlugin
         $form_fav = Form::create([
             ['submit_favourite', SubmitType::class,
                 [
-                    'label' => ' ',
+                    'label' => $is_set ? _m('Note already favourite!.') : _m('Favourite this note.'),
                     'attr'  => [
                         'class' => $is_set ? 'note-actions-set' : 'note-actions-unset',
                     ],

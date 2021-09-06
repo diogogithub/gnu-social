@@ -22,7 +22,8 @@
                 {% for current_action in get_note_actions(note) %}
                     {{ form_start(current_action) }}
                         {% if current_action.submit_favourite is defined %}
-                            <span title="Favourite this note." class="button-container favourite-button-container">
+                            <span title="Favourite this note." class="button-container favourite-button-container"
+                                {% if current_action.submit_favourite is defined %}{% endif %}>
                                 {{ form_widget(current_action.submit_favourite) }}
                             </span>
                         {% endif %}

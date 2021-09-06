@@ -320,6 +320,9 @@ summary:hover .icon-details-open {
 }
 
 .favourite-button-container button {
+    text-indent: -9999em;
+    text-transform: uppercase;
+
     -webkit-mask-image: url("../icons/heart.svg") !important;
     -o-mask-image: url("../icons/heart.svg") !important;
     -moz-mask-image: url("../icons/heart.svg") !important;
