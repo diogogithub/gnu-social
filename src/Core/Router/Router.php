@@ -31,8 +31,11 @@
 namespace App\Core\Router;
 
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\Router as SRouter;
+use Symfony\Component\Routing\Router as SymfonyRouter;
 
+/**
+ * @mixin SymfonyRouter
+ */
 abstract class Router
 {
     /**
@@ -58,7 +61,7 @@ abstract class Router
      */
     const NETWORK_PATH = UrlGeneratorInterface::NETWORK_PATH;
 
-    public static ?SRouter $router                = null;
+    public static ?SymfonyRouter $router          = null;
     public static ?UrlGeneratorInterface $url_gen = null;
 
     public static function setServices($rtr, $gen): void

@@ -77,28 +77,32 @@ class Favourite extends NoteHandlerPlugin
 
         // Form handler
         $ret = self::noteActionHandle(
-         $request, $form_fav, $note, "favourite-{$note->getId()}",          /**
-         * Called from form handler
-         *
-         * @param $note Note to be favourited
-         * @param $data Form input
-         *
-         * @throws RedirectException Always thrown in order to prevent accidental form re-submit from browser
-         */ function ($note, $data) use ($opts, $request) {
-                 $favourite_note = DB::find('favourite', $opts);
-                 if ($data["favourite-{$note->getId()}"] === '0' && $favourite_note === null) {
-                     DB::persist(Entity\Favourite::create($opts));
-                     DB::flush();
-                 } else if ($data["favourite-{$note->getId()}"] === '1' && $favourite_note !== null) {
-                     DB::remove($favourite_note);
-                     DB::flush();
-                 }
+            $request, $form_fav, $note, "favourite-{$note->getId()}",
+            /**
+             * Called from form handler
+             *
+             * @param $note Note to be favourited
+             * @param $data Form input
+             *
+             * @throws RedirectException Always thrown in order to prevent accidental form re-submit from browser
+             */
+            function ($note, $data) use ($opts) {
+                $favourite_note = DB::find('favourite', $opts);
+                if ($data["favourite-{$note->getId()}"] === '0' && $favourite_note === null) {
+                    DB::persist(Entity\Favourite::create($opts));
+                    DB::flush();
+                } else {
+                    if ($data["favourite-{$note->getId()}"] === '1' && $favourite_note !== null) {
+                        DB::remove($favourite_note);
+                        DB::flush();
+                    }
+                }
 
-                 // Prevent accidental refreshes from resubmitting the form
-                 throw new RedirectException();
+                // Prevent accidental refreshes from resubmitting the form
+                throw new RedirectException();
 
-                 return Event::stop;
-         });
+                return Event::stop;
+            });
 
         if ($ret !== null) {
             return $ret;

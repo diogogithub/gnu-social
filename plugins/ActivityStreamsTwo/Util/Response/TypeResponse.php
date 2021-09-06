@@ -12,7 +12,7 @@ class TypeResponse extends JsonResponse
      *
      * @return JsonResponse
      */
-    public function __construct($data = null, int $status = 202, array $headers = [], bool $json = false)
+    public function __construct($data = null, int $status = 202)
     {
         parent::__construct(
             data: !is_null($data) ? $data->toJson() : null,

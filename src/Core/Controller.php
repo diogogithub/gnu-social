@@ -46,6 +46,11 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+/**
+ * @method int int(string $param)
+ * @method bool bool(string $param)
+ * @method string string(string $param)
+ */
 class Controller extends AbstractController implements EventSubscriberInterface
 {
     private array $vars         = [];

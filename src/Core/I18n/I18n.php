@@ -316,7 +316,7 @@ function _m(...$args): string
     // Get the file where this function was called from, reducing the
     // memory and performance impact by not returning the arguments,
     // and only 2 frames (this and previous)
-    $domain = I18n::_mdomain(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS)[0]['file'], 2);
+    $domain = I18n::_mdomain(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[0]['file']);
     switch (count($args)) {
     case 1:
         // Empty parameters, simple message

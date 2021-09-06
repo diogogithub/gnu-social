@@ -29,6 +29,7 @@ define('PUBLICDIR', INSTALLDIR . '/public');
 define('GNUSOCIAL_ENGINE_NAME', 'GNU social');
 // MERGE Change to https://gnu.io/social/
 define('GNUSOCIAL_PROJECT_URL', 'https://gnusocial.rocks/');
+define('GNUSOCIAL_ENGINE_URL', GNUSOCIAL_PROJECT_URL);
 // MERGE Change to https://git.gnu.io/gnu/gnu-social
 define('GNUSOCIAL_REPOSITORY_URL', 'https://code.undefinedhackers.net/GNUsocial/gnu-social');
 // Current base version, major.minor.patch
@@ -38,6 +39,8 @@ define('GNUSOCIAL_LIFECYCLE', 'dev');
 define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
 define('GNUSOCIAL_CODENAME', 'Big bang');
 define('URL_REGEX_DOMAIN_NAME', '(?:(?!-)[A-Za-z0-9\-]{1,63}(?<!-)\.)+[A-Za-z]{2,10}');
+
+define('MODULE_CACHE_FILE', INSTALLDIR . '/var/cache/module_manager.php');
 
 // Work internally in UTC
 date_default_timezone_set('UTC');

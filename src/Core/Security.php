@@ -31,17 +31,19 @@
 namespace App\Core;
 
 use HtmlSanitizer\SanitizerInterface;
-use Symfony\Component\Security\Core\Security as SSecurity;
+use Symfony\Component\Security\Core\Security as SymfonySecurity;
 
 /**
  * Forwards method calls to either Symfony\Component\Security\Core\Security or
  * HtmlSanitizer\SanitizerInterface, calling the first existing method, in that order
  *
  * @codeCoverageIgnore
+ * @mixin SymfonySecurity
+ * @mixin SanitizerInterface
  */
 abstract class Security
 {
-    private static ?SSecurity $security;
+    private static ?SymfonySecurity $security;
     private static ?SanitizerInterface $sanitizer;
 
     public static function setHelper($sec, $san): void

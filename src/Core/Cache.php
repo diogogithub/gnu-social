@@ -199,7 +199,7 @@ abstract class Cache
                 ->lTrim($key, -$max_count ?? 0, -1)
                 ->exec();
         } else {
-            self::set($key, $value, $pool, $beta);
+            self::set($key, $value, $pool);
         }
     }
 
@@ -223,7 +223,7 @@ abstract class Cache
                 $count = count($res);
                 $res   = array_slice($res, $count - $max_count, $count); // Trim the older values
             }
-            self::set($key, $res, $pool, $beta);
+            self::set($key, $res, $pool);
         }
     }
 

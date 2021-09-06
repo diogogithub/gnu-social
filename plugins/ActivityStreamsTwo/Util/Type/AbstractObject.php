@@ -31,6 +31,8 @@ abstract class AbstractObject
      */
     private array $_props = [];
 
+    protected string $type = 'AbstractObject';
+
     /**
      * Standard setter method
      * - Perform content validation if a validator exists

@@ -33,6 +33,8 @@ abstract class Bitmap
     {
         $init  = $r;
         $class = static::class;
+        $obj   = null;
+        $vals  = null;
         if ($instance) {
             $obj = new $class;
         } else {

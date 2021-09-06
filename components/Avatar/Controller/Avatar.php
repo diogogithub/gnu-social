@@ -86,6 +86,7 @@ class Avatar extends Controller
                     $form->addError(new FormError(_m('No avatar set, so cannot delete')));
                 }
             } else {
+                $attachment = null;
                 if (isset($data['hidden'])) {
                     // Cropped client side
                     $matches = [];
@@ -95,26 +96,25 @@ class Avatar extends Controller
                             $data_user = base64_decode($data_user);
                             $tempfile  = new TemporaryFile(['prefix' => 'gs-avatar']);
                             $tempfile->write($data_user);
+                            $attachment = GSFile::sanitizeAndStoreFileAsAttachment($tempfile);
                         } else {
                             Log::info('Avatar upload got an invalid encoding, something\'s fishy and/or wrong');
                         }
                     }
                 } elseif (isset($data['avatar'])) {
                     // Cropping failed (e.g. disabled js), use file as uploaded
-                    $file = $data['avatar'];
+                    $file       = $data['avatar'];
+                    $attachment = GSFile::sanitizeAndStoreFileAsAttachment($file);
                 } else {
                     throw new ClientException('Invalid form');
                 }
-                $attachment = GSFile::sanitizeAndStoreFileAsAttachment(
-                    $file
-                );
                 // Delete current avatar if there's one
                 $avatar = DB::find('avatar', ['gsactor_id' => $gsactor_id]);
                 $avatar?->delete();
                 DB::persist($attachment);
                 // Can only get new id after inserting
                 DB::flush();
-                DB::persist(AvatarEntity::create(['gsactor_id' => $gsactor_id, 'attachment_id' => $attachment->getId(), 'filename' => $file->getClientOriginalName()]));
+                DB::persist(AvatarEntity::create(['gsactor_id' => $gsactor_id, 'attachment_id' => $attachment->getId()]));
                 DB::flush();
                 Event::handle('AvatarUpdate', [$user->getId()]);
             }

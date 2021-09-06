@@ -42,7 +42,10 @@ use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Functional as F;
 
-abstract class DB
+/**
+ * @mixin EntityManagerInterface
+ */
+class DB
 {
     private static ?EntityManagerInterface $em;
     public static function setManager($m): void

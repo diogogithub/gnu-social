@@ -46,13 +46,6 @@ use Symfony\Component\DependencyInjection\Reference;
 
 class ModuleManager
 {
-    public function __construct()
-    {
-        if (!defined('CACHE_FILE')) {
-            define('CACHE_FILE', INSTALLDIR . '/var/cache/module_manager.php');
-        }
-    }
-
     protected static $loader;
     /** @codeCoverageIgnore */
     public static function setLoader($l)
@@ -128,7 +121,7 @@ class ModuleManager
 
         $module_manager->preRegisterEvents();
 
-        file_put_contents(CACHE_FILE, "<?php\nreturn " . var_export($module_manager, true) . ';');
+        file_put_contents(MODULE_CACHE_FILE, "<?php\nreturn " . var_export($module_manager, true) . ';');
     }
 
     /**
@@ -150,7 +143,7 @@ class ModuleManager
      */
     public function loadModules()
     {
-        if ($_ENV['APP_ENV'] === 'prod' && !file_exists(CACHE_FILE)) {
+        if ($_ENV['APP_ENV'] === 'prod' && !file_exists(MODULE_CACHE_FILE)) {
             // @codeCoverageIgnoreStart
             throw new \Exception('The application needs to be compiled before using in production');
         // @codeCoverageIgnoreEnd
@@ -158,7 +151,7 @@ class ModuleManager
             $rdi = new AppendIterator();
             $rdi->append(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(INSTALLDIR . '/components', FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS)));
             $rdi->append(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(INSTALLDIR . '/plugins',    FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS)));
-            $time = file_exists(CACHE_FILE) ? filemtime(CACHE_FILE) : 0;
+            $time = file_exists(MODULE_CACHE_FILE) ? filemtime(MODULE_CACHE_FILE) : 0;
 
             if ($_ENV['APP_ENV'] === 'test' || F\some($rdi, function ($e) use ($time) { return $e->getMTime() > $time; })) {
                 Log::info('Rebuilding plugin cache at runtime. This means we can\'t update DB definitions');
@@ -166,7 +159,7 @@ class ModuleManager
             }
         }
 
-        $obj = require CACHE_FILE;
+        $obj = require MODULE_CACHE_FILE;
 
         foreach ($obj->modules as $module) {
             $module->loadConfig();

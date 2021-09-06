@@ -20,13 +20,25 @@
 namespace App\Core;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @codeCoverageIgnore
+ * @mixin HttpClientInterface
+ *
+ * @method static ResponseInterface head(string $url, array $options = [])
+ * @method static ResponseInterface get(string $url, array $options = [])
+ * @method static ResponseInterface post(string $url, array $options = [])
+ * @method static ResponseInterface put(string $url, array $options = [])
+ * @method static ResponseInterface delete(string $url, array $options = [])
+ * @method static ResponseInterface connect(string $url, array $options = [])
+ * @method static ResponseInterface options(string $url, array $options = [])
+ * @method static ResponseInterface trace(string $url, array $options = [])
+ * @method static ResponseInterface patch(string $url, array $options = [])
  */
 abstract class HTTPClient
 {
-    private static ?Httpclientinterface $client;
+    private static ?HttpClientInterface $client;
     public static function setClient(HttpClientInterface $client)
     {
         self::$client = $client;

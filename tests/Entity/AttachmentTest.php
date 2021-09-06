@@ -50,7 +50,8 @@ class AttachmentTest extends GNUsocialTestCase
         static::assertTrue($attachment->deleteStorage());
         static::assertFalse(file_exists($path));
         static::assertNull($attachment->getPath());
-        DB::flush($attachment);
+        DB::persist($attachment);
+        DB::flush();
 
         // Setup the second attachment, re-adding the backed store
         $file                = new TemporaryFile();

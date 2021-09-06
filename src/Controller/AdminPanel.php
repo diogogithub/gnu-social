@@ -79,6 +79,7 @@ class AdminPanel extends Controller
                     // @codeCoverageIgnoreEnd
                 }
 
+                $value = null;
                 foreach ([
                     'int' => FILTER_VALIDATE_INT,
                     'bool' => FILTER_VALIDATE_BOOL,

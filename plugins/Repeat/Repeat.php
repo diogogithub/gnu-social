@@ -61,7 +61,7 @@ class Repeat extends NoteHandlerPlugin
 
         // Handle form
         $ret = self::noteActionHandle(
-            $request, $form_repeat, $note, "repeat-{$note->getId()}", function ($note, $data, $user) use ($opts) {
+            $request, $form_repeat, $note, "repeat-{$note->getId()}", function ($note, $data, $user) {
                 if ($data["repeat-{$note->getId()}"] === '0') {
                     DB::persist(Note::create([
                         'gsactor_id' => $user->getId(),

@@ -34,6 +34,9 @@ namespace App\Core;
 use App\Util\Exception\ServerException;
 use Psr\Log\LoggerInterface;
 
+/**
+ * @mixin LoggerInterface
+ */
 abstract class Log
 {
     private static ?LoggerInterface $logger;
