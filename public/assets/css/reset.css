@@ -138,6 +138,14 @@ input {
     all: unset;
     padding: 5px 10px;
 }
+button,
+select,
+input:not([type=text]) {
+    cursor: pointer !important;
+}
+input:not([type=button], [type=color], [type=checkbox], [type=radio]) {
+    cursor: auto !important;
+}
 
 /*noinspection CssInvalidPseudoSelector*/
 *|*::-moz-button-content {
@@ -146,7 +154,6 @@ input {
 
 input[type=checkbox] {
     all: unset;
-    cursor: pointer !important;
 
     display: inline-block;
     width: 1em;
