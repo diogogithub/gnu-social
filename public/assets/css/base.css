@@ -1,6 +1,5 @@
 :root {
     /* FONTS */
-    --display-font: 'Manrope', sans-serif;
     --main-font: 'Inter var', sans-serif;
 
     /* UNITS
@@ -35,15 +34,12 @@ a,
 a:visited {
     text-decoration: none;
     color: var(--white);
-    margin-bottom: 1px;
-    outline: 0;
 }
 
 a:focus,
 a:hover {
     text-decoration: underline;
     color: var(--white);
-    transition: var(--cubic-transition);
 }
 
 figcaption a:link {
@@ -164,16 +160,22 @@ summary:focus {
     display: flex;
     justify-content: space-evenly;
     font-size: var(--main-size);
-    font-family: var(--display-font);
 }
 
 /* NOTES */
+.h-entry {
+    margin-top: var(--unit-size);
+}
 .h-entry hr {
     margin-top: 5px;
 }
-
-.h-entry {
-    margin-top: var(--unit-size);
+.h-entry a {
+    text-decoration: underline;
+}
+.h-entry a:focus {
+    animation-name: highlight;
+    animation-duration: 500ms;
+    animation-timing-function: ease-in-out;
 }
 
 .h-entry,
@@ -203,7 +205,6 @@ summary:focus {
 }
 
 .note-author {
-    font-family: var(--display-font);
     font-size: var(--medium-size);
     font-weight: bold;
     display: flex;
@@ -319,15 +320,12 @@ summary:focus {
     border-radius: var(--unit-size);
     border: solid 2px var(--bg2);
 
-    font-family: var(--main-font);
-    font-weight: 400;
     color: var(--white);
 }
 
 .section-title-details {
-    font-family: var(--display-font);
-    font-weight: 900;
     font-size: var(--main-size);
+    font-weight: 700;
 
     border-radius: var(--unit-size);
     padding: 5px 10px 5px 10px;
@@ -386,13 +384,12 @@ summary:focus {
 
 /* BUTTONS AND INPUT SHENANIGANS */
 label {
-    font-family: var(--display-font);
     font-weight: bold;
 }
 
 button {
     font-size: var(--small-size) !important;
-    font-family: var(--display-font) !important;
+    font-family: var(--main-font) !important;
     font-weight: bold !important;
     background-image: linear-gradient(180deg, var(--bg2), transparent) !important;
     color: var(--white) !important;
@@ -489,13 +486,13 @@ input[type=file]:hover {
 
 /* button part of file selector */
 ::file-selector-button {
-    font-family: var(--display-font) !important;
+    font-family: var(--main-font) !important;
     font-weight: bold !important;
     color: var(--white) !important;
 }
 
 select {
-    font-family: var(--display-font) !important;
+    font-family: var(--main-font) !important;
     font-size: var(--small-size);
     font-weight: normal !important;
     background: linear-gradient(180deg, var(--bg2), transparent) !important;

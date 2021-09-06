@@ -67,7 +67,6 @@ details > summary::-webkit-details-marker {
 }
 
 * {
-    vertical-align: middle !important;
     box-sizing: border-box !important;
 }
 
@@ -86,49 +85,30 @@ html {
 }
 
 h1 {
-    font-family: var(--display-font);
     font-size: var(--main-size);
-    font-weight: 900;
-    opacity: 1.00;
-    letter-spacing: -0.40px;
-    word-spacing: 4.00px;
+    font-weight: 700;
 }
 
 h2 {
-    font-family: var(--display-font);
     font-size: var(--medium-size);
-    font-weight: 800;
-    letter-spacing: -0.75px;
-    word-spacing: 3.00px;
-    text-transform: none;
+    font-weight: 600;
 }
 
 h3 {
-    font-family: var(--display-font);
     font-size: var(--small-size);
-    font-weight: 700;
-    line-height: 1.00;
-    letter-spacing: -0.20px;
-    word-spacing: 1.00px;
-    text-transform: none;
+    font-weight: 600;
 }
 
 p {
     font-family: var(--main-font);
     font-size: var(--small-size);
     font-weight: 400;
-    letter-spacing: -0.30px;
-    word-spacing: -0.10px;
     margin-bottom: var(--small-size);
-    text-transform: none;
 }
 
 textarea {
     font-family: var(--main-font);
     font-weight: 400;
-    letter-spacing: -0.30px;
-    word-spacing: -0.10px;
-    text-transform: none;
 }
 
 ul {
@@ -147,7 +127,6 @@ li {
 button {
     cursor: pointer !important;
     float: right !important;
-    /*width: min-content !important;*/
     align-self: end !important;
 }
 input {
@@ -187,8 +166,9 @@ input[type=radio] {
 /* file selector */
 input[type=file] {
     all: unset;
-    display: block !important;
-    border-radius: var(--unit-size);
+    display: block;
+    width: 100%;
+    border-radius: var(--unit-size) !important;
 }
 
 input + label {
