@@ -37,6 +37,7 @@ use App\Util\Exception\RedirectException;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -112,22 +113,26 @@ class Controller extends AbstractController implements EventSubscriberInterface
         // Respond in the most preferred acceptable content type
         $accept = $request->getAcceptableContentTypes() ?: ['text/html'];
         $format = $request->getFormat($accept[0]);
-        switch ($format) {
-        case 'html':
-            $event->setResponse($this->render($template, $this->vars));
-            break;
-        default:
-            $potential_response = null;
-            if (Event::handle('ControllerResponseInFormat', [
-                'route' => $request->get('_route'),
-                'accept_header' => $accept,
-                'vars' => $this->vars,
-                'response' => &$potential_response,
-            ])) {
+
+        $potential_response = null;
+        if (Event::handle('ControllerResponseInFormat', [
+            'route' => $request->get('_route'),
+            'accept_header' => $accept,
+            'vars' => $this->vars,
+            'response' => &$potential_response,
+        ]) === Event::next) {
+            switch ($format) {
+            case 'html':
+                $event->setResponse($this->render($template, $this->vars));
+                break;
+            case 'json':
+                $event->setResponse(new JsonResponse($response));
+                break;
+            default:
                 throw new ClientException(_m('Unsupported format: {format}', ['format' => $format]), 406); // 406 Not Acceptable
-            } else {
-                $event->setResponse($potential_response);
             }
+        } else {
+            $event->setResponse($potential_response);
         }
 
         Event::handle('CleanupModule');

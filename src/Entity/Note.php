@@ -38,7 +38,7 @@ use DateTimeInterface;
  * @copyright 2020-2021 Free Software Foundation, Inc http://www.fsf.org
  * @license   https://www.gnu.org/licenses/agpl.html GNU AGPL v3 or later
  */
-class Note extends Entity
+class Note extends Entity implements \JsonSerializable
 {
     // {{{ Autocode
     // @codeCoverageIgnoreStart
