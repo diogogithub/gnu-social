@@ -83,8 +83,8 @@ class Favourite extends NoteHandlerPlugin
             /**
              * Called from form handler
              *
-             * @param $note Note to be favourited
-             * @param $data Form input
+             * @param Note $note to be favourited
+             * @param Form $data input
              *
              * @throws RedirectException Always thrown in order to prevent accidental form re-submit from browser
              */

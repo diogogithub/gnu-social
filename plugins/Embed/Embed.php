@@ -205,14 +205,11 @@ class Embed extends Plugin
      * This code executes when GNU social creates the page routing, and we hook
      * on this event to add our action handler for Embed.
      *
-     * @param $m RouteLoader the router that was initialized.
+     * @param RouteLoader $m the router that was initialized.
      *
      * @throws Exception
      *
      * @return bool
-     *
-     *
-     *
      */
     public function onAddRoute(RouteLoader $m): bool
     {
@@ -492,7 +489,7 @@ class Embed extends Plugin
      * Event raised when GNU social polls the plugin for information about it.
      * Adds this plugin's version information to $versions array
      *
-     * @param &$versions array inherited from parent
+     * @param array $versions inherited from parent
      *
      * @throws ServerException
      *

@@ -103,7 +103,7 @@ END;
      * Event raised when GNU social polls the plugin for information about it.
      * Adds this plugin's version information to $versions array
      *
-     * @param &$versions array inherited from parent
+     * @param array $versions inherited from parent
      *
      * @return bool true hook value
      */

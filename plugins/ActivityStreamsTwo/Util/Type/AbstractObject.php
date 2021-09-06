@@ -137,7 +137,6 @@ abstract class AbstractObject
      * Checks that property exists
      *
      * @param string $name
-     * @param bool   $strict
      *
      * @throws Exception
      *

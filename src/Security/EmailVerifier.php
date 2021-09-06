@@ -2,9 +2,10 @@
 
 namespace App\Security;
 
-use App\Core\Controller;
+use App\Controller\ResetPassword;
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
+use App\Entity\LocalUser;
 use App\Util\Common;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\RedirectException;
@@ -12,7 +13,6 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
-use Symfony\Component\Security\Core\User\UserInterface;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
@@ -36,12 +36,12 @@ abstract class EmailVerifier
         return self::$reset_password_helper->validateTokenAndFetchUser($token);
     }
 
-    public static function removeResetRequest(string $token)
+    public static function removeResetRequest(string $token): void
     {
-        return self::$reset_password_helper->removeResetRequest($token);
+        self::$reset_password_helper->removeResetRequest($token);
     }
 
-    public static function sendEmailConfirmation(UserInterface $user): void
+    public static function sendEmailConfirmation(LocalUser $user): void
     {
         $email = (new TemplatedEmail())
                ->from(new Address(Common::config('site', 'email'), Common::config('site', 'nickname')))
@@ -64,15 +64,15 @@ abstract class EmailVerifier
         self::send($email);
     }
 
-    public static function send($email)
+    public static function send($email): void
     {
-        return self::$mailer_helper->send($email);
+        self::$mailer_helper->send($email);
     }
 
     /**
      * @throws VerifyEmailExceptionInterface
      */
-    public function handleEmailConfirmation(Request $request, UserInterface $user): void
+    public function handleEmailConfirmation(Request $request, LocalUser $user): void
     {
         self::$verify_email_helper->validateEmailConfirmation($request->getUri(), $user->getId(), $user->getOutgoingEmail());
         $user->setIsEmailVerified(true);
@@ -80,7 +80,7 @@ abstract class EmailVerifier
         DB::flush();
     }
 
-    public static function processSendingPasswordResetEmail(string $emailFormData, Controller $controller)
+    public static function processSendingPasswordResetEmail(string $emailFormData, ResetPassword $controller)
     {
         try {
             $user        = DB::findOneBy('local_user', ['outgoing_email' => $emailFormData]);
@@ -103,7 +103,7 @@ abstract class EmailVerifier
         self::send($email);
 
         // Store the token object in session for retrieval in check-email route.
-        $controller->setTokenObjectInSession($reset_token);
+        $controller->setInSession($reset_token);
 
         throw new RedirectException('check_email');
     }

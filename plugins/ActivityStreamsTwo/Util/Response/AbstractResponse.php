@@ -7,8 +7,10 @@ use Plugin\ActivityStreamsTwo\Util\Model\EntityToType\EntityToType;
 abstract class AbstractResponse
 {
     /**
-     * @param Type $type
-     * @param int  $status The response status code
+     * param Type $type // What is this `Type`
+     *
+     * @param int   $status The response status code
+     * @param mixed $type
      *
      * @throws \Exception
      *

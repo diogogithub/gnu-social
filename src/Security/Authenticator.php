@@ -21,6 +21,7 @@ namespace App\Security;
 
 use App\Core\DB\DB;
 use function App\Core\I18n\_m;
+use App\Entity\LocalUser;
 use App\Entity\User;
 use App\Util\Nickname;
 use Exception;
@@ -31,7 +32,6 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -103,7 +103,11 @@ class Authenticator extends AbstractFormLoginAuthenticator
         return $user;
     }
 
-    public function checkCredentials($credentials, UserInterface $user)
+    /**
+     * @param LocalUser $user
+     * @param mixed     $credentials
+     */
+    public function checkCredentials($credentials, $user)
     {
         if (!$user->checkPassword($credentials['password'])) {
             throw new CustomUserMessageAuthenticationException(_m('Invalid login credentials.'));

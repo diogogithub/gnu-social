@@ -34,6 +34,7 @@ use App\Util\Exception\ClientException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\NotStoredLocallyException;
 use App\Util\Exception\ServerException;
+use App\Util\TemporaryFile;
 use DateTimeInterface;
 use Symfony\Component\Mime\MimeTypes;
 
@@ -188,14 +189,17 @@ class AttachmentThumbnail extends Entity
             $event_map[$major_mime] = [];
             Event::handle('FileResizerAvailable', [&$event_map, $mimetype]);
             // Always prefer specific encoders
+            /** @var callable[] function(string $source, ?TemporaryFile &$destination, int &$width, int &$height, bool $smart_crop, ?string &$mimetype): bool */
             $encoders = array_merge($event_map[$mimetype], $event_map[$major_mime]);
             foreach ($encoders as $encoder) {
+                /** @var ?TemporaryFile */
                 $temp = null; // Let the EncoderPlugin create a temporary file for us
                 if ($encoder($attachment->getPath(), $temp, $width, $height, $crop, $mimetype)) {
                     $thumbnail->setAttachment($attachment);
                     $thumbnail->setWidth($predicted_width);
                     $thumbnail->setHeight($predicted_height);
-                    $ext      = '.' . MimeTypes::getDefault()->getExtensions($temp->getMimeType())[0];
+                    $mimetype = $temp->getMimeType();
+                    $ext      = '.' . MimeTypes::getDefault()->getExtensions($mimetype)[0];
                     $filename = "{$predicted_width}x{$predicted_height}{$ext}-" . $attachment->getFilehash();
                     $thumbnail->setFilename($filename);
                     $thumbnail->setMimetype($mimetype);
@@ -257,11 +261,11 @@ class AttachmentThumbnail extends Entity
      * Values will scale _up_ to fit max values if cropping is enabled!
      * With cropping disabled, the max value of each axis will be respected.
      *
-     * @param $width    int Original width
-     * @param $height   int Original height
-     * @param $maxW     int Resulting max width
-     * @param $maxH     int Resulting max height
-     * @param $crop     bool Crop to the size (not preserving aspect ratio)
+     * @param int  $existing_width   Original width
+     * @param int  $existing_height  Original height
+     * @param int  $requested_width  Resulting max width
+     * @param int  $requested_height Resulting max height
+     * @param bool $crop             Crop to the size (not preserving aspect ratio)
      *
      * @return array [predicted width, predicted height]
      */

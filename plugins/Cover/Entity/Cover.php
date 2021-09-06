@@ -113,7 +113,7 @@ class Cover extends Entity
      */
     public function getAttachmentPath(): string
     {
-        return Common::config('cover', 'dir') . $this->getAttachment()->getAttachmentName();
+        return Common::config('cover', 'dir') . $this->getAttachment()->getBestTitle();
     }
 
     /**
@@ -129,7 +129,7 @@ class Cover extends Entity
     {
         // Don't go into a loop if we're deleting from Attachment
         if (!$cascading) {
-            $attachments = $this->getAttachment()->delete($cascade = true, $attachment_flush = false, $delete_attachments_now);
+            $attachments = $this->getAttachment()->kill();
         } else {
             DB::remove(DB::getReference('cover', ['gsactor_id' => $this->gsactor_id]));
             $attachment_path = $this->getAttachmentPath();

@@ -30,8 +30,9 @@ use App\Util\Exception\NoSuchFileException;
 use App\Util\Exception\NotFoundException;
 use App\Util\Exception\NotStoredLocallyException;
 use App\Util\Exception\ServerException;
-use SplFileInfo;
+use App\Util\TemporaryFile;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\File\File as SymfonyFile;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\MimeTypes;
@@ -52,17 +53,13 @@ class GSFile
     /**
      * Perform file validation (checks and normalization), store the given file if needed and increment lives
      *
-     * @param SplFileInfo $file
-     * @param string      $dest_dir
-     * @param null|string $title
-     * @param bool        $is_local
-     * @param null|int    $actor_id
+     * @param SymfonyFile|TemporaryFile $file
      *
      * @throws DuplicateFoundException
      *
      * @return Attachment
      */
-    public static function sanitizeAndStoreFileAsAttachment(SplFileInfo $file): Attachment
+    public static function sanitizeAndStoreFileAsAttachment(TemporaryFile|SymfonyFile $file): Attachment
     {
         $hash = null;
         Event::handle('HashFile', [$file->getPathname(), &$hash]);

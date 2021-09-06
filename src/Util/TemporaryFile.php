@@ -20,6 +20,7 @@
 namespace App\Util;
 
 use function App\Core\I18n\_m;
+use App\Util\Exception\ServerException;
 use App\Util\Exception\TemporaryFileException;
 use Symfony\Component\Mime\MimeTypes;
 

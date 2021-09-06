@@ -10,7 +10,7 @@ use Plugin\ActivityStreamsTwo\Util\Type;
 class NoteToType
 {
     /**
-     * @param $entity
+     * @param Note $note
      *
      * @throws \Exception
      *

@@ -27,7 +27,7 @@ abstract class AbstractActivity extends ObjectType
     /**
      * @var string
      */
-    protected string $id;
+    public string $id;
 
     /**
      * Describes one or more entities that either performed or are

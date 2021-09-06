@@ -7,8 +7,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 class TypeResponse extends JsonResponse
 {
     /**
-     * @param Type $data
-     * @param int  $status The response status code
+     * param Type $data // what `Type` is this?
+     *
+     * @param int        $status The response status code
+     * @param null|mixed $data
      *
      * @return JsonResponse
      */

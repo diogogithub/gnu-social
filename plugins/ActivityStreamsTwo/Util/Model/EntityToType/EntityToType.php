@@ -2,12 +2,13 @@
 
 namespace Plugin\ActivityStreamsTwo\Util\Model\EntityToType;
 
+use App\Core\Entity;
 use Plugin\ActivityStreamsTwo\Util\Type;
 
 abstract class EntityToType
 {
     /**
-     * @param $entity
+     * @param Entity $entity
      *
      * @throws \Exception
      *

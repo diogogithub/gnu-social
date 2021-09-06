@@ -34,7 +34,7 @@ class ObjectType extends AbstractObject
      *
      * @var string
      */
-    protected string $id;
+    public string $id;
 
     /**
      * @var string

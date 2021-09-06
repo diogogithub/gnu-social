@@ -29,7 +29,7 @@ class CollectionPage extends Collection
     /**
      * @var string
      */
-    protected string $id;
+    public string $id;
 
     /**
      * Identifies the Collection to which CollectionPage objects items

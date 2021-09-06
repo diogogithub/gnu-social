@@ -38,12 +38,16 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Expression;
 use Doctrine\Common\Collections\ExpressionBuilder;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
 use Functional as F;
 
 /**
  * @mixin EntityManagerInterface
+ * @template T
+ *
+ * @method T find(string $class, array<string, mixed> $values)
  */
 class DB
 {
@@ -163,7 +167,8 @@ class DB
     {
         $criteria = array_change_key_case($criteria, CASE_LOWER);
         $ops      = array_intersect(array_keys($criteria), self::$find_by_ops);
-        $repo     = self::getRepository($table);
+        /** @var EntityRepository */
+        $repo = self::getRepository($table);
         if (empty($ops)) {
             return $repo->findBy($criteria, $orderBy, $limit, $offset);
         } else {
@@ -191,6 +196,7 @@ class DB
 
     public static function count(string $table, array $criteria)
     {
+        /** @var EntityRepository */
         $repo = self::getRepository($table);
         return $repo->count($criteria);
     }
@@ -220,11 +226,19 @@ class DB
      */
     public static function __callStatic(string $name, array $args)
     {
-        if (in_array($name, ['find', 'getReference', 'getPartialReference', 'getRepository'])
-            && !str_contains($args[0], '\\')) {
-            $args[0] = self::$table_map[$args[0]];
-        }
-
+        $args[0] = self::filterTableName($name, $args);
         return self::$em->{$name}(...$args);
+    }
+
+    public const METHODS_ACCEPTING_TABLE_NAME = ['find', 'getReference', 'getPartialReference', 'getRepository'];
+
+    public static function filterTableName(string $method, array $args): mixed
+    {
+        if (in_array($method, self::METHODS_ACCEPTING_TABLE_NAME)
+            && !str_contains($args[0], '\\')) {
+            return self::$table_map[$args[0]];
+        } else {
+            return $args[0];
+        }
     }
 }

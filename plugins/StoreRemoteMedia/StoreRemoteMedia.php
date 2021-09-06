@@ -124,6 +124,7 @@ class StoreRemoteMedia extends Plugin
         }
 
         // Have we handled it already?
+        /** @var AttachmentToLink */
         $attachment_to_link = DB::find('attachment_to_link',
             ['link_id' => $link->getId()]);
 
@@ -224,7 +225,7 @@ class StoreRemoteMedia extends Plugin
      * Event raised when GNU social polls the plugin for information about it.
      * Adds this plugin's version information to $versions array
      *
-     * @param &$versions array inherited from parent
+     * @param array $versions inherited from parent
      *
      * @return bool true hook value
      */

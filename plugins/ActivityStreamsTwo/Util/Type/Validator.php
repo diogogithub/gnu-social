@@ -22,7 +22,7 @@ abstract class Validator
     /**
      * Contains all custom validators
      *
-     * @var array<string,string>
+     * @var array<string, ValidatorInterface>
      *
      * [ 'attributeName' => CustomValidatorClassName::class ]
      */

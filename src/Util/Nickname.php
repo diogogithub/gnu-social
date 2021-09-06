@@ -22,11 +22,9 @@
 namespace App\Util;
 
 use App\Entity\LocalUser;
-use App\Util\Exception\NicknameBlacklistedException;
 use App\Util\Exception\NicknameEmptyException;
 use App\Util\Exception\NicknameException;
 use App\Util\Exception\NicknameInvalidException;
-use App\Util\Exception\NicknamePathCollisionException;
 use App\Util\Exception\NicknameReservedException;
 use App\Util\Exception\NicknameTakenException;
 use App\Util\Exception\NicknameTooLongException;
@@ -171,11 +169,9 @@ class Nickname
      * Normalize an input $nickname, and normalize it to its canonical form.
      * The canonical form will be returned, or an exception thrown if invalid.
      *
-     * @throws NicknameException              (base class)
-     * @throws NicknameBlacklistedException
+     * @throws NicknameException         (base class)
      * @throws NicknameEmptyException
      * @throws NicknameInvalidException
-     * @throws NicknamePathCollisionException
      * @throws NicknameTakenException
      * @throws NicknameTooLongException
      * @throws NicknameTooShortException

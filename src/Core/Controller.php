@@ -45,6 +45,7 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * @method int int(string $param)
@@ -187,13 +188,10 @@ class Controller extends AbstractController implements EventSubscriberInterface
     /**
      * Get and convert GET parameters. Can be called with `int`, `bool`, `string`, etc
      *
-     * @param string $name
-     *
      * @throws ValidatorException
      * @throws Exception
      *
-     * @return the value or null if no paramter exists
-     *
+     * @return null|mixed the value or null if no paramter exists
      */
     public function __call(string $method, array $args)
     {

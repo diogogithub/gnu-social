@@ -30,7 +30,7 @@ class Collection extends ObjectType
     /**
      * @var string
      */
-    protected string $id;
+    public string $id;
 
     /**
      * A non-negative integer specifying the total number of objects

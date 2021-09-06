@@ -84,7 +84,7 @@ abstract class HTML
     }
 
     /**
-     * @param $html
+     * @param mixed $html
      *
      * @return string
      */

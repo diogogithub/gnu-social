@@ -31,7 +31,7 @@
 
 namespace App\DependencyInjection\Compiler;
 
-use Doctrine\Persistence\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\Persistence\Mapping\Driver\StaticPHPDriver;
 use Functional as F;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -88,10 +88,10 @@ class SchemaDefDriver extends StaticPHPDriver implements CompilerPassInterface
     /**
      * Fill in the database $metadata for $class_name
      *
-     * @param string        $class_name
-     * @param ClassMetadata $metadata
+     * @param string            $class_name
+     * @param ClassMetadataInfo $metadata
      */
-    public function loadMetadataForClass($class_name, ClassMetadata $metadata)
+    public function loadMetadataForClass($class_name, $metadata)
     {
         $schema = $class_name::schemaDef();
 

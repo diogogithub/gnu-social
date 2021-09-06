@@ -76,7 +76,7 @@ abstract class Entity
     /**
      * Create a new instance, but check for duplicates
      *
-     * @return [$obj, $is_update]
+     * @return array [$obj, $is_update]
      */
     public static function createOrUpdate(array $args, array $find_by_keys = [])
     {

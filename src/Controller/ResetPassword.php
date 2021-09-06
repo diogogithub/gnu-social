@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use SymfonyCasts\Bundle\ResetPassword\Controller\ResetPasswordControllerTrait;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
+use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 
 /**
  * Send password reset emails to users
@@ -113,5 +114,10 @@ class ResetPassword extends Controller
             '_template' => 'reset_password/reset.html.twig',
             'resetForm' => $form->createView(),
         ];
+    }
+
+    public function setInSession(ResetPasswordToken $reset_token)
+    {
+        $this->setTokenObjectInSession($reset_token);
     }
 }

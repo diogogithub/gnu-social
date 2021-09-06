@@ -143,14 +143,14 @@ class Cover
      */
     public function cover()
     {
-        $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);
-        if ($cover == null) {
-            return  new Response('Cover not found',Response::HTTP_NOT_FOUND);
-        }
-        $file = $cover->getFile();
-        if ($file == null) {
-            return  new Response('Cover File not found',Response::HTTP_NOT_FOUND);
-        }
-        return GSFile::sendFile($cover->getFilePath(), $file->getMimetype(), $file->getTitle());
+        // $cover = DB::find('cover', ['gsactor_id' => Common::user()->getId()]);
+        // if ($cover == null) {
+        //     return  new Response('Cover not found',Response::HTTP_NOT_FOUND);
+        // }
+        // $file = $cover->getFile();
+        // if ($file == null) {
+        //     return  new Response('Cover File not found',Response::HTTP_NOT_FOUND);
+        // }
+        // return GSFile::sendFile($cover->getFilePath(), $file->getMimetype(), $file->getTitle());
     }
 }

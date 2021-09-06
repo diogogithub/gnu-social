@@ -50,7 +50,7 @@ class ActivityStreamsTwo extends Plugin
      * This code executes when GNU social creates the page routing, and we hook
      * on this event to add our action handler for Embed.
      *
-     * @param $r RouteLoader the router that was initialized.
+     * @param RouteLoader $r the router that was initialized.
      *
      * @return bool
      */

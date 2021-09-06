@@ -256,8 +256,6 @@ class Note extends Entity implements \JsonSerializable
 
     /**
      * Whether this note is visible to the given actor
-     *
-     * @param mixed $a
      */
     public function isVisibleTo(GSActor | LocalUser $a): bool
     {
