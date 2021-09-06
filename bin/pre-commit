@@ -25,5 +25,9 @@ if echo "${staged_files}" | grep -F ".php"; then
     "${root}/bin/php-doc-check" src plugins components
 fi
 
+echo "Running phpstan"
+
+"${root}/vendor/bin/phpstan" --memory-limit=2G analyse src tests components plugins
+
 # Only commit if there wasn't an error
 exit $?
