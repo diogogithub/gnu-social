@@ -36,6 +36,7 @@ use App\Core\Controller;
 use App\Core\Form;
 use function App\Core\I18n\_m;
 use App\Util\Common;
+use App\Util\Exception\ClientException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
