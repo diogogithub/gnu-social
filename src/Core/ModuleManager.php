@@ -152,7 +152,7 @@ class ModuleManager
     {
         if ($_ENV['APP_ENV'] === 'prod' && !file_exists(CACHE_FILE)) {
             // @codeCoverageIgnoreStart
-            throw new Exception('The application needs to be compiled before using in production');
+            throw new \Exception('The application needs to be compiled before using in production');
         // @codeCoverageIgnoreEnd
         } else {
             $rdi = new AppendIterator();
