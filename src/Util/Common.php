@@ -92,7 +92,7 @@ abstract class Common
     {
         self::$config[$section][$setting] = $value;
         $diff                             = self::arrayDiffRecursive(self::$config, self::$defaults);
-        $yaml                             = (new Yaml\Dumper(indentation: 2))->dump(['parameters' => ['gnusocial' => $diff]], Yaml\Yaml::DUMP_OBJECT_AS_MAP);
+        $yaml                             = (new Yaml\Dumper(indentation: 2))->dump(['parameters' => ['locals' => ['gnusocial' => $diff]]], Yaml\Yaml::DUMP_OBJECT_AS_MAP);
         rename(INSTALLDIR . '/social.local.yaml', INSTALLDIR . '/social.local.yaml.back');
         file_put_contents(INSTALLDIR . '/social.local.yaml', $yaml);
     }
