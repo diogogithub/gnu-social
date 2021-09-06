@@ -104,15 +104,6 @@
     padding: var(--unit-size) var(--small-size);
 }
 
-.section-title-settings summary:focus,
-.section-title-settings summary:hover {
-    cursor: pointer !important;
-    border-radius: var(--unit-size);
-    background: var(--white);
-    color: var(--bg1);
-    transition: var(--cubic-transition);
-}
-
 .section-title-settings summary:focus .icon-details-open,
 .section-title-settings summary:hover .icon-details-open {
     fill: var(--bg1);
