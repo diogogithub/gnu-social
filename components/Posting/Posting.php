@@ -31,16 +31,13 @@ use App\Core\Modules\Component;
 use App\Entity\Attachment;
 use App\Entity\AttachmentToNote;
 use App\Entity\GSActorToAttachment;
-use App\Entity\Link;
 use App\Entity\Note;
-use App\Entity\NoteToLink;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
 use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
-use InvalidArgumentException;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -48,13 +45,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class Posting extends Component
 {
-    /**
-     * "Perfect URL Regex", courtesy of https://urlregex.com/
-     */
-    const URL_REGEX = <<<END
-%(?:(?:https?|ftp)://)(?:\\S+(?::\\S*)?@|\\d{1,3}(?:\\.\\d{1,3}){3}|(?:(?:[a-z\\d\\x{00a1}-\\x{ffff}]+-?)*[a-z\\d\\x{00a1}-\\x{ffff}]+)(?:\\.(?:[a-z\\d\\x{00a1}-\\x{ffff}]+-?)*[a-z\\d\\x{00a1}-\\x{ffff}]+)*(?:\\.[a-z\\x{00a1}-\\x{ffff}]{2,6}))(?::\\d+)?(?:[^\\s]*)?%iu
-END;
-
     /**
      * HTML render event handler responsible for adding and handling
      * the result of adding the note submission form, only if a user is logged in
@@ -71,7 +61,7 @@ END;
 
         $actor_id = $user->getId();
         $to_tags  = [];
-        $tags     = Cache::get("actor-tags-{$actor_id}", function () use ($actor_id) {
+        $tags     = Cache::get("actor-circle-{$actor_id}", function () use ($actor_id) {
             return DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]);
         });
         foreach ($tags as $t) {
@@ -79,13 +69,13 @@ END;
             $to_tags[$t] = $t;
         }
 
-        $placeholder_string = ['How are you feeling?', 'Have something to share?', 'How was your day?'];
-        Event::handle('PostingPlaceHolderString', [&$placeholder_string]);
-        $rand_key = array_rand($placeholder_string);
+        $placeholder_strings = ['How are you feeling?', 'Have something to share?', 'How was your day?'];
+        Event::handle('PostingPlaceHolderString', [&$placeholder_strings]);
+        $placeholder = $placeholder_strings[array_rand($placeholder_strings)];
 
         $request = $vars['request'];
         $form    = Form::create([
-            ['content',     TextareaType::class, ['label' => ' ', 'data' => '', 'attr' => ['placeholder' => _m($placeholder_string[$rand_key])]]],
+            ['content',     TextareaType::class, ['label' => ' ', 'data' => '', 'attr' => ['placeholder' => _m($placeholder)]]],
             ['attachments', FileType::class,     ['label' => ' ', 'data' => null, 'multiple' => true, 'required' => false]],
             ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
             ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
@@ -96,7 +86,7 @@ END;
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
-                self::storeNote($actor_id, $data['content'], $data['attachments'], $is_local = true);
+                self::storeNote($actor_id, $data['content'], $data['attachments'], is_local: true);
                 throw new RedirectException();
             } else {
                 throw new InvalidFormException();
@@ -152,23 +142,7 @@ END;
             DB::flush();
         }
 
-        if (Common::config('attachments', 'process_links')) {
-            $matched_urls   = [];
-            $processed_urls = false;
-            preg_match_all(self::URL_REGEX, $content, $matched_urls, PREG_SET_ORDER);
-            foreach ($matched_urls as $match) {
-                try {
-                    $link_id = Link::getOrCreate($match[0])->getId();
-                    DB::persist(NoteToLink::create(['link_id' => $link_id, 'note_id' => $note->getId()]));
-                    $processed_urls = true;
-                } catch (InvalidArgumentException) {
-                    continue;
-                }
-            }
-            if ($processed_urls) {
-                DB::flush();
-            }
-        }
+        Event::handle('ProcessNoteContent', [$note->getId(), $content]);
     }
 
     /**
