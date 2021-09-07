@@ -66,9 +66,10 @@ class Favourite extends NoteHandlerPlugin
         $form_fav = Form::create([
             ['submit_favourite', SubmitType::class,
                 [
-                    'label' => $is_set ? _m('Note already favourite!.') : _m('Favourite this note.'),
+                    'label' => ' ',
                     'attr'  => [
-                        'class' => $is_set ? 'note-actions-set' : 'note-actions-unset',
+                        'class' => ($is_set ? 'note-actions-set' : 'note-actions-unset') . ' button-container favourite-button-container',
+                        'title' => $is_set ? _m('Note already favourite!') : _m('Favourite this note!'),
                     ],
                 ],
             ],

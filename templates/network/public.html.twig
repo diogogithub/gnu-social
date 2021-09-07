@@ -9,8 +9,8 @@
 
 {% block body %}
     {# Backwards compatibility with hAtom 0.1 #}
-    <main class="timeline" tabindex="0" role="main" aria-label={{ 'Main public timeline feed.' | trans }}>
-        <div class="h-feed hfeed notes" role="feed">
+    <main class="timeline" tabindex="0" role="feed">
+        <div class="h-feed hfeed notes">
             {% if notes is defined and notes is not empty %}
                 {% for conversation in notes %}
                     {% include '/note/view.html.twig' with {'note': conversation['note'], 'have_user': have_user, 'replies': conversation['replies']} only %}

@@ -118,8 +118,10 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
 
     public function isFirefox(): bool
     {
-        $re = '/.*(?i)\bfirefox\b.*/m';
-        return preg_match(pattern: $re, subject: $this->request->headers->get('User-Agent')) === 1;
+        $re_has_chrome = '/.*(?i)\bchrome\b.*/m';
+        $re_has_gecko = '/.*(?i)\bgecko\b.*/m';
+        return (preg_match(pattern: $re_has_chrome, subject: $this->request->headers->get('User-Agent')) !== 1)
+            && (preg_match(pattern: $re_has_gecko, subject: $this->request->headers->get('User-Agent')) === 1);
     }
 
     // ----------------------------------------------------------

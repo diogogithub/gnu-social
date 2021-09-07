@@ -6,10 +6,10 @@
     <aside class="panel-content">
 
         {% if post_form is defined %}
-            <section class="section-widget" role="complementary" aria-label={{ 'Create a new note.' | trans }}>
-                <details class="section-title-details">
+            <section class="section-widget" title={{ 'Create a new note.' | trans }}>
+                <details class="section-title-details" title={{ 'Expand if you want to access more options.' | trans }}>
                     <summary class="section-title-summary">
-                        {{ "Create a note" | trans }} {{ icon('arrow-down', 'icon icon-details-open') | raw }}
+                        {{ "Create a note" | trans }}{{ icon('arrow-down', 'icon icon-details-open') | raw }}
                     </summary>
 
                     {% for tab in tabs %}

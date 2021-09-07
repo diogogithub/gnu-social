@@ -29,6 +29,7 @@ use App\Util\Exception\RedirectException;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\HttpFoundation\Request;
+use function App\Core\I18n\_m;
 
 class Repeat extends NoteHandlerPlugin
 {
@@ -51,7 +52,8 @@ class Repeat extends NoteHandlerPlugin
                 [
                     'label' => ' ',
                     'attr'  => [
-                        'class' => $is_set ? 'note-actions-set' : 'note-actions-unset',
+                        'class' => ($is_set ? 'note-actions-set' : 'note-actions-unset') . ' button-container repeat-button-container',
+                        'title' => $is_set ? _m('Note already repeated!') : _m('Repeat this note!'),
                     ],
                 ],
             ],

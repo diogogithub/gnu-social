@@ -1,15 +1,12 @@
 <article class="h-entry hentry note">
-    <div class="note-info" role="complementary">
+    <header class="note-info">
         {% set nickname = note.getActorNickname() %}
 
         {# TODO: this should link to the note's user profile? #}
-        <header class="note-author u-url" href="#" >
+        <h2 title='{{ 'This note author\'s nickname.' | trans }}' class="note-author u-url" href="#">
             {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
-            <img class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar" aria-hidden="true">
-            <label aria-roledescription={{ 'This note author nickname.' | trans }}>
-                {{ nickname }}
-            </label>
-        </header>
+            <img title='{{ 'This note author\'s avatar.' | trans }}' class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar" aria-hidden="true">{{ nickname }}
+        </h2>
 
         {% set reply_to = note.getReplyToNickname() %}
         {% if reply_to is not null and not skip_reply_to is defined %}
@@ -17,33 +14,26 @@
         {% endif %}
 
         {% if app.user %}
-        <div class="note-actions" aria-roledescription="{{ 'Favourite, reply and recycle this note.' | trans }}">
+        <div class="note-actions">
             {% if have_user %}
                 {% for current_action in get_note_actions(note) %}
                     {{ form_start(current_action) }}
                         {% if current_action.submit_favourite is defined %}
-                            <span title="Favourite this note." class="button-container favourite-button-container"
-                                {% if current_action.submit_favourite is defined %}{% endif %}>
-                                {{ form_widget(current_action.submit_favourite) }}
-                            </span>
+                            {{ form_widget(current_action.submit_favourite) }}
                         {% endif %}
                         {% if current_action.submit_repeat is defined %}
-                            <span title="Repeat this note." class="button-container repeat-button-container">
-                                {{ form_widget(current_action.submit_repeat) }}
-                            </span>
+                            {{ form_widget(current_action.submit_repeat) }}
                         {% endif %}
                         {% if current_action.reply is defined %}
-                            <span title="Reply to this note." class="button-container reply-button-container">
-                                {{ form_widget(current_action.reply) }}
-                            </span>
+                            {{ form_widget(current_action.reply) }}
                         {% endif %}
                     {{ form_end(current_action) }}
                 {% endfor %}
             {% endif %}
         </div>
         {% endif %}
-    </div>
-    <div class="e-content entry-content note-content" aria-roledescription="{{ 'The note content.'  | trans }}">
+    </header>
+    <div class="e-content entry-content note-content" title="{{ 'This note\'s content.' | trans }}">
         {% block markdown %}
             {% apply markdown_to_html %}
                 {{ note.getContent() }}
@@ -61,7 +51,7 @@
                 {% endfor %}
             </div>
         {% endif %}
-        <div class="note-links">
+        <div class="note-links" title="{{ 'Shared links in this note.' | trans }}">
             {% for link in note.getLinks() %}
                 {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
                     {{ block | raw }}

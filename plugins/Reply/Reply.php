@@ -64,7 +64,8 @@ class Reply extends NoteHandlerPlugin
                 [
                     'label' => ' ',
                     'attr'  => [
-                        'class' => 'note-actions-unset',
+                        'class' => 'note-actions-unset button-container reply-button-container',
+                        'title' => 'Reply to this note!',
                     ],
                 ],
             ],
