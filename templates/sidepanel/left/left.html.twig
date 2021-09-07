@@ -53,9 +53,9 @@
         {% endif %}
 
         <div class="timeline-nav">
-            <strong id="timeline-nav-header" title="{{ 'Navigate each timeline.' | trans }}" aria-relevant="all">Timeline</strong>
+            <strong id="timeline-nav-header">Timeline</strong>
 
-            <nav class='sec-nav'>
+            <nav class='sec-nav' tabindex="0" title="{{ 'Navigate through each timeline.' | trans }}" aria-relevant="all">
                 <ul>
                     <li>
                         <a href="{{ path('main_public') }}"

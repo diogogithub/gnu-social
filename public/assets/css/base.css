@@ -1,3 +1,8 @@
+html * {
+    scroll-behavior: smooth;
+    scroll-margin-top: 4rem;
+}
+
 :root {
     /* FONTS */
     --main-font: 'Inter var', sans-serif;
@@ -167,7 +172,8 @@ summary:hover .icon-details-open {
 
 /* CONTAINS ALL ELEMENTS BESIDES HEADER */
 .container {
-    margin-top: 3rem;
+    position: relative;
+    top: 3rem;
     margin-left: 20%;
     margin-right: 20%;
 
@@ -285,8 +291,12 @@ summary:hover .icon-details-open {
     align-items: center;
     align-self: center;
 }
+.note-author:focus-within {
+    border: 2px solid var(--bg3);
+    transition: border ease-in-out;
+}
 
-.note-info .avatar {
+.note-author .avatar {
     width: auto;
     height: var(--medium-size);
     border-radius: var(--unit-size);
@@ -349,6 +359,10 @@ summary:hover .icon-details-open {
     border-radius: 0 0 var(--unit-size) var(--unit-size);
 
     padding: var(--small-size);
+}
+.note-content:focus-within {
+    border: 2px solid var(--bg3);
+    transition: border ease-in-out;
 }
 
 .note-content p {

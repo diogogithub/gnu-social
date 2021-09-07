@@ -3,9 +3,9 @@
         {% set nickname = note.getActorNickname() %}
 
         {# TODO: this should link to the note's user profile? #}
-        <h2 title='{{ 'This note author\'s nickname.' | trans }}' class="note-author u-url" href="#">
+        <h2 tabindex="0" title='{{ 'This note author\'s nickname.' | trans }}' class="note-author u-url" href="#" aria-relevant="all">
             {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
-            <img title='{{ 'This note author\'s avatar.' | trans }}' class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar" aria-hidden="true">{{ nickname }}
+            <img class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar" aria-hidden="true">{{ nickname }}
         </h2>
 
         {% set reply_to = note.getReplyToNickname() %}
@@ -33,7 +33,7 @@
         </div>
         {% endif %}
     </header>
-    <div class="e-content entry-content note-content" title="{{ 'This note\'s content.' | trans }}">
+    <div tabindex="0" class="e-content entry-content note-content" title="{{ 'This note\'s content.' | trans }}" aria-relevant="all">
         {% block markdown %}
             {% apply markdown_to_html %}
                 {{ note.getContent() }}
