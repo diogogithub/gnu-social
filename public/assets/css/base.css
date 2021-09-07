@@ -562,31 +562,32 @@ input[type=file] {
 
 /* ACCESSIBILITY MENU */
 .accessibility-menu {
+    display: block;
     position: absolute;
-    left: -1000px;
-    top: -1000px;
+    z-index: 999;
+
+    top: -100%;
+    left: -100%;
     width: 1px;
     height: 1px;
-    overflow: hidden;
-    z-index: 5000;
-    background-color: var(--bg1);
-    padding: var(--unit-size);
-    border: solid 2px var(--bg3);
-    border-radius: var(--unit-size);
-    box-shadow: var(--shadow);
 }
 
 .accessibility-menu ul {
     list-style-type: disc;
 }
 
-#anchor-menu:target ~ .accessibility-menu,
-.accessibility-menu:focus-within,
-.accessibility-menu a:focus {
-    top: var(--unit-size) !important;
-    left: var(--unit-size) !important;
-    width: 30% !important;
-    height: min-content !important;
+#anchor-menu:target + .accessibility-menu:focus-within,
+.accessibility-menu:focus-within {
+    top: var(--unit-size);
+    left: var(--unit-size);
+    width: 30%;
+    height: min-content;
+
+    background-color: var(--bg1);
+    padding: var(--unit-size);
+    border: solid 2px var(--bg3);
+    border-radius: var(--unit-size);
+    box-shadow: var(--shadow);
 }
 
 .anchor-hidden {
