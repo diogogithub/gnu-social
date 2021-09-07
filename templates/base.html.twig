@@ -37,9 +37,11 @@
     <br>
 
     <p>
-        <em><b>Firefox based browser: </b> <kbd>Alt</kbd> + <kbd>Shift</kbd> + "access key"</em>
-        <br>
-        <em><b>Others: </b> <kbd>Alt</kbd> + "access key"</em>
+        {% if is_firefox() == true %}
+            <em><kbd>Alt</kbd> + <kbd>Shift</kbd> + "access key"</em>
+        {% else %}
+            <em><kbd>Alt</kbd> + "access key"</em>
+        {% endif %}
     </p>
 
     <ul>

@@ -58,6 +58,7 @@ class Extension extends AbstractExtension
             new TwigFunction('handle_event', [Runtime::class, 'handleEvent']),
             new TwigFunction('config', [Runtime::class, 'getConfig']),
             new TwigFunction('icon', [Runtime::class, 'embedSvgIcon'], ['needs_environment' => true]),
+            new TwigFunction('is_firefox', [Runtime::class, 'isFirefox']),
         ];
     }
 }

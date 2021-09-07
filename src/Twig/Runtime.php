@@ -116,6 +116,12 @@ class Runtime implements RuntimeExtensionInterface, EventSubscriberInterface
         return $twig->render('@public_path/assets/icons/' . $icon_name . '.svg.twig', ['iconClass' => $icon_css_class]);
     }
 
+    public function isFirefox(): bool
+    {
+        $re = '/.*(?i)\bfirefox\b.*/m';
+        return preg_match(pattern: $re, subject: $this->request->headers->get('User-Agent')) === 1;
+    }
+
     // ----------------------------------------------------------
 
     /**
