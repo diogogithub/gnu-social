@@ -580,8 +580,9 @@ input[type=file] {
     list-style-type: disc;
 }
 
-#anchor-menu:target + .accessibility-menu,
-.accessibility-menu:focus {
+#anchor-menu:target ~ .accessibility-menu,
+.accessibility-menu:focus-within,
+.accessibility-menu a:focus {
     top: var(--unit-size) !important;
     left: var(--unit-size) !important;
     width: 30% !important;

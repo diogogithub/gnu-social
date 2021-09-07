@@ -63,8 +63,10 @@
 .timeline-nav {
     margin-bottom: var(--main-size);
 }
-.timeline-nav a,
-.timeline-nav h1 {
+#timeline-nav-header {
+    font-size: var(--main-size);
+}
+.timeline-nav a {
     display: flex;
 }
 

@@ -52,10 +52,10 @@
             </nav>
         {% endif %}
 
-        <div class="timeline-nav" title="Navigate through different timelines.">
-            <h1 role="tab">Timeline</h1>
+        <div class="timeline-nav">
+            <strong id="timeline-nav-header">Timeline</strong>
 
-            <nav class='sec-nav' role="navigation">
+            <nav class='sec-nav' role="navigation" title="{{ 'Navigate through the different timelines.' | trans }}">
                 <ul>
                     <li>
                         <a href="{{ path('main_public') }}"
