@@ -58,7 +58,7 @@
     <header id='header' role="banner">
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
-        <a role="navigation" rel="help" id="anchor-main-page" class="anchor-hidden"></a>
+        <a role="navigation" rel="help" id="anchor-main-page" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
         <a id='instance' href="{{ path('main_public') }}" tabindex="0" title="{{ 'This instance\'s name. Access public timeline.' | trans }}">
             <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }} </h1>
         </a>
@@ -70,7 +70,7 @@
 {% endblock header %}
 
 <div class="container">
-    <a role="navigation" rel="help" id="anchor-main-content" class="anchor-hidden"></a>
+    <a role="navigation" rel="help" id="anchor-main-content" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <div class='content'>
         {% block nav %}{% endblock %}
         {% block body %}{% endblock %}

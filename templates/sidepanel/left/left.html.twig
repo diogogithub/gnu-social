@@ -1,15 +1,15 @@
 <div class="panel panel-left">
-    <input type="checkbox" id="panel-left-toggle">
-    <label id="panel-left-icon" for="panel-left-toggle">{{ icon('menu', 'icon icon-left') | raw }}</label>
+    <input type="checkbox" id="panel-left-toggle" aria-hidden="true" tabindex="-1">
+    <label id="panel-left-icon" for="panel-left-toggle" aria-hidden="true" tabindex="-1">{{ icon('menu', 'icon icon-left') | raw }}</label>
 
-    <a id="anchor-left-panel" class="anchor-hidden"></a>
+    <a id="anchor-left-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <aside class="panel-content">
         {% if app.user %}
             <section class='profile'>
                 <a id="user" href="{{ path('settings') }}">
-                    <img src='{{ user_avatar }}' alt="Your avatar." class="icon icon-avatar">
+                    <img src='{{ user_avatar }}' alt="{{ 'Your avatar.' | trans }}" title="{{ 'Your avatar.' | trans }}" class="icon icon-avatar">
                     <div id="user-info">
-                        <h1>{{ user_nickname }}</h1>
+                        <strong id="user-nickname" title="{{ 'Your nickname.' | trans }}">{{ user_nickname }}</strong>
 
                         <nav id="user-tags">
                             {% if user_tags %}
@@ -34,53 +34,63 @@
             </section>
 
             <nav class="profile-navigation">
-                <a href='#'>Messages</a>
+                <a href='#' title="{{ 'Check your messages.' | trans }}">Messages</a>
                 <a href="{{ path("replies", {'nickname' : user_nickname}) }}"
-                   class='hover-effect {{ active("replies") }}'>Replies</a>
+                   class='hover-effect {{ active("replies") }}' title="{{ 'Replies to your notes.' | trans }}">Replies</a>
                 {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
                     {{ link | raw }}
                 {% endfor %}
                 <a href="{{ path('settings') }}"
-                   class='{{ active('settings') }}'>Settings</a>
-                <a href='{{ path('logout') }}'>Logout</a>
+                   class='{{ active('settings') }}' title="{{ 'Access your account settings.' | trans }}">Settings</a>
+                <a href='{{ path('logout') }}' title="{{ 'Logout from your account.' | trans }}">Logout</a>
             </nav>
 
         {% else %}
             <nav class="profile-navigation">
-                <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}'>Login</a>
-                <a href="{{ path('register') }}">Register</a>
+                <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}' title="{{ 'Login through your existing account.' | trans }}">Login</a>
+                <a href="{{ path('register') }}" title="{{ 'Register a new account!' | trans }}">Register</a>
             </nav>
         {% endif %}
 
-        <nav class="timeline-nav" role="menu">
+        <div class="timeline-nav" title="Navigate through different timelines.">
             <h1 role="tab">Timeline</h1>
 
             <nav class='sec-nav' role="navigation">
-                <a href="{{ path('main_public') }}"
-                   class='{{ active('main_public') }}'>Public</a>
+                <ul>
+                    <li>
+                        <a href="{{ path('main_public') }}"
+                           class='{{ active('main_public') }}'>Public</a>
+                    </li>
+                    <li>
+                        {% if user_nickname is defined %}
+                            <a href="{{ path("home_all", {'nickname' : user_nickname}) }}"
+                               class='{{ active("home_all") }}'>Home</a>
+                        {% endif %}
+                    </li>
+                    <li>
+                        <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
+                    </li>
 
-                {% if user_nickname is defined %}
-                    <a href="{{ path("home_all", {'nickname' : user_nickname}) }}"
-                       class='{{ active("home_all") }}'>Home</a>
-                {% endif %}
-
-                <a href="{{ path('main_all') }}" class='hover-effect {{ active('main_all') }}'>Network</a>
-
-                {% if main_nav_tabs is defined %}
-                    {% for tab in main_nav_tabs %}
-                        <a href="{{ path(tab['route']) }}"
-                           class='{{ active(tab['route']) }}'>{{ tab['title'] }}</a>
-                    {% endfor %}
-                {% endif %}
+                    {% if main_nav_tabs is defined %}
+                        {% for tab in main_nav_tabs %}
+                            <li>
+                                <a href="{{ path(tab['route']) }}"
+                                   class='{{ active(tab['route']) }}'>{{ tab['title'] }}</a>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                </ul>
             </nav>
-        </nav>
-
-        <div class="footer" role="contentinfo">
-            <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
-            <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
-            <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
-            <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
-            <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
         </div>
+
+        <footer class="footer">
+            <nav>
+                <a href="{{ path('doc_faq') }}" class='hover-effect {{ active('doc_faq') }}'>FAQ</a>
+                <a href="{{ path('doc_tos') }}" class='hover-effect {{ active('doc_tos') }}'>TOS</a>
+                <a href="{{ path('doc_privacy') }}" class='hover-effect {{ active('doc_privacy') }}'>Privacy</a>
+                <a href="{{ path('doc_source') }}" class='hover-effect {{ active('doc_source') }}'>Source</a>
+                <a href="{{ path('doc_version') }}" class='hover-effect {{ active('doc_version') }}'>Version</a>
+            </nav>
+        </footer>
     </aside>
 </div>

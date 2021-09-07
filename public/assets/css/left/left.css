@@ -48,6 +48,9 @@
     height: auto;
     margin-right: 5px;
 }
+#user-nickname {
+    font-size: var(--main-size);
+}
 
 .profile-navigation {
     margin-bottom: var(--main-size);

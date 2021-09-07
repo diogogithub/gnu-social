@@ -1,8 +1,8 @@
-<div class="panel panel-right">
-    <input type="checkbox" id="panel-right-toggle">
-    <label id="panel-right-icon" for="panel-right-toggle">{{ icon('notes', 'icon icon-right') | raw }}</label>
+<div class="panel panel-right" tabindex="-1">
+    <input type="checkbox" id="panel-right-toggle" aria-hidden="true" tabindex="-1">
+    <label id="panel-right-icon" for="panel-right-toggle" aria-hidden="true" tabindex="-1">{{ icon('notes', 'icon icon-right') | raw }}</label>
 
-    <a id="anchor-right-panel" class="anchor-hidden"></a>
+    <a id="anchor-right-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <aside class="panel-content">
 
         {% if post_form is defined %}
