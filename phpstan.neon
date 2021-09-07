@@ -10,3 +10,12 @@ parameters:
             message: '/Access to an undefined property App\\Util\\Bitmap::\$\w+/'
             paths:
                 - *
+
+services:
+    -
+        class: App\PHPStan\ClassFromTableNameDynamicStaticMethodReturnTypeExtension
+        tags:
+            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
+
+    -
+        class: App\PHPStan\ObjectManagerResolver
