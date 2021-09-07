@@ -70,7 +70,7 @@ class Embed extends Plugin
 {
     public function version(): string
     {
-        return '3.0.0';
+        return '3.0.1';
     }
 
     /**
@@ -400,7 +400,9 @@ class Embed extends Plugin
         $metadata['author_name']   = $info->authorName;
         $metadata['author_url']    = (string) $info->authorUrl;
         $metadata['provider_name'] = $info->providerName;
-        $metadata['provider_url']  = (string) $info->providerUrl;
+        $root_url                  = parse_url($url);
+        $root_url                  = "{$root_url['scheme']}://{$root_url['host']}";
+        $metadata['provider_url']  = (string) ($info->providerUrl != '' ? $info->providerUrl : $root_url);
 
         if (!is_null($info->image)) {
             $thumbnail_url = (string) $info->image;
@@ -410,7 +412,6 @@ class Embed extends Plugin
 
         // Check thumbnail URL validity
         $metadata['thumbnail_url'] = $thumbnail_url;
-
         return self::normalizeEmbedLibMetadata($metadata);
     }
 
@@ -428,8 +429,7 @@ class Embed extends Plugin
             // let's "be liberal in what you accept from others"!
             // add protocol and host if the thumbnail_url starts with /
             if ($metadata['thumbnail_url'][0] == '/') {
-                $thumbnail_url_parsed      = parse_url($metadata['thumbnail_url']);
-                $metadata['thumbnail_url'] = "{$thumbnail_url_parsed['scheme']}://{$thumbnail_url_parsed['host']}{$metadata['url']}";
+                $metadata['thumbnail_url'] = "{$metadata['provider_url']}{$metadata['thumbnail_url']}";
             }
 
             // Some wordpress opengraph implementations sometimes return a white blank image
