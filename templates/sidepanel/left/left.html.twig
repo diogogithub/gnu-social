@@ -3,11 +3,11 @@
     <label id="panel-left-icon" for="panel-left-toggle" aria-hidden="true" tabindex="-1">{{ icon('menu', 'icon icon-left') | raw }}</label>
 
     <a id="anchor-left-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
-    <aside class="panel-content">
+    <aside class="panel-content accessibility-target">
         {% if app.user %}
             <section tabindex="0" class='profile' title="{{ 'Your profile information.' | trans }}">
-                <a id="user" href="{{ path('settings') }}">
-                    <img src='{{ user_avatar }}' title="{{ 'Your account\'s avatar.' | trans }}" class="icon icon-avatar">
+                <a id="user" href="{{ path('settings') }}" title="{{ 'Access main settngs.' | trans }}">
+                    <img src='{{ user_avatar }}' alt="{{ 'Your account\'s avatar.' | trans }}" class="icon icon-avatar">
                     <div id="user-info">
                         <strong id="user-nickname" title="{{ 'Your account\' nickname.' | trans }}">{{ user_nickname }}</strong>
 
@@ -21,7 +21,7 @@
                             {% endif %}
                         </nav>
 
-                        <section tabindex="0" id="user-stats" title="{{ 'Your account statistics.' | trans }}">
+                        <section id="user-stats" title="{{ 'Your account statistics.' | trans }}">
                             {% if user_followers %}<h2>{{ 'Followers' | trans }} {{ user_followers }}</h2> {% endif %}
                             {% if user_followed %}<h2>{{ 'Followed' | trans }} {{ user_followed }}</h2> {% endif %}
                         </section>
@@ -33,10 +33,10 @@
                 {% endfor %} #}
             </section>
 
-            <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}" aria-relevant="all">
-                <a href='#' title="{{ 'Check your messages.' | trans }}">Messages</a>
+            <nav class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}" aria-relevant="all">
+                <a href='{{ path('settings') }}' class='{{ active("replies") }}' title="{{ 'Your messages.' | trans }}">Messages</a>
                 <a href="{{ path("replies", {'nickname' : user_nickname}) }}"
-                   class='hover-effect {{ active("replies") }}' title="{{ 'Replies to your notes.' | trans }}">Replies</a>
+                   class='{{ active("replies") }}' title="{{ 'Replies to your notes.' | trans }}">Replies</a>
                 {% for link in handle_event('InsertLeftPanelLink', user_nickname) %}
                     {{ link | raw }}
                 {% endfor %}
@@ -46,7 +46,7 @@
             </nav>
 
         {% else %}
-            <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}" aria-relevant="all">
+            <nav class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}" aria-relevant="all">
                 <a href="{{ path('login') }}" class='hover-effect {{ active('login') }}' title="{{ 'Login with your existing account.' | trans }}">Login</a>
                 <a href="{{ path('register') }}" title="{{ 'Register a new account!' | trans }}">Register</a>
             </nav>

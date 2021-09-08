@@ -247,9 +247,7 @@ summary:hover .icon-details-open {
     text-decoration: underline;
 }
 .h-entry a:focus {
-    animation-name: highlight;
-    animation-duration: 500ms;
-    animation-timing-function: ease-in-out;
+    border: solid 2px var(--bg3);
 }
 
 .h-entry .embed header {
@@ -479,7 +477,7 @@ input {
     display: block;
     position: relative;
     color: var(--white);
-    padding: 2px 8px;
+    padding: 2px 6px;
     border: 2px solid var(--bg2) !important;
     border-radius: var(--unit-size) !important;
     background-color: var(--translucent);
@@ -575,33 +573,33 @@ input[type=file] {
 }
 
 /* ACCESSIBILITY MENU */
-.accessibility-menu {
+#accessibility-menu {
     display: block;
     position: absolute;
     z-index: 999;
 
-    top: -100%;
-    left: -100%;
-    width: 1px;
-    height: 1px;
-}
+    top: -90%;
+    left: -90%;
 
-.accessibility-menu ul {
-    list-style-type: disc;
-}
-
-#anchor-menu:target + .accessibility-menu:focus-within,
-.accessibility-menu:focus-within {
-    top: var(--unit-size);
-    left: var(--unit-size);
     width: 30%;
     height: min-content;
 
     background-color: var(--bg1);
     padding: var(--unit-size);
+
     border: solid 2px var(--bg3);
     border-radius: var(--unit-size);
     box-shadow: var(--shadow);
+}
+
+#accessibility-menu ul {
+    list-style-type: disc;
+    margin-left: var(--medium-size);
+}
+
+#accessibility-menu:focus-within {
+    top: var(--unit-size);
+    left: var(--unit-size);
 }
 
 .anchor-hidden {
@@ -684,7 +682,7 @@ input[type=file] {
         max-width: 20%;
     }
 
-    a[id|="anchor"]:target + * {
+    a[id|="anchor"]:target + .accessibility-target {
         animation-name: highlight;
         animation-duration: 600ms;
         animation-timing-function: ease-in-out;
@@ -710,7 +708,7 @@ input[type=file] {
     #panel-left-toggle:checked ~ .panel-content,
     #panel-right-toggle:checked ~ .panel-content,
     a[id|="anchor"]:target ~ .panel-content {
-        display: flex !important;
+        display: flex;
 
         width: 100%;
         background-color: var(--bg2);

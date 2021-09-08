@@ -33,10 +33,11 @@
 
 <body class="bg">
 
-<a id="anchor-menu" href="#anchor-menu" class="anchor-hidden" aria-describedby="#accessibility-menu-title"></a>
-<aside class="accessibility-menu" aria-live="polite">
+<aside id="accessibility-menu" aria-live="polite">
+    <a accesskey="z" href="#accessibility-menu" class="anchor-hidden"></a>
+
     <h2 id="accessibility-menu-title" tabindex="0">{{ 'Accessibility menu.' | trans }}</h2>
-    <a href="#anchor-menu" accesskey="z">{{ 'Accessibility menu. Here you can find fast shortcuts to various page regions!' | trans }}</a>
+    <h3>{{ 'Here you can find fast shortcuts to various page regions!' | trans }}</h3>
 
     <br>
 
@@ -70,7 +71,7 @@
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
         <a role="navigation" rel="help" id="anchor-main-page" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
-        <a id='instance' href="{{ path('main_public') }}" tabindex="0" title="{{ 'This instance\'s name. Access public timeline.' | trans }}">
+        <a class="accessibility-target" id='instance' href="{{ path('main_public') }}" tabindex="0" title="{{ 'This instance\'s name. Access public timeline.' | trans }}">
             <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }} </h1>
         </a>
 
@@ -82,7 +83,7 @@
 
 <div class="container">
     <a role="navigation" rel="help" id="anchor-main-content" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
-    <div class='content'>
+    <div class='content accessibility-target'>
         {% block nav %}{% endblock %}
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock javascripts %}

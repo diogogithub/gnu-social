@@ -33,7 +33,7 @@
         </div>
         {% endif %}
     </header>
-    <div tabindex="0" class="e-content entry-content note-content" title="{{ 'This note\'s content.' | trans }}" aria-relevant="all">
+    <section tabindex="0" role="dialog" class="e-content entry-content note-content">
         {% block markdown %}
             {% apply markdown_to_html %}
                 {{ note.getContent() }}
@@ -51,14 +51,14 @@
                 {% endfor %}
             </div>
         {% endif %}
-        <div class="note-links" title="{{ 'Shared links in this note.' | trans }}">
+        <div tabindex="0" class="note-links" title="{{ 'Shared links in this note.' | trans }}">
             {% for link in note.getLinks() %}
                 {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
                     {{ block | raw }}
                 {% endfor %}
             {% endfor %}
         </div>
-    </div>
+    </section>
 
     {% if replies is defined and replies is not empty %}
         <div class="u-in-reply-to replies">
