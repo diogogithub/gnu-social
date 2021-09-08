@@ -5,29 +5,32 @@ root="$(git rev-parse --show-toplevel)"
 # get the list of changed files
 staged_files="$(git status --porcelain | sed -rn "s/^[^ ][ ] (.*)/\1/p")"
 
-echo "Running php-cs-fixer on edited files"
-
-for staged in ${staged_files}; do
-    # work only with existing files
-    if [ -f "${staged}" ] && [[ "${staged}" = *.php ]]
-    then
-        # use php-cs-fixer and get flag of correction
-        if "${root}/bin/php-cs-fixer" -q fix "${staged}"
+if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_CS_FIX?}") 2>/dev/null); then
+    echo "Running php-cs-fixer on edited files"
+    for staged in ${staged_files}; do
+        # work only with existing files
+        if [ -f "${staged}" ] && expr "${staged}" : '^.*\.php$'
         then
-            git add "${staged}" # execute git add directly
+            # use php-cs-fixer and get flag of correction
+            if "${root}/bin/php-cs-fixer" -q fix "${staged}"
+            then
+                git add "${staged}" # execute git add directly
+            fi
         fi
-    fi
-done
-
-echo "Running php-doc-checker"
-
-if echo "${staged_files}" | grep -F ".php"; then
-    "${root}/bin/php-doc-check" src plugins components
+    done
 fi
 
-echo "Running phpstan"
+if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_DOC_CHECK?}") 2>/dev/null); then
+    echo "Running php-doc-checker"
+    if echo "${staged_files}" | grep -F ".php"; then
+        "${root}/bin/php-doc-check" src plugins components
+    fi
+fi
 
-"${root}/vendor/bin/phpstan" --memory-limit=2G analyse src tests components plugins
+if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_PHPSTAN?}") 2>/dev/null); then
+    echo "Running phpstan"
+    "${root}/vendor/bin/phpstan" --memory-limit=2G analyse src tests components plugins
+fi
 
 # Only commit if there wasn't an error
 exit $?
