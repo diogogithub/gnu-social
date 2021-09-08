@@ -34,6 +34,8 @@
                 {% endfor %} #}
 
             <nav tabindex="0" class="profile-navigation" title="{{ 'Navigate through account related pages.' | trans }}">
+                <strong id="timeline-nav-header">Profile</strong>
+
                 <a title='{{ 'Your messages.' | trans }}' href='{{ path('settings') }}' class='{{ active("replies") }}'>
                     Messages
                 </a>

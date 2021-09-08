@@ -3,7 +3,7 @@
     <header tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
 
         {# TODO: this should link to the note's user profile? #}
-        <strong tabindex="0" class="note-author u-url">
+        <strong class="note-author u-url">
             {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
             <img class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
             {{ nickname }}

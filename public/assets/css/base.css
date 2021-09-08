@@ -245,7 +245,7 @@ summary:hover .icon-details-open {
 .h-entry {
     margin-top: var(--unit-size);
 }
-.h-entry hr {
+.notes hr {
     margin-top: 5px;
 }
 .h-entry a {

@@ -14,6 +14,7 @@
             {% if notes is defined and notes is not empty %}
                 {% for conversation in notes %}
                     {% include '/note/view.html.twig' with {'note': conversation['note'], 'have_user': have_user, 'replies': conversation['replies']} only %}
+                    <hr tabindex="0" title="{{ 'End of note and replies.' | trans }}">
                 {% endfor %}
             {% else %}
                 <div id="empty-notes"><h1>{% trans %}No notes here.{% endtrans %}</h1></div>
