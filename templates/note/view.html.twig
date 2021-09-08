@@ -46,14 +46,14 @@
         {#     {% endfor %} #}
         {# </div> #}
         {% if hide_attachments is not defined %}
-            <div class="note-attachments">
+            <div class="note-attachments" tabindex="0" title="{{ 'Note attachments.' | trans }}">
                 {% for attachment in note.getAttachments() %}
                     {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
                 {% endfor %}
             </div>
         {% endif %}
         {% if note.getLinks() is not empty %}
-        <div tabindex="0" class="note-links" title="{{ 'Shared links in this note.' | trans }}">
+        <div tabindex="0" class="note-links" title="{{ 'Shared links.' | trans }}">
             {% for link in note.getLinks() %}
                 {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
                     {{ block | raw }}

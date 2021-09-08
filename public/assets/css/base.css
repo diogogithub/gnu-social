@@ -59,13 +59,13 @@ html * {
 @media (prefers-color-scheme: light) {
     :root {
         /* colours and shadows */
-        --bg1: #F4F2E8;
-        --bg2: #B5BBB4;
-        --bg3: #6C766B;
-        --bg-button: #F4F2E866 !important;
+        --bg1: #eceff4;
+        --bg2: #4c566a66;
+        --bg3: #2e3440;
+        --bg-button: #d8dee966 !important;
 
-        --translucent: #F4F2E866;
-        --white: #002B36;
+        --translucent: #eceff466;
+        --white: #2e3440;
 
         --shadow: 0px 0px 32px 0px #00000066;
         --shadow-light: 0px 0px 32px 0px #FFFFFF66;
