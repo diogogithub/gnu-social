@@ -3,22 +3,19 @@
 namespace App\PHPStan;
 
 use App\Core\DB\DB;
-use App\Util\Formatting;
-use Doctrine\Persistence\ObjectManager;
 use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Name;
+use PhpParser\Node\Scalar\String_;
 use PHPStan\Analyser\Scope;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\DynamicStaticMethodReturnTypeExtension;
-use PHPStan\Type\Constant\ConstantStringType;
 
 class ClassFromTableNameDynamicStaticMethodReturnTypeExtension implements DynamicStaticMethodReturnTypeExtension
 {
-    private ?ObjectManager $manager = null;
-    public function __construct(ObjectManagerResolver $resolver)
+    private ?GNUsocialProvider $provider = null;
+    public function __construct(GNUsocialProvider $provider)
     {
-        $this->manager = $resolver->getManager();
+        $this->provider = $provider;
     }
 
     public function getClass(): string
@@ -35,18 +32,12 @@ class ClassFromTableNameDynamicStaticMethodReturnTypeExtension implements Dynami
         MethodReflection $methodReflection,
         StaticCall $staticCall,
         Scope $scope
-    ): \PHPStan\Type\Type
-    {
-        if (count($staticCall->args) === 0) {
-            return \PHPStan\Reflection\ParametersAcceptorSelector::selectFromArgs($scope, $staticCall->args, $methodReflection->getVariants())->getReturnType();
-        }
-        $arg = $staticCall->args[0]->value;
-        if ($arg instanceof String_) {
-            DB::setManager($this->manager);
-            DB::initTableMap();
-            $class = DB::filterTableName($staticCall->name, [$arg->value]);
-            return $scope->resolveTypeByName(new Name($class));
+    ): \PHPStan\Type\Type {
+        if (count($staticCall->args) >= 1 && ($arg = $staticCall->args[0]->value) instanceof String_) {
+            // If called with the first argument as a string, it's a table name
+            return $scope->resolveTypeByName(new Name(DB::filterTableName($staticCall->name, [$arg->value])));
         } else {
+            // Let PHPStan handle it normally
             return \PHPStan\Reflection\ParametersAcceptorSelector::selectFromArgs($scope, $staticCall->args, $methodReflection->getVariants())->getReturnType();
         }
     }
