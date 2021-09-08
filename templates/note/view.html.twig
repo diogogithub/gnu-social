@@ -1,12 +1,13 @@
 <article class="h-entry hentry note">
-    <header class="note-info">
-        {% set nickname = note.getActorNickname() %}
+    {% set nickname = note.getActorNickname() %}
+    <header tabindex="0" title="{{ 'Begin a note by the user: ' | trans }} {{ nickname }}." class="note-info">
 
         {# TODO: this should link to the note's user profile? #}
-        <h2 tabindex="0" title='{{ 'This note author\'s nickname.' | trans }}' class="note-author u-url" href="#" aria-relevant="all">
+        <strong tabindex="0" class="note-author u-url">
             {# Microformat's h-card properties indicates a face icon is a "u-logo" #}
-            <img class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar" aria-hidden="true">{{ nickname }}
-        </h2>
+            <img class="u-logo avatar" src="{{ note.getAvatarUrl() }}" alt="{{ nickname }}'s avatar">
+            {{ nickname }}
+        </strong>
 
         {% set reply_to = note.getReplyToNickname() %}
         {% if reply_to is not null and not skip_reply_to is defined %}
@@ -51,6 +52,7 @@
                 {% endfor %}
             </div>
         {% endif %}
+        {% if note.getLinks() is not empty %}
         <div tabindex="0" class="note-links" title="{{ 'Shared links in this note.' | trans }}">
             {% for link in note.getLinks() %}
                 {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
@@ -58,16 +60,17 @@
                 {% endfor %}
             {% endfor %}
         </div>
+        {% endif %}
     </section>
 
     {% if replies is defined and replies is not empty %}
-        <div class="u-in-reply-to replies">
+        <div class="u-in-reply-to replies" tabindex="0" title="{{ 'Begin replies to ' | trans }} {{ nickname }}'s note!">
             {% for conversation in replies %}
                 {% include '/note/view.html.twig' with {'note': conversation['note'], 'skip_reply_to': true, 'have_user': have_user, 'replies': conversation['replies']} only %}
             {% endfor %}
         </div>
     {% endif %}
     {% if reply_to is not empty %}
-        <hr>
+        <hr tabindex="0" title="{{ 'End of this reply.' | trans }}">
     {% endif %}
 </article>

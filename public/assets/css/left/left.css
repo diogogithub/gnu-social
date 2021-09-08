@@ -86,9 +86,6 @@
     display: flex;
     flex-direction: column;
 }
-.sec-nav {
-    padding-left: var(--unit-size);
-}
 
 .footer {
     margin-top: auto;

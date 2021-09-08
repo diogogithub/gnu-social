@@ -33,17 +33,16 @@
 
 <body class="bg">
 
-<aside id="accessibility-menu" aria-live="polite">
-    <a accesskey="z" href="#accessibility-menu" class="anchor-hidden"></a>
-
+<aside id="accessibility-menu">
     <h2 id="accessibility-menu-title" tabindex="0">{{ 'Accessibility menu.' | trans }}</h2>
-    <h3>{{ 'Here you can find fast shortcuts to various page regions!' | trans }}</h3>
+    <h3 tabindex="0">{{ 'Here you can find fast shortcuts to various page regions!' | trans }}</h3>
 
     <br>
 
-    <p>Provided the following keyboard shortcut, the link is targeted, making navigation faster.</p>
+    <p tabindex="0">{{ 'Provided the following keyboard shortcut, the link is targeted.' | trans }}</p>
+    <p tabindex="0">{{ 'Be mindful that another ' | trans }}<kbd>Tab</kbd>{{ ' is needed in order to focus.' | trans }}</p>
 
-    <p>
+    <p tabindex="0">
         {% if is_firefox() == true %}
             <em><kbd>Alt</kbd> + <kbd>Shift</kbd> + "access key"</em>
         {% else %}
@@ -51,8 +50,11 @@
         {% endif %}
     </p>
 
-    <p>
-        <strong tabindex="0">{{'The keyboard key ' | trans }}<kbd>Z</kbd>{{' accesses this menu.' | trans }}</strong>
+    <a accesskey="z" href="#anchor-accessibility-menu" class="anchor-hidden"></a>
+    <a id="anchor-accessibility-menu" class="anchor-hidden"></a>
+
+    <p tabindex="0">
+        <strong>{{'The keyboard key ' | trans }}<kbd>Z</kbd>{{' accesses this menu.' | trans }}</strong>
         <strong>{{ 'The other access keys are:' | trans }}</strong>
     </p>
 
@@ -70,7 +72,7 @@
     <header id='header' role="banner">
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
-        <a role="navigation" rel="help" id="anchor-main-page" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
+        <a role="navigation" id="anchor-main-page" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
         <a class="accessibility-target" id='instance' href="{{ path('main_public') }}" tabindex="0" title="{{ 'This instance\'s name. Access public timeline.' | trans }}">
             <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }} </h1>
         </a>
