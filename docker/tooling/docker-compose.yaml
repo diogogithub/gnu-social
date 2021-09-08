@@ -11,9 +11,11 @@ services:
             - ../php/entrypoint.sh:/entrypoint.sh
             - ../db/wait_for_db.sh:/wait_for_db.sh
             - ../social/install.sh:/var/entrypoint.d/0_social_install.sh
-            - ./coverage.sh:/var/entrypoint.d/8_coverage.sh
+            - ./coverage.sh:/var/tooling/coverage.sh
+            - ./phpstan.sh:/var/tooling/phpstan.sh
             # Main files
             - ../../:/var/www/social
+            - /var/www/social/docker # exclude docker folder
             - ./xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
         env_file:
             - social.env

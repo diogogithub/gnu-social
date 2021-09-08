@@ -9,11 +9,9 @@ if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_CS_FIX?}") 2>/dev/null); 
     echo "Running php-cs-fixer on edited files"
     for staged in ${staged_files}; do
         # work only with existing files
-        if [ -f "${staged}" ] && expr "${staged}" : '^.*\.php$'
-        then
+        if [ -f "${staged}" ] && expr "${staged}" : '^.*\.php$' > /dev/null;  then
             # use php-cs-fixer and get flag of correction
-            if "${root}/bin/php-cs-fixer" -q fix "${staged}"
-            then
+            if "${root}/bin/php-cs-fixer" -q fix "${staged}"; then
                 git add "${staged}" # execute git add directly
             fi
         fi
@@ -29,7 +27,7 @@ fi
 
 if (! (: "${SKIP_ALL?}") 2>/dev/null) && (! (: "${SKIP_PHPSTAN?}") 2>/dev/null); then
     echo "Running phpstan"
-    "${root}/vendor/bin/phpstan" --memory-limit=2G analyse src tests components plugins
+    make phpstan
 fi
 
 # Only commit if there wasn't an error

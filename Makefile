@@ -24,8 +24,14 @@ psql-shell: .PHONY
 database-force-schema-update:
 	docker exec -it $(strip $(DIR))_php_1 sh -c "/var/www/social/bin/console doctrine:schema:update --dump-sql --force"
 
-test: .PHONY
-	cd docker/testing && docker-compose run php; docker-compose down
+tooling-docker: .PHONY
+	@cd docker/tooling && docker-compose up -d > /dev/null 2>&1
 
-stop-test: .PHONY
-	cd docker/testing && docker-compose down
+test: tooling-docker
+	docker exec tooling_php_1 /var/tooling/coverage.sh
+
+phpstan: tooling-docker
+	docker exec tooling_php_1 /var/tooling/phpstan.sh
+
+stop-tooling: .PHONY
+	cd docker/tooling && docker-compose down

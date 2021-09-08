@@ -32,6 +32,7 @@ cat <<EOF
             - ./docker/social/install.sh:/var/entrypoint.d/social_install.sh
             # Main files
             - .:/var/www/social
+            - /var/www/social/docker # exclude docker folder
         env_file:
             - ./docker/social/social.env
             - ./docker/db/db.env
