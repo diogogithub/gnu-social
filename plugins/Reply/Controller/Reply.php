@@ -59,10 +59,10 @@ class Reply extends Controller
         $form = Form::create([
 
             ['content',     TextareaType::class, [
-                    'label'       => _m('Reply'),
-                    'label_attr' => ['class' => 'section-form-label'],
-                    'help'        => _m('Please input your reply.'),
-                ]
+                'label'      => _m('Reply'),
+                'label_attr' => ['class' => 'section-form-label'],
+                'help'       => _m('Please input your reply.'),
+            ],
             ],
             ['attachments', FileType::class,     ['label' => ' ', 'multiple' => true, 'required' => false]],
             ['replyform',   SubmitType::class,   ['label' => _m('Submit')]],
@@ -74,12 +74,13 @@ class Reply extends Controller
             $data = $form->getData();
             if ($form->isValid()) {
                 Posting::storeNote(
-                    $actor_id,
-                    $data['content'],
-                    $data['attachments'],
-                    $is_local = true,
-                    $reply_to,
-                    $repeat_of = null
+                    actor_id: $actor_id,
+                    content_type: 'text/plain',
+                    content: $data['content'],
+                    attachments: $data['attachments'],
+                    is_local: true,
+                    reply_to: $reply_to,
+                    repeat_of: null
                 );
                 $return = $this->string('return_to');
                 if (!is_null($return)) {

@@ -73,20 +73,30 @@ class Posting extends Component
         Event::handle('PostingPlaceHolderString', [&$placeholder_strings]);
         $placeholder = $placeholder_strings[array_rand($placeholder_strings)];
 
-        $request = $vars['request'];
-        $form    = Form::create([
-            ['content',     TextareaType::class, ['label' => ' ', 'data' => '', 'attr' => ['placeholder' => _m($placeholder)]]],
-            ['attachments', FileType::class,     ['label' => ' ', 'data' => null, 'multiple' => true, 'required' => false]],
-            ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
-            ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
-            ['post_note',   SubmitType::class,   ['label' => _m('Post')]],
-        ]);
+        $initial_content = '';
+        Event::handle('PostingInitialContent', [&$initial_content]);
+
+        $content_type = ['Plain Text' => 'text/plain'];
+        Event::handle('PostingAvailableContentTypes', [&$content_type]);
+
+        $request     = $vars['request'];
+        $form_params = [
+            ['content',     TextareaType::class, ['label' => _m('Content') . ':', 'data' => $initial_content, 'attr' => ['placeholder' => _m($placeholder)]]],
+            ['attachments', FileType::class,     ['label' => _m('Attachments') . ':', 'data' => null, 'multiple' => true, 'required' => false]],
+            ['visibility',  ChoiceType::class,   ['label' => _m('Visibility') . ':', 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
+            ['to',          ChoiceType::class,   ['label' => _m('To') . ':', 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
+        ];
+        if (count($content_type) > 1) {
+            $form_params[] = ['content_type', ChoiceType::class, ['label' => _m('Text format') . ':', 'multiple' => false, 'expanded' => false, 'data' => 'text/plain', 'choices' => $content_type]];
+        }
+        $form_params[] = ['post_note',   SubmitType::class,   ['label' => _m('Post')]];
+        $form          = Form::create($form_params);
 
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
-                self::storeNote($actor_id, $data['content'], $data['attachments'], is_local: true);
+                self::storeNote($actor_id, $data['content_type'] ?? array_key_first($content_type), $data['content'], $data['attachments'], is_local: true);
                 throw new RedirectException();
             } else {
                 throw new InvalidFormException();
@@ -106,14 +116,15 @@ class Posting extends Component
      * @throws DuplicateFoundException
      * @throws ClientException|ServerException
      */
-    public static function storeNote(int $actor_id, ?string $content, array $attachments, bool $is_local, ?int $reply_to = null, ?int $repeat_of = null)
+    public static function storeNote(int $actor_id, string $content_type, string $content, array $attachments, bool $is_local, ?int $reply_to = null, ?int $repeat_of = null)
     {
         $note = Note::create([
-            'gsactor_id' => $actor_id,
-            'content'    => $content,
-            'is_local'   => $is_local,
-            'reply_to'   => $reply_to,
-            'repeat_of'  => $repeat_of,
+            'gsactor_id'   => $actor_id,
+            'content_type' => $content_type,
+            'content'      => $content,
+            'is_local'     => $is_local,
+            'reply_to'     => $reply_to,
+            'repeat_of'    => $repeat_of,
         ]);
 
         $processed_attachments = [];
