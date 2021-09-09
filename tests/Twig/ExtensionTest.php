@@ -84,7 +84,8 @@ class ExtensionTest extends GNUsocialTestCase
 
     public function testIsCurrentRouteActive()
     {
-        $req             = $this->createMock(Request::class);
+        $req = $this->createMock(Request::class);
+        // @phpstan-ignore-next-line
         $req->attributes = new class {
             public function get(string $arg)
             {

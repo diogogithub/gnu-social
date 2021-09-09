@@ -30,6 +30,7 @@
 
 namespace App\Core;
 
+use App\Entity\LocalUser;
 use HtmlSanitizer\SanitizerInterface;
 use Symfony\Component\Security\Core\Security as SymfonySecurity;
 
@@ -40,6 +41,8 @@ use Symfony\Component\Security\Core\Security as SymfonySecurity;
  * @codeCoverageIgnore
  * @mixin SymfonySecurity
  * @mixin SanitizerInterface
+ *
+ * @method static LocalUser getUser()
  */
 abstract class Security
 {

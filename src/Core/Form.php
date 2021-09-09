@@ -36,6 +36,7 @@ use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Form as SymfForm;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormInterface as SymfFormInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -86,7 +87,7 @@ abstract class Form
                                   ?object $target = null,
                                   array $extra_data = [],
                                   string $type = 'Symfony\Component\Form\Extension\Core\Type\FormType',
-                                  array $form_options = []): SymfForm
+                                  array $form_options = []): SymfFormInterface
     {
         $name = $form[array_key_last($form)][0];
         $fb   = self::$form_factory->createNamedBuilder($name, $type, data: null, options: array_merge($form_options, ['translation_domain' => false]));

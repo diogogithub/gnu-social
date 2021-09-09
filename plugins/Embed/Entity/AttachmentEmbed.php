@@ -182,7 +182,7 @@ class AttachmentEmbed extends Entity
     /**
      * Generate the Embed thumbnail HTML attributes
      *
-     * @return string[] ['class' => "string", 'has_attachment' => "bool", 'height' => "int|null", 'width' => "int|null"]
+     * @return mixed[] ['class' => string, 'has_attachment' => bool, 'height' => int|null, 'width' => int|null]
      */
     public function getImageHTMLAttributes(): array
     {

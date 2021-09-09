@@ -104,6 +104,10 @@ abstract class Common
 
     public static function user(): ?LocalUser
     {
+        // This returns the user stored in the session. We only use
+        // LocalUser, but this is more generic and returns
+        // UserInterface, so we need a type cast
+        /** @var LocalUser */
         return Security::getUser();
     }
 
