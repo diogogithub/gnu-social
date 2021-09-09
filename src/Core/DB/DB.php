@@ -226,16 +226,21 @@ class DB
      */
     public static function __callStatic(string $name, array $args)
     {
-        $args[0] = self::filterTableName($name, $args);
+        if (isset($args[0])) {
+            $args[0] = self::filterTableName($name, $args);
+        }
         return self::$em->{$name}(...$args);
     }
 
     public const METHODS_ACCEPTING_TABLE_NAME = ['find', 'getReference', 'getPartialReference', 'getRepository'];
 
+    /**
+     * For methods in METHODS_ACCEPTING_TABLE_NAME, replace the first argument
+     */
     public static function filterTableName(string $method, array $args): mixed
     {
         if (in_array($method, self::METHODS_ACCEPTING_TABLE_NAME)
-            && !str_contains($args[0], '\\')) {
+            && is_string($args[0]) && array_key_exists($args[0], self::$table_map)) {
             return self::$table_map[$args[0]];
         } else {
             return $args[0];
