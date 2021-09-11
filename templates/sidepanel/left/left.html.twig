@@ -5,7 +5,7 @@
     <a id="anchor-left-panel" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <aside class="panel-content accessibility-target">
         {% if app.user %}
-            <section tabindex="0" class='profile' title="{{ 'Your profile information.' | trans }}">
+            <section class='profile' title="{{ 'Your profile information.' | trans }}">
                 <a id="user" href="{{ path('settings') }}">
                     <img src='{{ user_avatar }}' class="icon icon-avatar" alt="{{ 'Your account\'s avatar.' | trans }}">
                     <div id="user-info">
