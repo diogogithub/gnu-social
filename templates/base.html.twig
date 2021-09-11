@@ -13,9 +13,6 @@
 
     {% block stylesheets %}
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/reset.css') }}">
-
-        <link rel='stylesheet' type='text/css' href="{{ asset('assets/fonts/inter/inter.css') }}">
-        <link rel='stylesheet' type='text/css' href="{{ asset('assets/fonts/manrope/manrope.css') }}">
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}">
 
         {% for stylesheet in show_stylesheets() %}
@@ -40,7 +37,8 @@
     <br>
 
     <p tabindex="0">{{ 'Provided the following keyboard shortcut, the link is targeted.' | trans }}</p>
-    <p tabindex="0">{{ 'Be mindful that another ' | trans }}<kbd>Tab</kbd>{{ ' is needed in order to focus.' | trans }}</p>
+    <p tabindex="0">{{ 'Be mindful that another ' | trans }}<kbd>Tab</kbd>{{ ' is needed in order to focus.' | trans }}
+    </p>
 
     <p tabindex="0">
         {% if is_firefox() == true %}
@@ -54,13 +52,13 @@
     <a id="anchor-accessibility-menu" class="anchor-hidden"></a>
 
     <p tabindex="0">
-        <strong>{{'The keyboard key ' | trans }}<kbd>Z</kbd>{{' accesses this menu.' | trans }}</strong>
+        <strong>{{ 'The keyboard key ' | trans }}<kbd>Z</kbd>{{ ' accesses this menu.' | trans }}</strong>
         <strong>{{ 'The other access keys are:' | trans }}</strong>
     </p>
 
     <nav>
         <ul>
-            <li><a href="#anchor-left-panel" accesskey="h"><kbd>H</kbd>{{' for the Left panel.' | trans }}</a></li>
+            <li><a href="#anchor-left-panel" accesskey="h"><kbd>H</kbd>{{ ' for the Left panel.' | trans }}</a></li>
             <li><a href="#anchor-main-content" accesskey="k"><kbd>K</kbd>{{ ' for the main content.' | trans }}</a></li>
             <li><a href="#anchor-main-page" accesskey="j"><kbd>J</kbd>{{ ' for the main page.' | trans }}</a></li>
             <li><a href="#anchor-right-panel" accesskey="l"><kbd>L</kbd>{{ ' for the right panel.' | trans }}</a></li>
@@ -72,8 +70,10 @@
     <header id='header' role="banner">
         {{ block("leftpanel", "stdgrid.html.twig") }}
 
-        <a role="navigation" id="anchor-main-page" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
-        <a class="accessibility-target" id='instance' href="{{ path('main_public') }}" tabindex="0" title="{{ 'This instance\'s name. Access public timeline.' | trans }}">
+        <a role="navigation" id="anchor-main-page" class="anchor-hidden"
+           title="{{ 'Press tab to access selected region!' | trans }}"></a>
+        <a class="accessibility-target" id='instance' href="{{ path('main_public') }}" tabindex="0"
+           title="{{ 'This instance\'s name. Access public timeline.' | trans }}">
             <h1>{{ icon('logo', 'icon icon-logo') | raw }}{{ config('site', 'name') }} </h1>
         </a>
 
@@ -84,7 +84,8 @@
 {% endblock header %}
 
 <div class="container">
-    <a role="navigation" rel="help" id="anchor-main-content" class="anchor-hidden" title="{{ 'Press tab to access selected region!' | trans }}"></a>
+    <a role="navigation" rel="help" id="anchor-main-content" class="anchor-hidden"
+       title="{{ 'Press tab to access selected region!' | trans }}"></a>
     <div class='content accessibility-target'>
         {% block nav %}{% endblock %}
         {% block body %}{% endblock %}
