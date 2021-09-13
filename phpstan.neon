@@ -2,6 +2,11 @@ parameters:
     level: 3
     bootstrapFiles:
         - config/bootstrap.php
+    paths:
+        - src
+        - tests
+        - components
+        - plugins
     earlyTerminatingMethodCalls:
         App\Core\Log:
             - unexpected_exception

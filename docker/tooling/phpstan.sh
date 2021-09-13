@@ -2,4 +2,6 @@
 
 cd /var/www/social || exit 1
 
-vendor/bin/phpstan --ansi --no-interaction --memory-limit=2G analyse src tests components plugins
+rm -rf /var/www/social/var/cache/*
+PHPSTAN_BOOT_KERNEL=1 vendor/bin/phpstan --ansi --no-interaction --memory-limit=2G analyse
+rm -rf /var/www/social/var/cache/*

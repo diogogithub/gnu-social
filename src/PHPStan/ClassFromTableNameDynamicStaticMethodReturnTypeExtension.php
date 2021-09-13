@@ -28,12 +28,18 @@ class ClassFromTableNameDynamicStaticMethodReturnTypeExtension implements Dynami
         return in_array($methodReflection->getName(), DB::METHODS_ACCEPTING_TABLE_NAME);
     }
 
+    /**
+     * For calls to DB::find and such, if the first argument is a
+     * constant string, it's a table name, so convert it to the
+     * corresponding entity. Only run if the environment variable
+     * PHPSTAN_BOOT_KERNEL is defined
+     */
     public function getTypeFromStaticMethodCall(
         MethodReflection $methodReflection,
         StaticCall $staticCall,
         Scope $scope
     ): \PHPStan\Type\Type {
-        if (count($staticCall->args) >= 1 && ($arg = $staticCall->args[0]->value) instanceof String_) {
+        if (isset($_ENV['PHPSTAN_BOOT_KERNEL']) && count($staticCall->args) >= 1 && ($arg = $staticCall->args[0]->value) instanceof String_) {
             // If called with the first argument as a string, it's a table name
             return $scope->resolveTypeByName(new Name(DB::filterTableName($staticCall->name, [$arg->value])));
         } else {
