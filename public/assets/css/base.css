@@ -1,18 +1,25 @@
-@import url("../fonts/inter/inter.css");
+@import url("../fonts/chivo/chivo.css");
 
-html * {
+html {
     scroll-margin-top: 4rem;
 }
 
-*:focus:not(:active) {
-    border: 4px solid var(--bg3);
-    border-radius: var(--unit-size);
-    transition: border ease-in-out;
+*:hover,
+*:active {
+    -webkit-box-shadow: unset;
+    -moz-box-shadow: unset;
+    box-shadow: unset;
+}
+
+*:focus {
+    -webkit-box-shadow:inset 0 0 0 3px var(--bg3);
+    -moz-box-shadow: inset 0 0 0 3px var(--bg3);
+    box-shadow: inset 0 0 0 3px var(--bg3);
 }
 
 :root {
-    /* FONTS */
-    --main-font: 'Inter var', sans-serif;
+      /* FONTS */
+    --main-font: 'Chivo', sans-serif;
 
     /* UNITS
      * unit size      - every element should be a multiplier of this
@@ -24,7 +31,6 @@ html * {
     --main-size: 1.5rem;
     --medium-size: 1.2rem;
     --small-size: 1rem;
-
 
 
     /* transitions and animations */
@@ -52,6 +58,7 @@ html * {
         background-color: var(--bg1);
         background-image: url("../images/bg.png");
     }
+
     body:after {
         content:"";
         position: fixed;
@@ -138,6 +145,16 @@ summary:hover .icon-details-open {
     transition: var(--cubic-transition);
 }
 
+/* CHECKERBOARD BACKGROUND FOR TRANSPARENT IMAGES */
+.note img {
+    background:
+            repeating-conic-gradient(
+                    #ffffff66 0deg 90deg,
+                    #ffffff33 0deg 180deg)
+            0 0/40px 40px round;
+}
+
+
 /* BACKGROUND IMG GRADIENT */
 .bg {
     background-position: center;
@@ -193,8 +210,8 @@ summary:hover .icon-details-open {
 .container {
     position: relative;
     top: 3rem;
-    margin-left: 20%;
-    margin-right: 20%;
+    margin-left: 25%;
+    margin-right: 25%;
 
     padding: var(--unit-size) var(--unit-size) 0 var(--unit-size);
 }
@@ -288,6 +305,7 @@ summary:hover .icon-details-open {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-height: 3rem;
 
     border: solid 2px var(--bg2);
     border-bottom: unset;
@@ -308,26 +326,30 @@ summary:hover .icon-details-open {
 
 .note-author .avatar {
     width: auto;
-    height: var(--medium-size);
+    height: var(--main-size);
     border-radius: var(--unit-size);
-    margin-right: 4px;
+    margin-right: 5px;
 }
 
 /* TODO: icons */
 .note-actions {
     display: flex;
     vertical-align: middle;
+    height: 100%;
+    max-height: 100%;
 }
 
 .button-container {
     all: unset;
     border: none !important;
+
+    background-repeat: no-repeat !important;
+
     width: 1em !important;
     height: 1em !important;
-    background-size: cover !important;
+
     margin-left: 5px;
     text-indent: -9999em;
-    text-transform: uppercase;
 }
 
 .button-container:hover,
@@ -369,11 +391,6 @@ summary:hover .icon-details-open {
     border-radius: 0 0 var(--unit-size) var(--unit-size);
 
     padding: var(--small-size);
-}
-
-.note-content p {
-    padding-left: var(--small-size);
-    padding-right: var(--small-size);
 }
 
 .note-attachments {
@@ -441,15 +458,55 @@ summary:hover .icon-details-open {
 }
 
 .section-form {
+    display: flex;
+    flex-direction: column;
     padding: var(--unit-size);
 }
-.form-group {
-    margin-bottom: var(--unit-size);
+
+.section-form fieldset .form-group:last-of-type {
+    margin-bottom: unset;
 }
 
+.section-form-legend {
+    margin-top: unset;
+    margin-bottom: 10px;
+
+    font-weight: bold;
+    font-size: var(--main-size);
+}
+
+.section-form-label {
+    margin-bottom: 5px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+.form-group label {
+    margin-bottom: 5px;
+}
+.help-block {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
 .help-text {
     font-style: italic;
     font-size: var(--small-size);
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+.help-block > .list-unstyled,
+.alert,
+.alert-danger {
+    border: solid 2px #FF6347;
+    background-color: #FF634733;
+    border-radius: var(--unit-size);
+
+    padding: 2px 6px;
+    margin-top: 5px;
+    margin-bottom: 10px;
 }
 
 .section-form-options {
@@ -467,9 +524,6 @@ summary:hover .icon-details-open {
     height: calc(6 * var(--main-size));
 
     border: 2px solid transparent;
-    margin-top: var(--unit-size);
-    margin-bottom: var(--unit-size);
-    padding: var(--unit-size);
     resize: vertical;
 }
 
@@ -483,10 +537,9 @@ button,
 textarea,
 input {
     font-size: inherit !important;
-    display: block;
     position: relative;
     color: var(--white);
-    padding: 2px 6px;
+    padding: 4px 8px;
     border: 2px solid var(--bg2) !important;
     border-radius: var(--unit-size) !important;
     background-color: var(--translucent);
@@ -517,7 +570,8 @@ input[type=radio] {
 input[type=checkbox] {
     background-color: var(--bg2) !important;
     background-size: cover;
-    margin-left: 5px;
+    margin-right: 2px;
+    vertical-align: top;
 
     -webkit-mask-image: url("../icons/check-off.svg") !important;
     -o-mask-image: url("../icons/check-off.svg") !important;
@@ -539,14 +593,15 @@ textarea:focus,
 button:hover,
 button:focus,
 input:hover,
-input:focus {
-    border: solid 2px var(--bg3) !important;
-    color: var(--white) !important;
-}
+input:focus,
 select:hover,
 select:focus {
-    border-color: var(--bg3) !important;
+    color: var(--white) !important;
+    -webkit-box-shadow: inset 0px 0px 0px 2px var(--bg3) !important;
+    -moz-box-shadow: inset 0px 0px 0px 2px var(--bg3) !important;
+    box-shadow: inset 0px 0px 0px 2px var(--bg3) !important;
 }
+
 
 input[type=checkbox]:hover,
 input[type=checkbox]:focus {

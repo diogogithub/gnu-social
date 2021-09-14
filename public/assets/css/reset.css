@@ -9,19 +9,11 @@ ul, ol {
     list-style: none
 }
 
-/* avoid browser default inconsistent heading font-sizes */
-/* and pre/code too */
-h1, h2, h3, h4, h5, h6, pre, code {
-    font-size: 1rem;
-}
-
 /* remove the inconsistent (among browsers) default ul,ol padding or margin  */
 /* the default spacing on headings does not match nor align with
    normal interline spacing at all, so let's get rid of it. */
 /* zero out the spacing around pre, form, body, html, p, blockquote as well */
-/* form elements are oddly inconsistent, and not quite CSS emulatable. */
-/*  nonetheless strip their margin and padding as well */
-ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, body, html, p, blockquote, fieldset, input, textarea {
+pre, form, body, html, blockquote, fieldset, input, textarea {
     margin: 0;
     padding: 0;
     border: none;
@@ -47,6 +39,10 @@ address {
 }
 
 /* details element arrow */
+details summary > * {
+    margin: unset;
+    padding: unset;
+}
 details > summary {
     list-style: none;
 }
@@ -101,7 +97,18 @@ p {
     font-family: var(--main-font);
     font-size: var(--small-size);
     font-weight: 400;
-    margin-bottom: var(--small-size);
+    margin: unset;
+}
+p:first-line {
+    padding-left: var(--small-size);
+}
+p:first-line {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+p:not(:first-line) {
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 textarea {
