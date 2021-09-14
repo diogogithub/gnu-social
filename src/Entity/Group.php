@@ -19,8 +19,14 @@
 
 namespace App\Entity;
 
+use App\Core\Cache;
+use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Router\Router;
+use App\Util\Exception\NotFoundException;
+use App\Util\Nickname;
 use DateTimeInterface;
+use InvalidArgumentException;
 
 /**
  * Entity for groups a user is in
@@ -259,6 +265,29 @@ class Group extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    public function getActor(): GSActor
+    {
+        return GSActor::getFromId($this->getId());
+    }
+
+    public static function getFromNickname(string $nickname, ?GSActor $actor = null): ?self
+    {
+        $nickname = Nickname::normalize($nickname, check_already_used: false);
+        $group    = null;
+        try {
+            $group = Cache::get('group-nick-' . $nickname, fn () => DB::findOneBy('group', ['nickname' => $nickname]));
+            // TODO check group scope with $actor
+        } catch (NotFoundException) {
+            throw new InvalidArgumentException;
+        }
+        return $group;
+    }
+
+    public function getUrl(): string
+    {
+        return Router::url('group_nickname', ['actor_nickname' => $this->getNickname()]);
+    }
 
     public static function schemaDef(): array
     {

@@ -35,32 +35,23 @@
         {% endif %}
     </header>
     <section tabindex="0" role="dialog" class="e-content entry-content note-content">
-        {% block markdown %}
-            {% apply markdown_to_html %}
-                {{ note.getContent() }}
-            {% endapply %}
-        {% endblock %}
-        {# <div class="note-other-content"> #}
-        {#     {% for other in get_note_other_content(note) %} #}
-        {#         {% include '/'~ other.name ~ '/view.html.twig' with {'vars': other.vars} only %} #}
-        {#     {% endfor %} #}
-        {# </div> #}
-        {% if hide_attachments is not defined %}
-            <div class="note-attachments" tabindex="0" title="{{ 'Note attachments.' | trans }}">
-                {% for attachment in note.getAttachments() %}
-                    {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
-                {% endfor %}
-            </div>
-        {% endif %}
-        {% if note.getLinks() is not empty %}
-        <div tabindex="0" class="note-links" title="{{ 'Shared links.' | trans }}">
-            {% for link in note.getLinks() %}
-                {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
-                    {{ block | raw }}
-                {% endfor %}
-            {% endfor %}
+      {{ note.getRendered() | raw }}
+      {% if hide_attachments is not defined %}
+        <div class="note-attachments" tabindex="0" title="{{ 'Note attachments' | trans }}">
+          {% for attachment in note.getAttachments() %}
+            {% include '/attachments/view.html.twig' with {'attachment': attachment, 'note': note} only%}
+          {% endfor %}
         </div>
-        {% endif %}
+      {% endif %}
+      {% if note.getLinks() is not empty %}
+        <div tabindex="0" class="note-links" title="{{ 'Shared links' | trans }}">
+          {% for link in note.getLinks() %}
+            {% for block in handle_event('ViewLink', {'link': link, 'note': note}) %}
+              {{ block | raw }}
+            {% endfor %}
+          {% endfor %}
+        </div>
+      {% endif %}
     </section>
 
     {% if replies is defined and replies is not empty %}
@@ -71,6 +62,6 @@
         </div>
     {% endif %}
     {% if reply_to is not empty %}
-        <hr tabindex="0" title="{{ 'End of this reply.' | trans }}">
+        <hr tabindex="0" title="{{ 'End of this reply' | trans }}">
     {% endif %}
 </article>

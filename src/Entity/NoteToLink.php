@@ -74,6 +74,8 @@ class NoteToLink extends Entity
     {
         return $this->modified;
     }
+    // @codeCoverageIgnoreEnd
+    // }}} Autocode
 
     /**
      * Create an instance of NoteToLink or fill in the
@@ -90,9 +92,6 @@ class NoteToLink extends Entity
         $obj = new self();
         return parent::create($args, $obj);
     }
-
-    // @codeCoverageIgnoreEnd
-    // }}} Autocode
 
     public static function schemaDef(): array
     {

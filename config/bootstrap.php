@@ -41,6 +41,17 @@ define('GNUSOCIAL_CODENAME', 'Big bang');
 
 define('MODULE_CACHE_FILE', INSTALLDIR . '/var/cache/module_manager.php');
 
+/**
+ * StatusNet had this string as valid path characters: '\pN\pL\,\!\(\)\.\:\-\_\+\/\=\&\;\%\~\*\$\'\@'
+ * Some of those characters can be troublesome when auto-linking plain text. Such as "http://some.com/)"
+ * URL encoding should be used whenever a weird character is used, the following strings are not definitive.
+ */
+define('URL_REGEX_VALID_PATH_CHARS', '\pN\pL\,\!\.\:\-\_\+\/\@\=\;\%\~\*\(\)');
+define('URL_REGEX_VALID_QSTRING_CHARS', URL_REGEX_VALID_PATH_CHARS . '\&');
+define('URL_REGEX_VALID_FRAGMENT_CHARS', URL_REGEX_VALID_QSTRING_CHARS . '\?\#');
+define('URL_REGEX_EXCLUDED_END_CHARS', '\?\.\,\!\#\:\'');  // don't include these if they are directly after a URL
+define('URL_REGEX_DOMAIN_NAME', '(?:(?!-)[A-Za-z0-9\-]{1,63}(?<!-)\.)+[A-Za-z]{2,10}');
+
 // Work internally in UTC
 date_default_timezone_set('UTC');
 

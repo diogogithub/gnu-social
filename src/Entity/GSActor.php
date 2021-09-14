@@ -25,7 +25,10 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
 use App\Core\Event;
+use App\Core\Router\Router;
 use App\Core\UserRoles;
+use App\Util\Exception\NicknameException;
+use App\Util\Nickname;
 use DateTimeInterface;
 use Functional as F;
 
@@ -280,6 +283,45 @@ class GSActor extends Entity
                               return DB::dql('select count(f) from App\Entity\Follow f where f.follower = :follower',
                                              ['follower' => $this->id])[0][1] - 1; // Remove self follow
                           });
+    }
+
+    public function isPerson(): bool
+    {
+        return ($this->roles & UserRoles::BOT) === 0;
+    }
+
+    /**
+     * Resolve an ambiguous nickname reference, checking in following order:
+     * - Actors that $sender subscribes to
+     * - Actors that subscribe to $sender
+     * - Any Actor
+     *
+     * @param string $nickname validated nickname of
+     *
+     * @throws NicknameException
+     */
+    public function findRelativeActor(string $nickname): ?self
+    {
+        // Will throw exception on invalid input.
+        $nickname = Nickname::normalize($nickname, check_already_used: false);
+        return Cache::get('relative-nickname-' . $nickname . '-' . $this->getId(),
+                          fn () => DB::dql('select a from gsactor a where ' .
+                                           'a.id in (select followed from follow f join gsactor a on f.followed = a.id where and f.follower = :actor_id and a.nickname = :nickname) or' .
+                                           'a.id in (select follower from follow f join gsactor a on f.follower = a.id where and f.followed = :actor_id and a.nickname = :nickname) or' .
+                                           'a.nickname = :nickname' .
+                                           'limit 1',
+                                           ['nickname' => $nickname, 'actor_id' => $this->getId()]
+                          ));
+    }
+
+    public function getUri(): string
+    {
+        return Router::url('actor_id', ['actor_id' => $this->getId()]);
+    }
+
+    public function getUrl(): string
+    {
+        return Router::url('actor_nickname', ['actor_nickname' => $this->getNickname()]);
     }
 
     public static function schemaDef(): array

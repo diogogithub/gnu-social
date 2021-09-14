@@ -122,9 +122,8 @@ class GSActorCircle extends Entity
             'name'        => 'gsactor_circle',
             'description' => 'a gsactor can have lists of gsactors, to separate their timeline',
             'fields'      => [
-                'tagger' => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'gsactor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
-                'tag'    => ['type' => 'varchar',   'length' => 64 //, 'foreign key' => true, 'target' => 'GSActorTag.tag', 'multiplicity' => 'many to one' // so, Doctrine doesn't like that the target is not unique, even though the pair is
-                    , 'not null'    => true, 'description' => 'gsactor tag', ], // Join with GSActorTag
+                'tagger'      => ['type' => 'int',       'foreign key' => true, 'target' => 'GSActor.id', 'multiplicity' => 'many to one', 'name' => 'gsactor_list_tagger_fkey', 'not null' => true, 'description' => 'user making the tag'],
+                'tag'         => ['type' => 'varchar',   'length' => 64, 'foreign key' => true, 'target' => 'GSActorTag.tag', 'multiplicity' => 'many to one', 'not null' => true, 'description' => 'gsactor tag'], // Join with GSActorTag // // so, Doctrine doesn't like that the target is not unique, even though the pair is
                 'description' => ['type' => 'text',      'description' => 'description of the people tag'],
                 'private'     => ['type' => 'bool',      'default' => false, 'description' => 'is this tag private'],
                 'created'     => ['type' => 'datetime',  'not null' => true, 'default' => 'CURRENT_TIMESTAMP', 'description' => 'date this record was created'],

@@ -30,7 +30,8 @@ use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\NotFoundException;
 use DateTimeInterface;
 use InvalidArgumentException;
-use Symfony\Component\HttpClient\Exception\ClientException;
+use Symfony\Component\HttpClient\Exception\ClientException as HTTPClientException;
+use Symfony\Component\HttpClient\Exception\TransportException;
 
 /**
  * Entity for representing a Link
@@ -144,12 +145,12 @@ class Link extends Entity
                 // Forbidden
                 throw new InvalidArgumentException(message: "A Link can't point to a local location ({$url}), it must be a remote one", code: 400);
             }
-            $head = HTTPClient::head($url);
-            // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
             try {
+                $head = HTTPClient::head($url);
+                // This must come before getInfo given that Symfony HTTPClient is lazy (thus forcing curl exec)
                 $headers = $head->getHeaders();
                 // @codeCoverageIgnoreStart
-            } catch (ClientException $e) {
+            } catch (HTTPClientException | TransportException $e) {
                 throw new InvalidArgumentException(previous: $e);
                 // @codeCoverageIgnoreEnd
             }

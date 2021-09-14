@@ -22,6 +22,7 @@
 namespace Component\Link;
 
 use App\Core\DB\DB;
+use App\Core\Event;
 use App\Core\Modules\Component;
 use App\Entity;
 use App\Entity\NoteToLink;
@@ -38,26 +39,22 @@ class Link extends Component
 END;
 
     /**
-     * TODO PLACEHOLDER
+     * Extract URLs from $content and create the appropriate Link and NoteToLink entities
      */
     public function onProcessNoteContent(int $note_id, string $content)
     {
         if (Common::config('attachments', 'process_links')) {
-            $matched_urls   = [];
-            $processed_urls = false;
+            $matched_urls = [];
             preg_match_all(self::URL_REGEX, $content, $matched_urls, PREG_SET_ORDER);
             foreach ($matched_urls as $match) {
                 try {
                     $link_id = Entity\Link::getOrCreate($match[0])->getId();
                     DB::persist(NoteToLink::create(['link_id' => $link_id, 'note_id' => $note_id]));
-                    $processed_urls = true;
                 } catch (InvalidArgumentException) {
                     continue;
                 }
             }
-            if ($processed_urls) {
-                DB::flush();
-            }
         }
+        return Event::next;
     }
 }

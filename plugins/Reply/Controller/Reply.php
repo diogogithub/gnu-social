@@ -57,7 +57,6 @@ class Reply extends Controller
         }
 
         $form = Form::create([
-
             ['content',     TextareaType::class, [
                 'label'      => _m('Reply'),
                 'label_attr' => ['class' => 'section-form-label'],
@@ -73,12 +72,11 @@ class Reply extends Controller
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
-                Posting::storeNote(
-                    actor_id: $actor_id,
-                    content_type: 'text/plain',
+                Posting::storeLocalNote(
+                    actor: $user->getActor(),
                     content: $data['content'],
+                    content_type: 'text/plain', // TODO
                     attachments: $data['attachments'],
-                    is_local: true,
                     reply_to: $reply_to,
                     repeat_of: null
                 );

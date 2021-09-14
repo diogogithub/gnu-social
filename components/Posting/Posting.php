@@ -25,19 +25,17 @@ use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Event;
 use App\Core\Form;
-use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Modules\Component;
 use App\Entity\Attachment;
-use App\Entity\AttachmentToNote;
-use App\Entity\GSActorToAttachment;
+use App\Entity\GSActor;
 use App\Entity\Note;
 use App\Util\Common;
 use App\Util\Exception\ClientException;
-use App\Util\Exception\DuplicateFoundException;
 use App\Util\Exception\InvalidFormException;
 use App\Util\Exception\RedirectException;
 use App\Util\Exception\ServerException;
+use App\Util\Formatting;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -61,9 +59,8 @@ class Posting extends Component
 
         $actor_id = $user->getId();
         $to_tags  = [];
-        $tags     = Cache::get("actor-circle-{$actor_id}", function () use ($actor_id) {
-            return DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]);
-        });
+        $tags     = Cache::get("actor-circle-{$actor_id}",
+                               fn () => DB::dql('select c.tag from App\Entity\GSActorCircle c where c.tagger = :tagger', ['tagger' => $actor_id]));
         foreach ($tags as $t) {
             $t           = $t['tag'];
             $to_tags[$t] = $t;
@@ -76,8 +73,8 @@ class Posting extends Component
         $initial_content = '';
         Event::handle('PostingInitialContent', [&$initial_content]);
 
-        $content_type = ['Plain Text' => 'text/plain'];
-        Event::handle('PostingAvailableContentTypes', [&$content_type]);
+        $available_content_types = ['Plain Text' => 'text/plain'];
+        Event::handle('PostingAvailableContentTypes', [&$available_content_types]);
 
         $request     = $vars['request'];
         $form_params = [
@@ -86,8 +83,11 @@ class Posting extends Component
             ['visibility',  ChoiceType::class,   ['label' => _m('Visibility:'), 'multiple' => false, 'expanded' => false, 'data' => 'public', 'choices' => [_m('Public') => 'public', _m('Instance') => 'instance', _m('Private') => 'private']]],
             ['to',          ChoiceType::class,   ['label' => _m('To:'), 'multiple' => false, 'expanded' => false, 'choices' => $to_tags]],
         ];
-        if (count($content_type) > 1) {
-            $form_params[] = ['content_type', ChoiceType::class, ['label' => _m('Text format:'), 'multiple' => false, 'expanded' => false, 'data' => 'text/plain', 'choices' => $content_type]];
+        if (count($available_content_types) > 1) {
+            $form_params[] = ['content_type', ChoiceType::class,
+                ['label'      => _m('Text format:'), 'multiple' => false, 'expanded' => false,
+                    'data'    => $available_content_types[array_key_first($available_content_types)],
+                    'choices' => $available_content_types, ], ];
         }
         $form_params[] = ['post_note',   SubmitType::class,   ['label' => _m('Post')]];
         $form          = Form::create($form_params);
@@ -96,7 +96,8 @@ class Posting extends Component
         if ($form->isSubmitted()) {
             $data = $form->getData();
             if ($form->isValid()) {
-                self::storeNote($actor_id, $data['content_type'] ?? array_key_first($content_type), $data['content'], $data['attachments'], is_local: true);
+                $content_type = $data['content_type'] ?? $available_content_types[array_key_first($available_content_types)];
+                self::storeLocalNote($user->getActor(), $data['content'], $content_type, $data['attachments']);
                 throw new RedirectException();
             } else {
                 throw new InvalidFormException();
@@ -108,52 +109,30 @@ class Posting extends Component
         return Event::next;
     }
 
-    /**
-     * Store the given note with $content and $attachments, created by
-     * $actor_id, possibly as a reply to note $reply_to and with flag
-     * $is_local. Sanitizes $content and $attachments
-     *
-     * @throws DuplicateFoundException
-     * @throws ClientException|ServerException
-     */
-    public static function storeNote(int $actor_id, string $content_type, string $content, array $attachments, bool $is_local, ?int $reply_to = null, ?int $repeat_of = null)
+    public static function storeLocalNote(GSActor $actor, string $content, string $content_type, array $attachments, ?Note $reply_to = null, ?Note $repeat_of = null)
     {
+        $rendered = null;
+        Event::handle('RenderNoteContent', [$content, $content_type, &$rendered, $actor, $reply_to]);
         $note = Note::create([
-            'gsactor_id'   => $actor_id,
-            'content_type' => $content_type,
+            'gsactor_id'   => $actor->getId(),
             'content'      => $content,
-            'is_local'     => $is_local,
-            'reply_to'     => $reply_to,
-            'repeat_of'    => $repeat_of,
+            'content_type' => $content_type,
+            'rendered'     => $rendered,
+            'attachments'  => $attachments, // Not a regular field
+            'is_local'     => true,
         ]);
-
-        $processed_attachments = [];
-        foreach ($attachments as $f) { // where $f is a Symfony\Component\HttpFoundation\File\UploadedFile
-            $filesize      = $f->getSize();
-            $max_file_size = Common::config('attachments', 'file_quota');
-            if ($max_file_size < $filesize) {
-                throw new ClientException(_m('No file may be larger than {quota} bytes and the file you sent was {size} bytes. ' .
-                    'Try to upload a smaller version.', ['quota' => $max_file_size, 'size' => $filesize]));
-            }
-            Event::handle('EnforceUserFileQuota', [$filesize, $actor_id]);
-            $processed_attachments[] = [GSFile::sanitizeAndStoreFileAsAttachment($f), $f->getClientOriginalName()];
-        }
-
-        DB::persist($note);
-
-        // Need file and note ids for the next step
+        Event::handle('ProcessNoteContent', [$note->getId(), $content, $content_type]);
         DB::flush();
-        if ($processed_attachments != []) {
-            foreach ($processed_attachments as [$a, $fname]) {
-                if (empty(DB::findBy('gsactor_to_attachment', ['attachment_id' => $a->getId(), 'gsactor_id' => $actor_id]))) {
-                    DB::persist(GSActorToAttachment::create(['attachment_id' => $a->getId(), 'gsactor_id' => $actor_id]));
-                }
-                DB::persist(AttachmentToNote::create(['attachment_id' => $a->getId(), 'note_id' => $note->getId(), 'title' => $fname]));
-            }
-            DB::flush();
-        }
+    }
 
-        Event::handle('ProcessNoteContent', [$note->getId(), $content]);
+    public function onRenderNoteContent(string $content, string $content_type, ?string &$rendered, GSActor $author, ?Note $reply_to = null)
+    {
+        if ($content_type === 'text/plain') {
+            $content  = Formatting::renderPlainText($content);
+            $rendered = Formatting::linkifyMentions($content, $author, $reply_to);
+            return Event::stop;
+        }
+        return Event::next;
     }
 
     /**
