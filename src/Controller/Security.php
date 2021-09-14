@@ -5,6 +5,13 @@ namespace App\Controller;
 use App\Core\Controller;
 use App\Core\DB\DB;
 use App\Core\Form;
+use App\Util\Exception\DuplicateFoundException;
+use App\Util\Exception\NicknameEmptyException;
+use App\Util\Exception\NicknameReservedException;
+use App\Util\Exception\NicknameTooLongException;
+use App\Util\Exception\NicknameTooShortException;
+use App\Util\Exception\NotImplementedException;
+use Symfony\Component\HttpFoundation\Response;
 use function App\Core\I18n\_m;
 use App\Core\Log;
 use App\Core\VisibilityScope;
@@ -62,13 +69,29 @@ class Security extends Controller
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
+
     /**
+     *
      * Register a user, making sure the nickname is not reserved and
      * possibly sending a confirmation email
+     *
+     * @param Request $request
+     * @param GuardAuthenticatorHandler $guard_handler
+     * @param Authenticator $authenticator
+     * @return array|Response|null
+     * @throws EmailTakenException
+     * @throws NicknameTakenException
+     * @throws ServerException
+     * @throws DuplicateFoundException
+     * @throws NicknameEmptyException
+     * @throws NicknameReservedException
+     * @throws NicknameTooLongException
+     * @throws NicknameTooShortException
+     * @throws NotImplementedException
      */
-    public function register(Request $request,
+    public function register(Request                   $request,
                              GuardAuthenticatorHandler $guard_handler,
-                             Authenticator $authenticator)
+                             Authenticator             $authenticator)
     {
         $form = Form::create([
             ['nickname', TextType::class, [
@@ -84,6 +107,7 @@ class Security extends Controller
                 ],
                 'block_name' => 'nickname',
                 'label_attr' => ['class' => 'section-form-label'],
+                'invalid_message' => _m('Nickname not valid. Please provide a valid nickname.'),
             ]],
             ['email', EmailType::class, [
                 'label'       => _m('Email'),
@@ -91,6 +115,7 @@ class Security extends Controller
                 'constraints' => [ new NotBlank(['message' => _m('Please enter an email') ])],
                 'block_name'  => 'email',
                 'label_attr'  => ['class' => 'section-form-label'],
+                'invalid_message' => _m('Email not valid. Please provide a valid email.'),
             ]],
             FormFields::repeated_password(),
             ['register', SubmitType::class, ['label' => _m('Register')]],
@@ -105,10 +130,15 @@ class Security extends Controller
             // This will throw the appropriate errors, result ignored
             $user = LocalUser::findByNicknameOrEmail($data['nickname'], $data['email']);
             if ($user !== null) {
+
                 // If we do find something, there's a duplicate
-                if ($user->getNickname() == $data['nickname']) {
+                if ($user->getNickname() === $data['nickname']) {
+                    // Register page feedback on nickname already in use
+                    $this->addFlash("verify_nickname_error", _m('Nickname is already in use on this server.'));
                     throw new NicknameTakenException;
                 } else {
+                    // Register page feedback on email already in use
+                    $this->addFlash("verify_email_error", _m('Email is already taken.'));
                     throw new EmailTakenException;
                 }
             }

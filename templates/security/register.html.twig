@@ -8,29 +8,31 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-    <div class='content'>
-        <div class="section-container">
-            <section class="section-widget">
-                {{ form_start(registration_form) }}
-                <fieldset class="section-form">
-                    <legend class="section-form-legend">
-                        <h1>{{ "Register a new account" | trans }}</h1>
-                    </legend>
-                    <ul>
-                        {% for flashError in app.flashes('verify_email_error') %}
-                            <li class="alert alert-danger" role="alert">{{ flashError }}</li>
-                        {% endfor %}
-                    </ul>
-                    {{ form_row(registration_form.nickname) }}
-                    {{ form_row(registration_form.email) }}
-                    {{ form_row(registration_form.password) }}
-                    {{ form_row(registration_form.register) }}
-                </fieldset>
-                {{ form_end(registration_form) }}
-            </section>
-        </div>
+    <section class="section-widget">
 
-    </div>
+        <form class="section-form" method="post">
+            {{ form_start(registration_form) }}
+            <fieldset>
+                <legend class="section-form-legend">{{ "Register" | trans }}</legend>
+
+                <ul>
+                    {% for flashError in app.flashes('verify_email_error') %}
+                        <li class="alert alert-danger" role="alert">{{ flashError }}</li>
+                    {% endfor %}
+                    {% for flashError in app.flashes('verify_nickname_error') %}
+                        <li class="alert alert-danger" role="alert">{{ flashError }}</li>
+                    {% endfor %}
+                </ul>
+
+                {{ form_row(registration_form.nickname) }}
+                {{ form_row(registration_form.email) }}
+                {{ form_row(registration_form.password) }}
+                {{ form_row(registration_form.register) }}
+            </fieldset>
+            {{ form_end(registration_form) }}
+        </form>
+
+    </section>
 {% endblock body %}
 
 {% block javascripts %}{% endblock %}

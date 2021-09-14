@@ -18,21 +18,23 @@
                 </details>
 
                 <div class="section-form">
-                    {{ form_start(post_form) }}
+                    <fieldset>
+                        {{ form_start(post_form) }}
 
-                    {{ form_row(post_form.to, {'attr': {'class': 'section-form-scope'}}) }}
+                        {{ form_row(post_form.to, {'attr': {'class': 'section-form-scope'}}) }}
 
-                    {{ form_row(post_form.visibility, {'attr': {'class': 'section-form-scope'}}) }}
+                        {{ form_row(post_form.visibility, {'attr': {'class': 'section-form-scope'}}) }}
 
-                    {{ form_row(post_form.content, {'attr': {'class': 'section-form-textarea'}}) }}
+                        {{ form_row(post_form.content, {'attr': {'class': 'section-form-textarea'}}) }}
 
-                    <label for="{{ post_form.attachments.vars.id }}" class="section-form-options">
-                        {{ form_widget(post_form.attachments) }}
-                    </label>
+                        <label for="{{ post_form.attachments.vars.id }}" class="section-form-options">
+                            {{ form_widget(post_form.attachments) }}
+                        </label>
 
-                    {{ form_row(post_form.post_note, {'attr': {'class': 'section-form-send'}}) }}
+                        {{ form_row(post_form.post_note, {'attr': {'class': 'section-form-send'}}) }}
 
-                    {{ form_end(post_form) }}
+                        {{ form_end(post_form) }}
+                    </fieldset>
                 </div>
             </section>
         {% endif %}
