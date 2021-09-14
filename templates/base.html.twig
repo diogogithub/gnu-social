@@ -12,7 +12,10 @@
     </title>
 
     {% block stylesheets %}
-        <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/reset.css') }}">
+        <link rel="preload" href="{{ asset('assets/css/reset.css') }}" as="style" type="text/css">
+        <link rel="stylesheet" href="{{ asset('assets/css/reset.css') }}">
+
+        <link rel="preload" href="{{ asset('assets/css/base.css') }}" as="style" type="text/css">
         <link rel='stylesheet' type='text/css' href="{{ asset('assets/css/base.css') }}">
 
         {% for stylesheet in show_stylesheets() %}
