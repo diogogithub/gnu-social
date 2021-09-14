@@ -35,11 +35,13 @@ namespace App\Routes;
 
 use App\Controller as C;
 use App\Core\Router\RouteLoader;
+use App\Util\Nickname;
 
-abstract class Note
+abstract class GSActor
 {
     public static function load(RouteLoader $r): void
     {
-        $r->connect('note_view', '/note/{id<\d+>}', [C\Note::class, 'NoteShow']);
+        $r->connect(id: 'gsactor_view_id', uri_path: '/actor/{id<\d+>}', target: [C\GSActor::class, 'GSActorShowId']);
+        $r->connect(id: 'gsactor_view_nickname', uri_path: '/{nickname<' . Nickname::DISPLAY_FMT . '>}', target: [C\GSActor::class, 'GSActorShowNickname']);
     }
 }

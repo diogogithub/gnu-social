@@ -126,7 +126,7 @@ class Controller extends AbstractController implements EventSubscriberInterface
             'accept_header' => $accept,
             'vars' => $this->vars,
             'response' => &$potential_response,
-        ]) === Event::next) {
+        ]) !== Event::stop) {
             switch ($format) {
             case 'html':
                 $event->setResponse($this->render($template, $this->vars));

@@ -36,7 +36,7 @@ class Note extends Controller
     {
         $note = DB::findOneBy('note', ['id' => $id]);
         if (empty($note)) {
-            throw new ClientException(_m('No such note'), 404);
+            throw new ClientException(_m('No such note.'), 404);
         } else {
             return $handle($note);
         }
@@ -45,7 +45,7 @@ class Note extends Controller
     /**
      * The page where the note and it's info is shown
      */
-    public function note_show(Request $request, int $id)
+    public function NoteShow(Request $request, int $id)
     {
         return $this->note($id, fn ($note) => ['_template' => 'note/view.html.twig', 'note' => $note]);
     }

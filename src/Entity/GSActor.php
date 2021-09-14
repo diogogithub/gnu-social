@@ -49,7 +49,6 @@ class GSActor extends Entity
     // @codeCoverageIgnoreStart
     private int $id;
     private string $nickname;
-    private string $normalized_nickname;
     private ?string $fullname;
     private int $roles = 4;
     private ?string $homepage;
@@ -82,17 +81,6 @@ class GSActor extends Entity
     public function getNickname(): string
     {
         return $this->nickname;
-    }
-
-    public function setNormalizedNickname(string $normalized_nickname): self
-    {
-        $this->normalized_nickname = $normalized_nickname;
-        return $this;
-    }
-
-    public function getNormalizedNickname(): string
-    {
-        return $this->normalized_nickname;
     }
 
     public function setFullname(?string $fullname): self
@@ -218,6 +206,11 @@ class GSActor extends Entity
 
     // @codeCoverageIgnoreEnd
     // }}} Autocode
+
+    public function getLocalUser()
+    {
+        return DB::findOneBy('local_user', ['id' => $this->getId()]);
+    }
 
     public function getAvatarUrl()
     {

@@ -7,6 +7,7 @@ use App\Core\Modules\Plugin;
 use App\Core\Router\RouteLoader;
 use Exception;
 use Plugin\ActivityPub\Controller\Inbox;
+use Plugin\ActivityStreamsTwo\ActivityStreamsTwo;
 
 class ActivityPub extends Plugin
 {
@@ -14,13 +15,6 @@ class ActivityPub extends Plugin
     {
         return '3.0.0';
     }
-
-    public static array $accept_headers = [
-        'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-        'application/activity+json',
-        'application/json',
-        'application/ld+json',
-    ];
 
     /**
      * This code executes when GNU social creates the page routing, and we hook
@@ -36,7 +30,7 @@ class ActivityPub extends Plugin
             'activitypub_inbox',
             '{gsactor_id<\d+>}/inbox',
             [Inbox::class, 'handle'],
-            options: ['accept' => self::$accept_headers]
+            options: ['accept' => ActivityStreamsTwo::$accept_headers]
         );
         return Event::next;
     }
@@ -60,7 +54,7 @@ class ActivityPub extends Plugin
         } elseif (is_array($accept)
             && count(
                 array_intersect($accept, self::$accept_headers)
-            )
+            ) > 0
         ) {
             return true;
         }
