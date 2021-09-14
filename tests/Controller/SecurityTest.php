@@ -49,7 +49,7 @@ class SecurityTest extends GNUsocialTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
         $this->assertRouteSame('main_all');
-        $this->assertSelectorTextContains('#user-info > h1', $nickname);
+        $this->assertSelectorTextContains('#user-nickname', $nickname);
     }
 
     public function testLoginAttemptAlreadyLoggedIn()
@@ -75,7 +75,7 @@ class SecurityTest extends GNUsocialTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
         $this->assertRouteSame('main_all');
-        $this->assertSelectorTextContains('#user-info > h1', 'taken_user');
+        $this->assertSelectorTextContains('#user-nickname', 'taken_user');
     }
 
     // --------- Register --------------
@@ -102,7 +102,7 @@ class SecurityTest extends GNUsocialTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorNotExists('.alert');
         $this->assertRouteSame('main_all');
-        $this->assertSelectorTextContains('#user-info > h1', 'new_nickname');
+        $this->assertSelectorTextContains('#user-nickname', 'new_nickname');
     }
 
     public function testRegisterDifferentPassword()
