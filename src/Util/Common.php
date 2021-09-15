@@ -154,8 +154,8 @@ abstract class Common
     public static function isSystemPath(string $str): bool
     {
         try {
-            Router::match('/' . $str);
-            return true;
+            $route = Router::match('/' . $str);
+            return $route['is_system_path'] ?? true;
         } catch (ResourceNotFoundException $e) {
             return false;
         }

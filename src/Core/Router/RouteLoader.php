@@ -96,7 +96,7 @@ class RouteLoader extends Loader
      * @param mixed      $target     Some kind of callable, typically class with `__invoke` or [object, method]
      * @param null|array $param_reqs Array of {param} => regex
      * @param null|array $options    Possible keys are ['condition', 'defaults', 'format',
-     *                               'fragment', 'http-methods', 'locale', 'methods', 'schemes', 'accept']
+     *                               'fragment', 'http-methods', 'locale', 'methods', 'schemes', 'accept', 'is_system_path']
      *                               'http-methods' and 'methods' are aliases
      */
     public function connect(string $id, string $uri_path, $target, ?array $options = [], ?array $param_reqs = [])
@@ -109,12 +109,13 @@ class RouteLoader extends Loader
                 // and special configuration options
                 defaults: array_merge(
                     [
-                        '_controller' => is_array($target) ? $target : [$target, '__invoke'],
-                        '_format'     => $options['format'] ?? 'html',
-                        '_fragment'   => $options['fragment'] ?? '',
-                        '_locale'     => $options['locale'] ?? 'en',
-                        'template'    => $options['template'] ?? '',
-                        'accept'      => $options['accept'] ?? [],
+                        '_controller'    => is_array($target) ? $target : [$target, '__invoke'],
+                        '_format'        => $options['format'] ?? 'html',
+                        '_fragment'      => $options['fragment'] ?? '',
+                        '_locale'        => $options['locale'] ?? 'en',
+                        'template'       => $options['template'] ?? '',
+                        'accept'         => $options['accept'] ?? [],
+                        'is_system_path' => $options['is_system_path'] ?? true,
                     ],
                     $options['defaults'] ?? []
                 ),

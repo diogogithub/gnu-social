@@ -43,6 +43,6 @@ abstract class GSActor
     public static function load(RouteLoader $r): void
     {
         $r->connect(id: 'gsactor_view_id', uri_path: '/actor/{id<\d+>}', target: [C\GSActor::class, 'GSActorShowId']);
-        $r->connect(id: 'gsactor_view_nickname', uri_path: '/{nickname<' . Nickname::DISPLAY_FMT . '>}', target: [C\GSActor::class, 'GSActorShowNickname']);
+        $r->connect(id: 'gsactor_view_nickname', uri_path: '/{nickname<' . Nickname::DISPLAY_FMT . '>}', target: [C\GSActor::class, 'GSActorShowNickname'], options: ['is_system_path' => false]);
     }
 }
