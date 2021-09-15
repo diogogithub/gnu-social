@@ -38,7 +38,6 @@ define('GNUSOCIAL_BASE_VERSION', '3.0.0');
 define('GNUSOCIAL_LIFECYCLE', 'dev');
 define('GNUSOCIAL_VERSION', GNUSOCIAL_BASE_VERSION . '-' . GNUSOCIAL_LIFECYCLE);
 define('GNUSOCIAL_CODENAME', 'Big bang');
-define('URL_REGEX_DOMAIN_NAME', '(?:(?!-)[A-Za-z0-9\-]{1,63}(?<!-)\.)+[A-Za-z]{2,10}');
 
 define('MODULE_CACHE_FILE', INSTALLDIR . '/var/cache/module_manager.php');
 
