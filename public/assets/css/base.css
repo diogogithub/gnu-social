@@ -1,4 +1,5 @@
-@import url("../fonts/chivo/chivo.css");
+@import url("../fonts/poppins/poppins.css");
+@import url("../fonts/opensans/opensans.css");
 
 html {
     scroll-margin-top: 4rem;
@@ -18,8 +19,9 @@ html {
 }
 
 :root {
-      /* FONTS */
-    --main-font: 'Chivo', sans-serif;
+    /* FONTS */
+    --display-font: 'Poppins', sans-serif;
+    --main-font: 'Open Sans', sans-serif;
 
     /* UNITS
      * unit size      - every element should be a multiplier of this
@@ -169,6 +171,7 @@ summary:hover .icon-details-open {
 /* HEADER AND SIDEPANELS */
 #header {
     z-index: 1;
+    font-family: var(--display-font);
     font-size: var(--main-size);
 
     height: 3rem;
