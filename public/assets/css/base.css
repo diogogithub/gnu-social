@@ -480,13 +480,12 @@ summary:hover .icon-details-open {
 }
 
 .form-group {
+    all: unset;
+
     display: flex;
     flex-direction: column;
-    margin-bottom: 10px;
 }
-.form-group label {
-    margin-bottom: 5px;
-}
+
 .help-block {
     margin-top: 5px;
     margin-bottom: 10px;
@@ -500,6 +499,8 @@ summary:hover .icon-details-open {
 .help-block > .list-unstyled,
 .alert,
 .alert-danger {
+    display: inline-block;
+
     border: solid 2px #FF6347;
     background-color: #FF634733;
     border-radius: var(--unit-size);

@@ -14,12 +14,15 @@
                 <legend class="section-form-legend">{{ "Login" | trans }}</legend>
 
                 {% if error %}
+                    <label class="alert alert-danger">
+                        {{ error.getMessage() }}
+                    </label>
 
-                    <ul>
+                    {#<ul>
                         {% for flashError in app.flashes('verify_email_error') %}
                             <li class="alert alert-danger">{{ error.messageKey | trans(error.messageData, 'security') }}</li>
                         {% endfor %}
-                    </ul>
+                    </ul>#}
 
                 {% endif %}
 

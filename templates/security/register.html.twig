@@ -15,14 +15,13 @@
             <fieldset>
                 <legend class="section-form-legend">{{ "Register" | trans }}</legend>
 
-                <ul>
-                    {% for flashError in app.flashes('verify_email_error') %}
-                        <li class="alert alert-danger" role="alert">{{ flashError }}</li>
-                    {% endfor %}
-                    {% for flashError in app.flashes('verify_nickname_error') %}
-                        <li class="alert alert-danger" role="alert">{{ flashError }}</li>
-                    {% endfor %}
-                </ul>
+                {% for flashError in app.flashes('verify_email_error') %}
+                    <label class="alert alert-danger" role="alert">{{ flashError }}</label>
+                {% endfor %}
+
+                {% for flashError in app.flashes('verify_nickname_error') %}
+                    <label class="alert alert-danger" role="alert">{{ flashError }}</label>
+                {% endfor %}
 
                 {{ form_row(registration_form.nickname) }}
                 {{ form_row(registration_form.email) }}

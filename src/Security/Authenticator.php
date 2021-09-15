@@ -97,7 +97,7 @@ class Authenticator extends AbstractFormLoginAuthenticator
             $user = DB::findOneBy('local_user', ['or' => ['nickname' => $nick, 'outgoing_email' => $nick]]);
         } catch (Exception $e) {
             throw new CustomUserMessageAuthenticationException(
-                _m('\'{nickname}\' doesn\'t match any registered nickname or email.', ['nickname' => $credentials['nickname']]));
+                _m('Invalid login credentials.'));
         }
 
         return $user;
