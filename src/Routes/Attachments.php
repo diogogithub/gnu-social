@@ -38,6 +38,8 @@ use App\Core\Router\RouteLoader;
 
 abstract class Attachments
 {
+    const LOAD_ORDER = 20;
+
     public static function load(RouteLoader $r): void
     {
         $r->connect('attachment_show',      '/attachment/{id<\d+>}',           [C\Attachment::class, 'attachment_show']);

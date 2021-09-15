@@ -56,9 +56,20 @@ class RouteLoader extends Loader
         $this->rc = new RouteCollection();
 
         $route_files = glob(INSTALLDIR . '/src/Routes/*.php');
+        $to_load     = [];
         foreach ($route_files as $file) {
             require_once $file;
             $ns = '\\App\\Routes\\' . basename($file, '.php');
+            if (defined("{$ns}::LOAD_ORDER")) {
+                $to_load[$ns::LOAD_ORDER] = $ns;
+            } else {
+                $to_load[] = $ns;
+            }
+        }
+
+        ksort($to_load);
+
+        foreach ($to_load as $ns) {
             $ns::load($this);
         }
 

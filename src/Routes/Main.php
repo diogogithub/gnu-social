@@ -40,6 +40,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\RedirectController;
 
 abstract class Main
 {
+    const LOAD_ORDER = 10;
+
     public static function load(RouteLoader $r): void
     {
         $r->connect('login', '/login', [C\Security::class, 'login']);

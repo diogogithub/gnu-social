@@ -39,6 +39,7 @@ use App\Util\Nickname;
 
 abstract class GSActor
 {
+    const LOAD_ORDER = 30;
     public static function load(RouteLoader $r): void
     {
         $r->connect(id: 'gsactor_view_id', uri_path: '/actor/{id<\d+>}', target: [C\GSActor::class, 'GSActorShowId']);
