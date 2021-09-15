@@ -21,8 +21,10 @@
 
 namespace App\Entity;
 
+use App\Core\Cache;
 use App\Core\DB\DB;
 use App\Core\Entity;
+use App\Core\Event;
 use App\Core\GSFile;
 use function App\Core\I18n\_m;
 use App\Core\Log;
@@ -294,12 +296,24 @@ class Attachment extends Entity
     {
         // If we have a note, then the best title is the title itself
         if (!is_null(($note))) {
-            $attachment_to_note = DB::findOneBy('attachment_to_note', [
-                'attachment_id' => $this->getId(),
-                'note_id'       => $note->getId(),
-            ]);
-            if (!is_null($attachment_to_note->getTitle())) {
-                return $attachment_to_note->getTitle();
+            $title = Cache::get('attachment-title-' . $this->getId() . '-' . $note->getId(), function () use ($note) {
+                try {
+                    $attachment_to_note = DB::findOneBy('attachment_to_note', [
+                        'attachment_id' => $this->getId(),
+                        'note_id'       => $note->getId(),
+                    ]);
+                    if (!is_null($attachment_to_note->getTitle())) {
+                        return $attachment_to_note->getTitle();
+                    }
+                } catch (NotFoundException) {
+                    $title = null;
+                    Event::handle('AttachmentGetBestTitle', [$this, $note, &$title]);
+                    return $title;
+                }
+                return null;
+            });
+            if ($title != null) {
+                return $title;
             }
         }
         // Else

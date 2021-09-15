@@ -485,6 +485,17 @@ class Embed extends Plugin
         return HTTPClient::get($url)->getContent();
     }
 
+    public function onAttachmentGetBestTitle(Attachment $attachment, Note $note, ?string &$title)
+    {
+        try {
+            $embed = DB::findOneBy('attachment_embed', ['attachment_id' => $attachment->getId()]);
+            $title = $embed->getTitle();
+            return Event::stop;
+        } catch (NotFoundException) {
+        }
+        return Event::next;
+    }
+
     /**
      * Event raised when GNU social polls the plugin for information about it.
      * Adds this plugin's version information to $versions array
