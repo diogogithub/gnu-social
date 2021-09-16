@@ -8,11 +8,9 @@ require INSTALLDIR . '/vendor/autoload.php';
 
 use Functional as F;
 
-use App\Util\Functional;
-
 $filenames = glob(INSTALLDIR . '/src/*/*.php');
 
-$files = F\map($filenames, Functional::arity('file_get_contents', 1));
+$files = F\map($filenames, F\ary('file_get_contents', 1));
 
 $old_licenses = ['/* {{{ License
  * This file is part of GNU social - https://www.gnu.org/software/social

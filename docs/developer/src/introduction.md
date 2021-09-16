@@ -9,9 +9,14 @@ of GNU social for those looking forward to making the most advanced contribution
 
 # What you need to dive in
 
-At least a webserver such as [nginx](https://nginx.org/) and a DBMS such as [postgresql](https://www.postgresql.org/).
+ - A working [Docker](https://www.docker.com/) and [`docker-compose`](https://docs.docker.com/compose/) setup
 
-Depending on what you want to do, you may want to setup a queues (and caching) system such as [redis](https://redis.io/).
+This is the recommended setup, for simplicity and integration with the provided [tools](./tools.md).
+
+OR
+
+ - At least a webserver such as [nginx](https://nginx.org/) and a DBMS such as [postgresql](https://www.postgresql.org/).
+ - Depending on what you want to do, you may want to setup a queues (and caching) system such as [redis](https://redis.io/).
 
 To learn how to set all of that up, you may refer to the [System Administrator's handbook](/administrator).
 

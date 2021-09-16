@@ -3,6 +3,7 @@
 - [Introduction](./introduction.md)
 - [Architecture](./architecture.md)
 - [Programming Style](./paradigms.md)
+- [Tools](./tools.md)
 - [Exceptions](./exceptions.md)
 - [Events](./events.md)
 - [Database](./database.md)
