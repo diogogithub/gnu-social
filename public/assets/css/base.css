@@ -380,7 +380,7 @@ hr {
     margin-bottom: var(--unit-size);
 }
 
-.note-attachments {
+.note-attachments * {
     display: flex;
     max-width: 100%;
 }
@@ -392,19 +392,14 @@ hr {
     border-radius: var(--unit-size);
     background-color: var(--translucent);
     padding: var(--small-size);
-
-    max-width: 100%;
 }
 
-.note-attachments > figure > img,
-.note-attachments > figure > video {
-    width: min-content;
+.note-attachments > figure * {
+    width: max-content;
     height: auto;
 }
 
 .note-attachments > figure figcaption {
-    display: flex;
-    max-width: 100%;
     word-break: break-all;
     padding-top: var(--small-size);
 }
