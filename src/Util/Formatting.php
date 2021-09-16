@@ -258,26 +258,32 @@ abstract class Formatting
      */
     public static function renderPlainText(string $text): string
     {
-        $text = self::removeUnicodeFormattingCodes($text);
-        $text = nl2br(htmlspecialchars($text, flags: ENT_QUOTES | ENT_SUBSTITUTE, double_encode: false), use_xhtml: false);
+        $text = self::quoteAndRemoveControlCodes($text);
 
-        // Remove ASCII control codes
-        $text = preg_replace('/[\x{0}-\x{8}\x{b}-\x{c}\x{e}-\x{19}]/', '', $text);
-        $text = self::replaceURLs($text, [self::class, 'linkify']);
-        $text = preg_replace_callback('/(^|\&quot\;|\'|\(|\[|\{|\s+)#([\pL\pN_\-\.]{1,64})/u',
-                                      fn ($m) => "{$m[1]}#" . self::tagLink($m[2]), $text);
+        // Split \n\n into paragraphs, process each paragrah and merge
+        $text = implode("\n", F\map(explode("\n\n", $text), function (string $paragraph) {
+            $paragraph = nl2br($paragraph, use_xhtml: false);
+            $paragraph = self::replaceURLs($paragraph, [self::class, 'linkify']);
+            $paragraph = preg_replace_callback('/(^|\&quot\;|\'|\(|\[|\{|\s+)(#[\pL\pN_\-\.]{1,64})/u',
+                                               fn ($m) => "{$m[1]}" . self::tagLink($m[2]), $paragraph);
+
+            return HTML::html(['p' => [$paragraph]], options: ['raw' => true]);
+        }));
 
         return $text;
     }
 
     /**
-     * Strip Unicode text formatting/direction codes. This is can be
-     * pretty dangerous for visualisation of text or be used for
-     * mischief
+     * Quote HTML special chars and strip Unicode text
+     * formatting/direction codes. This is can be pretty dangerous for
+     * visualisation of text or be used for mischief
      */
-    public static function removeUnicodeFormattingCodes(string $text): string
+    public static function quoteAndRemoveControlCodes(string $text): string
     {
-        return preg_replace('/[\\x{200b}-\\x{200f}\\x{202a}-\\x{202e}]/u', '', $text);
+        // Quote special chars
+        $text = htmlspecialchars($text, flags: ENT_QUOTES | ENT_SUBSTITUTE, double_encode: false);
+        // Normalize newlines to strictly \n and remove ASCII control codes
+        return preg_replace(['/[\x{0}-\x{8}\x{b}-\x{c}\x{e}-\x{19}\x{200b}-\x{200f}\x{202a}-\x{202e}]/u', '/\R/u'], ['', "\n"], $text);
     }
 
     const URL_SCHEME_COLON_DOUBLE_SLASH = 1;
@@ -488,7 +494,7 @@ abstract class Formatting
     {
         $canonical = self::canonicalTag($tag);
         $url       = Router::url('tag', ['tag' => $canonical]);
-        return HTML::html(['span' => ['a' => ['attrs' => ['href' => $url, 'rel' => 'tag']]]]);
+        return HTML::html(['a' => ['attrs' => ['href' => $url, 'title' => $tag, 'rel' => 'tag'], $tag]]);
     }
 
     public static function canonicalTag(string $tag): string
