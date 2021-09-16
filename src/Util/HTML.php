@@ -31,10 +31,12 @@ use Functional as F;
 
 abstract class HTML
 {
-    const ALLOWED_TAGS         = ['p', 'br', 'a'];
-    const FORBIDDEN_ATTRIBUTES = ['onerror', 'form', 'onforminput', 'onbeforescriptexecute', 'formaction', 'onfocus', 'onload',
+    const ALLOWED_TAGS         = ['p', 'br', 'a', 'span'];
+    const FORBIDDEN_ATTRIBUTES = [
+        'onerror', 'form', 'onforminput', 'onbeforescriptexecute', 'formaction', 'onfocus', 'onload',
         'data', 'event', 'autofocus', 'onactivate', 'onanimationstart', 'onwebkittransitionend', 'onblur', 'poster',
-        'onratechange', 'ontoggle', 'onscroll', 'actiontype', 'dirname', 'srcdoc', ];
+        'onratechange', 'ontoggle', 'onscroll', 'actiontype', 'dirname', 'srcdoc',
+    ];
 
     /**
      * Creates an HTML tag without attributes
@@ -77,6 +79,7 @@ abstract class HTML
      * Attribute with given optional value
      *
      * @param array $attrs
+     * @param array $options=[] ['forbidden_attributes' => string[]]
      *
      * @return string
      */
@@ -92,39 +95,47 @@ abstract class HTML
                                            || str_starts_with($val, 'javascript:')) {
                                            throw new \InvalidArgumentException("HTML::html: Attribute {$key} is not allowed");
                                        }
-                                       $val = htmlspecialchars($val, flags: ENT_QUOTES | ENT_SUBSTITUTE, double_encode: false);
+                                       if (!($options['raw'] ?? false)) {
+                                           $val = htmlspecialchars($val, flags: ENT_QUOTES | ENT_SUBSTITUTE, double_encode: false);
+                                       }
                                        return "{$key}=\"{$val}\"";
-        }));
+                                   }));
     }
 
     /**
      * @param array|string $html    The input to convert to HTML
-     * @param array        $options = [] ['allowed_tags' => ['a', 'p']]
+     * @param array        $options = [] ['allowed_tags' => string[], 'forbidden_attributes' => string[], 'raw' => bool]
      *
      * @return string
      */
-    public static function html(string|array $html, array $options = []): string
+    public static function html(string|array $html, array $options = [], int $indent = 1): string
     {
         if (is_string($html)) {
-            return $html;
+            if ($options['raw'] ?? false) {
+                return $html;
+            } else {
+                return htmlspecialchars($html, flags: ENT_QUOTES | ENT_SUBSTITUTE, double_encode: false);
+            }
         } else {
             $out = '';
             foreach ($html as $tag => $contents) {
-                if ($contents == 'empty' || isset($contents['empty'])) {
+                if ($contents['empty'] ?? false) {
                     $out .= "<{$tag}/>";
                 } else {
-                    $attrs  = isset($contents['attrs']) ? self::attr(array_shift($contents)) : '';
+                    $attrs  = isset($contents['attrs']) ? self::attr(array_shift($contents), $options) : '';
                     $is_tag = preg_match('/[A-Za-z][A-Za-z0-9]*/', $tag);
-                    $inner  = self::html($contents);
+                    $inner  = self::html($contents, $options, $indent + 1);
                     if ($is_tag) {
                         if (!in_array($tag, array_merge($options['allowed_tags'] ?? [], self::ALLOWED_TAGS))) {
                             throw new \InvalidArgumentException("HTML::html: Tag {$tag} is not allowed");
                         }
-                        $inner = $inner != '' ? "\n{$inner}\n" : '';
-                        $inner = Formatting::indent($inner);
+                        if (!empty($inner)) {
+                            $inner = "\n" . Formatting::indent($inner, $indent) . "\n";
+                        }
                         $out .= "<{$tag}{$attrs}>{$inner}</{$tag}>";
+                    } else {
+                        $out .= $inner;
                     }
-                    $out .= $inner;
                 }
             }
             return $out;
