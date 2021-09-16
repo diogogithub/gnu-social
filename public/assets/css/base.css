@@ -128,25 +128,6 @@ hr {
     background: var(--bg2);
 }
 
-summary:focus,
-summary:hover {
-    cursor: pointer !important;
-    color: var(--bg1);
-    padding-left: var(--unit-size);
-    padding-right: var(--unit-size);
-
-    background: var(--white);
-    border-radius: var(--unit-size);
-
-    transition: var(--cubic-transition);
-}
-
-summary:focus .icon-details-open,
-summary:hover .icon-details-open {
-    fill: var(--bg1);
-    transition: var(--cubic-transition);
-}
-
 /* CHECKERBOARD BACKGROUND FOR TRANSPARENT IMAGES */
 .note img {
     background:

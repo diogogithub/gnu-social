@@ -107,7 +107,6 @@
 
 .section-title-settings summary:focus .icon-details-open,
 .section-title-settings summary:hover .icon-details-open {
-    fill: var(--bg1);
     transition: var(--cubic-transition);
 }
 
