@@ -29,7 +29,7 @@ in well defined [units of work](https://www.doctrine-project.org/projects/doctri
 Work with your objects and modify them as usual. For
 the most part, Doctrine ORM already takes care of proper [transaction demarcation](https://www.doctrine-project.org/projects/doctrine-orm/en/current/reference/transactions-and-concurrency.html#transaction-demarcation)
 for you: All the write operations (INSERT/UPDATE/DELETE)
-are queued until _EntityManager#flush()_ is invoked which
+are queued until `EntityManager#flush()` is invoked which
 wraps all of these changes in a single transaction.
 
 Declaring an Entity
@@ -43,27 +43,23 @@ use App\Core\Entity;
 use DateTimeInterface;
 class AttachmentEmbed extends Entity
 {
-    private int $attachment_id;
-    private ?string $mimetype;
-    private ?string $filename;
-    private ?string $media_url;
-    private \DateTimeInterface $modified;
-    /* Getters and Setters */
+    // These tags are meant to be literally included and will be populated with the appropriate fields, setters and getters by `bin/generate_entity_fields`
+    // {{{ Autocode
+    // }}} Autocode
+        
+    
     public static function schemaDef()
     {
         return [
             'name'   => 'attachment_embed',
             'fields' => [
-                'attachment_id' => ['type' => 'int', 'not null' => true, 'description' => 'Embed for that URL/file'],
+                'attachment_id' => ['type' => 'int', 'not null' => true, 'foreign key' => true, 'target' => 'Attachment.id', 'multiplicity' => 'one to one', 'description' => 'Embed for that URL/file'],
                 'mimetype'      => ['type' => 'varchar', 'length' => 50, 'description' => 'mime type of resource'],
                 'filename'      => ['type' => 'varchar', 'length' => 191, 'description' => 'file name of resource when available'],
                 'media_url'     => ['type' => 'text', 'description' => 'URL for this Embed resource when applicable (photo, link)'],
                 'modified'      => ['type' => 'timestamp', 'not null' => true, 'description' => 'date this record was modified'],
             ],
             'primary key'  => ['attachment_id'],
-            'foreign keys' => [
-                'attachment_embed_attachment_id_fkey' => ['attachment', ['attachment_id' => 'id']],
-            ],
         ];
     }
 }
@@ -73,16 +69,26 @@ Retrieving an entity
 --------------------
 
 ```php
-$res = self::findBy('attachment_embed', ['attachment_id' => $attachment->getId(), null, 1, null);
-if (count($res) === 1) {
-    $object = $res[0];
+use App\Core\DB\DB;
+use App\Util\Exception\NotFoundException;
+use App\Util\Exception\DuplicateFoundException;
+
+/// ...
+
+try {
+    $object = DB::findOneBy('attachment_embed', ['attachment_id' => $attachment->getId()]);
+} catch (NotFoundException) {
+    // Not found
+} catch (DuplicateFoundException) {
+    // Integrety compromised
 }
+
 ```
 
 Deleting an Entity
 ------------------
 ```php
-$object->delete();
+DB::delete($object);
 ```
 
 Creating an Entity
@@ -93,8 +99,10 @@ DB::persist(Entity\AttachmentEmbed::create($embed_data));
 DB::flush();
 ```
 
-Querying the database
----------------------
-When the ORM isn't powerful enough to satisfy your needs,
-you can resort to [Doctrine QueryBuilder](https://www.doctrine-project.org/projects/doctrine-orm/en/current/reference/query-builder.html#the-querybuilder).
+Querying the database --------------------- When the ORM isn't
+powerful enough to satisfy your needs, you can resort to 
+[Doctrine Query Language](https://www.doctrine-project.org/projects/doctrine-orm/en/2.9/reference/dql-doctrine-query-language.html),
+which is preferred and has been extended so you can use table names
+rather than class names, or 
+[Doctrine QueryBuilder](https://www.doctrine-project.org/projects/doctrine-orm/en/current/reference/query-builder.html#the-querybuilder).
 
