@@ -409,9 +409,13 @@ summary:hover .icon-details-open {
     background-color: var(--translucent);
     padding: var(--small-size);
 
-    width: auto;
-    height: auto;
     max-width: 100%;
+}
+
+.note-attachments > figure > img,
+.note-attachments > figure > video {
+    width: min-content;
+    height: auto;
 }
 
 .note-attachments > figure figcaption {
@@ -758,6 +762,8 @@ input[type=file] {
     height: calc(100% - 3rem);
 
     padding: var(--unit-size);
+
+    overflow-y: auto;
 }
 
 
