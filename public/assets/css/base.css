@@ -334,7 +334,6 @@ summary:hover .icon-details-open {
     margin-right: 5px;
 }
 
-/* TODO: icons */
 .note-actions {
     display: flex;
     vertical-align: middle;
@@ -396,6 +395,10 @@ summary:hover .icon-details-open {
     padding: var(--small-size);
 }
 
+.note-text {
+    margin-bottom: var(--unit-size);
+}
+
 .note-attachments {
     display: flex;
     max-width: 100%;
@@ -443,7 +446,7 @@ summary:hover .icon-details-open {
 }
 
 .section-title {
-    font-size: var(--main-size);
+    font-size: var(--medium-size);
     font-weight: 700;
     margin: 0;
 }
@@ -464,7 +467,7 @@ summary:hover .icon-details-open {
 }
 
 .section-title-details {
-    font-size: var(--main-size);
+    font-size: var(--medium-size);
     font-weight: 700;
 
     border-radius: var(--unit-size);

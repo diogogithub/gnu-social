@@ -18,7 +18,7 @@
 
 .panel-left nav {
     padding-top: var(--unit-size);
-    font-size: var(--medium-size);
+    font-size: var(--small-size);
 }
 
 /* PROFILE */
@@ -50,7 +50,7 @@
     margin-right: 5px;
 }
 #user-nickname {
-    font-size: var(--main-size);
+    font-size: var(--medium-size);
 }
 
 
@@ -63,9 +63,7 @@
 .timeline-nav {
     margin-bottom: var(--main-size);
 }
-#timeline-nav-header {
-    font-size: var(--main-size);
-}
+
 .timeline-nav a {
     display: flex;
 }
@@ -104,10 +102,5 @@ and (min-width : 1200px) {
 and (min-width: 2200px) {
     .panel-left > * {
         margin-left: 10rem;
-    }
-
-    .footer {
-        left: -10rem;
-        position: relative;
     }
 }
